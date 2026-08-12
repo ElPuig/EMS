@@ -3,6 +3,8 @@ from datetime import date
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestEnrollmentPlacement(TransactionCase):
     """Fase 4: destination group, applicant admission on confirm, placement helper
@@ -12,13 +14,33 @@ class TestEnrollmentPlacement(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        Course = cls.env['ems.course']
-        cls.course = Course.search([('is_enrollment_default', '=', True)], limit=1) \
-            or Course.create({'start': 2099, 'end': 2100, 'is_enrollment_default': True})
-        cls.level = cls.env['ems.level'].create({'acronym': 'PLV', 'name': 'Placement Level'})
-        cls.study = cls.env['ems.study'].create({
+        # A dedicated, always-in-the-future course, explicitly made the REAL 'is_enrollment_default'
+        # one via the company selector - not a plain field write, and not left to whichever course
+        # the ambient dev DB happens to have it on. Found the hard way (2026-08-11, a full unscoped
+        # './test.sh' run): the original fixture searched for whatever course was ALREADY flagged
+        # 'is_enrollment_default', assuming that course could never also be 'current'
+        # (company.current_course_id) - an assumption 'ems.course' itself never guarantees. Per
+        # '_ems_seed_enrollment_default's own docstring, the two flags legitimately coincide for a
+        # real, expected window: right after a course transition, before the centre manually opens
+        # the FOLLOWING year's own campaign - exactly the dev DB's own current state when this broke
+        # (course '2026-2027' held both). When they coincide, '_ems_placement_is_individual()'
+        # (ems_course_id == company.current_course_id) returns True for this test's own orders,
+        # applying placement immediately instead of deferring it to the transition wizard - breaking
+        # 'test_admit_converts_applicant'/'test_admit_student_keeps_group', which specifically test
+        # the DEFERRED path. But 'is_enrollment_default' itself IS a real, load-bearing dependency
+        # elsewhere in this same file - 'res.partner._compute_transition_status()' independently
+        # searches for whichever course holds that flag (ignoring 'cls.course' entirely) to decide
+        # 'unplaced' vs 'missing' - a first fix that just dropped the flag broke
+        # 'test_action_suggest_fills_enrolled_skips_unenrolled' the same way. Routing the move
+        # through 'company.enrollment_course_id' (not a direct 'is_enrollment_default' write) reuses
+        # the same clear-then-set sync '_sync_enrollment_course_flag' already provides - exactly the
+        # mechanism a real admin moving the flag through Settings would trigger, and the only way to
+        # actually satisfy 'ems.course''s own uniqueness constraint without a separate unset step.
+        cls.course = cls.env['ems.course'].create({'start': 2099, 'end': 2100})
+        cls.env.company.enrollment_course_id = cls.course.id
+        cls.level, cls.study = create_level_study(cls, 'PLV', level={'name': 'Placement Level'}, study={
             'code': 'PLC001', 'acronym': 'PLST', 'name': 'Placement Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id})
+        })
         # First-course groups (A and B morning, A afternoon) and a second-course A.
         cls.g1a = cls.env['ems.group'].create({
             'course': 1, 'acronym': 'A', 'shift': 'morning',
@@ -204,6 +226,122 @@ class TestEnrollmentPlacement(TransactionCase):
     def test_order_suggest_group_continuing(self):
         student = self.env['res.partner'].create({
             'name': 'OSG Cont', 'contact_type': 'student', 'main_group_id': self.g1a.id})
+        order = self.env['sale.order'].create({
+            'partner_id': student.id, 'ems_study_id': self.study.id,
+            'ems_course_id': self.course.id, 'shift': 'morning',
+            'sale_order_template_id': self.template2.id})
+        self.assertEqual(order._ems_suggest_group(), self.g2a)
+
+    # --- newcomers already converted into students ---------------------------
+
+    def test_suggested_group_for_a_newcomer_already_turned_into_a_student(self):
+        """Confirming the enrollment converts the applicant into a student, so by the
+        time anybody suggests groups the 'applicant' branch no longer fires — and the
+        continuing-student one has no current group to copy the letter from."""
+        newcomer = self.env['res.partner'].create({
+            'name': 'PL Converted Newcomer', 'contact_type': 'student',
+            'study_id': self.study.id, 'preinscription_shift': 'morning'})
+        self.assertFalse(newcomer.main_group_id)
+        order = self.env['sale.order'].create({
+            'partner_id': newcomer.id, 'ems_study_id': self.study.id,
+            'ems_course_id': self.course.id, 'shift': 'morning',
+            'sale_order_template_id': self.template2.id})
+        self.assertEqual(order._ems_suggest_group(), self.g2a)
+
+    def test_a_groupless_student_takes_the_shift_from_its_preinscription(self):
+        """The order may carry no shift; the one granted at pre-enrollment stands in."""
+        newcomer = self.env['res.partner'].create({
+            'name': 'PL Converted Afternoon', 'contact_type': 'student',
+            'study_id': self.study.id, 'preinscription_shift': 'afternoon'})
+        order = self.env['sale.order'].create({
+            'partner_id': newcomer.id, 'ems_study_id': self.study.id,
+            'ems_course_id': self.course.id,
+            'sale_order_template_id': self.template1.id})
+        self.assertEqual(order._ems_suggest_group(), self.g1a_aft)
+
+    def test_a_student_with_a_group_still_keeps_its_letter(self):
+        """The fallback must not steal the continuing-student rule: a student that
+        does have a group keeps matching by acronym."""
+        student = self.env['res.partner'].create({
+            'name': 'PL Keeps Letter', 'contact_type': 'student',
+            'main_group_id': self.g1a.id})
+        order = self.env['sale.order'].create({
+            'partner_id': student.id, 'ems_study_id': self.study.id,
+            'ems_course_id': self.course.id, 'shift': 'morning',
+            'sale_order_template_id': self.template2.id})
+        self.assertEqual(order._ems_suggest_group(), self.g2a)
+
+    # --- destination course read from the tutorship, with no template ---------
+
+    def _tutorship(self, code, year):
+        """A course-specific tutorship subject, sold by the template of that year."""
+        subject = self.env['ems.subject'].create({
+            'code': code, 'acronym': code, 'name': 'Tutorship %s' % code,
+            'is_tutorship': True, 'study_ids': [(6, 0, [self.study.id])]})
+        template = self.template1 if year == 1 else self.template2
+        template.sale_order_template_line_ids = [
+            (0, 0, {'product_id': subject.product_id.id})]
+        return subject
+
+    def _repeater_order(self, student, *subjects):
+        """A re-enrolment: no template, only the subjects the student is retaking."""
+        order = self.env['sale.order'].create({
+            'partner_id': student.id, 'ems_study_id': self.study.id,
+            'ems_course_id': self.course.id, 'shift': 'morning'})
+        order.order_line = [(0, 0, {'product_id': s.product_id.id}) for s in subjects]
+        return order
+
+    def test_suggested_group_reads_the_course_from_the_tutorship(self):
+        """A repeater re-enrolling only in what they failed never goes through a
+        template, so study_year is empty and the suggestion used to give up."""
+        tutorship = self._tutorship('PLTUT2', 2)
+        student = self.env['res.partner'].create({
+            'name': 'PL Repeater', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+        order = self._repeater_order(student, tutorship)
+        self.assertFalse(order.sale_order_template_id)
+        self.assertEqual(order._ems_suggest_group(), self.g2a)
+
+    def test_the_tutorship_wins_over_modules_pending_from_another_course(self):
+        """Their lines cannot be matched against a template as a whole: they mix
+        modules pending from an earlier course with the current one."""
+        tutorship = self._tutorship('PLTUT2B', 2)
+        self.template1.sale_order_template_line_ids = [
+            (0, 0, {'product_id': self.subject1.product_id.id})]
+        student = self.env['res.partner'].create({
+            'name': 'PL Mixed', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+        order = self._repeater_order(student, tutorship, self.subject1)
+        self.assertEqual(order._ems_suggest_group(), self.g2a)
+
+    def test_no_suggestion_without_a_tutorship_line(self):
+        student = self.env['res.partner'].create({
+            'name': 'PL No Tutorship', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+        order = self._repeater_order(student, self.subject1)
+        self.assertFalse(order._ems_suggest_group())
+
+    def test_no_suggestion_when_two_tutorships_are_enrolled(self):
+        """Ambiguous input must leave the group empty rather than pick a course."""
+        first = self._tutorship('PLTUT1C', 1)
+        second = self._tutorship('PLTUT2C', 2)
+        student = self.env['res.partner'].create({
+            'name': 'PL Two Tutorships', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+        order = self._repeater_order(student, first, second)
+        self.assertFalse(order._ems_suggest_group())
+
+    def test_no_suggestion_when_the_tutorship_is_sold_by_two_courses(self):
+        """A tutorship shared by both templates pins nothing down."""
+        tutorship = self._tutorship('PLTUTX', 2)
+        self.template1.sale_order_template_line_ids = [
+            (0, 0, {'product_id': tutorship.product_id.id})]
+        student = self.env['res.partner'].create({
+            'name': 'PL Shared Tutorship', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+        order = self._repeater_order(student, tutorship)
+        self.assertFalse(order._ems_suggest_group())
+
+    def test_the_template_still_wins_when_there_is_one(self):
+        """The tutorship is a fallback, not a replacement."""
+        self._tutorship('PLTUT1D', 1)
+        student = self.env['res.partner'].create({
+            'name': 'PL Templated', 'contact_type': 'student', 'main_group_id': self.g1a.id})
         order = self.env['sale.order'].create({
             'partner_id': student.id, 'ems_study_id': self.study.id,
             'ems_course_id': self.course.id, 'shift': 'morning',

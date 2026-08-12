@@ -79,10 +79,11 @@ The **Create Google account** button, at the top of the record, lets you force t
 
 ## Special Cases
 
-- **The teacher already had a corporate email:** if the work email field already contained an `@elpuig.xeill.net` address, the system adopts it as-is and does not create a new one. If that teacher has no EMS user yet, the **Create Google account** button (still visible in this case) creates and links it.
+- **The teacher already had a corporate email:** if the work email field already contained an `@elpuig.xeill.net` address, the system adopts it as-is and does not create a new one. If that teacher has no EMS user yet, a **Create EMS User** button appears at the top of the record instead of **Create Google account** — it only links/creates the EMS user, without touching the Google account.
 - **The teacher has a work email from another domain:** the system does not overwrite it automatically; a notice is posted in the record's message log for manual review.
-- **Manual email assignment:** the **Assign corporate email manually** checkbox, on the teacher's record, lets Human Resources enter the work email by hand, for exceptional cases. **When checked, the system does not generate any account automatically.** After typing a corporate address, the **Create Google account** button creates/links the EMS user for it.
+- **Manual email assignment:** the **Assign corporate email manually** checkbox, on the teacher's record, lets Human Resources enter the work email by hand, for exceptional cases. **When checked, the system does not generate any account automatically.** After typing a corporate address, the **Create EMS User** button appears to create/link the EMS user for it.
 - **Departure (archiving the record):** besides suspending the Google account, archiving the employee **immediately deactivates their EMS user**, so they can no longer sign in. Unarchiving restores both.
+- **The record already existed as a "Pending identification" placeholder:** if a working-schedule import created this teacher automatically before their identity was known (see "Teachers Not Yet Hired (Pending Identification)" in [Teacher Working Schedules & Schedule Frameworks](working-schedules.md)), the record already has a schedule, subjects and attendance lists set up — only **Step 2** and **Step 3** above are needed (replace the placeholder name, fill in the private email), then **Create Google account**. That single click also clears the "Pending identification" badge; nothing about the already-imported schedule needs to be redone.
 
 ---
 

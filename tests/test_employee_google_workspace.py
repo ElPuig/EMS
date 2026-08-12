@@ -1,3 +1,5 @@
+import importlib.util
+import os
 from unittest.mock import patch
 
 from odoo.exceptions import AccessError, UserError
@@ -44,6 +46,36 @@ class TestEmployeeGoogleWorkspace(TransactionCase):
     def test_nif_is_optional(self):
         teacher = self._new_teacher(private_email='ada@example.com')
         self.assertFalse(teacher._gw_missing_fields())
+
+    # --- google_ws_state (single source of truth for header buttons) ---
+    def test_state_none_for_non_teaching_staff(self):
+        # employee_type only accepts 'teacher'/'asp'; unset (False) covers any other staff.
+        employee = self.env['hr.employee'].create({'name': 'Admin Staff'})
+        self.assertEqual(employee.google_ws_state, 'none')
+
+    def test_state_none_without_work_email(self):
+        teacher = self._new_teacher(private_email='ada@example.com')
+        self.assertEqual(teacher.google_ws_state, 'none')
+
+    def test_state_manual_pending(self):
+        teacher = self._new_teacher(google_ws_manual_email=True)
+        self.assertEqual(teacher.google_ws_state, 'manual_pending')
+
+    def test_state_pending_user_when_email_without_linked_user(self):
+        teacher = self._new_teacher(work_email='ada.pending@elpuig.xeill.net')
+        self.assertFalse(teacher.user_id)
+        self.assertEqual(teacher.google_ws_state, 'pending_user')
+
+    def test_state_active_once_user_linked(self):
+        teacher = self._new_teacher(work_email='ada.active@elpuig.xeill.net')
+        teacher.action_create_ems_user()
+        self.assertTrue(teacher.user_id)
+        self.assertEqual(teacher.google_ws_state, 'active')
+
+    def test_state_suspended(self):
+        teacher = self._new_teacher(
+            work_email='ada.suspended@elpuig.xeill.net', google_ws_suspended=True)
+        self.assertEqual(teacher.google_ws_state, 'suspended')
 
     # --- chatter notifications ------------------------------------------
     def test_create_without_personal_email_notifies_chatter(self):
@@ -115,6 +147,34 @@ class TestEmployeeGoogleWorkspace(TransactionCase):
         with patch.object(type(teacher), '_gw_deliver_credentials', return_value=(True, True)):
             teacher.action_create_google_account()
         self.assertEqual(teacher.work_email, 'alovelace@elpuig.xeill.net')
+
+    def test_create_google_account_clears_pending_identification(self):
+        teacher = self.env['hr.employee'].create({
+            'name': 'Pending teacher (X9)',
+            'employee_type': 'teacher',
+            'schedule_import_code': 'X9',
+        })
+        self.assertTrue(teacher.pending_identification)
+
+        teacher.write({'name': 'Ada Lovelace King', 'private_email': 'ada@example.com'})
+        with patch.object(type(teacher), '_gw_deliver_credentials', return_value=(True, True)):
+            teacher.action_create_google_account()
+
+        self.assertFalse(teacher.schedule_import_code)
+        self.assertFalse(teacher.pending_identification)
+        self.assertTrue(any(
+            'X9' in body for body in teacher.message_ids.mapped('body')
+        ))
+
+    def test_missing_personal_email_still_raises_for_pending_identification(self):
+        teacher = self.env['hr.employee'].create({
+            'name': 'Pending teacher (X10)',
+            'employee_type': 'teacher',
+            'schedule_import_code': 'X10',
+        })
+        with self.assertRaises(UserError):
+            teacher.action_create_google_account()
+        self.assertTrue(teacher.pending_identification)
 
     def test_adopt_existing_corporate_email_does_nothing(self):
         teacher = self._new_teacher(
@@ -198,3 +258,36 @@ class TestEmployeeGoogleWorkspace(TransactionCase):
             self.env['hr.employee'].with_user(teacher_user).create({
                 'name': 'Nope', 'employee_type': 'teacher',
             })
+
+    # --- migration: backfill google_ws_suspended (18.0.0.22.0) ---------------
+
+    @classmethod
+    def _load_post_migrate_module(cls):
+        path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)),
+            'migrations', '18.0.0.22.0', 'post-migrate.py')
+        spec = importlib.util.spec_from_file_location('ems_post_migrate_18_0_0_22_0', path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_migration_backfills_suspended_for_archived_employee(self):
+        archived = self._new_teacher(
+            name='Migration GW Archived', private_email='migration.gw@example.com',
+            work_email='migration.gw@elpuig.xeill.net', active=False)
+        # Still active: must be left untouched.
+        active_teacher = self._new_teacher(
+            name='Migration GW Active', private_email='migration.gw2@example.com',
+            work_email='migration.gw2@elpuig.xeill.net')
+        # Archived but never had a corporate email: nothing to mark.
+        no_email = self._new_teacher(
+            name='Migration GW No Email', private_email='migration.gw3@example.com', active=False)
+
+        migration = self._load_post_migrate_module()
+        migration._backfill_google_ws_suspended(self.env)
+        for employee in (archived, active_teacher, no_email):
+            employee.invalidate_recordset()
+
+        self.assertTrue(archived.google_ws_suspended)
+        self.assertFalse(active_teacher.google_ws_suspended)
+        self.assertFalse(no_email.google_ws_suspended)

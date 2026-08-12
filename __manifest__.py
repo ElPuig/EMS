@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.21.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.22.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -68,6 +68,9 @@
 
         'views/menu.xml',
 
+        # Before form.xml: the settings button references this action by XML ID.
+        'views/settings/course.xml',
+        'views/settings/course_transition_wizard.xml',
         'views/settings/form.xml',
         'views/settings/hr_attendance_form.xml',
         'views/settings/hr_employees_form.xml',
@@ -78,10 +81,12 @@
         'views/community/menu.xml',  
             'views/community/configuration/menu.xml',            
 
-            'views/community/employee/menu.xml', 
-            'views/community/employee/kanban.xml',        
+            'views/community/employee/menu.xml',
+            'views/community/employee/kanban.xml',
             'views/community/employee/list.xml',
-            'views/community/employee/form.xml',                                      
+            'views/community/employee/search.xml',
+            'views/community/employee/form.xml',
+            'views/community/employee/departure_reason.xml',
 
             'views/community/workgroup/list.xml',
             'views/community/workgroup/form.xml',  
@@ -95,6 +100,7 @@
             'views/community/contact/import_wizard.xml',
             'views/community/contact/update_wizard.xml',            
             'views/community/contact/portal_access_wizard.xml',
+            'views/community/contact/native_action_bindings.xml',
             'views/community/contact/exit_wizards.xml',
             'views/community/contact/student_document.xml',
 
@@ -121,11 +127,14 @@
             'views/community/department/menu.xml',
             'views/community/department/list.xml',
             'views/community/department/search.xml',
+            'views/community/department/form.xml',
+            'views/community/department/kanban.xml',
                         
             'views/community/work_location/menu.xml',
             'views/community/employmenttypes/menu.xml',        
             
             'views/community/working_schedules/list.xml',
+            'views/community/working_schedules/search.xml',
             'views/community/working_schedules/form.xml',
             'views/community/working_schedules/attendance_form.xml',
             'views/community/working_schedules/import_wizard.xml',
@@ -198,6 +207,10 @@
         'views/attendance/menu.xml',
             'views/attendance/configuration/menu.xml',
 
+            'views/attendance/attendance_status/menu.xml',
+            'views/attendance/attendance_status/list.xml',
+            'views/attendance/attendance_status/form.xml',
+
             'views/attendance/attendance_template/menu.xml',
             'views/attendance/attendance_template/list.xml',
             'views/attendance/attendance_template/form.xml',
@@ -228,10 +241,9 @@
             'views/attendance/attendance_notification/menu.xml',  
             'views/attendance/attendance_notification/list.xml',               
 
+            'views/attendance/attendance_reports/analysis_views.xml',
             'views/attendance/attendance_reports/menu.xml',
-            'views/attendance/attendance_reports/student_wizard.xml', 
-            'views/attendance/attendance_reports/subject_wizard.xml', 
-            'views/attendance/attendance_reports/group_wizard.xml', 
+            'views/attendance/attendance_reports/wizard.xml',
 
             'views/communications/notice/list.xml',
             'views/communications/notice/form.xml',
@@ -260,9 +272,7 @@
             'views/academic_management/enrollment_configuration/enrollment_authorization_form.xml',
             'reports/authorizations/report_authorization_certificate.xml',
             'reports/contacts/report_google_credentials.xml',
-            'data/mail_template_google_welcome.xml',
             'reports/employees/report_google_credentials_employee.xml',
-            'data/mail_template_google_welcome_employee.xml',
             'reports/employees/report_working_schedule.xml',
             'reports/contacts/report_group_schedule.xml',
         'reports/enrollment/templates/report_enrollment_template.xml',
@@ -306,8 +316,9 @@
         'mails/enrollment/enrollment_send.xml',
 
         ### Reports templates ###
-        'reports/attendance/templates/sumary_table.xml', 
-        'reports/attendance/templates/details_table.xml', 
+        'reports/attendance/templates/sumary_table.xml',
+        'reports/attendance/templates/details_table.xml',
+        'reports/attendance/templates/detail_section.xml',
 
         ### Reports entries ###
         'reports/attendance/session.xml', 
@@ -316,14 +327,17 @@
         'reports/attendance/group.xml',              
         
         ### Data entries (do not alter the order) ###
-        'data/main/res.partner.category.xml',
+        'data/main/res.partner.category.csv',
         'data/main/resync_lifecycle_categories.xml',
         'data/main/ems.space_type.csv',
         'data/main/hr.work.location.csv',
-        'data/main/ems.contact.relation.type.xml',
-        'data/main/ems.mail_activity_type.xml',
+        'data/main/hr.departure.reason.csv',
+        'data/main/res.partner.relation.type.csv',
+        'data/main/mail.activity.type.csv',
+        'data/main/mail.template-google_welcome.csv',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
+        'data/main/ems.attendance_status.csv',
         'data/main/ems.non_teaching_type.csv',
         'data/main/ems.schedule_framework_default.xml',
 
@@ -354,11 +368,9 @@
         'data/cat/ems.content.csv',
         'data/cat/ems.outcome.csv',    
         'data/cat/ems.role.csv',
-        'data/main/ems.role_group_relationship.xml',
         'data/cat/ems.workgroup.csv',
         'data/cat/hr.job.csv',
-        'data/main/ems.job_group_relationship.xml',
-        'data/cat/ems_product_generic_products.xml',
+        'data/cat/product.template-generic.csv',
         'data/cat/ems_enrollment_template_data.xml',
         
         
@@ -371,15 +383,24 @@
         'data/custom/ccff/ems.study.csv',
         'data/custom/ccff/ems.outcome.csv',
         'data/custom/ccff/ems_enrollment_template_opt.xml',
-        'data/custom/ccff/ems.planning.smx.xml',
-        'data/custom/ccff/ems.planning.asix.xml',
-        'data/custom/ccff/ems.planning.dam.xml',
-        'data/custom/ccff/ems.planning.daw.xml',
-        'data/custom/ccff/ems.planning.ga.xml',
-        'data/custom/ccff/ems.planning.aif.xml',
-        'data/custom/ccff/ems.planning.ad.xml',
-        'data/custom/ccff/ems.planning.sa.xml',
-        'data/custom/ccff/ems.planning.opt.xml',
+        'data/custom/ccff/ems.planning-smx.csv',
+        'data/custom/ccff/ems.planning_outcome-smx.csv',
+        'data/custom/ccff/ems.planning-asix.csv',
+        'data/custom/ccff/ems.planning_outcome-asix.csv',
+        'data/custom/ccff/ems.planning-dam.csv',
+        'data/custom/ccff/ems.planning_outcome-dam.csv',
+        'data/custom/ccff/ems.planning-daw.csv',
+        'data/custom/ccff/ems.planning_outcome-daw.csv',
+        'data/custom/ccff/ems.planning-ga.csv',
+        'data/custom/ccff/ems.planning_outcome-ga.csv',
+        'data/custom/ccff/ems.planning-aif.csv',
+        'data/custom/ccff/ems.planning_outcome-aif.csv',
+        'data/custom/ccff/ems.planning-ad.csv',
+        'data/custom/ccff/ems.planning_outcome-ad.csv',
+        'data/custom/ccff/ems.planning-sa.csv',
+        'data/custom/ccff/ems.planning_outcome-sa.csv',
+        'data/custom/ccff/ems.planning-opt.csv',
+        'data/custom/ccff/ems.planning_outcome-opt.csv',
         'data/custom/ems.space.csv',
         'data/custom/ems.group.csv',
         'data/custom/hr.department.csv',
@@ -387,10 +408,10 @@
         'data/custom/resource.calendar.attendance.csv',
         'data/custom/res.company.csv',
         'data/custom/res.partner.csv',
-        'data/custom/ems.course.xml',
+        'data/custom/ems.course.csv',
         'data/custom/crm.team.csv',
-        'data/custom/ems_authorization_template_data.xml',
-        'data/custom/ems.sequence.enrollment.xml',
+        'data/custom/ems.authorization.template.csv',
+        'data/custom/ir.sequence-enrollment_number.csv',
 
         # Teacher's data (teaching = subject x teacher x group)
         #'data/custom/hr.employee.csv',        

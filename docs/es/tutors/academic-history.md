@@ -24,6 +24,10 @@ Los registros están ordenados **por estudio y curso**, de modo que puede leer c
 
 > El histórico es **solo de lectura**: es una copia congelada de lo que el subsistema de notas calculó durante el curso. Si hay que corregir algo, contacte con secretaría o con el administrador.
 
+## Marcar a un alumno como graduado
+
+Si uno de sus alumnos tutorizados está en el **último curso de su estudio** (por ejemplo, 2º de CFGM/CFGS/Bachillerato, 4º de ESO), puede marcarlo como graduado desde **Acciones → Graduación** en su ficha. Esto solo lo indica por adelantado — el alumno sigue asistiendo a clase con normalidad, y nada más cambia hasta la transición de curso. Consulte [Marcar una graduación y tramitar una baja](../secretary/graduation-withdrawal.md) para los detalles completos (esa guía está escrita para secretaría, pero la parte de marcar la graduación también le aplica — la baja en sí es solo de secretaría/admin).
+
 ---
 
 [← Volver al índice principal](index.md)

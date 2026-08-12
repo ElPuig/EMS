@@ -2,25 +2,12 @@
     margin-bottom: 8px;
 }
 
-.o_schedule_grid_edit_column {
-    display: flex;
-    flex-direction: column;
-    border-left: 1px solid #dee2e6;
-}
-
-.o_schedule_grid_edit_cell {
-    display: flex;
-    height: 48px;
-}
-
 .o_schedule_grid_select {
-    height: 48px;
     box-sizing: border-box;
     border: 1px solid #dee2e6;
-    border-top: none;
+    border-radius: 3px;
     font-size: 11px;
-    flex: 1 1 0;
-    min-width: 0;
+    width: 100%;
 }
 
 .o_schedule_grid_select:disabled {
@@ -35,8 +22,80 @@
     overflow-x: auto;
 }
 
-.o_schedule_grid_grid_edit {
-    grid-template-columns: 190px repeat(5, minmax(190px, 1fr));
+/* Independent per-day cards (2026-08-11 redesign, replacing the earlier shared-row grid) - 5
+   columns side by side, no shared axis/row alignment between them since each card is its own
+   self-contained block. */
+.o_schedule_grid_cards_edit {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    overflow-x: auto;
+    align-items: flex-start;
+}
+
+.o_schedule_grid_day_column {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 190px;
+    flex: 1 1 0;
+}
+
+.o_schedule_grid_day_header {
+    font-weight: 600;
+    text-align: center;
+    padding-bottom: 4px;
+}
+
+.o_schedule_grid_card {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 6px;
+    position: relative;
+    background-color: #fff;
+}
+
+.o_schedule_grid_card_remove {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    padding: 0 4px;
+    color: #adb5bd;
+}
+
+.o_schedule_grid_card_remove:hover {
+    color: #dc3545;
+}
+
+.o_schedule_grid_card_row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding-right: 16px;
+}
+
+.o_schedule_grid_card_date {
+    width: 108px;
+    font-size: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 3px;
+    color: #6c757d;
+}
+
+.o_schedule_grid_card_time {
+    width: 72px;
+    font-size: 11px;
+    border: 1px solid #dee2e6;
+    border-radius: 3px;
+}
+
+.o_schedule_grid_add_card {
+    font-size: 11px;
+    padding: 4px 0;
 }
 
 .o_schedule_grid_header {
@@ -57,37 +116,6 @@
     height: 64px;
     box-sizing: border-box;
     transform: translateY(-6px);
-}
-
-.o_schedule_grid_period_label {
-    height: 48px;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    font-size: 11px;
-    gap: 2px;
-}
-
-.o_schedule_grid_period_time {
-    width: 72px;
-    font-size: 11px;
-    border: 1px solid #dee2e6;
-    border-radius: 3px;
-}
-
-.o_schedule_grid_period_remove {
-    padding: 0 4px;
-    color: #adb5bd;
-}
-
-.o_schedule_grid_period_remove:hover {
-    color: #dc3545;
-}
-
-.o_schedule_grid_add_period {
-    font-size: 11px;
-    padding: 4px 0;
 }
 
 .o_schedule_grid_column {

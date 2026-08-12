@@ -6,6 +6,8 @@
             <field name="arch" type="xml">
                 <form string="Session" create="0" duplicate="0">
                     <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <field name="active" invisible="1"/>
                         <group string="Main data" col="4">
                             <group>
                                 <field name="mode" readonly="True"/>
@@ -38,9 +40,12 @@
                                     <list default_order="student_id asc" editable="bottom" create="0" delete="0">
                                         <field name="image_1920" widget="image" readonly="True"/>
                                         <field name="student_id" width="175px" class="align-middle" readonly="True"/>
-                                        <field name="status" widget="radio" class="align-middle" options="{'horizontal': true}" readonly="True"/>
+                                        <field name="status_id" widget="radio" class="align-middle" options="{'horizontal': true}" readonly="True"/>
                                         <field name="notes" width="350px" class="align-middle" readonly="True"/>
                                         <field name="attendance_justification_id" readonly="True"/>
+                                        <field name="strike_count" class="align-middle text-center" readonly="True"/>
+                                        <button name="action_view_strikes" type="object" icon="fa-exclamation-triangle"
+                                                title="View strikes" invisible="strike_count == 0"/>
                                         <field name="attendance_prevision_id" column_invisible="True"/>
                                     </list>
                                 </field>

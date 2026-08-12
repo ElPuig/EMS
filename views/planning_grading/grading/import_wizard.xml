@@ -5,7 +5,7 @@
             <field name="name">ems.grade_import_wizard.form</field>
             <field name="model">ems.grade_import_wizard</field>
             <field name="arch" type="xml">
-                <form string="Import grades from Esfera">
+                <form string="Import grades from Esfera" js_class="ems_grade_import_wizard_form">
                     <sheet>
                         <group invisible="result_html">
                             <p colspan="2" style="color: #666; font-size: 13px; margin-bottom: 15px;">
@@ -17,11 +17,18 @@
                                 • Store the module final grade (MP) as an override for subjects without work placement.<br/>
                                 • Overwrite any previous grade, including outcomes locked from earlier evaluations.<br/>
                                 <br/>
+                                Optionally, "Create missing enrollments" enrolls a student who is graded in a module
+                                they are not enrolled in, so that grade is imported instead of being discarded. Any
+                                informed grade counts, numeric or textual (PDT, NP, CV...); a module left entirely
+                                blank and modules without an evaluation session are never enrolled, and an optional
+                                module only when the group has a single optional subject.<br/>
+                                <br/>
                                 Select the evaluation and the xlsx file, then click "Import grades".
                             </p>
                             <field name="round"/>
                             <field name="file" widget="binary" filename="file_name"/>
                             <field name="file_name" invisible="1"/>
+                            <field name="create_missing_enrollments"/>
                         </group>
                         <group invisible="not result_html">
                             <field name="result_html" nolabel="1" colspan="2"/>

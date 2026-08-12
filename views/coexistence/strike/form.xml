@@ -6,12 +6,19 @@
             <field name="arch" type="xml">
                 <form string="Strike" create="0">
                     <sheet>
-                        <group col="4">
-                            <field name="student_id"/>
-                            <field name="teacher_id"/>
-                            <field name="reason_id"/>
-                            <field name="date"/>
-                            <field name="send_to"/>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <field name="active" invisible="1"/>
+                        <group col="2">
+                            <group>
+                                <field name="student_id"/>
+                                <field name="reason_id"/>
+                                <field name="kicked_out"/>
+                            </group>
+                            <group>
+                                <field name="teacher_id"/>
+                                <field name="date"/>
+                                <field name="send_to"/>
+                            </group>
                         </group>
                         <group string="Details">
                             <field name="notes" nolabel="1"/>

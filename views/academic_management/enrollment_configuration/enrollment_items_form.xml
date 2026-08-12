@@ -67,7 +67,6 @@
                                 </group>
                                 <group string="System">
                                     <field name="barcode"/>
-                                    <field name="active" widget="boolean_toggle"/>
                                 </group>
                             </group>
                         </page>

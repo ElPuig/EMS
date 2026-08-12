@@ -1,0 +1,4 @@
+id,name,category,res_model,icon,ems_task_assignment
+ems.mail_activity_enrollment_comment,Review enrollment comment,default,sale.order,fa-comments-o,True
+ems.mail_activity_student_document_review,Review student document,default,ems.student.document,fa-file-text-o,True
+ems.mail_activity_attendance_correction,Review attendance correction request,default,ems.attendance_correction,fa-clock-o,False

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="ems.GroupedConflictLinesField">
+        <div class="d-flex flex-column gap-3">
+            <t t-foreach="kindGroups" t-as="group" t-key="group.kind">
+                <div class="card">
+                    <div class="card-header"><strong t-esc="group.label"/></div>
+                    <div class="card-body">
+                        <t t-foreach="group.subgroups" t-as="subgroup" t-key="subgroup.groupKey">
+                            <div class="ems_conflict_subgroup border rounded p-2 mb-2">
+                                <div class="ems_conflict_grid_row mb-1">
+                                    <strong t-esc="subgroup.groupKey"/>
+                                    <select class="ems_conflict_bulk_select form-select form-select-sm"
+                                        t-on-change="(ev) => this.onBulkApply(subgroup, ev)">
+                                        <option value="" t-esc="labels.bulkPlaceholder"/>
+                                        <t t-foreach="resolutionOptions(group.kind)" t-as="option" t-key="option.value">
+                                            <option t-att-value="option.value" t-esc="option.label"/>
+                                        </t>
+                                    </select>
+                                </div>
+                                <t t-foreach="subgroup.records" t-as="record" t-key="record.id">
+                                    <div class="ems_conflict_grid_row ems_conflict_row py-1 border-top">
+                                        <span t-esc="rowText(record)"/>
+                                        <select class="form-select form-select-sm"
+                                            t-att-value="record.data.resolution"
+                                            t-on-change="(ev) => this.onRowResolutionChange(record, ev)">
+                                            <t t-foreach="resolutionOptions(group.kind)" t-as="option" t-key="option.value">
+                                                <option t-att-value="option.value" t-esc="option.label"/>
+                                            </t>
+                                        </select>
+                                        <t t-if="record.data.resolution === 'reassign_rooms'">
+                                            <div class="ems_conflict_space ems_conflict_space_left">
+                                                <AutoComplete
+                                                    value="spaceDisplayName(record, 'left_space_id')"
+                                                    sources="spaceAutocompleteSources"
+                                                    onSelect="(option) => this.onSpaceSelect(record, 'left_space_id', option)"
+                                                    placeholder="labels.spacePlaceholder"/>
+                                            </div>
+                                            <div class="ems_conflict_space ems_conflict_space_right">
+                                                <AutoComplete
+                                                    value="spaceDisplayName(record, 'right_space_id')"
+                                                    sources="spaceAutocompleteSources"
+                                                    onSelect="(option) => this.onSpaceSelect(record, 'right_space_id', option)"
+                                                    placeholder="labels.spacePlaceholder"/>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

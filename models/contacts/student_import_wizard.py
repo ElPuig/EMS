@@ -6,13 +6,15 @@ import io
 import logging
 from datetime import datetime
 
+from markupsafe import Markup
+
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
 
-class ems_student_import_wizard(models.TransientModel):
+class EmsStudentImportWizard(models.TransientModel):
     _name = "ems.student_import_wizard"
     _description = "Student import wizard (Esfera/SAGA xlsx)"
 
@@ -26,7 +28,7 @@ class ems_student_import_wizard(models.TransientModel):
         try:
             import openpyxl
         except ImportError:
-            raise UserError("openpyxl is required to import xlsx files.")
+            raise UserError(_("openpyxl is required to import xlsx files."))
 
         raw = base64.b64decode(self.file)
         wb = openpyxl.load_workbook(filename=io.BytesIO(raw), read_only=True, data_only=True)
@@ -38,11 +40,12 @@ class ems_student_import_wizard(models.TransientModel):
 
         missing = self._check_required_columns(col_map)
         if missing:
-            raise UserError(
-                _("The file is missing required columns:\n• %s") % "\n• ".join(missing)
-            )
+            raise UserError(_(
+                "The file is missing required columns:\n• %(columns)s",
+                columns="\n• ".join(missing),
+            ))
 
-        stats = {'created': 0, 'updated': 0, 'errors': [], 'log': []}
+        stats = {'created': 0, 'updated': 0, 'errors': [], 'warnings': [], 'log': []}
 
         for row in ws.iter_rows(min_row=header_row_idx + 1, values_only=True):
             if not any(row):
@@ -54,7 +57,7 @@ class ems_student_import_wizard(models.TransientModel):
                 stats['errors'].append(str(e))
 
         self.log_file = self._build_log_csv(stats['log'])
-        self.log_file_name = 'import_esfera_%s.csv' % datetime.now().strftime('%Y%m%d_%H%M%S')
+        self.log_file_name = f"import_esfera_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
         self.result_html = self._build_result_html(stats)
         return {
             'type': 'ir.actions.act_window',
@@ -66,7 +69,7 @@ class ems_student_import_wizard(models.TransientModel):
 
     def _find_headers(self, ws):
         def normalize(s):
-            return str(s or '').strip().replace('\u2019', "'").replace('\u2018', "'")
+            return str(s or '').strip().replace('’', "'").replace('‘', "'")
         for idx, row in enumerate(ws.iter_rows(max_row=20, values_only=True), start=1):
             if row and any(normalize(c) == 'Grup Classe' for c in row):
                 col_map = {normalize(c): i for i, c in enumerate(row) if c}
@@ -124,13 +127,20 @@ class ems_student_import_wizard(models.TransientModel):
                 missing.append(variants[0])
         return missing
 
+    def _col_get(self, row, col_map, col_name):
+        """Read one Esfera column by its exact header name, or None if the
+        column is absent from this file or the cell is empty for this row.
+        Shared by _process_row (student columns) and _process_tutor (Tutor
+        N - prefixed columns)."""
+        idx = col_map.get(col_name)
+        if idx is None:
+            return None
+        val = row[idx] if idx < len(row) else None
+        return str(val).strip() if val is not None else None
+
     def _process_row(self, row, col_map, stats):
         def get(col_name):
-            idx = col_map.get(col_name)
-            if idx is None:
-                return None
-            val = row[idx] if idx < len(row) else None
-            return str(val).strip() if val is not None else None
+            return self._col_get(row, col_map, col_name)
 
         # Group — search by external_id (Esfera code)
         # Normalize whitespace: Esfera sometimes uses multiple spaces (e.g. "CFPM    IC10201")
@@ -175,6 +185,15 @@ class ems_student_import_wizard(models.TransientModel):
 
         # Extra notes
         comment = self._build_student_notes(get, esfera_code, group)
+        if not group:
+            # Intentional (not every group may exist in EMS yet at import time), but
+            # surfaced in the result summary too, not just the comment note above —
+            # see plans/student_import_wizard_data_quality_gaps.md (now resolved).
+            stats['warnings'].append(_(
+                "%(name)s: no group found for Esfera code '%(code)s' — imported "
+                "without a group, needs manual placement.",
+                name=name, code=esfera_code,
+            ))
 
         student_data = {
             'name': name,
@@ -194,6 +213,9 @@ class ems_student_import_wizard(models.TransientModel):
             'citizenship_id': citizenship.id if citizenship else False,
             'birth_country_id': birth_country.id if birth_country else False,
             'comment': comment or False,
+            # Re-admits an ex-student (alumni/withdrawal) archived on exit: without
+            # this, an existing-but-inactive match is written but stays archived.
+            'active': True,
         }
         if group:
             student_data['main_group_id'] = group.id
@@ -206,10 +228,16 @@ class ems_student_import_wizard(models.TransientModel):
         for prefix in ['Tutor 1', 'Tutor 2']:
             self._process_tutor(row, col_map, prefix, student, stats)
 
+    # NOTE: the note labels below are deliberately kept in Catalan, untranslated,
+    # even though they end up in a user-visible Notes field. They are a verbatim
+    # echo of Esfera/SAGA's own official Catalan field names (the Catalan
+    # education administration's system of record) — translating them would
+    # weaken traceability back to "this is exactly what Esfera exported for this
+    # student", which is the whole point of keeping them. See student_import_wizard.md.
     def _build_student_notes(self, get, esfera_code, group):
         lines = []
         if not group:
-            lines.append("Grup Classe (SAGA): %s" % esfera_code)
+            lines.append(f"Grup Classe (SAGA): {esfera_code}")
         for label, key in [
             ('Província de naixement', 'Província naixement'),
             ('Municipi de naixement', 'Municipi naixement'),
@@ -225,13 +253,14 @@ class ems_student_import_wizard(models.TransientModel):
         ]:
             val = get(key)
             if val and val.lower() not in ('no', 'false', ''):
-                lines.append("%s: %s" % (label, val))
+                lines.append(f"{label}: {val}")
         return '<br/>'.join(lines) if lines else False
 
     def _get_or_create_student(self, ralc, data, stats):
         existing = False
         if ralc:
-            existing = self.env['res.partner'].search([('student_id', '=', ralc)], limit=1)
+            existing = self.env['res.partner'].with_context(active_test=False).search(
+                [('student_id', '=', ralc)], limit=1)
         if existing:
             existing.write(data)
             stats['updated'] += 1
@@ -244,56 +273,52 @@ class ems_student_import_wizard(models.TransientModel):
 
     def _process_tutor(self, row, col_map, prefix, student, stats):
         def get(col_name):
-            idx = col_map.get(col_name)
-            if idx is None:
-                return None
-            val = row[idx] if idx < len(row) else None
-            return str(val).strip() if val is not None else None
+            return self._col_get(row, col_map, col_name)
 
-        nom = get('%s - nom' % prefix)
+        nom = get(f'{prefix} - nom')
         if not nom:
             return
 
         # Note: Esfera exports '1r cognom ' with trailing space
-        surname1 = get('%s - 1r cognom ' % prefix) or get('%s - 1r cognom' % prefix) or ''
-        surname2 = get('%s - 2n cognom' % prefix) or ''
+        surname1 = get(f'{prefix} - 1r cognom ') or get(f'{prefix} - 1r cognom') or ''
+        surname2 = get(f'{prefix} - 2n cognom') or ''
         full_name = ' '.join(filter(None, [nom, surname1, surname2]))
 
-        doc_num = get('%s - doc. identitat' % prefix)
+        doc_num = get(f'{prefix} - doc. identitat')
         docs = self._parse_documents(doc_num, '')
 
         tutor_num = '1er' if '1' in prefix else '2on'
-        contact_raw = get('Contacte %s tutor alumne - Valor' % tutor_num)
+        contact_raw = get(f'Contacte {tutor_num} tutor alumne - Valor')
         raw_phone, email = self._parse_contact_value(contact_raw)
         phone, mobile = self._split_phone_mobile(raw_phone)
-        observacio = get('Contacte %s tutor alumne - Observacions' % tutor_num)
+        observacio = get(f'Contacte {tutor_num} tutor alumne - Observacions')
 
         street = self._build_street(
-            get('%s - tipus via' % prefix), get('%s - nom via' % prefix),
-            get('%s - número' % prefix), get('%s - bloc' % prefix),
-            get('%s - escala' % prefix), get('%s - planta' % prefix),
-            get('%s - porta' % prefix), get('%s - resta de dades de l\'adreça' % prefix)
+            get(f'{prefix} - tipus via'), get(f'{prefix} - nom via'),
+            get(f'{prefix} - número'), get(f'{prefix} - bloc'),
+            get(f'{prefix} - escala'), get(f'{prefix} - planta'),
+            get(f'{prefix} - porta'), get(f'{prefix} - resta de dades de l\'adreça')
         )
-        city = get('%s - municipi' % prefix)
-        zip_code = get('%s - CP' % prefix)
-        country = self._find_country(get('%s - país' % prefix))
-        state = self._find_state(get('%s - provincia' % prefix), country.id if country else False)
+        city = get(f'{prefix} - municipi')
+        zip_code = get(f'{prefix} - CP')
+        country = self._find_country(get(f'{prefix} - país'))
+        state = self._find_state(get(f'{prefix} - provincia'), country.id if country else False)
 
-        # Extra notes for tutor
+        # Extra notes for tutor — same Catalan-verbatim rationale as _build_student_notes.
         tutor_notes = []
         for label, key in [
-            ('Localitat', '%s - localitat' % prefix),
-            ('Destinatari correspondència', '%s - destinatari correspondència' % prefix),
-            ('Persona jurídica', '%s - persona jurídica' % prefix),
-            ('Rep notificacions', '%s - contactes: rebre notificacions' % prefix),
+            ('Localitat', f'{prefix} - localitat'),
+            ('Destinatari correspondència', f'{prefix} - destinatari correspondència'),
+            ('Persona jurídica', f'{prefix} - persona jurídica'),
+            ('Rep notificacions', f'{prefix} - contactes: rebre notificacions'),
         ]:
             val = get(key)
             if val and val.lower() not in ('no', 'false', ''):
-                tutor_notes.append("%s: %s" % (label, val))
+                tutor_notes.append(f"{label}: {val}")
         if prefix == 'Tutor 2':
             shared = get('Tutors comparteixen domicili')
             if shared and shared.lower() not in ('no', 'false', ''):
-                tutor_notes.append("Comparteix domicili amb Tutor 1: %s" % shared)
+                tutor_notes.append(f"Comparteix domicili amb Tutor 1: {shared}")
 
         family, accio = self._get_or_create_family(
             full_name, doc_num, phone, mobile, email,
@@ -304,16 +329,38 @@ class ems_student_import_wizard(models.TransientModel):
         )
         if not family:
             return
+        if not doc_num:
+            # KNOWN LIMITATION, kept intentionally (see
+            # plans/student_import_wizard_data_quality_gaps.md, now resolved):
+            # dedup only matches on document number, so a documentless tutor always
+            # creates a new family contact. A fuzzier name/phone fallback was
+            # rejected (false-positive merge risk) - surfaced as a warning instead,
+            # so it's visible in the result summary for manual review.
+            stats['warnings'].append(_(
+                "%(student)s: tutor '%(tutor)s' has no document number — dedup "
+                "skipped, a new family contact may have been created even if one "
+                "already exists.",
+                student=student.name, tutor=full_name,
+            ))
         stats['log'].append({'tipus': 'Familiar', 'accio': accio, 'partner_id': family.id, 'ts': datetime.now()})
 
         relation_type, is_fallback = self._deduce_relation_type(observacio)
         if is_fallback and observacio:
-            note = "[Import Esfera] Relació %s: '%s' (assignada com a Tutor per defecte)" % (prefix, observacio)
-            student.comment = ('%s<br/>%s' % (student.comment, note)).strip() if student.comment else note
+            note = f"[Import Esfera] Relació {prefix}: '{observacio}' (assignada com a Tutor per defecte)"
+            student.comment = f"{student.comment}<br/>{note}".strip() if student.comment else note
 
         self._link_family_to_student(family, student, relation_type)
 
     def _get_or_create_family(self, name, doc_num, phone, mobile, email, address_data):
+        """Find or create the family contact for a tutor row.
+
+        KNOWN LIMITATION, kept intentionally (see student_import_wizard.md): dedup
+        only matches on doc_num (document_id/passport_id). A tutor row with no
+        document number always creates a new family partner — there is no
+        name/phone/email fallback match (rejected: false-positive merge risk is
+        worse than a duplicate contact). The caller (_process_tutor) surfaces this
+        in stats['warnings'] instead, so it's visible for manual review.
+        """
         if not name:
             return False, None
 
@@ -468,10 +515,25 @@ class ems_student_import_wizard(models.TransientModel):
     def _build_result_html(self, stats):
         errors_html = ''
         if stats['errors']:
-            items = ''.join('<li>%s</li>' % e for e in stats['errors'])
-            errors_html = '<p><strong>Errors (%d):</strong></p><ul>%s</ul>' % (len(stats['errors']), items)
-        return (
-            '<p>✅ <strong>Students created:</strong> %d</p>'
-            '<p>🔄 <strong>Students updated:</strong> %d</p>'
-            '%s'
-        ) % (stats['created'], stats['updated'], errors_html)
+            errors_html = Markup('<p><strong>{}</strong></p>{}').format(
+                _("Errors (%(count)s):", count=len(stats['errors'])),
+                self.env['ems.base'].build_html_list(stats['errors']),
+            )
+        warnings = stats.get('warnings', [])
+        warnings_html = ''
+        if warnings:
+            warnings_html = Markup('<p><strong>{}</strong></p>{}').format(
+                _("Warnings (%(count)s):", count=len(warnings)),
+                self.env['ems.base'].build_html_list(warnings),
+            )
+        return Markup(
+            '<p>✅ <strong>{created_label}</strong> {created}</p>'
+            '<p>🔄 <strong>{updated_label}</strong> {updated}</p>'
+            '{warnings_html}'
+            '{errors_html}'
+        ).format(
+            created_label=_("Students created:"), created=stats['created'],
+            updated_label=_("Students updated:"), updated=stats['updated'],
+            warnings_html=warnings_html,
+            errors_html=errors_html,
+        )

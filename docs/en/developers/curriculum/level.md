@@ -124,8 +124,7 @@ No record-level rules exist for this model.
 | `ems.study` | `level_id` | Many2one | Each study belongs to one level |
 | `ems.group` | `level_id` | Many2one (required) | Each group belongs to one level |
 | `res.partner` (`ems.contact`) | `level_id` | Many2one (view field) | Cascades to filter available studies |
-| `ems.attendance_template` | `level_id` | Many2one (required) | Attendance scheduling requires a level |
-| `ems.attendance_session_header` | `level_id` | Computed from template | Inherited from the attendance template |
+| `ems.attendance_session_header` / `_line` | `level_id` | Computed from `group_ids[:1].level_id` | `ems.attendance_template` itself has no `level_id` (removed 2026-08-05, see [`attendance_template.md`](../attendance/attendance_template.md)) — a session's level is derived straight from its groups instead |
 | `ems.limesurvey_recipient` | `level_id` | Many2one | Survey targeting by level |
 | `ems.limesurvey_header` | `ems_level_ids` | Many2many | Surveys can target multiple levels |
 | `ems.authorization.template` | `ems_level_ids` | Many2many | Authorizations apply to specific levels |

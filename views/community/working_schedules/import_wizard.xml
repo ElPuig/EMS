@@ -4,40 +4,176 @@
             <field name="name">ems.working_schedules_import.wizard</field>
             <field name="model">ems.working_schedules_import_wizard</field>
             <field name="arch" type="xml">
-                <form string="Session">
-                    <field name="teacher_id" invisible="1"/>
-                    <field name="blocking_error_message" invisible="1"/>
-                    <field name="email_mismatch_warning" invisible="1"/>
-                    <field name="overrided_teachers_html" invisible="1"/>
-                    <field name="external_conflicts_html" invisible="1"/>
-                    <div class="alert alert-danger" role="alert" name="alert-danger" invisible="not blocking_error_message">
-                        <field name="blocking_error_message" readonly="1" class="oe_inline"/>
-                    </div>
-                    <div class="alert alert-warning" role="alert" name="alert-warning-email-mismatch" invisible="not email_mismatch_warning">
-                        <field name="email_mismatch_warning" readonly="1" class="oe_inline"/>
-                    </div>
-                    <div class="alert alert-warning" role="alert" name="alert-warning" invisible="not overrided_teachers_html">
-                        Attention please: the following teachers already have a schedule defined for the current course. If you continue with the process, their working schedules, subject assignations and assistance templates will be updated to match the provided ones (none will be removed):
-                        <field name="overrided_teachers_html" readonly="1"/>
-                    </div>
-                    <div class="alert alert-warning" role="alert" name="alert-warning-external-conflicts" invisible="not external_conflicts_html">
-                        Attention please: the following existing sessions belong to teachers NOT included in this file, but overlap in classroom and time with what you're importing. If you continue with the process, these sessions will be archived (their attendance history is kept, but they will no longer appear on the schedule):
-                        <field name="external_conflicts_html" readonly="1"/>
-                    </div>
+                <form string="Session" js_class="ems_working_schedules_import_wizard_form">
+                    <header>
+                        <field name="state" widget="statusbar" readonly="1"/>
+                    </header>
+                    <sheet>
+                        <field name="ready_to_import" invisible="1"/>
+                        <field name="continue_disabled" invisible="1"/>
 
-                    <group invisible="not teacher_id">
-                         <field name="file" readonly="False" options="{'accepted_file_extensions': '.xml'}"/>
-                    </group>
-                    <group invisible="teacher_id">
-                         <field name="attachment_ids" widget="many2many_binary" options="{'accepted_file_extensions': '.xml'}"/>
-                    </group>
+                        <!-- Welcome: file upload only - no validation/banners here on purpose. Resolving
+                             an unknown e-mail/group, a missing classroom or a schedule conflict is the
+                             job of the later steps, not something this screen should show or block on.
+                             Every step below has its own short intro paragraph explaining what that step
+                             checks and what to do with it (developer feedback 2026-08-10: the wizard has
+                             many steps with no way to go back, so each one should be self-explanatory on
+                             its own, not just the first one) - see docs/en/developers/employees/
+                             working_schedule.md's "Import wizard" section for the full rationale,
+                             including why part of this screen's own original text moved to the
+                             "Existing schedule conflicts" screen's intro instead. -->
+                        <div invisible="state != 'intro'">
+                            <p>Import a working-schedule batch (one or several planner files exported from the timetable tool). Run this during next-course preparation, right after the previous course's schedules have been archived by the course transition wizard. Nothing is written to any schedule until you finish every step below and click Import on the last one.</p>
+                            <group>
+                                <field name="attachment_ids" widget="ems_blocking_many2many_binary" options="{'accepted_file_extensions': '.xml'}"/>
+                            </group>
+                        </div>
 
+                        <div invisible="state != 'groups'">
+                            <p>EMS checks every group name in the file against the groups already in EMS. Any name it couldn't match is listed below for you to resolve by hand.</p>
+                            <div class="alert alert-success" role="alert" invisible="group_line_ids">
+                                Every group mentioned in the file was recognized.
+                            </div>
+                            <field name="group_line_ids" invisible="not group_line_ids">
+                                <!-- 'limit' set explicitly high - see the same-shaped comment on
+                                     'internal_conflict_line_ids' below for why Odoo's own x2many
+                                     default (80) would otherwise silently hide rows past #80. This
+                                     list does have Odoo's native pager, so it wouldn't have hidden
+                                     rows invisibly like the custom widget did - but a batch of more
+                                     than 80 unresolved groups would still have kept some unresolved
+                                     lines on a second page the operator could easily miss. -->
+                                <list editable="bottom" create="False" delete="False" limit="1000">
+                                    <field name="raw_name" string="Name found in file"/>
+                                    <field name="group_id"/>
+                                </list>
+                            </field>
+
+                            <p invisible="not space_line_ids">EMS also checks that every group referenced already has a classroom assigned. Any group missing one is listed below: the classroom you pick here is saved on the group itself, for this import and every future one.</p>
+                            <field name="space_line_ids" invisible="not space_line_ids">
+                                <list editable="bottom" create="False" delete="False" limit="1000">
+                                    <field name="group_id"/>
+                                    <field name="space_id"/>
+                                </list>
+                            </field>
+                        </div>
+
+                        <div invisible="state != 'subjects'">
+                            <p>EMS also checks that the subject found in the file is actually taught in the group's own study - a wrong subject code, or a group assigned to the wrong subject, would otherwise only surface as a confusing error at the very end. Any mismatch is listed below: correct whichever side was actually wrong - the group(s), the subject, or both.</p>
+                            <div class="alert alert-success" role="alert" invisible="subject_line_ids">
+                                Every subject matches its group's own study.
+                            </div>
+                            <field name="subject_line_ids" invisible="not subject_line_ids">
+                                <!-- 'limit' set explicitly high - see the same-shaped comment on
+                                     'internal_conflict_line_ids' below for why Odoo's own x2many
+                                     default (80) would otherwise silently hide rows past #80. This
+                                     list does have Odoo's native pager, so it wouldn't have hidden
+                                     rows invisibly like the custom widget did - but a batch of more
+                                     than 80 mismatches would still have kept some unresolved lines
+                                     on a second page the operator could easily miss. -->
+                                <list editable="bottom" create="False" delete="False" limit="1000">
+                                    <field name="raw_group_ids" widget="many2many_tags" string="Group(s) found in file"/>
+                                    <field name="group_ids" widget="many2many_tags" string="Group(s)" options="{'no_create': True, 'no_create_edit': True}"/>
+                                    <field name="raw_subject_id" string="Subject found in file"/>
+                                    <field name="allowed_subject_ids" column_invisible="1"/>
+                                    <field name="subject_id"/>
+                                </list>
+                            </field>
+                        </div>
+
+                        <div invisible="state != 'teachers'">
+                            <p>EMS checks every teacher e-mail or placeholder code in the file against the teachers already in EMS. Any identifier it couldn't match is listed below: pick the real teacher if it's a typo or an already-known pending hire, or leave New ticked to create it as a brand-new, pending-identification employee (resolved later from the teacher's own form, once their real e-mail is known).</p>
+                            <div class="alert alert-success" role="alert" invisible="teacher_line_ids">
+                                Every teacher mentioned in the file was recognized.
+                            </div>
+                            <field name="teacher_line_ids" invisible="not teacher_line_ids">
+                                <!-- 'limit' set explicitly high - see the same-shaped comment on
+                                     'internal_conflict_line_ids' below for why Odoo's own x2many
+                                     default (80) would otherwise silently hide rows past #80. This
+                                     list does have Odoo's native pager, so it wouldn't have hidden
+                                     rows invisibly like the custom widget did - but a batch of more
+                                     than 80 unresolved teachers would still have kept some unresolved
+                                     lines on a second page the operator could easily miss. -->
+                                <list editable="bottom" create="False" delete="False" limit="1000">
+                                    <field name="raw_identifier" string="Identifier found in file"/>
+                                    <field name="create_new"/>
+                                    <field name="employee_id" readonly="create_new" context="{'no_create': True, 'no_create_edit': True}"/>
+                                </list>
+                            </field>
+                        </div>
+
+                        <div invisible="state != 'internal_conflicts'">
+                            <p>EMS checks whether two different teachers in this same file end up scheduled in the same classroom at the same time, or whether the same real teacher (e.g. two identifiers you resolved to the same person) ends up double-booked at the same time in two different rooms. Each colliding pair is listed below for you to resolve.</p>
+                            <div class="alert alert-success" role="alert" invisible="internal_conflict_line_ids">
+                                No conflicts were found within this batch.
+                            </div>
+                            <field name="internal_conflict_line_ids" invisible="not internal_conflict_line_ids" widget="ems_grouped_conflict_lines">
+                                <!-- Never rendered directly (see the widget's own template) - only declares
+                                     which sub-fields to load. Deliberately NO 'limit' here - the widget's
+                                     own 'setup()' loads every record via 'list.load({ limit: list.count })'
+                                     before first render, so no arch-level cap can ever be outgrown (a
+                                     first attempt hardcoded 'limit="1000"' here, which only moved the same
+                                     silent-Continue-stuck bug to whatever number was picked). -->
+                                <list editable="bottom" create="False" delete="False">
+                                    <field name="left_label"/>
+                                    <field name="left_group_key"/>
+                                    <field name="right_label"/>
+                                    <field name="kind"/>
+                                    <field name="resolution"/>
+                                    <field name="left_space_id"/>
+                                    <field name="right_space_id"/>
+                                </list>
+                            </field>
+                        </div>
+
+                        <div invisible="state != 'db_conflicts'">
+                            <p>EMS also checks the new entries against schedules that are already active in the database - expected if this import runs against a course already in progress rather than right after a course transition. Each colliding pair is listed below for you to resolve.</p>
+                            <div class="alert alert-success" role="alert" invisible="external_conflict_line_ids">
+                                No conflicts were found against already-active schedules.
+                            </div>
+                            <field name="external_conflict_line_ids" invisible="not external_conflict_line_ids" widget="ems_grouped_conflict_lines">
+                                <!-- Never rendered directly (see the widget's own template) - only declares
+                                     which sub-fields to load. Deliberately NO 'limit' here - the widget's
+                                     own 'setup()' loads every record via 'list.load({ limit: list.count })'
+                                     before first render, so no arch-level cap can ever be outgrown (a
+                                     first attempt hardcoded 'limit="1000"' here, which only moved the same
+                                     silent-Continue-stuck bug to whatever number was picked). -->
+                                <list editable="bottom" create="False" delete="False">
+                                    <field name="left_label"/>
+                                    <field name="left_group_key"/>
+                                    <field name="right_label"/>
+                                    <field name="kind"/>
+                                    <field name="resolution"/>
+                                    <field name="left_space_id"/>
+                                    <field name="right_space_id"/>
+                                </list>
+                            </field>
+                        </div>
+
+                        <div invisible="state != 'summary'">
+                            <p>This is the last screen before anything gets written, and none of the previous steps can be revisited afterwards. Review every block below - each one shows exactly how that part of the import was resolved - then click Import.</p>
+                            <field name="overall_summary_html" nolabel="1"/>
+                            <field name="summary_file" widget="auto_download_binary"
+                                   filename="summary_file_name" string="Download the import summary (CSV)"/>
+                            <field name="summary_file_name" invisible="1"/>
+                        </div>
+                    </sheet>
                     <footer>
-                        <button name="import_planner_data" string="Import" type="object" class="btn-primary" icon="fa-calendar-plus-o" invisible="(file == False and not attachment_ids) or blocking_error_message" />
-                        <button name="cancel" string="Cancel" special="cancel"/>
+                        <!-- "Continue" always occupies the same spot while state != 'summary' -
+                             it renders enabled or disabled depending on 'continue_disabled', rather than
+                             appearing/disappearing (developer feedback 2026-08-05). The second button is
+                             a purely cosmetic, non-actionable twin (no 'name', type="button", static
+                             disabled="disabled") shown only when the real one is hidden, so the label
+                             never disappears from view - just its clickable state changes. -->
+                        <button name="action_continue" string="Continue" type="object" class="btn-primary"
+                            invisible="state == 'summary' or continue_disabled"/>
+                        <button name="action_continue_disabled" string="Continue" type="button" class="btn-primary" disabled="disabled"
+                            invisible="state == 'summary' or not continue_disabled"/>
+                        <button name="import_planner_data" string="Import" type="object" class="btn-success"
+                            icon="fa-calendar-plus-o" invisible="state != 'summary'"/>
+                        <button name="cancel" string="Cancel" special="cancel" class="btn-danger"/>
                     </footer>
-                </form>              
-            </field>			
+                </form>
+            </field>
         </record>
     </data>
 </odoo>

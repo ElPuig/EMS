@@ -1,0 +1,10 @@
+/* Blocking overlay of the course transition.
+
+   BlockUI renders its message with t-esc inside a div, so HTML is escaped and a
+   <br/> would show as text. pre-line makes the newlines we send in the message
+   render as line breaks, which is what turns the workload breakdown from one
+   screen-wide line into a readable list. */
+.o_blockUI .o_message {
+    white-space: pre-line;
+    line-height: 1.6;
+}

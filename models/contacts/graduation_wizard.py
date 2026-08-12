@@ -33,17 +33,11 @@ class EmsGraduationWizard(models.TransientModel):
         return self.env.company.current_course_id \
             or self.env['ems.course'].search([('is_current', '=', True)], limit=1)
 
-    def _last_course_of_study(self, study):
-        if not study:
-            return 0
-        courses = self.env['ems.group'].search([('study_id', '=', study.id)]).mapped('course')
-        return max(courses) if courses else 0
-
     def _is_last_course(self, student):
         """Only students in the last course of their study can graduate (e.g. 2nd in
         CFGM/CFGS/Bachillerato, 4th in ESO). The last course is derived from the highest
         group course of the study."""
-        last = self._last_course_of_study(student.study_id)
+        last = student.study_id._ems_last_course()
         return bool(last) and bool(student.main_group_id) and student.main_group_id.course >= last
 
     def _line_vals(self, student):
@@ -56,9 +50,16 @@ class EmsGraduationWizard(models.TransientModel):
                 ('partner_id', '=', student.id),
                 ('ems_course_id', '=', next_course.id),
                 ('state', '!=', 'cancel')]))
-            warning = _("Already enrolled for the next course — graduation is incompatible") if has_next else ''
+            # Not a contradiction: a graduate moving up to another study at the centre
+            # is graduated AND placed by the transition, never converted nor archived.
+            warning = _("Enrolled for the next course — will be graduated and placed, not archived") \
+                if has_next else ''
         return {
             'student_id': student.id,
+            # Shown for confirmation (D2): a student only ever has one study, through its
+            # main group, so there is nothing to pick — but the operator has to see which
+            # one the graduation is being recorded against.
+            'study_id': student.study_id.id,
             'already_marked': student.exit_type == 'graduation',
             'blocked': blocked,
             'warning': warning,
@@ -86,9 +87,9 @@ class EmsGraduationWizard(models.TransientModel):
                 'has_graduated': True,
             })
             done += 1
-        message = _("%s student(s) marked as graduated.") % done
+        message = _("%(done)s student(s) marked as graduated.", done=done)
         if skipped:
-            message += " " + _("%s skipped (not in the last course).") % skipped
+            message += " " + _("%(skipped)s skipped (not in the last course).", skipped=skipped)
         return self._notify(message)
 
     def action_unmark(self):
@@ -103,7 +104,7 @@ class EmsGraduationWizard(models.TransientModel):
             if student.exit_type == 'graduation':
                 student.write({'exit_type': False, 'exit_course_id': False})
                 done += 1
-        return self._notify(_("%s graduation mark(s) removed.") % done)
+        return self._notify(_("%(done)s graduation mark(s) removed.", done=done))
 
     def _notify(self, message):
         return {
@@ -114,7 +115,10 @@ class EmsGraduationWizard(models.TransientModel):
                 'message': message,
                 'type': 'success',
                 'sticky': False,
-                'next': {'type': 'ir.actions.act_window_close'},
+                # Reload instead of just closing: the graduation mark the wizard has
+                # just written is invisible in the list until the rows are read again.
+                # 'soft_reload' keeps the search filters and the group-by.
+                'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'},
             },
         }
 
@@ -125,6 +129,7 @@ class EmsGraduationWizardLine(models.TransientModel):
 
     wizard_id = fields.Many2one('ems.graduation_wizard', ondelete='cascade')
     student_id = fields.Many2one('res.partner', string='Student')
+    study_id = fields.Many2one('ems.study', string='Study')
     already_marked = fields.Boolean(string='Already marked')
     blocked = fields.Boolean(string='Blocked')
     warning = fields.Char(string='Warning')
@@ -134,6 +139,13 @@ class EmsWithdrawalWizard(models.TransientModel):
     _name = 'ems.withdrawal_wizard'
     _description = 'Withdrawal wizard (immediate exit)'
 
+    exit_kind = fields.Selection([
+        ('withdrawal', 'Withdrawal'),
+        ('expulsion', 'Expulsion'),
+    ], string='Kind', required=True, default='withdrawal',
+        help="Withdrawal: the student leaves, voluntarily or de oficio (administrative) - "
+             "either way, note the specific circumstances in the exit reason below. "
+             "Expulsion: the student is permanently expelled from the centre.")
     exit_date = fields.Date(string='Exit date', required=True,
                             default=fields.Date.context_today)
     exit_reason = fields.Text(string='Exit reason')
@@ -162,11 +174,11 @@ class EmsWithdrawalWizard(models.TransientModel):
         pending = self.env['sale.order'].search_count([
             ('partner_id', '=', student.id),
             ('state', 'in', ['draft', 'sent'])])
-        note = _("%s pending enrolment(s) will be cancelled") % pending if pending else ''
+        note = _("%(pending)s pending enrolment(s) will be cancelled", pending=pending) if pending else ''
         return {'student_id': student.id, 'note': note}
 
     def action_apply(self):
-        """Immediate effect: writes the exit metadata, converts to alumni/withdrawal,
+        """Immediate effect: writes the exit metadata, converts to alumni/withdrawal/expelled,
         cleans active attendance templates, cancels pending enrolments and revokes
         the portal (with sibling check)."""
         self.ensure_one()
@@ -181,7 +193,7 @@ class EmsWithdrawalWizard(models.TransientModel):
             if student.contact_type != 'student':
                 continue
             student.write({
-                'exit_type': 'withdrawal',
+                'exit_type': 'expulsion' if self.exit_kind == 'expulsion' else 'withdrawal',
                 'exit_course_id': course.id if course else False,
                 'exit_date': self.exit_date,
                 'exit_reason': self.exit_reason,
@@ -203,20 +215,35 @@ class EmsWithdrawalWizard(models.TransientModel):
             # grade lines, attendance lines and templates, group delegate). Must run BEFORE
             # the conversion, which detaches the student from its group.
             student._ems_clear_operational_records()
-            # Convert to alumni/withdrawal (clears group/level/study).
-            student._ems_convert_to_ex_student()
+            # Convert to alumni/withdrawal/expelled (clears group/level/study).
+            student._ems_convert_to_ex_student(kind=self.exit_kind)
             # Revoke portal access (student + families without other enrolled child).
             summary = student._ems_revoke_student_portal()
             revoked += len(summary['revoked'])
             skipped += len(summary['skipped'])
             issues += summary['issues']
+            # Archive last, mirroring hr.employee (archiving an employee registers
+            # its departure): res.partner.write() refuses to archive a contact
+            # still linked to an active portal user, so this must run after the
+            # revoke above. If that revoke failed (logged in issues instead of
+            # raising, to not abort the whole batch), the student's own portal
+            # user is still active here — skip the archive rather than let that
+            # guard raise and roll back every student already processed.
+            if student._has_active_portal_user():
+                issues.append(_(
+                    "%(student)s: portal access could not be revoked, kept active",
+                    student=student.display_name,
+                ))
+            else:
+                student.write({'active': False})
             done += 1
 
-        parts = [_("%s student(s) withdrawn") % done]
+        summary_label = _("expelled") if self.exit_kind == 'expulsion' else _("withdrawn")
+        parts = [_("%(done)s student(s) %(summary_label)s", done=done, summary_label=summary_label)]
         if revoked:
-            parts.append(_("%s portal access(es) revoked") % revoked)
+            parts.append(_("%(revoked)s portal access(es) revoked", revoked=revoked))
         if skipped:
-            parts.append(_("%s kept (sibling still enrolled)") % skipped)
+            parts.append(_("%(skipped)s kept (sibling still enrolled)", skipped=skipped))
         message = ", ".join(parts)
         if issues:
             message += "\n" + _("Issues:") + "\n- " + "\n- ".join(issues)
@@ -224,11 +251,14 @@ class EmsWithdrawalWizard(models.TransientModel):
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': _("Withdrawal"),
+                'title': _("Expulsion") if self.exit_kind == 'expulsion' else _("Withdrawal"),
                 'message': message,
                 'type': 'warning' if issues else 'success',
                 'sticky': bool(issues),
-                'next': {'type': 'ir.actions.act_window_close'},
+                # Reload instead of just closing: a withdrawal drops the student out
+                # of the list domain altogether, so leaving the rows on screen reads
+                # as if nothing had happened. 'soft_reload' keeps filters and group-by.
+                'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'},
             },
         }
 

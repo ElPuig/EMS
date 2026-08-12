@@ -13,6 +13,8 @@ La importació de GEDAC porta **dos tipus d'alumnat**, i cadascun es localitza e
 
 A partir del Pas 3 el circuit és el mateix per a tots dos.
 
+> Això tracta d'**aspirants**, des de GEDAC. Per actualitzar dades de l'alumnat **ja matriculat** al centre, des d'un sistema font diferent, consulteu [Importar alumnat des d'Esfera (SAGA)](student-import-esfera.md).
+
 ---
 
 ## Índex

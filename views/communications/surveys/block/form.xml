@@ -6,6 +6,8 @@
             <field name="arch" type="xml">
                 <form string="Block">
                     <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <field name="active" invisible="1"/>
                         <group string="Main data" col="4">
                             <group colspan="3">
                                 <field name="name"/>
@@ -20,10 +22,7 @@
                                 <field string="Course filter" help="The block appears only for students enrolled in this course (0 = all)." name="special_course_filter"/>
                             </group>                            
                             <group>
-                                <field string="Repeat per subject" help="This block will be generated once per enrollred subject." name="special_subject_enrolled"/>
-                            </group>
-                            <group>
-                                <field string="WPI enrollment" help="The block appears only for students enrolled in a WorkPlace Intership." name="special_wpi_enrolled"/>
+                                <field string="Special filter" help="'Subject': the block is generated once per enrolled subject. 'WorkPlace Internship': the block appears only for students enrolled in a WorkPlace Internship." name="special_type" widget="radio"/>
                             </group>
                             <group>
                                 <field string="Tutorship" help="The block will use the group's tutor data." name="special_tutorship"/>

@@ -8,11 +8,13 @@
             <field name="view_mode">kanban,list,form</field>                 
             <field name="search_view_id" ref="ems.view_student_search"/>
             <!-- Alumni and withdrawals live in this same action: the default
-                 "students_only" filter hides them, removing it reveals them
-                 (same pattern as archived records). -->
-            <field name="domain"> [('contact_type', 'in', ['student', 'alumni', 'withdrawal'])] </field>
+                 "students_only" filter hides them, removing it reveals them.
+                 Withdrawn/graduated students are also archived (active=False,
+                 like an employee's departure), so active_test must be off here
+                 or they would never show up regardless of the filter. -->
+            <field name="domain"> [('contact_type', 'in', ['student', 'alumni', 'withdrawal', 'expelled'])] </field>
             <!-- TODO: test if this is used in order to create a new one -->
-            <field name="context"> {'default_contact_type': 'student', 'search_default_students_only': 1} </field>
+            <field name="context"> {'default_contact_type': 'student', 'search_default_students_only': 1, 'active_test': False} </field>
         </record>
         
         <menuitem name="Educational Community" sequence="1" id="menu_community" action="action_student_kanban"/> 

@@ -14,8 +14,30 @@ name: Deploy Check (manual)
 on:
   issue_comment:
     types: [created]
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
+  # This job only exists so the "deploy-check" status shown in the PR's checks list carries
+  # a description telling the developer HOW to run it - a plain commit status (unlike a
+  # check-run) has no clickable annotation to read instructions from, and with nothing posted
+  # here it would otherwise sit as GitHub's generic "Expected — waiting for status to be
+  # reported" with no hint that a "/deploy-check" PR comment is what it's waiting for.
+  announce-pending:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post pending status with instructions
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner, repo: context.repo.repo,
+              sha: context.payload.pull_request.head.sha, state: 'pending',
+              context: 'deploy-check',
+              description: '/deploy-check (comment this on this PR to run a deploy check).',
+            });
+
   authorize:
     if: github.event.issue.pull_request && github.event.comment.body == '/deploy-check'
     runs-on: ubuntu-latest

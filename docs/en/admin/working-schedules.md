@@ -24,6 +24,7 @@ Manage each teacher's weekly timetable from their own employee record, and set u
 - Schedule frameworks: **Configuration → Teachers → Schedule frameworks**
 - Default framework setting: **Settings → Employees → "Default schedule framework"**
 - A teacher's own schedule: **Employees → [open the teacher] → Schedule** tab
+- Batch import from a file: **Configuration → Teachers → Working schedules** → ⚙️ (cog) menu → **Import: planner data**
 
 ---
 
@@ -94,41 +95,115 @@ Below the grid, a small summary table shows the teacher's total weekly hours in 
 
 The break is never counted in either column. A period that only partially overlaps an hour still counts as a full hour. Each column shows its own total, followed by the overall total (24 hours for a full-time teacher). This summary always reflects the saved schedule, so it disappears while you're editing and reappears (updated) once you save.
 
+A block for a break the teacher hasn't explicitly set up may still show, filled in automatically from the schedule framework(s) of the level(s) the teacher actually teaches — this is a visual aid only; nothing is actually saved for it until it's added as a real card in Edit mode (see below).
+
+Two blocks sharing the exact same time (see "Mid-Course Subject Handoff" below) show side by side instead of one hiding the other.
+
 ---
 
 ## Edit a Teacher's Schedule
 
+The weekly grid splits into 5 day columns (Monday–Friday); within each day, independent **cards** — one per real or still-unassigned period — hold everything about that block: an optional date range, its own start/end time, a subject/group or a non-teaching reason, and a classroom.
+
 1. Open the teacher's **Schedule** tab and click **Edit**.
-2. Every row is one real weekly period (its own exact time, editable via the two time fields on the left) — pick a **subject** and a **group** for it, or a **non-teaching** reason, from the dropdowns in each day's column.
-3. To change a period's time: edit the start or end time field directly (moving the start keeps the period's length).
-4. To remove a period entirely: use the trash icon next to its time.
-5. To add a period the framework didn't have (e.g. a teacher who mixes two levels' bell schedules): click **Add period** at the bottom of the time column, set its time, and fill it in for whichever day(s) it applies to.
-6. Click **Save** to apply, or **Cancel** to discard everything and leave the schedule untouched.
+2. Each day's column starts pre-filled with the framework's own periods (including its breaks/meetings) as blank cards — pick a **subject** and a **group** for one, or a **non-teaching** reason, from its own dropdowns.
+3. To change a card's time: edit its start or end time field directly (moving the start keeps the card's length).
+4. To set a classroom other than the group's own default: pick one from the card's own **Classroom** dropdown — leave it blank to keep using the group's default.
+5. To remove a card entirely: use its own trash icon.
+6. To add a card the framework didn't have (e.g. a teacher who mixes two levels' bell schedules, or the same weekday/time with two different subjects at different points in the year — see "Mid-Course Subject Handoff" below): click **+ Add** at the bottom of that day's column, set its time, and fill it in.
+7. Click **Save** to apply, or **Cancel** to discard everything and leave the schedule untouched.
 
-> Leaving a manually-added period unassigned and saving simply drops it — only real assignments are kept. If you re-open **Edit** later, the framework's own periods reappear as gaps to fill in, but a discarded manual period does not.
+   ![Two cards on the same weekday, each with its own date range, time, subject, group and classroom](../../assets/admin/working-schedules-edit-cards.png)
 
----
+Cards within a day are always shown sorted by start time, then end time — two cards at the exact same time sort by their own start date instead.
 
-## Import a Teacher's Schedule from a File
+> Leaving a manually-added card unassigned and saving simply drops it — only real assignments are kept. If you re-open **Edit** later, the framework's own cards reappear as gaps to fill in, but a discarded manual card does not.
 
-If your centre already exports schedules from an external planning tool (XML), you can import one directly for a specific teacher instead of building it by hand:
-
-1. Open the teacher's **Schedule** tab and click **Import**.
-2. Attach the XML file.
-3. If the teacher already has a schedule, you'll see a warning that it will be updated (not replaced from scratch) — subject assignments and attendance templates are kept in sync with the new file.
-4. Click **Import**.
+There is no drag-and-drop between cards or days — to move a card to a different day, remove it and add a new one there instead.
 
 ---
 
-## Import Several Teachers' Schedules at Once
+## Mid-Course Subject Handoff
 
-If you have several planner export files to import in one go (each file can already describe more than one teacher, matched by e-mail), use the general importer instead of the per-teacher button:
+The same weekday/time/room slot can hold two different subjects across the year — e.g. a regular module runs until February, then the end-of-course project takes over the exact same slot for the rest of the year. Set both halves up on the calendar upfront, in September, instead of having to remember to edit the schedule on the actual handoff day.
+
+1. Open the teacher's **Schedule** tab and click **Edit**.
+2. Fill in the first card as usual (subject, group, time).
+3. Set its two date fields (start, then end) to the first half of the year (e.g. September to February).
+4. Click **+ Add** on the same day to add a second card, and give it the exact same start/end time as the first.
+5. Fill in the second card with the other subject/group, and set its own two date fields to the rest of the year (e.g. March to July).
+6. Click **Save**.
+
+   ![Both subjects showing side by side on Monday's read-only weekly grid](../../assets/admin/working-schedules-midcourse-handoff.png)
+
+Both cards then show up side by side on the read-only weekly grid, instead of one hiding the other. Leaving a card's date fields blank means "valid all course year" — the normal, unchanged default for a card that never needs to hand off to anything else.
+
+---
+
+## Import Working Schedules From a File
+
+If your centre already exports schedules from an external planning tool (XML), use the batch importer instead of building schedules by hand — each file can already describe several teachers at once (matched by e-mail), and you can attach more than one file in the same run. There is no separate per-teacher import any more: a teacher joining mid-year gets their schedule via **New** on their own **Schedule** tab (see "Start a Teacher's Schedule From a Framework or From Another Teacher" below) or by hand, never a single-teacher file upload.
+
+The wizard walks you through several screens, each showing its own short explanation of what it checks and what to do with it — the numbered steps below are a detailed reference, not the only place to find out what's going on.
 
 1. Go to **Configuration → Teachers → Working schedules**.
 2. Open the ⚙️ (cog) menu above the list and choose **Import: planner data**.
-3. Attach as many XML files as you need.
-4. If any of the teachers found across those files already has a schedule, you'll see a warning listing them — schedules are updated, not replaced from scratch.
-5. Click **Import**.
+3. On the **Welcome** screen, attach one or more XML files, then click **Continue** — nothing is written yet at this point, and nothing about the files' content is checked here either.
+
+   ![The wizard's Welcome screen with a planner file attached](../../assets/admin/working-schedules-import-01-welcome.png)
+4. If the files mention any group name EMS couldn't match automatically, a **Resolve groups** screen lists each one: pick the real group from the dropdown for each row (or create one on the spot, the same way you would from any other group field), then click **Continue**. If every group was recognized automatically, you'll see a confirmation message instead of a list. **Continue** shows grayed out until every row has a group picked.
+
+   ![The Resolve groups screen listing an unresolved group name found in the file](../../assets/admin/working-schedules-import-02-resolve-groups.png)
+
+   This same screen also checks that every group referenced already has a classroom set — a group whose name resolved just fine but has no room of its own gets its own second list here, right below the first. Pick a classroom for each one and click **Continue**; the classroom you pick is saved on the group itself, not just for this one import, so you'll never be asked again for that group. If nothing is missing, you won't see this second list at all.
+
+   ![The Resolve groups screen listing a group that resolved fine but still has no classroom assigned](../../assets/admin/working-schedules-import-02b-resolve-groups-classroom.png)
+5. If a file names a subject that isn't actually taught in the group's own study (a wrong subject code, or a group assigned to the wrong subject), a **Resolve subjects** screen lists each mismatch, letting you correct **either side** — whichever one was actually the mistake: the **Group(s)** field starts on the file's own group(s) but can be changed (remove the wrong one, add the right one, same as any other group tag field); the **Subject** dropdown starts on the file's own subject and only lets you pick one actually taught in the group's (possibly just-corrected) study. Fixing the group alone is often enough on its own, if the file's subject was right all along. If every subject matched correctly, you'll see a confirmation message instead. **Continue** shows grayed out until every row has a valid combination.
+
+   ![The Resolve subjects screen listing a subject/group mismatch found in the file](../../assets/admin/working-schedules-import-03-resolve-subjects.png)
+6. If the files mention a teacher e-mail or not-yet-hired post code (`X1`, `X2`...) EMS couldn't match to an existing teacher, a **Resolve teachers** screen lists each one, with **New** ticked by default (assuming a genuinely never-hired teacher) — leave it ticked to create a brand-new pending-identification teacher for it at the final Import step (see "Teachers Not Yet Hired" below); for an e-mail-shaped row, the file's own e-mail is additionally kept and pre-filled as their **Work email**, editable by hand (**Assign corporate email manually** ticked) rather than auto-generated, since it hasn't been confirmed yet. If it's actually a typo/mismatch of an already-existing teacher — or a code/e-mail you recognize as the SAME real person already listed under a different row on this same screen — untick **New** and pick the real teacher from the dropdown instead (unticking is what unlocks it); picking the same teacher for two different rows resolves both to that one person, no duplicate created. If every e-mail/code was recognized, you'll see a confirmation message instead. **Continue** shows grayed out here too until every row has either a teacher picked or **New** ticked.
+
+   ![The Resolve teachers screen with the New checkbox before the Teacher dropdown](../../assets/admin/working-schedules-import-04-resolve-teachers.png)
+7. If two different teachers in the same batch end up scheduled in the same classroom at the same time — or the same real teacher (e.g. two identifiers you resolved to the same person on the previous screen) ends up double-booked at the same time in two different rooms — a **File conflicts** screen lists every colliding pair, grouped into a card per conflict type ("Co-teaching", "Split session", "Room conflict", "Same teacher, different room"), and within each card, one block per teacher+subject combination (ignoring which specific group/day/time each individual pair happens to fall on) holding every pair that shares it. Each block has its own dropdown at the top ("— apply to all —") — pick a resolution there and it's applied to every row underneath at once (you can still change any individual row by hand afterward). Each row spells out both colliding entries in full, joined by **"vs."** — reading left to right is what "Left"/"Right" mean in the resolution options below. The resolution options themselves: **"Confirm"** if they're genuinely sharing that class (only offered for "Co-teaching" rows); **"Reassign rooms"** for a real room clash — pick the actual room for each side, since both start pre-filled with the same colliding one; or **"Left prevails"/"Right prevails"** to simply keep one side (the one before/after "vs." on that row) and drop the other. A "Same teacher, different room" row only ever offers "Left prevails"/"Right prevails" — reassigning a room fixes nothing when the real problem is one teacher needed in two places at once. If there's nothing to resolve, you'll see a confirmation message instead. **Continue** shows grayed out until every row has an actual resolution (for "Reassign rooms", that means the two rooms must actually differ).
+
+   ![The File conflicts screen grouped into a card, with a bulk resolution dropdown above each colliding pair](../../assets/admin/working-schedules-import-05-file-conflicts.png)
+8. If any entry from the file collides with a classroom+time already actively used by someone else's existing schedule, an **Existing schedule conflicts** screen lists each one the same grouped-cards way — here each row explicitly prefixes its two sides **"File: ..."** (the new entry) and **"Database: ..."** (the already-existing session), instead of "vs." — "Left prevails" always means the **File** side wins, "Right prevails" always means the **Database** side wins, matching that same order. With the same resolution options as "File conflicts" above: choosing **"Left prevails"** archives the existing session (freeing the slot for the new one); choosing **"Right prevails"** drops the new entry instead, keeping the existing session untouched. If there's nothing to resolve, you'll see a confirmation message instead.
+
+   ![The Existing schedule conflicts screen, showing a File entry colliding with a Database session](../../assets/admin/working-schedules-import-06-existing-schedule-conflicts.png)
+9. An **Overall summary** screen recaps the whole run before you commit to it: a count of every unresolved group name, teacher e-mail/code, pending teacher, and conflict resolved along the way, plus a list of every teacher this import already matched to a real, existing employee (whether recognized automatically or corrected on the "Resolve teachers" screen) — a heads-up that this import is about to update (override) their schedule/subject assignments. If none of the file's teachers already exist, you'll see a confirmation message instead of that list. Since none of the earlier steps let you go back, this is your last chance to check everything looks right before clicking Import.
+
+   ![The Overall summary screen recapping every resolution made during the import](../../assets/admin/working-schedules-import-07-overall-summary.png)
+
+   As soon as this screen appears, a CSV file with that same summary — one row per resolution made — downloads to your computer automatically, ready to keep as your own record of the run. Scroll to the bottom of the screen to see the download link if you want to grab it again.
+
+   ![The download link for the summary CSV at the bottom of the Overall summary screen](../../assets/admin/working-schedules-import-07b-overall-summary-download.png)
+10. Click **Import**. This is the point where everything is actually written.
+
+> Run this during next-course preparation, once the previous course's schedules have already been archived by the "Setting Up the Next Course" wizard — running it against a course already in progress can create conflicts that then need manual resolution.
+
+If any of the teachers found across the files already has a schedule, it's updated in place (not replaced from scratch) once you click **Import** — existing subject assignments and attendance templates stay in sync with the new file.
+
+---
+
+## Teachers Not Yet Hired (Pending Identification)
+
+New timetables sometimes arrive before every post is staffed — your planner tool names those rows with a placeholder code (`X1`, `X2`...) instead of a real teacher's e-mail. Importing such a file no longer fails on those rows:
+
+> The same pending-identification mechanism also covers a genuine e-mail that doesn't match any existing teacher — tick **New** for that row on the **Resolve teachers** screen instead of picking one (see step 5 of "Import Working Schedules From a File" above). The only difference from a placeholder code is that the file's e-mail is kept, pre-filled as an editable **Work email** (**Assign corporate email manually** ticked), rather than left for a later "Generate Google account" to assign automatically.
+
+1. Attach the file and click through the wizard as usual (see "Import Working Schedules From a File" above) — a placeholder code isn't treated as a problem at any step.
+2. Click **Import** on the final step. A new employee record is created for each not-yet-identified code, already named e.g. "Pending teacher (X1)", with **their schedule, subjects and attendance lists already set up** exactly as if they were a known teacher.
+3. These records show a **"Pending identification"** badge in the Teachers list/kanban and a ribbon on their own form, so they're easy to find (use the **Pending identification** filter/group-by in the Teachers list) and easy to tell apart from a real, already-identified teacher.
+
+When the post is filled:
+
+1. Open the pending teacher's employee record.
+2. Replace the placeholder **Name** with the real teacher's name, and fill in their **Personal email**.
+3. Click **Generate Google account**, exactly as you would for any new teacher.
+
+That single click both creates the teacher's Google Workspace account/EMS login **and** confirms their identity — the "Pending identification" badge disappears, and nothing about their already-imported schedule, subjects or attendance lists needs to be redone.
+
+Re-importing an updated file for a post that's still unstaffed (same placeholder code) updates that same pending teacher's schedule in place, the same way re-importing an already-identified teacher's file does — it never creates a second, duplicate record for the same code.
 
 ---
 

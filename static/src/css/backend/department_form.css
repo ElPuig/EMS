@@ -1,0 +1,5 @@
+@media (min-width: 576px) {
+    .ems_department_chart_wide .o_hr_department_chart {
+        width: 100% !important;
+    }
+}

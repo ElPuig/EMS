@@ -1,0 +1,28 @@
+/* Fixed-width column grid shared by every row of the working-schedules import wizard's grouped
+   conflict cards (File conflicts / Existing schedule conflicts) - developer feedback (2026-08-10):
+   "el interior de las tarjetas queda más alineado... con una tabla sería sencillo... si la
+   alineación coincide entre tarjetas, quedará más bonito". A plain CSS Grid with the SAME fixed
+   template applied to every row (the sub-group's own header row included, so its bulk-resolution
+   dropdown lines up with the per-row ones below it) gives the same column alignment a table would,
+   consistently across every sub-group AND every card - since it's one shared rule, not something
+   computed per-table. The description column is the only flexible one (`minmax(0, 1fr)` - the
+   `minmax(0, ...)` half is what lets a long description actually wrap instead of overflowing the
+   grid track, a plain `1fr` alone does not); the resolution dropdown and the two room pickers are
+   fixed-width, present as tracks even when a row has nothing to put in them (an ordinary conflict
+   row with no room pickers still only occupies the first two columns - the grid still reserves the
+   trailing two tracks' worth of space, which is what keeps every row's own dropdown at the exact
+   same horizontal position regardless of whether the rows around it show room pickers or not). */
+.ems_conflict_grid_row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 170px 150px 150px;
+    align-items: center;
+    column-gap: 0.5rem;
+}
+
+.ems_conflict_grid_row select {
+    width: 100%;
+}
+
+.ems_conflict_space .o-autocomplete {
+    width: 100%;
+}

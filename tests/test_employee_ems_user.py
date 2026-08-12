@@ -4,6 +4,8 @@ from unittest.mock import MagicMock, patch
 
 from odoo.tests.common import TransactionCase
 
+from .common import mock_outgoing_email
+
 
 class TestEmployeeEmsUser(TransactionCase):
     """Backend tests for the automatic EMS user (res.users) creation that follows
@@ -18,12 +20,7 @@ class TestEmployeeEmsUser(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        mail_server_patcher = patch(
-            'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email',
-            return_value='test-message-id',
-        )
-        cls.mail_transport = mail_server_patcher.start()
-        cls.addClassCleanup(mail_server_patcher.stop)
+        cls.mail_transport = mock_outgoing_email(cls)
 
         cls.company = cls.env.company
         cls.company.write({
@@ -130,6 +127,29 @@ class TestEmployeeEmsUser(TransactionCase):
             teacher.action_create_google_account()
         deliver.assert_not_called()
         self.assertFalse(teacher.user_id)
+
+    # --- action_create_ems_user (header button) ----------------------------
+    def test_action_create_ems_user_links_user_without_touching_google(self):
+        teacher = self._new_employee(work_email='berta.button@elpuig.xeill.net')
+        with patch.object(type(teacher), '_gw_deliver_credentials') as deliver, \
+                patch.object(type(teacher), 'action_create_google_account') as create_account:
+            teacher.action_create_ems_user()
+        deliver.assert_not_called()
+        create_account.assert_not_called()
+        self.assertTrue(teacher.user_id)
+        self.assertEqual(teacher.user_id.login, 'berta.button@elpuig.xeill.net')
+
+    def test_action_create_ems_user_noop_without_work_email(self):
+        teacher = self._new_employee()
+        teacher.action_create_ems_user()
+        self.assertFalse(teacher.user_id)
+
+    def test_action_create_ems_user_idempotent(self):
+        teacher = self._new_employee(work_email='berta.button2@elpuig.xeill.net')
+        teacher.action_create_ems_user()
+        user = teacher.user_id
+        teacher.action_create_ems_user()
+        self.assertEqual(teacher.user_id, user)
 
     def test_relink_archived_user_by_login(self):
         existing = self.env['res.users'].with_context(no_reset_password=True).create({

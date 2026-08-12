@@ -1,3 +1,4 @@
+import csv
 import os
 
 from odoo.tests.common import TransactionCase, tagged
@@ -17,15 +18,37 @@ ALLOWED_NON_IMPORT_IDS = {
     )
 }  # extend the shared data/cat/ems.study.csv record with centre subjects
 
+# The one file allowed to stay XML under data/custom/ - see CLAUDE.md's "Confirmed real,
+# remaining CSV-incompatible case" note. Its product_id is resolved via a <field search="...">
+# domain lookup (no external id of its own to reference), which CSV's load() has no
+# equivalent for - every other data/custom/ file has been converted to CSV.
+ALLOWED_XML_FILES = {'data/custom/ccff/ems_enrollment_template_opt.xml'}
+
 
 @tagged('post_install', '-at_install')
 class TestDataCustomImportPrefix(TransactionCase):
     """CSV records under data/custom/ must use the __import__. xmlid prefix
     (CLAUDE.md's "Data folder conventions") so an EMS module upgrade never
-    silently deletes centre data. XML <record> tags are exempted for now:
-    Odoo's XML loader rejects __import__. ids outright (see CLAUDE.md's
-    "Hard limitation" note) - that backlog needs converting those files to
-    CSV, tracked separately."""
+    silently deletes centre data. Every data/custom/ file is CSV except the
+    one documented, confirmed exception in ALLOWED_XML_FILES above (a CSV
+    hard limitation, not a backlog item)."""
+
+    def test_custom_has_no_undocumented_xml_files(self):
+        violations = []
+        custom_dir = os.path.join(MODULE_ROOT, 'data', 'custom')
+        for dirpath, _dirnames, filenames in os.walk(custom_dir):
+            for filename in filenames:
+                if not filename.endswith('.xml'):
+                    continue
+                rel_path = os.path.relpath(os.path.join(dirpath, filename), MODULE_ROOT).replace(os.sep, '/')
+                if rel_path not in ALLOWED_XML_FILES:
+                    violations.append(rel_path)
+        self.assertFalse(
+            violations,
+            "data/custom/ must be CSV, not XML, so its records can use the __import__. "
+            "xmlid prefix (see CLAUDE.md's Data folder conventions) - undocumented XML "
+            "file(s) found:\n" + "\n".join(violations),
+        )
 
     def test_custom_csv_ids_use_import_prefix(self):
         violations = []
@@ -35,10 +58,10 @@ class TestDataCustomImportPrefix(TransactionCase):
                 if not filename.endswith('.csv'):
                     continue
                 path = os.path.join(dirpath, filename)
-                with open(path, encoding='utf-8') as csv_file:
-                    lines = csv_file.read().splitlines()
-                for line in lines[1:]:
-                    record_id = line.split(',', 1)[0].strip('"')
+                with open(path, encoding='utf-8', newline='') as csv_file:
+                    rows = list(csv.reader(csv_file))
+                for row in rows[1:]:
+                    record_id = row[0] if row else ''
                     if not record_id:
                         continue
                     if record_id.startswith(('__import__.', 'base.')):

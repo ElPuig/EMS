@@ -1,7 +1,8 @@
 from datetime import date
-from unittest.mock import patch
 
 from odoo.tests import tagged, HttpCase
+
+from .common import create_level_study, mock_outgoing_email
 
 
 @tagged('post_install', '-at_install')
@@ -13,18 +14,11 @@ class TestStrikeTour(HttpCase):
         # See tests/test_strike.py: neutralize real SMTP delivery — this environment has
         # real, credentialed outgoing mail servers configured (AWS SES / Gmail), and the
         # tour issues a real ems.strike (force_send=True on create()).
-        mail_server_patcher = patch(
-            'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email',
-            return_value='test-message-id',
-        )
-        mail_server_patcher.start()
-        cls.addClassCleanup(mail_server_patcher.stop)
+        mock_outgoing_email(cls)
 
     def _seed_session(self):
-        level = self.env['ems.level'].create({'acronym': 'TSTR', 'name': 'Test Level (Strike Tour)'})
-        study = self.env['ems.study'].create({
-            'code': 'TSTR001', 'acronym': 'TSTR', 'name': 'Test Study (Strike Tour)',
-            'date': date.today(), 'deprecated': False, 'level_id': level.id,
+        level, study = create_level_study(self, 'TSTR', level={'name': 'Test Level (Strike Tour)'}, study={
+            'code': 'TSTR001', 'name': 'Test Study (Strike Tour)', 'date': date.today(),
         })
         subject = self.env['ems.subject'].create({
             'code': 'TSTR001', 'acronym': 'TSTR', 'name': 'Test Subject (Strike Tour)',
@@ -47,8 +41,8 @@ class TestStrikeTour(HttpCase):
                 'user_id': self.env.ref('base.user_admin').id,
             })
         template = self.env['ems.attendance_template'].create({
-            'teacher_ids': [(6, 0, [admin_employee.id])], 'level_id': level.id, 'study_id': study.id,
-            'subject_id': subject.id, 'group_ids': [(6, 0, [group.id])], 'space_id': space.id,
+            'teacher_ids': [(6, 0, [admin_employee.id])], 'study_ids': [(6, 0, [study.id])],
+            'subject_id': subject.id, 'group_ids': [(6, 0, [group.id])],
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
         })
         schedule = self.env['ems.attendance_schedule'].create({
@@ -73,3 +67,5 @@ class TestStrikeTour(HttpCase):
         #   self.start_tour("/odoo", "ems_strike_issue", login="admin", watch=True)
         self.start_tour("/odoo", "ems_strike_issue", login="admin")
         self.start_tour("/odoo", "ems_strike_consult", login="admin")
+        self.start_tour("/odoo", "ems_strike_session_history", login="admin")
+        self.start_tour("/odoo", "ems_strike_partner_stat_button", login="admin")

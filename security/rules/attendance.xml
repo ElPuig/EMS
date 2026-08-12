@@ -46,6 +46,31 @@
         <field name="perm_unlink" eval="True"/>
     </record>
 
+    <record id="rule_attendance_schedule_teacher_session_read" model="ir.rule">
+        <!-- Read-only, additive to the rule above: a teacher who is teaching/has taught a
+             session built from this schedule (session_teacher_id, template_teacher_ids, or
+             the session's own create_uid — same clauses as rule_attendance_session_teacher_own
+             below) can open that session even when they are not one of the schedule's own
+             template.teacher_ids (e.g. a guard-duty/substitution session covering someone
+             else's regular class). Without this, the session's form still loads (its own rule
+             allows it), but the attendance_schedule_id field on it raises an access error. -->
+        <field name="name">Attendance schedule: read via own sessions</field>
+        <field name="model_id" ref="ems.model_ems_attendance_schedule"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">
+            [
+                '|', '|',
+                ('attendance_session_ids.create_uid', '=', user.id),
+                ('attendance_session_ids.template_teacher_ids.user_id.id', '=', user.id),
+                ('attendance_session_ids.session_teacher_id.user_id.id', '=', user.id)
+            ]
+        </field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
     <!-- ems.attendance_session_header -->
     <record id="rule_attendance_session_admin" model="ir.rule">
         <field name="name">Attendance session: all data</field>

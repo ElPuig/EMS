@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- Same DOM/classes as web.Ribbon (views/widgets/ribbon/ribbon.xml - .ribbon/.ribbon-top-right
+         CSS is already loaded globally by the web module), so this renders identically to the
+         native ribbon in both form and kanban - only the background color is a live per-record
+         value (see archived_reason_ribbon_field.js) instead of a Bootstrap class name. -->
+    <t t-name="ems.ArchivedReasonRibbonField">
+        <div class="ribbon ribbon-top-right">
+            <span t-attf-style="background-color:{{colorHex}}" t-att-title="text">
+                <t t-esc="text"/>
+            </span>
+        </div>
+    </t>
+
+</templates>

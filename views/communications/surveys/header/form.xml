@@ -242,6 +242,8 @@
                         <field name="state" widget="statusbar" statusbar_visible="draft,computed,uploaded,open,closed"/>                       
                     </header>
                     <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <field name="active" invisible="True"/>
                         <field name="csv_data" invisible="True"/>
                         <group string="Main data" col="4">
                             <group>

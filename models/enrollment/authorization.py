@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
 class EmsAuthorizationTemplate(models.Model):
     _name = 'ems.authorization.template'
     _description = 'Authorization Template'
+    _order = 'name'
 
     name = fields.Char(string='Title', required=True, help="E.g., Image and Sound Use Authorization")
     legal_text = fields.Html(string='Legal Text', required=True)
@@ -21,15 +22,15 @@ class EmsAuthorizationTemplate(models.Model):
         ('health', 'Health Data'),
         ('share', 'Share with Family'),
         ('other', 'Other / General')
-    ], string="Authorization Type", default='other', 
+    ], string="Authorization Type", default='other',
     help="Select the specific type to automatically update the student's file.")
-    
+
     ems_level_ids = fields.Many2many(
-        'ems.level', 
+        'ems.level',
         string='Applies to Levels',
         help="Select the levels this applies to."
     )
-    
+
     ems_study_ids = fields.Many2many(
         'ems.study',
         string='Applies to Studies',
@@ -39,44 +40,41 @@ class EmsAuthorizationTemplate(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        """
-        Override the template creation so that, as soon as it is created,
-        it is automatically linked to open enrollments.
-        """
-        # 1. Create the templates using Odoo's original method
-        templates = super(EmsAuthorizationTemplate, self).create(vals_list)
-        
-        # 2. Apply retroactive logic to each new template
+        """A new template retroactively attaches itself to every open enrollment
+        it applies to, not just future ones."""
+        templates = super().create(vals_list)
         for template in templates:
             template.action_apply_to_open_enrollments()
-            
         return templates
 
-    def action_apply_to_open_enrollments(self):
-        """
-        Search for pre-enrollments and add this authorization
-        if they match the Level and Study criteria.
+    def _matches_scope(self, level, study):
+        """AND-of-scopes: this template applies to a given level/study pair unless a
+        scope it restricts on (ems_level_ids/ems_study_ids) is set and doesn't contain
+        the given value. An empty scope field applies to everything on that dimension.
+        Shared by action_apply_to_open_enrollments() (template -> matching enrollments)
+        and sale.order._get_authorization_commands() (enrollment -> matching templates)
+        so both directions can never drift apart again - see
+        docs/en/developers/enrollment/authorization.md.
         """
         self.ensure_one()
-        
-        # Only search for unconfirmed enrollments (draft = Quotation, sent = Quotation Sent)
-        domain = [('state', 'in', ['draft', 'sent'])]
-        
-        # If the template is restricted to specific levels, filter enrollments by those levels
-        if self.ems_level_ids:
-            domain.append(('ems_level_id', 'in', self.ems_level_ids.ids))
-            
-        # Same for studies
-        if self.ems_study_ids:
-            domain.append(('ems_study_id', 'in', self.ems_study_ids.ids))
-            
-        # Execute the database search
-        open_enrollments = self.env['sale.order'].search(domain)
-        
-        # Prepare a list of records to create (batch creation is much faster)
+        if self.ems_level_ids and level not in self.ems_level_ids:
+            return False
+        if self.ems_study_ids and study not in self.ems_study_ids:
+            return False
+        return True
+
+    def action_apply_to_open_enrollments(self):
+        """Attach this template's authorization to every still-open (draft/sent)
+        enrollment matching its level/study scope (AND-of-scopes, see
+        _matches_scope()), skipping enrollments that already have it.
+        """
+        self.ensure_one()
+        open_enrollments = self.env['sale.order'].search(
+            [('state', 'in', ['draft', 'sent'])]
+        ).filtered(lambda enrollment: self._matches_scope(
+            enrollment.ems_level_id, enrollment.ems_study_id))
         auths_to_create = []
         for enrollment in open_enrollments:
-            # As a safety measure, check if this enrollment already has this template
             existing = enrollment.ems_authorization_ids.filtered(lambda a: a.template_id == self)
             if not existing:
                 auths_to_create.append({
@@ -84,31 +82,20 @@ class EmsAuthorizationTemplate(models.Model):
                     'template_id': self.id,
                     'status': 'pending',
                 })
-        
-        # Create the authorizations if there are valid candidates
         if auths_to_create:
             self.env['ems.authorization'].create(auths_to_create)
 
     def action_remove_from_open_enrollments(self):
-        """
-        Search for pending authorizations linked to this template
-        in open pre-enrollments (draft/sent) and remove them.
-        Signed/Answered authorizations are protected and ignored.
-        """
+        """Drop this template's still-pending authorizations from open
+        (draft/sent) enrollments. Answered ones (accepted/rejected) are
+        never touched, on any enrollment state."""
         self.ensure_one()
-        
-        # Buscamos las autorizaciones que cumplen los criterios de eliminación
         auths_to_delete = self.env['ems.authorization'].search([
             ('template_id', '=', self.id),
-            ('status', '=', 'pending'), # Protección vital: solo borramos las pendientes
+            ('status', '=', 'pending'),
             ('enrollment_id.state', 'in', ['draft', 'sent'])
         ])
-        
-        # Si encuentra alguna, la elimina (unlink)
-        if auths_to_delete:
-            # Opcional: Podrías contar cuántas se borran si quisieras devolver un mensaje,
-            # pero el método unlink() directo es la forma más limpia en Odoo.
-            auths_to_delete.unlink()
+        auths_to_delete.unlink()
 
 class EmsAuthorizationField(models.Model):
     _name = 'ems.authorization.field'
@@ -130,14 +117,15 @@ class EmsAuthorizationField(models.Model):
 class EmsAuthorization(models.Model):
     _name = 'ems.authorization'
     _description = 'Enrollment Authorization'
+    _order = 'id'
 
     enrollment_id = fields.Many2one('sale.order', string='Enrollment', ondelete='cascade', required=True)
     template_id = fields.Many2one('ems.authorization.template', string='Template', required=True, ondelete='restrict')
     course_id = fields.Many2one(related='enrollment_id.ems_course_id', string="Academic Year", readonly=True)
-    
+
     legal_text = fields.Html(related='template_id.legal_text', string="Legal Text", readonly=True)
     template_download_url = fields.Char(related='template_id.template_download_url', string="Template URL", readonly=True)
-    
+
     status = fields.Selection([
         ('pending', 'Pending'),
         ('yes', 'Accepted'),
@@ -149,8 +137,8 @@ class EmsAuthorization(models.Model):
         string='Acceptance Only',
         readonly=True,
         store=False,
-    )    
-    
+    )
+
     response_date = fields.Datetime(string='Response Date', readonly=True)
     response_uid = fields.Many2one(
         'res.users',
@@ -168,6 +156,10 @@ class EmsAuthorization(models.Model):
         sanitize=False,
     )
 
+    _sql_constraints = [
+        ('unique_enrollment_template', 'unique(enrollment_id, template_id)', 'This authorization is already requested in this enrollment.')
+    ]
+
     @api.depends('template_id.legal_text', 'enrollment_id.partner_id.name',
                  'enrollment_id.ems_course_id.name', 'enrollment_id.ems_study_id.name')
     def _compute_legal_text_rendered(self):
@@ -182,42 +174,38 @@ class EmsAuthorization(models.Model):
                 text = text.replace(placeholder, value)
             auth.legal_text_rendered = text
 
-    _sql_constraints = [
-        ('unique_enrollment_template', 'unique(enrollment_id, template_id)', 'This authorization is already requested in this enrollment.')
-    ]
-
     def write(self, vals):
-        """
-        Intercepts the write method to enforce that internal users (admins/staff)
-        must attach a document if they manually change the status.
-        """
-        if 'status' in vals and vals['status'] == 'no':
-            for auth in self:
-                if auth.template_id.acceptance_only:
-                    raise ValidationError(
-                        "The authorization '%s' can only be accepted, not rejected." % auth.template_id.name
-                    )
-                
-        # Check if the 'status' is being changed to something other than 'pending'
-        if 'status' in vals and vals['status'] != 'pending':
-            for auth in self:
-                # Get the document from the current save operation, or from the database if it was already there
-                current_doc = vals.get('signed_document', auth.signed_document)
-                
-                # Check if the user is an internal user (staff/admin) and the document is missing
-                if not current_doc and self.env.user.has_group('base.group_user'):
-                    raise ValidationError("You must attach a signed PDF document to manually change the authorization status.")
+        """Enforce authorization-response business rules before persisting.
 
-        if 'status' in vals and vals['status'] != 'pending':
+        An acceptance-only authorization can never be rejected. An internal
+        user (staff/admin) manually changing the status away from 'pending'
+        must attach a signed document; portal users are exempt, since the
+        portal flow generates and attaches the response certificate itself
+        right after this write (see
+        controllers/portal_enrollment.py:portal_enrollment_authorize).
+        """
+        responding = 'status' in vals and vals['status'] != 'pending'
+        if responding:
+            for auth in self:
+                if vals['status'] == 'no' and auth.template_id.acceptance_only:
+                    raise ValidationError(_(
+                        "The authorization '%(name)s' can only be accepted, not rejected.",
+                        name=auth.template_id.name,
+                    ))
+                current_doc = vals.get('signed_document', auth.signed_document)
+                if not current_doc and self.env.user.has_group('base.group_user'):
+                    raise ValidationError(_(
+                        "You must attach a signed PDF document to manually "
+                        "change the authorization status."))
             vals['response_date'] = fields.Datetime.now()
             vals['response_uid'] = self.env.user.id
 
-        # Si se elimina el documento, limpiar también la fecha de respuesta
+        # Clearing the document also clears the response metadata tied to it.
         if 'signed_document' in vals and not vals['signed_document']:
             vals['response_date'] = False
             vals['response_uid'] = False
 
-        return super(EmsAuthorization, self).write(vals)
+        return super().write(vals)
 
 
 class EmsAuthorizationResponse(models.Model):

@@ -1,9 +1,10 @@
 import base64
 from datetime import date
-from unittest.mock import patch
 
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
+
+from .common import create_level_study, mock_outgoing_email
 
 
 class TestEnrollmentBenefit(TransactionCase):
@@ -23,19 +24,14 @@ class TestEnrollmentBenefit(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         # Never let a test reach a real SMTP server (see CLAUDE.md).
-        mail_server_patcher = patch(
-            'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email',
-        )
-        mail_server_patcher.start()
-        cls.addClassCleanup(mail_server_patcher.stop)
+        mock_outgoing_email(cls)
 
         Course = cls.env['ems.course']
         cls.course = Course.search([('is_enrollment_default', '=', True)], limit=1) \
             or Course.create({'start': 2099, 'end': 2100, 'is_enrollment_default': True})
-        cls.level = cls.env['ems.level'].create({'acronym': 'BNL', 'name': 'Benefit Level'})
-        cls.study = cls.env['ems.study'].create({
+        cls.level, cls.study = create_level_study(cls, 'BNL', level={'name': 'Benefit Level'}, study={
             'code': 'BNF001', 'acronym': 'BNST', 'name': 'Benefit Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id})
+        })
         cls.subject1 = cls.env['ems.subject'].create({
             'code': 'BNSUB1', 'acronym': 'BN1', 'name': 'Benefit Subject 1',
             'study_ids': [(6, 0, [cls.study.id])]})
@@ -173,9 +169,12 @@ class TestEnrollmentBenefit(TransactionCase):
         self.assertEqual(fee.discount, 100.0)
         self.assertEqual(fee.price_subtotal, 0.0)
 
-    def test_direct_debit_invoice_trusts_bank_account(self):
-        # An untrusted debtor account must not block posting (regular user)
-        # nor be silently dropped from the invoice (superuser).
+    def test_direct_debit_invoice_raises_when_bank_not_approved(self):
+        # Self-granting trust at invoicing time used to be attempted silently, but it
+        # doesn't reliably work (confirmed against production data, 2026-07-30: 332
+        # already-posted invoices ended up with no bank reference at all) - an
+        # unapproved bank must now raise a clear error instead. See
+        # plans/student_document_iban_renewal_allow_out_payment.md.
         bank = self.env['res.partner.bank'].create({
             'acc_number': 'ES9121000418450200051332',
             'partner_id': self.student.id,
@@ -185,9 +184,23 @@ class TestEnrollmentBenefit(TransactionCase):
         order.write({'state': 'sale', 'ems_payment_method': 'direct_debit'})
         self.env.flush_all()
 
+        with self.assertRaises(ValidationError):
+            order._ems_generate_enrollment_invoice()
+
+    def test_direct_debit_invoice_uses_already_approved_bank_account(self):
+        # A bank account approved beforehand (action_approve() or the portal renewal
+        # flow, both of which set allow_out_payment) is used normally.
+        bank = self.env['res.partner.bank'].create({
+            'acc_number': 'ES9121000418450200051332',
+            'partner_id': self.student.id,
+            'allow_out_payment': True,
+        })
+        order = self._order()
+        order.write({'state': 'sale', 'ems_payment_method': 'direct_debit'})
+        self.env.flush_all()
+
         invoice = order._ems_generate_enrollment_invoice()
         self.assertEqual(invoice.partner_bank_id, bank)
-        self.assertTrue(bank.allow_out_payment)
 
     def test_reapply_requires_confirmed_order(self):
         order = self._order()

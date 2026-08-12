@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Per-dimension section shared by all 3 attendance reports (by group / student / subject):
+         a Summary table for the row, plus the opt-in, filterable "Details" (session-by-session)
+         and "Strikes" listings. Callers set: section_name, section_data (the row's _report_data),
+         section_detail_entries (already filtered by the wizard's Detail statuses) and
+         section_strikes (empty unless the wizard's Include strikes is on). -->
+    <template id="attendance_template_detail_section">
+        <h3 t-esc="section_name"/>
+
+        <h4>Summary</h4>
+        <t t-set="data" t-value="section_data"/>
+        <t t-call="ems.attendance_template_sumary_table"/>
+
+        <!-- Details/Strikes are opt-in, not every session: a full session-by-session listing per
+             row is what made the by-subject report grow with the total session count instead of
+             with what's worth reading (absences, strikes). -->
+        <t t-if="section_detail_entries">
+            <h4>Details</h4>
+            <t t-set="header" t-value="[
+                {'style' : 'width:10%;', 'value' : 'Date'},
+                {'style' : 'width:10%;', 'value' : 'Status'},
+                {'style' : 'width:20%;', 'value' : 'Teacher'},
+                {'style' : '', 'value' : 'Comment'}
+            ]"/>
+            <!-- Note: 'self' will be an 'attendance_session_line' object and is necessary to run the 'report_eval' method from the 'details_table' template. -->
+            <t t-set="rows" t-value="[
+                {'style' : '', 'value' : 'self.attendance_session_id.date'},
+                {'style' : '', 'value' : 'self.status_id.name'},
+                {'style' : '', 'value' : 'self.attendance_session_id.session_teacher_id.display_name'},
+                {'style' : '', 'value' : 'self.notes'},
+            ]"/>
+            <t t-set="entries" t-value="section_detail_entries"/>
+            <t t-call="ems.attendance_template_details_table"/>
+        </t>
+
+        <t t-if="section_strikes">
+            <h4>Strikes</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width:15%;">Date</th>
+                        <th style="width:25%;">Reason</th>
+                        <th style="width:20%;">Teacher</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="section_strikes" t-as="strike">
+                        <tr style="page-break-inside: avoid;">
+                            <td><span t-field="strike.date"/></td>
+                            <td><span t-field="strike.reason_id.display_name"/></td>
+                            <td><span t-field="strike.teacher_id.display_name"/></td>
+                            <td><span t-field="strike.notes"/></td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+        </t>
+        <p style="page-break-after:always;" />
+    </template>
+</odoo>

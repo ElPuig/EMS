@@ -9,6 +9,11 @@ modules at once.
 This wizard is the tool for that. It is reached from **Planning and Grading → Grades → Work
 placement evaluation (EM)**, next to the other grading screens.
 
+The core grading models it writes into (`ems.grade_session`, `ems.grade_subject_line`,
+`ems.grade_outcome_line`) have their own reference at [`grade_session.md`](grade_session.md);
+the official-grade bulk import from Esfera is documented separately at
+[`grade_import_wizard.md`](grade_import_wizard.md).
+
 ## What it grades
 
 The EM lives **at subject level**, never as a learning outcome (RA). A module carries an EM

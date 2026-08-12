@@ -2,11 +2,10 @@
 from odoo import models, fields, api
 
 class ProductTemplate(models.Model):
+    """Reverse link to ems.subject (which has its own product_id), plus the
+    generic-product/fee machinery for enrollment lines."""
     _inherit = 'product.template'
-    _description = "Expand the product object with a reverse link to the subject to collect the studies to which it belongs."
 
-    # Creating a reverse link to the course
-    # As the subject has a field called ‘product_id’, here we can see ‘which subject I am enrolled in’.
     ems_subject_ids = fields.One2many(
         'ems.subject', 
         'product_id', 
@@ -66,9 +65,10 @@ class ProductTemplate(models.Model):
     def _compute_ems_study_ids(self):
         for product in self:
             if product.is_generic:
-                # No sobreescribimos — el usuario lo edita manualmente solo inicializamos si está vacío
+                # Editable compute: a generic product's studies are picked by
+                # hand, so only initialize (never overwrite) when still empty.
                 if not product.ems_study_ids:
                     product.ems_study_ids = False
             else:
-                # Asignaturas: calculamos desde el sujeto vinculado
+                # A subject product's studies are always derived from its subject.
                 product.ems_study_ids = product.ems_subject_ids.mapped('study_ids')

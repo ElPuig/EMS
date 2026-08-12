@@ -24,6 +24,7 @@ Gestiona l'horari setmanal de cada docent des de la seva pròpia fitxa d'empleat
 - Marcs horaris: **Configuració → Professorat → Marcs horaris**
 - Ajust del marc predeterminat: **Configuració → Empleats → "Marc horari predeterminat"**
 - L'horari d'un docent: **Empleats → [obrir el docent] → pestanya Horari**
+- Importació d'horaris des d'un fitxer: **Configuració → Professorat → Horaris de treball** → menú ⚙️ (engranatge) → **Import: planner data**
 
 ---
 
@@ -94,41 +95,115 @@ Sota la graella, una petita taula resum mostra el total d'hores setmanals del do
 
 El pati mai es compta a cap de les dues columnes. Una franja que només se solapa parcialment amb una hora igualment compta com una hora completa. Cada columna mostra el seu propi total, seguit del total general (24 hores per a un docent a temps complet). Aquest resum sempre reflecteix l'horari desat, per la qual cosa desapareix mentre l'estàs editant i torna a aparèixer (actualitzat) un cop el desis.
 
+Un bloc de pati que el docent encara no ha configurat explícitament pot igualment aparèixer, omplert automàticament a partir dels marcs horaris del(s) nivell(s) que aquest docent realment imparteix — és només una ajuda visual, no es desa res de debò fins que s'afegeix com a targeta real en mode Edició (vegeu més avall).
+
+Dos blocs que comparteixen exactament la mateixa hora (vegeu "Canvi d'assignatura a mig curs" més avall) es mostren un al costat de l'altre en lloc que un amagui l'altre.
+
 ---
 
 ## Editar l'horari d'un docent
 
+La graella setmanal es divideix en 5 columnes de dia (dilluns–divendres); dins de cada dia, **targetes** independents — una per franja real o encara sense assignar — contenen tot el que fa referència a aquell bloc: un interval de dates opcional, la seva pròpia hora d'inici/fi, una assignatura/grup o un motiu no lectiu, i una aula.
+
 1. Obre la pestanya **Horari** del docent i fes clic a **Edita**.
-2. Cada fila és una franja setmanal real (amb la seva hora exacta, editable amb els dos camps d'hora de l'esquerra) — tria una **assignatura** i un **grup**, o un motiu **no lectiu**, als desplegables de la columna de cada dia.
-3. Per canviar l'hora d'una franja: edita directament el camp d'inici o de fi (moure l'inici manté la durada de la franja).
-4. Per eliminar una franja: fes servir la icona de paperera al costat de la seva hora.
-5. Per afegir una franja que el marc no tenia (p. ex. un docent que combina l'horari de dos nivells): fes clic a **Afegeix franja** al final de la columna d'hores, estableix la seva hora, i omple-la per als dies que correspongui.
-6. Fes clic a **Desa** per aplicar els canvis, o a **Cancel·la** per descartar-ho tot i deixar l'horari intacte.
+2. Cada columna de dia comença preomplerta amb les franges pròpies del marc (incloent-hi els seus patis/reunions) com a targetes en blanc — tria una **assignatura** i un **grup** per a una, o un motiu **no lectiu**, als seus propis desplegables.
+3. Per canviar l'hora d'una targeta: edita directament el seu camp d'inici o de fi (moure l'inici manté la durada de la targeta).
+4. Per establir una aula diferent de la per defecte del grup: tria'n una al desplegable propi d'**Aula** de la targeta — deixa-ho en blanc per continuar fent servir la del grup.
+5. Per eliminar una targeta: fes servir la seva pròpia icona de paperera.
+6. Per afegir una targeta que el marc no tenia (p. ex. un docent que combina l'horari de dos nivells, o el mateix dia/hora amb dues assignatures diferents en punts diferents de l'any — vegeu "Canvi d'assignatura a mig curs" més avall): fes clic a **+ Afegeix** al final d'aquella columna de dia, estableix la seva hora, i omple-la.
+7. Fes clic a **Desa** per aplicar els canvis, o a **Cancel·la** per descartar-ho tot i deixar l'horari intacte.
 
-> Si deixes sense assignar una franja afegida a mà i desa, simplement es descarta — només es conserven les assignacions reals. Si tornes a obrir **Edita** més endavant, les franges pròpies del marc reapareixen com a forats per omplir, però una franja manual descartada no.
+   ![Dues targetes el mateix dia de la setmana, cadascuna amb el seu propi interval de dates, hora, assignatura, grup i aula](../../assets/admin/working-schedules-edit-cards.png)
 
----
+Les targetes d'un mateix dia sempre es mostren ordenades per hora d'inici i després per hora de fi — dues targetes exactament a la mateixa hora s'ordenen per la seva pròpia data d'inici.
 
-## Importar l'horari d'un docent des d'un fitxer
+> Si deixes sense assignar una targeta afegida a mà i desa, simplement es descarta — només es conserven les assignacions reals. Si tornes a obrir **Edita** més endavant, les targetes pròpies del marc reapareixen com a forats per omplir, però una targeta manual descartada no.
 
-Si el teu centre ja exporta horaris des d'una eina externa de planificació (XML), pots importar-ne un directament per a un docent concret en lloc de construir-lo a mà:
-
-1. Obre la pestanya **Horari** del docent i fes clic a **Importa**.
-2. Adjunta el fitxer XML.
-3. Si el docent ja té un horari, veuràs un avís que s'actualitzarà (no es reemplaçarà des de zero) — les assignacions d'assignatures i les plantilles d'assistència es mantenen sincronitzades amb el fitxer nou.
-4. Fes clic a **Importa**.
+No hi ha arrossegar i deixar anar entre targetes ni entre dies — per moure una targeta a un altre dia, elimina-la i afegeix-ne una de nova allà.
 
 ---
 
-## Importar l'horari de diversos docents alhora
+## Canvi d'assignatura a mig curs
 
-Si tens diversos fitxers d'exportació de la planificació per importar d'una vegada (cada fitxer ja pot descriure més d'un docent, aparellat per correu electrònic), fes servir l'importador general en lloc del botó per docent:
+La mateixa franja de dia/hora/aula pot contenir dues assignatures diferents al llarg de l'any — p. ex. un mòdul habitual s'imparteix fins al febrer, i després el projecte de final de curs ocupa exactament la mateixa franja durant la resta de l'any. Configura totes dues meitats al calendari des del principi, al setembre, en lloc d'haver de recordar editar l'horari el dia real del canvi.
+
+1. Obre la pestanya **Horari** del docent i fes clic a **Edita**.
+2. Omple la primera targeta com de costum (assignatura, grup, hora).
+3. Estableix els seus dos camps de data (inici, després fi) a la primera meitat de l'any (p. ex. setembre a febrer).
+4. Fes clic a **+ Afegeix** al mateix dia per afegir una segona targeta, i dona-li exactament la mateixa hora d'inici/fi que la primera.
+5. Omple la segona targeta amb l'altra assignatura/grup, i estableix els seus propis dos camps de data a la resta de l'any (p. ex. març a juliol).
+6. Fes clic a **Desa**.
+
+   ![Totes dues assignatures es mostren una al costat de l'altra a la graella setmanal (només lectura) de dilluns](../../assets/admin/working-schedules-midcourse-handoff.png)
+
+Totes dues targetes apareixen llavors una al costat de l'altra a la graella setmanal (només lectura), en lloc que una amagui l'altra. Deixar en blanc els camps de data d'una targeta vol dir "vàlida tot el curs" — el comportament per defecte normal, sense canvis, per a una targeta que mai necessita cedir el pas a una altra.
+
+---
+
+## Importar horaris de treball des d'un fitxer
+
+Si el teu centre ja exporta horaris des d'una eina externa de planificació (XML), fes servir l'importador general en lloc de construir els horaris a mà — cada fitxer ja pot descriure diversos docents a la vegada (aparellats per correu electrònic), i pots adjuntar més d'un fitxer en una mateixa execució. Ja no hi ha un importador per docent individual: un docent que s'incorpora a mig curs rep el seu horari mitjançant **Nou** a la seva pròpia pestanya **Horari** (vegeu "Començar l'horari d'un docent a partir d'un marc o d'un altre docent" més avall) o a mà, mai amb una pujada de fitxer per a un sol docent.
+
+L'assistent et guia per diverses pantalles, cadascuna amb la seva pròpia explicació breu del que comprova i què fer-hi — els passos numerats de sota són una referència detallada, no l'únic lloc on trobar què està passant.
 
 1. Vés a **Configuració → Professorat → Horaris de treball**.
 2. Obre el menú ⚙️ (engranatge) de sobre la llista i tria **Import: planner data**.
-3. Adjunta tants fitxers XML com necessitis.
-4. Si algun dels docents trobats en aquests fitxers ja té un horari, veuràs un avís que els llista — els horaris s'actualitzen, no es reemplacen des de zero.
-5. Fes clic a **Importa**.
+3. A la pantalla de **Benvinguda**, adjunta un o més fitxers XML i fes clic a **Continua** — encara no s'escriu res en aquest punt, ni tampoc es comprova res del contingut dels fitxers.
+
+   ![Pantalla de Benvinguda de l'assistent amb un fitxer del planificador adjuntat](../../assets/admin/working-schedules-import-01-welcome.png)
+4. Si els fitxers esmenten algun nom de grup que EMS no ha pogut aparellar automàticament, una pantalla de **Resoldre grups** en llista cadascun: tria el grup real al desplegable de cada fila (o crea'n un al moment, igual que en qualsevol altre camp de grup) i fes clic a **Continua**. Si tots els grups s'han reconegut automàticament, veuràs un missatge de confirmació en lloc d'una llista. El botó **Continua** apareix atenuat fins que totes les files tenen un grup triat.
+
+   ![Pantalla de Resoldre grups amb un nom de grup del fitxer sense resoldre](../../assets/admin/working-schedules-import-02-resolve-groups.png)
+
+   Aquesta mateixa pantalla també comprova que tots els grups referenciats ja tinguin una aula assignada - un grup el nom del qual s'ha resolt correctament però que no té aula pròpia apareix en una segona llista, just a sota de la primera. Tria una aula per a cadascun i fes clic a **Continua**; l'aula que triïs es desa al mateix grup, no només per a aquesta importació, així que no se't tornarà a demanar per a aquell grup. Si no en falta cap, no veuràs aquesta segona llista.
+
+   ![Pantalla de Resoldre grups amb un grup ja resolt però encara sense aula assignada](../../assets/admin/working-schedules-import-02b-resolve-groups-classroom.png)
+5. Si un fitxer indica una assignatura que en realitat no s'imparteix als estudis del grup (un codi d'assignatura equivocat, o un grup assignat a l'assignatura incorrecta), una pantalla de **Resoldre assignatures** en llista cada discrepància, deixant-te corregir **qualsevol dels dos costats** — el que realment estigués malament: el camp **Grup(s)** comença amb el grup (o grups) del fitxer però es pot canviar (treu l'incorrecte, afegeix el correcte, igual que en qualsevol altre camp de grups amb etiquetes); el desplegable d'**Assignatura** comença amb l'assignatura del fitxer i només et deixa triar-ne una que realment s'imparteixi als estudis del grup (ja corregit, si l'has canviat). Sovint n'hi ha prou amb corregir el grup, si l'assignatura del fitxer ja era correcta des del principi. Si totes les assignatures coincidien correctament, veuràs un missatge de confirmació. El botó **Continua** apareix atenuat fins que totes les files tenen una combinació vàlida.
+
+   ![Pantalla de Resoldre assignatures amb un desajust entre assignatura i grup](../../assets/admin/working-schedules-import-03-resolve-subjects.png)
+6. Si els fitxers esmenten un correu de docent o un codi de lloc encara no cobert (`X1`, `X2`...) que EMS no ha pogut aparellar amb cap docent existent, una pantalla de **Resoldre docents** en llista cadascun, amb **Nou** marcat per defecte (assumint un docent genuïnament mai contractat) - deixa-ho marcat per crear un nou docent pendent d'identificació per a aquest cas al pas final d'Importar (vegeu "Docents encara no contractats" més avall); per a una fila amb correu, a més es conserva el correu del fitxer, precarregat com a **Correu de treball** editable a mà (**Assignar correu corporatiu manualment** marcat) en lloc de generar-se automàticament, ja que encara no s'ha confirmat. Si en realitat és un error/desajust d'un docent ja existent — o un codi/correu que reconeixes com la MATEIXA persona real ja llistada en una altra fila d'aquesta mateixa pantalla — desmarca **Nou** i tria el docent real al desplegable (desmarcar-lo és el que el desbloqueja); triar el mateix docent per a dues files diferents les aparella totes dues amb aquella mateixa persona, sense crear-ne cap duplicat. Si tots els correus/codis s'han reconegut, veuràs un missatge de confirmació. El botó **Continua** també apareix atenuat aquí fins que totes les files tenen un docent triat o **Nou** marcat.
+
+   ![Pantalla de Resoldre docents amb la casella Nou abans del desplegable Docent](../../assets/admin/working-schedules-import-04-resolve-teachers.png)
+7. Si dos docents diferents del mateix lot acaben programats a la mateixa aula i la mateixa hora — o si el mateix docent real (per exemple, dos identificadors que has resolt cap a la mateixa persona a la pantalla anterior) acaba amb una doble reserva a la mateixa hora en dues aules diferents — una pantalla de **Conflictes del fitxer** en llista cada parella, agrupada en una targeta per tipus de conflicte ("Co-docència", "Sessió desdoblada", "Conflicte d'aula", "Mateix docent, aula diferent"), i dins de cada targeta, un bloc per cada combinació de docent+assignatura (independentment de a quin grup/dia/hora concrets caigui cada parella), que agrupa totes les parelles que la comparteixen. Cada bloc té el seu propi desplegable a dalt ("— aplicar a tots —") — tria una resolució allà i s'aplica a totes les files de sota alhora (pots canviar qualsevol fila individual a mà després). Cada fila descriu totes dues entrades en conflicte, unides per **"vs."** — llegir d'esquerra a dreta és el que volen dir "Esquerra"/"Dreta" a les opcions de resolució de sota. Les opcions de resolució en si: **"Confirmar"** si realment comparteixen aquella classe (només s'ofereix per a files de "Co-docència"); **"Reassignar aules"** per a un xoc real d'aula - tria l'aula real per a cada costat, ja que totes dues comencen amb la mateixa aula que provoca el conflicte; o **"Preval l'esquerra"/"Preval la dreta"** per mantenir simplement un costat (el d'abans/després del "vs." d'aquella fila) i descartar l'altre. Una fila de "Mateix docent, aula diferent" només ofereix "Preval l'esquerra"/"Preval la dreta" - reassignar una aula no soluciona res quan el problema real és que un docent hagi d'estar en dos llocs alhora. Si no hi ha res a resoldre, veuràs un missatge de confirmació. El botó **Continua** apareix atenuat fins que totes les files tenen una resolució real (per a "Reassignar aules", això vol dir que les dues aules han de ser realment diferents).
+
+   ![Pantalla de Conflictes del fitxer agrupada en targetes, una per tipus de conflicte](../../assets/admin/working-schedules-import-05-file-conflicts.png)
+8. Si alguna entrada del fitxer coincideix amb una aula+hora ja utilitzada activament per l'horari existent d'algú altre, una pantalla de **Conflictes amb horaris existents** en llista cadascuna del mateix mode agrupat en targetes - aquí cada fila indica explícitament els seus dos costats amb **"Fitxer: ..."** (la nova entrada) i **"Base de dades: ..."** (la sessió ja existent), en lloc de "vs." - "Preval l'esquerra" sempre vol dir que guanya el costat del **Fitxer**, "Preval la dreta" sempre vol dir que guanya el de la **Base de dades**, seguint aquest mateix ordre. Amb les mateixes opcions de resolució que "Conflictes del fitxer" més amunt: triar **"Preval l'esquerra"** arxiva la sessió existent (alliberant l'espai per a la nova); triar **"Preval la dreta"** descarta la nova entrada en lloc d'això, deixant la sessió existent intacta. Si no hi ha res a resoldre, veuràs un missatge de confirmació.
+
+   ![Pantalla de Conflictes amb horaris existents, amb una entrada del Fitxer en conflicte amb una sessió de la Base de dades](../../assets/admin/working-schedules-import-06-existing-schedule-conflicts.png)
+9. Una pantalla de **Resum general** recapitula tota l'operació abans de confirmar-la: un recompte de cada nom de grup, correu/codi de docent, docent pendent i conflicte resolts durant el procés, més una llista de cada docent que aquesta importació ja ha aparellat amb un empleat real i existent (reconegut automàticament, o corregit a la pantalla "Resoldre docents") — un avís de que aquesta importació està a punt d'actualitzar (sobreescriure) el seu horari/assignacions d'assignatures. Si cap dels docents del fitxer existeix ja, veuràs un missatge de confirmació en lloc d'aquesta llista. Com que cap dels passos anteriors permet tornar enrere, aquesta és la darrera oportunitat de comprovar que tot és correcte abans de fer clic a Importa.
+
+   ![Pantalla de Resum general recapitulant totes les resolucions fetes durant la importació](../../assets/admin/working-schedules-import-07-overall-summary.png)
+
+   Just quan apareix aquesta pantalla, es descarrega automàticament a l'ordinador un fitxer CSV amb aquest mateix resum - una fila per cada resolució feta - a punt per guardar com a registre propi de l'operació. Desplaça't fins al final de la pantalla per veure l'enllaç de descàrrega si el vols tornar a agafar.
+
+   ![L'enllaç de descàrrega del CSV de resum al final de la pantalla de Resum general](../../assets/admin/working-schedules-import-07b-overall-summary-download.png)
+10. Fes clic a **Importa**. Aquest és el moment en què tot s'escriu de debò.
+
+> Fes-ho durant la preparació del proper curs, un cop els horaris del curs anterior ja hagin estat arxivats per l'assistent de "Configurar el proper curs" — executar-ho contra un curs ja en marxa pot generar conflictes que després caldrà resoldre a mà.
+
+Si algun dels docents trobats en els fitxers ja té un horari, s'actualitza in situ (no es reemplaça des de zero) en fer clic a **Importa** — les assignacions d'assignatures i les plantilles d'assistència existents es mantenen sincronitzades amb el fitxer nou.
+
+---
+
+## Docents encara no contractats (pendents d'identificar)
+
+De vegades arriben horaris nous abans que tots els llocs estiguin coberts — la teva eina de planificació anomena aquestes files amb un codi provisional (`X1`, `X2`...) en lloc del correu real d'un docent. Importar un fitxer així ja no falla en aquestes files:
+
+> Aquest mateix mecanisme de pendent d'identificació també cobreix un correu real que no coincideix amb cap docent existent — marca **Nou** per aquesta fila a la pantalla de **Resoldre docents** en lloc de triar-ne un (vegeu el pas 5 de "Importar horaris de treball des d'un fitxer" més amunt). L'única diferència respecte a un codi provisional és que es conserva el correu del fitxer, precarregat com a **Correu de treball** editable (**Assignar correu corporatiu manualment** marcat), en lloc de deixar-lo perquè un futur "Genera compte de Google" l'assigni automàticament.
+
+1. Adjunta el fitxer i fes clic a través de l'assistent com de costum (vegeu "Importar horaris de treball des d'un fitxer" més amunt) — un codi provisional no es tracta com un problema en cap pas.
+2. Fes clic a **Importa** al pas final. Es crea un nou registre d'empleat per a cada codi encara no identificat, ja anomenat p. ex. "Professor pendent (X1)", amb **el seu horari, assignatures i llistes d'assistència ja configurats** exactament com si fos un docent conegut.
+3. Aquests registres mostren una etiqueta **"Pendent d'identificar"** a la llista/kanban de docents i una cinta al seu propi formulari, perquè siguin fàcils de trobar (fes servir el filtre/agrupació **Pendent d'identificar** a la llista de docents) i fàcils de distingir d'un docent real ja identificat.
+
+Quan es cobreix el lloc:
+
+1. Obre la fitxa de l'empleat pendent.
+2. Substitueix el **Nom** provisional pel nom real del docent, i omple el seu **Correu personal**.
+3. Fes clic a **Generar compte Google**, exactament igual que per a qualsevol docent nou.
+
+Aquest únic clic crea el compte Google Workspace/l'accés a EMS del docent **i** confirma la seva identitat — l'etiqueta "Pendent d'identificar" desapareix, i no cal refer res de l'horari, les assignatures o les llistes d'assistència ja importats.
+
+Reimportar un fitxer actualitzat per a un lloc encara no cobert (el mateix codi provisional) actualitza l'horari d'aquest mateix docent pendent en el mateix registre, igual que reimportar el fitxer d'un docent ja identificat — mai crea un segon registre duplicat per al mateix codi.
 
 ---
 

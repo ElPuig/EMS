@@ -44,6 +44,17 @@
                         <button name="action_graduation_wizard"
                                 type="object"
                                 string="Graduation"/>
+                        <!-- Same shape as the graduation one: the withdrawal wizard already
+                             takes a whole selection through active_ids. Registering the
+                             leavers in bulk is what empties the "no destination" list.
+                             Restricted, unlike Graduation: ems.withdrawal_wizard raises for
+                             anybody who is not secretary or admin (a tutor may graduate its
+                             own students, but registering an exit is a secretarial act), so
+                             showing the button to a tutor would only earn them an error. -->
+                        <button name="action_withdrawal_wizard"
+                                type="object"
+                                string="Withdrawal"
+                                groups="ems.group_academic_admin,ems.group_secretary"/>
                     </header>
                     <field name="name" string="Student"/>
                     <field name="main_group_id" optional="show"/>

@@ -1,3 +1,4 @@
+import csv
 import os
 
 from odoo.tests.common import TransactionCase, tagged
@@ -11,6 +12,10 @@ MODULE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 ALLOWED_NATIVE_OVERRIDE_IDS = {
     'hr.job_ceo', 'hr.job_consultant', 'hr.job_developer', 'hr.job_marketing',
     'hr.job_cto', 'hr.job_hrm', 'hr.job_trainee',
+    # data/main/hr.departure.reason.csv adds a 'color' to these two native
+    # hr.departure.reason records - same override pattern, missed when that
+    # file was first added.
+    'hr.departure_retired', 'hr.departure_resigned',
 }
 
 
@@ -30,10 +35,10 @@ class TestDataMainCatPrefix(TransactionCase):
                     if not filename.endswith('.csv'):
                         continue
                     path = os.path.join(dirpath, filename)
-                    with open(path, encoding='utf-8') as csv_file:
-                        lines = csv_file.read().splitlines()
-                    for line in lines[1:]:
-                        record_id = line.split(',', 1)[0].strip('"')
+                    with open(path, encoding='utf-8', newline='') as csv_file:
+                        rows = list(csv.reader(csv_file))
+                    for row in rows[1:]:
+                        record_id = row[0] if row else ''
                         if not record_id:
                             continue
                         if record_id.startswith('ems.') or '.' not in record_id:

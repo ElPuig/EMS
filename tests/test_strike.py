@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from datetime import date
-from unittest.mock import patch
 
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
+
+from .common import create_level_study_group, mock_outgoing_email
 
 
 class TestStrike(TransactionCase):
@@ -15,12 +16,7 @@ class TestStrike(TransactionCase):
         # ems.strike sends real emails synchronously (force_send=True) on every create();
         # this environment has real, credentialed outgoing mail servers configured (AWS
         # SES / Gmail), so the actual SMTP call must be neutralized for tests.
-        mail_server_patcher = patch(
-            'odoo.addons.base.models.ir_mail_server.IrMailServer.send_email',
-            return_value='test-message-id',
-        )
-        mail_server_patcher.start()
-        cls.addClassCleanup(mail_server_patcher.stop)
+        mock_outgoing_email(cls)
 
         cls.group_teacher = cls.env.ref('ems.group_teacher')
         cls.group_tutor = cls.env.ref('ems.group_tutor')
@@ -97,19 +93,9 @@ class TestStrike(TransactionCase):
             'groups_id': [(4, cls.group_teacher.id), (4, cls.env.ref('base.group_user').id)],
         })
 
-        cls.level = cls.env['ems.level'].create({'acronym': 'TSTK', 'name': 'Test Level (Strike)'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TSTK001', 'acronym': 'TSTK', 'name': 'Test Study (Strike)',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
-        })
-        cls.group_record = cls.env['ems.group'].create({
-            'name': 'Test Group (Strike)',
-            'course': 1,
-            'acronym': 'A',
-            'level_id': cls.level.id,
-            'study_id': cls.study.id,
-            'tutor_id': cls.tutor_employee.id,
-        })
+        cls.level, cls.study, cls.group_record = create_level_study_group(cls, 'TSTK', level={'name': 'Test Level (Strike)'}, study={
+            'code': 'TSTK001', 'name': 'Test Study (Strike)',
+        }, group={'name': 'Test Group (Strike)', 'tutor_id': cls.tutor_employee.id})
 
         cls.reason_other = cls.env.ref('ems.strike_reason_other')
         cls.relation_type_family = cls.env.ref('ems.relation_type_father')
@@ -270,6 +256,23 @@ class TestStrike(TransactionCase):
         action = self.minor_student.action_view_strikes()
         self.assertEqual(action['domain'], [('student_id', '=', self.minor_student.id)])
 
+    def test_kicked_out_default_false(self):
+        strike = self._create_strike(self.teacher_a_user)
+        self.assertFalse(strike.kicked_out)
+
+    def test_kicked_out_can_be_set_true(self):
+        strike = self._create_strike(self.teacher_a_user, kicked_out=True)
+        self.assertTrue(strike.kicked_out)
+
+    def test_notification_mentions_kicked_out_status(self):
+        strike_out = self._create_strike(self.teacher_a_user, kicked_out=True)
+        strike_not_out = self._create_strike(self.teacher_a_user, kicked_out=False)
+        template = self.env.ref('ems.mail_strike_notification_student')
+        rendered_out = template._render_field('body_html', strike_out.ids)[strike_out.id]
+        rendered_not_out = template._render_field('body_html', strike_not_out.ids)[strike_not_out.id]
+        self.assertIn('Kicked out of class:</strong> Yes', rendered_out)
+        self.assertIn('Kicked out of class:</strong> No', rendered_not_out)
+
     def test_attendance_session_line_id_is_optional(self):
         strike = self._create_strike(self.teacher_a_user)
         self.assertFalse(strike.attendance_session_line_id)
@@ -287,3 +290,21 @@ class TestStrike(TransactionCase):
             'student_id': self.minor_student.id,
         })
         self.assertEqual(len(other_session_line.strike_ids), 0)
+
+    def test_session_line_strike_count(self):
+        session_line = self.env['ems.attendance_session_line'].create({
+            'student_id': self.minor_student.id,
+        })
+        self.assertEqual(session_line.strike_count, 0)
+        self._create_strike(self.teacher_a_user, attendance_session_line_id=session_line.id)
+        self.assertEqual(session_line.strike_count, 1)
+        self._create_strike(self.teacher_a_user, attendance_session_line_id=session_line.id)
+        self.assertEqual(session_line.strike_count, 2)
+
+    def test_session_line_action_view_strikes(self):
+        session_line = self.env['ems.attendance_session_line'].create({
+            'student_id': self.minor_student.id,
+        })
+        self._create_strike(self.teacher_a_user, attendance_session_line_id=session_line.id)
+        action = session_line.action_view_strikes()
+        self.assertEqual(action['domain'], [('attendance_session_line_id', '=', session_line.id)])

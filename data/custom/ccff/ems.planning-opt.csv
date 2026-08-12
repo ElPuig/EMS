@@ -1,0 +1,7 @@
+id,study_id/id,subject_id/id,internal_ponderation,external_ponderation
+__import__.planning_opt2,ems.study_cfgs_ica0_asix_2024,__import__.subject_OPT2,100.0,0.0
+__import__.planning_opt1,ems.study_cfgm_ic10_smx_2024,__import__.subject_OPT1,100.0,0.0
+__import__.planning_opt3,ems.study_cfgs_icb0_dam_2024,__import__.subject_OPT3,100.0,0.0
+__import__.planning_opt3_daw,ems.study_cfgs_icc0_daw_2024,__import__.subject_OPT3,100.0,0.0
+__import__.planning_opt4,ems.study_cfgm_ag10_ga_2024,__import__.subject_OPT4,100.0,0.0
+__import__.planning_opt5,ems.study_cfgs_agb0_aif_2024,__import__.subject_OPT5,100.0,0.0

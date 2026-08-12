@@ -25,18 +25,49 @@
                 <xpath expr="//kanban" position="inside">
                     <!-- WARNING: All the Kanban fields must be included also as "fields" within the view. -->
                     <field name="tutorships"/>
-                </xpath>                
+                    <field name="pending_identification"/>
+                    <field name="active"/>
+                </xpath>
+
+                <!-- Same reason-aware ribbon as res.partner's (see contact/kanban.xml's own
+                comment) - this kanban has no native ribbon at all to inherit/adjust, unlike
+                res.partner's, so both the fallback generic one and the field-widget one are
+                added fresh here. Mutually exclusive with "Pending identification" below, same
+                reasoning as the form. "Pending identification" itself moved here too (used to
+                be a badge under the name, in a separate xpath now removed) - a plain ribbon,
+                same as the form already had, for visual consistency between the two now that
+                this kanban has ribbons at all (requested 2026-08-01, right after adding the
+                other two). Custom soft-yellow class (static/src/css/backend/ems.css) - plain
+                Bootstrap bg-warning was too bright for this. -->
+                <xpath expr="//aside[hasclass('o_kanban_aside_full')]" position="before">
+                    <widget name="web_ribbon" title="Pending identification"
+                            bg_color="ems-ribbon-pending-identification"
+                            invisible="not pending_identification"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            groups="hr.group_hr_user,ems.group_teacher"
+                            invisible="active or pending_identification or archived_reason_label"/>
+                    <!-- Must declare archived_reason_color as its own field, not just
+                    reference it via the widget's "color_field" option - see
+                    contact/form.xml's own comment on why. -->
+                    <field name="archived_reason_color" invisible="1"
+                           groups="hr.group_hr_user,ems.group_teacher"/>
+                    <field name="archived_reason_label" widget="ems_archived_reason_ribbon"
+                           groups="hr.group_hr_user,ems.group_teacher"
+                           options="{'color_field': 'archived_reason_color'}"
+                           invisible="active or pending_identification or not archived_reason_label"/>
+                </xpath>
 
                 <field name="job_title" position="after">
-                    <span t-if="record.tutorships.value != ''">
+                    <span t-if="record.tutorships.raw_value != ''">
                         <!-- TODO: this text should be translated, check how to do it -->
                         Tutorship: <t t-esc="record.tutorships.value"/>
-                    </span>                   
-                </field>                                 
+                    </span>
+                </field>
 
                 <field name="category_ids" position="attributes">
                     <attribute name="name">role_ids</attribute>
-                </field>                                                                
+                    <attribute name="widget">role_color_tags</attribute>
+                </field>
             </field>		      
         </record>
     </data>

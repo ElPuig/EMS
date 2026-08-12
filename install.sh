@@ -36,6 +36,24 @@ sudo apt-get install -y $APT_PACKAGES
 sudo service odoo stop || true
 sudo -u odoo bash -c 'odoo -d ems --stop-after-init -i ems -c /etc/odoo/odoo.conf --without-demo=WITHOUT_DEMO'
 EXIT_CODE=$?
+
+# Declares, once and for good, whether this install is a real deployment or a development/testing
+# one - devel.sh/deploy.sh both re-declare this too (in case the answer here was wrong, or the
+# box's role changes later), but this is the one script EVERY install goes through, so it's what
+# guarantees the flag is never left unset. See CLAUDE.md's "Development vs. production environment
+# declaration" section.
+if [ $EXIT_CODE -eq 0 ]; then
+    environment_type="$1"
+    if [[ -z "$environment_type" ]]; then
+        read -p "Is this a production or a development/testing environment? [prod/dev]: " environment_type
+        while [[ "$environment_type" != "prod" && "$environment_type" != "dev" ]]; do
+            read -p "Please answer 'prod' or 'dev': " environment_type
+        done
+    fi
+    value=$([[ "$environment_type" == "prod" ]] && echo "production" || echo "dev")
+    sudo -u odoo bash -c "psql -d ems -c \"INSERT INTO ir_config_parameter (key, value) VALUES ('ems.environment_type', '${value}') ON CONFLICT (key) DO UPDATE SET value = '${value}';\""
+fi
+
 sudo service odoo start || true
 echo "Done!"
 exit $EXIT_CODE

@@ -24,6 +24,7 @@ Gestiona el horario semanal de cada docente desde su propia ficha de empleado, y
 - Marcos horarios: **Configuración → Profesorado → Marcos horarios**
 - Ajuste del marco predeterminado: **Configuración → Empleados → "Marco horario predeterminado"**
 - El horario de un docente: **Empleados → [abrir el docente] → pestaña Horario**
+- Importación de horarios desde un archivo: **Configuración → Profesorado → Horarios de trabajo** → menú ⚙️ (engranaje) → **Import: planner data**
 
 ---
 
@@ -94,41 +95,115 @@ Debajo de la cuadrícula, una pequeña tabla resumen muestra el total de horas s
 
 El patio nunca se cuenta en ninguna de las dos columnas. Una franja que solo se solapa parcialmente con una hora igualmente cuenta como una hora completa. Cada columna muestra su propio total, seguido del total general (24 horas para un docente a tiempo completo). Este resumen siempre refleja el horario guardado, por lo que desaparece mientras lo estás editando y vuelve a aparecer (actualizado) al guardarlo.
 
+Un bloque de patio que el docente todavía no ha configurado explícitamente puede igualmente aparecer, rellenado automáticamente a partir de los marcos horarios del(los) nivel(es) que ese docente realmente imparte — es solo una ayuda visual, no se guarda nada de verdad hasta que se añade como tarjeta real en modo Edición (ver más abajo).
+
+Dos bloques que comparten exactamente la misma hora (ver "Cambio de asignatura a mitad de curso" más abajo) se muestran uno al lado del otro en lugar de que uno oculte al otro.
+
 ---
 
 ## Editar el horario de un docente
 
+La cuadrícula semanal se divide en 5 columnas de día (lunes–viernes); dentro de cada día, **tarjetas** independientes — una por franja real o todavía sin asignar — contienen todo lo relativo a ese bloque: un rango de fechas opcional, su propia hora de inicio/fin, una asignatura/grupo o un motivo no lectivo, y un aula.
+
 1. Abre la pestaña **Horario** del docente y haz clic en **Editar**.
-2. Cada fila es una franja semanal real (con su hora exacta, editable con los dos campos de hora de la izquierda) — elige una **asignatura** y un **grupo**, o un motivo **no lectivo**, en los desplegables de la columna de cada día.
-3. Para cambiar la hora de una franja: edita directamente el campo de inicio o de fin (mover el inicio mantiene la duración de la franja).
-4. Para eliminar una franja: usa el icono de papelera junto a su hora.
-5. Para añadir una franja que el marco no tenía (p. ej. un docente que combina el horario de dos niveles): haz clic en **Añadir franja** al final de la columna de horas, establece su hora, y rellénala para los días que correspondan.
-6. Haz clic en **Guardar** para aplicar los cambios, o en **Cancelar** para descartarlo todo y dejar el horario intacto.
+2. Cada columna de día empieza precargada con las franjas propias del marco (incluyendo sus patios/reuniones) como tarjetas en blanco — elige una **asignatura** y un **grupo** para una, o un motivo **no lectivo**, en sus propios desplegables.
+3. Para cambiar la hora de una tarjeta: edita directamente su campo de inicio o de fin (mover el inicio mantiene la duración de la tarjeta).
+4. Para establecer un aula distinta de la predeterminada del grupo: elige una en el desplegable propio de **Aula** de la tarjeta — déjalo en blanco para seguir usando la del grupo.
+5. Para eliminar una tarjeta: usa su propio icono de papelera.
+6. Para añadir una tarjeta que el marco no tenía (p. ej. un docente que combina el horario de dos niveles, o el mismo día/hora con dos asignaturas distintas en puntos diferentes del año — ver "Cambio de asignatura a mitad de curso" más abajo): haz clic en **+ Añadir** al final de esa columna de día, establece su hora, y rellénala.
+7. Haz clic en **Guardar** para aplicar los cambios, o en **Cancelar** para descartarlo todo y dejar el horario intacto.
 
-> Si dejas sin asignar una franja añadida a mano y guardas, simplemente se descarta — solo se conservan las asignaciones reales. Si vuelves a abrir **Editar** más adelante, las franjas propias del marco reaparecen como huecos por rellenar, pero una franja manual descartada no.
+   ![Dos tarjetas el mismo día de la semana, cada una con su propio rango de fechas, hora, asignatura, grupo y aula](../../assets/admin/working-schedules-edit-cards.png)
 
----
+Las tarjetas de un mismo día siempre se muestran ordenadas por hora de inicio y luego por hora de fin — dos tarjetas a la misma hora exacta se ordenan por su propia fecha de inicio.
 
-## Importar el horario de un docente desde un archivo
+> Si dejas sin asignar una tarjeta añadida a mano y guardas, simplemente se descarta — solo se conservan las asignaciones reales. Si vuelves a abrir **Editar** más adelante, las tarjetas propias del marco reaparecen como huecos por rellenar, pero una tarjeta manual descartada no.
 
-Si tu centro ya exporta horarios desde una herramienta externa de planificación (XML), puedes importar uno directamente para un docente concreto en lugar de construirlo a mano:
-
-1. Abre la pestaña **Horario** del docente y haz clic en **Importar**.
-2. Adjunta el archivo XML.
-3. Si el docente ya tiene un horario, verás un aviso de que se actualizará (no se reemplazará desde cero) — las asignaciones de asignaturas y las plantillas de asistencia se mantienen sincronizadas con el archivo nuevo.
-4. Haz clic en **Importar**.
+No hay arrastrar y soltar entre tarjetas ni entre días — para mover una tarjeta a otro día, elimínala y añade una nueva allí.
 
 ---
 
-## Importar el horario de varios docentes a la vez
+## Cambio de asignatura a mitad de curso
 
-Si tienes varios archivos de exportación de la planificación para importar de una vez (cada archivo ya puede describir más de un docente, emparejado por correo electrónico), usa el importador general en lugar del botón por docente:
+La misma franja de día/hora/aula puede contener dos asignaturas distintas a lo largo del año — p. ej. un módulo habitual se imparte hasta febrero, y después el proyecto de fin de curso ocupa exactamente la misma franja durante el resto del año. Configura ambas mitades en el calendario desde el principio, en septiembre, en lugar de tener que recordar editar el horario el día real del cambio.
+
+1. Abre la pestaña **Horario** del docente y haz clic en **Editar**.
+2. Rellena la primera tarjeta como de costumbre (asignatura, grupo, hora).
+3. Establece sus dos campos de fecha (inicio, luego fin) a la primera mitad del año (p. ej. septiembre a febrero).
+4. Haz clic en **+ Añadir** en el mismo día para añadir una segunda tarjeta, y dale exactamente la misma hora de inicio/fin que la primera.
+5. Rellena la segunda tarjeta con la otra asignatura/grupo, y establece sus propios dos campos de fecha al resto del año (p. ej. marzo a julio).
+6. Haz clic en **Guardar**.
+
+   ![Ambas asignaturas mostrándose una al lado de la otra en la cuadrícula semanal (solo lectura) del lunes](../../assets/admin/working-schedules-midcourse-handoff.png)
+
+Ambas tarjetas aparecen entonces una al lado de la otra en la cuadrícula semanal (solo lectura), en lugar de que una oculte a la otra. Dejar en blanco los campos de fecha de una tarjeta significa "válida todo el curso" — el comportamiento por defecto normal, sin cambios, para una tarjeta que nunca necesita ceder el paso a otra.
+
+---
+
+## Importar horarios de trabajo desde un archivo
+
+Si tu centro ya exporta horarios desde una herramienta externa de planificación (XML), usa el importador general en lugar de construir los horarios a mano — cada archivo ya puede describir varios docentes a la vez (emparejados por correo electrónico), y puedes adjuntar más de un archivo en una misma ejecución. Ya no existe un importador por docente individual: un docente que se incorpora a mitad de curso recibe su horario mediante **Nuevo** en su propia pestaña **Horario** (ver "Empezar el horario de un docente a partir de un marco o de otro docente" más abajo) o a mano, nunca con una subida de archivo para un solo docente.
+
+El asistente te guía por varias pantallas, cada una con su propia explicación breve de lo que comprueba y qué hacer con ello — los pasos numerados de abajo son una referencia detallada, no el único lugar donde encontrar qué está pasando.
 
 1. Ve a **Configuración → Profesorado → Horarios de trabajo**.
 2. Abre el menú ⚙️ (engranaje) sobre la lista y elige **Import: planner data**.
-3. Adjunta tantos archivos XML como necesites.
-4. Si alguno de los docentes encontrados en esos archivos ya tiene un horario, verás un aviso que los lista — los horarios se actualizan, no se reemplazan desde cero.
-5. Haz clic en **Importar**.
+3. En la pantalla de **Bienvenida**, adjunta uno o más archivos XML y haz clic en **Continuar** — todavía no se escribe nada en este punto, ni tampoco se comprueba nada del contenido de los archivos.
+
+   ![Pantalla de Bienvenida del asistente con un archivo del planificador adjuntado](../../assets/admin/working-schedules-import-01-welcome.png)
+4. Si los archivos mencionan algún nombre de grupo que EMS no ha podido emparejar automáticamente, una pantalla de **Resolver grupos** los lista uno a uno: elige el grupo real en el desplegable de cada fila (o crea uno al vuelo, igual que en cualquier otro campo de grupo) y haz clic en **Continuar**. Si todos los grupos se reconocieron automáticamente, verás un mensaje de confirmación en lugar de una lista. El botón **Continuar** aparece atenuado hasta que todas las filas tengan un grupo elegido.
+
+   ![Pantalla de Resolver grupos con un nombre de grupo del archivo sin resolver](../../assets/admin/working-schedules-import-02-resolve-groups.png)
+
+   Esta misma pantalla también comprueba que todos los grupos referenciados ya tengan un aula asignada - un grupo cuyo nombre se resolvió bien pero que no tiene aula propia aparece en una segunda lista, justo debajo de la primera. Elige un aula para cada uno y haz clic en **Continuar**; el aula que elijas se guarda en el propio grupo, no solo para esta importación, así que no se te volverá a pedir para ese grupo. Si no falta ninguna, no verás esta segunda lista.
+
+   ![Pantalla de Resolver grupos con un grupo ya resuelto pero todavía sin aula asignada](../../assets/admin/working-schedules-import-02b-resolve-groups-classroom.png)
+5. Si un archivo indica una asignatura que en realidad no se imparte en el estudio del grupo (un código de asignatura equivocado, o un grupo asignado a la asignatura incorrecta), una pantalla de **Resolver asignaturas** lista cada discrepancia, dejándote corregir **cualquiera de los dos lados** — el que realmente estuviera mal: el campo **Grupo(s)** empieza con el grupo (o grupos) del archivo pero se puede cambiar (quita el incorrecto, añade el correcto, igual que en cualquier otro campo de grupos con etiquetas); el desplegable de **Asignatura** empieza con la asignatura del archivo y solo te deja elegir una que realmente se imparta en el estudio del grupo (ya corregido, si lo has cambiado). A menudo basta con corregir el grupo, si la asignatura del archivo era correcta desde el principio. Si todas las asignaturas coincidían correctamente, verás un mensaje de confirmación. El botón **Continuar** aparece atenuado hasta que todas las filas tengan una combinación válida.
+
+   ![Pantalla de Resolver asignaturas con un desajuste entre asignatura y grupo](../../assets/admin/working-schedules-import-03-resolve-subjects.png)
+6. Si los archivos mencionan un correo de docente o un código de puesto aún no cubierto (`X1`, `X2`...) que EMS no ha podido emparejar con ningún docente existente, una pantalla de **Resolver docentes** los lista, con **Nuevo** marcado por defecto (asumiendo un docente genuinamente nunca contratado) - déjalo marcado para crear un nuevo docente pendiente de identificar para ese caso en el paso final de Importar (ver "Docentes aún no contratados" más abajo); para una fila con correo, además se conserva el correo del archivo, precargado como **Correo de trabajo** editable a mano (**Asignar correo corporativo manualmente** marcado) en lugar de generarse automáticamente, ya que todavía no se ha confirmado. Si en realidad es un error/desajuste de un docente ya existente — o un código/correo que reconoces como la MISMA persona real ya listada en otra fila de esta misma pantalla — desmarca **Nuevo** y elige el docente real en el desplegable (desmarcarlo es lo que lo desbloquea); elegir el mismo docente para dos filas distintas empareja ambas con esa misma persona, sin crear ningún duplicado. Si todos los correos/códigos se reconocieron, verás un mensaje de confirmación. El botón **Continuar** también aparece atenuado aquí hasta que todas las filas tengan un docente elegido o **Nuevo** marcado.
+
+   ![Pantalla de Resolver docentes con la casilla Nuevo antes del desplegable Docente](../../assets/admin/working-schedules-import-04-resolve-teachers.png)
+7. Si dos docentes distintos del mismo lote acaban programados en la misma aula a la misma hora — o si el mismo docente real (por ejemplo, dos identificadores que has resuelto hacia la misma persona en la pantalla anterior) acaba con una doble reserva a la misma hora en dos aulas distintas — una pantalla de **Conflictos del archivo** lista cada pareja, agrupada en una tarjeta por tipo de conflicto ("Co-docencia", "Sesión desdoblada", "Conflicto de aula", "Mismo docente, aula diferente"), y dentro de cada tarjeta, un bloque por cada combinación de docente+asignatura (sin importar en qué grupo/día/hora concretos caiga cada pareja), que agrupa todas las parejas que la comparten. Cada bloque tiene su propio desplegable arriba ("— aplicar a todos —") - elige una resolución ahí y se aplica a todas las filas de debajo a la vez (puedes cambiar cualquier fila individual a mano después). Cada fila describe ambas entradas en conflicto, unidas por **"vs."** - leer de izquierda a derecha es lo que significan "Izquierda"/"Derecha" en las opciones de resolución de abajo. Las opciones de resolución en sí: **"Confirmar"** si realmente comparten esa clase (solo se ofrece para filas de "Co-docencia"); **"Reasignar aulas"** para un choque real de aula - elige el aula real para cada lado, ya que ambos empiezan con la misma aula que provoca el conflicto; o **"Prevalece la izquierda"/"Prevalece la derecha"** para simplemente mantener un lado (el de antes/después del "vs." de esa fila) y descartar el otro. Una fila de "Mismo docente, aula diferente" solo ofrece "Prevalece la izquierda"/"Prevalece la derecha" - reasignar un aula no soluciona nada cuando el problema real es que un docente tenga que estar en dos sitios a la vez. Si no hay nada que resolver, verás un mensaje de confirmación. El botón **Continuar** aparece atenuado hasta que todas las filas tengan una resolución real (para "Reasignar aulas", eso significa que las dos aulas deben ser realmente distintas).
+
+   ![Pantalla de Conflictos del archivo agrupada en tarjetas, una por tipo de conflicto](../../assets/admin/working-schedules-import-05-file-conflicts.png)
+8. Si alguna entrada del archivo coincide con un aula+hora ya usada activamente por el horario existente de otra persona, una pantalla de **Conflictos con horarios existentes** lista cada una del mismo modo agrupado en tarjetas - aquí cada fila indica explícitamente sus dos lados con **"Archivo: ..."** (la nueva entrada) y **"Base de datos: ..."** (la sesión ya existente), en lugar de "vs." - "Prevalece la izquierda" siempre significa que gana el lado del **Archivo**, "Prevalece la derecha" siempre significa que gana el de la **Base de datos**, siguiendo ese mismo orden. Con las mismas opciones de resolución que "Conflictos del archivo" más arriba: elegir **"Prevalece la izquierda"** archiva la sesión existente (liberando el hueco para la nueva); elegir **"Prevalece la derecha"** descarta la nueva entrada en su lugar, dejando la sesión existente intacta. Si no hay nada que resolver, verás un mensaje de confirmación.
+
+   ![Pantalla de Conflictos con horarios existentes, con una entrada del Archivo en conflicto con una sesión de la Base de datos](../../assets/admin/working-schedules-import-06-existing-schedule-conflicts.png)
+9. Una pantalla de **Resumen general** recapitula toda la operación antes de confirmarla: un recuento de cada nombre de grupo, correo/código de docente, docente pendiente y conflicto resueltos durante el proceso, más una lista de cada profesor que esta importación ya ha emparejado con un empleado real y existente (reconocido automáticamente, o corregido en la pantalla "Resolver docentes") — un aviso de que esta importación va a actualizar (sobrescribir) su horario/asignaciones de asignaturas. Si ninguno de los profesores del archivo existe ya, verás un mensaje de confirmación en lugar de esta lista. Como ninguno de los pasos anteriores permite volver atrás, esta es la última oportunidad de comprobar que todo está correcto antes de hacer clic en Importar.
+
+   ![Pantalla de Resumen general recapitulando todas las resoluciones hechas durante la importación](../../assets/admin/working-schedules-import-07-overall-summary.png)
+
+   Justo cuando aparece esta pantalla, se descarga automáticamente al ordenador un archivo CSV con ese mismo resumen - una fila por cada resolución hecha - listo para guardar como registro propio de la operación. Desplázate hasta el final de la pantalla para ver el enlace de descarga si quieres volver a cogerlo.
+
+   ![El enlace de descarga del CSV de resumen al final de la pantalla de Resumen general](../../assets/admin/working-schedules-import-07b-overall-summary-download.png)
+10. Haz clic en **Importar**. Este es el momento en que todo se escribe de verdad.
+
+> Hazlo durante la preparación del próximo curso, una vez que los horarios del curso anterior ya hayan sido archivados por el asistente de "Configurar el próximo curso" — ejecutarlo contra un curso ya en marcha puede generar conflictos que luego habrá que resolver a mano.
+
+Si alguno de los docentes encontrados en los archivos ya tiene un horario, se actualiza in situ (no se reemplaza desde cero) al hacer clic en **Importar** — las asignaciones de asignaturas y las plantillas de asistencia existentes se mantienen sincronizadas con el archivo nuevo.
+
+---
+
+## Docentes aún no contratados (pendientes de identificar)
+
+A veces llegan horarios nuevos antes de que todos los puestos estén cubiertos — tu herramienta de planificación nombra esas filas con un código provisional (`X1`, `X2`...) en lugar del correo real de un docente. Importar un archivo así ya no falla en esas filas:
+
+> Este mismo mecanismo de pendiente de identificar también cubre un correo real que no coincide con ningún docente existente — marca **Nuevo** para esa fila en la pantalla de **Resolver docentes** en lugar de elegir uno (ver el paso 5 de "Importar horarios de trabajo desde un archivo" más arriba). La única diferencia respecto a un código provisional es que se conserva el correo del archivo, precargado como **Correo de trabajo** editable (**Asignar correo corporativo manualmente** marcado), en lugar de dejarlo para que un futuro "Generar cuenta de Google" lo asigne automáticamente.
+
+1. Adjunta el archivo y haz clic a través del asistente como de costumbre (ver "Importar horarios de trabajo desde un archivo" más arriba) — un código provisional no se trata como un problema en ningún paso.
+2. Haz clic en **Importar** en el paso final. Se crea un nuevo registro de empleado para cada código aún no identificado, ya nombrado p. ej. "Profesor pendiente (X1)", con **su horario, asignaturas y listas de asistencia ya configurados** exactamente como si fuera un docente conocido.
+3. Estos registros muestran una etiqueta **"Pendiente de identificar"** en la lista/kanban de docentes y una cinta en su propia ficha, para que sean fáciles de encontrar (usa el filtro/agrupación **Pendiente de identificar** en la lista de docentes) y fáciles de distinguir de un docente real ya identificado.
+
+Cuando se cubre el puesto:
+
+1. Abre la ficha del empleado pendiente.
+2. Sustituye el **Nombre** provisional por el nombre real del docente, y rellena su **Correo personal**.
+3. Haz clic en **Generar cuenta Google**, exactamente igual que para cualquier docente nuevo.
+
+Ese único clic crea la cuenta Google Workspace/el acceso a EMS del docente **y** confirma su identidad — la etiqueta "Pendiente de identificar" desaparece, y no hace falta rehacer nada del horario, las asignaturas o las listas de asistencia ya importados.
+
+Reimportar un archivo actualizado para un puesto todavía sin cubrir (el mismo código provisional) actualiza el horario de ese mismo docente pendiente en el mismo registro, igual que reimportar el archivo de un docente ya identificado — nunca crea un segundo registro duplicado para el mismo código.
 
 ---
 

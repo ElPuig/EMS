@@ -13,6 +13,8 @@ The GEDAC import brings in **two kinds of students**, each found in a different 
 
 From Step 3 on, the circuit is the same for both.
 
+> This is about **applicants**, from GEDAC. To refresh data for students **already enrolled** at the centre, from a different source system, see [Importing students from Esfera (SAGA)](student-import-esfera.md) instead.
+
 ---
 
 ## Index

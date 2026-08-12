@@ -1,0 +1,20 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_employee_search">
+            <field name="name">ems.employee.search</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_filter"/>
+            <field name="arch" type="xml">
+                <filter name="newly_hired" position="after">
+                    <filter name="pending_identification" string="Pending identification"
+                            domain="[('pending_identification', '=', True)]"/>
+                </filter>
+
+                <filter name="group_job" position="after">
+                    <filter name="group_pending_identification" string="Pending identification"
+                            domain="[]" context="{'group_by': 'pending_identification'}"/>
+                </filter>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -20,6 +20,28 @@ class ResPartnerGoogleWorkspace(models.Model):
     google_ws_suspended = fields.Boolean(
         string="Google account suspended", default=False, copy=False,
         help="True when the student's Google Workspace account is suspended (former student).")
+    google_ws_state = fields.Selection(
+        selection=[
+            ('none', 'No Google account'),
+            ('active', 'Google account active'),
+            ('suspended', 'Google account suspended'),
+        ],
+        string="Google account status", compute='_compute_google_ws_state', store=True,
+        help="Single source of truth for the header buttons: which Google Workspace "
+             "action, if any, applies to this student right now.")
+
+    # ------------------------------------------------------------------
+    # Compute
+    # ------------------------------------------------------------------
+    @api.depends('contact_type', 'student_email', 'google_ws_suspended')
+    def _compute_google_ws_state(self):
+        for partner in self:
+            if partner.contact_type != 'student' or not partner.student_email:
+                partner.google_ws_state = 'none'
+            elif partner.google_ws_suspended:
+                partner.google_ws_state = 'suspended'
+            else:
+                partner.google_ws_state = 'active'
 
     # ------------------------------------------------------------------
     # Helpers
@@ -86,7 +108,7 @@ class ResPartnerGoogleWorkspace(models.Model):
         returns 403 (not 404). Existence in Google is handled on insert() via the
         409 conflict, trying the next candidate.
         """
-        domain = self.env.company.google_ws_domain or 'elpuig.xeill.net'
+        domain = self._gw()._gw_domain()
         candidates = ['%s@%s' % (p, domain) for p in self._gw_email_candidates()]
         return [e for e in candidates if not self._gw_email_used_in_ems(e)]
 
@@ -130,11 +152,11 @@ class ResPartnerGoogleWorkspace(models.Model):
         """
         if not self.env.company.google_ws_enabled:
             return
-        for rec in self:
-            if rec._gw_ready():
-                rec.with_delay(
-                    identity_key='gw_create_account_%s' % rec.id,
-                    description="Create Google Workspace account: %s" % rec.name,
+        for partner in self:
+            if partner._gw_ready():
+                partner.with_delay(
+                    identity_key='gw_create_account_%s' % partner.id,
+                    description="Create Google Workspace account: %s" % partner.name,
                 ).action_create_google_account()
 
     def _gw_enqueue_relocate(self):
@@ -143,13 +165,13 @@ class ResPartnerGoogleWorkspace(models.Model):
         (accounts created at matriculation from GEDAC data start in the minors OU)."""
         if not self.env.company.google_ws_enabled:
             return
-        for rec in self.filtered(
+        for partner in self.filtered(
             lambda r: r.contact_type == 'student' and r.student_email
             and not r.google_ws_suspended
         ):
-            rec.with_delay(
-                identity_key='gw_relocate_%s' % rec.id,
-                description="Relocate Google Workspace account: %s" % rec.name,
+            partner.with_delay(
+                identity_key='gw_relocate_%s' % partner.id,
+                description="Relocate Google Workspace account: %s" % partner.name,
             ).action_relocate_google_account()
 
     def _gw_enqueue_suspend(self):
@@ -158,7 +180,7 @@ class ResPartnerGoogleWorkspace(models.Model):
         if not self.env.company.google_ws_enabled:
             return
         for rec in self.filtered(
-            lambda r: r.contact_type in ('student', 'alumni', 'withdrawal')
+            lambda r: r.contact_type in ('student', 'alumni', 'withdrawal', 'expelled')
             and r.student_email and not r.google_ws_suspended
         ):
             rec.with_delay(
@@ -325,7 +347,7 @@ class ResPartnerGoogleWorkspace(models.Model):
         company = self.env.company
         if not company.google_ws_enabled:
             return
-        if self.contact_type not in ('student', 'alumni', 'withdrawal') or not self.student_email:
+        if self.contact_type not in ('student', 'alumni', 'withdrawal', 'expelled') or not self.student_email:
             return
         if self.google_ws_suspended:
             return
@@ -383,7 +405,7 @@ class ResPartnerGoogleWorkspace(models.Model):
             _logger.info("[GW dry-run] relocate %s -> OU=%s", self.student_email, ou)
             return
 
-        service = self._gw_get_service()
+        service = self._gw()._gw_get_service()
         try:
             service.users().patch(
                 userKey=self.student_email, body={'orgUnitPath': ou},
@@ -437,3 +459,24 @@ class ResPartnerGoogleWorkspace(models.Model):
         self.message_post(body=_(
             "Google Workspace account reactivated: %(email)s (moved to OU %(ou)s).") % {
                 'email': self.student_email, 'ou': ou})
+
+    # ------------------------------------------------------------------
+    # CRUD override (trigger)
+    # ------------------------------------------------------------------
+    def unlink(self):
+        # Hard deletion bypasses write() (no 'active' flip), so the Google account
+        # would otherwise stay active forever. Suspend synchronously (not queued)
+        # since the partner record — and its student_email — won't exist anymore
+        # once this method returns. Mirrors HrEmployeeGoogleWorkspace.unlink().
+        if self.env.company.google_ws_enabled:
+            for partner in self.filtered(
+                lambda p: p.contact_type in ('student', 'alumni', 'withdrawal', 'expelled')
+                and p.student_email and not p.google_ws_suspended
+            ):
+                try:
+                    partner.action_suspend_google_account()
+                except Exception:
+                    _logger.exception(
+                        "Could not suspend Google Workspace account for %s before deletion",
+                        partner.name)
+        return super().unlink()

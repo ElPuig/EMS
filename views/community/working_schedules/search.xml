@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_resource_calendar_search_ems">
+            <field name="name">ems.resource_calendar.search</field>
+            <field name="model">resource.calendar</field>
+            <field name="inherit_id" ref="resource.view_resource_calendar_search"/>
+            <field name="arch" type="xml">
+                <!-- Phase 8 of plans/course_transition_teacher_schedule_archival.md: exposes the
+                     historical "who taught, in which course" query the plan's earlier phases
+                     built resource.calendar.employee_id/course_id for - the native "Archived"
+                     filter (kept, inherited unchanged) is what actually reaches a past course's
+                     now-archived calendars; this only adds the way to search/group them. -->
+                <field name="name" position="after">
+                    <field name="employee_id"/>
+                    <field name="course_id"/>
+                </field>
+                <filter name="inactive" position="after">
+                    <separator/>
+                    <filter string="Course" name="group_by_course" context="{'group_by': 'course_id'}"/>
+                </filter>
+            </field>
+        </record>
+    </data>
+</odoo>

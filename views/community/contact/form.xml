@@ -9,6 +9,29 @@
                     <attribute name="js_class">studentpopup_expand_button</attribute>
                 </xpath>
 
+                <!-- The native ribbon (base.view_partner_form) always says "Archived"; for a
+                student it's clearer to say WHY they left - Alumni/Withdrawal/Expelled - via the
+                shared 'ems_archived_reason_ribbon' field widget (archived_reason_label/_color,
+                computed in contact.py). Non-student archived partners (family, provider,
+                applicant) - or a student somehow archived with no matching reason - keep the
+                native generic ribbon, which is why its own condition is simply "is there a
+                specific label to show instead", not an explicit contact_type enumeration. -->
+                <xpath expr="//widget[@name='web_ribbon']" position="attributes">
+                    <attribute name="invisible">active or archived_reason_label</attribute>
+                </xpath>
+                <xpath expr="//widget[@name='web_ribbon']" position="after">
+                    <!-- archived_reason_color must be declared as its own field, not just
+                    referenced via the widget's "color_field" option - confirmed empirically
+                    (2026-08-01) that this field registry's relatedFields mechanism only auto-
+                    fetches for x2many/many2one_reference field types (see field.js), not a
+                    plain Char like this one; without this every ribbon silently fell back to
+                    the widget's default red regardless of the intended color. -->
+                    <field name="archived_reason_color" invisible="1"/>
+                    <field name="archived_reason_label" widget="ems_archived_reason_ribbon"
+                           options="{'color_field': 'archived_reason_color'}"
+                           invisible="active or not archived_reason_label"/>
+                </xpath>
+
                 <xpath expr="//div[@name='button_box']" position="inside">
                     <button name="action_view_strikes" type="object" class="oe_stat_button" icon="fa-exclamation-triangle"
                             invisible="contact_type != 'student' or strike_count == 0">
@@ -18,26 +41,21 @@
 
                 <xpath expr="//sheet" position="before">
                     <header>
-                        <field name="google_ws_suspended" invisible="1"/>
+                        <field name="google_ws_state" invisible="1"/>
                         <button name="action_create_google_account" type="object"
                                 string="Create Google account"
                                 class="btn-secondary"
-                                invisible="contact_type != 'student' or student_email"
+                                invisible="google_ws_state != 'none'"
                                 groups="ems.group_secretary,ems.group_academic_admin"/>
                         <button name="action_suspend_google_account" type="object"
                                 string="Suspend Google account"
                                 class="btn-secondary"
-                                invisible="contact_type != 'student' or not student_email or google_ws_suspended"
+                                invisible="google_ws_state != 'active'"
                                 groups="ems.group_secretary,ems.group_academic_admin"/>
                         <button name="action_reactivate_google_account" type="object"
                                 string="Reactivate Google account"
                                 class="btn-secondary"
-                                invisible="contact_type != 'student' or not student_email or not google_ws_suspended"
-                                groups="ems.group_secretary,ems.group_academic_admin"/>
-                        <button name="action_withdrawal_wizard" type="object"
-                                string="Withdrawal"
-                                class="btn-secondary"
-                                invisible="contact_type != 'student'"
+                                invisible="google_ws_state != 'suspended'"
                                 groups="ems.group_secretary,ems.group_academic_admin"/>
                     </header>
                 </xpath>
@@ -313,11 +331,11 @@
                     </page>
                 </xpath>
 
-                <!-- Former student data (alumni / withdrawals). The active-student
+                <!-- Former student data (alumni / withdrawals / expelled). The active-student
                      pages hide themselves via invisible="contact_type != 'student'". -->
                 <xpath expr="//page[@name='documentation']" position="after">
                     <page name="former_student" string="Former student"
-                          invisible="contact_type not in ['alumni', 'withdrawal']">
+                          invisible="contact_type not in ['alumni', 'withdrawal', 'expelled']">
                         <group cols="2">
                             <group>
                                 <field name="exit_type"/>
@@ -325,16 +343,19 @@
                                 <field name="exit_date"/>
                             </group>
                             <group>
-                                <field name="has_graduated"/>
+                                <!-- Readonly on purpose (D2): the mark is permanent and is
+                                     only ever written by the graduation wizard, which checks
+                                     the student really is in the last course of its study. -->
+                                <field name="has_graduated" readonly="1"/>
                             </group>
                             <field name="exit_reason"/>
                         </group>
                     </page>
                     <!-- Frozen per-course academic history (ems.student.year_record):
                          unlike the operational pages above, it stays visible for
-                         alumni/withdrawals — it is their permanent record. -->
+                         alumni/withdrawals/expelled — it is their permanent record. -->
                     <page name="academic_history" string="Academic history"
-                          invisible="contact_type not in ['student', 'alumni', 'withdrawal']">
+                          invisible="contact_type not in ['student', 'alumni', 'withdrawal', 'expelled']">
                         <field name="year_record_ids" readonly="1">
                             <list default_order="study_name asc, course_id asc">
                                 <field name="course_id"/>

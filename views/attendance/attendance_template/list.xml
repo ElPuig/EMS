@@ -4,16 +4,15 @@
             <field name="name">ems.attendance_template.list</field>
             <field name="model">ems.attendance_template</field>
             <field name="arch" type="xml">
-                 <list expand="True">
+                 <list expand="True" duplicate="0" create="0">
                     <field name="teacher_ids" widget="many2many_avatar_employee"/>
-                    <field name="level_id"/>
-                    <field name="study_id"/>                    
+                    <field name="study_ids" widget="many2many_tags"/>
                     <field name="subject_id"/>
                     <field name="group_ids" widget="many2many_tags"/>
-                    <field name="space_id" optional="hide"/>
                     <field name="start_date" optional="hide"/>
                     <field name="end_date" optional="hide"/>
-                    <field name="color" widget="color_picker"/>                
+                    <field name="color" widget="color" class="ems_color_swatch"/>
+
                 </list>
             </field>
         </record>   

@@ -3,6 +3,8 @@ from datetime import date
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestYearRecord(TransactionCase):
 
@@ -44,10 +46,8 @@ class TestYearRecord(TransactionCase):
 
         # Curriculum: one study with two subjects. Subject 1 has a work placement
         # weight (90/10), subject 2 is internal-only (100/0).
-        cls.level = cls.env['ems.level'].create({'acronym': 'YRL', 'name': 'Year Record Level'})
-        cls.study = cls.env['ems.study'].create({
+        cls.level, cls.study = create_level_study(cls, 'YRL', level={'name': 'Year Record Level'}, study={
             'code': 'YRSTD1', 'acronym': 'YRS', 'name': 'Year Record Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
         })
         cls.study_no_flow = cls.env['ems.study'].create({
             'code': 'YRSTD2', 'acronym': 'YRNF', 'name': 'Year Record Study No Flow',
@@ -108,6 +108,11 @@ class TestYearRecord(TransactionCase):
     def _student(self, name, **vals):
         return self.env['res.partner'].create(dict(
             {'name': name, 'contact_type': 'student', 'main_group_id': self.group.id}, **vals))
+
+    def _frozen(self, student, course=None):
+        return self.env['ems.student.year_record'].search([
+            ('student_id', '=', student.id),
+            ('course_id', '=', (course or self.current_course).id)])
 
     def _enroll(self, student, subject):
         self.env['ems.enrollment'].create({
@@ -299,9 +304,9 @@ class TestYearRecord(TransactionCase):
             'code': 'YRS-SPACE', 'name': 'Year Record Space',
             'space_type_id': space_type.id, 'work_location_id': work_location.id})
         template = self.env['ems.attendance_template'].create({
-            'teacher_ids': [(6, 0, [self.tutor_employee.id])], 'level_id': self.level.id,
-            'study_id': self.study.id, 'subject_id': self.subject1.id,
-            'group_ids': [(6, 0, [self.group.id])], 'space_id': space.id,
+            'teacher_ids': [(6, 0, [self.tutor_employee.id])],
+            'study_ids': [(6, 0, [self.study.id])], 'subject_id': self.subject1.id,
+            'group_ids': [(6, 0, [self.group.id])],
             'start_date': date(2020, 1, 1), 'end_date': date(2098, 12, 31),
         })
         schedule = self.env['ems.attendance_schedule'].create({
@@ -312,10 +317,10 @@ class TestYearRecord(TransactionCase):
             'attendance_schedule_id': schedule.id, 'date': date.today(),
             'mode': 'manual', 'session_teacher_id': self.tutor_employee.id,
         })
-        for status in ('a_attended', 'a_delayed', 'a_issue', 'm_miss'):
+        for xmlid in ('attendance_status_attended', 'attendance_status_delayed', 'attendance_status_issue', 'attendance_status_miss'):
             self.env['ems.attendance_session_line'].create({
                 'attendance_session_id': session.id, 'student_id': student.id,
-                'status': status})
+                'status_id': self.env.ref(f'ems.{xmlid}').id})
         self.env['ems.attendance_issue_student'].create({'student_id': student.id})
         record = self._generate(student)
         # 3 of 4 lines count as assistance ('a_' prefix).
@@ -407,6 +412,51 @@ class TestYearRecord(TransactionCase):
         self.assertEqual(len(record.subject_record_ids), 2)
 
     # --- access ------------------------------------------------------------------
+
+    # --- a frozen record is never overwritten with nothing ------------------
+
+    def test_regenerating_without_a_group_keeps_the_frozen_record(self):
+        """The transition detaches the student and deletes the live grades, so a later
+        regeneration would read an empty group and wipe what it had just frozen. It is
+        the withdrawal wizard's normal path: the manual tells you to register the
+        leavers AFTER applying the transition."""
+        student = self._student('YR Frozen')
+        self._enroll(student, self.subject1)
+        session = self._session(self.subject1)
+        session.fill_students()
+        self._score(session, student, {self.outcome1: 8, self.outcome2: 8})
+        Record = self.env['ems.student.year_record']
+        Record.generate_for_students(student, self.current_course)
+        before = self._frozen(student)
+        self.assertEqual(before.group_id, self.group)
+        self.assertTrue(before.subject_record_ids)
+
+        # What the transition leaves behind: no group, no live grade lines.
+        student.main_group_id = False
+        self.env['ems.grade_outcome_line'].search([('student_id', '=', student.id)]).unlink()
+        self.env['ems.grade_subject_line'].search([('student_id', '=', student.id)]).unlink()
+
+        Record.generate_for_students(student, self.current_course)
+        after = self._frozen(student)
+        self.assertEqual(after, before)
+        self.assertEqual(after.group_id, self.group)
+        self.assertTrue(after.subject_record_ids)
+
+    def test_a_student_with_no_group_and_no_record_still_gets_one(self):
+        """Refusing to overwrite must not turn into refusing to record an exit."""
+        student = self._student('YR No Group', main_group_id=False)
+        record = self.env['ems.student.year_record'].generate_for_students(student, self.current_course)
+        self.assertTrue(record)
+        self.assertFalse(record.group_id)
+
+    def test_an_explicit_group_still_refreshes_the_record(self):
+        """freeze_on_leaving() passes the origin group, so the guard must not stop it."""
+        student = self._student('YR Explicit')
+        Record = self.env['ems.student.year_record']
+        Record.generate_for_students(student, self.current_course)
+        student.main_group_id = False
+        Record.generate_for_students(student, self.current_course, group=self.group)
+        self.assertEqual(self._frozen(student).group_id, self.group)
 
     def test_access_tutor_reads_own_students_only(self):
         student = self._student('Access Student')

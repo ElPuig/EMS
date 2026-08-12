@@ -2,10 +2,11 @@
 
 from odoo import models, fields
 
-class ems_tracking(models.Model):
+class EmsTracking(models.Model):
 	_name = "ems.tracking"
 	_description = "Tracking: Tutors and teachers can add information about the student evolution, follow-up, etc."
-	
+	_order = "id desc"
+
 	notes = fields.Text("Notes")
 
 	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")

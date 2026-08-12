@@ -6,8 +6,66 @@ on:
   workflow_dispatch:
 
 jobs:
-  ci:
-    name: Install and test on Ubuntu 24.04
+  # Computes two things once, shared by every shard below: whether this push only touched
+  # changelog/ (see the "Detect changelog-only push" step) and the dynamic test-shard matrix
+  # (scripts/testing/compute_test_shards.py - self-maintaining, discovers tests/*_tour.py at
+  # run time so a new tour file is picked up automatically, no workflow edit needed).
+  plan:
+    name: Plan test shards
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.shards.outputs.matrix }}
+      changelog_only: ${{ steps.diff.outputs.changelog_only }}
+    steps:
+      - name: Checkout EMS
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+
+      # This required check must always run and record a real result (never be skipped by
+      # GitHub's own path filtering), or it risks getting stuck "pending" forever and
+      # blocking merges even when everything is fine - see require-changelog-clean.yml's own
+      # comment for the same gotcha. So instead of filtering this workflow's trigger, detect
+      # here whether the push that triggered this specific run only touched changelog/
+      # (the working-draft PR notes folder - see CLAUDE.md's "PR changelog" section, cleaned
+      # up via the "/changelog-clean" comment command right before merging) and skip the
+      # expensive steps below for that one case, while still letting every job succeed.
+      - name: Detect changelog-only push
+        id: diff
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "changelog_only=false" >> "$GITHUB_OUTPUT"
+          elif git rev-parse HEAD~1 >/dev/null 2>&1; then
+            CHANGED=$(git diff --name-only HEAD~1 HEAD)
+            if [ -n "$CHANGED" ] && ! echo "$CHANGED" | grep -qv '^changelog/'; then
+              echo "changelog_only=true" >> "$GITHUB_OUTPUT"
+              echo "This push only touches changelog/ - skipping the full test suite for this run."
+            else
+              echo "changelog_only=false" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "changelog_only=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Compute test shards
+        id: shards
+        run: echo "matrix=$(python3 scripts/testing/compute_test_shards.py)" >> "$GITHUB_OUTPUT"
+
+  # One shard = one full "install Odoo + EMS" runner running a subset of test classes, in
+  # parallel with every other shard - see scripts/testing/compute_test_shards.py for how the
+  # subsets are chosen (one "fast" shard with everything except browser tours, split evenly
+  # across N "tour-*" shards). Each shard duplicates the install/setup cost (unavoidable on
+  # GitHub-hosted runners without a shared filesystem between jobs), but that cost runs
+  # concurrently across shards instead of stacking sequentially - this repo's GitHub repo is
+  # public, so the extra Actions minutes this duplication uses are free (see CLAUDE.md/chat
+  # history 2026-07-31), only wall-clock time is what's actually being optimized here.
+  test:
+    name: "Test (${{ matrix.name }})"
+    needs: plan
+    if: needs.plan.outputs.changelog_only != 'true'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
     runs-on: ubuntu-24.04
 
     services:
@@ -37,8 +95,13 @@ jobs:
 
       # Required to run the browser (tour) tests — mirrors the "Only under development
       # environments" section of README.md, so CI exercises the same tours a developer
-      # would run locally instead of silently skipping them for missing dependencies.
+      # would run locally instead of silently skipping them for missing dependencies. Skipped
+      # entirely for the "fast" shard, which runs zero tour/HttpCase tests and so never
+      # touches a browser - a real, if modest, extra speedup this matrix split makes possible
+      # that the old single-job workflow couldn't have (every test used to share one process,
+      # so Chrome always had to be installed regardless of which tests actually needed it).
       - name: Install browser test dependencies (websocket-client, Chrome)
+        if: matrix.needs_chrome
         run: |
           sudo pip install --break-system-packages websocket-client
           sudo mkdir -p /etc/apt/keyrings
@@ -56,6 +119,7 @@ jobs:
       # tour test then times out waiting for the devtools port. See
       # https://github.com/actions/runner-images/issues/9491.
       - name: Allow unprivileged user namespaces for Chrome sandboxing
+        if: matrix.needs_chrome
         run: echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
 
       - name: Install Odoo v18 from official repository
@@ -80,7 +144,16 @@ jobs:
 
       - name: Configure Odoo
         run: |
-          sudo tee /etc/odoo/odoo.conf > /dev/null <<'EOF'
+          # 'secret' is required by EmsCompany._get_fernet_key() (models/settings/company.py)
+          # to encrypt/decrypt company-level credentials (LimeSurvey password, Google
+          # Workspace service account JSON) - any test touching those fields raises
+          # "Unable to locate a 'secret' value within odoo.conf" without it (confirmed via a
+          # real CI run, 2026-07-31 - TestCompanySettings and TestLimesurveyApi's whole
+          # setUpClass both failed on this). A fresh random Fernet key is fine here since
+          # this database is thrown away at the end of the job - it only needs to stay the
+          # same *within* this one run, not match production's or persist across runs.
+          SECRET=$(python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+          sudo tee /etc/odoo/odoo.conf > /dev/null <<EOF
           [options]
           addons_path = /usr/lib/python3/dist-packages/odoo/addons,/opt/modules,/opt/modules/queue,/opt/modules/partner-contact
           db_host = localhost
@@ -88,12 +161,20 @@ jobs:
           db_user = odoo
           db_password = odoo
           server_wide_modules = web,queue_job
+          secret = ${SECRET}
           EOF
 
       - name: Install EMS module
         run: |
           set -o pipefail
-          sudo /opt/modules/ems/install.sh 2>&1 | tee /tmp/odoo-install.log
+          # 'dev' is required - install.sh interactively prompts for prod/dev when called with
+          # no argument (see CLAUDE.md's "Development vs. production environment declaration"),
+          # and a GitHub Actions runner has no stdin/TTY to answer that prompt with. Without this,
+          # every shard hangs forever on this exact step (confirmed 2026-08-12: every one of 9
+          # parallel shards stuck here for 20+ minutes, and an earlier run had to be manually
+          # cancelled after running 6 hours on 2026-08-11, the day the prompt was introduced) - a
+          # CI database, thrown away at the end of the job, is always 'dev', never 'prod'.
+          sudo /opt/modules/ems/install.sh dev 2>&1 | tee /tmp/odoo-install.log
 
       - name: Update external dependencies
         run: |
@@ -104,7 +185,7 @@ jobs:
           set -o pipefail
           sudo /opt/modules/ems/upgrade.sh 2>&1 | tee /tmp/odoo-upgrade.log
 
-      - name: Run EMS tests
+      - name: Run EMS tests (${{ matrix.name }})
         env:
           # Raises Chrome's own internal log verbosity (odoo/tests/common.py passes this as
           # --v=<level> to the browser). Level 0 (Odoo's default) only logs the last gasp before
@@ -116,10 +197,10 @@ jobs:
           ODOO_BROWSER_LOG_VERBOSITY: "1"
         run: |
           set -o pipefail
-          sudo /opt/modules/ems/test.sh 2>&1 | tee /tmp/odoo-test.log
+          sudo /opt/modules/ems/test.sh "${{ matrix.tags }}" 2>&1 | tee /tmp/odoo-test.log
 
       - name: Collect Chrome/system logs for failed tour tests
-        if: always()
+        if: always() && matrix.needs_chrome
         run: |
           # odoo/tests/common.py's ChromeBrowser.stop() already saves the browser's own
           # chrome_debug.log (odoo.tools.config['screenshots'], defaulting to /tmp/odoo_tests)
@@ -138,7 +219,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: odoo-logs
+          name: odoo-logs-${{ matrix.name }}
           path: |
             /tmp/odoo-install.log
             /tmp/odoo-upgrade.log
@@ -146,3 +227,31 @@ jobs:
             /tmp/odoo-chrome-logs
             /tmp/dmesg-tail.log
           if-no-files-found: ignore
+
+  # A matrix job's own check name changes per matrix value (e.g. "Test (tour-2)"), which
+  # branch protection would treat as a brand-new, never-configured check per shard - this
+  # lightweight aggregator exists so there's a single, stable check reflecting "did the whole
+  # matrix pass," with the real work split into parallel shards underneath it.
+  #
+  # Named "Test (all)" (job id stays "ci" - only the reported `name:` matters for display and
+  # for what branch protection's required-status-check rule matches on) so it reads as one of
+  # the "Test (...)" family above instead of an unrelated one-word outlier (developer feedback
+  # 2026-07-31). Renamed from the earlier "ci" - a required-check rename, so branch
+  # protection's required context needs the matching GitHub-side update in the same breath
+  # (see chat history 2026-07-31 for the exact API call) or the old "ci" string orphans
+  # permanently, same class of mistake as the "Install and test on Ubuntu 24.04" orphan found
+  # and fixed earlier this session.
+  ci:
+    name: "Test (all)"
+    needs: test
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check all shards passed
+        run: |
+          result="${{ needs.test.result }}"
+          if [ "$result" != "success" ] && [ "$result" != "skipped" ]; then
+            echo "::error::One or more test shards failed (aggregate result: $result) - see the 'Test (...)' jobs above."
+            exit 1
+          fi
+          echo "All test shards passed (aggregate result: $result)."

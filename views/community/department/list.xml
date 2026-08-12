@@ -5,9 +5,13 @@
             <field name="model">hr.department</field>
             <field name="inherit_id" ref="hr.view_department_tree"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='parent_id']" position="attributes">                      
+                <xpath expr="//field[@name='parent_id']" position="attributes">
                    <attribute name="column_invisible">True</attribute>
-                </xpath>           
+                </xpath>
+                <xpath expr="//field[@name='color']" position="replace">
+                    <field name="color" column_invisible="True"/>
+                    <field name="custom_color" widget="color" string="Color" width="50px" class="ems_color_swatch"/>
+                </xpath>
             </field>
         </record> 
     </data>

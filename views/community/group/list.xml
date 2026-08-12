@@ -4,7 +4,8 @@
             <field name="name">ems.group.list</field>
             <field name="model">ems.group</field>
             <field name="arch" type="xml">
-                <list expand="True" default_order="name asc">
+                <list expand="True" default_order="name asc" js_class="ems_group_list">
+                    <field name="active" column_invisible="True"/>
                     <field name="name" string="Group"/>
                     <field name="group_type"/>
                     <field name="external_id" optional="show"/>

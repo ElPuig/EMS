@@ -1,0 +1,42 @@
+"id","name","model_id/id","subject","email_from","email_to","body_html"
+"ems.mail_template_google_welcome","Google Workspace - Welcome credentials","base.model_res_partner","Your corporate account @{{ object.env.company.google_ws_domain }}","{{ (object.company_id.email or user.email_formatted) }}","{{ object.email }}","<div style=""margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;"">
+                    <p>Hello <t t-out=""object.firstname or object.name or ''"" />,</p>
+                    <p>Your school corporate account has been created to access Google Workspace
+                       (email, Drive, Classroom...) and the services that use this account.</p>
+                    <table style=""border-collapse:collapse;margin:16px 0;"">
+                        <tr>
+                            <td style=""padding:6px 10px;border:1px solid #ddd;""><strong>Username (email)</strong></td>
+                            <td style=""padding:6px 10px;border:1px solid #ddd;""><t t-out=""ctx.get('gw_email') or ''"" /></td>
+                        </tr>
+                        <tr>
+                            <td style=""padding:6px 10px;border:1px solid #ddd;""><strong>Temporary password</strong></td>
+                            <td style=""padding:6px 10px;border:1px solid #ddd;""><t t-out=""ctx.get('gw_password') or ''"" /></td>
+                        </tr>
+                    </table>
+                    <p style=""color:#b00;""><strong>Important:</strong> for security reasons, you will be
+                       required to change the password on your first login.</p>
+                    <p>You can sign in at <a t-attf-href=""https://mail.google.com/a/#{object.env.company.google_ws_domain}/"">mail.google.com</a>.</p>
+                    <p>Best regards,<br />School Secretariat</p>
+                </div>"
+"ems.mail_template_google_welcome_employee","Google Workspace - Welcome credentials (staff)","hr.model_hr_employee","Your corporate account @{{ object.env.company.google_ws_domain }}","{{ (object.company_id.email or user.email_formatted) }}","{{ object.private_email }}","<div style=""margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#333;"">
+                    <p>Hello <t t-out=""object.name or ''"" />,</p>
+                    <p>Your school corporate account has been created to access Google Workspace
+                       (email, Drive, Classroom...) and the services that use this account.</p>
+                    <table style=""border-collapse:collapse;margin:16px 0;"">
+                        <tr>
+                            <td style=""padding:6px 10px;border:1px solid #ddd;""><strong>Username (email)</strong></td>
+                            <td style=""padding:6px 10px;border:1px solid #ddd;""><t t-out=""ctx.get('gw_email') or ''"" /></td>
+                        </tr>
+                        <tr>
+                            <td style=""padding:6px 10px;border:1px solid #ddd;""><strong>Temporary password</strong></td>
+                            <td style=""padding:6px 10px;border:1px solid #ddd;""><t t-out=""ctx.get('gw_password') or ''"" /></td>
+                        </tr>
+                    </table>
+                    <p style=""color:#b00;""><strong>Important:</strong> for security reasons, you will be
+                       required to change the password on your first login.</p>
+                    <p>You can sign in at <a t-attf-href=""https://mail.google.com/a/#{object.env.company.google_ws_domain}/"">mail.google.com</a>.</p>
+                    <p>You can also access the school management platform (EMS) at
+                       <a t-att-href=""object.get_base_url()""><t t-out=""object.get_base_url()"" /></a>:
+                       use the <strong>Sign in with Google</strong> button with this same corporate account.</p>
+                    <p>Best regards,<br />School Secretariat</p>
+                </div>"

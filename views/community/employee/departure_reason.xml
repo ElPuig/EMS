@@ -1,0 +1,25 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_hr_departure_reason_list_color">
+            <field name="name">hr.departure.reason.list.color</field>
+            <field name="model">hr.departure.reason</field>
+            <field name="inherit_id" ref="hr.hr_departure_reason_view_list"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="color" widget="color" class="ems_color_swatch"/>
+                </field>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_hr_departure_reason_form_color">
+            <field name="name">hr.departure.reason.form.color</field>
+            <field name="model">hr.departure.reason</field>
+            <field name="inherit_id" ref="hr.hr_departure_reason_view_form"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="color" widget="color" class="ems_color_swatch"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

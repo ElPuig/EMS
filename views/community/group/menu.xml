@@ -5,8 +5,30 @@
             <field name="name">Groups (for students)</field>
             <field name="res_model">ems.group</field>
             <field name="view_mode">list,form</field>
-        </record>  
-                   
+        </record>
+
+        <!-- Target of the RedirectWarning raised from ems.group's create()/write() when the
+        computed name collides with an existing archived group (see _raise_if_archived_duplicate
+        in models/contacts/group.py): reactivates that archived group and opens its form,
+        instead of letting a duplicate be created. -->
+        <record model="ir.actions.server" id="action_server_group_reactivate">
+            <field name="name">Reactivate archived group</field>
+            <field name="model_id" ref="model_ems_group"/>
+            <field name="state">code</field>
+            <field name="code">action = records.action_reactivate()</field>
+        </record>
+
+        <!-- Target of the RedirectWarning raised from ems.group's write() when archiving a group
+        that still has active students (see _raise_if_archiving_active_students in
+        models/contacts/group.py): re-runs the archive with a context flag that skips the check
+        the second time around, instead of the user having to reopen the Archive action. -->
+        <record model="ir.actions.server" id="action_server_group_confirm_archive">
+            <field name="name">Confirm archiving group(s) with active students</field>
+            <field name="model_id" ref="model_ems_group"/>
+            <field name="state">code</field>
+            <field name="code">action = records.action_confirm_archive()</field>
+        </record>
+
         <menuitem name="Groups"   sequence="2" id="menu_groups" parent="menu_community" action="action_group_tree"/>
     </data>
 </odoo>

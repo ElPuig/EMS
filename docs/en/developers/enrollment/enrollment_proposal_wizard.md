@@ -2,7 +2,7 @@
 
 ## Overview
 
-`ems.enrollment_proposal_wizard` turns a selection of students (or applicants) into draft `sale.order` enrollments for the next course, one per student, all sharing a single `sale.order.template`.
+`ems.enrollment_proposal_wizard` turns a selection of students (or applicants) into draft [`sale.order`](enrollment.md) enrollments for the next course, one per student, all sharing a single [enrollment template](enrollment_template.md) (`sale.order.template`).
 
 The normal case is a renewal: a tutor turning SMX1A into SMX2A after the June board. The hard case is the **cross-study move** — a current student granted a place in a different study by GEDAC (an ESO 4th-course student moving to SMX 1st course, an AO student moving to GA). Those students are still `contact_type = 'student'`, so their `study_id` is the study they are *leaving*, and no template of that study fits.
 

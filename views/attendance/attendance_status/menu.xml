@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.actions.act_window" id="action_attendance_status_list">
+            <field name="name">Statuses</field>
+            <field name="res_model">ems.attendance_status</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <menuitem name="Statuses" sequence="4" id="menu_attendance_status"
+                  parent="menu_attendance_config_sessions" action="action_attendance_status_list"/>
+    </data>
+</odoo>

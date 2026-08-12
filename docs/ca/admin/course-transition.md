@@ -1,0 +1,104 @@
+[Català](course-transition.md) | [Castellano](../../es/admin/course-transition.md) | [English](../../en/admin/course-transition.md)
+
+---
+
+# Preparar el curs següent
+
+Al final del curs, una sola operació tanca el curs que acaba i obre el següent: **Configuració → EMS Management → Preparar el curs següent**.
+
+Arxiva el curs que acaba, converteix en exalumnes els graduats que marxen del centre i col·loca tots els altres —inclosos els graduats que continuen aquí en un altre cicle— al grup on s'han matriculat per al curs vinent.
+
+> Aquest botó **només el veuen els administradors**, i part del que fa **no es pot desfer**. Llegeix aquesta pàgina abans d'utilitzar-lo.
+
+---
+
+## Abans de començar
+
+Hi ha cinc coses que han d'estar resoltes. L'auxiliar comprova les quatre primeres i es nega a executar-se si en falta alguna.
+
+1. **El curs entrant existeix** i és diferent de l'actual.
+2. **Les avaluacions estan tancades.** L'última convocatòria de cada grup de l'abast ha d'estar en estat *Finalitzada*. Si n'hi ha d'obertes, l'auxiliar te les llista; tanca-les des de **Notes → Canviar estat de sessió d'avaluació**. Això val també per als **estudis de procedència**: si aquesta execució ha de col·locar alumnes que vénen d'un estudi que no estàs transicionant i aquell estudi encara té avaluacions obertes, l'auxiliar es nega a executar-se, perquè en sortir del grup se'ls congela l'expedient i quedaria a mitges.
+3. **Cap matrícula confirmada sense grup destí.** Si una matrícula està confirmada però ningú no n'ha triat el grup, l'auxiliar es nega a executar-se i te les llista. Passa'ls l'acció **Suggerir grup destí** de l'informe *Alumnes sense destí*: proposa el grup del mateix acrònim i torn al curs destí, i també resol els repetidors, el curs dels quals dedueix de la tutoria que tenen matriculada.
+
+   Si tot i així en queden algunes, gairebé sempre és perquè **el grup destí encara no existeix**: un grup de tarda que promociona a un curs on només hi ha grup de matí, o un estudi sense cap grup del curs següent. Crea'ls abans de continuar, o decideix a quin grup existent van aquests alumnes i assigna'ls-el a mà a la seva matrícula. Cap suggeriment automàtic pot col·locar ningú en un grup que no està creat.
+4. **Cap alumne sense matrícula als estudis que es matriculen pel flux.** En un cicle formatiu, un alumne sense **cap** matrícula —ni tan sols una proposta en esborrany— és que marxa o que algú se n'ha oblidat. Registra-li la baixa o envia-li la proposta abans de continuar.
+
+   És un bloquejant perquè després ja no hi ha marxa enrere: la transició li treu el grup, i l'auxiliar de graduació necessita el grup per saber si és a l'últim curs, així que **graduar-lo a posteriori és impossible**.
+
+   A l'ESO, el Batxillerat i la resta d'estudis que **no** fan servir el flux de matrícula això és només un avís: allà no tenir matrícula és el normal fins a la reimportació d'Esfer@ del setembre.
+5. **Una còpia de seguretat de la base de dades.** L'auxiliar et demana que confirmis que la tens, i no aplica res fins que marquis la casella.
+
+Marca els alumnes que es graduen *abans*, amb l'auxiliar de graduació des de la llista d'alumnes. La transició no decideix qui es gradua: només executa marques que ja hi són.
+
+### Graduar-se i continuar al centre no és cap contradicció
+
+Un alumne que acaba SMX i es matricula d'ASIX, DAM o DAW, o un que acaba DAM i comença un altre cicle superior —fins i tot d'una altra família—, es gradua **i** continua. Són dos fets independents: la graduació tanca el cicle que s'acaba, la matrícula obre el que comença.
+
+**No has de fer res perquè funcioni, ni marcar res d'especial.** Tu marques la graduació, com sempre. La matrícula arriba pel seu compte des de la preinscripció i GEDAC. L'auxiliar creua les dues dades en executar-se i decideix sol, i distingeix tres casos: sense matrícula, s'arxiva com a exalumne; amb matrícula **confirmada**, continua sent alumne i es col·loca al grup nou; amb matrícula **sense confirmar**, passa a sol·licitant conservant l'accés al portal, perquè pugui confirmar-la més endavant. Si la confirma, torna a ser alumne i es col·loca sol.
+
+---
+
+## Estudi per estudi, no tot alhora
+
+Els estudis no acaben alhora: un cicle formatiu pot estar tancat al juny mentre un nivell d'ESO encara avalua. Per això tries **quins estudis** vols transicionar, i pots executar l'auxiliar tantes vegades com calgui.
+
+El **curs actual només canvia en l'execució que no deixa cap estudi pendent**. Fins llavors, tot el que hagis transicionat ja està fet i el centre continua treballant amb el curs sortint per a la resta. La previsualització sempre t'indica quin dels dos casos tens al davant.
+
+---
+
+## Pas 1 — Previsualització
+
+Obre l'auxiliar, revisa el curs entrant i els estudis, i fes clic a **Previsualitzar**. No s'escriu res: és un assaig.
+
+Obtindràs un quadre vermell si alguna cosa bloqueja l'execució, un quadre blau amb tot allò que val la pena saber, un panell de comptadors i la **llista d'alumnes un per un** amb l'acció que rebrà cadascun:
+
+| Acció | Què significa |
+|---|---|
+| **Es gradua i marxa** | Marcat com a graduat i sense cap matrícula: passa a exalumne i s'arxiva |
+| **Es gradua i continua** | Marcat com a graduat **i** amb matrícula **confirmada**: conserva la graduació, no s'arxiva i es col·loca al grup nou |
+| **Es gradua, pendent de confirmar** | Marcat com a graduat i amb matrícula **sense confirmar**: passa a sol·licitant, **conserva l'accés al portal** i no s'arxiva, perquè pugui confirmar-la al setembre |
+| **S'incorpora al seu grup del curs vinent** | Matrícula **confirmada** amb grup: entra en aquell grup i se li creen les inscripcions a les assignatures |
+| **S'incorpora quan es transicioni el seu estudi** | Matrícula confirmada, però cap a un estudi que ara no estàs transicionant: aquí no s'hi col·loca. Ho farà l'execució d'aquell estudi |
+| **Matrícula pendent de confirmar** | La matrícula existeix però ningú no l'ha confirmada: encara no s'hi incorpora. Ho farà sol el dia que es confirmi |
+| **Matrícula sense grup destí** | Matrícula confirmada sense grup: **bloqueja l'execució** |
+| **Sense matrícula per al curs vinent** | No té cap matrícula |
+
+Dues d'aquestes mereixen la teva atenció:
+
+- **Matrícula sense grup destí** — la matrícula està confirmada però ningú n'ha triat el grup, així que l'execució queda bloquejada fins que l'assignis: deixar-lo sense grup no tindria arranjament després. Fes servir l'acció *Suggerir grup destí* i torna a previsualitzar.
+- **Alumnes sense cap grup** — si surt aquest avís, són fitxes d'alumne actives que no són a cap grup, de manera que **cap execució les veu**: no se'ls congela l'expedient ni se'ls netegen les dades. Assigna'ls grup o registra'ls la baixa abans d'aplicar; després quedaran barrejades amb els centenars d'alumnes que la transició deixa sense grup legítimament i ja no es distingeixen.
+- **Sense matrícula per al curs vinent** — l'alumne no s'ha matriculat. **No** se'l dona de baixa: simplement es queda sense grup. És deliberat, perquè al juliol no hi ha manera de distingir qui se'n va a un altre institut de qui es matricula tard. Guarda aquesta llista: és la que revisaràs després per decidir qui ha marxat de debò.
+
+---
+
+## Pas 2 — Aplicar
+
+Marca **He fet una còpia de seguretat** i fes clic a **Aplicar la transició**. Se't demanarà una confirmació més.
+
+Què passa, i en quin ordre:
+
+1. Es congela **l'historial acadèmic** de tots els alumnes. Si això falla, no s'executa res més.
+2. Els graduats **que marxen** passen a exalumnes, se'ls revoca l'accés al portal i **s'arxiven**. Els que continuen amb matrícula confirmada segueixen actius com a alumnes. Els que tenen matrícula sense confirmar passen a **sol·licitants i conserven el portal**: sense ell no podrien confirmar la matrícula, perquè un exalumne arxivat no hi té accés.
+3. S'arxiven les plantilles d'assistència del curs sortint, junt amb els blocs de calendari propis dels docents afectats. Quan el calendari d'un docent es queda sense docència del curs que finalitza (un compromís fix que quedi, com una guàrdia, no compta), passa automàticament a un calendari nou per al curs següent — no cal configurar res a mà, i el calendari anterior es conserva, arxivat, no s'esborra.
+4. **S'esborren els registres operatius**: inscripcions a mòduls, notes, assistència i sessions d'avaluació. S'esborren els dels grups del curs sortint, encara que l'alumne ja hagi estat col·locat al seu grup nou per una execució anterior. Aquesta és la part irreversible — l'historial acadèmic desat al pas 1 és el que els substitueix.
+5. Els alumnes es col·loquen al **grup destí** i s'hi inscriuen a les assignatures.
+6. Es marquen els estudis com a transicionats i, si no en queda cap de pendent, **canvia el curs actual**.
+7. Es tanquen les matrícules **del curs sortint**: les confirmades es bloquegen (són un registre legal i no es cancel·len mai), les que mai es van confirmar es cancel·len. Les del curs entrant no es toquen.
+
+---
+
+## Després
+
+L'auxiliar deixa un **registre amb la llista d'alumnes i el seu grup destí**, descarregable en acabar i també adjunt a la conversa de l'empresa. Guarda'l: és el que et permet desfer un cas concret a mà.
+
+Tres serrells per resoldre els dies següents:
+
+- **Alumnes sense destí.** Revisa la llista i registra la baixa dels que han marxat de debò. Pots fer-ho d'un en un des de la fitxa de l'alumne, o **de diversos alhora**: selecciona'ls a la llista de *Proposta de matrícula de grup* i fes clic a **Baixa**. El botó només el veuen administració acadèmica i secretaria, perquè registrar una baixa cancel·la matrícules i revoca el portal. Els que es matriculin tard no necessiten res: en confirmar-se la matrícula, se'ls col·loca al grup automàticament.
+- **Alumnes matriculats sense grup** que apareguin després (per exemple, una matrícula confirmada al setembre sense grup): només cal **assignar-los el grup destí a la matrícula**. En fer-ho es col·loquen sols, amb els seus mòduls inclosos.
+- **Matrícules del curs entrant sense confirmar.** No es cancel·len ni es toquen. Qui confirmi al setembre es col·loca sol al seu grup, sense que hagis de tornar a executar res — **sempre que la matrícula tingui grup destí assignat**. Sense grup, confirmar no col·loca ningú.
+
+**Consultar més endavant les plantilles d'assistència o els calendaris dels docents d'un curs anterior**: s'arxiven, no s'esborren, així que no es perd res — obre **Configuració → Docents → Plantilles** (o **Horaris laborals**), obre el menú **Filtres** de la barra de cerca i marca **Arxivat** per tornar-los a veure. A **Horaris laborals** també pots agrupar la llista per **Curs** per veure el calendari de cada docent al llarg dels anys.
+
+---
+
+[← Tornar a l'índex d'administrador](index.md)

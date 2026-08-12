@@ -8,6 +8,7 @@
                     <field name="has_planning" invisible="1"/>
                     <field name="allowed_subject_ids" invisible="1"/>
                     <field name="can_edit" invisible="1"/>
+                    <field name="active" invisible="1"/>
 
                     <div class="alert alert-warning" role="alert" name="alert-warning" invisible="has_planning or group_id == False or subject_id == False">
                         <!-- TODO: this should be translated (localization) -->
@@ -19,6 +20,7 @@
                     </header>
 
                     <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                         <group col="4">
                             <group>
                                 <field name="group_id" readonly="id"/>

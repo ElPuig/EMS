@@ -17,6 +17,7 @@ A veces hay que dejar constancia del comportamiento de un alumno durante una ses
 3. Se abre un diálogo con:
    - Un desplegable de **Motivo**, ya establecido en una opción genérica por defecto, para que puedas enviarlo sin escribir nada.
    - Un campo opcional de **Detalles**, por si quieres añadir contexto.
+   - Una casilla **Expulsado de clase**, desmarcada por defecto — márcala si la incidencia terminó con el alumno fuera del aula.
 4. Haz clic en **Enviar**.
 
 Y ya está — no hace falta ninguna otra confirmación, ni nada más allá del motivo.
@@ -28,6 +29,7 @@ Y ya está — no hace falta ninguna otra confirmación, ni nada más allá del 
 - El alumno recibe una notificación por correo electrónico.
 - La familia también es notificada, siguiendo la misma regla que se usa para los avisos de asistencia: si el alumno es menor de edad, o es mayor de edad pero ha autorizado compartir información con la familia, la familia también recibe el correo.
 - El tutor de grupo del alumno siempre es notificado.
+- Todos estos correos indican si el alumno fue expulsado de clase o no, según la casilla que hayas marcado.
 - Si el alumno alcanza un cierto número de strikes acumulados (configurado por la administración), el coordinador de convivencia de tu rama también es notificado automáticamente.
 
 ---
@@ -36,6 +38,7 @@ Y ya está — no hace falta ninguna otra confirmación, ni nada más allá del 
 
 - **Convivencia → Strikes** muestra todos los strikes que has puesto.
 - En la ficha del propio alumno, aparece un botón de **Strikes** en la cabecera (solo cuando el alumno tiene alguno) que muestra el recuento acumulado — haz clic en él para ver el historial completo de ese alumno.
+- Desde **Asistencia → Historial**, al abrir una de tus sesiones anteriores ahora también se muestra, por cada fila de alumno, cuántos strikes se pusieron durante esa sesión concreta, con un botón para ver su detalle completo.
 
 > Si también eres tutor/a, Jefatura de Estudios, Jefatura de Estudios Adjunta, Dirección o coordinador/a de convivencia, consulta el manual correspondiente para saber cómo puedes consultar un conjunto más amplio de strikes.
 

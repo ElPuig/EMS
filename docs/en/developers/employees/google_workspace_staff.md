@@ -11,7 +11,7 @@ Automates the two accounts every staff member (teacher / ASP) needs:
 
 Both live in `models/employees/google_workspace_integration.py`
 (`HrEmployeeGoogleWorkspace`, `_inherit = 'hr.employee'`), with shared helpers in
-`models/shared/google_workspace_mixin.py`.
+[`google.workspace.mixin`](../shared/google_workspace_mixin.md).
 
 ## Flow
 
@@ -69,10 +69,18 @@ Call sites inside `action_create_google_account()`:
 
 - **Success path** — right after `work_email` is written, before
   `_gw_deliver_credentials()`, with the `id` from the `users().insert` response.
-- **Adopt path** (employee already had a corporate `work_email`, e.g. manual email) —
-  with `_gw_google_user_id()`, which resolves the id via `users().get(userKey=email)`
-  and returns `False` on any error (the OU-scoped admin role answers **403, not 404**,
-  for unknown users) so the EMS user is still created, just without the OAuth pre-link.
+- **Adopt path** (employee already had a corporate `work_email`, e.g. manual email or
+  data migrated from before the integration) — delegates to `action_create_ems_user()`
+  (below) instead of calling `_ems_create_user` inline, so the same code runs whether
+  it is reached automatically or by the user pressing the dedicated button.
+
+### `action_create_ems_user()`
+
+Public action (no Google API call): `_ems_create_user(google_id=self._gw_google_user_id())`,
+guarded by the same `employee_type`/`work_email` checks. This is the header button shown
+in the `pending_user` state (below) — a corporate account already exists but no `res.users`
+is linked yet — and it is what `action_create_google_account()`'s adopt path now calls
+internally, so there is a single implementation either way.
 
 In **dry-run** (`company.google_ws_dry_run`) no API call is made, so there is no
 Google id: the EMS user is created without OAuth fields.
@@ -91,11 +99,53 @@ The user archiving is deliberately **synchronous and independent** of
 immediately even if the Google integration is disabled or the queue is down.
 `_ems_sync_user_active` skips `self.env.user` and the superuser.
 
+## Header button state (`google_ws_state`)
+
+The employee form (`views/community/employee/form.xml`) shows at most **one** of four
+mutually-exclusive header buttons, driven entirely by one computed, stored `Selection`
+field — `google_ws_state` — instead of each button evaluating its own combination of
+`work_email`/`user_id`/`google_ws_suspended`/`google_ws_manual_email`. This replaced an
+earlier version where two independently-computed `invisible` expressions could disagree
+and show two buttons at once for a teacher whose account was adopted from
+pre-integration/migrated data (`work_email` set, `user_id` not yet linked) — the bug that
+motivated the consolidation.
+
+```mermaid
+stateDiagram-v2
+    [*] --> none: not teacher/asp
+    none --> manual_pending: google_ws_manual_email ticked
+    none --> pending_user: work_email set, no user_id\n(adopt / migration gap)
+    manual_pending --> pending_user: work_email filled in manually
+    none --> active: action_create_google_account()\n(work_email + user_id both set)
+    pending_user --> active: action_create_ems_user()
+    active --> suspended: action_suspend_google_account()
+    suspended --> active: action_reactivate_google_account()
+```
+
+| `google_ws_state` | Header button shown | Meaning |
+|---|---|---|
+| `none` | Create Google account | No corporate email yet |
+| `manual_pending` | *(none)* | `google_ws_manual_email` ticked, waiting for the email to be typed in |
+| `pending_user` | Create EMS User | Corporate email exists, no `res.users` linked (adopt / migration gap) |
+| `active` | Suspend Google account | Fully set up |
+| `suspended` | Reactivate Google account | `google_ws_suspended = True` |
+
+`res.partner` (students) has the analogous `google_ws_state` in
+`models/contacts/google_workspace_integration.py` — see
+[Google Workspace student integration](../contacts/google_workspace_student.md) — with
+only three values (`none` / `active` / `suspended` — students never get a `pending_user`
+state since account creation there never involves a separate `res.users`).
+
+A one-off migration (`migrations/18.0.0.22.0/post-migrate.py`,
+`_backfill_google_ws_suspended`) marks `google_ws_suspended = True` for employees/students
+that were already archived/withdrawn before the field existed (added in 18.0.0.19.0 /
+18.0.0.19.2), so they land in `suspended` instead of the wrong `active` state.
+
 ## Access control
 
 | Action | Who |
 |---|---|
-| Create employee / trigger account creation (buttons) | `ems.group_academic_admin`, `hr.group_hr_user` |
+| Create employee / trigger account creation (buttons, incl. `action_create_ems_user`) | `ems.group_academic_admin`, `hr.group_hr_user` |
 | Auto-created user groups (teacher) | `base.group_user` + `ems.group_teacher` |
 | Auto-created user groups (ASP) | `base.group_user` only (role/job sync adds the rest) |
 | res.users creation itself | `sudo()` inside the flow |
@@ -110,6 +160,25 @@ is granted explicitly.
 | Plain employee creation | `name` (plus `private_email` at view level for **new** teacher/ASP records) |
 | Google account creation | `name`, `private_email` (recovery + credentials email); phone/NIF optional |
 | EMS user creation | corporate `work_email` (produced by the previous step) |
+
+## Interplay with pending-identification placeholders
+
+A teacher created by the working-schedule importer from a not-yet-staffed post's code
+(`hr.employee.schedule_import_code` set, `pending_identification` computed `True` — see
+`docs/en/developers/employees/working_schedule.md`'s "Pending-identification teachers"
+section) is just a normal `employee_type='teacher'` record with `name`/`private_email`
+still blank. `_gw_missing_fields()` already requires both, so `action_create_google_account()`
+raises its existing `UserError` for a still-unidentified placeholder exactly like it would
+for any other incomplete employee — **no special-casing was needed for this integration
+itself.**
+
+The only addition, at the very end of `action_create_google_account()`'s success path: if
+`schedule_import_code` is set, post a chatter note naming the original code, then clear it
+(`emp.write({'schedule_import_code': False})`). This is what lets an admin's normal flow —
+open the placeholder record, fill in the real `name` + `private_email`, click **Generate
+Google account** — double as the "confirm this teacher's real identity" step, with no
+separate action needed. The schedule/`ems.teaching`/`ems.attendance_template` rows created
+at import time are untouched; they were already attached to this same `hr.employee` id.
 
 ## Pitfalls (native hr v18)
 
@@ -126,6 +195,16 @@ is granted explicitly.
 
 `tests/test_employee_ems_user.py` (`TestEmployeeEmsUser`) — user creation, groups per
 type, OAuth capture/backfill, idempotence, re-link of archived users, `work_email`
-survival regression, lifecycle sync, no invitation mail. The SMTP transport is patched
-class-wide (see `tests/test_strike.py` pattern). Google-side behaviour is covered by
-`tests/test_employee_google_workspace.py`.
+survival regression, lifecycle sync, no invitation mail, and `action_create_ems_user`
+(links the user without touching the Google API, idempotent, no-op without
+`work_email`). The SMTP transport is patched class-wide (see `tests/test_strike.py`
+pattern). Google-side behaviour, the `google_ws_state` compute for every state, and the
+`google_ws_suspended` migration backfill are covered by
+`tests/test_employee_google_workspace.py`; the analogous student-side `google_ws_state`
+and backfill tests live in `tests/test_exit_management.py`.
+`tests/test_employee_google_workspace_tour.py` +
+`static/tests/tours/employee_google_workspace_tour.js` open the employee form in a real
+browser for each state and assert exactly one header button renders — the client-side
+render that a `TransactionCase` cannot exercise. The student-side integration has its own
+`tests/test_student_google_workspace.py` — see
+[Google Workspace student integration](../contacts/google_workspace_student.md#tests).

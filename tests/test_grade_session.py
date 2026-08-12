@@ -1,7 +1,7 @@
-from datetime import date
-
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
+
+from .common import create_level_study
 
 
 class TestGradeSession(TransactionCase):
@@ -28,14 +28,8 @@ class TestGradeSession(TransactionCase):
         })
 
         # Curriculum
-        cls.level = cls.env['ems.level'].create({'acronym': 'TGL', 'name': 'Test Grade Level'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TGSTD1',
-            'acronym': 'TGS',
-            'name': 'Test Grade Study',
-            'date': date.today(),
-            'deprecated': False,
-            'level_id': cls.level.id,
+        cls.level, cls.study = create_level_study(cls, 'TGL', level={'name': 'Test Grade Level'}, study={
+            'code': 'TGSTD1', 'acronym': 'TGS', 'name': 'Test Grade Study',
         })
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TGSUB1',

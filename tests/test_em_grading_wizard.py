@@ -1,7 +1,7 @@
-from datetime import date
-
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import Form, TransactionCase
+
+from .common import create_level_study
 
 
 class TestEmGradingWizard(TransactionCase):
@@ -32,10 +32,8 @@ class TestEmGradingWizard(TransactionCase):
         })
 
         # Curriculum: subject1 has a work placement (90/10), subject2 is internal-only.
-        cls.level = cls.env['ems.level'].create({'acronym': 'EML', 'name': 'EM Level'})
-        cls.study = cls.env['ems.study'].create({
+        cls.level, cls.study = create_level_study(cls, 'EML', level={'name': 'EM Level'}, study={
             'code': 'EMSTD1', 'acronym': 'EMS', 'name': 'EM Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
         })
         cls.subject1 = cls.env['ems.subject'].create({
             'code': 'EMSUB1', 'acronym': 'EM1', 'name': 'EM Subject 1',

@@ -1,11 +1,27 @@
 # -*- coding: utf-8 -*-
 from datetime import date
+
+from psycopg2 import IntegrityError
+
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.addons.mail.tools.discuss import Store
 
-class ems_SaleOrder(models.Model):
+class SaleOrder(models.Model):
     _inherit = "sale.order"
+
+    def init(self):
+        """Partial unique index backstopping _check_unique_enrollment_per_course at the DB
+        level - a plain _sql_constraints unique can't express "unique except when
+        cancelled" (see plans/enrollment_header_unique_race_condition.md, now resolved).
+        Mirrors the Python constraint's own skip conditions (cancelled / no partner / no
+        course) exactly, so it only ever fires for the same cases the Python check does.
+        """
+        self.env.cr.execute("""
+            CREATE UNIQUE INDEX IF NOT EXISTS sale_order_unique_enrollment_per_course
+            ON sale_order (partner_id, ems_course_id)
+            WHERE state != 'cancel' AND partner_id IS NOT NULL AND ems_course_id IS NOT NULL
+        """)
 
     def _get_default_course(self):
         """
@@ -19,35 +35,34 @@ class ems_SaleOrder(models.Model):
         return course.id if course else False
 
     ems_enrollment_number = fields.Char(string="Enrollment Number", copy=False, readonly=True)
-    # Campo auxiliar para el filtro de la vista
+    # Auxiliary field for the view's product-line domain filter.
     ems_existing_product_ids = fields.Many2many(
         'product.template',
         compute='_compute_existing_products',
         string="Enrolled Products (Technical)"
     )
 
-    # --- New Field ---
     ems_course_id = fields.Many2one(
-        'ems.course', 
-        string="Academic Year", 
-        #required=True #Lo haremos obligatorio en la vista 
+        'ems.course',
+        string="Academic Year",
+        # Not required at the model level: made required at the view level instead.
         default=_get_default_course,
         help="Academic year for this enrollment."
     )
 
-    # Campo para seleccionar el estudio en la matrícula
+    # Study selected for this enrollment.
     ems_study_id = fields.Many2one(
         'ems.study',
         string="Studies for enrollment"
-        #required=True #Lo haremos obligatorio en la vista
+        # Not required at the model level: made required at the view level instead.
     )
 
-    # Campo para seleccionar el nivel de estudios en la matrícula
+    # Study level, derived automatically from ems_study_id.
     ems_level_id = fields.Many2one(
         comodel_name="ems.level",
         string="Level",
-        related="ems_study_id.level_id", 
-        store=True # Recomendado para poder agrupar y filtrar por nivel en la vista lista
+        related="ems_study_id.level_id",
+        store=True  # Needed to group/filter by level in the list view.
     )
 
     # Shift (Turno) ---
@@ -76,8 +91,8 @@ class ems_SaleOrder(models.Model):
              "after that transition. Left empty until known."
     )
 
-    # Modificamos el campo nativo 'sale_order_template_id' (Plantilla de Presupuesto)
-    # Le aplicamos un dominio dinámico: Solo mostrar plantillas del estudio seleccionado arriba
+    # Native 'sale_order_template_id' field, re-domained: only offer templates
+    # (enrollment packs) belonging to the study selected above.
     sale_order_template_id = fields.Many2one(
         comodel_name='sale.order.template', 
         domain="[('ems_study_id', '=', ems_study_id)]"
@@ -151,67 +166,79 @@ class ems_SaleOrder(models.Model):
             'cancel': 'Cancelled',
             'done': 'Locked',
         }
-        for rec in self:
-            rec.ems_enrollment_status_label = labels.get(rec.state, rec.state)
+        for order in self:
+            order.ems_enrollment_status_label = labels.get(order.state, order.state)
 
     def _get_dynamic_enrollment_name(self):
         """Build the enrollment code dynamically using acronyms and shortening the year."""
         self.ensure_one()
-        
-        # 1. Procesar el año académico para acortarlo ("2025-2026" -> "25-26")
+
+        # 1. Shorten the academic year ("2025-2026" -> "25-26").
         course_str = 'XXXX'
         if self.ems_course_id and self.ems_course_id.name:
             full_course = self.ems_course_id.name.strip()
-            # Comprobamos si tiene el formato exacto de 9 caracteres como "2025-2026" o "2025/2026"
+            # Exact 9-character format like "2025-2026" or "2025/2026"?
             if len(full_course) == 9 and full_course[4] in ('-', '/'):
-                # Cogemos los dígitos de las posiciones 2:4 (el 25) y 7:9 (el 26)
+                # Take the digits at positions 2:4 (25) and 7:9 (26).
                 course_str = f"{full_course[2:4]}-{full_course[7:9]}"
             else:
-                # Si tiene otro formato raro (ej. solo "2025"), lo dejamos tal cual por seguridad
+                # Unexpected format (e.g. just "2025"): keep it as-is, safely.
                 course_str = full_course
-        # 2. Obtener acrónimos de Nivel y Estudio
+        # 2. Level and study acronyms.
         level_str = self.ems_level_id.acronym if self.ems_level_id and self.ems_level_id.acronym else 'XXX'
         study_str = self.ems_study_id.acronym if self.ems_study_id and self.ems_study_id.acronym else 'XXX'
-        # 3. Obtener el número de secuencia
+        # 3. Sequence number.
         num_str = self.ems_enrollment_number or 'New'
-        # 4. Construir y limpiar la cadena final
+        # 4. Build and clean the final string.
         return f"M/{course_str}/{level_str}/{study_str}/{num_str}".replace(' ', '')
-    
-    
-    
+
     @api.onchange('ems_course_id', 'ems_level_id', 'ems_study_id')
     def _onchange_enrollment_name_preview(self):
         """Update the enrollment code in real time on the screen before saving."""
-        for rec in self:
-            # Solo actualizamos la vista si está en estado borrador/enviado y es una matrícula
-            if rec.state in ['draft', 'sent'] and rec.ems_study_id:
-                rec.name = rec._get_dynamic_enrollment_name()
+        for order in self:
+            # Only preview it in draft/sent state, for an actual enrollment.
+            if order.state in ['draft', 'sent'] and order.ems_study_id:
+                order.name = order._get_dynamic_enrollment_name()
+
+    def _translate_enrollment_race_error(self, error):
+        """Re-raise a friendly ValidationError for the partial unique index created in
+        init() - a genuine cross-transaction race that slipped past
+        _check_unique_enrollment_per_course's own search()-then-raise check. Any other
+        IntegrityError is re-raised unchanged."""
+        if 'sale_order_unique_enrollment_per_course' not in str(error):
+            raise error
+        raise ValidationError(_(
+            "This student already has a pre-enrolment or active enrolment for this "
+            "academic year. Someone else may have just created one — please refresh "
+            "and check.")) from error
 
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             # Clear the salesperson so the company appears as fallback in communications.
             vals['user_id'] = False
-            # Comprobamos si es una matrícula (es decir, si el usuario ha seleccionado un estudio)
-            if vals.get('ems_study_id'):                
-                # 1. Le pedimos a nuestra secuencia el número correlativo (ej. 0004)
-                vals['ems_enrollment_number'] = self.env['ir.sequence'].next_by_code('ems.enrollment.number') or '0000'                
-                # 2. Sobrescribimos el campo 'name'.
-                # Al ponerle cualquier texto que no sea 'New' o 'Nuevo', bloqueamos
-                # que Odoo le asigne la secuencia 'S0000X' por defecto de las ventas.
-                vals['name'] = 'Generando...'
-        # 3. Llamamos al método nativo para que guarde en base de datos.
-        # Como va con 'name' = 'Generando...', Odoo no usará la S0000X.
-        records = super(ems_SaleOrder, self).create(vals_list)
-        # 4. Ahora que el registro ya existe y tiene su número de matrícula guardado,
-        # forzamos a que construya el nombre definitivo.
-        for rec in records:
-            if rec.ems_study_id and rec.ems_enrollment_number:
-                rec.name = rec._get_dynamic_enrollment_name()
+            # Is this an enrollment (i.e. did the user pick a study)?
+            if vals.get('ems_study_id'):
+                # 1. Ask the sequence for the next enrollment number (e.g. 0004).
+                vals['ems_enrollment_number'] = self.env['ir.sequence'].next_by_code('ems.enrollment.number') or '0000'
+                # 2. Override 'name'. Setting it to anything other than 'New' blocks
+                #    Odoo from assigning the default sale-order sequence (S0000X).
+                vals['name'] = 'Generating...'
+        # 3. Call the native method to persist the records. Since 'name' is
+        #    'Generating...', Odoo will not apply the S0000X sequence.
+        try:
+            records = super(SaleOrder, self).create(vals_list)
+        except IntegrityError as e:
+            self._translate_enrollment_race_error(e)
+        # 4. The records now exist and have their enrollment number saved:
+        #    build the final name.
+        for order in records:
+            if order.ems_study_id and order.ems_enrollment_number:
+                order.name = order._get_dynamic_enrollment_name()
         return records
 
     def write(self, vals):
-        """Actualiza el código si el usuario cambia de idea después de haber guardado."""
+        """Refresh the enrollment code if the user changes their mind after saving."""
         # Detect the draft -> sent transition for enrollments: once the secretary
         # sends the proposal to the students, the tutor's job is done.
         handover_orders = self.env['sale.order']
@@ -220,20 +247,26 @@ class ems_SaleOrder(models.Model):
                 lambda o: o.ems_study_id and o.state != 'sent'
             )
 
-        res = super(ems_SaleOrder, self).write(vals)
+        try:
+            res = super(SaleOrder, self).write(vals)
+        except IntegrityError as e:
+            self._translate_enrollment_race_error(e)
 
         if handover_orders:
             handover_orders._ems_unfollow_teachers()
 
-        # Si se ha modificado alguno de los campos que forman el código...
+        if vals.get('ems_group_id'):
+            self._ems_place_on_group_assignment()
+
+        # If one of the fields that make up the code was changed...
         if any(field in vals for field in ['ems_course_id', 'ems_level_id', 'ems_study_id']):
-            for rec in self:
-                # Y seguimos en estado modificable...
-                if rec.state in ['draft', 'sent'] and rec.ems_enrollment_number:
-                    new_name = rec._get_dynamic_enrollment_name()
-                    # Actualizamos el código si ha cambiado
-                    if rec.name != new_name:
-                        rec.name = new_name
+            for order in self:
+                # ...and it is still in an editable state...
+                if order.state in ['draft', 'sent'] and order.ems_enrollment_number:
+                    new_name = order._get_dynamic_enrollment_name()
+                    # Update the code if it changed.
+                    if order.name != new_name:
+                        order.name = new_name
         return res
 
     # ------------------------------------------------------------------
@@ -279,7 +312,7 @@ class ems_SaleOrder(models.Model):
                 for user in reviewers:
                     order.with_context(mail_activity_quick_update=True).activity_schedule(
                         act_type_xmlid='ems.mail_activity_enrollment_comment',
-                        summary='Review enrollment comment: %s' % order.name,
+                        summary=_('Review enrollment comment: %(name)s', name=order.name),
                         user_id=user.id,
                     )
             # Always keep reviewers out of the followers (activity creation
@@ -309,7 +342,7 @@ class ems_SaleOrder(models.Model):
         else:
             super()._thread_to_store(store, fields=fields, request_list=request_list)
 
-    # Limpiamos la plantilla si el usuario cambia el estudio para evitar errores
+    # Clear the template if the user changes the study, to avoid mismatches.
     @api.onchange('ems_study_id')
     def _onchange_ems_study_id(self):
         self.sale_order_template_id = False
@@ -349,19 +382,16 @@ class ems_SaleOrder(models.Model):
     @api.onchange('ems_level_id', 'ems_study_id')
     def _onchange_ems_level_study_for_authorizations(self):
         """Autofills authorizations based on the selected Level and Study."""
-        for rec in self:
-            rec.ems_authorization_ids = rec._get_authorization_commands()
+        for order in self:
+            order.ems_authorization_ids = order._get_authorization_commands()
 
     def _get_authorization_commands(self):
-        """Devuelve los comandos ORM para sincronizar autorizaciones."""
+        """Return the ORM commands to sync authorizations with the current
+        level/study selection (AND-of-scopes, see
+        ems.authorization.template._matches_scope())."""
         self.ensure_one()
-        domain = ['&', ('ems_level_ids', '=', False), ('ems_study_ids', '=', False)]
-        if self.ems_level_id:
-            domain = ['|', ('ems_level_ids', 'in', self.ems_level_id.id)] + domain
-        if self.ems_study_id:
-            domain = ['|', ('ems_study_ids', 'in', self.ems_study_id.id)] + domain
-
-        templates = self.env['ems.authorization.template'].search(domain)
+        templates = self.env['ems.authorization.template'].search([]).filtered(
+            lambda template: template._matches_scope(self.ems_level_id, self.ems_study_id))
         commands = []
         to_remove = self.ems_authorization_ids.filtered(
             lambda a: a.template_id not in templates
@@ -380,11 +410,11 @@ class ems_SaleOrder(models.Model):
         return commands
 
     def apply_authorizations(self):
-        """Aplica autorizaciones persistiendo en BD. Llamable desde código."""
-        for rec in self:
-            commands = rec._get_authorization_commands()
+        """Apply authorizations, persisting them to the database. Callable from code."""
+        for order in self:
+            commands = order._get_authorization_commands()
             if commands:
-                rec.write({'ems_authorization_ids': commands})
+                order.write({'ems_authorization_ids': commands})
 
     @api.constrains('partner_id', 'ems_course_id', 'state')
     def _check_unique_enrollment_per_course(self):
@@ -393,56 +423,83 @@ class ems_SaleOrder(models.Model):
         (that has not been cancelled) in the same academic year (ems_course_id).
         """
         for order in self:
-            # Si el registro actual está cancelado o no tiene curso/alumno, lo ignoramos
+            # Ignore the current record if it is cancelled or has no student/course.
             if order.state == 'cancel' or not order.partner_id or not order.ems_course_id:
                 continue
-            
-            # Buscamos si existe otra orden para el mismo alumno y curso que NO esté cancelada
+
+            # Look for another, non-cancelled order for the same student and course.
             domain = [
-                ('id', '!=', order.id), # Excluir el registro actual
+                ('id', '!=', order.id),  # Exclude the current record.
                 ('partner_id', '=', order.partner_id.id),
                 ('ems_course_id', '=', order.ems_course_id.id),
                 ('state', '!=', 'cancel')
             ]
-            
+
             existing_enrollment = self.search(domain, limit=1)
-            
+
             if existing_enrollment:
-                raise ValidationError(
-                    f"The student {order.partner_id.name} already has a pre-enrolment or "
-                    f"active enrolment for the academic year {order.ems_course_id.display_name}."
-                )
+                raise ValidationError(_(
+                    "The student %(student)s already has a pre-enrolment or "
+                    "active enrolment for the academic year %(course)s.",
+                    student=order.partner_id.name, course=order.ems_course_id.display_name,
+                ))
+
+    @api.constrains('ems_group_id', 'ems_study_id')
+    def _check_group_matches_study(self):
+        """ems_group_id.study_id must match ems_study_id - a destination group always
+        implies a study, both by the view (ems_study_id required="1") and by every real
+        writer of ems_group_id (ems.enrollment_proposal_wizard.action_create_enrollments
+        always sets both together; _ems_suggest_group refuses to suggest a group at all
+        while ems_study_id is empty). The onchanges (above) only enforce this client-side;
+        a direct write (e.g. a tutor editing the form directly instead of going through
+        the wizard) needs the same guard server-side. See
+        plans/enrollment_header_tutor_guard_gap.md."""
+        for order in self:
+            if order.ems_group_id and order.ems_group_id.study_id != order.ems_study_id:
+                raise ValidationError(_(
+                    "The destination group %(group)s does not belong to the "
+                    "study selected for this enrollment.",
+                    group=order.ems_group_id.display_name,
+                ))
 
     def _is_blocked_tutor(self):
-        return (
-            self.env.user.has_group('ems.group_teacher') and
-            not self.env.user.has_group('ems.group_tutor') and
-            not self.env.user.has_group('ems.group_academic_admin') and
-            not self.env.user.has_group('ems.group_secretary')
-        )
+        """True for a plain teacher (blocked outright), and for a tutor who isn't
+        genuinely *this* order's own tutor - checked via has_access('write') rather
+        than re-deriving rule_sale_order_tutor's own condition in Python, so this
+        never drifts out of sync with security/rules/contacts.xml (the same class of
+        duplication bug fixed for ems.authorization.template's matching semantics).
+        Gives both cases the same friendly ValidationError instead of a bare
+        AccessError for the wrong-student-tutor case. See
+        plans/enrollment_header_tutor_guard_gap.md (now resolved).
+        """
+        if not self.env.user.has_group('ems.group_teacher'):
+            return False
+        if self.env.user.has_group('ems.group_academic_admin') \
+                or self.env.user.has_group('ems.group_secretary'):
+            return False
+        if self.env.user.has_group('ems.group_tutor'):
+            return not self.has_access('write')
+        return True
 
     def action_cancel(self):
         if self._is_blocked_tutor():
-            raise ValidationError(
+            raise ValidationError(_(
                 "Tutors cannot cancel enrollments. "
-                "Please contact the secretary or admin."
-            )
+                "Please contact the secretary or admin."))
         return super().action_cancel()
 
     def action_quotation_sent(self):
         if self._is_blocked_tutor():
-            raise ValidationError(
+            raise ValidationError(_(
                 "Tutors cannot change the enrollment status. "
-                "Please contact the secretary or admin."
-            )
+                "Please contact the secretary or admin."))
         return super().action_quotation_sent()
 
     def action_quotation_send(self):
         if self._is_blocked_tutor():
-            raise ValidationError(
+            raise ValidationError(_(
                 "Tutors cannot send enrollments to students. "
-                "Please contact the secretary or admin."
-            )
+                "Please contact the secretary or admin."))
         if self.ems_study_id:
             template = self.env.ref('ems.email_template_enrollment_send', raise_if_not_found=False)
             if template:
@@ -493,21 +550,20 @@ class ems_SaleOrder(models.Model):
 
     def action_confirm(self):
         if self._is_blocked_tutor():
-            raise ValidationError(
+            raise ValidationError(_(
                 "Tutors cannot confirm enrollments. "
-                "Please contact the secretary or admin."
-            )
+                "Please contact the secretary or admin."))
         for order in self:
             pending = order.ems_authorization_ids.filtered(
                 lambda a: a.status == 'pending' and a.template_id.is_required
             )
             if pending:
                 names = '\n'.join('- ' + t for t in pending.mapped('template_id.name'))
-                raise ValidationError(
-                    "Cannot confirm enrollment '%s'. "
-                    "The following required authorizations are still pending:\n%s"
-                    % (order.name, names)
-                )
+                raise ValidationError(_(
+                    "Cannot confirm enrollment '%(name)s'. "
+                    "The following required authorizations are still pending:\n%(names)s",
+                    name=order.name, names=names,
+                ))
         res = super().action_confirm()
         comment_type = self.env.ref('ems.mail_activity_enrollment_comment', raise_if_not_found=False)
         for order in self:
@@ -532,13 +588,15 @@ class ems_SaleOrder(models.Model):
         of an internal continuer once the granted study is the one being confirmed.
         Placement (group + subject enrollments) only runs for latecomers whose
         destination study has already been transitioned; in the normal case (study still
-        active) the transition wizard places everyone in bulk later. The
-        `transition_state` field lands in the transition phase, so until then this
-        branch stays dormant.
+        active) the transition wizard places everyone in bulk later.
         """
         self.ensure_one()
         partner = self.partner_id
-        if partner.contact_type == 'applicant':
+        # Ex-students come back too: a graduate starting another study, or a returner
+        # archived last year. The bulk placement of the transition wizard already
+        # covered the three states, and the individual path has to match it or a
+        # September confirmation would land on an archived alumni nobody can place.
+        if partner.contact_type in ('applicant', 'alumni', 'withdrawal'):
             partner._ems_convert_to_student()
         # Spent assignment: clearing it keeps the "With GEDAC assignment" filter showing
         # only the continuers still pending enrollment. A different study being confirmed
@@ -550,32 +608,55 @@ class ems_SaleOrder(models.Model):
                 'preinscription_shift': False,
                 'preinscription_course': False,
             })
-        if getattr(self.ems_study_id, 'transition_state', False) == 'transitioned':
+        if self._ems_placement_is_individual():
             self._ems_apply_destination_placement()
+
+    def _ems_placement_is_individual(self):
+        """Whether THIS enrollment has to place its student on its own.
+
+        The bulk pass of the transition wizard has already run when either is true:
+
+        - the destination study is 'transitioned' — a partial transition, the wizard
+          did that study and the centre is still on the outgoing course; or
+        - the enrollment is for the course that is already running. The global flip
+          puts every study back to 'active', so after a complete transition — the
+          normal end state — 'transitioned' is true for nobody and keying on it alone
+          left September unable to place a single latecomer.
+
+        An enrollment for a course that has not started yet is left to the wizard.
+        """
+        self.ensure_one()
+        return self.ems_study_id.transition_state == 'transitioned' \
+            or self.ems_course_id == self.env.company.current_course_id
 
     def _ems_suggest_group(self):
         """Suggest a destination group for this enrollment from its own data.
 
-        Continuing student: the same acronym as the student's current group plus
-        the enrollment shift, in the destination study/course. Applicant: the
-        lowest-letter group of the shift. Empty when there is no single match.
+        Continuing student: the same acronym as the student's current group plus the
+        enrollment shift, in the destination study/course. Newcomer: the lowest-letter
+        group of the shift. Empty when there is no single match.
+
+        What tells the two apart is whether there is a group to copy the letter FROM,
+        not the contact type. Keying it on 'applicant' looked equivalent but stopped
+        being true at exactly the wrong moment: confirming the enrollment runs
+        _ems_admit_student(), which turns the applicant into a student, so from then on
+        a newcomer awaiting the bulk placement fell through both branches and got no
+        suggestion at all.
         """
         self.ensure_one()
         study = self.ems_study_id
-        course = self.sale_order_template_id.study_year
+        course = self.sale_order_template_id.study_year or self._ems_course_from_tutorship()
         if not (study and course):
             return self.env['ems.group']
         Group = self.env['ems.group']
         partner = self.partner_id
-        if partner.contact_type == 'applicant':
+        current = partner.main_group_id
+        if not current:
             domain = [('study_id', '=', study.id), ('course', '=', course)]
             shift = self.shift or partner.preinscription_shift
             if shift:
                 domain.append(('shift', '=', shift))
             return Group.search(domain, order='acronym', limit=1)
-        current = partner.main_group_id
-        if not current:
-            return Group
         domain = [('study_id', '=', study.id), ('course', '=', course),
                   ('acronym', '=', current.acronym)]
         shift = self.shift or current.shift
@@ -583,6 +664,36 @@ class ems_SaleOrder(models.Model):
             domain.append(('shift', '=', shift))
         matches = Group.search(domain)
         return matches if len(matches) == 1 else Group
+
+    def _ems_course_from_tutorship(self):
+        """Destination course of an enrollment that carries no template.
+
+        A repeater re-enrolling only in what they failed never goes through a template,
+        so sale_order_template_id.study_year is empty and the suggestion gave up. Their
+        lines cannot be matched against a template as a whole either: they mix modules
+        pending from an earlier course with the current one, plus the economic items
+        (enrollment fee, AMPA), so no template is ever a superset of them.
+
+        The tutorship is the handle. There is exactly one per enrollment and it is
+        course-specific ("Tutoria 2n SMX"), so whichever templates sell it pin the
+        course down. Anything ambiguous — no tutorship, more than one, or templates
+        disagreeing on the year — returns nothing, and the caller leaves the group
+        empty rather than guess.
+        """
+        self.ensure_one()
+        tutorships = self.env['ems.subject'].search([
+            ('product_id', 'in', self.order_line.mapped('product_id').ids),
+            ('is_tutorship', '=', True)])
+        if len(tutorships) != 1:
+            return False
+        years = {
+            template.study_year
+            for template in self.env['sale.order.template'].search([
+                ('ems_study_id', '=', self.ems_study_id.id),
+                ('study_year', '!=', False)])
+            if tutorships.product_id in template.sale_order_template_line_ids.product_id
+        }
+        return years.pop() if len(years) == 1 else False
 
     def _ems_fill_suggested_group(self):
         """Fill ems_group_id with the suggestion on enrollments that have none.
@@ -596,6 +707,31 @@ class ems_SaleOrder(models.Model):
                 order.ems_group_id = group
                 filled += 1
         return filled
+
+    def _ems_place_on_group_assignment(self):
+        """Place a confirmed enrollment whose destination group arrives late.
+
+        The placement used to run only on confirmation and in the wizard's bulk pass,
+        so an enrollment confirmed WITHOUT a destination group could never be repaired:
+        writing the group did nothing, and action_confirm() refuses to run twice
+        ("Some orders are not in a state requiring confirmation"). The student stayed
+        with no group, no subject enrollments and no evaluation sessions, recoverable
+        only by hand.
+
+        Deliberately narrow: it only fires for a student that has NO group.
+        _ems_apply_destination_placement() creates the enrollments of the new group but
+        does not remove those of the old one, so re-pointing an already-placed student
+        would leave it enrolled in two groups' subjects at once. Moving somebody is a
+        different operation and does not belong here.
+        """
+        for order in self:
+            if order.state != 'sale' or not order.ems_group_id:
+                continue
+            if not order._ems_placement_is_individual():
+                continue  # the wizard's bulk pass will place them
+            if order.partner_id.main_group_id:
+                continue
+            order._ems_apply_destination_placement()
 
     def _ems_apply_destination_placement(self):
         """Place the student in the destination group and materialize the subject
@@ -611,8 +747,24 @@ class ems_SaleOrder(models.Model):
         if not group:
             return
         student = self.partner_id
-        if student.main_group_id != group:
-            student.sudo().main_group_id = group
+        # Last chance to record the year that ends: the write below overwrites the origin
+        # group, and a student placed by the run of ANOTHER study would otherwise lose it
+        # (see ems.student.year_record.freeze_on_leaving). No-op when the history is
+        # already there, which is the normal case of a student of the study being run.
+        origin_group = student.main_group_id
+        if origin_group and origin_group != group:
+            self.env['ems.student.year_record'].sudo().freeze_on_leaving(student, origin_group)
+        # Study and level travel with the group, they are not derived from it: leaving
+        # them behind would keep a student who moves to another study (or an applicant
+        # entering one) pointing at the previous one. Written together and only when
+        # they differ, so re-running the placement stays a no-op.
+        placement = {
+            'main_group_id': group.id,
+            'study_id': group.study_id.id,
+            'level_id': group.level_id.id,
+        }
+        if any(student[field].id != value for field, value in placement.items()):
+            student.sudo().write(placement)
         Enrollment = self.env['ems.enrollment'].sudo()
         subjects = self.env['ems.subject'].sudo().search([
             ('product_id', 'in', self.order_line.product_id.ids)])
@@ -740,12 +892,24 @@ class ems_SaleOrder(models.Model):
         if order.ems_payment_method == 'direct_debit':
             bank = order.partner_id.bank_ids[:1]
             if bank:
-                # Accounts predating the document-approval flow (e.g. CSV
-                # imports) may not be trusted yet: without allow_out_payment,
-                # posting raises for regular users and silently drops the
-                # bank data for the superuser (portal confirmation).
+                # Do not try to self-grant trust here: Odoo's own anti-fraud check
+                # (res.partner.bank._user_can_trust()) exists specifically to stop an
+                # automated/portal context from trusting a bank account on its own,
+                # and silently attempting it anyway (the previous approach) does not
+                # reliably work - confirmed against production data, 2026-07-30: 332
+                # already-posted invoices ended up with no bank reference at all,
+                # because Odoo's own account.move validation strips an untrusted
+                # partner_bank_id under sudo/portal contexts regardless. An IBAN must
+                # be genuinely approved first (action_approve(), or the portal renewal
+                # flow, both of which set allow_out_payment) - see
+                # plans/student_document_iban_renewal_allow_out_payment.md.
                 if not bank.allow_out_payment:
-                    bank.sudo().allow_out_payment = True
+                    raise ValidationError(_(
+                        "Cannot generate a direct-debit invoice for '%(name)s': the "
+                        "destination bank account is not approved yet. Approve the "
+                        "student's IBAN document before confirming this enrollment.",
+                        name=order.name,
+                    ))
                 vals['partner_bank_id'] = bank.id
 
         inv.write(vals)

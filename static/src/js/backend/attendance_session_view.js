@@ -70,6 +70,8 @@ class AttendanceSessionView extends Component {
         this.strikeDialog        = useRef("strikeDialog");
         this.strikeReasonSelect  = useRef("strikeReasonSelect");
         this.strikeNotesTextarea = useRef("strikeNotesTextarea");
+        this.strikeKickoutRadioWarning = useRef("strikeKickoutRadioWarning");
+        this.strikeKickoutRadioExpelled = useRef("strikeKickoutRadioExpelled");
         this.strikeReasons = [];   // populated in onWillStart from ems.strike.reason
 
         this.state = useState({
@@ -116,13 +118,13 @@ class AttendanceSessionView extends Component {
     // ── Data loading ──────────────────────────────────────────────────────────
 
     async _loadStatuses() {
-        const info = await this.orm.call(
-            "ems.attendance_session_line", "fields_get", [["status"]], { attributes: ["selection"] }
+        const records = await this.orm.searchRead(
+            "ems.attendance_status", [], ["id", "name"], { order: "sequence" }
         );
-        this.statuses = info.status.selection.map(([key, title]) => ({
-            key,
-            title,
-            label: title.split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase(),
+        this.statuses = records.map(({ id, name }) => ({
+            key: id,
+            title: name,
+            label: name.split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase(),
         }));
     }
 
@@ -202,8 +204,9 @@ class AttendanceSessionView extends Component {
         const lines = await this.orm.searchRead(
             "ems.attendance_session_line",
             [["attendance_session_id", "=", sessionId]],
-            ["id", "student_id", "status", "notes", "attendance_justification_id", "attendance_prevision_id", "strike_ids"],
+            ["id", "student_id", "status_id", "notes", "attendance_justification_id", "attendance_prevision_id", "strike_ids"],
         );
+        lines.forEach(l => { l.status_id = l.status_id ? l.status_id[0] : false; });
 
         // Fetch lastnames to allow client-side sorting
         const partnerIds = lines.filter(l => l.student_id).map(l => l.student_id[0]);
@@ -330,6 +333,9 @@ class AttendanceSessionView extends Component {
             addStrike:            _t("Issue a strike"),
             strikeCount:          (count) => sprintf(_t("%s strike(s) issued this session — click to add another"), count),
             strikeNotesPlaceholder: _t("Details (optional)..."),
+            strikeAttentionNotice: _t("Attention notice"),
+            kickedOut:             _t("Kicked out of class"),
+            reasonLabel:           _t("Reason:"),
             send:                 _t("Send"),
             lastnameAZ:        _t("Lastname A→Z"),
             lastnameZA:        _t("Lastname Z→A"),
@@ -433,13 +439,13 @@ class AttendanceSessionView extends Component {
         await this._loadAll();
     }
 
-    async onStatusClick(lineId, status) {
+    async onStatusClick(lineId, statusId) {
         if (this.state.saving[lineId]) return;
         this.state.saving[lineId] = true;
         try {
-            await this._writeSessionLine(lineId, { status });
+            await this._writeSessionLine(lineId, { status_id: statusId });
             const line = this.state.lines.find(l => l.id === lineId);
-            if (line) line.status = status;
+            if (line) line.status_id = statusId;
         } finally {
             this.state.saving[lineId] = false;
         }
@@ -474,6 +480,8 @@ class AttendanceSessionView extends Component {
         this.state.editingStrikeStudentName = studentName;
         this.strikeReasonSelect.el.value = this.strikeReasons.length ? this.strikeReasons[0].id : "";
         this.strikeNotesTextarea.el.value = "";
+        this.strikeKickoutRadioWarning.el.checked = true;
+        this.strikeKickoutRadioExpelled.el.checked = false;
         this.strikeDialog.el.showModal();
     }
 
@@ -488,10 +496,12 @@ class AttendanceSessionView extends Component {
         const studentId = this.state.editingStrikeStudentId;
         const reasonId  = parseInt(this.strikeReasonSelect.el.value);
         const notes     = this.strikeNotesTextarea.el.value.trim();
+        const kickedOut = this.strikeKickoutRadioExpelled.el.checked;
         const strikeId = await this.orm.create("ems.strike", [{
             student_id: studentId,
             reason_id: reasonId,
             notes: notes || false,
+            kicked_out: kickedOut,
             attendance_session_line_id: lineId,
         }]);
         const line = this.state.lines.find(l => l.id === lineId);

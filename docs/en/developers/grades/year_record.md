@@ -4,7 +4,7 @@
 
 `ems.student.year_record` is the three-level **academic history** of a student: one record per student·course, its subjects (`ems.student.year_record.subject`) and, inside each subject, its learning outcomes (`ems.student.year_record.outcome`).
 
-The record is a **frozen copy** of the grades subsystem output — never recalculated. The single source of truth for grade computation is `ems.grade_subject_line` / `ems.grade_outcome_line`; the year record copies their values (and the planning weights in force) at generation time, so the history stays self-contained and verifiable even if `ems.planning` changes in later courses, or after the transition wizard deletes the operational records of the outgoing year.
+The record is a **frozen copy** of the grades subsystem output — never recalculated. The single source of truth for grade computation is [`ems.grade_subject_line` / `ems.grade_outcome_line`](grade_session.md); the year record copies their values (and the planning weights in force) at generation time, so the history stays self-contained and verifiable even if `ems.planning` changes in later courses, or after the transition wizard deletes the operational records of the outgoing year.
 
 This model replaces the legacy, unused `ems.grade_outcome` (removed in this same issue).
 

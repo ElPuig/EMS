@@ -12,9 +12,6 @@
                             <button type="button" class="btn btn-sm btn-secondary" t-on-click="() => this.startEdit()">
                                 <i class="fa fa-pencil me-1"/>Edit
                             </button>
-                            <button type="button" class="btn btn-sm btn-secondary ms-2" t-on-click="() => this.onImportClick()">
-                                <i class="fa fa-upload me-1"/>Import
-                            </button>
                             <button type="button" class="btn btn-sm btn-secondary ms-2" t-on-click="() => this.openNewPanel()">
                                 <i class="fa fa-plus me-1"/>New
                             </button>
@@ -88,66 +85,75 @@
                     </t>
                 </div>
 
-                <div t-else="" class="o_schedule_grid_grid o_schedule_grid_grid_edit">
-                    <div class="o_schedule_grid_header"/>
+                <div t-else="" class="o_schedule_grid_cards_edit">
                     <t t-foreach="days" t-as="day" t-key="day.index">
-                        <div class="o_schedule_grid_header" t-esc="day.label"/>
-                    </t>
-
-                    <div class="o_schedule_grid_axis">
-                        <t t-foreach="sortedPeriods" t-as="period" t-key="period.id">
-                            <div class="o_schedule_grid_period_label">
-                                <input type="time" class="o_schedule_grid_period_time"
-                                       t-att-value="hourToTimeInput(period.hour_from)"
-                                       t-on-change="(ev) => this.onPeriodTimeChange(period.id, 'hour_from', ev)"/>
-                                <span class="mx-1">–</span>
-                                <input type="time" class="o_schedule_grid_period_time"
-                                       t-att-value="hourToTimeInput(period.hour_to)"
-                                       t-on-change="(ev) => this.onPeriodTimeChange(period.id, 'hour_to', ev)"/>
-                                <button type="button" class="btn btn-sm o_schedule_grid_period_remove"
-                                        title="Remove period" t-on-click="() => this.removePeriod(period.id)">
-                                    <i class="fa fa-trash-o"/>
-                                </button>
-                            </div>
-                        </t>
-                        <button type="button" class="btn btn-sm btn-link o_schedule_grid_add_period"
-                                t-on-click="() => this.addPeriod()">
-                            <i class="fa fa-plus me-1"/>Add period
-                        </button>
-                    </div>
-
-                    <t t-foreach="days" t-as="day" t-key="day.index">
-                        <div class="o_schedule_grid_edit_column">
-                            <t t-foreach="sortedPeriods" t-as="period" t-key="period.id">
-                                <t t-set="state" t-value="cellState(day.index, period.id)"/>
-                                <div class="o_schedule_grid_edit_cell">
-                                    <select class="o_schedule_grid_select o_schedule_grid_select_subject"
-                                            t-on-change="(ev) => this.onSubjectChange(day.index, period.id, ev)">
-                                        <option value="" t-att-selected="subjectSelectValue(state) === ''">—</option>
+                        <div class="o_schedule_grid_day_column" t-att-data-day="day.index">
+                            <div class="o_schedule_grid_day_header" t-esc="day.label"/>
+                            <t t-foreach="cardsForDay(day.index)" t-as="card" t-key="card.id">
+                                <div class="o_schedule_grid_card" t-att-data-day="day.index" t-att-data-card="card.id">
+                                    <button type="button" class="btn btn-sm o_schedule_grid_card_remove"
+                                            title="Remove card" t-on-click="() => this.removeCard(day.index, card.id)">
+                                        <i class="fa fa-trash-o"/>
+                                    </button>
+                                    <div class="o_schedule_grid_card_row">
+                                        <input type="date" class="o_schedule_grid_card_date"
+                                               title="Valid from (blank = whole course year)"
+                                               t-att-value="card.startDate || ''"
+                                               t-on-change="(ev) => this.onCardDateChange(day.index, card.id, 'startDate', ev)"/>
+                                        <span class="mx-1">–</span>
+                                        <input type="date" class="o_schedule_grid_card_date"
+                                               title="Valid until (blank = whole course year)"
+                                               t-att-value="card.endDate || ''"
+                                               t-on-change="(ev) => this.onCardDateChange(day.index, card.id, 'endDate', ev)"/>
+                                    </div>
+                                    <div class="o_schedule_grid_card_row">
+                                        <input type="time" class="o_schedule_grid_card_time"
+                                               t-att-value="hourToTimeInput(card.hourFrom)"
+                                               t-on-change="(ev) => this.onCardTimeChange(day.index, card.id, 'hourFrom', ev)"/>
+                                        <span class="mx-1">–</span>
+                                        <input type="time" class="o_schedule_grid_card_time"
+                                               t-att-value="hourToTimeInput(card.hourTo)"
+                                               t-on-change="(ev) => this.onCardTimeChange(day.index, card.id, 'hourTo', ev)"/>
+                                    </div>
+                                    <select class="o_schedule_grid_select o_schedule_grid_card_subject"
+                                            t-on-change="(ev) => this.onCardSubjectChange(day.index, card.id, ev)">
+                                        <option value="" t-att-selected="subjectSelectValue(card) === ''">—</option>
                                         <optgroup label="Non-teaching">
                                             <t t-foreach="catalog.nonTeaching" t-as="item" t-key="item[0]">
                                                 <option t-att-value="'n_' + item[0]" t-esc="item[1]"
-                                                        t-att-selected="subjectSelectValue(state) === 'n_' + item[0]"/>
+                                                        t-att-selected="subjectSelectValue(card) === 'n_' + item[0]"/>
                                             </t>
                                         </optgroup>
                                         <optgroup label="Subjects">
                                             <t t-foreach="catalog.subjects" t-as="subject" t-key="subject.id">
                                                 <option t-att-value="'s_' + subject.id" t-esc="subject.display_name"
-                                                        t-att-selected="subjectSelectValue(state) === 's_' + subject.id"/>
+                                                        t-att-selected="subjectSelectValue(card) === 's_' + subject.id"/>
                                             </t>
                                         </optgroup>
                                     </select>
-                                    <select class="o_schedule_grid_select o_schedule_grid_select_group"
-                                            t-att-disabled="state.kind !== 'subject'"
-                                            t-on-change="(ev) => this.onGroupChange(day.index, period.id, ev)">
-                                        <option value="" t-att-selected="!state.groupId">—</option>
+                                    <select class="o_schedule_grid_select o_schedule_grid_card_group"
+                                            t-att-disabled="card.kind !== 'subject'"
+                                            t-on-change="(ev) => this.onCardGroupChange(day.index, card.id, ev)">
+                                        <option value="" t-att-selected="!card.groupId">—</option>
                                         <t t-foreach="catalog.groups" t-as="group" t-key="group.id">
                                             <option t-att-value="group.id" t-esc="group.display_name"
-                                                    t-att-selected="state.groupId === group.id"/>
+                                                    t-att-selected="card.groupId === group.id"/>
+                                        </t>
+                                    </select>
+                                    <select class="o_schedule_grid_select o_schedule_grid_card_space"
+                                            t-on-change="(ev) => this.onCardSpaceChange(day.index, card.id, ev)">
+                                        <option value="" t-att-selected="!card.spaceId">—</option>
+                                        <t t-foreach="catalog.spaces" t-as="space" t-key="space.id">
+                                            <option t-att-value="space.id" t-esc="space.display_name"
+                                                    t-att-selected="card.spaceId === space.id"/>
                                         </t>
                                     </select>
                                 </div>
                             </t>
+                            <button type="button" class="btn btn-sm btn-link o_schedule_grid_add_card"
+                                    t-on-click="() => this.addCard(day.index)">
+                                <i class="fa fa-plus me-1"/>Add
+                            </button>
                         </div>
                     </t>
                 </div>

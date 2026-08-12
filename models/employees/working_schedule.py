@@ -1,12 +1,35 @@
 # -*- coding: utf-8 -*-
 
-from markupsafe import Markup, escape
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
+from markupsafe import Markup
 import xml.etree.ElementTree as ET
 import base64
+import csv
+import io
+import json
 import math
 import re
+from datetime import datetime
+
+from ..shared.attendance_mixin import EMS_BYPASS_TEMPLATE_LOCK_KEY
+
+
+def _m2m_command_ids(commands):
+	"""Resolve a Many2many/One2many value (as found in raw create()/write() vals) into a plain list
+	of ids - used by the working-schedule block's own create() override, which needs to read an id
+	list out of a not-yet-written value rather than an already-browsable recordset. Accepts either
+	the real command-tuple format ('(6, 0, ids)', '(4, id)'...) or a bare list of ids (the shape the
+	Schedule tab's own grid widget cells use for 'group_ids') - both are valid Many2many vals."""
+	ids = []
+	for command in commands or []:
+		if isinstance(command, int):
+			ids.append(command)
+		elif command[0] in (4, 1):
+			ids.append(command[1])
+		elif command[0] == 6:
+			ids.extend(command[2])
+	return ids
 
 class ems_working_schedule(models.Model):
 	# NOTE: 'ems.schedule_report_mixin' is only mixed in alongside 'resource.calendar' — a 2-item
@@ -26,6 +49,45 @@ class ems_working_schedule(models.Model):
 	# the 'Schedule' tab's grid widget keep showing the framework's blank slots (and its own patio/
 	# meeting periods) as editable/inherited on every future "Edit", without persisting them.
 	source_framework_id = fields.Many2one(string="Source framework", comodel_name="resource.calendar", domain="[('is_framework', '=', True)]")
+	# NOTE: added 2026-08-06 (see plans/course_transition_teacher_schedule_archival.md) - a personal
+	# calendar's own 'employee_id'/'course_id' make it queryable as a historical "who taught what,
+	# which course" record on its own terms, without going through 'ems.attendance_template' (which
+	# a teacher can create directly, bypassing the calendar entirely, so it can't be trusted as a
+	# complete record). 'employee_id' is set once at creation and never reassigned - unlike
+	# 'hr.employee.resource_calendar_id' (which moves on to a new calendar every course, once a later
+	# phase of that same plan wires it up), this is the calendar's own permanent back-reference, so
+	# 'get_employee()' below keeps working even for a calendar no longer any employee's *current* one.
+	# Both stay empty for a framework calendar (reusable template, never tied to one teacher/course).
+	employee_id = fields.Many2one(string="Teacher", comodel_name="hr.employee")
+	course_id = fields.Many2one(string="Course", comodel_name="ems.course")
+
+	@api.model_create_multi
+	def create(self, vals_list):
+		"""Auto-derives 'name' ("<teacher> (<course>)", matching the long-standing convention) from
+		'employee_id'/'course_id' when the caller sets those but not an explicit 'name' - a single
+		source of truth for the naming convention, instead of every caller having to remember to
+		build the string by hand (see plans/course_transition_teacher_schedule_archival.md)."""
+		for vals in vals_list:
+			if not vals.get('name') and vals.get('employee_id'):
+				employee = self.env['hr.employee'].browse(vals['employee_id'])
+				course = self.env['ems.course'].browse(vals['course_id']) if vals.get('course_id') else False
+				vals['name'] = "%s (%s)" % (employee.name, course.name) if course else employee.name
+		return super().create(vals_list)
+
+	def _refresh_personal_name(self):
+		"""Rebuilds 'name' from this calendar's own 'employee_id'/'course_id' - called after either
+		changes, or after the linked employee's own name does (see 'ems_employee.write()'). No-op
+		for a framework calendar (its name is set by hand, never derived). Falls back to
+		'get_employee()' (the reverse search) for a legacy calendar predating 'employee_id' - not yet
+		backfilled by a migration, but its name must still keep tracking a rename in the meantime."""
+		for calendar in self:
+			if calendar.is_framework:
+				continue
+			employee = calendar.employee_id or calendar.get_employee()
+			if not employee:
+				continue
+			course = calendar.course_id
+			calendar.name = "%s (%s)" % (employee.name, course.name) if course else employee.name
 
 	def seed_from_framework(self, framework):
 		"""Point this calendar at 'framework' as its reference bell schedule and clear any existing
@@ -57,9 +119,14 @@ class ems_working_schedule(models.Model):
 
 	def get_employee(self):
 		"""The teacher this calendar belongs to (a documented 1:1 assumption: one personal calendar
-		per teacher). Also matches a 'framework'/other non-personal calendar with an empty recordset."""
+		per teacher). Also matches a 'framework'/other non-personal calendar with an empty recordset.
+		Prefers the stored 'employee_id' (added 2026-08-06) - unlike the reverse search below, it
+		keeps working once this calendar is no longer any employee's *current* one (see
+		plans/course_transition_teacher_schedule_archival.md), which is exactly the point of storing
+		it. Falls back to the reverse search for a calendar predating that field (not yet backfilled
+		by a migration) - never breaks a calendar that simply hasn't been touched yet."""
 		self.ensure_one()
-		return self.env['hr.employee'].search([('resource_calendar_id', '=', self.id)])
+		return self.employee_id or self.env['hr.employee'].search([('resource_calendar_id', '=', self.id)])
 
 	def get_schedule_report_lines(self):
 		"""Weekly schedule rows (one per distinct Mon-Fri period, one column per weekday) for the
@@ -107,6 +174,40 @@ class ems_working_schedule(models.Model):
 	# Wednesday is dayofweek '2' (dayofweek follows date.weekday(): '0'=Monday).
 	FIXED_HOURS_WEDNESDAY = '2'
 
+	def _dedupe_date_split_blocks(self, attendances):
+		"""A weekday/time slot legitimately split across the year into several date-scoped rows (see
+		plans/calendar_driven_attendance_templates.md's "Mid-course subject handoff" refinement) must
+		only ever count ONCE toward the weekly hours total - not once per date-scoped row sharing it,
+		which would silently inflate the reported hours for that slot even though only one of them is
+		ever actually happening at a given point in the year (developer's own call, 2026-08-11: "si
+		hay 2 sesiones en el mismo bloque con fechas distintas, hay que contarlo como una sola sesión
+		- la más larga").
+
+		Clusters 'attendances' per weekday by TIME OVERLAP (a standard sorted-interval merge, not
+		exact (hour_from, hour_to) equality - the two halves of a split slot don't have to share the
+		exact same time, only genuinely overlap), keeping only the longest entry per cluster. Safe to
+		cluster purely by time overlap, with no date-range check needed here at all: two entries can
+		only ever genuinely overlap in TIME on the SAME calendar if their DATE ranges do NOT overlap -
+		core Odoo's own '_check_overlap' constraint (resource_calendar.py) already forbids two active,
+		date-overlapping rows from coexisting in the first place, so a same-time cluster found here can
+		never accidentally hide a real, still-unresolved double-booking - one could never have been
+		saved to begin with."""
+		kept = self.env['resource.calendar.attendance']
+		for weekday in ('0', '1', '2', '3', '4'):
+			day_entries = attendances.filtered(lambda attendance, weekday=weekday: attendance.dayofweek == weekday).sorted('hour_from')
+			cluster = self.env['resource.calendar.attendance']
+			cluster_end = None
+			for attendance in day_entries:
+				if cluster and attendance.hour_from >= cluster_end:
+					kept |= max(cluster, key=lambda a: a.hour_to - a.hour_from)
+					cluster = self.env['resource.calendar.attendance']
+					cluster_end = None
+				cluster |= attendance
+				cluster_end = attendance.hour_to if cluster_end is None else max(cluster_end, attendance.hour_to)
+			if cluster:
+				kept |= max(cluster, key=lambda a: a.hour_to - a.hour_from)
+		return kept
+
 	def get_schedule_hours_summary(self):
 		"""Weekly hours totals for the Schedule tab's summary table, split into two columns exactly
 		like the real external schedules this data is modelled on:
@@ -122,6 +223,7 @@ class ems_working_schedule(models.Model):
 		later. For a full-time teacher, 'total' should equal 24 (full_time_required_hours)."""
 		self.ensure_one()
 		weekday_entries = self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4'))
+		weekday_entries = self._dedupe_date_split_blocks(weekday_entries)
 
 		teaching_rows = {}
 		fixed_rows = {}
@@ -163,14 +265,52 @@ class ems_working_schedule(models.Model):
 
 class ems_working_schedule_assignation(models.Model):
 	_inherit = 'resource.calendar.attendance'
-	# NOTE: no need to constraint, the main model avoids overlapping. 
+	# NOTE: no need to constraint, the main model avoids overlapping.
 
+	# NOTE: core 'resource.calendar.attendance' has no 'active' field at all - added 2026-08-06 so a
+	# course transition can archive a teacher's migrating blocks instead of unlink()-ing them (which
+	# would destroy the exact history a later "who taught what, which course" query needs - see
+	# plans/course_transition_teacher_schedule_archival.md). Odoo's own generic action_archive()/
+	# action_unarchive() (models.py) already work for any model with this field - no override needed
+	# here yet; nothing writes 'active=False' on this model until a later phase of that same plan.
+	active = fields.Boolean(default=True)
 	non_teaching = fields.Many2one(string="Non-teaching", comodel_name="ems.non_teaching_type")
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
 	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group")
-	# NOTE: the classroom is a property of the group (ems.group.space_id), same simplification already
-	# used by 'ems.attendance_template' (first selected group wins when several are assigned).
-	space_id = fields.Many2one(string="Classroom", comodel_name="ems.space", compute="_compute_space_id", store=True)
+	# NOTE: a plain stored field (not a compute) since 2026-08-01 - a schedule block's own room can
+	# now genuinely diverge from its group's default (e.g. a one-off room reassignment resolving an
+	# import conflict), and must stay put afterwards rather than being silently re-derived from the
+	# group on every load. Still defaults from the group at creation time (create() below) for the
+	# common case where no explicit room is given - same "first selected group wins when several
+	# are assigned" convention already used by 'ems.attendance_template'.
+	space_id = fields.Many2one(string="Classroom", comodel_name="ems.space", store=True)
+	# NOTE: added 2026-08-11 (see plans/calendar_driven_attendance_templates.md, point 4) - a real
+	# FK to the ems.attendance_schedule line this weekly block represents, replacing the inferred
+	# (teacher+subject+group-overlap+weekday/time) matching find_schedule_lines_for_teaching still
+	# has to fall back on for any row written before this field existed - see that method's own
+	# docstring and docs/en/developers/attendance/attendance_schedule.md's own section on this
+	# field for the full reasoning (in particular why it's captured going forward only, with no
+	# historical backfill). Many-to-one, not one-to-one: co-teaching means each co-teacher's own
+	# PERSONAL calendar carries its own row for the same shared class, and all of them point at the
+	# same single schedule line - see ems.attendance_template's own "Co-teaching" docs.
+	attendance_schedule_id = fields.Many2one(string="Attendance schedule", comodel_name="ems.attendance_schedule")
+	# NOTE: 'date_from'/'date_to' are NOT new fields - they already exist on core
+	# 'resource.calendar.attendance' (odoo/addons/resource/models/resource_calendar_attendance.py),
+	# reused here as-is rather than adding EMS-specific duplicates (2026-08-11, see plans/
+	# calendar_driven_attendance_templates.md's "Mid-course subject handoff" refinement - confirmed
+	# the hard way: a first draft added new 'start_date'/'end_date' fields instead, which core's own
+	# '_check_overlap' (resource_calendar.py) silently ignored, since that check's own "no overlap"
+	# scan explicitly EXCLUDES any attendance row that already has 'date_from'/'date_to' set - it's
+	# core's own designed-in way to mark a row as an exception to the recurring-pattern-overlap rule,
+	# exactly what this feature needs). Both blank (the default, unchanged behavior) means "valid all
+	# course year". Setting them lets the SAME weekday/time/room slot legitimately hold two different
+	# subjects across the year (e.g. a regular module until February, the end-of-course project
+	# afterwards) - both entered on the calendar UPFRONT, at the same time, rather than requiring
+	# someone to remember to edit the calendar on the actual handoff day. 'ems.attendance_schedule.
+	# check_overlap()' already filters candidates by TEMPLATE date-range overlap once these flow
+	# through to the derived template's own 'start_date'/'end_date' (see
+	# 'ems.attendance_template._plan_schedule_sync') - two templates derived from non-overlapping-
+	# dated blocks never collide there either, no change needed to that check.
 	# NOTE: stored because it's read in bulk whenever a group's schedule is aggregated across many
 	# different teachers' calendars (see ems.group.get_subject_teachers_summary) — computing it on the
 	# fly for every row would mean one 'hr.employee' search per row instead of a plain read.
@@ -182,10 +322,14 @@ class ems_working_schedule_assignation(models.Model):
 	# 'group_schedule_grid_field.js'.
 	non_teaching_is_break = fields.Boolean(related="non_teaching.is_break", store=True)
 
-	@api.depends("group_ids", "group_ids.space_id")
-	def _compute_space_id(self):
-		for attendance in self:
-			attendance.space_id = attendance.group_ids[:1].space_id
+	@api.model_create_multi
+	def create(self, vals_list):
+		for vals in vals_list:
+			if not vals.get('space_id'):
+				group_ids = _m2m_command_ids(vals.get('group_ids'))
+				if group_ids:
+					vals['space_id'] = self.env['ems.group'].browse(group_ids[0]).space_id.id
+		return super().create(vals_list)
 
 	@api.depends("calendar_id")
 	def _compute_employee_id(self):
@@ -205,45 +349,157 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	_name = "ems.working_schedules_import_wizard"
 	_description = "Working schedules: import wizard."
 	_inherit = ['ems.datetime_utils']
+	_EMAIL_RE = re.compile(r'\S+@\S+')
 
-	attachment_id = fields.Many2one(string="Attachment", comodel_name="ir.attachment", domain="[('res_model', '=', 'ems.working_schedules_import_wizard')]")
-	file = fields.Binary(string="Planner file (XML)", related="attachment_id.datas")
-	# NOTE: only used when 'teacher_id' is NOT set (i.e. the general importer, opened from the
-	# "Working Schedules" list's cog menu, not the per-employee 'Import' button) — lets several planner
-	# files be imported in one go, each one possibly describing several teachers (see create()).
+	# The only way in: a batch load, one or several planner files, each one possibly describing
+	# several teachers (see create()). There is no per-employee scoped variant any more — a teacher
+	# joining mid-year gets their schedule via the Schedule tab's own "New" panel (blank framework or
+	# copy from another teacher) or by hand, never a single-file upload (see
+	# docs/en/developers/employees/working_schedule.md).
 	attachment_ids = fields.Many2many(string="Planner files (XML)", comodel_name="ir.attachment")
-	# Non-blocking yellow banner: bullet list of teachers who already have a schedule that will be
-	# updated. Html (not Char) so many teachers render as a real list instead of one long comma sentence.
-	overrided_teachers_html = fields.Html(readonly=True, store=False)
-	# Non-blocking yellow banner: bullet list of OTHER teachers (not part of this file) whose stale
-	# schedule line collides with the import and will be archived — see
-	# ems.attendance_template.find_external_conflicts.
-	external_conflicts_html = fields.Html(readonly=True, store=False)
-	# Blocking (red banner, hides the 'Import' button): too many teachers in a scoped file, or an
-	# unknown teacher e-mail in the general importer's files.
-	blocking_error_message = fields.Char(store=False)
-	# Non-blocking (extra yellow banner, alongside 'overrided_teachers_html'): the scoped file's single
-	# teacher node has a different e-mail than the employee this wizard was opened for — the import
-	# still goes ahead against 'teacher_id', the e-mail in the file is only ever used for the general importer.
-	email_mismatch_warning = fields.Char(store=False)
-	# NOTE: set via context (default_teacher_id) when opened from an employee's 'Schedule' tab "Import"
-	# button — the file is then assumed to describe that single teacher, skipping the email lookup below.
-	teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee")
+	# NOTE: gates the 'Continue' button on the intro screen - deliberately just "is any file
+	# attached", nothing more. Found the hard way (2026-08-05, developer feedback after actually
+	# using this screen): the old single-screen wizard's banners (unknown e-mail, unresolved
+	# group/subject, room conflicts...) used to render here too, immediately on file upload - but
+	# resolving those IS the whole point of steps 2 ("Resolve groups") through 5 ("Existing
+	# schedule conflicts"), so blocking (or even just showing anything about) them on the WELCOME
+	# screen pre-empts what those screens are for. Every one of those checks is deferred to
+	# '_apply_import' at the final step instead (see '_classify_attachments'/'_continue_from_intro'
+	# below) - until steps 2-6 exist to resolve them interactively, a real problem simply surfaces
+	# later, at Import time, rather than here.
+	ready_to_import = fields.Boolean(compute="_compute_ready_to_import", store=False)
 
-	def _bullet_html(self, lines):
-		"""A readonly <ul><li> list from plain-text lines (escaped), or False for none — used to
-		render the wizard's warning banners as a real list instead of one long comma sentence."""
-		if not lines:
-			return False
-		items = Markup("").join(Markup("<li>%s</li>") % escape(line) for line in lines)
-		return Markup("<ul>%s</ul>") % items
+	@api.depends("attachment_ids")
+	def _compute_ready_to_import(self):
+		for wizard in self:
+			wizard.ready_to_import = bool(wizard.attachment_ids)
 
-	def _external_conflict_lines(self, conflicts):
+	# NOTE: the 6-screen guided flow (see plans/working_schedule_import_redesign.md's "Multi-step
+	# wizard" section) - a statusbar Selection, non-clickable (no jumping steps by clicking the
+	# bar itself; Cancel is the only way back, discarding the whole in-progress wizard). A former
+	# 7th screen, "Pending teachers", was folded into "Resolve teachers" (2026-08-10, developer
+	# feedback) - see 'teacher_line's own docs for why a single screen now covers both e-mails and
+	# placeholder codes.
+	state = fields.Selection([
+		('intro', "Welcome"),
+		('groups', "Resolve groups"),
+		('subjects', "Resolve subjects"),
+		('teachers', "Resolve teachers"),
+		('internal_conflicts', "File conflicts"),
+		('db_conflicts', "Existing schedule conflicts"),
+		('summary', "Overall summary"),
+	], default='intro', required=True)
+	# NOTE: JSON cache of the raw per-teacher-node parse result (see '_classify_attachments'),
+	# populated once by 'action_continue' leaving 'intro' - nothing is written to any real model
+	# before the final step's 'import_planner_data()' reads this back. A stored Text field survives
+	# across this TransientModel's own several write() calls (one per statusbar step), unlike an
+	# in-memory value would.
+	parsed_entries_json = fields.Text(readonly=True)
+	# NOTE: one line per distinct unresolved '<Students>' name found anywhere in the batch (see
+	# '_continue_from_intro'/'_classify_attachments') - populated once, leaving 'intro', regardless
+	# of whether it ends up empty (the 'groups' screen shows a success message instead of the list
+	# in that case).
+	group_line_ids = fields.One2many(string="Unresolved groups", comodel_name="ems.working_schedules_import_wizard.group_line", inverse_name="wizard_id")
+	# NOTE: one line per distinct 'ems.group' already matched by name in the file but still missing a
+	# classroom (see '_groups_without_space') - populated once, leaving 'intro', same as 'group_line_
+	# ids' above (developer feedback 2026-08-12, after hitting this exact error only at the very last
+	# "Import" click: "quiero que podamos arreglarlo desde 'Resolve groups'").
+	space_line_ids = fields.One2many(string="Groups missing a classroom", comodel_name="ems.working_schedules_import_wizard.space_line", inverse_name="wizard_id")
+	# NOTE: one line per distinct (group set, file subject) pair where the subject isn't taught in
+	# that group's own study - populated once, leaving 'groups' (needs the group picks already
+	# applied first, since the check itself reads each entry's now-resolved 'group_ids').
+	subject_line_ids = fields.One2many(string="Subject/study mismatches", comodel_name="ems.working_schedules_import_wizard.subject_line", inverse_name="wizard_id")
+	# NOTE: one line per distinct unresolved identifier - e-mail or bare placeholder code alike,
+	# since 2026-08-10 (see '_pending_teacher_identifiers') - populated once, leaving 'groups' (not
+	# 'intro' - unlike 'group_line_ids', this needs the group picks already applied first, per the
+	# flow's own 'groups --> teachers' transition).
+	teacher_line_ids = fields.One2many(string="Unresolved teachers", comodel_name="ems.working_schedules_import_wizard.teacher_line", inverse_name="wizard_id")
+	# NOTE: one line per colliding pair found by '_find_internal_conflicts' - populated once,
+	# leaving 'teachers' (needs both group and teacher picks already applied - group resolution
+	# affects which classroom an entry defaults to; teacher resolution affects the display label).
+	internal_conflict_line_ids = fields.One2many(string="File conflicts", comodel_name="ems.working_schedules_import_wizard.internal_conflict_line", inverse_name="wizard_id")
+	# NOTE: one line per colliding pair found by '_build_external_conflict_lines' against
+	# already-active DB schedules - populated once, leaving 'internal_conflicts'.
+	external_conflict_line_ids = fields.One2many(string="Existing schedule conflicts", comodel_name="ems.working_schedules_import_wizard.external_conflict_line", inverse_name="wizard_id")
+	# NOTE: 'overall_summary_html' is one field holding every category's own block (unresolved
+	# groups/teachers, pending teachers, both conflict kinds, existing teachers affected) - there
+	# used to be a separate 'existing_teachers_html' field just for the last category, but folding
+	# it into its own block here (2026-08-10, developer feedback: "quiero saber cómo [se resolvió],
+	# no solo cuántos") made a standalone field for that one category alone redundant on this same
+	# screen - removed rather than kept alongside as a duplicate of the same content.
+	overall_summary_html = fields.Html(readonly=True)
+	# NOTE: same content as 'overall_summary_html', flattened into a downloadable CSV - mirrors
+	# 'course_transition_wizard.audit_file'/'audit_file_name' (same fields, same "auto_download_
+	# binary" widget triggering the download on the summary screen's own first render).
+	summary_file = fields.Binary(string="Import summary (CSV)", readonly=True)
+	summary_file_name = fields.Char()
+	# NOTE: drives whether "Continue" renders enabled or disabled (developer feedback 2026-08-05:
+	# "que quedará mas claro si los botones de continuar... aparecen como enabled o disabled" rather
+	# than appearing/disappearing) - the view keeps the button in the SAME place either way (two
+	# stacked buttons, only one visible at a time: the real actionable one, or a cosmetic
+	# 'disabled="disabled"' twin with no 'name' - see import_wizard.xml), instead of hiding it
+	# outright the way 'summary' still does for a wholly different screen's button.
+	continue_disabled = fields.Boolean(compute="_compute_continue_disabled")
+
+	@api.depends(
+		"state", "ready_to_import", "group_line_ids.group_id", "space_line_ids.space_id",
+		"subject_line_ids.subject_id", "subject_line_ids.allowed_subject_ids",
+		"teacher_line_ids.employee_id", "teacher_line_ids.create_new",
+		"internal_conflict_line_ids.resolution", "internal_conflict_line_ids.left_space_id",
+		"internal_conflict_line_ids.right_space_id", "external_conflict_line_ids.resolution",
+		"external_conflict_line_ids.left_space_id", "external_conflict_line_ids.right_space_id",
+	)
+	def _compute_continue_disabled(self):
+		for wizard in self:
+			if wizard.state == 'intro':
+				wizard.continue_disabled = not wizard.ready_to_import
+			elif wizard.state == 'groups':
+				wizard.continue_disabled = bool(
+					wizard.group_line_ids.filtered(lambda line: not line.group_id)
+					or wizard.space_line_ids.filtered(lambda line: not line.space_id)
+				)
+			elif wizard.state == 'subjects':
+				wizard.continue_disabled = bool(wizard.subject_line_ids.filtered(
+					lambda line: line.subject_id.id not in line.allowed_subject_ids.ids
+				))
+			elif wizard.state == 'teachers':
+				wizard.continue_disabled = bool(wizard.teacher_line_ids.filtered(lambda line: not line.employee_id and not line.create_new))
+			elif wizard.state == 'internal_conflicts':
+				wizard.continue_disabled = bool(wizard.internal_conflict_line_ids.filtered(lambda line: not line._resolution_is_valid()))
+			elif wizard.state == 'db_conflicts':
+				wizard.continue_disabled = bool(wizard.external_conflict_line_ids.filtered(lambda line: not line._resolution_is_valid()))
+			else:
+				wizard.continue_disabled = False
+
+	_STATE_SEQUENCE = ['intro', 'groups', 'subjects', 'teachers', 'internal_conflicts', 'db_conflicts', 'summary']
+
+	@staticmethod
+	def _is_email_like(value):
+		"""True for a real e-mail address; False for a schedule-import placeholder code (e.g. 'X1') —
+		the only thing that distinguishes the two in the planner XML."""
+		return "@" in (value or "")
+
+	@classmethod
+	def _teacher_identifier(cls, name_attr):
+		"""The value that identifies a <TeacherNode>'s 'name' attribute for lookup/creation: the real
+		e-mail if one appears anywhere in it (planner rows normally look like '<email> <display
+		name>' — only the e-mail itself is ever used, the rest is a discardable label), otherwise the
+		ENTIRE (stripped) attribute value. Deliberately NOT 'name_attr.split(' ')[0]': a not-yet-
+		identified teacher's node has no code/label split at all — it may be a short placeholder code
+		('X1') or the person's own real, multi-word name ('Fulanito Menganito'), and naively taking
+		the first whitespace-separated token would silently truncate the latter to just 'Fulanito'."""
+		match = cls._EMAIL_RE.search(name_attr or "")
+		return match.group(0) if match else (name_attr or "").strip()
+
+	def _conflict_lines(self, conflicts):
+		"""One bullet line per ems.attendance_schedule conflict (co-teaching or space), naming the
+		other teacher(s), subject and time — shared wording for both the co-teaching banner and the
+		space-conflict blocking issue."""
 		lines = []
 		for conflict in conflicts:
 			template = conflict.attendance_template_id
 			weekday = dict(conflict.weekdays_selection).get(conflict.weekday)
-			lines.append(_("%(teacher)s — %(subject)s (%(weekday)s %(time)s)") % {
+			lines.append(_("%(teacher)s - %(subject)s (%(weekday)s %(time)s)") % {
 				'teacher': ", ".join(template.teacher_ids.mapped('display_name')),
 				'subject': template.display_name,
 				'weekday': weekday,
@@ -251,222 +507,1184 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			})
 		return lines
 
-	def _groups_without_space(self, teacher_entries):
+	def _space_conflict_lines(self, conflicts):
+		return [
+			_("Room conflict: this import wants the same space and time as %s.") % line
+			for line in self._conflict_lines(conflicts)
+		]
+
+	def _self_conflict_lines(self, conflicts):
+		"""One line per ems.attendance_template.find_self_conflicts() result - a teacher imported in
+		this same batch double-booked against their own, already-existing schedule for a different
+		subject/group (e.g. two departments scheduling them at the same time in separate files)."""
+		return [
+			_("Schedule conflict: this teacher already has an overlapping session, %s.") % line
+			for line in self._conflict_lines(conflicts)
+		]
+
+	def _groups_without_space(self, entries_lists):
 		"""Every distinct ems.group referenced by a teaching entry (group_ids present — non-teaching
-		entries carry none) that has no classroom (space_id) assigned. ems.group.space_id is optional,
+		entries carry none) across 'entries_lists' (one 'entries' list per teacher/node, same shape
+		'node_cache' items and 'teacher_entries' pairs both carry - callers pass whichever they
+		already have) that has no classroom (space_id) assigned. ems.group.space_id is optional,
 		but the room on ems.attendance_template it feeds is required — importing a subject taught to
 		such a group fails with Odoo's generic "mandatory field is not set" error instead of naming the
-		actual problem, so this is checked upfront to raise/warn with the group(s) at fault instead."""
+		actual problem, so this is checked both upfront (see '_continue_from_intro'/'_continue_from_
+		groups') and again as a final safety net in '_apply_import', to raise/warn with the group(s)
+		at fault instead."""
 		group_ids = set()
-		for _teacher, entries in teacher_entries:
+		for entries in entries_lists:
 			for entry in entries:
 				group_ids.update(entry.get('group_ids') or [])
 		if not group_ids:
 			return self.env['ems.group']
 		return self.env['ems.group'].browse(group_ids).filtered(lambda group: not group.space_id)
 
-	@api.onchange("file")
-	def _onchange_file(self):
-		for rec in self:
-			rec.blocking_error_message = False
-			rec.email_mismatch_warning = False
-			rec.overrided_teachers_html = False
-			rec.external_conflicts_html = False
-			if rec.file:
-				xml_content = base64.b64decode(rec.file)
-				tree = ET.ElementTree(ET.fromstring(xml_content))
+	def _missing_space_lines(self, missing_space):
+		"""One bullet line per group missing a classroom — shared by every onchange handler so the
+		message is worded identically wherever it appears."""
+		return [_("Group '%s' has no classroom assigned.") % group.name for group in missing_space]
 
-				root = tree.getroot()
-				if rec.teacher_id:
-					if len(root) != 1:
-						rec.blocking_error_message = _(
-							"This file describes %d teachers; the per-employee importer only accepts a file with exactly one."
-						) % len(root)
-						continue
+	def _classify_attachments(self):
+		"""Parses every 'attachment_ids' file (without writing anything), building the raw
+		per-teacher-node cache '_continue_from_intro' needs to defer the actual import to the final
+		step. Deliberately does NOT resolve teachers, check for missing classrooms, or look for
+		schedule conflicts here any more (2026-08-05, developer feedback after actually using this
+		screen) - every one of those is deferred all the way to '_apply_import' at the final step
+		instead (or to the 'groups' step for an unresolved group name - see 'pending_group_names'
+		below), since resolving those problems is exactly what the later steps exist for, not
+		something this welcome screen should pre-empt by blocking on them. The one thing that
+		genuinely can't be deferred: a node whose own schedule content fails to parse at all (an
+		unresolved SUBJECT code, or a genuinely malformed node - inside '_parse_schedule_entries')
+		has no entries to cache in the first place - collected in 'unparseable_issues' and still
+		blocks leaving this screen, since there is no later step that could resolve it and no data
+		to silently carry forward instead."""
+		unparseable_issues, node_cache = [], []
+		for attachment in self.attachment_ids:
+			xml_content = base64.b64decode(attachment.datas)
+			tree = ET.ElementTree(ET.fromstring(xml_content))
 
-					email = root[0].attrib['name'].split(' ')[0]
-					if email.lower() != (rec.teacher_id.work_email or '').lower():
-						rec.email_mismatch_warning = _(
-							"This file's teacher e-mail (%s) doesn't match %s — it will still be imported for this employee."
-						) % (email, rec.teacher_id.display_name)
-
-					if rec.teacher_id.resource_calendar_id.id:
-						rec.overrided_teachers_html = rec._bullet_html([rec.teacher_id.display_name])
-
-					entries = [e for e in rec._parse_schedule_entries(root[0])[0] if not e["non_teaching"]]
-					missing_space = rec._groups_without_space([(rec.teacher_id, entries)])
-					if missing_space:
-						rec.blocking_error_message = _(
-							"These groups have no classroom assigned, so their schedule cannot be imported: %s"
-						) % ", ".join(missing_space.mapped('name'))
-						continue
-
-					conflicts = self.env['ems.attendance_template'].find_external_conflicts([(rec.teacher_id, entries)])
-					rec.external_conflicts_html = rec._bullet_html(rec._external_conflict_lines(conflicts))
+			for teacherNode in tree.getroot():
+				identifier = self._teacher_identifier(teacherNode.attrib['name'])
+				try:
+					entries, attendance_ids = self._parse_schedule_entries(teacherNode)
+				except ValidationError as error:
+					unparseable_issues.append(str(error))
 					continue
+				node_cache.append({'identifier': identifier, 'entries': entries, 'attendance_ids': attendance_ids})
 
-				overrided, teacher_entries = [], []
-				for teacherNode in root:
-					email = teacherNode.attrib['name'].split(' ')[0]
-					teacher = self.env["hr.employee"].search([("work_email", "=", email)]) or False
-					if not teacher:
-						continue
+		return {
+			'unparseable_issues': unparseable_issues,
+			'node_cache': node_cache,
+			'pending_group_names': self._pending_group_names(node_cache),
+		}
 
-					if teacher.resource_calendar_id.id:
-						overrided.append(teacher.display_name)
-					entries = [e for e in rec._parse_schedule_entries(teacherNode)[0] if not e["non_teaching"]]
-					teacher_entries.append((teacher, entries))
+	@staticmethod
+	def _pending_group_names(node_cache):
+		"""Every distinct raw '<Students>' name left unresolved anywhere in 'node_cache' (see
+		'pending_group_names' on an 'entries' item, set by '_parse_schedule_entries') - dedup by raw
+		text, so the same typo'd name appearing in many hour-nodes across a file becomes ONE
+		correction line on the 'groups' step, not one per occurrence."""
+		names = set()
+		for item in node_cache:
+			for entry in item['entries']:
+				names.update(entry.get('pending_group_names') or [])
+		return sorted(names)
 
-				missing_space = rec._groups_without_space(teacher_entries)
-				if missing_space:
-					rec.blocking_error_message = _(
-						"These groups have no classroom assigned, so their schedule cannot be imported: %s"
-					) % ", ".join(missing_space.mapped('name'))
+	def _advance_state(self):
+		self.ensure_one()
+		self.state = self._STATE_SEQUENCE[self._STATE_SEQUENCE.index(self.state) + 1]
+
+	def _reopen_self_action(self):
+		"""Re-opens this exact wizard record, still as a dialog. A 'type=object' button whose
+		Python method returns a falsy value (e.g. None, the implicit return of a method with no
+		explicit 'return') gets converted client-side into '{'type': 'ir.actions.act_window_close'}'
+		(see odoo/addons/web/static/src/webclient/actions/action_service.js's own 'doActionButton') -
+		for a wizard opened as 'target: new', that silently closes the dialog the moment its very
+		first save happens (found empirically 2026-08-05: the 'Continue' button on the intro screen
+		closed the whole wizard on its first click, instead of advancing to the next step). Returning
+		this action instead keeps the same dialog open, now showing whatever state was just written."""
+		self.ensure_one()
+		return {
+			'type': 'ir.actions.act_window',
+			'res_model': self._name,
+			'res_id': self.id,
+			'view_mode': 'form',
+			'target': 'new',
+		}
+
+	def action_continue(self):
+		"""The single 'Continue' button's handler for every non-final step - dispatches to each
+		step's own logic. 'summary' (the final, non-Continue step) is the only one still a
+		placeholder that just advances the statusbar - every other step now has real logic."""
+		self.ensure_one()
+		if self.state == 'intro':
+			self._continue_from_intro()
+		elif self.state == 'groups':
+			self._continue_from_groups()
+		elif self.state == 'subjects':
+			self._continue_from_subjects()
+		elif self.state == 'teachers':
+			self._continue_from_teachers()
+		elif self.state == 'internal_conflicts':
+			self._continue_from_internal_conflicts()
+		elif self.state == 'db_conflicts':
+			self._continue_from_db_conflicts()
+		else:
+			self._advance_state()
+		return self._reopen_self_action()
+
+	def _continue_from_intro(self):
+		"""Parses every attached file (without writing anything yet - see '_classify_attachments'),
+		caches the result, and advances to the next step. The 'no course configured'/'no file
+		attached' checks stay here (there is no later step that could ever resolve either one), but
+		most of the file's own CONTENT (unresolved teachers, schedule conflicts...) is deferred to
+		'_apply_import' - see that method's own docstring. Two exceptions get their own correction
+		lines here instead, both resolved on the 'groups' step: an unresolved group name
+		('group_line_ids'), and a group already matched by name but still missing a classroom
+		('space_line_ids' - developer feedback 2026-08-12, after hitting this exact error on a real
+		import: "quiero que podamos arreglarlo desde 'Resolve groups'" instead of only finding out at
+		the very last "Import" click). Only catches a group whose name ALREADY resolves directly in
+		the file (the common case) - a group that only becomes known once an unresolved name gets
+		picked/created on the 'groups' step itself is still caught by '_apply_import()`'s own
+		end-of-pipeline check (see 'missing_space' there), just not pre-emptively on this screen."""
+		self.ensure_one()
+		if not self.env.company.current_course_id.id:
+			raise ValidationError(_("No 'current course' has been setup. Please, select or create the current course within the EMS settings section."))
+		if not self.attachment_ids:
+			raise ValidationError(_("No XML file has been loaded. Please, provide at least one XML file and try again."))
+		result = self._classify_attachments()
+		if result['unparseable_issues']:
+			# NOTE: the actual issues are folded into the message (not a generic "please fix the
+			# issues shown above") - this is also reachable from a direct ORM/API call with no
+			# banner to look at, e.g. a test bypassing the onchange-then-click UI flow.
+			raise ValidationError(_(
+				"Please fix the following issues before continuing:\n%s"
+			) % "\n".join(result['unparseable_issues']))
+		self.parsed_entries_json = json.dumps(result['node_cache'])
+		self.group_line_ids = [(5, 0, 0)] + [
+			(0, 0, {'raw_name': name}) for name in result['pending_group_names']
+		]
+		missing_space = self._groups_without_space(item['entries'] for item in result['node_cache'])
+		self.space_line_ids = [(5, 0, 0)] + [(0, 0, {'group_id': group.id}) for group in missing_space]
+		self._advance_state()
+
+	def _continue_from_groups(self):
+		"""The 'groups' step's own 'Continue' handler: every 'group_line_ids' row must have a group
+		picked (raised, same convention as every other validation in this wizard - the developer's
+		own choice, see 'plans/working_schedule_import_redesign.md's step 2) and every 'space_line_
+		ids' row must have a classroom picked (added 2026-08-12, same convention - see '_continue_
+		from_intro' for why this screen is where a missing classroom gets caught) - each picked
+		classroom is written straight onto the real 'ems.group.space_id' (not wizard-scoped: the room
+		is a property of the group itself, fixed for this import AND every future one). Every
+		occurrence of each resolved raw group name across the whole cached batch is then substituted
+		in place (see '_finalize_pending_groups') before advancing - nothing reaches '_apply_import()'
+		with a 'pending_group_names' marker still attached."""
+		self.ensure_one()
+		unresolved_lines = self.group_line_ids.filtered(lambda line: not line.group_id)
+		if unresolved_lines:
+			raise ValidationError(_(
+				"Please select a group for every unresolved name before continuing:\n%s"
+			) % "\n".join(unresolved_lines.mapped('raw_name')))
+		unresolved_space_lines = self.space_line_ids.filtered(lambda line: not line.space_id)
+		if unresolved_space_lines:
+			raise ValidationError(_(
+				"Please assign a classroom for every group listed before continuing:\n%s"
+			) % "\n".join(unresolved_space_lines.mapped('group_id.name')))
+		for line in self.space_line_ids:
+			line.group_id.space_id = line.space_id
+
+		name_to_group = {line.raw_name: line.group_id for line in self.group_line_ids}
+		node_cache = json.loads(self.parsed_entries_json or '[]')
+		for item in node_cache:
+			for entry in item['entries']:
+				self._finalize_pending_groups(entry, name_to_group)
+			for command in item['attendance_ids']:
+				if command[0] == 0:
+					self._finalize_pending_groups(command[2], name_to_group)
+		self.parsed_entries_json = json.dumps(node_cache)
+		self.subject_line_ids = [(5, 0, 0)] + self._build_subject_lines(node_cache)
+		self._advance_state()
+
+	def _build_subject_lines(self, node_cache):
+		"""One line per distinct (group set, file subject) pair across the whole batch where the
+		subject isn't taught in every one of those groups' own study - dedup by that same pair, so
+		the same real mismatch repeated across several days/entries (a class meeting the same
+		subject/groups combination every day of the week) produces exactly one correction line, not
+		one per occurrence (same convention as 'group_line'/'teacher_line'). A non-teaching entry
+		(no 'subject_id' at all) or an entry whose groups carry no study at all (e.g. a reinforcement
+		group - nothing to validate against, matching 'ems.attendance_template._check_subject_valid_
+		for_all_studies's own skip-if-no-study rule) never produces a line."""
+		mismatches = set()
+		for item in node_cache:
+			for entry in item['entries']:
+				if entry.get('non_teaching') or not entry.get('subject_id'):
 					continue
+				group_ids = tuple(sorted(entry.get('group_ids') or []))
+				key = (group_ids, entry['subject_id'])
+				if not group_ids or key in mismatches:
+					continue
+				studies = self.env['ems.group'].browse(group_ids).mapped('study_id')
+				if not studies or entry['subject_id'] in studies._subjects_common_to_all().ids:
+					continue
+				mismatches.add(key)
+		return [
+			(0, 0, {
+				'raw_group_ids': [(6, 0, list(group_ids))],
+				'group_ids': [(6, 0, list(group_ids))],
+				'raw_subject_id': subject_id,
+				'subject_id': subject_id,
+			})
+			for group_ids, subject_id in mismatches
+		]
 
-				rec.overrided_teachers_html = rec._bullet_html(overrided)
-				conflicts = self.env['ems.attendance_template'].find_external_conflicts(teacher_entries)
-				rec.external_conflicts_html = rec._bullet_html(rec._external_conflict_lines(conflicts))
+	def _continue_from_subjects(self):
+		"""The 'subjects' step's own 'Continue' handler, mirroring '_continue_from_groups': every
+		'subject_line_ids' row must have a subject actually valid for its own (possibly corrected)
+		groups' study before continuing, then every occurrence of each mismatch's original (group
+		set, subject) pair across the whole cached batch is substituted with whatever the admin
+		actually picked - either side, since either can be the real mistake (developer feedback
+		2026-08-11, after using the group-ids-readonly first version for real: "el error era el (o
+		los) grupo, o el error era la asignatura") - see '_finalize_subject_correction'."""
+		self.ensure_one()
+		unresolved_lines = self.subject_line_ids.filtered(
+			lambda line: line.subject_id.id not in line.allowed_subject_ids.ids
+		)
+		if unresolved_lines:
+			raise ValidationError(_(
+				"Please select a subject taught in the group's own study for every mismatch before continuing:\n%s"
+			) % "\n".join(
+				"%s: %s" % (", ".join(line.group_ids.mapped('display_name')), line.raw_subject_id.display_name)
+				for line in unresolved_lines
+			))
 
-	@api.onchange("attachment_ids")
-	def _onchange_attachment_ids(self):
-		for rec in self:
-			rec.blocking_error_message = False
-			overrided, unknown_emails, teacher_entries = [], [], []
-			for attachment in rec.attachment_ids:
-				xml_content = base64.b64decode(attachment.datas)
-				tree = ET.ElementTree(ET.fromstring(xml_content))
+		corrections = {
+			(tuple(sorted(line.raw_group_ids.ids)), line.raw_subject_id.id): (line.group_ids, line.subject_id)
+			for line in self.subject_line_ids
+		}
+		node_cache = json.loads(self.parsed_entries_json or '[]')
+		for item in node_cache:
+			for entry in item['entries']:
+				self._finalize_subject_correction(entry, corrections)
+			for command in item['attendance_ids']:
+				if command[0] == 0:
+					self._finalize_subject_correction(command[2], corrections)
+		self.parsed_entries_json = json.dumps(node_cache)
+		self.teacher_line_ids = [(5, 0, 0)] + [
+			(0, 0, {'raw_identifier': identifier}) for identifier in self._pending_teacher_identifiers(node_cache)
+		]
+		self._advance_state()
 
-				for teacherNode in tree.getroot():
-					email = teacherNode.attrib['name'].split(' ')[0]
-					teacher = self.env["hr.employee"].search([("work_email", "=", email)]) or False
+	def _pending_teacher_identifiers(self, node_cache):
+		"""Every distinct identifier in 'node_cache' that doesn't already resolve to an existing
+		employee on its own - an e-mail-shaped one (see '_is_email_like') via 'work_email', a bare
+		placeholder code the same way a re-import already reuses it: via 'schedule_import_code'.
+		Both kinds get a correction line on this same "Resolve teachers" screen (2026-08-10,
+		developer feedback: folded in what used to be a separate, pure-preview "Pending teachers"
+		screen - "todo funcionaría como en 'Resolve teachers': marcado el New por defecto... pero
+		que me deje asignarlo a mano") - 'teacher_line.create_new' defaults to True either way, so
+		a genuinely new hire needs no action, while an admin who recognizes a code or e-mail as an
+		already-known teacher can assign them by hand right here, instead of only being able to
+		preview the outcome on a later, read-only screen. Also directly fixes a real duplicate-
+		teacher risk the developer ran into: the SAME real person mentioned under two different
+		raw identifiers (two different placeholder codes, or a code and an e-mail attempt) used to
+		only ever be resolvable for the e-mail side - a bare code always fell straight through to
+		'_get_or_create_pending_teacher()', which mints a NEW pending employee per distinct code,
+		with nothing to stop two different codes for one real person becoming two different
+		employees. Now both get a line, and assigning the SAME existing employee to both resolves
+		them to one person - see 'teacher_line''s own docs for the (deliberately deferred) case
+		where neither side exists yet."""
+		identifiers = set()
+		for item in node_cache:
+			identifier = item['identifier']
+			match_field = 'work_email' if self._is_email_like(identifier) else 'schedule_import_code'
+			if not self.env['hr.employee'].search([(match_field, '=', identifier)]):
+				identifiers.add(identifier)
+		return sorted(identifiers)
 
-					if not teacher:
-						unknown_emails.append(_("unknown e-mail '%s' in '%s'") % (email, attachment.name))
+	def _classify_teacher_item(self, item):
+		"""Classifies a 'node_cache' item's eventual Import-time fate - the single source of truth
+		both '_apply_import' (the real write path) and the "Overall summary" screen's own previews
+		branch on, so the previews can never diverge from what actually happens:
+		- 'resolved': an existing 'hr.employee' picked on the 'teachers' step.
+		- 'create_pending': 'New' ticked on that same step for an e-mail-shaped identifier - a
+		  genuinely never-hired teacher, worth pre-filling the attempted e-mail for.
+		- 'email_match': an e-mail that already matched an existing 'hr.employee.work_email' on
+		  its own, needing no correction at all.
+		- 'placeholder': a bare code, never an e-mail - resolved to a pending-identification
+		  teacher at Import, same as 'create_pending' but with no e-mail to pre-fill. Reached
+		  either because the code already matched an existing 'schedule_import_code' with nothing
+		  to resolve, or because 'New' was left ticked (the default) on this same screen for a
+		  genuinely new one - the '_is_email_like' check below is what keeps a ticked *code* out
+		  of the 'create_pending' bucket, since there is no attempted e-mail to pre-fill for it."""
+		if item.get('employee_id'):
+			return 'resolved'
+		elif item.get('create_pending'):
+			return 'create_pending' if self._is_email_like(item['identifier']) else 'placeholder'
+		elif self._is_email_like(item['identifier']):
+			return 'email_match'
+		else:
+			return 'placeholder'
+
+	def _teacher_preview_line(self, item):
+		"""One label for 'item', worded per its own '_classify_teacher_item' fate - shared by the
+		"Overall summary" screen's own pending-teachers and existing-teachers blocks."""
+		identifier = item['identifier']
+		fate = self._classify_teacher_item(item)
+		if fate == 'create_pending':
+			return _("Pending teacher (%s) - the e-mail will be pre-filled as an attempt, not auto-generated") % identifier
+		elif fate == 'placeholder':
+			return _("Pending teacher (%s)") % identifier
+		teacher = (
+			self.env['hr.employee'].browse(item['employee_id']) if fate == 'resolved'
+			else self.env['hr.employee'].search([('work_email', '=', identifier)], limit=1)
+		)
+		return _("%(teacher)s (file identifier: %(identifier)s)") % {'teacher': teacher.display_name, 'identifier': identifier}
+
+	def _teacher_preview_items(self, node_cache, fates):
+		"""Every 'node_cache' item whose fate is in 'fates', deduped by identifier - the same
+		dedup every other resolution screen in this wizard already applies (the same teacher
+		mentioned in several files/hour-nodes is one line, not one per occurrence). Shared by the
+		"Overall summary" screen's own blocks and their matching counts, so a count and its list
+		can never disagree."""
+		seen = set()
+		items = []
+		for item in node_cache:
+			identifier = item['identifier']
+			if identifier in seen or self._classify_teacher_item(item) not in fates:
+				continue
+			seen.add(identifier)
+			items.append(item)
+		return items
+
+	def _selection_label(self, record, field_name):
+		"""Translated label for one Selection field value on 'record' (a single-record recordset) -
+		'convert_to_export' is the ORM's own idiomatic way to resolve a Selection value to its
+		current-language label (it delegates to '_description_selection', which consults the
+		translated 'ir.model.fields.selection' rows) - NOT the field's raw '.selection' attribute,
+		which is always the untranslated English list passed at field-definition time."""
+		field = record._fields[field_name]
+		return field.convert_to_export(record[field_name], record)
+
+	def _conflict_detail_line(self, line):
+		"""One human-readable line for an already-resolved 'conflict_mixin' line ('internal_
+		conflict_line'/'external_conflict_line' both share this shape) - shown on the "Overall
+		summary" screen's own file/db conflict blocks, so the admin sees not just how many conflicts
+		were resolved but how each one was."""
+		detail = _("%(left)s vs. %(right)s --> %(kind)s: resolved as %(resolution)s") % {
+			'left': line.left_label,
+			'right': line.right_label,
+			'kind': self._selection_label(line, 'kind'),
+			'resolution': self._selection_label(line, 'resolution'),
+		}
+		if line.resolution == 'reassign_rooms':
+			detail += _(" - rooms: %(left_space)s / %(right_space)s") % {
+				'left_space': line.left_space_id.display_name,
+				'right_space': line.right_space_id.display_name,
+			}
+		return detail
+
+	def _summary_block_html(self, title, lines, note=None):
+		"""One card for the "Overall summary" screen: a bold count-sentence header (e.g. "1
+		unresolved group name(s) resolved"), and its own concrete detail lines below it - so a count
+		and its "how" are visually grouped instead of one flat list mixing every category together
+		(developer feedback 2026-08-10: "si se ha resuelto 1 grupo, quiero saber cómo"). Reuses
+		Bootstrap's own 'card' classes (already bundled, no bespoke CSS needed) rather than a custom
+		block style - matches this repo's "Odoo way first" rule. Full-width (no 'flex: 1 1 ...'
+		sizing) - see '_summary_blocks_html' for why one-per-row replaced the original side-by-side
+		layout. 'note' is an optional short explanation shown once above the detail lines (only when
+		there are any - an empty block has nothing to explain) - added for the "existing teacher(s)
+		affected" block, whose own count/names alone didn't say what "affected" actually means for
+		them (developer feedback 2026-08-10: "deberíamos aclarar cómo se verán afectados")."""
+		parts = []
+		if note and lines:
+			parts.append(Markup('<p class="text-muted mb-2">{}</p>').format(note))
+		if lines:
+			parts.append(Markup('<ul class="mb-0 ps-3">{}</ul>').format(
+				Markup("").join(Markup("<li>{}</li>").format(line) for line in lines)
+			))
+		else:
+			parts.append(Markup('<span class="text-muted">{}</span>').format(_("Nothing to show here.")))
+		return Markup(
+			'<div class="card">'
+			'<div class="card-header"><strong>{}</strong></div>'
+			'<div class="card-body">{}</div>'
+			'</div>'
+		).format(title, Markup("").join(parts))
+
+	def _summary_blocks_html(self, blocks):
+		"""Lays every '_summary_block_html' card out as a vertical stack, one full-width card per
+		row (Bootstrap's own 'd-flex flex-column gap-*' utilities - no bespoke CSS needed).
+		Originally a wrapping horizontal row (several cards per line) - changed the same day
+		(developer feedback, after seeing it rendered for real: "La primera fila tiene 4 tarjetas y
+		se ven muy apretadas... vamos a poner una tarjeta por fila") once 6 cards side by side at
+		the dialog's actual width turned out too cramped to read comfortably."""
+		return Markup('<div class="d-flex flex-column gap-3 mb-3">{}</div>').format(
+			Markup("").join(blocks)
+		)
+
+	def _build_summary_csv(self, sections):
+		"""Flat CSV twin of the "Overall summary" screen's own cards, built from the SAME
+		'sections' list '_continue_from_db_conflicts' also feeds to '_summary_blocks_html' -
+		one row per detail line, grouped by the same category header shown on screen, so the
+		downloaded file can never drift out of sync with what the admin sees there. Mirrors
+		'course_transition_wizard._build_audit_csv()' (same io.StringIO()/csv.writer/utf-8-sig
+		shape, downloaded the same way via the 'auto_download_binary' widget)."""
+		self.ensure_one()
+		output = io.StringIO()
+		writer = csv.writer(output)
+		writer.writerow([_("Category"), _("Detail")])
+		for title, lines, _note in sections:
+			for line in lines or [_("Nothing to show here.")]:
+				writer.writerow([title, line])
+		return base64.b64encode(output.getvalue().encode("utf-8-sig")).decode()
+
+	def _continue_from_teachers(self):
+		"""The 'teachers' step's own 'Continue' handler, mirroring '_continue_from_groups': every
+		'teacher_line_ids' row must have EITHER a teacher picked OR 'create_new' ticked (raised
+		otherwise), then every 'node_cache' item sharing that row's raw identifier gets an
+		'employee_id' or 'create_pending' key written onto it directly (the identifier is the
+		item's own top-level field, not part of 'entries'/'attendance_ids' like a group reference -
+		no '_finalize_pending_groups'-style dict-shape juggling needed). Every teacher's eventual
+		fate is fully determined right here - conflict resolution (the next two screens) only ever
+		touches 'entries'/'attendance_ids'/'space_id', never 'employee_id'/'create_pending'.
+
+		Also builds 'internal_conflict_line_ids' (screen 4's own content) before advancing - this
+		used to be the former "Pending teachers" screen's own job, folded into this same handler
+		once that screen merged into this one (2026-08-10, developer feedback: see 'teacher_line's
+		own docs for why one screen can now cover both e-mails and placeholder codes)."""
+		self.ensure_one()
+		unresolved_lines = self.teacher_line_ids.filtered(lambda line: not line.employee_id and not line.create_new)
+		if unresolved_lines:
+			raise ValidationError(_(
+				"Please select a teacher for every unresolved identifier before continuing:\n%s"
+			) % "\n".join(unresolved_lines.mapped('raw_identifier')))
+
+		identifier_to_employee = {line.raw_identifier: line.employee_id for line in self.teacher_line_ids if line.employee_id}
+		identifiers_to_create = {line.raw_identifier for line in self.teacher_line_ids if line.create_new}
+		node_cache = json.loads(self.parsed_entries_json or '[]')
+		for item in node_cache:
+			if item['identifier'] in identifiers_to_create:
+				item['create_pending'] = True
+			else:
+				employee = identifier_to_employee.get(item['identifier'])
+				if employee:
+					item['employee_id'] = employee.id
+		self.parsed_entries_json = json.dumps(node_cache)
+		self.internal_conflict_line_ids = [(5, 0, 0)] + self._build_internal_conflict_lines(node_cache)
+		self._advance_state()
+
+	@staticmethod
+	def _format_hour(value):
+		hour, minutes = divmod(round(value * 60), 60)
+		return "%02d:%02d" % (hour, minutes)
+
+	def _entry_default_space_id(self, entry):
+		"""The classroom an entry would use absent any explicit override - the SAME "first group
+		wins" convention already used throughout this file (e.g. 'ems_working_schedule_assignation.
+		create()'). A non-teaching entry, or one whose group has no classroom, has none - callers
+		skip it (that gap is caught elsewhere, see '_groups_without_space')."""
+		group_ids = entry.get('group_ids')
+		if not group_ids:
+			return False
+		return self.env['ems.group'].browse(group_ids[0]).space_id.id
+
+	@staticmethod
+	def _classify_conflict_kind(entry_a, entry_b):
+		"""Shared classification (see plans/working_schedule_import_redesign.md's "Conflict kind
+		classification", also meant for screen 5's not-yet-built external conflicts)."""
+		if entry_a['subject_id'] != entry_b['subject_id']:
+			return 'plain_conflict'
+		if set(entry_a.get('group_ids') or []) & set(entry_b.get('group_ids') or []):
+			return 'co_teaching_eligible'
+		return 'desdoble_eligible'
+
+	def _teacher_label_for_item(self, item):
+		"""Best-effort display name for a node_cache item's teacher - already-resolved by this
+		point (either it always matched, or screen 3 attached an 'employee_id') for any real e-mail;
+		a pending-identification code has no employee yet, so it's shown as-is (e.g. 'X1')."""
+		if item.get('employee_id'):
+			return self.env['hr.employee'].browse(item['employee_id']).display_name
+		identifier = item['identifier']
+		if self._is_email_like(identifier):
+			employee = self.env['hr.employee'].search([('work_email', '=', identifier)], limit=1)
+			if employee:
+				return employee.display_name
+		return identifier
+
+	def _entry_subject_label(self, entry):
+		"""Clean '<acronym>: <name>' subject text for 'entry', resolved fresh from 'ems.subject'
+		rather than reused from the entry's own cached 'name' - that cached value already has a
+		'(<group names>)' suffix baked in once groups are resolved (see '_parse_schedule_entries'),
+		which would otherwise show up TWICE in '_entry_label's own output (developer feedback
+		2026-08-10, seeing a real conflict row: "Xavier Cruz - MP 0440: ... (GA1A) (GA1A, Monday
+		08:00-09:00)" - the group appearing once from this cached name, once again from
+		'_entry_label's own trailing parenthetical) - and would silently break '_entry_group_key's
+		whole point of grouping by teacher+subject WHILE ignoring group, since two entries for the
+		same subject but different groups would otherwise never produce the same key at all."""
+		subject = self.env['ems.subject'].browse(entry.get('subject_id'))
+		return "%s: %s" % (subject.acronym, subject.name) if subject else (entry.get('name') or '')
+
+	def _entry_label(self, item, entry):
+		groups = ", ".join(self.env['ems.group'].browse(entry.get('group_ids') or []).mapped('display_name'))
+		weekday = dict(self.env['ems.attendance_schedule'].weekdays_selection).get(entry['dayofweek'])
+		time_range = "%s-%s" % (self._format_hour(entry['hour_from']), self._format_hour(entry['hour_to']))
+		return _("%(teacher)s - %(subject)s (%(groups)s, %(weekday)s %(time)s)") % {
+			'teacher': self._teacher_label_for_item(item),
+			'subject': self._entry_subject_label(entry),
+			'groups': groups,
+			'weekday': weekday,
+			'time': time_range,
+		}
+
+	def _entry_group_key(self, item, entry):
+		"""Coarser identity for a conflict line's own LEFT side, used only to GROUP conflict lines
+		in the wizard's grouped-cards view (see 'ems_grouped_conflict_lines') - teacher + subject
+		only, deliberately ignoring group/weekday/time (unlike '_entry_label', which is the full,
+		specific description shown per row). Developer feedback (2026-08-10, after seeing the
+		full-label grouping produce one card per row in practice, since two conflicts almost never
+		share the exact same group+weekday+time too): "la forma más práctica de agrupar es por
+		docente y materia, ignorando el resto de valores." Every distinct (teacher, subject) pair
+		bundles every one of that teacher's own colliding entries for that subject into one group,
+		regardless of which specific slot/group each individual pair actually collides over -
+		'_entry_subject_label' (not the entry's own cached, group-suffixed 'name') is what actually
+		makes that true: reusing 'name' here would silently vary the key by group after all,
+		defeating the entire point, for any teacher whose own colliding entries span more than one
+		group (exactly the real, common case that originally motivated this grouping)."""
+		return _("%(teacher)s - %(subject)s") % {
+			'teacher': self._teacher_label_for_item(item),
+			'subject': self._entry_subject_label(entry),
+		}
+
+	def _find_internal_conflicts(self, node_cache):
+		"""Every pair of TEACHING entries from DIFFERENT node_cache items that collide on the same
+		classroom + weekday + time - a genuinely new check (see plans/
+		working_schedule_import_redesign.md's step 4). Non-teaching entries carry no classroom, so
+		are excluded; a slot with 3+ colliding entries produces multiple pairwise pairs rather than
+		one n-way one (documented simplification, not expected to matter in practice). Returns a list
+		of (item_index_a, entry_index_a, item_index_b, entry_index_b) tuples."""
+		by_slot = {}
+		for item_index, item in enumerate(node_cache):
+			for entry_index, entry in enumerate(item['entries']):
+				if entry.get('non_teaching'):
+					continue
+				space_id = self._entry_default_space_id(entry)
+				if not space_id:
+					continue
+				slot_key = (space_id, entry['dayofweek'], entry['hour_from'], entry['hour_to'])
+				by_slot.setdefault(slot_key, []).append((item_index, entry_index))
+
+		pairs = []
+		for slot_refs in by_slot.values():
+			for i in range(len(slot_refs)):
+				for j in range(i + 1, len(slot_refs)):
+					item_index_a, entry_index_a = slot_refs[i]
+					item_index_b, entry_index_b = slot_refs[j]
+					if item_index_a == item_index_b:
+						continue  # the same teacher can't conflict with their own entry here
+					pairs.append((item_index_a, entry_index_a, item_index_b, entry_index_b))
+		return pairs
+
+	# NOTE: 'plain_conflict' defaults to 'prevail_left' here - only correct for a genuine
+	# self-time-only conflict (different rooms, same teacher double-booked in time - reassigning
+	# rooms fixes nothing there). A genuine same-room clash overrides this to 'reassign_rooms'
+	# explicitly at the call site instead (see '_build_internal_conflict_lines'/
+	# '_build_external_conflict_lines' - internal conflicts are ALWAYS a same-room clash by
+	# construction, so they always override; external ones only override when the candidate's own
+	# room actually matches).
+	_RESOLUTION_DEFAULTS = {
+		'co_teaching_eligible': 'co_teaching',
+		'desdoble_eligible': 'reassign_rooms',
+		'plain_conflict': 'prevail_left',
+		'self_conflict': 'prevail_left',
+	}
+
+	def _find_self_conflicts_in_batch(self, node_cache, excluded_pairs):
+		"""Every pair of TEACHING entries from DIFFERENT node_cache items BOTH explicitly resolved
+		to the SAME real 'hr.employee' (the only way two distinct raw identifiers - e.g. two
+		placeholder codes, or a code and an e-mail - can be confirmed as the same physical teacher,
+		see 'teacher_line's own docs on assigning the same person twice) whose weekday/time overlap,
+		regardless of room. '_find_internal_conflicts' can never catch this on its own - it only
+		ever pairs entries sharing the same classroom, but a genuinely double-booked teacher's two
+		sessions are typically in two DIFFERENT rooms (found the hard way, 2026-08-10, against a
+		real import: it surfaced as a raw, unworded 'check_overlap' ValidationError at the final
+		Import click instead of a resolvable line here - 'ems.attendance_template.
+		find_self_conflicts's own docstring already documents this exact gap for the DB-side
+		equivalent: "it does not catch two overlapping entries for the same teacher within the
+		single batch being submitted right now"). 'excluded_pairs' skips any pair already found by
+		'_find_internal_conflicts' (same room too - already a room-based conflict of another kind,
+		not a self-conflict) to avoid a duplicate line for the same collision. Returns the same
+		(item_index_a, entry_index_a, item_index_b, entry_index_b) tuple shape."""
+		by_employee = {}
+		for item_index, item in enumerate(node_cache):
+			employee_id = item.get('employee_id')
+			if not employee_id:
+				continue
+			for entry_index, entry in enumerate(item['entries']):
+				if entry.get('non_teaching'):
+					continue
+				by_employee.setdefault(employee_id, []).append((item_index, entry_index))
+
+		pairs = []
+		for refs in by_employee.values():
+			for i in range(len(refs)):
+				for j in range(i + 1, len(refs)):
+					item_index_a, entry_index_a = refs[i]
+					item_index_b, entry_index_b = refs[j]
+					if item_index_a == item_index_b:
 						continue
+					pair_key = frozenset([(item_index_a, entry_index_a), (item_index_b, entry_index_b)])
+					if pair_key in excluded_pairs:
+						continue
+					entry_a = node_cache[item_index_a]['entries'][entry_index_a]
+					entry_b = node_cache[item_index_b]['entries'][entry_index_b]
+					if entry_a['dayofweek'] != entry_b['dayofweek']:
+						continue
+					if not self.ranges_overlap(entry_a['hour_from'], entry_a['hour_to'], entry_b['hour_from'], entry_b['hour_to']):
+						continue
+					pairs.append((item_index_a, entry_index_a, item_index_b, entry_index_b))
+		return pairs
 
-					if teacher.resource_calendar_id.id:
-						overrided.append(teacher.display_name)
-					entries = [e for e in rec._parse_schedule_entries(teacherNode)[0] if not e["non_teaching"]]
-					teacher_entries.append((teacher, entries))
+	def _build_internal_conflict_lines(self, node_cache):
+		"""(0, 0, {...}) create-commands for 'internal_conflict_line_ids', one per pair found by
+		'_find_internal_conflicts' (room-based) plus one per pair found by
+		'_find_self_conflicts_in_batch' (2026-08-10, same-teacher-different-room). Positional
+		references (item/entry indices), not content matching - built once here, from the very
+		'node_cache' '_continue_from_internal_conflicts' re-reads unchanged, so they stay valid.
+		Unlike screen 5's own external conflicts, EVERY 'plain_conflict'/'desdoble_eligible' pair
+		found by '_find_internal_conflicts' is a genuine same-room clash - it only ever pairs
+		entries that already matched on 'space_id' - so it always overrides '_RESOLUTION_DEFAULTS'
+		to 'reassign_rooms' (developer feedback 2026-08-05: picking a room is the actual fix for a
+		real room conflict, not an afterthought behind 'prevail_left'/'prevail_right'), with
+		'left_space_id'/'right_space_id' pre-filled with the colliding room (the group's own
+		currently-assigned classroom - the same value on both sides, since that's exactly why they
+		collided in the first place) so they're ready the moment 'reassign_rooms' is picked. A
+		'self_conflict' pair never gets a room pre-fill - reassigning a room fixes nothing when the
+		real problem is one teacher needed in two places at once, not a shared room (see
+		'_resolution_is_valid's own 'allowed_by_kind', which excludes 'reassign_rooms' for this
+		kind entirely)."""
+		commands = []
+		room_pairs = self._find_internal_conflicts(node_cache)
+		for item_index_a, entry_index_a, item_index_b, entry_index_b in room_pairs:
+			entry_a = node_cache[item_index_a]['entries'][entry_index_a]
+			entry_b = node_cache[item_index_b]['entries'][entry_index_b]
+			kind = self._classify_conflict_kind(entry_a, entry_b)
+			same_room_conflict = kind in ('desdoble_eligible', 'plain_conflict')
+			vals = {
+				'kind': kind,
+				'resolution': 'reassign_rooms' if same_room_conflict else self._RESOLUTION_DEFAULTS[kind],
+				'left_item_index': item_index_a,
+				'left_entry_index': entry_index_a,
+				'left_label': self._entry_label(node_cache[item_index_a], entry_a),
+				'left_group_key': self._entry_group_key(node_cache[item_index_a], entry_a),
+				'right_item_index': item_index_b,
+				'right_entry_index': entry_index_b,
+				'right_label': self._entry_label(node_cache[item_index_b], entry_b),
+			}
+			if same_room_conflict:
+				space_id = self._entry_default_space_id(entry_a)
+				vals['left_space_id'] = space_id
+				vals['right_space_id'] = space_id
+			commands.append((0, 0, vals))
 
-			missing_space = rec._groups_without_space(teacher_entries)
-			if missing_space:
-				unknown_emails.append(_(
-					"These groups have no classroom assigned, so their schedule cannot be imported: %s"
-				) % ", ".join(missing_space.mapped('name')))
+		excluded_pairs = {
+			frozenset([(a, ae), (b, be)]) for a, ae, b, be in room_pairs
+		}
+		for item_index_a, entry_index_a, item_index_b, entry_index_b in self._find_self_conflicts_in_batch(node_cache, excluded_pairs):
+			entry_a = node_cache[item_index_a]['entries'][entry_index_a]
+			entry_b = node_cache[item_index_b]['entries'][entry_index_b]
+			commands.append((0, 0, {
+				'kind': 'self_conflict',
+				'resolution': self._RESOLUTION_DEFAULTS['self_conflict'],
+				'left_item_index': item_index_a,
+				'left_entry_index': entry_index_a,
+				'left_label': self._entry_label(node_cache[item_index_a], entry_a),
+				'left_group_key': self._entry_group_key(node_cache[item_index_a], entry_a),
+				'right_item_index': item_index_b,
+				'right_entry_index': entry_index_b,
+				'right_label': self._entry_label(node_cache[item_index_b], entry_b),
+			}))
+		return commands
 
-			rec.blocking_error_message = ", ".join(unknown_emails) if unknown_emails else False
-			rec.overrided_teachers_html = rec._bullet_html(overrided)
-			conflicts = self.env['ems.attendance_template'].find_external_conflicts(teacher_entries) if not missing_space else self.env['ems.attendance_schedule']
-			rec.external_conflicts_html = rec._bullet_html(rec._external_conflict_lines(conflicts))
+	def _continue_from_internal_conflicts(self):
+		"""The 'internal_conflicts' step's own 'Continue' handler: every line's 'resolution' must be
+		valid for its own 'kind' (raised otherwise, naming the offending pairs), then every line's
+		pick is applied to a freshly re-read 'node_cache' - 'co_teaching' is a no-op (the existing
+		'_reconcile_fresh_import' auto-merge already handles it), 'prevail_left'/'prevail_right'
+		deletes the losing side's one specific entry (never the whole item), 'reassign_rooms' writes
+		'space_id' onto both sides. Deletions across every line are collected first (grouped by item)
+		and applied in reverse-index order per item only once every room write has happened, so one
+		line's deletion can never shift another still-unprocessed line's stored index within the same
+		item (only relevant for the rare 3+-way collision case - see '_find_internal_conflicts')."""
+		self.ensure_one()
+		invalid_lines = self.internal_conflict_line_ids.filtered(lambda line: not line._resolution_is_valid())
+		if invalid_lines:
+			raise ValidationError(_(
+				"Please choose a valid resolution for every conflict before continuing:\n%s"
+			) % "\n".join(
+				_("%(left)s vs. %(right)s") % {'left': line.left_label, 'right': line.right_label}
+				for line in invalid_lines
+			))
+
+		node_cache = json.loads(self.parsed_entries_json or '[]')
+		indices_to_remove = {}
+		for line in self.internal_conflict_line_ids:
+			if line.resolution == 'prevail_left':
+				indices_to_remove.setdefault(line.right_item_index, set()).add(line.right_entry_index)
+			elif line.resolution == 'prevail_right':
+				indices_to_remove.setdefault(line.left_item_index, set()).add(line.left_entry_index)
+			elif line.resolution == 'reassign_rooms':
+				for item_index, entry_index, space_id in (
+					(line.left_item_index, line.left_entry_index, line.left_space_id.id),
+					(line.right_item_index, line.right_entry_index, line.right_space_id.id),
+				):
+					node_cache[item_index]['entries'][entry_index]['space_id'] = space_id
+					node_cache[item_index]['attendance_ids'][entry_index + 1][2]['space_id'] = space_id
+
+		for item_index, entry_indices in indices_to_remove.items():
+			for entry_index in sorted(entry_indices, reverse=True):
+				del node_cache[item_index]['entries'][entry_index]
+				del node_cache[item_index]['attendance_ids'][entry_index + 1]
+
+		self.parsed_entries_json = json.dumps(node_cache)
+		self.external_conflict_line_ids = [(5, 0, 0)] + self._build_external_conflict_lines(node_cache)
+		self._advance_state()
+
+	def _resolve_teacher_for_classification(self, item):
+		"""Read-only counterpart to '_apply_import's per-item teacher resolution - never creates a
+		pending teacher (unlike '_apply_import' itself), since this is only used to build the
+		'db_conflicts' screen's own conflict lines, well before Import actually writes anything. An
+		item whose teacher doesn't exist yet (a not-yet-created placeholder code) resolves to an
+		empty recordset - harmless for classification, since nothing in the DB could possibly
+		reference a teacher that doesn't exist yet."""
+		if item.get('employee_id'):
+			return self.env['hr.employee'].browse(item['employee_id'])
+		identifier = item['identifier']
+		if self._is_email_like(identifier):
+			return self.env['hr.employee'].search([('work_email', '=', identifier)], limit=1)
+		return self.env['hr.employee'].search([('schedule_import_code', '=', identifier)], limit=1)
+
+	def _external_conflict_label(self, candidate):
+		weekday = dict(candidate.weekdays_selection).get(candidate.weekday)
+		return _("%(teacher)s - %(subject)s (%(groups)s, %(weekday)s %(time)s)") % {
+			'teacher': ", ".join(candidate.attendance_template_id.teacher_ids.mapped('display_name')),
+			'subject': candidate.attendance_template_id.subject_id.display_name,
+			'groups': ", ".join(candidate.attendance_template_id.group_ids.mapped('display_name')),
+			'weekday': weekday,
+			'time': candidate.time_range,
+		}
+
+	def _find_external_conflicts(self, node_cache):
+		"""Every (item_index, entry_index, candidate) triple where 'candidate' is an already-active
+		'ems.attendance_schedule' colliding with that entry - either EXTERNAL (same classroom +
+		weekday + time-overlap, held by a teacher not in this batch at all) or SELF (the entry's own
+		resolved teacher already has an active session overlapping in weekday/time, for a genuinely
+		different (subject, group) combo - resubmitting the SAME combo is handled by the normal sync
+		refresh, not a conflict to show here).
+
+		Deliberately reimplements the two searches here rather than reusing
+		'classify_external_conflicts'/'find_self_conflicts' as black boxes (the same methods
+		'_apply_import' itself still uses, unchanged, as its own safety net): those methods only
+		ever return the AGGREGATE colliding recordset, by design (their original callers only need a
+		yes/no blocking check) - critically, 'find_self_conflicts' matches purely on
+		weekday/time-overlap with NO room restriction at all (the same teacher physically can't be
+		in two rooms at once, regardless of which rooms), so trying to re-derive the pairing
+		afterward by matching on room (as screen 4's own within-batch detection safely can, since
+		every one of ITS candidates was already room-matched by construction) would silently miss
+		every genuine self-conflict whose colliding room differs from the new entry's own - found
+		while building this exact method, not guessed at.
+
+		Same pairwise-only simplification as '_find_internal_conflicts': if the same existing
+		record would collide with more than one new entry, only the first one found becomes a
+		line."""
+		batch_teacher_ids = {
+			teacher.id for teacher in (self._resolve_teacher_for_classification(item) for item in node_cache) if teacher
+		}
+		results = []
+		seen_schedule_ids = set()
+		for item_index, item in enumerate(node_cache):
+			teacher = self._resolve_teacher_for_classification(item)
+			for entry_index, entry in enumerate(item['entries']):
+				if entry.get('non_teaching') or not entry.get('group_ids'):
+					continue
+				entry_combo = (entry['subject_id'], tuple(sorted(entry['group_ids'])))
+
+				space_id = self._entry_default_space_id(entry)
+				external_candidates = self.env['ems.attendance_schedule']
+				if space_id:
+					external_candidates = self.env['ems.attendance_schedule'].search([
+						('weekday', '=', entry['dayofweek']),
+						('space_id', '=', space_id),
+						('attendance_template_id.teacher_ids', 'not in', list(batch_teacher_ids)),
+					]).filtered(lambda c, entry=entry: c.ranges_overlap(c.start_time, c.end_time, entry['hour_from'], entry['hour_to']))
+
+				self_candidates = self.env['ems.attendance_schedule']
+				if teacher:
+					self_candidates = self.env['ems.attendance_schedule'].search([
+						('weekday', '=', entry['dayofweek']),
+						('attendance_template_id.teacher_ids', 'in', teacher.id),
+					]).filtered(lambda c, entry=entry: c.ranges_overlap(c.start_time, c.end_time, entry['hour_from'], entry['hour_to']))
+					self_candidates = self_candidates.filtered(lambda c: (
+						c.attendance_template_id.subject_id.id, tuple(sorted(c.attendance_template_id.group_ids.ids)),
+					) != entry_combo)
+
+				for candidate in external_candidates | self_candidates:
+					if candidate.id in seen_schedule_ids:
+						continue
+					seen_schedule_ids.add(candidate.id)
+					results.append((item_index, entry_index, candidate))
+		return results
+
+	def _build_external_conflict_lines(self, node_cache):
+		"""(0, 0, {...}) create-commands for 'external_conflict_line_ids', one per triple found by
+		'_find_external_conflicts'. A 'plain_conflict' triple here can come from either of that
+		method's two searches: a genuine same-room clash ('external_candidates', room-matched by
+		construction) - defaults to 'reassign_rooms' like screen 4's own plain conflicts, same
+		reasoning; or a SELF conflict ('self_candidates', matched purely on the teacher's own
+		weekday/time overlap, no room involved at all) - reassigning rooms fixes nothing there (the
+		same teacher still can't be in two places at once regardless of which rooms are picked), so
+		that sub-case keeps the older 'prevail_left' default and no room pre-fill, exactly as before
+		this default changed for the genuine-room-clash case."""
+		commands = []
+		for item_index, entry_index, candidate in self._find_external_conflicts(node_cache):
+			entry = node_cache[item_index]['entries'][entry_index]
+			candidate_entry = {
+				'subject_id': candidate.attendance_template_id.subject_id.id,
+				'group_ids': candidate.attendance_template_id.group_ids.ids,
+			}
+			kind = self._classify_conflict_kind(entry, candidate_entry)
+			space_id = self._entry_default_space_id(entry)
+			same_room_conflict = kind == 'plain_conflict' and candidate.space_id.id == space_id
+			vals = {
+				'kind': kind,
+				'resolution': 'reassign_rooms' if same_room_conflict else self._RESOLUTION_DEFAULTS[kind],
+				'left_item_index': item_index,
+				'left_entry_index': entry_index,
+				'left_label': self._entry_label(node_cache[item_index], entry),
+				'left_group_key': self._entry_group_key(node_cache[item_index], entry),
+				'right_schedule_id': candidate.id,
+				'right_label': self._external_conflict_label(candidate),
+			}
+			if kind == 'desdoble_eligible' or same_room_conflict:
+				vals['left_space_id'] = space_id
+				vals['right_space_id'] = space_id
+			commands.append((0, 0, vals))
+		return commands
+
+	def _continue_from_db_conflicts(self):
+		"""The 'db_conflicts' step's own 'Continue' handler - mirrors '_continue_from_internal_
+		conflicts' exactly on the left (new-entry) side, but the right side is a real, already-
+		persisted 'ems.attendance_schedule' record instead of another node_cache position:
+		'prevail_left' archives it outright (always allowed regardless of 'has_sessions' - only
+		in-place field edits on a line with real history are locked), 'reassign_rooms' writes its
+		new room through the shared 'ems.attendance_mixin._write_or_new_version()' (archives and
+		clones with the new room if it already has sessions, plain write otherwise) rather than a
+		raw 'write()' - the one piece of forward-planning from an earlier session that made this
+		screen's own Green phase smaller than screen 4's. Also builds the "Overall summary" step's
+		own content before advancing - one block per category, each with its own count header AND
+		concrete detail lines (see '_summary_block_html') - the last screen before Import, so this
+		is the last point anything needs precomputing."""
+		self.ensure_one()
+		invalid_lines = self.external_conflict_line_ids.filtered(lambda line: not line._resolution_is_valid())
+		if invalid_lines:
+			raise ValidationError(_(
+				"Please choose a valid resolution for every conflict before continuing:\n%s"
+			) % "\n".join(
+				_("%(left)s vs. %(right)s") % {'left': line.left_label, 'right': line.right_label}
+				for line in invalid_lines
+			))
+
+		node_cache = json.loads(self.parsed_entries_json or '[]')
+		indices_to_remove = {}
+		for line in self.external_conflict_line_ids:
+			if line.resolution == 'prevail_left':
+				# NOTE: "archives/trims the existing DB session's template" (the plan's own words)
+				# - archiving just this one line is enough to free the slot ("trims"), but if that
+				# was the template's only active line, the now-empty template is archived outright
+				# too ("archives") rather than left as an orphaned, lineless record.
+				template = line.right_schedule_id.attendance_template_id
+				line.right_schedule_id.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
+				if not template.attendance_schedule_ids:
+					template.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
+			elif line.resolution == 'prevail_right':
+				indices_to_remove.setdefault(line.left_item_index, set()).add(line.left_entry_index)
+			elif line.resolution == 'reassign_rooms':
+				node_cache[line.left_item_index]['entries'][line.left_entry_index]['space_id'] = line.left_space_id.id
+				node_cache[line.left_item_index]['attendance_ids'][line.left_entry_index + 1][2]['space_id'] = line.left_space_id.id
+				if line.right_schedule_id.space_id != line.right_space_id:
+					line.right_schedule_id._write_or_new_version({'space_id': line.right_space_id.id})
+
+		for item_index, entry_indices in indices_to_remove.items():
+			for entry_index in sorted(entry_indices, reverse=True):
+				del node_cache[item_index]['entries'][entry_index]
+				del node_cache[item_index]['attendance_ids'][entry_index + 1]
+
+		self.parsed_entries_json = json.dumps(node_cache)
+		existing_items = self._teacher_preview_items(node_cache, ('resolved', 'email_match'))
+		pending_items = self._teacher_preview_items(node_cache, ('create_pending', 'placeholder'))
+		group_lines = [
+			_("%(raw)s resolved to %(group)s") % {'raw': line.raw_name, 'group': line.group_id.display_name}
+			for line in self.group_line_ids
+		]
+		teacher_lines = [
+			_("%(raw)s will be created as a new pending teacher") % {'raw': line.raw_identifier}
+			if line.create_new else
+			_("%(raw)s resolved to %(teacher)s") % {'raw': line.raw_identifier, 'teacher': line.employee_id.display_name}
+			for line in self.teacher_line_ids
+		]
+		sections = [
+			(_("%s unresolved group name(s) resolved") % len(self.group_line_ids), group_lines, None),
+			(_("%s unresolved teacher e-mail(s) resolved") % len(self.teacher_line_ids), teacher_lines, None),
+			(_("%s pending teacher(s) will be created") % len(pending_items),
+				[self._teacher_preview_line(item) for item in pending_items],
+				_(
+					"These are placeholder employees, created now so their schedule and subjects "
+					"are ready immediately. Afterwards, open each one's own record to replace the "
+					"placeholder name with the real one, fill in their personal e-mail, and click "
+					"Generate Google account - exactly like any other new teacher."
+				)),
+			(_("%s file conflict(s) resolved") % len(self.internal_conflict_line_ids),
+				[self._conflict_detail_line(line) for line in self.internal_conflict_line_ids], None),
+			(_("%s existing schedule conflict(s) resolved") % len(self.external_conflict_line_ids),
+				[self._conflict_detail_line(line) for line in self.external_conflict_line_ids], None),
+			(_("%s existing teacher(s) affected") % len(existing_items),
+				[self._teacher_preview_line(item) for item in existing_items],
+				_(
+					"Their weekly schedule will be synced with this file's content. Each affected "
+					"attendance template is updated in place if it has no real attendance history "
+					"yet, or archived and replaced by a new version if it does - the original's "
+					"history is never lost."
+				)),
+		]
+		self.overall_summary_html = self._summary_blocks_html(
+			[self._summary_block_html(title, lines, note=note) for title, lines, note in sections])
+		self.summary_file = self._build_summary_csv(sections)
+		self.summary_file_name = "working_schedules_import_%s.csv" % datetime.now().strftime("%Y%m%d_%H%M%S")
+		self._advance_state()
+
+	def _get_or_create_pending_teacher(self, identifier, manual_email=False):
+		"""Get-or-create-by-'schedule_import_code' shared by both not-yet-identified-teacher paths:
+		a placeholder code (e.g. 'X1', 'manual_email=False') and a 'create_new'-ticked e-mail that
+		genuinely doesn't match any existing teacher ('manual_email=True' - see 'teacher_line.
+		create_new'). Re-importing an updated file before this teacher's real identity is resolved
+		reuses the SAME record either way, never creating a duplicate - 'identifier' is exactly what
+		a re-import would search for again next time.
+
+		'manual_email=True' additionally pre-fills 'work_email' with 'identifier' itself and sets
+		'google_ws_manual_email' (the existing Google Workspace integration field - already means
+		"edit Work Email by hand instead of letting EMS generate it") - the developer's own framing
+		for this case: *"esa dirección de correo no se puede dar por buena... pero me gustaría
+		intentarlo"* - worth trying, but never silently treated as confirmed/auto-generated the way
+		a normal corporate email would be."""
+		teacher = self.env["hr.employee"].search([("schedule_import_code", "=", identifier)])
+		if teacher.id:
+			return teacher
+		vals = {
+			"name": _("Pending teacher (%s)") % identifier,
+			"employee_type": "teacher",
+			"schedule_import_code": identifier,
+		}
+		if manual_email:
+			vals["work_email"] = identifier
+			vals["google_ws_manual_email"] = True
+		return self.env["hr.employee"].create(vals)
+
+	def _write_teacher_schedule(self, teacher, attendance_ids):
+		"""Writes 'attendance_ids' (already-parsed (0, 0, {...}) commands - see
+		'_parse_schedule_entries') onto 'teacher's CURRENT resource.calendar. Never searches by name
+		or creates a calendar itself (2026-08-06, see
+		plans/course_transition_teacher_schedule_archival.md decision 5) - every teacher already has
+		one, auto-created at 'employee.create()' time (see 'ems_employee'), and rolling it onto a
+		fresh one for a new course is the transition wizard's own job now
+		('_apply_calendar_rollover'), not the importer's."""
+		teacher.resource_calendar_id.write({'attendance_ids': attendance_ids})
+
+	def _apply_import(self, node_cache):
+		"""Writes everything (resource.calendar/ems.teaching per teacher, then the
+		ems.attendance_template batch sync) from the raw per-node cache '_continue_from_intro' built -
+		deferred until this final step so nothing is written before the whole wizard flow completes.
+		Mirrors this model's former create() override, adapted to work from the cache instead of
+		re-parsing the XML from scratch (which would also re-resolve teachers/pending-codes against
+		data this same call is about to change)."""
+		# NOTE: attendance_template sync is deferred and batched across every teacher (see
+		# sync_from_schedule_batch_fresh_import) — syncing one teacher at a time here would let an
+		# early teacher's fresh schedule line falsely collide with a later teacher's still-stale one
+		# whenever they share a classroom, since the later teacher hasn't been re-synced yet.
+		teacher_entries = []
+		for item in node_cache:
+			identifier = item['identifier']
+			fate = self._classify_teacher_item(item)
+			if fate == 'resolved':
+				# NOTE: resolved on the 'teachers' step (see '_continue_from_teachers') - an
+				# identifier that never needed a correction line (already matched 'work_email' on
+				# its own) falls through to the 'email_match' branch below instead, unaffected.
+				teacher = self.env["hr.employee"].browse(item['employee_id'])
+			elif fate == 'create_pending':
+				# NOTE: 'create_new' ticked on the 'teachers' step (see '_continue_from_teachers') -
+				# a genuinely never-hired teacher, not a typo/mismatch of an existing one. Reuses the
+				# exact same get-or-create mechanism as a placeholder code, only adding
+				# 'manual_email=True' - see '_get_or_create_pending_teacher's own docstring.
+				teacher = self._get_or_create_pending_teacher(identifier, manual_email=True)
+			elif fate == 'email_match':
+				teacher = self.env["hr.employee"].search([("work_email", "=", identifier)])
+				if not teacher.id:
+					# NOTE: safety net for a direct ORM/API caller bypassing the wizard's own
+					# step-by-step UI - a real user reaching Import through the wizard already had
+					# every unresolved e-mail turned into a 'teacher_line' at the 'teachers' step.
+					raise ValidationError(_("Teacher with email '%s' not found.") % identifier)
+			else:
+				teacher = self._get_or_create_pending_teacher(identifier)
+
+			self._write_teacher_schedule(teacher, item['attendance_ids'])
+			entries = [e for e in item['entries'] if not e["non_teaching"]]
+			# NOTE: replace=False - this file only ever describes ONE SLICE of the centre's
+			# schedule (e.g. one department), never a teacher's ENTIRE teaching load, so a
+			# combo from a DIFFERENT, already-imported file must never be unlinked just
+			# because this teacher also appears here (see sync_from_schedule's own docstring).
+			self.env['ems.teaching'].sync_from_schedule(teacher, entries, replace=False)
+			teacher_entries.append((teacher, entries))
+
+		# NOTE: ems.attendance_schedule.space_id is required, but ems.group.space_id (where it's
+		# taken from) is not — a group missing a classroom would otherwise fail with Odoo's generic
+		# "mandatory field is not set" error instead of naming the actual problem. Normally already
+		# caught and fixed on the 'groups' step (see '_continue_from_intro'/'_continue_from_groups')
+		# - this is the final safety net for a group that only became known-missing-space AFTER that
+		# step (e.g. a brand-new group created on the spot while resolving an unmatched raw name).
+		missing_space = self._groups_without_space(entries for _teacher, entries in teacher_entries)
+		if missing_space:
+			raise ValidationError(_(
+				"These groups have no classroom assigned, so their schedule cannot be imported: %s"
+			) % ", ".join(missing_space.mapped('name')))
+
+		# NOTE: a batch import never writes on top of an already-populated schedule for its own
+		# scope (groups are reused across academic years, but their attendance templates are
+		# archived by the course transition wizard first - see
+		# docs/en/developers/employees/working_schedule.md), so an external overlap found here is
+		# always either legitimate co-teaching (left alone - sync_from_schedule_batch's own
+		# reconciliation folds the new teacher into the same shared template) or a genuine problem
+		# the onchange preview should already have caught. Raising here too (not just previewing)
+		# is the safety net for a wizard whose cache was built before some other change landed.
+		_co_teaching, space_conflicts = self.env['ems.attendance_template'].classify_external_conflicts(teacher_entries)
+		if space_conflicts:
+			raise ValidationError(_(
+				"These existing sessions occupy the same space and time as what you're importing, "
+				"for a different group/subject - fix the room conflict and try again: %s"
+			) % "; ".join(self._conflict_lines(space_conflicts)))
+
+		# NOTE: a teacher double-booked against their OWN existing schedule (e.g. two departments'
+		# files scheduling them at the same time) is never caught above - classify_external_conflicts
+		# only ever looks for OTHER teachers sharing the same space.
+		self_conflicts = self.env['ems.attendance_template'].find_self_conflicts(teacher_entries)
+		if self_conflicts:
+			raise ValidationError(_(
+				"This teacher already has an overlapping session for a different subject/group - "
+				"fix the schedule conflict and try again: %s"
+			) % "; ".join(self._conflict_lines(self_conflicts)))
+		self.env['ems.attendance_template'].sync_from_schedule_batch_fresh_import(teacher_entries)
 
 	def import_planner_data(self):
+		self.ensure_one()
+		self._apply_import(json.loads(self.parsed_entries_json or '[]'))
 		return {
 			'type': 'ir.actions.client',
 			'tag': 'soft_reload',
 		}
-	
-	@api.model_create_multi
-	def create(self, values):
-		course_id = self.env.company.current_course_id
-		if not course_id.id:
-			raise ValidationError("No 'current course' has been setup. Please, select or create the current course within the EMS settings section.")
-		
-		for item in values:
-			xml_contents = self._collect_xml_contents(item)
-			if not xml_contents:
-				raise ValidationError(_("No XML file has been loaded. Please, provide at least one XML file and try again."))
 
-			# NOTE: attendance_template sync is deferred and batched across every teacher in this item
-			# (see sync_from_schedule_batch) — syncing one teacher at a time here would let an early
-			# teacher's fresh schedule line falsely collide with a later teacher's still-stale one
-			# whenever they share a classroom, since the later teacher hasn't been re-synced yet.
-			teacher_entries = []
-			for xml_content in xml_contents:
-				tree = ET.ElementTree(ET.fromstring(xml_content))
-				root = tree.getroot()
+	def _resolve_group_name(self, full_name):
+		"""Resolve one '<Students name="...">' raw value into an 'ems.group', or an empty recordset
+		if no heuristic below matches - extracted out of '_parse_schedule_entries' so it can be
+		reused for a name that failed to resolve at parse time (see 'pending_group_names') once the
+		'groups' step's picks are known."""
+		# NOTE: try the FULL attribute value first — a reinforcement group's name is free-form and
+		# can contain spaces (e.g. "Reforç Programació"), so it must match exactly as-is; the real
+		# planner export never appends anything to it. Only fall back to the legacy "first word (+
+		# trailing 'A')" heuristic below for the 'main' groups' naming convention, where the planner
+		# names a level's only group "DAM1" while EMS always stores it with a trailing letter
+		# ("DAM1A") — still not found after both attempts means a genuine mismatch that needs manual
+		# review.
+		group = self.env["ems.group"].search([("name", "=", full_name)], limit=1)
+		if group:
+			return group
+		acro = full_name.split(' ')[0]
+		group = self.env["ems.group"].search([("name", "=", acro)], limit=1) \
+			or self.env["ems.group"].search([("name", "=", acro + "A")], limit=1)
+		if group:
+			return group
+		# NOTE: for a study with a single course AND a single group, the planner sometimes exports
+		# just the bare study acronym ("DEV", "AO"), omitting BOTH the course number and the
+		# trailing group letter EMS always stores ("DEV1A", "AO1A") — unlike the "DAM1" case above
+		# (course present, only the letter missing), here neither is known upfront, so search by
+		# prefix and accept it only if exactly one group matches (an ambiguous prefix is a genuine
+		# mismatch, not a guess this heuristic should make).
+		candidates = self.env["ems.group"].search([("name", "=like", acro + "%")])
+		pattern = re.compile(r"^%s\d+[A-Za-z]$" % re.escape(acro))
+		matches = candidates.filtered(lambda group: pattern.match(group.name or ""))
+		return matches if len(matches) == 1 else self.env["ems.group"]
 
-				if item.get('teacher_id'):
-					if len(root) != 1:
-						raise ValidationError(_(
-							"This file describes %d teachers; the per-employee importer only accepts a file with exactly one."
-						) % len(root))
-					nodes = [(root[0], self.env['hr.employee'].browse(item['teacher_id']))]
-				else:
-					nodes = []
-					for node in root:
-						email = node.attrib['name'].split(' ')[0]
-						teacher = self.env["hr.employee"].search([("work_email", "=", email)])
-						if not teacher.id: raise ValidationError("Teacher with email '%s' not found." % email)
-						nodes.append((node, teacher))
+	def _finalize_pending_groups(self, entry, name_to_group):
+		"""Substitutes 'entry's still-unresolved 'pending_group_names' (see '_parse_schedule_entries')
+		with the picks made on the 'groups' step, using 'name_to_group' (a plain dict, raw name ->
+		'ems.group'). Called on both shapes 'entry' can take once loaded back from the JSON cache -
+		an 'entries' list item, whose 'group_ids' is a flat list of ints, or an 'attendance_ids'
+		command's own inner dict, whose 'group_ids' is still in '[(6, 0, ids)]' command form - and
+		normalizes both into the same resolved id set. No-op if there's nothing pending (most
+		entries, and every entry once already resolved). Always removes the 'pending_group_names'
+        key - it must never reach '_apply_import()' still attached, since that key isn't a real
+		field on 'resource.calendar.attendance'."""
+		pending_names = entry.pop('pending_group_names', None)
+		if not pending_names:
+			return
+		current_group_ids = entry.get('group_ids') or []
+		is_command_form = bool(current_group_ids) and isinstance(current_group_ids[0], (list, tuple))
+		existing_ids = current_group_ids[0][2] if is_command_form else current_group_ids
+		groups = self.env['ems.group'].browse(sorted(
+			set(existing_ids) | {name_to_group[name].id for name in pending_names}
+		))
+		entry['group_ids'] = [(6, 0, groups.ids)] if is_command_form else groups.ids
+		entry['name'] += " (%s)" % ", ".join(groups.mapped('name'))
 
-				for node, teacher in nodes:
-					entries = self._create_schedule(node, teacher, course_id)
-					entries = [e for e in entries if not e["non_teaching"]]
-					self.env['ems.teaching'].sync_from_schedule(teacher, entries)
-					teacher_entries.append((teacher, entries))
-
-			# NOTE: ems.attendance_template.space_id is required, but ems.group.space_id (where it's
-			# taken from) is not — a group missing a classroom would otherwise fail with Odoo's generic
-			# "mandatory field is not set" error instead of naming the actual problem.
-			missing_space = self._groups_without_space(teacher_entries)
-			if missing_space:
-				raise ValidationError(_(
-					"These groups have no classroom assigned, so their schedule cannot be imported: %s"
-				) % ", ".join(missing_space.mapped('name')))
-
-			# NOTE: also archive any OTHER teacher's (not part of this file) conflicting schedule line
-			# before the batch sync writes anything new — a teacher simply absent from this file can
-			# still hold a stale line in a classroom the new import now wants at an overlapping time.
-			self.env['ems.attendance_template'].find_external_conflicts(teacher_entries).action_archive()
-			self.env['ems.attendance_template'].sync_from_schedule_batch(teacher_entries)
-
-		return super(models.Model, self).create(values)
-
-	def _collect_xml_contents(self, item):
-		"""Every XML source given for this wizard's 'create()' vals, decoded — 'file' (the per-employee
-		single-file flow) and/or 'attachment_ids' (the general importer's multi-file flow), so a single
-		call can process any combination of both."""
-		contents = []
-		if item.get('file'):
-			contents.append(base64.b64decode(item['file']))
-		attachment_ids = self._m2m_command_ids(item.get('attachment_ids'))
-		for attachment in self.env['ir.attachment'].browse(attachment_ids):
-			contents.append(base64.b64decode(attachment.datas))
-		return contents
-
-	def _m2m_command_ids(self, commands):
-		ids = []
-		for command in commands or []:
-			if command[0] in (4, 1):
-				ids.append(command[1])
-			elif command[0] == 6:
-				ids.extend(command[2])
-		return ids
-
-	def _create_schedule(self, xml_node, teacher, course_id):
-		entries, attendance_ids = self._parse_schedule_entries(xml_node)
-
-		name = "%s (%s)" % (teacher.name, course_id.name)
-		schedule = self.env['resource.calendar'].search([('name', '=', name)]) or False
-		if not schedule:
-			# TODO: add a relation to current_course
-			schedule = self.env['resource.calendar'].create({
-				'name': "%s (%s)" % (teacher.name, course_id.name),
-				'full_time_required_hours': 24
-			})
-
-		schedule.write({ 'attendance_ids': attendance_ids })
-		teacher.write({ "resource_calendar_id": schedule })
-		return entries
+	def _finalize_subject_correction(self, entry, corrections):
+		"""Substitutes 'entry's own 'group_ids'/'subject_id' with whatever was actually picked on
+		the 'subjects' step, if this entry's ORIGINAL (group set, subject) pair matched one of the
+		mismatches found there - either side can be the real correction (developer feedback
+		2026-08-11: a mismatch can mean the group was wrong, the subject was wrong, or both), so
+		both get written, not just the subject. 'corrections' is a plain dict keyed by the file's
+		ORIGINAL pair (mirroring '_build_subject_lines'' own dedup key, and 'subject_line.raw_
+		group_ids'/'raw_subject_id' - never the edited 'group_ids'/'subject_id', which is the VALUE,
+		not the key), mapping to a '(corrected_groups, corrected_subject)' tuple. Called on both
+		shapes 'entry' can take once loaded back from the JSON cache, same as
+		'_finalize_pending_groups' - an 'entries' list item (flat 'group_ids') or an 'attendance_ids'
+		command's own inner dict ('group_ids' still in '[(6, 0, ids)]' form). No-op if there's
+		nothing to correct (most entries, any non-teaching one, and any already-valid mismatch left
+		unchanged by the admin's own pick). Rebuilds 'name' from the CORRECTED groups/subject's own
+		current records rather than string-splitting the old cached value - robust regardless of
+		what characters a subject/group name happens to contain."""
+		subject_id = entry.get('subject_id')
+		if not subject_id:
+			return
+		group_ids_field = entry.get('group_ids') or []
+		is_command_form = bool(group_ids_field) and isinstance(group_ids_field[0], (list, tuple))
+		flat_group_ids = group_ids_field[0][2] if is_command_form else group_ids_field
+		correction = corrections.get((tuple(sorted(flat_group_ids)), subject_id))
+		if not correction:
+			return
+		corrected_groups, corrected_subject = correction
+		if set(corrected_groups.ids) == set(flat_group_ids) and corrected_subject.id == subject_id:
+			return
+		entry['subject_id'] = corrected_subject.id
+		entry['group_ids'] = [(6, 0, corrected_groups.ids)] if is_command_form else corrected_groups.ids
+		entry['name'] = "%s: %s (%s)" % (
+			corrected_subject.acronym, corrected_subject.name, ", ".join(corrected_groups.mapped('name'))
+		)
 
 	def _parse_schedule_entries(self, xml_node):
 		"""Parse a <Teacher> XML node into (entries, attendance_ids) — the flattened list of real
 		(subject/non-teaching) slots plus the (0,0,{...})-command list ready for a resource.calendar's
-		'attendance_ids', without writing anything. Pure parsing, split out of '_create_schedule' so it
-		can be reused for a preview (e.g. the import wizard's onchange handlers, or conflict detection)
-		without any side effect."""
+		'attendance_ids', without writing anything. Pure parsing, reused for a preview (the import
+		wizard's onchange handlers, or conflict detection), for the intro step's own cache
+		('_classify_attachments'), and for the final step's real write ('_apply_import') - without any
+		side effect until that final call. A group name that fails to resolve no longer raises here -
+		see 'pending_group_names' below and '_finalize_pending_groups'."""
 		non_teaching_items = {t.code: t for t in self.env['ems.non_teaching_type'].search([])}
 
 		entries = []
@@ -512,37 +1730,25 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 				if len(acronyms) > 0:
 					groups = self.env["ems.group"]
+					pending_names = []
 					for full_name in acronyms:
-						# NOTE: try the FULL attribute value first — a reinforcement group's name is
-						# free-form and can contain spaces (e.g. "Reforç Programació"), so it must match
-						# exactly as-is; the real planner export never appends anything to it. Only fall
-						# back to the legacy "first word (+ trailing 'A')" heuristic below for the 'main'
-						# groups' naming convention, where the planner names a level's only group "DAM1"
-						# while EMS always stores it with a trailing letter ("DAM1A") — still not found
-						# after both attempts means a genuine mismatch that needs manual review.
-						group = self.env["ems.group"].search([("name", "=", full_name)], limit=1)
-						if not group:
-							acro = full_name.split(' ')[0]
-							group = self.env["ems.group"].search([("name", "=", acro)], limit=1) \
-								or self.env["ems.group"].search([("name", "=", acro + "A")], limit=1)
-						if not group:
-							# NOTE: for a study with a single course AND a single group, the planner
-							# sometimes exports just the bare study acronym ("DEV", "AO"), omitting BOTH
-							# the course number and the trailing group letter EMS always stores ("DEV1A",
-							# "AO1A") — unlike the "DAM1" case above (course present, only the letter
-							# missing), here neither is known upfront, so search by prefix and accept it
-							# only if exactly one group matches (an ambiguous prefix is a genuine mismatch,
-							# not a guess this heuristic should make).
-							candidates = self.env["ems.group"].search([("name", "=like", acro + "%")])
-							pattern = re.compile(r"^%s\d+[A-Za-z]$" % re.escape(acro))
-							matches = candidates.filtered(lambda g: pattern.match(g.name or ""))
-							if len(matches) == 1:
-								group = matches
-						if not group:
-							raise ValidationError("Group with acronym '%s' not found." % full_name)
-						groups |= group
+						group = self._resolve_group_name(full_name)
+						if group:
+							groups |= group
+						else:
+							pending_names.append(full_name)
 					new_entry["group_ids"] = [(6, 0, groups.ids)]
-					new_entry["name"] += " (%s)" % (", ".join(g.name for g in groups))
+					if pending_names:
+						# NOTE: deferred to the 'groups' step's own resolution screen (see
+						# 'ems.working_schedules_import_wizard._continue_from_groups') instead of raising
+						# here - a transient, JSON-cache-only marker that must never survive into the
+						# '(0, 0, {...})' commands actually passed to
+						# 'resource.calendar.attendance.create()' (see '_finalize_pending_groups'). The
+						# '(group names)' suffix below is skipped while any name is still pending -
+						# rebuilt from the FULL final group set once resolution completes.
+						new_entry["pending_group_names"] = pending_names
+					else:
+						new_entry["name"] += " (%s)" % (", ".join(g.name for g in groups))
 				dwe.append(new_entry)
 				
 			dwe = sorted(dwe, key=lambda e: e["hour_from"])
@@ -566,4 +1772,183 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				attendance_ids.append([0, 0, e])
 
 		return entries, attendance_ids
+
+class ems_working_schedules_import_wizard_group_line(models.TransientModel):
+	_name = "ems.working_schedules_import_wizard.group_line"
+	_description = "Working schedules import wizard: unresolved group correction line."
+
+	wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.working_schedules_import_wizard", required=True, ondelete="cascade")
+	raw_name = fields.Char(string="Name found in file", required=True, readonly=True)
+	# NOTE: create-on-the-fly deliberately allowed (no 'no_create'/'no_create_edit' context) - a
+	# plain Many2one already gives "pick an existing group, or create one on the spot" for free, no
+	# bespoke code needed (see plans/working_schedule_import_redesign.md's step 2).
+	group_id = fields.Many2one(string="Group", comodel_name="ems.group")
+
+class ems_working_schedules_import_wizard_space_line(models.TransientModel):
+	_name = "ems.working_schedules_import_wizard.space_line"
+	_description = "Working schedules import wizard: group missing a classroom correction line."
+
+	wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.working_schedules_import_wizard", required=True, ondelete="cascade")
+	group_id = fields.Many2one(string="Group", comodel_name="ems.group", required=True, readonly=True)
+	# NOTE: not required=True at field level, same convention as 'group_line.group_id' above - left
+	# empty by design until picked, validated via '_continue_from_groups's own raise instead (a
+	# field-level requirement would surface Odoo's generic error on an editable list row before the
+	# admin has had a chance to fill it in).
+	space_id = fields.Many2one(string="Classroom", comodel_name="ems.space")
+
+class ems_working_schedules_import_wizard_subject_line(models.TransientModel):
+	_name = "ems.working_schedules_import_wizard.subject_line"
+	_description = "Working schedules import wizard: subject/study mismatch correction line."
+
+	wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.working_schedules_import_wizard", required=True, ondelete="cascade")
+	# NOTE: EITHER side of a mismatch can be the actual mistake (developer feedback 2026-08-11,
+	# after using the first version - group-ids-readonly-only - for real: "Resolve subject debería
+	# dejarme cambiar también los grupos. Me he encontrado las dos variantes durante las pruebas: el
+	# error era el (o los) grupo, o el error era la asignatura.") - both 'group_ids' and 'subject_id'
+	# below are editable, defaulting to the file's own (possibly wrong) values. 'raw_group_ids' is
+	# kept purely as the correction's own matching key (which node_cache entries this line's pick
+	# applies to, see '_finalize_subject_correction') - never edited itself, always the file's
+	# original groups, distinct from the corrected 'group_ids'.
+	raw_group_ids = fields.Many2many(
+		string="Group(s) found in file", comodel_name="ems.group",
+		relation="ems_wsiw_subject_line_raw_group_rel", readonly=True,
+	)
+	# NOTE: create explicitly disabled (context in the view) - unlike "Resolve groups"' own
+	# 'group_id' (an UNRESOLVED name that may genuinely need a brand-new group), a mismatch here
+	# means the group was already resolved to a REAL, existing record and simply happens to be the
+	# wrong one - the fix is picking a different existing group, never creating one.
+	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group", relation="ems_wsiw_subject_line_group_rel")
+	raw_subject_id = fields.Many2one(string="Subject found in file", comodel_name="ems.subject", required=True, readonly=True)
+	# NOTE: computed, not stored - purely drives 'subject_id's own domain below, same convention as
+	# 'ems.attendance_template.allowed_subject_ids' (see 'ems.study._subjects_common_to_all', shared
+	# by both). Depends on the EDITABLE 'group_ids' (not 'raw_group_ids'), so correcting the group
+	# alone - leaving 'subject_id' untouched - can make an already-correct file subject valid again
+	# on its own, with nothing else to do. Deliberately does NOT filter 'raw_subject_id' out of what
+	# CAN be redisplayed: a Many2one 'domain' only restricts what's searchable/selectable when the
+	# field is reopened to change it, it never hides an already-set value outside that domain -
+	# confirmed before building this, per the developer's own explicit question ("Si esto impide que
+	# el default sea el del fichero, dímelo") - so 'subject_id' below can safely default to the
+	# file's own (possibly wrong) value while still only ever offering VALID alternatives once the
+	# admin opens the dropdown.
+	allowed_subject_ids = fields.Many2many(string="Allowed subjects", comodel_name="ems.subject", compute="_compute_allowed_subject_ids", store=False)
+	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", required=True, domain="[('id', 'in', allowed_subject_ids)]")
+
+	@api.depends('group_ids.study_id.subject_ids')
+	def _compute_allowed_subject_ids(self):
+		for line in self:
+			line.allowed_subject_ids = line.group_ids.mapped('study_id')._subjects_common_to_all()
+
+class ems_working_schedules_import_wizard_teacher_line(models.TransientModel):
+	_name = "ems.working_schedules_import_wizard.teacher_line"
+	_description = "Working schedules import wizard: unresolved teacher (e-mail or placeholder code) correction line."
+
+	wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.working_schedules_import_wizard", required=True, ondelete="cascade")
+	# NOTE: an e-mail-shaped identifier OR a bare placeholder code (e.g. 'X1') - both kinds share
+	# this one line model since 2026-08-10 (see '_pending_teacher_identifiers'), so the label stays
+	# generic rather than assuming "e-mail" the way it did before that merge.
+	raw_identifier = fields.Char(string="Identifier found in file", required=True, readonly=True)
+	# NOTE: create explicitly disabled in the view (context="{'no_create': True, 'no_create_edit':
+	# True}") - the developer's own original call, see plans/working_schedule_import_redesign.md's
+	# step 3: a brand-new teacher record is created via 'create_new' below (get-or-create by
+	# 'schedule_import_code', see '_get_or_create_pending_teacher'), never through this Many2one -
+	# this field only ever attaches the schedule to an already-existing employee.
+	employee_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
+	# NOTE: added 2026-08-05 (developer feedback): some unresolved identifiers are a genuinely new
+	# hire, not a typo/mismatch of an already-existing teacher - forcing a pick from 'employee_id'
+	# (create disabled) makes no sense for those. Ticking this creates a new pending-identification
+	# teacher at Import instead (see '_get_or_create_pending_teacher') - a row is valid if EITHER
+	# 'employee_id' is set OR this is ticked, never neither (see '_resolution_is_valid'-equivalent
+	# check in '_continue_from_teachers'). Defaults to True (changed 2026-08-06, developer feedback
+	# after using it for real): a genuinely never-hired teacher turned out to be the more common
+	# case in practice, so an admin who actually needs to pick an existing teacher now has to
+	# actively untick this, rather than the other way around. Works identically for a bare
+	# placeholder code, extended to those too 2026-08-10 - '_classify_teacher_item' is what tells a
+	# ticked e-mail apart from a ticked code afterward (only the former gets its attempted address
+	# pre-filled, see that method's own docs), not anything on this line itself.
+	create_new = fields.Boolean(string="New", default=True)
+
+	@api.onchange('create_new')
+	def _onchange_create_new(self):
+		# Keeps the two fields from ever disagreeing - ticking "create new" while a real employee
+		# is still picked would leave it ambiguous which one '_continue_from_teachers' should use.
+		for line in self:
+			if line.create_new:
+				line.employee_id = False
+
+class ems_working_schedules_import_wizard_conflict_mixin(models.AbstractModel):
+	_name = "ems.working_schedules_import_wizard.conflict_mixin"
+	_description = "Working schedules import wizard: shared kind/resolution fields for a conflict line (internal or against an existing DB schedule)."
+
+	# NOTE: computed once, at line-creation time (see '_build_internal_conflict_lines'/
+	# '_build_external_conflict_lines') - not an '@api.depends' compute, same convention as
+	# 'group_line.raw_name'/'teacher_line.raw_identifier'.
+	kind = fields.Selection([
+		('co_teaching_eligible', "Co-teaching"),
+		('desdoble_eligible', "Split session"),
+		('plain_conflict', "Room conflict"),
+		('self_conflict', "Same teacher, different room"),
+	], string="Conflict", required=True, readonly=True)
+	left_label = fields.Char(string="Left", required=True, readonly=True)
+	right_label = fields.Char(string="Right", required=True, readonly=True)
+	# NOTE: grouping-only key for the wizard's grouped-cards view (see 'ems_grouped_conflict_lines'
+	# and '_entry_group_key') - the left side's teacher + subject, deliberately coarser than
+	# 'left_label' (which also carries group/weekday/time, unique enough per pair that grouping by
+	# it alone produced one card per row in practice - developer feedback 2026-08-10).
+	left_group_key = fields.Char(string="Group key", required=True, readonly=True)
+	# NOTE: a flat Selection with every option always visible/selectable, validated server-side on
+	# Continue (see '_resolution_is_valid') rather than a widget hiding the options invalid for this
+	# row's own 'kind' - confirmed with the developer 2026-08-05 as the simpler, equally-valid
+	# option the plan itself offered (plans/working_schedule_import_redesign.md's "Complexity flag").
+	resolution = fields.Selection([
+		('co_teaching', "Confirm"),
+		('prevail_left', "Left prevails"),
+		('prevail_right', "Right prevails"),
+		('reassign_rooms', "Reassign rooms"),
+	], string="Resolution", required=True)
+	# NOTE: only relevant when 'resolution' is 'reassign_rooms' - pre-filled with the colliding room
+	# for every desdoble-eligible line regardless of its current resolution, so they're ready the
+	# moment "reassign_rooms" is picked.
+	left_space_id = fields.Many2one(string="Left classroom", comodel_name="ems.space")
+	right_space_id = fields.Many2one(string="Right classroom", comodel_name="ems.space")
+
+	def _resolution_is_valid(self):
+		self.ensure_one()
+		allowed_by_kind = {
+			'co_teaching_eligible': {'co_teaching', 'prevail_left', 'prevail_right'},
+			'desdoble_eligible': {'reassign_rooms', 'prevail_left', 'prevail_right'},
+			'plain_conflict': {'reassign_rooms', 'prevail_left', 'prevail_right'},
+			'self_conflict': {'prevail_left', 'prevail_right'},
+		}
+		if self.resolution not in allowed_by_kind[self.kind]:
+			return False
+		if self.resolution == 'reassign_rooms':
+			return bool(self.left_space_id) and bool(self.right_space_id) and self.left_space_id != self.right_space_id
+		return True
+
+class ems_working_schedules_import_wizard_internal_conflict_line(models.TransientModel):
+	_name = "ems.working_schedules_import_wizard.internal_conflict_line"
+	_inherit = ["ems.working_schedules_import_wizard.conflict_mixin"]
+	_description = "Working schedules import wizard: within-batch room collision line."
+
+	wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.working_schedules_import_wizard", required=True, ondelete="cascade")
+	# NOTE: positional references into the wizard's own 'parsed_entries_json' node_cache structure
+	# (item index, entry index within that item's own 'entries' list) - not content-matching, see
+	# '_continue_from_internal_conflicts'. Both sides are new entries from THIS import here.
+	left_item_index = fields.Integer(required=True, readonly=True)
+	left_entry_index = fields.Integer(required=True, readonly=True)
+	right_item_index = fields.Integer(required=True, readonly=True)
+	right_entry_index = fields.Integer(required=True, readonly=True)
+
+class ems_working_schedules_import_wizard_external_conflict_line(models.TransientModel):
+	_name = "ems.working_schedules_import_wizard.external_conflict_line"
+	_inherit = ["ems.working_schedules_import_wizard.conflict_mixin"]
+	_description = "Working schedules import wizard: new entry vs. already-active DB schedule collision line."
+
+	wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.working_schedules_import_wizard", required=True, ondelete="cascade")
+	# NOTE: the LEFT side is a new entry from this import - positional reference into node_cache,
+	# same as 'internal_conflict_line'. The RIGHT side is a real, already-persisted
+	# 'ems.attendance_schedule' record - a genuine Many2one, not a position.
+	left_item_index = fields.Integer(required=True, readonly=True)
+	left_entry_index = fields.Integer(required=True, readonly=True)
+	right_schedule_id = fields.Many2one(string="Existing session", comodel_name="ems.attendance_schedule", required=True, readonly=True)
 

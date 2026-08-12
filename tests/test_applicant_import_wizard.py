@@ -1,10 +1,11 @@
 import base64
 import csv
 import io
-from datetime import date
 
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
+
+from .common import create_level_study_group
 
 
 # Subset of the real GEDAC "ASSIGNATS" export header, limited to the columns the
@@ -31,15 +32,10 @@ class TestApplicantImportWizard(TransactionCase):
 
         cls.env.company.center_code = '8028047'
 
-        cls.level = cls.env['ems.level'].create({'acronym': 'AIWL', 'name': 'AIW Level'})
         # Unique code whose tail token (ZZ99) is what the GEDAC "Codi ensenyament
         # assignat" (e.g. 'CFPM    ZZ99') resolves against.
-        cls.study = cls.env['ems.study'].create({
+        cls.level, cls.study, cls.group = create_level_study_group(cls, 'AIWL', study={
             'code': 'CFGM_ZZ99', 'acronym': 'ZZT', 'name': 'AIW Test Study',
-            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
-        })
-        cls.group = cls.env['ems.group'].create({
-            'course': 1, 'acronym': 'A', 'level_id': cls.level.id, 'study_id': cls.study.id,
         })
 
     # --- helpers ---
@@ -247,6 +243,25 @@ class TestApplicantImportWizard(TransactionCase):
         self.assertEqual(alumni.contact_type, 'applicant')
         self.assertEqual(alumni.study_id, self.study)
 
+    def test_archived_withdrawal_becomes_applicant_and_is_reactivated(self):
+        # A withdrawal is archived (active=False) as part of the exit, mirroring
+        # hr.employee. A re-import must find and reactivate that same record
+        # instead of silently creating a duplicate partner (orphaning the
+        # original's year_record_ids/documents/benefits).
+        withdrawal = self.env['res.partner'].create({
+            'name': 'Return Student', 'contact_type': 'withdrawal', 'student_id': '7000003',
+        })
+        withdrawal.write({'active': False})
+        self._run([self._base_row(**{'Ident. RALC': 7000003})])
+        withdrawal.invalidate_recordset()
+        self.assertEqual(withdrawal.contact_type, 'applicant')
+        self.assertTrue(withdrawal.active)
+        self.assertEqual(withdrawal.study_id, self.study)
+        # No duplicate created.
+        matches = self.env['res.partner'].with_context(active_test=False).search(
+            [('student_id', '=', '7000003')])
+        self.assertEqual(len(matches), 1)
+
     def test_phone_normalization(self):
         # Mobile with country code -> stripped to 9-digit national, stored as mobile.
         self._run([self._base_row(**{'Ident. RALC': 571, 'Telèfon': 34631078723})])
@@ -281,3 +296,34 @@ class TestApplicantImportWizard(TransactionCase):
         self.env.company.center_code = False
         with self.assertRaises(UserError):
             self._run([self._base_row()])
+
+    # --- HTML escaping regressions -------------------------------------------------
+
+    def test_build_result_html_escapes_error_content(self):
+        wizard = self.env['ems.applicant_import_wizard'].new({})
+        html = wizard._build_result_html({
+            'created': 1, 'updated': 0, 'skipped': 0, 'students': 0,
+            'errors': ['<script>alert(1)</script>'], 'student_rows': [],
+        })
+        self.assertIn('&lt;script&gt;', html)
+        self.assertNotIn('<script>alert(1)</script>', html)
+
+    def test_build_result_html_escapes_active_student_row(self):
+        wizard = self.env['ems.applicant_import_wizard'].new({})
+        html = wizard._build_result_html({
+            'created': 0, 'updated': 0, 'skipped': 0,
+            'students': 1, 'errors': [],
+            'student_rows': [{
+                'current_name': '<b>Injected</b>', 'assigned_study': 'Study',
+                'current_group': 'Group',
+            }],
+        })
+        self.assertIn('&lt;b&gt;Injected&lt;/b&gt;', html)
+        self.assertNotIn('<b>Injected</b>', html)
+
+    def test_build_applicant_notes_escapes_gedac_values(self):
+        wizard = self.env['ems.applicant_import_wizard'].new({})
+        row = {'Nom centre procedència': '<img src=x onerror=alert(1)>'}
+        note = wizard._build_applicant_notes(lambda key: row.get(key))
+        self.assertIn('&lt;img', note)
+        self.assertNotIn('<img src=x', note)

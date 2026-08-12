@@ -3,20 +3,16 @@ from datetime import date
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestEnrollment(TransactionCase):
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.level = cls.env['ems.level'].create({'acronym': 'TENR', 'name': 'Test Level (Enrollment)'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TENR001',
-            'acronym': 'TENR',
-            'name': 'Test Study (Enrollment)',
-            'date': date.today(),
-            'deprecated': False,
-            'level_id': cls.level.id,
+        cls.level, cls.study = create_level_study(cls, 'TENR', level={'name': 'Test Level (Enrollment)'}, study={
+            'code': 'TENR001', 'name': 'Test Study (Enrollment)', 'date': date.today(),
         })
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TENR001',
@@ -54,22 +50,28 @@ class TestEnrollment(TransactionCase):
         cls.other_student = cls.env['res.partner'].create({'name': 'Test Student B (Enrollment)', 'contact_type': 'student'})
 
     def _create_template(self, groups):
-        return self.env['ems.attendance_template'].create({
+        template = self.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, [self.teacher.id])],
-            'level_id': self.level.id,
-            'study_id': self.study.id,
+            'study_ids': [(6, 0, [self.study.id])],
             'subject_id': self.subject.id,
             'group_ids': [(6, 0, groups)],
-            'space_id': self.space.id,
             'start_date': date(2026, 1, 1),
             'end_date': date(2026, 6, 30),
         })
+        # student_ids lives on the schedule line, not the template (see
+        # plans/calendar_driven_attendance_templates.md, point 1) - the enrollment sync hooks
+        # this test file exercises need a real line to write onto.
+        self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id,
+            'weekday': '0', 'start_time': 9.0, 'end_time': 10.0, 'space_id': self.space.id,
+        })
+        return template
 
-    def _create_session(self, group=None, round="1"):
+    def _create_session(self, group=None, round_no="1"):
         return self.env['ems.grade_session'].create({
             'group_id': (group or self.group).id,
             'subject_id': self.subject.id,
-            'round': round,
+            'round': round_no,
             'teacher_id': self.teacher.id,
         })
 
@@ -85,7 +87,7 @@ class TestEnrollment(TransactionCase):
     def test_create_enrollment_adds_student_to_matching_template(self):
         template = self._create_template([self.group.id])
         self._create_enrollment()
-        self.assertIn(self.student, template.student_ids)
+        self.assertIn(self.student, template.attendance_schedule_ids.student_ids)
 
     def test_create_enrollment_without_matching_template_is_noop(self):
         enrollment = self._create_enrollment()
@@ -94,22 +96,22 @@ class TestEnrollment(TransactionCase):
     def test_delete_enrollment_removes_student_from_template(self):
         template = self._create_template([self.group.id])
         enrollment = self._create_enrollment()
-        self.assertIn(self.student, template.student_ids)
+        self.assertIn(self.student, template.attendance_schedule_ids.student_ids)
 
         enrollment.unlink()
 
-        self.assertNotIn(self.student, template.student_ids)
+        self.assertNotIn(self.student, template.attendance_schedule_ids.student_ids)
 
     def test_delete_enrollment_keeps_student_if_still_covered_by_same_template(self):
         # Template covers both groups (co-teaching); the student is enrolled through both.
         template = self._create_template([self.group.id, self.other_group.id])
         enrollment = self._create_enrollment(group=self.group)
         self._create_enrollment(group=self.other_group)
-        self.assertIn(self.student, template.student_ids)
+        self.assertIn(self.student, template.attendance_schedule_ids.student_ids)
 
         enrollment.unlink()
 
-        self.assertIn(self.student, template.student_ids)
+        self.assertIn(self.student, template.attendance_schedule_ids.student_ids)
 
     # -- grade_session sync --
 
@@ -174,7 +176,7 @@ class TestEnrollment(TransactionCase):
         with self.assertRaises(UserError):
             enrollment.unlink()
 
-        self.assertIn(self.student, template.student_ids)
+        self.assertIn(self.student, template.attendance_schedule_ids.student_ids)
 
     def test_delete_enrollment_ignores_board_or_final_session_lines(self):
         session = self._create_session()
@@ -185,3 +187,97 @@ class TestEnrollment(TransactionCase):
 
         lines = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student)
         self.assertTrue(lines)
+
+    def test_sync_grade_session_remove_keeps_lines_if_still_enrolled(self):
+        # _ems_sync_grade_session_remove() is keyed by (student_id, group_id, subject_id),
+        # not by the deleted row's own id - unlike its sibling
+        # _ems_sync_attendance_template_remove(), it used to have no guard against a
+        # still-enrolled student (see plans/grade_session_remove_missing_still_enrolled_guard.md).
+        # The unique(student_id, group_id, subject_id) constraint on ems.enrollment now makes
+        # the real trigger (a duplicate row for the exact same triple) unreachable via the
+        # ORM, so this calls the sync method directly rather than through unlink() - a
+        # white-box test of the guard itself, added for defensive symmetry with the
+        # attendance-template sibling and to protect any future caller of this method.
+        session = self._create_session()
+        enrollment = self._create_enrollment()
+        lines_before = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student)
+        self.assertTrue(lines_before)
+
+        self.env['ems.enrollment']._ems_sync_grade_session_remove(
+            self.student.id, self.group.id, self.subject.id)
+
+        lines_after = session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student)
+        self.assertEqual(lines_before, lines_after)
+        self.assertTrue(enrollment.exists())
+
+    # -- _ems_still_enrolled (shared by both unlink() sync hooks above) --------------
+
+    def test_still_enrolled_true_when_a_matching_row_exists(self):
+        self._create_enrollment()
+        self.assertTrue(self.env['ems.enrollment']._ems_still_enrolled(
+            self.student.id, self.subject.id, [self.group.id]))
+
+    def test_still_enrolled_false_without_a_matching_row(self):
+        self.assertFalse(self.env['ems.enrollment']._ems_still_enrolled(
+            self.student.id, self.subject.id, [self.group.id]))
+
+    def test_still_enrolled_checks_any_of_several_groups(self):
+        self._create_enrollment(group=self.other_group)
+        self.assertTrue(self.env['ems.enrollment']._ems_still_enrolled(
+            self.student.id, self.subject.id, [self.group.id, self.other_group.id]))
+
+    # -- default_get admin guard --
+
+    def test_default_get_blocks_non_admin(self):
+        teacher_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Non-Admin (Enrollment)', 'login': 'test_non_admin_enrollment',
+            'groups_id': [(4, self.env.ref('ems.group_teacher').id)],
+        })
+        with self.assertRaises(UserError):
+            self.env['ems.enrollment'].with_user(teacher_user).default_get(['user_is_admin'])
+
+    def test_default_get_allows_admin(self):
+        admin_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Admin (Enrollment)', 'login': 'test_admin_enrollment',
+            'groups_id': [(4, self.env.ref('ems.group_academic_admin').id)],
+        })
+        res = self.env['ems.enrollment'].with_user(admin_user).default_get(['user_is_admin'])
+        self.assertTrue(res['user_is_admin'])
+
+    # -- inuse_subject_ids --
+
+    def test_inuse_subject_ids_lists_students_other_enrolled_subjects(self):
+        other_subject = self.env['ems.subject'].create({
+            'code': 'TENR002', 'acronym': 'TENR2', 'name': 'Test Subject 2 (Enrollment)',
+            'study_ids': [(6, 0, [self.study.id])],
+        })
+        self._create_enrollment(student=self.student)
+        second = self.env['ems.enrollment'].new({'student_id': self.student.id})
+        second._compute_inuse_subject_ids()
+        # second is a virtual (.new()) record: Odoo wraps its computed relational values with
+        # NewId(origin=...) for onchange-time consistency — compare against the real records.
+        self.assertIn(self.subject, second.inuse_subject_ids._origin)
+        self.assertNotIn(other_subject, second.inuse_subject_ids._origin)
+
+    def test_inuse_subject_ids_empty_without_student(self):
+        enrollment = self.env['ems.enrollment'].new({})
+        enrollment._compute_inuse_subject_ids()
+        self.assertFalse(enrollment.inuse_subject_ids)
+
+    def test_display_name_is_subject_name(self):
+        enrollment = self._create_enrollment()
+        self.assertEqual(enrollment.display_name, self.subject.display_name)
+
+    # -- unique (student, group, subject) --------------------------------------
+
+    def test_duplicate_student_group_subject_raises(self):
+        # See plans/enrollment_junction_duplicate_constraint.md - 21 duplicate
+        # triples were found in production before this constraint existed.
+        self._create_enrollment()
+        with self.assertRaises(Exception):
+            self._create_enrollment()
+
+    def test_same_student_different_group_is_allowed(self):
+        self._create_enrollment(group=self.group)
+        second = self._create_enrollment(group=self.other_group)
+        self.assertTrue(second.id)

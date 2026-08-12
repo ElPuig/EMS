@@ -17,9 +17,12 @@ class ems_settings(models.TransientModel):
    schedule_import_last_entry_time  = fields.Float(related="company_id.schedule_import_last_entry_time",  readonly=False)
 
    current_course_id = fields.Many2one(comodel_name="ems.course", related="company_id.current_course_id", readonly=False)
+   enrollment_course_id = fields.Many2one(comodel_name="ems.course", related="company_id.enrollment_course_id", readonly=False)
    # NOTE: cannot be named 'default_*' here — res.config.settings treats that prefix as a special
    # ir.default-setting field (requires a 'default_model' attribute), not a plain related field.
    schedule_framework_id = fields.Many2one(comodel_name="resource.calendar", related="company_id.default_schedule_framework_id", readonly=False, domain="[('is_framework', '=', True)]")
+
+   director_id = fields.Many2one(comodel_name="hr.employee", related="company_id.director_id", readonly=False)
 
    secretariat_email = fields.Char(related="company_id.secretariat_email", readonly=False)
    center_code = fields.Char(related="company_id.center_code", readonly=False)

@@ -15,12 +15,17 @@ Aquesta secció conté els manuals per al **personal de secretaria**.
 - [Matriculació per l'alumnat de preinscripció](manual-matriculacio-preinscripcio.md) — Com importar els aspirants de GEDAC, crear les propostes de matrícula (tant dels alumnes nous com dels del centre que canvien d'estudis), donar accés al portal i enviar la proposta.
 - [Alta d'un professor i creació del compte de correu corporatiu (Google Workspace)](../admin/alta-professor-compte-google.md) — Com donar d'alta un professor o membre del PAS i com es genera el seu compte corporatiu.
 - [L'horari setmanal d'un grup](../admin/group-schedule.md) — Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF.
+- [Informes d'assistència](attendance-reports.md) — Imprimir els 3 informes PDF d'assistència (per grup/alumne/assignatura) i explorar les dades amb la pantalla d'Anàlisi d'assistència.
+- [Gestió de contactes d'alumnat i família](student-contacts.md) — Tipus de contacte i com canvien, afegir un contacte familiar a un alumne, i registrar bonificacions i exempcions.
+- [Revisar els documents dels alumnes](student-documents.md) — Aprovar, rebutjar o reobrir tramitacions de DNI/targeta sanitària/IBAN/beneficis, i què fa cada decisió per darrere.
+- [Marcar una graduació i tramitar una baixa](graduation-withdrawal.md) — La diferència entre la marca diferida de graduació i una baixa immediata, i tota la cascada de la baixa pas a pas.
+- [Importar alumnat des d'Esfera (SAGA)](student-import-esfera.md) — Actualitzar massivament les dades de l'alumnat ja matriculat (no confondre amb la importació de preinscripció GEDAC), què es fa coincidir/crea, i les limitacions conegudes de deduplicació.
+- [Actualitzar dades de l'alumnat des d'un CSV](student-update-csv.md) — Actualització massiva genèrica, de qualsevol format CSV, per a alumnat existent (mai en crea), amb columnes mapejables i actualització opcional del compte bancari.
 
 ## Temes previstos
 
-- Gestió de documents: aprovació de documents i IBAN dels alumnes
+- Gestió de matrícules: revisió, validació i enviament a les famílies
 - Pagaments: formes de pagament i terminis
-- Bonificacions i exempcions: validació de documents justificatius
 
 ---
 

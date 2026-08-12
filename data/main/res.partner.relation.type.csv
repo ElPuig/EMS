@@ -1,0 +1,9 @@
+id,name,name_inverse,contact_type_left,contact_type_right,partner_category_left/id,partner_category_right/id,is_symmetric,allow_self,handle_invalid_onchange
+ems.relation_type_tutor,Tutor,Student,p,p,ems.partner_category_family,ems.partner_category_student,False,False,restrict
+ems.relation_type_father,Father,Son/Daughter,p,p,ems.partner_category_family,ems.partner_category_student,False,False,restrict
+ems.relation_type_mother,Mother,Son/Daughter,p,p,ems.partner_category_family,ems.partner_category_student,False,False,restrict
+ems.relation_type_grandfather,Grandfather,Grandson/Granddaughter,p,p,ems.partner_category_family,ems.partner_category_student,False,False,restrict
+ems.relation_type_grandmother,Grandmother,Grandson/Granddaughter,p,p,ems.partner_category_family,ems.partner_category_student,False,False,restrict
+ems.relation_type_uncle_aunt,Uncle/Aunt,Nephew/Niece,p,p,ems.partner_category_family,ems.partner_category_student,False,False,restrict
+ems.relation_type_cousin,Cousin,Cousin,p,p,ems.partner_category_family,ems.partner_category_student,False,False,restrict
+ems.relation_type_sibling,Brother/Sister,Brother/Sister,p,p,ems.partner_category_family,ems.partner_category_student,False,False,restrict

@@ -1,0 +1,4 @@
+id,name,default_code,categ_id/id,type,list_price,ems_subject_unit_cost,is_generic,ems_is_enrollment_fee,ems_level_ids/id,uom_id/id,uom_po_id/id,taxes_id/id,supplier_taxes_id/id
+ems.fee_cfgs,Tasa CFGS,tasa_cfgs,ems.ems_category_academic,service,360.0,65.0,True,True,ems.level_cfgs,uom.product_uom_unit,uom.product_uom_unit,,
+ems.product_generic_enrollment,Matrícula El Puig Castellar,matricula,ems.ems_category_academic,service,75.0,,True,,"ems.level_eso,ems.level_btx,ems.level_cfgm,ems.level_cfgs,ems.level_efps,ems.level_cfgb,ems.level_pfi",uom.product_uom_unit,uom.product_uom_unit,,
+ems.product_generic_ampa,Quota AMPA,ampa-quota,ems.ems_category_academic,service,15.0,,True,,"ems.level_eso,ems.level_btx,ems.level_cfgm,ems.level_cfgs,ems.level_efps,ems.level_cfgb,ems.level_pfi",uom.product_uom_unit,uom.product_uom_unit,,

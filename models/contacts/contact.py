@@ -8,10 +8,11 @@ import datetime
 import re
 from dateutil.relativedelta import relativedelta
 
-class ems_student_benefit(models.Model):
+class EmsStudentBenefit(models.Model):
     _name = 'ems.student.benefit'
     _description = 'Student Benefits and Exemptions'
-    
+    _order = 'student_id, benefit_type'
+
     student_id = fields.Many2one('res.partner', string="Student", required=True, ondelete='cascade')
     
     benefit_type = fields.Selection([
@@ -38,14 +39,14 @@ class ems_student_benefit(models.Model):
 
     @api.depends('benefit_type')
     def _compute_category(self):
-        for rec in self:
-            if not rec.benefit_type:
+        for benefit in self:
+            if not benefit.benefit_type:
                 # If no type is selected, there is no Bonification or Exemption.
-                rec.category = False
-            elif rec.benefit_type in ['large_family_gen', 'single_parent_gen', 'scholarship']:
-                rec.category = 'bonification'
+                benefit.category = False
+            elif benefit.benefit_type in ['large_family_gen', 'single_parent_gen', 'scholarship']:
+                benefit.category = 'bonification'
             else:
-                rec.category = 'exemption'
+                benefit.category = 'exemption'
 
     @api.onchange('benefit_type')
     def _onchange_benefit_type(self):
@@ -59,7 +60,7 @@ class ems_student_benefit(models.Model):
             else:
                 self.renewal_date = today + relativedelta(years=2)
 
-class ems_contact(models.Model):
+class ResPartner(models.Model):
     _inherit = ['res.partner'] # NOTE: unable to inherit also from ems.base, I got an error like 'TypeError: Many2many fields ResPartner.channel_ids and res.partner.channel_ids use the same table and columns'.
             
     # view-oriented fields:
@@ -109,9 +110,10 @@ class ems_contact(models.Model):
              "type B (specially disadvantaged socio-economic or socio-cultural "
              "situation). Leave empty for ordinary students.")
     # Contact lifecycle: applicant -> student -> alumni (graduated at least once)
-    #                                         \-> withdrawal (never graduated).
+    #                                         \-> withdrawal (never graduated)
+    #                                         \-> expelled (permanently expelled).
     # The ~25 domains filtering by contact_type == 'student' exclude applicant,
-    # alumni and withdrawal automatically (no changes needed elsewhere).
+    # alumni, withdrawal and expelled automatically (no changes needed elsewhere).
     contact_type = fields.Selection(string='Contact Type', selection=[
         ('provider', 'Provider'),
         ('student', 'Student'),
@@ -119,15 +121,17 @@ class ems_contact(models.Model):
         ('applicant', 'Applicant'),
         ('alumni', 'Alumni'),
         ('withdrawal', 'Withdrawal'),
+        ('expelled', 'Expelled'),
     ])
     # Permanent graduation mark: set to True when the graduation is registered and
     # never reset to False. It is the key that decides alumni vs withdrawal in
-    # _ems_convert_to_ex_student().
+    # _ems_convert_to_ex_student() (an explicit 'expulsion' kind overrides both).
     has_graduated = fields.Boolean(string="Has graduated", default=False)
     # Exit metadata (written by the graduation/withdrawal wizards).
     exit_type = fields.Selection([
         ('graduation', 'Graduation'),
         ('withdrawal', 'Withdrawal'),
+        ('expulsion', 'Expulsion'),
     ], string="Exit type")
     exit_course_id = fields.Many2one('ems.course', string="Exit course")
     exit_date = fields.Date(string="Exit date")
@@ -145,6 +149,12 @@ class ems_contact(models.Model):
         ('missing', 'No destination'),
     ], string="Transition status", compute='_compute_transition_status',
         search='_search_transition_status', store=False)
+    # Feeds the shared 'ems_archived_reason_ribbon' field widget (form + kanban, same widget
+    # used by hr.employee's departure_reason_id - see static/src/js/backend/
+    # archived_reason_ribbon_field.js). Empty/False when there's nothing specific to show
+    # (not archived, or archived with no specific lifecycle reason - family/provider/applicant).
+    archived_reason_label = fields.Char(string="Archived reason", compute='_compute_archived_reason')
+    archived_reason_color = fields.Char(string="Archived reason color", compute='_compute_archived_reason')
     family_relation = fields.Char(string="Family relation")
     document_id = fields.Char(string="Document ID")
     passport_id = fields.Char(string="Passport")
@@ -155,8 +165,8 @@ class ems_contact(models.Model):
 
     @api.constrains('nuss')
     def _check_nuss(self):
-        for rec in self:
-            if rec.nuss and not re.fullmatch(r'\d{12}', rec.nuss):
+        for partner in self:
+            if partner.nuss and not re.fullmatch(r'\d{12}', partner.nuss):
                 raise ValidationError(_("The NUSS must be exactly 12 numeric digits."))
     birth_date = fields.Date(string="Birth Date")
     birth_country_id = fields.Many2one(string="Birth Country", comodel_name='res.country')
@@ -206,20 +216,44 @@ class ems_contact(models.Model):
     read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
     is_tutor_readonly = fields.Boolean(default=lambda self:self._get_is_tutor_readonly(), store=False)
 
+    def _ems_enrollment_in_force(self):
+        """The student's enrollment that governs what may be done with them now.
+
+        What rules an authorization is the year being TAUGHT, not the one being
+        enrolled into, so the running course comes first. The fallback exists for the
+        one window where that yields nothing: between transitioning a study and the
+        global flip, the student has already been moved into the incoming course and
+        holds no enrollment for the outgoing one — which is exactly what left 122 of
+        122 SMX students showing every signed authorization as unsigned.
+
+        Preferring the enrollment-default course instead would break later on: once
+        27-28 is opened for enrolment halfway through 26-27, the flags would start
+        reading a draft enrollment nobody has signed yet and fall back to false in
+        the middle of the school year.
+
+        Shared with ems_current_enrollment_id so the two cannot drift apart, which is
+        how the discrepancy arose in the first place.
+        """
+        self.ensure_one()
+        Course = self.env['ems.course']
+        running = Course.search([('is_current', '=', True)], limit=1)
+        orders = self.sale_order_ids.filtered(
+            lambda order: order.state in ('draft', 'sent', 'sale'))
+        in_force = orders.filtered(lambda order: order.ems_course_id == running)
+        if in_force:
+            return in_force[0]
+        enrolling = Course.search([('is_enrollment_default', '=', True)], limit=1)
+        return orders.filtered(lambda order: order.ems_course_id == enrolling)[:1]
+
     @api.depends(
+    'sale_order_ids.ems_course_id',
     'sale_order_ids.ems_authorization_ids.status',
     'sale_order_ids.ems_authorization_ids.template_id.auth_type',
     )
     def _compute_auth_booleans(self):
-        current_course = self.env['ems.course'].search([
-            ('is_current', '=', True)
-        ], limit=1)
-
         for student in self:
             image, trip, health, share = False, False, False, False
-            for order in student.sale_order_ids.filtered(
-                lambda o: o.ems_course_id == current_course
-            ):
+            for order in student._ems_enrollment_in_force():
                 for auth in order.ems_authorization_ids:
                     if auth.status == 'yes':
                         if auth.template_id.auth_type == 'image':
@@ -235,37 +269,21 @@ class ems_contact(models.Model):
             student.auth_healt = health
             student.auth_share = share        
 
+    @api.depends('sale_order_ids.ems_course_id', 'sale_order_ids.state',
+                 'sale_order_ids.ems_authorization_ids')
     def _compute_ems_authorization_ids(self):
-        current_course = self.env['ems.course'].search([
-            ('is_current', '=', True)
-        ], limit=1)
-
+        # Same enrollment the flags above read, so the Secretary tab cannot show an
+        # empty list next to a green badge: both come from _ems_enrollment_in_force().
         for partner in self:
-            # Buscamos las matrículas (sale.order) de este alumno y sacamos sus autorizaciones
-            enrollments = self.env['sale.order'].search([
-                ('partner_id', '=', partner.id),
-                ('ems_course_id', '=', current_course.id if current_course else False),
-            ])
-            partner.ems_authorization_ids = enrollments.mapped('ems_authorization_ids')
+            partner.ems_authorization_ids = \
+                partner._ems_enrollment_in_force().ems_authorization_ids
 
     def _search_current_enrollment(self, operator, value):
         return [('sale_order_ids.name', operator, value)]
 
     def _compute_current_enrollment(self):
-        current_course = self.env['ems.course'].search([
-            ('is_enrollment_default', '=', True)
-        ], limit=1)
-        if not current_course:
-            current_course = self.env['ems.course'].search([
-                ('is_current', '=', True)
-            ], limit=1)
         for partner in self:
-            enrollment = self.env['sale.order'].search([
-                ('partner_id', '=', partner.id),
-                ('ems_course_id', '=', current_course.id if current_course else False),
-                ('state', 'in', ['draft', 'sent', 'sale']),
-            ], limit=1)
-            partner.ems_current_enrollment_id = enrollment
+            partner.ems_current_enrollment_id = partner._ems_enrollment_in_force()
 
     def action_open_current_enrollment(self):
         self.ensure_one()
@@ -332,6 +350,7 @@ class ems_contact(models.Model):
             'name': _('Withdrawal'),
             'res_model': 'ems.withdrawal_wizard',
             'view_mode': 'form',
+            'views': [[False, 'form']],
             'target': 'new',
             'context': {'active_ids': students.ids},
         }
@@ -355,6 +374,12 @@ class ems_contact(models.Model):
                 'message': message,
                 'type': 'success',
                 'sticky': False,
+                # Without this the list keeps showing the rows as they were, which
+                # reads as if nothing had happened. 'soft_reload' restores the very
+                # same controller (action.restore), so the search filters, the
+                # group-by and the search panel all survive; the row selection does
+                # not, because the records are read again.
+                'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'},
             },
         }
 
@@ -363,7 +388,7 @@ class ems_contact(models.Model):
     def _compute_transition_status(self):
         next_course = self.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1)
         for partner in self:
-            if partner.contact_type in ('alumni', 'withdrawal'):
+            if partner.contact_type in ('alumni', 'withdrawal', 'expelled'):
                 partner.transition_status = 'former'
             elif partner.exit_type == 'graduation':
                 # A still-active student with a graduation mark is a pending graduate
@@ -387,27 +412,45 @@ class ems_contact(models.Model):
         if operator not in ('=', '!='):
             raise NotImplementedError(_("Unsupported search on transition_status"))
         # Only lifecycle contacts can have a transition status.
-        candidates = self.search([('contact_type', 'in', ['student', 'alumni', 'withdrawal'])])
+        candidates = self.search([('contact_type', 'in', ['student', 'alumni', 'withdrawal', 'expelled'])])
         matching = candidates.filtered(lambda p: p.transition_status == value)
         positive = (operator == '=')
         return [('id', 'in' if positive else 'not in', matching.ids)]
-    
+
+    @api.depends('contact_type')
+    def _compute_archived_reason(self):
+        # Fixed color constants (confirmed with the developer 2026-08-01) - 'expelled' is
+        # deliberately left with no color, falling back to the widget's own default red, same
+        # reasoning as leaving hr.departure.reason's "Fired" record uncolored (see
+        # docs/en/developers/contacts/contact.md). Labels use _() directly rather than reading
+        # contact_type's own selection metadata, since that isn't translated by plain attribute
+        # access (only _description_selection(env) is) - simpler to just translate here.
+        reasons = {
+            'alumni': (_("Alumni"), '#4C7A5D'),
+            'withdrawal': (_("Withdrawal"), '#C97B3D'),
+            'expelled': (_("Expelled"), False),
+        }
+        for partner in self:
+            label, color = reasons.get(partner.contact_type, (False, False))
+            partner.archived_reason_label = label
+            partner.archived_reason_color = color
+
     @api.depends('benefit_ids', 'benefit_ids.category')
     def _compute_benefit_status(self):
-        for rec in self:
-            if not rec.benefit_ids:
-                rec.benefit_status = 'none'
+        for partner in self:
+            if not partner.benefit_ids:
+                partner.benefit_status = 'none'
             else:
-                categories = rec.benefit_ids.mapped('category')
+                categories = partner.benefit_ids.mapped('category')
                 # Priority 1: If there is an exemption, the status will be Exemption.
                 if 'exemption' in categories:
-                    rec.benefit_status = 'exemption'
+                    partner.benefit_status = 'exemption'
                 # Priority 2: If there is a bonus, the status will be Exemption.
                 elif 'bonification' in categories:
-                    rec.benefit_status = 'bonification'
+                    partner.benefit_status = 'bonification'
                 # If there are lines but no defined category
                 else:
-                    rec.benefit_status = 'none'
+                    partner.benefit_status = 'none'
 
     @api.depends('strike_ids')
     def _compute_strike_count(self):
@@ -416,18 +459,19 @@ class ems_contact(models.Model):
 
     @api.depends('birth_date')
     def _compute_is_adult(self):
-        for rec in self:	
-            rec.is_adult = bool(rec.birth_date) and (relativedelta(datetime.date.today(), rec.birth_date).years >= 18)
+        for partner in self:
+            partner.is_adult = bool(partner.birth_date) and (
+                relativedelta(datetime.date.today(), partner.birth_date).years >= 18)
 
     @api.onchange('level_id')
-    def _onchange_level_id(self):	
-        for rec in self:			
-            rec.study_id = False
-        
+    def _onchange_level_id(self):
+        for partner in self:
+            partner.study_id = False
+
     @api.onchange('study_id')
-    def _onchange_study_id(self):	
-        for rec in self:			
-            rec.main_group_id = False
+    def _onchange_study_id(self):
+        for partner in self:
+            partner.main_group_id = False
      
     @api.model_create_multi
     def create(self, values):
@@ -445,7 +489,7 @@ class ems_contact(models.Model):
                 elif parent.contact_type == 'provider':
                     entry['contact_type'] = 'provider'
         
-        contact = super(ems_contact, self).create(values)
+        contact = super(ResPartner, self).create(values)
         contact._sync_category()
 
         # Google Workspace: enqueue account creation for brand-new students without
@@ -470,7 +514,7 @@ class ems_contact(models.Model):
                 and email_normalize(p.email) != new_email
                 and p._has_active_portal_user())
         self._compute_group_data(values)
-        contact = super(ems_contact, self).write(values)
+        contact = super(ResPartner, self).write(values)
         if 'contact_type' in values:
             self._sync_category()
 
@@ -495,6 +539,26 @@ class ems_contact(models.Model):
                 self._gw_enqueue_suspend()
 
         return contact
+
+    def toggle_active(self):
+        """Archiving one or several students opens the withdrawal wizard instead
+        of archiving directly, mirroring hr.employee (archiving asks for a reason
+        via hr.departure.wizard) — from the list (single or multi-selection) or
+        from the form, same as the "Withdrawal" button. Unlike the employee flow
+        — which archives first and only then attaches an optional reason — the
+        student is archived by the wizard itself once confirmed (see
+        EmsWithdrawalWizard.action_apply): withdrawal already changes more state
+        atomically (contact_type, operational records, portal) than a bare
+        active flip, so none of it may run before the reason is captured, and
+        nothing should happen at all if the wizard is cancelled.
+        """
+        students = self.filtered(lambda p: p.contact_type == 'student' and p.active)
+        if students and not self.env.context.get('no_wizard'):
+            others = self - students
+            if others:
+                others.toggle_active()
+            return students.action_withdrawal_wizard()
+        return super().toggle_active()
 
     @api.onchange('email')
     def _onchange_email_portal_warning(self):
@@ -573,8 +637,11 @@ class ems_contact(models.Model):
         Invoked by the sale.order confirmation (applicant admission), the
         transition wizard and the final Esfer@ re-import. Clears the exit
         metadata but never touches has_graduated, which is a permanent mark.
+        Unarchives: an ex-student converted back is by definition active again,
+        and _ems_convert_to_ex_student() is what archived it in the first place.
         """
         self.write({
+            'active': True,
             'contact_type': 'student',
             'exit_type': False,
             'exit_course_id': False,
@@ -582,17 +649,24 @@ class ems_contact(models.Model):
             'exit_reason': False,
         })
 
-    def _ems_convert_to_ex_student(self):
-        """Convert students into alumni or withdrawals depending on has_graduated.
+    def _ems_convert_to_ex_student(self, kind=None):
+        """Convert students into alumni, withdrawal or expelled.
 
-        A partner who has graduated from any study at least once is alumni
-        forever; one who never graduated becomes a withdrawal. In both cases the
-        student is detached from its group/level/study so it no longer occupies a
-        place. Used by the withdrawal wizard (immediate) and the transition wizard.
+        With no explicit `kind`, a partner who has graduated from any study at least
+        once becomes alumni forever; one who never graduated becomes a withdrawal
+        (unchanged, existing behaviour for every caller that doesn't pass `kind`).
+        Passing `kind='expulsion'` overrides that entirely - an expelled student is
+        never alumni regardless of has_graduated. In every case the student is
+        detached from its group/level/study so it no longer occupies a place. Used
+        by the withdrawal wizard (immediate) and the transition wizard.
         """
         for partner in self:
+            if kind == 'expulsion':
+                new_contact_type = 'expelled'
+            else:
+                new_contact_type = 'alumni' if partner.has_graduated else 'withdrawal'
             partner.write({
-                'contact_type': 'alumni' if partner.has_graduated else 'withdrawal',
+                'contact_type': new_contact_type,
                 'main_group_id': False,
                 'level_id': False,
                 'study_id': False,
@@ -634,11 +708,22 @@ class ems_contact(models.Model):
             # Attendance lines (the attendance rate is copied in the year record).
             self.env['ems.attendance_session_line'].sudo().search(
                 [('student_id', '=', partner.id)]).unlink()
-            # Attendance templates: student_ids is a materialised M2m, never recomputed.
-            templates = self.env['ems.attendance_template'].sudo().search(
+            # Attendance schedule lines: student_ids is a materialised M2m, never recomputed.
+            # Moved from ems.attendance_template.student_ids (removed) 2026-08-11 - see
+            # plans/calendar_driven_attendance_templates.md, point 1.
+            schedules = self.env['ems.attendance_schedule'].sudo().search(
                 [('student_ids', 'in', partner.id)])
-            for template in templates:
-                template.student_ids = [(3, partner.id)]
+            schedules.student_ids = [(3, partner.id)]
+            # Attendance issues: the year record already froze attendance_issue_count, so
+            # the live notifications have nothing left to say about a student who has gone.
+            # Dropping its rows can leave a tutor notification with no student at all;
+            # remove_if_empty() disposes of it and cancels its pending queue job.
+            issue_students = self.env['ems.attendance_issue_student'].sudo().search(
+                [('student_id', '=', partner.id)])
+            tutor_issues = issue_students.attendance_issue_tutor_id
+            issue_students.unlink()
+            for tutor_issue in tutor_issues.exists():
+                tutor_issue.remove_if_empty()
             if group.delegate_id == partner:
                 group.sudo().delegate_id = False
 
@@ -657,6 +742,7 @@ class ems_contact(models.Model):
             'applicant': student | self.env.ref('ems.partner_category_applicant'),
             'alumni': student | self.env.ref('ems.partner_category_alumni'),
             'withdrawal': student | self.env.ref('ems.partner_category_withdrawal'),
+            'expelled': student | self.env.ref('ems.partner_category_expelled'),
         }
         all_managed = self.env['res.partner.category']
         for categories in category_map.values():
@@ -671,7 +757,7 @@ class ems_contact(models.Model):
         """Re-tag applicants and ex-students so they carry the shared student
         category the family-relation conditions rely on. Idempotent; invoked from a
         data <function> on upgrade to heal partners created before the shared marker."""
-        partners = self.search([('contact_type', 'in', ('applicant', 'alumni', 'withdrawal'))])
+        partners = self.search([('contact_type', 'in', ('applicant', 'alumni', 'withdrawal', 'expelled'))])
         partners._sync_category()
 
     def _compute_group_data(self, values):
@@ -686,7 +772,7 @@ class ems_contact(models.Model):
             values["level_id"] = study.level_id.id
 
     def _get_read_only_user(self):
-        is_admin = base.ems_base.get_user_is_admin(self)
+        is_admin = base.EmsBase.get_user_is_admin(self)
         is_secretary = self.env.user.has_group('ems.group_secretary')
         return not (is_admin or is_secretary or self._user_is_tutor_of_record())
 
@@ -706,7 +792,7 @@ class ems_contact(models.Model):
         # True only when the user is a tutor of this student and NOT admin/secretary.
         # Used to make non-contact fields read-only for tutors while admin/secretary
         # keep full edit access.
-        is_admin = base.ems_base.get_user_is_admin(self)
+        is_admin = base.EmsBase.get_user_is_admin(self)
         is_secretary = self.env.user.has_group('ems.group_secretary')
         if is_admin or is_secretary:
             return False

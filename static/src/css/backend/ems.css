@@ -27,6 +27,10 @@ td.o_radio_cell:has(div.o_field_radio.align-middle){
     vertical-align: middle;
 }
 
+.o_field_widget[name="attendance_session_line_ids"] td.o_data_cell:has(button[name="action_view_strikes"]) {
+    vertical-align: middle;
+}
+
 th[data-name="deprecated"]{
     text-align: center;
 }
@@ -41,3 +45,10 @@ th[data-name="deprecated"]{
     color: #343a40 !important;
     opacity: 1 !important;
 }
+
+/* Soft, non-garish yellow for the "Pending identification" ribbon (hr.employee form + kanban) -
+   Bootstrap's own bg-warning/text-bg-warning is too bright for this; requested 2026-08-01. */
+.ems-ribbon-pending-identification {
+    background-color: #D9B44A !important;
+}
+

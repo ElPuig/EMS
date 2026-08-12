@@ -8,6 +8,14 @@
                 <xpath expr="//list" position="attributes">
                     <attribute name="default_order">name asc</attribute>
                 </xpath>
+                <!-- employee_id/course_id (added for the historical "who taught what course"
+                     query, plans/course_transition_teacher_schedule_archival.md) - optional
+                     since 'name' already encodes both for a quick glance; useful as sortable/
+                     filterable columns once browsing archived calendars across many courses. -->
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="employee_id" optional="hide"/>
+                    <field name="course_id" optional="hide"/>
+                </xpath>
             </field>
         </record>
     </data>

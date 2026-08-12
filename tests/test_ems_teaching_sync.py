@@ -2,20 +2,16 @@ from datetime import date
 
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study
+
 
 class TestTeachingSyncFromSchedule(TransactionCase):
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.level = cls.env['ems.level'].create({'acronym': 'TTSF', 'name': 'Test Level (Teaching Sync)'})
-        cls.study = cls.env['ems.study'].create({
-            'code': 'TTSF001',
-            'acronym': 'TTSF',
-            'name': 'Test Study (Teaching Sync)',
-            'date': date.today(),
-            'deprecated': False,
-            'level_id': cls.level.id,
+        cls.level, cls.study = create_level_study(cls, 'TTSF', level={'name': 'Test Level (Teaching Sync)'}, study={
+            'code': 'TTSF001', 'name': 'Test Study (Teaching Sync)', 'date': date.today(),
         })
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TTSF001',

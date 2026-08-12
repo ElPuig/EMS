@@ -25,6 +25,10 @@ Each block on the weekly grid shows:
 
 A period that has no block yet is simply not assigned — contact an Administrator if you believe something is missing or incorrect on your schedule.
 
+A break block may show even if nobody explicitly set it up on your own schedule — it's filled in automatically from your level's own bell-schedule framework, as a visual aid.
+
+The same weekday/time/room slot can occasionally show **two blocks side by side** instead of one — this means the slot legitimately holds two different subjects at different points in the year (e.g. a module until February, then the end-of-course project for the rest of the year), each with its own dates.
+
 A "group" can also be a **reinforcement group** — a class made up of students pulled from different regular groups (or even different studies) for a specific reinforcement/support subject. It shows up on your schedule exactly like any other group.
 
 ---

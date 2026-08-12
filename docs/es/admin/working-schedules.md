@@ -95,18 +95,48 @@ Debajo de la cuadrícula, una pequeña tabla resumen muestra el total de horas s
 
 El patio nunca se cuenta en ninguna de las dos columnas. Una franja que solo se solapa parcialmente con una hora igualmente cuenta como una hora completa. Cada columna muestra su propio total, seguido del total general (24 horas para un docente a tiempo completo). Este resumen siempre refleja el horario guardado, por lo que desaparece mientras lo estás editando y vuelve a aparecer (actualizado) al guardarlo.
 
+Un bloque de patio que el docente todavía no ha configurado explícitamente puede igualmente aparecer, rellenado automáticamente a partir de los marcos horarios del(los) nivel(es) que ese docente realmente imparte — es solo una ayuda visual, no se guarda nada de verdad hasta que se añade como tarjeta real en modo Edición (ver más abajo).
+
+Dos bloques que comparten exactamente la misma hora (ver "Cambio de asignatura a mitad de curso" más abajo) se muestran uno al lado del otro en lugar de que uno oculte al otro.
+
 ---
 
 ## Editar el horario de un docente
 
-1. Abre la pestaña **Horario** del docente y haz clic en **Editar**.
-2. Cada fila es una franja semanal real (con su hora exacta, editable con los dos campos de hora de la izquierda) — elige una **asignatura** y un **grupo**, o un motivo **no lectivo**, en los desplegables de la columna de cada día.
-3. Para cambiar la hora de una franja: edita directamente el campo de inicio o de fin (mover el inicio mantiene la duración de la franja).
-4. Para eliminar una franja: usa el icono de papelera junto a su hora.
-5. Para añadir una franja que el marco no tenía (p. ej. un docente que combina el horario de dos niveles): haz clic en **Añadir franja** al final de la columna de horas, establece su hora, y rellénala para los días que correspondan.
-6. Haz clic en **Guardar** para aplicar los cambios, o en **Cancelar** para descartarlo todo y dejar el horario intacto.
+La cuadrícula semanal se divide en 5 columnas de día (lunes–viernes); dentro de cada día, **tarjetas** independientes — una por franja real o todavía sin asignar — contienen todo lo relativo a ese bloque: un rango de fechas opcional, su propia hora de inicio/fin, una asignatura/grupo o un motivo no lectivo, y un aula.
 
-> Si dejas sin asignar una franja añadida a mano y guardas, simplemente se descarta — solo se conservan las asignaciones reales. Si vuelves a abrir **Editar** más adelante, las franjas propias del marco reaparecen como huecos por rellenar, pero una franja manual descartada no.
+1. Abre la pestaña **Horario** del docente y haz clic en **Editar**.
+2. Cada columna de día empieza precargada con las franjas propias del marco (incluyendo sus patios/reuniones) como tarjetas en blanco — elige una **asignatura** y un **grupo** para una, o un motivo **no lectivo**, en sus propios desplegables.
+3. Para cambiar la hora de una tarjeta: edita directamente su campo de inicio o de fin (mover el inicio mantiene la duración de la tarjeta).
+4. Para establecer un aula distinta de la predeterminada del grupo: elige una en el desplegable propio de **Aula** de la tarjeta — déjalo en blanco para seguir usando la del grupo.
+5. Para eliminar una tarjeta: usa su propio icono de papelera.
+6. Para añadir una tarjeta que el marco no tenía (p. ej. un docente que combina el horario de dos niveles, o el mismo día/hora con dos asignaturas distintas en puntos diferentes del año — ver "Cambio de asignatura a mitad de curso" más abajo): haz clic en **+ Añadir** al final de esa columna de día, establece su hora, y rellénala.
+7. Haz clic en **Guardar** para aplicar los cambios, o en **Cancelar** para descartarlo todo y dejar el horario intacto.
+
+   ![Dos tarjetas el mismo día de la semana, cada una con su propio rango de fechas, hora, asignatura, grupo y aula](../../assets/admin/working-schedules-edit-cards.png)
+
+Las tarjetas de un mismo día siempre se muestran ordenadas por hora de inicio y luego por hora de fin — dos tarjetas a la misma hora exacta se ordenan por su propia fecha de inicio.
+
+> Si dejas sin asignar una tarjeta añadida a mano y guardas, simplemente se descarta — solo se conservan las asignaciones reales. Si vuelves a abrir **Editar** más adelante, las tarjetas propias del marco reaparecen como huecos por rellenar, pero una tarjeta manual descartada no.
+
+No hay arrastrar y soltar entre tarjetas ni entre días — para mover una tarjeta a otro día, elimínala y añade una nueva allí.
+
+---
+
+## Cambio de asignatura a mitad de curso
+
+La misma franja de día/hora/aula puede contener dos asignaturas distintas a lo largo del año — p. ej. un módulo habitual se imparte hasta febrero, y después el proyecto de fin de curso ocupa exactamente la misma franja durante el resto del año. Configura ambas mitades en el calendario desde el principio, en septiembre, en lugar de tener que recordar editar el horario el día real del cambio.
+
+1. Abre la pestaña **Horario** del docente y haz clic en **Editar**.
+2. Rellena la primera tarjeta como de costumbre (asignatura, grupo, hora).
+3. Establece sus dos campos de fecha (inicio, luego fin) a la primera mitad del año (p. ej. septiembre a febrero).
+4. Haz clic en **+ Añadir** en el mismo día para añadir una segunda tarjeta, y dale exactamente la misma hora de inicio/fin que la primera.
+5. Rellena la segunda tarjeta con la otra asignatura/grupo, y establece sus propios dos campos de fecha al resto del año (p. ej. marzo a julio).
+6. Haz clic en **Guardar**.
+
+   ![Ambas asignaturas mostrándose una al lado de la otra en la cuadrícula semanal (solo lectura) del lunes](../../assets/admin/working-schedules-midcourse-handoff.png)
+
+Ambas tarjetas aparecen entonces una al lado de la otra en la cuadrícula semanal (solo lectura), en lugar de que una oculte a la otra. Dejar en blanco los campos de fecha de una tarjeta significa "válida todo el curso" — el comportamiento por defecto normal, sin cambios, para una tarjeta que nunca necesita ceder el paso a otra.
 
 ---
 

@@ -12310,3 +12310,21 @@ msgid ""
 msgstr ""
 "Una sessió per cada grup i assignatura de l'abast seleccionat, cadascuna "
 "omplerta amb els seus alumnes i les seves línies de RA."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Remove card"
+msgstr "Elimina la targeta"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Valid from (blank = whole course year)"
+msgstr "Vàlid des de (en blanc = tot el curs)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Valid until (blank = whole course year)"
+msgstr "Vàlid fins a (en blanc = tot el curs)"

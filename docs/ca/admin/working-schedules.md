@@ -95,18 +95,48 @@ Sota la graella, una petita taula resum mostra el total d'hores setmanals del do
 
 El pati mai es compta a cap de les dues columnes. Una franja que només se solapa parcialment amb una hora igualment compta com una hora completa. Cada columna mostra el seu propi total, seguit del total general (24 hores per a un docent a temps complet). Aquest resum sempre reflecteix l'horari desat, per la qual cosa desapareix mentre l'estàs editant i torna a aparèixer (actualitzat) un cop el desis.
 
+Un bloc de pati que el docent encara no ha configurat explícitament pot igualment aparèixer, omplert automàticament a partir dels marcs horaris del(s) nivell(s) que aquest docent realment imparteix — és només una ajuda visual, no es desa res de debò fins que s'afegeix com a targeta real en mode Edició (vegeu més avall).
+
+Dos blocs que comparteixen exactament la mateixa hora (vegeu "Canvi d'assignatura a mig curs" més avall) es mostren un al costat de l'altre en lloc que un amagui l'altre.
+
 ---
 
 ## Editar l'horari d'un docent
 
-1. Obre la pestanya **Horari** del docent i fes clic a **Edita**.
-2. Cada fila és una franja setmanal real (amb la seva hora exacta, editable amb els dos camps d'hora de l'esquerra) — tria una **assignatura** i un **grup**, o un motiu **no lectiu**, als desplegables de la columna de cada dia.
-3. Per canviar l'hora d'una franja: edita directament el camp d'inici o de fi (moure l'inici manté la durada de la franja).
-4. Per eliminar una franja: fes servir la icona de paperera al costat de la seva hora.
-5. Per afegir una franja que el marc no tenia (p. ex. un docent que combina l'horari de dos nivells): fes clic a **Afegeix franja** al final de la columna d'hores, estableix la seva hora, i omple-la per als dies que correspongui.
-6. Fes clic a **Desa** per aplicar els canvis, o a **Cancel·la** per descartar-ho tot i deixar l'horari intacte.
+La graella setmanal es divideix en 5 columnes de dia (dilluns–divendres); dins de cada dia, **targetes** independents — una per franja real o encara sense assignar — contenen tot el que fa referència a aquell bloc: un interval de dates opcional, la seva pròpia hora d'inici/fi, una assignatura/grup o un motiu no lectiu, i una aula.
 
-> Si deixes sense assignar una franja afegida a mà i desa, simplement es descarta — només es conserven les assignacions reals. Si tornes a obrir **Edita** més endavant, les franges pròpies del marc reapareixen com a forats per omplir, però una franja manual descartada no.
+1. Obre la pestanya **Horari** del docent i fes clic a **Edita**.
+2. Cada columna de dia comença preomplerta amb les franges pròpies del marc (incloent-hi els seus patis/reunions) com a targetes en blanc — tria una **assignatura** i un **grup** per a una, o un motiu **no lectiu**, als seus propis desplegables.
+3. Per canviar l'hora d'una targeta: edita directament el seu camp d'inici o de fi (moure l'inici manté la durada de la targeta).
+4. Per establir una aula diferent de la per defecte del grup: tria'n una al desplegable propi d'**Aula** de la targeta — deixa-ho en blanc per continuar fent servir la del grup.
+5. Per eliminar una targeta: fes servir la seva pròpia icona de paperera.
+6. Per afegir una targeta que el marc no tenia (p. ex. un docent que combina l'horari de dos nivells, o el mateix dia/hora amb dues assignatures diferents en punts diferents de l'any — vegeu "Canvi d'assignatura a mig curs" més avall): fes clic a **+ Afegeix** al final d'aquella columna de dia, estableix la seva hora, i omple-la.
+7. Fes clic a **Desa** per aplicar els canvis, o a **Cancel·la** per descartar-ho tot i deixar l'horari intacte.
+
+   ![Dues targetes el mateix dia de la setmana, cadascuna amb el seu propi interval de dates, hora, assignatura, grup i aula](../../assets/admin/working-schedules-edit-cards.png)
+
+Les targetes d'un mateix dia sempre es mostren ordenades per hora d'inici i després per hora de fi — dues targetes exactament a la mateixa hora s'ordenen per la seva pròpia data d'inici.
+
+> Si deixes sense assignar una targeta afegida a mà i desa, simplement es descarta — només es conserven les assignacions reals. Si tornes a obrir **Edita** més endavant, les targetes pròpies del marc reapareixen com a forats per omplir, però una targeta manual descartada no.
+
+No hi ha arrossegar i deixar anar entre targetes ni entre dies — per moure una targeta a un altre dia, elimina-la i afegeix-ne una de nova allà.
+
+---
+
+## Canvi d'assignatura a mig curs
+
+La mateixa franja de dia/hora/aula pot contenir dues assignatures diferents al llarg de l'any — p. ex. un mòdul habitual s'imparteix fins al febrer, i després el projecte de final de curs ocupa exactament la mateixa franja durant la resta de l'any. Configura totes dues meitats al calendari des del principi, al setembre, en lloc d'haver de recordar editar l'horari el dia real del canvi.
+
+1. Obre la pestanya **Horari** del docent i fes clic a **Edita**.
+2. Omple la primera targeta com de costum (assignatura, grup, hora).
+3. Estableix els seus dos camps de data (inici, després fi) a la primera meitat de l'any (p. ex. setembre a febrer).
+4. Fes clic a **+ Afegeix** al mateix dia per afegir una segona targeta, i dona-li exactament la mateixa hora d'inici/fi que la primera.
+5. Omple la segona targeta amb l'altra assignatura/grup, i estableix els seus propis dos camps de data a la resta de l'any (p. ex. març a juliol).
+6. Fes clic a **Desa**.
+
+   ![Totes dues assignatures es mostren una al costat de l'altra a la graella setmanal (només lectura) de dilluns](../../assets/admin/working-schedules-midcourse-handoff.png)
+
+Totes dues targetes apareixen llavors una al costat de l'altra a la graella setmanal (només lectura), en lloc que una amagui l'altra. Deixar en blanc els camps de data d'una targeta vol dir "vàlida tot el curs" — el comportament per defecte normal, sense canvis, per a una targeta que mai necessita cedir el pas a una altra.
 
 ---
 

@@ -25,6 +25,10 @@ Cada bloque de la cuadrícula semanal muestra:
 
 Una franja que todavía no tiene ningún bloque simplemente no tiene nada asignado — contacta con un administrador si crees que falta algo o hay algún error en tu horario.
 
+Un bloque de patio puede aparecer aunque nadie lo haya configurado explícitamente en tu horario — se rellena automáticamente a partir del marco horario propio de tu nivel, como ayuda visual.
+
+A veces, la misma franja de día/hora/aula puede mostrar **dos bloques uno al lado del otro** en lugar de uno solo — significa que esa franja contiene dos asignaturas distintas en puntos diferentes del año (p. ej. un módulo hasta febrero, y después el proyecto de fin de curso el resto del año), cada una con sus propias fechas.
+
 Un "grupo" también puede ser un **grupo de refuerzo** — una clase formada por alumnos de diferentes grupos habituales (o incluso de diferentes estudios) para una asignatura de refuerzo/apoyo concreta. Aparece en tu horario exactamente igual que cualquier otro grupo.
 
 ---

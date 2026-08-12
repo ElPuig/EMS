@@ -86,14 +86,21 @@ class TestAttendanceSessionHeader(TransactionCase):
 
     def test_space_id_comes_from_schedule_line_not_template(self):
         # Regression guard for the 2026-08-01 room-granularity change: a schedule line's own room
-        # can now diverge from its template's "default" room (e.g. a one-off room reassignment) -
-        # the session must reflect the line's actual room, not fall back to the template's.
+        # can diverge from another line's own room on the same template (e.g. a one-off room
+        # reassignment) - the session must reflect THIS line's actual room. 'ems.attendance_
+        # template' has no 'space_id' of its own at all any more (removed 2026-08-11, room is
+        # exclusively a schedule-line concept now - see docs/en/developers/attendance/
+        # attendance_template.md), so there's no template-level room left to compare against;
+        # 'schedule2' (same template, its own unrelated room) is the real differentiator now.
         other_space = self.env['ems.space'].create({
             'code': 'TAS-B', 'name': 'Test Space B (Attendance Session)',
             'space_type_id': self.env.ref('ems.space_type_classroom').id,
             'work_location_id': self.env.ref('ems.work_location_main').id,
         })
-        self.schedule.space_id = other_space
+        # ems_bypass_template_lock: 'space_id' is otherwise locked on the schedule line (2026-08-11
+        # refinement) - this test simulates what the sync pipeline would legitimately produce for a
+        # one-off room reassignment, not a direct admin edit.
+        self.schedule.with_context(ems_bypass_template_lock=True).write({'space_id': other_space.id})
 
         session = self.env['ems.attendance_session_header'].create({
             'attendance_schedule_id': self.schedule.id, 'date': date.today(),
@@ -101,7 +108,7 @@ class TestAttendanceSessionHeader(TransactionCase):
         })
 
         self.assertEqual(session.space_id, other_space)
-        self.assertNotEqual(session.space_id, self.template.space_id)
+        self.assertNotEqual(session.space_id, self.schedule2.space_id)
 
     # --- sql constraint ----------------------------------------------------------------
 

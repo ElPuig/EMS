@@ -12310,3 +12310,21 @@ msgid ""
 msgstr ""
 "Una sesión por cada grupo y asignatura del alcance seleccionado, cada una "
 "rellenada con sus alumnos y sus líneas de RA."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Remove card"
+msgstr "Eliminar tarjeta"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Valid from (blank = whole course year)"
+msgstr "Válido desde (en blanco = todo el curso)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+msgid "Valid until (blank = whole course year)"
+msgstr "Válido hasta (en blanco = todo el curso)"

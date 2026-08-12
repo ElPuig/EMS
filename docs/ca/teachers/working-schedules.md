@@ -25,6 +25,10 @@ Cada bloc de la graella setmanal mostra:
 
 Una franja que encara no té cap bloc simplement no té res assignat — contacta amb un administrador si creus que falta o hi ha algun error al teu horari.
 
+Un bloc de pati pot aparèixer encara que ningú l'hagi configurat explícitament al teu horari — s'omple automàticament a partir del marc horari propi del teu nivell, com a ajuda visual.
+
+De vegades, la mateixa franja de dia/hora/aula pot mostrar **dos blocs un al costat de l'altre** en lloc d'un de sol — vol dir que aquella franja conté dues assignatures diferents en punts diferents de l'any (p. ex. un mòdul fins al febrer, i després el projecte de final de curs la resta de l'any), cadascuna amb les seves pròpies dates.
+
 Un "grup" també pot ser un **grup de reforç** — una classe formada per alumnes de diferents grups habituals (o fins i tot de diferents estudis) per a una assignatura de reforç/suport concreta. Apareix al teu horari exactament igual que qualsevol altre grup.
 
 ---

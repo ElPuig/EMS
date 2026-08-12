@@ -95,18 +95,48 @@ Below the grid, a small summary table shows the teacher's total weekly hours in 
 
 The break is never counted in either column. A period that only partially overlaps an hour still counts as a full hour. Each column shows its own total, followed by the overall total (24 hours for a full-time teacher). This summary always reflects the saved schedule, so it disappears while you're editing and reappears (updated) once you save.
 
+A block for a break the teacher hasn't explicitly set up may still show, filled in automatically from the schedule framework(s) of the level(s) the teacher actually teaches — this is a visual aid only; nothing is actually saved for it until it's added as a real card in Edit mode (see below).
+
+Two blocks sharing the exact same time (see "Mid-Course Subject Handoff" below) show side by side instead of one hiding the other.
+
 ---
 
 ## Edit a Teacher's Schedule
 
-1. Open the teacher's **Schedule** tab and click **Edit**.
-2. Every row is one real weekly period (its own exact time, editable via the two time fields on the left) — pick a **subject** and a **group** for it, or a **non-teaching** reason, from the dropdowns in each day's column.
-3. To change a period's time: edit the start or end time field directly (moving the start keeps the period's length).
-4. To remove a period entirely: use the trash icon next to its time.
-5. To add a period the framework didn't have (e.g. a teacher who mixes two levels' bell schedules): click **Add period** at the bottom of the time column, set its time, and fill it in for whichever day(s) it applies to.
-6. Click **Save** to apply, or **Cancel** to discard everything and leave the schedule untouched.
+The weekly grid splits into 5 day columns (Monday–Friday); within each day, independent **cards** — one per real or still-unassigned period — hold everything about that block: an optional date range, its own start/end time, a subject/group or a non-teaching reason, and a classroom.
 
-> Leaving a manually-added period unassigned and saving simply drops it — only real assignments are kept. If you re-open **Edit** later, the framework's own periods reappear as gaps to fill in, but a discarded manual period does not.
+1. Open the teacher's **Schedule** tab and click **Edit**.
+2. Each day's column starts pre-filled with the framework's own periods (including its breaks/meetings) as blank cards — pick a **subject** and a **group** for one, or a **non-teaching** reason, from its own dropdowns.
+3. To change a card's time: edit its start or end time field directly (moving the start keeps the card's length).
+4. To set a classroom other than the group's own default: pick one from the card's own **Classroom** dropdown — leave it blank to keep using the group's default.
+5. To remove a card entirely: use its own trash icon.
+6. To add a card the framework didn't have (e.g. a teacher who mixes two levels' bell schedules, or the same weekday/time with two different subjects at different points in the year — see "Mid-Course Subject Handoff" below): click **+ Add** at the bottom of that day's column, set its time, and fill it in.
+7. Click **Save** to apply, or **Cancel** to discard everything and leave the schedule untouched.
+
+   ![Two cards on the same weekday, each with its own date range, time, subject, group and classroom](../../assets/admin/working-schedules-edit-cards.png)
+
+Cards within a day are always shown sorted by start time, then end time — two cards at the exact same time sort by their own start date instead.
+
+> Leaving a manually-added card unassigned and saving simply drops it — only real assignments are kept. If you re-open **Edit** later, the framework's own cards reappear as gaps to fill in, but a discarded manual card does not.
+
+There is no drag-and-drop between cards or days — to move a card to a different day, remove it and add a new one there instead.
+
+---
+
+## Mid-Course Subject Handoff
+
+The same weekday/time/room slot can hold two different subjects across the year — e.g. a regular module runs until February, then the end-of-course project takes over the exact same slot for the rest of the year. Set both halves up on the calendar upfront, in September, instead of having to remember to edit the schedule on the actual handoff day.
+
+1. Open the teacher's **Schedule** tab and click **Edit**.
+2. Fill in the first card as usual (subject, group, time).
+3. Set its two date fields (start, then end) to the first half of the year (e.g. September to February).
+4. Click **+ Add** on the same day to add a second card, and give it the exact same start/end time as the first.
+5. Fill in the second card with the other subject/group, and set its own two date fields to the rest of the year (e.g. March to July).
+6. Click **Save**.
+
+   ![Both subjects showing side by side on Monday's read-only weekly grid](../../assets/admin/working-schedules-midcourse-handoff.png)
+
+Both cards then show up side by side on the read-only weekly grid, instead of one hiding the other. Leaving a card's date fields blank means "valid all course year" — the normal, unchanged default for a card that never needs to hand off to anything else.
 
 ---
 

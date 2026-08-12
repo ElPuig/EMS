@@ -354,28 +354,6 @@ def _rename_old_attendance_template_study_column(cr):
             "study_id_old for the post-migrate study_ids backfill.")
 
 
-def _backup_attendance_template_student_rel(cr):
-    """ems.attendance_template.student_ids moves to ems.attendance_schedule.student_ids in this
-    version - see plans/calendar_driven_attendance_templates.md, point 1. Its relation table
-    (ems_attendance_template_res_partner_rel) is dropped outright by Odoo's own schema sync the
-    moment the field disappears from the model - same "preserve before schema sync" gotcha as
-    '_rename_old_attendance_template_study_column' above, but a Many2many's relation table can't
-    be renamed in place the same way a plain column can (the NEW field's own relation table,
-    ems_attendance_schedule_res_partner_rel, doesn't exist yet at this point either - it's created
-    by the same schema sync that drops this one). Copied into a plain, Odoo-untracked backup table
-    instead - post-migrate reads it back once ems_attendance_schedule's own relation table exists,
-    then drops it."""
-    cr.execute("""
-        CREATE TABLE IF NOT EXISTS _ems_migration_template_student_backup AS
-        SELECT ems_attendance_template_id AS template_id, res_partner_id AS student_id
-        FROM ems_attendance_template_res_partner_rel
-    """)
-    cr.execute("SELECT count(*) FROM _ems_migration_template_student_backup")
-    _logger.info(
-        "Migration 18.0.0.22.0: backed up %d ems.attendance_template.student_ids row(s) "
-        "before the field moves to ems.attendance_schedule.", cr.fetchone()[0])
-
-
 def migrate(cr, _version):
     _migrate_role_color(cr)
     _migrate_attendance_template_color(cr)
@@ -387,4 +365,3 @@ def migrate(cr, _version):
     _reconcile_planning_outcome_xmlids(cr)
     _clear_noupdate_for_ems_owned_xmlids(cr)
     _clear_noupdate_for_hr_owned_xmlids(cr)
-    _backup_attendance_template_student_rel(cr)

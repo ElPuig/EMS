@@ -154,6 +154,10 @@ El asistente te guía por varias pantallas, cada una con su propia explicación 
 4. Si los archivos mencionan algún nombre de grupo que EMS no ha podido emparejar automáticamente, una pantalla de **Resolver grupos** los lista uno a uno: elige el grupo real en el desplegable de cada fila (o crea uno al vuelo, igual que en cualquier otro campo de grupo) y haz clic en **Continuar**. Si todos los grupos se reconocieron automáticamente, verás un mensaje de confirmación en lugar de una lista. El botón **Continuar** aparece atenuado hasta que todas las filas tengan un grupo elegido.
 
    ![Pantalla de Resolver grupos con un nombre de grupo del archivo sin resolver](../../assets/admin/working-schedules-import-02-resolve-groups.png)
+
+   Esta misma pantalla también comprueba que todos los grupos referenciados ya tengan un aula asignada - un grupo cuyo nombre se resolvió bien pero que no tiene aula propia aparece en una segunda lista, justo debajo de la primera. Elige un aula para cada uno y haz clic en **Continuar**; el aula que elijas se guarda en el propio grupo, no solo para esta importación, así que no se te volverá a pedir para ese grupo. Si no falta ninguna, no verás esta segunda lista.
+
+   ![Pantalla de Resolver grupos con un grupo ya resuelto pero todavía sin aula asignada](../../assets/admin/working-schedules-import-02b-resolve-groups-classroom.png)
 5. Si un archivo indica una asignatura que en realidad no se imparte en el estudio del grupo (un código de asignatura equivocado, o un grupo asignado a la asignatura incorrecta), una pantalla de **Resolver asignaturas** lista cada discrepancia, dejándote corregir **cualquiera de los dos lados** — el que realmente estuviera mal: el campo **Grupo(s)** empieza con el grupo (o grupos) del archivo pero se puede cambiar (quita el incorrecto, añade el correcto, igual que en cualquier otro campo de grupos con etiquetas); el desplegable de **Asignatura** empieza con la asignatura del archivo y solo te deja elegir una que realmente se imparta en el estudio del grupo (ya corregido, si lo has cambiado). A menudo basta con corregir el grupo, si la asignatura del archivo era correcta desde el principio. Si todas las asignaturas coincidían correctamente, verás un mensaje de confirmación. El botón **Continuar** aparece atenuado hasta que todas las filas tengan una combinación válida.
 
    ![Pantalla de Resolver asignaturas con un desajuste entre asignatura y grupo](../../assets/admin/working-schedules-import-03-resolve-subjects.png)
@@ -169,7 +173,11 @@ El asistente te guía por varias pantallas, cada una con su propia explicación 
 9. Una pantalla de **Resumen general** recapitula toda la operación antes de confirmarla: un recuento de cada nombre de grupo, correo/código de docente, docente pendiente y conflicto resueltos durante el proceso, más una lista de cada profesor que esta importación ya ha emparejado con un empleado real y existente (reconocido automáticamente, o corregido en la pantalla "Resolver docentes") — un aviso de que esta importación va a actualizar (sobrescribir) su horario/asignaciones de asignaturas. Si ninguno de los profesores del archivo existe ya, verás un mensaje de confirmación en lugar de esta lista. Como ninguno de los pasos anteriores permite volver atrás, esta es la última oportunidad de comprobar que todo está correcto antes de hacer clic en Importar.
 
    ![Pantalla de Resumen general recapitulando todas las resoluciones hechas durante la importación](../../assets/admin/working-schedules-import-07-overall-summary.png)
-10. Haz clic en **Importar**. Este es el momento en que todo se escribe de verdad, y donde cualquier problema pendiente (un aula que falta) se reporta indicando exactamente qué hay que corregir.
+
+   Justo cuando aparece esta pantalla, se descarga automáticamente al ordenador un archivo CSV con ese mismo resumen - una fila por cada resolución hecha - listo para guardar como registro propio de la operación. Desplázate hasta el final de la pantalla para ver el enlace de descarga si quieres volver a cogerlo.
+
+   ![El enlace de descarga del CSV de resumen al final de la pantalla de Resumen general](../../assets/admin/working-schedules-import-07b-overall-summary-download.png)
+10. Haz clic en **Importar**. Este es el momento en que todo se escribe de verdad.
 
 > Hazlo durante la preparación del próximo curso, una vez que los horarios del curso anterior ya hayan sido archivados por el asistente de "Configurar el próximo curso" — ejecutarlo contra un curso ya en marcha puede generar conflictos que luego habrá que resolver a mano.
 

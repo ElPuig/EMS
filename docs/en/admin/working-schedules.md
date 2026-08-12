@@ -154,6 +154,10 @@ The wizard walks you through several screens, each showing its own short explana
 4. If the files mention any group name EMS couldn't match automatically, a **Resolve groups** screen lists each one: pick the real group from the dropdown for each row (or create one on the spot, the same way you would from any other group field), then click **Continue**. If every group was recognized automatically, you'll see a confirmation message instead of a list. **Continue** shows grayed out until every row has a group picked.
 
    ![The Resolve groups screen listing an unresolved group name found in the file](../../assets/admin/working-schedules-import-02-resolve-groups.png)
+
+   This same screen also checks that every group referenced already has a classroom set — a group whose name resolved just fine but has no room of its own gets its own second list here, right below the first. Pick a classroom for each one and click **Continue**; the classroom you pick is saved on the group itself, not just for this one import, so you'll never be asked again for that group. If nothing is missing, you won't see this second list at all.
+
+   ![The Resolve groups screen listing a group that resolved fine but still has no classroom assigned](../../assets/admin/working-schedules-import-02b-resolve-groups-classroom.png)
 5. If a file names a subject that isn't actually taught in the group's own study (a wrong subject code, or a group assigned to the wrong subject), a **Resolve subjects** screen lists each mismatch, letting you correct **either side** — whichever one was actually the mistake: the **Group(s)** field starts on the file's own group(s) but can be changed (remove the wrong one, add the right one, same as any other group tag field); the **Subject** dropdown starts on the file's own subject and only lets you pick one actually taught in the group's (possibly just-corrected) study. Fixing the group alone is often enough on its own, if the file's subject was right all along. If every subject matched correctly, you'll see a confirmation message instead. **Continue** shows grayed out until every row has a valid combination.
 
    ![The Resolve subjects screen listing a subject/group mismatch found in the file](../../assets/admin/working-schedules-import-03-resolve-subjects.png)
@@ -169,7 +173,11 @@ The wizard walks you through several screens, each showing its own short explana
 9. An **Overall summary** screen recaps the whole run before you commit to it: a count of every unresolved group name, teacher e-mail/code, pending teacher, and conflict resolved along the way, plus a list of every teacher this import already matched to a real, existing employee (whether recognized automatically or corrected on the "Resolve teachers" screen) — a heads-up that this import is about to update (override) their schedule/subject assignments. If none of the file's teachers already exist, you'll see a confirmation message instead of that list. Since none of the earlier steps let you go back, this is your last chance to check everything looks right before clicking Import.
 
    ![The Overall summary screen recapping every resolution made during the import](../../assets/admin/working-schedules-import-07-overall-summary.png)
-10. Click **Import**. This is the point where everything is actually written, and where any remaining problem (a missing classroom) is reported, naming exactly what needs fixing.
+
+   As soon as this screen appears, a CSV file with that same summary — one row per resolution made — downloads to your computer automatically, ready to keep as your own record of the run. Scroll to the bottom of the screen to see the download link if you want to grab it again.
+
+   ![The download link for the summary CSV at the bottom of the Overall summary screen](../../assets/admin/working-schedules-import-07b-overall-summary-download.png)
+10. Click **Import**. This is the point where everything is actually written.
 
 > Run this during next-course preparation, once the previous course's schedules have already been archived by the "Setting Up the Next Course" wizard — running it against a course already in progress can create conflicts that then need manual resolution.
 

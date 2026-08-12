@@ -154,6 +154,10 @@ L'assistent et guia per diverses pantalles, cadascuna amb la seva pròpia explic
 4. Si els fitxers esmenten algun nom de grup que EMS no ha pogut aparellar automàticament, una pantalla de **Resoldre grups** en llista cadascun: tria el grup real al desplegable de cada fila (o crea'n un al moment, igual que en qualsevol altre camp de grup) i fes clic a **Continua**. Si tots els grups s'han reconegut automàticament, veuràs un missatge de confirmació en lloc d'una llista. El botó **Continua** apareix atenuat fins que totes les files tenen un grup triat.
 
    ![Pantalla de Resoldre grups amb un nom de grup del fitxer sense resoldre](../../assets/admin/working-schedules-import-02-resolve-groups.png)
+
+   Aquesta mateixa pantalla també comprova que tots els grups referenciats ja tinguin una aula assignada - un grup el nom del qual s'ha resolt correctament però que no té aula pròpia apareix en una segona llista, just a sota de la primera. Tria una aula per a cadascun i fes clic a **Continua**; l'aula que triïs es desa al mateix grup, no només per a aquesta importació, així que no se't tornarà a demanar per a aquell grup. Si no en falta cap, no veuràs aquesta segona llista.
+
+   ![Pantalla de Resoldre grups amb un grup ja resolt però encara sense aula assignada](../../assets/admin/working-schedules-import-02b-resolve-groups-classroom.png)
 5. Si un fitxer indica una assignatura que en realitat no s'imparteix als estudis del grup (un codi d'assignatura equivocat, o un grup assignat a l'assignatura incorrecta), una pantalla de **Resoldre assignatures** en llista cada discrepància, deixant-te corregir **qualsevol dels dos costats** — el que realment estigués malament: el camp **Grup(s)** comença amb el grup (o grups) del fitxer però es pot canviar (treu l'incorrecte, afegeix el correcte, igual que en qualsevol altre camp de grups amb etiquetes); el desplegable d'**Assignatura** comença amb l'assignatura del fitxer i només et deixa triar-ne una que realment s'imparteixi als estudis del grup (ja corregit, si l'has canviat). Sovint n'hi ha prou amb corregir el grup, si l'assignatura del fitxer ja era correcta des del principi. Si totes les assignatures coincidien correctament, veuràs un missatge de confirmació. El botó **Continua** apareix atenuat fins que totes les files tenen una combinació vàlida.
 
    ![Pantalla de Resoldre assignatures amb un desajust entre assignatura i grup](../../assets/admin/working-schedules-import-03-resolve-subjects.png)
@@ -169,7 +173,11 @@ L'assistent et guia per diverses pantalles, cadascuna amb la seva pròpia explic
 9. Una pantalla de **Resum general** recapitula tota l'operació abans de confirmar-la: un recompte de cada nom de grup, correu/codi de docent, docent pendent i conflicte resolts durant el procés, més una llista de cada docent que aquesta importació ja ha aparellat amb un empleat real i existent (reconegut automàticament, o corregit a la pantalla "Resoldre docents") — un avís de que aquesta importació està a punt d'actualitzar (sobreescriure) el seu horari/assignacions d'assignatures. Si cap dels docents del fitxer existeix ja, veuràs un missatge de confirmació en lloc d'aquesta llista. Com que cap dels passos anteriors permet tornar enrere, aquesta és la darrera oportunitat de comprovar que tot és correcte abans de fer clic a Importa.
 
    ![Pantalla de Resum general recapitulant totes les resolucions fetes durant la importació](../../assets/admin/working-schedules-import-07-overall-summary.png)
-10. Fes clic a **Importa**. Aquest és el moment en què tot s'escriu de debò, i on qualsevol problema pendent (una aula que falta) es reporta indicant exactament què cal corregir.
+
+   Just quan apareix aquesta pantalla, es descarrega automàticament a l'ordinador un fitxer CSV amb aquest mateix resum - una fila per cada resolució feta - a punt per guardar com a registre propi de l'operació. Desplaça't fins al final de la pantalla per veure l'enllaç de descàrrega si el vols tornar a agafar.
+
+   ![L'enllaç de descàrrega del CSV de resum al final de la pantalla de Resum general](../../assets/admin/working-schedules-import-07b-overall-summary-download.png)
+10. Fes clic a **Importa**. Aquest és el moment en què tot s'escriu de debò.
 
 > Fes-ho durant la preparació del proper curs, un cop els horaris del curs anterior ja hagin estat arxivats per l'assistent de "Configurar el proper curs" — executar-ho contra un curs ja en marxa pot generar conflictes que després caldrà resoldre a mà.
 

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="ems.GuardDutyBoard">
+        <div class="o_guard_board">
+            <div class="o_guard_board_header">
+                <h1 class="o_guard_board_title" t-esc="state.courseName ? 'Guard duty schedule (' + state.courseName + ')' : 'Guard duty schedule'"/>
+
+                <ul class="nav nav-tabs o_guard_board_tabs">
+                    <t t-foreach="days" t-as="day" t-key="day.index">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" t-att-class="{ active: state.activeDay === day.index }"
+                               t-on-click.prevent="() => this.setActiveDay(day.index)" t-esc="day.label"/>
+                        </li>
+                    </t>
+                </ul>
+
+                <!-- Per-day toolbar: shift picker (morning/afternoon are separate shifts, never
+                     shown stacked together) + one PDF per day (both shifts), not the whole week. -->
+                <div class="o_guard_board_toolbar">
+                    <select class="form-select form-select-sm o_guard_board_shift_select" t-on-change="(ev) => this.onShiftChange(ev)">
+                        <t t-foreach="shifts" t-as="shift" t-key="shift.key">
+                            <option t-att-value="shift.key" t-att-selected="shift.key === state.activeShift" t-esc="shift.label"/>
+                        </t>
+                    </select>
+                    <button type="button" class="btn btn-sm btn-secondary" t-on-click="() => this.onPdfClick()">
+                        <i class="fa fa-file-pdf-o me-1"/>PDF
+                    </button>
+                </div>
+            </div>
+
+            <div class="o_guard_board_content">
+                <t t-if="state.loading">
+                    <div class="o_guard_board_loading text-muted">Loading...</div>
+                </t>
+                <t t-else="">
+                    <div t-if="!state.board.lines.length" class="text-muted o_guard_board_empty">No schedule for this shift.</div>
+                    <div t-else="" class="o_guard_board_table_wrap">
+                        <table class="table table-bordered o_guard_board_table">
+                            <colgroup>
+                                <col class="o_guard_board_col_time"/>
+                                <t t-foreach="state.board.groups" t-as="group" t-key="group.id">
+                                    <col class="o_guard_board_col_group"/>
+                                </t>
+                                <col class="o_guard_board_col_guard"/>
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th>Time block</th>
+                                    <t t-foreach="state.board.groups" t-as="group" t-key="group.id">
+                                        <th t-esc="group.name"/>
+                                    </t>
+                                    <th>Guard duty</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="state.board.lines" t-as="line" t-key="line.time_label">
+                                    <tr>
+                                        <td class="o_guard_board_time" t-esc="line.time_label"/>
+                                        <t t-foreach="line.cells" t-as="cell" t-key="cell.group_id">
+                                            <td t-att-style="cellStyle(cell)" t-att-class="cell.subject ? 'o_guard_board_cell_occupied' : ''">
+                                                <t t-if="cell.subject">
+                                                    <span class="o_guard_board_cell_subject" t-esc="cell.subject"/>
+                                                    <span t-if="cell.teachers.length" class="o_guard_board_cell_teacher" t-esc="cell.teachers.join(', ')"/>
+                                                    <span t-if="cell.room" class="o_guard_board_cell_room" t-esc="cell.room"/>
+                                                </t>
+                                            </td>
+                                        </t>
+                                        <td class="o_guard_board_guard_cell">
+                                            <t t-foreach="line.guards" t-as="guard" t-key="guard">
+                                                <span class="o_guard_board_guard_badge" t-esc="guard"/>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+</templates>

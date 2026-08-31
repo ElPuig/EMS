@@ -1,13 +1,13 @@
-id,code,name,sequence,is_break,is_fixed
-ems.non_teaching_ac,AC,Another Coordinations,10,0,0
-ems.non_teaching_br,BR,Break,20,1,0
-ems.non_teaching_cm,CM,Coordination Meeting,30,0,0
-ems.non_teaching_ct,CT,Coordination Time,40,0,0
-ems.non_teaching_g,G,Guard,50,0,1
-ems.non_teaching_mm,MM,Management Meeting,60,0,0
-ems.non_teaching_mt,MT,Management Time,70,0,0
-ems.non_teaching_r,R,Reduction,80,0,0
-ems.non_teaching_s,S,Staying at the center,90,0,0
-ems.non_teaching_sc,SC,School Council,100,0,0
-ems.non_teaching_tt,TT,Tutorship Time,110,0,0
-ems.non_teaching_wic,WIC,Workplace Intership Coordination,120,0,0
+id,code,name,sequence,is_break,is_fixed,is_guard
+ems.non_teaching_ac,AC,Another Coordinations,10,0,0,0
+ems.non_teaching_br,BR,Break,20,1,0,0
+ems.non_teaching_cm,CM,Coordination Meeting,30,0,0,0
+ems.non_teaching_ct,CT,Coordination Time,40,0,0,0
+ems.non_teaching_g,G,Guard,50,0,1,1
+ems.non_teaching_mm,MM,Management Meeting,60,0,0,0
+ems.non_teaching_mt,MT,Management Time,70,0,0,0
+ems.non_teaching_r,R,Reduction,80,0,0,0
+ems.non_teaching_s,S,Staying at the center,90,0,0,0
+ems.non_teaching_sc,SC,School Council,100,0,0,0
+ems.non_teaching_tt,TT,Tutorship Time,110,0,0,0
+ems.non_teaching_wic,WIC,Workplace Intership Coordination,120,0,0,0

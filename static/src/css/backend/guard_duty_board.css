@@ -1,0 +1,136 @@
+/* This is a plain ir.actions.client page (see guard_duty_board.js), not a form view — Odoo's own
+   action container sizes to the viewport and clips whatever the mounted component doesn't
+   explicitly claim, so this root needs its own height:100%/flex layout (same pattern as
+   attendance_session_view.css's own .ems-av-root) or neither the vertical nor the horizontal
+   scroll below ever actually engage: the header (title/tabs/toolbar) stays fixed, and only
+   .o_guard_board_content scrolls (vertically for a tall table; .o_guard_board_table_wrap inside
+   it scrolls horizontally for a wide one) — two independent, orthogonal scroll regions rather
+   than one 2D one, so a vertical drag can never accidentally also scroll sideways. */
+.o_guard_board {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.o_guard_board_header {
+    flex: 0 0 auto;
+    padding: 12px 12px 0 12px;
+}
+
+.o_guard_board_content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 0 12px 12px 12px;
+}
+
+.o_guard_board_title {
+    font-size: 20px;
+    margin-bottom: 12px;
+}
+
+.o_guard_board_toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.o_guard_board_shift_select {
+    width: auto;
+}
+
+.o_guard_board_tabs {
+    margin-bottom: 12px;
+}
+
+.o_guard_board_loading {
+    font-size: 12px;
+    padding: 8px 0;
+}
+
+.o_guard_board_empty {
+    font-size: 12px;
+    margin-bottom: 12px;
+}
+
+/* Horizontal scroll instead of squeezing every column: a real school's board can have a dozen
+   or more groups in one shift. table-layout:fixed + an explicit <colgroup> (below) gives every
+   group column the exact same, predictable width — same table markup, same CSS classes, so
+   every weekday/shift ends up pixel-identical instead of auto-sizing its own columns from its
+   own content. table-layout:auto with only min/max-width hints was tried first and reliably
+   undersold the table's real rendered width to the browser's own overflow calculation, so the
+   scrollbar existed but never actually reached the last column — colgroup + fixed layout does
+   not have that ambiguity: the table's total width is the literal sum of the <col> widths below,
+   so the wrapper's overflow-x always has an exact width to scroll against. */
+.o_guard_board_table_wrap {
+    overflow-x: auto;
+    width: 100%;
+}
+
+.o_guard_board_table {
+    font-size: 11px;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.o_guard_board_table th,
+.o_guard_board_table td {
+    padding: 4px 6px !important;
+    text-align: center;
+    vertical-align: middle;
+    overflow-wrap: break-word;
+}
+
+/* Every group column shares this exact width (see the class comment above) - Time block (first)
+   and Guard duty (last) carry denser/longer content (a full time range; one badge per teacher on
+   duty) than a single group's subject/teacher/room, so they get more room than a group column. */
+.o_guard_board_col_time {
+    width: 90px;
+}
+
+.o_guard_board_col_group {
+    width: 130px;
+}
+
+.o_guard_board_col_guard {
+    width: 190px;
+}
+
+.o_guard_board_time {
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.o_guard_board_cell_occupied {
+    color: #fff;
+    background-color: #5b8def;
+}
+
+.o_guard_board_cell_subject {
+    display: block;
+    font-weight: 600;
+    overflow-wrap: break-word;
+}
+
+.o_guard_board_cell_teacher,
+.o_guard_board_cell_room {
+    display: block;
+    font-size: 10px;
+    opacity: 0.9;
+    overflow-wrap: break-word;
+}
+
+.o_guard_board_guard_cell {
+    background-color: #fff3e0;
+}
+
+.o_guard_board_guard_badge {
+    display: inline-block;
+    background-color: #e76f51;
+    color: #fff;
+    border-radius: 3px;
+    padding: 2px 6px;
+    margin: 1px;
+    font-weight: 600;
+    white-space: nowrap;
+}

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="action_report_guard_duty_board" model="ir.actions.report">
+            <field name="name">Guard Duty Schedule</field>
+            <field name="model">ems.course</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_guard_duty_board</field>
+            <field name="report_file">ems.report_guard_duty_board</field>
+            <field name="print_report_name">'Guard Duty Schedule - %s' % (object.name)</field>
+        </record>
+
+        <template id="report_guard_duty_board">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="course">
+                    <!-- One PDF is always for a single day AND a single shift (see
+                         guard_duty_board.js's own 'guard_duty_weekday'/'guard_duty_shift'
+                         context keys, set from whichever day tab / shift dropdown was active
+                         when "PDF" was clicked) - the full-week/both-shifts fallback below is
+                         only defensive, this report has no other caller that would omit them. -->
+                    <t t-set="requested_weekday" t-value="course.env.context.get('guard_duty_weekday')"/>
+                    <t t-set="weekdays" t-value="[requested_weekday] if requested_weekday else ['0', '1', '2', '3', '4']"/>
+                    <t t-set="requested_shift" t-value="course.env.context.get('guard_duty_shift')"/>
+                    <t t-set="shifts" t-value="[requested_shift] if requested_shift else ['morning', 'afternoon']"/>
+                    <t t-foreach="weekdays" t-as="weekday">
+                        <t t-call="web.external_layout">
+                            <div class="page">
+                                <style>
+                                    .gdb-title { font-size: 20px; margin-bottom: 10px; }
+                                    .gdb-shift-title { font-size: 13px; font-weight: 600; margin: 12px 0 4px 0; }
+                                    .gdb-table { font-size: 9px; table-layout: fixed; margin-bottom: 6px; }
+                                    .gdb-table th, .gdb-table td { padding: 3px 5px !important; text-align: center; vertical-align: middle; overflow: hidden; }
+                                    .gdb-table td.gdb-time { white-space: nowrap; font-weight: bold; }
+                                    /* Every group column shares this exact width - same reasoning
+                                       as the live screen's .o_guard_board_col_group (see
+                                       guard_duty_board.css): fixed, predictable, identical across
+                                       every table, not auto-sized from each cell's own content.
+                                       Time block (first) and Guard duty (last) carry denser
+                                       content (a full time range; one badge per teacher on duty),
+                                       so they get more room than a single group's own column. */
+                                    .gdb-col-time { width: 60px; }
+                                    .gdb-col-group { width: 75px; }
+                                    .gdb-col-guard { width: 110px; }
+                                    .gdb-cell-occupied { color: #fff; }
+                                    /* overflow-wrap/word-break: table-layout:fixed only holds a
+                                       column to its declared width if content CAN break - an
+                                       unbroken run of text (e.g. an unlinked "Pending teacher
+                                       (email@...)" placeholder) otherwise still forces that one
+                                       column (and, via border-collapse, every row's column)
+                                       wider than the rest, defeating the fixed/uniform widths
+                                       above (found in a real generated PDF, 2026-08-31). */
+                                    .gdb-cell-subject { display: block; font-weight: 600; overflow-wrap: break-word; word-break: break-word; }
+                                    .gdb-cell-teacher, .gdb-cell-room { display: block; font-size: 8px; overflow-wrap: break-word; word-break: break-word; }
+                                    .gdb-guard-cell { background-color: #fff3e0; }
+                                    .gdb-guard-badge { display: inline-block; background-color: #e76f51; color: #fff; border-radius: 3px; padding: 1px 4px; margin: 1px; font-weight: 600; overflow-wrap: break-word; word-break: break-word; }
+                                </style>
+
+                                <h1 class="gdb-title">
+                                    Guard Duty Schedule -
+                                    <t t-if="weekday == '0'">Monday</t>
+                                    <t t-elif="weekday == '1'">Tuesday</t>
+                                    <t t-elif="weekday == '2'">Wednesday</t>
+                                    <t t-elif="weekday == '3'">Thursday</t>
+                                    <t t-elif="weekday == '4'">Friday</t>
+                                    (<span t-esc="course.name"/>)
+                                </h1>
+
+                                <t t-foreach="shifts" t-as="shift">
+                                    <t t-set="data" t-value="course.get_guard_duty_board_lines(weekday, shift)"/>
+                                    <h2 class="gdb-shift-title">
+                                        <t t-if="shift == 'morning'">Morning</t>
+                                        <t t-else="">Afternoon</t>
+                                    </h2>
+                                    <t t-if="data['lines']">
+                                        <table class="table table-bordered gdb-table">
+                                            <colgroup>
+                                                <col class="gdb-col-time"/>
+                                                <t t-foreach="data['groups']" t-as="group">
+                                                    <col class="gdb-col-group"/>
+                                                </t>
+                                                <col class="gdb-col-guard"/>
+                                            </colgroup>
+                                            <thead>
+                                                <tr>
+                                                    <th/>
+                                                    <t t-foreach="data['groups']" t-as="group">
+                                                        <th t-esc="group.name"/>
+                                                    </t>
+                                                    <th>Guard duty</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="data['lines']" t-as="line">
+                                                    <tr>
+                                                        <td class="gdb-time" t-esc="line['time_label']"/>
+                                                        <t t-foreach="line['cells']" t-as="cell">
+                                                            <td t-attf-class="#{'gdb-cell-occupied' if cell['entries'] else ''}"
+                                                                t-att-style="'background-color:' + cell['color'] if cell['color'] else ''">
+                                                                <t t-if="cell['entries']">
+                                                                    <span class="gdb-cell-subject" t-esc="cell['entries'][:1].subject_id.acronym"/>
+                                                                    <span class="gdb-cell-teacher" t-esc="', '.join(cell['teachers'].mapped('name'))"/>
+                                                                    <span t-if="cell['entries'][:1].space_id" class="gdb-cell-room" t-esc="cell['entries'][:1].space_id.display_name"/>
+                                                                </t>
+                                                            </td>
+                                                        </t>
+                                                        <td class="gdb-guard-cell">
+                                                            <t t-foreach="line['guards']" t-as="guard">
+                                                                <span class="gdb-guard-badge" t-esc="guard.employee_id.name"/>
+                                                            </t>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </t>
+                                    <p t-else="">No schedule available.</p>
+                                </t>
+                            </div>
+                        </t>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

@@ -38,6 +38,31 @@ Group membership is not edited directly by admins in normal operation; it is der
 - **`ems_employee_base._sync_security_groups()`** (`models/employees/employee.py`) diffs an employee's `role_ids`/`job_id` derived groups against `res.users.groups_id` and issues `(4, id)`/`(3, id)` commands, called from `write()` and the relevant `@api.onchange` handlers.
 - `role_tutor`, `role_dchieff`, `role_seminar`, `role_hos`, `role_dhos`, `role_secretary` and `role_director` are **not** manually assignable — no role in this chain remains manual: `update_tutor_role()` links/unlinks `role_tutor` based on whether the employee is referenced as `tutor_id` on any `ems.group`; `update_department_head_role()`/`update_seminar_chief_role()` do the same for `role_dchieff`/`role_seminar` based on `hr.department.manager_id`/`seminar_chief_id` (labelled "Department Chief"/"Seminar Chief" on the department form); `update_area_manager_role()` does the same for `role_hos`/`role_dhos`/`role_secretary` based on a *top-level* department's `manager_id`/`top_level_role` (labelled "Area Manager" on the department form — `role_secretary` is how the `ASP` top-level department's manager is handled, a teacher coordinating administrative/secretariat staff); `update_director_role()` does the same for `role_director` based on `res.company.director_id` (Ajustes/Settings > EMS Management — deliberately not a department field, see [Department Chief / Seminar Chief / Head of Studies / Director cascade](department.md)). Note `role_secretary` was changed from non-unipersonal to unipersonal in `data/cat/ems.role.csv` when it joined `top_level_role` — there is only ever one ASP Area Manager centre-wide, same as Head of Studies/Deputy/Director.
 
+## Enforcement: a real server-side guard, not just the onchange (issue #373, 2026-08-31)
+
+The paragraph above states these 7 roles are "not manually assignable" — until this fix, that was only true from the employee form's own tag widget, and even there, incompletely:
+
+- `_onchange_role_ids` (`employee.py`) is client-side UX only: it fires solely when `role_ids` is edited from the employee form, and, before this fix, `return`ed as soon as it corrected the *first* mismatched role it found in a given call — any *other* role simultaneously out of sync (e.g. an employee who is both a Department Chief and a top-level Area Manager, with both tags stale at once) silently went uncorrected. It now loops every role via the shared `_ems_role_hierarchy_truth()` helper (below) and corrects/warns for all of them in one pass.
+- Nothing validated `role_ids` at all when written from anywhere else: `ems.role`'s own `employee_ids` reverse field (the role's "Assigned to" tab), a direct `write()`/API call, an import, or a list-view bulk edit. A role assigned this way could sit with no backing department/company/group data indefinitely.
+
+**The real barrier is now server-side, symmetric in both directions, and independent of which side of the relation is written:**
+
+- `ems_employee_base._ems_role_hierarchy_truth()` is the single source of truth: for each of the 7 roles, `(role, should_be_assigned, message)` computed straight from `headed_department_ids`/`seminar_department_ids`/`tutorship_ids`/`directed_company_ids` — the exact same predicates `update_*_role()` already used, now shared instead of duplicated.
+- `ems_employee_base.check_role_hierarchy` (`@api.constrains('role_ids')`) calls it on every `write()`/`create()` of `hr.employee`/`hr.employee.public`, from any code path, and raises `ValidationError` on any mismatch.
+- `ems.role.write()` independently rejects any attempt to touch `employee_ids` on one of the 7 roles (`HIERARCHY_MANAGED_ROLE_XMLIDS`) — writing from the role's own side never touches `hr.employee.write()` at all (different model), so it needs its own guard, not just the employee-side constrains.
+- `EMS_ROLE_SYNC_CONTEXT_KEY` (`'ems_syncing_roles'`, same pattern as the pre-existing `EMS_PHOTO_SYNC_CONTEXT_KEY`) marks a write as the one legitimate source: the 5 `update_*_role()` methods, and each individual correction inside `_onchange_role_ids` itself (a correction is itself a `role_ids` write, immediately re-validated - marking it lets every mismatch in one onchange pass get fixed instead of the first correction's own write raising because a *later* role is still mismatched at that intermediate moment). `check_role_hierarchy`/`ems.role.write()` both skip validation when this context key is present; everything else is held to the real computed truth.
+
+```mermaid
+flowchart LR
+    A["Any write to role_ids or employee_ids"] --> B{"ems_syncing_roles\ncontext set?"}
+    B -- yes: update_*_role() or\nan onchange correction --> C["Applied, no re-check"]
+    B -- no: form widget, role's own\nform, API, import, bulk edit --> D["check_role_hierarchy() /\nems.role.write() guard"]
+    D -- matches computed truth --> C
+    D -- mismatch --> E["ValidationError"]
+```
+
+**UI**: `ems.role`'s own form (`views/community/role/form.xml`) shows a role-specific `hierarchy_managed_message` (computed, naming the exact screen to use) and sets `employee_ids`'s `readonly` to `is_hierarchy_managed`. The kanban card's own delete button (a bespoke EMS addition in `views/community/employee/kanban.xml`, not a native Odoo affordance) also respects this via the standard `read_only_mode` kanban template variable, which already reflects the embedding field's `readonly` - see that file's own comment for the exact framework source (`kanban_record.js::renderingContext`) this relies on. (An earlier attempt at a dynamic `class` expression directly on the `<field>` node crashed the form's entire OWL template compilation - Odoo's view compiler only accepts a static string for a `class` attribute on `<field>`/generic nodes, not a Python-dict-style expression; caught by `static/tests/tours/role_color_tour.js`'s `ems_role_hierarchy_lock_smoke` tour, not by `./upgrade.sh` or the backend test suite.)
+
 ```mermaid
 flowchart LR
     A["Admin adds role to employee.role_ids"] --> B["write()/onchange triggers _sync_security_groups()"]

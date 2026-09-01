@@ -538,12 +538,24 @@ blocks and re-group them: emit each of the 6 template sections exactly once, in 
 order, with every source file's items for that section folded in underneath it (preserving each
 file's own item order within the section - a plain regex split on `^# ` headers per file, keyed by
 the normalized section name, is enough; a short throwaway Python script is the fastest reliable
-way to do this for a large combined document, rather than hand-reordering it inline). **Omit
-`Related with` entirely from what gets generated/delivered** - the developer fills that section in
-themselves (confirmed 2026-08-12: *"el 'related with' no lo incluyas... porque me encargo yo de
-esa parte"*), even though the individual `changelog/<branch>.md` files may each still carry their
-own `# Related with:` content (that's fine, it's not what's being suppressed - only the combined
-delivery to the developer drops it).
+way to do this for a large combined document, rather than hand-reordering it inline).
+
+**`Related with`: generate it from the merge history, don't omit it (changed 2026-09-01 - an
+earlier version of this rule had the agent omit the section entirely and leave it for the
+developer to fill in by hand; the developer asked for it to be generated instead, from the same
+merge history used to catch the gap below).** Every branch merged into the current one is named
+`<issue_number>-<slug>` (e.g. `373-head-of-studies-hierarchy-fix`); find them with
+`git log --merges --oneline $(git merge-base main HEAD)..HEAD` (not just `main..HEAD` - use the
+merge-base explicitly, since the current branch may itself be ahead of a stale local `main`), read
+the issue number off the front of each `Merge branch '<n>-...'` line, and emit one
+`- Closes #<n>` per issue, ascending. **Cross-check the resulting issue list against
+`changelog/` before delivering** - a merged branch with no matching `changelog/<n>-*.md` file is a
+gap, not something to silently drop from `Related with` (found this exact gap 2026-09-01: issue
+#375 had merged in but never got a changelog entry). Don't just add the bare `Closes #375` and move
+on - inspect what that merge actually changed (`git show --stat <merge_commit>`, then the real diff
+underneath it) and write the missing `changelog/<n>-*.md` file too, in the same style as the
+others, before folding it into the delivered document - otherwise the PR body's `Related with`
+would reference a fix that its own `What's new`/`Fixes`/etc. sections never mention.
 
 **Condense at delivery time - titles concise, bullets generic, similar items across different
 models merged into one.** The per-branch working files stay exactly as detailed as they already

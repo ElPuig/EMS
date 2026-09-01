@@ -22,6 +22,7 @@ class TestStrike(TransactionCase):
         cls.group_tutor = cls.env.ref('ems.group_tutor')
         cls.group_academic_admin = cls.env.ref('ems.group_academic_admin')
         cls.group_coexistence = cls.env.ref('ems.group_coexistence')
+        cls.group_secretary = cls.env.ref('ems.group_secretary')
 
         cls.role_coexistence = cls.env.ref('ems.role_coexistence')
         # Unipersonal is expected to be false for this feature to make sense; clear any
@@ -91,6 +92,11 @@ class TestStrike(TransactionCase):
         cls.other_teacher_user = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Test Other Teacher (Strike)', 'login': 'test_other_teacher_strike', 'email': 'test_other_teacher_strike@example.com',
             'groups_id': [(4, cls.group_teacher.id), (4, cls.env.ref('base.group_user').id)],
+        })
+
+        cls.secretary_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Secretary (Strike)', 'login': 'test_secretary_strike', 'email': 'test_secretary_strike@example.com',
+            'groups_id': [(4, cls.group_secretary.id), (4, cls.env.ref('base.group_user').id)],
         })
 
         cls.level, cls.study, cls.group_record = create_level_study_group(cls, 'TSTK', level={'name': 'Test Level (Strike)'}, study={
@@ -169,6 +175,20 @@ class TestStrike(TransactionCase):
         strike = self._create_strike(self.teacher_a_user)
         found = self.env['ems.strike'].with_user(self.coexistence_a_user).search([('id', '=', strike.id)])
         self.assertIn(strike, found)
+
+    def test_secretary_can_open_student_form_strike_count(self):
+        strike = self._create_strike(self.teacher_a_user)
+        student_as_secretary = self.minor_student.with_user(self.secretary_user)
+        self.assertEqual(student_as_secretary.strike_count, 1)
+        found = self.env['ems.strike'].with_user(self.secretary_user).search([('id', '=', strike.id)])
+        self.assertIn(strike, found)
+
+    def test_secretary_cannot_write_or_create_strike(self):
+        strike = self._create_strike(self.teacher_a_user)
+        with self.assertRaises(AccessError):
+            strike.with_user(self.secretary_user).write({'notes': 'Updated.'})
+        with self.assertRaises(AccessError):
+            self._create_strike(self.secretary_user)
 
     def test_notification_recipients_minor_student(self):
         strike = self._create_strike(self.teacher_a_user)

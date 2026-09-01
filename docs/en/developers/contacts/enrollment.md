@@ -27,14 +27,22 @@
 
 ```mermaid
 flowchart TD
-    A["default_get(fields_list)"] --> B{"'user_is_admin' requested?"}
-    B -- no --> Z[return defaults]
-    B -- yes --> C{"user_is_admin default True?"}
-    C -- yes --> Z
-    C -- no --> D["raise UserError"]
+    A["default_get(fields_list)"] --> B{"env.su?"}
+    B -- yes (programmatic) --> Z[return defaults]
+    B -- no --> C{"'user_is_admin' requested?"}
+    C -- no --> Z
+    C -- yes --> D{"user_is_admin default True?"}
+    D -- yes --> Z
+    D -- no --> E["raise UserError"]
 ```
 
 Only users in `ems.group_academic_admin` may open a blank `ems.enrollment` form at all — tutors are expected to enroll a student in a subject from the **student's own form** (the embedded one2many on `res.partner`, see [`contact.md`](contact.md)), not from this model's standalone list/menu. The check happens in `default_get` rather than via `ir.model.access.csv`/`ir.rule` because the "New" button itself can't easily be hidden per-role from the standalone action (see the method's own `TODO`) — tutors do have model-level create rights (needed for the embedded one2many to work), so the guard has to fire when the blank form actually loads.
+
+**The `env.su` escape hatch — added 2026-09-01, after the guard broke enrollment confirmation in production.** `create()` builds its values through `_add_missing_default_values()`, which calls `default_get()`, so a guard living there fires on **every** creation, not only on the ones a human starts from a form. That is exactly what happened once the 26-27 transition flipped the current course: from that moment `sale.order._ems_placement_is_individual()` is true for every pending enrollment, so confirming one runs `_ems_apply_destination_placement()` — which creates the subject enrollments — and the confirmation died with *"Only admins can create manual enrollments"* instead of placing the student.
+
+The placement already ran the creation under `sudo()`, which was believed to be enough. It is not: **`sudo()` does not turn `env.user` into the superuser, it only sets `env.su`**. `get_user_is_admin()` reads `self.env.user.has_group(...)`, so under `sudo()` it still answers for the real user behind the request — a student confirming from the portal (`controllers/portal_enrollment.py`, `enrollment.sudo().action_confirm()`), or the secretary confirming from the backend. Neither is an academic admin, and neither was ever meant to be blocked here.
+
+`env.su` is what tells the two situations apart, and it is the only signal that does: a form opened from the UI never carries it, a placement running on somebody's behalf always does. Covered by `tests/test_enrollment_placement.py::test_placement_runs_for_whoever_confirms` (portal user and secretary) and `::test_manual_enrollment_is_still_blocked_for_a_tutor` (the guard itself, unchanged for manual creation).
 
 ### `_compute_inuse_subject_ids` / `_compute_display_name`
 

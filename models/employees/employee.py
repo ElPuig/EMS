@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, Command, _
+import base64
+
+from odoo import SUPERUSER_ID, models, fields, api, Command, _
 from odoo.exceptions import UserError
 
 employee_types = [
@@ -589,6 +591,7 @@ class ems_employee(models.AbstractModel):
         if 'name' in vals:
             for employee in self:
                 employee.resource_calendar_id._refresh_personal_name()
+            self._refresh_stale_avatar_placeholder()
 
         if photo is not _UNSET:
             for employee in self:
@@ -596,6 +599,42 @@ class ems_employee(models.AbstractModel):
                     write_photo(employee.user_id.partner_id.sudo(), employee.image_1920)
 
         return result
+
+    def _refresh_stale_avatar_placeholder(self):
+        """Regenerate the initials placeholder for any employee in `self` whose
+        `image_1920` already holds a self-generated SVG, so a rename doesn't leave it
+        showing the OLD initial.
+
+        Two, otherwise unrelated, code paths bake a real SVG into the normally-empty
+        `image_1920` instead of leaving it to the live `avatar.mixin` compute the rest
+        of the app relies on: native Odoo's own `hr.employee.create()` (every new
+        employee with no photo, teacher/ASP or not - includes every pending-
+        identification teacher, always created with a placeholder name that is renamed
+        later during Google account creation) and this module's own "Disable profile
+        picture" (`res.users.image_disabled`, see `user.py`). Both always use
+        `_avatar_generate_svg()`, which always produces SVG - and `fields.Image`'s
+        upload pipeline (PIL-based) cannot store a genuinely uploaded SVG photo, so
+        sniffing the content this way never risks overwriting a real photo.
+
+        Deliberately generates from the EMPLOYEE's own (just-changed) name rather than
+        delegating to user.py's own `_refresh_photo_placeholder()` (which sources the
+        linked partner's name instead) - the two can differ, and it is the employee's
+        name that just changed here.
+        """
+        stale = self.filtered(
+            lambda employee: employee.image_1920
+            and base64.b64decode(employee.image_1920).lstrip().startswith(b'<?xml'))
+        for employee in stale:
+            # with_user(SUPERUSER_ID): see user.py's _refresh_photo_placeholder for why
+            # a plain .sudo() does not, on its own, clear ir_attachment's SVG-mimetype-
+            # forced-to-text/plain check - without it, whoever renamed this employee
+            # (not necessarily privileged enough to write ir.ui.view) would get a
+            # mislabeled attachment the browser refuses to render as an image.
+            synced = employee.with_user(SUPERUSER_ID)
+            placeholder = synced._avatar_generate_svg()
+            write_photo(synced, placeholder)
+            if employee.user_id:
+                write_photo(employee.user_id.sudo().with_user(SUPERUSER_ID).partner_id, placeholder)
 
     def unlink(self):
         # NOTE: every teacher has their OWN personal calendar (never a shared or framework one — see
@@ -612,6 +651,27 @@ class ems_employee(models.AbstractModel):
             orphaned = (calendars - still_used).filtered(lambda calendar: calendar.id not in company_calendar_ids)
             orphaned.unlink()
         return result
+
+    def action_mark_as_identified(self):
+        """Manually clear the pending-identification placeholder.
+
+        Covers the case where a teacher was created from a schedule-import
+        placeholder code (X1/X2...) but will never get a Google Workspace/EMS
+        account created through this employee record (e.g. already has one on
+        a different, unmerged record; or genuinely doesn't need one) - the
+        only other way pending_identification is cleared is as a side effect
+        of a Google account actually being created/adopted (see
+        google_workspace_integration.py's _gw_clear_pending_identification).
+        Idempotent: does nothing if the employee is not pending.
+        """
+        for employee in self:
+            if not employee.schedule_import_code:
+                continue
+            employee.message_post(body=_(
+                "Identity confirmed manually: this employee was created as a "
+                "pending-identification placeholder from schedule-import code '%s'."
+            ) % employee.schedule_import_code)
+            employee.schedule_import_code = False
 
     def get_report_role_lines(self):
         """One display line per role_ids entry for the working-schedule PDF header, appending

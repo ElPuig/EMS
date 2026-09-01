@@ -12207,6 +12207,22 @@ msgid "Identity confirmed: this employee was created as a pending-identification
 msgstr "Identidad confirmada: este empleado se creó como marcador de posición pendiente de identificar a partir del código de importación de horario '%s'."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Identity confirmed manually: this employee was created as a pending-identification placeholder from schedule-import code '%s'."
+msgstr "Identidad confirmada manualmente: este empleado se creó como marcador de posición pendiente de identificar a partir del código de importación de horario '%s'."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Mark as identified"
+msgstr "Marcar como identificado"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "This clears the pending-identification placeholder without creating any Google/EMS account. Use it only once you are sure this employee will not need one created from this record (e.g. already has one elsewhere). Continue?"
+msgstr "Esto elimina el marcador de posición pendiente de identificar sin crear ninguna cuenta de Google/EMS. Úsalo solo cuando estés seguro de que este empleado no necesitará ninguna creada desde este registro (p. ej. ya tiene una en otro registro). ¿Continuar?"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__create_missing_enrollments
 msgid "Create missing enrollments"
 msgstr "Crear las matrículas que falten"

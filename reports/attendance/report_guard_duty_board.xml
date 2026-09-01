@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
+        <!-- Reusable A3 landscape paperformat - same margins/dpi/css_margins as base Odoo's own
+             default 'paperformat_euro' (base/data/report_paperformat_data.xml), only format/
+             orientation differ. Not guard-duty-specific by name: this is the first EMS report
+             wide enough to need it, but any future one (a school-wide timetable, say) can
+             reference this same record instead of each defining its own. A3 (420x297mm usable),
+             not A4 (297x210mm) - developer feedback (2026-09-01): even landscape A4 still felt
+             too cramped for a real school's full column count. -->
+        <record id="paperformat_a3_landscape" model="report.paperformat">
+            <field name="name">A3 Landscape</field>
+            <field name="format">A3</field>
+            <field name="orientation">Landscape</field>
+            <field name="margin_top">52</field>
+            <field name="margin_bottom">32</field>
+            <field name="margin_left">0</field>
+            <field name="margin_right">0</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">52</field>
+            <field name="dpi">90</field>
+            <field name="css_margins" eval="True"/>
+        </record>
+
         <record id="action_report_guard_duty_board" model="ir.actions.report">
             <field name="name">Guard Duty Schedule</field>
             <field name="model">ems.course</field>
@@ -8,6 +29,10 @@
             <field name="report_name">ems.report_guard_duty_board</field>
             <field name="report_file">ems.report_guard_duty_board</field>
             <field name="print_report_name">'Guard Duty Schedule - %s' % (object.name)</field>
+            <!-- Landscape A3: this board is wide (one column per group, easily a dozen+) - the
+                 site default (portrait A4, base.paperformat_euro) left far too little usable
+                 width, and even landscape A4 alone still felt cramped in practice. -->
+            <field name="paperformat_id" ref="paperformat_a3_landscape"/>
         </record>
 
         <template id="report_guard_duty_board">
@@ -28,8 +53,8 @@
                                 <style>
                                     .gdb-title { font-size: 20px; margin-bottom: 10px; }
                                     .gdb-shift-title { font-size: 13px; font-weight: 600; margin: 12px 0 4px 0; }
-                                    .gdb-table { font-size: 9px; table-layout: fixed; margin-bottom: 6px; }
-                                    .gdb-table th, .gdb-table td { padding: 3px 5px !important; text-align: center; vertical-align: middle; overflow: hidden; }
+                                    .gdb-table { font-size: 10px; table-layout: fixed; margin-bottom: 6px; }
+                                    .gdb-table th, .gdb-table td { padding: 4px 6px !important; text-align: center; vertical-align: middle; overflow: hidden; }
                                     .gdb-table td.gdb-time { white-space: nowrap; font-weight: bold; }
                                     /* Every group column shares this exact width - same reasoning
                                        as the live screen's .o_guard_board_col_group (see
@@ -37,11 +62,21 @@
                                        every table, not auto-sized from each cell's own content.
                                        Time block (first) and Guard duty (last) carry denser
                                        content (a full time range; one badge per teacher on duty),
-                                       so they get more room than a single group's own column. */
-                                    .gdb-col-time { width: 60px; }
-                                    .gdb-col-group { width: 75px; }
-                                    .gdb-col-guard { width: 110px; }
-                                    .gdb-cell-occupied { color: #fff; }
+                                       so they get more room than a single group's own column.
+                                       Sized for A3 landscape's ~420mm (~1490px @ 90dpi) usable
+                                       width, not just carried over unchanged from the earlier A4
+                                       attempt - a bigger page alone doesn't widen a table with
+                                       fixed pixel columns, it only adds blank margin around the
+                                       same-sized one (found the hard way, 2026-09-01: switching
+                                       the paperformat to A3 first with the old A4-sized widths
+                                       still in place changed nothing about how cramped it looked).
+                                       10 group columns at this width use ~1150px of the ~1490px
+                                       available - comfortable for a real school's own column
+                                       count, though an unusually large centre with many more
+                                       groups in one shift may still need these trimmed back down. */
+                                    .gdb-col-time { width: 85px; }
+                                    .gdb-col-group { width: 115px; }
+                                    .gdb-col-guard { width: 160px; }
                                     /* overflow-wrap/word-break: table-layout:fixed only holds a
                                        column to its declared width if content CAN break - an
                                        unbroken run of text (e.g. an unlinked "Pending teacher
@@ -51,8 +86,13 @@
                                        above (found in a real generated PDF, 2026-08-31). */
                                     .gdb-cell-subject { display: block; font-weight: 600; overflow-wrap: break-word; word-break: break-word; }
                                     .gdb-cell-teacher, .gdb-cell-room { display: block; font-size: 8px; overflow-wrap: break-word; word-break: break-word; }
-                                    .gdb-guard-cell { background-color: #fff3e0; }
-                                    .gdb-guard-badge { display: inline-block; background-color: #e76f51; color: #fff; border-radius: 3px; padding: 1px 4px; margin: 1px; font-weight: 600; overflow-wrap: break-word; word-break: break-word; }
+                                    /* No background colour anywhere in the table at all now
+                                       (developer feedback, 2026-09-01, second pass: "quitar el
+                                       color de fondo de los nombres de las personas que están de
+                                       guardia" - the first pass had deliberately kept this one).
+                                       A thin border replaces the colour fill, purely to keep
+                                       several names in the same cell visually separated. */
+                                    .gdb-guard-badge { display: inline-block; border: 1px solid #ccc; border-radius: 3px; padding: 1px 4px; margin: 1px; font-weight: 600; overflow-wrap: break-word; word-break: break-word; }
                                 </style>
 
                                 <h1 class="gdb-title">
@@ -94,8 +134,7 @@
                                                     <tr>
                                                         <td class="gdb-time" t-esc="line['time_label']"/>
                                                         <t t-foreach="line['cells']" t-as="cell">
-                                                            <td t-attf-class="#{'gdb-cell-occupied' if cell['entries'] else ''}"
-                                                                t-att-style="'background-color:' + cell['color'] if cell['color'] else ''">
+                                                            <td>
                                                                 <t t-if="cell['entries']">
                                                                     <span class="gdb-cell-subject" t-esc="cell['entries'][:1].subject_id.acronym"/>
                                                                     <span class="gdb-cell-teacher" t-esc="', '.join(cell['teachers'].mapped('name'))"/>
@@ -103,7 +142,7 @@
                                                                 </t>
                                                             </td>
                                                         </t>
-                                                        <td class="gdb-guard-cell">
+                                                        <td>
                                                             <t t-foreach="line['guards']" t-as="guard">
                                                                 <span class="gdb-guard-badge" t-esc="guard.employee_id.name"/>
                                                             </t>

@@ -57,7 +57,7 @@
                                     <tr>
                                         <td class="o_guard_board_time" t-esc="line.time_label"/>
                                         <t t-foreach="line.cells" t-as="cell" t-key="cell.group_id">
-                                            <td t-att-style="cellStyle(cell)" t-att-class="cell.subject ? 'o_guard_board_cell_occupied' : ''">
+                                            <td>
                                                 <t t-if="cell.subject">
                                                     <span class="o_guard_board_cell_subject" t-esc="cell.subject"/>
                                                     <span t-if="cell.teachers.length" class="o_guard_board_cell_teacher" t-esc="cell.teachers.join(', ')"/>

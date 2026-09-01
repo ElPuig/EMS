@@ -72,9 +72,15 @@ addressable by a real, stable URL.
     recordset (every `non_teaching_is_guard` entry in that period). A guard slot has no
     `group_ids` of its own, so it can never occupy a group's cell — it's always reported
     through `guards` instead, never as an extra column.
-  - Reuses `_report_color_key`/`_format_report_time`/`REPORT_COLOR_PALETTE` from
-    `ems.schedule_report_mixin` for the same subject-colouring convention as the teacher/group
-    schedule PDFs. Recordset-based — used server-side (Python) only, by the PDF template.
+  - Reuses `_format_report_time` from `ems.schedule_report_mixin` (still the reason this class
+    mixes it in) — but deliberately **not** `_report_color_key`/`REPORT_COLOR_PALETTE`, unlike
+    the teacher/group schedule PDFs. An earlier version did colour each cell by subject the same
+    way those do; removed per developer feedback (2026-09-01) — with every group already its
+    own column and the subject spelled out as a short `acronym` in the cell, a colour wash per
+    subject added visual noise without adding information the plain grid didn't already convey.
+    No colour anywhere on the board at all now, not even the guard-duty badge — see "Client
+    action" and "PDF report" below for the full history of that. Recordset-based — used
+    server-side (Python) only, by the PDF template.
 - `get_guard_duty_board_data(weekday, shift)` — `@api.model`. Resolves "the current course"
   itself (`self.env.company.current_course_id`) rather than taking a course argument, so the
   JS client action never needs to know or guess an `ems.course` id — matches
@@ -136,6 +142,20 @@ bell schedule made the two stacked together too dense to read at a glance (devel
 2026-08-31). Only one `<table>` (the active day + active shift) is ever rendered from
 `state.board`.
 
+**Opens on today's own day/shift, not always Monday/Morning.** `getDefaultDayAndShift()`
+(top of the file) reads the browser's own `Date()` — "now" here means the *viewer's* wall-clock
+time, not the server's — and maps `Date.getDay()` (0=Sunday..6=Saturday) onto the board's own
+weekday index (0=Monday..4=Friday); a weekend defaults to Monday (the board has no weekend
+concept at all, every table is keyed to a Mon-Fri `dayofweek`). The shift threshold (`>=15:00`
+→ afternoon) is a hand-kept copy of `SHIFT_HOURS`'s own boundary in
+`models/attendance/guard_duty_board.py` — added per developer feedback (2026-09-01): "cuando
+entro en la sección... por defecto tendría que estar viendo el que toca". Regression-tested in
+`guard_duty_board_tour.js` by computing the same expected day/shift independently in the test
+itself (against the real clock the test happens to run at) and asserting the board's initial
+state matches — not a fixed "Monday" assumption, which the rest of that same tour still relies
+on for its own (date-independent) fixture-data assertions, reached by explicitly switching back
+to Monday/Morning right after this check.
+
 **The data is fetched via RPC (`ems.course.get_guard_duty_board_data()`), one weekday/shift at a
 time.** An early version instead read a form field's own prefetched sub-records client-side
 (the same approach `group_schedule_grid_field.js` uses for its own, much smaller, per-group
@@ -146,6 +166,23 @@ relational field fetches for rendering, and a centre-wide aggregation easily exc
 server-side PDF (which reads the same recordset directly over the ORM, no such cap) always
 showed the full week. `setActiveDay()`/`onShiftChange()` both call the same `loadBoard()`,
 which re-fetches exactly the currently active day+shift pair.
+
+**No cell colouring.** An earlier version painted each occupied cell's background with the
+same per-subject colour the teacher/group schedule PDFs use
+(`ems.schedule_report_mixin.REPORT_COLOR_PALETTE`), with white text on top
+(`.o_guard_board_cell_occupied`). Removed per developer feedback (2026-09-01): "quita los
+colores de background de la tabla... a ver como queda" — with every group already its own
+column and the subject spelled out as a short acronym, the colour wash was noise, not signal.
+The Guard duty column's own light background tint went too, for the same "no background colour
+anywhere in the table" reading of that request. First pass deliberately kept one exception —
+the guard-duty badge itself (`.o_guard_board_guard_badge`, a fixed orange fill) — reasoning
+that it was the actual "who is on duty" signal the column exists to surface, not a whole-cell/
+whole-column wash. The developer asked for that gone too on a second pass, same day: "quitar
+el color de fondo de los nombres de las personas que están de guardia" — so `.o_guard_board_guard_badge`
+now has **no** `background-color`/`color` overrides at all, just a thin `1px solid #ccc` border
+(purely to keep several names in the same cell visually separated from each other, not a
+colour). Applied identically to the PDF (see "PDF report" below) — same reasoning throughout,
+verified against a real generated PDF at each pass.
 
 **Why a table, not the existing absolute-positioned grid:** `schedule_grid_field.js`/
 `group_schedule_grid_field.js` position entries by pixel offset within one non-overlapping
@@ -200,6 +237,19 @@ that, so a vertical drag can never also scroll sideways. Both axes are regressio
 `binding_type`/`binding_model_id`) — triggered only from the client action's own **PDF**
 button, same as `ems.report_working_schedule`/`ems.report_group_schedule`.
 
+**Landscape A3, not the site default (portrait A4).** `paperformat_id` points at a new,
+reusable `ems.paperformat_a3_landscape` (`report.paperformat`, same file) — same margins/dpi/
+`css_margins` as base Odoo's own default `paperformat_euro`, only `format`/`orientation`
+differ. Needed because this board is wide (one column per group, easily a dozen or more):
+under the site-default portrait A4, every group column was cramped even after the fixed-width
+pass below. Landscape A4 alone (the first attempt, 2026-09-01) still felt too tight in
+practice per developer feedback after seeing it rendered — moved to A3 (420×297mm usable vs.
+A4's 297×210mm) for real breathing room. Not named guard-duty-specific, since any future EMS
+report facing the same "wide grid" shape (a school-wide timetable, say) can reference this
+same paperformat record instead of each defining its own — verified by generating a real PDF
+against this dev DB's own data at each step, same way the column-width bug below was
+originally caught.
+
 **One PDF per day AND per shift — not the whole week, not both shifts.** `onPdfClick()` calls
 `actionService.doAction("ems.action_report_guard_duty_board", { additionalContext: {
 active_ids: [this.state.courseId], guard_duty_weekday: String(this.state.activeDay),
@@ -213,12 +263,20 @@ back to all 5 weekdays and/or both shifts, one `<div class="page">` per weekday 
 pagination). For whichever day(s)/shift(s) it renders, the template calls
 `course.get_guard_duty_board_lines(weekday, shift)` directly (Python-side, unlike the client
 action's own JSON RPC) to render the same groups-as-columns table (subject `acronym`, every
-co-teacher). Guard-duty badges use a fixed accent colour, not the per-subject palette, so they
-read as a distinct category at a glance.
+co-teacher). No colour anywhere, same as the live screen — see the "No cell colouring" note
+above for the full history (including the guard-duty badge itself losing its fill on a second
+developer pass the same day).
 
 **Column widths are fixed here too — `<colgroup>` + `table-layout: fixed`, mirroring the live
-screen** (`.gdb-col-time`/`.gdb-col-group`/`.gdb-col-guard`, scaled down for a printed page:
-60/75/110px vs. the screen's 90/130/190px). One thing the live screen didn't need but the PDF
+screen** (`.gdb-col-time`/`.gdb-col-group`/`.gdb-col-guard`: 85/115/160px, sized for A3
+landscape's own usable width — see the class comment in the template for the exact figure —
+not simply carried over from the live screen's 90/130/190px, nor from the original A4-sized
+60/75/110px attempt). **A bigger page alone does not widen a `table-layout: fixed` table** —
+found switching this report from A4 to A3 (2026-09-01, developer feedback: "sigue saliendo
+todo muy apretado" even after landscape A4): the paperformat change alone did nothing visible,
+because the `<col>` widths are absolute pixel values independent of the page they're printed
+on — a bigger page just adds blank margin around the same-sized table unless the column widths
+are *also* widened to use the extra room. One thing the live screen didn't need but the PDF
 did: `overflow-wrap`/`word-break: break-word` on every cell's text spans
 (`.gdb-cell-subject`/`.gdb-cell-teacher`/`.gdb-cell-room`/`.gdb-guard-badge`). Confirmed by
 generating a real PDF against this dev DB's own data (2026-08-31): without it, one long

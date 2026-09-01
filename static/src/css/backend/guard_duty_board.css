@@ -101,11 +101,6 @@
     white-space: nowrap;
 }
 
-.o_guard_board_cell_occupied {
-    color: #fff;
-    background-color: #5b8def;
-}
-
 .o_guard_board_cell_subject {
     display: block;
     font-weight: 600;
@@ -120,14 +115,15 @@
     overflow-wrap: break-word;
 }
 
-.o_guard_board_guard_cell {
-    background-color: #fff3e0;
-}
-
+/* No background colour anywhere in the table at all now, badges included (developer feedback,
+   2026-09-01, second pass: "quitar el color de fondo de los nombres de las personas que están
+   de guardia" - the first pass had deliberately kept this one as the last remaining accent, but
+   the developer wanted it gone too). A thin border replaces the colour fill, purely to keep
+   several names in the same cell visually separated from each other and from the cell's own
+   border - not a colour, just a boundary. */
 .o_guard_board_guard_badge {
     display: inline-block;
-    background-color: #e76f51;
-    color: #fff;
+    border: 1px solid #ccc;
     border-radius: 3px;
     padding: 2px 6px;
     margin: 1px;

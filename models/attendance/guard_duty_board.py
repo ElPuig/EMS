@@ -52,7 +52,12 @@ class EmsCourseGuardDutyBoard(models.Model):
         that slot, one row per distinct time period (chronological), each with one cell per group
         (teacher(s) + room, or empty) plus the guard-duty teacher(s) for that period. A guard row
         carries no group of its own (see 'non_teaching'), so it's reported separately from the
-        group columns instead of as one more column."""
+        group columns instead of as one more column. No per-subject colour is computed here (an
+        earlier version reused ems.schedule_report_mixin's REPORT_COLOR_PALETTE the same way the
+        teacher/group schedule PDFs do) - removed per developer feedback (2026-09-01): with every
+        group already its own column and the subject spelled out as a short acronym in the cell,
+        a colour-per-subject wash added visual noise without adding information a plain table
+        didn't already convey."""
         self.ensure_one()
         shift_start, shift_end = SHIFT_HOURS[shift]
         entries = self._get_guard_duty_board_attendance_ids().filtered(
@@ -63,11 +68,6 @@ class EmsCourseGuardDutyBoard(models.Model):
 
         groups = teaching_entries.group_ids.sorted(key=lambda group: group.name)
         periods = sorted({(attendance.hour_from, attendance.hour_to) for attendance in entries})
-
-        color_by_key = {}
-        for attendance in teaching_entries.sorted(key=lambda attendance: attendance.hour_from):
-            key = self._report_color_key(attendance)
-            color_by_key.setdefault(key, self.REPORT_COLOR_PALETTE[len(color_by_key) % len(self.REPORT_COLOR_PALETTE)])
 
         lines = []
         for hour_from, hour_to in periods:
@@ -85,7 +85,6 @@ class EmsCourseGuardDutyBoard(models.Model):
                     # per teacher, all sharing the same group/period, so 'entries' alone would
                     # silently drop every name but the first one picked for display.
                     'teachers': cell_entries.mapped('employee_id'),
-                    'color': color_by_key.get(self._report_color_key(cell_entries[:1])) if cell_entries else False,
                 })
             guards = guard_entries.filtered(
                 lambda attendance, hour_from=hour_from, hour_to=hour_to:
@@ -120,7 +119,6 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'subject': first.subject_id.acronym if first else False,
                     'teachers': cell['teachers'].mapped('display_name'),
                     'room': first.space_id.display_name if first and first.space_id else False,
-                    'color': cell['color'],
                 })
             lines.append({
                 'time_label': line['time_label'],

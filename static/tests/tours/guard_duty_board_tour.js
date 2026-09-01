@@ -3,7 +3,9 @@
 import { registry } from "@web/core/registry";
 
 // Opens the centre-wide guard duty board (Employee Attendances > Guard duty schedule),
-// switches weekday tabs and the morning/afternoon shift dropdown, confirms a seeded teaching
+// confirms it defaults to today's own weekday tab and the shift matching the current time (not
+// always Monday/Morning), then switches over to the Monday/Morning fixture data deliberately to
+// exercise weekday tabs and the morning/afternoon shift dropdown, confirms a seeded teaching
 // slot (group/teacher/room) and a seeded guard-duty slot both render on Monday morning, and a
 // DIFFERENT teacher shows up once the shift dropdown is switched to afternoon (proving the
 // dropdown actually re-fetches, not just keeps showing whatever was already loaded), then
@@ -18,18 +20,53 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
             content: "Guard duty board loaded",
         },
         {
-            trigger: ".o_guard_board_tabs .nav-link:contains('Monday')",
-            content: "Monday tab is the default",
+            // Regression check for a real request (2026-09-01, developer feedback: "cuando entro
+            // en la sección... por defecto tendría que estar viendo el que toca") - mirrors
+            // getDefaultDayAndShift() in guard_duty_board.js exactly, computed independently here
+            // against the browser's own real clock (whatever day/time the test actually runs at),
+            // not a fixed expectation - the board must match, not just happen to default to Monday.
+            trigger: ".o_guard_board_tabs .nav-link.active",
+            content: "The board defaults to today's own weekday tab, not always Monday",
+            run: () => {
+                const now = new Date();
+                const jsDay = now.getDay();
+                const expectedIndex = jsDay >= 1 && jsDay <= 5 ? jsDay - 1 : 0;
+                const dayLabels = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+                const activeLink = document.querySelector(".o_guard_board_tabs .nav-link.active");
+                const activeLabel = activeLink && activeLink.textContent.trim();
+                if (activeLabel !== dayLabels[expectedIndex]) {
+                    throw new Error(`Expected the default active day to be '${dayLabels[expectedIndex]}' (today), got '${activeLabel}'`);
+                }
+            },
         },
         {
             trigger: ".o_guard_board_shift_select",
-            content: "Morning is the default shift",
+            content: "The board defaults to the shift matching the current time (afternoon from 15:00)",
             run: () => {
+                const now = new Date();
+                const expectedShift = now.getHours() >= 15 ? "afternoon" : "morning";
                 const select = document.querySelector(".o_guard_board_shift_select");
-                if (select.value !== "morning") {
-                    throw new Error(`Expected the default shift to be 'morning', got '${select.value}'`);
+                if (select.value !== expectedShift) {
+                    throw new Error(`Expected the default shift to be '${expectedShift}' (current hour ${now.getHours()}), got '${select.value}'`);
                 }
             },
+        },
+        {
+            // The rest of this tour exercises fixed Monday/Morning fixture data (seeded by
+            // TestGuardDutyBoardTour), regardless of which day/shift the smart default above
+            // actually landed on today.
+            trigger: ".o_guard_board_tabs .nav-link:contains('Monday')",
+            content: "Switch to Monday to exercise the seeded fixture data",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_shift_select",
+            content: "Switch to Morning",
+            run: "selectByLabel Morning",
+        },
+        {
+            trigger: ".o_guard_board_tabs .nav-link.active:contains('Monday')",
+            content: "Monday/Morning is now active",
         },
         {
             trigger: ".o_guard_board_table td:contains('Tour Guard Board Teacher')",

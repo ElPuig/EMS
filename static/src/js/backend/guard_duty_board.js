@@ -11,6 +11,25 @@ const SHIFTS = [
     { key: "afternoon", label: _t("Afternoon") },
 ];
 
+// Mirrors ems.course's own SHIFT_HOURS (models/attendance/guard_duty_board.py): the afternoon
+// shift starts at 15:00, kept in sync by hand since a plain JS constant can't share the Python
+// one directly.
+const AFTERNOON_START_HOUR = 15;
+
+// Defaults the board to whichever day/shift the viewer would actually want to see right now
+// (developer feedback, 2026-09-01: "hoy es martes... como ya son las 15h, pues el turno de
+// tarde") — the browser's own local clock, since "now" here means the viewer's own wall-clock
+// time, not the server's. Date.getDay() is 0=Sunday..6=Saturday; our own day index is 0=Monday.
+// ..4=Friday, so a weekend falls outside that range - Monday is as reasonable a fallback as any
+// (the board has no "weekend" concept at all, every table is keyed to a Mon-Fri dayofweek).
+function getDefaultDayAndShift() {
+    const now = new Date();
+    const jsDay = now.getDay();
+    const day = jsDay >= 1 && jsDay <= 5 ? jsDay - 1 : 0;
+    const shift = now.getHours() >= AFTERNOON_START_HOUR ? "afternoon" : "morning";
+    return { day, shift };
+}
+
 // Read-only, centre-wide board: one weekday visible at a time (tabs), morning/afternoon are
 // different shifts (never merged into one table — see ems.group.shift) picked via a dropdown
 // within the active day, not shown stacked together — columns are the groups actually taught in
@@ -35,9 +54,10 @@ export class GuardDutyBoard extends Component {
     setup() {
         this.orm = useService("orm");
         this.actionService = useService("action");
+        const { day, shift } = getDefaultDayAndShift();
         this.state = useState({
-            activeDay: 0,
-            activeShift: "morning",
+            activeDay: day,
+            activeShift: shift,
             board: null,
             loading: true,
             courseId: null,
@@ -84,10 +104,6 @@ export class GuardDutyBoard extends Component {
             [String(this.state.activeDay), this.state.activeShift]
         );
         this.state.loading = false;
-    }
-
-    cellStyle(cell) {
-        return cell.color ? `background-color:${cell.color}` : "";
     }
 
     // One PDF per day AND per shift — whichever day tab / shift dropdown is currently active,

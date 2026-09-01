@@ -13,3 +13,8 @@ class TestRoleColorTour(HttpCase):
         # To observe this tour in a real browser during development:
         #   self.start_tour("/odoo", "ems_employee_role_badge_smoke", login="admin", watch=True)
         self.start_tour("/odoo", "ems_employee_role_badge_smoke", login="admin")
+
+    def test_role_hierarchy_lock_renders(self):
+        # To observe this tour in a real browser during development:
+        #   self.start_tour("/odoo", "ems_role_hierarchy_lock_smoke", login="admin", watch=True)
+        self.start_tour("/odoo", "ems_role_hierarchy_lock_smoke", login="admin")

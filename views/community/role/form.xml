@@ -20,10 +20,14 @@
                             </group>
                         </group>  
 
-                        <notebook>         
+                        <notebook>
                             <page string="Assigned to">
-                                <field name="employee_ids" mode="kanban"  />                                
-                            </page>     
+                                <field name="is_hierarchy_managed" invisible="1"/>
+                                <div class="alert alert-info" role="alert" invisible="not is_hierarchy_managed">
+                                    <field name="hierarchy_managed_message" nolabel="1"/>
+                                </div>
+                                <field name="employee_ids" mode="kanban" readonly="is_hierarchy_managed" />
+                            </page>
 
                             <page string="Notes">
                                 <field name="notes" placeholder="Write down here your notes..."/>

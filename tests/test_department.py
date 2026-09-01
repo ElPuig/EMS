@@ -17,7 +17,7 @@ class TestDepartment(TransactionCase):
         cls.group_secretary = cls.env.ref('ems.group_secretary')
         # role_hos/role_dhos/role_secretary are unipersonal and may already be assigned to a
         # real employee in the working database; clear them so the tests are self-contained.
-        (cls.role_hos + cls.role_dhos + cls.role_secretary).sudo().write({'employee_ids': [(5, 0, 0)]})
+        (cls.role_hos + cls.role_dhos + cls.role_secretary).sudo().with_context(ems_syncing_roles=True).write({'employee_ids': [(5, 0, 0)]})
         # The company may already have a real Director configured (e.g. set by hand while
         # trying out the feature) - clear it too so the top-level "no Director set" fallback
         # tests stay self-contained.
@@ -145,7 +145,7 @@ class TestDepartment(TransactionCase):
 
     def test_onchange_role_ids_blocks_manual_department_head_assignment(self):
         employee = self._create_employee('Test Employee (Onchange Dchieff)')
-        employee.role_ids = [(4, self.role_dchieff.id)]
+        employee.with_context(ems_syncing_roles=True).role_ids = [(4, self.role_dchieff.id)]
 
         result = employee._onchange_role_ids()
 
@@ -154,7 +154,7 @@ class TestDepartment(TransactionCase):
 
     def test_onchange_role_ids_blocks_manual_seminar_chief_assignment(self):
         employee = self._create_employee('Test Employee (Onchange Seminar)')
-        employee.role_ids = [(4, self.role_seminar.id)]
+        employee.with_context(ems_syncing_roles=True).role_ids = [(4, self.role_seminar.id)]
 
         result = employee._onchange_role_ids()
 
@@ -188,7 +188,7 @@ class TestDepartment(TransactionCase):
     def test_onchange_role_ids_blocks_manual_department_head_removal(self):
         head = self._create_employee('Test Employee (Onchange Remove Dchieff)')
         department = self.env['hr.department'].create({'name': 'Test Department (Onchange Remove Dchieff)', 'manager_id': head.id})
-        head.role_ids = [(3, self.role_dchieff.id)]
+        head.with_context(ems_syncing_roles=True).role_ids = [(3, self.role_dchieff.id)]
 
         result = head._onchange_role_ids()
 
@@ -200,7 +200,7 @@ class TestDepartment(TransactionCase):
         department = self.env['hr.department'].create({
             'name': 'Test Department (Onchange Remove Seminar)', 'seminar_chief_id': seminar_chief.id,
         })
-        seminar_chief.role_ids = [(3, self.role_seminar.id)]
+        seminar_chief.with_context(ems_syncing_roles=True).role_ids = [(3, self.role_seminar.id)]
 
         result = seminar_chief._onchange_role_ids()
 
@@ -308,7 +308,7 @@ class TestDepartment(TransactionCase):
 
     def test_onchange_role_ids_blocks_manual_hos_assignment(self):
         employee = self._create_employee('Test Employee (Onchange HOS Add)')
-        employee.role_ids = [(4, self.role_hos.id)]
+        employee.with_context(ems_syncing_roles=True).role_ids = [(4, self.role_hos.id)]
 
         result = employee._onchange_role_ids()
 
@@ -320,7 +320,7 @@ class TestDepartment(TransactionCase):
         self.env['hr.department'].create({
             'name': 'Test Department (Onchange HOS Remove)', 'is_top_level': True, 'top_level_area': 'academic', 'top_level_role': 'hos', 'manager_id': head.id,
         })
-        head.role_ids = [(3, self.role_hos.id)]
+        head.with_context(ems_syncing_roles=True).role_ids = [(3, self.role_hos.id)]
 
         result = head._onchange_role_ids()
 
@@ -329,7 +329,7 @@ class TestDepartment(TransactionCase):
 
     def test_onchange_role_ids_blocks_manual_dhos_assignment(self):
         employee = self._create_employee('Test Employee (Onchange DHOS Add)')
-        employee.role_ids = [(4, self.role_dhos.id)]
+        employee.with_context(ems_syncing_roles=True).role_ids = [(4, self.role_dhos.id)]
 
         result = employee._onchange_role_ids()
 
@@ -341,12 +341,62 @@ class TestDepartment(TransactionCase):
         self.env['hr.department'].create({
             'name': 'Test Department (Onchange DHOS Remove)', 'is_top_level': True, 'top_level_area': 'academic', 'top_level_role': 'dhos', 'manager_id': head.id,
         })
-        head.role_ids = [(3, self.role_dhos.id)]
+        head.with_context(ems_syncing_roles=True).role_ids = [(3, self.role_dhos.id)]
 
         result = head._onchange_role_ids()
 
         self.assertIn(self.role_dhos, head.role_ids)
         self.assertIn('warning', result)
+
+    def test_onchange_role_ids_fixes_all_simultaneous_mismatches_not_just_the_first(self):
+        # Reproduces the real bug (found this session, both for HOS and DHOS): the onchange
+        # used to 'return' as soon as it fixed the FIRST mismatched role it found, so any
+        # OTHER role also out of sync in the same save silently went through unchecked. Here
+        # the same employee heads a regular department (Department Chief) AND a top-level one
+        # (Head of Studies) at once, and BOTH tags are removed in the same write - every
+        # mismatch found must be corrected in a single onchange call, not just the first.
+        department = self.env['hr.department'].create({'name': 'Test Department (Multi Mismatch)'})
+        head = self._create_employee('Test Head (Multi Mismatch)', department)
+        department.manager_id = head.id
+        self.env['hr.department'].create({
+            'name': 'Test VET (Multi Mismatch)', 'is_top_level': True, 'top_level_area': 'academic', 'top_level_role': 'hos', 'manager_id': head.id,
+        })
+        head.with_context(ems_syncing_roles=True).role_ids = [(3, self.role_dchieff.id), (3, self.role_hos.id)]
+
+        result = head._onchange_role_ids()
+
+        self.assertIn(self.role_dchieff, head.role_ids)
+        self.assertIn(self.role_hos, head.role_ids)
+        self.assertIn('warning', result)
+
+    def test_write_role_ids_hos_without_backing_raises(self):
+        # The real server-side barrier: a direct write() (API, import, list edit - anything
+        # that isn't the employee form's own onchange-guarded widget) must be rejected too,
+        # not just reverted client-side.
+        employee = self._create_employee('Test Employee (Write Bypass HOS Add)')
+
+        with self.assertRaises(ValidationError):
+            employee.write({'role_ids': [(4, self.role_hos.id)]})
+
+    def test_write_role_ids_hos_removal_with_backing_raises(self):
+        head = self._create_employee('Test Employee (Write Bypass HOS Remove)')
+        self.env['hr.department'].create({
+            'name': 'Test Department (Write Bypass HOS Remove)', 'is_top_level': True, 'top_level_area': 'academic', 'top_level_role': 'hos', 'manager_id': head.id,
+        })
+
+        with self.assertRaises(ValidationError):
+            head.write({'role_ids': [(3, self.role_hos.id)]})
+
+    def test_write_role_ids_dhos_removal_with_backing_raises(self):
+        # Reproduces the exact real-world report: DHOS genuinely assigned via a real
+        # department, removed directly (bypassing the employee form's own onchange).
+        head = self._create_employee('Test Employee (Write Bypass DHOS Remove)')
+        self.env['hr.department'].create({
+            'name': 'Test Department (Write Bypass DHOS Remove)', 'is_top_level': True, 'top_level_area': 'academic', 'top_level_role': 'dhos', 'manager_id': head.id,
+        })
+
+        with self.assertRaises(ValidationError):
+            head.write({'role_ids': [(3, self.role_dhos.id)]})
 
     def test_child_department_chief_manager_is_parent_department_chief(self):
         parent = self.env['hr.department'].create({'name': 'Test Parent (Chief Cascade)'})
@@ -489,7 +539,7 @@ class TestDepartment(TransactionCase):
 
     def test_onchange_role_ids_blocks_manual_secretary_assignment(self):
         employee = self._create_employee('Test Employee (Onchange Secretary Add)')
-        employee.role_ids = [(4, self.role_secretary.id)]
+        employee.with_context(ems_syncing_roles=True).role_ids = [(4, self.role_secretary.id)]
 
         result = employee._onchange_role_ids()
 
@@ -501,7 +551,7 @@ class TestDepartment(TransactionCase):
         self.env['hr.department'].create({
             'name': 'Test Department (Onchange Secretary Remove)', 'is_top_level': True, 'top_level_area': 'asp', 'top_level_role': 'secretary', 'manager_id': head.id,
         })
-        head.role_ids = [(3, self.role_secretary.id)]
+        head.with_context(ems_syncing_roles=True).role_ids = [(3, self.role_secretary.id)]
 
         result = head._onchange_role_ids()
 

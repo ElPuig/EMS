@@ -12035,6 +12035,69 @@ msgstr "Este rol ya está asignado a otra persona."
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/employees/role.py:0
+msgid "This role's assignment is managed automatically from the department, company or group form and cannot be edited here."
+msgstr "La asignación de este rol se gestiona automáticamente desde el formulario del departamento, la empresa o el grupo, y no se puede editar desde aquí."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_role__is_hierarchy_managed
+msgid "Hierarchy-managed"
+msgstr "Gestionado por jerarquía"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_role__is_hierarchy_managed
+msgid "Assigned automatically from the department, company or group form - cannot be edited from this role's own record."
+msgstr "Se asigna automáticamente desde el formulario del departamento, la empresa o el grupo — no se puede editar desde la propia ficha del rol."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_role__hierarchy_managed_message
+msgid "Hierarchy-managed message"
+msgstr "Mensaje de gestión por jerarquía"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/role.py:0
+msgid "This role is assigned automatically when a teacher is set as a group's Tutor (the group's own form)."
+msgstr "Este rol se asigna automáticamente cuando un profesor se establece como Tutor de un grupo (desde el propio formulario del grupo)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/role.py:0
+msgid "This role is assigned automatically from the department's own form (Manager field)."
+msgstr "Este rol se asigna automáticamente desde el propio formulario del departamento (campo Responsable)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/role.py:0
+msgid "This role is assigned automatically from the department's own form (Seminar Chief field)."
+msgstr "Este rol se asigna automáticamente desde el propio formulario del departamento (campo Jefe de seminario)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/role.py:0
+msgid "This role is assigned automatically from the top-level department's own form (Area Manager, with Role set to Head of Studies)."
+msgstr "Este rol se asigna automáticamente desde el propio formulario del departamento top-level (Responsable de área, con el Rol establecido en Jefe de estudios)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/role.py:0
+msgid "This role is assigned automatically from the top-level department's own form (Area Manager, with Role set to Deputy Head of Studies)."
+msgstr "Este rol se asigna automáticamente desde el propio formulario del departamento top-level (Responsable de área, con el Rol establecido en Jefe de estudios adjunto)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/role.py:0
+msgid "This role is assigned automatically from the top-level department's own form (Area Manager, with Role set to Secretary)."
+msgstr "Este rol se asigna automáticamente desde el propio formulario del departamento top-level (Responsable de área, con el Rol establecido en Secretario/a)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/role.py:0
+msgid "This role is assigned automatically from Settings (EMS Management, Director field)."
+msgstr "Este rol se asigna automáticamente desde Ajustes (EMS Management, campo Director)."
+
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/shared/google_workspace_mixin.py:0
 msgid "Google Workspace domain is not configured (Settings > Company)."
 msgstr "El dominio de Google Workspace no está configurado (Ajustes > Compañía)."

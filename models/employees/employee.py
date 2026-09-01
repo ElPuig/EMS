@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, Command, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 employee_types = [
     ("asp", "Administrative and Services Personnel"),
@@ -39,6 +39,15 @@ DAY_PERIOD_SPLIT_HOUR = 13
 # has its own write() override that could loop back into write_photo() this way - res.partner
 # (models/contacts/contact.py) has no photo-sync logic of its own to re-enter.
 EMS_PHOTO_SYNC_CONTEXT_KEY = 'ems_syncing_photo'
+
+# Marks a role_ids write coming from one of the 5 internal update_*_role() sync methods below
+# (the only legitimate way any of the 7 hierarchy-managed roles may change - see
+# check_role_hierarchy() and docs/en/developers/employees/role_hierarchy.md) so
+# check_role_hierarchy() skips its own validation for it. Any write NOT carrying this key -
+# the employee's own form widget (fixed up first by _onchange_role_ids(), so it never reaches
+# the constrains inconsistent in practice), ems.role's own 'employee_ids' reverse field, direct
+# write()/API/import/list edit - is validated for real, closing every bypass at once.
+EMS_ROLE_SYNC_CONTEXT_KEY = 'ems_syncing_roles'
 
 _UNSET = object()
 
@@ -306,120 +315,116 @@ class ems_employee_base(models.AbstractModel):
     def _onchange_job_id(self):
         self._sync_security_groups()
 
+    def _ems_role_hierarchy_truth(self):
+        """Returns a (role, should_be_assigned, message) tuple per hierarchy-managed role (the
+        7 roles whose role_ids membership is derived entirely from department/company/group
+        data via update_tutor_role()/update_department_head_role()/update_seminar_chief_role()/
+        update_area_manager_role()/update_director_role(), never a legitimate manual edit - see
+        docs/en/developers/employees/role_hierarchy.md). Single source of truth for
+        '_onchange_role_ids' (in-form UX, below) and 'check_role_hierarchy' (the real
+        server-side barrier)."""
+        self.ensure_one()
+        top_level_headed = self.headed_department_ids.filtered('is_top_level')
+        return [
+            (self.env.ref('ems.role_tutor'), len(self.tutorship_ids) > 0,
+             _("The tutor role cannot be assigned manually, it will be set automatically if any group is added to the 'tutorship' field.")),
+            (self.env.ref('ems.role_dchieff'), len(self.headed_department_ids.filtered(lambda d: not d.is_top_level)) > 0,
+             _("The department chief role cannot be assigned or removed manually, it is set automatically from the department's own form.")),
+            (self.env.ref('ems.role_seminar'), len(self.seminar_department_ids) > 0,
+             _("The Seminar Chief role cannot be assigned or removed manually, it is set automatically from the department's own form.")),
+            (self.env.ref('ems.role_hos'), len(top_level_headed.filtered(lambda d: d.top_level_role == 'hos')) > 0,
+             _("The Head of Studies role cannot be assigned or removed manually, it is set automatically from the top-level department's own form.")),
+            (self.env.ref('ems.role_dhos'), len(top_level_headed.filtered(lambda d: d.top_level_role == 'dhos')) > 0,
+             _("The Deputy Head of Studies role cannot be assigned or removed manually, it is set automatically from the top-level department's own form.")),
+            (self.env.ref('ems.role_secretary'), len(top_level_headed.filtered(lambda d: d.top_level_role == 'secretary')) > 0,
+             _("The Secretary role cannot be assigned or removed manually, it is set automatically from the top-level department's own form.")),
+            (self.env.ref('ems.role_director'), len(self.directed_company_ids) > 0,
+             _("The Director role cannot be assigned or removed manually, it is set automatically from Settings.")),
+        ]
+
     @api.onchange('role_ids')
     def _onchange_role_ids(self):
-        role_tutor = self.env.ref('ems.role_tutor').ids[0]
-        role_dchieff = self.env.ref('ems.role_dchieff').ids[0]
-        role_seminar = self.env.ref('ems.role_seminar').ids[0]
-        role_hos = self.env.ref('ems.role_hos').ids[0]
-        role_dhos = self.env.ref('ems.role_dhos').ids[0]
-        role_secretary = self.env.ref('ems.role_secretary').ids[0]
-        role_director = self.env.ref('ems.role_director').ids[0]
         for employee in self:
-            is_role_tutor = role_tutor in employee.role_ids.ids
-            is_tutor = len(employee.tutorship_ids) > 0
+            # Each correction below is itself a role_ids write, immediately re-validated by
+            # check_role_hierarchy() - including outside a real Form()-driven onchange (e.g.
+            # this method called directly, as several tests do). Marking every correction as
+            # a trusted internal sync (like the 5 update_*_role() methods) is what lets ALL
+            # mismatches get fixed within this same pass instead of the first correction's own
+            # write raising because a LATER role is still mismatched at that intermediate
+            # moment - each correction, by construction, only ever moves a role TOWARD its
+            # computed truth, so this is safe unconditionally.
+            synced = employee.with_context(**{EMS_ROLE_SYNC_CONTEXT_KEY: True})
+            truth = employee._ems_role_hierarchy_truth()
+            role_tutor, is_tutor, tutor_message = truth[0]
+            messages = []
+
+            # Tutor is special-cased: removing the tag while tutorship_ids is still non-empty
+            # cascades into clearing every tutorship instead of reverting the tag - the
+            # employee genuinely stops tutoring, rather than being blocked from removing it.
+            is_role_tutor = role_tutor.id in employee.role_ids.ids
             if not is_role_tutor and is_tutor:
-                employee.tutorship_ids = False
+                synced.tutorship_ids = False
             elif is_role_tutor and not is_tutor:
-                employee.role_ids = [(3, role_tutor)]
+                synced.role_ids = [(3, role_tutor.id)]
+                messages.append(tutor_message)
+
+            # The remaining 6 all follow the same revert-and-warn pattern. Every one is
+            # checked in this same pass (no early return) so a save with more than one role
+            # simultaneously out of sync gets ALL of them corrected together, not just the
+            # first one found.
+            for role, should_be_assigned, message in truth[1:]:
+                is_assigned = role.id in employee.role_ids.ids
+                if is_assigned != should_be_assigned:
+                    synced.role_ids = [(4 if should_be_assigned else 3, role.id)]
+                    messages.append(message)
+
+            if messages:
                 return {
                     'warning': {
                         'title': _("Not allowed"),
-                        'message': _("The tutor role cannot be assigned manually, it will be set automatically if any group is added to the 'tutorship' field."),
-                        'type': 'notification',
-                    }
-                }
-
-            is_role_dchieff = role_dchieff in employee.role_ids.ids
-            is_department_head = len(employee.headed_department_ids.filtered(lambda d: not d.is_top_level)) > 0
-            if is_role_dchieff != is_department_head:
-                employee.role_ids = [(4 if is_department_head else 3, role_dchieff)]
-                return {
-                    'warning': {
-                        'title': _("Not allowed"),
-                        'message': _("The department chief role cannot be assigned or removed manually, it is set automatically from the department's own form."),
-                        'type': 'notification',
-                    }
-                }
-
-            is_role_seminar = role_seminar in employee.role_ids.ids
-            is_seminar_chief = len(employee.seminar_department_ids) > 0
-            if is_role_seminar != is_seminar_chief:
-                employee.role_ids = [(4 if is_seminar_chief else 3, role_seminar)]
-                return {
-                    'warning': {
-                        'title': _("Not allowed"),
-                        'message': _("The Seminar Chief role cannot be assigned or removed manually, it is set automatically from the department's own form."),
-                        'type': 'notification',
-                    }
-                }
-
-            top_level_headed = employee.headed_department_ids.filtered('is_top_level')
-
-            is_role_hos = role_hos in employee.role_ids.ids
-            is_hos = len(top_level_headed.filtered(lambda d: d.top_level_role == 'hos')) > 0
-            if is_role_hos != is_hos:
-                employee.role_ids = [(4 if is_hos else 3, role_hos)]
-                return {
-                    'warning': {
-                        'title': _("Not allowed"),
-                        'message': _("The Head of Studies role cannot be assigned or removed manually, it is set automatically from the top-level department's own form."),
-                        'type': 'notification',
-                    }
-                }
-
-            is_role_dhos = role_dhos in employee.role_ids.ids
-            is_dhos = len(top_level_headed.filtered(lambda d: d.top_level_role == 'dhos')) > 0
-            if is_role_dhos != is_dhos:
-                employee.role_ids = [(4 if is_dhos else 3, role_dhos)]
-                return {
-                    'warning': {
-                        'title': _("Not allowed"),
-                        'message': _("The Deputy Head of Studies role cannot be assigned or removed manually, it is set automatically from the top-level department's own form."),
-                        'type': 'notification',
-                    }
-                }
-
-            is_role_secretary = role_secretary in employee.role_ids.ids
-            is_secretary = len(top_level_headed.filtered(lambda d: d.top_level_role == 'secretary')) > 0
-            if is_role_secretary != is_secretary:
-                employee.role_ids = [(4 if is_secretary else 3, role_secretary)]
-                return {
-                    'warning': {
-                        'title': _("Not allowed"),
-                        'message': _("The Secretary role cannot be assigned or removed manually, it is set automatically from the top-level department's own form."),
-                        'type': 'notification',
-                    }
-                }
-
-            is_role_director = role_director in employee.role_ids.ids
-            is_director = len(employee.directed_company_ids) > 0
-            if is_role_director != is_director:
-                employee.role_ids = [(4 if is_director else 3, role_director)]
-                return {
-                    'warning': {
-                        'title': _("Not allowed"),
-                        'message': _("The Director role cannot be assigned or removed manually, it is set automatically from Settings."),
+                        'message': "\n".join(messages),
                         'type': 'notification',
                     }
                 }
         self._sync_security_groups()
 
+    @api.constrains('role_ids')
+    def check_role_hierarchy(self):
+        """The real, server-side barrier behind '_onchange_role_ids' (in-form UX only, above):
+        fires on every write()/create(), from any path (ems.role's own 'employee_ids' reverse
+        field, direct write(), API, import, list edit included) - not just the employee form's
+        own tag widget. EMS_ROLE_SYNC_CONTEXT_KEY marks the one legitimate way any of these 7
+        roles may change (the 5 update_*_role() methods below); everything else is held to the
+        same department/company/group-derived truth."""
+        if self.env.context.get(EMS_ROLE_SYNC_CONTEXT_KEY):
+            return
+        for employee in self:
+            messages = []
+            for role, should_be_assigned, message in employee._ems_role_hierarchy_truth():
+                is_assigned = role.id in employee.role_ids.ids
+                if is_assigned != should_be_assigned:
+                    messages.append(message)
+            if messages:
+                raise ValidationError("\n".join(messages))
+
     def update_tutor_role(self):
         role_tutor = self.env.ref('ems.role_tutor').ids[0]
         for employee in self:
-            employee.role_ids = [(4 if len(employee.tutorship_ids) > 0 else 3, role_tutor)] # link if tutor, otherwise unlink
+            synced = employee.with_context(**{EMS_ROLE_SYNC_CONTEXT_KEY: True})
+            synced.role_ids = [(4 if len(employee.tutorship_ids) > 0 else 3, role_tutor)] # link if tutor, otherwise unlink
 
     def update_department_head_role(self):
         role_dchieff = self.env.ref('ems.role_dchieff').ids[0]
         for employee in self:
             is_dchieff = len(employee.headed_department_ids.filtered(lambda department: not department.is_top_level)) > 0
-            employee.role_ids = [(4 if is_dchieff else 3, role_dchieff)]
+            synced = employee.with_context(**{EMS_ROLE_SYNC_CONTEXT_KEY: True})
+            synced.role_ids = [(4 if is_dchieff else 3, role_dchieff)]
 
     def update_seminar_chief_role(self):
         role_seminar = self.env.ref('ems.role_seminar').ids[0]
         for employee in self:
-            employee.role_ids = [(4 if len(employee.seminar_department_ids) > 0 else 3, role_seminar)]
+            synced = employee.with_context(**{EMS_ROLE_SYNC_CONTEXT_KEY: True})
+            synced.role_ids = [(4 if len(employee.seminar_department_ids) > 0 else 3, role_seminar)]
 
     def update_area_manager_role(self):
         role_hos = self.env.ref('ems.role_hos').ids[0]
@@ -430,7 +435,8 @@ class ems_employee_base(models.AbstractModel):
             is_hos = len(top_level_headed.filtered(lambda department: department.top_level_role == 'hos')) > 0
             is_dhos = len(top_level_headed.filtered(lambda department: department.top_level_role == 'dhos')) > 0
             is_secretary = len(top_level_headed.filtered(lambda department: department.top_level_role == 'secretary')) > 0
-            employee.role_ids = [
+            synced = employee.with_context(**{EMS_ROLE_SYNC_CONTEXT_KEY: True})
+            synced.role_ids = [
                 (4 if is_hos else 3, role_hos),
                 (4 if is_dhos else 3, role_dhos),
                 (4 if is_secretary else 3, role_secretary),
@@ -440,7 +446,8 @@ class ems_employee_base(models.AbstractModel):
         role_director = self.env.ref('ems.role_director').ids[0]
         for employee in self:
             is_director = len(employee.directed_company_ids) > 0
-            employee.role_ids = [(4 if is_director else 3, role_director)]
+            synced = employee.with_context(**{EMS_ROLE_SYNC_CONTEXT_KEY: True})
+            synced.role_ids = [(4 if is_director else 3, role_director)]
 
     def _sync_security_groups(self):
         """Sync res.users.groups_id based on role_ids and job_id that have a linked security group."""

@@ -46,24 +46,31 @@ class TestEmployeeRoleGroupSync(TransactionCase):
             cls.role_hos + cls.role_dhos + cls.role_director
             + cls.role_secretary_admin + cls.role_quality + cls.role_secretary
         )
-        unipersonal_roles.sudo().write({'employee_ids': [(5, 0, 0)]})
+        unipersonal_roles.sudo().with_context(ems_syncing_roles=True).write({'employee_ids': [(5, 0, 0)]})
 
+    # NOTE: role_hos/role_dhos/role_director/role_dchieff/role_secretary are 7 of the
+    # hierarchy-managed roles (see check_role_hierarchy(), employee.py) - they can no longer
+    # be written to role_ids without real department/company backing, EXCEPT through the
+    # internal ems_syncing_roles context these tests use below. That's a deliberate,
+    # trusted-equivalent stand-in for the real department/company form here: these tests
+    # exist to verify _sync_security_groups() reacts to role_ids, not to re-test hierarchy
+    # legitimacy (already covered by tests/test_department.py and tests/test_company_director.py).
     def test_assign_role_hos_adds_group(self):
-        self.employee.write({'role_ids': [(4, self.role_hos.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(4, self.role_hos.id)]})
         self.assertIn(self.group_head_of_studies, self.user.groups_id)
 
     def test_unassign_role_hos_removes_group(self):
-        self.employee.write({'role_ids': [(4, self.role_hos.id)]})
-        self.employee.write({'role_ids': [(3, self.role_hos.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(4, self.role_hos.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(3, self.role_hos.id)]})
         self.assertNotIn(self.group_head_of_studies, self.user.groups_id)
 
     def test_assign_role_hos_adds_implied_external_group(self):
-        self.employee.write({'role_ids': [(4, self.role_hos.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(4, self.role_hos.id)]})
         self.assertIn(self.group_hr_attendance_manager, self.user.groups_id)
 
     def test_unassign_role_hos_removes_implied_external_group(self):
-        self.employee.write({'role_ids': [(4, self.role_hos.id)]})
-        self.employee.write({'role_ids': [(3, self.role_hos.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(4, self.role_hos.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(3, self.role_hos.id)]})
         self.assertNotIn(self.group_head_of_studies, self.user.groups_id)
         self.assertNotIn(self.group_hr_attendance_manager, self.user.groups_id)
 
@@ -85,45 +92,45 @@ class TestEmployeeRoleGroupSync(TransactionCase):
         # touched by the sync even if it happens to be implied by an EMS group
         # elsewhere in the system - the fix only revokes groups that were
         # justified by an EMS group *this user* is losing in *this* write.
-        self.employee.write({'role_ids': [(4, self.role_secretary.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(4, self.role_secretary.id)]})
         self.user.write({'groups_id': [(4, self.group_hr_attendance_manager.id)]})
-        self.employee.write({'role_ids': [(3, self.role_secretary.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(3, self.role_secretary.id)]})
         self.assertIn(self.group_hr_attendance_manager, self.user.groups_id)
 
     def test_assign_role_dhos_adds_group(self):
-        self.employee.write({'role_ids': [(4, self.role_dhos.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(4, self.role_dhos.id)]})
         self.assertIn(self.group_head_of_studies, self.user.groups_id)
 
     def test_unassign_role_dhos_removes_group(self):
-        self.employee.write({'role_ids': [(4, self.role_dhos.id)]})
-        self.employee.write({'role_ids': [(3, self.role_dhos.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(4, self.role_dhos.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(3, self.role_dhos.id)]})
         self.assertNotIn(self.group_head_of_studies, self.user.groups_id)
 
     def test_assign_role_director_adds_group(self):
-        self.employee.write({'role_ids': [(4, self.role_director.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(4, self.role_director.id)]})
         self.assertIn(self.group_director, self.user.groups_id)
 
     def test_unassign_role_director_removes_group(self):
-        self.employee.write({'role_ids': [(4, self.role_director.id)]})
-        self.employee.write({'role_ids': [(3, self.role_director.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(4, self.role_director.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(3, self.role_director.id)]})
         self.assertNotIn(self.group_director, self.user.groups_id)
 
     def test_assign_role_dchieff_adds_group(self):
-        self.employee.write({'role_ids': [(4, self.role_dchieff.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(4, self.role_dchieff.id)]})
         self.assertIn(self.group_department_chief, self.user.groups_id)
 
     def test_unassign_role_dchieff_removes_group(self):
-        self.employee.write({'role_ids': [(4, self.role_dchieff.id)]})
-        self.employee.write({'role_ids': [(3, self.role_dchieff.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(4, self.role_dchieff.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(3, self.role_dchieff.id)]})
         self.assertNotIn(self.group_department_chief, self.user.groups_id)
 
     def test_assign_role_secretary_adds_group(self):
-        self.employee.write({'role_ids': [(4, self.role_secretary.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(4, self.role_secretary.id)]})
         self.assertIn(self.group_secretary, self.user.groups_id)
 
     def test_unassign_role_secretary_removes_group(self):
-        self.employee.write({'role_ids': [(4, self.role_secretary.id)]})
-        self.employee.write({'role_ids': [(3, self.role_secretary.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(4, self.role_secretary.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(3, self.role_secretary.id)]})
         self.assertNotIn(self.group_secretary, self.user.groups_id)
 
     def test_assign_role_secretary_admin_adds_group(self):

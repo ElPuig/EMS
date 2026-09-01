@@ -7,12 +7,21 @@
             <field name="inherit_id" ref="hr.hr_employee_public_view_kanban"/> 
             <field name="arch" type="xml">               
                 <xpath expr="//div[hasclass('d-flex')]" position="inside">
-                    <div class="o_widget o_widget_hr_employee_delete">
+                    <!-- read_only_mode is a standard kanban card template variable, reflecting
+                    whichever embedding field's own "readonly" is active for this specific card
+                    (see odoo/addons/web/static/src/views/kanban/kanban_record.js::
+                    renderingContext) - e.g. ems.role's own "Assigned to" tab sets
+                    readonly="is_hierarchy_managed" on employee_ids for the 7 hierarchy-managed
+                    roles (views/community/role/form.xml), where this delete affordance would
+                    otherwise let a user remove (and, on save, be rejected by ems.role.write()'s
+                    own guard - technically safe, but confusing) an assignment that isn't
+                    supposed to be editable from here at all. -->
+                    <div class="o_widget o_widget_hr_employee_delete" t-if="!read_only_mode">
                         <a title="Delete" type="delete" href="#" class="ml8 we-button.o_delete_btn" role="button">
                             <i class="fa fa-trash-o" aria-hidden="true" />
                         </a>
                     </div>
-                </xpath>           
+                </xpath>
             </field>
         </record>
 

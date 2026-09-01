@@ -23,7 +23,7 @@ class TestWorkingSchedule(TransactionCase):
         })
         # role_secretary is unipersonal and may already be assigned to a real employee in the
         # working database; clear it so the tests below are self-contained.
-        cls.env.ref('ems.role_secretary').sudo().write({'employee_ids': [(5, 0, 0)]})
+        cls.env.ref('ems.role_secretary').sudo().with_context(ems_syncing_roles=True).write({'employee_ids': [(5, 0, 0)]})
         cls.level, cls.study = create_level_study(cls, 'TWSL', level={'name': 'Test Level (Working Schedule)'}, study={
             'code': 'TWSL001', 'name': 'Test Study (Working Schedule)', 'date': date.today(),
         })
@@ -945,7 +945,7 @@ class TestWorkingSchedule(TransactionCase):
 
     def test_get_report_role_lines_plain_role_has_no_suffix(self):
         role_secretary = self.env.ref('ems.role_secretary')
-        self.teacher.write({'role_ids': [(4, role_secretary.id)]})
+        self.teacher.with_context(ems_syncing_roles=True).write({'role_ids': [(4, role_secretary.id)]})
 
         lines = self.teacher.get_report_role_lines()
 

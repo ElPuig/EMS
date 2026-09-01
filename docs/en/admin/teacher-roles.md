@@ -58,7 +58,7 @@ The badge automatically shows the color you picked with readable text, whatever 
 
 The teacher's user account is updated immediately: the security group tied to the role is granted, together with everything it implies (e.g. assigning **Department chieff** also grants Tutor and Teacher access).
 
-> The **Tutor**, **Department chieff**, **Seminar leader**, **Head of studies**, **Deputy head of studies**, **Secretary** and **Director** roles cannot be added or removed manually here — no role in this list can. Tutor is managed automatically based on whether the teacher is set as the tutor of a Class Group; the next five are managed automatically from a department's own form; Director is managed automatically from Settings (see below).
+> The **Tutor**, **Department chieff**, **Seminar leader**, **Head of studies**, **Deputy head of studies**, **Secretary** and **Director** roles cannot be added or removed manually — neither from here, nor from the role's own **Assigned to** list (**Educational Community → Configuration → Teachers/ASP → Roles**), nor through any bulk edit or import. Trying any of these shows a message naming exactly where the change actually has to be made instead. Tutor is managed automatically based on whether the teacher is set as the tutor of a Class Group; the next five are managed automatically from a department's own form; Director is managed automatically from Settings (see below).
 
 ---
 

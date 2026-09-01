@@ -84,3 +84,57 @@ registry.category("web_tour.tours").add("ems_employee_role_badge_smoke", {
         },
     ],
 });
+
+// Smoke-tests the "Assigned to" tab lock for the 7 hierarchy-managed roles
+// (views/community/role/form.xml, views/community/employee/kanban.xml): a role-specific
+// explanation banner, and the kanban card's own custom delete button (this project's own
+// addition, views/community/employee/kanban.xml - not a native Odoo affordance) hidden via
+// "read_only_mode", the standard kanban card template variable that already reflects the
+// embedding field's own readonly - see that file's own comment for the framework source
+// reference. A clean ./upgrade.sh only proves the view's XML is structurally valid, not that
+// the banner text/hidden button actually render in a real browser - this is exactly the kind
+// of client-side gap that already broke silently once this same session, when a first attempt
+// (a dynamic 'class' expression) crashed the whole form's OWL template compilation.
+registry.category("web_tour.tours").add("ems_role_hierarchy_lock_smoke", {
+    test: true,
+    url: "/odoo/action-ems.action_teachers_role_tree",
+    steps: () => [
+        {
+            trigger: ".o_list_view",
+            content: "Roles list view loaded",
+        },
+        {
+            trigger: ".o_data_row td:contains('Head of studies')",
+            content: "Open the Head of Studies role",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .alert-info:contains('Area Manager')",
+            content: "Role-specific explanation banner rendered (naming the actual screen to use)",
+        },
+        {
+            trigger:
+                ".o_field_widget[name='employee_ids'] .o_kanban_record:not(:has(.o_widget_hr_employee_delete))",
+            content: "No delete button rendered on the assigned employee's card",
+        },
+        {
+            trigger: ".breadcrumb-item:contains('Roles')",
+            content: "Back to the roles list",
+            run: "click",
+        },
+        {
+            trigger: ".o_data_row td:contains('Quality coordinator')",
+            content: "Open a minor (non-hierarchy-managed) role for contrast",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view:not(:has(.alert-info))",
+            content: "No lock banner for a minor role",
+        },
+        {
+            trigger:
+                ".o_field_widget[name='employee_ids'] .o_kanban_record:has(.o_widget_hr_employee_delete)",
+            content: "Delete button still rendered for a minor role's assigned employee",
+        },
+    ],
+});

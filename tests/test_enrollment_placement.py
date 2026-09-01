@@ -90,6 +90,12 @@ class TestEnrollmentPlacement(TransactionCase):
         # keeps proposing same-study renewals.
         cls.secretary = cls._ems_user('plc_secretary', 'ems.group_secretary')
         cls.tutor = cls._ems_user('plc_tutor', 'ems.group_tutor')
+        # The family/student behind a portal confirmation: no EMS group at all.
+        cls.portal = cls.env['res.users'].create({
+            'name': 'plc_portal',
+            'login': 'plc_portal',
+            'groups_id': [(6, 0, [cls.env.ref('base.group_portal').id])],
+        })
 
     @classmethod
     def _ems_user(cls, login, group_xmlid):
@@ -162,6 +168,36 @@ class TestEnrollmentPlacement(TransactionCase):
         order._ems_apply_destination_placement()
         self.assertFalse(student.main_group_id)
         self.assertFalse(student.enrollment_ids)
+
+    def test_placement_runs_for_whoever_confirms(self):
+        """Nobody who confirms an enrollment is an academic admin: the student does it
+        from the portal, the secretary from the backend. Both reach the placement through
+        sudo(), which only sets env.su and leaves env.user as the real one, so
+        ems.enrollment.default_get()'s "only admins create manual enrollments" guard used
+        to fire on them - create() goes through default_get - and the confirmation died
+        with an invalid-operation dialog instead of placing the student."""
+        for user in (self.portal, self.secretary):
+            with self.subTest(user=user.name):
+                student = self._student(f'Plc Confirm {user.id}')
+                order = self._order(student, group=self.g1a)
+                order.with_user(user).sudo()._ems_apply_destination_placement()
+                self.assertEqual(student.main_group_id, self.g1a)
+                self.assertEqual(len(student.enrollment_ids), 2)
+
+    def test_manual_enrollment_is_still_blocked_for_a_tutor(self):
+        """The guard above is only lifted for sudo: a tutor creating an enrollment by
+        hand (no sudo, the form's own New button) is still turned away."""
+        student = self._student('Plc Manual')
+        with self.assertRaises(UserError) as caught:
+            self.env['ems.enrollment'].with_user(self.tutor).create({
+                'student_id': student.id,
+                'group_id': self.g1a.id,
+                'subject_id': self.subject1.id,
+            })
+        # Not an AccessError (the tutor does hold the model's create right through
+        # group_teacher): the guard itself is what turns them away. Asserted by type
+        # rather than by message, which comes back in the run's own language.
+        self.assertNotIsInstance(caught.exception, AccessError)
 
     # --- group mismatch warning ---------------------------------------------
 

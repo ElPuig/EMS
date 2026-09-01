@@ -16,7 +16,7 @@
 | `parent_id` cascade (Department Chief / Seminar Chief / Director) | `_compute_parent_id` | [Department cascade](department.md) |
 | Personal calendar lifecycle | `create()`/`write()`/`unlink()`'s `resource_calendar_id` handling, `_personal_calendar_name()` | [Working schedules](working_schedule.md) |
 | Weekly schedule derived breaks | `_get_derived_break_entries`, `get_derived_break_attendance_data` | [Working schedules](working_schedule.md) |
-| Profile picture sync | `write_photo()`, `write()`'s photo guard | [Photo visibility](photo_visibility.md) |
+| Profile picture sync | `write_photo()`, `write()`'s photo guard, `_refresh_stale_avatar_placeholder()` | [Photo visibility](photo_visibility.md) |
 | Google Workspace / EMS user creation | `action_create_google_account`, `action_create_ems_user`, OAuth pre-link | [Google Workspace staff integration](google_workspace_staff.md) |
 
 Each of these areas already has thorough `TransactionCase` coverage (`test_employee_role_group_sync.py`, `test_employee_schedule_lifecycle.py`, `test_employee_photo_visibility.py`, `test_employee_ems_user.py`, `test_working_schedule.py`) — 60+ test methods between them. This DTON pass didn't need to add to those; it filled the remaining gaps below instead.

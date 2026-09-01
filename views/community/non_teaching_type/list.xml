@@ -10,6 +10,7 @@
                     <field name="name"/>
                     <field name="is_break" widget="boolean_toggle"/>
                     <field name="is_fixed" widget="boolean_toggle"/>
+                    <field name="is_guard" widget="boolean_toggle"/>
                 </list>
             </field>
         </record>

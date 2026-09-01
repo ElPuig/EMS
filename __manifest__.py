@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.22.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.23.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -140,10 +140,10 @@
             'views/community/working_schedules/import_wizard.xml',
             'views/community/working_schedules/menu.xml',
 
-            'views/employees/non_teaching_type/list.xml',
-            'views/employees/non_teaching_type/form.xml',
-            'views/employees/non_teaching_type/menu.xml',
-            'views/employees/user_profile_form.xml',
+            'views/community/non_teaching_type/list.xml',
+            'views/community/non_teaching_type/form.xml',
+            'views/community/non_teaching_type/menu.xml',
+            'views/community/employee/user_profile_form.xml',
 
             'views/community/subject/list.xml',
             'views/community/subject/search.xml',
@@ -233,6 +233,9 @@
             'views/attendance/attendance_correction/list.xml',
             'views/attendance/attendance_correction/form.xml',
             'views/attendance/attendance_correction/hr_attendance_form.xml',
+
+            'views/attendance/guard_duty_board/menu.xml',
+            'reports/attendance/report_guard_duty_board.xml',
 
             'views/attendance/attendance_issue/menu.xml',
             'views/attendance/attendance_issue/list.xml',

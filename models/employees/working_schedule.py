@@ -124,9 +124,20 @@ class ems_working_schedule(models.Model):
 		keeps working once this calendar is no longer any employee's *current* one (see
 		plans/course_transition_teacher_schedule_archival.md), which is exactly the point of storing
 		it. Falls back to the reverse search for a calendar predating that field (not yet backfilled
-		by a migration) - never breaks a calendar that simply hasn't been touched yet."""
+		by a migration) - never breaks a calendar that simply hasn't been touched yet.
+
+		The reverse search only returns a match when it is unique. Any employee never assigned a
+		personal calendar (every non-teacher, and a teacher predating '_ems_create_personal_calendar')
+		still carries 'resource.mixin''s shared company-default 'resource_calendar_id' - so the same
+		calendar can legitimately be shared by several employees, and none of them is "the" teacher it
+		belongs to. Returning an ambiguous match would break every caller's own singleton assumption
+		(e.g. '_refresh_personal_name''s 'employee.name') instead of the empty recordset they already
+		treat as "not a personal calendar"."""
 		self.ensure_one()
-		return self.employee_id or self.env['hr.employee'].search([('resource_calendar_id', '=', self.id)])
+		if self.employee_id:
+			return self.employee_id
+		employees = self.env['hr.employee'].search([('resource_calendar_id', '=', self.id)])
+		return employees if len(employees) == 1 else self.env['hr.employee']
 
 	def get_schedule_report_lines(self):
 		"""Weekly schedule rows (one per distinct Mon-Fri period, one column per weekday) for the
@@ -321,6 +332,10 @@ class ems_working_schedule_assignation(models.Model):
 	# to need the grid's compact single-line rendering, see 'schedule_grid_field.js'/
 	# 'group_schedule_grid_field.js'.
 	non_teaching_is_break = fields.Boolean(related="non_teaching.is_break", store=True)
+	# NOTE: same reasoning as 'non_teaching_is_break' above — lets the guard duty board
+	# (models/attendance/guard_duty_board.py's ems.course.get_guard_duty_board_lines()) single
+	# out a guard-duty row without a separate 'ems.non_teaching_type' fetch.
+	non_teaching_is_guard = fields.Boolean(related="non_teaching.is_guard", store=True)
 
 	@api.model_create_multi
 	def create(self, vals_list):
@@ -649,8 +664,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		picked/created on the 'groups' step itself is still caught by '_apply_import()`'s own
 		end-of-pipeline check (see 'missing_space' there), just not pre-emptively on this screen."""
 		self.ensure_one()
-		if not self.env.company.current_course_id.id:
-			raise ValidationError(_("No 'current course' has been setup. Please, select or create the current course within the EMS settings section."))
+		self.env.company.get_current_course_or_raise()
 		if not self.attachment_ids:
 			raise ValidationError(_("No XML file has been loaded. Please, provide at least one XML file and try again."))
 		result = self._classify_attachments()

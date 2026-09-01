@@ -19,6 +19,7 @@
 | `sequence` | `Integer` (`default=10`) | No | Yes | Manual ordering |
 | `is_break` | `Boolean` | No | Yes | Dropped from both hours-summary columns on the working schedule (e.g. lunch/patio break) |
 | `is_fixed` | `Boolean` | No | Yes | Counted in the "Other fixed-schedule hours" column every day (e.g. guard duties) |
+| `is_guard` | `Boolean` | No | Yes | Counted as guard duty on the [guard duty schedule board](../attendance/guard_duty_board.md) |
 | `active` | `Boolean` (`default=True`) | No | Yes | Standard archive flag |
 
 `_order = "sequence, name"`; `unique_code` SQL constraint.
@@ -53,6 +54,6 @@ See [Working schedules](working_schedule.md) for how `is_break`/`is_fixed` feed 
 
 | View | File | Notes |
 |------|------|-------|
-| List | `views/employees/non_teaching_type/list.xml` | — |
-| Form | `views/employees/non_teaching_type/form.xml` | — |
-| Action + Menu | `views/employees/non_teaching_type/menu.xml` | — |
+| List | `views/community/non_teaching_type/list.xml` | — |
+| Form | `views/community/non_teaching_type/form.xml` | — |
+| Action + Menu | `views/community/non_teaching_type/menu.xml` | — |

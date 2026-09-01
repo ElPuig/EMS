@@ -3,7 +3,8 @@
 import logging
 
 from odoo.tools import config
-from odoo import models, fields, api
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 from cryptography.fernet import Fernet
 
 _logger = logging.getLogger(__name__)
@@ -85,6 +86,20 @@ class ems_company(models.Model):
     google_ws_sa_json           = fields.Text(compute='_compute_google_ws_sa_json',
                                               inverse='_inverse_google_ws_sa_json', store=False)
     google_ws_sa_json_encrypted = fields.Char(copy=False)
+
+    def get_current_course_or_raise(self):
+        """The configured "Current course" (current_course_id), or a friendly ValidationError
+        instead of the raw crash a caller would otherwise hit trying to use an empty course
+        (e.g. 'ensure_one()'s "Expected singleton" on an empty recordset) — the setting is
+        required by several features (the guard duty board, the working-schedule import
+        wizard...) but nothing guarantees an admin has already set it on a freshly installed
+        instance, or in a test DB that never configured one."""
+        self.ensure_one()
+        if not self.current_course_id:
+            raise ValidationError(_(
+                "No 'current course' has been setup. Please, select or create the current "
+                "course within the EMS settings section."))
+        return self.current_course_id
 
     def _sync_current_course_flag(self):
         """Keep ems.course.is_current in sync with the configured current course

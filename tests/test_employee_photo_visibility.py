@@ -254,3 +254,51 @@ class TestEmployeePhotoVisibility(TransactionCase):
         migration = self._load_post_migrate_module()
         # Must not raise for employees with no user_id.
         migration._sync_employee_photo_to_user(self.env.cr)
+
+    # --- stale avatar placeholder on rename ------------------------------
+    def _svg_initial(self, image_1920):
+        # Odoo's _avatar_generate_svg() always places the initial right after the
+        # opening <text ...> tag - e.g. "...sans-serif'>T</text>".
+        svg = base64.b64decode(image_1920).decode()
+        self.assertTrue(svg.lstrip().startswith('<?xml'), svg)
+        return svg.split("font-family='sans-serif'>", 1)[1][0]
+
+    def test_pending_teacher_placeholder_updates_after_rename(self):
+        # Regression test for #378: native hr.employee.create() bakes a real SVG
+        # into image_1920 for any new employee with no photo (models/hr/models/
+        # hr_employee.py's create()) - a pending-identification teacher is always
+        # created this way (placeholder name, no user_id yet) and always renamed
+        # later, so this hits every single pending teacher, not an edge case.
+        employee = self.env['hr.employee'].create({
+            'name': 'Pending teacher (X_TEST)',
+            'employee_type': 'teacher',
+            'schedule_import_code': 'X_TEST',
+        })
+        self.assertEqual(self._svg_initial(employee.image_1920), 'P')
+
+        employee.write({'name': 'Zoe'})
+
+        self.assertEqual(self._svg_initial(employee.image_1920), 'Z')
+
+    def test_disabled_photo_employee_placeholder_updates_after_rename(self):
+        self.teacher_a_user.image_disabled = True
+        self.assertEqual(self._svg_initial(self.teacher_a.image_1920), 'T')
+
+        self.teacher_a.write({'name': 'Zoe Renamed'})
+
+        self.assertEqual(self._svg_initial(self.teacher_a.image_1920), 'Z')
+        self.assertEqual(self._svg_initial(self.teacher_a_user.partner_id.image_1920), 'Z')
+
+    def test_real_photo_not_touched_by_rename(self):
+        self.teacher_a.image_1920 = self.photo
+        self.teacher_a.write({'name': 'Zoe Renamed'})
+        self.assertEqual(base64.b64decode(self.teacher_a.image_1920), base64.b64decode(self.photo))
+
+    def test_rename_without_linked_user_still_refreshes(self):
+        # employee_without_user has no user_id at all (like a pending-identification
+        # teacher) - the fix must not assume a linked user is available.
+        self.assertEqual(self._svg_initial(self.employee_without_user.image_1920), 'N')
+
+        self.employee_without_user.write({'name': 'Zoe Renamed'})
+
+        self.assertEqual(self._svg_initial(self.employee_without_user.image_1920), 'Z')

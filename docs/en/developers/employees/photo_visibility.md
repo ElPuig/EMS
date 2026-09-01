@@ -108,6 +108,38 @@ avoids an ambiguous combined request).
 Re-enabling (`image_disabled = False`) on its own does nothing else: no photo is
 restored, the placeholder stays until someone uploads a real one.
 
+## Stale initials after a rename (fixed 2026-09-01, issue #378)
+
+A baked SVG placeholder in `image_1920` is a **one-time write**, not the live
+`avatar.mixin` compute the rest of the app otherwise relies on — nothing kept it in sync
+with a later name change, on either of the two paths that produce one:
+
+1. **The disabling flow above.**
+2. **Native Odoo's own `hr.employee.create()`** (`odoo/addons/hr/models/hr_employee.py`,
+   *not* an EMS method): any brand-new employee created with no photo, and whose acting
+   user can write `ir.ui.view`, gets `_avatar_generate_svg()` baked into `image_1920`
+   immediately, unconditionally — teacher/ASP or not. This is the one that actually
+   matters for the pending-identification flow (`working_schedule.md`'s "Pending-
+   identification teachers"): **every** pending teacher is created this way (placeholder
+   name, no `user_id` yet) and **always** renamed later, once identified — so this staleness
+   hit 100% of that flow, not an edge case.
+
+Both paths always call `_avatar_generate_svg()`, which always produces `image/svg+xml` —
+and `fields.Image`'s PIL-based upload pipeline cannot store a genuinely uploaded SVG photo.
+`hr.employee._refresh_stale_avatar_placeholder()` (`employee.py`, called from `write()`
+whenever `name` is in `vals`) uses exactly that to tell a placeholder apart from a real
+photo without needing a dedicated marker field: `base64.b64decode(image_1920).lstrip()
+.startswith(b'<?xml')`. For every employee in `self` that matches, it regenerates from
+that **employee's own**, just-changed name (`with_user(SUPERUSER_ID)`, same mimetype-check
+reasoning as the disabling flow above) and writes it into `image_1920`, and — if a
+`user_id` is linked — into the partner's `image_1920` too, for visual consistency.
+
+Deliberately **not** implemented by reusing `_refresh_photo_placeholder()` (`user.py`,
+used by the disabling flow): that method sources the SVG from `partner_id`'s *own* current
+name, correct for its use case (nothing about the partner changed) but wrong here — an
+employee rename does not itself change `res.partner.name`, so delegating to it would keep
+regenerating the OLD name's initial forever. The two helpers stay separate on purpose.
+
 ## Access control
 
 | Actor | With photo enabled | With photo disabled |

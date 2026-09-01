@@ -203,6 +203,8 @@ When the post is filled:
 
 That single click both creates the teacher's Google Workspace account/EMS login **and** confirms their identity — the "Pending identification" badge disappears, and nothing about their already-imported schedule, subjects or attendance lists needs to be redone.
 
+If this pending teacher will never get a Google Workspace/EMS account created from this record (e.g. they already have an account under a different, unmerged record, or the post turns out not to need one), open their record and click **Mark as identified** in the header instead. After confirming, it clears the "Pending identification" badge on its own, without creating any account — use it only as a manual override for cases **Generate Google account** doesn't cover.
+
 Re-importing an updated file for a post that's still unstaffed (same placeholder code) updates that same pending teacher's schedule in place, the same way re-importing an already-identified teacher's file does — it never creates a second, duplicate record for the same code.
 
 ---

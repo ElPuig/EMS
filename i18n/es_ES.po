@@ -1518,7 +1518,8 @@ msgid "After-school"
 msgstr "Extraescolar"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_group__shift__afternoon model:ir.model.fields.selection,name:ems.selection__sale_order__shift__afternoon model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__shift__afternoon model:ir.model.fields.selection,name:ems.selection__res_partner__preinscription_shift__afternoon model_terms:ir.ui.view,arch_db:ems.view_applicant_search
+#. odoo-javascript
+#: model:ir.model.fields.selection,name:ems.selection__ems_group__shift__afternoon model:ir.model.fields.selection,name:ems.selection__sale_order__shift__afternoon model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__shift__afternoon model:ir.model.fields.selection,name:ems.selection__res_partner__preinscription_shift__afternoon model_terms:ir.ui.view,arch_db:ems.view_applicant_search code:addons/ems/static/src/js/backend/guard_duty_board_field.js:0 model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
 msgid "Afternoon"
 msgstr "Tarde"
 
@@ -2595,7 +2596,7 @@ msgid "Country"
 msgstr "País"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_group__course model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__special_course_filter model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment model:ir.model.fields,field_description:ems.field_ems_student_year_record__course_id model_terms:ir.ui.view,arch_db:ems.view_applicant_search model_terms:ir.ui.view,arch_db:ems.view_year_record_search model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__course_name model:ir.model.fields,field_description:ems.field_resource_calendar__course_id model_terms:ir.ui.view,arch_db:ems.view_resource_calendar_search_ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__course model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__special_course_filter model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment model:ir.model.fields,field_description:ems.field_ems_student_year_record__course_id model_terms:ir.ui.view,arch_db:ems.view_applicant_search model_terms:ir.ui.view,arch_db:ems.view_year_record_search model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__course_name model:ir.model.fields,field_description:ems.field_resource_calendar__course_id model_terms:ir.ui.view,arch_db:ems.view_resource_calendar_search_ems model:ir.model.fields,field_description:ems.field_ems_guard_duty_board__course_id
 msgid "Course"
 msgstr "Curso"
 
@@ -3644,7 +3645,7 @@ msgstr "Comentario para el alumno de la asignatura"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__4 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__4 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule
+#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__4 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__4 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
 msgid "Friday"
 msgstr "Viernes"
 
@@ -4847,12 +4848,13 @@ msgstr "Modo"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__0 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule
+#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__0 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
 msgid "Monday"
 msgstr "Lunes"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_group__shift__morning model:ir.model.fields.selection,name:ems.selection__sale_order__shift__morning model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__shift__morning model:ir.model.fields.selection,name:ems.selection__res_partner__preinscription_shift__morning model_terms:ir.ui.view,arch_db:ems.view_applicant_search
+#. odoo-javascript
+#: model:ir.model.fields.selection,name:ems.selection__ems_group__shift__morning model:ir.model.fields.selection,name:ems.selection__sale_order__shift__morning model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__shift__morning model:ir.model.fields.selection,name:ems.selection__res_partner__preinscription_shift__morning model_terms:ir.ui.view,arch_db:ems.view_applicant_search code:addons/ems/static/src/js/backend/guard_duty_board_field.js:0 model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
 msgid "Morning"
 msgstr "Mañana"
 
@@ -6157,7 +6159,7 @@ msgid "Save"
 msgstr "Guardar"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_group__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_base__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_public__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form model_terms:ir.ui.view,arch_db:ems.view_employee_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_notice_form
+#: model:ir.model.fields,field_description:ems.field_ems_group__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_base__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_public__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form model_terms:ir.ui.view,arch_db:ems.view_employee_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_notice_form model:ir.model.fields,field_description:ems.field_ems_guard_duty_board__board_attendance_ids
 msgid "Schedule"
 msgstr "Horario"
 
@@ -7358,7 +7360,7 @@ msgstr "Esta plantilla ya ha sido utilizada para registrar las asistencias del a
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__3 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__3 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule
+#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__3 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__3 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
 msgid "Thursday"
 msgstr "Jueves"
 
@@ -7426,7 +7428,7 @@ msgstr "Verdadero cuando la cuenta de Google Workspace del alumno está suspendi
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__1 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__1 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule
+#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__1 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__1 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
 msgid "Tuesday"
 msgstr "Martes"
 
@@ -7765,7 +7767,7 @@ msgstr "Historial de comunicaciones del sistio web"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__2 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__2 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule
+#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__2 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__2 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
 msgid "Wednesday"
 msgstr "Miércoles"
 
@@ -10416,7 +10418,7 @@ msgstr "Asignatura → Docente(s)"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/xml/backend/group_schedule_grid_field.xml:0 code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: code:addons/ems/static/src/xml/backend/group_schedule_grid_field.xml:0 code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 code:addons/ems/static/src/xml/backend/guard_duty_board_field.xml:0
 msgid "PDF"
 msgstr "PDF"
 
@@ -12035,6 +12037,69 @@ msgstr "Este rol ya está asignado a otra persona."
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/employees/role.py:0
+msgid "This role's assignment is managed automatically from the department, company or group form and cannot be edited here."
+msgstr "La asignación de este rol se gestiona automáticamente desde el formulario del departamento, la empresa o el grupo, y no se puede editar desde aquí."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_role__is_hierarchy_managed
+msgid "Hierarchy-managed"
+msgstr "Gestionado por jerarquía"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_role__is_hierarchy_managed
+msgid "Assigned automatically from the department, company or group form - cannot be edited from this role's own record."
+msgstr "Se asigna automáticamente desde el formulario del departamento, la empresa o el grupo — no se puede editar desde la propia ficha del rol."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_role__hierarchy_managed_message
+msgid "Hierarchy-managed message"
+msgstr "Mensaje de gestión por jerarquía"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/role.py:0
+msgid "This role is assigned automatically when a teacher is set as a group's Tutor (the group's own form)."
+msgstr "Este rol se asigna automáticamente cuando un profesor se establece como Tutor de un grupo (desde el propio formulario del grupo)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/role.py:0
+msgid "This role is assigned automatically from the department's own form (Manager field)."
+msgstr "Este rol se asigna automáticamente desde el propio formulario del departamento (campo Responsable)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/role.py:0
+msgid "This role is assigned automatically from the department's own form (Seminar Chief field)."
+msgstr "Este rol se asigna automáticamente desde el propio formulario del departamento (campo Jefe de seminario)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/role.py:0
+msgid "This role is assigned automatically from the top-level department's own form (Area Manager, with Role set to Head of Studies)."
+msgstr "Este rol se asigna automáticamente desde el propio formulario del departamento top-level (Responsable de área, con el Rol establecido en Jefe de estudios)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/role.py:0
+msgid "This role is assigned automatically from the top-level department's own form (Area Manager, with Role set to Deputy Head of Studies)."
+msgstr "Este rol se asigna automáticamente desde el propio formulario del departamento top-level (Responsable de área, con el Rol establecido en Jefe de estudios adjunto)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/role.py:0
+msgid "This role is assigned automatically from the top-level department's own form (Area Manager, with Role set to Secretary)."
+msgstr "Este rol se asigna automáticamente desde el propio formulario del departamento top-level (Responsable de área, con el Rol establecido en Secretario/a)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/role.py:0
+msgid "This role is assigned automatically from Settings (EMS Management, Director field)."
+msgstr "Este rol se asigna automáticamente desde Ajustes (EMS Management, campo Director)."
+
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/shared/google_workspace_mixin.py:0
 msgid "Google Workspace domain is not configured (Settings > Company)."
 msgstr "El dominio de Google Workspace no está configurado (Ajustes > Compañía)."
@@ -12207,6 +12272,22 @@ msgid "Identity confirmed: this employee was created as a pending-identification
 msgstr "Identidad confirmada: este empleado se creó como marcador de posición pendiente de identificar a partir del código de importación de horario '%s'."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Identity confirmed manually: this employee was created as a pending-identification placeholder from schedule-import code '%s'."
+msgstr "Identidad confirmada manualmente: este empleado se creó como marcador de posición pendiente de identificar a partir del código de importación de horario '%s'."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Mark as identified"
+msgstr "Marcar como identificado"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "This clears the pending-identification placeholder without creating any Google/EMS account. Use it only once you are sure this employee will not need one created from this record (e.g. already has one elsewhere). Continue?"
+msgstr "Esto elimina el marcador de posición pendiente de identificar sin crear ninguna cuenta de Google/EMS. Úsalo solo cuando estés seguro de que este empleado no necesitará ninguna creada desde este registro (p. ej. ya tiene una en otro registro). ¿Continuar?"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__create_missing_enrollments
 msgid "Create missing enrollments"
 msgstr "Crear las matrículas que falten"
@@ -12366,3 +12447,43 @@ msgstr "Válido desde (en blanco = todo el curso)"
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 msgid "Valid until (blank = whole course year)"
 msgstr "Válido hasta (en blanco = todo el curso)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__is_guard
+msgid "Is guard duty"
+msgstr "Es una guardia"
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_report_guard_duty_board
+msgid "Guard Duty Schedule"
+msgstr "Horario de guardias"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
+msgid "Guard Duty Schedule -"
+msgstr "Horario de guardias -"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/guard_duty_board_field.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
+msgid "Guard duty"
+msgstr "Guardia"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.action_guard_duty_board
+#: model:ir.ui.menu,name:ems.menu_guard_duty_board
+#: model_terms:ir.ui.view,arch_db:ems.view_guard_duty_board_form
+msgid "Guard duty schedule"
+msgstr "Horario de guardias"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
+msgid "No schedule available."
+msgstr "No hay horario disponible."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/guard_duty_board_field.xml:0
+msgid "Time block"
+msgstr "Bloque horario"

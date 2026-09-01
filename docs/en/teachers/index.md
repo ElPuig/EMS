@@ -17,6 +17,7 @@ This section contains the manuals for **teachers**.
 | [Evaluation: Record grades by learning outcome](qualificacions.md) | Record the grades for each evaluation to prepare the evaluation board |
 | [Strikes: Flagging a Disciplinary Incident](strike.md) | Issue a strike from the roll-call view when a student's behaviour needs to be flagged |
 | [Your Weekly Schedule](working-schedules.md) | View your subjects, groups, classrooms, breaks and meetings on your weekly timetable |
+| [Guard Duty Schedule](guard-duty-schedule.md) | See where every teacher is, and who is on guard duty, in each time block of the week |
 | [Disabling Your Profile Picture](photo-visibility.md) | Turn your profile picture on or off |
 | [Attendance Reports](attendance-reports.md) | Print the 3 PDF attendance reports (by group/student/subject) and explore attendance data yourself with the Attendance analysis pivot/graph screen |
 | [A Group's Weekly Schedule](../admin/group-schedule.md) | View a group's aggregated timetable (subjects, teachers, classrooms, breaks) and export it to PDF |

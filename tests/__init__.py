@@ -100,6 +100,8 @@ from . import test_year_record
 from . import test_non_teaching_type
 from . import test_group
 from . import test_group_schedule
+from . import test_guard_duty_board
+from . import test_guard_duty_board_tour
 from . import test_em_grading_wizard
 from . import test_department
 from . import test_departure_reason

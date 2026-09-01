@@ -1,3 +1,4 @@
+from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
 
@@ -14,7 +15,7 @@ class TestCompanyDirector(TransactionCase):
         # role_director/role_hos/role_dhos/role_secretary are unipersonal and may already be
         # assigned to a real employee in the working database; clear them so the tests are
         # self-contained.
-        (cls.role_director + role_hos + role_dhos + role_secretary).sudo().write({'employee_ids': [(5, 0, 0)]})
+        (cls.role_director + role_hos + role_dhos + role_secretary).sudo().with_context(ems_syncing_roles=True).write({'employee_ids': [(5, 0, 0)]})
 
     def _create_employee(self, name, department=False, with_user=False):
         vals = {'name': name, 'employee_type': 'teacher'}
@@ -78,7 +79,7 @@ class TestCompanyDirector(TransactionCase):
 
     def test_onchange_role_ids_blocks_manual_director_assignment(self):
         employee = self._create_employee('Test Employee (Onchange Director Add)')
-        employee.role_ids = [(4, self.role_director.id)]
+        employee.with_context(ems_syncing_roles=True).role_ids = [(4, self.role_director.id)]
 
         result = employee._onchange_role_ids()
 
@@ -88,12 +89,21 @@ class TestCompanyDirector(TransactionCase):
     def test_onchange_role_ids_blocks_manual_director_removal(self):
         director = self._create_employee('Test Employee (Onchange Director Remove)')
         self.env.company.director_id = director.id
-        director.role_ids = [(3, self.role_director.id)]
+        director.with_context(ems_syncing_roles=True).role_ids = [(3, self.role_director.id)]
 
         result = director._onchange_role_ids()
 
         self.assertIn(self.role_director, director.role_ids)
         self.assertIn('warning', result)
+
+    def test_write_role_ids_director_removal_with_backing_raises(self):
+        # The real server-side barrier: a direct write() (bypassing the employee form's own
+        # onchange) must be rejected too, not just reverted client-side.
+        director = self._create_employee('Test Employee (Write Bypass Director Remove)')
+        self.env.company.director_id = director.id
+
+        with self.assertRaises(ValidationError):
+            director.write({'role_ids': [(3, self.role_director.id)]})
 
     def test_get_report_role_lines_director_shows_company(self):
         director = self._create_employee('Test Director (Report Lines)')

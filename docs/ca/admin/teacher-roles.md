@@ -58,7 +58,7 @@ La insígnia mostra automàticament el color triat amb un text llegible, sigui q
 
 El compte d'usuari del professor s'actualitza immediatament: es concedeix el grup de seguretat vinculat al rol, juntament amb tot allò que implica (p. ex. assignar **Cap de departament** també concedeix l'accés de Tutor i de Professor).
 
-> Els rols **Tutor**, **Cap de departament**, **Cap de seminari**, **Cap d'estudis**, **Cap d'estudis adjunt**, **Secretari/ària** i **Director** no es poden afegir ni treure manualment des d'aquí — cap rol d'aquesta llista es pot. El Tutor es gestiona automàticament segons si el professor és tutor d'algun Grup; els cinc següents es gestionen automàticament des del formulari d'un departament; el Director es gestiona automàticament des d'Ajustes (vegeu més avall).
+> Els rols **Tutor**, **Cap de departament**, **Cap de seminari**, **Cap d'estudis**, **Cap d'estudis adjunt**, **Secretari/ària** i **Director** no es poden afegir ni treure manualment — ni des d'aquí, ni des de la llista **Assignat a** del propi rol (**Comunitat Educativa → Configuració → Professorat/PAS → Rols**), ni per importació o edició massiva. Intentar-ho mostra un missatge que indica exactament on s'ha de fer el canvi en realitat. El Tutor es gestiona automàticament segons si el professor és tutor d'algun Grup; els cinc següents es gestionen automàticament des del formulari d'un departament; el Director es gestiona automàticament des d'Ajustes (vegeu més avall).
 
 ---
 

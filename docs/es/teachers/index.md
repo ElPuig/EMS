@@ -17,6 +17,7 @@ Esta sección contiene los manuales para los **profesores**.
 | [Evaluación: Introducir calificaciones por RAs](qualificacions.md) | Introducir las calificaciones de cada evaluación para preparar la junta de evaluación |
 | [Strikes: notificar una incidencia disciplinaria](strike.md) | Poner un strike desde la vista de pasar lista cuando hay que dejar constancia del comportamiento de un alumno |
 | [Tu horario semanal](working-schedules.md) | Consultar tus asignaturas, grupos, aulas, patios y reuniones en tu horario semanal |
+| [Horario de guardias](guard-duty-schedule.md) | Consultar dónde está cada docente, y quién está de guardia, en cada franja horaria de la semana |
 | [Desactivar tu foto de perfil](photo-visibility.md) | Activar o desactivar tu foto de perfil |
 | [Informes de asistencia](attendance-reports.md) | Imprimir los 3 informes PDF de asistencia (por grupo/alumno/asignatura) y explorar los datos tú mismo con la pantalla de Análisis de asistencia |
 | [El horario semanal de un grupo](../admin/group-schedule.md) | Consultar el horario agregado de un grupo (asignaturas, docentes, aulas, patios) y exportarlo a PDF |

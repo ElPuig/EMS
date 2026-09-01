@@ -184,6 +184,63 @@ class TestEmployeeGoogleWorkspace(TransactionCase):
         deliver.assert_not_called()
         self.assertEqual(teacher.work_email, 'ada.existing@elpuig.xeill.net')
 
+    def test_adopt_existing_corporate_email_clears_pending_identification(self):
+        # Bug found while investigating #378: action_create_google_account's "adopt"
+        # branch (work_email already corporate) used to return via action_create_ems_user()
+        # before ever reaching the schedule_import_code-clearing logic, leaving a pending
+        # teacher stuck even though a real EMS account now exists for them.
+        teacher = self.env['hr.employee'].create({
+            'name': 'Pending teacher (X11)',
+            'employee_type': 'teacher',
+            'schedule_import_code': 'X11',
+            'private_email': 'ada@example.com',
+            'work_email': 'ada.adopted@elpuig.xeill.net',
+        })
+        self.assertTrue(teacher.pending_identification)
+
+        teacher.action_create_google_account()
+
+        self.assertTrue(teacher.user_id)
+        self.assertFalse(teacher.schedule_import_code)
+        self.assertFalse(teacher.pending_identification)
+        self.assertTrue(any('X11' in body for body in teacher.message_ids.mapped('body')))
+
+    # --- manual "mark as identified" ------------------------------------
+    def test_mark_as_identified_clears_pending(self):
+        teacher = self.env['hr.employee'].create({
+            'name': 'Pending teacher (X12)',
+            'employee_type': 'teacher',
+            'schedule_import_code': 'X12',
+        })
+        self.assertTrue(teacher.pending_identification)
+
+        teacher.action_mark_as_identified()
+
+        self.assertFalse(teacher.schedule_import_code)
+        self.assertFalse(teacher.pending_identification)
+        self.assertTrue(any('X12' in body for body in teacher.message_ids.mapped('body')))
+
+    def test_mark_as_identified_message_is_translated(self):
+        teacher = self.env['hr.employee'].create({
+            'name': 'Pending teacher (X13)',
+            'employee_type': 'teacher',
+            'schedule_import_code': 'X13',
+        })
+        teacher.with_context(lang='ca_ES').action_mark_as_identified()
+        self.assertTrue(any(
+            'Identitat confirmada manualment' in body for body in teacher.message_ids.mapped('body')
+        ))
+
+    def test_mark_as_identified_noop_when_not_pending(self):
+        teacher = self._new_teacher(private_email='ada@example.com')
+        self.assertFalse(teacher.pending_identification)
+        count_before = len(teacher.message_ids)
+
+        teacher.action_mark_as_identified()
+
+        self.assertFalse(teacher.pending_identification)
+        self.assertEqual(len(teacher.message_ids), count_before)
+
     def test_non_corporate_work_email_not_overwritten(self):
         teacher = self._new_teacher(
             private_email='ada@example.com', work_email='ada@gmail.com')

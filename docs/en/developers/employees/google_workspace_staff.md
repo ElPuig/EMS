@@ -172,13 +172,32 @@ raises its existing `UserError` for a still-unidentified placeholder exactly lik
 for any other incomplete employee — **no special-casing was needed for this integration
 itself.**
 
-The only addition, at the very end of `action_create_google_account()`'s success path: if
-`schedule_import_code` is set, post a chatter note naming the original code, then clear it
-(`emp.write({'schedule_import_code': False})`). This is what lets an admin's normal flow —
-open the placeholder record, fill in the real `name` + `private_email`, click **Generate
-Google account** — double as the "confirm this teacher's real identity" step, with no
-separate action needed. The schedule/`ems.teaching`/`ems.attendance_template` rows created
-at import time are untouched; they were already attached to this same `hr.employee` id.
+The clearing itself lives in `_ems_create_user()`'s shared helper, `_gw_clear_pending_identification()`
+— called once a real `res.users` is actually linked, right after `emp.write({'user_id': user.id})`.
+It posts a chatter note naming the original code, then clears the field
+(`emp.write({'schedule_import_code': False})`). Since `_ems_create_user()` is the single method
+both `action_create_google_account()` (full creation) and `action_create_ems_user()` (adopt an
+existing corporate account) end up calling, this is what lets an admin's normal flow — open the
+placeholder record, fill in the real `name` + `private_email`, click **Generate Google account**
+(or, for the adopt path, **Create EMS User**) — double as the "confirm this teacher's real
+identity" step, with no separate action needed. The schedule/`ems.teaching`/`ems.attendance_template`
+rows created at import time are untouched; they were already attached to this same `hr.employee` id.
+
+**Bug fixed while investigating #378 (2026-09-01):** this used to live as a few lines at the very
+end of `action_create_google_account()`'s success path only — the adopt branch (`work_email`
+already corporate) returned via `action_create_ems_user()` *before* ever reaching that code, so a
+pending teacher whose corporate account already existed (adopted, not freshly created) stayed
+stuck "pending" forever even after getting a working EMS login. Moving the clear into
+`_ems_create_user()` itself (the one place both callers converge on) fixes both paths at once.
+
+For a pending teacher that will genuinely never get an account through this record at all (e.g.
+duplicate/unmerged employee, or the post never ends up needing one), `hr.employee.action_mark_as_identified()`
+(`models/employees/employee.py`) is a manual, standalone escape hatch: it just clears
+`schedule_import_code` (with the same chatter note) and does nothing else — no Google API call, no
+`res.users` creation. Exposed as the **Mark as identified** header button
+(`views/community/employee/form.xml`), visible only while `pending_identification` is `True`,
+behind a `confirm=` dialog since it can't be undone (the original placeholder code is gone once
+cleared, so this is a one-way action, not a toggle).
 
 ## Pitfalls (native hr v18)
 

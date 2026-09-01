@@ -210,11 +210,12 @@ On confirmation, `_ems_admit_student()`:
 2. Clears the GEDAC `preinscription_*` fields if the study being confirmed
    matches the pending assignment (a different study being confirmed — the
    manual escape hatch — leaves the assignment standing).
-3. If the destination study has *already* been transitioned
-   (`ems_study_id.transition_state == 'transitioned'`), immediately calls
-   `_ems_apply_destination_placement()` — this is the latecomer path; the
-   normal case (study not yet transitioned) is placed in bulk later by the
-   transition wizard, not here.
+3. If the bulk pass has already happened for this enrollment
+   (`_ems_placement_is_individual()`: the destination study is `transitioned`,
+   **or** the enrollment's course is already the company's current one),
+   immediately calls `_ems_apply_destination_placement()` — this is the
+   latecomer path; an enrollment for a course that has not started yet is
+   placed in bulk later by the transition wizard, not here.
 
 `_ems_suggest_group()` / `_ems_fill_suggested_group()` provide a best-guess
 `ems_group_id` (same acronym + shift as the student's current group for a
@@ -226,6 +227,16 @@ individual/latecomer path and the transition wizard's bulk path: it sets
 `partner.main_group_id` and creates one `ems.enrollment` row per
 (student, group, subject) triple not already present, running under `sudo()`
 because `ems.enrollment` blocks manual creation for non-admins.
+
+That `sudo()` did not actually get past the block until 2026-09-01. `sudo()`
+only sets `env.su`; `env.user` stays the real one, and `ems.enrollment`'s guard
+asked `env.user.has_group('ems.group_academic_admin')` — which is false for
+everybody who ever confirms an enrollment (the student on the portal, the
+secretary in the backend). It stayed invisible while the placement only ran for
+a study already `transitioned`, and broke every confirmation the moment the
+26-27 flip made `_ems_placement_is_individual()` true for the whole pending
+queue. The guard now honours `env.su` — see
+[`contacts/enrollment.md`](../contacts/enrollment.md#default_get--admin-only-manual-creation).
 
 ---
 

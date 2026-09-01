@@ -203,6 +203,8 @@ Quan es cobreix el lloc:
 
 Aquest únic clic crea el compte Google Workspace/l'accés a EMS del docent **i** confirma la seva identitat — l'etiqueta "Pendent d'identificar" desapareix, i no cal refer res de l'horari, les assignatures o les llistes d'assistència ja importats.
 
+Si aquest docent pendent no arribarà mai a tenir un compte de Google Workspace/EMS creat des d'aquest registre (per exemple, ja té un compte en un altre registre no fusionat, o el lloc resulta que no en necessita cap), obre la seva fitxa i fes clic a **Marcar com a identificat** a la capçalera. Un cop confirmat, treu l'etiqueta "Pendent d'identificar" tot sol, sense crear cap compte — utilitza'l només com a alternativa manual per als casos que **Generar compte Google** no cobreix.
+
 Reimportar un fitxer actualitzat per a un lloc encara no cobert (el mateix codi provisional) actualitza l'horari d'aquest mateix docent pendent en el mateix registre, igual que reimportar el fitxer d'un docent ja identificat — mai crea un segon registre duplicat per al mateix codi.
 
 ---

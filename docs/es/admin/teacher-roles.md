@@ -58,7 +58,7 @@ La insignia muestra automáticamente el color elegido con un texto legible, sea 
 
 La cuenta de usuario del profesor se actualiza de inmediato: se concede el grupo de seguridad vinculado al rol, junto con todo lo que implica (p. ej. asignar **Jefe de departamento** también concede el acceso de Tutor y de Profesor).
 
-> Los roles **Tutor**, **Jefe de departamento**, **Jefe de seminario**, **Jefe de estudios**, **Jefe de estudios adjunto**, **Secretario/a** y **Director** no se pueden añadir ni quitar manualmente desde aquí — ningún rol de esta lista se puede. El Tutor se gestiona automáticamente según si el profesor es tutor de algún Grupo; los cinco siguientes se gestionan automáticamente desde el formulario de un departamento; el Director se gestiona automáticamente desde Ajustes (ver más abajo).
+> Los roles **Tutor**, **Jefe de departamento**, **Jefe de seminario**, **Jefe de estudios**, **Jefe de estudios adjunto**, **Secretario/a** y **Director** no se pueden añadir ni quitar manualmente — ni desde aquí, ni desde la lista **Asignado a** del propio rol (**Comunidad Educativa → Configuración → Profesorado/PAS → Roles**), ni mediante importación o edición masiva. Intentarlo muestra un mensaje que indica exactamente dónde hay que hacer el cambio en realidad. El Tutor se gestiona automáticamente según si el profesor es tutor de algún Grupo; los cinco siguientes se gestionan automáticamente desde el formulario de un departamento; el Director se gestiona automáticamente desde Ajustes (ver más abajo).
 
 ---
 

@@ -29,5 +29,10 @@ class TestEmployeeGoogleWorkspaceTour(HttpCase):
         self._seed_teacher(
             'GW Tour Suspended', work_email='gw.tour.suspended@elpuig.xeill.net',
             google_ws_suspended=True)
+        self.env['hr.employee'].create({
+            'name': '0000 GW Tour Pending Identification',
+            'employee_type': 'teacher',
+            'schedule_import_code': 'X_TOUR',
+        })
 
         self.start_tour("/odoo", "ems_employee_google_workspace_state", login="admin")

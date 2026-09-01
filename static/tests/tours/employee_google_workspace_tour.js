@@ -91,5 +91,46 @@ registry.category("web_tour.tours").add("ems_employee_google_workspace_state", {
                 + ":not(:has(button[name='action_suspend_google_account']))",
             content: "Only 'Reactivate Google account' is visible",
         },
+        {
+            trigger: ".o_breadcrumb a",
+            content: "Back to list",
+            run: "click",
+        },
+        // --- pending identification: "Mark as identified" clears it manually -
+        {
+            trigger: ".o_list_view .o_data_row .o_data_cell:contains('GW Tour Pending Identification')",
+            content: "Open the pending-identification teacher",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .ribbon:contains('Pending identification')",
+            content: "The pending-identification ribbon shows",
+        },
+        {
+            // Regression check for #378: schedule_import_code (only visible while
+            // pending) used to be inserted INSIDE the title/avatar flex row, pushing
+            // the avatar off its normal top-right slot onto its own line below the
+            // title/buttons - only reproducible while genuinely pending, since that
+            // field is invisible (no layout footprint at all) otherwise. This selector
+            // only matches when the avatar is still the title's immediate next sibling
+            // in the row, i.e. nothing else got inserted between them.
+            trigger: ".row.justify-content-between > .oe_title + .o_employee_avatar",
+            content: "The avatar sits right next to the title, not pushed onto its own line",
+        },
+        {
+            trigger: "button[name='action_mark_as_identified']",
+            content: "Click 'Mark as identified'",
+            run: "click",
+        },
+        {
+            trigger: ".modal-footer .btn-primary",
+            content: "Confirm the action in the dialog",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view:not(:has(.ribbon:contains('Pending identification')))"
+                + ":not(:has(button[name='action_mark_as_identified']))",
+            content: "The ribbon and the button are both gone: no longer pending",
+        },
     ],
 });

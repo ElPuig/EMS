@@ -203,6 +203,8 @@ Cuando se cubre el puesto:
 
 Ese único clic crea la cuenta Google Workspace/el acceso a EMS del docente **y** confirma su identidad — la etiqueta "Pendiente de identificar" desaparece, y no hace falta rehacer nada del horario, las asignaturas o las listas de asistencia ya importados.
 
+Si este docente pendiente nunca va a tener una cuenta de Google Workspace/EMS creada desde este registro (por ejemplo, ya tiene una cuenta en otro registro no fusionado, o el puesto resulta que no necesita ninguna), abre su ficha y haz clic en **Marcar como identificado** en la cabecera. Tras confirmar, quita la etiqueta "Pendiente de identificar" por sí solo, sin crear ninguna cuenta —úsalo solo como alternativa manual para los casos que **Generar cuenta Google** no cubre.
+
 Reimportar un archivo actualizado para un puesto todavía sin cubrir (el mismo código provisional) actualiza el horario de ese mismo docente pendiente en el mismo registro, igual que reimportar el archivo de un docente ya identificado — nunca crea un segundo registro duplicado para el mismo código.
 
 ---

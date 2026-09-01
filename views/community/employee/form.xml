@@ -13,6 +13,13 @@
                 <xpath expr="//sheet" position="before">
                     <header>
                         <field name="google_ws_state" invisible="1"/>
+                        <field name="pending_identification" invisible="1"/>
+                        <button name="action_mark_as_identified" type="object"
+                                string="Mark as identified"
+                                class="btn-secondary"
+                                invisible="not pending_identification"
+                                confirm="This clears the pending-identification placeholder without creating any Google/EMS account. Use it only once you are sure this employee will not need one created from this record (e.g. already has one elsewhere). Continue?"
+                                groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <button name="action_create_google_account" type="object"
                                 string="Create Google account"
                                 class="btn-secondary"
@@ -155,9 +162,28 @@
                     <attribute name="groups">hr.group_hr_user,ems.group_teacher</attribute>
                 </xpath>
 
-                <xpath expr="//div[hasclass('oe_title')]" position="before">
+                <!-- Sibling of the title/avatar ROW (not of oe_title itself, unlike the
+                archived_reason_label field below) - matching exactly where hr's own native
+                "Archived" ribbon sits (a direct child of <sheet>, before that row), rather than
+                a raw <widget name="web_ribbon"> INSIDE the row as a sibling of oe_title (the
+                original placement here). A raw <widget> renders .ribbon as its own DOM root
+                (position:absolute, so it does not itself consume flex space either way), but as
+                a true sibling of .oe_title it would also match web/static/.../ribbon.scss's own
+                ".ribbon:not(.o_invisible_modifier) ~ .oe_title { margin-right: 100px }" rule -
+                real, layout-affecting margin on the title. archived_reason_label below is safe
+                staying a sibling of oe_title because its own .ribbon div sits one level deeper,
+                inside its field wrapper (<field widget="ems_archived_reason_ribbon">), so that
+                selector never matches it. Found 2026-09-01 while investigating #378's actual
+                avatar-jump report - NOT the cause on its own (see the pending_identification
+                xpath below, whose comment covers the real cause: a since-removed visible
+                schedule_import_code field), but worth fixing to match native structure and avoid
+                this latent margin-right risk regardless. -->
+                <xpath expr="//div[hasclass('oe_title')]/parent::div[hasclass('row')]" position="before">
                     <widget name="web_ribbon" title="Pending identification" bg_color="ems-ribbon-pending-identification"
                             invisible="not pending_identification"/>
+                </xpath>
+
+                <xpath expr="//div[hasclass('oe_title')]" position="before">
                     <!-- Same reason-aware pattern as res.partner (see contact/form.xml): the
                     shared 'ems_archived_reason_ribbon' field widget shows the actual departure
                     reason (archived_reason_label/_color, related to departure_reason_id in
@@ -175,9 +201,24 @@
                            invisible="active or pending_identification or not archived_reason_label"/>
                 </xpath>
 
-                <xpath expr="//div[hasclass('oe_title')]" position="after">
+                <!-- pending_identification: never actually rendered (invisible="1"), only kept
+                declared here so the ribbon/button conditions above can reference it. No longer
+                paired with a visible schedule_import_code field (removed 2026-09-01, issue #378
+                follow-up - developer feedback: the raw code adds nothing a user needs, since the
+                same value is already visible in the record's own name until renamed, and stays
+                on the record in chatter, via _gw_clear_pending_identification()/
+                action_mark_as_identified(), after resolution). That field's own former visibility
+                is also what caused the avatar-jump layout bug fixed the same day: a plain <field>
+                inserted "after" oe_title lands INSIDE the title/avatar flex row as a real,
+                space-consuming item (unlike the ribbon widget above, which is position:absolute
+                and never competes for row width) - genuinely reproducible only while
+                pending_identification was True, since that is the only state where it rendered
+                at all. Not a live risk anymore now that the field is gone entirely, but the
+                surrounding "before/after this row" xpath pattern is kept here regardless, since
+                anything genuinely re-added inside this row in the future would hit the exact
+                same class of bug. -->
+                <xpath expr="//div[hasclass('oe_title')]/parent::div[hasclass('row')]" position="after">
                     <field name="pending_identification" invisible="1"/>
-                    <field name="schedule_import_code" readonly="1" invisible="not pending_identification"/>
                 </xpath>
 
                 <field name="work_location_id" position="after">

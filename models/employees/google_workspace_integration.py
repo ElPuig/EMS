@@ -361,13 +361,6 @@ class HrEmployeeGoogleWorkspace(models.Model):
             'mail': _("; sent by email to %s") % recovery_email if emailed else _("; no personal email on file"),
         })
 
-        if emp.schedule_import_code:
-            self.message_post(body=_(
-                "Identity confirmed: this employee was created as a pending-identification "
-                "placeholder from schedule-import code '%s'."
-            ) % emp.schedule_import_code)
-            emp.write({'schedule_import_code': False})
-
     def _gw_deliver_credentials(self, email, password):
         """Generate the credentials PDF (attachment) and send the welcome email (if any).
 
@@ -552,7 +545,28 @@ class HrEmployeeGoogleWorkspace(models.Model):
         signin_msg = (_("Sign in with Google is pre-linked.") if signin_linked
                       else _("Sign in with Google is not pre-linked (Google user id unavailable)."))
         self.message_post(body=f"{action_msg} {signin_msg}")
+        self._gw_clear_pending_identification()
         return user
+
+    def _gw_clear_pending_identification(self):
+        """Clear the schedule-import placeholder once a real EMS user is linked.
+
+        Shared by both paths that confirm a pending teacher's identity: creating a
+        brand-new Google Workspace account and adopting an existing corporate
+        account that had no EMS user yet (action_create_ems_user) - the latter
+        used to skip this entirely since it returned before reaching the clearing
+        logic, leaving schedule_import_code/pending_identification stuck even
+        though the employee already had a working EMS account.
+        """
+        self.ensure_one()
+        emp = self.sudo()
+        if not emp.schedule_import_code:
+            return
+        self.message_post(body=_(
+            "Identity confirmed: this employee was created as a pending-identification "
+            "placeholder from schedule-import code '%s'."
+        ) % emp.schedule_import_code)
+        emp.write({'schedule_import_code': False})
 
     def _ems_sync_user_active(self, active):
         """Mirror the employee's active flag on the linked EMS user.

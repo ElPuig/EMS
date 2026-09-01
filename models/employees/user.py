@@ -57,30 +57,43 @@ class ems_users(models.Model):
             self._sync_ems_implied_groups(before)
 
         if disabling:
-            for user in self:
-                # res.users has no avatar.mixin method of its own (only its delegated FIELDS
-                # are auto-generated via _inherits) - generate the placeholder from the
-                # partner, which does inherit avatar.mixin directly.
-                placeholder = user.partner_id._avatar_generate_svg()
-                # ir_attachment._check_contents forces any XML-like mimetype (SVG included)
-                # down to 'text/plain' unless the acting user can write ir.ui.view - checked
-                # with sudo(False), so a plain .sudo() wrapper does NOT bypass it (by design,
-                # to stop a non-admin sneaking a script-bearing SVG through a sudo'd write).
-                # with_user(SUPERUSER_ID) genuinely changes the acting user for this
-                # placeholder write, which is what actually clears that check - without it,
-                # a teacher disabling their own photo gets a mislabeled attachment that
-                # browsers refuse to render as an image ("Binary file" instead of the
-                # placeholder).
-                synced = user.with_user(SUPERUSER_ID)
-                write_photo(synced.partner_id, placeholder)
-                if user.employee_id:
-                    write_photo(synced.employee_id, placeholder)
+            self._refresh_photo_placeholder()
         elif photo is not _UNSET:
             for user in self:
                 if user.employee_id:
                     write_photo(user.employee_id.sudo(), user.image_1920)
 
         return res
+
+    def _refresh_photo_placeholder(self):
+        """(Re)generate the initials placeholder SVG from the current partner name and
+        bake it into both the partner and the linked employee's stored photo.
+
+        Called when "Disable profile picture" is (first) confirmed, and again from
+        hr.employee._refresh_stale_avatar_placeholder() (employee.py) whenever a
+        name change leaves a stale initial behind - unlike the rest of the app's
+        avatar (avatar_mixin, non-stored compute), a baked placeholder is a one-time
+        write into image_1920 itself, so it does not track a later name change on
+        its own and needs this explicit refresh instead.
+        """
+        for user in self:
+            # res.users has no avatar.mixin method of its own (only its delegated FIELDS
+            # are auto-generated via _inherits) - generate the placeholder from the
+            # partner, which does inherit avatar.mixin directly.
+            placeholder = user.partner_id._avatar_generate_svg()
+            # ir_attachment._check_contents forces any XML-like mimetype (SVG included)
+            # down to 'text/plain' unless the acting user can write ir.ui.view - checked
+            # with sudo(False), so a plain .sudo() wrapper does NOT bypass it (by design,
+            # to stop a non-admin sneaking a script-bearing SVG through a sudo'd write).
+            # with_user(SUPERUSER_ID) genuinely changes the acting user for this
+            # placeholder write, which is what actually clears that check - without it,
+            # a teacher disabling their own photo (or an admin renaming them afterwards)
+            # gets a mislabeled attachment that browsers refuse to render as an image
+            # ("Binary file" instead of the placeholder).
+            synced = user.with_user(SUPERUSER_ID)
+            write_photo(synced.partner_id, placeholder)
+            if user.employee_id:
+                write_photo(synced.employee_id, placeholder)
 
     def _sync_ems_implied_groups(self, before):
         """When a user loses an EMS group (Academic/Secretary/Quality/Settings

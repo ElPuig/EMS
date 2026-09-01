@@ -29,7 +29,16 @@ class EmsEnrollment(models.Model):
     def default_get(self, fields_list):
         # TODO: unable to hide the "NEW" button based for only tutors...
         res = super().default_get(fields_list)
-        if "user_is_admin" in fields_list:
+        # Only MANUAL creation is blocked. create() itself goes through default_get
+        # (_add_missing_default_values), so without the sudo escape hatch this guard also
+        # blocked every programmatic caller - sale.order._ems_apply_destination_placement()
+        # above all, which materializes the subject enrollments when an enrollment is
+        # confirmed. sudo() does NOT turn env.user into the superuser, it only sets env.su,
+        # so get_user_is_admin() keeps reflecting the real user behind the request (the
+        # student confirming from the portal, the secretary confirming from the backend) and
+        # the guard fired on them. env.su is what tells the two apart: a form opened from the
+        # UI never carries it, a placement running on their behalf always does.
+        if not self.env.su and "user_is_admin" in fields_list:
             # This happens when opening the form, when storing fires again but field per field
             if not (res["user_is_admin"]):
                 raise UserError(_("Only admins can create manual enrollments. If you're a group's tutor, you can enroll students using the student's form."))

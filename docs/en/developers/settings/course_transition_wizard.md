@@ -448,6 +448,21 @@ flip=True | transition_state after the flip='active' | group after confirming=NO
 
 An enrollment for a course that has not started yet is still left to the wizard.
 
+### Nobody who confirms an enrollment is an admin (2026-09-01, in production)
+
+Making the placement individual after the flip immediately exposed a second, older
+problem: from that moment every pending confirmation actually created `ems.enrollment`
+rows, and `ems.enrollment.default_get()` refuses creation to anyone outside
+`ems.group_academic_admin`. Confirming a pending 26-27 enrollment answered *"Only admins
+can create manual enrollments"* and placed nobody.
+
+The placement had run under `sudo()` since it was written, precisely to get past that
+guard — but `sudo()` only sets `env.su`, it does **not** make `env.user` the superuser, so
+the guard kept reading the real user: the student confirming on the portal, or the
+secretary confirming in the backend. The guard now lets `env.su` through, which is the
+only signal that separates a form opened by hand from a placement running on somebody's
+behalf. See [`contacts/enrollment.md`](../contacts/enrollment.md#default_get--admin-only-manual-creation).
+
 ### A student with no enrollment blocks, but only where enrolling is the flow (D17)
 
 D8 originally said the opposite: list them, never block, *"in July there is no way to tell a student moving to another school from one who enrolls late"*. That reasoning still holds for **withdrawing them automatically**, which the wizard still refuses to do. It does not hold for letting the run pass without anybody looking, because two things turned out to be irreversible:

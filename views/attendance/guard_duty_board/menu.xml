@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- A real, statically-declared action (unlike an earlier version's dynamic
+             ir.actions.server) — this is what gives the screen a proper "action-<xmlid>" URL
+             instead of a raw "model/id" one. See models/attendance/guard_duty_board.py's own
+             class docstring for the full reasoning. -->
+        <record id="action_guard_duty_board" model="ir.actions.client">
+            <field name="name">Guard duty schedule</field>
+            <field name="tag">ems_guard_duty_board</field>
+        </record>
+
+        <menuitem name="Guard duty schedule" sequence="8" id="menu_guard_duty_board" parent="hr_attendance.menu_hr_attendance_root" action="action_guard_duty_board"/>
+    </data>
+</odoo>

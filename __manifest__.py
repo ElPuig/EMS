@@ -234,6 +234,9 @@
             'views/attendance/attendance_correction/form.xml',
             'views/attendance/attendance_correction/hr_attendance_form.xml',
 
+            'views/attendance/guard_duty_board/menu.xml',
+            'reports/attendance/report_guard_duty_board.xml',
+
             'views/attendance/attendance_issue/menu.xml',
             'views/attendance/attendance_issue/list.xml',
             'views/attendance/attendance_issue/form.xml',

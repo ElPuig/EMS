@@ -24,6 +24,12 @@ class TestGuardDutyBoard(TransactionCase):
         cls.course = cls.env.company.current_course_id
         if not cls.course:
             cls.course = cls.env['ems.course'].create({'start': 1999, 'end': 2000})
+        # get_guard_duty_board_data()/get_current_course_data() read env.company.current_course_id
+        # directly rather than taking a course argument (see guard_duty_board.py's own docstrings) -
+        # a fresh DB (CI, unlike this box's own dev DB) has no "current course" configured at all,
+        # so this must be set explicitly rather than assumed, matching every other test that needs
+        # one (test_course_transition.py, test_year_record.py, test_em_grading_wizard.py...).
+        cls.env.company.current_course_id = cls.course
         cls.level, cls.study = create_level_study(cls, 'TGDB', level={'name': 'Test Level (Guard Duty Board)'}, study={
             'code': 'TGDB001', 'name': 'Test Study (Guard Duty Board)', 'date': date.today(),
         })

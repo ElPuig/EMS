@@ -11,6 +11,17 @@ class TestGuardDutyBoardTour(HttpCase):
     def test_guard_duty_board_tour(self):
         # To observe this tour in a real browser during development:
         #   self.start_tour("/odoo", "ems_guard_duty_board", login="admin", watch=True)
+
+        # The board's own client action reads env.company.current_course_id directly (see
+        # guard_duty_board.py's get_current_course_data()/get_guard_duty_board_data(), both of
+        # which now raise a friendly error instead of crashing when it's unset) - a fresh CI DB
+        # has no "current course" configured at all, unlike this box's own dev DB, so this must
+        # be set explicitly rather than assumed. Reusing an already-configured one (if any) avoids
+        # colliding with it on the unique_course_name constraint (a freshly create()'d course
+        # defaults its start/end to this real year too) - same pattern as test_guard_duty_board.py.
+        if not self.env.company.current_course_id:
+            self.env.company.current_course_id = self.env['ems.course'].create({'start': 1998, 'end': 1999})
+
         level, study = create_level_study(self, 'TGDBT', level={'name': 'Test Level (Guard Duty Board Tour)'}, study={
             'code': 'TGDBT001', 'name': 'Test Study (Guard Duty Board Tour)', 'date': date.today(),
         })

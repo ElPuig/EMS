@@ -103,7 +103,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         "the current course" itself (env.company.current_course_id), so the JS side never needs
         to know or pass a specific ems.course id — matches how the aggregation itself is scoped
         (see _get_guard_duty_board_attendance_ids' own NOTE: not actually course-filtered)."""
-        course = self.env.company.current_course_id
+        course = self.env.company.get_current_course_or_raise()
         data = course.get_guard_duty_board_lines(weekday, shift)
         groups = [{'id': group.id, 'name': group.name} for group in data['groups']]
         lines = []
@@ -133,5 +133,5 @@ class EmsCourseGuardDutyBoard(models.Model):
         its own to read 'the current course' from (see the class docstring above for why), so it
         asks for it explicitly instead — used both to label the page and to supply the PDF
         button's own 'active_ids'."""
-        course = self.env.company.current_course_id
+        course = self.env.company.get_current_course_or_raise()
         return {'id': course.id, 'name': course.name}

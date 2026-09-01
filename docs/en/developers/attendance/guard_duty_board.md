@@ -82,8 +82,8 @@ addressable by a real, stable URL.
     action" and "PDF report" below for the full history of that. Recordset-based — used
     server-side (Python) only, by the PDF template.
 - `get_guard_duty_board_data(weekday, shift)` — `@api.model`. Resolves "the current course"
-  itself (`self.env.company.current_course_id`) rather than taking a course argument, so the
-  JS client action never needs to know or guess an `ems.course` id — matches
+  itself via `self.env.company.get_current_course_or_raise()` rather than taking a course
+  argument, so the JS client action never needs to know or guess an `ems.course` id — matches
   `_get_guard_duty_board_attendance_ids()`'s own course-agnostic scoping. Thin JSON-safe
   wrapper around `get_guard_duty_board_lines()` (plain dicts/strings/ids instead of
   recordsets — `subject` is the short `acronym`, e.g. "MP 0440", not the full `display_name`,
@@ -91,7 +91,13 @@ addressable by a real, stable URL.
   below for why a JSON-safe RPC call is needed at all instead of reading a prefetched field.
 - `get_current_course_data()` — `@api.model`, returns `{'id': ..., 'name': ...}` for the
   current course. Used by the client action to label the page and to supply the PDF button's
-  own `active_ids` (the page has no bound record of its own to read that from).
+  own `active_ids` (the page has no bound record of its own to read that from). Also called
+  through `res.company.get_current_course_or_raise()`, so it's the first of the two methods to
+  raise a friendly `ValidationError` (surfaced as the client action's own error dialog) if no
+  "Current course" has ever been configured — a real scenario on a freshly installed instance
+  before an admin visits Settings for the first time, not just a test-DB gap. Bug fixed
+  2026-09-01: both methods used to read `current_course_id` unguarded, crashing with a raw
+  `ValueError: Expected singleton: ems.course()` instead.
 
 ## Access control
 

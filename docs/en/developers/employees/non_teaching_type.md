@@ -54,6 +54,6 @@ See [Working schedules](working_schedule.md) for how `is_break`/`is_fixed` feed 
 
 | View | File | Notes |
 |------|------|-------|
-| List | `views/employees/non_teaching_type/list.xml` | — |
-| Form | `views/employees/non_teaching_type/form.xml` | — |
-| Action + Menu | `views/employees/non_teaching_type/menu.xml` | — |
+| List | `views/community/non_teaching_type/list.xml` | — |
+| Form | `views/community/non_teaching_type/form.xml` | — |
+| Action + Menu | `views/community/non_teaching_type/menu.xml` | — |

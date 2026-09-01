@@ -140,10 +140,10 @@
             'views/community/working_schedules/import_wizard.xml',
             'views/community/working_schedules/menu.xml',
 
-            'views/employees/non_teaching_type/list.xml',
-            'views/employees/non_teaching_type/form.xml',
-            'views/employees/non_teaching_type/menu.xml',
-            'views/employees/user_profile_form.xml',
+            'views/community/non_teaching_type/list.xml',
+            'views/community/non_teaching_type/form.xml',
+            'views/community/non_teaching_type/menu.xml',
+            'views/community/employee/user_profile_form.xml',
 
             'views/community/subject/list.xml',
             'views/community/subject/search.xml',

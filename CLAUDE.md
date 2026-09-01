@@ -134,7 +134,7 @@ models/
 ├── settings/         # Company, course, and general settings
 └── shared/           # Base mixins and utilities
 
-views/                # XML views organised by model area
+views/                # XML views — organised by menu location, NOT by model/domain area (see below)
 static/
 ├── src/              # Production assets (backend, frontend, scss)
 └── tests/            # Test-only assets
@@ -143,6 +143,31 @@ tests/                # Python test cases
 docs/                 # Trilingual user and developer documentation
 plans/                # Design plans for not-yet-implemented work (see "Design plans" below)
 ```
+
+**`views/`'s top-level folders mirror the app's own menu structure, not `models/`'s domain
+folders — the two use genuinely different organizing principles, and a model's own `models/`
+folder name is not a reliable guide to where its views belong.** Each top-level `views/` folder
+corresponds to one root app menu as it actually appears in the running backend: `community/` ↔
+"Educational Community" (`menu_community`), `academic_management/` ↔ "Academic management"
+(`menu_ems_academic_management`), `planning_grading/` ↔ "Planning and Grading" (`menu_planning`),
+`attendance/` ↔ "Student's Attendances" (`menu_attendance`), `communications/` ↔ "Communications"
+(`menu_communications`), `coexistence/` ↔ "Coexistence" (`menu_coexistence`). A handful of
+folders don't map to one of EMS's own root app menus, for a different, legitimate reason each:
+`settings/` (inherits of the native Settings screens — `res.config.settings`, `base.view_users_form`
+— reached from Odoo's own Settings app, not any EMS menu), `portal/` (QWeb website/portal
+templates, no backend menu at all), `sales/`, `accounting/` (inherits of native Odoo app screens —
+Sales' product form, Accounting's `account.menu_finance` — for the same reason as `settings/`),
+`shared/` (cross-model widgets with no menu of their own).
+
+**Before creating or moving a view file, trace its `<menuitem>`'s `parent=` chain up to its root**
+(or, for a file with no menuitem of its own — e.g. an inherited form reached only via another
+action, like "My Profile" — find which existing view for the same target model *does* define the
+menu, and follow that one's chain instead) rather than assuming the matching `models/<area>/`
+folder name is also the right `views/` folder. This is exactly how `views/employees/` (a folder
+that existed only because `models/employees/` does — no root app menu named "Employees" exists at
+all) was found and fixed 2026-09-01: every menu item defined inside it actually resolved up to
+`menu_community`, so both its contents (`non_teaching_type/`, `user_profile_form.xml`) moved to
+`views/community/`, and the folder was deleted.
 
 ## Development scripts
 

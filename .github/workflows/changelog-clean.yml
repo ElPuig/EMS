@@ -16,6 +16,16 @@ name: Clean changelog/ (manual)
 #
 # Only works for PRs from a branch in this same repository (not a fork) - the default
 # GITHUB_TOKEN cannot push to a fork's branch.
+#
+# The push itself needs a second secret, CHANGELOG_CLEANUP_TOKEN: the "Block v18.0*" repo
+# ruleset blocks any push updating a "v18.0*" branch - including the still-active integration
+# branch this workflow targets, not just an already-released one - for everyone except its own
+# bypass list. GitHub does not offer "GitHub Actions"/the default GITHUB_TOKEN as a selectable
+# bypass actor at all (only repo roles, specific Teams, and a handful of built-in Apps like
+# Dependabot) - confirmed 2026-09-01 trying to add it. CHANGELOG_CLEANUP_TOKEN must therefore be
+# a fine-grained PAT (Contents: read and write, this repo only) belonging to a real user who IS
+# on the ruleset's bypass Team - the checkout step below authenticates with it instead of the
+# default token specifically so the push is attributed to (and authorized as) that user.
 
 on:
   issue_comment:
@@ -55,6 +65,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: write
+      pull-requests: write
     steps:
       - name: Resolve PR head branch
         id: pr
@@ -75,6 +87,10 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: ${{ steps.pr.outputs.ref }}
+          # See the file header note: the default GITHUB_TOKEN can never push past the
+          # "Block v18.0*" ruleset, so every git operation in this job (including the push
+          # below) needs to authenticate as a real, bypass-listed user instead.
+          token: ${{ secrets.CHANGELOG_CLEANUP_TOKEN }}
 
       - name: Remove changelog/
         id: remove

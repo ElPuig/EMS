@@ -256,10 +256,15 @@ class TestStrike(TransactionCase):
         # company's actual value depends on whether this environment came from a clean
         # install (post_init_hook already forced it to 'kicked_out') or an upgrade
         # (post_init_hook never re-runs, so the field default backfilled during the
-        # schema migration is what sticks) - a brand-new, hook-untouched record is the
-        # only way to observe the field default itself regardless of that history.
-        new_company = self.env['res.company'].create({'name': 'Test Company (Strike Notification Default)'})
-        self.assertEqual(new_company.strike_family_notification_mode, 'all')
+        # schema migration is what sticks). Read the field descriptor's own default
+        # callable (Odoo normalizes a plain default value into `lambda model: value` -
+        # see fields.py) instead of creating a real res.company: a real create() cascades
+        # through account/hr/resource's own company-setup logic, including a default
+        # "Standard 40 hours/week" resource.calendar that collides with this module's own
+        # global unique-name constraint on resource.calendar (working_schedule.py) - a
+        # real, CI-only failure hit once already (2026-09-02) before switching to this.
+        field = self.env['res.company']._fields['strike_family_notification_mode']
+        self.assertEqual(field.default(self.env['res.company']), 'all')
 
     def test_family_notified_on_every_strike_when_mode_all(self):
         self.env.company.strike_family_notification_mode = 'all'

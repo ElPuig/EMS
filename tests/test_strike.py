@@ -191,6 +191,10 @@ class TestStrike(TransactionCase):
             self._create_strike(self.secretary_user)
 
     def test_notification_recipients_minor_student(self):
+        # Recipient targeting is what this test covers, not strike_family_notification_mode
+        # itself - force 'all' so the family entry doesn't depend on whichever default this
+        # environment happens to be running with (a clean install starts on 'kicked_out').
+        self.env.company.strike_family_notification_mode = 'all'
         strike = self._create_strike(self.teacher_a_user)
         recipients = strike.send_to.split('; ')
         self.assertIn(self.minor_student.student_email, recipients)
@@ -239,12 +243,23 @@ class TestStrike(TransactionCase):
         adult_student.flush_recordset()
         self.env.cr.execute("UPDATE res_partner SET auth_share = TRUE WHERE id = %s", (adult_student.id,))
         adult_student.invalidate_recordset()
+        # Recipient targeting is what this test covers, not strike_family_notification_mode
+        # itself - force 'all' so the family entry doesn't depend on whichever default this
+        # environment happens to be running with (a clean install starts on 'kicked_out').
+        self.env.company.strike_family_notification_mode = 'all'
         strike = self._create_strike(self.teacher_a_user, student_id=adult_student.id)
         recipients = strike.send_to.split('; ')
         self.assertIn(self.family_partner.email, recipients)
 
     def test_family_notification_mode_defaults_to_all(self):
-        self.assertEqual(self.env.company.strike_family_notification_mode, 'all')
+        # Checks the field's own model-level default, not self.env.company: the running
+        # company's actual value depends on whether this environment came from a clean
+        # install (post_init_hook already forced it to 'kicked_out') or an upgrade
+        # (post_init_hook never re-runs, so the field default backfilled during the
+        # schema migration is what sticks) - a brand-new, hook-untouched record is the
+        # only way to observe the field default itself regardless of that history.
+        new_company = self.env['res.company'].create({'name': 'Test Company (Strike Notification Default)'})
+        self.assertEqual(new_company.strike_family_notification_mode, 'all')
 
     def test_family_notified_on_every_strike_when_mode_all(self):
         self.env.company.strike_family_notification_mode = 'all'

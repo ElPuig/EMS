@@ -148,7 +148,13 @@ The wizard walks you through several screens, each showing its own short explana
 
 1. Go to **Configuration → Teachers → Working schedules**.
 2. Open the ⚙️ (cog) menu above the list and choose **Import: planner data**.
-3. On the **Welcome** screen, attach one or more XML files, then click **Continue** — nothing is written yet at this point, and nothing about the files' content is checked here either.
+3. On the **Welcome** screen, attach one or more XML files and choose how this import should treat each teacher's existing schedule:
+   - **Combine with each teacher's existing schedule** (the default) — nothing a teacher already has is lost unless these files also describe it. Use this for a teacher shared between departments whose files are imported at different times (e.g. a reinforcement teacher, one file per department).
+   - **Replace each teacher's existing schedule entirely** — these files become that teacher's complete schedule; anything they had that isn't in these files is dropped. Use this when a file is meant to be the full, authoritative description of a teacher's week.
+
+   Either way, if these files describe the exact same day and time a teacher already had something else scheduled, the new one always wins. Uploading several files together in the same run (e.g. one per department) always combines them with each other first, regardless of which option you pick — the choice only affects what happens to a teacher's schedule from an **earlier, separate** import.
+
+   Then click **Continue** — nothing is written yet at this point, and nothing about the files' content is checked here either.
 
    ![The wizard's Welcome screen with a planner file attached](../../assets/admin/working-schedules-import-01-welcome.png)
 4. If the files mention any group name EMS couldn't match automatically, a **Resolve groups** screen lists each one: pick the real group from the dropdown for each row (or create one on the spot, the same way you would from any other group field), then click **Continue**. If every group was recognized automatically, you'll see a confirmation message instead of a list. **Continue** shows grayed out until every row has a group picked.
@@ -181,7 +187,7 @@ The wizard walks you through several screens, each showing its own short explana
 
 > Run this during next-course preparation, once the previous course's schedules have already been archived by the "Setting Up the Next Course" wizard — running it against a course already in progress can create conflicts that then need manual resolution.
 
-If any of the teachers found across the files already has a schedule, it's updated in place (not replaced from scratch) once you click **Import** — existing subject assignments and attendance templates stay in sync with the new file.
+If any of the teachers found across the files already has a schedule, it's updated once you click **Import** according to whichever option you picked on the Welcome screen (combine or replace) — existing subject assignments and attendance templates stay in sync with the result either way.
 
 ---
 

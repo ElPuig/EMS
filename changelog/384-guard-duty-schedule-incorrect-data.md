@@ -38,6 +38,13 @@
 
 # Internal changes:
 
+## Guard-sessions test no longer assumes it's the only session dated "today":
+- `test_guard_sessions_returns_other_teachers_sessions` asserted an exact system-wide result
+  count, which broke whenever the database the test suite runs against already had an unrelated
+  real session dated the same day the test happened to run on (found running the full suite on
+  2026-09-02). It now only checks that the session it creates is present in the result, unrelated
+  to whatever else genuinely exists for that date.
+
 ## Migration for existing stale teaching/tutor/delegate data:
 - A one-time data migration reconciles already-existing teachers/groups against the fixes above -
   archives leftover active calendar rows on already-archived calendars, resyncs every teacher's

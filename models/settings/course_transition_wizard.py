@@ -951,17 +951,21 @@ class ems_course_transition_wizard(models.TransientModel):
         for_teaching'. Backs both directions of '_apply_calendar_archival''s per-teacher checks:
         a REMAINING co-teacher genuinely still supported (its original use), and a DEPARTING
         teacher's own line with no calendar support left at all (the newer orphaned-line case,
-        see that method's own docstring)."""
+        see that method's own docstring).
+
+        Built on 'hr.employee._teaching_entries_from_calendar()' (Phase 4 of
+        plans/calendar_pipeline_simplification.md, 2026-09-02) rather than its own standalone
+        'resource.calendar.attendance' query - the exact same "what does this teacher's calendar
+        say they teach right now" primitive '_apply_teaching_resync()' just below already reuses,
+        so this check can never silently drift from what the rest of the pipeline considers a
+        real, current teaching entry."""
         template = line.attendance_template_id
-        blocks = self.env['resource.calendar.attendance'].search([
-            ('employee_id', '=', teacher.id), ('dayofweek', '=', line.weekday),
-            ('calendar_id.is_framework', '=', False),
-            ('subject_id', '=', template.subject_id.id),
-            ('group_ids', 'in', template.group_ids.ids),
-        ])
         return any(
-            line.ranges_overlap(line.start_time, line.end_time, block.hour_from, block.hour_to)
-            for block in blocks
+            entry['subject_id'] == template.subject_id.id
+            and set(entry['group_ids']) & set(template.group_ids.ids)
+            and entry['dayofweek'] == line.weekday
+            and line.ranges_overlap(line.start_time, line.end_time, entry['hour_from'], entry['hour_to'])
+            for entry in teacher._teaching_entries_from_calendar()
         )
 
     def _apply_attendance_records_archival(self):

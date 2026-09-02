@@ -38,6 +38,16 @@
 
 # Internal changes:
 
+## Calendar-pipeline simplification, last phase (course transition leans on the shared calendar-reading helper):
+- Course transition's own "does this teacher still have a calendar block backing this schedule
+  line" check used to run its own separate query against the calendar; it now reuses the exact
+  same "what does this teacher's calendar currently say they teach" helper the rest of the
+  calendar/template/teaching pipeline already shares - one definition instead of two that could
+  silently drift apart. Course transition's own study-scoped archival/versioning logic is
+  unchanged - that part is genuinely specific to it and was deliberately kept as its own code.
+- With this, the calendar-pipeline-simplification effort (`plans/calendar_pipeline_
+  simplification.md`, now folded into the dev docs and removed) is complete.
+
 ## Guard-sessions test no longer assumes it's the only session dated "today":
 - `test_guard_sessions_returns_other_teachers_sessions` asserted an exact system-wide result
   count, which broke whenever the database the test suite runs against already had an unrelated

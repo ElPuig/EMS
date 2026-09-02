@@ -178,6 +178,14 @@ is reused for both directions of this check — a REMAINING co-teacher genuinely
 original use, in the `still_needed` branch above) and a DEPARTING teacher's own line with no
 calendar support left (this newer one) — same predicate, same room exclusion, one function.
 
+**Phase 4 of `plans/calendar_pipeline_simplification.md` (2026-09-02):** `_teacher_has_active_
+block()` used to run its own standalone `resource.calendar.attendance` query to answer "what does
+this teacher's calendar currently say they teach"; it now builds that answer from `hr.employee.
+_teaching_entries_from_calendar()` instead — the exact same primitive `_apply_teaching_resync()`
+just below already reuses, and the same one `ems.attendance_template.sync_from_schedule_batch()`/
+`regenerate_all_from_calendars()` rely on elsewhere. One definition of "current teaching entries
+from the calendar" for the whole module, instead of two that could silently drift apart.
+
 **Third, fully UNSCOPED catch-up (2026-08-10, same day, found re-running a real transition right
 after the first two fixes above were deployed):** the 4 real stray session headers that originally
 motivated this whole fix (David Delgado, see `find_schedule_lines_for_teaching`'s own docs) turned

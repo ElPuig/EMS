@@ -1269,6 +1269,29 @@ class TestCourseTransition(TransactionCase):
     def test_apply_with_no_migrating_calendar_blocks_is_a_no_op(self):
         self._applied()  # must not raise
 
+    def test_apply_finds_the_matching_line_via_the_attendance_schedule_id_fk(self):
+        """2026-09-02: resource.calendar.attendance.attendance_schedule_id (added 2026-08-11
+        specifically to replace the content-matching inference used elsewhere in this method) is
+        now read directly here when present. Sets the block up the same way a real live-edit/
+        import would - via ems.attendance_template.sync_from_schedule(), which populates the FK
+        through _link_calendar_attendance() - unlike every other test in this section, which uses
+        the raw _calendar_block() helper and deliberately exercises the inference fallback
+        instead (that coverage is unaffected by this change and still passes unmodified)."""
+        block = self._calendar_block(self.teacher.resource_calendar_id, [self.group1])
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [{
+            'subject_id': self.subject_int.id, 'group_ids': [self.group1.id],
+            'dayofweek': block.dayofweek, 'hour_from': block.hour_from, 'hour_to': block.hour_to,
+            'space_id': self.space.id,
+        }])
+        block.invalidate_recordset()
+        self.assertTrue(block.attendance_schedule_id)
+        schedule = block.attendance_schedule_id
+
+        self._applied()
+
+        schedule.invalidate_recordset()
+        self.assertFalse(schedule.active)
+
     # --- _apply_calendar_rollover (phases 6-7 of the teacher-schedule archival plan) ------
 
     def test_apply_rolls_a_teacher_over_to_a_fresh_calendar_once_teaching_empties_out(self):

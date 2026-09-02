@@ -731,9 +731,14 @@ class ems_course_transition_wizard(models.TransientModel):
     def _apply_calendar_archival(self):
         """Step 7a — archives every migrating teacher calendar block found by
         `_migrating_calendar_blocks()`, then decides the fate of whichever `ems.attendance_schedule`
-        line(s) it maps to (via `ems.attendance_mixin.find_schedule_lines_for_teaching`, matched by
-        teacher+subject+group overlap+weekday/time - deliberately NOT by room, see that method's
-        own docstring for why matching on room silently broke this exact link in real data):
+        line(s) it maps to - preferably read straight off the block's own `attendance_schedule_id`
+        FK (added 2026-08-11 specifically to replace this kind of lookup, but never wired into this
+        call site until 2026-09-02, see plans/calendar_driven_attendance_templates.md and
+        plans/course_transition_stale_teacher_assignments.md's own follow-up analysis), falling back
+        to `ems.attendance_mixin.find_schedule_lines_for_teaching` (matched by teacher+subject+group
+        overlap+weekday/time - deliberately NOT by room, see that method's own docstring for why
+        matching on room silently broke this exact link in real data) only for a legacy block whose
+        calendar row predates that FK and was never resynced since:
         - A line that's ALREADY archived (the common case — `_templates_to_archive()`, called just
           before this, already cascaded to it) only needs its `attendance_session_ids` archived
           explicitly: that cascade never reaches sessions on its own (see
@@ -790,12 +795,21 @@ class ems_course_transition_wizard(models.TransientModel):
             teacher = block.employee_id
             if not teacher:
                 continue
-            # active_test=False: a matching line may already be archived by the EARLIER
-            # _templates_to_archive().action_archive() call (its own cascade only reaches the line,
-            # never its sessions, per decision 6) - that case still needs handling below (catching
-            # up the sessions), so it must not be silently excluded from this search.
-            lines = self.env['ems.attendance_schedule'].with_context(active_test=False).find_schedule_lines_for_teaching(
-                teacher, block.subject_id, block.group_ids, block.dayofweek, block.hour_from, block.hour_to)
+            # A direct Many2one field read (unlike search()) never filters by active_test on its
+            # own, so an already-archived line (see the comment below on why that case still needs
+            # handling here) is found via the FK exactly as reliably as an active one - no explicit
+            # with_context(active_test=False) needed for this branch. '.exists()' is defensive only
+            # (a schedule line is never hard-deleted while it has real session history, and archived
+            # otherwise - see ems.attendance_schedule.unlink() - but a stale FK is cheap to guard).
+            if block.attendance_schedule_id:
+                lines = block.attendance_schedule_id.exists()
+            else:
+                # active_test=False: a matching line may already be archived by the EARLIER
+                # _templates_to_archive().action_archive() call (its own cascade only reaches the
+                # line, never its sessions, per decision 6) - that case still needs handling below
+                # (catching up the sessions), so it must not be silently excluded from this search.
+                lines = self.env['ems.attendance_schedule'].with_context(active_test=False).find_schedule_lines_for_teaching(
+                    teacher, block.subject_id, block.group_ids, block.dayofweek, block.hour_from, block.hour_to)
             for line in lines:
                 line_departures[line] = line_departures.get(line, self.env['hr.employee']) | teacher
         blocks.action_archive()

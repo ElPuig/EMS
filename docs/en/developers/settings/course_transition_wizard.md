@@ -132,10 +132,15 @@ other preview counter.
 
 `_apply_calendar_archival()` (step 7a, called right after `_templates_to_archive().action_archive()`
 in `_apply_cleanup`) is where they actually get archived. For every migrating block it finds the
-matching `ems.attendance_schedule` line(s) via `ems.attendance_mixin.find_schedule_lines_for_teaching`
+matching `ems.attendance_schedule` line(s) — **preferably a direct read of the block's own
+`attendance_schedule_id` FK** (added 2026-08-11 specifically to replace this kind of lookup, wired
+into this call site 2026-09-02 — see `plans/calendar_pipeline_simplification.md` for why it took
+this long: nothing had gone back to update this call site once the FK existed), **falling back
+to** `ems.attendance_mixin.find_schedule_lines_for_teaching`
 (matched by teacher+subject+group overlap+weekday/time, **deliberately not room** — searched with
-`active_test=False`, since the line may already be archived by the template-cascade that just ran),
-then:
+`active_test=False`, since the line may already be archived by the template-cascade that just ran)
+only for a legacy block whose calendar row predates that FK and was never resynced since. Either
+way, then:
 
 ```mermaid
 flowchart TD

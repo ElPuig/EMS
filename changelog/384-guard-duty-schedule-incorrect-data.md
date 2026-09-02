@@ -24,7 +24,18 @@
 # Internal changes:
 
 ## Migration for existing stale teaching/tutor/delegate data:
-- A one-time data migration to reconcile already-existing teachers/groups against the fixes above
-  is drafted (`plans/course_transition_stale_teacher_assignments.md`) but not yet created -
-  pending the developer's go-ahead on the next manifest version, since the current one is already
-  tagged/released.
+- A one-time data migration reconciles already-existing teachers/groups against the fixes above -
+  archives leftover active calendar rows on already-archived calendars, resyncs every teacher's
+  teaching links (including already-departed ones) from their real calendar, and clears any
+  group's stale tutor/delegate reference that survived from before this fix.
+
+## First step of a broader calendar-pipeline simplification:
+- Course transition's own calendar-archival step used to find which weekly schedule line a
+  migrating calendar block backs by matching its subject/group/time against existing records - a
+  best-effort inference that predates a direct link between the two records added for exactly
+  this purpose (2026-08-11) but never actually wired into this specific step. It now reads that
+  direct link first, falling back to the old matching only for a calendar row old enough to
+  predate it.
+- Broader findings and a proposed further simplification of the whole calendar/schedule/teaching
+  pipeline are written up in `plans/calendar_pipeline_simplification.md`, not yet acted on beyond
+  this first step.

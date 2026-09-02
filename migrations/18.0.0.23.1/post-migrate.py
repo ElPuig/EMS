@@ -82,9 +82,48 @@ def _backfill_stale_delegate_ids(env):
     _logger.info("Migration 18.0.0.23.1: cleared a stale delegate_id on %d group(s).", len(cleared))
 
 
+def _reassign_misplaced_subject_enrollments(env):
+    """Backfill for the destination-placement bug fixed in enrollment.py:
+    _ems_apply_destination_placement() used to put every subject of an order into the
+    same single group, even one that unambiguously belongs to a different course per its
+    study's own templates (a repeater's subject pending from an earlier year). Reuses the
+    exact same production methods as the ongoing fix (ems.study._ems_subject_course,
+    ems.group._ems_equivalent_for_course) so this backfill can never drift from the live
+    logic. Confirmed on the dev DB before this migration was written: 194 active
+    ems.enrollment rows / 103 students, e.g. subject "Tutoria 1r AD" enrolled under group
+    AD2A (2nd course). See docs/en/developers/settings/course_transition_wizard.md
+    (the section after D15) for the full analysis."""
+    Enrollment = env['ems.enrollment'].sudo()
+    fixed = removed_dupes = 0
+    for enrollment in Enrollment.search([('active', '=', True)]):
+        group, subject = enrollment.group_id, enrollment.subject_id
+        if not (subject.product_id and group.study_id and group.course):
+            continue
+        course = group.study_id._ems_subject_course(subject.product_id)
+        if not course or course == group.course:
+            continue
+        target = group._ems_equivalent_for_course(course)
+        if not target or target == group:
+            continue
+        existing = Enrollment.search([
+            ('student_id', '=', enrollment.student_id.id),
+            ('group_id', '=', target.id), ('subject_id', '=', subject.id)])
+        if existing:
+            enrollment.unlink()
+            removed_dupes += 1
+        else:
+            enrollment.group_id = target.id
+            fixed += 1
+    _logger.info(
+        "Migration 18.0.0.23.1: reassigned %d ems.enrollment row(s) to their subject's own "
+        "course group (%d already-correct duplicate(s) removed instead).",
+        fixed, removed_dupes)
+
+
 def migrate(cr, _version):
     env = api.Environment(cr, SUPERUSER_ID, {})
     _archive_orphaned_calendar_rows(cr)
     _resync_teaching_from_calendars(env)
     _backfill_stale_tutor_ids(env)
     _backfill_stale_delegate_ids(env)
+    _reassign_misplaced_subject_enrollments(env)

@@ -85,6 +85,20 @@ class EmsStudy(models.Model):
             subjects &= self.env['ems.subject'].search([('study_ids', 'in', study_id)])
         return subjects
 
+    def _ems_subject_course(self, product):
+        """The single course (study_year) this study's own templates sell `product`
+        for, or False when it is not sold by exactly one course's template - missing
+        entirely, or genuinely offered across more than one (e.g. a transversal
+        module). Shared by sale.order._ems_course_from_tutorship() (one specific
+        product, the tutorship) and _ems_apply_destination_placement() (every
+        subject on the order), so a subject's course is always resolved the same way."""
+        self.ensure_one()
+        templates = self.env['sale.order.template'].search([
+            ('ems_study_id', '=', self.id), ('study_year', '!=', False)])
+        years = {template.study_year for template in templates
+            if product in template.sale_order_template_line_ids.product_id}
+        return years.pop() if len(years) == 1 else False
+
     def _compute_uses_enrollment_flow(self):
         Template = self.env['sale.order.template']
         for study in self:

@@ -121,6 +121,7 @@ from . import test_family_tour
 from . import test_payment_term
 from . import test_enrollment_line
 from . import test_enrollment_tour
+from . import test_enrollment_placement_tour
 from . import test_enrollment_proposal_tour
 from . import test_applicant_tour
 from . import test_no_destination_tour

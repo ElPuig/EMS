@@ -486,6 +486,18 @@ Ambiguity returns nothing and the group stays empty — no tutorship line, more 
 
 It does **not** touch the other 41: those fail because no group exists at all in the destination study/course/shift (GA1B afternoon promoting to a 2nd year that only exists in the morning, AD with no 2nd-year group at all). That is missing data, not a rule the code can improve.
 
+### A pending subject was placed in the wrong group, not just the wrong course (D20)
+
+D15 fixed **which group the order itself resolves to** — `Zakariae Boukraa`'s own destination is correctly `SMX2D`. It did not fix where each individual subject on that order is actually taught. `_ems_apply_destination_placement()` stamped `ems_group_id` onto **every** subject found among the order's line products, including `Muntatge i manteniment d'equips` — the module pending from an earlier course in that same worked example — which needs to be taught in a 1st-course group, not `SMX2D`.
+
+Confirmed on this dev DB before the fix: **194 active `ems.enrollment` rows across 103 students** had a subject placed in a group of the wrong course. Independent evidence it is real, not a template-data artifact: several of the rows were for a subject literally named `Tutoria 1r AD` (1st-course tutoring), enrolled under `AD2A` (2nd course).
+
+`ems.study._ems_subject_course(product)` generalizes the lookup `_ems_course_from_tutorship()` already did for the tutorship product to any subject: which single course's template (if exactly one) sells it. `_ems_apply_destination_placement()` now calls it per subject and, when it disagrees with the order's own group, redirects that one subject's `ems.enrollment` to `ems.group._ems_equivalent_for_course()` — an exact `acronym`+`shift` match in the target course, falling back to the first group of that study+course by the model's own order (`_order = "name"`) so a pending subject is never left unplaced (deliberately looser than D15's own "no exact match → leave empty" rule: this only decides where a student attends one class, not their home group).
+
+A subject sold by templates of **both** courses stays on the order's own group — genuinely ambiguous, and a real case in this data (AIF's `Recursos humans i responsabilitat social corporativa` / `Sostenibilitat aplicada al sistema productiu` are sold by both `AIF-1` and `AIF-2`), so the rule declines to guess rather than pick one course over the other.
+
+A one-time migration (`migrations/18.0.0.23.1/post-migrate.py::_reassign_misplaced_subject_enrollments`) reuses the same two methods to backfill every already-existing misplaced row, so it can never drift from the live logic. It reassigned exactly the 194 rows found during triage.
+
 ### Newcomers stop being applicants at the worst moment (D16)
 
 `_ems_suggest_group()` picked its strategy with `contact_type == 'applicant'`. The question it means to ask is *"is there an origin group to copy the letter from?"*, and the contact type looked equivalent — but it stops being true at exactly the wrong moment: confirming the enrollment runs `_ems_admit_student()`, which turns the applicant into a student. From then on a newcomer awaiting the bulk placement matched neither branch and got no suggestion at all.

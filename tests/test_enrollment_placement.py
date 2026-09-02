@@ -348,6 +348,95 @@ class TestEnrollmentPlacement(TransactionCase):
         order = self._repeater_order(student, tutorship, self.subject1)
         self.assertEqual(order._ems_suggest_group(), self.g2a)
 
+    # --- per-subject group placement for a course-mixed order ---------------
+
+    def test_placement_sends_pending_subject_to_its_own_course_group(self):
+        """The order's own destination group (g2a) is right for the current-course
+        subjects, but a subject pending from an earlier course must be placed in
+        THAT course's own group instead - see D15's own worked example."""
+        tutorship = self._tutorship('PLTUT2G', 2)
+        self.template1.sale_order_template_line_ids = [
+            (0, 0, {'product_id': self.subject1.product_id.id})]
+        student = self.env['res.partner'].create({
+            'name': 'PL Pending Subject', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+        order = self._repeater_order(student, tutorship, self.subject1)
+        order.ems_group_id = self.g2a
+        order._ems_apply_destination_placement()
+        enrollments = student.enrollment_ids
+        tutorship_enrollment = enrollments.filtered(lambda e: e.subject_id == tutorship)
+        subject1_enrollment = enrollments.filtered(lambda e: e.subject_id == self.subject1)
+        self.assertEqual(tutorship_enrollment.group_id, self.g2a)
+        self.assertEqual(subject1_enrollment.group_id, self.g1a)
+
+    def test_placement_uses_first_group_when_no_exact_equivalent_exists(self):
+        """No exact acronym/shift match for the pending subject's own course: it
+        still lands on a real group (the first by name) instead of being left
+        unplaced - deliberately looser than _ems_suggest_group()'s own-group rule,
+        since this is only "where the student attends class", not their home group."""
+        tutorship = self._tutorship('PLTUT2H', 2)
+        self.template1.sale_order_template_line_ids = [
+            (0, 0, {'product_id': self.subject1.product_id.id})]
+        g2c = self.env['ems.group'].create({
+            'course': 2, 'acronym': 'C', 'shift': 'morning',
+            'level_id': self.level.id, 'study_id': self.study.id})
+        student = self.env['res.partner'].create({
+            'name': 'PL No Exact Match', 'contact_type': 'student', 'main_group_id': g2c.id})
+        order = self._repeater_order(student, tutorship, self.subject1)
+        order.ems_group_id = g2c
+        order._ems_apply_destination_placement()
+        subject1_enrollment = student.enrollment_ids.filtered(lambda e: e.subject_id == self.subject1)
+        self.assertTrue(subject1_enrollment.group_id)
+        self.assertIn(subject1_enrollment.group_id, self.g1a | self.g1a_aft)
+
+    def test_placement_keeps_own_group_when_subject_sold_by_both_courses(self):
+        """A subject genuinely sold by both courses' templates (e.g. AIF's own
+        transversal modules in the real data) is ambiguous: kept on the order's own
+        destination group rather than guessing which course it belongs to."""
+        tutorship = self._tutorship('PLTUT2I', 2)
+        self.template1.sale_order_template_line_ids = [
+            (0, 0, {'product_id': self.subject1.product_id.id})]
+        self.template2.sale_order_template_line_ids = [
+            (0, 0, {'product_id': tutorship.product_id.id}),
+            (0, 0, {'product_id': self.subject1.product_id.id}),
+        ]
+        student = self.env['res.partner'].create({
+            'name': 'PL Both Courses', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+        order = self._repeater_order(student, tutorship, self.subject1)
+        order.ems_group_id = self.g2a
+        order._ems_apply_destination_placement()
+        subject1_enrollment = student.enrollment_ids.filtered(lambda e: e.subject_id == self.subject1)
+        self.assertEqual(subject1_enrollment.group_id, self.g2a)
+
+    def test_placement_keeps_own_group_when_subject_has_no_template_at_all(self):
+        """A subject absent from every template (today's existing case): stays on
+        the order's own destination group, unaffected by this fix."""
+        tutorship = self._tutorship('PLTUT2J', 2)
+        student = self.env['res.partner'].create({
+            'name': 'PL No Template', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+        order = self._repeater_order(student, tutorship, self.subject1)
+        order.ems_group_id = self.g2a
+        order._ems_apply_destination_placement()
+        subject1_enrollment = student.enrollment_ids.filtered(lambda e: e.subject_id == self.subject1)
+        self.assertEqual(subject1_enrollment.group_id, self.g2a)
+
+    # --- ems.group._ems_equivalent_for_course() in isolation ----------------
+
+    def test_equivalent_for_course_exact_acronym_and_shift_match(self):
+        self.assertEqual(self.g2a._ems_equivalent_for_course(1), self.g1a)
+
+    def test_equivalent_for_course_falls_back_to_first_by_name(self):
+        g2c = self.env['ems.group'].create({
+            'course': 2, 'acronym': 'C', 'shift': 'morning',
+            'level_id': self.level.id, 'study_id': self.study.id})
+        result = g2c._ems_equivalent_for_course(1)
+        self.assertIn(result, self.g1a | self.g1a_aft)
+
+    def test_equivalent_for_course_empty_when_no_group_for_that_course(self):
+        lone_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'A', 'shift': 'morning',
+            'level_id': self.level.id, 'study_id': self.study_no_template.id})
+        self.assertFalse(lone_group._ems_equivalent_for_course(2))
+
     def test_no_suggestion_without_a_tutorship_line(self):
         student = self.env['res.partner'].create({
             'name': 'PL No Tutorship', 'contact_type': 'student', 'main_group_id': self.g2a.id})

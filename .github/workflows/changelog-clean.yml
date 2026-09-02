@@ -26,6 +26,15 @@ name: Clean changelog/ (manual)
 # a fine-grained PAT (Contents: read and write, this repo only) belonging to a real user who IS
 # on the ruleset's bypass Team - the checkout step below authenticates with it instead of the
 # default token specifically so the push is attributed to (and authorized as) that user.
+#
+# Result is reported as a commit status, context "changelog-clean-run" (changed 2026-09-02;
+# deliberately a different context than require-changelog-clean.yml's own "changelog-clean"
+# required check, so this never overwrites that one). Previously this posted a PR comment
+# instead - homogeneous with every other check on this repo (a tick, not a chat message) is
+# preferable, and a comment had already proven itself unreliable in practice: it reported
+# "removed and pushed" purely from whether the local `git rm` succeeded, with no regard for
+# whether the push itself worked, so it once announced success on a run whose push had
+# actually failed (CHANGELOG_CLEANUP_TOKEN had Contents:Read-only permission at the time).
 
 on:
   issue_comment:
@@ -65,8 +74,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      issues: write
-      pull-requests: write
+      statuses: write
+      pull-requests: read
     steps:
       - name: Resolve PR head branch
         id: pr
@@ -77,13 +86,17 @@ jobs:
               owner: context.repo.owner, repo: context.repo.repo,
               pull_number: context.issue.number,
             });
+            // Set outputs BEFORE the fork check below, not after: a step that fails via
+            // core.setFailed() keeps whatever outputs it already set, and the final
+            // reporting step needs `sha` to attach a failure status even for a fork PR.
+            core.setOutput('sha', pr.data.head.sha);
+            core.setOutput('ref', pr.data.head.ref);
             if (pr.data.head.repo.full_name !== `${context.repo.owner}/${context.repo.repo}`) {
               core.setFailed('This PR is from a fork - cannot push the cleanup commit back to it.');
-              return;
             }
-            core.setOutput('ref', pr.data.head.ref);
 
       - name: Checkout PR branch
+        id: checkout
         uses: actions/checkout@v7
         with:
           ref: ${{ steps.pr.outputs.ref }}
@@ -104,24 +117,51 @@ jobs:
           fi
 
       - name: Commit and push
+        id: push
         if: steps.remove.outputs.removed == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git commit -m "chore: remove changelog/ before merge"
           git push origin HEAD:${{ steps.pr.outputs.ref }}
+          echo "new_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-      - name: Comment result
+      - name: Report result as a commit status
         if: always()
         uses: actions/github-script@v7
         with:
           script: |
-            const removed = '${{ steps.remove.outputs.removed }}' === 'true';
-            const body = removed
-              ? '🧹 `changelog/` removed and pushed to this branch.'
-              : '`changelog/` was already empty - nothing to remove.';
-            await github.rest.issues.createComment({
+            const originalSha = '${{ steps.pr.outputs.sha }}';
+            if (!originalSha) {
+              // Couldn't even resolve the PR's head commit (e.g. the pulls.get call itself
+              // errored) - nothing to attach a status to.
+              core.warning('No PR head sha resolved; skipping commit status.');
+              return;
+            }
+
+            let sha = originalSha, state, description;
+            if ('${{ steps.pr.outcome }}' === 'failure') {
+              state = 'failure';
+              description = 'This PR is from a fork, or the PR could not be resolved - see the run log.';
+            } else if ('${{ steps.checkout.outcome }}' === 'failure') {
+              state = 'failure';
+              description = 'Checkout of the PR branch failed - see the run log.';
+            } else if ('${{ steps.remove.outcome }}' !== 'success') {
+              state = 'failure';
+              description = 'Unexpected error before changelog/ could be inspected - see the run log.';
+            } else if ('${{ steps.remove.outputs.removed }}' !== 'true') {
+              state = 'success';
+              description = 'changelog/ was already empty - nothing to remove.';
+            } else if ('${{ steps.push.outcome }}' === 'success') {
+              state = 'success';
+              sha = '${{ steps.push.outputs.new_sha }}' || originalSha;
+              description = 'changelog/ removed and pushed to this branch.';
+            } else {
+              state = 'failure';
+              description = 'changelog/ removed locally but the push failed - likely CHANGELOG_CLEANUP_TOKEN needs attention.';
+            }
+
+            await github.rest.repos.createCommitStatus({
               owner: context.repo.owner, repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body,
+              sha, state, context: 'changelog-clean-run', description,
             });

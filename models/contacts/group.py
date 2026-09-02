@@ -246,6 +246,22 @@ class EmsGroup(models.Model):
 			"tag": "soft_reload",
 		}
 
+	def _ems_equivalent_for_course(self, course):
+		"""The group where a subject of a different `course` is actually taught for a
+		student currently in this group: exact acronym (and shift, when this group has
+		one) match in that course, else the first group of that study+course in the
+		model's own order (see _order), so a subject genuinely pending from another
+		course always lands somewhere concrete instead of being left unplaced. Empty
+		only when that study+course has no group at all."""
+		self.ensure_one()
+		domain = [("study_id", "=", self.study_id.id), ("course", "=", course),
+			("group_type", "=", "main")]
+		Group = self.env["ems.group"]
+		exact_domain = domain + [("acronym", "=", self.acronym)]
+		if self.shift:
+			exact_domain.append(("shift", "=", self.shift))
+		return Group.search(exact_domain, limit=1) or Group.search(domain, order="name", limit=1)
+
 
 class EmsEnrollmentView(models.TransientModel):
 	_name = "ems.enrollment_view"

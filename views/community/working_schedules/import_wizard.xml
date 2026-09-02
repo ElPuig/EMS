@@ -26,7 +26,11 @@
                             <p>Import a working-schedule batch (one or several planner files exported from the timetable tool). Run this during next-course preparation, right after the previous course's schedules have been archived by the course transition wizard. Nothing is written to any schedule until you finish every step below and click Import on the last one.</p>
                             <group>
                                 <field name="attachment_ids" widget="ems_blocking_many2many_binary" options="{'accepted_file_extensions': '.xml'}"/>
+                                <field name="import_mode" widget="radio"/>
                             </group>
+                            <p class="text-muted">
+                                Combine keeps each teacher's existing weekly schedule and only adds or updates what these files describe. Replace makes these files each teacher's complete schedule, dropping anything else they had. Either way, a weekday slot these files describe always replaces whatever was there before for it.
+                            </p>
                         </div>
 
                         <div invisible="state != 'groups'">

@@ -53,6 +53,9 @@
                             <setting string="Coexistence escalation threshold" help="Every time a student's cumulative strike count reaches a multiple of this number, the matching coexistence coordinator(s) are notified by email (in addition to the usual student/family/tutor notification sent on every strike)." id="strike_escalation_threshold">
                                 <field name="strike_escalation_threshold" class="text-center" style="width: 5ch;"/>
                             </setting>
+                            <setting string="Family notification" help="Which strikes notify the family (minors, or authorized adults). The student and tutor are always notified." id="strike_family_notification_mode">
+                                <field name="strike_family_notification_mode" widget="radio" options="{'horizontal': true}"/>
+                            </setting>
                         </block>
 
                          <block title="LimeSurvey Settings" name="ems_limesurvey_settings">                          

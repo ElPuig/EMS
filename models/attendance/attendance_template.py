@@ -128,7 +128,7 @@ class EmsAttendanceTemplate(models.Model):
 		"desdoble" pattern this data model can only express as separate templates (group_ids has
 		no per-line override), not a duplicate to reject. A plain SQL UNIQUE can't express this
 		either way since 'teacher_ids'/'group_ids' are Many2many - hence a Python check. The sync
-		pipeline's own reconciliation (_reconcile_teacher_groups/_reconcile_fresh_import,
+		pipeline's own reconciliation (_reconcile_teacher_groups,
 		'_plan_schedule_sync's own old_items keying) already normally prevents this exact-match
 		case from happening in practice; this constraint is the explicit guard for the ONE path
 		that bypasses it - a direct manual create()/write() through the UI or API."""
@@ -197,25 +197,28 @@ class EmsAttendanceTemplate(models.Model):
 		return super().unlink()
 
 	def sync_from_schedule(self, teacher, entries, start_date=None):
-		"""Sync a single teacher's schedule — the employee 'Schedule' tab's grid widget (a live
-		mid-course edit). Internally delegates to sync_from_schedule_batch() wrapping its single
-		(teacher, entries) pair, so a solo edit goes through the exact same co-teaching reconciliation
-		as another live edit (see '_reconcile_teacher_groups'). NOT used by the XML importer any more
-		(see 'sync_from_schedule_batch_fresh_import' below) - a live edit genuinely describes that one
-		teacher's ENTIRE schedule right now, which is exactly the assumption this path relies on."""
+		"""Sync a single teacher's schedule from 'entries' — the employee 'Schedule' tab's grid
+		widget (a live mid-course edit) is the main caller, always with this teacher's ENTIRE
+		current schedule. Internally delegates to sync_from_schedule_batch() wrapping its single
+		(teacher, entries) pair, so a solo edit goes through the exact same co-teaching
+		reconciliation as any other caller of that method (see '_reconcile_teacher_groups')."""
 		self.sync_from_schedule_batch([(teacher, entries)], start_date=start_date)
 
 	def sync_from_schedule_batch(self, teacher_entries, start_date=None):
 		"""Sync one or several teachers at once **assuming each submitting teacher's entries describe
-		their ENTIRE schedule right now** — used by sync_from_schedule() for the Schedule tab's live,
-		single-teacher edit. Do NOT call this from the XML importer (see
-		'sync_from_schedule_batch_fresh_import' instead) - a batch file only ever describes ONE SLICE
-		of the centre's schedule (e.g. one department), and reusing this method there silently archived
-		a teacher's OTHER, already-imported department as "dropped" the moment they appeared in a
-		second file (found 2026-08-01: two incremental department imports sharing one teacher wiped the
-		first department's schedule for that teacher — see '_reconcile_teacher_groups's own
-		'touched_templates' step, which is exactly the correct behavior for a live edit and exactly
-		wrong for a partial batch import).
+		their ENTIRE schedule right now**. Used by sync_from_schedule() for the Schedule tab's live,
+		single-teacher edit, and by the XML importer
+		(`ems.working_schedules_import_wizard._apply_import`) once it has finished writing this
+		batch's calendar rows: `_write_teacher_schedule` writes each affected teacher's CORRECT
+		final calendar state (respecting the wizard's own `import_mode` - see that method's own
+		docstring), so reading it straight back
+		(`hr.employee._teaching_entries_from_calendar()`) already reflects the teacher's whole
+		current schedule, satisfying this method's own assumption by construction rather than by
+		the caller having to hand-pick a scope. One reconciliation method now serves both callers -
+		until 2026-09-02 the importer had its own separate, near-duplicate pair
+		(`sync_from_schedule_batch_fresh_import`/`_reconcile_fresh_import`, deleted), built back
+		when the importer's own calendar write couldn't yet be trusted to reflect the whole truth
+		(see plans/calendar_pipeline_simplification.md for the fuller history).
 
 		'teacher_entries' is a list of (teacher, entries) pairs. First reconciles co-teaching:
 		'_reconcile_teacher_groups' merges the freshly submitted entries against whatever ALREADY
@@ -278,7 +281,14 @@ class EmsAttendanceTemplate(models.Model):
 		that method) - callers (the migration, in particular) are expected to report this clearly so
 		a human can review and fix the underlying calendars by hand; nothing here guesses which side
 		was "really" the reinforcement teacher (developer's own call, 2026-08-11 - see
-		plans/calendar_driven_attendance_templates.md)."""
+		plans/calendar_driven_attendance_templates.md).
+
+		Also resyncs 'ems.teaching' for every teacher in scope, from the same calendar entries -
+		added 2026-09-01 (see plans/course_transition_stale_teacher_assignments.md). Templates and
+		teachings are two independent, parallel readers of the same calendar truth (see
+		'ems_working_schedule.apply_schedule_changes', which already syncs both side by side for a
+		live single-teacher edit) - this method previously only ever rebuilt the template side,
+		leaving 'ems.teaching' to drift indefinitely stale for anyone it touched."""
 		if teachers is None:
 			teachers = self.env['hr.employee'].search([
 				('employee_type', '=', 'teacher'),
@@ -290,20 +300,20 @@ class EmsAttendanceTemplate(models.Model):
 			('active', '=', True), ('teacher_ids', 'in', teachers.ids),
 		]).with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
 
+		# ems.teaching is resynced for EVERY teacher in scope, not just those ending up with
+		# 'teacher_entries' below - a teacher whose calendar has gone back to zero teaching
+		# entries must still have their stale ems.teaching rows dropped (2026-09-01: this exact
+		# gap - ems.teaching never resynced by this method at all - is what let a departed/
+		# reassigned teacher's old teaching links (and, via ems.teaching.unlink()'s own tutor
+		# cleanup, their group's stale tutor_id) survive indefinitely; see
+		# plans/course_transition_stale_teacher_assignments.md). Uses the FULL entries (before
+		# '_drop_unresolved_conflicts' below strips anything), since a room/slot conflict that
+		# blocks TEMPLATE creation is not a reason to also deny the teacher genuinely still
+		# teaches that subject/group.
 		teacher_entries = []
 		for teacher in teachers:
-			entries = [{
-				'subject_id': attendance.subject_id.id,
-				'group_ids': attendance.group_ids.ids,
-				'dayofweek': attendance.dayofweek,
-				'hour_from': attendance.hour_from,
-				'hour_to': attendance.hour_to,
-				'space_id': attendance.space_id.id,
-				# 'date_from'/'date_to' - core Odoo's own fields on resource.calendar.attendance
-				# (not EMS-specific), see that model's own NOTE for why they're reused as-is.
-				'date_from': attendance.date_from,
-				'date_to': attendance.date_to,
-			} for attendance in teacher.resource_calendar_id.attendance_ids if attendance.subject_id]
+			entries = teacher._teaching_entries_from_calendar()
+			self.env['ems.teaching'].sync_from_schedule(teacher, entries)
 			if entries:
 				teacher_entries.append((teacher, entries))
 
@@ -403,28 +413,6 @@ class EmsAttendanceTemplate(models.Model):
 			if remaining:
 				kept.append((teacher, remaining))
 		return kept, skipped
-
-	def sync_from_schedule_batch_fresh_import(self, teacher_entries, start_date=None):
-		"""The XML importer's own batch write path - use this, never 'sync_from_schedule_batch', from
-		'ems.working_schedules_import_wizard'. 'teacher_entries' is a list of (teacher, entries) pairs,
-		same shape as the method above.
-
-		The difference: '_reconcile_fresh_import' only ever looks at (subject, group-set)
-		combinations actually present in THIS batch's own entries - it never considers any OTHER
-		template a submitting teacher already owns for a combination this file doesn't mention, so
-		nothing is ever silently archived as "dropped". A batch file only ever describes part of the
-		centre's schedule (one department, one level...), imported incrementally alongside others over
-		time, and a teacher can legitimately appear in more than one - unlike the Schedule tab's live
-		editor, where a single submission genuinely IS that one teacher's whole schedule right now.
-
-		Still correctly merges legitimate co-teaching with an EXTERNAL teacher's already-active
-		session for the exact same (subject, group-set, slot) - see '_reconcile_fresh_import'. A
-		genuine room conflict (different subject/group, same space/time) is expected to already have
-		been caught by 'classify_external_conflicts' before this is ever called."""
-		merged_groups, vacated = self._reconcile_fresh_import(teacher_entries)
-		vacated.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
-		self._run_schedule_sync_plans(merged_groups, start_date=start_date)
-		self._link_calendar_attendance(merged_groups)
 
 	def _run_schedule_sync_plans(self, merged_groups, start_date=None):
 		"""Shared archive-then-write pass for both batch sync entry points above - see
@@ -574,95 +562,6 @@ class EmsAttendanceTemplate(models.Model):
 				merged.append((self.env['hr.employee'].browse(teacher_ids), slot_entries))
 		return merged, vacated
 
-	def _reconcile_fresh_import(self, teacher_entries):
-		"""Like '_reconcile_teacher_groups' above, for the XML importer's own batch write path
-		('sync_from_schedule_batch_fresh_import') instead of the Schedule tab's live single-teacher
-		edit. Deliberately does NOT include that method's 'touched_templates' step (every OTHER active
-		template a submitting teacher already owns, regardless of subject/group): a batch file only
-		ever describes ONE SLICE of the centre's schedule, imported incrementally alongside others
-		(e.g. one department today, another next week) - a teacher shared between two such files must
-		never have the first file's combo silently treated as "dropped" just because the second file
-		submits something for them. Only combinations actually present in THIS batch's own entries are
-		ever reconsidered here; anything else a submitting teacher owns is left completely untouched
-		(found 2026-08-01: reusing '_reconcile_teacher_groups' here wiped a shared teacher's
-		already-imported department the moment a second department's file was imported).
-
-		Still correctly merges legitimate co-teaching: if an EXTERNAL teacher (not in this batch)
-		already holds the exact same (subject, group-set, slot) an entry submits now, that external
-		teacher's slot is folded into the same resulting group exactly like
-		'_reconcile_teacher_groups' does - the only thing missing here is the "also archive whatever
-		this teacher used to teach but stopped submitting" half, which is precisely what must NOT
-		happen for a partial batch import.
-
-		Returns (merged, vacated), same shapes as '_reconcile_teacher_groups' - 'vacated' IS still
-		needed here (found the hard way 2026-08-01: dropping it entirely broke co-teaching merges,
-		since the external teacher's OLD solo template never got superseded/archived, leaving a
-		duplicate that then collided with the new merged one via check_overlap's own same_teacher
-		check). The key difference from '_reconcile_teacher_groups' is narrower than "no vacated at
-		all": only a (subject, group-set) key that's ACTUALLY present in 'by_key_submitted' (i.e.
-		mentioned by this batch, whether as a submitting teacher or as the external co-teacher being
-		merged into) can ever produce a 'vacated' template - a combo this batch doesn't mention AT ALL
-		never enters 'by_key_submitted' in the first place (no 'touched_templates' pre-scan), so it can
-		never be vacated either."""
-		submitting_teacher_ids = {teacher.id for teacher, _entries in teacher_entries}
-		by_key_submitted = dict()
-		for teacher, entries in teacher_entries:
-			for entry in entries:
-				if not entry.get('group_ids'):
-					continue  # non-teaching entries carry no group, hence no co-teaching to reconcile
-				key = (entry['subject_id'], tuple(sorted(entry['group_ids'])))
-				by_key_submitted.setdefault(key, []).append((teacher, entry))
-
-		merged = []
-		vacated = self.env['ems.attendance_template']
-		for (subject_id, group_ids), submitted in by_key_submitted.items():
-			existing_templates = self.env['ems.attendance_template'].search([
-				('subject_id', '=', subject_id),
-				('group_ids', 'in', list(group_ids)),
-				('active', '=', True),
-			]).filtered(lambda template, group_ids=group_ids: set(template.group_ids.ids) == set(group_ids))
-
-			by_slot = dict()
-			for template in existing_templates:
-				# Teachers of this template NOT submitting THIS COMBO now: their slots are preserved
-				# as-is, unless a submitting teacher lands on the exact same slot (merged below).
-				untouched = template.teacher_ids.filtered(lambda teacher: teacher.id not in submitting_teacher_ids)
-				if not untouched:
-					continue  # every teacher of this template is (re-)submitting this same combo now
-				for line in template.attendance_schedule_ids:
-					slot_key = (line.weekday, line.start_time, line.end_time)
-					by_slot.setdefault(slot_key, {'teacher_ids': set(), 'entry': {
-						'subject_id': subject_id,
-						'group_ids': list(group_ids),
-						'dayofweek': line.weekday,
-						'hour_from': line.start_time,
-						'hour_to': line.end_time,
-					}})
-					by_slot[slot_key]['teacher_ids'].update(untouched.ids)
-
-			for teacher, entry in submitted:
-				slot_key = (entry['dayofweek'], entry['hour_from'], entry['hour_to'])
-				by_slot.setdefault(slot_key, {'teacher_ids': set(), 'entry': entry})
-				by_slot[slot_key]['teacher_ids'].add(teacher.id)
-
-			by_teacher_set = dict()
-			for slot in by_slot.values():
-				by_teacher_set.setdefault(frozenset(slot['teacher_ids']), []).append(slot['entry'])
-
-			# NOTE: an existing template survives, as-is, only if some resulting group's teacher-set
-			# matches it EXACTLY (see '_reconcile_teacher_groups' for the full reasoning) - e.g. an
-			# external teacher's solo template gets superseded here once co-teaching merges them into
-			# a bigger teacher-set, and must be archived so the new group's own create()/write() below
-			# doesn't collide with it via check_overlap's same_teacher check.
-			result_teacher_sets = set(by_teacher_set.keys())
-			for template in existing_templates:
-				if frozenset(template.teacher_ids.ids) not in result_teacher_sets:
-					vacated |= template
-
-			for teacher_ids, slot_entries in by_teacher_set.items():
-				merged.append((self.env['hr.employee'].browse(teacher_ids), slot_entries))
-		return merged, vacated
-
 	def classify_external_conflicts(self, teacher_entries):
 		"""Given [(teacher, entries), ...] (same shape as sync_from_schedule_batch), find every
 		currently active ems.attendance_schedule belonging to a teacher NOT part of this batch that
@@ -722,8 +621,14 @@ class EmsAttendanceTemplate(models.Model):
 
 		A candidate sharing the (subject, group-set) combination with one of this same teacher's own
 		submitted entries is never a conflict, however its time or space differs - that is just this
-		exact combination being moved/updated in place, which '_reconcile_fresh_import' already
+		exact combination being moved/updated in place, which '_reconcile_teacher_groups' already
 		handles correctly by refreshing the existing template's schedule lines.
+
+		Called from 'ems.working_schedules_import_wizard._apply_import' as a last-resort safety net
+		only (2026-09-02) - the normal path already resolves this same kind of clash interactively,
+		earlier, on the 'db_conflicts' screen (`_find_external_conflicts`'s own 'self_candidates'
+		branch, defaulting to the new import winning); this only ever fires for a genuine race (the
+		DB changed after that screen ran), not the everyday case.
 
 		Note: this only catches conflicts against already-written DB data, i.e. across separate
 		imports - it does not catch two overlapping entries for the same teacher within the single

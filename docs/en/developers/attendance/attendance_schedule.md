@@ -176,7 +176,7 @@ reason `ems.attendance_template.teacher_ids` is a Many2many rather than one temp
 (see [`attendance_template.md`](attendance_template.md)'s "Co-teaching" section).
 
 **Captured by `ems.attendance_template._link_calendar_attendance(teacher_entries)`**, called at
-the end of both `sync_from_schedule_batch` and `sync_from_schedule_batch_fresh_import` (right
+the end of `sync_from_schedule_batch` (right
 after `_run_schedule_sync_plans` finishes writing the schedule lines for this same call — see
 `attendance_template.md`'s "CRUD flow"). For every `(teacher, entries)` pair, it matches each
 entry's own `(dayofweek, hour_from, hour_to)` against that teacher's own `resource_calendar_id.
@@ -199,11 +199,17 @@ broad, ambiguity-prone inference this FK exists to stop needing, on data that's 
 drift (the same risk `find_schedule_lines_for_teaching`'s own docstring warns about). Any code that
 still needs an older block's schedule line falls back to that lookup, unchanged, until the block
 itself gets rewritten by a live edit or a re-import (which populates the FK from then on).
-`course_transition_wizard._apply_calendar_archival()` (see
-[`course_transition_wizard.md`](../settings/course_transition_wizard.md)) has **not** been switched
-to read the FK yet — it still calls `find_schedule_lines_for_teaching` directly, since a real
-production calendar can easily be full of pre-FK blocks for some time; a follow-up change can teach
-it to prefer `attendance_schedule_id` when set and fall back to the lookup otherwise.
+
+**`course_transition_wizard._apply_calendar_archival()` now reads the FK first (2026-09-02)** — see
+[`course_transition_wizard.md`](../settings/course_transition_wizard.md). It prefers
+`block.attendance_schedule_id` (a direct Many2one field read, so it finds an already-archived line
+just as reliably as an active one — no `active_test` filtering applies to a plain field access, only
+to `search()`) and only falls back to `find_schedule_lines_for_teaching` for a block whose FK is
+still empty (a legacy, pre-2026-08-11 calendar row never resynced since). This was the first of a
+staged set of simplifications identified while auditing the whole calendar → template/schedule →
+teaching pipeline — see `plans/calendar_pipeline_simplification.md` for the fuller picture (a
+`plans/` file only, not yet folded in here, since the later phases it describes are not yet
+implemented).
 
 ## `unlink()`: history guard
 

@@ -686,14 +686,7 @@ class SaleOrder(models.Model):
             ('is_tutorship', '=', True)])
         if len(tutorships) != 1:
             return False
-        years = {
-            template.study_year
-            for template in self.env['sale.order.template'].search([
-                ('ems_study_id', '=', self.ems_study_id.id),
-                ('study_year', '!=', False)])
-            if tutorships.product_id in template.sale_order_template_line_ids.product_id
-        }
-        return years.pop() if len(years) == 1 else False
+        return self.ems_study_id._ems_subject_course(tutorships.product_id)
 
     def _ems_fill_suggested_group(self):
         """Fill ems_group_id with the suggestion on enrollments that have none.
@@ -769,14 +762,24 @@ class SaleOrder(models.Model):
         subjects = self.env['ems.subject'].sudo().search([
             ('product_id', 'in', self.order_line.product_id.ids)])
         for subject in subjects:
+            # A subject the student is retaking from an earlier course (a repeater's
+            # pending module, mixed into the same order as the current course's own
+            # subjects) is taught in THAT course's group, not this order's destination
+            # group - resolved only when the study's own templates sell it for exactly
+            # one course other than this one; ambiguous or unknown stays on `group`,
+            # today's behaviour.
+            subject_group = group
+            course = self.ems_study_id._ems_subject_course(subject.product_id)
+            if course and course != group.course:
+                subject_group = group._ems_equivalent_for_course(course) or group
             exists = Enrollment.search_count([
                 ('student_id', '=', student.id),
-                ('group_id', '=', group.id),
+                ('group_id', '=', subject_group.id),
                 ('subject_id', '=', subject.id)])
             if not exists:
                 Enrollment.create({
                     'student_id': student.id,
-                    'group_id': group.id,
+                    'group_id': subject_group.id,
                     'subject_id': subject.id,
                 })
 

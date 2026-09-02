@@ -148,7 +148,13 @@ El asistente te guía por varias pantallas, cada una con su propia explicación 
 
 1. Ve a **Configuración → Profesorado → Horarios de trabajo**.
 2. Abre el menú ⚙️ (engranaje) sobre la lista y elige **Import: planner data**.
-3. En la pantalla de **Bienvenida**, adjunta uno o más archivos XML y haz clic en **Continuar** — todavía no se escribe nada en este punto, ni tampoco se comprueba nada del contenido de los archivos.
+3. En la pantalla de **Bienvenida**, adjunta uno o más archivos XML y elige cómo debe tratar esta importación el horario existente de cada docente:
+   - **Combinar con el horario existente de cada docente** (por defecto) — no se pierde nada de lo que ya tenía un docente, salvo que estos archivos también lo describan. Úsalo para un docente compartido entre departamentos cuyos archivos se importan en momentos distintos (por ejemplo, un docente de refuerzo, un archivo por departamento).
+   - **Reemplazar completamente el horario existente de cada docente** — estos archivos pasan a ser el horario completo de ese docente; cualquier cosa que tuviera y que no aparezca en estos archivos se descarta. Úsalo cuando un archivo deba ser la descripción completa y autoritativa de la semana de un docente.
+
+   En cualquier caso, si estos archivos describen exactamente el mismo día y hora que un docente ya tenía ocupados con otra cosa, siempre gana lo nuevo. Subir varios archivos juntos en una misma ejecución (por ejemplo, uno por departamento) siempre los combina entre sí primero, sea cual sea la opción elegida — la elección solo afecta a lo que pasa con el horario de una importación **anterior y separada**.
+
+   Después haz clic en **Continuar** — todavía no se escribe nada en este punto, ni tampoco se comprueba nada del contenido de los archivos.
 
    ![Pantalla de Bienvenida del asistente con un archivo del planificador adjuntado](../../assets/admin/working-schedules-import-01-welcome.png)
 4. Si los archivos mencionan algún nombre de grupo que EMS no ha podido emparejar automáticamente, una pantalla de **Resolver grupos** los lista uno a uno: elige el grupo real en el desplegable de cada fila (o crea uno al vuelo, igual que en cualquier otro campo de grupo) y haz clic en **Continuar**. Si todos los grupos se reconocieron automáticamente, verás un mensaje de confirmación en lugar de una lista. El botón **Continuar** aparece atenuado hasta que todas las filas tengan un grupo elegido.
@@ -181,7 +187,7 @@ El asistente te guía por varias pantallas, cada una con su propia explicación 
 
 > Hazlo durante la preparación del próximo curso, una vez que los horarios del curso anterior ya hayan sido archivados por el asistente de "Configurar el próximo curso" — ejecutarlo contra un curso ya en marcha puede generar conflictos que luego habrá que resolver a mano.
 
-Si alguno de los docentes encontrados en los archivos ya tiene un horario, se actualiza in situ (no se reemplaza desde cero) al hacer clic en **Importar** — las asignaciones de asignaturas y las plantillas de asistencia existentes se mantienen sincronizadas con el archivo nuevo.
+Si alguno de los docentes encontrados en los archivos ya tiene un horario, se actualiza al hacer clic en **Importar** según la opción elegida en la pantalla de Bienvenida (combinar o reemplazar) — las asignaciones de asignaturas y las plantillas de asistencia existentes se mantienen sincronizadas con el resultado en ambos casos.
 
 ---
 

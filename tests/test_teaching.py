@@ -110,3 +110,60 @@ class TestTeaching(TransactionCase):
             self.env['ems.teaching'].with_user(self.secretary_user).create({
                 'teacher_id': self.teacher.id, 'group_id': self.group.id, 'subject_id': self.subject.id,
             })
+
+    # --- unlink() clearing a stale ems.group.tutor_id (2026-09-01) ---------------------------
+    # See plans/course_transition_stale_teacher_assignments.md - a group's tutoring is itself
+    # recorded as an ordinary ems.teaching row on the group's own tutoring subject
+    # (subject_id.is_tutorship); losing that row must not leave tutor_id pointing at a teacher
+    # who no longer actually holds the tutorship.
+
+    def test_unlink_tutorship_teaching_clears_group_tutor(self):
+        tutorship_subject = self.env['ems.subject'].create({
+            'code': 'TST_TCH_TUT', 'acronym': 'TUTT', 'name': 'Test Tutorship Subject', 'is_tutorship': True,
+        })
+        group = self.env['ems.group'].create({
+            'course': 5, 'acronym': 'TT9', 'level_id': self.level.id, 'study_id': self.study.id,
+            'tutor_id': self.teacher.id,
+        })
+        teaching = self.env['ems.teaching'].create({
+            'teacher_id': self.teacher.id, 'group_id': group.id, 'subject_id': tutorship_subject.id,
+        })
+
+        teaching.unlink()
+
+        self.assertFalse(group.tutor_id)
+
+    def test_unlink_non_tutorship_teaching_leaves_tutor_untouched(self):
+        group = self.env['ems.group'].create({
+            'course': 6, 'acronym': 'TT10', 'level_id': self.level.id, 'study_id': self.study.id,
+            'tutor_id': self.teacher.id,
+        })
+        teaching = self.env['ems.teaching'].create({
+            'teacher_id': self.teacher.id, 'group_id': group.id, 'subject_id': self.subject.id,
+        })
+
+        teaching.unlink()
+
+        self.assertEqual(group.tutor_id, self.teacher)
+
+    def test_unlink_tutorship_teaching_leaves_a_different_current_tutor_untouched(self):
+        # A manual reassignment in between must never be clobbered by a stale unlink - the
+        # cleanup only ever fires while 'tutor_id' still matches the teacher losing the row.
+        tutorship_subject = self.env['ems.subject'].create({
+            'code': 'TST_TCH_TUT2', 'acronym': 'TUTT2', 'name': 'Test Tutorship Subject 2', 'is_tutorship': True,
+        })
+        other_teacher = self.env['hr.employee'].create({
+            'name': 'Test Teaching Teacher Other', 'employee_type': 'teacher',
+        })
+        group = self.env['ems.group'].create({
+            'course': 7, 'acronym': 'TT11', 'level_id': self.level.id, 'study_id': self.study.id,
+            'tutor_id': self.teacher.id,
+        })
+        teaching = self.env['ems.teaching'].create({
+            'teacher_id': self.teacher.id, 'group_id': group.id, 'subject_id': tutorship_subject.id,
+        })
+        group.tutor_id = other_teacher.id
+
+        teaching.unlink()
+
+        self.assertEqual(group.tutor_id, other_teacher)

@@ -191,6 +191,10 @@ class TestStrike(TransactionCase):
             self._create_strike(self.secretary_user)
 
     def test_notification_recipients_minor_student(self):
+        # Recipient targeting is what this test covers, not strike_family_notification_mode
+        # itself - force 'all' so the family entry doesn't depend on whichever default this
+        # environment happens to be running with (a clean install starts on 'kicked_out').
+        self.env.company.strike_family_notification_mode = 'all'
         strike = self._create_strike(self.teacher_a_user)
         recipients = strike.send_to.split('; ')
         self.assertIn(self.minor_student.student_email, recipients)
@@ -239,7 +243,47 @@ class TestStrike(TransactionCase):
         adult_student.flush_recordset()
         self.env.cr.execute("UPDATE res_partner SET auth_share = TRUE WHERE id = %s", (adult_student.id,))
         adult_student.invalidate_recordset()
+        # Recipient targeting is what this test covers, not strike_family_notification_mode
+        # itself - force 'all' so the family entry doesn't depend on whichever default this
+        # environment happens to be running with (a clean install starts on 'kicked_out').
+        self.env.company.strike_family_notification_mode = 'all'
         strike = self._create_strike(self.teacher_a_user, student_id=adult_student.id)
+        recipients = strike.send_to.split('; ')
+        self.assertIn(self.family_partner.email, recipients)
+
+    def test_family_notification_mode_defaults_to_all(self):
+        # Checks the field's own model-level default, not self.env.company: the running
+        # company's actual value depends on whether this environment came from a clean
+        # install (post_init_hook already forced it to 'kicked_out') or an upgrade
+        # (post_init_hook never re-runs, so the field default backfilled during the
+        # schema migration is what sticks). Read the field descriptor's own default
+        # callable (Odoo normalizes a plain default value into `lambda model: value` -
+        # see fields.py) instead of creating a real res.company: a real create() cascades
+        # through account/hr/resource's own company-setup logic, including a default
+        # "Standard 40 hours/week" resource.calendar that collides with this module's own
+        # global unique-name constraint on resource.calendar (working_schedule.py) - a
+        # real, CI-only failure hit once already (2026-09-02) before switching to this.
+        field = self.env['res.company']._fields['strike_family_notification_mode']
+        self.assertEqual(field.default(self.env['res.company']), 'all')
+
+    def test_family_notified_on_every_strike_when_mode_all(self):
+        self.env.company.strike_family_notification_mode = 'all'
+        strike = self._create_strike(self.teacher_a_user, kicked_out=False)
+        recipients = strike.send_to.split('; ')
+        self.assertIn(self.family_partner.email, recipients)
+
+    def test_family_not_notified_when_mode_kicked_out_and_not_kicked_out(self):
+        self.env.company.strike_family_notification_mode = 'kicked_out'
+        strike = self._create_strike(self.teacher_a_user, kicked_out=False)
+        recipients = strike.send_to.split('; ')
+        self.assertNotIn(self.family_partner.email, recipients)
+        # Student and tutor notifications are unaffected by this setting.
+        self.assertIn(self.minor_student.student_email, recipients)
+        self.assertIn(self.tutor_employee.email, recipients)
+
+    def test_family_notified_when_mode_kicked_out_and_kicked_out_true(self):
+        self.env.company.strike_family_notification_mode = 'kicked_out'
+        strike = self._create_strike(self.teacher_a_user, kicked_out=True)
         recipients = strike.send_to.split('; ')
         self.assertIn(self.family_partner.email, recipients)
 

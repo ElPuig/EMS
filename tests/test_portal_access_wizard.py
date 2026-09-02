@@ -18,8 +18,16 @@ class TestPortalAccessWizard(TransactionCase):
         # email (force_send=True) — neutralize real SMTP delivery (see CLAUDE.md).
         mock_outgoing_email(cls)
 
+        # action_grant_access()'s mail.template has no email_from of its own, so Odoo falls
+        # back to the calling user's own email, then to the company's alias-domain default -
+        # this box's ems DB has a real alias domain configured, but a genuinely clean install
+        # (CI) does not, so an admin_user with no email here silently resolves to no sender at
+        # all on CI and fails deep inside ir_mail_server.build_email() - past where
+        # mock_outgoing_email's send_email patch could ever catch it. Giving the user its own
+        # email removes the dependency on that ambient, environment-specific company config.
         cls.admin_user = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Test Admin (Portal Wizard)', 'login': 'test_admin_portal_wizard',
+            'email': 'admin.pw@example.com',
             'groups_id': [(4, cls.env.ref('ems.group_academic_admin').id), (4, cls.env.ref('base.group_user').id)],
         })
         cls.tutor_employee = cls.env['hr.employee'].create({

@@ -2430,6 +2430,16 @@ msgid "Color coding: Orange = draft enrollment (not yet sent) · Blue = sent to 
 msgstr "Codificació de colors: Taronja = matrícula esborrany (encara no enviada) · Blau = enviada a la família (pendent de confirmació) · Verd = matrícula confirmada"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+msgid "Combine keeps each teacher's existing weekly schedule and only adds or updates what these files describe. Replace makes these files each teacher's complete schedule, dropping anything else they had. Either way, a weekday slot these files describe always replaces whatever was there before for it."
+msgstr "Combinar manté l'horari setmanal existent de cada docent i només afegeix o actualitza el que descriuen aquests fitxers. Reemplaçar converteix aquests fitxers en l'horari complet de cada docent, eliminant qualsevol altra cosa que tinguessin. En ambdós casos, una franja horària que aquests fitxers descriuen sempre substitueix el que hi hagués abans."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard__import_mode__combine
+msgid "Combine with each teacher's existing schedule"
+msgstr "Combinar amb l'horari existent de cada docent"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "Comment"
 msgstr "Comentari"
@@ -4220,6 +4230,11 @@ msgid "Import log (CSV)"
 msgstr "Log d'importació (CSV)"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__import_mode
+msgid "Import Mode"
+msgstr "Mode d'importació"
+
+#. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/import_planner_cog_menu.xml:0
 msgid "Import planner data (XML)"
@@ -5887,6 +5902,11 @@ msgstr "Recargar destinatarios"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
 msgid "Reload students"
 msgstr "Recarregar alumnes"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard__import_mode__replace
+msgid "Replace each teacher's existing schedule entirely"
+msgstr "Reemplaçar completament l'horari existent de cada docent"
 
 #. module: ems
 #. odoo-python
@@ -10035,6 +10055,26 @@ msgstr "Strike"
 #: model:ir.model.fields,field_description:ems.field_res_company__strike_escalation_threshold model:ir.model.fields,field_description:ems.field_res_config_settings__strike_escalation_threshold
 msgid "Strike Escalation Threshold"
 msgstr "Llindar d'escalat de strikes"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__strike_family_notification_mode model:ir.model.fields,field_description:ems.field_res_config_settings__strike_family_notification_mode
+msgid "Strike Family Notification Mode"
+msgstr "Mode de notificació a la família per strikes"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_company__strike_family_notification_mode__all
+msgid "All strikes"
+msgstr "Tots els strikes"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_company__strike_family_notification_mode__kicked_out
+msgid "Kicked out only"
+msgstr "Només si és expulsat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Family notification"
+msgstr "Notificació a la família"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__strike_count model:ir.model.fields,field_description:ems.field_ems_strike__strike_count model:ir.model.fields,field_description:ems.field_res_partner__strike_count model:ir.model.fields,field_description:ems.field_res_users__strike_count model_terms:ir.ui.view,arch_db:ems.view_strike_form model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_pivot model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_graph

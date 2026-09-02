@@ -61,6 +61,20 @@ registry.category("web_tour.tours").add("ems_working_schedules_import_unknown_te
             content: "File attached",
         },
         {
+            // Confirms the radio widget actually renders and can be picked (2026-09-02, see
+            // plans/calendar_pipeline_simplification.md) - 'combine' is the default, so this tour
+            // deliberately picks the OTHER option to prove both are real, clickable choices, not
+            // just verify the default happens to already look right.
+            trigger: ".modal .o_field_widget[name='import_mode'] label:contains('Replace')",
+            content: "Pick 'Replace' instead of the default 'Combine'",
+            run: "click",
+        },
+        {
+            trigger:
+                ".modal .o_field_widget[name='import_mode'] .o_radio_item:has(label:contains('Replace')) input[type='radio']:checked",
+            content: "'Replace' is now the selected option",
+        },
+        {
             trigger: ".modal .modal-footer button[name='action_continue']:not([disabled])",
             content: "Continue is enabled purely because a file is attached - the unknown e-mail inside it isn't checked at this screen any more",
             run: "click",

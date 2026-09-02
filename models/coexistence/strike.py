@@ -44,13 +44,19 @@ class ems_strike(models.Model):
         """Returns {"student": [(email, lang), ...], "family": [...], "tutor": [...]}
         following the same minor/auth_share family authorization rule as
         ems.attendance_issue_status, plus the group tutor. Split by kind (rather than a
-        flat list) so _notify() can address each recipient with its own template."""
+        flat list) so _notify() can address each recipient with its own template.
+
+        The family entry is additionally gated by strike_family_notification_mode
+        (res.company): 'all' notifies the family on every strike (subject to the
+        minor/auth_share rule above), 'kicked_out' only when this strike's kicked_out is
+        True. The student and tutor notifications are never affected by this setting."""
         self.ensure_one()
         student = self.student_id
         by_kind = {"student": [], "family": [], "tutor": []}
         if student.student_email:
             by_kind["student"].append((student.student_email, student.lang))
-        if not student.is_adult or student.auth_share:
+        notify_family = self.kicked_out or self.env.company.strike_family_notification_mode == "all"
+        if notify_family and (not student.is_adult or student.auth_share):
             for relation in student.relation_all_ids:
                 partner = relation.other_partner_id
                 if partner.contact_type == "family" and partner.email:

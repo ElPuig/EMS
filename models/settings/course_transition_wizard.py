@@ -713,18 +713,32 @@ class ems_course_transition_wizard(models.TransientModel):
 
         'study_id' and 'level_id' are deliberately kept: they say what the student was
         doing, which is what the "no destination" report and a late enrollment read.
+
+        Also clears the outgoing group's own 'delegate_id' if it was one of these
+        students - same stale-reference cleanup '_ems_clear_operational_records()' already
+        does for a student leaving the centre entirely (see
+        'res.partner._ems_clear_stale_delegate()'), needed here too since a stranded student
+        keeps their group's delegate tag otherwise: the group itself is never archived
+        (reused across years), only this student's own membership in it ends.
         """
         self.ensure_one()
         stranded = (students - placed).filtered(lambda student: student.main_group_id)
+        for student in stranded:
+            student._ems_clear_stale_delegate(student.main_group_id)
         stranded.write({'main_group_id': False})
         return len(stranded)
 
     def _apply_calendar_archival(self):
         """Step 7a — archives every migrating teacher calendar block found by
         `_migrating_calendar_blocks()`, then decides the fate of whichever `ems.attendance_schedule`
-        line(s) it maps to (via `ems.attendance_mixin.find_schedule_lines_for_teaching`, matched by
-        teacher+subject+group overlap+weekday/time - deliberately NOT by room, see that method's
-        own docstring for why matching on room silently broke this exact link in real data):
+        line(s) it maps to - preferably read straight off the block's own `attendance_schedule_id`
+        FK (added 2026-08-11 specifically to replace this kind of lookup, but never wired into this
+        call site until 2026-09-02, see plans/calendar_driven_attendance_templates.md and
+        plans/course_transition_stale_teacher_assignments.md's own follow-up analysis), falling back
+        to `ems.attendance_mixin.find_schedule_lines_for_teaching` (matched by teacher+subject+group
+        overlap+weekday/time - deliberately NOT by room, see that method's own docstring for why
+        matching on room silently broke this exact link in real data) only for a legacy block whose
+        calendar row predates that FK and was never resynced since:
         - A line that's ALREADY archived (the common case — `_templates_to_archive()`, called just
           before this, already cascaded to it) only needs its `attendance_session_ids` archived
           explicitly: that cascade never reaches sessions on its own (see
@@ -781,12 +795,21 @@ class ems_course_transition_wizard(models.TransientModel):
             teacher = block.employee_id
             if not teacher:
                 continue
-            # active_test=False: a matching line may already be archived by the EARLIER
-            # _templates_to_archive().action_archive() call (its own cascade only reaches the line,
-            # never its sessions, per decision 6) - that case still needs handling below (catching
-            # up the sessions), so it must not be silently excluded from this search.
-            lines = self.env['ems.attendance_schedule'].with_context(active_test=False).find_schedule_lines_for_teaching(
-                teacher, block.subject_id, block.group_ids, block.dayofweek, block.hour_from, block.hour_to)
+            # A direct Many2one field read (unlike search()) never filters by active_test on its
+            # own, so an already-archived line (see the comment below on why that case still needs
+            # handling here) is found via the FK exactly as reliably as an active one - no explicit
+            # with_context(active_test=False) needed for this branch. '.exists()' is defensive only
+            # (a schedule line is never hard-deleted while it has real session history, and archived
+            # otherwise - see ems.attendance_schedule.unlink() - but a stale FK is cheap to guard).
+            if block.attendance_schedule_id:
+                lines = block.attendance_schedule_id.exists()
+            else:
+                # active_test=False: a matching line may already be archived by the EARLIER
+                # _templates_to_archive().action_archive() call (its own cascade only reaches the
+                # line, never its sessions, per decision 6) - that case still needs handling below
+                # (catching up the sessions), so it must not be silently excluded from this search.
+                lines = self.env['ems.attendance_schedule'].with_context(active_test=False).find_schedule_lines_for_teaching(
+                    teacher, block.subject_id, block.group_ids, block.dayofweek, block.hour_from, block.hour_to)
             for line in lines:
                 line_departures[line] = line_departures.get(line, self.env['hr.employee']) | teacher
         blocks.action_archive()
@@ -896,6 +919,28 @@ class ems_course_transition_wizard(models.TransientModel):
             calendar.action_archive()
             teacher.resource_calendar_id = next_calendar
 
+    def _apply_teaching_resync(self, teachers):
+        """Step 7c (added 2026-09-01, see plans/course_transition_stale_teacher_assignments.md) -
+        resyncs 'ems.teaching' for every teacher `_apply_calendar_archival()` found migrating,
+        straight from their own CURRENT 'resource_calendar_id' (whichever `_apply_calendar_
+        rollover()` just above left them on: a fresh one for a fully rolled-over teacher, empty
+        of teaching entries; the SAME one, partially archived, for a teacher who still teaches
+        part of their old schedule). Mirrors 'ems.attendance_template.regenerate_all_from_
+        calendars()' 's own calendar-as-source-of-truth resync, but scoped and lightweight - never
+        touches templates, so it is safe to call from this interactive wizard action (unlike
+        'regenerate_all_from_calendars()', whose own docstring restricts it to an offline
+        migration window).
+
+        This is the ONLY place 'ems.teaching' ever gets reconciled as a consequence of a course
+        transition - before this, a departed/reassigned teacher's stale teaching links (and, via
+        'ems.teaching.unlink()' 's own cleanup, their group's stale 'tutor_id') survived
+        indefinitely, since neither the calendar archival above nor the working-schedule
+        importer's own call to 'ems.teaching.sync_from_schedule(..., replace=False)' (deliberately
+        additive-only, by design - one imported file is only ever one slice of the centre's
+        schedule) ever remove a stale entry outright."""
+        for teacher in teachers:
+            self.env['ems.teaching'].sync_from_schedule(teacher, teacher._teaching_entries_from_calendar())
+
     def _teacher_has_active_block(self, teacher, line):
         """Whether 'teacher' still has an active resource.calendar.attendance block matching
         'line's own teaching assignment - same subject, any group overlap, and weekday/time
@@ -906,17 +951,21 @@ class ems_course_transition_wizard(models.TransientModel):
         for_teaching'. Backs both directions of '_apply_calendar_archival''s per-teacher checks:
         a REMAINING co-teacher genuinely still supported (its original use), and a DEPARTING
         teacher's own line with no calendar support left at all (the newer orphaned-line case,
-        see that method's own docstring)."""
+        see that method's own docstring).
+
+        Built on 'hr.employee._teaching_entries_from_calendar()' (Phase 4 of
+        plans/calendar_pipeline_simplification.md, 2026-09-02) rather than its own standalone
+        'resource.calendar.attendance' query - the exact same "what does this teacher's calendar
+        say they teach right now" primitive '_apply_teaching_resync()' just below already reuses,
+        so this check can never silently drift from what the rest of the pipeline considers a
+        real, current teaching entry."""
         template = line.attendance_template_id
-        blocks = self.env['resource.calendar.attendance'].search([
-            ('employee_id', '=', teacher.id), ('dayofweek', '=', line.weekday),
-            ('calendar_id.is_framework', '=', False),
-            ('subject_id', '=', template.subject_id.id),
-            ('group_ids', 'in', template.group_ids.ids),
-        ])
         return any(
-            line.ranges_overlap(line.start_time, line.end_time, block.hour_from, block.hour_to)
-            for block in blocks
+            entry['subject_id'] == template.subject_id.id
+            and set(entry['group_ids']) & set(template.group_ids.ids)
+            and entry['dayofweek'] == line.weekday
+            and line.ranges_overlap(line.start_time, line.end_time, entry['hour_from'], entry['hour_to'])
+            for entry in teacher._teaching_entries_from_calendar()
         )
 
     def _apply_attendance_records_archival(self):
@@ -1016,6 +1065,7 @@ Called from `_apply_cleanup()` **last**, after `students._ems_clear_operational_
         self._templates_to_archive().with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
         affected_teachers = self._apply_calendar_archival()
         self._apply_calendar_rollover(affected_teachers)
+        self._apply_teaching_resync(affected_teachers)
         students._ems_clear_operational_records()
         groups = self._scope_groups()
         # Subject enrollments go by group as well, for the same reason grade sessions do

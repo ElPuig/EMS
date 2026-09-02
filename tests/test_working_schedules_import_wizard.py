@@ -545,10 +545,18 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
                 'test.wizard.teacher3.import.wizard@example.com Someone Else', '09:00', self.other_subject, self.group, '10:00',
             )
         ) + '</root>'
+        # import_mode='replace': a genuine swap means each teacher's OLD slot must actually go
+        # away, not just gain a second one alongside it - the default 'combine' mode (2026-09-02,
+        # see plans/calendar_pipeline_simplification.md) never removes a slot this file doesn't
+        # redescribe, so under 'combine' this second import would leave BOTH teachers still
+        # holding their ORIGINAL slot too, which would make this genuinely collide with the new
+        # one sharing the same room - exactly the false-vs-real collision distinction this test
+        # exists to draw, just via the mode now instead of an implicit always-wipe default.
         self._import({
             'attachment_ids': [(6, 0, [self.env['ir.attachment'].create({
                 'name': 'planner_shared_room_swapped.xml', 'datas': base64.b64encode(xml_swapped.encode()),
             }).id])],
+            'import_mode': 'replace',
         })
 
         template = self.env['ems.attendance_template'].search([
@@ -868,7 +876,101 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.other_subject.id),
         ])
         self.assertTrue(second_template.active)
+        # The CALENDAR itself must reflect the same resolution, not just the template - both
+        # imports used the same Monday 09:00 slot, so the second one's own calendar write (still
+        # 'combine', the default) should have replaced the first department's row at that exact
+        # slot rather than leaving both.
+        rows = self.teacher.resource_calendar_id.attendance_ids.filtered(lambda a: a.subject_id)
+        self.assertEqual(rows.subject_id, self.other_subject)
 
+    # --- import_mode: combine vs. replace (2026-09-02, see plans/calendar_pipeline_simplification.md) ---
+
+    def _bounded_monday_file(self, email_and_name, hour1, subject, group, hour2):
+        """A single-teacher planner file with one real class period (hour1) explicitly bounded by
+        an EMPTY closing hour node at hour2 - 'hour_to' is inferred from 'hour2' instead of
+        falling back to the generous company-wide 'schedule_import_last_entry_time' default
+        (21:00) a lone period would get (needed so two files at genuinely different hours don't
+        appear to overlap by construction), and the empty closing node itself never becomes a
+        real entry/calendar row - it has no 'Subject'/'NonTeaching' child, so it never gets a
+        'name' and is dropped by '_parse_schedule_entries' 's own 'if e.get("name")' filter.
+        Deliberately NOT '_xml_teacher_subject_then_gap' (used by the room-swap test above): its
+        own trailing gap is a REAL 'NonTeaching' entry, which (with no third node to bound IT in
+        turn) inherits the same generous fallback itself and would still collide with a second
+        file's own later period."""
+        xml = (
+            f'<root><T name="{email_and_name}">'
+            '<D name="1 Monday">'
+            f'<H name="1 {hour1}"><Subject name="{subject.code} {subject.name}"/>'
+            f'<Students name="{group.name} Group"/></H>'
+            f'<H name="2 {hour2}"></H>'
+            '</D></T></root>'
+        )
+        return base64.b64encode(xml.encode())
+
+    def test_import_mode_combine_default_preserves_unrelated_earlier_schedule(self):
+        """'combine' (the default) never touches a weekday slot a later, separate import doesn't
+        even mention - the fix for the real bug this whole feature grew out of (a teacher shared
+        between two departments, imported in separate wizard runs, used to lose the first run's
+        own contribution entirely)."""
+        self._import({
+            'attachment_ids': self._attachment_ids(self._bounded_monday_file(
+                'test.wizard.teacher.import.wizard@example.com Someone', '09:00', self.subject, self.group, '10:00',
+            )),
+        })
+        self._import({
+            'attachment_ids': self._attachment_ids(self._bounded_monday_file(
+                'test.wizard.teacher.import.wizard@example.com Someone', '11:00', self.other_subject, self.group, '12:00',
+            )),
+        })
+
+        rows = self.teacher.resource_calendar_id.attendance_ids.filtered(lambda a: a.subject_id)
+        self.assertEqual(set(rows.mapped('subject_id').ids), {self.subject.id, self.other_subject.id})
+        templates = self.env['ems.attendance_template'].search([('teacher_ids', 'in', self.teacher.id)])
+        self.assertEqual(set(templates.mapped('subject_id').ids), {self.subject.id, self.other_subject.id})
+
+    def test_import_mode_replace_drops_unrelated_earlier_schedule(self):
+        """'replace': the developer's own explicit design ("si se quieren hacer ajustes, se deben
+        hacer a mano") - a chosen import fully redescribes each teacher's schedule, on purpose,
+        even for a slot it doesn't mention at all."""
+        self._import({
+            'attachment_ids': self._attachment_ids(self._bounded_monday_file(
+                'test.wizard.teacher.import.wizard@example.com Someone', '09:00', self.subject, self.group, '10:00',
+            )),
+        })
+        self._import({
+            'attachment_ids': self._attachment_ids(self._bounded_monday_file(
+                'test.wizard.teacher.import.wizard@example.com Someone', '11:00', self.other_subject, self.group, '12:00',
+            )),
+            'import_mode': 'replace',
+        })
+
+        rows = self.teacher.resource_calendar_id.attendance_ids.filtered(lambda a: a.subject_id)
+        self.assertEqual(rows.subject_id, self.other_subject)
+        templates = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('active', '=', True),
+        ])
+        self.assertEqual(templates.subject_id, self.other_subject)
+
+    def test_import_two_files_together_merge_for_a_shared_teacher(self):
+        """Confirmed directly with the developer (2026-09-02): a teacher shared between two
+        departments (e.g. informática + administración), uploaded TOGETHER in the SAME wizard
+        run, ends up with the union of both files - independent of import_mode, since both are
+        part of this one run, not a later, separate re-import."""
+        self._import({
+            'attachment_ids': self._attachment_ids(
+                self._bounded_monday_file(
+                    'test.wizard.teacher.import.wizard@example.com Someone', '09:00', self.subject, self.group, '10:00',
+                ),
+                self._bounded_monday_file(
+                    'test.wizard.teacher.import.wizard@example.com Someone', '11:00', self.other_subject, self.group, '12:00',
+                ),
+            ),
+        })
+
+        rows = self.teacher.resource_calendar_id.attendance_ids.filtered(lambda a: a.subject_id)
+        self.assertEqual(set(rows.mapped('subject_id').ids), {self.subject.id, self.other_subject.id})
+        templates = self.env['ems.attendance_template'].search([('teacher_ids', 'in', self.teacher.id)])
+        self.assertEqual(set(templates.mapped('subject_id').ids), {self.subject.id, self.other_subject.id})
 
     def test_wizard_starts_at_intro_state(self):
         wizard = self.env['ems.working_schedules_import_wizard'].create({})
@@ -1560,6 +1662,40 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         templates = self.env['ems.attendance_template'].search([('teacher_ids', '=', self.teacher.id)])
         self.assertEqual(templates.mapped('subject_id'), self.subject)
         self.assertEqual(templates.group_ids, self.group)
+
+    def test_continue_from_internal_conflicts_self_conflict_keeps_the_winning_calendar_row(self):
+        """Regression test (2026-09-02): two XML teacher nodes ('SELFX1'/'SELFX2') resolving to the
+        SAME real teacher, at the same slot - a genuine self-conflict. Each node's own parsed
+        'attendance_ids' leads with a bare '(5,)' unlink-all command (see
+        '_parse_schedule_entries'); writing it once per NODE instead of once per REAL teacher let
+        the second node's write (down to just '[[5]]' once prevail_left drops its one entry) wipe
+        the first node's calendar row the moment it was written - found while making the template
+        sync read the calendar back (reverted, see plans/calendar_pipeline_simplification.md), but
+        this specific within-batch bug was real and worth keeping fixed on its own. Checks the
+        CALENDAR directly (the other tests around this one only ever checked the resulting
+        template)."""
+        other_group = self._create_self_conflict_setup()
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_two_teachers_same_slot(
+                'SELFX1',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
+                'SELFX2',
+                f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/><Students name="{other_group.name} Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
+        wizard.teacher_line_ids.write({'create_new': False, 'employee_id': self.teacher.id})
+        wizard.action_continue()  # teachers -> internal_conflicts (self_conflict, defaults to prevail_left)
+
+        while wizard.state != 'summary':
+            wizard.action_continue()
+        wizard.import_planner_data()
+
+        rows = self.teacher.resource_calendar_id.attendance_ids.filtered(lambda row: row.subject_id)
+        self.assertEqual(rows.subject_id, self.subject)
+        self.assertEqual(rows.group_ids, self.group)
 
     def test_continue_from_internal_conflicts_self_conflict_prevail_right_keeps_right_only(self):
         other_group = self._create_self_conflict_setup()

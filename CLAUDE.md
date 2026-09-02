@@ -540,6 +540,18 @@ file's own item order within the section - a plain regex split on `^# ` headers 
 the normalized section name, is enough; a short throwaway Python script is the fastest reliable
 way to do this for a large combined document, rather than hand-reordering it inline).
 
+**Omit any section with no items — never emit an empty `# Section` heading** (developer feedback
+2026-09-02). The 6 template sections are the full set of *possible* headings, not a fixed skeleton
+every PR must show in full; a branch with no breaking changes and no plain "Changes" simply has no
+`# Breaking changes`/`# Changes` heading at all in the delivered document. Only emit a heading when
+at least one item was folded into it.
+
+**Don't append the "🤖 Generated with [Claude Code]" footer to this delivered document**
+(developer feedback 2026-09-02) — that attribution line is for an actual PR description created
+via `gh pr create`, not for the changelog draft handed over as a scratchpad file for the developer
+to paste into GitHub themselves. Add it only if the developer explicitly asks for it here, or when
+this session itself runs `gh pr create`.
+
 **`Related with`: generate it from the merge history, don't omit it (changed 2026-09-01 - an
 earlier version of this rule had the agent omit the section entirely and leave it for the
 developer to fill in by hand; the developer asked for it to be generated instead, from the same

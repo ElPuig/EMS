@@ -132,10 +132,15 @@ other preview counter.
 
 `_apply_calendar_archival()` (step 7a, called right after `_templates_to_archive().action_archive()`
 in `_apply_cleanup`) is where they actually get archived. For every migrating block it finds the
-matching `ems.attendance_schedule` line(s) via `ems.attendance_mixin.find_schedule_lines_for_teaching`
+matching `ems.attendance_schedule` line(s) — **preferably a direct read of the block's own
+`attendance_schedule_id` FK** (added 2026-08-11 specifically to replace this kind of lookup, wired
+into this call site 2026-09-02 — see `plans/calendar_pipeline_simplification.md` for why it took
+this long: nothing had gone back to update this call site once the FK existed), **falling back
+to** `ems.attendance_mixin.find_schedule_lines_for_teaching`
 (matched by teacher+subject+group overlap+weekday/time, **deliberately not room** — searched with
-`active_test=False`, since the line may already be archived by the template-cascade that just ran),
-then:
+`active_test=False`, since the line may already be archived by the template-cascade that just ran)
+only for a legacy block whose calendar row predates that FK and was never resynced since. Either
+way, then:
 
 ```mermaid
 flowchart TD
@@ -172,6 +177,14 @@ found by the direct block-match loop and would linger active forever. `_teacher_
 is reused for both directions of this check — a REMAINING co-teacher genuinely still supported (its
 original use, in the `still_needed` branch above) and a DEPARTING teacher's own line with no
 calendar support left (this newer one) — same predicate, same room exclusion, one function.
+
+**Phase 4 of `plans/calendar_pipeline_simplification.md` (2026-09-02):** `_teacher_has_active_
+block()` used to run its own standalone `resource.calendar.attendance` query to answer "what does
+this teacher's calendar currently say they teach"; it now builds that answer from `hr.employee.
+_teaching_entries_from_calendar()` instead — the exact same primitive `_apply_teaching_resync()`
+just below already reuses, and the same one `ems.attendance_template.sync_from_schedule_batch()`/
+`regenerate_all_from_calendars()` rely on elsewhere. One definition of "current teaching entries
+from the calendar" for the whole module, instead of two that could silently drift apart.
 
 **Third, fully UNSCOPED catch-up (2026-08-10, same day, found re-running a real transition right
 after the first two fixes above were deployed):** the 4 real stray session headers that originally
@@ -290,6 +303,54 @@ flowchart TD
   `is_framework` guard here is kept anyway since this method's own precondition (being in
   `_apply_calendar_archival()`'s returned teacher set) is the only thing that would otherwise stop
   it from ever reaching a framework calendar by accident.
+
+### The outgoing calendar's leftover non-teaching rows, and `ems.teaching`/`tutor_id` (2026-09-01, `plans/course_transition_stale_teacher_assignments.md`)
+
+Two gaps found via a real Guard Duty Board report (a departed/reassigned teacher still showing
+guard-duty slots), both stemming from the same root cause: the archival above is thorough for the
+*calendar* side of a teacher's outgoing assignments, but nothing downstream of it reacted to the
+adjacent, loosely-coupled models mirroring the same real-world fact.
+
+**1. `ems_working_schedule.action_archive()` now cascades to its own `attendance_ids`** (mirrors
+`ems.attendance_template.action_archive()`'s cascade to its schedule lines). The emptying check
+above deliberately never counts a non-teaching row as "teaching left" — which is correct for
+*whether to roll over*, but previously meant those non-teaching rows (guard duty, a coordination
+meeting) were simply abandoned, still `active=True`, on the calendar `_apply_calendar_rollover()`
+was about to retire. Any screen reading `resource.calendar.attendance` directly without also
+checking `calendar_id.active` (the Guard Duty Board did) kept surfacing them indefinitely. The
+Guard Duty Board's own query (`guard_duty_board.py`) now also filters `calendar_id.active = True`
+as defense-in-depth — not redundant with the cascade, since a future path could in principle
+archive a calendar through some other route without following the same convention.
+
+**2. `_apply_teaching_resync(teachers)` (step 7c, right after `_apply_calendar_rollover()`)
+resyncs `ems.teaching` from each teacher's now-final calendar.** `ems.teaching` was never touched
+anywhere in this wizard before — a teacher's stale (subject, group) links from before the
+transition survived forever, since the working-schedule importer's own incremental sync is
+additive-only by design (`replace=False`, see `working_schedule.md`) and never removes them
+either. The fix reuses `hr.employee._teaching_entries_from_calendar()` (the same entries dict
+`ems.attendance_template.regenerate_all_from_calendars()` already builds for its own template
+rebuild — extracted into a shared helper so both stay in sync with one calendar-reading
+implementation) and calls `ems.teaching.sync_from_schedule(teacher, entries)` — the same
+`replace=True` reconciliation the Schedule tab's own live edit already uses
+(`ems_working_schedule.apply_schedule_changes`), just triggered from the transition instead of a
+manual save. `regenerate_all_from_calendars()` itself gained the identical call, since it has the
+exact same "rebuild from the calendar, but never touched `ems.teaching`" gap.
+
+A group's tutoring assignment is itself recorded as an ordinary `ems.teaching` row on the group's
+own tutoring subject (`ems.subject.is_tutorship`) — deliberately never a stored relation to
+`ems.group.tutor_id`, which predates this model's calendar-driven sync and is still set directly
+on the group form. `ems.teaching.unlink()` now clears `tutor_id` whenever the teaching row it
+loses is one of these, and only while `tutor_id` still matches the departing teacher (never
+clobbering a reassignment that happened in between). Because this lives on `unlink()` itself —
+the one choke point every removal path already goes through — it fires for the resync above *and*
+for a plain manual Schedule-tab reset, with no group-emptiness heuristic anywhere in this wizard.
+Groups themselves are never archived by any of this (they're reused across academic years) — only
+the now-stale tutoring/teaching references are.
+
+**3. `_apply_detach_unplaced()` now also clears a stranded student's own group delegate**, via
+the same `res.partner._ems_clear_stale_delegate()` helper `_ems_clear_operational_records()`
+already used for a student leaving the centre entirely — extracted so both paths share one
+implementation instead of the check existing in only one of them.
 
 ### Browsing archived templates/sessions/calendars afterwards (phase 8 of the same plan)
 
@@ -424,6 +485,18 @@ Zakariae Boukraa (SMX2D)
 Ambiguity returns nothing and the group stays empty — no tutorship line, more than one, or templates disagreeing on the year. If the centre ever stopped making tutorships course-specific, the rule would simply find no answer instead of guessing wrong.
 
 It does **not** touch the other 41: those fail because no group exists at all in the destination study/course/shift (GA1B afternoon promoting to a 2nd year that only exists in the morning, AD with no 2nd-year group at all). That is missing data, not a rule the code can improve.
+
+### A pending subject was placed in the wrong group, not just the wrong course (D20)
+
+D15 fixed **which group the order itself resolves to** — `Zakariae Boukraa`'s own destination is correctly `SMX2D`. It did not fix where each individual subject on that order is actually taught. `_ems_apply_destination_placement()` stamped `ems_group_id` onto **every** subject found among the order's line products, including `Muntatge i manteniment d'equips` — the module pending from an earlier course in that same worked example — which needs to be taught in a 1st-course group, not `SMX2D`.
+
+Confirmed on this dev DB before the fix: **194 active `ems.enrollment` rows across 103 students** had a subject placed in a group of the wrong course. Independent evidence it is real, not a template-data artifact: several of the rows were for a subject literally named `Tutoria 1r AD` (1st-course tutoring), enrolled under `AD2A` (2nd course).
+
+`ems.study._ems_subject_course(product)` generalizes the lookup `_ems_course_from_tutorship()` already did for the tutorship product to any subject: which single course's template (if exactly one) sells it. `_ems_apply_destination_placement()` now calls it per subject and, when it disagrees with the order's own group, redirects that one subject's `ems.enrollment` to `ems.group._ems_equivalent_for_course()` — an exact `acronym`+`shift` match in the target course, falling back to the first group of that study+course by the model's own order (`_order = "name"`) so a pending subject is never left unplaced (deliberately looser than D15's own "no exact match → leave empty" rule: this only decides where a student attends one class, not their home group).
+
+A subject sold by templates of **both** courses stays on the order's own group — genuinely ambiguous, and a real case in this data (AIF's `Recursos humans i responsabilitat social corporativa` / `Sostenibilitat aplicada al sistema productiu` are sold by both `AIF-1` and `AIF-2`), so the rule declines to guess rather than pick one course over the other.
+
+A one-time migration (`migrations/18.0.0.23.1/post-migrate.py::_reassign_misplaced_subject_enrollments`) reuses the same two methods to backfill every already-existing misplaced row, so it can never drift from the live logic. It reassigned exactly the 194 rows found during triage.
 
 ### Newcomers stop being applicants at the worst moment (D16)
 

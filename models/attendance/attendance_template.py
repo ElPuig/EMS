@@ -278,7 +278,14 @@ class EmsAttendanceTemplate(models.Model):
 		that method) - callers (the migration, in particular) are expected to report this clearly so
 		a human can review and fix the underlying calendars by hand; nothing here guesses which side
 		was "really" the reinforcement teacher (developer's own call, 2026-08-11 - see
-		plans/calendar_driven_attendance_templates.md)."""
+		plans/calendar_driven_attendance_templates.md).
+
+		Also resyncs 'ems.teaching' for every teacher in scope, from the same calendar entries -
+		added 2026-09-01 (see plans/course_transition_stale_teacher_assignments.md). Templates and
+		teachings are two independent, parallel readers of the same calendar truth (see
+		'ems_working_schedule.apply_schedule_changes', which already syncs both side by side for a
+		live single-teacher edit) - this method previously only ever rebuilt the template side,
+		leaving 'ems.teaching' to drift indefinitely stale for anyone it touched."""
 		if teachers is None:
 			teachers = self.env['hr.employee'].search([
 				('employee_type', '=', 'teacher'),
@@ -290,20 +297,20 @@ class EmsAttendanceTemplate(models.Model):
 			('active', '=', True), ('teacher_ids', 'in', teachers.ids),
 		]).with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
 
+		# ems.teaching is resynced for EVERY teacher in scope, not just those ending up with
+		# 'teacher_entries' below - a teacher whose calendar has gone back to zero teaching
+		# entries must still have their stale ems.teaching rows dropped (2026-09-01: this exact
+		# gap - ems.teaching never resynced by this method at all - is what let a departed/
+		# reassigned teacher's old teaching links (and, via ems.teaching.unlink()'s own tutor
+		# cleanup, their group's stale tutor_id) survive indefinitely; see
+		# plans/course_transition_stale_teacher_assignments.md). Uses the FULL entries (before
+		# '_drop_unresolved_conflicts' below strips anything), since a room/slot conflict that
+		# blocks TEMPLATE creation is not a reason to also deny the teacher genuinely still
+		# teaches that subject/group.
 		teacher_entries = []
 		for teacher in teachers:
-			entries = [{
-				'subject_id': attendance.subject_id.id,
-				'group_ids': attendance.group_ids.ids,
-				'dayofweek': attendance.dayofweek,
-				'hour_from': attendance.hour_from,
-				'hour_to': attendance.hour_to,
-				'space_id': attendance.space_id.id,
-				# 'date_from'/'date_to' - core Odoo's own fields on resource.calendar.attendance
-				# (not EMS-specific), see that model's own NOTE for why they're reused as-is.
-				'date_from': attendance.date_from,
-				'date_to': attendance.date_to,
-			} for attendance in teacher.resource_calendar_id.attendance_ids if attendance.subject_id]
+			entries = teacher._teaching_entries_from_calendar()
+			self.env['ems.teaching'].sync_from_schedule(teacher, entries)
 			if entries:
 				teacher_entries.append((teacher, entries))
 

@@ -713,9 +713,18 @@ class ems_course_transition_wizard(models.TransientModel):
 
         'study_id' and 'level_id' are deliberately kept: they say what the student was
         doing, which is what the "no destination" report and a late enrollment read.
+
+        Also clears the outgoing group's own 'delegate_id' if it was one of these
+        students - same stale-reference cleanup '_ems_clear_operational_records()' already
+        does for a student leaving the centre entirely (see
+        'res.partner._ems_clear_stale_delegate()'), needed here too since a stranded student
+        keeps their group's delegate tag otherwise: the group itself is never archived
+        (reused across years), only this student's own membership in it ends.
         """
         self.ensure_one()
         stranded = (students - placed).filtered(lambda student: student.main_group_id)
+        for student in stranded:
+            student._ems_clear_stale_delegate(student.main_group_id)
         stranded.write({'main_group_id': False})
         return len(stranded)
 
@@ -896,6 +905,28 @@ class ems_course_transition_wizard(models.TransientModel):
             calendar.action_archive()
             teacher.resource_calendar_id = next_calendar
 
+    def _apply_teaching_resync(self, teachers):
+        """Step 7c (added 2026-09-01, see plans/course_transition_stale_teacher_assignments.md) -
+        resyncs 'ems.teaching' for every teacher `_apply_calendar_archival()` found migrating,
+        straight from their own CURRENT 'resource_calendar_id' (whichever `_apply_calendar_
+        rollover()` just above left them on: a fresh one for a fully rolled-over teacher, empty
+        of teaching entries; the SAME one, partially archived, for a teacher who still teaches
+        part of their old schedule). Mirrors 'ems.attendance_template.regenerate_all_from_
+        calendars()' 's own calendar-as-source-of-truth resync, but scoped and lightweight - never
+        touches templates, so it is safe to call from this interactive wizard action (unlike
+        'regenerate_all_from_calendars()', whose own docstring restricts it to an offline
+        migration window).
+
+        This is the ONLY place 'ems.teaching' ever gets reconciled as a consequence of a course
+        transition - before this, a departed/reassigned teacher's stale teaching links (and, via
+        'ems.teaching.unlink()' 's own cleanup, their group's stale 'tutor_id') survived
+        indefinitely, since neither the calendar archival above nor the working-schedule
+        importer's own incremental, additive-only sync (`replace=False`, by design - see
+        'ems.attendance_template.sync_from_schedule_batch_fresh_import') ever remove a stale
+        entry outright."""
+        for teacher in teachers:
+            self.env['ems.teaching'].sync_from_schedule(teacher, teacher._teaching_entries_from_calendar())
+
     def _teacher_has_active_block(self, teacher, line):
         """Whether 'teacher' still has an active resource.calendar.attendance block matching
         'line's own teaching assignment - same subject, any group overlap, and weekday/time
@@ -1016,6 +1047,7 @@ Called from `_apply_cleanup()` **last**, after `students._ems_clear_operational_
         self._templates_to_archive().with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
         affected_teachers = self._apply_calendar_archival()
         self._apply_calendar_rollover(affected_teachers)
+        self._apply_teaching_resync(affected_teachers)
         students._ems_clear_operational_records()
         groups = self._scope_groups()
         # Subject enrollments go by group as well, for the same reason grade sessions do

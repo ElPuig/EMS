@@ -74,6 +74,21 @@ class ems_working_schedule(models.Model):
 				vals['name'] = "%s (%s)" % (employee.name, course.name) if course else employee.name
 		return super().create(vals_list)
 
+	def action_archive(self):
+		"""Cascades to every remaining active 'attendance_ids' row - mirrors
+		'ems.attendance_template.action_archive()''s own cascade to its schedule lines. Needed
+		because course transition's own calendar rollover ('_apply_calendar_rollover',
+		course_transition_wizard.py) only ever archives a calendar once its TEACHING blocks are
+		already gone (see that method's own skip condition) - any non-teaching commitment left on
+		it at that point (guard duty, a coordination meeting...) was deliberately never archived by
+		the teaching-block archival step, since a non-teaching row was never in its scope to begin
+		with. Without this cascade those rows stayed active forever on a calendar nobody's
+		'resource_calendar_id' points to any more, and kept surfacing on any screen that reads
+		'resource.calendar.attendance' directly without also checking 'calendar_id.active' (found
+		2026-09-01 via the Guard Duty Board showing departed/reassigned teachers)."""
+		super().action_archive()
+		self.attendance_ids.filtered('active').action_archive()
+
 	def _refresh_personal_name(self):
 		"""Rebuilds 'name' from this calendar's own 'employee_id'/'course_id' - called after either
 		changes, or after the linked employee's own name does (see 'ems_employee.write()'). No-op

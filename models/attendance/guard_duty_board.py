@@ -41,9 +41,19 @@ class EmsCourseGuardDutyBoard(models.Model):
         ems_working_schedule_assignation.active's own NOTE), so this plain search() already only
         ever returns the current course's real, active schedules, and stays correct even for a
         legacy calendar whose 'course_id' was never backfilled (added 2026-08-06, not every
-        pre-existing row necessarily has it set)."""
+        pre-existing row necessarily has it set).
+
+        The explicit 'calendar_id.active' check below is defense-in-depth, not redundant with the
+        above: 'ems_working_schedule.action_archive()' now cascades to every remaining attendance
+        row when a calendar itself is retired, but this search must not silently start trusting
+        that invariant everywhere it's ever established - a calendar could in principle end up
+        archived by some other path without its own attendance rows following (found 2026-09-01:
+        before that cascade existed, a rolled-over teacher's ARCHIVED calendar kept showing
+        active non-teaching rows here indefinitely, since a bare 'active=True' row search never
+        looks at its own parent calendar's active state at all)."""
         return self.env['resource.calendar.attendance'].search([
             ('calendar_id.is_framework', '=', False),
+            ('calendar_id.active', '=', True),
             ('dayofweek', 'in', WEEKDAYS),
         ])
 

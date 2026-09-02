@@ -291,6 +291,54 @@ flowchart TD
   `_apply_calendar_archival()`'s returned teacher set) is the only thing that would otherwise stop
   it from ever reaching a framework calendar by accident.
 
+### The outgoing calendar's leftover non-teaching rows, and `ems.teaching`/`tutor_id` (2026-09-01, `plans/course_transition_stale_teacher_assignments.md`)
+
+Two gaps found via a real Guard Duty Board report (a departed/reassigned teacher still showing
+guard-duty slots), both stemming from the same root cause: the archival above is thorough for the
+*calendar* side of a teacher's outgoing assignments, but nothing downstream of it reacted to the
+adjacent, loosely-coupled models mirroring the same real-world fact.
+
+**1. `ems_working_schedule.action_archive()` now cascades to its own `attendance_ids`** (mirrors
+`ems.attendance_template.action_archive()`'s cascade to its schedule lines). The emptying check
+above deliberately never counts a non-teaching row as "teaching left" — which is correct for
+*whether to roll over*, but previously meant those non-teaching rows (guard duty, a coordination
+meeting) were simply abandoned, still `active=True`, on the calendar `_apply_calendar_rollover()`
+was about to retire. Any screen reading `resource.calendar.attendance` directly without also
+checking `calendar_id.active` (the Guard Duty Board did) kept surfacing them indefinitely. The
+Guard Duty Board's own query (`guard_duty_board.py`) now also filters `calendar_id.active = True`
+as defense-in-depth — not redundant with the cascade, since a future path could in principle
+archive a calendar through some other route without following the same convention.
+
+**2. `_apply_teaching_resync(teachers)` (step 7c, right after `_apply_calendar_rollover()`)
+resyncs `ems.teaching` from each teacher's now-final calendar.** `ems.teaching` was never touched
+anywhere in this wizard before — a teacher's stale (subject, group) links from before the
+transition survived forever, since the working-schedule importer's own incremental sync is
+additive-only by design (`replace=False`, see `working_schedule.md`) and never removes them
+either. The fix reuses `hr.employee._teaching_entries_from_calendar()` (the same entries dict
+`ems.attendance_template.regenerate_all_from_calendars()` already builds for its own template
+rebuild — extracted into a shared helper so both stay in sync with one calendar-reading
+implementation) and calls `ems.teaching.sync_from_schedule(teacher, entries)` — the same
+`replace=True` reconciliation the Schedule tab's own live edit already uses
+(`ems_working_schedule.apply_schedule_changes`), just triggered from the transition instead of a
+manual save. `regenerate_all_from_calendars()` itself gained the identical call, since it has the
+exact same "rebuild from the calendar, but never touched `ems.teaching`" gap.
+
+A group's tutoring assignment is itself recorded as an ordinary `ems.teaching` row on the group's
+own tutoring subject (`ems.subject.is_tutorship`) — deliberately never a stored relation to
+`ems.group.tutor_id`, which predates this model's calendar-driven sync and is still set directly
+on the group form. `ems.teaching.unlink()` now clears `tutor_id` whenever the teaching row it
+loses is one of these, and only while `tutor_id` still matches the departing teacher (never
+clobbering a reassignment that happened in between). Because this lives on `unlink()` itself —
+the one choke point every removal path already goes through — it fires for the resync above *and*
+for a plain manual Schedule-tab reset, with no group-emptiness heuristic anywhere in this wizard.
+Groups themselves are never archived by any of this (they're reused across academic years) — only
+the now-stale tutoring/teaching references are.
+
+**3. `_apply_detach_unplaced()` now also clears a stranded student's own group delegate**, via
+the same `res.partner._ems_clear_stale_delegate()` helper `_ems_clear_operational_records()`
+already used for a student leaving the centre entirely — extracted so both paths share one
+implementation instead of the check existing in only one of them.
+
 ### Browsing archived templates/sessions/calendars afterwards (phase 8 of the same plan)
 
 All three models this section's own steps archive can be found again afterwards via the search

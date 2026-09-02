@@ -724,6 +724,18 @@ class ResPartner(models.Model):
             issue_students.unlink()
             for tutor_issue in tutor_issues.exists():
                 tutor_issue.remove_if_empty()
+            partner._ems_clear_stale_delegate(group)
+
+    def _ems_clear_stale_delegate(self, group):
+        """Clears 'group.delegate_id' if it still points at one of these partners, who is no
+        longer actually a member of it. Shared by '_ems_clear_operational_records()' above (a
+        student leaving the centre entirely) and course_transition_wizard._apply_detach_unplaced()
+        (a student stranded with no placement target, e.g. the last cohort of a finishing cycle) -
+        both leave a student's OWN group behind without the group record itself going anywhere
+        (groups are reused across years), so only the now-invalid delegate reference needs
+        clearing, never the group. Must be called with 'group' captured BEFORE 'main_group_id'
+        is written away - once cleared, there is nothing left to read it from."""
+        for partner in self:
             if group.delegate_id == partner:
                 group.sudo().delegate_id = False
 

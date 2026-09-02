@@ -232,6 +232,31 @@ class ems_employee_base(models.AbstractModel):
                 breaks |= candidate
         return breaks
 
+    def _teaching_entries_from_calendar(self):
+        """This teacher's current teaching entries, read straight off their own
+        'resource_calendar_id.attendance_ids' — the same {'subject_id', 'group_ids', ...} shape
+        'ems.teaching.sync_from_schedule()'/'ems.attendance_template.sync_from_schedule_batch()'
+        already expect. Extracted from what used to be inline in
+        'ems.attendance_template.regenerate_all_from_calendars()' so course transition's own
+        teaching resync ('course_transition_wizard._apply_teaching_resync()', added 2026-09-01)
+        can reuse the exact same entries without duplicating the dict-building logic — both need
+        "what does this teacher's calendar say they teach, right now" as their single source of
+        truth. Only rows with a real 'subject_id' count; a non-teaching commitment (guard duty, a
+        meeting...) is never a teaching entry."""
+        self.ensure_one()
+        return [{
+            'subject_id': attendance.subject_id.id,
+            'group_ids': attendance.group_ids.ids,
+            'dayofweek': attendance.dayofweek,
+            'hour_from': attendance.hour_from,
+            'hour_to': attendance.hour_to,
+            'space_id': attendance.space_id.id,
+            # 'date_from'/'date_to' — core Odoo's own fields on resource.calendar.attendance,
+            # see that model's own NOTE (working_schedule.py) for why they're reused as-is.
+            'date_from': attendance.date_from,
+            'date_to': attendance.date_to,
+        } for attendance in self.resource_calendar_id.attendance_ids if attendance.subject_id]
+
     def _get_new_employee_type(self):
         return employee_types
     

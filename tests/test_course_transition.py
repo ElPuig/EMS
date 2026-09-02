@@ -1344,6 +1344,74 @@ class TestCourseTransition(TransactionCase):
         self.teacher.invalidate_recordset()
         self.assertEqual(self.teacher.resource_calendar_id.source_framework_id, framework)
 
+    def test_apply_archives_leftover_non_teaching_rows_when_the_calendar_rolls_over(self):
+        """The rollover's own skip condition never counts a non-teaching row as 'teaching left'
+        (see 'test_apply_rolls_over_even_if_only_non_teaching_entries_remain' above) - but that
+        must not leave it dangling active forever on the now-retired old calendar (found
+        2026-09-01: the Guard Duty Board kept showing a departed/reassigned teacher because of
+        exactly this leftover row - see plans/course_transition_stale_teacher_assignments.md)."""
+        old_calendar = self.teacher.resource_calendar_id
+        self._calendar_block(old_calendar, [self.group1])
+        non_teaching = self.env.ref('ems.non_teaching_g')
+        guard = self.env['resource.calendar.attendance'].create({
+            'calendar_id': old_calendar.id, 'name': 'Test Guard (Course Transition)',
+            'dayofweek': '1', 'hour_from': 10.0, 'hour_to': 11.0, 'day_period': 'morning',
+            'non_teaching': non_teaching.id,
+        })
+
+        self._applied()
+
+        guard.invalidate_recordset()
+        old_calendar.invalidate_recordset()
+        self.assertFalse(old_calendar.active)
+        self.assertFalse(guard.active)
+
+    def test_apply_resyncs_ems_teaching_once_the_calendar_empties_out(self):
+        """'_apply_calendar_archival()''s own affected_teachers must also get ems.teaching
+        resynced - otherwise a stale (subject, group) combo from before the transition survives
+        forever, since neither the calendar archival above nor a later working-schedule import
+        (additive-only by design) ever remove it on their own (see
+        plans/course_transition_stale_teacher_assignments.md)."""
+        stale_teaching = self.env['ems.teaching'].create({
+            'teacher_id': self.teacher.id, 'group_id': self.group1.id, 'subject_id': self.subject_int.id,
+        })
+        self._calendar_block(self.teacher.resource_calendar_id, [self.group1])
+
+        self._applied()
+
+        self.assertFalse(stale_teaching.exists())
+
+    def test_apply_keeps_ems_teaching_for_a_group_that_did_not_transition(self):
+        """A teacher partially migrating (group1 in scope, group_other not) must keep the
+        still-valid teaching for the untouched group - the resync is a full reconciliation
+        against the CURRENT calendar, not a blind wipe of everyone it touches."""
+        self._calendar_block(self.teacher.resource_calendar_id, [self.group1])
+        self._calendar_block(
+            self.teacher.resource_calendar_id, [self.group_other], weekday='1', hour_from=10.0, hour_to=11.0)
+
+        self._applied()
+
+        remaining = self.env['ems.teaching'].search([('teacher_id', '=', self.teacher.id)])
+        self.assertEqual(remaining.group_id, self.group_other)
+
+    def test_apply_clears_group_tutor_once_the_tutorship_teaching_is_resynced_away(self):
+        """End-to-end of the whole chain: the transition resyncs ems.teaching from the calendar
+        (above), which for a tutorship subject also clears the group's own stale tutor_id (see
+        ems.teaching.unlink()) - without a single group-emptiness heuristic anywhere in this
+        wizard, exactly as the developer asked (2026-09-01)."""
+        tutorship_subject = self.env['ems.subject'].create({
+            'code': 'CTWTUT', 'acronym': 'CTWT', 'name': 'Transition Tutorship Subject', 'is_tutorship': True,
+        })
+        self.group1.tutor_id = self.teacher.id
+        self.env['ems.teaching'].create({
+            'teacher_id': self.teacher.id, 'group_id': self.group1.id, 'subject_id': tutorship_subject.id,
+        })
+        self._calendar_block(self.teacher.resource_calendar_id, [self.group1], subject=self.subject_int)
+
+        self._applied()
+
+        self.assertFalse(self.group1.tutor_id)
+
     def test_apply_deletes_the_grade_sessions_of_the_scope(self):
         session = self._session(self.group1, self.subject_int)
         self._applied()
@@ -1556,6 +1624,17 @@ class TestCourseTransition(TransactionCase):
         so the delegate has to be cleared from the group side."""
         delegate = self._graduate('CTW Delegate')
         self.group2.delegate_id = delegate
+        self._applied()
+        self.assertFalse(self.group2.delegate_id)
+
+    def test_apply_clears_the_delegate_of_a_stranded_students_group(self):
+        """Same cleanup as the graduate case above, applied to '_apply_detach_unplaced()''s own
+        path instead - a student stranded with no placement target (found 2026-09-01: this path
+        never cleared a stale delegate_id at all, since it writes 'main_group_id: False' directly
+        rather than going through '_ems_clear_operational_records()'). The group itself is never
+        archived (groups are reused across years) - only the now-invalid delegate reference."""
+        stranded = self._student('CTW Detach Delegate', group=self.group2)
+        self.group2.delegate_id = stranded
         self._applied()
         self.assertFalse(self.group2.delegate_id)
 

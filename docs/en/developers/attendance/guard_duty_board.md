@@ -59,6 +59,14 @@ addressable by a real, stable URL.
   returns the current course's real, active schedules, and this also stays correct for a
   legacy calendar whose `course_id` was never backfilled. `self` (the course the method is
   called on) is purely informational here — the query itself never filters by it.
+  Also filters `calendar_id.active = True` explicitly (added 2026-09-01, see
+  `plans/course_transition_stale_teacher_assignments.md`) — a real-world case surfaced a
+  departed/reassigned teacher's non-teaching rows (guard duty, a coordination meeting) still
+  `active=True` on an already-archived, prior-year calendar, since `_apply_calendar_rollover()`
+  never counted them as "teaching left" and (at the time) nothing archived them once the
+  calendar itself retired. `ems_working_schedule.action_archive()` now cascades to its own
+  `attendance_ids` (see `course_transition_wizard.md`), which fixes this at the source going
+  forward — the explicit filter here stays anyway as defense-in-depth, not redundant with it.
 - `get_guard_duty_board_lines(weekday, shift)` — instance method, `self.ensure_one()`, called
   on a real `ems.course` record (the PDF template calls it on each of `docs`). For one weekday
   (`'0'`-`'4'`) and one shift (`'morning'`/`'afternoon'`, `SHIFT_HOURS` mirroring `ems.group`'s

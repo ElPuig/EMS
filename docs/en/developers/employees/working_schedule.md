@@ -24,6 +24,14 @@ graph TD
 - **`create()` override** — auto-derives `name` (`"<employee_id.name> (<course_id.name>)"`, or just `employee_id.name` if no `course_id`) from `employee_id`/`course_id` when the caller sets those but not an explicit `name`, so the naming convention has a single source of truth instead of every caller building the string by hand. An explicit `name` in `vals` always wins.
 - **`get_employee()`** — prefers the stored `employee_id` (keeps working once this calendar is no longer any employee's *current* one, e.g. after a course transition supersedes it), falling back to the original reverse search (`hr.employee.search([('resource_calendar_id', '=', self.id)])`) for a calendar predating this field. That reverse search only returns a match when it's unique: any employee never assigned a personal calendar (every non-teacher, and a teacher predating `_ems_create_personal_calendar()`) still carries `resource.mixin`'s shared company-default `resource_calendar_id`, so several employees can legitimately share the same calendar — an ambiguous match returns an empty recordset instead of the several employees found, matching every caller's own "no owner" handling. Bug fixed 2026-09-01: an unguarded reverse search used to raise `ValueError: Expected singleton` (via `_refresh_personal_name()`'s `employee.name` read) the moment two employees shared a calendar, e.g. any employee `write()`-renamed while still on the shared default.
 - **`_refresh_personal_name()`** — rebuilds `name` from the calendar's own `employee_id`/`course_id` (falling back to `get_employee()`'s reverse search for a legacy calendar); no-op for a framework calendar. Called by `ems_employee.write()` whenever the linked employee's own `name` changes.
+- **`action_archive()` override** (added 2026-09-01) — cascades to every remaining active
+  `attendance_ids` row, mirroring `ems.attendance_template.action_archive()`'s own cascade to its
+  schedule lines. Needed because `_apply_calendar_rollover()` (`course_transition_wizard.md`) only
+  ever archives a calendar once its teaching blocks are gone — a non-teaching row left on it at
+  that point (guard duty, a coordination meeting) was never in scope for that step, and without
+  this cascade stayed `active=True` forever on a calendar nobody's `resource_calendar_id` points
+  to any more (see `plans/course_transition_stale_teacher_assignments.md` — found via the Guard
+  Duty Board still showing a departed/reassigned teacher).
 
 **`resource.calendar.attendance`** (`ems_working_schedule_assignation`):
 - `subject_id` (Many2one `ems.subject`), `group_ids` (Many2many `ems.group`) — what's being taught in that slot.

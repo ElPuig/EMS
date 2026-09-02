@@ -935,9 +935,9 @@ class ems_course_transition_wizard(models.TransientModel):
         transition - before this, a departed/reassigned teacher's stale teaching links (and, via
         'ems.teaching.unlink()' 's own cleanup, their group's stale 'tutor_id') survived
         indefinitely, since neither the calendar archival above nor the working-schedule
-        importer's own incremental, additive-only sync (`replace=False`, by design - see
-        'ems.attendance_template.sync_from_schedule_batch_fresh_import') ever remove a stale
-        entry outright."""
+        importer's own call to 'ems.teaching.sync_from_schedule(..., replace=False)' (deliberately
+        additive-only, by design - one imported file is only ever one slice of the centre's
+        schedule) ever remove a stale entry outright."""
         for teacher in teachers:
             self.env['ems.teaching'].sync_from_schedule(teacher, teacher._teaching_entries_from_calendar())
 

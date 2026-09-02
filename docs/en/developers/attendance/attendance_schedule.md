@@ -176,7 +176,7 @@ reason `ems.attendance_template.teacher_ids` is a Many2many rather than one temp
 (see [`attendance_template.md`](attendance_template.md)'s "Co-teaching" section).
 
 **Captured by `ems.attendance_template._link_calendar_attendance(teacher_entries)`**, called at
-the end of both `sync_from_schedule_batch` and `sync_from_schedule_batch_fresh_import` (right
+the end of `sync_from_schedule_batch` (right
 after `_run_schedule_sync_plans` finishes writing the schedule lines for this same call — see
 `attendance_template.md`'s "CRUD flow"). For every `(teacher, entries)` pair, it matches each
 entry's own `(dayofweek, hour_from, hour_to)` against that teacher's own `resource_calendar_id.

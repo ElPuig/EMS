@@ -398,6 +398,19 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# below) - until steps 2-6 exist to resolve them interactively, a real problem simply surfaces
 	# later, at Import time, rather than here.
 	ready_to_import = fields.Boolean(compute="_compute_ready_to_import", store=False)
+	# NOTE: chosen once on the 'intro' screen, alongside the files themselves (2026-09-02, see
+	# plans/calendar_pipeline_simplification.md) - applies uniformly to every teacher this
+	# import touches, read by '_write_teacher_schedule'. 'combine' (default) never loses data by
+	# surprise: a weekday slot from an EARLIER, unrelated import (or a manual edit) that this
+	# batch doesn't mention at all survives untouched. 'replace' is the deliberate "this file is
+	# now this teacher's complete, authoritative schedule" choice (developer's own words: "si se
+	# quieren hacer ajustes, se deben hacer a mano"). Either way, any weekday slot THIS batch DOES
+	# describe always wins over whatever was there before - see '_write_teacher_schedule's own
+	# docstring.
+	import_mode = fields.Selection([
+		('combine', "Combine with each teacher's existing schedule"),
+		('replace', "Replace each teacher's existing schedule entirely"),
+	], default='combine', required=True)
 
 	@api.depends("attachment_ids")
 	def _compute_ready_to_import(self):
@@ -1239,7 +1252,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		"""The 'internal_conflicts' step's own 'Continue' handler: every line's 'resolution' must be
 		valid for its own 'kind' (raised otherwise, naming the offending pairs), then every line's
 		pick is applied to a freshly re-read 'node_cache' - 'co_teaching' is a no-op (the existing
-		'_reconcile_fresh_import' auto-merge already handles it), 'prevail_left'/'prevail_right'
+		'_reconcile_teacher_groups' auto-merge already handles it), 'prevail_left'/'prevail_right'
 		deletes the losing side's one specific entry (never the whole item), 'reassign_rooms' writes
 		'space_id' onto both sides. Deletions across every line are collected first (grouped by item)
 		and applied in reverse-index order per item only once every room write has happened, so one
@@ -1519,14 +1532,35 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		return self.env["hr.employee"].create(vals)
 
 	def _write_teacher_schedule(self, teacher, attendance_ids):
-		"""Writes 'attendance_ids' (already-parsed (0, 0, {...}) commands - see
-		'_parse_schedule_entries') onto 'teacher's CURRENT resource.calendar. Never searches by name
-		or creates a calendar itself (2026-08-06, see
-		plans/course_transition_teacher_schedule_archival.md decision 5) - every teacher already has
-		one, auto-created at 'employee.create()' time (see 'ems_employee'), and rolling it onto a
-		fresh one for a new course is the transition wizard's own job now
-		('_apply_calendar_rollover'), not the importer's."""
-		teacher.resource_calendar_id.write({'attendance_ids': attendance_ids})
+		"""Writes 'attendance_ids' (already-parsed (0, 0, {...}) commands, an optional leading
+		'[5]' marker ignored - see '_parse_schedule_entries') onto 'teacher's CURRENT
+		resource.calendar, as a per-weekday-slot diff. Never searches by name or creates a calendar
+		itself (2026-08-06, see plans/course_transition_teacher_schedule_archival.md decision 5) -
+		every teacher already has one, auto-created at 'employee.create()' time (see
+		'ems_employee'), and rolling it onto a fresh one for a new course is the transition
+		wizard's own job now ('_apply_calendar_rollover'), not the importer's.
+
+		Any weekday slot THIS batch also describes is always superseded - whatever was there
+		before (if anything) is replaced by what this batch says, in both modes: "lo nuevo
+		prevalece" (developer's own words, 2026-09-02). 'self.import_mode' only controls what
+		happens to slots this batch does NOT mention at all: 'combine' (default) leaves them
+		untouched; 'replace' removes them too, so the teacher ends up with exactly what this batch
+		describes and nothing else. See plans/calendar_pipeline_simplification.md.
+
+		Before this (2026-09-02), every call unconditionally unlinked the teacher's ENTIRE weekday
+		schedule first (a leading '(5,)' command) - correct for a fresh import, but silently wiped
+		a DIFFERENT, earlier, unrelated import's own contribution for a teacher shared across
+		separate wizard runs (e.g. a reinforcement teacher imported once per department, on
+		different days) - found while investigating a bigger pipeline-simplification effort, not a
+		hypothetical."""
+		entries = [command[2] for command in attendance_ids if command != [5]]
+		calendar = teacher.resource_calendar_id
+		existing = calendar.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4'))
+		new_slots = {(entry['dayofweek'], entry['hour_from'], entry['hour_to']) for entry in entries}
+		superseded = existing.filtered(
+			lambda attendance: (attendance.dayofweek, attendance.hour_from, attendance.hour_to) in new_slots)
+		(existing if self.import_mode == 'replace' else superseded).unlink()
+		calendar.write({'attendance_ids': [(0, 0, entry) for entry in entries]})
 
 	def _apply_import(self, node_cache):
 		"""Writes everything (resource.calendar/ems.teaching per teacher, then the
@@ -1536,10 +1570,23 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		re-parsing the XML from scratch (which would also re-resolve teachers/pending-codes against
 		data this same call is about to change)."""
 		# NOTE: attendance_template sync is deferred and batched across every teacher (see
-		# sync_from_schedule_batch_fresh_import) — syncing one teacher at a time here would let an
+		# sync_from_schedule_batch, below) — syncing one teacher at a time here would let an
 		# early teacher's fresh schedule line falsely collide with a later teacher's still-stale one
 		# whenever they share a classroom, since the later teacher hasn't been re-synced yet.
 		teacher_entries = []
+		# NOTE: keyed by teacher.id, not written per node below - two XML nodes can resolve to the
+		# SAME real teacher within this same batch (e.g. informática's own file and administración's
+		# own file, uploaded together, both mentioning a teacher who teaches in both departments -
+		# see plans/calendar_pipeline_simplification.md for the real scenario this was confirmed
+		# against), and '_write_teacher_schedule' needs every one of a teacher's contributing nodes
+		# merged into a SINGLE call: calling it once per node instead would make 'import_mode=
+		# replace' wipe an EARLIER node's own just-written rows the moment a LATER node for the same
+		# teacher runs (each call's own "replace everything" would see the previous call's rows as
+		# pre-existing data to also remove). 'combine' mode happens to be safe either way (each
+		# node's own slots would still individually survive), but this merge is what makes both
+		# modes behave identically regardless of node order - found 2026-09-02 while fixing a
+		# related, narrower bug (see '_write_teacher_schedule's own docstring).
+		teacher_attendance_ids = {}
 		for item in node_cache:
 			identifier = item['identifier']
 			fate = self._classify_teacher_item(item)
@@ -1564,14 +1611,14 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			else:
 				teacher = self._get_or_create_pending_teacher(identifier)
 
-			self._write_teacher_schedule(teacher, item['attendance_ids'])
+			bucket = teacher_attendance_ids.setdefault(teacher.id, (teacher, []))
+			bucket[1].extend(command for command in item['attendance_ids'] if command != [5])
+
 			entries = [e for e in item['entries'] if not e["non_teaching"]]
-			# NOTE: replace=False - this file only ever describes ONE SLICE of the centre's
-			# schedule (e.g. one department), never a teacher's ENTIRE teaching load, so a
-			# combo from a DIFFERENT, already-imported file must never be unlinked just
-			# because this teacher also appears here (see sync_from_schedule's own docstring).
-			self.env['ems.teaching'].sync_from_schedule(teacher, entries, replace=False)
 			teacher_entries.append((teacher, entries))
+
+		for teacher, attendance_ids in teacher_attendance_ids.values():
+			self._write_teacher_schedule(teacher, attendance_ids)
 
 		# NOTE: ems.attendance_schedule.space_id is required, but ems.group.space_id (where it's
 		# taken from) is not — a group missing a classroom would otherwise fail with Odoo's generic
@@ -1602,14 +1649,35 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 		# NOTE: a teacher double-booked against their OWN existing schedule (e.g. two departments'
 		# files scheduling them at the same time) is never caught above - classify_external_conflicts
-		# only ever looks for OTHER teachers sharing the same space.
+		# only ever looks for OTHER teachers sharing the same space. This IS caught interactively,
+		# before this point, by the 'db_conflicts' step's own self-conflict detection
+		# ('_find_external_conflicts' 's 'self_candidates' branch) - already resolved (default:
+		# "left prevails", i.e. the new import wins) by the time 'node_cache' reaches here. This is
+		# the safety net for the rare case where the DB changed after that screen ran (e.g. a
+		# concurrent edit) - a genuine race, not the normal path, so still a hard stop rather than a
+		# silent re-resolution.
 		self_conflicts = self.env['ems.attendance_template'].find_self_conflicts(teacher_entries)
 		if self_conflicts:
 			raise ValidationError(_(
 				"This teacher already has an overlapping session for a different subject/group - "
 				"fix the schedule conflict and try again: %s"
 			) % "; ".join(self._conflict_lines(self_conflicts)))
-		self.env['ems.attendance_template'].sync_from_schedule_batch_fresh_import(teacher_entries)
+
+		# NOTE: the template/teaching sync itself reads each teacher's CALENDAR (just written
+		# above), not 'teacher_entries' (built from the raw per-node parse) - '_write_teacher_
+		# schedule' above already writes the correct final per-teacher state (respecting
+		# 'import_mode'), so the calendar is trustworthy as the single source of truth here, the
+		# same way a live Schedule-tab edit already treats it (2026-09-02, see
+		# plans/calendar_pipeline_simplification.md - this used to be a separate, importer-only
+		# method pair, 'sync_from_schedule_batch_fresh_import'/'_reconcile_fresh_import', built
+		# specifically because the calendar couldn't be trusted yet; no longer needed now that it
+		# can be).
+		calendar_teacher_entries = [
+			(teacher, teacher._teaching_entries_from_calendar()) for teacher, _attendance_ids in teacher_attendance_ids.values()
+		]
+		for teacher, calendar_entries in calendar_teacher_entries:
+			self.env['ems.teaching'].sync_from_schedule(teacher, calendar_entries)
+		self.env['ems.attendance_template'].sync_from_schedule_batch(calendar_teacher_entries)
 
 	def import_planner_data(self):
 		self.ensure_one()

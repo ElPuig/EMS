@@ -1,7 +1,13 @@
-Status: Phase 1 implemented and tested (2026-09-02). Phases 2-4 are analysis/design only, not yet
-implemented, not yet started. Re-verify against the code before picking up Phase 2+, since
-`attendance_template.py`/`working_schedule.py`/`course_transition_wizard.py` may have changed
-since this was written.
+Status: Phases 1, 2 and (functionally) 3 implemented and tested (2026-09-02). What unblocked
+Phase 2 - the developer's own answer, once actually asked with concrete examples, was that the
+"blind wipe" WAS a real, separate bug (not the intended design after all - see Phase 2's own
+section for the full back-and-forth) - the real feature that resulted, letting the admin choose
+`import_mode` (`combine`/`replace`) on the working-schedule import wizard, is bigger than the
+original mechanical "collapse two methods" idea, but delivers the same underlying unification and
+then some. Phase 4 is still analysis/design only, not started, and still not recommended as a
+full collapse - see its own section, unaffected by the rest of this update. Re-verify against the
+code before picking up Phase 4, since `attendance_template.py`/`working_schedule.py`/
+`course_transition_wizard.py` may have changed since this was written.
 
 # Origin
 
@@ -88,31 +94,67 @@ See `models/settings/course_transition_wizard.py::_apply_calendar_archival`. Tes
 `_calendar_block()` test helper which deliberately never sets the FK — unaffected, all still
 pass). `./test.sh TestCourseTransition` (127 tests) and `./upgrade.sh` both clean.
 
-# Phase 2 — NOT STARTED: collapse the template sync into one calendar-reading method (medium risk)
+# Phase 2 — DONE, 2026-09-02 (bigger than originally scoped: `import_mode` feature)
 
-Replace `sync_from_schedule_batch` + `sync_from_schedule_batch_fresh_import` (and their private
-`_reconcile_teacher_groups`/`_reconcile_fresh_import` helpers) with **one** method that takes a set
-of teachers (not caller-supplied entries) and reads each one's *current* `resource_calendar_id.
-attendance_ids` itself — reusing `hr.employee._teaching_entries_from_calendar()`. The `replace`
-distinction disappears at this layer: it was only ever a proxy for "do these entries represent
-this teacher's whole calendar, or one slice", and reading the calendar *after* the caller has
-already written it (correctly, per its own path-specific logic — unchanged) answers that precisely
-every time, for both callers. Manual edit and import wizard keep their own calendar-writing logic
-completely as-is (unlink-and-rewrite vs. append-only) — only what happens *after* changes.
-Highest-value, moderate-risk phase: deletes ~90 lines of duplicated diff logic while behaviorally
-it should be a pure "same data, different source" change. Needs the full existing
-`TestAttendanceTemplateSyncFromSchedule` suite (co-teaching splits, external/self conflict
-classification, cross-file "touched_templates" behavior) re-verified line-by-line against the
-collapsed method before considering it safe.
+**First attempt (same day): reverted.** The original idea - replace `sync_from_schedule_batch` +
+`sync_from_schedule_batch_fresh_import` with one calendar-reading method - broke a pre-existing
+test the moment it was implemented, which led to finding a real bug in `_write_teacher_schedule`
+(a leading `(5,)` unlink-all, wrong the moment two XML nodes resolve to the SAME real teacher
+within one batch - fixed, kept) and then a second, bigger one: **the SAME `(5,)` mechanism also
+silently wiped a teacher's calendar across SEPARATE wizard runs** - re-importing a shared/
+reinforcement teacher in a later, unrelated file quietly erased everything an earlier import had
+written. This was reported to the developer as a blocking question rather than guessed at, since
+it directly re-litigated `_reconcile_fresh_import`'s own 2026-08-01 fix (built specifically to
+protect this exact scenario at the template layer) - the first attempt reverted back to
+`sync_from_schedule_batch_fresh_import`/`_reconcile_fresh_import` as they were, keeping only the
+within-batch fix.
 
-# Phase 3 — NOT STARTED: fold `ems.teaching` into the same unified resync (medium risk, cheap once Phase 2 lands)
+**Developer's answer, with a concrete worked example, changed the scope of the fix**: a later
+import should be able to either REPLACE a teacher's calendar entirely (the original, apparently-
+accidental default behavior, confirmed as sometimes genuinely wanted: *"si se quieren hacer
+ajustes, se deben hacer a mano"*) or COMBINE with what an earlier import already wrote (needed for
+the real Priscila-style shared-teacher scenario, confirmed with an "informática + administración"
+example) - **the admin's own choice, per import**, with "lo nuevo prevalece" on any genuine slot
+clash either way. This is a bigger feature than the original mechanical "collapse two methods"
+plan, but it fixes the SAME underlying problem and, as a side effect, makes the original
+unification safe again:
 
-Extend the Phase 2 method to also resync `ems.teaching` in the same pass (mirroring what
-`regenerate_all_from_calendars()` already does for both together) — one shared "resync everything
-downstream of the calendar for these teachers" call, used identically by all three write paths. If
-wanted, also lock `ems.teaching` down to calendar-driven-only (revoke direct create/unlink in
-`ir.model.access.csv`, matching `ems.attendance_template`'s own #372 lock) for full parity — a
-policy question for the developer, not a technical requirement of the unification itself.
+- New `ems_working_schedules_import_wizard.import_mode` field (`combine`/`replace`, default
+  `combine`), chosen on the Welcome screen.
+- `_write_teacher_schedule()` rewritten as a per-weekday-slot diff: any slot this batch describes
+  always supersedes whatever was there before (both modes); `import_mode` only decides whether a
+  slot this batch does NOT mention survives (`combine`) or also gets removed (`replace`). See its
+  own docstring in `models/employees/working_schedule.py` for the exact algorithm.
+- The existing "Existing schedule conflicts" screen (`_find_external_conflicts`'s own
+  `self_candidates` branch, defaulting to "left prevails") turned out to already correctly resolve
+  a genuine cross-import slot clash interactively, unchanged - it was the CALENDAR layer
+  underneath it that was wrong, not the template-level resolution UI.
+- With the calendar now trustworthy in both modes, the ORIGINAL Phase 2 goal was completed for
+  real: `sync_from_schedule_batch_fresh_import`/`_reconcile_fresh_import` are deleted;
+  `_apply_import()` now calls the same `sync_from_schedule_batch` the live Schedule-tab editor
+  already used, fed each affected teacher's `_teaching_entries_from_calendar()`.
+- Full test coverage: within-batch merge (calendar-level, not just template), combine preserving
+  an unrelated earlier import, replace dropping it, two files uploaded together merging for a
+  shared teacher (the literal scenario confirmed with the developer), plus a tour step confirming
+  the new radio widget actually renders/works. `docs/en/developers/employees/working_schedule.md`'s
+  own "Import wizard" section and `i18n/{ca,es}_ES.po` updated same cycle.
+
+See the git history of this plan file for the full back-and-forth if the reasoning above is ever
+worth revisiting - condensed here to the outcome and why, not every intermediate exchange.
+
+# Phase 3 — DONE, 2026-09-02 (delivered as a side effect of Phase 2)
+
+All three write paths now consistently resync `ems.teaching` from the calendar:
+`apply_schedule_changes()` (manual edit) already did, unchanged; `_apply_import()` (working-
+schedule import) now does, as part of Phase 2's own fix; `_apply_teaching_resync()`/
+`regenerate_all_from_calendars()` (course transition / migration) already did (2026-09-01). No
+separate "fold ems.teaching in" step was needed beyond what Phase 2 already required.
+
+**Still open, a policy question, not a technical blocker:** lock `ems.teaching` down to
+calendar-driven-only (revoke direct create/unlink in `ir.model.access.csv`, matching
+`ems.attendance_template`'s own #372 lock) for full parity. Not done - purely a developer call on
+whether direct manual create/unlink of a teaching row should stay possible at all, unrelated to
+whether the sync itself is correct (it now is, regardless of this).
 
 # Phase 4 — NOT STARTED, and likely not a full collapse: course transition's own template archival (higher risk)
 

@@ -1,3 +1,12 @@
+# What's new:
+
+## Choose whether a schedule import combines with or replaces a teacher's existing one:
+- The working-schedule import wizard now asks, on its first screen, whether this import should
+  combine with each teacher's current schedule (the default - nothing already there is lost unless
+  this import also describes it) or replace it entirely (the file becomes that teacher's complete
+  schedule, dropping anything else). Either way, anything this import genuinely does describe for a
+  teacher always takes priority over what was there before.
+
 # Fixes:
 
 ## Guard duty board no longer shows departed/reassigned teachers:
@@ -21,6 +30,12 @@
   old group's "Delegate" tag if they held it - now matches the same cleanup already applied to a
   student leaving the centre entirely.
 
+## Schedule import: a self-conflict resolution could silently lose the winning side's calendar entry:
+- When an imported file scheduled the same real teacher twice at the same time (recognised and
+  resolved on the "File conflicts" step), the losing side's own removal could wipe the winning
+  side's own calendar row too, right after it had just been written. The class/subject shown
+  afterwards was correct, but the underlying weekly schedule silently wasn't.
+
 # Internal changes:
 
 ## Migration for existing stale teaching/tutor/delegate data:
@@ -37,5 +52,7 @@
   direct link first, falling back to the old matching only for a calendar row old enough to
   predate it.
 - Broader findings and a proposed further simplification of the whole calendar/schedule/teaching
-  pipeline are written up in `plans/calendar_pipeline_simplification.md`, not yet acted on beyond
-  this first step.
+  pipeline are written up in `plans/calendar_pipeline_simplification.md`. Investigating a further
+  unification step surfaced the gap fixed above (the combine/replace choice) and, once that
+  landed, let the schedule import wizard finally share the exact same reconciliation logic the
+  manual schedule editor already used, instead of its own separate, near-duplicate version.

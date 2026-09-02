@@ -24,6 +24,12 @@ En **Ajustes → Gestión EMS → "Strikes Settings" (Configuración de strikes)
 
 ---
 
+## Configurar la notificación a la familia
+
+En el mismo bloque "Strikes Settings" hay también una opción **Family notification**: **All strikes** notifica a la familia en cada strike (según la regla habitual de minoría de edad/autorización), **Kicked out only** solo la notifica cuando el strike también tiene marcado "Expulsado de clase". El alumno y el tutor de grupo siempre son notificados en cualquier caso. Las instalaciones nuevas empiezan con **Kicked out only**; una instalación que actualiza desde una versión anterior mantiene **All strikes**.
+
+---
+
 ## Asignar el rol de Convivencia
 
 Los coordinadores de convivencia se asignan como cualquier otro rol, en **Comunidad → Configuración → Profesorado → Roles**, añadiendo un empleado al rol "Coexistence coordinator". A diferencia de la mayoría de roles de coordinación, este no se limita a una sola persona — asigna uno por cada rama de Jefatura de Estudios / Jefatura de Estudios Adjunta según convenga, ya que los correos de escalado se envían al coordinador que comparta la rama del profesor que ha puesto el strike. Consulta el manual [Roles de profesorado y niveles de permisos](teacher-roles.md) para el flujo general de asignación de roles.

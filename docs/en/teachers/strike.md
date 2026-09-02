@@ -27,7 +27,7 @@ That's it — no further confirmation is needed, and nothing is required beyond 
 ## What Happens Next
 
 - The student is notified by email.
-- The family is also notified, following the same rule used for attendance notices: if the student is a minor, or an adult student who has authorized sharing information with their family, the family receives the email too.
+- The family may also be notified, subject to the same rule used for attendance notices (minor, or an adult student who has authorized sharing information with their family) — whether that's on every strike or only when the student was kicked out of class depends on a setting configured by the administration.
 - The student's group tutor is always notified.
 - Every one of these emails states whether the student was kicked out of class or not, based on the checkbox you set.
 - If the student reaches a certain number of accumulated strikes (configured by the administration), the coexistence coordinator for your area is notified automatically as well.

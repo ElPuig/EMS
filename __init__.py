@@ -28,6 +28,7 @@ def post_init_hook(env):
     # opens the next campaign), so a fresh install needs it seeded once.
     env['ems.course']._ems_seed_enrollment_default()
     _backfill_missing_teacher_calendars(env)
+    _default_strike_family_notification_kicked_out(env)
 
 
 def _backfill_default_schedule_framework(env):
@@ -61,6 +62,15 @@ def _backfill_missing_teacher_calendars(env):
     env['hr.employee'].with_context(active_test=False).search([
         ('employee_type', '=', 'teacher'), ('resource_calendar_id', '=', False),
     ])._ems_create_personal_calendar()
+
+
+def _default_strike_family_notification_kicked_out(env):
+    """strike_family_notification_mode defaults to 'all' at the field level, so an
+    installation upgrading into this version keeps today's always-notify-the-family
+    behaviour unchanged (no migration script needed - the plain field default already
+    covers the upgrade path via the schema backfill). A brand-new installation has no prior
+    behaviour to preserve, so it starts on the stricter 'kicked_out' option instead."""
+    env['res.company'].search([]).write({'strike_family_notification_mode': 'kicked_out'})
 
 
 def _enable_unaccent_extension(env):

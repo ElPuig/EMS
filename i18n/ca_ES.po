@@ -10057,6 +10057,26 @@ msgid "Strike Escalation Threshold"
 msgstr "Llindar d'escalat de strikes"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__strike_family_notification_mode model:ir.model.fields,field_description:ems.field_res_config_settings__strike_family_notification_mode
+msgid "Strike Family Notification Mode"
+msgstr "Mode de notificació a la família per strikes"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_company__strike_family_notification_mode__all
+msgid "All strikes"
+msgstr "Tots els strikes"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_company__strike_family_notification_mode__kicked_out
+msgid "Kicked out only"
+msgstr "Només si és expulsat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Family notification"
+msgstr "Notificació a la família"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__strike_count model:ir.model.fields,field_description:ems.field_ems_strike__strike_count model:ir.model.fields,field_description:ems.field_res_partner__strike_count model:ir.model.fields,field_description:ems.field_res_users__strike_count model_terms:ir.ui.view,arch_db:ems.view_strike_form model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_pivot model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_graph
 msgid "Strike count"
 msgstr "Recompte de strikes"

@@ -24,6 +24,12 @@ Under **Settings → EMS Management → "Strikes Settings"**, set how many accum
 
 ---
 
+## Configuring Family Notification
+
+The same "Strikes Settings" block also has a **Family notification** option: **All strikes** notifies the family on every strike (subject to the usual minor/authorization rule), **Kicked out only** notifies them only when the strike also has "Kicked out of class" checked. The student and the group tutor are always notified either way. New installations start on **Kicked out only**; an installation upgrading from an earlier version keeps **All strikes**.
+
+---
+
 ## Assigning the Coexistence Role
 
 Coexistence coordinators are assigned like any other role, under **Community → Configuration → Teachers → Roles**, by adding an employee to the "Coexistence coordinator" role. Unlike most coordination roles, this one is not limited to a single person — assign one per Head of Studies / Deputy Head of Studies branch as needed, since escalation emails are routed to whichever coordinator shares the issuing teacher's branch. See the [Teacher Roles and Permission Levels](teacher-roles.md) manual for the general role-assignment workflow.

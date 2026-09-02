@@ -27,7 +27,7 @@ Y ya está — no hace falta ninguna otra confirmación, ni nada más allá del 
 ## Qué ocurre después
 
 - El alumno recibe una notificación por correo electrónico.
-- La familia también es notificada, siguiendo la misma regla que se usa para los avisos de asistencia: si el alumno es menor de edad, o es mayor de edad pero ha autorizado compartir información con la familia, la familia también recibe el correo.
+- La familia puede ser notificada también, según la misma regla que se usa para los avisos de asistencia (menor de edad, o mayor de edad que ha autorizado compartir información con la familia) — que esto ocurra en cada strike o solo cuando el alumno fue expulsado de clase depende de una opción configurada por la administración.
 - El tutor de grupo del alumno siempre es notificado.
 - Todos estos correos indican si el alumno fue expulsado de clase o no, según la casilla que hayas marcado.
 - Si el alumno alcanza un cierto número de strikes acumulados (configurado por la administración), el coordinador de convivencia de tu rama también es notificado automáticamente.

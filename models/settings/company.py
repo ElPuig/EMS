@@ -18,6 +18,16 @@ class ems_company(models.Model):
     attendance_issue_status_delay = fields.Integer(default=15)
     attendance_issue_tutor_default = fields.Float(default=21.0)
     strike_escalation_threshold = fields.Integer(default=3)
+    # NOTE: defaults to 'all' so an installation upgrading into this version keeps today's
+    # always-notify-the-family behaviour unchanged. A brand-new installation starts on the
+    # stricter 'kicked_out' instead, set by post_init_hook (see __init__.py).
+    strike_family_notification_mode = fields.Selection(
+        selection=[
+            ('all', 'All strikes'),
+            ('kicked_out', 'Kicked out only'),
+        ],
+        default='all', required=True,
+    )
     auto_checkin_mode = fields.Selection(
         selection=[
             ('disabled', 'Disabled'),

@@ -27,7 +27,7 @@ Ja està — no cal cap altra confirmació, ni res més enllà del motiu.
 ## Què passa després
 
 - L'alumne rep una notificació per correu electrònic.
-- La família també és notificada, seguint la mateixa regla que s'utilitza per als avisos d'assistència: si l'alumne és menor d'edat, o és major d'edat però ha autoritzat compartir informació amb la família, la família també rep el correu.
+- La família pot ser notificada també, segons la mateixa regla que s'utilitza per als avisos d'assistència (menor d'edat, o major d'edat que ha autoritzat compartir informació amb la família) — si això passa a cada strike o només quan l'alumne ha estat expulsat de classe depèn d'una opció configurada per l'administració.
 - El tutor de grup de l'alumne sempre és notificat.
 - Tots aquests correus indiquen si l'alumne ha estat expulsat de classe o no, segons la casella que hagis marcat.
 - Si l'alumne arriba a un cert nombre de strikes acumulats (configurat per l'administració), el coordinador de convivència de la teva branca també és notificat automàticament.

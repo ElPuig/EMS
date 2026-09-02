@@ -243,6 +243,30 @@ class TestStrike(TransactionCase):
         recipients = strike.send_to.split('; ')
         self.assertIn(self.family_partner.email, recipients)
 
+    def test_family_notification_mode_defaults_to_all(self):
+        self.assertEqual(self.env.company.strike_family_notification_mode, 'all')
+
+    def test_family_notified_on_every_strike_when_mode_all(self):
+        self.env.company.strike_family_notification_mode = 'all'
+        strike = self._create_strike(self.teacher_a_user, kicked_out=False)
+        recipients = strike.send_to.split('; ')
+        self.assertIn(self.family_partner.email, recipients)
+
+    def test_family_not_notified_when_mode_kicked_out_and_not_kicked_out(self):
+        self.env.company.strike_family_notification_mode = 'kicked_out'
+        strike = self._create_strike(self.teacher_a_user, kicked_out=False)
+        recipients = strike.send_to.split('; ')
+        self.assertNotIn(self.family_partner.email, recipients)
+        # Student and tutor notifications are unaffected by this setting.
+        self.assertIn(self.minor_student.student_email, recipients)
+        self.assertIn(self.tutor_employee.email, recipients)
+
+    def test_family_notified_when_mode_kicked_out_and_kicked_out_true(self):
+        self.env.company.strike_family_notification_mode = 'kicked_out'
+        strike = self._create_strike(self.teacher_a_user, kicked_out=True)
+        recipients = strike.send_to.split('; ')
+        self.assertIn(self.family_partner.email, recipients)
+
     def test_escalation_fires_at_threshold_and_repeats(self):
         self.env.company.strike_escalation_threshold = 3
         for _i in range(2):

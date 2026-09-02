@@ -104,6 +104,7 @@ jobs:
           fi
 
       - name: Commit and push
+        id: push
         if: steps.remove.outputs.removed == 'true'
         run: |
           git config user.name "github-actions[bot]"
@@ -117,9 +118,22 @@ jobs:
         with:
           script: |
             const removed = '${{ steps.remove.outputs.removed }}' === 'true';
-            const body = removed
-              ? '🧹 `changelog/` removed and pushed to this branch.'
-              : '`changelog/` was already empty - nothing to remove.';
+            // steps.push.outcome is '' when the push step didn't even run (removed == false).
+            // Report the push's own result, not just whether the local `git rm` succeeded -
+            // a failed push (e.g. CHANGELOG_CLEANUP_TOKEN expired/revoked, or its user losing
+            // bypass access to the "Block v18.0*" ruleset) must never be announced as success.
+            const pushFailed = '${{ steps.push.outcome }}' === 'failure';
+            let body;
+            if (!removed) {
+              body = '`changelog/` was already empty - nothing to remove.';
+            } else if (pushFailed) {
+              body = '⚠️ `changelog/` was removed locally but the push back to this branch failed - '
+                + 'it still has its old content. Check this job\'s "Commit and push" step log; a 403 '
+                + '"Permission ... denied" there usually means `CHANGELOG_CLEANUP_TOKEN` needs attention '
+                + '(expired/revoked fine-grained PAT, or its user lost bypass access to the "Block v18.0*" ruleset).';
+            } else {
+              body = '🧹 `changelog/` removed and pushed to this branch.';
+            }
             await github.rest.issues.createComment({
               owner: context.repo.owner, repo: context.repo.repo,
               issue_number: context.issue.number,

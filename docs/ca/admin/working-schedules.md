@@ -148,7 +148,13 @@ L'assistent et guia per diverses pantalles, cadascuna amb la seva pròpia explic
 
 1. Vés a **Configuració → Professorat → Horaris de treball**.
 2. Obre el menú ⚙️ (engranatge) de sobre la llista i tria **Import: planner data**.
-3. A la pantalla de **Benvinguda**, adjunta un o més fitxers XML i fes clic a **Continua** — encara no s'escriu res en aquest punt, ni tampoc es comprova res del contingut dels fitxers.
+3. A la pantalla de **Benvinguda**, adjunta un o més fitxers XML i tria com aquesta importació ha de tractar l'horari existent de cada docent:
+   - **Combinar amb l'horari existent de cada docent** (per defecte) — no es perd res del que ja tenia un docent, tret que aquests fitxers també ho descriguin. Fes-ho servir per a un docent compartit entre departaments els fitxers dels quals s'importen en moments diferents (per exemple, un docent de reforç, un fitxer per departament).
+   - **Reemplaçar completament l'horari existent de cada docent** — aquests fitxers passen a ser l'horari complet d'aquell docent; qualsevol cosa que tingués i que no aparegui en aquests fitxers es descarta. Fes-ho servir quan un fitxer ha de ser la descripció completa i autoritativa de la setmana d'un docent.
+
+   En qualsevol cas, si aquests fitxers descriuen exactament el mateix dia i hora que un docent ja tenia ocupats amb una altra cosa, sempre guanya el contingut nou. Pujar diversos fitxers junts en una mateixa execució (per exemple, un per departament) sempre els combina entre ells primer, sigui quina sigui l'opció triada — la tria només afecta el que passa amb l'horari d'una importació **anterior i separada**.
+
+   Després fes clic a **Continua** — encara no s'escriu res en aquest punt, ni tampoc es comprova res del contingut dels fitxers.
 
    ![Pantalla de Benvinguda de l'assistent amb un fitxer del planificador adjuntat](../../assets/admin/working-schedules-import-01-welcome.png)
 4. Si els fitxers esmenten algun nom de grup que EMS no ha pogut aparellar automàticament, una pantalla de **Resoldre grups** en llista cadascun: tria el grup real al desplegable de cada fila (o crea'n un al moment, igual que en qualsevol altre camp de grup) i fes clic a **Continua**. Si tots els grups s'han reconegut automàticament, veuràs un missatge de confirmació en lloc d'una llista. El botó **Continua** apareix atenuat fins que totes les files tenen un grup triat.
@@ -181,7 +187,7 @@ L'assistent et guia per diverses pantalles, cadascuna amb la seva pròpia explic
 
 > Fes-ho durant la preparació del proper curs, un cop els horaris del curs anterior ja hagin estat arxivats per l'assistent de "Configurar el proper curs" — executar-ho contra un curs ja en marxa pot generar conflictes que després caldrà resoldre a mà.
 
-Si algun dels docents trobats en els fitxers ja té un horari, s'actualitza in situ (no es reemplaça des de zero) en fer clic a **Importa** — les assignacions d'assignatures i les plantilles d'assistència existents es mantenen sincronitzades amb el fitxer nou.
+Si algun dels docents trobats en els fitxers ja té un horari, s'actualitza en fer clic a **Importa** segons l'opció triada a la pantalla de Benvinguda (combinar o reemplaçar) — les assignacions d'assignatures i les plantilles d'assistència existents es mantenen sincronitzades amb el resultat en tots dos casos.
 
 ---
 

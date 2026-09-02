@@ -93,6 +93,27 @@ class TestGuardDutyBoard(TransactionCase):
         # are included, not that they're the only ones.
         self.assertLessEqual({self.teacher_a, self.teacher_b}, set(teaching.mapped('employee_id')))
 
+    def test_attendance_ids_excludes_rows_on_an_archived_calendar(self):
+        """Defense-in-depth (2026-09-01, see plans/course_transition_stale_teacher_assignments.md):
+        a row can be active=True while its own parent calendar is archived - e.g. a leftover
+        non-teaching commitment on a calendar that has since rolled over to a new one for a
+        different course. Must never surface here regardless of the row's own active flag -
+        deliberately reactivates the row AFTER archiving the calendar, so this test isolates
+        the board's own filter from 'ems_working_schedule.action_archive()' 's cascade (covered
+        separately in test_course_transition.py)."""
+        calendar = self._new_calendar(self.teacher_guard, 'Test Calendar Archived (Aggregation)')
+        guard_row = self.env['resource.calendar.attendance'].create({
+            'calendar_id': calendar.id, 'name': 'Test Guard (Aggregation)',
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard.id,
+        })
+        calendar.action_archive()
+        guard_row.action_unarchive()
+
+        rows = self.course._get_guard_duty_board_attendance_ids()
+
+        self.assertNotIn(guard_row, rows)
+
     def test_get_guard_duty_board_lines_groups_are_columns(self):
         calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Columns)')
         calendar_a.apply_schedule_changes([{

@@ -128,6 +128,31 @@ class TestWorkingSchedule(TransactionCase):
         attendance.action_archive()
         self.assertFalse(attendance.active)
 
+    def test_calendar_action_archive_cascades_to_its_attendance_rows(self):
+        """Mirrors 'ems.attendance_template.action_archive()' 's own cascade to its schedule
+        lines (2026-09-01, see plans/course_transition_stale_teacher_assignments.md) - archiving
+        the calendar itself must not leave any of its own rows dangling active, regardless of
+        which kind (teaching or non-teaching) they are."""
+        calendar = self.env['resource.calendar'].create({'name': 'Test Cascade (Working Schedule)'})
+        calendar.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'Test: Group',
+        }])
+        teaching_row = calendar.attendance_ids
+        guard_row = self.env['resource.calendar.attendance'].create({
+            'calendar_id': calendar.id, 'name': 'Test Guard (Working Schedule)',
+            'dayofweek': '1', 'hour_from': 10, 'hour_to': 11, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_g.id,
+        })
+
+        calendar.action_archive()
+
+        teaching_row.invalidate_recordset()
+        guard_row.invalidate_recordset()
+        self.assertFalse(calendar.active)
+        self.assertFalse(teaching_row.active)
+        self.assertFalse(guard_row.active)
+
     def _bare_employee(self, name):
         # A non-teacher employee (default 'employee_type') never gets an auto-created personal
         # calendar (see 'ems_employee.create()') - a clean fixture to attach a test calendar to

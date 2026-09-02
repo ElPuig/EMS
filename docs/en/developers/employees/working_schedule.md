@@ -24,6 +24,14 @@ graph TD
 - **`create()` override** — auto-derives `name` (`"<employee_id.name> (<course_id.name>)"`, or just `employee_id.name` if no `course_id`) from `employee_id`/`course_id` when the caller sets those but not an explicit `name`, so the naming convention has a single source of truth instead of every caller building the string by hand. An explicit `name` in `vals` always wins.
 - **`get_employee()`** — prefers the stored `employee_id` (keeps working once this calendar is no longer any employee's *current* one, e.g. after a course transition supersedes it), falling back to the original reverse search (`hr.employee.search([('resource_calendar_id', '=', self.id)])`) for a calendar predating this field. That reverse search only returns a match when it's unique: any employee never assigned a personal calendar (every non-teacher, and a teacher predating `_ems_create_personal_calendar()`) still carries `resource.mixin`'s shared company-default `resource_calendar_id`, so several employees can legitimately share the same calendar — an ambiguous match returns an empty recordset instead of the several employees found, matching every caller's own "no owner" handling. Bug fixed 2026-09-01: an unguarded reverse search used to raise `ValueError: Expected singleton` (via `_refresh_personal_name()`'s `employee.name` read) the moment two employees shared a calendar, e.g. any employee `write()`-renamed while still on the shared default.
 - **`_refresh_personal_name()`** — rebuilds `name` from the calendar's own `employee_id`/`course_id` (falling back to `get_employee()`'s reverse search for a legacy calendar); no-op for a framework calendar. Called by `ems_employee.write()` whenever the linked employee's own `name` changes.
+- **`action_archive()` override** (added 2026-09-01) — cascades to every remaining active
+  `attendance_ids` row, mirroring `ems.attendance_template.action_archive()`'s own cascade to its
+  schedule lines. Needed because `_apply_calendar_rollover()` (`course_transition_wizard.md`) only
+  ever archives a calendar once its teaching blocks are gone — a non-teaching row left on it at
+  that point (guard duty, a coordination meeting) was never in scope for that step, and without
+  this cascade stayed `active=True` forever on a calendar nobody's `resource_calendar_id` points
+  to any more (see `plans/course_transition_stale_teacher_assignments.md` — found via the Guard
+  Duty Board still showing a departed/reassigned teacher).
 
 **`resource.calendar.attendance`** (`ems_working_schedule_assignation`):
 - `subject_id` (Many2one `ems.subject`), `group_ids` (Many2many `ems.group`) — what's being taught in that slot.
@@ -380,7 +388,60 @@ all at once). So by the time a study's groups are due for a fresh import, there 
 nothing active left to reconcile against for that scope — an active overlap found during import
 is always either legitimate co-teaching or a real problem, never something to silently resolve.
 
-Parses a planner XML export (`<TeacherNode name="email ...">` → `<DayNode name="N ...">` → `<HourNode name="N HH:MM">` → `<Subject>`/`<NonTeaching>`/`<Students>` children) via `_parse_schedule_entries()`, then calls `ems.teaching.sync_from_schedule(..., replace=False)`/`ems.attendance_template.sync_from_schedule_batch_fresh_import` — the importer's own entry points, **not** the ones the Schedule tab's grid widget uses to save a live edit (see "Reconciliation" above for why the importer needs its own).
+Parses a planner XML export (`<TeacherNode name="email ...">` → `<DayNode name="N ...">` → `<HourNode name="N HH:MM">` → `<Subject>`/`<NonTeaching>`/`<Students>` children) via `_parse_schedule_entries()`, writes the calendar (`_write_teacher_schedule`, see "`import_mode`" below), then calls `ems.teaching.sync_from_schedule`/`ems.attendance_template.sync_from_schedule_batch` reading straight off each affected teacher's calendar — the SAME entry points the Schedule tab's own live-edit grid widget uses (unified 2026-09-02, see below; there used to be a separate, importer-only pair here).
+
+### `import_mode`: combine vs. replace (2026-09-02, see `plans/calendar_pipeline_simplification.md`)
+
+Chosen once on the Welcome screen (`ems_working_schedules_import_wizard.import_mode`, Selection
+`combine`/`replace`, default `combine`), applying uniformly to every teacher this run touches.
+Developer's own framing: *"cuando se importa el calendario de un docente... eso debe sustituir a
+su antiguo horario. Si se quieren hacer ajustes, se deben hacer a mano"* (`replace`) - but a
+teacher genuinely shared between two departments, each with their own file, imported at different
+times, must keep both (`combine`, confirmed with a concrete example the same day) - *"en caso de
+conflicto, lo nuevo prevalece"* either way.
+
+`_write_teacher_schedule(teacher, attendance_ids)` does a per-weekday-slot diff against the
+teacher's CURRENT calendar, not a blind wipe:
+```python
+entries = [command[2] for command in attendance_ids if command != [5]]
+existing = calendar.attendance_ids.filtered(lambda a: a.dayofweek in ('0', '1', '2', '3', '4'))
+new_slots = {(e['dayofweek'], e['hour_from'], e['hour_to']) for e in entries}
+superseded = existing.filtered(lambda a: (a.dayofweek, a.hour_from, a.hour_to) in new_slots)
+(existing if self.import_mode == 'replace' else superseded).unlink()
+calendar.write({'attendance_ids': [(0, 0, e) for e in entries]})
+```
+Any weekday slot this batch also describes is always superseded, in both modes - "lo nuevo
+prevalece" is unconditional, not gated by the mode. `import_mode` only decides what happens to a
+slot this batch does **not** mention at all: `combine` leaves it; `replace` removes it too.
+
+**Before this (2026-09-02), every call unconditionally emitted a leading `(5,)` ("unlink
+everything on this calendar") before creating this batch's own rows** - correct for a teacher
+mentioned in exactly one file, ever, but silently wiped a DIFFERENT, earlier, unrelated import's
+own contribution the moment the SAME teacher was imported again in a separate wizard run (found
+while investigating a broader pipeline-simplification effort - see the plan file for the full
+history, including a genuine within-batch variant of the same bug, fixed the same day: two XML
+nodes resolving to the same real teacher within ONE run - e.g. informática's own file and
+administración's own file, uploaded together, both mentioning a teacher who teaches in both -
+must have their `attendance_ids` MERGED into a single call (`_apply_import`'s own
+`teacher_attendance_ids` dict), never written per node; a per-node `replace` write would let the
+second node's own "replace everything" wipe the first node's just-written rows).
+
+**A genuine slot clash against a DIFFERENT, earlier import** (the same teacher, same weekday/time,
+different subject/group, from a file imported at another time) is resolved interactively, BEFORE
+`_write_teacher_schedule` ever runs, by the existing "Existing schedule conflicts" screen (Screen
+6 below, `_find_external_conflicts`'s own `self_candidates` branch) - defaulting to "left
+prevails" (the new import wins), same as it already did before this change; nothing about that
+screen needed to change. `ems.attendance_template.find_self_conflicts`, called once more at
+`_apply_import` time, is a last-resort safety net only for a genuine race (the DB changed after
+that screen ran) - it should essentially never fire in normal use.
+
+`sync_from_schedule_batch_fresh_import`/`_reconcile_fresh_import` (the importer's former,
+separate reconciliation pair) are deleted - their whole reason to exist was that the calendar
+couldn't be trusted to reflect the true current state between separate import runs; now that
+`_write_teacher_schedule` gets that right, the importer reads the calendar back exactly like a
+live Schedule-tab edit already does, through the same `sync_from_schedule_batch`
+(`attendance_template.md`) - one reconciliation method for both callers instead of two
+near-duplicates.
 
 **Every screen gets its own one-sentence intro paragraph (2026-08-10, developer feedback: *"Quiero
 una breve introducción o resumen de lo que sucede en cada paso del asistente... quiero que el

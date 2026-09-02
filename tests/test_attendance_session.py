@@ -208,13 +208,16 @@ class TestAttendanceSessionHeader(TransactionCase):
             'name': 'Other Teacher (Attendance Session)', 'employee_type': 'teacher',
             'user_id': other_teacher_user.id,
         })
-        self.env['ems.attendance_session_header'].create({
+        session = self.env['ems.attendance_session_header'].create({
             'attendance_schedule_id': self.schedule.id, 'date': date.today(),
             'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
         })
         result = self.env['ems.attendance_session_header'].with_user(other_teacher_user).get_guard_sessions(
             date.today().isoformat())
-        self.assertEqual(len(result), 1)
+        # Asserting an exact system-wide count is fragile: whatever real data the test DB was
+        # seeded from may already have another session dated today (found 2026-09-02 - the dev
+        # DB had a genuine session for that same date). Only assert our own session is in there.
+        self.assertIn(session.id, [entry['id'] for entry in result])
 
     def test_create_scheduled_session_marks_continuation(self):
         first = self.env['ems.attendance_session_header'].create({

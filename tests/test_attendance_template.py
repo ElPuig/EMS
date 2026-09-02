@@ -879,6 +879,44 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         # Roster refilled from live enrollment, not left empty just because it's a brand new line.
         self.assertEqual(new_template.attendance_schedule_ids.student_ids, student)
 
+    def test_regenerate_all_from_calendars_resyncs_ems_teaching(self):
+        # ems.teaching used to be entirely untouched by this method - a stale row for a subject/
+        # group combo no longer on the teacher's calendar survived forever, and so did whatever
+        # depended on it (e.g. a group's tutor_id, see ems.teaching.unlink()'s own cleanup).
+        stale_group = self.env['ems.group'].create({
+            'course': 3, 'acronym': 'TATSREG', 'level_id': self.level.id, 'study_id': self.study.id,
+            'space_id': self.space.id,
+        })
+        stale_teaching = self.env['ems.teaching'].create({
+            'teacher_id': self.teacher.id, 'group_id': stale_group.id, 'subject_id': self.subject.id,
+        })
+
+        calendar = self.teacher.resource_calendar_id
+        calendar.write({'attendance_ids': [(0, 0, {
+            'dayofweek': '2', 'hour_from': 11, 'hour_to': 12, 'day_period': 'morning', 'name': 'Regen Teaching',
+            'subject_id': self.subject.id, 'group_ids': [(6, 0, [self.group.id])],
+        })]})
+
+        self.env['ems.attendance_template'].regenerate_all_from_calendars(teachers=self.teacher)
+
+        self.assertFalse(stale_teaching.exists())
+        fresh_teaching = self.env['ems.teaching'].search([
+            ('teacher_id', '=', self.teacher.id), ('subject_id', '=', self.subject.id), ('group_id', '=', self.group.id),
+        ])
+        self.assertTrue(fresh_teaching)
+
+    def test_regenerate_all_from_calendars_removes_teaching_with_no_current_schedule(self):
+        # Mirrors 'test_regenerate_all_from_calendars_ignores_teacher_with_no_current_schedule'
+        # below for the template side - a teacher whose calendar has gone back to zero teaching
+        # rows must lose every stale ems.teaching too, not just fail to gain new ones.
+        stale_teaching = self.env['ems.teaching'].create({
+            'teacher_id': self.other_teacher.id, 'group_id': self.other_group.id, 'subject_id': self.other_subject.id,
+        })
+
+        self.env['ems.attendance_template'].regenerate_all_from_calendars(teachers=self.other_teacher)
+
+        self.assertFalse(stale_teaching.exists())
+
     def test_regenerate_all_from_calendars_ignores_teacher_with_no_current_schedule(self):
         # A teacher whose personal calendar has no teaching rows (schedule never (re)loaded) must
         # end up with zero active templates - the new breaking-change rule (see

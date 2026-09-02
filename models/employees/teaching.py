@@ -47,6 +47,27 @@ class EmsTeaching(models.Model):
 			if self.search_count(domain) > 0:
 				raise ValidationError(_("There's another active entry for the same 'teacher / group / subject' ternary. Archive it first."))
 
+	def unlink(self):
+		"""Clears a group's stale 'tutor_id' whenever the teaching that backed it goes away -
+		the single choke point every removal path already goes through (sync_from_schedule()'s
+		own 'replace=True' drop, a direct admin unlink, and the calendar-driven resync added to
+		course transition/regenerate_all_from_calendars()). A tutoring assignment is itself
+		recorded as an ordinary ems.teaching row, on the group's own tutoring subject
+		(subject_id.is_tutorship) - deliberately never wired to 'ems.group.tutor_id' by a stored
+		relation, since that field predates this model's own calendar-driven sync and is set
+		directly on the group form. Captured BEFORE the actual unlink (fields are unreadable
+		once the row is gone), then only cleared if 'tutor_id' still matches - a manual
+		reassignment in between must never be clobbered by a stale unlink running late."""
+		stale_tutorships = {
+			(teaching.group_id, teaching.teacher_id)
+			for teaching in self.filtered(lambda teaching: teaching.subject_id.is_tutorship)
+		}
+		result = super().unlink()
+		for group, teacher in stale_tutorships:
+			if group.tutor_id == teacher:
+				group.tutor_id = False
+		return result
+
 	def sync_from_schedule(self, teacher, entries, replace=True):
 		"""Sync 'teacher.teaching_ids' from the (subject_id, group_ids) pairs found in 'entries'
 		(dicts with a 'subject_id' and a 'group_ids' list), keeping any entry that is unchanged and

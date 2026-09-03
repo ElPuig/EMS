@@ -34,6 +34,9 @@ def post_init_hook(env):
     # Odoo's own absence types are none of the centre's nine, and carry noupdate=True
     # so no data file can archive them.
     env['hr.leave.type']._ems_deactivate_native_types()
+    # Same reason, same mechanism: the Catalan Odoo ships for the two approval activity types
+    # is machine-generated nonsense, and it heads every request in the chatter.
+    env['mail.activity.type']._ems_fix_approval_activity_names()
 
 
 def _backfill_default_schedule_framework(env):

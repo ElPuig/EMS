@@ -30,6 +30,14 @@ ATTACHMENT_FIELDS = frozenset({
     'attachment_ids', 'supported_attachment_ids', 'message_main_attachment_id',
 })
 
+# The Catalan hr_holidays ships for its two approval activity types is machine-generated
+# nonsense, and it is the heading the chatter prints above every request awaiting a decision.
+# See mail.activity.type._ems_fix_approval_activity_names().
+APPROVAL_ACTIVITY_CA_NAMES = {
+    'hr_holidays.mail_act_leave_approval': "Aprovació d'absències",
+    'hr_holidays.mail_act_leave_second_approval': "Segona aprovació d'absències",
+}
+
 RESPONSIBLE_GROUP_XMLID = 'hr_holidays.group_hr_holidays_responsible'
 
 TIME_OFF_GROUP_XMLIDS = (
@@ -133,6 +141,41 @@ class EmsAbsenceLeaveType(models.Model):
         stale = native.filtered('active')
         stale.active = False
         return stale
+
+
+class EmsAbsenceActivityType(models.Model):
+    _inherit = "mail.activity.type"
+
+    def _ems_fix_approval_activity_names(self):
+        """Repairs Odoo's Catalan translation of the two Time Off approval activity types.
+
+        Odoo ships "Temps de desaprovació" for "Time Off Approval" and "Temps d'apagada de la
+        segona aproximació" for "Time Off Second Approve" - machine translations that mean
+        nothing in Catalan ("apagada" is a power cut, "aproximació" an estimate). It is not a
+        detail buried in a settings screen: it is the line the chatter prints at the top of every
+        request awaiting a decision, so it is the first thing the employee who just filed one
+        reads. The Spanish translations are correct and are left alone.
+
+        This cannot be a .po entry, even though a .po reference may perfectly well name a record
+        another module owns: both records carry ir_model_data.noupdate = True, and
+        TranslationImporter.save() only overwrites an existing translation on such a record when
+        called with force_overwrite, which no module load ever passes. Same reason
+        _ems_deactivate_native_types() has to be code rather than a data file.
+
+        No-op when Catalan is not installed. Idempotent. Returns the types it corrected.
+        """
+        fixed = self.browse()
+        if not self.env['res.lang'].search_count([('code', '=', 'ca_ES'), ('active', '=', True)]):
+            return fixed
+        for xmlid, name in APPROVAL_ACTIVITY_CA_NAMES.items():
+            activity_type = self.env.ref(xmlid, raise_if_not_found=False)
+            if not activity_type:
+                continue
+            catalan = activity_type.sudo().with_context(lang='ca_ES')
+            if catalan.name != name:
+                catalan.name = name
+                fixed |= activity_type
+        return fixed
 
 
 class EmsAbsenceLeave(models.Model):
@@ -522,6 +565,35 @@ class EmsAbsenceLeave(models.Model):
         if self.env.context.get('ems_suppress_leave_note'):
             return self.env['mail.message']
         return super().message_post(**kwargs)
+
+    def activity_update(self):
+        """Shortens the absence type in the approval activity hr_holidays schedules.
+
+        Its note is "New %(leave_type)s Request created by %(user)s" with the type's *full*
+        wording dropped into it, which here is a whole legal sentence - so the chatter entry the
+        employee sees the moment they file a request reads as a paragraph of legalese instead of
+        as a request somebody has to act on. Same treatment, for the same reason, as
+        '_compute_display_name' gives every other place Odoo prints a leave.
+
+        Rewritten afterwards rather than reimplemented: 'activity_update' is forty lines of
+        state handling and deadline arithmetic that has nothing to do with this, and the note is
+        built inline inside it with no hook of its own.
+        """
+        result = super().activity_update()
+        for leave in self:
+            long_name = leave.holiday_status_id.name
+            short_name = leave.holiday_status_id.ems_short_name
+            if not long_name or not short_name or short_name == long_name:
+                continue
+            for activity in leave.activity_ids:
+                # str(), not the Markup an Html field returns: Markup.replace() escapes both of
+                # its arguments, so a type whose name carries an apostrophe would stop matching
+                # itself. Sudo because the activity belongs to the approver, not to the employee
+                # who just filed the request and triggered this.
+                note = str(activity.note or '')
+                if long_name in note:
+                    activity.sudo().note = note.replace(long_name, short_name)
+        return result
 
     def action_approve(self, check_state=True):
         self._ems_inform_department_chief()

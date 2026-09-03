@@ -49,6 +49,20 @@ def _deactivate_native_leave_types(env):
         len(archived), (": " + ", ".join(archived.mapped('name'))) if archived else "")
 
 
+def _fix_approval_activity_names(env):
+    """Repair Odoo's Catalan name for the two Time Off approval activity types.
+
+    'Temps de desaprovació' and 'Temps d'apagada de la segona aproximació' are machine
+    translations that mean nothing, and they head every absence request in the chatter. Both
+    records carry ir_model_data.noupdate = True, so a .po entry can never overwrite them - see
+    mail.activity.type._ems_fix_approval_activity_names. Same call as post_init_hook's.
+    """
+    fixed = env['mail.activity.type']._ems_fix_approval_activity_names()
+    _logger.info(
+        "Migration 18.0.0.24.0: corrected the Catalan name of %s approval activity type(s)%s",
+        len(fixed), (": " + ", ".join(fixed.mapped('name'))) if fixed else "")
+
+
 def _recompute_leave_managers(env):
     """Make sure every employee's absence approver is the Area Manager of their top-level
     department, and not Odoo's own guess.
@@ -93,3 +107,4 @@ def migrate(cr, _version):
     _recompute_leave_managers(env)
     _sync_time_off_groups(env)
     _deactivate_native_leave_types(env)
+    _fix_approval_activity_names(env)

@@ -287,6 +287,38 @@ the field-level half an `ir.rule` cannot express. Everything else about an appro
 stays the approver's to change, and raises an `AccessError` naming the justification as the one
 thing still open.
 
+## The chatter entry an employee sees after filing
+
+hr_holidays schedules an approval activity (`mail_act_leave_approval`) on every request awaiting
+a decision, and the chatter prints it above everything else. Two things about it were wrong for
+this centre, and neither could be fixed with a data file or a translation:
+
+- **The note carried the type's whole legal wording.** It is built inline in `activity_update()`
+  as `New %(leave_type)s Request created by %(user)s` from `holiday_status_id.name`, which here
+  is a full sentence - so the first thing the employee read after filing was a paragraph of
+  legalese. `hr.leave.activity_update()` rewrites the note with `ems_short_name` afterwards
+  rather than reimplementing forty lines of state handling and deadline arithmetic that have
+  nothing to do with it. The note is read as `str()`, not as the `Markup` the Html field
+  returns: `Markup.replace()` escapes both arguments, so a type name carrying an apostrophe
+  would stop matching itself.
+- **Its Catalan name was machine-translated nonsense**: `Temps de desaprovació` for "Time Off
+  Approval" (and `Temps d'apagada de la segona aproximació` for the second approval - "apagada"
+  is a power cut, "aproximació" an estimate). `mail.activity.type
+  ._ems_fix_approval_activity_names()` replaces both with `Aprovació d'absències` /
+  `Segona aprovació d'absències`, leaving English and Spanish alone.
+
+  **A `.po` entry cannot do this**, even though a `.po` reference may name a record another
+  module owns: both activity types carry `ir_model_data.noupdate = True`, and
+  `TranslationImporter.save()` overwrites an existing translation on such a record only under
+  `force_overwrite`, which no module load ever passes (`_load_module_terms` passes plain
+  `overwrite`). Same reason `_ems_deactivate_native_types()` has to be code. Called from both
+  `post_init_hook` and `migrations/18.0.0.24.0/post-migrate.py`, and a no-op when Catalan is not
+  installed.
+
+The activity's **deadline** is Odoo's, untouched: `date_from` minus the type's `delay_count`
+(15 days), floored at today - which is why a request filed well in advance shows "Finalitza en
+N dies" and one filed for tomorrow shows today.
+
 ## Removing a justification asks first
 
 The stock `many2many_binary` widget drops an attachment the moment its "x" is clicked - no

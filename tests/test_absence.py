@@ -691,6 +691,42 @@ class TestAbsenceRequest(TransactionCase):
 
         self.assertEqual(leave.request_date_to, self._monday() + timedelta(days=1))
 
+    # --- The chatter entry an employee sees when they file a request ---------------------------
+
+    def test_the_approval_activity_names_the_type_briefly(self):
+        """hr_holidays drops the absence type's full legal wording into the activity it
+        schedules, so the first thing the employee reads after filing is a paragraph of
+        legalese where a heading should be."""
+        approver = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Activity Approver', 'login': 'activity_approver@absence.test',
+            'groups_id': [Command.link(self.env.ref('base.group_user').id)],
+        })
+        self.employee.leave_manager_id = approver.id
+
+        leave = self._create_leave(self.type_health, self._monday())
+
+        self.assertTrue(leave.activity_ids, 'sanity: an approval activity was scheduled')
+        for note in (str(activity.note or '') for activity in leave.activity_ids):
+            self.assertIn(self.type_health.ems_short_name, note)
+            self.assertNotIn(self.type_health.name, note, 'not the whole declaration')
+
+    def test_the_catalan_name_of_the_approval_activity_is_repaired(self):
+        """Odoo's own Catalan for these two is machine-generated nonsense ("Temps de
+        desaprovaciÃ³"), and it is the heading of that same chatter entry. Both records are
+        noupdate, so no .po entry can ever overwrite them."""
+        if not self.env['res.lang'].search_count([('code', '=', 'ca_ES'), ('active', '=', True)]):
+            self.skipTest("Catalan is not installed on this database")
+        activity_type = self.env.ref('hr_holidays.mail_act_leave_approval').sudo()
+        activity_type.with_context(lang='ca_ES').name = "Temps de desaprovació"
+
+        self.env['mail.activity.type']._ems_fix_approval_activity_names()
+
+        self.assertEqual(activity_type.with_context(lang='ca_ES').name, "Aprovació d'absències")
+        self.assertEqual(activity_type.with_context(lang='en_US').name, "Time Off Approval",
+                         'the source language is left alone')
+        self.assertFalse(self.env['mail.activity.type']._ems_fix_approval_activity_names(),
+                         'and it is idempotent')
+
     # --- Refusing is final --------------------------------------------------------------------
 
     def test_refusing_a_request_asks_for_a_confirmation(self):

@@ -225,6 +225,14 @@ one from scratch. The Refuse button sits next to Approve on the form, the list a
 and on the last two it is a bare icon at the end of a row - so all three now ask first, spelling
 out that the decision is final.
 
+## The chatter now says what an absence request is, in Catalan that means something:
+
+Filing a request produced a chatter entry headed "Temps de desaprovació" - Odoo's own
+machine-translated Catalan for "Time Off Approval", which means nothing - followed by the
+absence type's entire legal wording as its description. The heading now reads "Aprovació
+d'absències" and the description names the absence type the short way, the same way the lists,
+the calendar and the notification e-mails already did.
+
 # Fixes:
 
 ## An absence could silently drop out of the monthly report:

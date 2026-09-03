@@ -21,6 +21,7 @@ This section contains the manuals for **secretariat staff**.
 - [Marking a graduation and registering a withdrawal](graduation-withdrawal.md) — The difference between the deferred graduation mark and an immediate withdrawal, and the full withdrawal cascade step by step.
 - [Importing students from Esfera (SAGA)](student-import-esfera.md) — Bulk-refreshing already-enrolled students' data (not to be confused with the GEDAC preinscription import), what gets matched/created, and known dedup limitations.
 - [Updating student data from a CSV file](student-update-csv.md) — A generic, any-format CSV bulk-update for existing students (never creates one), with mappable columns and an optional bank account update.
+- [Approving absences for administrative and services staff](absences.md) — Who approves ASP absences and how it differs from the Head of Studies.
 
 ## Planned Topics
 

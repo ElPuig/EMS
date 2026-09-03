@@ -40,6 +40,9 @@ class ems_company(models.Model):
     limesurvey_pwd_encrypted = fields.Char(copy=False)
     limesurvey_gid = fields.Integer(default=1)
 
+    ems_full_day_hours = fields.Float(default=7.5)
+    ems_health_allowance_hours = fields.Float(default=15.0)
+
     schedule_import_first_entry_time = fields.Float(default=8.0)
     schedule_import_last_entry_time  = fields.Float(default=21.0)
 
@@ -178,6 +181,17 @@ class ems_company(models.Model):
         if not key:
             raise ValueError("Unable to locate a 'secret' value within odoo.conf")
         return key
+
+    def _ems_full_day_hours(self):
+        """Hours a whole-day absence is worth. Falls back to the field default rather than
+        returning 0.0, which would make every absence worth nothing and, worse, divide by zero
+        in 'hr.leave._get_durations'."""
+        return self.ems_full_day_hours or self._fields['ems_full_day_hours'].default(self)
+
+    def _ems_health_allowance_hours(self):
+        """Yearly self-declared health absence allowance. Same fallback rationale as above,
+        except a zero here would flag every single request as over the allowance."""
+        return self.ems_health_allowance_hours or self._fields['ems_health_allowance_hours'].default(self)
 
     @api.depends('limesurvey_pwd_encrypted')
     def _compute_limesurvey_pwd(self):        

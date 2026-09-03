@@ -141,6 +141,25 @@ class ems_department(models.Model):
             department = department.parent_id
         return self.env['hr.employee']
 
+    def _top_level_department(self):
+        """The is_top_level ancestor of this department (itself, if it already is one), or an
+        empty recordset when the chain reaches the root without finding one. Deliberately
+        separate from '_effective_manager()', which stops at the first department that has a
+        Manager of its own: absences are always approved by the Area Manager of the whole area,
+        never by an intermediate Department Chief. The 'seen' guard is defensive only, same as
+        '_effective_manager''s."""
+        if not self:
+            return self
+        self.ensure_one()
+        department = self
+        seen = self.browse()
+        while department and department.id not in seen.ids:
+            seen |= department
+            if department.is_top_level:
+                return department
+            department = department.parent_id
+        return self.browse()
+
     def _cascade_department_heads(self, old_manager, old_seminar_chief):
         self.ensure_one()
         departments = self.search([('id', 'child_of', self.id)])
@@ -151,6 +170,7 @@ class ems_department(models.Model):
             ('seminar_department_ids', 'in', departments.ids),
         ])
         (employees | self.manager_id)._compute_parent_id()
+        (employees | self.manager_id)._compute_leave_manager()
         (old_manager | self.manager_id).update_department_head_role()
         (old_manager | self.manager_id).update_area_manager_role()
         (old_seminar_chief | self.seminar_chief_id).update_seminar_chief_role()

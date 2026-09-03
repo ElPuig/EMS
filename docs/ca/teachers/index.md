@@ -21,6 +21,7 @@ Aquesta secció conté els manuals per als **professors**.
 | [Desactivar la teva foto de perfil](photo-visibility.md) | Activar o desactivar la teva foto de perfil |
 | [Informes d'assistència](attendance-reports.md) | Imprimir els 3 informes PDF d'assistència (per grup/alumne/assignatura) i explorar les dades tu mateix amb la pantalla d'Anàlisi d'assistència |
 | [L'horari setmanal d'un grup](../admin/group-schedule.md) | Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF |
+| [Sol·licitar una absència](absences.md) | Demanar una absència: triar-ne el tipus, dia sencer o unes hores, la declaració responsable, el justificant i enviar-la |
 
 ## Temes previstos
 

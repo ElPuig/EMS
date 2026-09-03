@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+
+    <!-- primary, not extension: this must be a new template used only by our own widget, never
+         a patch of the radio field every other view in the application renders with. -->
+    <t t-name="ems.AbsenceTypeRadioField" t-inherit="web.RadioField" t-inherit-mode="primary" owl="1">
+        <xpath expr="//label[hasclass('form-check-label')]" position="replace">
+            <label class="form-check-label o_form_label" t-att-for="`${id}_${item[0]}`">
+                <t t-set="parts" t-value="labelParts(item[1])"/>
+                <span class="fw-bold" t-esc="parts[0]"/><t t-esc="parts[1]"/>
+            </label>
+        </xpath>
+    </t>
+
+</templates>

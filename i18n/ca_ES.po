@@ -1630,7 +1630,9 @@ msgstr "Carrega"
 
 #. module: ems
 #. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/absence_dashboard.xml:0
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_new
 msgid "New"
 msgstr "Nou"
 
@@ -1881,6 +1883,7 @@ msgid "Attendance report"
 msgstr "Informe d'assistència"
 
 #. module: ems
+#. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/attendance_report_analysis_cog_menu.xml:0
 msgid "Print attendance report"
 msgstr "Imprimeix informe d'assistència"
@@ -2597,6 +2600,7 @@ msgstr "País"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__course model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__special_course_filter model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment model:ir.model.fields,field_description:ems.field_ems_student_year_record__course_id model_terms:ir.ui.view,arch_db:ems.view_applicant_search model_terms:ir.ui.view,arch_db:ems.view_year_record_search model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__course_name model:ir.model.fields,field_description:ems.field_resource_calendar__course_id model_terms:ir.ui.view,arch_db:ems.view_resource_calendar_search_ems model:ir.model.fields,field_description:ems.field_ems_guard_duty_board__course_id
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_course_id
 msgid "Course"
 msgstr "Curs"
 
@@ -2704,6 +2708,9 @@ msgstr "Actual (hora actual)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__current_course_id model:ir.model.fields,field_description:ems.field_res_config_settings__current_course_id
+#: model:ir.model.fields,field_description:ems.field_res_company__current_course_id
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__current_course_id
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_holidays_filter_ems
 msgid "Current Course"
 msgstr "Curs Actual"
 
@@ -2754,6 +2761,7 @@ msgstr "Dades descarregades"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__date model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__issue_date model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__date model:ir.model.fields,field_description:ems.field_ems_minute__date model:ir.model.fields.selection,name:ems.selection__ems_authorization_field__field_type__date model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__date model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_monthly_list
 msgid "Date"
 msgstr "Data"
 
@@ -2994,8 +3002,8 @@ msgid "Documents"
 msgstr ""
 
 #. module: ems
-#: model:project.task.type,name:ems.project_stage_secretary_done
 #: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard__state__done
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__done
 msgid "Done"
 msgstr "Fet"
 
@@ -5435,6 +5443,7 @@ msgstr "Pla de pagament"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__pending model:ir.model.fields.selection,name:ems.selection__ems_authorization__status__pending model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__pending model:ir.model.fields.selection,name:ems.selection__ems_notice_line__display_status__pending model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_student_document_search
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__state__confirm
 msgid "Pending"
 msgstr "Pendent"
 
@@ -5900,8 +5909,10 @@ msgid "Reminding"
 msgstr "Recordant"
 
 #. module: ems
+#. odoo-javascript
 #. odoo-python
 #: code:addons/ems/models/communications/limesurvey.py:0
+#: code:addons/ems/static/src/js/backend/absence_attachment_field.js:0
 msgid "Remove"
 msgstr "Eliminar"
 
@@ -6894,6 +6905,7 @@ msgid "Submit"
 msgstr "Enviar"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_submitted
 #: model_terms:ir.ui.view,arch_db:ems.portal_documentation
 msgid "Submitted"
 msgstr "Enviat"
@@ -7108,16 +7120,19 @@ msgid "The code must be unique."
 msgstr "El codi ha de ser únic."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/curriculum/outcome.py:0
 msgid "The code must start as the subject's code."
 msgstr "El codi ha de començar com el codi de l'assignatura."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/curriculum/content.py:0 code:addons/ems/models/curriculum/criteria.py:0
 msgid "The code must start as the parent's code."
 msgstr "El codi ha de començar com el codi del pare."
 
 #. module: ems
+#. odoo-python
 #: code:addons/ems/models/curriculum/content.py:0 code:addons/ems/models/curriculum/criteria.py:0 code:addons/ems/models/curriculum/outcome.py:0
 msgid "%s Edit"
 msgstr "Edita %s"
@@ -7975,6 +7990,9 @@ msgid "Identifier found in file"
 msgstr "Identificador trobat al fitxer"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/absence_dashboard.xml:0
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_new
 msgid "New"
 msgstr "Nou"
@@ -12134,12 +12152,14 @@ msgid "Teacher with email '%s' not found."
 msgstr "No s'ha trobat cap professor amb el correu '%s'."
 
 #. module: ems
+#. odoo-javascript
 #: code:addons/ems/static/src/js/backend/working_schedule_import_blocking_upload.js:0
 #, python-format
 msgid "Reading and validating the schedule file, please wait..."
 msgstr "Llegint i validant el fitxer d'horari, si us plau espereu..."
 
 #. module: ems
+#. odoo-javascript
 #: code:addons/ems/static/src/js/backend/working_schedules_import_wizard_form_controller.js:0
 #, python-format
 msgid "Importing the schedule, please wait..."
@@ -12487,3 +12507,553 @@ msgstr "No hi ha horari disponible."
 #: code:addons/ems/static/src/xml/backend/guard_duty_board_field.xml:0
 msgid "Time block"
 msgstr "Bloc horari"
+
+#. module: ems
+#: model:hr.leave.type,name:ems.leave_type_sick_leave
+msgid "Sick leave"
+msgstr "Baixa laboral"
+
+#. module: ems
+#: model:hr.leave.type,name:ems.leave_type_health
+msgid "Health: I was absent from my workplace for health reasons, a circumstance I reported immediately to the centre's director"
+msgstr "Salut: M’he absentat del meu lloc de treball per motius de salut, circumstància que he comunicat de manera immediata al director/a del centre"
+
+#. module: ems
+#: model:hr.leave.type,name:ems.leave_type_medical_appointment
+msgid "Medical appointment: it was not possible for me to arrange the medical appointment outside my working hours. (Supporting document attached)"
+msgstr "Assistència a Consulta mèdica: no m’ha estat possible concertar l’assistència a la consulta mèdica fora del meu horari de treball. (Adjunto justificant)"
+
+#. module: ems
+#: model:hr.leave.type,name:ems.leave_type_invasive_test
+msgid "Invasive medical test: I was absent from my workplace for the whole day because I underwent an invasive medical test (includes colonoscopy, endoscopy, gastroscopy and catheterisation). (Supporting document attached)"
+msgstr "Prova mèdica invasiva: M’he absentat del meu lloc de treball durant tota la jornada perquè m’han fet una prova mèdica invasiva (inclou colonoscòpia, endoscòpia, gastroscòpia i cateterisme. (Adjunto justificant)"
+
+#. module: ems
+#: model:hr.leave.type,name:ems.leave_type_menstrual_flexibility
+msgid "Menstrual or climacteric flexibility: recoverable flexible-hours leave for menstruation or climacteric affecting health (maximum 8 hours during the current month, recoverable in minimum fractions of 30 minutes over the following 4 months)."
+msgstr "Flexibilitat per menstruació o climateri: permís de flexibilitat horària recuperable per menstruació o climateri amb afectació a la salut (durada màxima de 8 hores durant el mes en curs, recuperables en fraccions mínimes de 30 minuts durant els següents 4 mesos)."
+
+#. module: ems
+#: model:hr.leave.type,name:ems.leave_type_training
+msgid "Training: courses, Erasmus, ..."
+msgstr "Formació: cursos, Erasmus, ..."
+
+#. module: ems
+#: model:hr.leave.type,name:ems.leave_type_justified
+msgid "Justified absence"
+msgstr "Absència justificada"
+
+#. module: ems
+#: model:hr.leave.type,name:ems.leave_type_service_assignment
+msgid "Service assignment: field trips, travel, ..."
+msgstr "Encàrrec de serveis: sortides, viatges, ..."
+
+#. module: ems
+#: model:hr.leave.type,name:ems.leave_type_atri
+msgid "ATRI: request managed through the ATRI portal"
+msgstr "ATRI: Sol·licitut gestionada pel portal Atri"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "<span class=\"ms-1\">hours used.</span>"
+msgstr "<span class=\"ms-1\">hores consumides.</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid ""
+"<span>This employee is over their self-declared health absence allowance for"
+" the course.</span>"
+msgstr "<span>Aquesta persona ha superat el seu crèdit d'absències per motius de salut del curs.</span>"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave_type__ems_counts_hours
+msgid ""
+"Absences of this type are added by default to the monthly hours each Area "
+"Manager reports. It stays editable request by request, because employees do "
+"miscategorise."
+msgstr "Les absències d'aquest tipus se sumen per defecte a les hores mensuals que reporta cada cap d'àrea. Es pot canviar sol·licitud per sol·licitud, perquè de vegades la persona s'equivoca de categoria."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave_type__ems_counts_health_allowance
+msgid "Consumes the health allowance"
+msgstr "Consumeix el crèdit de salut"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_counts_hours
+#: model:ir.model.fields,field_description:ems.field_hr_leave_type__ems_counts_hours
+msgid "Adds the hours to the monthly report"
+msgstr "Suma les hores a l'informe mensual"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_direction_state
+msgid "Direction check"
+msgstr "Verificació de direcció"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_direction_state
+msgid ""
+"Direction's own check of the supporting document and, for ATRI absences, of "
+"the request having really been filed on the portal. Independent of the "
+"approval: a request can be approved and still be waiting for its document."
+msgstr "Verificació que fa la direcció del document justificatiu i, en les absències d'ATRI, que la sol·licitud s'ha tramitat realment al portal. És independent de l'aprovació: una sol·licitud pot estar aprovada i encara pendent del justificant."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_full_day_hours
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_full_day_hours
+msgid "Ems Full Day Hours"
+msgstr "Hores de jornada sencera"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_health_allowance_hours
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_health_allowance_hours
+msgid "Ems Health Allowance Hours"
+msgstr "Hores del crèdit de salut"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_needs_atri
+#: model:ir.model.fields,field_description:ems.field_hr_leave_type__ems_needs_atri
+msgid "Filed through ATRI"
+msgstr "Es tramita per ATRI"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Health absence allowance"
+msgstr "Crèdit d'hores per motius de salut"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_health_hours_used
+msgid "Health hours used"
+msgstr "Hores de salut consumides"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave_type__ems_counts_health_allowance
+msgid ""
+"Hours of this type count against the employee's yearly self-declared health "
+"absence allowance."
+msgstr "Les hores d'aquest tipus descompten del crèdit anual d'absències per motius de salut de la persona."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_health_hours_used
+msgid ""
+"Hours this employee has already used from their health allowance this "
+"course, this request included."
+msgstr "Hores que aquesta persona ja ha consumit del seu crèdit per motius de salut aquest curs, aquesta sol·licitud inclosa."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_responsible_declaration
+msgid ""
+"I declare, under my own responsibility, that the details and the reason "
+"given for this absence are true."
+msgstr "Declaro, sota la meva responsabilitat, que les dades i el motiu d'aquesta absència són certs."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__missing_doc
+msgid "Missing document"
+msgstr "Falta document"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__not_done
+msgid "Not done"
+msgstr "No fet"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+msgid "Over allowance"
+msgstr "Supera el crèdit"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_health_allowance_exceeded
+msgid "Over the health allowance"
+msgstr "Per sobre del crèdit de salut"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave_type__ems_full_day_default
+msgid "Requests of this type start marked as a whole-day absence."
+msgstr "Les sol·licituds d'aquest tipus es creen marcades com a absència de dia sencer."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_responsible_declaration
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "Responsible declaration"
+msgstr "Declaració responsable"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid ""
+"The absence type '%(type)s' needs the responsible declaration to be accepted"
+" before the request can be submitted."
+msgstr "El tipus d'absència '%(type)s' requereix acceptar la declaració responsable abans de poder enviar la sol·licitud."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_full_day
+msgid ""
+"The employee did not come in at all that day. A whole-day absence always "
+"counts a full working day, however many lessons they had scheduled."
+msgstr "La persona no ha vingut en tot el dia. Una absència de dia sencer sempre compta una jornada completa, tingui les classes que tingui programades."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave_type__ems_needs_atri
+msgid ""
+"The employee files this absence on the Generalitat's ATRI portal. Direction "
+"confirms it was really filed as part of their own check."
+msgstr "La persona tramita aquesta absència al portal ATRI de la Generalitat. La direcció confirma que s'ha tramitat realment com a part de la seva verificació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid ""
+"This request takes %(name)s to %(used).2f hours of self-declared health "
+"absence this course, over the %(allowance).2f hours allowed. It can still be"
+" submitted, but it will be flagged for the Head of Studies."
+msgstr "Aquesta sol·licitud porta %(name)s a %(used).2f hores d'absència per motius de salut aquest curs, per sobre de les %(allowance).2f hores permeses. Es pot enviar igualment, però quedarà marcada per al cap d'estudis."
+
+#. module: ems
+#: model:ir.model,name:ems.model_hr_leave
+msgid "Time Off"
+msgstr "Absències"
+
+#. module: ems
+#: model:ir.model,name:ems.model_hr_leave_type
+msgid "Time Off Type"
+msgstr "Tipus d'absència"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_full_day
+msgid "Whole day?"
+msgstr "Dia sencer?"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave_type__ems_full_day_default
+msgid "Whole day by default"
+msgstr "Dia sencer per defecte"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Hours a whole-day staff absence is worth. A whole day always counts this "
+"much, however many lessons the employee had scheduled that day."
+msgstr "Hores que val una absència de dia sencer del personal. Un dia sencer sempre compta aquestes hores, tingui les classes que tingui programades aquell dia."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Hours of self-declared health absence each employee may use per course. "
+"Going over it does not block the request, it only warns the employee and "
+"flags it for the Head of Studies."
+msgstr "Hores d'absència per motius de salut que pot fer servir cada persona per curs. Superar-les no bloqueja la sol·licitud, només avisa la persona i la marca per al cap d'estudis."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Staff Absence Settings"
+msgstr "Configuració d'absències del personal"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Whole-day absence"
+msgstr "Absència de dia sencer"
+
+#. module: ems
+#. odoo-javascript
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_dashboard_ems
+#: code:addons/ems/static/src/xml/backend/absence_dashboard.xml:0
+msgid "Absence request"
+msgstr "Sol·licitud d'absència"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__is_absence_manager
+msgid "Current user manages this absence"
+msgstr "L'usuari actual gestiona aquesta absència"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "Supporting document for the absence. For a medical appointment, it must expressly state the patient's first name and surname and the time of entry to and exit from the centre or medical practice."
+msgstr "Document justificatiu de l'absència. En el cas de consulta mèdica, en el justificant ha de constar expressament el nom i cognoms del o de la pacient i l’hora d’entrada i sortida del centre o consulta mèdica."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "Supporting document"
+msgstr "Justificant"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__is_absence_manager
+msgid ""
+"Whether the user reading this request is the one who approves it, or an "
+"officer. Drives which fields stay editable once the request has been "
+"approved."
+msgstr "Si qui llegeix aquesta sol·licitud és qui l'aprova, o un responsable d'absències. Determina quins camps continuen sent editables un cop la sol·licitud està aprovada."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/absence_dashboard.xml:0
+msgid "New absence"
+msgstr "Nova absència"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__is_absence_direction
+msgid "Current user is Direction"
+msgstr "L'usuari actual és direcció"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__is_absence_direction
+msgid "Whether the user reading this request may set the Direction check."
+msgstr "Si qui llegeix aquesta sol·licitud pot fixar la verificació de direcció."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/absence_attachment_field.js:0
+msgid "Remove the supporting document"
+msgstr "Elimina el justificant"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/absence_attachment_field.js:0
+msgid "\"%s\" will be removed from this absence. This cannot be undone."
+msgstr "S'eliminarà \"%s\" d'aquesta absència. Aquesta acció no es pot desfer."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_type_short_name
+#: model_terms:ir.ui.view,arch_db:ems.view_holiday_list_ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_monthly_list
+msgid "Absence type"
+msgstr "Tipus d'absència"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave_type__ems_short_name
+msgid "Short name"
+msgstr "Nom curt"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_type_short_name
+#: model:ir.model.fields,help:ems.field_hr_leave_type__ems_short_name
+msgid ""
+"The absence type's name up to its colon - what the original Apps Script "
+"showed in the calendar and in its emails, keeping the full legal wording for"
+" the form where the employee actually has to read it."
+msgstr "El nom del tipus d'absència fins als dos punts: el que el guió d'Apps Script original mostrava al calendari i als seus correus, deixant el text legal complet per al formulari, que és on la persona l'ha de llegir de debò."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid ""
+"<span>Responsible declaration justifying an absence for health reasons, "
+"attendance at a medical appointment, an invasive medical test, recoverable "
+"flexible hours for menstruation or climacteric, training, or participation "
+"in the Erasmus+ programme</span>"
+msgstr "<span>Declaració responsable justificativa d’absència per motius de salut, assistència a consulta mèdica, realització de prova mèdica invasiva, flexibilitat horària recuperable per menstruació o climateri, formació o participació al programa Erasmus+</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid ""
+"<span>Supporting document for the absence. For a medical appointment, it "
+"must expressly state the patient's first name and surname and the time of "
+"entry to and exit from the centre or medical practice.</span>"
+msgstr "<span>Document justificatiu de l'absència. En el cas de consulta mèdica, en el justificant ha de constar expressament el nom i cognoms del o de la pacient i l’hora d’entrada i sortida del centre o consulta mèdica.</span>"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Absence request submitted by the employee."
+msgstr "Sol·licitud d'absència enviada per la persona interessada."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid ""
+"I declare, under my own responsibility, that the details and the reason for "
+"my absence that I have given are true."
+msgstr "Declaro, sota la meva responsabilitat, que les dades i el motiu de la meva absència que he indicat són certs."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Only Direction can change the Direction check on an absence."
+msgstr "Només la direcció pot canviar la verificació de direcció d'una absència."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/absence_submit_widget.js:0
+#: code:addons/ems/static/src/xml/backend/absence_submit_widget.xml:0
+msgid "Send request"
+msgstr "Envia la sol·licitud"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/absence_submit_widget.js:0
+msgid ""
+"Your absence request is about to be filed. Do you confirm that every detail "
+"is correct?"
+msgstr "Es tramitarà la vostra sol·licitud d'absència. Confirmeu que totes les dades són correctes?"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/absence_submit_widget.js:0
+msgid "Send the absence request"
+msgstr "Envia la sol·licitud d'absència"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_submitted
+msgid ""
+"Set by the “Send request” button once the employee has confirmed their "
+"details. A request cannot be saved without it, which is what stops Odoo's "
+"own autosave from filing an absence nobody asked for."
+msgstr "El fixa el botó «Envia la sol·licitud» quan la persona ha confirmat les seves dades. Una sol·licitud no es pot desar sense això, que és el que impedeix que el desat automàtic d'Odoo registri una absència que ningú ha demanat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid ""
+"The responsible declaration has to be accepted before an absence request can"
+" be sent."
+msgstr "Cal acceptar la declaració responsable abans d'enviar una sol·licitud d'absència."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid ""
+"This absence request has not been sent. Fill it in and use the “Send "
+"request” button at the bottom of the form; to leave without requesting "
+"anything, discard it instead."
+msgstr "Aquesta sol·licitud d'absència no s'ha enviat. Ompliu-la i feu servir el botó «Envia la sol·licitud» del final del formulari; per sortir sense demanar res, descarteu-la."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/absence_submit_widget.js:0
+msgid "Accept the responsible declaration."
+msgstr "Accepteu la declaració responsable."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/absence_submit_widget.js:0
+msgid "Choose the type of absence."
+msgstr "Trieu el tipus d'absència."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/absence_submit_widget.js:0
+msgid "Give a start and an end time, with the end later than the start."
+msgstr "Indiqueu una hora d'inici i una de fi, amb la de fi posterior a la d'inici."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_health_hours
+#: model_terms:ir.ui.view,arch_db:ems.view_holiday_list_ems
+msgid "Health hours"
+msgstr "Hores per salut"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_course_id
+msgid ""
+"The school year the absence falls in, September to August. Stored so reports"
+" can filter and group on it - a calendar year cuts a school year in half."
+msgstr "El curs escolar en què cau l'absència, de setembre a agost. Es desa perquè els informes hi puguin filtrar i agrupar: un any natural parteix un curs escolar per la meitat."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_health_hours
+msgid ""
+"This absence's hours when it consumes the health allowance, zero otherwise. "
+"A column of its own so a report grouped by employee can total it - which is "
+"the figure that has to stay under the yearly allowance."
+msgstr "Les hores d'aquesta absència quan consumeix el crèdit de salut, i zero si no. Una columna pròpia perquè un informe agrupat per persona en pugui fer el total, que és la xifra que ha de quedar per sota del crèdit anual."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_holidays_filter_ems
+msgid "Month"
+msgstr "Mes"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_absence_monthly_report
+#: model:ir.ui.menu,name:ems.menu_absence_monthly_report
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_monthly_list
+msgid "Monthly totals"
+msgstr "Totals per mes"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_absence_monthly_report
+msgid "No absences counted this course yet"
+msgstr "Encara no hi ha cap absència comptabilitzada aquest curs"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_counted_hours
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_monthly_list
+msgid "Reported hours"
+msgstr "Hores reportades"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_counted_hours
+msgid ""
+"This absence's hours when it is marked as adding to the monthly report, zero"
+" otherwise. Summable, so the monthly report can total it per month the way "
+"the spreadsheet's own 'Totals per mes' tab did."
+msgstr "Les hores d'aquesta absència quan està marcada com que suma a l'informe mensual, i zero si no. Es pot sumar, de manera que l'informe mensual en pot fer el total per mes tal com feia la pestanya «Totals per mes» del full de càlcul."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid ""
+"<span>.</span>\n"
+"                        <span class=\"d-block\">Reference manual:</span>"
+msgstr "Manual de referència:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid ""
+"<span>This absence also has to be requested on the Generalitat's ATRI "
+"portal:</span>"
+msgstr "Aquesta absència també s'ha de sol·licitar al portal ATRI de la Generalitat:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "ATRI leave and absences manual (PDF)"
+msgstr "Manual de permisos i absències d'ATRI (PDF)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "My requests - leave and absences"
+msgstr "Les meves sol·licituds - permisos i absències"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "%(date)s, from %(start)s to %(end)s"
+msgstr "%(date)s, de %(start)s a %(end)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "%(start)s to %(end)s"
+msgstr "del %(start)s al %(end)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Absence request of %(name)s"
+msgstr "Sol·licitud d'absència de %(name)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Absence type: %(type)s"
+msgstr "Tipus d'absència: %(type)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Dates: %(when)s"
+msgstr "Dates: %(when)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Duration: %(hours).2f h"
+msgstr "Durada: %(hours).2f h"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Employee: %(name)s"
+msgstr "Persona: %(name)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Status: %(state)s"
+msgstr "Estat: %(state)s"

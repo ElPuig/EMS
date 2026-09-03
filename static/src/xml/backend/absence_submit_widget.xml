@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+
+    <t t-name="ems.AbsenceSubmitButton">
+        <!-- The tooltip lives on the wrapper, not on the button: a disabled button emits no
+             hover events, so neither title= nor Odoo's own data-tooltip would ever fire on it -
+             which is exactly the case where the reader most needs to be told why. The wrapper
+             is not disabled, so it does receive them. -->
+        <span t-if="!props.record.data.ems_submitted"
+              class="d-inline-block"
+              t-att-data-tooltip="blockingReason or false">
+            <button type="button" class="btn btn-primary o_ems_absence_submit"
+                    t-att-disabled="!canSubmit"
+                    t-on-click="onClick">
+                Send request
+            </button>
+        </span>
+    </t>
+
+</templates>

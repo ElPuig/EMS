@@ -1,0 +1,25 @@
+/* The absence request form.
+   Odoo lets a date field grow to whatever its container allows, which on the full-width layout
+   this form now uses left a single date sitting under an underline several hundred pixels long,
+   with nothing in it. Capped to something the size of the value it holds. The two widths differ
+   because the same field renders as one date when the request carries times, and as a range of
+   two when "Whole day?" is ticked. */
+.o_hr_leave_form .o_field_date[name="request_date_from"] {
+    max-width: 9rem;
+}
+
+.o_hr_leave_form .o_field_daterange[name="request_date_from"] {
+    max-width: 20rem;
+}
+
+/* "From 00:00    To 00:00" sat at opposite ends of a full-width flex row, reading as two
+   unrelated fields instead of one time range. Both the row and the inputs are capped so they
+   stay together. */
+.o_hr_leave_form .o_row:has(> .o_field_widget[name="request_hour_from"]) {
+    max-width: 22rem;
+}
+
+.o_hr_leave_form .o_field_widget[name="request_hour_from"],
+.o_hr_leave_form .o_field_widget[name="request_hour_to"] {
+    max-width: 6rem;
+}

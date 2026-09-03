@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <!-- Staff absences belong with staff attendance, not in a root app menu of their own:
+             the two are the same subject from the centre's point of view, and "Employee
+             Attendances" already gathers everything about staff presence (overview, correction
+             requests, guard duty schedule). Re-parenting the whole hr_holidays menu keeps its
+             own sub-structure (My Time, Overview, Management, Reporting, Configuration) intact,
+             just one level deeper. -->
+        <record model="ir.ui.menu" id="hr_holidays.menu_hr_holidays_root">
+            <field name="parent_id" ref="hr_attendance.menu_hr_attendance_root"/>
+            <field name="sequence">9</field>
+        </record>
+
+        <!-- Administrative and services staff hold neither ems.group_teacher nor the attendance
+             officer group, so without this they would not see the parent menu at all - and
+             therefore could not file their own absences, which they very much need to (the ASP
+             area has its own absence manager, the Secretary). Odoo hides a parent menu whose
+             children are all invisible to the user, so widening it here does not expose the
+             attendance entries underneath: those keep their own, narrower groups. -->
+        <record model="ir.ui.menu" id="hr_attendance.menu_hr_attendance_root">
+            <field name="groups_id" eval="[(4, ref('ems.group_secretary'))]"/>
+        </record>
+
+        <!-- Allocations ("Asignaciones") are Odoo's quota mechanism: you grant an employee N
+             days/hours of a type up front and requests consume it, being refused once it runs
+             out. Every EMS absence type sets requires_allocation = 'no' on purpose - the health
+             allowance warns, it never blocks (see docs/en/developers/employees/absence.md) - so
+             allocations can only ever confuse here. Accrual plans are rules that grow an
+             allocation over time (e.g. +2 days per month worked) and are meaningless without
+             them. Hidden rather than left to puzzle over. -->
+        <record model="ir.ui.menu" id="hr_holidays.menu_open_allocation">
+            <field name="active" eval="False"/>
+        </record>
+
+        <record model="ir.ui.menu" id="hr_holidays.hr_holidays_menu_manager_approve_allocations">
+            <field name="active" eval="False"/>
+        </record>
+
+        <record model="ir.ui.menu" id="hr_holidays.hr_holidays_accrual_menu_configuration">
+            <field name="active" eval="False"/>
+        </record>
+
+        <!-- One click to an employee's own absences. Odoo's navbar renders a menu entry as
+             clickable only when it has no children the reader can see (web.NavBar.SectionsMenu:
+             `t-if="!section.childrenTree.length"`), so "Absences" carries the My Time Off action
+             itself and every entry under it is restricted to absence managers - including My
+             Time Off, which a manager still needs its own dropdown entry for, since for them the
+             parent is a dropdown header rather than a link. Net effect: an employee clicks
+             "Absences" and lands on their list; a manager gets the full menu. -->
+        <record model="ir.ui.menu" id="hr_holidays.menu_hr_holidays_root">
+            <field name="action" ref="hr_holidays.hr_leave_action_my"/>
+        </record>
+
+        <record model="ir.ui.menu" id="hr_holidays.hr_leave_menu_my">
+            <field name="parent_id" ref="hr_holidays.menu_hr_holidays_root"/>
+            <field name="sequence">1</field>
+            <field name="groups_id" eval="[(6, 0, [ref('hr_holidays.group_hr_holidays_responsible')])]"/>
+        </record>
+
+        <record model="ir.ui.menu" id="hr_holidays.menu_hr_holidays_my_leaves">
+            <field name="active" eval="False"/>
+        </record>
+
+        <!-- The dashboard duplicates "Mis ausencias" for the employee (same records, a calendar
+             instead of a list) and is the screen nobody at the centre works from. -->
+        <record model="ir.ui.menu" id="hr_holidays.hr_leave_menu_new_request">
+            <field name="active" eval="False"/>
+        </record>
+
+        <!-- "Vista general" is the centre-wide absence calendar: it is what an absence manager
+             uses to see who is missing and when, and it means nothing to an employee, whose
+             record rules limit it to their own requests anyway. Replace (not add to) groups_id
+             so it stops being visible to everyone. group_hr_holidays_responsible is the widest
+             group that still covers all three Area Managers plus the Heads of Studies and the
+             Director, since the officer group implies it. -->
+        <record model="ir.ui.menu" id="hr_holidays.menu_hr_holidays_dashboard">
+            <field name="groups_id" eval="[(6, 0, [ref('hr_holidays.group_hr_holidays_responsible')])]"/>
+        </record>
+
+        <!-- Odoo groups an employee's own absences by month out of the box
+             (search_default_group_date_from). At a school that buries a handful of requests
+             under a fold per month for no benefit - the list is short and already sorted by
+             date. Same precedent as views/attendance/menu.xml overriding
+             hr_attendance.hr_attendance_action. -->
+        <record model="ir.actions.act_window" id="hr_holidays.hr_leave_action_my">
+            <field name="context">{}</field>
+        </record>
+
+    </data>
+</odoo>

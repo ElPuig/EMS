@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+
+    <!-- The absence dashboard's create button natively reads a bare "New", which does not say
+         what it creates - and on a screen that also used to offer an allocation request, that
+         was genuinely ambiguous. -->
+    <t t-name="ems.TimeOffCalendarController" t-inherit="hr_holidays.CalendarController" t-inherit-mode="extension" owl="1">
+        <xpath expr="//button[hasclass('btn-time-off')]" position="replace">
+            <button class="btn btn-primary btn-time-off" t-on-click="newTimeOffRequest" type="button">
+                Absence request
+            </button>
+        </xpath>
+    </t>
+
+    <!-- Drops the "Pending Requests / New Allocation Request" card. Allocations are Odoo's
+         blocking quota mechanism, which every EMS absence type opts out of on purpose (see
+         docs/en/developers/employees/absence.md); their menus are already hidden, and this card
+         was the last way into them. -->
+    <t t-name="ems.TimeOffDashboard" t-inherit="hr_holidays.TimeOffDashboard" t-inherit-mode="extension" owl="1">
+        <xpath expr="//div[hasclass('o_timeoff_card')]" position="replace"/>
+    </t>
+
+    <!-- A list view's create button is a single shared template, so this is the only place its
+         label can be changed - hence the guard on the model rather than a blanket rename. Same
+         reasoning as hr_holidays' own override of the calendar's button, just one level more
+         generic because the web client offers no per-view hook for it. -->
+    <t t-name="ems.ListView" t-inherit="web.ListView" t-inherit-mode="extension" owl="1">
+        <xpath expr="//button[hasclass('o_list_button_add')]" position="replace">
+            <button type="button" class="btn btn-primary o_list_button_add" data-hotkey="c" t-on-click="onClickCreate" data-bounce-button="">
+                <t t-if="props.resModel === 'hr.leave'">New absence</t>
+                <t t-else="">New</t>
+            </button>
+        </xpath>
+    </t>
+
+</templates>

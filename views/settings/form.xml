@@ -35,6 +35,16 @@
                             </setting>
                         </block>
 
+                         <block title="Staff Absence Settings" name="ems_absence_settings">
+                            <setting string="Whole-day absence" help="Hours a whole-day staff absence is worth. A whole day always counts this much, however many lessons the employee had scheduled that day." id="ems_full_day_hours">
+                                <field name="ems_full_day_hours" widget="float_time"/>
+                            </setting>
+
+                            <setting string="Health absence allowance" help="Hours of self-declared health absence each employee may use per course. Going over it does not block the request, it only warns the employee and flags it for the Head of Studies." id="ems_health_allowance_hours">
+                                <field name="ems_health_allowance_hours" widget="float_time"/>
+                            </setting>
+                        </block>
+
                          <block title="Student's Attendance Settings" name="ems_attendance_settings">
                             <setting string="Issue notification delay" help="Some attendance statuses (like miss or issue) will be notified (if not adult or authorized) to their families almost inmediatly. This setting setups how many delay is wanted between the assistance creation and its notification." id="attendance_issue_status_delay">
                                 <field name="attendance_issue_status_delay" class="text-center" style="width: 5ch;"/>

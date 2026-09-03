@@ -1,3 +1,5 @@
+from . import test_absence
+from . import test_absence_tour
 from . import test_contact
 from . import test_contact_relation_wizard
 from . import test_contact_tour

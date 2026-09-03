@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- The centre's own absence fields, added to Odoo's native Time Off screens. Lives
+             under views/attendance/ because that is where its menu resolves to: menu.xml here
+             re-parents the whole Time Off menu under "Employee Attendances"
+             (hr_attendance.menu_hr_attendance_root), the same root that
+             views/attendance/guard_duty_board/ and views/attendance/attendance_correction/
+             already hang from. -->
+
+        <record id="hr_leave_view_form_ems" model="ir.ui.view">
+            <field name="name">hr.leave.view.form.ems</field>
+            <field name="model">hr.leave</field>
+            <field name="inherit_id" ref="hr_holidays.hr_leave_view_form"/>
+            <field name="arch" type="xml">
+
+                <!-- Replaces Odoo's own two unit toggles: "Half Day", which the centre has no
+                     use for, and "Custom Hours", which says the opposite of what the original
+                     form asked and is now derived from this one. Sits where they sat, above the
+                     dates, because it decides which dates are asked for. -->
+                <xpath expr="//div[field[@name='request_unit_half']]" position="replace">
+                    <div class="o_row o_row_readonly oe_edit_only" style="margin-left: -2px;">
+                        <!-- Kept, invisible, rather than dropped: both are still referenced by
+                             <label for="..."> and by invisible= expressions elsewhere in the
+                             form, and Odoo refuses to validate a view whose label points at a
+                             field that is not in it. -->
+                        <field name="request_unit_half" invisible="1"/>
+                        <field name="request_unit_hours" invisible="1"/>
+                        <field name="ems_full_day" class="oe_inline" readonly="state != 'confirm'"/>
+                        <label for="ems_full_day"/>
+                    </div>
+                </xpath>
+
+                <xpath expr="//field[@name='duration_display']" position="after">
+                    <field name="ems_health_allowance_exceeded" invisible="1"/>
+                    <div class="alert alert-warning my-2" role="alert"
+                         invisible="not ems_health_allowance_exceeded">
+                        <span>This employee is over their self-declared health absence allowance for the course.</span>
+                        <field name="ems_health_hours_used" class="ms-1" readonly="1"/>
+                        <span class="ms-1">hours used.</span>
+                    </div>
+                </xpath>
+
+                <!-- The employee picks the absence type, but they get it wrong often enough
+                     that the manager has to be able to correct it after the fact - which the
+                     native readonly, keyed on the approval state, would prevent.
+
+                     Shown as a radio list rather than a dropdown, like the original Google
+                     form: several of the nine options are the legal wording the employee is
+                     declaring when they choose one, so they have to be readable in full at the
+                     moment of choosing. colspan spans the group so the long lines have room. -->
+                <xpath expr="//field[@name='holiday_status_id']" position="attributes">
+                    <attribute name="readonly">state in ['cancel', 'refuse', 'validate', 'validate1'] and not is_absence_manager</attribute>
+                    <attribute name="widget">ems_absence_type_radio</attribute>
+                </xpath>
+
+                <!-- Out of the half-width left column and into a block of its own above it:
+                     nine options, several of them a full sentence, wrapped into a column half
+                     the screen wide meant scrolling past the question before reaching the
+                     dates.
+
+                     A plain div, not a <group>: a group lays its contents out in two columns,
+                     so even at full sheet width the field would still only get half of it -
+                     which is exactly what the first attempt at this produced. And the move is
+                     its own top-level operation, because a position="move" nested inside a
+                     subtree being added in the same step is copied verbatim instead of being
+                     executed. -->
+                <xpath expr="//div[hasclass('o_hr_leave_content')]" position="before">
+                    <div name="ems_absence_type" class="mb-4">
+                        <label for="holiday_status_id" class="o_form_label fw-bold d-block mb-2"/>
+                    </div>
+                </xpath>
+
+                <xpath expr="//div[@name='ems_absence_type']" position="inside">
+                    <xpath expr="//field[@name='holiday_status_id']" position="move"/>
+                </xpath>
+
+                <!-- An ATRI absence is recorded here but actually granted on the Generalitat's
+                     own portal, so the employee needs to be sent there at the moment they pick
+                     the type - not left to find out later. The flag is read from the absence
+                     type; a second, invisible node is needed because the editable one further
+                     down is restricted to the approver, and a field a reader cannot load cannot
+                     drive a modifier. -->
+                <xpath expr="//div[@name='ems_absence_type']" position="inside">
+                    <field name="ems_needs_atri" invisible="1"/>
+                    <div class="alert alert-info mt-2" role="alert" invisible="not ems_needs_atri">
+                        <span>This absence also has to be requested on the Generalitat's ATRI portal:</span>
+                        <a href="https://atriportal.gencat.cat/ATRI-ng/#/meves-sollicituds/permisos-absencies"
+                           target="_blank" rel="noreferrer">My requests - leave and absences</a><span>.</span>
+                        <span class="d-block">Reference manual:</span>
+                        <a href="https://atriportal.gencat.cat/ATRI-web/gestor-continguts/2011.pdf"
+                           target="_blank" rel="noreferrer">ATRI leave and absences manual (PDF)</a><span>.</span>
+                    </div>
+                </xpath>
+
+                <!-- Everything below the absence type laid out in two columns instead of one.
+                     The native form puts it all in a half-width column and leaves the other
+                     half empty (on the manager form, to the leave-stats widget, which is fine
+                     wrapped underneath), so the request needed scrolling for no reason.
+                     col="4" gives a group two label/field pairs per row. -->
+                <xpath expr="//div[hasclass('col_left')]" position="attributes">
+                    <attribute name="class" remove="col-md-6" add="col-md-12" separator=" "/>
+                </xpath>
+
+                <xpath expr="//group[@name='col_left']" position="attributes">
+                    <attribute name="col">4</attribute>
+                </xpath>
+
+                <!-- "Supporting Document" is called "Justificante" in the original form, and
+                     carries an instruction the employee genuinely needs (a medical certificate
+                     has to name the patient and the entry/exit times). -->
+                <xpath expr="//label[@for='supported_attachment_ids']" position="attributes">
+                    <attribute name="string">Supporting document</attribute>
+                </xpath>
+                <xpath expr="//field[@name='supported_attachment_ids']" position="before">
+                    <div class="text-muted small"
+                         invisible="not leave_type_support_document or state not in ('confirm', 'validate1')"><span>Supporting document for the absence. For a medical appointment, it must expressly state the patient's first name and surname and the time of entry to and exit from the centre or medical practice.</span></div>
+                </xpath>
+
+                <!-- Deleting the justification is not something to do by accident: same widget,
+                     with a confirmation in front of the removal. -->
+                <xpath expr="//field[@name='supported_attachment_ids']" position="attributes">
+                    <attribute name="widget">ems_attachment_confirm</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='supported_attachment_ids']" position="after">
+                    <field name="is_absence_manager" invisible="1"/>
+                    <!-- The original form's own wording, verbatim: the intro naming the types
+                         it covers, then the sentence the employee is actually signing. Required
+                         for every absence, not just some: it is the employee asserting that the
+                         reason they gave is true. -->
+                    <separator string="Responsible declaration" colspan="2"/>
+                    <div class="text-muted small" colspan="2"><span>Responsible declaration justifying an absence for health reasons, attendance at a medical appointment, an invasive medical test, recoverable flexible hours for menstruation or climacteric, training, or participation in the Erasmus+ programme</span></div>
+                    <div class="o_row" colspan="2">
+                        <field name="ems_responsible_declaration" class="oe_inline"
+                               string="I declare, under my own responsibility, that the details and the reason for my absence that I have given are true."
+                               required="1" readonly="state != 'confirm'"/>
+                        <label for="ems_responsible_declaration"/>
+                    </div>
+                    <!-- Derived from the absence type, never picked by the employee - only the
+                         manager or Direction corrects it when the type was chosen wrongly. -->
+                    <field name="ems_needs_atri" groups="hr_holidays.group_hr_holidays_responsible"/>
+                    <field name="ems_counts_hours" groups="hr_holidays.group_hr_holidays_responsible"/>
+                    <!-- Visible to everyone (an employee needs to know their justification is
+                         still pending), editable only by Direction - and really only by them:
+                         hr.leave.write() rejects it for anyone else, so the readonly here is
+                         the UI half of a barrier that also exists server-side.
+
+                         Hidden while the request is being written: Direction cannot have
+                         checked a justification for something that does not exist yet. -->
+                    <field name="is_absence_direction" invisible="1"/>
+                    <field name="ems_direction_state" invisible="not id"
+                           readonly="not is_absence_direction"/>
+                </xpath>
+
+                <!-- Nothing is filed until the employee says so. Odoo would otherwise keep the
+                     record the moment any field changes, which is the wrong contract for a
+                     request that has legal wording attached to it. -->
+                <xpath expr="//sheet" position="inside">
+                    <field name="ems_submitted" invisible="1"/>
+                    <div class="mt-4 text-end" invisible="state != 'confirm'">
+                        <widget name="ems_absence_submit"/>
+                    </div>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record id="hr_leave_view_tree_ems" model="ir.ui.view">
+            <field name="name">hr.leave.view.list.ems</field>
+            <field name="model">hr.leave</field>
+            <field name="inherit_id" ref="hr_holidays.hr_leave_view_tree"/>
+            <field name="arch" type="xml">
+
+                <!-- The full legal wording belongs in the form, not in a list column. -->
+                <xpath expr="//field[@name='holiday_status_id']" position="replace">
+                    <field name="ems_type_short_name" class="fw-bold"/>
+                </xpath>
+
+                <xpath expr="//field[@name='duration_display']" position="after">
+                    <field name="ems_counts_hours" optional="show"
+                           groups="hr_holidays.group_hr_holidays_responsible"/>
+                    <!-- Everyone sees it - an employee needs to know their justification is
+                         still pending - but only Direction can set it (guarded in the model,
+                         not just here). Decorated like the state column beside it. -->
+                    <field name="ems_direction_state" optional="show" widget="badge"
+                           decoration-muted="ems_direction_state == 'not_done'"
+                           decoration-danger="ems_direction_state == 'missing_doc'"
+                           decoration-success="ems_direction_state == 'done'"/>
+                    <field name="ems_health_allowance_exceeded" string="Over allowance"
+                           optional="hidden" groups="hr_holidays.group_hr_holidays_responsible"/>
+                </xpath>
+
+            </field>
+        </record>
+
+        <!-- The dashboard's "New" button opens this calendar's own creation dialog, whose title
+             comes from the view's string - natively the vague "Time Off Request". -->
+        <record id="hr_leave_view_dashboard_ems" model="ir.ui.view">
+            <field name="name">hr.leave.view.dashboard.ems</field>
+            <field name="model">hr.leave</field>
+            <field name="inherit_id" ref="hr_holidays.hr_leave_view_dashboard"/>
+            <field name="arch" type="xml">
+                <xpath expr="//calendar" position="attributes">
+                    <attribute name="string">Absence request</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- "Time Off Analysis", the per-employee report. The spreadsheet's own "Total per
+             profe" tab: one line per employee with the hours that count against the health
+             allowance, which is the figure the centre has to keep under the yearly limit. -->
+        <record id="view_holiday_list_ems" model="ir.ui.view">
+            <field name="name">hr.holidays.report_list.ems</field>
+            <field name="model">hr.leave</field>
+            <field name="inherit_id" ref="hr_holidays.view_holiday_list"/>
+            <field name="arch" type="xml">
+
+                <!-- A report is for reading. Filing an absence happens on the employee's own
+                     screen, which is where the "Send request" button and its confirmation are. -->
+                <xpath expr="//list" position="attributes">
+                    <attribute name="create">0</attribute>
+                </xpath>
+
+                <!-- Employee, health hours, days, type, then whatever Odoo already had.
+                     Explicit widths on the two columns whose headings are longest, so those are
+                     the ones guaranteed their full title and the trailing columns give way
+                     first. -->
+                <xpath expr="//field[@name='employee_id']" position="after">
+                    <field name="ems_health_hours" sum="Health hours" width="150px"/>
+                </xpath>
+
+                <xpath expr="//field[@name='number_of_days']" position="after">
+                    <field name="ems_type_short_name" string="Absence type" width="200px"/>
+                    <field name="ems_course_id" optional="hidden"/>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record id="view_hr_holidays_filter_ems" model="ir.ui.view">
+            <field name="name">hr.leave.search.ems</field>
+            <field name="model">hr.leave</field>
+            <field name="inherit_id" ref="hr_holidays.view_hr_holidays_filter"/>
+            <field name="arch" type="xml">
+
+                <!-- Odoo's "Current Year" filter is the calendar year, which cuts a school year
+                     in half: an absence from September and one from February would never be
+                     counted together. This one follows ems.course. -->
+                <xpath expr="//filter[@name='filter_date_from']" position="before">
+                    <filter name="ems_current_course" string="Current Course"
+                            domain="[('ems_course_id.is_current', '=', True)]"/>
+                </xpath>
+
+                <xpath expr="//filter[@name='group_date_from']" position="before">
+                    <filter name="ems_group_month" string="Month"
+                            context="{'group_by': 'request_date_from:month'}"/>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="hr_holidays.action_hr_available_holidays_report">
+            <field name="context">{'search_default_ems_current_course': 1, 'search_default_group_employee': 1}</field>
+        </record>
+
+    </data>
+</odoo>

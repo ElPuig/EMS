@@ -2,7 +2,7 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
-from datetime import datetime
+from datetime import date, datetime
 
 class EmsCourse(models.Model):
 	_name = "ems.course"
@@ -32,6 +32,16 @@ class EmsCourse(models.Model):
 	def _compute_name(self):
 		for course in self:
 			course.name = "%s-%s" % (course.start, course.end)
+
+	def date_range(self):
+		"""The course's calendar window, as (first day, last day): 1 September of 'start' to
+		31 August of 'end'. The model only stores the two years, but anything counting per-course
+		(the staff health absence allowance, for one) needs real dates to filter on. Returns False
+		for an empty recordset, so callers can test it directly."""
+		if not self:
+			return False
+		self.ensure_one()
+		return date(self.start, 9, 1), date(self.end, 8, 31)
 
 	@api.model
 	def _ems_seed_enrollment_default(self):

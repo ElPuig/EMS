@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- The spreadsheet's "Totals per mes" tab: per month, the hours that count towards
+             what each Area Manager reports, and how many absences make them up. Grouping a list
+             by month gives both - the sum on the column, the count from the group itself. -->
+        <record id="view_absence_monthly_list" model="ir.ui.view">
+            <field name="name">hr.leave.list.monthly.ems</field>
+            <field name="model">hr.leave</field>
+            <field name="arch" type="xml">
+                <list string="Monthly totals" create="0" default_order="request_date_from desc">
+                    <!-- Date, reported hours, employee, type. Explicit widths on the two
+                         longest headings so they keep their full title and the trailing
+                         columns are the ones that give way. -->
+                    <field name="request_date_from" string="Date"/>
+                    <field name="ems_counted_hours" sum="Reported hours" width="170px"/>
+                    <field name="employee_id" widget="many2one_avatar_employee"/>
+                    <field name="ems_type_short_name" string="Absence type" width="200px"/>
+                    <field name="ems_health_hours" optional="hidden" sum="Health hours"/>
+                    <field name="ems_course_id" optional="hidden"/>
+                    <field name="state" widget="badge"
+                           decoration-warning="state in ('confirm', 'validate1')"
+                           decoration-success="state == 'validate'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_absence_monthly_report" model="ir.actions.act_window">
+            <field name="name">Monthly totals</field>
+            <field name="res_model">hr.leave</field>
+            <field name="view_mode">list,pivot,graph</field>
+            <field name="view_id" ref="view_absence_monthly_list"/>
+            <field name="search_view_id" ref="hr_holidays.view_hr_holidays_filter"/>
+            <!-- Only the absences marked as adding to the report, which is the manager's own
+                 call per request. Refused and cancelled ones are left out: the spreadsheet's
+                 formula ignored the status column, which counted hours nobody was ever
+                 absent for. -->
+            <field name="domain">[('ems_counts_hours', '=', True), ('state', 'not in', ['refuse', 'cancel'])]</field>
+            <field name="context">{'search_default_ems_current_course': 1, 'search_default_ems_group_month': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_empty_folder">
+                    No absences counted this course yet
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="menu_absence_monthly_report" name="Monthly totals" sequence="1"
+                  parent="hr_holidays.menu_hr_holidays_report"
+                  action="action_absence_monthly_report"/>
+
+    </data>
+</odoo>

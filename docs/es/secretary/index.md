@@ -21,6 +21,7 @@ Esta sección contiene los manuales para el **personal de secretaría**.
 - [Marcar una graduación y tramitar una baja](graduation-withdrawal.md) — La diferencia entre la marca diferida de graduación y una baja inmediata, y toda la cascada de la baja paso a paso.
 - [Importar alumnado desde Esfera (SAGA)](student-import-esfera.md) — Actualizar masivamente los datos del alumnado ya matriculado (no confundir con la importación de preinscripción GEDAC), qué se hace coincidir/crea, y las limitaciones conocidas de deduplicación.
 - [Actualizar datos del alumnado desde un CSV](student-update-csv.md) — Actualización masiva genérica, de cualquier formato CSV, para alumnado existente (nunca crea uno), con columnas mapeables y actualización opcional de la cuenta bancaria.
+- [Aprobar las ausencias del personal PAS](absences.md) — Quién aprueba las ausencias del área ASP y en qué se diferencia de jefatura de estudios.
 
 ## Temas previstos
 

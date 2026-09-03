@@ -21,6 +21,7 @@ This section contains the manuals for **teachers**.
 | [Disabling Your Profile Picture](photo-visibility.md) | Turn your profile picture on or off |
 | [Attendance Reports](attendance-reports.md) | Print the 3 PDF attendance reports (by group/student/subject) and explore attendance data yourself with the Attendance analysis pivot/graph screen |
 | [A Group's Weekly Schedule](../admin/group-schedule.md) | View a group's aggregated timetable (subjects, teachers, classrooms, breaks) and export it to PDF |
+| [Requesting an absence](absences.md) | Request an absence: choosing its type, a whole day or a few hours, the responsible declaration, the supporting document and sending it |
 
 ## Planned Topics
 

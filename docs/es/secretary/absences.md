@@ -24,6 +24,8 @@ Ahí salen solo las solicitudes de tu área, en estado **Pendiente** mientras es
 
 Tienes acceso al motivo escrito y al justificante de tu gente, y puedes ajustar los campos **Suma las horas al informe mensual**, **Se tramita por ATRI** y **¿Día entero?**, además de corregir el tipo de ausencia.
 
+**Rechazar es definitivo**, y pide confirmación antes: nadie puede devolver una solicitud rechazada a *Pendiente*, y la persona tendría que hacer una nueva. El justificante, en cambio, se puede adjuntar en cualquier momento, también en una solicitud ya aprobada.
+
 La **verificación de dirección** la ves pero no la puedes modificar: la marca Dirección.
 
 El detalle de estos campos y de los dos informes está en el manual de [Jefatura de Estudios](../head_of_studies/absences.md), y se aplica igual a tu área.

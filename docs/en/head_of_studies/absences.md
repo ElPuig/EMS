@@ -41,6 +41,10 @@ That lists your area's requests. The ones awaiting a decision are in state **Pen
 
 You see the **written reason** and the **supporting document**; the rest of the staff do not.
 
+**Refusing is final.** Nobody at the centre can put a refused request back to *Pending*: to grant it after all, the employee has to file a new one. Because the Refuse button sits next to Approve, and in the list is a bare cross at the end of the row, it always asks for confirmation first - read the dialog before accepting it.
+
+You can attach a **supporting document** to any request, of any type, and at any point in its life: a certificate handed in after the absence was already approved goes on that same request, which is what clears a *Missing document*.
+
 ---
 
 ## Adjusting what an absence counts towards

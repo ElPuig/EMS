@@ -23,6 +23,13 @@ NATIVE_LEAVE_TYPE_XMLIDS = (
     'hr_holidays_attendance.holiday_status_extra_hours',
 )
 
+# What hr_holidays' own write() exempts from every restriction it puts on a request that is
+# already approved or already started, and therefore all that security/rules/attendance.xml's
+# 'rule_absence_own_request_write' is meant to open up.
+ATTACHMENT_FIELDS = frozenset({
+    'attachment_ids', 'supported_attachment_ids', 'message_main_attachment_id',
+})
+
 RESPONSIBLE_GROUP_XMLID = 'hr_holidays.group_hr_holidays_responsible'
 
 TIME_OFF_GROUP_XMLIDS = (
@@ -403,7 +410,34 @@ class EmsAbsenceLeave(models.Model):
     def write(self, vals):
         if 'ems_direction_state' in vals and not self._ems_can_set_direction_state():
             raise AccessError(_("Only Direction can change the Direction check on an absence."))
+        self._ems_check_own_approved_write(vals)
         return super().write(vals)
+
+    def _ems_check_own_approved_write(self, vals):
+        """The field-level half of 'rule_absence_own_request_write'.
+
+        That rule lets an employee write their own request whatever its state, because the
+        justification is filed after the fact far more often than not. An ir.rule cannot name
+        fields, so it necessarily opens the whole record - and this closes it back down to the
+        attachments, which is all it was widened for. Everything else about an approved request
+        stays the approver's to change, exactly as before.
+
+        Applied to officers too, and only to their *own* request. Odoo's own officer rule
+        (hr_leave_rule_officer_update) carries the same carve-out - '("employee_id.user_id", "=",
+        user.id), ("state", "!=", "validate")' - so without this an officer would have gained,
+        through the wider rule above, an ability they never had: editing their own approved
+        absence. Somebody else's stays theirs to correct, which is the whole point of being an
+        officer.
+        """
+        if self.env.su or not (vals.keys() - ATTACHMENT_FIELDS):
+            return
+        employee = self.env.user.employee_id
+        blocked = self.filtered(
+            lambda leave: leave.state in ('validate', 'validate1') and leave.employee_id == employee)
+        if blocked:
+            raise AccessError(_(
+                "An approved absence request can no longer be changed. Its supporting document "
+                "can still be filed; anything else has to go through whoever approved it."))
 
     # --- Who gets told ----------------------------------------------------------------------
 
@@ -569,6 +603,15 @@ class EmsAbsenceUsers(models.Model):
         ASP area's own manager - so this grants it from that relation instead, which keeps it
         exact and self-maintaining as Area Managers change.
 
+        **Archived users are part of this, 'base.default_user' above all.** That template is
+        itself an archived user, and 'res.groups.users' does not return archived ones - so a
+        first version of this method left the very record hr_holidays granted the Administrator
+        group to untouched, and every user created from then on was born holding it again
+        ('res.users._default_groups' copies the template's groups verbatim). The whole recordset
+        is therefore read with 'active_test=False', which also covers former staff: an archived
+        employee who comes back gets their groups from the role hierarchy
+        ('hr.employee._sync_security_groups'), not from what was left on their old account.
+
         Idempotent, and safe to run at any time. Returns {xmlid: [login, ...]} of what it
         revoked, so a migration can log it.
         """
@@ -577,8 +620,8 @@ class EmsAbsenceUsers(models.Model):
         # Widest first: revoking 'manager' before 'user' means a user who legitimately keeps
         # 'manager' is still recognised as entitled to 'user' on the next iteration.
         for xmlid in TIME_OFF_GROUP_XMLIDS:
-            group = self.env.ref(xmlid)
-            implying = self.env['res.groups'].search([]).filtered(
+            group = self.env.ref(xmlid).with_context(active_test=False)
+            implying = self.env['res.groups'].with_context(active_test=False).search([]).filtered(
                 lambda candidate: candidate != group and group in candidate.trans_implied_ids)
             entitled = implying.users | protected
             if xmlid == RESPONSIBLE_GROUP_XMLID:

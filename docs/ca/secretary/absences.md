@@ -24,6 +24,8 @@ Hi surten només les sol·licituds de la teva àrea, en estat **Pendent** mentre
 
 Tens accés al motiu escrit i al justificant de la teva gent, i pots ajustar els camps **Suma les hores a l'informe mensual**, **Es tramita per ATRI** i **Dia sencer?**, a més de corregir el tipus d'absència.
 
+**Rebutjar és definitiu**, i demana confirmació abans: ningú pot tornar una sol·licitud rebutjada a *Pendent*, i la persona hauria de fer-ne una de nova. El justificant, en canvi, es pot adjuntar en qualsevol moment, també en una sol·licitud ja aprovada.
+
 La **verificació de direcció** la veus però no la pots modificar: la marca Direcció.
 
 El detall d'aquests camps i dels dos informes és al manual de [Cap d'Estudis](../head_of_studies/absences.md), i s'aplica igual a la teva àrea.

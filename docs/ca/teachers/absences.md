@@ -81,9 +81,11 @@ Per demanar més d'un dia, marca-la i canvia la data de fi. Si és un sol dia, l
 
 ## Justificant
 
-Cal adjuntar-lo en tres tipus: **Baixa laboral**, **Assistència a consulta mèdica** i **Prova mèdica invasiva**.
+**Pots adjuntar-ne un a qualsevol absència, de qualsevol tipus i en qualsevol moment.** Tres tipus l'*exigeixen*: **Baixa laboral**, **Assistència a consulta mèdica** i **Prova mèdica invasiva**; en la resta és opcional, i val la pena adjuntar-lo sempre que el tinguis.
 
 En el cas de consulta mèdica, el justificant ha de fer constar expressament el nom i cognoms del o de la pacient i l'hora d'entrada i sortida del centre o consulta mèdica.
+
+**Un justificant que arriba més tard s'adjunta a la mateixa sol·licitud.** Obre l'absència, encara que ja estigui aprovada, adjunta el fitxer i desa. Això és el que fa desaparèixer una **Comprovació de direcció** en estat *Falta document*: no cal tornar a sol·licitar l'absència.
 
 Per esborrar-ne un, fes clic a la creu del fitxer i confirma.
 
@@ -113,7 +115,7 @@ A **Absències** tens la teva llista, amb dues columnes:
 |---|---|
 | Pendent | Encara no s'ha resolt |
 | Aprovada | Concedida |
-| Rebutjada | Denegada |
+| Rebutjada | Denegada. És definitiu: si vols insistir, cal fer una sol·licitud nova |
 | Cancel·lada | Anul·lada |
 
 **Verificació de direcció** — si direcció ja ha comprovat el justificant:
@@ -121,7 +123,7 @@ A **Absències** tens la teva llista, amb dues columnes:
 | Valor | Color | Què has de fer |
 |---|---|---|
 | No fet | gris | Res, encara no s'ha revisat |
-| Falta document | vermell | Aportar el justificant |
+| Falta document | vermell | Adjuntar el justificant a la mateixa sol·licitud, encara que ja estigui aprovada |
 | Fet | verd | Res |
 
 ---

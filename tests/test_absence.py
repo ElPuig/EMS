@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 
+import base64
 from datetime import timedelta
+
+from lxml import etree
 
 from odoo import Command
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
+from ..models.employees.absence import TIME_OFF_GROUP_XMLIDS
 from .common import mock_outgoing_email
 
 # The nine absence types seeded by data/cat/hr.leave.type.csv, with the native flags each one
@@ -138,6 +142,36 @@ class TestAbsence(TransactionCase):
 
         self.assertEqual(employee.leave_manager_id, replacement.user_id)
 
+    def test_a_department_chief_never_keeps_the_approver_group(self):
+        """Writing 'parent_id' makes hr_holidays hand its approver group to whoever that field
+        names - the Department or Seminar Chief here - before EMS has said who really approves.
+        Nothing native takes it back afterwards, so four Chiefs were still holding it on the
+        development database, able to read every absence reason and document in their area."""
+        approver_group = self.env.ref('hr_holidays.group_hr_holidays_responsible')
+        top, child, _manager = self._create_area('ChiefGroup')
+        chief = self._create_employee('Test Chief (ChiefGroup)', with_user=True)
+        self._create_employee('Test Teacher (ChiefGroup)', child)
+
+        child.manager_id = chief.id
+        top.manager_id = self._create_employee('Test New Manager (ChiefGroup)', with_user=True).id
+
+        self.assertNotIn(approver_group, chief.user_id.groups_id)
+
+    def test_leave_manager_resyncs_for_archived_employees_too(self):
+        """An archived employee left pointing at its old approver is not harmless: hr_holidays
+        grants its approver group from any write of 'leave_manager_id', while
+        '_ems_sync_time_off_groups' only counts active employees when deciding who is entitled
+        to keep it - so the group kept coming back to people who no longer approve anything."""
+        _top, child, manager = self._create_area('ArchivedResync')
+        employee = self._create_employee('Test Archived (Resync)', child)
+        employee.action_archive()
+        replacement = self._create_employee('Test New Area Manager (Resync)', with_user=True)
+
+        _top.manager_id = replacement.id
+
+        self.assertEqual(employee.leave_manager_id, replacement.user_id)
+        self.assertNotEqual(manager, replacement, 'sanity: the Area Manager really changed')
+
     def test_leave_manager_empty_without_a_top_level_ancestor(self):
         orphan = self.env['hr.department'].create({'name': 'Test Orphan Department'})
         employee = self._create_employee('Test Teacher (Orphan)', orphan)
@@ -202,6 +236,35 @@ class TestAbsence(TransactionCase):
         self.assertNotIn(self.env.ref('hr.group_hr_user'), plain.groups_id,
                          'and the HR Officer group the officer group implied goes with it')
         self.assertIn(self.env.ref('ems.group_teacher'), plain.groups_id, 'their own role stays')
+
+    def test_the_user_template_keeps_no_time_off_group(self):
+        """'base.default_user' is the record hr_holidays actually grants its Administrator group
+        to, and 'res.users._default_groups' copies that template's groups onto every user
+        created from then on - so leaving it alone meant every new account was born able to read
+        every colleague's absence reason and supporting document. It is an archived user, and
+        'res.groups.users' skips archived ones, which is exactly how it was missed."""
+        template = self.env.ref('base.default_user')
+        template.sudo().write({'groups_id': [
+            Command.link(self.env.ref(xmlid).id) for xmlid in TIME_OFF_GROUP_XMLIDS]})
+
+        self.env['res.users']._ems_sync_time_off_groups()
+
+        for xmlid in TIME_OFF_GROUP_XMLIDS:
+            self.assertNotIn(self.env.ref(xmlid), template.sudo().groups_id, xmlid)
+        self.assertFalse(
+            self.env['res.users']._default_groups() & self.env.ref('hr_holidays.group_hr_holidays_user'),
+            'so a brand-new user is not an officer either')
+
+    def test_an_archived_employee_is_not_spared_either(self):
+        """Same reason, and the way back is the role hierarchy: an archived account that comes
+        back gets its groups from '_sync_security_groups', not from what was left on it."""
+        officer = self.env.ref('hr_holidays.group_hr_holidays_user')
+        former = self._create_user('former_teacher', [self.env.ref('ems.group_teacher'), officer])
+        former.action_archive()
+
+        self.env['res.users']._ems_sync_time_off_groups()
+
+        self.assertNotIn(officer, former.sudo().groups_id)
 
     def test_restricting_time_off_groups_spares_entitled_users(self):
         head = self._create_user('head_of_studies', [self.env.ref('ems.group_head_of_studies')])
@@ -516,6 +579,152 @@ class TestAbsenceRequest(TransactionCase):
         })
 
         self.assertEqual(sneaked.sudo().ems_direction_state, 'not_done')
+
+    # --- The supporting document ------------------------------------------------------------
+
+    def _arch(self, xmlid, view_type):
+        """The view as the client really receives it, with every inherit already applied."""
+        return etree.fromstring(
+            self.env['hr.leave'].get_view(self.env.ref(xmlid).id, view_type)['arch'])
+
+    def test_the_supporting_document_is_offered_on_every_absence_type(self):
+        """Odoo shows the attachment only for types whose 'support_document' is set, which reads
+        the flag backwards: it says which types *require* a justification, not which ones accept
+        one. The centre takes whatever the employee has, for any absence."""
+        arch = self._arch('hr_holidays.hr_leave_view_form', 'form')
+
+        nodes = arch.xpath("//field[@name='supported_attachment_ids'] | "
+                           "//label[@for='supported_attachment_ids']")
+        self.assertEqual(len(nodes), 2, 'the field and its label')
+        for node in nodes:
+            self.assertNotIn('leave_type_support_document', node.get('invisible') or '',
+                             'the absence type does not decide whether a document can be filed')
+
+    def test_the_supporting_document_stays_on_screen_after_the_approval(self):
+        """Direction checks the document after the approval, so a field that disappears the
+        moment the request is approved would make 'Missing document' impossible to ever clear."""
+        arch = self._arch('hr_holidays.hr_leave_view_form', 'form')
+
+        for node in arch.xpath("//field[@name='supported_attachment_ids'] | "
+                               "//label[@for='supported_attachment_ids']"):
+            self.assertNotIn('state', node.get('invisible') or '',
+                             'the approval state does not hide the justification')
+
+    def _employee_user(self, name, login):
+        """A plain internal user for 'self.employee', with no Time Off group whatsoever.
+
+        Spelled out rather than left to Odoo's default: 'base.default_user' still carries the
+        Time Off groups hr_holidays hands out at install time, and a user copied from it would
+        be an officer - proving nothing about what an ordinary employee can do.
+        """
+        user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': name, 'login': login,
+            'groups_id': [Command.link(self.env.ref('base.group_user').id),
+                          Command.link(self.env.ref('ems.group_teacher').id)],
+        })
+        self.employee.user_id = user.id
+        return user
+
+    def test_the_justification_can_be_filed_after_the_approval(self):
+        """The other half of the same rule, server-side: a medical certificate is usually handed
+        in days after the absence itself, and Direction's "Missing document" check exists to
+        chase exactly that. Odoo's own record rule stops an employee writing their own request
+        once it is approved, so 'rule_absence_own_request_write' widens it."""
+        owner = self._employee_user('Test Absence Filer', 'absence_filer@absence.test')
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        leave.action_approve()
+        self.assertEqual(leave.state, 'validate')
+
+        # The two steps the widget itself performs: the file is uploaded as its own
+        # ir.attachment first, and only then linked to the request by the form's save.
+        attachment = self.env['ir.attachment'].with_user(owner).create({
+            'name': 'justificant.pdf', 'datas': base64.b64encode(b'certificate'),
+            'res_model': 'hr.leave', 'res_id': leave.id,
+        })
+        leave.with_user(owner).write(
+            {'supported_attachment_ids': [Command.link(attachment.id)]})
+
+        self.assertEqual(leave.supported_attachment_ids.mapped('name'), ['justificant.pdf'])
+        self.assertEqual(leave.attachment_ids, leave.supported_attachment_ids,
+                         'and it lands on the request itself, not only on the widget')
+
+    def test_an_approved_request_is_still_closed_to_everything_else(self):
+        """The record rule above cannot name fields, so it necessarily opens the whole record.
+        This is what closes it back down to the justification it was widened for."""
+        owner = self._employee_user('Test Absence Editor', 'absence_editor@absence.test')
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        leave.action_approve()
+
+        with self.assertRaises(AccessError):
+            leave.with_user(owner).write({'request_date_to': self._monday() + timedelta(days=4)})
+        with self.assertRaises(AccessError):
+            leave.with_user(owner).write({'holiday_status_id': self.type_health.id})
+
+    def test_an_officer_cannot_edit_their_own_approved_request_either(self):
+        """The widened record rule reaches officers too, so the field-level check has to. Odoo's
+        own officer rule carries the same carve-out for a user's own approved absence, and being
+        Head of Studies is not supposed to make your own request editable after the fact."""
+        officer = self._employee_user('Test Absence Officer', 'absence_officer@absence.test')
+        officer.sudo().write({
+            'groups_id': [Command.link(self.env.ref('hr_holidays.group_hr_holidays_user').id)]})
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        leave.action_approve()
+
+        with self.assertRaises(AccessError):
+            leave.with_user(officer).write({'holiday_status_id': self.type_health.id})
+        # The justification is the exception, for them as much as for anybody else.
+        attachment = self.env['ir.attachment'].with_user(officer).create({
+            'name': 'justificant.pdf', 'datas': base64.b64encode(b'certificate'),
+            'res_model': 'hr.leave', 'res_id': leave.id,
+        })
+        leave.with_user(officer).write(
+            {'supported_attachment_ids': [Command.link(attachment.id)]})
+
+        self.assertEqual(leave.supported_attachment_ids.mapped('name'), ['justificant.pdf'])
+
+    def test_an_unapproved_request_is_still_the_employees_to_edit(self):
+        """And nothing changes while it is still pending, which is the normal case."""
+        owner = self._employee_user('Test Absence Owner', 'absence_owner@absence.test')
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+
+        leave.with_user(owner).write({'request_date_to': self._monday() + timedelta(days=1)})
+
+        self.assertEqual(leave.request_date_to, self._monday() + timedelta(days=1))
+
+    # --- Refusing is final --------------------------------------------------------------------
+
+    def test_refusing_a_request_asks_for_a_confirmation(self):
+        """Nobody at the centre can undo it: Odoo reserves resetting a refused request to the
+        Time Off Administrator group (hr.leave._check_approval_update), which
+        res.users._ems_sync_time_off_groups deliberately leaves nobody holding. The employee has
+        to file the whole request again, so the one stray click that causes that is confirmed
+        first - on all three screens the button appears on."""
+        for xmlid, view_type in (('hr_holidays.hr_leave_view_form', 'form'),
+                                 ('hr_holidays.hr_leave_view_tree', 'list'),
+                                 ('hr_holidays.hr_leave_view_kanban', 'kanban')):
+            arch = self._arch(xmlid, view_type)
+
+            buttons = arch.xpath("//button[@name='action_refuse']")
+            self.assertTrue(buttons, xmlid)
+            for button in buttons:
+                self.assertTrue(button.get('confirm'), f'{xmlid} ({view_type})')
+
+    def test_refusing_is_not_reversible_at_the_centre(self):
+        """What the confirmation is warning about, asserted rather than assumed: this is the
+        rule the wording of the dialog rests on."""
+        leave = self._create_leave(self.type_justified, self._monday())
+        leave.action_refuse()
+        approver = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Absence Approver', 'login': 'absence_approver@absence.test',
+            'groups_id': [Command.link(self.env.ref('base.group_user').id),
+                          Command.link(self.env.ref('hr_holidays.group_hr_holidays_user').id)],
+        })
+
+        self.assertEqual(leave.state, 'refuse')
+        self.assertFalse(leave.with_user(approver).can_reset,
+                         'not even an officer gets the Reset button on a refused request')
+        with self.assertRaises(Exception):
+            leave.with_user(approver).action_reset_confirm()
 
     # --- Who gets told ---------------------------------------------------------------------
 

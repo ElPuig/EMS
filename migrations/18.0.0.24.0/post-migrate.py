@@ -58,8 +58,14 @@ def _recompute_leave_managers(env):
     ems_employee_base._compute_leave_manager: Odoo derives it from 'parent_id', which here is the
     Seminar Chief or Department Chief, the wrong person for an absence). Rather than depend on
     the two happening in the right order, recompute it explicitly afterwards.
+
+    Archived employees included, and not for tidiness: an archived record left pointing at its
+    Department Chief keeps handing that chief the approver group back, because hr_holidays
+    grants it from any write of 'leave_manager_id' (hr_employee_base.write) while
+    '_ems_sync_time_off_groups' only ever counts *active* employees when deciding who is
+    entitled to keep it. The two disagreed on every upgrade.
     """
-    employees = env['hr.employee'].search([])
+    employees = env['hr.employee'].with_context(active_test=False).search([])
     env.add_to_compute(employees._fields['leave_manager_id'], employees)
     employees.flush_recordset()
     without = employees.filtered(lambda employee: employee.department_id and not employee.leave_manager_id)
@@ -76,6 +82,14 @@ def _recompute_leave_managers(env):
 
 def migrate(cr, _version):
     env = api.Environment(cr, SUPERUSER_ID, {})
+    # Order matters: '_sync_time_off_groups' grants the approver group from
+    # 'employee.leave_manager_id', which until '_recompute_leave_managers' has run still holds
+    # Odoo's own guess (derived from 'parent_id' - here the Department or Seminar Chief, the
+    # wrong person entirely). Running the sync first therefore handed the approver group to
+    # every Department Chief, and then quietly left it on them once the field was recomputed to
+    # the real Area Manager - which is how four of them were still holding it on the development
+    # database. The same call in post_init_hook has no such ordering problem, since a fresh
+    # install computes 'leave_manager_id' with EMS's own method from the start.
+    _recompute_leave_managers(env)
     _sync_time_off_groups(env)
     _deactivate_native_leave_types(env)
-    _recompute_leave_managers(env)

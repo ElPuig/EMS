@@ -163,7 +163,11 @@ class ems_department(models.Model):
     def _cascade_department_heads(self, old_manager, old_seminar_chief):
         self.ensure_one()
         departments = self.search([('id', 'child_of', self.id)])
-        employees = self.env['hr.employee'].search([
+        # Archived employees too: one left pointing at its old approver keeps handing that
+        # person hr_holidays' approver group back on every write (hr_employee_base.write grants
+        # it from 'leave_manager_id'), while res.users._ems_sync_time_off_groups only counts
+        # active employees when deciding who is entitled to it.
+        employees = self.env['hr.employee'].with_context(active_test=False).search([
             '|', '|',
             ('department_id', 'in', departments.ids),
             ('headed_department_ids', 'in', departments.ids),
@@ -171,6 +175,14 @@ class ems_department(models.Model):
         ])
         (employees | self.manager_id)._compute_parent_id()
         (employees | self.manager_id)._compute_leave_manager()
+        # Writing 'parent_id' makes hr_holidays hand its approver group to whoever that field
+        # names (hr_employee_base.write), which here is the Department or Seminar Chief - and it
+        # does so before '_compute_leave_manager' above has said who really approves, so the
+        # Chief is left holding a group they never earned and that nothing else takes back.
+        # Odoo's own cleanup does exactly that: it removes the group from anyone who is no
+        # longer some employee's 'leave_manager_id'.
+        responsibles = employees.parent_id.user_id | old_manager.user_id | self.manager_id.user_id
+        responsibles.sudo()._clean_leave_responsible_users()
         (old_manager | self.manager_id).update_department_head_role()
         (old_manager | self.manager_id).update_area_manager_role()
         (old_seminar_chief | self.seminar_chief_id).update_seminar_chief_role()

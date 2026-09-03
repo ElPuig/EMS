@@ -208,6 +208,23 @@ Choosing an ATRI absence type now shows, on the form itself, that the leave also
 requested on the Generalitat's portal, with a link straight to it and to its reference manual.
 The links are in the teachers' manual too.
 
+## The supporting document can be filed on any absence, at any time:
+
+Odoo only offered the attachment on the three absence types that formally require one, and only
+while the request was still awaiting a decision. Both restrictions are gone: a justification can
+now be attached to any absence of any type, and to a request that has already been approved -
+which is how a medical certificate handed in days later gets filed, and the only way Direction's
+"Missing document" check could ever be cleared. Where the employee could previously see the
+field but be refused by Odoo's own access rules on an approved request, a record rule of our own
+now lets them file the document (and nothing else) themselves.
+
+## Refusing an absence request now asks for confirmation:
+
+A refused request cannot be reopened by anybody at the centre, so the employee has to file a new
+one from scratch. The Refuse button sits next to Approve on the form, the list and the kanban,
+and on the last two it is a bare icon at the end of a row - so all three now ask first, spelling
+out that the decision is final.
+
 # Fixes:
 
 ## An absence could silently drop out of the monthly report:
@@ -232,6 +249,23 @@ the secretariat: the group goes to whoever is currently named as an employee's a
 and is taken back from everyone else, so it stays correct on its own as those roles change. The
 secretariat as a body are ordinary employees as far as absences are concerned.
 
+
+## New users were still born able to read everyone's absences:
+
+Taking the Time Off groups back from the staff missed the one record that hands them out: the
+user template every new account is copied from, which is archived and so never showed up in the
+list of users holding a group. Anyone created from then on started out as a Time Off
+administrator again. The template is now cleaned along with everybody else, archived accounts
+included.
+
+## Department Chiefs were left able to approve absences:
+
+Odoo hands the approver permission to whoever is named as an employee's manager, which at this
+centre is their Department or Seminar Chief - not the person who actually decides absences. It
+did so every time the department hierarchy was refreshed, and nothing ever took it back, so
+several Chiefs could read the reason and the supporting document of every absence in their area.
+The permission is now cleaned up whenever the hierarchy changes, and the upgrade works out the
+real approvers before handing anything out.
 
 ## Translations that never reached the screen:
 

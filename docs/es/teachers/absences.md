@@ -81,9 +81,11 @@ Para pedir más de un día, márcala y cambia la fecha de fin. Si es un solo dí
 
 ## Justificante
 
-Hay que adjuntarlo en tres tipos: **Baja laboral**, **Asistencia a consulta médica** y **Prueba médica invasiva**.
+**Puedes adjuntar uno a cualquier ausencia, de cualquier tipo y en cualquier momento.** Tres tipos lo *exigen*: **Baja laboral**, **Asistencia a consulta médica** y **Prueba médica invasiva**; en el resto es opcional, y vale la pena adjuntarlo siempre que lo tengas.
 
 En el caso de consulta médica, el justificante debe hacer constar expresamente el nombre y apellidos del o de la paciente y la hora de entrada y salida del centro o consulta médica.
+
+**Un justificante que llega más tarde se adjunta a la misma solicitud.** Abre la ausencia, aunque ya esté aprobada, adjunta el archivo y guarda. Eso es lo que resuelve una **Comprobación de dirección** en estado *Falta documento*: no hay que volver a solicitar la ausencia.
 
 Para borrar uno, haz clic en la cruz del archivo y confirma.
 
@@ -113,7 +115,7 @@ En **Ausencias** tienes tu lista, con dos columnas:
 |---|---|
 | Pendiente | Todavía no se ha resuelto |
 | Aprobada | Concedida |
-| Rechazada | Denegada |
+| Rechazada | Denegada. Es definitivo: si quieres insistir, hay que hacer una solicitud nueva |
 | Cancelada | Anulada |
 
 **Verificación de dirección** — si dirección ya ha comprobado el justificante:
@@ -121,7 +123,7 @@ En **Ausencias** tienes tu lista, con dos columnas:
 | Valor | Color | Qué tienes que hacer |
 |---|---|---|
 | No hecho | gris | Nada, todavía no se ha revisado |
-| Falta documento | rojo | Aportar el justificante |
+| Falta documento | rojo | Adjuntar el justificante a la misma solicitud, aunque ya esté aprobada |
 | Hecho | verde | Nada |
 
 ---

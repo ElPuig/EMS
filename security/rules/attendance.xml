@@ -299,4 +299,29 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_unlink" eval="False"/> 
     </record>
+
+    <!-- hr.leave (staff absences)
+
+         Odoo lets an employee write their own request only while it is unapproved
+         ('hr_holidays.hr_leave_rule_employee_update' excludes state validate/validate1), which
+         also locks the one thing that legitimately arrives afterwards: the justification
+         itself. A medical certificate is usually handed in days after the absence, and
+         Direction's "Missing document" check exists precisely to chase it - so the employee has
+         to be able to file it against a request that is already approved.
+
+         Rules of the same group are OR-ed, so this widens that one rather than replacing it.
+         Widening it at record level is as narrow as ir.rule can be: a rule cannot name fields.
+         The field-level half of the barrier is 'hr.leave._ems_check_own_approved_write', which
+         still rejects every field but the attachments on an approved request - the same set
+         hr_holidays' own write() exempts from its restrictions. -->
+    <record id="rule_absence_own_request_write" model="ir.rule">
+        <field name="name">Absence: own request, to file its supporting document</field>
+        <field name="model_id" ref="hr_holidays.model_hr_leave"/>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
 </odoo>

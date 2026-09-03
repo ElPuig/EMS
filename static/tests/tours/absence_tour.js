@@ -111,6 +111,11 @@ registry.category("web_tour.tours").add("ems_absence_dashboard", {
 // click that "x" are reviewing dozens of requests in a row. This is the whole point of the
 // ems_attachment_confirm widget, so it needs a browser to prove it: the dialog appears, and
 // cancelling it really does leave the file alone.
+//
+// The request it runs on is deliberately of a type that does not require a document
+// ("Justified absence") and is already approved: Odoo hides the attachment on both counts, and
+// the centre files a justification for any absence and mostly after the fact, so this also
+// proves the two conditions really are gone from the inherited form.
 registry.category("web_tour.tours").add("ems_absence_justification", {
     test: true,
     url: "/odoo/action-hr_holidays.hr_leave_action_holiday_allocation_id",
@@ -119,6 +124,11 @@ registry.category("web_tour.tours").add("ems_absence_justification", {
             trigger: ".o_list_view .o_data_row:contains('Tour Documented Teacher') td[name='ems_type_short_name']",
             content: "Open the request that carries a supporting document",
             run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='supported_attachment_ids']",
+            content: "The justification is on the form of an approved request whose type asks "
+                + "for no document at all - neither condition hides it any more",
         },
         {
             trigger: ".o_form_view .o_attachment:contains('justificant')",
@@ -166,6 +176,65 @@ registry.category("web_tour.tours").add("ems_absence_justification", {
         {
             trigger: ".o_form_view .o_form_saved",
             content: "Saved, so the removal really went through",
+        },
+    ],
+});
+
+// Refusing is the one absence decision nobody at the centre can undo: Odoo reserves resetting
+// a refused request to its Time Off Administrator group, which res.users
+// ._ems_sync_time_off_groups leaves nobody holding, so the employee has to file the whole
+// request again. Both buttons that cause it are one stray click away from the Approve button
+// beside them, so both are confirmed first - and only a browser can prove a dialog appears.
+registry.category("web_tour.tours").add("ems_absence_refuse_confirm", {
+    test: true,
+    url: "/odoo/action-hr_holidays.hr_leave_action_holiday_allocation_id",
+    steps: () => [
+        {
+            // The list's own Refuse button: a bare "x" icon at the end of the row, sitting
+            // right next to Approve. This is the one that gets clicked by accident.
+            trigger: ".o_list_view .o_data_row:contains('Tour Absent Teacher') button[name='action_refuse']",
+            content: "Refuse the pending request straight from the list",
+            run: "click",
+        },
+        {
+            trigger: ".modal:contains('cannot be reopened')",
+            content: "It asks first, and says why it matters",
+        },
+        {
+            trigger: ".modal-footer button:contains('Cancel')",
+            content: "Back out of it",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Absent Teacher') .o_field_widget[name='state']:contains('Pending')",
+            content: "The request is still pending - cancelling really cancels",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Absent Teacher') td[name='ems_type_short_name']",
+            content: "Open the same request",
+            run: "click",
+        },
+        {
+            // '.o_form_statusbar', not 'header': a form's <header> is rendered as that div,
+            // so a literal header selector matches nothing.
+            trigger: ".o_form_view .o_form_statusbar button[name='action_refuse']",
+            content: "The form has the same button, and the same confirmation",
+            run: "click",
+        },
+        {
+            trigger: ".modal:contains('Refuse this absence request')",
+            content: "This one names the decision in its title too, which a list view's schema "
+                + "does not allow",
+        },
+        {
+            trigger: ".modal-footer button:contains('Refuse')",
+            content: "Confirm, and the request is refused for good",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_arrow_button_current:contains('Refused'), "
+                + ".o_form_view .o_statusbar_status button:contains('Refused')",
+            content: "Refused",
         },
     ],
 });

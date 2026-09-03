@@ -255,6 +255,38 @@ Odoo's own employee dashboard (`hr_leave_menu_new_request`) is archived: it show
 records as My Time Off in a calendar, and the centre works from the list. Its parent level
 ("My Time") is archived with it, since the dashboard and the allocations were all it held.
 
+## The supporting document is asked for on every request, at any time
+
+Odoo shows the attachment only when the absence type carries `support_document`, and only while
+the request is `confirm` or `validate1`. EMS drops both conditions from the inherited form
+(`invisible="0"` on the label and the field alike).
+
+- **By type.** The flag says which types *require* a justification, not which ones accept one.
+  The centre files whatever the employee has for any absence: somebody who can document a
+  "Justified absence" or a training day had nowhere to attach it.
+- **By state.** Direction's own check (`ems_direction_state`) happens *after* the approval, and
+  a medical certificate is usually handed in days after the absence itself. With the field
+  hidden from the moment a request was approved, the `Missing document` state could never be
+  cleared by anybody.
+
+The second one needed a matching change in security, because two different mechanisms were
+hiding it:
+
+- `hr.leave.write()` already exempts `attachment_ids`, `supported_attachment_ids` and
+  `message_main_attachment_id` **by name** from every restriction it puts on an approved or
+  already-started request, so Odoo's own intention here is clear.
+- Its **record rule** is not, and cannot be, that precise: `hr_leave_rule_employee_update`
+  scopes an employee's write access to `state not in ('validate', 'validate1')`, and an
+  `ir.rule` cannot name fields. So an employee could see the field on their approved request and
+  still be refused when they filed anything into it.
+
+`security/rules/attendance.xml`'s `rule_absence_own_request_write` widens that (rules of the
+same group are OR-ed) to the employee's own requests whatever their state, and
+`hr.leave._ems_check_own_approved_write()` closes it back down to the attachment fields above -
+the field-level half an `ir.rule` cannot express. Everything else about an approved request
+stays the approver's to change, and raises an `AccessError` naming the justification as the one
+thing still open.
+
 ## Removing a justification asks first
 
 The stock `many2many_binary` widget drops an attachment the moment its "x" is clicked - no
@@ -265,7 +297,37 @@ through dozens of requests in a row. `ems_attachment_confirm`
 dialog in front of the removal; the form uses it in place of the stock one.
 
 Covered by the `ems_absence_justification` tour, which checks both halves: that the dialog
-appears at all, and that cancelling it really leaves the file alone.
+appears at all, and that cancelling it really leaves the file alone. It runs on a request that
+is approved *and* of a type requiring no document, so it doubles as the browser-side proof that
+neither condition hides the field any more.
+
+## Refusing asks first too, because nobody can undo it
+
+`action_reset_confirm` puts a refused request back to `Pending`, but Odoo reserves that to its
+Time Off Administrator group: `_check_approval_update` raises *"Only a Time Off Manager can
+reset a refused leave"* for anybody else, an officer included. Nobody at the centre holds that
+group - `res.users._ems_sync_time_off_groups()` takes it back from everyone, deliberately, since
+it also grants read access to every colleague's absence reason and attachment. **A refused
+request is therefore final: the employee has to file a new one.**
+
+The button that causes it sits next to Approve on three different screens, and on two of them it
+is a bare icon in a row. All three confirm first, through Odoo's own `confirm` attribute rather
+than any code:
+
+| View | Attributes |
+|---|---|
+| `hr_leave_view_form` (header) | `confirm`, `confirm-title`, `confirm-label` |
+| `hr_leave_view_kanban` | `confirm`, `confirm-title`, `confirm-label` |
+| `hr_leave_view_tree` | `confirm` only |
+
+**The list gets only `confirm` on purpose.** A list view is validated against a RelaxNG schema
+(`base/rng/list_view.rng`; there is no `form_view.rng` at all, which is why form and kanban are
+unconstrained here), and its `button` definition allows `confirm` but neither `confirm-title`
+nor `confirm-label`. Adding them makes the whole view invalid and the module upgrade fails.
+
+Covered by the `ems_absence_refuse_confirm` tour, which cancels the dialog from the list button
+and confirms it from the form one, and by
+`test_refusing_is_not_reversible_at_the_centre`, which asserts the rule the wording rests on.
 
 ## Allocations and accrual plans are hidden
 
@@ -419,7 +481,7 @@ replaces: the Apps Script sent from the personal Google account of whoever last 
 
 | Group | `hr.leave` records visible | Reason and attachment | Can |
 |---|---|---|---|
-| Any employee | Own requests; colleagues' via the native calendar/dashboard | Own only — `private_name` renders as `*****` for everyone else | Create, edit and cancel their own while unapproved |
+| Any employee | Own requests; colleagues' via the native calendar/dashboard | Own only — `private_name` renders as `*****` for everyone else | Create, edit and cancel their own while unapproved; file the supporting document at any time, approved included |
 | Area Manager (`hr_holidays.group_hr_holidays_responsible`) | Only employees whose `leave_manager_id` is them, via the native rule `[('employee_id.leave_manager_id', '=', user.id)]` | Yes, for those employees | Approve, refuse |
 | Head of Studies, Director, academic admin (`hr_holidays.group_hr_holidays_user`) | All, centre-wide | Yes | Approve, refuse, manage the catalogue |
 
@@ -432,6 +494,9 @@ Two native mechanisms carry most of this:
 - **`group_hr_holidays_responsible`**, whose record rule is scoped entirely by
   `leave_manager_id`.
 
+EMS adds exactly one record rule of its own here, `rule_absence_own_request_write` (see the
+supporting document section above), paired with a field-level check in `write()`.
+
   **Who holds it is derived from the approval relation, not from a group chain.** The three
   approvers sit in two different EMS chains (`group_head_of_studies` for VET and ESO/BTX, the
   Secretary for ASP), and the ASP one is a single person - not the secretariat as a body, whose
@@ -439,6 +504,37 @@ Two native mechanisms carry most of this:
   absences", so `res.users._ems_sync_time_off_groups()` grants it to whoever is currently named
   as some employee's `leave_manager_id` and takes it back from everyone else. That stays exact
   on its own as Area Managers change.
+
+Two things about that method are easy to get wrong, and both were:
+
+- **It has to read archived users** (`active_test=False`). `base.default_user` - the template
+  `res.users._default_groups()` copies onto every new user - *is* an archived user, and it is
+  the record hr_holidays grants its Administrator group to in the first place. Skipping it left
+  every account created afterwards born as a Time Off Administrator, able to read every
+  colleague's reason and attachment: the exact thing this method exists to prevent, arriving
+  through the back door.
+- **On upgrade it has to run *after* `leave_manager_id` is recomputed**, which is why
+  `migrations/18.0.0.24.0/post-migrate.py` calls `_recompute_leave_managers()` first (archived
+  employees included). During that upgrade the field still holds Odoo's own value, derived from
+  `parent_id` - the Department or Seminar Chief. Granting the approver group from it before the
+  recompute handed the group to every Department Chief and left it there.
+
+### hr_holidays grants the approver group behind EMS's back
+
+Not only on upgrade: `hr.employee.write()` in hr_holidays grants
+`group_hr_holidays_responsible` to whoever a **written `parent_id`** names, and takes it back
+only from users who were previously somebody's `leave_manager_id`. In EMS `parent_id` is the
+Department or Seminar Chief, a stored compute that `_cascade_department_heads()` refreshes
+whenever an Area Manager, a Chief or a department's shape changes - and it does so *before*
+`_compute_leave_manager()` has said who really approves. The Chief was therefore left holding a
+group nothing would ever take back: four of them still had it on the development database, which
+means read access to every absence reason and supporting document in their area - the exact
+confidentiality rule this feature exists to enforce.
+
+`_cascade_department_heads()` now finishes by calling Odoo's own
+`res.users._clean_leave_responsible_users()` on the users that write could have touched, which
+removes the group from anyone who is nobody's `leave_manager_id`. Covered by
+`test_a_department_chief_never_keeps_the_approver_group`, which fails without it.
 
 ## Related
 

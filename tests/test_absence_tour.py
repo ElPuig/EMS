@@ -40,13 +40,15 @@ class TestAbsenceTour(HttpCase):
             'ems_responsible_declaration': True,
         })
 
-        # A second request, of a type that takes a supporting document, with a file already on
-        # it - the justification-removal tour needs something to try to delete.
+        # A second request, with a file already on it - the justification-removal tour needs
+        # something to try to delete. Deliberately of a type that requires no document, and
+        # approved below: Odoo hides the attachment on either count, and the tour is what proves
+        # neither condition is left on the inherited form.
         documented = cls.env['hr.leave'].create({
             'employee_id': cls.env['hr.employee'].create({
                 'name': 'Tour Documented Teacher', 'employee_type': 'teacher',
             }).id,
-            'holiday_status_id': cls.env.ref('ems.leave_type_medical_appointment').id,
+            'holiday_status_id': cls.env.ref('ems.leave_type_justified').id,
             'request_date_from': day,
             'request_date_to': day,
             'ems_full_day': True,
@@ -59,6 +61,7 @@ class TestAbsenceTour(HttpCase):
             'res_model': 'hr.leave',
             'res_id': documented.id,
         }).id)]
+        documented.action_approve()
 
     def test_absence_request_tour(self):
         self.start_tour("/odoo", "ems_absence_request", login="admin")
@@ -77,3 +80,6 @@ class TestAbsenceTour(HttpCase):
 
     def test_absence_justification_removal_tour(self):
         self.start_tour("/odoo", "ems_absence_justification", login="admin")
+
+    def test_absence_refuse_confirm_tour(self):
+        self.start_tour("/odoo", "ems_absence_refuse_confirm", login="admin")

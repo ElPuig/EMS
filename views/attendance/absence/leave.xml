@@ -109,19 +109,37 @@
 
                 <!-- "Supporting Document" is called "Justificante" in the original form, and
                      carries an instruction the employee genuinely needs (a medical certificate
-                     has to name the patient and the entry/exit times). -->
+                     has to name the patient and the entry/exit times).
+
+                     Both of the conditions Odoo puts on it are dropped, so the field is on every
+                     request whatever its type and whatever its state:
+
+                     - By type ('leave_type_support_document'). The flag says which types
+                       *require* a document, not which ones accept one, and the centre takes a
+                       justification for any absence somebody has one for - an employee who can
+                       document a "Justified absence" had nowhere to attach it.
+                     - By state. Direction's own check of the document
+                       ('ems_direction_state') happens after the approval, and a medical
+                       certificate is usually handed in days after the absence itself, so the
+                       field disappearing the moment the request was approved made the "Missing
+                       document" state impossible to ever clear.
+
+                     The server has always allowed both: 'hr.leave.write()' exempts
+                     'supported_attachment_ids' by name from every restriction it puts on an
+                     approved, cancelled or already-started request. Only the view hid it. -->
                 <xpath expr="//label[@for='supported_attachment_ids']" position="attributes">
                     <attribute name="string">Supporting document</attribute>
+                    <attribute name="invisible">0</attribute>
                 </xpath>
                 <xpath expr="//field[@name='supported_attachment_ids']" position="before">
-                    <div class="text-muted small"
-                         invisible="not leave_type_support_document or state not in ('confirm', 'validate1')"><span>Supporting document for the absence. For a medical appointment, it must expressly state the patient's first name and surname and the time of entry to and exit from the centre or medical practice.</span></div>
+                    <div class="text-muted small"><span>Supporting document for the absence. For a medical appointment, it must expressly state the patient's first name and surname and the time of entry to and exit from the centre or medical practice.</span></div>
                 </xpath>
 
                 <!-- Deleting the justification is not something to do by accident: same widget,
                      with a confirmation in front of the removal. -->
                 <xpath expr="//field[@name='supported_attachment_ids']" position="attributes">
                     <attribute name="widget">ems_attachment_confirm</attribute>
+                    <attribute name="invisible">0</attribute>
                 </xpath>
 
                 <xpath expr="//field[@name='supported_attachment_ids']" position="after">
@@ -154,6 +172,21 @@
                            readonly="not is_absence_direction"/>
                 </xpath>
 
+                <!-- Refusing is the one decision on this form that cannot be taken back.
+                     'action_reset_confirm' does exist, but Odoo reserves resetting a *refused*
+                     request to the Time Off Administrator group ("Only a Time Off Manager can
+                     reset a refused leave", hr.leave._check_approval_update), which nobody at
+                     the centre holds - deliberately, see res.users._ems_sync_time_off_groups.
+                     So the employee has to file the whole request again, and the approver was
+                     one stray click away from causing that, here and from the list and kanban
+                     buttons below. Odoo's own 'confirm' attribute, not a wizard: it is the
+                     mechanism for exactly this, and it needs no code at all. -->
+                <xpath expr="//header/button[@name='action_refuse']" position="attributes">
+                    <attribute name="confirm">A refused absence request cannot be reopened: the employee has to file a new one. Refuse it?</attribute>
+                    <attribute name="confirm-title">Refuse this absence request</attribute>
+                    <attribute name="confirm-label">Refuse</attribute>
+                </xpath>
+
                 <!-- Nothing is filed until the employee says so. Odoo would otherwise keep the
                      record the moment any field changes, which is the wrong contract for a
                      request that has legal wording attached to it. -->
@@ -178,6 +211,20 @@
                     <field name="ems_type_short_name" class="fw-bold"/>
                 </xpath>
 
+                <!-- Same confirmation as the form's own Refuse button, and this is the one
+                     that is really clicked by accident: in the list it is a bare "x" icon at
+                     the end of a row, one column away from Approve.
+
+                     Only 'confirm' here, without the dialog's title and button label: unlike
+                     form and kanban views, a list is validated against a RelaxNG schema
+                     (base/rng/list_view.rng, there is no form_view.rng at all), and its
+                     'button' definition allows 'confirm' but neither 'confirm-title' nor
+                     'confirm-label'. Adding them turns the whole view invalid and the module
+                     upgrade fails. -->
+                <xpath expr="//button[@name='action_refuse']" position="attributes">
+                    <attribute name="confirm">A refused absence request cannot be reopened: the employee has to file a new one. Refuse it?</attribute>
+                </xpath>
+
                 <xpath expr="//field[@name='duration_display']" position="after">
                     <field name="ems_counts_hours" optional="show"
                            groups="hr_holidays.group_hr_holidays_responsible"/>
@@ -192,6 +239,22 @@
                            optional="hidden" groups="hr_holidays.group_hr_holidays_responsible"/>
                 </xpath>
 
+            </field>
+        </record>
+
+        <!-- The kanban is the third screen the same Refuse button appears on (Management > Time
+             Off switches to it), so it gets the same confirmation. Inheriting the base kanban
+             covers 'hr_leave_view_kanban_my' too, which is a primary view derived from it. -->
+        <record id="hr_leave_view_kanban_ems" model="ir.ui.view">
+            <field name="name">hr.leave.view.kanban.ems</field>
+            <field name="model">hr.leave</field>
+            <field name="inherit_id" ref="hr_holidays.hr_leave_view_kanban"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_refuse']" position="attributes">
+                    <attribute name="confirm">A refused absence request cannot be reopened: the employee has to file a new one. Refuse it?</attribute>
+                    <attribute name="confirm-title">Refuse this absence request</attribute>
+                    <attribute name="confirm-label">Refuse</attribute>
+                </xpath>
             </field>
         </record>
 

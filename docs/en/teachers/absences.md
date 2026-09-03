@@ -81,9 +81,11 @@ To request more than one day, tick it and change the end date. For a single day 
 
 ## Supporting document
 
-Three types need one attached: **Sick leave**, **Medical appointment** and **Invasive medical test**.
+**You can attach one to any absence, of any type, at any time.** Three types *require* one: **Sick leave**, **Medical appointment** and **Invasive medical test**; for the rest it is optional, and it is worth attaching whenever you have it.
 
 For a medical appointment, the document must expressly state the patient's first name and surname and the time of entry to and exit from the centre or medical practice.
+
+**A certificate that arrives later is filed on the same request.** Open the absence, even one already approved, attach the file and save. That is what clears a **Direction check** left at *Missing document*: you do not have to request the absence again.
 
 To remove one, click the cross on the file and confirm.
 
@@ -113,7 +115,7 @@ If you leave the form without sending it, EMS tells you and lets you discard it.
 |---|---|
 | Pending | Not decided yet |
 | Approved | Granted |
-| Refused | Denied |
+| Refused | Denied. This is final: to insist, file a new request |
 | Cancelled | Withdrawn |
 
 **Direction check** — whether Direction has checked the supporting document:
@@ -121,7 +123,7 @@ If you leave the form without sending it, EMS tells you and lets you discard it.
 | Value | Colour | What you have to do |
 |---|---|---|
 | Not done | grey | Nothing, it has not been reviewed yet |
-| Missing document | red | Provide the supporting document |
+| Missing document | red | Attach the supporting document to the same request, even if it is already approved |
 | Done | green | Nothing |
 
 ---

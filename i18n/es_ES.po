@@ -13057,3 +13057,38 @@ msgstr "Persona: %(name)s"
 #: code:addons/ems/models/employees/absence.py:0
 msgid "Status: %(state)s"
 msgstr "Estado: %(state)s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_kanban_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+msgid ""
+"A refused absence request cannot be reopened: the employee has to file a new"
+" one. Refuse it?"
+msgstr ""
+"Una solicitud de ausencia rechazada no se puede reabrir: la persona tendrá "
+"que hacer una nueva. ¿Quieres rechazarla?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_kanban_ems
+msgid "Refuse this absence request"
+msgstr "Rechazar esta solicitud de ausencia"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_kanban_ems
+msgid "Refuse"
+msgstr "Rechazar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid ""
+"An approved absence request can no longer be changed. Its supporting "
+"document can still be filed; anything else has to go through whoever "
+"approved it."
+msgstr ""
+"Una solicitud de ausencia aprobada ya no se puede modificar. El justificante "
+"sí se puede adjuntar; cualquier otro cambio lo tiene que hacer quien la "
+"aprobó."

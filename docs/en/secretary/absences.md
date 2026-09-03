@@ -24,6 +24,8 @@ Only your area's requests appear there, in state **Pending** while they await a 
 
 You have access to the written reason and the supporting document of your own people, and you can adjust **Adds the hours to the monthly report**, **Filed through ATRI** and **Whole day?**, as well as correcting the absence type.
 
+**Refusing is final**, and it asks for confirmation first: nobody can put a refused request back to *Pending*, so the employee would have to file a new one. The supporting document, on the other hand, can be attached at any point, on a request that is already approved included.
+
 You can see the **Direction check** but not change it: Direction sets it.
 
 Those fields and the two reports are covered in the [Head of Studies](../head_of_studies/absences.md) manual, and apply to your area in the same way.

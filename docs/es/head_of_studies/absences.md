@@ -41,6 +41,10 @@ Ahí tienes las solicitudes de tu área. Las que esperan decisión están en est
 
 Tú ves el **motivo escrito** y el **justificante**; el resto del personal, no.
 
+**Rechazar es definitivo.** Nadie del centro puede devolver una solicitud rechazada a *Pendiente*: para concederla finalmente, la persona tiene que hacer una nueva. Como el botón Rechazar está al lado de Aprobar, y en el listado es solo una cruz al final de la fila, siempre pide confirmación antes - lee el mensaje antes de aceptarlo.
+
+Puedes adjuntar un **justificante** a cualquier solicitud, de cualquier tipo y en cualquier momento: un certificado entregado cuando la ausencia ya estaba aprobada se adjunta a esa misma solicitud, y eso es lo que resuelve un *Falta documento*.
+
 ---
 
 ## Ajustar el cómputo de una ausencia

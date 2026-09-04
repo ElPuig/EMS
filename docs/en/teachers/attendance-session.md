@@ -126,4 +126,16 @@ during that session, with a button to see their full detail.
 
 ---
 
+## For Administrators
+
+An Administrator uses this exact same screen, with nothing extra of their own on it — what
+shapes what appears here is entirely configuration, covered in the Administrator manuals:
+
+- [Teacher Working Schedules & Schedule Frameworks](../admin/working-schedules.md) sets up the
+  schedules that generate the planned slots and sessions shown here.
+- [Attendance Statuses: Managing the Passlist Options](../admin/attendance-status.md) configures
+  the status buttons themselves (which ones exist, their order and colours).
+
+---
+
 [← Back to Teachers manuals](index.md)

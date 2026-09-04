@@ -127,4 +127,16 @@ alumno, cuántos strikes se pusieron durante esa sesión, con un botón para ver
 
 ---
 
+## Para Administradores
+
+Un administrador usa exactamente esta misma pantalla, sin nada propio añadido — lo que determina
+su contenido es pura configuración, cubierta en los manuales del Administrador:
+
+- [Horarios de los docentes y marcos horarios](../admin/working-schedules.md) configura los
+  horarios que generan las franjas previstas y las sesiones que se muestran aquí.
+- [Estados de asistencia: gestionar las opciones del pasar lista](../admin/attendance-status.md)
+  configura los propios botones de estado (cuáles existen, su orden y colores).
+
+---
+
 [← Volver a los manuales de Profesores](index.md)

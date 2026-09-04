@@ -127,4 +127,16 @@ quants strikes es van posar durant aquella sessió, amb un botó per veure'n el 
 
 ---
 
+## Per a Administradors
+
+Un administrador fa servir exactament aquesta mateixa pantalla, sense res propi afegit — el que
+en determina el contingut és pura configuració, coberta als manuals de l'Administrador:
+
+- [Horaris dels docents i marcs horaris](../admin/working-schedules.md) configura els horaris que
+  generen les franges previstes i les sessions que es mostren aquí.
+- [Estats d'assistència: gestionar les opcions del passar llista](../admin/attendance-status.md)
+  configura els mateixos botons d'estat (quins existeixen, el seu ordre i colors).
+
+---
+
 [← Tornar als manuals de Docents](index.md)

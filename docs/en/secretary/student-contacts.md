@@ -14,7 +14,8 @@ This guide explains how to manage **student, family, applicant and provider cont
 2. [Adding a family contact to a student](#adding-a-family-contact-to-a-student)
 3. [Enrolling a student in subjects](#enrolling-a-student-in-subjects)
 4. [Bonifications and exemptions](#bonifications-and-exemptions)
-5. [Fields only admin/secretary/tutors can see](#fields-only-adminsecretarytutors-can-see)
+5. [Columns shown in the student list view](#columns-shown-in-the-student-list-view)
+6. [Fields only admin/secretary/tutors can see](#fields-only-adminsecretarytutors-can-see)
 
 ---
 
@@ -49,6 +50,10 @@ A student's fee **benefits** (bonifications, which discount part of the enrollme
 - A student's overall **Benefits** badge (shown on the form) reflects the highest-priority benefit registered: an exemption always outranks a bonification.
 
 Whether a benefit actually changes the enrollment fee depends on the state of the corresponding enrollment: a benefit registered **before** the enrollment is confirmed applies to it immediately; one registered **after confirmation** does not retroactively change an already-confirmed order — re-applying it explicitly (from the enrollment) is needed instead. See the enrollment's own manual for that re-apply action.
+
+## Columns shown in the student list view
+
+Switching the Students screen from Kanban to List view shows, by default, most of the fields already used in the centre's official student data export (document ID/DNI-NIE, birth date, whether the student is of legal age, social security number, nationality, address and postal code), plus the four authorization badges (image rights, school trips, health data, share with family). Any column can be hidden — click the icon at the right of the column headers and untick what you don't need; the choice is remembered for your next visit.
 
 ## Fields only admin/secretary/tutors can see
 

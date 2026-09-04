@@ -14,4 +14,5 @@ id,name,color,employee_type,unipersonal,group_id/id
 "ems.role_vetcoord","VET coordinator",#C62FA0,teacher,true,
 "ems.role_schieff","Secretary chieff",#2FC6C6,asp,true,
 "ems.role_cchieff","Concierje chieff",#2F8DC6,asp,true,
+"ems.role_tac","TAC coordinator",#2F2FC6,teacher,false,ems.group_tac_admin
 "ems.role_secretary_admin","Secretary Administrator",#C62F67,asp,true,ems.group_secretary_admin

@@ -2,6 +2,10 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 ems.access_hr_employee_admin,ems.access_hr_employee_admin,ems.model_hr_employee,ems.group_academic_admin,1,1,1,1
 ems.access_hr_employee_teacher,ems.access_hr_employee_teacher,ems.model_hr_employee,ems.group_teacher,1,0,0,0
 
+ems.access_resource_calendar_head_of_studies,ems.access_resource_calendar_head_of_studies,resource.model_resource_calendar,ems.group_head_of_studies,1,1,1,0
+ems.access_resource_calendar_tac,ems.access_resource_calendar_tac,resource.model_resource_calendar,ems.group_tac,1,1,1,0
+ems.access_resource_calendar_attendance_tac,ems.access_resource_calendar_attendance_tac,resource.model_resource_calendar_attendance,ems.group_tac,1,1,1,1
+
 
 ems.access_hr_department_admin,ems.access_hr_department_admin,hr.model_hr_department,ems.group_academic_admin,1,1,1,1
 ems.access_hr_department_teacher,ems.access_hr_department_teacher,hr.model_hr_department,ems.group_teacher,1,0,0,0

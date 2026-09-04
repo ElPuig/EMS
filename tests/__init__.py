@@ -155,3 +155,5 @@ from . import test_limesurvey_block_tour
 from . import test_shared_mixins
 from . import test_grade_matrix_tour
 from . import test_grade_tutor_matrix_tour
+from . import test_employee_staff_permissions
+from . import test_employee_staff_permissions_tour

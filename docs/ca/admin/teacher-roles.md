@@ -25,10 +25,15 @@ Els nivells de permisos formen una jerarquia — cada nivell inclou tots els per
 | Cap d'estudis / Cap d'estudis adjunt | Cap d'estudis | Automàtic — s'estableix com a **Responsable d'àrea** al formulari d'un departament top-level (Rol = Cap d'estudis/adjunt) |
 | Secretari/ària | *(bloc de Secretaria — vegeu la nota)* | Automàtic — s'estableix com a **Responsable d'àrea** al formulari del departament `ASP` (Rol = Secretari/ària) |
 | Director | Director | Automàtic — s'estableix com a **Director** a Ajustes > EMS Management |
+| Coordinador/a TAC | *(bloc TAC — vegeu la nota de sota)* | Manual — s'afegeix al camp **Càrrecs** de la fitxa del professor |
 
 > El Cap de departament té actualment els mateixos permisos que el Tutor, a més de poder crear, editar i eliminar Grups d'alumnes (Contactes → Grups). Existeix com a nivell propi perquè es pugui ampliar de manera independent en el futur. El Cap de seminari té el mateix nivell de permisos.
 >
 > **El rol de Secretari/ària no forma part d'aquesta jerarquia.** Concedeix accés a un bloc de permisos completament separat (Secretaria: Manager/Administrador), sense relació amb la cadena Professor→...→Director de dalt — encara que es configura de la mateixa manera (com a "Responsable d'àrea" en un departament top-level), no ocupa cap esglaó d'aquesta escala.
+>
+> **El càrrec de Coordinador/a TAC tampoc no forma part d'aquesta jerarquia.** Concedeix un bloc de permisos propi i separat (TAC: Manager/Administrador) i, a diferència de tots els altres càrrecs d'aquesta taula, s'assigna a mà, des del camp **Càrrecs** de la fitxa del professor. Concedeix exactament una cosa: poder crear i editar fitxes de professorat senceres, informació privada inclosa, el mateix dret que ha guanyat la prefectura d'estudis, i res més de l'escala de dalt. No és unipersonal: el càrrec el pot ocupar un equip de diverses persones alhora.
+>
+> **La prefectura d'estudis, l'adjunta i la direcció ja poden crear i editar professorat.** Fins fa poc només ho podia fer l'administració; vegeu [Crear i editar professorat](../head_of_studies/staff-management.md). Esborrar una fitxa de personal i gestionar el PAS continuen sent exclusius de l'administració.
 
 ---
 

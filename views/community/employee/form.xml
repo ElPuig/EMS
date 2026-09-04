@@ -100,6 +100,29 @@
                     <attribute name="required">not id and employee_type in ('teacher', 'asp')</attribute>
                 </field>
 
+                <!-- Second occurrence of private_email, on the main screen, last in the right-hand
+                     column under Department/Job Position/Manager (issue #391). The field is required
+                     to create teaching staff, and a required field buried in a tab means every new
+                     teacher starts with a validation error on a screen that does not show what is
+                     wrong - so it is surfaced here, where the record is actually filled in.
+
+                     Deliberately a duplicate and not a 'position="move"': it must stay in its
+                     original place in the "Private Information" tab too, where anyone maintaining
+                     an existing record expects to find it. Both nodes are bound to the same field,
+                     so editing either one updates the other live.
+
+                     'required' is repeated here because the position="attributes" above resolves
+                     against the first matching node at the time it is applied - the tab's one -
+                     and would leave this occurrence without it.
+
+                     Still protected: private_email carries groups="hr.group_hr_user" on the field
+                     itself, so sitting outside the page's own group gate changes nothing about who
+                     can see it. -->
+                <xpath expr="//field[@name='coach_id']" position="after">
+                    <field name="private_email"
+                           required="not id and employee_type in ('teacher', 'asp')"/>
+                </xpath>
+
                 <xpath expr="//page[@name='personal_information']/group/group[2]" position="attributes">
                     <attribute name="invisible">True</attribute>
                 </xpath>  

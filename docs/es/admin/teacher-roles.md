@@ -25,10 +25,15 @@ Los niveles de permisos forman una jerarquía — cada nivel incluye todos los p
 | Jefe de estudios / Jefe de estudios adjunto | Jefe de estudios | Automático — se establece como **Responsable de área** en el formulario de un departamento top-level (Rol = Jefe de estudios/adjunto) |
 | Secretario/a | *(bloque de Secretaría — ver nota)* | Automático — se establece como **Responsable de área** en el formulario del departamento `ASP` (Rol = Secretario/a) |
 | Director | Director | Automático — se establece como **Director** en Ajustes > EMS Management |
+| Coordinador/a TAC | *(bloque TAC — ved la nota de abajo)* | Manual — se añade al campo **Cargos** de la ficha del profesor |
 
 > El Jefe de departamento tiene actualmente los mismos permisos que el Tutor, además de poder crear, editar y eliminar Grupos de alumnos (Contactos → Grupos). Existe como nivel propio para poder ampliarse de forma independiente en el futuro. El Jefe de seminario tiene el mismo nivel de permisos.
 >
 > **El rol de Secretario/a no forma parte de esta jerarquía.** Concede acceso a un bloque de permisos completamente separado (Secretaría: Manager/Administrador), sin relación con la cadena Profesor→...→Director de arriba — aunque se configura de la misma manera (como "Responsable de área" en un departamento top-level), no ocupa ningún peldaño de esta escala.
+>
+> **El cargo de Coordinador/a TAC tampoco forma parte de esta jerarquía.** Concede un bloque de permisos propio y separado (TAC: Manager/Administrador) y, a diferencia de todos los demás cargos de esta tabla, se asigna a mano, desde el campo **Cargos** de la ficha del profesor. Concede exactamente una cosa: poder crear y editar fichas de profesorado enteras, información privada incluida, el mismo derecho que ha ganado la jefatura de estudios, y nada más de la escala de arriba. No es unipersonal: el cargo lo puede ocupar un equipo de varias personas a la vez.
+>
+> **La jefatura de estudios, la adjunta y la dirección ya pueden crear y editar profesorado.** Hasta hace poco solo podía hacerlo la administración; ved [Crear y editar profesorado](../head_of_studies/staff-management.md). Borrar una ficha de personal y gestionar el PAS siguen siendo exclusivos de la administración.
 
 ---
 

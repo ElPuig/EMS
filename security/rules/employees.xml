@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- hr.employee
+
+             Issue #391 lets the Head of Studies / Deputy Head of Studies (ems.group_head_of_studies,
+             also reached by the Director and the academic Administrator through implied_ids) and the
+             TAC coordinator (ems.group_tac) create and edit teachers, managing their records in full
+             - private information included, since these posts are the ones responsible for that data.
+             Both groups therefore imply hr.group_hr_user (security/groups.xml), Odoo's own HR officer
+             group, rather than EMS re-declaring the whole staff-management surface by hand: it is a
+             single, well-understood grant, and it is also the only thing that lifts the field-level
+             groups="hr.group_hr_user" that hr.employee.private_email and the "Private Information" /
+             "HR Settings" pages carry natively.
+
+             That native group is broader than this issue asked for in two respects, and these rules
+             are what narrow it back down. Both are per-operation: rules are evaluated per operation,
+             so leaving perm_read False throughout means nothing here changes who can *see* a staff
+             record - only what they may do to it. -->
+
+        <!-- 1. Editing and creating is bounded to teachers: ASP records stay the Secretariat's. -->
+        <record id="rule_hr_employee_write_teacher_only" model="ir.rule">
+            <field name="name">Employee: teachers only (write/create)</field>
+            <field name="model_id" ref="ems.model_hr_employee"/>
+            <field name="groups" eval="[(4, ref('ems.group_head_of_studies')), (4, ref('ems.group_tac'))]"/>
+            <field name="domain_force">[('employee_type', '=', 'teacher')]</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- 2. Deleting a staff record stays exclusive to the administrators, even though
+             hr.group_hr_user grants unlink on hr.employee. An unsatisfiable domain is the way to
+             express "this group never deletes" in a mechanism that only ever grants: rules for a
+             user's groups are OR-ed, so this one contributes nothing to that OR and the operation
+             is refused unless some other rule below allows it. -->
+        <record id="rule_hr_employee_no_unlink_staff_manager" model="ir.rule">
+            <field name="name">Employee: staff managers never delete</field>
+            <field name="model_id" ref="ems.model_hr_employee"/>
+            <field name="groups" eval="[(4, ref('ems.group_head_of_studies')), (4, ref('ems.group_tac'))]"/>
+            <field name="domain_force">[(0, '=', 1)]</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- 3. The counterpart that keeps the administrators where they already were, on all three
+             operations. It is needed because rules for a user's groups are OR-ed and
+             group_academic_admin implies group_director -> group_head_of_studies: without it, the
+             academic Administrator would inherit both restrictions above and silently lose its ASP
+             write access and its ability to delete a record at all. The same applies to the
+             Secretary Administrator, which manages ASP staff.
+
+             Deliberately listed as the two EMS administrator groups rather than hr.group_hr_user:
+             that native group is now implied by the two restricted groups themselves, so using it
+             here would cancel out both bounds this file exists to enforce. -->
+        <record id="rule_hr_employee_write_all" model="ir.rule">
+            <field name="name">Employee: all staff (write/create/delete)</field>
+            <field name="model_id" ref="ems.model_hr_employee"/>
+            <field name="groups" eval="[(4, ref('ems.group_academic_admin')), (4, ref('ems.group_secretary_admin'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+    </data>
+</odoo>

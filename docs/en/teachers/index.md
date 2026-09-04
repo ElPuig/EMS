@@ -12,6 +12,7 @@ This section contains the manuals for **teachers**.
 
 | Manual | Description |
 |--------|-------------|
+| [Taking Attendance: The Daily Roll-Call and Guard Mode](attendance-session.md) | Mark each student's status, add notes, issue strikes, and take attendance for a session you're covering as a guard |
 | [Attendance: Reviewing Your Check-ins and Requesting Corrections](attendance-corrections.md) | Review your attendance check-ins and check-outs and request corrections |
 | [Signing in to EMS with Your Corporate Google Account](acces-ems-google.md) | Access EMS with the **Sign in with Google** button and your `@elpuig.xeill.net` account, without a separate password |
 | [Evaluation: Record grades by learning outcome](qualificacions.md) | Record the grades for each evaluation to prepare the evaluation board |
@@ -24,7 +25,6 @@ This section contains the manuals for **teachers**.
 
 ## Planned Topics
 
-- Attendance: management of attendance sessions and guard mode
 - Planning: session and content programming
 
 ---

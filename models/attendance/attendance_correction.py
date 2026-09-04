@@ -93,7 +93,14 @@ class ems_attendance_correction(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            attendance = self.env["hr.attendance"].browse(vals.get("attendance_id"))
+            # NOTE: attendance_id is readonly="1" in the form (only ever populated via the
+            # "Request Correction" button's default_attendance_id context), so the client
+            # never sends it in vals - Odoo only merges context defaults into vals inside
+            # the base create() (_add_missing_default_values), which runs *after* this
+            # override. Falling back to the context default here (instead of assuming vals
+            # already has it) is what actually resolves the real attendance record.
+            attendance_id = vals.get("attendance_id") or self.env.context.get("default_attendance_id")
+            attendance = self.env["hr.attendance"].browse(attendance_id)
             vals.setdefault("original_check_in", attendance.check_in)
             vals.setdefault("original_check_out", attendance.check_out)
         corrections = super().create(vals_list)

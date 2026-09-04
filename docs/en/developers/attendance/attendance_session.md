@@ -162,6 +162,26 @@ converted from `sudo()`-laden compute methods to genuine `related=` fields (see
 [`attendance_template.md`](attendance_template.md) for the full identity-field-locking
 context this is part of).
 
+## Fixed in this pass (2026-09-04): Guard mode blank screen after starting a covered session
+
+Clicking "Start session" on a colleague's not-yet-started slot in Guard mode created the session
+and loaded its student lines correctly, but the OWL component (`attendance_session_view.js`)
+rendered "No sessions or scheduled timetables for this day" instead of the roll-call table.
+Cause: the instant a guard-covered session is created, its `session_teacher_id` becomes the
+covering teacher's own employee (see "Guard mode" above) — exactly the condition
+`get_guard_sessions()` uses to exclude it, since it now belongs under Normal/Manual mode's own
+view instead (avoiding showing it twice). `onStartSession()` calls `_loadAll()` — which wipes
+`state.sessions`/`state.planned` via that same exclusion — *before* re-selecting the new session
+and loading its lines directly by id, and the template's own "nothing at all" empty-state check
+only looked at those (now guard-mode-empty) lists, never at whether `state.lines` had actually
+loaded. Fixed in `attendance_session_view.xml`: the empty-state condition now also checks
+`!state.lines.length`. First browser tour coverage for Guard mode
+(`static/tests/tours/attendance_session_tour.js` → `ems_attendance_session_guard`,
+`tests/test_attendance_session_tour.py`) is what caught this — `get_guard_planned` also had zero
+backend test coverage before this pass. The same tour file's other entry
+(`ems_attendance_session_continuation`) covers the same-day continuation banner/auto-copy
+described above, likewise previously untested in a real browser.
+
 ## Search view: "Archived" filter added, `session_teacher_id` made searchable (2026-08-06, phase 8 of `plans/course_transition_teacher_schedule_archival.md`)
 
 `views/attendance/attendance_session/search.xml` had no `<filter name="inactive">` at all — an

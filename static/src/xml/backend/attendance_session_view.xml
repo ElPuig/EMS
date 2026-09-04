@@ -102,8 +102,14 @@
                     <span><t t-esc="strings.multipleSessionsWarning"/></span>
                 </div>
 
-                <!-- No items at all -->
-                <t t-if="!filteredSessions.length and !filteredPlanned.length">
+                <!-- No items at all. state.lines.length is also checked here: in Guard mode, a
+                     session just started while covering someone else's slot immediately drops
+                     out of both get_guard_sessions() (excludes session_teacher_id == you, since
+                     it now belongs to Normal/Manual mode instead - see attendance_session.py)
+                     and get_guard_planned() (it's no longer un-started), which would otherwise
+                     make this branch wrongly override the already-loaded student table below
+                     with an empty-state message right after onStartSession() populates it. -->
+                <t t-if="!filteredSessions.length and !filteredPlanned.length and !state.lines.length">
                     <div class="ems-av-empty"><t t-esc="strings.noSessionsDay"/></div>
                 </t>
 

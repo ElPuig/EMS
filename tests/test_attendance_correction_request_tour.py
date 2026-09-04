@@ -26,3 +26,11 @@ class TestAttendanceCorrectionRequestTour(HttpCase):
         self.assertEqual(self.attendance.correction_count, 1)
         correction = self.attendance.correction_ids
         self.assertEqual(correction.reason, 'Tour: forgot to check out on time')
+        # attendance_id is readonly="1" in the form (only ever populated via the
+        # "Request Correction" button's default_attendance_id context) - it must still
+        # resolve to the real attendance so original_check_in/out get correctly snapshotted
+        # (see create()'s context-default fallback and its regression test in
+        # tests/test_attendance_correction.py).
+        self.assertEqual(correction.attendance_id, self.attendance)
+        self.assertEqual(correction.original_check_in, self.attendance.check_in)
+        self.assertEqual(correction.original_check_out, self.attendance.check_out)

@@ -7,6 +7,8 @@ import { useService } from "@web/core/utils/hooks";
 
 const cogMenuRegistry = registry.category("cogMenu");
 
+let _workingSchedulesActionId = null;
+
 export class ImportPlannerCogMenu extends Component {
     static template = "cog_menu.ImportPlannerCogMenu";
     static components = { DropdownItem };
@@ -44,9 +46,25 @@ export class ImportPlannerCogMenu extends Component {
 export const ImportPlannerCogMenuItem = {
     Component: ImportPlannerCogMenu,
     groupNumber: 20,
-    isDisplayed: ({ config }) => {  
-        const { actionType, actionId, viewType, actionName } = config;            
-        return actionType === "ir.actions.act_window" && actionId && viewType !=="form" && actionName === "Working Schedules";
+    // NOTE: matched by the menu's own xmlid (like ImportStudentCogMenu/ImportGedacCogMenu), never
+    // by 'actionName' - that field is the act_window's translated display name, so a plain string
+    // comparison against the English source text ("Working Schedules") only ever matched when the
+    // user's UI language was English, silently hiding this cog entry in ca_ES/es_ES (developer
+    // report 2026-09-04).
+    isDisplayed: (env) => {
+        const { actionType, actionId, viewType } = env.config;
+        if (actionType !== "ir.actions.act_window" || !actionId || viewType === "form") {
+            return false;
+        }
+        if (_workingSchedulesActionId === null) {
+            try {
+                const menu = env.services.menu.getAll().find((m) => m.xmlid === "ems.menu_work_locations");
+                _workingSchedulesActionId = menu ? menu.actionID : false;
+            } catch {
+                _workingSchedulesActionId = false;
+            }
+        }
+        return actionId === _workingSchedulesActionId;
     },
 };
 

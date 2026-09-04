@@ -139,6 +139,7 @@ from . import test_portal_actions
 from . import test_enrollment_product_extension
 from . import test_enrollment_mail_activity
 from . import test_attendance_session
+from . import test_attendance_session_tour
 from . import test_attendance_passlist_tour
 from . import test_attendance_template_tour
 from . import test_attendance_archived_filter_tour
@@ -155,3 +156,5 @@ from . import test_limesurvey_block_tour
 from . import test_shared_mixins
 from . import test_grade_matrix_tour
 from . import test_grade_tutor_matrix_tour
+from . import test_employee_staff_permissions
+from . import test_employee_staff_permissions_tour

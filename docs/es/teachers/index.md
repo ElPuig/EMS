@@ -12,6 +12,7 @@ Esta sección contiene los manuales para los **profesores**.
 
 | Manual | Descripción |
 |--------|-------------|
+| [Pasar lista: la sesión de asistencia diaria y el modo guardia](attendance-session.md) | Marcar el estado de cada alumno, añadir notas, poner strikes y pasar lista de una sesión que cubres en guardia |
 | [Fichajes: revisar tus entradas/salidas y solicitar correcciones](attendance-corrections.md) | Revisar tus entradas/salidas y solicitar correcciones |
 | [Iniciar sesión en el EMS con la cuenta corporativa de Google](acces-ems-google.md) | Acceder al EMS con el botón **Iniciar sesión con Google** y tu cuenta `@elpuig.xeill.net`, sin contraseña separada |
 | [Evaluación: Introducir calificaciones por RAs](qualificacions.md) | Introducir las calificaciones de cada evaluación para preparar la junta de evaluación |
@@ -24,7 +25,6 @@ Esta sección contiene los manuales para los **profesores**.
 
 ## Temas previstos
 
-- Pasar lista: gestión de sesiones de asistencia y modo guardia
 - Planificación: programación de sesiones y contenidos
 
 ---

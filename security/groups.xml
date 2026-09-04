@@ -65,6 +65,19 @@
             <field name="visible">True</field>
         </record>
 
+        <!-- Kept separate for the same reason as category_secretary/category_quality/
+             category_coexistence: the TAC (Learning and Knowledge Technologies) coordinator is
+             transversal to the teacher/tutor/HoS hierarchy - the post is held by a teacher, but it
+             doesn't sit anywhere on that chain, so it gets its own independent Manager/Administrator
+             chain instead of being wired into it. -->
+        <record model="ir.module.category" id="category_tac">
+            <field name="name">TAC</field>
+            <field name="description">Educational Management System - Learning and Knowledge Technologies</field>
+            <field name="parent_id" ref="ems.category_main"/>
+            <field name="sequence">5</field>
+            <field name="visible">True</field>
+        </record>
+
         <!-- Consolidates Odoo's native Administration (Access Rights/Settings), Canned Responses
              and Job Queue permissions - previously scattered technical selectors - into one clean
              EMS selector. Kept separate for the same reason as category_secretary/category_quality. -->
@@ -72,7 +85,7 @@
             <field name="name">Settings</field>
             <field name="description">Educational Management System - Settings</field>
             <field name="parent_id" ref="ems.category_main"/>
-            <field name="sequence">5</field>
+            <field name="sequence">6</field>
             <field name="visible">True</field>
         </record>
 
@@ -99,9 +112,9 @@
 
         <record model="res.groups" id="group_head_of_studies">
             <field name="name">Head of Studies</field>
-            <field name="comment">Access rights for Head of Studies / Deputy Head of Studies. Grants full read/write access to all employees' attendance records.</field>
+            <field name="comment">Access rights for Head of Studies / Deputy Head of Studies. Grants full read/write access to all employees' attendance records, and the right to create and edit teachers.</field>
             <field name="category_id" ref="ems.category_roles"/>
-            <field name="implied_ids" eval="[(4, ref('ems.group_department_chief')), (4, ref('hr_attendance.group_hr_attendance_manager'))]"/>
+            <field name="implied_ids" eval="[(4, ref('ems.group_department_chief')), (4, ref('hr_attendance.group_hr_attendance_manager')), (4, ref('hr.group_hr_user'))]"/>
         </record>
 
         <!-- Same privileges as Head of Studies for now; kept as its own group so it can be
@@ -177,6 +190,32 @@
             <field name="comment">Access rights for the Coexistence coordinator. Currently identical to Manager.</field>
             <field name="category_id" ref="ems.category_coexistence"/>
             <field name="implied_ids" eval="[(4, ref('ems.group_coexistence'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+        <!-- Implies group_teacher because the TAC coordinator is always a teacher (role_tac is
+             employee_type='teacher'), and hr.group_hr_user because the post manages teachers'
+             own records - see the same implied_ids on group_head_of_studies above, and
+             "Staff management" in docs/en/developers/employees/role_hierarchy.md for why the
+             native HR officer group is what grants this rather than a hand-rolled set of ACL
+             lines. Odoo's own Employees app stays out of the way regardless: EMS deactivates
+             hr.menu_hr_root in views/menu.xml. -->
+        <record model="res.groups" id="group_tac">
+            <field name="name">Manager</field>
+            <field name="comment">Access rights for the TAC team: can create and edit teachers.</field>
+            <field name="category_id" ref="ems.category_tac"/>
+            <field name="implied_ids" eval="[(4, ref('ems.group_teacher')), (4, ref('hr.group_hr_user'))]"/>
+        </record>
+
+        <!-- Same privileges as Manager for now; kept as its own group so it can be
+             differentiated later without another migration. root/admin are added directly
+             (not via group_academic_admin's implied_ids) so the blocks stay independent:
+             see group_academic_admin below. -->
+        <record model="res.groups" id="group_tac_admin">
+            <field name="name">Administrator</field>
+            <field name="comment">Access rights for the TAC coordinator. Currently identical to Manager.</field>
+            <field name="category_id" ref="ems.category_tac"/>
+            <field name="implied_ids" eval="[(4, ref('ems.group_tac'))]"/>
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         </record>
 

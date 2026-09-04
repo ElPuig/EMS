@@ -203,6 +203,35 @@ class TestAttendanceCorrection(TransactionCase):
         self.assertEqual(correction.approver_id, self.hos_user)
         self.assertTrue(correction.decision_date)
 
+    def test_create_via_default_attendance_id_context_snapshots_originals(self):
+        # The real "Request Correction" button flow never sends attendance_id explicitly -
+        # the field is readonly="1" in the form (views/attendance/attendance_correction/form.xml)
+        # and only ever gets populated via the button's default_attendance_id context
+        # (views/attendance/attendance_correction/hr_attendance_form.xml). Odoo only merges
+        # context defaults into vals inside the base create() (_add_missing_default_values,
+        # called from _prepare_create_values) - which runs AFTER this model's own create()
+        # override. If the override reads vals.get("attendance_id") assuming it's already
+        # there, it browses an empty recordset and silently snapshots original_check_in/out
+        # as False - reproduced by simulating exactly what the client sends: no attendance_id
+        # key in vals at all, only the context default (confirmed against the real browser
+        # flow via test_attendance_correction_request_tour.py).
+        correction = self.env['ems.attendance_correction'].with_context(
+            default_attendance_id=self.attendance.id
+        ).with_user(self.teacher_user).create({
+            'reason': 'Forgot to check in on time.',
+            'requested_check_in': 8.5,  # 08:30
+        })
+        self.assertEqual(correction.attendance_id, self.attendance)
+        self.assertEqual(correction.original_check_in, self.attendance.check_in)
+        self.assertEqual(correction.original_check_out, self.attendance.check_out)
+
+        correction.with_user(self.hos_user).action_accept()
+        self.assertEqual(correction.state, 'accepted')
+        self.assertEqual(
+            correction.time_to_float(correction.utc_datetime_to_local(self.attendance.check_in).time()),
+            8.5,
+        )
+
     def test_reject_leaves_attendance_untouched(self):
         original_check_in = self.attendance.check_in
         correction = self._create_correction(self.teacher_user)

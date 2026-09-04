@@ -1488,12 +1488,12 @@ msgid "Administrative data"
 msgstr "Datos administrativos"
 
 #. module: ems
-#: model:res.groups,name:ems.group_academic_admin model:res.groups,name:ems.group_coexistence_admin model:res.groups,name:ems.group_quality_admin model:res.groups,name:ems.group_secretary_admin model:res.groups,name:ems.group_settings_admin
+#: model:res.groups,name:ems.group_academic_admin model:res.groups,name:ems.group_coexistence_admin model:res.groups,name:ems.group_quality_admin model:res.groups,name:ems.group_secretary_admin model:res.groups,name:ems.group_settings_admin model:res.groups,name:ems.group_tac_admin
 msgid "Administrator"
 msgstr "Administrador"
 
 #. module: ems
-#: model:res.groups,name:ems.group_coexistence model:res.groups,name:ems.group_quality model:res.groups,name:ems.group_settings
+#: model:res.groups,name:ems.group_coexistence model:res.groups,name:ems.group_quality model:res.groups,name:ems.group_settings model:res.groups,name:ems.group_tac
 msgid "Manager"
 msgstr "Gestor/a"
 
@@ -12527,3 +12527,39 @@ msgstr "No hay horario disponible."
 #: code:addons/ems/static/src/xml/backend/guard_duty_board_field.xml:0
 msgid "Time block"
 msgstr "Bloque horario"
+
+#. module: ems
+#: model:ems.role,name:ems.role_tac
+msgid "TAC coordinator"
+msgstr "Coordinador/a TAC"
+
+#. module: ems
+#: model:ir.module.category,name:ems.category_tac
+msgid "TAC"
+msgstr "TAC"
+
+#. module: ems
+#: model:ir.module.category,description:ems.category_tac
+msgid "Educational Management System - Learning and Knowledge Technologies"
+msgstr "Sistema de Gestión Educativa - Tecnologías para el Aprendizaje y el Conocimiento"
+
+#. module: ems
+#: model:res.groups,comment:ems.group_tac
+msgid "Access rights for the TAC team: can create and edit teachers."
+msgstr "Derechos de acceso del equipo TAC: puede crear y editar profesorado."
+
+#. module: ems
+#: model:res.groups,comment:ems.group_tac_admin
+msgid "Access rights for the TAC coordinator. Currently identical to Manager."
+msgstr "Derechos de acceso de la coordinación TAC. Actualmente idénticos a los de Gestor/a."
+
+#. module: ems
+#: model:res.groups,comment:ems.group_head_of_studies
+msgid ""
+"Access rights for Head of Studies / Deputy Head of Studies. Grants full "
+"read/write access to all employees' attendance records, and the right to "
+"create and edit teachers."
+msgstr ""
+"Derechos de acceso de la jefatura de estudios y la jefatura de estudios "
+"adjunta. Concede acceso completo de lectura y escritura a los registros de "
+"asistencia de todo el personal, y el derecho a crear y editar profesorado."

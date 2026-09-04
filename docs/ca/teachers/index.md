@@ -12,6 +12,7 @@ Aquesta secció conté els manuals per als **professors**.
 
 | Manual | Descripció |
 |--------|------------|
+| [Passar llista: la sessió d'assistència diària i el mode guàrdia](attendance-session.md) | Marcar l'estat de cada alumne, afegir notes, posar strikes i passar llista d'una sessió que cobreixes en guàrdia |
 | [Fitxatges: revisar les teves entrades/sortides i sol·licitar correccions](attendance-corrections.md) | Revisar les teves entrades/sortides i sol·licitar correccions |
 | [Iniciar sessió a l'EMS amb el compte corporatiu de Google](acces-ems-google.md) | Accedir a l'EMS amb el botó **Inicia la sessió amb Google** i el teu compte `@elpuig.xeill.net`, sense contrasenya separada |
 | [Avaluació: Introduir qualificacions per RAs](qualificacions.md) | Introduir les qualificacions de cada avaluació per preparar la junta d'avaluació |
@@ -24,7 +25,6 @@ Aquesta secció conté els manuals per als **professors**.
 
 ## Temes previstos
 
-- Passar llista: gestió de sessions d'assistència i mode guàrdia
 - Planificació: programació de sessions i continguts
 
 ---

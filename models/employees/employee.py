@@ -132,9 +132,14 @@ class ems_employee_base(models.AbstractModel):
         # would always read False regardless of who's actually looking — re-checking
         # against a recordset explicitly bound to the real calling user (self.env.user
         # itself is unaffected by compute_sudo) restores the real per-user answer.
-        can_write = self.with_user(self.env.user).check_access_rights('write', raise_exception=False)
+        # _filtered_access, rather than check_access_rights alone, also applies the record rules
+        # on top of the model-level ACL: since issue #391 the answer is per record, not per user -
+        # the Head of Studies and the TAC coordinator may write a teacher's record but not an ASP
+        # one (security/rules/employees.xml). A record still being created carries a NewId, which
+        # _check_access deliberately skips the rule pass for, so a brand-new form stays editable.
+        writable = self.with_user(self.env.user)._filtered_access('write')
         for employee in self:
-            employee.read_only = not can_write
+            employee.read_only = employee not in writable
 
     def _compute_can_edit_schedule(self):
         can_edit = self.env.user.has_group('ems.group_department_chief')

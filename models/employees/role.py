@@ -69,4 +69,13 @@ class EmsRole(models.Model):
 				raise ValidationError(_(
 					"This role's assignment is managed automatically from the department, "
 					"company or group form and cannot be edited here."))
-		return super().write(vals)
+		# Assigning from this side writes ems.role.employee_ids and never reaches
+		# hr.employee.write(), where '_sync_security_groups()' hangs - so a role linked to a
+		# security group used to be granted with none of its permissions when assigned from the
+		# role's own "Assigned to" list. Both the employees losing the role and the ones gaining
+		# it have to be re-synced, hence capturing the membership on both sides of super().
+		affected = self.employee_ids if 'employee_ids' in vals else None
+		res = super().write(vals)
+		if affected is not None:
+			(affected | self.employee_ids).sudo()._sync_security_groups()
+		return res

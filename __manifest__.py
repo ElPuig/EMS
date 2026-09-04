@@ -59,6 +59,7 @@
         'security/rules/coexistence.xml',
         'security/rules/communications.xml',
         'security/rules/contacts.xml',
+        'security/rules/employees.xml',
         'security/rules/grading.xml',
         'security/rules/planning.xml',
         'security/rules/portal.xml',

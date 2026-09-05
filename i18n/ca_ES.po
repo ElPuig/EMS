@@ -4481,9 +4481,9 @@ msgstr "Última actualització el"
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/contacts/google_workspace_integration.py:0 model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__lastname model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__student_lastname code:addons/ems/static/src/js/backend/em_matrix_field.js:0
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0 model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__lastname model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__student_lastname model:ir.model.fields,field_description:partner_firstname.field_res_partner__lastname model:ir.model.fields,field_description:partner_firstname.field_res_users__lastname code:addons/ems/static/src/js/backend/em_matrix_field.js:0
 msgid "Last name"
-msgstr "Cognom"
+msgstr "Cognoms"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_criteria__outcome_id model:ir.model.fields,field_description:ems.field_ems_planning_outcome__valid_outcome_ids model:ir.model.fields,field_description:ems.field_ems_subject__outcome_ids model_terms:ir.ui.view,arch_db:ems.view_subject_form

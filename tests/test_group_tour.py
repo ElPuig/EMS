@@ -27,6 +27,7 @@ class TestGroupTour(HttpCase):
         self.start_tour("/odoo", "ems_group_reactivate_archived_duplicate", login="admin")
 
     def test_group_archive_confirmation_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # Reinforcement groups again, for the same low-fragility reason as above - a plain Name
         # and a Many2many student list, no Many2one selection needed to set the scene up.
         student_accept = self.env['res.partner'].create({

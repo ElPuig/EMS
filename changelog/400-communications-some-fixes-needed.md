@@ -78,8 +78,10 @@
 - Two more files log in as a freshly created fixture user rather than the real `admin` account;
   those got a lighter prophylactic fix (`'lang': 'en_US'` set directly at creation) since a new
   `res.users` record on this box doesn't reliably default to `en_US` either.
-- Found, not fixed (confirmed unrelated, needs its own session): `test_group_archive_confirmation_tour`
-  still times out clicking "Archive" even with English forced - a different, pre-existing bug.
+- `test_group_archive_confirmation_tour` initially still failed after this pass - not a
+  separate bug, one of `TestGroupTour`'s three test methods was simply missed when the fix was
+  first applied to that file. Fixed once found (via the failure screenshot, which showed the
+  cog menu rendering in Spanish).
 
 # Internal changes:
 

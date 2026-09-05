@@ -9,7 +9,12 @@ class TestLimesurveyHeaderTour(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.header = cls.env['ems.limesurvey_header'].create({
+        # Created as the real 'admin' login (not the default superuser env) so it actually
+        # shows up under the Surveys list's "Show only mine" default filter (search_default_
+        # only_mine=1 on action_limesurvey_header_tree) - a record created via the superuser
+        # env has create_uid=SUPERUSER_ID, which never matches admin's own uid, and the tour
+        # (which logs in as admin) would otherwise find an empty list.
+        cls.header = cls.env['ems.limesurvey_header'].with_user(cls.env.ref('base.user_admin')).create({
             'name': 'LimeSurvey Header Delete Tour', 'title': 'LimeSurvey Header Delete Tour',
             'description': 'LimeSurvey Header Delete Tour', 'target': 'students',
             'tsv_raw_text': 'placeholder', 'state': 'closed',

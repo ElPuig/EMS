@@ -83,6 +83,14 @@
   first applied to that file. Fixed once found (via the failure screenshot, which showed the
   cog menu rendering in Spanish).
 
+## The new "Show only mine" default filter broke 2 pre-existing survey tours:
+- `TestLimesurveyHeaderTour`/`TestLimesurveyRecipientTour` seed their survey fixture via the
+  plain (superuser) test env, so it had `create_uid=SUPERUSER_ID` - invisible to the tour's real
+  `admin` login under the new default "Show only mine" filter (empty list, tour times out
+  finding the seeded row). Fixed by creating those fixtures `with_user(admin)` instead - found
+  only by running the full, unscoped `./test.sh` gate, since scoped ORM tests never render a
+  search view's default filter at all.
+
 # Internal changes:
 
 - New `TestNoticeAccessControl` (`tests/test_notice.py`) and `TestLimesurveyAccessControl`

@@ -21,7 +21,23 @@ for dir in "$MODULES_DIR"/*/; do
             continue
         fi
         echo "# $name:"
-        git -C "$dir" pull
+        # Scoped to the branch actually checked out here, not a bare 'git pull' - a bare pull
+        # fetches EVERY branch from the remote's default refspec, not just this one, and updates
+        # every branch's own remote-tracking ref/reflog in the process. If ANY of those (even a
+        # branch this checkout has nothing to do with right now) has a stale/permission-broken
+        # ref file, 'git fetch' returns non-zero for the whole pull, and 'set -e' aborts this
+        # script before it ever reaches upgrade.sh - exactly what happened in production for
+        # release v18.0.0.23.2 (GitHub Actions run 33918336342): 'main' fetched fine, but the
+        # unrelated '376-absence-management' branch's reflog was root-owned and blocked the
+        # whole command. 'git pull <remote> <ref>' with an explicit ref bypasses the remote's
+        # default fetch refspec entirely and only ever touches THIS branch's own remote-tracking
+        # ref - no other branch, in any module repo (this one's own feature branches, or the OCA
+        # repos' '18.0'), is ever fetched or gets a ref/reflog written at all. Works identically
+        # whether this is a manual devel run on a feature branch or deploy.sh's production run
+        # (which always 'git checkout main' first) - it always pulls whatever is actually
+        # checked out, never a hardcoded branch name.
+        branch="$(git -C "$dir" symbolic-ref --short HEAD)"
+        git -C "$dir" pull origin "$branch"
     fi
 done
 

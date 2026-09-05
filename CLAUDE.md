@@ -627,6 +627,14 @@ explicar de forma genérica"*):
   required by the "read every file" step above), then write fresh, short prose that captures what a
   PR reviewer actually needs to know from it.
 
+**No manual line wraps within a paragraph/bullet in the final delivered document — each one
+must be a single continuous line in the file** (developer feedback 2026-09-04: *"Este texto de
+PR tiene saltos de linea manuales? No debes hacer eso."*). This applies specifically to the
+final reassembled/condensed PR document handed to the developer, not to the per-branch
+`changelog/<branch>.md` working files themselves - those are fine hard-wrapped at a fixed
+column width, since that's simply how the working file happens to be formatted while it's being
+built up over the branch's lifetime.
+
 **Deliver as a file, not pasted into chat — this developer's client renders no download
 affordance either way** (`SendUserFile` produces no visible card in this VSCode-extension/Claude
 Code environment, confirmed 2026-08-12 - only pasting is the actual regression to avoid). Write

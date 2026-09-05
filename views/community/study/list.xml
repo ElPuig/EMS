@@ -4,7 +4,7 @@
             <field name="name">ems.study.list</field>
             <field name="model">ems.study</field>
             <field name="arch" type="xml">
-                <list expand="True" default_order="level_id asc, code asc">                    
+                <list expand="True" default_order="level_id asc, code asc" duplicate="0">                  
                     <field name="acronym"/>
                     <field name="name" class="w-50"/>
                     <field name="date" string="Release"/>

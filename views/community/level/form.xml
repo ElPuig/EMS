@@ -5,7 +5,7 @@
             <field name="name">ems.level.form</field>
             <field name="model">ems.level</field>
             <field name="arch" type="xml">
-                <form string="Level">
+                <form string="Level" duplicate="0">
                     <sheet>
                         <group string="Main data" col="4">
                             <group>

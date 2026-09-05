@@ -104,8 +104,6 @@
   only by running the full, unscoped `./test.sh` gate, since scoped ORM tests never render a
   search view's default filter at all.
 
-# Fixes (i18n/migration):
-
 ## Seeding a new translatable `Html` field's initial multi-language value needed a non-obvious API:
 - `res.company.notice_email_signature`'s initial value (all 3 languages) had to bypass two
   ORM approaches that looked correct but weren't: a loop of `with_context(lang=X).write(...)`
@@ -115,6 +113,25 @@
   term diffing, needs a pre-existing value) rather than the plain `True` that API expects. A
   direct SQL jsonb write is what actually works for a one-time seed like this - documented in
   `docs/en/developers/communications/notice.md` so this isn't rediscovered.
+
+## update.sh's git pull could break a deploy over an unrelated branch's stale ref:
+- A bare `git pull` fetches every branch from the remote, not just the one checked out - if
+  any other branch's local remote-tracking ref/reflog is stale or permission-broken (as
+  happened in production for release v18.0.0.23.2, over a completely unrelated branch), the
+  whole `git fetch` fails and `set -e` aborts `update.sh` before it ever reaches `upgrade.sh`,
+  even though the branch actually being deployed (`main`) would have fetched fine on its own.
+  Now scoped to `git pull origin "$(git -C "$dir" symbolic-ref --short HEAD)"` - only ever
+  touches the checked-out branch's own ref, in every module repo (this one and both OCA ones).
+  Verified for real: ran the updated script end-to-end, which pulled genuine upstream changes
+  into the `queue`/`partner-contact` OCA repos and correctly no-op'd on this repo's own
+  already-up-to-date branch.
+
+## Curriculum models crashed with a raw database error on the stock "Duplicate" action:
+- `ems.study`/`ems.subject`/`ems.level`/`ems.content`/`ems.criteria`/`ems.outcome` each have a
+  unique code/acronym constraint but no `copy()` override, so clicking "Duplicate" raised
+  `UniqueViolation` instead of working or failing cleanly. Disabled duplication on all 6
+  instead of writing a custom `copy()` - can revisit if a future curriculum change genuinely
+  needs cloning one of these.
 
 # Internal changes:
 
@@ -138,3 +155,8 @@
   confirming the Signature field is pre-filled on a new notice.
 - Manifest bumped to `18.0.0.23.3`; new `migrations/18.0.0.23.3/post-migrate.py` backfills
   `notice_email_signature` for existing installations.
+- New tour steps on `study_tour.js`/`subject_tour.js`/`level_tour.js` asserting "Duplicate" is
+  absent from the Action menu; verified as a real (not vacuous) check via `git stash` on the
+  view files - same tours fail without the `duplicate="0"` fix, pass with it.
+- CLAUDE.md's "PR changelog" section: re-added the "no manual line wraps in the final delivered
+  document" rule, which had been reverted earlier for an unrelated branch-deletion reason.

@@ -2304,7 +2304,7 @@ msgstr "Próximamente..."
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__car_plate model:ir.model.fields,field_description:ems.field_res_users__car_plate
 msgid "Car Plate"
-msgstr "Matrícula de coche"
+msgstr "Matrícula del vehículo"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_car_plate
@@ -2571,6 +2571,11 @@ msgstr "Controla cómo se determina la hora de entrada cuando un profesor crea u
 #: model:hr.job,name:ems.job_conversation
 msgid "Conversational Auxiliary"
 msgstr "Auxiliar de conversa"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Corporate email"
+msgstr "Correo corporativo"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
@@ -5487,7 +5492,7 @@ msgstr "Modificación de datos personales del alumno %s"
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0 model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Personal email"
 msgstr "Correo personal"
 

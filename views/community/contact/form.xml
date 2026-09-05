@@ -89,6 +89,29 @@
                     <attribute name="invisible">contact_type != 'provider' or (((is_company and not parent_id) or company_name) and company_name != '')</attribute>
                 </field>
 
+                <!-- For a student, "Email" alone is ambiguous with the institutional address
+                     shown in the "Student data" tab (student_email). Hide the generic email
+                     row and show two clearly-labeled ones instead: an editable "Personal
+                     email" (the same underlying field, just relabeled) and a read-only
+                     "Corporate email" mirroring student_email. Other contact types (family,
+                     applicant, provider...) keep the plain "Email" field untouched. Developer
+                     feedback (2026-09-05). -->
+                <xpath expr="//label[@for='email']" position="attributes">
+                    <attribute name="invisible">contact_type == 'student'</attribute>
+                </xpath>
+
+                <xpath expr="//label[@for='email']/following-sibling::div[1]" position="attributes">
+                    <attribute name="invisible">contact_type == 'student'</attribute>
+                </xpath>
+
+                <xpath expr="//label[@for='email']/following-sibling::div[1]" position="after">
+                    <field name="email" string="Personal email" widget="email"
+                           context="{'gravatar_image': True}" required="user_ids"
+                           invisible="contact_type != 'student'"/>
+                    <field name="student_email" string="Corporate email" widget="email"
+                           readonly="1" invisible="contact_type != 'student'"/>
+                </xpath>
+
                 <field name="function" position="attributes">     
                      <attribute name="invisible">contact_type != 'provider'</attribute>
                 </field>

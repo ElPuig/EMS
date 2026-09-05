@@ -22,6 +22,7 @@ class TestContactTour(HttpCase):
         # this DB (see test_withdrawal_tour.py for the same pattern).
         self.env['res.partner'].create({
             'name': '0000 Contact Tour Student', 'contact_type': 'student',
+            'student_email': 'contact.tour.student@example.com',
         })
         # To observe this tour in a real browser during development:
         #   self.start_tour("/odoo", "ems_contact_tabs_and_relation_wizard", login="admin", watch=True)

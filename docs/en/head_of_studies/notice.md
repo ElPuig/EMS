@@ -35,10 +35,15 @@ See the [Administrator manual](../admin/notice.md#who-sees-which-notices).
 ## Creating, Sending and Deleting
 
 Follow the same steps as the [Administrator manual](../admin/notice.md#creating-and-sending-a-notice):
-compose the subject and message, pick the recipient groups, and send immediately or schedule
-it. A notice you created can only be permanently deleted while still in **Draft** — once
-scheduled or sent, archive it instead (see
+compose the subject and message, review or edit the pre-filled **Signature**, pick the
+recipient groups, and send immediately or schedule it. A notice you created can only be
+permanently deleted while still in **Draft** — once scheduled or sent, archive it instead (see
 [Deleting vs. Archiving](../admin/notice.md#deleting-vs-archiving)).
+
+The Signature starts pre-filled from the centre's shared default, which only an Administrator
+can change (**Settings → EMS Management**) — but you can freely edit or clear it on any notice
+you create, without needing that permission yourself. Whoever replies to your notice reaches
+you directly, not a shared technical address.
 
 ---
 

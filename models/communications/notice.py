@@ -26,6 +26,10 @@ class EmsNotice(models.Model):
     use_schedule = fields.Boolean(string="Schedule sending", default=False)
     scheduled_date = fields.Datetime(string="Scheduled on")
     message = fields.Html(string="Message", required=True, sanitize=True)
+    signature = fields.Html(
+        string="Signature",
+        default=lambda self: self.env.company.notice_email_signature,
+    )
     state = fields.Selection(
         string="State",
         selection=[('draft', 'Draft'), ('scheduled', 'Scheduled'), ('sent', 'Sent'), ('failed', 'Failed')],

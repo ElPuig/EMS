@@ -38,10 +38,15 @@ els vostres propis independentment del filtre. Vegeu el
 
 Seguiu els mateixos passos del
 [manual d'Administrador](../admin/notice.md#crear-i-enviar-un-comunicat): redacteu l'assumpte
-i el missatge, trieu els grups destinataris, i envieu-lo immediatament o programeu-lo. Un
-comunicat que hàgiu creat només es pot eliminar de manera permanent mentre estigui en
-**Esborrany** — un cop programat o enviat, arxiveu-lo en el seu lloc (vegeu
-[Eliminar versus arxivar](../admin/notice.md#eliminar-versus-arxivar)).
+i el missatge, reviseu o editeu la **Signatura** precarregada, trieu els grups destinataris, i
+envieu-lo immediatament o programeu-lo. Un comunicat que hàgiu creat només es pot eliminar de
+manera permanent mentre estigui en **Esborrany** — un cop programat o enviat, arxiveu-lo en el
+seu lloc (vegeu [Eliminar versus arxivar](../admin/notice.md#eliminar-versus-arxivar)).
+
+La Signatura comença precarregada amb la del centre, que només un Administrador pot canviar
+(**Configuració → EMS Management**) — però la podeu editar o esborrar lliurement en qualsevol
+comunicat que creeu, sense necessitar aquest permís. Qui respongui al vostre comunicat us
+arriba directament a vosaltres, no a una adreça tècnica compartida.
 
 ---
 

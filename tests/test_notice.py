@@ -81,6 +81,17 @@ class TestNotice(TransactionCase):
         notice = self._notice()
         self.assertFalse(notice.can_cancel)
 
+    def test_signature_defaults_from_company(self):
+        self.env.company.notice_email_signature = '<p>Company default signature</p>'
+        notice = self._notice()
+        self.assertEqual(notice.signature, '<p>Company default signature</p>')
+
+    def test_signature_is_editable_per_notice(self):
+        notice = self._notice(signature='<p>Custom one-off signature</p>')
+        self.assertEqual(notice.signature, '<p>Custom one-off signature</p>')
+        notice.signature = False
+        self.assertFalse(notice.signature)
+
     # --- _build_auto_lines / _onchange_groups ---------------------------------------------
 
     def test_students_only_creates_one_line_per_student(self):
@@ -347,6 +358,43 @@ class TestNoticeLine(TransactionCase):
     def test_display_status_defaults_to_draft(self):
         line = self._line()
         self.assertEqual(line.display_status, 'draft')
+
+    # --- signature / reply_to rendering (ems.mail_notice) -----------------------------------
+
+    def test_rendered_body_uses_notice_own_signature_not_a_hardcoded_one(self):
+        self.notice.signature = '<p>Distinctive Custom Sign-off</p>'
+        line = self._line()
+        template = self.env.ref('ems.mail_notice')
+        rendered = template.sudo()._generate_template([line.id], ['body_html'])
+        body_html = rendered.get(line.id, {}).get('body_html', '')
+        self.assertIn('Distinctive Custom Sign-off', body_html)
+        self.assertNotIn('Kind regards', body_html)
+
+    def test_rendered_body_omits_signature_when_cleared(self):
+        self.notice.signature = False
+        line = self._line()
+        template = self.env.ref('ems.mail_notice')
+        rendered = template.sudo()._generate_template([line.id], ['body_html'])
+        body_html = rendered.get(line.id, {}).get('body_html', '')
+        self.assertNotIn('Kind regards', body_html)
+
+    def test_reply_to_resolves_to_sent_by_email(self):
+        sender = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Notice Sender', 'login': 'test_notice_sender', 'email': 'sender@example.com',
+            'groups_id': [(4, self.env.ref('base.group_user').id)],
+        })
+        self.notice.sent_by = sender
+        line = self._line()
+        template = self.env.ref('ems.mail_notice')
+        rendered = template.sudo()._generate_template([line.id], ['reply_to'])
+        self.assertEqual(rendered.get(line.id, {}).get('reply_to'), 'sender@example.com')
+
+    def test_reply_to_falls_back_to_create_uid_email_when_not_sent_yet(self):
+        self.assertFalse(self.notice.sent_by)
+        line = self._line()
+        template = self.env.ref('ems.mail_notice')
+        rendered = template.sudo()._generate_template([line.id], ['reply_to'])
+        self.assertEqual(rendered.get(line.id, {}).get('reply_to'), self.notice.create_uid.email)
 
     def test_send_notification_finalizes_notice(self):
         # send_notification() itself never sets notification_id (that's

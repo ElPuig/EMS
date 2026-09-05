@@ -20,32 +20,54 @@ troba a **Comunicacions → Comunicats**.
 
 1. **Comunicacions → Comunicats → Nou**.
 2. Ompliu l'**Assumpte** i el **Missatge** (text enriquit, admet imatges).
-3. Trieu **Enviar a**: Alumnes, Famílies, o Tots dos.
-4. Si la selecció inclou alumnes, trieu **Correu del destinatari**: **Corporatiu** (l'adreça
+3. Reviseu la **Signatura**, just a sota — ve precarregada amb la del vostre centre (vegeu
+   [Personalitzar la signatura](#personalitzar-la-signatura) més avall), però la podeu editar o
+   esborrar lliurement només per a aquest comunicat.
+4. Trieu **Enviar a**: Alumnes, Famílies, o Tots dos.
+5. Si la selecció inclou alumnes, trieu **Correu del destinatari**: **Corporatiu** (l'adreça
    institucional de Google Workspace de l'alumne), **Personal** (la seva adreça personal), o
    **Ambdós** (per defecte) — si l'alumne té les dues adreces, "Ambdós" envia el comunicat a
    cadascuna per separat. Aquesta opció no té cap efecte sobre les famílies, ja que només tenen
    una única adreça de correu.
-5. Afegiu un o més **Grups** — la llista de destinataris es genera automàticament a partir dels
+6. Afegiu un o més **Grups** — la llista de destinataris es genera automàticament a partir dels
    alumnes de cada grup i, quan se selecciona "Famílies"/"Tots dos", els seus contactes
    familiars vinculats (les famílies d'un alumne menor sempre s'inclouen; les d'un alumne major
    d'edat només si l'alumne ha autoritzat explícitament compartir-ho).
-6. Reviseu la **Llista de destinataris** — també podeu afegir o eliminar files manualment; les
+7. Reviseu la **Llista de destinataris** — també podeu afegir o eliminar files manualment; les
    files manuals es conserven encara que canvieu els grups seleccionats després. Si algun
    alumne no té cap adreça que coincideixi amb la vostra selecció de **Correu del destinatari**
    (p. ex. heu triat "Corporatiu" però encara no té compte institucional creat), apareix un avís
    amb els seus noms perquè sapigueu que han quedat exclosos.
-7. Feu una de les dues opcions:
+8. Feu una de les dues opcions:
    - Cliqueu **Enviar** per posar els correus a la cua immediatament, o
    - Marqueu **Programar l'enviament** i trieu una data/hora, i cliqueu **Enviar** — el
      comunicat passa a **Programat** i els correus surten en aquell moment.
-8. L'**Estat** del comunicat segueix el progrés: **Esborrany** → **Programat** → **Enviat** (o
+9. L'**Estat** del comunicat segueix el progrés: **Esborrany** → **Programat** → **Enviat** (o
    **Fallit** si l'enviament ha fallat per a tots els destinataris). Cada fila de destinatari
    mostra el seu propi estat d'enviament, amb el detall de l'error disponible a les files
    fallides.
 
 Un comunicat **programat** (encara no enviat) es pot **cancel·lar**, tornant-lo a Esborrany
 perquè el pugueu editar i tornar a enviar.
+
+Si un destinatari clica **Respondre** al correu que ha rebut, la resposta arriba directament a
+qui ha enviat el comunicat — no a una adreça tècnica compartida — així una conversa iniciada
+des d'un comunicat arriba a la persona correcta.
+
+---
+
+## Personalitzar la signatura
+
+Tot correu de comunicat acaba amb una **Signatura** — per defecte, la que estigui configurada
+per a tot el centre a **Configuració → EMS Management → Signatura dels correus dels
+comunicats**, un camp de text enriquit que podeu escriure com vulgueu (un nom, un càrrec, dades
+de contacte — o deixar-lo en blanc per no tenir cap signatura). És traduïble: useu la petita
+icona de traducció al costat del camp per escriure una versió diferent per idioma, de manera
+que cada destinatari vegi la signatura en el seu propi idioma automàticament.
+
+Canviar la signatura per defecte del centre només afecta els **comunicats creats a partir
+d'ara** — cada comunicat ja existent té la seva pròpia còpia de la signatura (del pas 3
+anterior), que també podeu sobreescriure individualment sense tocar la del centre.
 
 ---
 

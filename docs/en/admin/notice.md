@@ -20,30 +20,51 @@ under **Communications → Notices**.
 
 1. **Communications → Notices → New**.
 2. Fill in the **Subject** and the **Message** (rich text, images supported).
-3. Choose **Send to**: Students, Families, or Both.
-4. If your selection includes students, choose **Recipient email**: **Corporate** (a student's
+3. Review the **Signature** underneath it — pre-filled from your centre's default (see
+   [Customizing the Signature](#customizing-the-signature) below), but freely editable or
+   clearable for this one notice only.
+4. Choose **Send to**: Students, Families, or Both.
+5. If your selection includes students, choose **Recipient email**: **Corporate** (a student's
    institutional Google Workspace address), **Personal** (their personal address), or **Both**
    (default) — if a student has both addresses, "Both" sends the notice to each one separately.
    This option has no effect on families, since they only ever have one email address.
-5. Add one or more **Groups** — the recipient list is built automatically from each group's
+6. Add one or more **Groups** — the recipient list is built automatically from each group's
    students and, when "Families"/"Both" is selected, their linked family contacts (a minor
    student's families are always included; an adult student's families only if the student has
    explicitly authorized sharing).
-6. Review the **Recipient list** — you can also add or remove individual rows by hand; manual
+7. Review the **Recipient list** — you can also add or remove individual rows by hand; manual
    rows are preserved even if you change the selected groups afterwards. If any students have no
    address matching your **Recipient email** choice (e.g. "Corporate" was picked but a student's
    institutional account hasn't been created yet), a warning names them so you know they were
    left out.
-7. Either:
+8. Either:
    - Click **Send** to queue the emails immediately, or
    - Tick **Schedule sending** and pick a date/time, then click **Send** — the notice moves to
      **Scheduled** and the emails go out at that time.
-8. The notice's **State** tracks progress: **Draft** → **Scheduled** → **Sent** (or **Failed**
+9. The notice's **State** tracks progress: **Draft** → **Scheduled** → **Sent** (or **Failed**
    if every recipient's email failed). Each recipient row shows its own delivery status, with
    any error detail available on failed rows.
 
 A **scheduled** notice (not yet sent) can be **cancelled**, returning it to Draft so you can
 edit and resend it.
+
+If a recipient hits **Reply** on the email they received, it goes straight to whoever actually
+sent the notice — not to a shared technical address — so a conversation started from a notice
+reaches the right person directly.
+
+---
+
+## Customizing the Signature
+
+Every notice email ends with a **Signature** — by default, whatever is configured centre-wide
+under **Settings → EMS Management → Notice email signature**, a rich-text field you can write
+however you like (a name, a role, contact details — or leave it blank for no signature at all).
+It's translatable: use the small translation icon next to the field to write a different
+version per language, so recipients see the signature in their own language automatically.
+
+Changing the centre-wide default only affects **notices created afterward** — each existing
+notice already has its own copy of the signature (from step 3 above), which you can also
+override individually without touching the shared default.
 
 ---
 

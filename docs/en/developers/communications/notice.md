@@ -19,6 +19,7 @@ in this phase, which talks to a real LimeSurvey instance).
 | `use_schedule`/`scheduled_date` | `Boolean`/`Datetime` | If set, `action_send()` passes `scheduled_date` as the queue job's `eta` — recipients get the email at that time, not immediately. |
 | `recipient_type` | `Selection` (students/families/both) | Drives `_build_auto_lines`' filtering. |
 | `recipient_email_type` | `Selection` (corporate/personal/both, default `both`) | **Added 2026-09-05.** Which of a student's two email addresses to use - see below. Meaningless for a families-only send (`invisible="recipient_type == 'families'"` in the form), since families only ever have one `email` field, no corporate counterpart. |
+| `signature` | `Html` | **Added 2026-09-05.** `default=lambda self: self.env.company.notice_email_signature` - copied from the company's own default at creation time, then freely editable (or clearable) per notice. Rendered verbatim by `ems.mail_notice` (see "Email rendering" below) - replaces what used to be a hardcoded "Kind regards, {company name}" baked into the template itself. |
 | `notice_line_ids` | `One2many → ems.notice.line` | Mix of auto-populated (from `group_ids`, `source_group_id` set) and manually-added (no `source_group_id`) rows — see below. |
 | `can_cancel` | computed | `True` only when `state == 'scheduled'` **and** `use_schedule` **and** no line's job has reached `started`/`done`/`failed` yet. An immediate send (`use_schedule=False`) can never be cancelled, even before the queue actually processes it — it's treated as already committed the moment it's sent. |
 
@@ -130,6 +131,67 @@ so that if the job itself fails and its transaction rolls back, the notice's sta
 finalized in a **separate, already-committed cursor** — `queue_job` marks a failed job's
 state in its own committed transaction before the rollback happens, so by the time the hook
 runs, reading that job's state from a fresh cursor is reliable.
+
+---
+
+## Email rendering: signature and Reply-To (`mails/communications/communication.xml`)
+
+`ems.mail_notice`'s `body_html` used to hardcode a signature block directly in the template:
+
+```xml
+<t t-out="object.notice_id.message"/>
+<p>Kind regards,<br/><t t-out="object.create_uid.company_id.name"/></p>
+```
+
+**Changed 2026-09-05** (developer feedback after receiving a test notice with an unexpected,
+unremovable "Kind regards, {centre name}"): the `<p>...</p>` block is gone, replaced by
+`<t t-out="object.notice_id.signature"/>` - the template now renders exactly whatever the
+notice's own `signature` field holds (nothing, if cleared). `signature` defaults from
+`res.company.notice_email_signature` (**Settings → EMS Management → Notice email
+signature**, translatable) at notice-creation time, then stays independently editable per
+notice - editing the company default only changes what *future* notices start with.
+
+**`reply_to`** was previously unset on this template at all, so Odoo fell back to `email_from`
+(`ir_mail_server.py`'s `msg['Reply-To'] = reply_to or email_from`) - a hardcoded technical
+address (`ems@elpuig.xeill.net`), identical for every sender. Now set to
+`{{object.notice_id.sent_by.email or object.notice_id.create_uid.email}}` - whoever actually
+sent the notice (`sent_by`, set by `action_send()`) or, if that's not populated yet (e.g. a
+`queue_job__no_delay` test rendering the template before `action_send()`'s own `write()`
+executes), whoever created it. Same pattern as `mails/coexistence/strike_notification.xml`'s
+`{{object.teacher_id.email}}`.
+
+**`email_from` stays hardcoded and must not change**: both configured outgoing mail servers
+(`ir.mail_server`, checked via `psql`) have `from_filter = 'ems@elpuig.xeill.net'` - the only
+address they're configured to relay mail *as*. Every `mail.template` in this module hardcodes
+the same literal for the same reason (`grep -rn "elpuig.xeill.net" mails/`). This is why the
+fix targets `reply_to` specifically rather than making the visible sender per-user.
+
+### Seeding the initial company signature (`__init__.py` / `migrations/18.0.0.23.3/`)
+
+`res.company.notice_email_signature` is `Html` with `translate=True`. Seeding its initial
+value (preserving the old hardcoded English text, but now in all 3 languages) turned out to
+need a specific, non-obvious API - two more idiomatic-looking approaches were tried and
+silently produced wrong/no data before landing on this one:
+
+1. **A loop of `company.with_context(lang=X).write(...)` calls, once per language** - Odoo's
+   translated-field write auto-cascades a new value onto every *other* language that still
+   looks "not manually customized," so writing `en_US` then `ca_ES` then `es_ES` in sequence
+   ends up with `en_US` clobbered by the last write (confirmed empirically: `en_US` ended up
+   holding the Catalan text).
+2. **`record.update_field_translations(field_name, {lang: value})`** - the ORM's own intended
+   multi-language API. Returns `False` and writes nothing here, because `fields.Html` sets
+   `field.translate` to the `html_translate` *function*, not the literal `True` - the ORM
+   takes a completely different code path for callable-`translate` fields (term-by-term
+   `{lang: {old_term: new_term}}`, diffed against an existing value) instead of "set the whole
+   value," and that path requires a pre-existing value to do the diff against - it can't seed
+   a still-empty field at all.
+
+The working approach: a **direct SQL write of the full jsonb value**
+(`UPDATE res_company SET notice_email_signature = %s` with a `psycopg2.extras.Json({...})`
+parameter) - correct and simple for a one-time initial seed, bypassing both ORM code paths
+above entirely. Same logic duplicated in `__init__.py::_seed_notice_email_signature_default`
+(fresh installs, via `post_init_hook`) and `migrations/18.0.0.23.3/post-migrate.py` (existing
+installs upgrading in) - see "Migrations" in `CLAUDE.md` for why both paths need it.
 
 ---
 

@@ -27,6 +27,7 @@ class ems_settings(models.TransientModel):
 
    secretariat_email = fields.Char(related="company_id.secretariat_email", readonly=False)
    center_code = fields.Char(related="company_id.center_code", readonly=False)
+   notice_email_signature = fields.Html(related="company_id.notice_email_signature", readonly=False)
 
    limesurvey_api = fields.Char(related="company_id.limesurvey_api", readonly=False)
    limesurvey_usr = fields.Char(related="company_id.limesurvey_usr", readonly=False)

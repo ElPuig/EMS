@@ -33,6 +33,19 @@
 - A student with no address matching the chosen option is excluded and now surfaces a warning
   naming them, instead of being silently dropped.
 
+## Customizable Notice signature, and replies now go to the actual sender:
+- `ems.mail_notice` used to hardcode "Kind regards, {centre name}" directly into every Notice
+  email, in English only regardless of the recipient's language. New
+  `res.company.notice_email_signature` (Settings → EMS Management, translatable) sets a
+  centre-wide default; each `ems.notice` gets its own editable copy (`signature` field) at
+  creation time, so admins/HOS/DHOS/Quality coordinator can customize or clear it per
+  communication without touching the shared default.
+- Replies to a Notice used to go to a fixed technical address (`ems@elpuig.xeill.net`, the
+  same for every sender) - `Reply-To` now resolves to whoever actually sent the notice
+  (`sent_by`, falling back to `create_uid`). The visible "From" address stays the fixed
+  technical one on purpose - the configured SMTP relays only accept sending as that exact
+  address (`ir_mail_server.from_filter`), so that part can't safely change.
+
 ## "Show only mine" default filter on Notices and Surveys:
 - Head of Studies/Deputy Head of Studies and the Quality coordinator can now see every
   notice/survey centre-wide (widened from the initial "own only" read restriction above,
@@ -91,6 +104,18 @@
   only by running the full, unscoped `./test.sh` gate, since scoped ORM tests never render a
   search view's default filter at all.
 
+# Fixes (i18n/migration):
+
+## Seeding a new translatable `Html` field's initial multi-language value needed a non-obvious API:
+- `res.company.notice_email_signature`'s initial value (all 3 languages) had to bypass two
+  ORM approaches that looked correct but weren't: a loop of `with_context(lang=X).write(...)`
+  calls cascades a new value onto every language that isn't "manually customized" yet,
+  clobbering earlier writes; `record.update_field_translations()` silently does nothing on an
+  `Html` field's still-empty value, since `fields.Html` uses a callable `translate` (term-by-
+  term diffing, needs a pre-existing value) rather than the plain `True` that API expects. A
+  direct SQL jsonb write is what actually works for a one-time seed like this - documented in
+  `docs/en/developers/communications/notice.md` so this isn't rediscovered.
+
 # Internal changes:
 
 - New `TestNoticeAccessControl` (`tests/test_notice.py`) and `TestLimesurveyAccessControl`
@@ -107,3 +132,9 @@
 - New `recipient_email_type` tests in `tests/test_notice.py` (corporate/personal/both,
   skip+warn behaviour, both-selection-labels-translated regression) and a new tour step
   exercising the field's `<select>` widget in `static/tests/tours/notice_tour.js`.
+- New tests for `signature`/`reply_to` (`tests/test_notice.py`): company-default inheritance,
+  per-notice editability, rendered `body_html` uses the notice's own signature (not a
+  hardcoded one), `reply_to` resolves to `sent_by` with a `create_uid` fallback. New tour step
+  confirming the Signature field is pre-filled on a new notice.
+- Manifest bumped to `18.0.0.23.3`; new `migrations/18.0.0.23.3/post-migrate.py` backfills
+  `notice_email_signature` for existing installations.

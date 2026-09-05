@@ -67,6 +67,13 @@ registry.category("web_tour.tours").add("ems_notice_create_and_send", {
             run: "editor Tour message body",
         },
         {
+            // signature defaults from res.company.notice_email_signature (default=lambda on
+            // the field) - just checking it's pre-filled, not typing anything here; the
+            // company's own seeded default is "Kind regards,<br/>{company name}" in en_US.
+            trigger: ".o_form_view .o_field_widget[name='signature'] .note-editable:contains('Kind regards')",
+            content: "The signature field is pre-filled from the company's default",
+        },
+        {
             trigger: ".o_form_button_save",
             content: "Save the notice",
             run: "click",

@@ -65,6 +65,9 @@
                             <group colspan="4">
                                 <field name="message" widget="html" readonly="state != 'draft'" style="min-height: 200px;"/>
                             </group>
+                            <group colspan="4">
+                                <field name="signature" widget="html" readonly="state != 'draft'" style="min-height: 80px;"/>
+                            </group>
                         </group>
 
                         <group string="Sending status" col="4">

@@ -39,10 +39,15 @@ o eliminar los tuyos propios independientemente del filtro. Vea el
 
 Siga los mismos pasos del
 [manual de Administrador](../admin/notice.md#crear-y-enviar-un-comunicado): redacte el asunto
-y el mensaje, elija los grupos destinatarios, y envíelo inmediatamente o prográmelo. Un
-comunicado que haya creado solo se puede eliminar de forma permanente mientras esté en
-**Borrador** — una vez programado o enviado, archívelo en su lugar (vea
-[Eliminar frente a archivar](../admin/notice.md#eliminar-frente-a-archivar)).
+y el mensaje, revise o edite la **Firma** precargada, elija los grupos destinatarios, y envíelo
+inmediatamente o prográmelo. Un comunicado que haya creado solo se puede eliminar de forma
+permanente mientras esté en **Borrador** — una vez programado o enviado, archívelo en su lugar
+(vea [Eliminar frente a archivar](../admin/notice.md#eliminar-frente-a-archivar)).
+
+La Firma empieza precargada con la del centro, que solo un Administrador puede cambiar
+(**Ajustes → EMS Management**) — pero puede editarla o borrarla libremente en cualquier
+comunicado que cree, sin necesitar ese permiso. Quien responda a su comunicado le llega
+directamente a usted, no a una dirección técnica compartida.
 
 ---
 

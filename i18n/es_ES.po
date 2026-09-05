@@ -6292,6 +6292,21 @@ msgid "Secretariat Email"
 msgstr "Correo de secretaría"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__notice_email_signature model:ir.model.fields,field_description:ems.field_res_config_settings__notice_email_signature
+msgid "Notice email signature"
+msgstr "Firma de los correos de los comunicados"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_company__notice_email_signature model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Default sign-off appended to every Notice email. Copied onto each new notice as its own editable signature - editing it here only affects notices created afterward."
+msgstr "Despedida por defecto que se añade a todos los correos de los comunicados. Se copia en cada comunicado nuevo como firma propia editable - modificarla aquí solo afecta a los comunicados creados a partir de ahora."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__signature
+msgid "Signature"
+msgstr "Firma"
+
+#. module: ems
 #: model:ems.role,name:ems.role_secretary model:hr.job,name:ems.job_secretary model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_role__secretary model:project.project,name:ems.project_secretary model:res.groups,name:ems.group_secretary model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Secretary"
 msgstr "Secretaría"

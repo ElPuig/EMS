@@ -1,15 +1,19 @@
 from odoo.tests import tagged, HttpCase
 
+from .common import force_user_language_to_english
+
 
 @tagged('post_install', '-at_install')
 class TestGroupTour(HttpCase):
 
     def test_group_form_tabs_and_reinforcement_crud_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # To observe this tour in a real browser during development:
         #   self.start_tour("/odoo", "ems_group_form_tabs_and_reinforcement_crud", login="admin", watch=True)
         self.start_tour("/odoo", "ems_group_form_tabs_and_reinforcement_crud", login="admin")
 
     def test_group_reactivate_archived_duplicate_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # Reinforcement groups (plain Name, no Many2one selection) keep this tour free of the
         # level->study->tutor selection fragility already noted in the tour above - only the
         # create()/write() duplicate-name-vs-archived-group behaviour is under test here, not

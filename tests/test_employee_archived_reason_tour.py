@@ -1,10 +1,13 @@
 from odoo.tests import tagged, HttpCase
 
+from .common import force_user_language_to_english
+
 
 @tagged('post_install', '-at_install')
 class TestEmployeeArchivedReasonTour(HttpCase):
 
     def test_employee_archived_reason_indicator_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # "0000 " prefix: hr.employee's default _order is "name", same convention as
         # TestEmployeeGoogleWorkspaceTour._seed_teacher.
         teacher = self.env['hr.employee'].create({

@@ -62,6 +62,25 @@
 - The `.po` entry existed but had an empty `msgstr` in both Catalan and Spanish - now
   translated, and shared with the new `recipient_email_type` field's own "Both" option.
 
+## `TestNoticeTour` was failing on this box (and likely any non-English dev environment):
+- Looked like a timing/hang issue (10s TIMEOUT, no error) but was actually a translation
+  mismatch: the tour asserts on literal English button text ("Send now"), which only matches
+  when the `admin` account's language is `en_US` - not guaranteed on a real dev box. Fixed the
+  same way an identical issue was already fixed for the attendance tour: force `admin`'s
+  language to English for the duration of the test only, restored afterward.
+
+## The same admin-language issue was silently breaking 44 other tour tests:
+- Audited all 77 `test_*_tour.py` files for the same risk (a selector matching translatable
+  Odoo/EMS text, with no language forced) and fixed every one found: 45 files total (including
+  the notice/attendance ones above), ~55 test methods, using the same shared fix. Extracted the
+  previously-duplicated fix into `tests/common.py::force_user_language_to_english(test, user)`
+  and documented the convention in CLAUDE.md so it isn't rediscovered a third time.
+- Two more files log in as a freshly created fixture user rather than the real `admin` account;
+  those got a lighter prophylactic fix (`'lang': 'en_US'` set directly at creation) since a new
+  `res.users` record on this box doesn't reliably default to `en_US` either.
+- Found, not fixed (confirmed unrelated, needs its own session): `test_group_archive_confirmation_tour`
+  still times out clicking "Archive" even with English forced - a different, pre-existing bug.
+
 # Internal changes:
 
 - New `TestNoticeAccessControl` (`tests/test_notice.py`) and `TestLimesurveyAccessControl`

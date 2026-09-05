@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study
+from .common import create_level_study, force_user_language_to_english
 
 
 @tagged('post_install', '-at_install')
@@ -49,6 +49,7 @@ class TestWorkingScheduleSplitPeriodTour(HttpCase):
         })
 
     def test_working_schedule_split_period_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # To observe this tour in a real browser during development:
         #   self.start_tour("/odoo", "ems_working_schedule_split_period", login="admin", watch=True)
         self.start_tour("/odoo", "ems_working_schedule_split_period", login="admin")

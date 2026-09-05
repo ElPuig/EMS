@@ -1,6 +1,6 @@
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group, mock_outgoing_email
+from .common import create_level_study_group, force_user_language_to_english, mock_outgoing_email
 
 
 @tagged('post_install', '-at_install')
@@ -29,6 +29,15 @@ class TestNoticeTour(HttpCase):
         })
 
     def test_notice_create_and_send_tour(self):
+        # Both tours below assert on literal English button text ("Send now", "Close") - this
+        # only works if admin's own language is en_US, which isn't guaranteed on every dev box
+        # (this one's real admin is es_ES). Root cause of a failure that looked like a
+        # timing/flake issue at first (a 10s TIMEOUT on the "Send now" step with no console
+        # error or traceback): the button was actually there the whole time, just rendered as
+        # "Enviar ahora" (confirmed via the tour's own failure screenshot) - see
+        # [[project_notice_tour_preexisting_flake]] and CLAUDE.md's "Tour tests and language"
+        # testing convention.
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.start_tour("/odoo", "ems_notice_create_and_send", login="admin")
 
         notice = self.env['ems.notice'].search([('subject', '=', 'Tour Notice Subject')])
@@ -39,6 +48,7 @@ class TestNoticeTour(HttpCase):
         self.assertTrue(notice.notice_line_ids.notification_id)
 
     def test_notice_exception_popup_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.start_tour("/odoo", "ems_notice_create_and_send", login="admin")
         notice = self.env['ems.notice'].search([('subject', '=', 'Tour Notice Subject')])
         notice.notice_line_ids.notification_id.write({

@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests import tagged, HttpCase
 
-from .common import create_level_study
+from .common import create_level_study, force_user_language_to_english
 
 
 @tagged('post_install', '-at_install')
@@ -53,22 +53,15 @@ class TestAttendanceStatusTour(HttpCase):
             'attendance_session_id': session.id, 'student_id': student.id,
         })
 
-    def _force_admin_language_to_english(self):
+    def test_attendance_status_configuration_and_passlist_tour(self):
         # Both tours below assert on literal English text (status names, field values) for the
         # real 'admin' login - ems.attendance_status.name is a translatable field, so this only
         # works if admin's own language is en_US. That's true on a clean install, but not
         # guaranteed on every dev box (e.g. after a production restore + devel.sh, admin may
         # keep whatever language the original account had - found 2026-09-04 reproducing this
-        # exact failure against a dev DB where admin's language is ca_ES). Scoped to this test's
-        # own transaction (rolled back afterward, same as any other fixture here) and additionally
-        # restored via addCleanup for clarity, since this mutates a real, pre-existing user.
-        admin_user = self.env.ref('base.user_admin')
-        original_lang = admin_user.lang
-        admin_user.lang = 'en_US'
-        self.addCleanup(lambda: admin_user.write({'lang': original_lang}))
-
-    def test_attendance_status_configuration_and_passlist_tour(self):
-        self._force_admin_language_to_english()
+        # exact failure against a dev DB where admin's language is ca_ES). See CLAUDE.md's
+        # "Tour tests and language" testing convention.
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self._seed_session()
         self.start_tour("/odoo", "ems_attendance_status_configuration", login="admin")
         self.start_tour("/odoo", "ems_attendance_status_passlist", login="admin")

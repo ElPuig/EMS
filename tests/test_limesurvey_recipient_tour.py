@@ -1,5 +1,7 @@
 from odoo.tests.common import HttpCase, tagged
 
+from .common import force_user_language_to_english
+
 
 @tagged('post_install', '-at_install')
 class TestLimesurveyRecipientTour(HttpCase):
@@ -20,6 +22,7 @@ class TestLimesurveyRecipientTour(HttpCase):
         })
 
     def test_limesurvey_recipient_add_student_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.start_tour("/odoo", "ems_limesurvey_recipient_add_student", login="admin")
 
         recipient = self.env['ems.limesurvey_recipient'].search([
@@ -40,4 +43,5 @@ class TestLimesurveyRecipientTour(HttpCase):
             'limesurvey_header_id': header.id, 'student_id': student.id,
             'name': student.name, 'error': 'Something went wrong.',
         })
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.start_tour("/odoo", "ems_limesurvey_recipient_error_popup", login="admin")

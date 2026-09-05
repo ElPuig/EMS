@@ -2,6 +2,8 @@ from datetime import datetime
 
 from odoo.tests.common import HttpCase, tagged
 
+from .common import force_user_language_to_english
+
 
 @tagged('post_install', '-at_install')
 class TestAttendanceCorrectionRequestTour(HttpCase):
@@ -19,6 +21,7 @@ class TestAttendanceCorrectionRequestTour(HttpCase):
         })
 
     def test_attendance_correction_request_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.assertEqual(self.attendance.correction_count, 0)
 
         self.start_tour("/odoo", "ems_attendance_correction_request", login="admin")

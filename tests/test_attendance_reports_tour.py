@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests import tagged, HttpCase
 
-from .common import create_level_study
+from .common import create_level_study, force_user_language_to_english
 
 
 @tagged('post_install', '-at_install')
@@ -70,6 +70,7 @@ class TestAttendanceReportsTour(HttpCase):
         })
 
     def test_attendance_report_wizards_and_analysis_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self._seed_session()
         # step_delay: the wizard tour ends on a 'Print' click, which triggers a real report
         # download; without a delay, the harness's post-tour "no dirty form left open" check can

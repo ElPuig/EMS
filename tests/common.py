@@ -44,6 +44,22 @@ def mock_outgoing_email(cls):
     return mock
 
 
+def force_user_language_to_english(test, user):
+    """Force `user`'s language to en_US for the duration of the current test only, restored
+    via test.addCleanup() (on top of the test's own transaction rollback, for clarity since
+    this mutates a real, pre-existing user rather than one created fresh in the test).
+
+    Required by any tour/HttpCase test that logs in as a real, pre-existing account (e.g.
+    base.user_admin, login="admin") and asserts on literal English button/field text - this
+    box's real accounts are not guaranteed to have lang='en_US' (this dev DB's admin is
+    'es_ES'), and a freshly created res.users record without an explicit 'lang' key isn't
+    guaranteed en_US either (confirmed on this box: defaults to 'ca_ES'). See CLAUDE.md's
+    "Tour tests and language" testing convention."""
+    original_lang = user.lang
+    user.lang = 'en_US'
+    test.addCleanup(lambda: user.write({'lang': original_lang}))
+
+
 def make_synchronous_run_in_thread(record):
     """A run_in_thread() replacement that runs setup/compute/store/callback synchronously
     against `record`, for tests that need run_action()'s wiring without real threading or a

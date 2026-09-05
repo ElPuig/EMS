@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study
+from .common import create_level_study, force_user_language_to_english
 
 
 @tagged('post_install', '-at_install')
@@ -26,6 +26,7 @@ class TestPlanningTour(HttpCase):
         })
 
     def test_planning_crud_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.start_tour("/odoo", "ems_planning_crud", login="admin")
 
         planning = self.env['ems.planning'].search([

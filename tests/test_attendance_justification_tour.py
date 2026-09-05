@@ -2,6 +2,8 @@ from datetime import datetime
 
 from odoo.tests.common import HttpCase, tagged
 
+from .common import force_user_language_to_english
+
 
 @tagged('post_install', '-at_install')
 class TestAttendanceJustificationTour(HttpCase):
@@ -26,6 +28,7 @@ class TestAttendanceJustificationTour(HttpCase):
         })
 
     def test_attendance_justification_open_and_edit_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.assertFalse(self.justification.notes)
 
         self.start_tour("/odoo", "ems_attendance_justification_open_and_edit", login="admin")
@@ -33,6 +36,7 @@ class TestAttendanceJustificationTour(HttpCase):
         self.assertEqual(self.justification.notes, 'Tour note')
 
     def test_attendance_justification_create_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.start_tour("/odoo", "ems_attendance_justification_create", login="admin")
 
         justification = self.env['ems.attendance_justification'].search([

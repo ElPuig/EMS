@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group, mock_outgoing_email
+from .common import create_level_study_group, force_user_language_to_english, mock_outgoing_email
 
 
 @tagged('post_install', '-at_install')
@@ -36,6 +36,7 @@ class TestPortalAccessWizardTour(HttpCase):
         cls.student.user_ids = [(4, cls.portal_user.id)]
 
     def test_portal_access_wizard_revoke_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.assertTrue(self.portal_user.active)
 
         self.start_tour("/odoo", "ems_portal_access_wizard_revoke", login="admin")

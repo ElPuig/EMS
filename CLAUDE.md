@@ -225,6 +225,35 @@ echo "$(date +%H:%M:%S) EMS: waiting on you — <short summary of what's being a
 - Python side: `@tagged('post_install', '-at_install')`, `self.start_tour("/odoo", "tour_name", login="admin")`.
 - To watch a tour run in a real browser during development: add `watch=True` to `start_tour`.
 
+**Tour tests and language:** a tour that asserts on literal English text (a `:contains('Send
+now')`-style trigger, an `[title='...']` selector matching a translatable label, a status/
+selection name typed nowhere by the tour itself) only works if the account driving it actually
+renders in English — never assume that's true. `login="admin"` logs in as this box's real,
+pre-existing `admin` account, whose language is whatever this dev box happens to have (this
+box's is `es_ES`) — **not** guaranteed `en_US`, regardless of environment. A freshly created
+`res.users` record is not automatically safe either: without an explicit `'lang'` key, it does
+not reliably default to `en_US` on every box (confirmed on this one: it defaults to `ca_ES`).
+Found twice already from the exact same root cause (`TestAttendanceStatusTour`,
+`TestNoticeTour`) — a tour step timing out after 10s with **no** console error and **no**
+Python traceback initially looked like a hang/race condition, but was actually a translated
+label silently never matching a hardcoded English selector; the tour's own auto-saved failure
+screenshot (`/tmp/odoo_tests/ems/screenshots/`) is what actually revealed it, not the logs.
+**How to apply:**
+- Logging in as a real pre-existing account (`login="admin"` or similar) and asserting on
+  translatable text: call `force_user_language_to_english(self, self.env.ref('base.user_admin'))`
+  (`tests/common.py`) at the start of the test method, before `start_tour(...)` — sets the
+  account's language to `en_US` for that test only, restored via `addCleanup`.
+- Creating a fresh `res.users` fixture for the tour to log in as: just pass `'lang': 'en_US'`
+  explicitly in its `create()` vals — no restore needed, the record itself is test-scoped.
+- Prefer structural/position-based selectors (CSS classes, `nth-child`, data attributes) over
+  text content wherever the tour doesn't specifically need to assert on a label's value — sidesteps
+  the whole class of risk, same fix already applied to `attendance_session_tour.js`'s status
+  selectors.
+- A tour that only asserts on strings the tour itself typed in (a fixture subject, a computed
+  code) is unaffected — the risk is specifically standard Odoo or EMS-module vocabulary
+  (button labels, status/selection names) that gets translated out from under a hardcoded
+  English selector.
+
 ## Coding standards
 
 Follow the official Odoo v18 coding guidelines:

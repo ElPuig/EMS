@@ -17,9 +17,20 @@ jobs:
       matrix: ${{ steps.shards.outputs.matrix }}
       changelog_only: ${{ steps.diff.outputs.changelog_only }}
     steps:
+      # ref: pinned to the PR branch's own head commit - NOT the default for a pull_request
+      # event, which is refs/pull/<pr>/merge (a synthetic 2-parent commit GitHub regenerates
+      # on every push, merging the PR branch into main). The "Detect changelog-only push" step
+      # below relies on HEAD~1 being the previous commit *on this branch*; against the merge
+      # ref, HEAD~1 is main's own tip instead, so the diff silently covers the whole PR against
+      # main rather than just the latest push - confirmed 2026-09-05 (issue #401's own
+      # /changelog-clean commit), where this caused the full test matrix to run anyway despite
+      # the commit only touching changelog/. Empty-string-safe for workflow_dispatch (no
+      # github.event.pull_request context there): actions/checkout treats an empty `ref` as
+      # "use the default", same as omitting it.
       - name: Checkout EMS
         uses: actions/checkout@v7
         with:
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 2
 
       # This required check must always run and record a real result (never be skipped by

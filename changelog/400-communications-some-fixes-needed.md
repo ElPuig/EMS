@@ -22,6 +22,17 @@
 - The plain Quality team role (`group_quality`, not the coordinator) is unaffected: still
   unrestricted create/edit access to every survey, same as before.
 
+## Choosing which student email a Notice uses:
+- New `recipient_email_type` field on `ems.notice` ("Recipient email"): `Corporate` (a
+  student's institutional Google Workspace address), `Personal`, or `Both` (default). Replaces
+  the previous hardcoded fallback (`student.student_email or student.email`, always preferring
+  corporate) with an explicit choice - `Both` sends to *both* addresses separately when a
+  student has them (two recipient lines), not just a fallback pick. Only affects the student
+  side of a send; families are unaffected (they only ever have one email address), and the
+  field is hidden entirely on a families-only notice.
+- A student with no address matching the chosen option is excluded and now surfaces a warning
+  naming them, instead of being silently dropped.
+
 ## "Show only mine" default filter on Notices and Surveys:
 - Head of Studies/Deputy Head of Studies and the Quality coordinator can now see every
   notice/survey centre-wide (widened from the initial "own only" read restriction above,
@@ -47,6 +58,10 @@
   opening it would have raised an access error. Added the missing access rows and matching
   "sees everything" record rules.
 
+## "Both" option on a Notice's "Send to" was never actually translated:
+- The `.po` entry existed but had an empty `msgstr` in both Catalan and Spanish - now
+  translated, and shared with the new `recipient_email_type` field's own "Both" option.
+
 # Internal changes:
 
 - New `TestNoticeAccessControl` (`tests/test_notice.py`) and `TestLimesurveyAccessControl`
@@ -60,3 +75,6 @@
 - New user manuals (English/Catalan/Spanish): `docs/{en,ca,es}/admin/notice.md`,
   `docs/{en,ca,es}/head_of_studies/notice.md` and `docs/{en,ca,es}/admin/survey.md` - this
   feature previously had no user-facing documentation at all in any language.
+- New `recipient_email_type` tests in `tests/test_notice.py` (corporate/personal/both,
+  skip+warn behaviour, both-selection-labels-translated regression) and a new tour step
+  exercising the field's `<select>` widget in `static/tests/tours/notice_tour.js`.

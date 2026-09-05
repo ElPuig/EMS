@@ -2214,9 +2214,9 @@ msgid "Bonifications & Exemptions"
 msgstr "Bonificacions i exempcions"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_notice__recipient_type__both
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__recipient_type__both model:ir.model.fields.selection,name:ems.selection__ems_notice__recipient_email_type__both
 msgid "Both"
-msgstr ""
+msgstr "Ambdós"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.attendance_template_sumary_table
@@ -5005,6 +5005,18 @@ msgid "No recipients to send to. Add recipients in the 'Sending status' section.
 msgstr ""
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice.py:0
+msgid "Students excluded"
+msgstr "Alumnes exclosos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice.py:0
+msgid "The following students have no email address matching your 'Recipient email' choice, so they were not added to the recipient list:\n%s"
+msgstr "Els següents alumnes no tenen cap adreça de correu que coincideixi amb la vostra selecció de 'Correu del destinatari', per la qual cosa no s'han afegit a la llista de destinataris:\n%s"
+
+#. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/grade_matrix_field.xml:0
 msgid "Nom"
@@ -6371,6 +6383,21 @@ msgstr "Enviar recordatoris"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__send_to model:ir.model.fields,field_description:ems.field_ems_notice__recipient_type
 msgid "Send to"
 msgstr "Enviar a"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__recipient_email_type
+msgid "Recipient email"
+msgstr "Correu del destinatari"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__recipient_email_type__corporate
+msgid "Corporate"
+msgstr "Corporatiu"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__recipient_email_type__personal
+msgid "Personal"
+msgstr "Personal"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process

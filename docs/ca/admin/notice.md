@@ -21,17 +21,25 @@ troba a **Comunicacions → Comunicats**.
 1. **Comunicacions → Comunicats → Nou**.
 2. Ompliu l'**Assumpte** i el **Missatge** (text enriquit, admet imatges).
 3. Trieu **Enviar a**: Alumnes, Famílies, o Tots dos.
-4. Afegiu un o més **Grups** — la llista de destinataris es genera automàticament a partir dels
+4. Si la selecció inclou alumnes, trieu **Correu del destinatari**: **Corporatiu** (l'adreça
+   institucional de Google Workspace de l'alumne), **Personal** (la seva adreça personal), o
+   **Ambdós** (per defecte) — si l'alumne té les dues adreces, "Ambdós" envia el comunicat a
+   cadascuna per separat. Aquesta opció no té cap efecte sobre les famílies, ja que només tenen
+   una única adreça de correu.
+5. Afegiu un o més **Grups** — la llista de destinataris es genera automàticament a partir dels
    alumnes de cada grup i, quan se selecciona "Famílies"/"Tots dos", els seus contactes
    familiars vinculats (les famílies d'un alumne menor sempre s'inclouen; les d'un alumne major
    d'edat només si l'alumne ha autoritzat explícitament compartir-ho).
-5. Reviseu la **Llista de destinataris** — també podeu afegir o eliminar files manualment; les
-   files manuals es conserven encara que canvieu els grups seleccionats després.
-6. Feu una de les dues opcions:
+6. Reviseu la **Llista de destinataris** — també podeu afegir o eliminar files manualment; les
+   files manuals es conserven encara que canvieu els grups seleccionats després. Si algun
+   alumne no té cap adreça que coincideixi amb la vostra selecció de **Correu del destinatari**
+   (p. ex. heu triat "Corporatiu" però encara no té compte institucional creat), apareix un avís
+   amb els seus noms perquè sapigueu que han quedat exclosos.
+7. Feu una de les dues opcions:
    - Cliqueu **Enviar** per posar els correus a la cua immediatament, o
    - Marqueu **Programar l'enviament** i trieu una data/hora, i cliqueu **Enviar** — el
      comunicat passa a **Programat** i els correus surten en aquell moment.
-7. L'**Estat** del comunicat segueix el progrés: **Esborrany** → **Programat** → **Enviat** (o
+8. L'**Estat** del comunicat segueix el progrés: **Esborrany** → **Programat** → **Enviat** (o
    **Fallit** si l'enviament ha fallat per a tots els destinataris). Cada fila de destinatari
    mostra el seu propi estat d'enviament, amb el detall de l'error disponible a les files
    fallides.

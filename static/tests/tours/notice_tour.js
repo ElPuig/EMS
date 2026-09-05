@@ -45,8 +45,16 @@ registry.category("web_tour.tours").add("ems_notice_create_and_send", {
             content: "Group tag added",
         },
         {
+            // A plain Selection field renders as a <select> - the generic "edit" action only
+            // supports <input>/<textarea>, so this needs the dedicated "selectByLabel" tour
+            // action (same gotcha already documented for other Selection widgets in this repo).
+            trigger: ".o_form_view .o_field_widget[name='recipient_email_type'] select",
+            content: "Switch the recipient email type to Personal",
+            run: "selectByLabel Personal",
+        },
+        {
             trigger: ".o_field_widget[name='notice_line_ids'] .o_data_row td:contains('notice.tour.student@example.com')",
-            content: "The onchange auto-populated the recipient list from the group's students",
+            content: "The onchange auto-populated the recipient list from the group's students, using the personal email since 'Personal' is now selected",
         },
         {
             // widget="html" (via html_editor) renders a contenteditable div, not an

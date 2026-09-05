@@ -128,6 +128,92 @@ class TestNotice(TransactionCase):
         self.assertEqual(len(matching), 1)
         self.minor_student.main_group_id = self.group
 
+    # --- recipient_email_type ---------------------------------------------------------------
+
+    def test_recipient_email_type_defaults_to_both(self):
+        notice = self._notice()
+        self.assertEqual(notice.recipient_email_type, 'both')
+
+    def test_recipient_email_type_corporate_only_uses_corporate_email(self):
+        self.minor_student.student_email = 'minor.student.corp@example.com'
+        notice = self._notice(
+            recipient_type='students', recipient_email_type='corporate',
+            group_ids=[(6, 0, [self.group.id])],
+        )
+        notice._onchange_groups()
+        emails = notice.notice_line_ids.mapped('email')
+        self.assertEqual(emails, ['minor.student.corp@example.com'])
+        self.minor_student.student_email = False
+
+    def test_recipient_email_type_corporate_only_skips_and_warns_without_it(self):
+        # Neither fixture student has a student_email (corporate) set.
+        notice = self._notice(
+            recipient_type='students', recipient_email_type='corporate',
+            group_ids=[(6, 0, [self.group.id])],
+        )
+        result = notice._onchange_groups()
+        self.assertFalse(notice.notice_line_ids)
+        self.assertIn('warning', result)
+        self.assertIn(self.minor_student.name, result['warning']['message'])
+        self.assertIn(self.adult_no_share_student.name, result['warning']['message'])
+
+    def test_recipient_email_type_personal_only_uses_personal_email(self):
+        self.minor_student.student_email = 'minor.student.corp@example.com'
+        notice = self._notice(
+            recipient_type='students', recipient_email_type='personal',
+            group_ids=[(6, 0, [self.group.id])],
+        )
+        notice._onchange_groups()
+        emails = set(notice.notice_line_ids.mapped('email'))
+        self.assertEqual(emails, {self.minor_student.email, self.adult_no_share_student.email})
+        self.minor_student.student_email = False
+
+    def test_recipient_email_type_both_sends_to_both_addresses_when_available(self):
+        self.minor_student.student_email = 'minor.student.corp@example.com'
+        notice = self._notice(
+            recipient_type='students', recipient_email_type='both',
+            group_ids=[(6, 0, [self.group.id])],
+        )
+        notice._onchange_groups()
+        minor_lines = notice.notice_line_ids.filtered(lambda l: l.student_id == self.minor_student)
+        adult_lines = notice.notice_line_ids.filtered(lambda l: l.student_id == self.adult_no_share_student)
+        self.assertEqual(
+            set(minor_lines.mapped('email')),
+            {'minor.student.corp@example.com', self.minor_student.email},
+        )
+        # adult_no_share_student has no corporate email - "both" still sends the one it has.
+        self.assertEqual(adult_lines.mapped('email'), [self.adult_no_share_student.email])
+        self.minor_student.student_email = False
+
+    def test_recipient_email_type_both_still_skips_and_warns_with_no_email_at_all(self):
+        no_email_student = self.env['res.partner'].create({
+            'name': 'No Email Student', 'contact_type': 'student', 'main_group_id': self.group.id,
+        })
+        notice = self._notice(
+            recipient_type='students', recipient_email_type='both',
+            group_ids=[(6, 0, [self.group.id])],
+        )
+        result = notice._onchange_groups()
+        self.assertNotIn(no_email_student.id, notice.notice_line_ids.mapped('student_id.id'))
+        self.assertIn('warning', result)
+        self.assertIn(no_email_student.name, result['warning']['message'])
+
+    def test_both_selection_labels_are_translated(self):
+        # Regression coverage for a real gap found 2026-09-05: the "Both" option on
+        # recipient_type had an empty msgstr in both ca_ES.po/es_ES.po despite the msgid
+        # existing - a .po entry existing is necessary but not sufficient (see CLAUDE.md's
+        # i18n verification rule), so this checks the actual runtime-translated label.
+        recipient_type_selection = dict(
+            self.env['ems.notice'].with_context(lang='es_ES').fields_get(['recipient_type'])
+            ['recipient_type']['selection']
+        )
+        recipient_email_type_selection = dict(
+            self.env['ems.notice'].with_context(lang='es_ES').fields_get(['recipient_email_type'])
+            ['recipient_email_type']['selection']
+        )
+        self.assertEqual(recipient_type_selection['both'], 'Ambos')
+        self.assertEqual(recipient_email_type_selection['both'], 'Ambos')
+
     # --- action_send -----------------------------------------------------------------------
 
     def test_action_send_blocks_non_draft(self):

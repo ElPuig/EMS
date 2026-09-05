@@ -18,6 +18,7 @@ in this phase, which talks to a real LimeSurvey instance).
 | `state` | `Selection` (draft/scheduled/sent/failed) | `draft` → `action_send()` → `scheduled` → (async, via `_check_and_finalize`) → `sent`/`failed`. `action_cancel()` returns to `draft`. |
 | `use_schedule`/`scheduled_date` | `Boolean`/`Datetime` | If set, `action_send()` passes `scheduled_date` as the queue job's `eta` — recipients get the email at that time, not immediately. |
 | `recipient_type` | `Selection` (students/families/both) | Drives `_build_auto_lines`' filtering. |
+| `recipient_email_type` | `Selection` (corporate/personal/both, default `both`) | **Added 2026-09-05.** Which of a student's two email addresses to use - see below. Meaningless for a families-only send (`invisible="recipient_type == 'families'"` in the form), since families only ever have one `email` field, no corporate counterpart. |
 | `notice_line_ids` | `One2many → ems.notice.line` | Mix of auto-populated (from `group_ids`, `source_group_id` set) and manually-added (no `source_group_id`) rows — see below. |
 | `can_cancel` | computed | `True` only when `state == 'scheduled'` **and** `use_schedule` **and** no line's job has reached `started`/`done`/`failed` yet. An immediate send (`use_schedule=False`) can never be cancelled, even before the queue actually processes it — it's treated as already committed the moment it's sent. |
 
@@ -31,20 +32,68 @@ added recipient), `notification_id` (the `queue.job` tracking this line's send).
 
 ```mermaid
 flowchart TD
-    A["onchange(group_ids, recipient_type)"] --> B["manual_lines = lines with no source_group_id\n(preserved across re-triggers)"]
+    A["onchange(group_ids, recipient_type, recipient_email_type)"] --> B["manual_lines = lines with no source_group_id\n(preserved across re-triggers)"]
     B --> C["seen_emails = manual_lines' emails\n(cross-group dedup starts here)"]
     C --> D["for each group, each student:"]
     D --> E{"recipient_type in\n(students, both)?"}
-    E -- yes --> F["add student line if\nstudent has an email\nand it's not already seen"]
+    E -- yes --> F["_student_emails(): candidate addresses\nfor recipient_email_type\n(corporate/personal/both)"]
+    F --> F2{"any candidate\naddress found?"}
+    F2 -- no --> F3["record student name\nin skipped_student_names"]
+    F2 -- yes --> F4["add one line per candidate\naddress not already seen\n('both' can add 2 lines\nfor one student)"]
     D --> G{"recipient_type in\n(families, both)?"}
     G -- yes --> H{"student is a minor,\nOR an adult who\nauth_share = True?"}
     H -- no --> Z["skip — an adult who hasn't\nauthorized sharing is never\nemailed via a family line"]
     H -- yes --> I["add one line per family\nrelation with an email,\nnot already seen"]
+    F3 --> J{"any students\nskipped?"}
+    J -- yes --> K["onchange returns\n{'warning': {title, message}}"]
 ```
 
 Re-triggering the onchange (e.g. adding another group) never duplicates or drops a manually
 added recipient — only the auto-populated set (`source_group_id` set) gets rebuilt from
 scratch each time; anything without `source_group_id` is untouched.
+
+### `recipient_email_type`: corporate vs. personal student email (added 2026-09-05)
+
+A student has two independent, optional email addresses (`models/contacts/contact.py`):
+`student_email` (the **corporate**/institutional Google Workspace address, auto-provisioned by
+the account-creation job in `models/contacts/google_workspace_integration.py:284-285` -
+`self.sudo().student_email = email` - and empty until that job has run) and `email` (the
+**personal** address, imported/entered manually - see
+[`google_workspace_student.md`](../contacts/google_workspace_student.md) for the full
+provisioning flow). Before this change, `_build_auto_lines` used a hardcoded, non-configurable
+fallback: `student.student_email or student.email` - always preferred corporate, silently fell
+back to personal, and could never use both.
+
+`recipient_email_type` replaces that fallback with an explicit, user-chosen mode, applied per
+student via the new `_student_emails()` helper:
+
+| `recipient_email_type` | Candidate addresses per student |
+|---|---|
+| `corporate` | `student_email` only (student skipped if empty) |
+| `personal` | `email` only (student skipped if empty) |
+| `both` (default) | **Both**, if present - a student with both addresses gets **two** `ems.notice.line` rows (two separate emails sent), not one line with a fallback choice. A student with only one of the two still gets exactly one line for it. |
+
+A student contributes **zero** lines only when none of their candidate addresses (per the
+current mode) are set - that student's name is collected into `skipped_student_names` and
+`_onchange_groups` surfaces it via the standard Odoo onchange
+`{'warning': {'title': ..., 'message': ...}}` dict, the same idiom already used elsewhere in
+this codebase for onchange-time validation (`models/enrollment/enrollment.py:354-372`,
+`models/employees/employee.py:404-419`) - not `ems.base.notify()` (bus notifications need a DB
+commit to deliver, which an onchange on an unsaved/`new()` record never has) and not the
+wizard-style `stats['warnings']`/`warning_html` pattern (`models/contacts/student_import_wizard.py`
+etc. - built around an explicit "Run" button's result, not live onchange feedback).
+
+The family branch is unaffected: families only ever have the single base `email` field, no
+corporate counterpart, so `recipient_email_type` has no effect on `recipient_type in
+('families', 'both')`'s family-line logic - and the field is hidden in the form entirely when
+`recipient_type == 'families'`.
+
+**Unrelated bug fixed in the same pass:** `recipient_type`'s `Both` option had an empty
+`msgstr` in both `i18n/ca_ES.po`/`i18n/es_ES.po` (msgid existed, never actually translated) -
+reported by the developer while reviewing this feature. Fixed alongside `recipient_email_type`'s
+own new `Both` option, since both share the same msgid text and Odoo folds them into the same
+`.po` block (`#:` references to both selections' xmlids on one entry) - see
+`TestNotice.test_both_selection_labels_are_translated`.
 
 ---
 

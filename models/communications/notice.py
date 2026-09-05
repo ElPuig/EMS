@@ -17,6 +17,12 @@ class EmsNotice(models.Model):
         required=True,
         default='both',
     )
+    recipient_email_type = fields.Selection(
+        string="Recipient email",
+        selection=[('corporate', 'Corporate'), ('personal', 'Personal'), ('both', 'Both')],
+        required=True,
+        default='both',
+    )
     use_schedule = fields.Boolean(string="Schedule sending", default=False)
     scheduled_date = fields.Datetime(string="Scheduled on")
     message = fields.Html(string="Message", required=True, sanitize=True)
@@ -77,22 +83,41 @@ class EmsNotice(models.Model):
         for notice in self:
             notice.display_name = notice.subject or _("(New notice)")
 
-    def _build_auto_lines(self, groups, recipient_type, seen_emails):
-        """Return a list of ems.notice.line virtual records for the given groups."""
+    def _student_emails(self, student, recipient_email_type):
+        """Return the list of candidate email addresses for a student, per recipient_email_type."""
+        emails = []
+        if recipient_email_type in ('corporate', 'both') and student.student_email:
+            emails.append(student.student_email)
+        if recipient_email_type in ('personal', 'both') and student.email:
+            emails.append(student.email)
+        return emails
+
+    def _build_auto_lines(self, groups, recipient_type, recipient_email_type, seen_emails):
+        """Return (new_lines, skipped_student_names) for the given groups.
+
+        skipped_student_names lists students who ended up with no candidate address at
+        all for the current recipient_email_type (e.g. 'corporate' selected but the
+        student has no student_email yet) - not students who simply got fewer lines
+        than 'both' would have produced.
+        """
         new_lines = self.env['ems.notice.line']
+        skipped_student_names = []
         for group in groups:
             for student in group.main_student_ids.filtered(lambda s: s.contact_type == 'student'):
                 if recipient_type in ('students', 'both'):
-                    email = student.student_email or student.email
-                    if email and email not in seen_emails:
-                        seen_emails.add(email)
-                        new_lines |= self.env['ems.notice.line'].new({
-                            'partner_id': student.id,
-                            'email': email,
-                            'student_id': student.id,
-                            'recipient_type': 'student',
-                            'source_group_id': group.id,
-                        })
+                    student_emails = self._student_emails(student, recipient_email_type)
+                    if not student_emails:
+                        skipped_student_names.append(student.name)
+                    for email in student_emails:
+                        if email not in seen_emails:
+                            seen_emails.add(email)
+                            new_lines |= self.env['ems.notice.line'].new({
+                                'partner_id': student.id,
+                                'email': email,
+                                'student_id': student.id,
+                                'recipient_type': 'student',
+                                'source_group_id': group.id,
+                            })
 
                 if recipient_type in ('families', 'both'):
                     if not student.is_adult or student.auth_share:
@@ -108,15 +133,26 @@ class EmsNotice(models.Model):
                                         'recipient_type': 'family',
                                         'source_group_id': group.id,
                                     })
-        return new_lines
+        return new_lines, skipped_student_names
 
-    @api.onchange('group_ids', 'recipient_type')
+    @api.onchange('group_ids', 'recipient_type', 'recipient_email_type')
     def _onchange_groups(self):
         # Manual lines: those not linked to any auto-populated group
         manual_lines = self.notice_line_ids.filtered(lambda l: not l.source_group_id)
         seen_emails = set(manual_lines.mapped('email'))
-        new_auto_lines = self._build_auto_lines(self.group_ids, self.recipient_type, seen_emails)
+        new_auto_lines, skipped_student_names = self._build_auto_lines(
+            self.group_ids, self.recipient_type, self.recipient_email_type, seen_emails
+        )
         self.notice_line_ids = manual_lines | new_auto_lines
+        if skipped_student_names:
+            return {'warning': {
+                'title': _("Students excluded"),
+                'message': _(
+                    "The following students have no email address matching your "
+                    "'Recipient email' choice, so they were not added to the recipient "
+                    "list:\n%s"
+                ) % "\n".join(skipped_student_names),
+            }}
 
     def unlink(self):
         sent = self.filtered(lambda notice: notice.state != 'draft')

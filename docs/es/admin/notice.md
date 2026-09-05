@@ -21,17 +21,25 @@ Se encuentra en **Comunicaciones → Comunicados**.
 1. **Comunicaciones → Comunicados → Nuevo**.
 2. Rellene el **Asunto** y el **Mensaje** (texto enriquecido, admite imágenes).
 3. Elija **Enviar a**: Alumnos, Familias, o Ambos.
-4. Añada uno o más **Grupos** — la lista de destinatarios se genera automáticamente a partir de
+4. Si la selección incluye alumnos, elija **Correo del destinatario**: **Corporativo** (la
+   dirección institucional de Google Workspace del alumno), **Personal** (su dirección
+   personal), o **Ambos** (por defecto) — si el alumno tiene las dos direcciones, "Ambos" envía
+   el comunicado a cada una por separado. Esta opción no tiene ningún efecto sobre las
+   familias, ya que solo tienen una única dirección de correo.
+5. Añada uno o más **Grupos** — la lista de destinatarios se genera automáticamente a partir de
    los alumnos de cada grupo y, cuando se selecciona "Familias"/"Ambos", sus contactos
    familiares vinculados (las familias de un alumno menor siempre se incluyen; las de un alumno
    mayor de edad solo si el alumno ha autorizado explícitamente compartirlo).
-5. Revise la **Lista de destinatarios** — también puede añadir o eliminar filas manualmente;
-   las filas manuales se conservan aunque cambie los grupos seleccionados después.
-6. Haga una de las dos opciones:
+6. Revise la **Lista de destinatarios** — también puede añadir o eliminar filas manualmente;
+   las filas manuales se conservan aunque cambie los grupos seleccionados después. Si algún
+   alumno no tiene ninguna dirección que coincida con su selección de **Correo del
+   destinatario** (p. ej. eligió "Corporativo" pero aún no tiene cuenta institucional creada),
+   aparece un aviso con sus nombres para que sepa que se han quedado fuera.
+7. Haga una de las dos opciones:
    - Pulse **Enviar** para poner los correos en cola inmediatamente, o
    - Marque **Programar el envío** y elija una fecha/hora, y pulse **Enviar** — el comunicado
      pasa a **Programado** y los correos salen en ese momento.
-7. El **Estado** del comunicado sigue el progreso: **Borrador** → **Programado** → **Enviado**
+8. El **Estado** del comunicado sigue el progreso: **Borrador** → **Programado** → **Enviado**
    (o **Fallido** si el envío ha fallado para todos los destinatarios). Cada fila de
    destinatario muestra su propio estado de envío, con el detalle del error disponible en las
    filas fallidas.

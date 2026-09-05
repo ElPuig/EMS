@@ -233,6 +233,7 @@
             'views/attendance/attendance_correction/menu.xml',
             'views/attendance/attendance_correction/list.xml',
             'views/attendance/attendance_correction/form.xml',
+            'views/attendance/attendance_correction/search.xml',
             'views/attendance/attendance_correction/hr_attendance_form.xml',
 
             'views/attendance/guard_duty_board/menu.xml',

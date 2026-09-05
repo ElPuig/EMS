@@ -1,5 +1,5 @@
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
 
 class ems_partner_relation_all(models.AbstractModel):
     _inherit = 'res.partner.relation.all'
@@ -44,20 +44,27 @@ class EmsContactRelationWizard(models.TransientModel):
             self.country_id = self.student_id.country_id
 
     def action_save(self):
+        # res.partner and res.partner.relation are locked down at the ir.model.access/
+        # ir.rule level for teachers (see security/ir.model.access.csv and
+        # security/rules/contacts.xml) - a tutor has no create rights on either. This
+        # wizard is the controlled entry point that's allowed to bypass that, but only
+        # for a student the current user is actually authorized to manage: the same
+        # check that drives the "Add contact" button's own visibility
+        # (views/community/contact/form.xml), so both stay in sync automatically.
+        if self.student_id._get_read_only_user():
+            raise AccessError(_("You are not allowed to manage this student's family contacts."))
+
         if not self.type_selection_id:
             raise ValidationError(_("Please select a relation type."))
         if not self.partner_id and not (self.firstname or self.lastname):
             raise ValidationError(_("Please select an existing contact or enter a first/last name for the new one."))
-        if not self.partner_id:
-            if not (self.document_id or self.passport_id):
-                raise ValidationError(_("Please provide at least one identification document (DNI/NIE or Passport)."))
-            if not (self.phone or self.mobile or self.email):
-                raise ValidationError(_("Please provide at least one contact method (phone, mobile or email)."))
+        if not self.partner_id and not (self.phone or self.mobile or self.email):
+            raise ValidationError(_("Please provide at least one contact method (phone, mobile or email)."))
 
         if self.partner_id:
             partner = self.partner_id
         else:
-            partner = self.env['res.partner'].create({
+            partner = self.env['res.partner'].sudo().create({
                 'firstname': self.firstname,
                 'lastname': self.lastname,
                 'phone': self.phone,
@@ -74,7 +81,7 @@ class EmsContactRelationWizard(models.TransientModel):
                 'country_id': self.country_id.id,
             })
 
-        self.env['res.partner.relation'].create({
+        self.env['res.partner.relation'].sudo().create({
             'left_partner_id': partner.id,
             'type_id': self.type_selection_id.id,
             'right_partner_id': self.student_id.id,

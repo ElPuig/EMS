@@ -2310,7 +2310,7 @@ msgstr "Properament..."
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__car_plate model:ir.model.fields,field_description:ems.field_res_users__car_plate
 msgid "Car Plate"
-msgstr "Placa de cotxe"
+msgstr "Matrícula del vehicle"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_car_plate
@@ -2582,6 +2582,11 @@ msgstr "Auxiliar de conversa"
 #: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
 msgid "Corporate account credentials"
 msgstr "Credencials del compte corporatiu"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Corporate email"
+msgstr "Correu corporatiu"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -4487,9 +4492,9 @@ msgstr "Última actualització el"
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/contacts/google_workspace_integration.py:0 model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__lastname model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__student_lastname code:addons/ems/static/src/js/backend/em_matrix_field.js:0
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0 model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__lastname model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__student_lastname model:ir.model.fields,field_description:partner_firstname.field_res_partner__lastname model:ir.model.fields,field_description:partner_firstname.field_res_users__lastname code:addons/ems/static/src/js/backend/em_matrix_field.js:0
 msgid "Last name"
-msgstr "Cognom"
+msgstr "Cognoms"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_criteria__outcome_id model:ir.model.fields,field_description:ems.field_ems_planning_outcome__valid_outcome_ids model:ir.model.fields,field_description:ems.field_ems_subject__outcome_ids model_terms:ir.ui.view,arch_db:ems.view_subject_form
@@ -5368,6 +5373,12 @@ msgid "You do not tutor any group with an open evaluation."
 msgstr "No ets tutor de cap grup amb avaluació oberta"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_relation.py:0
+msgid "You are not allowed to manage this student's family contacts."
+msgstr "No tens permís per gestionar els contactes familiars d'aquest alumne."
+
+#. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
 msgid "Ovr."
@@ -5505,7 +5516,7 @@ msgstr "Modificació de dades personals de l'alumne %s"
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0 model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Personal email"
 msgstr "Correu personal"
 

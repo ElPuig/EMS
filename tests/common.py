@@ -44,6 +44,22 @@ def mock_outgoing_email(cls):
     return mock
 
 
+def force_admin_language_to_english(cls):
+    """Forces the real 'admin' login's language to en_US for the duration of the test - for
+    any tour asserting on literal English text (status names, filter/button labels) that would
+    otherwise render translated. Admin's language is en_US on a clean install, but not
+    guaranteed on every dev box (e.g. after a production restore + devel.sh, admin may keep
+    whatever language the original account had - found 2026-09-04 reproducing this exact
+    failure against a dev DB where admin's language is ca_ES). Scoped to this test's own
+    transaction (rolled back afterward, same as any other fixture) and additionally restored
+    via addCleanup for clarity, since this mutates a real, pre-existing user. Call from within
+    the test method, before seeding fixtures / start_tour."""
+    admin_user = cls.env.ref('base.user_admin')
+    original_lang = admin_user.lang
+    admin_user.lang = 'en_US'
+    cls.addCleanup(lambda: admin_user.write({'lang': original_lang}))
+
+
 def make_synchronous_run_in_thread(record):
     """A run_in_thread() replacement that runs setup/compute/store/callback synchronously
     against `record`, for tests that need run_action()'s wiring without real threading or a

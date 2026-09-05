@@ -76,7 +76,7 @@ A teacher opens one of their own `hr.attendance` records and clicks **Request Co
 
 ### Read
 
-Teachers see their own requests (`views/attendance/attendance_correction/list.xml`); Head of Studies/Director/Academic Admin see all pending and historic requests, under the native "Attendances" menu.
+Teachers see their own requests (`views/attendance/attendance_correction/list.xml`); Head of Studies/Director/Academic Admin see all pending and historic requests, under the native "Attendances" menu. The list defaults to the **Pending** filter (`action_attendance_correction_tree`'s `context: {'search_default_pending': 1}`), matching the same pattern already used by `ems.student.document` — an approver isn't forced to wade through already-decided requests by default. The search view also exposes standalone **Accepted**/**Rejected** filters, so switching to (or combining) any other state, or removing the default filter to see all requests, is a single click. `action_view_corrections()` (the "Corrections" smart button on `hr.attendance`) explicitly resets the context to `{}` when drilling into one specific attendance's requests, so that view is never filtered.
 
 ### Update / Decide
 
@@ -121,6 +121,7 @@ Record rules (`security/rules/attendance.xml`): Admin unrestricted; Head of Stud
 |------|------|-------|
 | List | `views/attendance/attendance_correction/list.xml` | Employee, attendance, requested times, state; `create="false"` — records can only be created from the "Request Correction" button, never from this list |
 | Form | `views/attendance/attendance_correction/form.xml` | Statusbar + Accept/Reject buttons (visible to the resolved approver only) |
+| Search | `views/attendance/attendance_correction/search.xml` | Pending/Accepted/Rejected filters + group by status/employee; `action_attendance_correction_tree` defaults to `search_default_pending: 1` |
 | Menu | `views/attendance/attendance_correction/menu.xml` | Under the native "Attendances" root menu, sibling to Overview/Management |
 | `hr.attendance` header button + smart button | `views/attendance/attendance_correction/hr_attendance_form.xml` | Inherits `hr_attendance.hr_attendance_view_form`: adds "Request Correction" to `//header`, and a "Corrections" stat button (count) before the first `<group>` that opens the same list/form (domain-filtered to that attendance) via `action_view_corrections()` |
 
@@ -136,7 +137,6 @@ Record rules (`security/rules/attendance.xml`): Admin unrestricted; Head of Stud
 
 ## Follow-ups (out of scope for v1)
 
-- Browser tour test (`static/tests/tours/attendance_correction_tour.js`) — deferred.
 - Per-department scoping of Head of Studies visibility, if the flat/global model becomes a real problem in practice.
 
 Note: a dedicated `mail.template` for the decision email was considered and dropped — `message_post(partner_ids=...)` already emails the requester as a mail notification (visible in the chatter added to the form), which covers the "notify by email" requirement without extra plumbing.

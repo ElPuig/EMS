@@ -51,6 +51,8 @@ Your request is sent automatically to whoever can validate it — normally your 
 - **Employee Attendances → Correction Requests** lists all the requests you've made and their current status (Pending / Accepted / Rejected).
 - From the attendance record itself, the **Corrections** button in the header (only visible if a request exists for that record) takes you straight to it.
 
+> By default the list only shows **Pending** requests. Remove the **Pending** filter from the search bar (or switch to the **Accepted**/**Rejected** filter instead) to see requests that already have a decision.
+
 > If you're also a Head of Studies, Deputy Head of Studies or Director, see the [Head of Studies manual](../head_of_studies/attendance-corrections.md) for how to decide on requests sent to you.
 
 ---

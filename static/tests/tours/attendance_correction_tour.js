@@ -43,3 +43,68 @@ registry.category("web_tour.tours").add("ems_attendance_correction_accept", {
         },
     ],
 });
+
+// ems.attendance_correction search view: the list defaults to showing only Pending
+// requests (action context search_default_pending), matching the same pattern already
+// used by ems.student.document — an approver reviewing this list should not have to
+// wade through already-decided requests by default. This tour seeds one request per
+// state and confirms only the pending one shows by default, that removing the default
+// filter reveals all three, and that the Accepted filter can be used on its own to see
+// only accepted requests.
+registry.category("web_tour.tours").add("ems_attendance_correction_pending_filter", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_correction_tree",
+    steps: () => [
+        {
+            trigger: ".o_searchview_facet:contains('Pending')",
+            content: "Pending filter applied by default",
+        },
+        {
+            trigger: ".o_list_view .o_data_row td:contains('Filter Tour Teacher Pending')",
+            content: "The pending request is shown by default",
+        },
+        {
+            trigger: ".o_list_view:not(:has(.o_data_row td:contains('Filter Tour Teacher Accepted')))",
+            content: "The accepted request is hidden under the default Pending filter",
+        },
+        {
+            trigger: ".o_list_view:not(:has(.o_data_row td:contains('Filter Tour Teacher Rejected')))",
+            content: "The rejected request is hidden under the default Pending filter",
+        },
+        {
+            trigger: ".o_searchview_facet:contains('Pending') .o_facet_remove",
+            content: "Remove the default Pending filter",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row td:contains('Filter Tour Teacher Accepted')",
+            content: "All requests are shown once the default filter is removed",
+        },
+        {
+            trigger: ".o_list_view .o_data_row td:contains('Filter Tour Teacher Rejected')",
+            content: "The rejected request is also shown",
+        },
+        {
+            trigger: ".o_searchview_dropdown_toggler",
+            content: "Open the search dropdown",
+            run: "click",
+        },
+        {
+            trigger: ".o_filter_menu .o_menu_item:contains('Accepted')",
+            content: "Enable the Accepted filter",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row td:contains('Filter Tour Teacher Accepted')",
+            content: "Only the accepted request is shown",
+        },
+        {
+            trigger: ".o_list_view:not(:has(.o_data_row td:contains('Filter Tour Teacher Pending')))",
+            content: "The pending request is hidden while only the Accepted filter is active",
+        },
+        {
+            trigger: ".o_list_view:not(:has(.o_data_row td:contains('Filter Tour Teacher Rejected')))",
+            content: "The rejected request is hidden while only the Accepted filter is active",
+        },
+    ],
+});

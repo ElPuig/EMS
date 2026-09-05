@@ -1,0 +1,20 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_attendance_correction_search">
+            <field name="name">ems.attendance_correction.search</field>
+            <field name="model">ems.attendance_correction</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="employee_id"/>
+                    <filter name="pending" string="Pending" domain="[('state','=','pending')]"/>
+                    <filter name="accepted" string="Accepted" domain="[('state','=','accepted')]"/>
+                    <filter name="rejected" string="Rejected" domain="[('state','=','rejected')]"/>
+                    <group expand="0" string="Group by">
+                        <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                        <filter name="group_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

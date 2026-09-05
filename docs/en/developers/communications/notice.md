@@ -108,16 +108,43 @@ by content hash on the parent `ems.notice` instead), not a normalization fix.
 
 ## Access control
 
-Only `ems.group_academic_admin` has any `ir.model.access.csv` row for `ems.notice`/
-`ems.notice.line` — no other group has *any* access. `security/rules/communications.xml`'s
-`rule_notice_own` ("users see own", `domain_force=[('create_uid','=',user.id)]`) has no
-`groups` restriction, so it nominally applies to everyone — but since only admins have
-model-level access at all, and admins are already covered by the unrestricted
-`rule_notice_admin`, `rule_notice_own` is currently **inert** (a non-admin has zero access
-regardless of this rule, since model access is the ceiling a record rule can only narrow,
-never widen). Same pattern already documented for `ems.enrollment`'s secretary access rule
-in `docs/en/developers/contacts/enrollment.md` — not a bug, just a rule with no current
-audience.
+**Updated 2026-09-05** — Head of Studies/Deputy Head of Studies (`ems.group_head_of_studies`,
+the same group covers both roles) and the Quality coordinator (`ems.group_quality_admin`) now
+have their own `ir.model.access.csv` rows for `ems.notice`/`ems.notice.line`, alongside
+`ems.group_academic_admin`'s pre-existing full access.
+
+| Group | Sees | Creates/edits/deletes |
+|-------|------|------------------------|
+| `group_academic_admin`, `group_director` | Every notice | Every notice |
+| `group_head_of_studies` (HOS/DHOS) | Only notices they created | Only notices they created |
+| `group_quality_admin` (Quality coordinator) | Only notices they created | Only notices they created |
+
+Enforced by `security/rules/communications.xml`: `rule_notice_admin`/`rule_notice_line_admin`
+(`domain_force=[(1,'=',1)]`, groups `group_academic_admin` + `group_director`) and
+`rule_notice_own`/`rule_notice_line_own` (`domain_force=[('create_uid','=',user.id)]` — the
+line variant reads through `notice_id.create_uid` instead, since lines have no menu of their
+own — groups `group_head_of_studies` + `group_quality_admin`).
+
+**Bug fixed in this pass:** `rule_notice_own` previously had **no `groups` restriction at
+all** (a "global" rule). Odoo combines a global rule with every other rule via **AND**, not as
+an alternative OR — so `rule_notice_admin`'s `[(1,'=',1)]` was silently ANDed with
+`rule_notice_own`'s `create_uid = user.id`, meaning **an academic admin only ever saw their
+own notices too**, contradicting the rule's own name/comment ("Admins see all
+communications"). Verified against `odoo/addons/base/models/ir_rule.py::_compute_domain`
+(global rules → `global_domains`, always ANDed; group rules the user belongs to → ORed
+together, then ANDed onto the global result) and with a real before/after test
+(`TestNoticeAccessControl.test_admin_sees_all_notices`, `tests/test_notice.py`). The fix scopes
+`rule_notice_own` to the two non-admin groups explicitly instead of leaving it global. Note
+this is a *different* trap from `ems.enrollment`'s secretary rule in
+`docs/en/developers/contacts/enrollment.md` (an unrestricted **group-scoped** rule made moot by
+a `0`-everywhere model-access ceiling, not a global rule ANDing against another group's rule) —
+that file's "inert, not a bug" conclusion still holds and wasn't affected by this fix.
+
+`unlink()` is now also guarded in Python: a notice can only be hard-deleted while in `draft`
+state (nothing sent yet); once scheduled/sent/failed, `UserError` tells the caller to
+**archive** it instead (`ems.base`'s standard `action_archive()` / `active` field). This
+applies to every group, including admins, since a sent notice has real delivery history
+(`queue.job` records via `notice_line_id.notification_id`) worth preserving.
 
 ## Views
 

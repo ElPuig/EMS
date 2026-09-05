@@ -26,6 +26,8 @@ Esta sección contiene los manuales para **administradores**.
 - [El horario semanal de un grupo](group-schedule.md) — Consultar el horario agregado de un grupo (asignaturas, docentes, aulas, patios) y exportarlo a PDF.
 - [Preparar el curso siguiente](course-transition.md) — Cerrar el curso: archivar el historial académico, graduar y archivar a los exalumnos, colocar a todos en su grupo nuevo y cambiar el curso actual.
 - [Importar las notas desde Esfera](grade-import.md) — Cargar en EMS las notas oficiales de cada evaluación y, opcionalmente, crear las matrículas que falten.
+- [Comunicados: enviar correos masivos a alumnos y familias](notice.md) — Redactar y enviar un Comunicado, y quién ve qué comunicados.
+- [Encuestas: integración con LimeSurvey](survey.md) — El ciclo de vida de la encuesta (borrador → destinatarios → subida → abierta → cerrada → descarga) y quién puede gestionar qué encuestas.
 
 ---
 

@@ -1,6 +1,6 @@
 from datetime import date
 
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
 
 from .common import create_level_study_group, mock_outgoing_email
@@ -205,6 +205,39 @@ class TestNotice(TransactionCase):
         self.assertEqual(notice.state, 'draft')
         self.assertFalse(any(notice.notice_line_ids.mapped('notification_id')))
 
+    # --- unlink --------------------------------------------------------------------------
+
+    def test_unlink_allowed_when_draft(self):
+        notice = self._notice()
+        notice.unlink()
+        self.assertFalse(notice.exists())
+
+    def test_unlink_blocked_once_scheduled(self):
+        notice = self._notice(
+            group_ids=[(6, 0, [self.group.id])],
+            use_schedule=True, scheduled_date='2099-01-01 00:00:00',
+        )
+        notice._onchange_groups()
+        notice.action_send()
+        with self.assertRaises(UserError):
+            notice.unlink()
+        notice.action_archive()
+        self.assertFalse(notice.active)
+
+    def test_unlink_blocked_message_is_translated(self):
+        # Verifies the .po translation actually loaded and applies at runtime -
+        # a msgid existing in the .po file is necessary but not sufficient (see
+        # CLAUDE.md's i18n verification rule).
+        notice = self._notice(
+            group_ids=[(6, 0, [self.group.id])],
+            use_schedule=True, scheduled_date='2099-01-01 00:00:00',
+        )
+        notice._onchange_groups()
+        notice.action_send()
+        with self.assertRaises(UserError) as cm:
+            notice.with_context(lang='es_ES').unlink()
+        self.assertIn('Archívalo en su lugar', str(cm.exception))
+
 
 class TestNoticeLine(TransactionCase):
     """ems.notice.line — the per-recipient row."""
@@ -286,6 +319,81 @@ class TestNoticeLine(TransactionCase):
         action = line.open_exception_popup()
         self.assertEqual(action['res_model'], 'ems.notice.line')
         self.assertEqual(action['res_id'], line.id)
+
+
+class TestNoticeAccessControl(TransactionCase):
+    """security/rules/communications.xml — who can see/edit which ems.notice records.
+
+    Admin and Director see every notice; Head of Studies/Deputy Head of Studies and the
+    Quality coordinator only see the ones they created themselves. Regression coverage for
+    a real bug found while implementing this: rule_notice_own used to have no `groups`
+    (global), which Odoo ANDs against every other rule - so the "admin sees all" rule was
+    silently neutered and admins only ever saw their own notices too."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.admin_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Admin (Notice)', 'login': 'test_admin_notice', 'email': 'test_admin_notice@example.com',
+            'groups_id': [(4, cls.env.ref('ems.group_academic_admin').id), (4, cls.env.ref('base.group_user').id)],
+        })
+        cls.director_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Director (Notice)', 'login': 'test_director_notice', 'email': 'test_director_notice@example.com',
+            'groups_id': [(4, cls.env.ref('ems.group_director').id), (4, cls.env.ref('base.group_user').id)],
+        })
+        cls.hos_a_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test HOS A (Notice)', 'login': 'test_hos_a_notice', 'email': 'test_hos_a_notice@example.com',
+            'groups_id': [(4, cls.env.ref('ems.group_head_of_studies').id), (4, cls.env.ref('base.group_user').id)],
+        })
+        cls.hos_b_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test HOS B (Notice)', 'login': 'test_hos_b_notice', 'email': 'test_hos_b_notice@example.com',
+            'groups_id': [(4, cls.env.ref('ems.group_head_of_studies').id), (4, cls.env.ref('base.group_user').id)],
+        })
+        cls.quality_admin_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Quality Coordinator (Notice)', 'login': 'test_quality_admin_notice', 'email': 'test_quality_admin_notice@example.com',
+            'groups_id': [(4, cls.env.ref('ems.group_quality_admin').id), (4, cls.env.ref('base.group_user').id)],
+        })
+
+        cls.notice_hos_a = cls.env['ems.notice'].with_user(cls.hos_a_user).create({
+            'subject': 'HOS A notice', 'message': '<p>A</p>', 'recipient_type': 'both',
+        })
+        cls.notice_hos_b = cls.env['ems.notice'].with_user(cls.hos_b_user).create({
+            'subject': 'HOS B notice', 'message': '<p>B</p>', 'recipient_type': 'both',
+        })
+        cls.notice_quality = cls.env['ems.notice'].with_user(cls.quality_admin_user).create({
+            'subject': 'Quality notice', 'message': '<p>Q</p>', 'recipient_type': 'both',
+        })
+
+    def test_admin_sees_all_notices(self):
+        found = self.env['ems.notice'].with_user(self.admin_user).search([
+            ('id', 'in', (self.notice_hos_a | self.notice_hos_b | self.notice_quality).ids)
+        ])
+        self.assertEqual(len(found), 3)
+
+    def test_director_sees_all_notices(self):
+        found = self.env['ems.notice'].with_user(self.director_user).search([
+            ('id', 'in', (self.notice_hos_a | self.notice_hos_b | self.notice_quality).ids)
+        ])
+        self.assertEqual(len(found), 3)
+
+    def test_hos_sees_only_own_notice(self):
+        found = self.env['ems.notice'].with_user(self.hos_a_user).search([
+            ('id', 'in', (self.notice_hos_a | self.notice_hos_b | self.notice_quality).ids)
+        ])
+        self.assertEqual(found, self.notice_hos_a)
+
+    def test_other_hos_cannot_write_or_unlink(self):
+        with self.assertRaises(AccessError):
+            self.notice_hos_a.with_user(self.hos_b_user).write({'subject': 'Hijacked'})
+        with self.assertRaises(AccessError):
+            self.notice_hos_a.with_user(self.hos_b_user).unlink()
+
+    def test_quality_coordinator_sees_only_own_notice(self):
+        found = self.env['ems.notice'].with_user(self.quality_admin_user).search([
+            ('id', 'in', (self.notice_hos_a | self.notice_hos_b | self.notice_quality).ids)
+        ])
+        self.assertEqual(found, self.notice_quality)
 
 
 def base_encoded_png():

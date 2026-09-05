@@ -118,6 +118,15 @@ class EmsNotice(models.Model):
         new_auto_lines = self._build_auto_lines(self.group_ids, self.recipient_type, seen_emails)
         self.notice_line_ids = manual_lines | new_auto_lines
 
+    def unlink(self):
+        sent = self.filtered(lambda notice: notice.state != 'draft')
+        if sent:
+            raise UserError(_(
+                "Cannot delete a notice that has already been scheduled, sent or failed to "
+                "send. Please archive it instead."
+            ))
+        return super().unlink()
+
     def action_send(self):
         self.ensure_one()
         if self.state not in ('draft',):

@@ -2297,6 +2297,12 @@ msgstr "No es pot eliminar aquesta enquesta en el seu estat actual. Només es po
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/communications/notice.py:0
+msgid "Cannot delete a notice that has already been scheduled, sent or failed to send. Please archive it instead."
+msgstr "No es pot eliminar un comunicat que ja ha estat programat, enviat o que ha fallat en l'enviament. Arxiva'l en el seu lloc."
+
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/communications/limesurvey.py:0
 msgid "Coming soon..."
 msgstr "Properament..."

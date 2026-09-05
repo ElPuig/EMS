@@ -16,6 +16,7 @@ Aquesta secció conté els manuals per a **Cap d'Estudis, Cap d'Estudis Adjunt/a
 - [L'horari setmanal d'un grup](../admin/group-schedule.md)
 - [Informes d'assistència](attendance-reports.md)
 - [Crear i editar professorat](staff-management.md)
+- [Comunicats: enviar els vostres propis correus massius](notice.md)
 
 ---
 

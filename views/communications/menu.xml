@@ -5,14 +5,15 @@
             <field name="name">Notices</field>
             <field name="res_model">ems.notice</field>
             <field name="view_mode">list,form</field>
+            <field name="context">{'search_default_only_mine': 1}</field>
         </record>
 
         <menuitem name="Communications" sequence="7" id="menu_communications"
-                  groups="ems.group_academic_admin,ems.group_quality"/>
+                  groups="ems.group_academic_admin,ems.group_quality,ems.group_head_of_studies"/>
 
         <menuitem name="Notices" sequence="1" id="menu_communications_list"
                   parent="menu_communications"
                   action="action_communication_list"
-                  groups="ems.group_academic_admin"/>
+                  groups="ems.group_academic_admin,ems.group_head_of_studies,ems.group_quality_admin"/>
     </data>
 </odoo>

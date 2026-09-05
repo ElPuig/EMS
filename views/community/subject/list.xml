@@ -5,7 +5,7 @@
             <field name="model">ems.subject</field>
             <field name="arch" type="xml">
                 <!-- <list expand="True" default_order="study_ids desc, acronym asc">  -->
-                <list expand="False" default_order="acronym asc"> 
+                <list expand="False" default_order="acronym asc" duplicate="0">
                     <field name="acronym"/>
                     <field name="name" class="w-50"/>                    
                     <field name="study_ids" widget="many2many_tags"/>

@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group
+from .common import create_level_study_group, force_user_language_to_english
 
 
 @tagged('post_install', '-at_install')
@@ -12,6 +12,7 @@ class TestAttendanceArchivedFilterTour(HttpCase):
     plus the new employee_id/course_id-based grouping on resource.calendar."""
 
     def test_attendance_template_archived_filter_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         level, study, group = create_level_study_group(self, 'TAAFT1')
         subject = self.env['ems.subject'].create({
             'code': 'TAAFT1', 'acronym': 'TAAFT1', 'name': 'Tour Archived Template',
@@ -39,6 +40,7 @@ class TestAttendanceArchivedFilterTour(HttpCase):
         self.start_tour("/odoo", "ems_attendance_template_archived_filter", login="admin")
 
     def test_attendance_session_archived_filter_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         level, study, group = create_level_study_group(self, 'TAAFT2')
         subject = self.env['ems.subject'].create({
             'code': 'TAAFT2', 'acronym': 'TAAFT2', 'name': 'Test Subject (Archived Filter Tour)',
@@ -70,6 +72,7 @@ class TestAttendanceArchivedFilterTour(HttpCase):
         self.start_tour("/odoo", "ems_attendance_session_archived_filter", login="admin")
 
     def test_working_schedule_course_grouping_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         course = self.env['ems.course'].create({'start': 2199, 'end': 2200})
         teacher = self.env['hr.employee'].create({
             'name': 'Test Teacher (Working Schedule Grouping Tour)', 'employee_type': 'teacher',

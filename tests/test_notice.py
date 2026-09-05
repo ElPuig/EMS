@@ -1,6 +1,6 @@
 from datetime import date
 
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
 
 from .common import create_level_study_group, mock_outgoing_email
@@ -81,6 +81,17 @@ class TestNotice(TransactionCase):
         notice = self._notice()
         self.assertFalse(notice.can_cancel)
 
+    def test_signature_defaults_from_company(self):
+        self.env.company.notice_email_signature = '<p>Company default signature</p>'
+        notice = self._notice()
+        self.assertEqual(notice.signature, '<p>Company default signature</p>')
+
+    def test_signature_is_editable_per_notice(self):
+        notice = self._notice(signature='<p>Custom one-off signature</p>')
+        self.assertEqual(notice.signature, '<p>Custom one-off signature</p>')
+        notice.signature = False
+        self.assertFalse(notice.signature)
+
     # --- _build_auto_lines / _onchange_groups ---------------------------------------------
 
     def test_students_only_creates_one_line_per_student(self):
@@ -127,6 +138,92 @@ class TestNotice(TransactionCase):
         matching = notice.notice_line_ids.filtered(lambda l: l.email == self.minor_student.email)
         self.assertEqual(len(matching), 1)
         self.minor_student.main_group_id = self.group
+
+    # --- recipient_email_type ---------------------------------------------------------------
+
+    def test_recipient_email_type_defaults_to_both(self):
+        notice = self._notice()
+        self.assertEqual(notice.recipient_email_type, 'both')
+
+    def test_recipient_email_type_corporate_only_uses_corporate_email(self):
+        self.minor_student.student_email = 'minor.student.corp@example.com'
+        notice = self._notice(
+            recipient_type='students', recipient_email_type='corporate',
+            group_ids=[(6, 0, [self.group.id])],
+        )
+        notice._onchange_groups()
+        emails = notice.notice_line_ids.mapped('email')
+        self.assertEqual(emails, ['minor.student.corp@example.com'])
+        self.minor_student.student_email = False
+
+    def test_recipient_email_type_corporate_only_skips_and_warns_without_it(self):
+        # Neither fixture student has a student_email (corporate) set.
+        notice = self._notice(
+            recipient_type='students', recipient_email_type='corporate',
+            group_ids=[(6, 0, [self.group.id])],
+        )
+        result = notice._onchange_groups()
+        self.assertFalse(notice.notice_line_ids)
+        self.assertIn('warning', result)
+        self.assertIn(self.minor_student.name, result['warning']['message'])
+        self.assertIn(self.adult_no_share_student.name, result['warning']['message'])
+
+    def test_recipient_email_type_personal_only_uses_personal_email(self):
+        self.minor_student.student_email = 'minor.student.corp@example.com'
+        notice = self._notice(
+            recipient_type='students', recipient_email_type='personal',
+            group_ids=[(6, 0, [self.group.id])],
+        )
+        notice._onchange_groups()
+        emails = set(notice.notice_line_ids.mapped('email'))
+        self.assertEqual(emails, {self.minor_student.email, self.adult_no_share_student.email})
+        self.minor_student.student_email = False
+
+    def test_recipient_email_type_both_sends_to_both_addresses_when_available(self):
+        self.minor_student.student_email = 'minor.student.corp@example.com'
+        notice = self._notice(
+            recipient_type='students', recipient_email_type='both',
+            group_ids=[(6, 0, [self.group.id])],
+        )
+        notice._onchange_groups()
+        minor_lines = notice.notice_line_ids.filtered(lambda l: l.student_id == self.minor_student)
+        adult_lines = notice.notice_line_ids.filtered(lambda l: l.student_id == self.adult_no_share_student)
+        self.assertEqual(
+            set(minor_lines.mapped('email')),
+            {'minor.student.corp@example.com', self.minor_student.email},
+        )
+        # adult_no_share_student has no corporate email - "both" still sends the one it has.
+        self.assertEqual(adult_lines.mapped('email'), [self.adult_no_share_student.email])
+        self.minor_student.student_email = False
+
+    def test_recipient_email_type_both_still_skips_and_warns_with_no_email_at_all(self):
+        no_email_student = self.env['res.partner'].create({
+            'name': 'No Email Student', 'contact_type': 'student', 'main_group_id': self.group.id,
+        })
+        notice = self._notice(
+            recipient_type='students', recipient_email_type='both',
+            group_ids=[(6, 0, [self.group.id])],
+        )
+        result = notice._onchange_groups()
+        self.assertNotIn(no_email_student.id, notice.notice_line_ids.mapped('student_id.id'))
+        self.assertIn('warning', result)
+        self.assertIn(no_email_student.name, result['warning']['message'])
+
+    def test_both_selection_labels_are_translated(self):
+        # Regression coverage for a real gap found 2026-09-05: the "Both" option on
+        # recipient_type had an empty msgstr in both ca_ES.po/es_ES.po despite the msgid
+        # existing - a .po entry existing is necessary but not sufficient (see CLAUDE.md's
+        # i18n verification rule), so this checks the actual runtime-translated label.
+        recipient_type_selection = dict(
+            self.env['ems.notice'].with_context(lang='es_ES').fields_get(['recipient_type'])
+            ['recipient_type']['selection']
+        )
+        recipient_email_type_selection = dict(
+            self.env['ems.notice'].with_context(lang='es_ES').fields_get(['recipient_email_type'])
+            ['recipient_email_type']['selection']
+        )
+        self.assertEqual(recipient_type_selection['both'], 'Ambos')
+        self.assertEqual(recipient_email_type_selection['both'], 'Ambos')
 
     # --- action_send -----------------------------------------------------------------------
 
@@ -205,6 +302,39 @@ class TestNotice(TransactionCase):
         self.assertEqual(notice.state, 'draft')
         self.assertFalse(any(notice.notice_line_ids.mapped('notification_id')))
 
+    # --- unlink --------------------------------------------------------------------------
+
+    def test_unlink_allowed_when_draft(self):
+        notice = self._notice()
+        notice.unlink()
+        self.assertFalse(notice.exists())
+
+    def test_unlink_blocked_once_scheduled(self):
+        notice = self._notice(
+            group_ids=[(6, 0, [self.group.id])],
+            use_schedule=True, scheduled_date='2099-01-01 00:00:00',
+        )
+        notice._onchange_groups()
+        notice.action_send()
+        with self.assertRaises(UserError):
+            notice.unlink()
+        notice.action_archive()
+        self.assertFalse(notice.active)
+
+    def test_unlink_blocked_message_is_translated(self):
+        # Verifies the .po translation actually loaded and applies at runtime -
+        # a msgid existing in the .po file is necessary but not sufficient (see
+        # CLAUDE.md's i18n verification rule).
+        notice = self._notice(
+            group_ids=[(6, 0, [self.group.id])],
+            use_schedule=True, scheduled_date='2099-01-01 00:00:00',
+        )
+        notice._onchange_groups()
+        notice.action_send()
+        with self.assertRaises(UserError) as cm:
+            notice.with_context(lang='es_ES').unlink()
+        self.assertIn('Archívalo en su lugar', str(cm.exception))
+
 
 class TestNoticeLine(TransactionCase):
     """ems.notice.line — the per-recipient row."""
@@ -228,6 +358,43 @@ class TestNoticeLine(TransactionCase):
     def test_display_status_defaults_to_draft(self):
         line = self._line()
         self.assertEqual(line.display_status, 'draft')
+
+    # --- signature / reply_to rendering (ems.mail_notice) -----------------------------------
+
+    def test_rendered_body_uses_notice_own_signature_not_a_hardcoded_one(self):
+        self.notice.signature = '<p>Distinctive Custom Sign-off</p>'
+        line = self._line()
+        template = self.env.ref('ems.mail_notice')
+        rendered = template.sudo()._generate_template([line.id], ['body_html'])
+        body_html = rendered.get(line.id, {}).get('body_html', '')
+        self.assertIn('Distinctive Custom Sign-off', body_html)
+        self.assertNotIn('Kind regards', body_html)
+
+    def test_rendered_body_omits_signature_when_cleared(self):
+        self.notice.signature = False
+        line = self._line()
+        template = self.env.ref('ems.mail_notice')
+        rendered = template.sudo()._generate_template([line.id], ['body_html'])
+        body_html = rendered.get(line.id, {}).get('body_html', '')
+        self.assertNotIn('Kind regards', body_html)
+
+    def test_reply_to_resolves_to_sent_by_email(self):
+        sender = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Notice Sender', 'login': 'test_notice_sender', 'email': 'sender@example.com',
+            'groups_id': [(4, self.env.ref('base.group_user').id)],
+        })
+        self.notice.sent_by = sender
+        line = self._line()
+        template = self.env.ref('ems.mail_notice')
+        rendered = template.sudo()._generate_template([line.id], ['reply_to'])
+        self.assertEqual(rendered.get(line.id, {}).get('reply_to'), 'sender@example.com')
+
+    def test_reply_to_falls_back_to_create_uid_email_when_not_sent_yet(self):
+        self.assertFalse(self.notice.sent_by)
+        line = self._line()
+        template = self.env.ref('ems.mail_notice')
+        rendered = template.sudo()._generate_template([line.id], ['reply_to'])
+        self.assertEqual(rendered.get(line.id, {}).get('reply_to'), self.notice.create_uid.email)
 
     def test_send_notification_finalizes_notice(self):
         # send_notification() itself never sets notification_id (that's
@@ -286,6 +453,108 @@ class TestNoticeLine(TransactionCase):
         action = line.open_exception_popup()
         self.assertEqual(action['res_model'], 'ems.notice.line')
         self.assertEqual(action['res_id'], line.id)
+
+
+class TestNoticeAccessControl(TransactionCase):
+    """security/rules/communications.xml — who can see/edit which ems.notice records.
+
+    Admin and Director see and can edit every notice. Head of Studies/Deputy Head of Studies
+    and the Quality coordinator can also *see* every notice centre-wide (so they can supervise
+    each other - `views/communications/notice/search.xml`'s "Show only mine" filter, defaulted
+    on, keeps their default view comfortably scoped to their own), but can only create/edit/
+    delete the ones they personally created.
+
+    Regression coverage for a real bug found while first implementing this: rule_notice_own
+    used to have no `groups` (global), which Odoo ANDs against every other rule - so the
+    "admin sees all" rule was silently neutered and admins only ever saw their own notices
+    too."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.admin_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Admin (Notice)', 'login': 'test_admin_notice', 'email': 'test_admin_notice@example.com',
+            'groups_id': [(4, cls.env.ref('ems.group_academic_admin').id), (4, cls.env.ref('base.group_user').id)],
+        })
+        cls.director_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Director (Notice)', 'login': 'test_director_notice', 'email': 'test_director_notice@example.com',
+            'groups_id': [(4, cls.env.ref('ems.group_director').id), (4, cls.env.ref('base.group_user').id)],
+        })
+        cls.hos_a_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test HOS A (Notice)', 'login': 'test_hos_a_notice', 'email': 'test_hos_a_notice@example.com',
+            'groups_id': [(4, cls.env.ref('ems.group_head_of_studies').id), (4, cls.env.ref('base.group_user').id)],
+        })
+        cls.hos_b_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test HOS B (Notice)', 'login': 'test_hos_b_notice', 'email': 'test_hos_b_notice@example.com',
+            'groups_id': [(4, cls.env.ref('ems.group_head_of_studies').id), (4, cls.env.ref('base.group_user').id)],
+        })
+        cls.quality_admin_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Quality Coordinator (Notice)', 'login': 'test_quality_admin_notice', 'email': 'test_quality_admin_notice@example.com',
+            'groups_id': [(4, cls.env.ref('ems.group_quality_admin').id), (4, cls.env.ref('base.group_user').id)],
+        })
+
+        cls.notice_hos_a = cls.env['ems.notice'].with_user(cls.hos_a_user).create({
+            'subject': 'HOS A notice', 'message': '<p>A</p>', 'recipient_type': 'both',
+        })
+        cls.notice_hos_b = cls.env['ems.notice'].with_user(cls.hos_b_user).create({
+            'subject': 'HOS B notice', 'message': '<p>B</p>', 'recipient_type': 'both',
+        })
+        cls.notice_quality = cls.env['ems.notice'].with_user(cls.quality_admin_user).create({
+            'subject': 'Quality notice', 'message': '<p>Q</p>', 'recipient_type': 'both',
+        })
+
+    def test_admin_sees_all_notices(self):
+        found = self.env['ems.notice'].with_user(self.admin_user).search([
+            ('id', 'in', (self.notice_hos_a | self.notice_hos_b | self.notice_quality).ids)
+        ])
+        self.assertEqual(len(found), 3)
+
+    def test_director_sees_all_notices(self):
+        found = self.env['ems.notice'].with_user(self.director_user).search([
+            ('id', 'in', (self.notice_hos_a | self.notice_hos_b | self.notice_quality).ids)
+        ])
+        self.assertEqual(len(found), 3)
+
+    def test_hos_sees_every_notice_for_supervision(self):
+        found = self.env['ems.notice'].with_user(self.hos_a_user).search([
+            ('id', 'in', (self.notice_hos_a | self.notice_hos_b | self.notice_quality).ids)
+        ])
+        self.assertEqual(len(found), 3)
+
+    def test_hos_only_mine_filter_narrows_to_own(self):
+        # The default UI filter's own domain, exercised directly (a tour test covers the
+        # actual checkbox interaction/default-on state).
+        found = self.env['ems.notice'].with_user(self.hos_a_user).search([
+            ('id', 'in', (self.notice_hos_a | self.notice_hos_b | self.notice_quality).ids),
+            ('create_uid', '=', self.hos_a_user.id),
+        ])
+        self.assertEqual(found, self.notice_hos_a)
+
+    def test_other_hos_cannot_write_or_unlink(self):
+        with self.assertRaises(AccessError):
+            self.notice_hos_a.with_user(self.hos_b_user).write({'subject': 'Hijacked'})
+        with self.assertRaises(AccessError):
+            self.notice_hos_a.with_user(self.hos_b_user).unlink()
+
+    def test_quality_coordinator_sees_every_notice_for_supervision(self):
+        found = self.env['ems.notice'].with_user(self.quality_admin_user).search([
+            ('id', 'in', (self.notice_hos_a | self.notice_hos_b | self.notice_quality).ids)
+        ])
+        self.assertEqual(len(found), 3)
+
+    def test_quality_coordinator_cannot_write_others_notice(self):
+        with self.assertRaises(AccessError):
+            self.notice_hos_a.with_user(self.quality_admin_user).write({'subject': 'Hijacked'})
+
+    def test_hos_can_read_but_not_write_others_notice_line(self):
+        line = self.env['ems.notice.line'].with_user(self.hos_a_user).create({
+            'notice_id': self.notice_hos_a.id, 'email': 'recipient@example.com',
+        })
+        found = self.env['ems.notice.line'].with_user(self.hos_b_user).search([('id', '=', line.id)])
+        self.assertEqual(found, line, "HOS B should be able to read HOS A's notice line for supervision")
+        with self.assertRaises(AccessError):
+            line.with_user(self.hos_b_user).write({'email': 'hijacked@example.com'})
 
 
 def base_encoded_png():

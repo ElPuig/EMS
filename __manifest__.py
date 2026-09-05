@@ -193,6 +193,7 @@
             'views/communications/menu.xml',
 
             'views/communications/surveys/header/list.xml',
+            'views/communications/surveys/header/search.xml',
             'views/communications/surveys/header/form.xml',
             'views/communications/surveys/header/menu.xml',
             'views/communications/surveys/block/form.xml',
@@ -251,6 +252,7 @@
             'views/attendance/attendance_reports/wizard.xml',
 
             'views/communications/notice/list.xml',
+            'views/communications/notice/search.xml',
             'views/communications/notice/form.xml',
 
         'views/coexistence/strike/list.xml',

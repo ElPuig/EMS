@@ -4,7 +4,7 @@
             <field name="name">ems.criteria.form</field>
             <field name="model">ems.criteria</field>
             <field name="arch" type="xml">				
-                <form string="criteria">                   
+                <form string="criteria" duplicate="0">
                     <sheet>                        
                          <group string="Main data" col="6">                            
                             <group>

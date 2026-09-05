@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group
+from .common import create_level_study_group, force_user_language_to_english
 
 
 @tagged('post_install', '-at_install')
@@ -32,6 +32,7 @@ class TestEnrollmentProposalTour(HttpCase):
         })
 
     def test_enrollment_proposal_create_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.start_tour("/odoo", "ems_enrollment_proposal_create", login="admin")
 
         order = self.env['sale.order'].search([
@@ -42,6 +43,7 @@ class TestEnrollmentProposalTour(HttpCase):
         self.assertEqual(order.ems_group_id, self.group)
 
     def test_enrollment_proposal_graduation_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.assertFalse(self.graduate_student.has_graduated)
 
         self.start_tour("/odoo", "ems_enrollment_proposal_graduation", login="admin")

@@ -48,6 +48,9 @@
                                 <field name="recipient_type" readonly="state != 'draft'"/>
                             </group>
                             <group>
+                                <field name="recipient_email_type" readonly="state != 'draft'" invisible="recipient_type == 'families'"/>
+                            </group>
+                            <group>
                                 <field name="use_schedule" widget="boolean_toggle" readonly="state != 'draft'"/>
                             </group>
                             <group>
@@ -61,6 +64,9 @@
                             </group>
                             <group colspan="4">
                                 <field name="message" widget="html" readonly="state != 'draft'" style="min-height: 200px;"/>
+                            </group>
+                            <group colspan="4">
+                                <field name="signature" widget="html" readonly="state != 'draft'" style="min-height: 80px;"/>
                             </group>
                         </group>
 

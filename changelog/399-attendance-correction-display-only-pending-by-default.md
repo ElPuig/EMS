@@ -10,5 +10,5 @@
 
 # Internal changes:
 
-## Shared test helper for forcing the admin user's language to English in tours:
-`_force_admin_language_to_english` (previously a private method duplicated on one test class) extracted to `tests/common.py` as `force_admin_language_to_english()`, used by both `TestAttendanceStatusTour` and the new attendance-correction filter tour - any tour asserting on literal English text needs this, and it should no longer be re-written per file.
+## New attendance-correction filter tour reuses the existing shared language-forcing test helper:
+The new attendance-correction filter tour, and `TestAttendanceStatusTour`, both call the already-established `force_user_language_to_english()` (`tests/common.py`) to force the admin login to `en_US` before asserting on literal English text - no new helper was needed, since branch `400-communications-some-fixes-needed`, merged around the same time, already carries this exact helper and it's the codebase-wide convention used by every other tour test.

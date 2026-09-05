@@ -16,6 +16,7 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 - [A Group's Weekly Schedule](../admin/group-schedule.md)
 - [Attendance Reports](attendance-reports.md)
 - [Creating and Editing Teachers](staff-management.md)
+- [Notices: Sending Your Own Bulk Emails](notice.md)
 
 ---
 

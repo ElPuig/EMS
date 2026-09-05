@@ -102,6 +102,13 @@ registry.category("web_tour.tours").add("ems_subject_crud", {
             run: "click",
         },
         {
+            // ems.subject has a unique 'code' constraint but no copy() override - the stock
+            // "Duplicate" action would raise a raw UniqueViolation instead of working or
+            // failing cleanly, so it's disabled (duplicate="0") until a real copy() is written.
+            trigger: "body:not(:has(.o_menu_item:contains('Duplicate')))",
+            content: "Duplicate is not offered (would crash on the unique code constraint)",
+        },
+        {
             trigger: ".o_menu_item:contains('Delete')",
             content: "Click Delete",
             run: "click",

@@ -26,6 +26,8 @@ Aquesta secció conté els manuals per a **administradors**.
 - [L'horari setmanal d'un grup](group-schedule.md) — Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF.
 - [Preparar el curs següent](course-transition.md) — Tancar el curs: arxivar l'historial acadèmic, graduar i arxivar els exalumnes, col·locar tothom al grup nou i canviar el curs actual.
 - [Importar les notes des d'Esfera](grade-import.md) — Carregar a l'EMS les notes oficials de cada avaluació i, opcionalment, crear les matrícules que faltin.
+- [Comunicats: enviar correus massius a alumnes i famílies](notice.md) — Redactar i enviar un Comunicat, i qui veu quins comunicats.
+- [Enquestes: integració amb LimeSurvey](survey.md) — El cicle de vida de l'enquesta (esborrany → destinataris → pujada → oberta → tancada → descàrrega) i qui pot gestionar quines enquestes.
 
 ---
 

@@ -1,5 +1,7 @@
 from odoo.tests import tagged, HttpCase
 
+from .common import force_user_language_to_english
+
 
 @tagged('post_install', '-at_install')
 class TestEmployeeGoogleWorkspaceTour(HttpCase):
@@ -16,6 +18,7 @@ class TestEmployeeGoogleWorkspaceTour(HttpCase):
         return self.env['hr.employee'].create(base)
 
     def test_employee_google_workspace_state_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # google_ws_state (models/employees/google_workspace_integration.py) drives
         # which header button(s) show — a TransactionCase can assert the compute is
         # right, but only a real browser render catches an OWL/view-arch mistake in

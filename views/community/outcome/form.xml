@@ -4,7 +4,7 @@
             <field name="name">ems.outcome.form</field>
             <field name="model">ems.outcome</field>
             <field name="arch" type="xml">				
-                <form string="outcome">                   
+                <form string="outcome" duplicate="0">
                     <sheet>                        
                         <group string="Main data" col="6">                            
                             <group>
@@ -35,7 +35,7 @@
 
                             <page string="Evaluation criteria">
                                 <field name="criteria_ids" widget="one2many" context="{'default_outcome_id': id, 'default_code': code}">
-                                    <list editable="bottom" default_order="acronym asc, name asc">
+                                    <list editable="bottom" default_order="acronym asc, name asc" duplicate="0">
                                         <field name="code"/>
                                         <field name="acronym"/>
                                         <field name="name"/>                                               

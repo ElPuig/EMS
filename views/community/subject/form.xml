@@ -4,7 +4,7 @@
             <field name="name">ems.subject.form</field>
             <field name="model">ems.subject</field>
             <field name="arch" type="xml">				
-                <form string="subject">                   
+                <form string="subject" duplicate="0">
                     <sheet>                        
                         <group string="Main data" col="4">
                             <group>
@@ -47,7 +47,7 @@
 
                             <page string="Learning Outcome">
                                 <field name="outcome_ids" widget="one2many" context="{'default_subject_id': id, 'default_code': code}">
-                                    <list editable="bottom" default_order="acronym asc, name asc">
+                                    <list editable="bottom" default_order="acronym asc, name asc" duplicate="0">
                                         <field name="code"/>
                                         <field name="acronym"/>
                                         <field name="name"/>    
@@ -60,9 +60,9 @@
                             </page>
 
                             <page string="Content">
-                                <field name="content_ids" widget="one2many" context="{'default_subject_id': id, 'default_code': code}">                                
+                                <field name="content_ids" widget="one2many" context="{'default_subject_id': id, 'default_code': code}">
                                     <list editable="bottom" default_order="code asc, level asc, acronym asc"
-                                        decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
+                                        decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3" duplicate="0">
                                         <field name="code"/>
                                         <field name="acronym"/>
                                         <field name="name"/>                                            

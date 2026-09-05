@@ -2,7 +2,7 @@ from datetime import datetime
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import force_admin_language_to_english
+from .common import force_user_language_to_english
 
 
 @tagged('post_install', '-at_install')
@@ -48,7 +48,7 @@ class TestAttendanceCorrectionTour(HttpCase):
 
     def test_attendance_correction_pending_filter_tour(self):
         # The tour asserts on literal English filter labels (Pending/Accepted/Rejected).
-        force_admin_language_to_english(self)
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
 
         # Self-contained fixtures (not the class-level ones above, which the accept tour
         # mutates) - one request per state, distinguished by employee name so the tour

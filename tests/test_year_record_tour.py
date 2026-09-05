@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group
+from .common import create_level_study_group, force_user_language_to_english
 
 
 @tagged('post_install', '-at_install')
@@ -56,7 +56,9 @@ class TestYearRecordTour(HttpCase):
             cls.student, cls.current_course)
 
     def test_year_record_list_and_subject_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.start_tour("/odoo", "ems_year_record_list_and_subject", login="admin")
 
     def test_year_record_partner_tab_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.start_tour("/odoo", "ems_year_record_partner_tab", login="admin")

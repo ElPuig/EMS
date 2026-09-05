@@ -2,13 +2,14 @@ from datetime import date
 
 from odoo.tests import HttpCase, tagged
 
-from .common import create_level_study
+from .common import create_level_study, force_user_language_to_english
 
 
 @tagged('post_install', '-at_install')
 class TestGuardDutyBoardTour(HttpCase):
 
     def test_guard_duty_board_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # To observe this tour in a real browser during development:
         #   self.start_tour("/odoo", "ems_guard_duty_board", login="admin", watch=True)
 

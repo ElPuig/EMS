@@ -1,6 +1,6 @@
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group
+from .common import create_level_study_group, force_user_language_to_english
 
 
 @tagged('post_install', '-at_install')
@@ -19,6 +19,7 @@ class TestApplicantImportWizardTour(HttpCase):
         )
 
     def test_applicant_import_wizard_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         applicant = self.env['res.partner'].search([('student_id', '=', '1234567890')])
         self.assertFalse(applicant)
 

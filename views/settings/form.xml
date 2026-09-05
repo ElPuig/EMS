@@ -30,6 +30,9 @@
                             <setting string="Secretariat" help="Email address used as the recipient for messages addressed to the center's secretariat (e.g. portal personal-data change requests)." id="secretariat_email">
                                 <field name="secretariat_email" widget="email" placeholder="secretaria@example.com"/>
                             </setting>
+                            <setting string="Notice email signature" help="Default sign-off appended to every Notice email. Copied onto each new notice as its own editable signature - editing it here only affects notices created afterward." id="notice_email_signature">
+                                <field name="notice_email_signature" widget="html"/>
+                            </setting>
                             <setting string="Director" help="The person acting as the center's Director. Every top-level department's Manager (Head of Studies/Deputy) will have their own Manager set to this employee automatically." id="director_id">
                                 <field name="director_id"/>
                             </setting>

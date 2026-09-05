@@ -40,6 +40,7 @@ class TestAttendanceSessionTour(HttpCase):
         # colleague's slot in Guard mode - both are genuine, independent uses of one real login.
         cls.teacher_user = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Attendance Session Guard Tour Teacher', 'login': 'test_teacher_attendance_session_guard_tour',
+            'lang': 'en_US',
             'groups_id': [(4, cls.env.ref('ems.group_teacher').id), (4, cls.env.ref('base.group_user').id)],
         })
         cls.teacher_employee = cls.env['hr.employee'].create({

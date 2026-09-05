@@ -1,6 +1,6 @@
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study
+from .common import create_level_study, force_user_language_to_english
 
 
 @tagged('post_install', '-at_install')
@@ -32,6 +32,7 @@ class TestEnrollmentTour(HttpCase):
         cls.order.order_line = [(0, 0, {'product_id': cls.fee_product.product_variant_id.id})]
 
     def test_enrollment_form_tabs_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.assertEqual(self.order.shift, 'morning')
 
         self.start_tour("/odoo", "ems_enrollment_form_tabs", login="admin")

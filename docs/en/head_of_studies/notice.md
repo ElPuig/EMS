@@ -13,15 +13,22 @@ different about who sees what.
 
 ---
 
-## Visibility: You Only See Your Own Notices
+## Visibility: Your List Starts Filtered to Your Own Notices
 
 If you hold the **Head of Studies**, **Deputy Head of Studies** or **Quality coordinator**
-role, **Communications → Notices** only lists the notices **you personally created** — not the
-ones created by anyone else holding the same role. This keeps each coordinator's
-communications separate even when several people share the same permission level.
+role, **Communications → Notices** opens with a **"Show only mine"** filter already applied
+(visible as a tag in the search bar), so day to day you comfortably work with just the notices
+**you personally created** — the same experience as everyone else.
 
-The **Director** is the exception: a Director sees every notice centre-wide, the same as an
-Administrator — see the [Administrator manual](../admin/notice.md#who-sees-which-notices).
+If you ever need to check what a colleague holding the same role has sent — for supervision —
+click the **✕** on the "Show only mine" tag in the search bar (or open the search panel and
+untick it) to see every notice centre-wide. You can still only **edit or delete your own**;
+someone else's notice opens in read-only mode.
+
+The **Director** gets the exact same default filter (so does an Administrator) — the
+difference is only in what removing it lets you *do*, not who sees it: a Director can fully
+edit any notice once the filter is off, while you can only edit or delete your own regardless.
+See the [Administrator manual](../admin/notice.md#who-sees-which-notices).
 
 ---
 

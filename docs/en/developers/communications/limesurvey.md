@@ -328,6 +328,30 @@ everywhere, including `ems.limesurvey_block`/`.recipient`/`.enrollment`, which h
 standalone menu and are only ever reached inline through their parent header's form.
 Regression-covered by `TestLimesurveyAccessControl` in `tests/test_limesurvey_header.py`.
 
+**UX for the read-all rule (added same day):** the `ir.rule` itself already granted the
+coordinator centre-wide read access from the start, but `views/communications/surveys/header/
+search.xml`'s "Show only mine" filter (`domain=[('create_uid','=',uid)]`) is defaulted **on**
+via `action_limesurvey_header_tree`'s `context: {'search_default_only_mine': 1}` — so their
+default list view still feels like "just my surveys" (comfortable, same as everyone else),
+with the centre-wide view one filter-removal away for supervision. Same idiom as
+`ems.attendance_template`'s `only_mine` filter (`views/attendance/attendance_template/
+search.xml`), except that precedent defaults the filter **off** (its `ir.rule` already hard-
+restricts teachers, so the filter there is purely an optional narrowing tool for the
+already-unrestricted admin group) — here the default is flipped to **on** since the
+underlying rule is the open one.
+
+**Correction (2026-09-05):** the `search_default_only_mine: 1` context lives on
+`action_limesurvey_header_tree` itself — there is only one "Surveys" action, shared by every
+group that can open it (`group_academic_admin`, `group_quality`/`group_quality_admin`
+implied). `group_academic_admin` is **not** exempt: it opens Surveys with "Show only mine"
+checked by default too, same as the Quality coordinator. Intentional (developer feedback
+2026-09-05): the filter should default on for any teacher-held role, and admin is normally
+held by a real teacher as well. The one edge case - a non-teacher administrative login with no
+`hr.employee` behind it - isn't special-cased, since a static XML action `context` has no ORM
+access to check that; that account gets the same default and removes it manually (or saves the
+removal as their own permanent default via Odoo's native "Save current search" star) - accepted
+as sufficient per `docs/en/admin/survey.md`.
+
 ### Testing note: `unlink()` and `action_upload()` etc. can reach the real API directly
 
 Unlike `run_action()`'s callers (which go through `run_in_thread`, itself easy to patch),

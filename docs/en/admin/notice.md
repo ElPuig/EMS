@@ -42,10 +42,23 @@ edit and resend it.
 
 ## Who Sees Which Notices
 
-- **Administrators and the Director** see every notice, regardless of who created it.
-- **Head of Studies, Deputy Head of Studies** and the **Quality coordinator** each only see the
-  notices they personally created — see the
+Everyone with access to Notices — Administrators, the Director, Head of Studies, Deputy Head
+of Studies and the Quality coordinator alike — sees every notice centre-wide, but the list
+always opens filtered to **"Show only mine"** by default, so day to day everyone comfortably
+works with just their own. Removing that filter (in the search bar, at the top of the list)
+reveals everyone's notices, for whenever you need to supervise.
+
+- **Administrators and the Director** can fully manage every notice regardless of the filter —
+  it only affects what's *shown* by default, not what they're allowed to do.
+- **Head of Studies, Deputy Head of Studies** and the **Quality coordinator** can only edit or
+  delete the notices they personally created — someone else's notice opens in read-only mode
+  even with the filter removed. See the
   [Head of Studies manual](../head_of_studies/notice.md) for their perspective.
+
+If your account isn't linked to a teacher (a rare case — most Administrator/Director logins
+are held by an actual teacher) and you'd rather never see "Show only mine" checked, remove it
+once and use the search bar's **Favorites → Save current search**, ticking **Default filter** —
+Odoo remembers that per login from then on.
 
 ---
 

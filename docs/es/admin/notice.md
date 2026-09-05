@@ -43,11 +43,26 @@ para que pueda editarlo y volver a enviarlo.
 
 ## Quién ve qué comunicados
 
-- **Los administradores y el Director** ven todos los comunicados, independientemente de quién
-  los haya creado.
-- El **Jefe de estudios, el Jefe de estudios adjunto** y el **coordinador de calidad** solo ven,
-  cada uno, los comunicados que ellos mismos han creado — vea el
+Todo el mundo con acceso a Comunicados — administradores, Director, Jefe de estudios, Jefe de
+estudios adjunto y coordinador de calidad por igual — ve todos los comunicados de todo el
+centro, pero la lista siempre se abre filtrada con **"Mostrar solo los míos"** por defecto, de
+modo que en el día a día todo el mundo trabaja cómodamente solo con los suyos. Si quita ese
+filtro (en la barra de búsqueda, en la parte superior de la lista) verá los comunicados de todo
+el mundo, para cuando necesite supervisar.
+
+- **Los administradores y el Director** pueden gestionar completamente cualquier comunicado
+  independientemente del filtro — solo afecta a lo que se **muestra** por defecto, no a lo que
+  pueden hacer.
+- El **Jefe de estudios, el Jefe de estudios adjunto** y el **coordinador de calidad** solo
+  pueden editar o eliminar los comunicados que ellos mismos han creado — el comunicado de otra
+  persona se abre en modo solo lectura incluso con el filtro quitado. Vea el
   [manual de Jefe de estudios](../head_of_studies/notice.md) para su perspectiva.
+
+Si su cuenta no está vinculada a ningún docente (un caso poco habitual — la mayoría de cuentas
+de Administrador/Director corresponden a un docente real) y prefiere no ver nunca marcado
+"Mostrar solo los míos", quítelo una vez y use **Favoritos → Guardar búsqueda actual** en la
+barra de búsqueda, marcando **Filtro por defecto** — Odoo lo recordará desde entonces para ese
+usuario.
 
 ---
 

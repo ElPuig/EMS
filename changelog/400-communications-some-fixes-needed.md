@@ -22,6 +22,16 @@
 - The plain Quality team role (`group_quality`, not the coordinator) is unaffected: still
   unrestricted create/edit access to every survey, same as before.
 
+## "Show only mine" default filter on Notices and Surveys:
+- Head of Studies/Deputy Head of Studies and the Quality coordinator can now see every
+  notice/survey centre-wide (widened from the initial "own only" read restriction above,
+  same day) - but their list opens with a "Show only mine" filter already applied, same
+  comfortable default as everyone else, one click away from supervising the rest. Mirrors the
+  existing `only_mine` filter idiom from `ems.attendance_template`/`.attendance_session`/
+  `.attendance_justification`, just defaulted on instead of off. Editing/deleting someone
+  else's record is still never possible for these roles, regardless of the filter - only the
+  read visibility changed.
+
 # Fixes:
 
 ## Admins only saw their own notices instead of every notice:

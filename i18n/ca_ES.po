@@ -1714,7 +1714,7 @@ msgid "Approved"
 msgstr "Aprovat"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search model_terms:ir.ui.view,arch_db:ems.view_notice_search model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_search
 msgid "Archived"
 msgstr "Arxivat"
 
@@ -6464,7 +6464,7 @@ msgid "Short Text"
 msgstr "Text curt"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search model_terms:ir.ui.view,arch_db:ems.view_notice_search model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_search
 msgid "Show only mine"
 msgstr "Mostrar tan sols els meuss"
 

@@ -43,11 +43,25 @@ perquè el pugueu editar i tornar a enviar.
 
 ## Qui veu quins comunicats
 
-- **Els administradors i el Director** veuen tots els comunicats, independentment de qui els
-  hagi creat.
-- El **Cap d'estudis, el Cap d'estudis adjunt** i el **coordinador de qualitat** només veuen,
-  cadascun, els comunicats que ells mateixos han creat — vegeu el
+Tothom amb accés a Comunicats — administradors, Director, Cap d'estudis, Cap d'estudis adjunt
+i coordinador de qualitat per igual — veu tots els comunicats de tot el centre, però la llista
+sempre s'obre filtrada amb **"Mostra només els meus"** per defecte, de manera que dia a dia
+tothom treballa còmodament només amb els seus propis. Si traieu aquest filtre (a la barra de
+cerca, a la part superior de la llista) veureu els comunicats de tothom, per quan necessiteu
+supervisar.
+
+- **Els administradors i el Director** poden gestionar completament qualsevol comunicat
+  independentment del filtre — només afecta què es **mostra** per defecte, no què poden fer.
+- El **Cap d'estudis, el Cap d'estudis adjunt** i el **coordinador de qualitat** només poden
+  editar o eliminar els comunicats que ells mateixos han creat — el comunicat d'una altra
+  persona s'obre en mode només lectura fins i tot amb el filtre tret. Vegeu el
   [manual de Cap d'estudis](../head_of_studies/notice.md) per a la seva perspectiva.
+
+Si el vostre compte no està vinculat a cap docent (un cas poc habitual — la majoria de comptes
+d'Administrador/Director corresponen a un docent real) i preferiu no veure mai marcat "Mostra
+només els meus", traieu-lo un cop i utilitzeu **Favorits → Desar cerca actual** a la barra de
+cerca, marcant **Filtre per defecte** — l'Odoo ho recordarà des d'aleshores per a aquest
+usuari.
 
 ---
 

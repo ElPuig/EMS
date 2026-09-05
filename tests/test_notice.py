@@ -324,11 +324,16 @@ class TestNoticeLine(TransactionCase):
 class TestNoticeAccessControl(TransactionCase):
     """security/rules/communications.xml — who can see/edit which ems.notice records.
 
-    Admin and Director see every notice; Head of Studies/Deputy Head of Studies and the
-    Quality coordinator only see the ones they created themselves. Regression coverage for
-    a real bug found while implementing this: rule_notice_own used to have no `groups`
-    (global), which Odoo ANDs against every other rule - so the "admin sees all" rule was
-    silently neutered and admins only ever saw their own notices too."""
+    Admin and Director see and can edit every notice. Head of Studies/Deputy Head of Studies
+    and the Quality coordinator can also *see* every notice centre-wide (so they can supervise
+    each other - `views/communications/notice/search.xml`'s "Show only mine" filter, defaulted
+    on, keeps their default view comfortably scoped to their own), but can only create/edit/
+    delete the ones they personally created.
+
+    Regression coverage for a real bug found while first implementing this: rule_notice_own
+    used to have no `groups` (global), which Odoo ANDs against every other rule - so the
+    "admin sees all" rule was silently neutered and admins only ever saw their own notices
+    too."""
 
     @classmethod
     def setUpClass(cls):
@@ -377,9 +382,18 @@ class TestNoticeAccessControl(TransactionCase):
         ])
         self.assertEqual(len(found), 3)
 
-    def test_hos_sees_only_own_notice(self):
+    def test_hos_sees_every_notice_for_supervision(self):
         found = self.env['ems.notice'].with_user(self.hos_a_user).search([
             ('id', 'in', (self.notice_hos_a | self.notice_hos_b | self.notice_quality).ids)
+        ])
+        self.assertEqual(len(found), 3)
+
+    def test_hos_only_mine_filter_narrows_to_own(self):
+        # The default UI filter's own domain, exercised directly (a tour test covers the
+        # actual checkbox interaction/default-on state).
+        found = self.env['ems.notice'].with_user(self.hos_a_user).search([
+            ('id', 'in', (self.notice_hos_a | self.notice_hos_b | self.notice_quality).ids),
+            ('create_uid', '=', self.hos_a_user.id),
         ])
         self.assertEqual(found, self.notice_hos_a)
 
@@ -389,11 +403,24 @@ class TestNoticeAccessControl(TransactionCase):
         with self.assertRaises(AccessError):
             self.notice_hos_a.with_user(self.hos_b_user).unlink()
 
-    def test_quality_coordinator_sees_only_own_notice(self):
+    def test_quality_coordinator_sees_every_notice_for_supervision(self):
         found = self.env['ems.notice'].with_user(self.quality_admin_user).search([
             ('id', 'in', (self.notice_hos_a | self.notice_hos_b | self.notice_quality).ids)
         ])
-        self.assertEqual(found, self.notice_quality)
+        self.assertEqual(len(found), 3)
+
+    def test_quality_coordinator_cannot_write_others_notice(self):
+        with self.assertRaises(AccessError):
+            self.notice_hos_a.with_user(self.quality_admin_user).write({'subject': 'Hijacked'})
+
+    def test_hos_can_read_but_not_write_others_notice_line(self):
+        line = self.env['ems.notice.line'].with_user(self.hos_a_user).create({
+            'notice_id': self.notice_hos_a.id, 'email': 'recipient@example.com',
+        })
+        found = self.env['ems.notice.line'].with_user(self.hos_b_user).search([('id', '=', line.id)])
+        self.assertEqual(found, line, "HOS B should be able to read HOS A's notice line for supervision")
+        with self.assertRaises(AccessError):
+            line.with_user(self.hos_b_user).write({'email': 'hijacked@example.com'})
 
 
 def base_encoded_png():

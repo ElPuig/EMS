@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_limesurvey_header_search">
+            <field name="name">ems.limesurvey_header.search</field>
+            <field name="model">ems.limesurvey_header</field>
+            <field name="arch" type="xml">
+                <search string="Surveys">
+                    <field name="name"/>
+                    <field name="title"/>
+                    <field name="target"/>
+                    <filter string="Show only mine" name="only_mine" domain="[('create_uid', '=', uid)]"/>
+                    <separator/>
+                    <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

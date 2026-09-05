@@ -13,16 +13,24 @@ esta página solo cubre qué es diferente sobre quién ve qué.
 
 ---
 
-## Visibilidad: solo ves tus propios comunicados
+## Visibilidad: tu lista empieza filtrada a tus comunicados
 
 Si tienes el rol de **Jefe de estudios**, **Jefe de estudios adjunto** o **Coordinador de
-calidad**, **Comunicaciones → Comunicados** solo lista los comunicados que **tú mismo/a has
-creado** — no los creados por otra persona con el mismo rol. Esto mantiene separadas las
-comunicaciones de cada coordinador/a aunque varias personas compartan el mismo nivel de
-permisos.
+calidad**, **Comunicaciones → Comunicados** se abre con el filtro **"Mostrar solo los míos"**
+ya aplicado (visible como una etiqueta en la barra de búsqueda), de modo que en el día a día
+trabajas cómodamente solo con los comunicados que **tú mismo/a has creado** — la misma
+experiencia que el resto.
 
-El **Director** es la excepción: un Director ve todos los comunicados de todo el centro, igual
-que un Administrador — vea el
+Si alguna vez necesitas comprobar qué ha enviado un compañero con el mismo rol — para
+supervisar — pulsa la **✕** de la etiqueta "Mostrar solo los míos" en la barra de búsqueda (o
+abre el panel de búsqueda y desmárcala) para ver todos los comunicados de todo el centro. Solo
+podrás **editar o eliminar los tuyos propios**; el comunicado de otra persona se abre en modo
+solo lectura.
+
+El **Director** tiene exactamente el mismo filtro por defecto (igual que un Administrador) —
+la diferencia está solo en lo que le permite hacer al quitarlo, no en quién lo ve: un Director
+puede editar cualquier comunicado una vez quitado el filtro, mientras que tú solo puedes editar
+o eliminar los tuyos propios independientemente del filtro. Vea el
 [manual de Administrador](../admin/notice.md#quién-ve-qué-comunicados).
 
 ---

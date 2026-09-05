@@ -13,16 +13,23 @@ cobreix què és diferent sobre qui veu què.
 
 ---
 
-## Visibilitat: només veieu els vostres propis comunicats
+## Visibilitat: la vostra llista comença filtrada als vostres comunicats
 
 Si teniu el rol de **Cap d'estudis**, **Cap d'estudis adjunt** o **Coordinador de qualitat**,
-**Comunicacions → Comunicats** només llista els comunicats que **vosaltres mateixos heu
-creat** — no els creats per una altra persona amb el mateix rol. Això manté separades les
-comunicacions de cada coordinador/a encara que diverses persones comparteixin el mateix nivell
-de permisos.
+**Comunicacions → Comunicats** s'obre amb el filtre **"Mostra només els meus"** ja aplicat
+(visible com una etiqueta a la barra de cerca), de manera que dia a dia treballeu còmodament
+només amb els comunicats que **vosaltres mateixos heu creat** — la mateixa experiència que la
+resta.
 
-El **Director** n'és l'excepció: un Director veu tots els comunicats de tot el centre, igual
-que un Administrador — vegeu el
+Si mai necessiteu comprovar què ha enviat un company amb el mateix rol — per supervisar —
+cliqueu la **✕** de l'etiqueta "Mostra només els meus" a la barra de cerca (o obriu el panell
+de cerca i desmarqueu-la) per veure tots els comunicats de tot el centre. Només podreu **editar
+o eliminar els vostres propis**; el comunicat d'una altra persona s'obre en mode només lectura.
+
+El **Director** té exactament el mateix filtre per defecte (igual que un Administrador) — la
+diferència és només en què li permet fer treure'l, no en qui el veu: un Director pot editar
+qualsevol comunicat un cop tret el filtre, mentre que vosaltres només podeu editar o eliminar
+els vostres propis independentment del filtre. Vegeu el
 [manual d'Administrador](../admin/notice.md#qui-veu-quins-comunicats).
 
 ---

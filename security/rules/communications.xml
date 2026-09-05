@@ -20,18 +20,37 @@
         </record>
 
         <!-- Head of Studies/Deputy Head of Studies (the same res.groups - see the comment on
-             group_head_of_studies in security/groups.xml) and the Quality coordinator only see
-             the notices they created themselves. Scoped to these two groups explicitly - a
-             global (no-groups) rule would AND against rule_notice_admin above and wrongly
-             restrict admins/director to their own notices too, since Odoo combines a rule with
-             no group as a global AND across every other rule rather than an OR alternative
-             (verified against odoo/addons/base/models/ir_rule.py's _compute_domain). -->
+             group_head_of_studies in security/groups.xml) and the Quality coordinator read
+             every notice centre-wide - same "read all, edit own" split already used below for
+             the Quality coordinator's surveys - so they can supervise each other's
+             communications. `views/communications/notice/search.xml`'s "Show only mine" filter
+             (defaulted on via action_communication_list's context) keeps their default view
+             comfortably scoped to their own notices, same as everyone else, with the centre-wide
+             view one click away. -->
+        <record model="ir.rule" id="rule_notice_read_all">
+            <field name="name">Notice: HOS/quality coordinator see all (read only)</field>
+            <field name="model_id" ref="ems.model_ems_notice"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_head_of_studies'), ref('ems.group_quality_admin')])]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Scoped to these two groups explicitly, not left global - a global (no-groups) rule
+             would AND against rule_notice_admin above and wrongly restrict admins/director too,
+             since Odoo combines a rule with no group as a global AND across every other rule
+             rather than an OR alternative (verified against
+             odoo/addons/base/models/ir_rule.py's _compute_domain - this is the fix for a real
+             bug found while first implementing this access model, see
+             docs/en/developers/communications/notice.md). -->
         <record model="ir.rule" id="rule_notice_own">
-            <field name="name">Notice: user sees own</field>
+            <field name="name">Notice: user edits own</field>
             <field name="model_id" ref="ems.model_ems_notice"/>
             <field name="groups" eval="[(6, 0, [ref('ems.group_head_of_studies'), ref('ems.group_quality_admin')])]"/>
             <field name="domain_force">[('create_uid', '=', user.id)]</field>
-            <field name="perm_read" eval="True"/>
+            <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
@@ -51,12 +70,23 @@
             <field name="perm_unlink" eval="True"/>
         </record>
 
+        <record model="ir.rule" id="rule_notice_line_read_all">
+            <field name="name">Notice line: HOS/quality coordinator see all (read only)</field>
+            <field name="model_id" ref="ems.model_ems_notice_line"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_head_of_studies'), ref('ems.group_quality_admin')])]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
         <record model="ir.rule" id="rule_notice_line_own">
-            <field name="name">Notice line: user sees own (via parent notice)</field>
+            <field name="name">Notice line: user edits own (via parent notice)</field>
             <field name="model_id" ref="ems.model_ems_notice_line"/>
             <field name="groups" eval="[(6, 0, [ref('ems.group_head_of_studies'), ref('ems.group_quality_admin')])]"/>
             <field name="domain_force">[('notice_id.create_uid', '=', user.id)]</field>
-            <field name="perm_read" eval="True"/>
+            <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
@@ -75,7 +105,10 @@
              record is created directly by whichever coordinator is operating that survey (no
              sudo()/cron/queue_job path creates or writes these on someone else's behalf - see
              docs/en/developers/communications/limesurvey.md), so create_uid reliably identifies
-             the owning coordinator across all 4 models. -->
+             the owning coordinator across all 4 models. This is the same "read all, edit own"
+             split used for ems.notice above; `views/communications/surveys/header/search.xml`'s
+             "Show only mine" filter (defaulted on) keeps the coordinator's default view
+             comfortably scoped to their own surveys, same as everyone else. -->
 
         <record model="ir.rule" id="rule_limesurvey_header_admin">
             <field name="name">Survey: admin sees all</field>

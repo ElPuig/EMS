@@ -40,12 +40,22 @@ at any point before it's closed.
 
 ## Visibility: Who Sees Which Surveys
 
-- **Administrators** see and can fully manage every survey, regardless of who created it.
-- The **Quality coordinator** sees every survey centre-wide too (so coordinators can keep track
-  of each other's work), but can only **create, edit or delete the surveys they personally
-  created** — someone else's survey opens in read-only mode.
+Everyone with access to Surveys — Administrators and the Quality coordinator alike — sees
+every survey centre-wide, but the list always opens filtered to **"Show only mine"** by
+default (a tag in the search bar), so day to day everyone comfortably works with just their
+own. Removing that filter reveals every survey centre-wide, for whenever you need to check on
+someone else's work.
+
+- **Administrators** can fully manage every survey regardless of the filter — it only affects
+  what's *shown* by default, not what they're allowed to do.
+- The **Quality coordinator** can only **create, edit or delete the surveys they personally
+  created** — someone else's survey opens in read-only mode even with the filter removed.
 - A plain **Quality team member** (not the coordinator) keeps unrestricted create/edit access
   to every survey, same as before — this distinction only applies to the coordinator role.
+
+If your account isn't linked to a teacher and you'd rather never see "Show only mine" checked,
+remove it once and use the search bar's **Favorites → Save current search**, ticking
+**Default filter** — Odoo remembers that per login from then on.
 
 ---
 

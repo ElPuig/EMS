@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_notice_search">
+            <field name="name">ems.notice.search</field>
+            <field name="model">ems.notice</field>
+            <field name="arch" type="xml">
+                <search string="Notices">
+                    <field name="subject"/>
+                    <field name="group_ids"/>
+                    <filter string="Show only mine" name="only_mine" domain="[('create_uid', '=', uid)]"/>
+                    <separator/>
+                    <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

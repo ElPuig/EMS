@@ -113,17 +113,50 @@ the same group covers both roles) and the Quality coordinator (`ems.group_qualit
 have their own `ir.model.access.csv` rows for `ems.notice`/`ems.notice.line`, alongside
 `ems.group_academic_admin`'s pre-existing full access.
 
-| Group | Sees | Creates/edits/deletes |
+| Group | Sees (read) | Creates/edits/deletes |
 |-------|------|------------------------|
 | `group_academic_admin`, `group_director` | Every notice | Every notice |
-| `group_head_of_studies` (HOS/DHOS) | Only notices they created | Only notices they created |
-| `group_quality_admin` (Quality coordinator) | Only notices they created | Only notices they created |
+| `group_head_of_studies` (HOS/DHOS) | Every notice (for supervision) | Only notices they created |
+| `group_quality_admin` (Quality coordinator) | Every notice (for supervision) | Only notices they created |
 
 Enforced by `security/rules/communications.xml`: `rule_notice_admin`/`rule_notice_line_admin`
-(`domain_force=[(1,'=',1)]`, groups `group_academic_admin` + `group_director`) and
-`rule_notice_own`/`rule_notice_line_own` (`domain_force=[('create_uid','=',user.id)]` — the
-line variant reads through `notice_id.create_uid` instead, since lines have no menu of their
-own — groups `group_head_of_studies` + `group_quality_admin`).
+(`domain_force=[(1,'=',1)]`, full CRUD, groups `group_academic_admin` + `group_director`),
+`rule_notice_read_all`/`rule_notice_line_read_all` (`domain_force=[]`, `perm_read` only, groups
+`group_head_of_studies` + `group_quality_admin`) and `rule_notice_own`/`rule_notice_line_own`
+(`domain_force=[('create_uid','=',user.id)]` — the line variant reads through
+`notice_id.create_uid` instead, since lines have no menu of their own — `perm_write`/
+`perm_create`/`perm_unlink` only, same two groups).
+
+**Updated again 2026-09-05 (same day):** the Head of Studies/Quality coordinator read
+visibility was widened from "own only" to "every notice, read-only for others'" — mirroring
+the `only_mine`-filter idiom already used by `ems.attendance_template`/`.attendance_session`/
+`.attendance_justification` (`views/attendance/*/search.xml`). The difference from that
+precedent: those three default the filter **off** (their `ir.rule` already does the hard
+per-owner restriction for teachers, so the filter is just an optional narrowing tool, mostly
+useful to the already-unrestricted admin group); here the `ir.rule` itself was widened to
+open read access, and `views/communications/notice/search.xml`'s "Show only mine" filter
+(`domain=[('create_uid','=',uid)]`) is instead defaulted **on** via
+`action_communication_list`'s `context: {'search_default_only_mine': 1}` — so a HOS/DHOS or
+Quality coordinator still gets the same comfortable "just mine" default view as before, but
+can remove the filter to supervise everyone else's notices, rather than having no access to
+them at all. Write/create/unlink stay hard-restricted to `create_uid = user.id` either way -
+only *read* visibility changed.
+
+**Correction (still 2026-09-05):** the default filter is a single static `context` on
+`action_communication_list` itself — there is only one "Notices" menu/action, shared by every
+group that can open it. This means `group_academic_admin`/`group_director` also open Notices
+with "Show only mine" checked by default, exactly like HOS/DHOS/the Quality coordinator; they
+are **not** exempt from it. This is intentional (developer feedback 2026-09-05): the intent is
+"every teacher-held role gets a comfortable own-records default", and since admin/director are
+normally held by real teachers too, giving them the same default is correct, not an oversight.
+The only case that's genuinely different is a non-teacher administrative account (e.g. a plain
+system `admin` login with no `hr.employee` behind it) — determining "is this specific user a
+teacher" from inside a static XML action `context` isn't possible (it has no ORM access, just
+literals like `uid`/`context_today`), so no attempt is made to special-case it. That account
+gets the same default-on filter as everyone else and removes it manually the first time (or
+uses Odoo's own per-user "Save current search" star, unchecking the filter first and ticking
+"Default filter", to make the removal stick permanently for just that login) — accepted as
+sufficient, see `docs/en/admin/notice.md`.
 
 **Bug fixed in this pass:** `rule_notice_own` previously had **no `groups` restriction at
 all** (a "global" rule). Odoo combines a global rule with every other rule via **AND**, not as

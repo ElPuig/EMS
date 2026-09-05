@@ -43,15 +43,24 @@ desde cero) en cualquier momento antes de cerrarla.
 
 ## Visibilidad: quién ve qué encuestas
 
-- Los **Administradores** ven y pueden gestionar completamente todas las encuestas,
-  independientemente de quién las haya creado.
-- El **Coordinador de calidad** también ve todas las encuestas de todo el centro (así los
-  coordinadores pueden hacer seguimiento del trabajo de los demás), pero solo puede **crear,
-  editar o eliminar las encuestas que él mismo haya creado** — la encuesta de otra persona se
-  abre en modo solo lectura.
+Todo el mundo con acceso a Encuestas — administradores y coordinador de calidad por igual — ve
+todas las encuestas de todo el centro, pero la lista siempre se abre filtrada con **"Mostrar
+solo las mías"** por defecto (una etiqueta en la barra de búsqueda), de modo que en el día a día
+todo el mundo trabaja cómodamente solo con las suyas. Si quita ese filtro verá todas las
+encuestas de todo el centro, para cuando necesite revisar el trabajo de otra persona.
+
+- Los **Administradores** pueden gestionar completamente cualquier encuesta independientemente
+  del filtro — solo afecta a lo que se **muestra** por defecto, no a lo que pueden hacer.
+- El **Coordinador de calidad** solo puede **crear, editar o eliminar las encuestas que él
+  mismo haya creado** — la encuesta de otra persona se abre en modo solo lectura incluso con el
+  filtro quitado.
 - Un miembro normal del **equipo de calidad** (que no sea el coordinador) conserva el acceso
   sin restricciones para crear/editar todas las encuestas, igual que antes — esta distinción
   solo se aplica al rol de coordinador.
+
+Si su cuenta no está vinculada a ningún docente y prefiere no ver nunca marcado "Mostrar solo
+las mías", quítelo una vez y use **Favoritos → Guardar búsqueda actual** en la barra de
+búsqueda, marcando **Filtro por defecto** — Odoo lo recordará desde entonces para ese usuario.
 
 ---
 

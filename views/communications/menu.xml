@@ -5,6 +5,7 @@
             <field name="name">Notices</field>
             <field name="res_model">ems.notice</field>
             <field name="view_mode">list,form</field>
+            <field name="context">{'search_default_only_mine': 1}</field>
         </record>
 
         <menuitem name="Communications" sequence="7" id="menu_communications"

@@ -26,6 +26,8 @@ This section contains the manuals for **administrators**.
 - [A Group's Weekly Schedule](group-schedule.md) — Viewing a group's aggregated timetable (subjects, teachers, classrooms, breaks) and exporting it to PDF.
 - [Setting Up the Next Course](course-transition.md) — Closing the year: archiving the academic history, graduating and archiving former students, placing everyone in their new group and switching the current course.
 - [Importing Grades from Esfera](grade-import.md) — Loading each evaluation's official grades into EMS, and optionally creating the enrollments that are missing.
+- [Notices: Sending Bulk Emails to Students and Families](notice.md) — Composing and sending a Notice, and who sees which notices.
+- [Surveys: LimeSurvey Integration](survey.md) — The survey lifecycle (draft → recipients → upload → open → close → download) and who can manage which surveys.
 
 ---
 

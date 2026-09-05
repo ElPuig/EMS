@@ -4,7 +4,7 @@
             <field name="name">ems.study.form</field>
             <field name="model">ems.study</field>
             <field name="arch" type="xml">
-                <form string="Studies">
+                <form string="Studies" duplicate="0">
                     <sheet>                        
                         <group string="Main data" col="4">                            
                             <group>

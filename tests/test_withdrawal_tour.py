@@ -1,5 +1,7 @@
 from odoo.tests import tagged, HttpCase
 
+from .common import force_user_language_to_english
+
 
 @tagged('post_install', '-at_install')
 class TestWithdrawalTour(HttpCase):
@@ -12,6 +14,7 @@ class TestWithdrawalTour(HttpCase):
         })
 
     def test_generic_archive_action_opens_withdrawal_wizard_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # There is no "Withdrawal" button anymore: archiving a student (form cog-menu, or
         # list multi-selection) IS the withdrawal flow now — see toggle_active on
         # res.partner. Covers one record and several, then confirms the archived
@@ -31,6 +34,7 @@ class TestWithdrawalTour(HttpCase):
         self.start_tour("/odoo", "ems_archive_action_shows_in_list", login="admin", step_delay=300)
 
     def test_generic_archive_action_expulsion_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # To observe this tour in a real browser during development:
         #   self.start_tour("/odoo", "ems_archive_action_expulsion_opens_wizard", login="admin", watch=True)
         self._seed_student('Archive Action Tour Expulsion')

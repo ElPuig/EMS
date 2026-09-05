@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study, mock_outgoing_email
+from .common import create_level_study, force_user_language_to_english, mock_outgoing_email
 
 
 @tagged('post_install', '-at_install')
@@ -63,9 +63,11 @@ class TestAttendanceIssueTour(HttpCase):
         line.status_id = cls.env.ref('ems.attendance_status_miss')
 
     def test_attendance_issue_drill_down_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.start_tour("/odoo", "ems_attendance_issue_drill_down", login="admin")
 
     def test_attendance_issue_exception_popup_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         issue_status = self.env['ems.attendance_issue_status'].search([
             ('attendance_issue_student_id.student_id', '=', self.student.id),
         ], limit=1)

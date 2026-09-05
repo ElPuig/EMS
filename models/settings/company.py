@@ -69,6 +69,12 @@ class ems_company(models.Model):
 
     secretariat_email = fields.Char()
 
+    notice_email_signature = fields.Html(
+        string="Notice email signature", translate=True,
+        help="Default sign-off appended to every Notice email. Copied onto each new notice "
+             "as its own editable signature - editing it here only affects notices created "
+             "afterward.")
+
     # Official Departament d'Educació center code (e.g. '8028047'). Used by the GEDAC
     # applicant import to keep only the rows assigned to this center.
     center_code = fields.Char(string="Center code")

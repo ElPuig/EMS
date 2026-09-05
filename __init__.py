@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from psycopg2.extras import Json
+
 from . import controllers
 from . import models
 
@@ -29,6 +31,7 @@ def post_init_hook(env):
     env['ems.course']._ems_seed_enrollment_default()
     _backfill_missing_teacher_calendars(env)
     _default_strike_family_notification_kicked_out(env)
+    _seed_notice_email_signature_default(env)
 
 
 def _backfill_default_schedule_framework(env):
@@ -71,6 +74,37 @@ def _default_strike_family_notification_kicked_out(env):
     covers the upgrade path via the schema backfill). A brand-new installation has no prior
     behaviour to preserve, so it starts on the stricter 'kicked_out' option instead."""
     env['res.company'].search([]).write({'strike_family_notification_mode': 'kicked_out'})
+
+
+def _seed_notice_email_signature_default(env):
+    """res.company.notice_email_signature (Html, translate=True) replaces what used to be a
+    hardcoded 'Kind regards,<br/>{company name}' baked into ems.mail_notice's own body_html -
+    seed every company still missing it with the exact same text, in all 3 shipped languages,
+    so a fresh install's notices keep looking the same as before this became editable (see
+    migrations/<version>/post-migrate.py for the upgrade-path counterpart)."""
+    for company in env['res.company'].search([('notice_email_signature', '=', False)]):
+        # Two ORM approaches were tried and rejected before this one - both real gotchas, not
+        # style choices: (1) a plain sequence of with_context(lang=X).write(...) calls
+        # auto-cascades a new value to every OTHER language that still looks "not manually
+        # customized," so writing en_US then ca_ES then es_ES in a loop ends up clobbering
+        # earlier languages with later ones (confirmed empirically - en_US ended up with the
+        # Catalan text); (2) record.update_field_translations(field, {lang: value}) - the
+        # ORM's own multi-lang API - silently returns False and writes nothing here, because
+        # fields.Html sets `translate` to the html_translate *function*, not the literal
+        # `True`, so the ORM takes the term-by-term "translate existing content" code path
+        # (expects {lang: {old_term: new_term}} and requires a pre-existing value to diff
+        # against) instead of the "set the whole value" path - neither applies when seeding a
+        # brand-new, still-empty field. A direct SQL write of the full jsonb value sidesteps
+        # both: correct and simple for a one-time initial seed (not an ongoing translation
+        # workflow, which is what those ORM APIs are actually built for).
+        env.cr.execute(
+            "UPDATE res_company SET notice_email_signature = %s WHERE id = %s",
+            (Json({
+                'en_US': f"Kind regards,<br/>{company.name}",
+                'ca_ES': f"Salutacions cordials,<br/>{company.name}",
+                'es_ES': f"Saludos cordiales,<br/>{company.name}",
+            }), company.id),
+        )
 
 
 def _enable_unaccent_extension(env):

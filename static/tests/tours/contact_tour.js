@@ -26,6 +26,18 @@ registry.category("web_tour.tours").add("ems_contact_tabs_and_relation_wizard", 
             run: "click",
         },
         {
+            trigger: ".o_form_view label:contains('Personal email')",
+            content: "The generic 'Email' row is relabeled for a student (no ambiguity with the institutional address)",
+        },
+        {
+            trigger: ".o_form_view label:contains('Corporate email')",
+            content: "The read-only 'Corporate email' row mirrors student_email",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='student_email']:contains('contact.tour.student@example.com')",
+            content: "...and shows the same address stored on the student",
+        },
+        {
             trigger: ".o_form_view .o_notebook .nav-link:contains('Student data')",
             content: "Open the Student data tab",
             run: "click",

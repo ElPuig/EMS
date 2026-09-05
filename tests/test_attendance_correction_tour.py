@@ -2,6 +2,8 @@ from datetime import datetime
 
 from odoo.tests.common import HttpCase, tagged
 
+from .common import force_user_language_to_english
+
 
 @tagged('post_install', '-at_install')
 class TestAttendanceCorrectionTour(HttpCase):
@@ -43,3 +45,28 @@ class TestAttendanceCorrectionTour(HttpCase):
             self.correction.time_to_float(self.correction.utc_datetime_to_local(self.attendance.check_in).time()),
             8.5,
         )
+
+    def test_attendance_correction_pending_filter_tour(self):
+        # The tour asserts on literal English filter labels (Pending/Accepted/Rejected).
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
+
+        # Self-contained fixtures (not the class-level ones above, which the accept tour
+        # mutates) - one request per state, distinguished by employee name so the tour
+        # can assert on row presence/absence per state.
+        for state, label in (('pending', 'Pending'), ('accepted', 'Accepted'), ('rejected', 'Rejected')):
+            employee = self.env['hr.employee'].create({
+                'name': f'Filter Tour Teacher {label}', 'employee_type': 'teacher',
+            })
+            attendance = self.env['hr.attendance'].create({
+                'employee_id': employee.id,
+                'check_in': datetime(2026, 1, 6, 8, 0),
+                'check_out': datetime(2026, 1, 6, 16, 0),
+            })
+            self.env['ems.attendance_correction'].create({
+                'attendance_id': attendance.id,
+                'requested_check_in': 8.5,
+                'reason': f'Tour: {label} filter fixture',
+                'state': state,
+            })
+
+        self.start_tour("/odoo", "ems_attendance_correction_pending_filter", login="admin", step_delay=300)

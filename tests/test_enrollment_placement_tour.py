@@ -1,6 +1,6 @@
 from odoo.tests import tagged, HttpCase
 
-from .common import create_level_study
+from .common import create_level_study, force_user_language_to_english
 
 
 @tagged('post_install', '-at_install')
@@ -54,6 +54,7 @@ class TestEnrollmentPlacementTour(HttpCase):
         ]
 
     def test_pending_subject_lands_in_its_own_course_group_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # To watch this tour in a real browser during development:
         #   self.start_tour("/odoo", "enrollment_placement_pending_subject", login="admin", watch=True)
         self.start_tour("/odoo", "enrollment_placement_pending_subject", login="admin")

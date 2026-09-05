@@ -89,6 +89,29 @@
                     <attribute name="invisible">contact_type != 'provider' or (((is_company and not parent_id) or company_name) and company_name != '')</attribute>
                 </field>
 
+                <!-- For a student, "Email" alone is ambiguous with the institutional address
+                     shown in the "Student data" tab (student_email). Hide the generic email
+                     row and show two clearly-labeled ones instead: an editable "Personal
+                     email" (the same underlying field, just relabeled) and a read-only
+                     "Corporate email" mirroring student_email. Other contact types (family,
+                     applicant, provider...) keep the plain "Email" field untouched. Developer
+                     feedback (2026-09-05). -->
+                <xpath expr="//label[@for='email']" position="attributes">
+                    <attribute name="invisible">contact_type == 'student'</attribute>
+                </xpath>
+
+                <xpath expr="//label[@for='email']/following-sibling::div[1]" position="attributes">
+                    <attribute name="invisible">contact_type == 'student'</attribute>
+                </xpath>
+
+                <xpath expr="//label[@for='email']/following-sibling::div[1]" position="after">
+                    <field name="email" string="Personal email" widget="email"
+                           context="{'gravatar_image': True}" required="user_ids"
+                           invisible="contact_type != 'student'"/>
+                    <field name="student_email" string="Corporate email" widget="email"
+                           readonly="1" invisible="contact_type != 'student'"/>
+                </xpath>
+
                 <field name="function" position="attributes">     
                      <attribute name="invisible">contact_type != 'provider'</attribute>
                 </field>
@@ -159,19 +182,19 @@
                         <group cols="2">
                             <separator name="data" string="Main Data"/>
                             <group>
-                                <field name="document_id" invisible="read_only_user" readonly="is_tutor_readonly" />
-                                <field name="passport_id" invisible="read_only_user" readonly="is_tutor_readonly" />
+                                <field name="document_id" invisible="read_only_user" />
+                                <field name="passport_id" invisible="read_only_user" />
                                 <field name="student_id" readonly="read_only_user or is_tutor_readonly" />
-                                <field name="medical_id" invisible="read_only_user" readonly="is_tutor_readonly" />
-                                <field name="nuss" invisible="read_only_user" readonly="is_tutor_readonly" />
+                                <field name="medical_id" invisible="read_only_user" />
+                                <field name="nuss" invisible="read_only_user" />
                                 <field name="student_email" readonly="read_only_user or is_tutor_readonly" widget="email" />
-                                <field name="car_plate" invisible="read_only_user" readonly="is_tutor_readonly" />
+                                <field name="car_plate" invisible="read_only_user" />
                             </group>
                             <group>
                                 <field name="is_adult" readonly="True" />
-                                <field name="birth_date" readonly="read_only_user or is_tutor_readonly" />
-                                <field name="birth_country_id" invisible="read_only_user" readonly="is_tutor_readonly" />
-                                <field name="citizenship_id" invisible="read_only_user" readonly="is_tutor_readonly" />
+                                <field name="birth_date" readonly="read_only_user" />
+                                <field name="birth_country_id" invisible="read_only_user" />
+                                <field name="citizenship_id" invisible="read_only_user" />
                                 <span class="o_form_label">Benefits</span>
                                 <div class="o_row">
                                     <field name="benefit_status" invisible="1"/>
@@ -180,15 +203,16 @@
                                     <span class="badge text-bg-secondary" invisible="benefit_status != 'none'">None</span>
                                 </div>
                                 <!-- Special educational needs (NEE): benefits-like display.
-                                     Editable dropdown for secretary/admin; read-only badge for
-                                     tutors. Restricted to tutor/secretary/admin, off the portal. -->
+                                     Editable dropdown for tutor/secretary/admin (of this
+                                     student); read-only badge otherwise. Restricted to
+                                     tutor/secretary/admin, off the portal. -->
                                 <span class="o_form_label" groups="ems.group_tutor,ems.group_secretary,ems.group_academic_admin">Special educational needs</span>
                                 <div class="o_row" groups="ems.group_tutor,ems.group_secretary,ems.group_academic_admin">
                                     <field name="special_needs" nolabel="1" placeholder="None"
-                                           invisible="read_only_user or is_tutor_readonly"/>
-                                    <span class="badge text-bg-danger" invisible="special_needs != 'nee_a' or not (read_only_user or is_tutor_readonly)">NEE-A</span>
-                                    <span class="badge text-bg-warning" invisible="special_needs != 'nee_b' or not (read_only_user or is_tutor_readonly)">NEE-B</span>
-                                    <span class="badge text-bg-secondary" invisible="special_needs or not (read_only_user or is_tutor_readonly)">None</span>
+                                           invisible="read_only_user"/>
+                                    <span class="badge text-bg-danger" invisible="special_needs != 'nee_a' or not read_only_user">NEE-A</span>
+                                    <span class="badge text-bg-warning" invisible="special_needs != 'nee_b' or not read_only_user">NEE-B</span>
+                                    <span class="badge text-bg-secondary" invisible="special_needs or not read_only_user">None</span>
                                 </div>
                             </group>
 
@@ -520,11 +544,19 @@
             <field name="inherit_id" ref="partner_firstname.view_partner_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='firstname']" position="attributes">
-                    <attribute name="readonly">read_only_user or is_tutor_readonly</attribute>
+                    <attribute name="readonly">read_only_user</attribute>
                 </xpath>
 
-                <xpath expr="//field[@name='lastname']" position="attributes">
-                    <attribute name="readonly">read_only_user or is_tutor_readonly</attribute>
+                <!-- partner_firstname.view_partner_form renders "lastname" twice (order
+                     depends on the partner_names_order system parameter, only one is
+                     visible at a time) - both occurrences need the attribute, since an
+                     xpath expr only ever matches the first node found. -->
+                <xpath expr="//field[@name='lastname'][1]" position="attributes">
+                    <attribute name="readonly">read_only_user</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='lastname'][2]" position="attributes">
+                    <attribute name="readonly">read_only_user</attribute>
                 </xpath>
             </field>
         </record>

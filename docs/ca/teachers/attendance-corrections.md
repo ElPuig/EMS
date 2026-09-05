@@ -51,6 +51,8 @@ La teva sol·licitud s'envia automàticament a qui la pot validar — normalment
 - **Fitxatges dels empleats → Sol·licituds de correcció** mostra totes les sol·licituds que has fet i el seu estat actual (Pendent / Acceptada / Rebutjada).
 - Des del mateix fitxatge, el botó **Correccions** de la capçalera (només visible si hi ha alguna sol·licitud per aquell registre) t'hi porta directament.
 
+> Per defecte, la llista només mostra les sol·licituds **Pendents**. Treu el filtre **Pendent** de la barra de cerca (o canvia al filtre **Acceptada**/**Rebutjada**) per veure les sol·licituds que ja tenen una decisió.
+
 > Si també ets Cap d'Estudis, Cap d'Estudis Adjunt/a o Direcció, consulta el [manual de Cap d'Estudis](../head_of_studies/attendance-corrections.md) per saber com decidir sobre les sol·licituds que t'arriben.
 
 ---

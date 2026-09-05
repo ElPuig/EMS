@@ -1,5 +1,7 @@
 from odoo.tests.common import HttpCase, tagged
 
+from .common import force_user_language_to_english
+
 
 @tagged('post_install', '-at_install')
 class TestLimesurveyRecipientTour(HttpCase):
@@ -10,7 +12,13 @@ class TestLimesurveyRecipientTour(HttpCase):
         # state='computed' set directly (not via action_compute) - only the "Recipients" tab's
         # own rendering/interaction is under test here, already-covered elsewhere is the
         # state-machine's business logic for how a header actually reaches this state.
-        cls.header = cls.env['ems.limesurvey_header'].create({
+        #
+        # Created as the real 'admin' login (not the default superuser env) so it actually
+        # shows up under the Surveys list's "Show only mine" default filter (search_default_
+        # only_mine=1 on action_limesurvey_header_tree) - a record created via the superuser
+        # env has create_uid=SUPERUSER_ID, which never matches admin's own uid, and the tour
+        # (which logs in as admin) would otherwise find an empty list.
+        cls.header = cls.env['ems.limesurvey_header'].with_user(cls.env.ref('base.user_admin')).create({
             'name': 'LimeSurvey Recipient Tour Header', 'title': 'LimeSurvey Recipient Tour Header',
             'description': 'LimeSurvey Recipient Tour Header', 'target': 'students',
             'tsv_raw_text': 'placeholder', 'state': 'computed',
@@ -20,6 +28,7 @@ class TestLimesurveyRecipientTour(HttpCase):
         })
 
     def test_limesurvey_recipient_add_student_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.start_tour("/odoo", "ems_limesurvey_recipient_add_student", login="admin")
 
         recipient = self.env['ems.limesurvey_recipient'].search([
@@ -28,7 +37,8 @@ class TestLimesurveyRecipientTour(HttpCase):
         self.assertEqual(len(recipient), 1)
 
     def test_limesurvey_recipient_error_popup_tour(self):
-        header = self.env['ems.limesurvey_header'].create({
+        # Same create_uid reasoning as setUpClass's header above.
+        header = self.env['ems.limesurvey_header'].with_user(self.env.ref('base.user_admin')).create({
             'name': 'LimeSurvey Recipient Error Tour Header', 'title': 'LimeSurvey Recipient Error Tour Header',
             'description': 'LimeSurvey Recipient Error Tour Header', 'target': 'students',
             'tsv_raw_text': 'placeholder', 'state': 'computed',
@@ -40,4 +50,5 @@ class TestLimesurveyRecipientTour(HttpCase):
             'limesurvey_header_id': header.id, 'student_id': student.id,
             'name': student.name, 'error': 'Something went wrong.',
         })
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.start_tour("/odoo", "ems_limesurvey_recipient_error_popup", login="admin")

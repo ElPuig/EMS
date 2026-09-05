@@ -96,6 +96,15 @@ registry.category("web_tour.tours").add("ems_level_crud", {
             run: "click",
         },
         {
+            // ems.level has a unique 'acronym' constraint but no copy() override - the stock
+            // "Duplicate" action would raise a raw UniqueViolation instead of working or
+            // failing cleanly, so it's disabled (duplicate="0") until a real copy() is written.
+            // Matched by icon, not label, for the same language-safety reason as the Delete
+            // step right below.
+            trigger: "body:not(:has(.o_menu_item .fa-clone))",
+            content: "Duplicate is not offered (would crash on the unique acronym constraint)",
+        },
+        {
             // Matched by its icon, not by its label: "Delete" is translated, so the
             // step failed for any user whose language is not English (the admin of a
             // production copy is usually ca_ES).

@@ -1,5 +1,7 @@
 from odoo.tests.common import HttpCase, tagged
 
+from .common import force_user_language_to_english
+
 
 @tagged('post_install', '-at_install')
 class TestWorkingSchedulesImportWizardTour(HttpCase):
@@ -12,12 +14,15 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
             cls.env.company.current_course_id = cls.env['ems.course'].create({'start': 2098, 'end': 2099})
 
     def test_working_schedules_import_unknown_teacher_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.start_tour("/odoo", "ems_working_schedules_import_unknown_teacher", login="admin")
 
     def test_working_schedules_import_pending_teacher_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         self.start_tour("/odoo", "ems_working_schedules_import_pending_teacher", login="admin")
 
     def test_working_schedules_import_resolve_group_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # Seeds a real group the tour's XML deliberately does NOT name exactly (a reinforcement
         # group needs no level/study/course, matching the existing backend test's own
         # 'reinforcement_group' fixture) - the tour picks it via the 'groups' step's Many2one to
@@ -43,6 +48,7 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         self.start_tour("/odoo", "ems_working_schedules_import_resolve_group", login="admin")
 
     def test_working_schedules_import_resolve_missing_classroom_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # A reinforcement group (no level/study/course of its own - matches by its literal name, see
         # TestWorkingSchedulesImportWizard.test_import_reinforcement_group_resolved_by_exact_name)
         # deliberately created WITHOUT a 'space_id' - it resolves directly by name (unlike the
@@ -69,6 +75,7 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         self.start_tour("/odoo", "ems_working_schedules_import_resolve_missing_classroom", login="admin")
 
     def test_working_schedules_import_resolve_subject_mismatch_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # Real error this screen was built for (2026-08-10): a file subject code that resolves to
         # a real 'ems.subject', but one that isn't taught in the group's own study - 'wrong_subject'
         # below has no 'study_ids' at all, so it can never satisfy ANY group's study. The SECOND
@@ -141,6 +148,7 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         self.start_tour("/odoo", "ems_working_schedules_import_resolve_subject_mismatch", login="admin")
 
     def test_working_schedules_import_resolve_teacher_email_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # Seeds a real teacher the tour's XML deliberately does NOT reference by e-mail - the tour
         # picks it via the 'teachers' step's Many2one to prove that new screen actually renders and
         # resolves in a real browser (see TestWorkingSchedulesImportWizard.
@@ -152,6 +160,7 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         self.start_tour("/odoo", "ems_working_schedules_import_resolve_teacher_email", login="admin")
 
     def test_working_schedules_import_create_new_teacher_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # No teacher fixture is seeded here on purpose - 'tour.create.new.teacher@example.com'
         # must genuinely not match any existing employee, so the tour's own 'Create new' tick is
         # what resolves the row (see TestWorkingSchedulesImportWizard.
@@ -159,6 +168,7 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         self.start_tour("/odoo", "ems_working_schedules_import_create_new_teacher", login="admin")
 
     def test_working_schedules_import_resolve_internal_conflict_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # Two reinforcement groups (no level/study/course needed, same simplification as the
         # 'resolve_group' tour's own fixture) sharing the SAME classroom - the "desdoble" (split
         # session) shape screen 4 needs to detect and let the admin resolve by reassigning one
@@ -204,6 +214,7 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         self.start_tour("/odoo", "ems_working_schedules_import_resolve_internal_conflict", login="admin")
 
     def test_working_schedules_import_resolve_self_conflict_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # Two placeholder codes in the SAME file, both manually assigned to the SAME real teacher
         # (the "same person as" merge confirmed 2026-08-10) - their own entries collide in time but
         # NOT in room, proving the 'self_conflict' kind actually renders and resolves in a real
@@ -243,6 +254,7 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         self.start_tour("/odoo", "ems_working_schedules_import_resolve_self_conflict", login="admin")
 
     def test_working_schedules_import_bulk_apply_resolution_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # Developer feedback (2026-08-10, hit resolving a large real batch by hand): "me iría bien
         # que estuvieran agrupadas por tipo... y por 'left', y que cada grupo me permitiera escoger
         # el resolution que se aplica al grupo entero." Three groups sharing the SAME classroom -
@@ -270,6 +282,7 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         self.start_tour("/odoo", "ems_working_schedules_import_bulk_apply_resolution", login="admin")
 
     def test_working_schedules_import_conflicts_beyond_default_page_size_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # Developer feedback (2026-08-10, right after the fixed 'limit="1000"' fix landed): "si
         # tuviéramos más de 1000 conflictos estaríamos en las mismas... ¿no se puede paginar, o de
         # alguna otra forma?" - correct: a hardcoded arch 'limit' just moves the same silent-
@@ -304,6 +317,7 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         self.start_tour("/odoo", "ems_working_schedules_import_conflicts_beyond_default_page_size", login="admin")
 
     def test_working_schedules_import_resolve_db_conflict_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # Seeds a REAL, already-active 'ems.attendance_schedule' directly via the ORM (teacher A,
         # sharing 'Tour Resolve DB Conflict Space A' with a sibling reinforcement group B) - the
         # tour then imports a SECOND, different teacher into group B, a "desdoble" against this
@@ -366,6 +380,7 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         self.start_tour("/odoo", "ems_working_schedules_import_resolve_db_conflict", login="admin")
 
     def test_employee_pending_identification_indicator_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # "0000 "/"0001 " prefixes: hr.employee's default _order is "name", so these sort first on
         # the list's very first page among the pre-existing teachers in this DB (same convention as
         # TestEmployeeGoogleWorkspaceTour._seed_teacher). A confirmed-identity teacher is seeded

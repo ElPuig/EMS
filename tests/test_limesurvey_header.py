@@ -2,7 +2,7 @@
 
 from unittest.mock import MagicMock, patch
 
-from odoo.exceptions import RedirectWarning, UserError
+from odoo.exceptions import AccessError, RedirectWarning, UserError
 from odoo.tests.common import TransactionCase
 
 from .common import create_level_study_group, make_synchronous_run_in_thread
@@ -267,3 +267,90 @@ class TestComputeSurveyData(TransactionCase):
         })
         result = self.header.compute_survey_data(wpi_recipient, only_key=False)
         self.assertIn(wpi_block.name, result['raw_tsv'])
+
+
+class TestLimesurveyAccessControl(TransactionCase):
+    """security/rules/communications.xml — who can see/edit which survey records.
+
+    Regression coverage for a pre-existing gap: group_academic_admin had no
+    ir.model.access.csv row at all for the 4 limesurvey models (despite the "Surveys" menu
+    already listing it), so an admin previously got an AccessError just opening the menu.
+    Also covers the new Quality coordinator behaviour: reads every survey centre-wide, but
+    only creates/edits/deletes the ones they created themselves - across all 4 models
+    (header/block/recipient/enrollment), since these are only ever edited inline from their
+    parent header (no standalone menu)."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.admin_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Admin (Survey)', 'login': 'test_admin_survey', 'email': 'test_admin_survey@example.com',
+            'groups_id': [(4, cls.env.ref('ems.group_academic_admin').id), (4, cls.env.ref('base.group_user').id)],
+        })
+        cls.quality_admin_a_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Quality Coordinator A (Survey)', 'login': 'test_quality_admin_a_survey', 'email': 'test_quality_admin_a_survey@example.com',
+            'groups_id': [(4, cls.env.ref('ems.group_quality_admin').id), (4, cls.env.ref('base.group_user').id)],
+        })
+        cls.quality_admin_b_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Quality Coordinator B (Survey)', 'login': 'test_quality_admin_b_survey', 'email': 'test_quality_admin_b_survey@example.com',
+            'groups_id': [(4, cls.env.ref('ems.group_quality_admin').id), (4, cls.env.ref('base.group_user').id)],
+        })
+
+        header_vals = {
+            'title': 'Test Header', 'description': 'A test header',
+            'target': 'students', 'tsv_raw_text': "col1\tcol2\n{'TITLE'}\t{'DESCRIPTION'}",
+        }
+        cls.header_a = cls.env['ems.limesurvey_header'].with_user(cls.quality_admin_a_user).create(
+            dict(header_vals, name='header_a'))
+        cls.header_b = cls.env['ems.limesurvey_header'].with_user(cls.quality_admin_b_user).create(
+            dict(header_vals, name='header_b'))
+
+        cls.block_a = cls.env['ems.limesurvey_block'].with_user(cls.quality_admin_a_user).create({
+            'name': 'Block A', 'tsv_raw_text': "col\n{'TITLE'}", 'limesurvey_header_id': cls.header_a.id,
+        })
+        cls.recipient_a = cls.env['ems.limesurvey_recipient'].with_user(cls.quality_admin_a_user).create({
+            'limesurvey_header_id': cls.header_a.id, 'name': 'Recipient A', 'email': 'porrino.fernando+recipient_a@example.com',
+        })
+        cls.enrollment_a = cls.env['ems.limesurvey_enrollment'].with_user(cls.quality_admin_a_user).create({
+            'limesurvey_recipient_id': cls.recipient_a.id,
+        })
+
+    def test_admin_has_full_access_to_all_survey_models(self):
+        for model, record in (
+            ('ems.limesurvey_header', self.header_a),
+            ('ems.limesurvey_block', self.block_a),
+            ('ems.limesurvey_recipient', self.recipient_a),
+            ('ems.limesurvey_enrollment', self.enrollment_a),
+        ):
+            found = self.env[model].with_user(self.admin_user).search([('id', '=', record.id)])
+            self.assertEqual(found, record, f"admin should see {model}")
+            record.with_user(self.admin_user).write({'notes': 'Reviewed by admin'} if 'notes' in record._fields else {})
+
+    def test_quality_coordinator_reads_others_survey_records(self):
+        for model, record in (
+            ('ems.limesurvey_header', self.header_a),
+            ('ems.limesurvey_block', self.block_a),
+            ('ems.limesurvey_recipient', self.recipient_a),
+            ('ems.limesurvey_enrollment', self.enrollment_a),
+        ):
+            found = self.env[model].with_user(self.quality_admin_b_user).search([('id', '=', record.id)])
+            self.assertEqual(found, record, f"coordinator B should be able to read A's {model}")
+
+    def test_quality_coordinator_cannot_write_others_survey_records(self):
+        with self.assertRaises(AccessError):
+            self.header_a.with_user(self.quality_admin_b_user).write({'title': 'Hijacked'})
+        with self.assertRaises(AccessError):
+            self.block_a.with_user(self.quality_admin_b_user).write({'name': 'Hijacked'})
+        with self.assertRaises(AccessError):
+            self.recipient_a.with_user(self.quality_admin_b_user).write({'name': 'Hijacked'})
+        with self.assertRaises(AccessError):
+            self.enrollment_a.with_user(self.quality_admin_b_user).write({'group_id': False})
+
+    def test_quality_coordinator_can_write_own_survey_records(self):
+        self.header_a.with_user(self.quality_admin_a_user).write({'title': 'Updated by owner'})
+        self.assertEqual(self.header_a.title, 'Updated by owner')
+        self.block_a.with_user(self.quality_admin_a_user).write({'name': 'Updated block'})
+        self.assertEqual(self.block_a.name, 'Updated block')
+        self.recipient_a.with_user(self.quality_admin_a_user).write({'name': 'Updated recipient'})
+        self.assertEqual(self.recipient_a.name, 'Updated recipient')

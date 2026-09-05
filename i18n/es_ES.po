@@ -1305,7 +1305,7 @@ msgid "Acceptance Only"
 msgstr "Solo aceptación"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_authorization__status__yes model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_correction__state__accepted model:ir.model.fields.selection,name:ems.selection__ems_authorization__status__yes model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search
 msgid "Accepted"
 msgstr "Aceptado"
 
@@ -1714,7 +1714,7 @@ msgid "Approved"
 msgstr "Aprobado"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search model_terms:ir.ui.view,arch_db:ems.view_notice_search model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_search
 msgid "Archived"
 msgstr "Archivado"
 
@@ -2214,9 +2214,9 @@ msgid "Bonifications & Exemptions"
 msgstr "Bonificaciones y exenciones"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_notice__recipient_type__both
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__recipient_type__both model:ir.model.fields.selection,name:ems.selection__ems_notice__recipient_email_type__both
 msgid "Both"
-msgstr ""
+msgstr "Ambos"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.attendance_template_sumary_table
@@ -2297,6 +2297,12 @@ msgstr "No se puede eliminar esta encuesta en su estado actual. Solo se pueden e
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/communications/notice.py:0
+msgid "Cannot delete a notice that has already been scheduled, sent or failed to send. Please archive it instead."
+msgstr "No se puede eliminar un comunicado que ya ha sido programado, enviado o que ha fallado en el envío. Archívalo en su lugar."
+
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/communications/limesurvey.py:0
 msgid "Coming soon..."
 msgstr "Próximamente..."
@@ -2304,7 +2310,7 @@ msgstr "Próximamente..."
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__car_plate model:ir.model.fields,field_description:ems.field_res_users__car_plate
 msgid "Car Plate"
-msgstr "Matrícula de coche"
+msgstr "Matrícula del vehículo"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_car_plate
@@ -2571,6 +2577,11 @@ msgstr "Controla cómo se determina la hora de entrada cuando un profesor crea u
 #: model:hr.job,name:ems.job_conversation
 msgid "Conversational Auxiliary"
 msgstr "Auxiliar de conversa"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Corporate email"
+msgstr "Correo corporativo"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_google_credentials
@@ -3193,7 +3204,7 @@ msgid "Emergency"
 msgstr "Emergencia"
 
 #. module: ems
-#: model:ir.model,name:ems.model_hr_employee
+#: model:ir.model,name:ems.model_hr_employee model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search
 msgid "Employee"
 msgstr "Empleado"
 
@@ -4481,9 +4492,9 @@ msgstr "Última actualización:"
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/contacts/google_workspace_integration.py:0 model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__lastname model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__student_lastname code:addons/ems/static/src/js/backend/em_matrix_field.js:0
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0 model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__lastname model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__student_lastname model:ir.model.fields,field_description:partner_firstname.field_res_partner__lastname model:ir.model.fields,field_description:partner_firstname.field_res_users__lastname code:addons/ems/static/src/js/backend/em_matrix_field.js:0
 msgid "Last name"
-msgstr "Apellido"
+msgstr "Apellidos"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_criteria__outcome_id model:ir.model.fields,field_description:ems.field_ems_planning_outcome__valid_outcome_ids model:ir.model.fields,field_description:ems.field_ems_subject__outcome_ids model_terms:ir.ui.view,arch_db:ems.view_subject_form
@@ -4999,6 +5010,18 @@ msgid "No recipients to send to. Add recipients in the 'Sending status' section.
 msgstr ""
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice.py:0
+msgid "Students excluded"
+msgstr "Alumnos excluidos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice.py:0
+msgid "The following students have no email address matching your 'Recipient email' choice, so they were not added to the recipient list:\n%s"
+msgstr "Los siguientes alumnos no tienen ninguna dirección de correo que coincida con tu selección de 'Correo del destinatario', por lo que no se han añadido a la lista de destinatarios:\n%s"
+
+#. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/grade_matrix_field.xml:0
 msgid "Nom"
@@ -5350,6 +5373,12 @@ msgid "You do not tutor any group with an open evaluation."
 msgstr "No eres tutor de ningún grupo con evaluación abierta"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_relation.py:0
+msgid "You are not allowed to manage this student's family contacts."
+msgstr "No tienes permiso para gestionar los contactos familiares de este alumno."
+
+#. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
 msgid "Ovr."
@@ -5449,7 +5478,7 @@ msgid "Payment plan"
 msgstr "Plan de pago"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__pending model:ir.model.fields.selection,name:ems.selection__ems_authorization__status__pending model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__pending model:ir.model.fields.selection,name:ems.selection__ems_notice_line__display_status__pending model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_student_document_search
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__pending model:ir.model.fields.selection,name:ems.selection__ems_attendance_correction__state__pending model:ir.model.fields.selection,name:ems.selection__ems_authorization__status__pending model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__pending model:ir.model.fields.selection,name:ems.selection__ems_notice_line__display_status__pending model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 msgid "Pending"
 msgstr "Pendiente"
 
@@ -5487,7 +5516,7 @@ msgstr "Modificación de datos personales del alumno %s"
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0 model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Personal email"
 msgstr "Correo personal"
 
@@ -5859,7 +5888,7 @@ msgid "Reject"
 msgstr "Rechazar"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_authorization__status__no model:ir.model.fields.selection,name:ems.selection__ems_student_document__status__rejected model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_student_document_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_correction__state__rejected model:ir.model.fields.selection,name:ems.selection__ems_authorization__status__no model:ir.model.fields.selection,name:ems.selection__ems_student_document__status__rejected model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 msgid "Rejected"
 msgstr "Rechazado"
 
@@ -6274,6 +6303,21 @@ msgid "Secretariat Email"
 msgstr "Correo de secretaría"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__notice_email_signature model:ir.model.fields,field_description:ems.field_res_config_settings__notice_email_signature
+msgid "Notice email signature"
+msgstr "Firma de los correos de los comunicados"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_company__notice_email_signature model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Default sign-off appended to every Notice email. Copied onto each new notice as its own editable signature - editing it here only affects notices created afterward."
+msgstr "Despedida por defecto que se añade a todos los correos de los comunicados. Se copia en cada comunicado nuevo como firma propia editable - modificarla aquí solo afecta a los comunicados creados a partir de ahora."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__signature
+msgid "Signature"
+msgstr "Firma"
+
+#. module: ems
 #: model:ems.role,name:ems.role_secretary model:hr.job,name:ems.job_secretary model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_role__secretary model:project.project,name:ems.project_secretary model:res.groups,name:ems.group_secretary model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Secretary"
 msgstr "Secretaría"
@@ -6367,6 +6411,21 @@ msgid "Send to"
 msgstr "Enviar a"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__recipient_email_type
+msgid "Recipient email"
+msgstr "Correo del destinatario"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__recipient_email_type__corporate
+msgid "Corporate"
+msgstr "Corporativo"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__recipient_email_type__personal
+msgid "Personal"
+msgstr "Personal"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "Send your comments to the secretary's office"
 msgstr "Envía tus comentarios a secretaría"
@@ -6458,7 +6517,7 @@ msgid "Short Text"
 msgstr "Texto corto"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search model_terms:ir.ui.view,arch_db:ems.view_notice_search model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_search
 msgid "Show only mine"
 msgstr "Mostrar solamente los míos"
 
@@ -6629,7 +6688,7 @@ msgid "State / Province"
 msgstr "Estado / Provincia"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__status model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__status_id model:ir.model.fields,field_description:ems.field_ems_authorization__status model:ir.model.fields,field_description:ems.field_ems_notice_line__display_status model:ir.model.fields,field_description:ems.field_ems_student_document__status model_terms:ir.ui.view,arch_db:ems.attendance_report_session model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_student_document_search model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__status model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__status_id model:ir.model.fields,field_description:ems.field_ems_authorization__status model:ir.model.fields,field_description:ems.field_ems_notice_line__display_status model:ir.model.fields,field_description:ems.field_ems_student_document__status model_terms:ir.ui.view,arch_db:ems.attendance_report_session model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search model_terms:ir.ui.view,arch_db:ems.view_student_document_search model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search
 msgid "Status"
 msgstr "Estado"
 

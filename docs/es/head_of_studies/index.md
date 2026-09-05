@@ -16,6 +16,7 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 - [El horario semanal de un grupo](../admin/group-schedule.md)
 - [Informes de asistencia](attendance-reports.md)
 - [Crear y editar profesorado](staff-management.md)
+- [Comunicados: enviar tus propios correos masivos](notice.md)
 
 ---
 

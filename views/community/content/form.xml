@@ -4,7 +4,7 @@
             <field name="name">ems.content.form</field>
             <field name="model">ems.content</field>
             <field name="arch" type="xml">				
-                <form string="content">                   
+                <form string="content" duplicate="0">
                     <sheet>      
                         <group string="Parent content" col="6" invisible="content_id == False">   
                             <field nolabel="1" name="content_id" readonly="True"/>
@@ -25,7 +25,7 @@
                             <page string="Composite">
                                 <field name="content_ids" widget="one2many" context="{'default_content_id': id, 'default_code': code}">
                                     <list editable="bottom" default_order="code asc, level asc, acronym asc"
-                                        decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3">
+                                        decoration-bf="level==1" decoration-muted="level==2" decoration-it="level>=3" duplicate="0">
                                         <field name="code"/>
                                         <field name="acronym"/>
                                         <field name="name"/>                                               

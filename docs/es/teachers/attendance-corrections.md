@@ -51,6 +51,8 @@ Tu solicitud se envía automáticamente a quien puede validarla — normalmente 
 - **Fichajes de empleados → Solicitudes de corrección** muestra todas las solicitudes que has hecho y su estado actual (Pendiente / Aceptada / Rechazada).
 - Desde el propio fichaje, el botón **Correcciones** de la cabecera (solo visible si existe alguna solicitud para ese registro) te lleva directamente a ella.
 
+> De forma predeterminada, la lista solo muestra las solicitudes **Pendientes**. Quita el filtro **Pendiente** de la barra de búsqueda (o cambia al filtro **Aceptada**/**Rechazada**) para ver las solicitudes que ya tienen una decisión.
+
 > Si también eres Jefatura de Estudios, Jefatura de Estudios Adjunta o Dirección, consulta el [manual de Jefatura de Estudios](../head_of_studies/attendance-corrections.md) para saber cómo decidir sobre las solicitudes que te llegan.
 
 ---

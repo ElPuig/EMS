@@ -15,6 +15,8 @@ Los profesores pueden solicitar una corrección de una hora de entrada/salida de
 Si te han enviado una solicitud (la verás como una actividad pendiente, y también aparecerá en **Fichajes de empleados → Solicitudes de corrección**):
 
 1. Abre la solicitud — desde la actividad, desde **Fichajes de empleados → Solicitudes de corrección**, o desde el botón **Correcciones** del propio fichaje.
+
+   > La lista muestra solo las solicitudes **Pendientes** por defecto, para no tener que revisar las que ya tienen una decisión. Quita el filtro **Pendiente** (o cambia al filtro **Aceptada**/**Rechazada**) para ver el resto.
 2. Revisa la hora original frente a la solicitada, y el motivo indicado.
 3. Haz clic en **Aceptar** para aplicar la corrección al fichaje, o en **Rechazar** para dejarlo sin cambios (o restaurarlo, si estás deshaciendo una aceptación anterior). Puedes dejar una nota opcional para el profesor o profesora.
 4. El profesor o profesora que hizo la solicitud recibe una notificación automática con tu decisión.

@@ -1,5 +1,7 @@
 from odoo.tests.common import HttpCase, tagged
 
+from .common import force_user_language_to_english
+
 
 @tagged('post_install', '-at_install')
 class TestWorkingScheduleStaleBreaksTour(HttpCase):
@@ -54,6 +56,7 @@ class TestWorkingScheduleStaleBreaksTour(HttpCase):
         ])
 
     def test_working_schedule_stale_breaks_tour(self):
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # To observe this tour in a real browser during development:
         #   self.start_tour("/odoo", "ems_working_schedule_stale_breaks", login="admin", watch=True)
         self.start_tour("/odoo", "ems_working_schedule_stale_breaks", login="admin")

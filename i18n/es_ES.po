@@ -5355,6 +5355,12 @@ msgid "You do not tutor any group with an open evaluation."
 msgstr "No eres tutor de ningún grupo con evaluación abierta"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_relation.py:0
+msgid "You are not allowed to manage this student's family contacts."
+msgstr "No tienes permiso para gestionar los contactos familiares de este alumno."
+
+#. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0
 msgid "Ovr."

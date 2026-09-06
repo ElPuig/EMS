@@ -3,7 +3,7 @@ from datetime import date
 
 from dateutil.relativedelta import relativedelta
 
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
 from .common import create_level_study_group, mock_outgoing_email
@@ -335,6 +335,30 @@ class TestContactFields(TransactionCase):
         self.env['ems.strike'].create({'student_id': student.id, 'teacher_id': teacher.id})
         self.assertEqual(student.strike_count, 2)
 
+    # --- tutor_id ---------------------------------------------------------------
+
+    def test_tutor_id_write_does_not_reassign_the_group_tutor(self):
+        # Regression (found 2026-09-06): 'tutor_id' is related="main_group_id.tutor_id" with no
+        # explicit readonly - Odoo only skips auto-generating a write-through inverse when the
+        # field (or its target) is already readonly, neither of which was true here. Without
+        # readonly=True, writing "Tutor" from a STUDENT's own form would silently reassign that
+        # student's WHOLE GROUP's tutor (affecting every other student in it), not just a
+        # display value scoped to this one student.
+        other_teacher = self.env['hr.employee'].create({'name': 'Other Teacher (TCF)', 'employee_type': 'teacher'})
+        student = self.env['res.partner'].create({
+            'name': 'Tutor Readonly Student', 'contact_type': 'student', 'main_group_id': self.group.id})
+
+        # A readonly related field with no inverse is silently ignored by write(), not
+        # rejected with an exception - it only ends up staged in this recordset's own
+        # in-memory cache (a compute field with no inverse has nowhere to persist a write to),
+        # so the actual guarantee to verify is that the group's own tutor - the field's real
+        # source of truth - never changes, and that a fresh (recomputed) read reflects that.
+        student.write({'tutor_id': other_teacher.id})
+
+        self.assertNotEqual(self.group.tutor_id, other_teacher)
+        student.invalidate_recordset(['tutor_id'])
+        self.assertEqual(student.tutor_id, self.group.tutor_id)
+
     # --- _check_nuss ------------------------------------------------------------
 
     def test_nuss_valid_12_digits(self):
@@ -400,3 +424,138 @@ class TestContactFields(TransactionCase):
         order.apply_authorizations()
 
         self.assertIn(template, student.ems_authorization_ids.mapped('template_id'))
+
+
+class TestContactMainGroupChange(TransactionCase):
+    """Changing 'main_group_id' cascades to the student's ems.enrollment rows (issue #395:
+    a tutor moving a tutorand from one group to another). See docs/en/developers/contacts/
+    contact.md and models/contacts/enrollment.py's '_ems_move_group'."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.level, cls.study, cls.group = create_level_study_group(cls, 'TMG', level={'name': 'Test Move Group Level'}, study={
+            'code': 'TMG001', 'acronym': 'TMGS', 'name': 'Test Move Group Study',
+        })
+        cls.other_group = cls.env['ems.group'].create({
+            'course': 1, 'acronym': 'B', 'level_id': cls.level.id, 'study_id': cls.study.id,
+        })
+        cls.subject = cls.env['ems.subject'].create({
+            'code': 'TMG001', 'acronym': 'TMG', 'name': 'Test Move Group Subject',
+            'study_ids': [(6, 0, [cls.study.id])],
+        })
+        # A real (non-superuser) admin user: TransactionCase's own self.env already runs as
+        # SUPERUSER_ID (env.su == True), which would make every plain write() below
+        # indistinguishable from the sudo()-driven system flows this feature must NOT touch
+        # (see contact.py write()'s env.su guard). with_user() is what actually sets
+        # env.su = False, mirroring a real tutor/admin/secretary editing the form - same
+        # reason test_enrollment.py's own default_get admin/non-admin tests use with_user().
+        cls.admin_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Admin (Move Group)', 'login': 'test_admin_move_group',
+            'groups_id': [(4, cls.env.ref('ems.group_academic_admin').id)],
+        })
+
+    def _student(self, group):
+        return self.env['res.partner'].create({
+            'name': 'Move Group Student', 'contact_type': 'student',
+            'main_group_id': group.id if group else False})
+
+    def _enrollment(self, student, group):
+        return self.env['ems.enrollment'].create({
+            'student_id': student.id, 'group_id': group.id, 'subject_id': self.subject.id})
+
+    def test_write_moves_enrollment_to_new_group(self):
+        student = self._student(self.group)
+        enrollment = self._enrollment(student, self.group)
+
+        student.with_user(self.admin_user).write({'main_group_id': self.other_group.id})
+
+        self.assertFalse(enrollment.exists())
+        moved = self.env['ems.enrollment'].search([('student_id', '=', student.id)])
+        self.assertEqual(moved.group_id, self.other_group)
+
+    def test_write_leaves_enrollment_in_a_different_group_untouched(self):
+        third_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'C', 'level_id': self.level.id, 'study_id': self.study.id})
+        student = self._student(self.group)
+        untouched = self._enrollment(student, third_group)
+
+        student.with_user(self.admin_user).write({'main_group_id': self.other_group.id})
+
+        self.assertTrue(untouched.exists())
+        self.assertEqual(untouched.group_id, third_group)
+
+    def test_write_same_group_does_not_touch_enrollment(self):
+        student = self._student(self.group)
+        enrollment = self._enrollment(student, self.group)
+
+        student.with_user(self.admin_user).write({'main_group_id': self.group.id})
+
+        self.assertTrue(enrollment.exists())
+        self.assertEqual(enrollment.group_id, self.group)
+
+    def test_write_from_no_group_does_not_raise(self):
+        student = self._student(False)
+        student.with_user(self.admin_user).write({'main_group_id': self.group.id})
+        self.assertEqual(student.main_group_id, self.group)
+
+    def test_sudo_write_does_not_migrate_enrollment(self):
+        """Mirrors sale.order._ems_apply_destination_placement()'s own sudo() write - course
+        transition/enrollment placement moves a student to a new group ON PURPOSE without
+        touching the old group's enrollments (they are the outgoing year's history). Excluding
+        env.su is what keeps that flow unaffected by this cascade - see CLAUDE.md and
+        ems.enrollment.default_get's own use of the same env.su vs. env.user distinction."""
+        student = self._student(self.group)
+        enrollment = self._enrollment(student, self.group)
+
+        student.with_user(self.admin_user).sudo().write({'main_group_id': self.other_group.id})
+
+        self.assertTrue(enrollment.exists())
+        self.assertEqual(enrollment.group_id, self.group)
+        self.assertEqual(student.main_group_id, self.other_group)
+
+    def test_write_raises_if_old_enrollment_has_scored_grades(self):
+        student = self._student(self.group)
+        teacher = self.env['hr.employee'].create({'name': 'TMG Teacher', 'employee_type': 'teacher'})
+        # The session must exist BEFORE the enrollment for _ems_sync_grade_session_add() (fired
+        # by ems.enrollment.create()) to populate its lines - creating it after would leave the
+        # session with no line for this student to score at all.
+        session = self.env['ems.grade_session'].create({
+            'group_id': self.group.id, 'subject_id': self.subject.id, 'round': '1', 'teacher_id': teacher.id})
+        enrollment = self._enrollment(student, self.group)
+        # This subject has no outcomes, so grade_outcome_line_ids stays empty -
+        # grade_subject_line_ids (always created, one per student) is what carries a score here.
+        line = session.grade_subject_line_ids.filtered(lambda l: l.student_id == student)
+        line.write({'external_score': 8, 'external_is_scored': True})
+
+        with self.assertRaises(UserError):
+            student.with_user(self.admin_user).write({'main_group_id': self.other_group.id})
+
+        self.assertTrue(enrollment.exists())
+        self.assertEqual(enrollment.group_id, self.group)
+
+    # --- main_group_pending_change (the Studies tab's pre-save warning) ---------------
+
+    def test_main_group_pending_change_reflects_an_unsaved_edit(self):
+        # A virtual record with 'origin' set is exactly how Odoo represents an on-screen,
+        # not-yet-saved form edit (the same mechanism the form/onchange machinery itself uses -
+        # see test_enrollment.py's own note on NewId(origin=...)): 'main_group_id' below is only
+        # ever set on the virtual record, never written/persisted on 'student' itself.
+        student = self._student(self.group)
+        virtual = self.env['res.partner'].new({}, origin=student)
+        self.assertFalse(virtual.main_group_pending_change)
+
+        virtual.main_group_id = self.other_group
+        self.assertTrue(virtual.main_group_pending_change)
+
+        virtual.main_group_id = self.group
+        self.assertFalse(virtual.main_group_pending_change)
+        self.assertEqual(student.main_group_id, self.group)
+
+    def test_main_group_pending_change_false_without_a_previous_group(self):
+        student = self._student(False)
+        virtual = self.env['res.partner'].new({}, origin=student)
+
+        virtual.main_group_id = self.group
+
+        self.assertFalse(virtual.main_group_pending_change)

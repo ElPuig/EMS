@@ -26,3 +26,24 @@
 .ems_conflict_space .o-autocomplete {
     width: 100%;
 }
+
+/* Visual break between a row's two halves (New/Old on the external screen, the two file entries
+   on the internal one) - a plain "-" read as unclear (developer feedback 2026-09-06); reuses the
+   same "→" convention already used elsewhere in this codebase for an analogous before/after or
+   left/right pairing (e.g. attendance_session_view.js's "Lastname A→Z"). */
+.ems_conflict_row_separator {
+    margin: 0 0.5rem;
+}
+
+/* Per-row valid/unresolved color coding (developer feedback 2026-09-06, live-debugging a real
+   stuck import where nothing on screen showed which row was actually blocking "Continue") - a
+   soft, always-visible background rather than a border/icon, so scanning a long card for the
+   one red row among many green ones doesn't need reading each row's own text first. Kept as a
+   background tint (not text color) so the row's own text/selects stay fully legible on top. */
+.ems_conflict_row_valid {
+    background-color: rgba(40, 167, 69, 0.08);
+}
+
+.ems_conflict_row_invalid {
+    background-color: rgba(220, 53, 69, 0.12);
+}

@@ -202,6 +202,24 @@ class TestGroup(TransactionCase):
         self.test_group.invalidate_recordset(['enrollment_view_ids'])
         self.assertFalse(self.test_group.enrollment_view_ids)
 
+    def test_enrollment_view_ids_readable_by_a_plain_teacher(self):
+        # Regression (found 2026-09-06): the compute's own delete+recreate of ems.enrollment_view
+        # rows used to run as whoever opened the group's form. ems.enrollment_view's ACL grants
+        # teacher/tutor only perm_read (by design - it's a read-only helper view), so a plain
+        # teacher/tutor got an AccessError from simply reading enrollment_view_ids at all, on
+        # ANY group - not something specific to this test's own data.
+        student = self.env['res.partner'].create({
+            'name': 'Test Enrollment View Teacher Student (Group)', 'contact_type': 'student',
+        })
+        self.env['ems.enrollment'].create({
+            'student_id': student.id, 'group_id': self.test_group.id, 'subject_id': self._enrollment_subject().id,
+        })
+        self.test_group.invalidate_recordset(['enrollment_view_ids'])
+
+        lines = self.test_group.with_user(self.teacher_user).enrollment_view_ids
+
+        self.assertEqual(lines.student_id, student)
+
     def _enrollment_subject(self, suffix=''):
         return self.env['ems.subject'].create({
             'code': f'TSTG-ENR{suffix}', 'acronym': f'TGE{suffix}', 'name': f'Test Enrollment Subject {suffix}',
@@ -311,6 +329,19 @@ class TestGroup(TransactionCase):
         self.assertEqual(action['res_model'], 'ems.group')
         self.assertEqual(action['res_id'], self.test_group.id)
         self.assertEqual(action['type'], 'ir.actions.act_window')
+
+    def test_custom_data_records_are_frozen_against_future_upgrades(self):
+        # 'data/custom/ems.group.csv' seeds the centre's real groups only once: an admin renaming
+        # a group or reassigning its classroom through the app is 'living' data, not config this
+        # repo's CSV should keep re-pushing on every upgrade (see CLAUDE.md's "Data folder
+        # conventions"). '_ems_freeze_living_custom_data' (models/settings/company.py) already ran
+        # as part of this test run's own module (re)load via '_register_hook()', so every
+        # '__import__'-owned 'ems.group' xmlid must already be noupdate=True by the time tests execute.
+        custom_group_data = self.env['ir.model.data'].sudo().search([
+            ('module', '=', '__import__'), ('model', '=', 'ems.group'),
+        ])
+        self.assertTrue(custom_group_data)
+        self.assertTrue(all(custom_group_data.mapped('noupdate')))
 
     def test_compute_name_leaves_blank_for_incomplete_main_group(self):
         # Regression test: '_compute_name' used to build "%s%s%s" % (study_id.acronym, course, acronym)

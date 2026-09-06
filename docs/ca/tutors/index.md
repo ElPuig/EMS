@@ -12,6 +12,7 @@ Aquesta secció conté els manuals per als **tutors de grup**.
 
 | Manual | Descripció |
 |--------|------------|
+| [Canviar el grup d'un alumne](change-student-group.md) | Moure un alumne tutoritzat d'un grup a un altre, amb les seves matrícules per assignatura seguint-lo automàticament |
 | [Històric acadèmic del vostre alumnat](academic-history.md) | Consultar el registre permanent per curs dels vostres tutoritzats: mòduls, notes per RA i assistència |
 | [Posar la nota de l'estada a l'empresa (EM)](work-placement-grade.md) | Posar la nota de l'estada a un estudiant quan acaba les pràctiques: completa la nota final de tots els mòduls amb pes d'estada, incloses les finals pendents de cursos anteriors |
 | [Junta d'avaluació: revisar les qualificacions per alumne](junta-avaluacio.md) | Revisar i ajustar les qualificacions de cada alumne del grup, assignatura per assignatura, per a la junta d'avaluació |

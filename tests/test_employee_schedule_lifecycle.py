@@ -146,6 +146,86 @@ class TestEmployeeScheduleLifecycle(TransactionCase):
 
         self.assertEqual(employee.resource_calendar_id, company_calendar)
 
+    def test_archive_teacher_archives_personal_calendar(self):
+        # A departed teacher's own calendar must stop being 'active' too, or every screen that
+        # reads resource.calendar/resource.calendar.attendance without also checking the linked
+        # employee (e.g. the Guard Duty Board, which aggregates across every teacher rather than
+        # going through one employee's own resource_calendar_id) keeps showing them - found
+        # 2026-09-06 via a real departed teacher (David Tomás) still appearing on the guard board,
+        # a distinct gap from the course-transition-rollover cascade already covered by
+        # ems_working_schedule.action_archive() (see that method's own docstring).
+        employee = self.env['hr.employee'].create({
+            'name': 'Test Archive Cascade (Employee Schedule Lifecycle)',
+            'employee_type': 'teacher',
+        })
+        calendar = employee.resource_calendar_id
+        guard_row = self.env['resource.calendar.attendance'].create({
+            'calendar_id': calendar.id, 'name': 'Test Guard Row (Archive Cascade)',
+            'dayofweek': '0', 'hour_from': 15, 'hour_to': 16,
+        })
+
+        employee.action_archive()
+
+        self.assertFalse(calendar.active)
+        self.assertFalse(guard_row.active)
+
+    def test_archive_teacher_does_not_touch_framework_calendar(self):
+        # A teacher can be (mis)pointed at a shared framework calendar rather than a personal one
+        # (see test_rename_does_not_touch_framework_calendar above) - archiving the employee must
+        # never archive a template shared by every teacher of that level.
+        employee = self.env['hr.employee'].create({
+            'name': 'Test Archive Framework Guard (Employee Schedule Lifecycle)',
+            'employee_type': 'teacher',
+        })
+        framework = self.env.company.default_schedule_framework_id
+        employee.resource_calendar_id = framework
+
+        employee.action_archive()
+
+        self.assertTrue(framework.active)
+
+    def test_archive_teacher_does_not_touch_a_shared_calendar(self):
+        # Mirrors test_unlink_one_of_two_employees_sharing_a_calendar_keeps_it - a calendar this
+        # employee doesn't personally own ('employee_id' set to someone else, or empty) must
+        # survive this employee's own archival untouched.
+        shared_calendar = self.env['resource.calendar'].create({'name': 'Test Shared Calendar (Archive Cascade)'})
+        employee_a = self.env['hr.employee'].create({
+            'name': 'Test Shared Archive A (Employee Schedule Lifecycle)',
+            'employee_type': 'teacher',
+        })
+        employee_a.resource_calendar_id = shared_calendar
+
+        employee_a.action_archive()
+
+        self.assertTrue(shared_calendar.active)
+
+    def test_unarchive_teacher_reactivates_personal_calendar(self):
+        employee = self.env['hr.employee'].create({
+            'name': 'Test Unarchive Cascade (Employee Schedule Lifecycle)',
+            'employee_type': 'teacher',
+        })
+        calendar = employee.resource_calendar_id
+        employee.action_archive()
+        self.assertFalse(calendar.active)
+
+        employee.action_unarchive()
+
+        self.assertTrue(calendar.active)
+
+    def test_unarchive_teacher_does_not_touch_framework_calendar(self):
+        employee = self.env['hr.employee'].create({
+            'name': 'Test Unarchive Framework Guard (Employee Schedule Lifecycle)',
+            'employee_type': 'teacher',
+        })
+        framework = self.env.company.default_schedule_framework_id
+        employee.resource_calendar_id = framework
+        framework.action_archive()
+        employee.action_archive()
+
+        employee.action_unarchive()
+
+        self.assertFalse(framework.active)
+
     def test_unlink_one_of_two_employees_sharing_a_calendar_keeps_it(self):
         shared_calendar = self.env['resource.calendar'].create({'name': 'Test Shared Calendar (Employee Schedule Lifecycle)'})
         employee_a = self.env['hr.employee'].create({

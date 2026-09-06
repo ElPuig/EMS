@@ -67,7 +67,14 @@ class ResPartner(models.Model):
     # level_id and study_id are used for form view purposes (linked dropdowns: level > study > group) and will be computed on save.
     level_id = fields.Many2one(string='Level', comodel_name='ems.level')    
     study_id = fields.Many2one(string='Studies', comodel_name='ems.study') 
-    tutor_id = fields.Many2one(string='Tutor', related="main_group_id.tutor_id") # Related field: auto-computed and auto-refreshed within the form.
+    # readonly=True (bug found 2026-09-06): a related field is only auto-readonly when its
+    # target is itself readonly or when 'store' would need an inverse Odoo can't build. Since
+    # neither applied here, Odoo silently auto-generated a write-through inverse - editing this
+    # field from a student's own form would have actually reassigned that student's WHOLE
+    # GROUP's tutor (main_group_id.tutor_id), for every one of its students, not just a display
+    # value scoped to this one student. It's purely a read-only mirror of the group's own tutor;
+    # to actually change a tutor, edit it on the ems.group record.
+    tutor_id = fields.Many2one(string='Tutor', related="main_group_id.tutor_id", readonly=True) # Related field: auto-computed and auto-refreshed within the form.
     
     # model-data fields:
     main_group_id = fields.Many2one(string='Main Group', comodel_name='ems.group')
@@ -215,6 +222,11 @@ class ResPartner(models.Model):
     # NOTE: this field is computed when loaded within a form or list
     read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
     is_tutor_readonly = fields.Boolean(default=lambda self:self._get_is_tutor_readonly(), store=False)
+    # Drives the Studies tab's "saving will move this student's enrollments" warning
+    # (issue #395) - unlike the two booleans above, this one must react live to an
+    # on-screen, not-yet-saved edit of main_group_id, so it needs a real compute/depends,
+    # not the default()-only idiom (which only ever evaluates once, at load time).
+    main_group_pending_change = fields.Boolean(compute='_compute_main_group_pending_change', store=False)
 
     def _ems_enrollment_in_force(self):
         """The student's enrollment that governs what may be done with them now.
@@ -463,6 +475,17 @@ class ResPartner(models.Model):
             partner.is_adult = bool(partner.birth_date) and (
                 relativedelta(datetime.date.today(), partner.birth_date).years >= 18)
 
+    @api.depends('main_group_id')
+    def _compute_main_group_pending_change(self):
+        # '_origin' is the persisted (last-saved) record even while 'main_group_id' itself
+        # holds an on-screen, not-yet-saved edit - the same distinction the actual write()
+        # cascade (_migrate_enrollments_on_group_change) makes between the old and new group,
+        # just evaluated live in the form instead of at save time.
+        for partner in self:
+            old_group = partner._origin.main_group_id
+            partner.main_group_pending_change = bool(
+                old_group and partner.main_group_id and old_group != partner.main_group_id)
+
     @api.onchange('level_id')
     def _onchange_level_id(self):
         for partner in self:
@@ -513,10 +536,26 @@ class ResPartner(models.Model):
                 lambda p: p.contact_type in ('student', 'family')
                 and email_normalize(p.email) != new_email
                 and p._has_active_portal_user())
+        # Capture (before the write) the previous main group of every partner about to
+        # change it, so their subject enrollments in that group can follow them to the new
+        # one (see _migrate_enrollments_on_group_change below). Skipped under env.su: that
+        # flag is what tells apart an interactive group change (tutor/admin/secretary on the
+        # form, or a bulk re-import) from a system flow acting on the user's behalf, chiefly
+        # sale.order._ems_apply_destination_placement() (course transition / enrollment
+        # placement), which moves a student to a new group ON PURPOSE without touching the
+        # outgoing group's enrollments - those are the ending year's history, not something
+        # to repoint. Same env.su vs. env.user distinction already used for the same reason
+        # in ems.enrollment.default_get().
+        old_main_groups = {}
+        if 'main_group_id' in values and not self.env.su:
+            old_main_groups = {partner.id: partner.main_group_id for partner in self}
         self._compute_group_data(values)
         contact = super(ResPartner, self).write(values)
         if 'contact_type' in values:
             self._sync_category()
+
+        if old_main_groups:
+            self._migrate_enrollments_on_group_change(old_main_groups)
 
         for partner in portal_email_changed:
             partner._apply_portal_email_change()
@@ -771,6 +810,19 @@ class ResPartner(models.Model):
         data <function> on upgrade to heal partners created before the shared marker."""
         partners = self.search([('contact_type', 'in', ('applicant', 'alumni', 'withdrawal', 'expelled'))])
         partners._sync_category()
+
+    def _migrate_enrollments_on_group_change(self, old_main_groups):
+        """For each partner whose main group actually changed (old_main_groups maps
+        partner id -> its previous main_group_id, captured before write()), moves its
+        subject enrollments from the old group to the new one - see
+        ems.enrollment._ems_move_group(). A partner with no previous group (a first
+        placement) or whose group ended up unchanged is skipped: there is nothing to
+        move."""
+        Enrollment = self.env['ems.enrollment']
+        for partner in self:
+            old_group = old_main_groups.get(partner.id)
+            if old_group and partner.main_group_id and old_group != partner.main_group_id:
+                Enrollment._ems_move_group(partner, old_group, partner.main_group_id)
 
     def _compute_group_data(self, values):
         # Avoids incongruences between the main_group, level and studies.     

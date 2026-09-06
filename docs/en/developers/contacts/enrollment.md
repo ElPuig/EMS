@@ -72,6 +72,26 @@ flowchart TD
 - **Grade session add/remove:** only touches sessions in `state = 'open'` — `board`/`final` sessions are frozen and must not gain or lose lines from a later enrollment change. `_ems_sync_grade_session_remove` now also checks `_ems_still_enrolled` (for the exact `group_id` being removed) before deleting grade lines — added for symmetry with the attendance-template guard above; the only historical trigger (a duplicate `ems.enrollment` row for the same triple) is itself now prevented by the `_sql_constraints` above, so this is defensive rather than currently reachable through normal use.
 - **`ems_bypass_grade_guard`** (context flag): the withdrawal flow (`res.partner._ems_clear_operational_records`, see [`contact.md`](contact.md)) unlinks enrollments with `sudo().with_context(ems_bypass_grade_guard=True)` — it runs *after* the academic history has already frozen the grades, so the normal "has scored grades" guard would otherwise block exactly the cleanup it needs to do.
 
+### `_ems_move_group(student, old_group, new_group)` — following a student's group change (issue #395)
+
+Called from `res.partner.write()` (see [`contact.md`](contact.md#_migrate_enrollments_on_group_changeold_main_groups)) whenever a student's `main_group_id` changes from one real group to another: every `ems.enrollment` row of `student` still pointing at `old_group` is repointed to `new_group` (same `subject_id`). A row already in a *different* group (e.g. a reinforcement group) is untouched — only rows in `old_group` specifically move.
+
+```mermaid
+flowchart TD
+    A["_ems_move_group(student, old_group, new_group)"] --> B["search enrollments:\nstudent_id=student, group_id=old_group"]
+    B --> C{"(student, new_group, subject)\nalready exists?"}
+    C -- yes --> E["unlink() the old_group row"]
+    C -- no --> D["create() a new_group row\n(same subject)"] --> E
+```
+
+Implemented as `unlink()` + `create()` (never a direct `group_id` write) specifically so the row-level side effects documented above — the attendance-template roster sync and the open-grade-session line sync — fire exactly as they already do for any other enrollment change, instead of needing a second, parallel sync path. The "already exists" check avoids a duplicate-key error when the student happens to already have that same subject enrolled in the destination group before the move (e.g. from an earlier reinforcement enrollment).
+
+**Runs entirely under `sudo()`.** By the time this runs, `student.main_group_id` already equals `new_group` (the caller writes it via `super().write()` first) — so a caller whose own ORM access to the student/enrollment came from being the tutor of the *old* group (`rule_contact_tutor`/`rule_enrollment_tutor`, both keyed off the student's current `tutor_id`, itself `related="main_group_id.tutor_id"`) can lose that access mid-transaction the instant the group differs, most obviously when the destination group has a different tutor. The group change itself was already authorized at the point `main_group_id` was written; this cascade is a system-level consequence of that authorized action, not a separate action needing its own re-check — the same reasoning `sale.order._ems_apply_destination_placement()` already applies to its own `sudo()`'d `create()` (see [`../enrollment/enrollment.md`](../enrollment/enrollment.md)). `sudo()` only bypasses ACL/record rules, never this model's own Python-level guards: `unlink()`'s scored-grades check still runs, and still aborts the **whole** group change (nothing is repointed) with the same `UserError` a manual delete would raise, if any of the old group's subjects already has scored grades.
+
+**Deliberately excluded: `sale.order._ems_apply_destination_placement()`** (course transition / enrollment-placement confirmation), which also writes `main_group_id` — but on purpose *without* touching the outgoing group's enrollments, since those are the ending year's history, not something to repoint. That flow always writes `main_group_id` via `sudo()`, so `res.partner.write()` uses the same `env.su` signal `default_get()` already relies on above to tell the two situations apart: an interactive group change (tutor/admin/secretary on the form, or a bulk CSV re-import) has `env.su == False` and triggers this cascade; a system placement running on somebody's behalf has `env.su == True` and does not.
+
+Covered by `tests/test_enrollment.py` (`_ems_move_group` directly: repoint, untouched sibling group, duplicate-target skip, scored-grades guard, attendance-schedule/co-teaching roster, open grade session lines) and `tests/test_contact.py::TestContactMainGroupChange` (the `write()` orchestration, including the `env.su` exclusion).
+
 ---
 
 ## Access Control
@@ -103,6 +123,6 @@ The secretary model-access row (read/write/create/unlink all `0` except create) 
 |------|------|-------|
 | List/Form/Search | `views/community/enrollment/{list,form,search}.xml` | Standalone screen, admin/tutor-of-record only in practice (see `default_get` above) |
 | Menu | `views/community/enrollment/menu.xml` | `action_enrollment_tree`, "Enrollments (student x group x subject)", under Students config |
-| Embedded one2many | `views/community/contact/form.xml` (student's "Studies" area) | The real day-to-day entry point — `subject_id`'s domain excludes `inuse_subject_ids` |
+| Embedded one2many | `views/community/contact/form.xml` (student's "Studies" area) | The real day-to-day entry point — `subject_id`'s domain excludes `inuse_subject_ids`; `group_id`'s domain allows a group matching the student's own `study_id` **or** any `group_type = 'reinforcement'` group (fixed 2026-09-06 — reinforcement groups always have `study_id = False` by design, see [`group.md`](group.md), so a plain study-match domain silently excluded them entirely) |
 
 `views/communications/surveys/recipient/form.xml` embeds a **different**, unrelated model (`ems.limesurvey_enrollment`, in `models/communications/limesurvey.py`) that duplicates the same `inuse_subject_ids` filtering idea for its own purposes — not a consumer of this model, just a parallel pattern worth knowing about if the two are ever confused.

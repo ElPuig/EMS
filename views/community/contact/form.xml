@@ -257,22 +257,48 @@
                             <separator name="group" string="Group Data"/>
                             <group>
                                 <field name="level_id" readonly="read_only_user or is_tutor_readonly" />
-                                <field name="main_group_id" readonly="study_id == False or read_only_user or is_tutor_readonly" domain="[('study_id','=', study_id)]" />
+                                <!-- Issue #395: a tutor CAN change their tutorand's main group (e.g. moving the
+                                     student from group A to group B) - the ORM already allows it
+                                     (rule_contact_tutor); 'is_tutor_readonly' deliberately excluded here, unlike
+                                     every other tutor-locked field on this page. study_id (still tutor-readonly)
+                                     keeps the domain scoped to the student's own study, so a tutor can never move
+                                     a student across studies, only between groups of the same one. Changing this
+                                     field cascades the student's subject enrollments from the old group to the
+                                     new one - see res.partner.write()/_migrate_enrollments_on_group_change and
+                                     ems.enrollment._ems_move_group. -->
+                                <field name="main_group_id" readonly="study_id == False or read_only_user" domain="[('study_id','=', study_id)]" />
                             </group>
                             <group>
                                 <field name="study_id" readonly="level_id == False or read_only_user or is_tutor_readonly" domain="[('level_id','=', level_id)]" />
-                                <field name="tutor_id" readonly="is_tutor_readonly" />
+                                <!-- readonly="is_tutor_readonly" dropped 2026-09-06: the field itself is
+                                     now readonly=True at the model level (see contact.py) - genuinely
+                                     always read-only, not just conditionally for tutors. -->
+                                <field name="tutor_id" />
                             </group>
 
                             <separator name="enrollment" string="Enrollment Data"/>
+                            <!-- Issue #395: warns before the fact - main_group_id has already been changed
+                                 on screen but not saved yet - that saving will move this student's subject
+                                 enrollments from the old group to the new one (see
+                                 res.partner._compute_main_group_pending_change). -->
+                            <div class="alert alert-warning mb-2" role="alert" colspan="2"
+                                 invisible="not main_group_pending_change">
+                                Saving will move every subject this student is enrolled in through the current group to the new group. Subjects already enrolled through a different group will stay unchanged.
+                            </div>
                             <!-- TODO: a WIC section in order to add a link to the QBid's student data?  -->
                             <group>
-                                <field name="wpi_enrolled" readonly="is_tutor_readonly" />
+                                <!-- Bug found 2026-09-06: missing 'read_only_user' meant a teacher who is
+                                     NOT this student's own tutor (is_tutor_readonly is False for them too -
+                                     it only locks the field for the ACTUAL tutor-of-record) saw this field
+                                     as editable, unlike every sibling field in this tab/page, all of which
+                                     combine both conditions. The record rules already block the write
+                                     server-side either way, but the field looked editable when it wasn't. -->
+                                <field name="wpi_enrolled" readonly="read_only_user or is_tutor_readonly" />
                             </group>
                             <field name="enrollment_ids" string="" context="{'default_group_id': main_group_id}" readonly="main_group_id == False or read_only_user or is_tutor_readonly">                            
                                 <list editable="top" default_order="subject_id asc, group_id asc">
                                     <field name="subject_id" domain="[('id','not in', inuse_subject_ids)]"/>
-                                    <field name="group_id" domain="[('study_id','=', parent.study_id)]"/>
+                                    <field name="group_id" domain="['|', ('study_id','=', parent.study_id), ('group_type','=','reinforcement')]"/>
                                     <field name="inuse_subject_ids" column_invisible="True"/>
                                 </list>
                             </field>

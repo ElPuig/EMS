@@ -49,7 +49,7 @@ class TestEnrollment(TransactionCase):
         cls.student = cls.env['res.partner'].create({'name': 'Test Student (Enrollment)', 'contact_type': 'student'})
         cls.other_student = cls.env['res.partner'].create({'name': 'Test Student B (Enrollment)', 'contact_type': 'student'})
 
-    def _create_template(self, groups):
+    def _create_template(self, groups, weekday='0'):
         template = self.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, [self.teacher.id])],
             'study_ids': [(6, 0, [self.study.id])],
@@ -63,7 +63,7 @@ class TestEnrollment(TransactionCase):
         # this test file exercises need a real line to write onto.
         self.env['ems.attendance_schedule'].create({
             'attendance_template_id': template.id,
-            'weekday': '0', 'start_time': 9.0, 'end_time': 10.0, 'space_id': self.space.id,
+            'weekday': weekday, 'start_time': 9.0, 'end_time': 10.0, 'space_id': self.space.id,
         })
         return template
 
@@ -281,3 +281,77 @@ class TestEnrollment(TransactionCase):
         self._create_enrollment(group=self.group)
         second = self._create_enrollment(group=self.other_group)
         self.assertTrue(second.id)
+
+    # -- _ems_move_group (issue #395: student's main group changes) ------------
+
+    def test_move_group_repoints_enrollment_to_new_group(self):
+        enrollment = self._create_enrollment(group=self.group)
+        self.env['ems.enrollment']._ems_move_group(self.student, self.group, self.other_group)
+        self.assertFalse(enrollment.exists())
+        moved = self.env['ems.enrollment'].search([
+            ('student_id', '=', self.student.id), ('subject_id', '=', self.subject.id)])
+        self.assertEqual(moved.group_id, self.other_group)
+
+    def test_move_group_leaves_enrollment_in_a_different_group_untouched(self):
+        third_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'C', 'level_id': self.level.id, 'study_id': self.study.id})
+        untouched = self._create_enrollment(group=third_group)
+        self.env['ems.enrollment']._ems_move_group(self.student, self.group, self.other_group)
+        self.assertTrue(untouched.exists())
+        self.assertEqual(untouched.group_id, third_group)
+
+    def test_move_group_skips_duplicate_create_when_target_already_enrolled(self):
+        old = self._create_enrollment(group=self.group)
+        existing_in_new = self._create_enrollment(group=self.other_group)
+        self.env['ems.enrollment']._ems_move_group(self.student, self.group, self.other_group)
+        self.assertFalse(old.exists())
+        self.assertTrue(existing_in_new.exists())
+        remaining = self.env['ems.enrollment'].search([
+            ('student_id', '=', self.student.id), ('subject_id', '=', self.subject.id)])
+        self.assertEqual(remaining, existing_in_new)
+
+    def test_move_group_raises_if_old_enrollment_has_scored_grades(self):
+        session = self._create_session(group=self.group)
+        enrollment = self._create_enrollment(group=self.group)
+        line = session.grade_outcome_line_ids.filtered(lambda l: l.student_id == self.student)
+        line.write({'score': 8, 'is_scored': True})
+
+        with self.assertRaises(UserError):
+            self.env['ems.enrollment']._ems_move_group(self.student, self.group, self.other_group)
+
+        self.assertTrue(enrollment.exists())
+        self.assertEqual(enrollment.group_id, self.group)
+
+    def test_move_group_updates_attendance_schedule_roster(self):
+        # Different weekday for the second template - same teacher/room/time would otherwise
+        # raise check_overlap's real double-booking guard (these are two unrelated templates,
+        # not a co-teaching pair, since they share no group).
+        template_old = self._create_template([self.group.id], weekday='0')
+        template_new = self._create_template([self.other_group.id], weekday='1')
+        self._create_enrollment(group=self.group)
+        self.assertIn(self.student, template_old.attendance_schedule_ids.student_ids)
+
+        self.env['ems.enrollment']._ems_move_group(self.student, self.group, self.other_group)
+
+        self.assertNotIn(self.student, template_old.attendance_schedule_ids.student_ids)
+        self.assertIn(self.student, template_new.attendance_schedule_ids.student_ids)
+
+    def test_move_group_keeps_student_in_shared_co_teaching_template(self):
+        shared_template = self._create_template([self.group.id, self.other_group.id])
+        self._create_enrollment(group=self.group)
+        self.assertIn(self.student, shared_template.attendance_schedule_ids.student_ids)
+
+        self.env['ems.enrollment']._ems_move_group(self.student, self.group, self.other_group)
+
+        self.assertIn(self.student, shared_template.attendance_schedule_ids.student_ids)
+
+    def test_move_group_migrates_open_grade_session_lines(self):
+        session_old = self._create_session(group=self.group)
+        session_new = self._create_session(group=self.other_group)
+        self._create_enrollment(group=self.group)
+        self.assertTrue(session_old.grade_outcome_line_ids.filtered(lambda l: l.student_id == self.student))
+
+        self.env['ems.enrollment']._ems_move_group(self.student, self.group, self.other_group)
+
+        self.assertFalse(session_old.grade_outcome_line_ids.filtered(lambda l: l.student_id == self.student))
+        self.assertTrue(session_new.grade_outcome_line_ids.filtered(lambda l: l.student_id == self.student))

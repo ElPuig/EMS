@@ -88,6 +88,38 @@ class EmsEnrollment(models.Model):
         ]).attendance_schedule_ids
 
     @api.model
+    def _ems_move_group(self, student, old_group, new_group):
+        """Repoints 'student's enrollments from 'old_group' to 'new_group' (same subject),
+        called when their main group changes (see res.partner.write()). An enrollment
+        already in a group other than 'old_group' is left untouched.
+
+        Reuses plain create()/unlink() instead of writing 'group_id' directly, so the
+        existing sync hooks (attendance schedule rosters, open grade session lines) still
+        apply exactly as they already do for any other enrollment change. Runs entirely
+        with sudo(): by the time this runs, 'student.main_group_id' already points at
+        'new_group' (write() calls this AFTER super().write()), so a caller whose own
+        access to the student/enrollment came from being the OLD group's tutor
+        (rule_contact_tutor/rule_enrollment_tutor, both keyed off the student's CURRENT
+        tutor_id) can lose that access mid-transaction the moment the group differs -
+        most obviously when the destination group has a different tutor. The group change
+        itself was already authorized at the point 'main_group_id' was written; this
+        cascade is a system-level consequence of that authorized action, not a separate
+        action needing its own re-check - the same reasoning
+        _ems_apply_destination_placement() already applies to its own sudo()'d create().
+        sudo() only bypasses ACL/record rules, not this method's own Python-level guard:
+        unlink()'s scored-grades check still runs and still aborts the whole group change
+        with a UserError if a subject already has scored grades in the old group.
+        """
+        Enrollment = self.sudo()
+        for enrollment in Enrollment.search([('student_id', '=', student.id), ('group_id', '=', old_group.id)]):
+            subject = enrollment.subject_id
+            already_in_new_group = Enrollment.search_count([
+                ('student_id', '=', student.id), ('group_id', '=', new_group.id), ('subject_id', '=', subject.id)])
+            if not already_in_new_group:
+                Enrollment.create({'student_id': student.id, 'group_id': new_group.id, 'subject_id': subject.id})
+            enrollment.unlink()
+
+    @api.model
     def _ems_still_enrolled(self, student_id, subject_id, group_ids):
         """True if an ems.enrollment row still exists for this student+subject in any
         of the given group_ids. Shared by both unlink() sync hooks below (and any

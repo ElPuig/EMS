@@ -175,3 +175,59 @@ UI" in the first place — that's a completely different concern (see the two in
 mechanisms above). If accidental deletion of a structurally-relied-upon record like a
 `res.partner.category` is a real worry, it needs its own guard (e.g. an `unlink()` override
 blocking deletion of xmlid-linked rows) — not something `noupdate` was ever going to solve.
+
+---
+
+## `data/custom/` "living" data — a second, distinct case from the decision above
+
+Everything above answers "should *EMS's own* future edits to this record keep applying" for
+`data/main/`/`data/cat/`. `data/custom/` is a different situation: this file belongs to the
+centre, not EMS, and its records are meant to be a starting seed, not config EMS or the centre
+itself keeps re-pushing forever. Found 2026-09-06 on `ems.group`: an admin renaming a group or
+reassigning its classroom (`space_id`) through the running app had that edit silently reverted
+by the very next `./upgrade.sh`, because `data/custom/ems.group.csv` (CSV, `__import__.`,
+`noupdate=False` — see the Capability table above) resyncs every listed column on every load,
+exactly as CSV always does. That's not a bug in the CSV mechanism — it's the wrong contract for
+a model whose fields are day-to-day operational data, not centre configuration.
+
+**The test:** does a school administrator change this field *through the app* as a normal part
+of running the centre during the year (renaming a group, reassigning a classroom, correcting an
+employee's phone number), as opposed to a developer changing it *in the file* as part of a code
+change? If the former, the record is "living" data — it must be seeded once, then left alone by
+every future upgrade, exactly like an XML `noupdate="1"` record — regardless of format.
+
+**Why this isn't solved by the Capability table's `noupdate=True` row:** that row requires XML,
+and `data/custom/` records require the `__import__.` module prefix (survives their row being
+removed from the file — see the Data folder conventions in `CLAUDE.md`), which XML's loader
+rejects outright (`AssertionError: The ID "__import__.xxx" refers to an uninstalled module`).
+Neither format alone gets both properties at once here.
+
+**The fix — freeze `ir_model_data.noupdate` directly, every server start, not via a migration:**
+`res.company._register_hook()` (`models/settings/company.py`) calls
+`_ems_freeze_living_custom_data()`, which sets `noupdate=True` on every `__import__`-owned
+`ir.model.data` row for a model listed in `_EMS_LIVING_CUSTOM_DATA_MODELS` (currently just
+`ems.group`) that isn't frozen yet. `_register_hook()` runs once per server start, always after
+that run's own module data has already (re)loaded — both on a clean install and on every
+upgrade — so this needs no per-version migration bookkeeping: a brand-new group added to the CSV
+in some future PR is still *created* normally the next time it upgrades (`noupdate` only blocks
+*updates* to an already-existing row, never creation), and gets frozen in turn the very next time
+the server starts afterwards. One CSV push still reaches every existing centre installation the
+first time this code ships (the row exists, its stored `noupdate` is still `False`), then it's
+frozen for good.
+
+**This is a per-record, not per-field, freeze** — `ir_model_data.noupdate` has no field-level
+granularity (see "the actual trap" above), so every column `ems.group.csv` lists
+(`course`/`acronym`/`level_id`/`study_id`/`space_id`/`external_id`) stops syncing together, not
+just the ones an admin happened to change. For `ems.group` this is fine: `course`/`study_id`
+genuinely are fixed identity for a given group record (the course-transition wizard reuses the
+same group across years rather than incrementing its `course`), so nothing legitimately needs
+`ems.group.csv` to keep resyncing an already-created row's fields at all.
+
+**Not yet audited:** whether other `data/custom/` models have the same "living, not master"
+shape is an open question, tracked as a separate follow-up rather than assumed — see
+[[project_data_custom_living_vs_master_audit]] in memory. `hr.employee.csv` (phone/email/address
+routinely edited by HR) and `ems.space.csv` (classrooms, renamed/repurposed the same way groups
+are) are the strongest candidates found so far, but adding a model to
+`_EMS_LIVING_CUSTOM_DATA_MODELS` should follow the same explicit confirmation this file's
+`noupdate=True`-vs-`False` decision above already requires — not be assumed from a surface
+resemblance to `ems.group`.

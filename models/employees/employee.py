@@ -689,6 +689,43 @@ class ems_employee(models.AbstractModel):
             orphaned.unlink()
         return result
 
+    def action_archive(self):
+        """Cascades to this teacher's own personal calendar - mirrors 'ems_working_schedule.
+        action_archive()''s own cascade to its 'attendance_ids' (models/employees/
+        working_schedule.py), one level up. Without this, archiving a teacher directly (a
+        mid-course departure, never going through '_apply_calendar_rollover()') left their
+        calendar - and every guard-duty/coordination-meeting row still on it - active
+        indefinitely, keeping them visible on any screen that aggregates across every teacher's
+        calendar rather than going through this one employee's own 'resource_calendar_id' (found
+        2026-09-06 via the Guard Duty Board still showing a departed teacher, a distinct gap from
+        the course-transition-rollover cascade already fixed 2026-09-01/02). 'employee_id ==
+        employee' - not merely 'not is_framework' - is what actually identifies a calendar as
+        this teacher's own: it also excludes a calendar shared with other teachers (see
+        hr.employee.unlink()'s own same-shaped guard, just above)."""
+        result = super().action_archive()
+        for employee in self:
+            calendar = employee.resource_calendar_id
+            if calendar.employee_id == employee and calendar.active:
+                calendar.action_archive()
+        return result
+
+    def action_unarchive(self):
+        """Symmetric with action_archive() above - a teacher rehired/returning before a course
+        transition ever rolled their calendar over should find it active again rather than having
+        to recreate it by hand. Deliberately calendar-level only: this never reactivates any of
+        the calendar's own 'attendance_ids' rows (already cascaded to inactive by
+        'ems_working_schedule.action_archive()' when the calendar itself was archived above) -
+        some of those rows could equally have gone inactive earlier for an unrelated reason (e.g.
+        superseded by a later room change via '_write_or_new_version()'), so blindly reviving
+        every one of them here would resurrect stale, superseded schedule versions alongside the
+        genuine ones. A returning teacher gets a fresh schedule import/assignment regardless."""
+        result = super().action_unarchive()
+        for employee in self:
+            calendar = employee.resource_calendar_id
+            if calendar.employee_id == employee and not calendar.active:
+                calendar.action_unarchive()
+        return result
+
     def action_mark_as_identified(self):
         """Manually clear the pending-identification placeholder.
 

@@ -36,6 +36,8 @@ Navigate to: **Educational Community → Groups**
 
 Students aren't added from here — see the **Students** tab to review who's assigned, but a student's own record (or the enrolment flow) is what actually assigns them to a group.
 
+**Changing a student's group moves their subject enrollments too.** Editing a student's **Main Group** field (on their own form, Studies tab) — this includes the group tutor, who can now do this directly for their own tutored students, see [Changing a student's group](../tutors/change-student-group.md) — automatically moves any subject enrollment that was in the old group over to the new one; a subject already enrolled through a different group (e.g. a reinforcement group) is left as-is. The change is rejected if a subject in the old group already has grades recorded for that student.
+
 ---
 
 ## Create a Reinforcement Group

@@ -8127,9 +8127,9 @@ msgid "Co-teaching"
 msgstr "Co-docència"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__desdoble_eligible model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__kind__desdoble_eligible
-msgid "Split session"
-msgstr "Sessió desdoblada"
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__join_session model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__kind__join_session
+msgid "Join session"
+msgstr "Sessió conjunta"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__plain_conflict model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__kind__plain_conflict
@@ -8355,7 +8355,9 @@ msgid "duplicated calendar!"
 msgstr "calendari duplicat!"
 
 #. module: ems
-#: model:ir.model.constraint,message:ems.constraint_ems_content_unique_code model:ir.model.constraint,message:ems.constraint_ems_criteria_unique_code model:ir.model.constraint,message:ems.constraint_ems_outcome_unique_code model:ir.model.constraint,message:ems.constraint_ems_space_unique_code model:ir.model.constraint,message:ems.constraint_ems_subject_unique_code
+#. odoo-python
+#: model:ir.model.constraint,message:ems.constraint_ems_content_unique_code model:ir.model.constraint,message:ems.constraint_ems_criteria_unique_code model:ir.model.constraint,message:ems.constraint_ems_outcome_unique_code model:ir.model.constraint,message:ems.constraint_ems_space_unique_code
+#: code:addons/ems/models/curriculum/subject.py:0
 msgid "duplicated code!"
 msgstr "codi duplicat!"
 
@@ -12255,8 +12257,8 @@ msgstr "Co-docència"
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
 #, python-format
-msgid "Split session"
-msgstr "Sessió desdoblada"
+msgid "Join session"
+msgstr "Sessió conjunta"
 
 #. module: ems
 #. odoo-javascript
@@ -12622,3 +12624,15 @@ msgstr ""
 "Drets d'accés de la prefectura d'estudis i la prefectura d'estudis adjunta. "
 "Concedeix accés complet de lectura i escriptura als registres d'assistència "
 "de tot el personal, i el dret a crear i editar professorat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "Subject with code '%s' not found."
+msgstr "No s'ha trobat cap assignatura amb el codi '%s'."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "Classroom with code '%s' not found."
+msgstr "No s'ha trobat cap aula amb el codi '%s'."

@@ -1022,24 +1022,53 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		return "%02d:%02d" % (hour, minutes)
 
 	def _entry_default_space_id(self, entry):
-		"""The classroom an entry would use absent any explicit override - the SAME "first group
-		wins" convention already used throughout this file (e.g. 'ems_working_schedule_assignation.
-		create()'). A non-teaching entry, or one whose group has no classroom, has none - callers
-		skip it (that gap is caught elsewhere, see '_groups_without_space')."""
+		"""The classroom an entry would actually use: its own explicit '<Space>' override if the
+		file provided one (see '_parse_schedule_entries') - added 2026-09-06 so a group that
+		occasionally splits into two rooms doesn't have to fight its own permanent, shared default -
+		otherwise the SAME "first group wins" convention already used throughout this file (e.g.
+		'ems_working_schedule_assignation.create()'). A non-teaching entry, or one whose group has
+		no classroom, has none - callers skip it (that gap is caught elsewhere, see
+		'_groups_without_space')."""
+		if entry.get('space_id'):
+			return entry['space_id']
 		group_ids = entry.get('group_ids')
 		if not group_ids:
 			return False
 		return self.env['ems.group'].browse(group_ids[0]).space_id.id
 
 	@staticmethod
-	def _classify_conflict_kind(entry_a, entry_b):
+	def _classify_conflict_kind(entry_a, entry_b, same_teacher):
 		"""Shared classification (see plans/working_schedule_import_redesign.md's "Conflict kind
-		classification", also meant for screen 5's not-yet-built external conflicts)."""
+		classification"), used by both screen 4 (file-internal) and screen 5 (against an existing
+		DB session).
+
+		'desdoble_eligible' (same subject, no shared group) used to be its own kind, shown as
+		"Split session" - removed 2026-09-06 (developer feedback, live debugging a real merge-mode
+		import): "no puedo garantizar si se trata ciertamente de eso o no (no siempre hacen la
+		misma materia cuando se separan)" - a genuine split session doesn't reliably keep the same
+		subject on both halves, so "same subject" was never actually a trustworthy signal that a
+		same-subject/different-group collision WAS a split (as opposed to two unrelated groups
+		coincidentally scheduled into the same room for the same subject). Merged into
+		'plain_conflict' ("Room conflict") - both already shared the exact same allowed-resolution
+		set ({reassign_rooms, prevail_left, prevail_right}) and the exact same 'reassign_rooms'
+		default at every call site, so the merge is purely a card/label consolidation, not a
+		behavior change for that case.
+
+		'join_session' (NEW, same day): same subject, no shared group, but the SAME teacher on
+		both sides - unlike the merged case above, this one IS a reliable, common, intentional
+		signal (one teacher running an identical session for two different groups at once, e.g.
+		joining two smaller groups into one class) - given its own kind, defaulting to 'co_teaching'
+		("Confirm") like 'co_teaching_eligible', since the resolution is the same idea: keep both
+		entries as-is, they're deliberately simultaneous. 'same_teacher' is computed by the caller
+		(different shape for screen 4's node_cache items vs. screen 5's DB candidate) rather than
+		here, so this method stays a plain, cache-free classifier."""
 		if entry_a['subject_id'] != entry_b['subject_id']:
 			return 'plain_conflict'
 		if set(entry_a.get('group_ids') or []) & set(entry_b.get('group_ids') or []):
 			return 'co_teaching_eligible'
-		return 'desdoble_eligible'
+		if same_teacher:
+			return 'join_session'
+		return 'plain_conflict'
 
 	def _teacher_label_for_item(self, item):
 		"""Best-effort display name for a node_cache item's teacher - already-resolved by this
@@ -1136,7 +1165,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# room actually matches).
 	_RESOLUTION_DEFAULTS = {
 		'co_teaching_eligible': 'co_teaching',
-		'desdoble_eligible': 'reassign_rooms',
+		'join_session': 'co_teaching',
 		'plain_conflict': 'prevail_left',
 		'self_conflict': 'prevail_left',
 	}
@@ -1193,16 +1222,18 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		'_find_self_conflicts_in_batch' (2026-08-10, same-teacher-different-room). Positional
 		references (item/entry indices), not content matching - built once here, from the very
 		'node_cache' '_continue_from_internal_conflicts' re-reads unchanged, so they stay valid.
-		Unlike screen 5's own external conflicts, EVERY 'plain_conflict'/'desdoble_eligible' pair
-		found by '_find_internal_conflicts' is a genuine same-room clash - it only ever pairs
-		entries that already matched on 'space_id' - so it always overrides '_RESOLUTION_DEFAULTS'
-		to 'reassign_rooms' (developer feedback 2026-08-05: picking a room is the actual fix for a
+		Unlike screen 5's own external conflicts, EVERY 'plain_conflict' pair found by
+		'_find_internal_conflicts' is a genuine same-room clash - it only ever pairs entries that
+		already matched on 'space_id' - so it always overrides '_RESOLUTION_DEFAULTS' to
+		'reassign_rooms' (developer feedback 2026-08-05: picking a room is the actual fix for a
 		real room conflict, not an afterthought behind 'prevail_left'/'prevail_right'), with
 		'left_space_id'/'right_space_id' pre-filled with the colliding room (the group's own
 		currently-assigned classroom - the same value on both sides, since that's exactly why they
-		collided in the first place) so they're ready the moment 'reassign_rooms' is picked. A
-		'self_conflict' pair never gets a room pre-fill - reassigning a room fixes nothing when the
-		real problem is one teacher needed in two places at once, not a shared room (see
+		collided in the first place) so they're ready the moment 'reassign_rooms' is picked.
+		'co_teaching_eligible'/'join_session' pairs never get a room pre-fill - both default to
+		'co_teaching' (keep both entries as-is), so there's nothing to reassign. A 'self_conflict'
+		pair never gets one either, for a different reason: reassigning a room fixes nothing when
+		the real problem is one teacher needed in two places at once, not a shared room (see
 		'_resolution_is_valid's own 'allowed_by_kind', which excludes 'reassign_rooms' for this
 		kind entirely)."""
 		commands = []
@@ -1210,8 +1241,10 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		for item_index_a, entry_index_a, item_index_b, entry_index_b in room_pairs:
 			entry_a = node_cache[item_index_a]['entries'][entry_index_a]
 			entry_b = node_cache[item_index_b]['entries'][entry_index_b]
-			kind = self._classify_conflict_kind(entry_a, entry_b)
-			same_room_conflict = kind in ('desdoble_eligible', 'plain_conflict')
+			employee_id_a = node_cache[item_index_a].get('employee_id')
+			same_teacher = bool(employee_id_a) and employee_id_a == node_cache[item_index_b].get('employee_id')
+			kind = self._classify_conflict_kind(entry_a, entry_b, same_teacher)
+			same_room_conflict = kind == 'plain_conflict'
 			vals = {
 				'kind': kind,
 				'resolution': 'reassign_rooms' if same_room_conflict else self._RESOLUTION_DEFAULTS[kind],
@@ -1361,7 +1394,16 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					]).filtered(lambda c, entry=entry: c.ranges_overlap(c.start_time, c.end_time, entry['hour_from'], entry['hour_to']))
 
 				self_candidates = self.env['ems.attendance_schedule']
-				if teacher:
+				# NOTE: skipped entirely in 'replace' mode - '_write_teacher_schedule' unconditionally
+				# unlinks a 'replace'-mode teacher's ENTIRE existing weekday schedule regardless of
+				# overlap, so any collision against that same teacher's own pre-existing rows is a
+				# guaranteed false positive here: whatever resolution gets picked, that DB row is
+				# getting deleted at Import time anyway. Found 2026-09-06 from real test data - a
+				# same-subject, different-group import for an already-scheduled teacher surfaced as a
+				# spurious 'Co-teaching'/'Split session' conflict against their own soon-to-be-
+				# replaced row. 'external_candidates' above is unaffected either way - 'replace' only
+				# ever touches the batch's OWN teachers' schedules, never a different teacher's.
+				if teacher and self.import_mode != 'replace':
 					self_candidates = self.env['ems.attendance_schedule'].search([
 						('weekday', '=', entry['dayofweek']),
 						('attendance_template_id.teacher_ids', 'in', teacher.id),
@@ -1386,7 +1428,15 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		weekday/time overlap, no room involved at all) - reassigning rooms fixes nothing there (the
 		same teacher still can't be in two places at once regardless of which rooms are picked), so
 		that sub-case keeps the older 'prevail_left' default and no room pre-fill, exactly as before
-		this default changed for the genuine-room-clash case."""
+		this default changed for the genuine-room-clash case.
+
+		'same_teacher' (needed by '_classify_conflict_kind' to tell a 'join_session' apart from a
+		merely-coincidental 'plain_conflict') is recomputed here rather than threaded through
+		'_find_external_conflicts' - by construction, every 'external_candidates' triple has a
+		DIFFERENT teacher (that search explicitly excludes every teacher already in this batch) and
+		every 'self_candidates' triple has the SAME teacher (matched on that teacher's own
+		'hr.employee' id), but both searches are merged into one result list before this point, so
+		the flag is simplest to re-derive directly."""
 		commands = []
 		for item_index, entry_index, candidate in self._find_external_conflicts(node_cache):
 			entry = node_cache[item_index]['entries'][entry_index]
@@ -1394,7 +1444,9 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				'subject_id': candidate.attendance_template_id.subject_id.id,
 				'group_ids': candidate.attendance_template_id.group_ids.ids,
 			}
-			kind = self._classify_conflict_kind(entry, candidate_entry)
+			teacher = self._resolve_teacher_for_classification(node_cache[item_index])
+			same_teacher = bool(teacher) and teacher.id in candidate.attendance_template_id.teacher_ids.ids
+			kind = self._classify_conflict_kind(entry, candidate_entry, same_teacher)
 			space_id = self._entry_default_space_id(entry)
 			same_room_conflict = kind == 'plain_conflict' and candidate.space_id.id == space_id
 			vals = {
@@ -1407,7 +1459,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				'right_schedule_id': candidate.id,
 				'right_label': self._external_conflict_label(candidate),
 			}
-			if kind == 'desdoble_eligible' or same_room_conflict:
+			if same_room_conflict:
 				vals['left_space_id'] = space_id
 				vals['right_space_id'] = space_id
 			commands.append((0, 0, vals))
@@ -1656,12 +1708,25 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		# the safety net for the rare case where the DB changed after that screen ran (e.g. a
 		# concurrent edit) - a genuine race, not the normal path, so still a hard stop rather than a
 		# silent re-resolution.
-		self_conflicts = self.env['ems.attendance_template'].find_self_conflicts(teacher_entries)
-		if self_conflicts:
-			raise ValidationError(_(
-				"This teacher already has an overlapping session for a different subject/group - "
-				"fix the schedule conflict and try again: %s"
-			) % "; ".join(self._conflict_lines(self_conflicts)))
+		#
+		# Skipped entirely in 'replace' mode (2026-09-06, found from a real import failing here) -
+		# 'find_self_conflicts' reads 'ems.attendance_schedule', which is only brought in sync with
+		# the calendar (already correctly rewritten by '_write_teacher_schedule' above, for every
+		# teacher in this batch) by 'sync_from_schedule_batch' further BELOW, not yet run at this
+		# point. In 'replace' mode this means any hit here is a guaranteed false positive: a stale
+		# 'ems.attendance_schedule' row for a slot the calendar write already dropped, not yet
+		# reflected because the sync that would clean it up hasn't executed yet - exactly the same
+		# root cause already fixed for the interactive 'db_conflicts' screen's own 'self_candidates'
+		# search (see '_find_external_conflicts'). In 'combine' mode a hit here can still be genuine
+		# (nothing was removed, so two real overlapping imports for the same teacher truly coexist),
+		# so the check stays active there.
+		if self.import_mode != 'replace':
+			self_conflicts = self.env['ems.attendance_template'].find_self_conflicts(teacher_entries)
+			if self_conflicts:
+				raise ValidationError(_(
+					"This teacher already has an overlapping session for a different subject/group - "
+					"fix the schedule conflict and try again: %s"
+				) % "; ".join(self._conflict_lines(self_conflicts)))
 
 		# NOTE: the template/teaching sync itself reads each teacher's CALENDAR (just written
 		# above), not 'teacher_entries' (built from the raw per-node parse) - '_write_teacher_
@@ -1717,6 +1782,25 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		pattern = re.compile(r"^%s\d+[A-Za-z]$" % re.escape(acro))
 		matches = candidates.filtered(lambda group: pattern.match(group.name or ""))
 		return matches if len(matches) == 1 else self.env["ems.group"]
+
+	def _resolve_subject_code(self, code, groups):
+		"""Resolve one '<Subject name="...">' raw code into an 'ems.subject', disambiguating by
+		'groups' (this entry's own already-resolved groups) when more than one subject shares the
+		code - the same official code can legitimately be reused across cycles with genuinely
+		different content (see 'ems.subject._check_code_unique_per_study'). Returns the single
+		match directly when there is no ambiguity at all (the common case). When there is,
+		narrows to the subject(s) taught in 'groups' own study and accepts the result only if
+		that leaves exactly one - same "don't guess an ambiguous match" rule as
+		'_resolve_group_name's prefix heuristic; an unresolved ambiguity is reported by the
+		caller as the same 'not found' error already shown for a genuinely unknown code, since
+		either way the import can't proceed without the admin's own fix."""
+		candidates = self.env["ems.subject"].search([("code", "=", code)])
+		if len(candidates) <= 1:
+			return candidates
+		studies = groups.mapped('study_id')
+		matches = candidates.filtered(lambda subject: subject.study_ids & studies) if studies \
+			else self.env["ems.subject"]
+		return matches if len(matches) == 1 else self.env["ems.subject"]
 
 	def _finalize_pending_groups(self, entry, name_to_group):
 		"""Substitutes 'entry's still-unresolved 'pending_group_names' (see '_parse_schedule_entries')
@@ -1801,6 +1885,9 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					"hour_to": None,
 				}
 
+				subject_code = None
+				non_teaching_type = None
+				space_code = None
 				for content in hourNode:
 					# NOTE: 'NonTeaching' is only kept for backward compatibility with older planner
 					# exports — the current external app sends non-teaching hours as a 'Subject' node
@@ -1810,30 +1897,56 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 						code = content.attrib['name'].split(' ')[0]
 						if code in non_teaching_items:
 							non_teaching_type = non_teaching_items[code]
-							new_entry["name"] = "%s: %s" % (code, non_teaching_type.name)
-							new_entry["subject_id"] = False
-							new_entry["group_ids"] = [(6, 0, [])]
-							new_entry["non_teaching"] = non_teaching_type.id
 						else:
-							subject = self.env["ems.subject"].search([("code", "=", code)])
-							if not subject.id: raise ValidationError("Subject with code '%s' not found." % code)
-
-							new_entry["name"] = "%s: %s" % (subject.acronym, subject.name)
-							new_entry["subject_id"] = subject.id
-							new_entry["non_teaching"] = False
-
+							subject_code = code
 					elif content.tag == 'Students':
 						acronyms.append(content.attrib['name'])
+					elif content.tag == 'Space':
+						space_code = content.attrib['name']
 
-				if len(acronyms) > 0:
-					groups = self.env["ems.group"]
-					pending_names = []
-					for full_name in acronyms:
-						group = self._resolve_group_name(full_name)
-						if group:
-							groups |= group
-						else:
-							pending_names.append(full_name)
+				# NOTE: groups are resolved BEFORE the subject code, even though 'Students' can come
+				# after 'Subject' in the XML - '_resolve_subject_code' needs the entry's own groups
+				# to disambiguate a code shared by more than one subject (see
+				# 'ems.subject._check_code_unique_per_study'), which their study alone can tell apart.
+				groups = self.env["ems.group"]
+				pending_names = []
+				for full_name in acronyms:
+					group = self._resolve_group_name(full_name)
+					if group:
+						groups |= group
+					else:
+						pending_names.append(full_name)
+
+				if non_teaching_type:
+					new_entry["name"] = "%s: %s" % (non_teaching_type.code, non_teaching_type.name)
+					new_entry["subject_id"] = False
+					new_entry["group_ids"] = [(6, 0, [])]
+					new_entry["non_teaching"] = non_teaching_type.id
+				elif subject_code:
+					subject = self._resolve_subject_code(subject_code, groups)
+					if not subject:
+						raise ValidationError(_("Subject with code '%s' not found.") % subject_code)
+					new_entry["name"] = "%s: %s" % (subject.acronym, subject.name)
+					new_entry["subject_id"] = subject.id
+					new_entry["non_teaching"] = False
+
+				# NOTE: an explicit '<Space name="...">' overrides the group's own default room for
+				# THIS entry only (see '_entry_default_space_id') - added 2026-09-06 (developer
+				# feedback, live-debugging a real merge-mode import): some groups share their default
+				# classroom because they normally attend together, but occasionally split ("desdoblen")
+				# into two physical rooms for a specific session - the group's own permanent 'space_id'
+				# must stay the shared one, so the override has to live per-entry, in the file, instead.
+				# 'entry.get("space_id", space_id)' already takes exactly this priority everywhere the
+				# room actually gets WRITTEN (see 'ems.attendance_template._schedule_line_vals's own
+				# docstring, built earlier for the wizard's "Reassign rooms" resolution) - this is the
+				# new READ side of that same, already-existing mechanism, not a new one.
+				if space_code:
+					space = self.env['ems.space'].search([('code', '=', space_code)], limit=1)
+					if not space:
+						raise ValidationError(_("Classroom with code '%s' not found.") % space_code)
+					new_entry["space_id"] = space.id
+
+				if acronyms:
 					new_entry["group_ids"] = [(6, 0, groups.ids)]
 					if pending_names:
 						# NOTE: deferred to the 'groups' step's own resolution screen (see
@@ -1981,7 +2094,7 @@ class ems_working_schedules_import_wizard_conflict_mixin(models.AbstractModel):
 	# 'group_line.raw_name'/'teacher_line.raw_identifier'.
 	kind = fields.Selection([
 		('co_teaching_eligible', "Co-teaching"),
-		('desdoble_eligible', "Split session"),
+		('join_session', "Join session"),
 		('plain_conflict', "Room conflict"),
 		('self_conflict', "Same teacher, different room"),
 	], string="Conflict", required=True, readonly=True)
@@ -2003,7 +2116,7 @@ class ems_working_schedules_import_wizard_conflict_mixin(models.AbstractModel):
 		('reassign_rooms', "Reassign rooms"),
 	], string="Resolution", required=True)
 	# NOTE: only relevant when 'resolution' is 'reassign_rooms' - pre-filled with the colliding room
-	# for every desdoble-eligible line regardless of its current resolution, so they're ready the
+	# for every 'plain_conflict' line regardless of its current resolution, so they're ready the
 	# moment "reassign_rooms" is picked.
 	left_space_id = fields.Many2one(string="Left classroom", comodel_name="ems.space")
 	right_space_id = fields.Many2one(string="Right classroom", comodel_name="ems.space")
@@ -2012,7 +2125,7 @@ class ems_working_schedules_import_wizard_conflict_mixin(models.AbstractModel):
 		self.ensure_one()
 		allowed_by_kind = {
 			'co_teaching_eligible': {'co_teaching', 'prevail_left', 'prevail_right'},
-			'desdoble_eligible': {'reassign_rooms', 'prevail_left', 'prevail_right'},
+			'join_session': {'co_teaching', 'prevail_left', 'prevail_right'},
 			'plain_conflict': {'reassign_rooms', 'prevail_left', 'prevail_right'},
 			'self_conflict': {'prevail_left', 'prevail_right'},
 		}
@@ -2040,6 +2153,22 @@ class ems_working_schedules_import_wizard_external_conflict_line(models.Transien
 	_name = "ems.working_schedules_import_wizard.external_conflict_line"
 	_inherit = ["ems.working_schedules_import_wizard.conflict_mixin"]
 	_description = "Working schedules import wizard: new entry vs. already-active DB schedule collision line."
+
+	# NOTE: overrides the mixin's own generic "Left prevails"/"Right prevails" labels - unlike
+	# 'internal_conflict_line' (both sides are file entries, so left/right is genuinely symmetric),
+	# here 'left' is ALWAYS the new file entry and 'right' is ALWAYS the already-persisted DB
+	# session (see 'left_item_index'/'right_schedule_id' below), so "New prevails"/"Old prevails" is
+	# clearer - developer feedback 2026-09-06. Same technical values, only the label text changes;
+	# this is what '_conflict_detail_line's own '_selection_label()' reads for the "Overall summary"
+	# screen. The interactive wizard screen itself ('ems_grouped_conflict_lines' widget) never reads
+	# this field's own labels at all - it renders its own hardcoded strings client-side (see
+	# 'grouped_conflict_lines_field.js's 'resolutionLabels'), kept in sync with this by hand.
+	resolution = fields.Selection([
+		('co_teaching', "Confirm"),
+		('prevail_left', "New prevails"),
+		('prevail_right', "Old prevails"),
+		('reassign_rooms', "Reassign rooms"),
+	], string="Resolution", required=True)
 
 	wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.working_schedules_import_wizard", required=True, ondelete="cascade")
 	# NOTE: the LEFT side is a new entry from this import - positional reference into node_cache,

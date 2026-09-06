@@ -7,6 +7,26 @@ import { registry } from "@web/core/registry";
 // clicks through the student-only tabs to confirm none of them crash on render, then
 // exercises the "Add contact" relation wizard end-to-end (ems.contact.relation.wizard),
 // which had zero coverage before this pass.
+//
+// A plain declarative `run: "click"` on an x2many "Add a line" link is occasionally
+// swallowed here with no visible effect and no console error - the same flakiness
+// documented and fixed the same way in content_tour.js/withdrawal_tour.js/outcome_tour.js/
+// criteria_tour.js: retry the click, with a real delay between attempts.
+function addLineRetrying(widgetSelector) {
+    return {
+        trigger: `${widgetSelector} a:contains('Add a line')`,
+        content: `Add a new row in ${widgetSelector}, retrying the click until it takes`,
+        run: async () => {
+            const widget = document.querySelector(widgetSelector);
+            for (let attempt = 0; attempt < 20; attempt++) {
+                if (widget.querySelector(".o_selected_row")) break;
+                widget.querySelector("a")?.click();
+                await new Promise((resolve) => setTimeout(resolve, 300));
+            }
+        },
+    };
+}
+
 registry.category("web_tour.tours").add("ems_contact_tabs_and_relation_wizard", {
     test: true,
     url: "/odoo/action-ems.action_student_kanban",
@@ -50,6 +70,38 @@ registry.category("web_tour.tours").add("ems_contact_tabs_and_relation_wizard", 
             trigger: ".o_form_view .o_notebook .nav-link:contains('Studies')",
             content: "Open the Studies tab",
             run: "click",
+        },
+        addLineRetrying(".o_field_widget[name='enrollment_ids']"),
+        {
+            trigger: ".o_field_widget[name='enrollment_ids'] .o_selected_row [name='subject_id'] input",
+            content: "Pick the subject for the new enrollment line",
+            run: "edit Test Subject (Contact Tour)",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-menu li:contains('Test Subject (Contact Tour)')",
+            content: "Select the subject",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='enrollment_ids'] .o_selected_row [name='group_id'] input",
+            content: "REGRESSION CHECK: pick a reinforcement group as the teaching group - the view's "
+                + "domain used to only allow groups matching the student's own study, which a "
+                + "reinforcement group (no study by design) could never satisfy",
+            run: "edit Test Reinforcement Group (Contact Tour)",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-menu li:contains('Test Reinforcement Group (Contact Tour)')",
+            content: "Select the reinforcement group",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_button_save",
+            content: "Save the student with the new subject enrollment",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='enrollment_ids'] .o_data_row td[name='group_id']:contains('Test Reinforcement Group (Contact Tour)')",
+            content: "The enrollment line persisted with the reinforcement group as its teaching group",
         },
         {
             trigger: ".o_form_view .o_notebook .nav-link:contains('Secretary')",

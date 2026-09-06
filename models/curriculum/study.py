@@ -48,6 +48,17 @@ class EmsStudy(models.Model):
         compute='_compute_uses_enrollment_flow',
         search='_search_uses_enrollment_flow')
 
+    @api.constrains('subject_ids')
+    def _check_subject_codes_unique_per_study(self):
+        """Editing 'subject_ids' from this side (the study's own 'Subjects' tab) writes the
+        exact same many2many relation as 'ems.subject.study_ids', but Odoo only re-validates
+        the model that actually received the write() call - a real code conflict introduced
+        from here would otherwise silently pass (confirmed empirically 2026-09-06:
+        'ems.subject._check_code_unique_per_study' does NOT fire on its own when a study's
+        subjects are edited from here). Delegates to that same method - on the subjects that
+        just changed - instead of duplicating its logic."""
+        self.subject_ids._check_code_unique_per_study()
+
     @api.depends('acronym', 'name')
     def _compute_display_name(self):
         for study in self:

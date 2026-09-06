@@ -628,7 +628,11 @@ class EmsAttendanceTemplate(models.Model):
 		only (2026-09-02) - the normal path already resolves this same kind of clash interactively,
 		earlier, on the 'db_conflicts' screen (`_find_external_conflicts`'s own 'self_candidates'
 		branch, defaulting to the new import winning); this only ever fires for a genuine race (the
-		DB changed after that screen ran), not the everyday case.
+		DB changed after that screen ran), not the everyday case. **Only called in 'combine' mode**
+		(2026-09-06) - in 'replace' mode this method's own read of 'ems.attendance_schedule' is
+		guaranteed stale at this point in the flow (not yet brought in sync with the calendar write
+		that already happened), so any hit would be a false positive, not a genuine race - see the
+		call site's own comment in '_apply_import'.
 
 		Note: this only catches conflicts against already-written DB data, i.e. across separate
 		imports - it does not catch two overlapping entries for the same teacher within the single

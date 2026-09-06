@@ -81,8 +81,10 @@ id,code,acronym,name,internal_hours,external_hours,ects,is_tutorship
 "ems.subject_3159","3159","MP 3159","Itinerari personal per a l’ocupabilitat",99,99,0,false
 "ems.subject_3001","3001","MP 3001","Tractament informàtic de dades",132,53,0,false
 "ems.subject_3002","3002","MP 3002","Aplicacions bàsiques d’ofimàtica",132,66,0,false
-"ems.subject_3003","3003","MP 3003","Tècniques administratives bàsiques",198,99,0,false
-"ems.subject_3004","3004","MP 3004","Arxiu i comunicació",132,66,0,false
+"ems.subject_3003_sa","3003","MP 3003 SA","Tècniques administratives bàsiques",198,99,0,false
+"ems.subject_3004_sa","3004","MP 3004 SA","Arxiu i comunicació",132,66,0,false
+"ems.subject_3003_pfi","3003","MP 3003 AO","Tècniques administratives bàsiques",157,140,0,false
+"ems.subject_3004_pfi","3004","MP 3004 AO","Arxiu i comunicació",138,60,0,false
 "ems.subject_3005","3005","MP 3005","Atenció al client",99,99,0,false
 "ems.subject_3006","3006","MP 3006","Preparació de comandes i venda de productes",66,33,0,false
 "ems.subject_3160","3160","MP 3160","Projecte intermodular d'aprenentatge col·laboratiu",99,99,0,false

@@ -12630,3 +12630,9 @@ msgstr ""
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "Subject with code '%s' not found."
 msgstr "No s'ha trobat cap assignatura amb el codi '%s'."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/working_schedule.py:0
+msgid "Classroom with code '%s' not found."
+msgstr "No s'ha trobat cap aula amb el codi '%s'."

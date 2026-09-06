@@ -1022,10 +1022,15 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		return "%02d:%02d" % (hour, minutes)
 
 	def _entry_default_space_id(self, entry):
-		"""The classroom an entry would use absent any explicit override - the SAME "first group
-		wins" convention already used throughout this file (e.g. 'ems_working_schedule_assignation.
-		create()'). A non-teaching entry, or one whose group has no classroom, has none - callers
-		skip it (that gap is caught elsewhere, see '_groups_without_space')."""
+		"""The classroom an entry would actually use: its own explicit '<Space>' override if the
+		file provided one (see '_parse_schedule_entries') - added 2026-09-06 so a group that
+		occasionally splits into two rooms doesn't have to fight its own permanent, shared default -
+		otherwise the SAME "first group wins" convention already used throughout this file (e.g.
+		'ems_working_schedule_assignation.create()'). A non-teaching entry, or one whose group has
+		no classroom, has none - callers skip it (that gap is caught elsewhere, see
+		'_groups_without_space')."""
+		if entry.get('space_id'):
+			return entry['space_id']
 		group_ids = entry.get('group_ids')
 		if not group_ids:
 			return False
@@ -1882,6 +1887,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 				subject_code = None
 				non_teaching_type = None
+				space_code = None
 				for content in hourNode:
 					# NOTE: 'NonTeaching' is only kept for backward compatibility with older planner
 					# exports — the current external app sends non-teaching hours as a 'Subject' node
@@ -1895,6 +1901,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 							subject_code = code
 					elif content.tag == 'Students':
 						acronyms.append(content.attrib['name'])
+					elif content.tag == 'Space':
+						space_code = content.attrib['name']
 
 				# NOTE: groups are resolved BEFORE the subject code, even though 'Students' can come
 				# after 'Subject' in the XML - '_resolve_subject_code' needs the entry's own groups
@@ -1921,6 +1929,22 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					new_entry["name"] = "%s: %s" % (subject.acronym, subject.name)
 					new_entry["subject_id"] = subject.id
 					new_entry["non_teaching"] = False
+
+				# NOTE: an explicit '<Space name="...">' overrides the group's own default room for
+				# THIS entry only (see '_entry_default_space_id') - added 2026-09-06 (developer
+				# feedback, live-debugging a real merge-mode import): some groups share their default
+				# classroom because they normally attend together, but occasionally split ("desdoblen")
+				# into two physical rooms for a specific session - the group's own permanent 'space_id'
+				# must stay the shared one, so the override has to live per-entry, in the file, instead.
+				# 'entry.get("space_id", space_id)' already takes exactly this priority everywhere the
+				# room actually gets WRITTEN (see 'ems.attendance_template._schedule_line_vals's own
+				# docstring, built earlier for the wizard's "Reassign rooms" resolution) - this is the
+				# new READ side of that same, already-existing mechanism, not a new one.
+				if space_code:
+					space = self.env['ems.space'].search([('code', '=', space_code)], limit=1)
+					if not space:
+						raise ValidationError(_("Classroom with code '%s' not found.") % space_code)
+					new_entry["space_id"] = space.id
 
 				if acronyms:
 					new_entry["group_ids"] = [(6, 0, groups.ids)]

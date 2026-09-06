@@ -388,7 +388,24 @@ all at once). So by the time a study's groups are due for a fresh import, there 
 nothing active left to reconcile against for that scope — an active overlap found during import
 is always either legitimate co-teaching or a real problem, never something to silently resolve.
 
-Parses a planner XML export (`<TeacherNode name="email ...">` → `<DayNode name="N ...">` → `<HourNode name="N HH:MM">` → `<Subject>`/`<NonTeaching>`/`<Students>` children) via `_parse_schedule_entries()`, writes the calendar (`_write_teacher_schedule`, see "`import_mode`" below), then calls `ems.teaching.sync_from_schedule`/`ems.attendance_template.sync_from_schedule_batch` reading straight off each affected teacher's calendar — the SAME entry points the Schedule tab's own live-edit grid widget uses (unified 2026-09-02, see below; there used to be a separate, importer-only pair here).
+Parses a planner XML export (`<TeacherNode name="email ...">` → `<DayNode name="N ...">` → `<HourNode name="N HH:MM">` → `<Subject>`/`<NonTeaching>`/`<Students>`/optional `<Space>` children) via `_parse_schedule_entries()`, writes the calendar (`_write_teacher_schedule`, see "`import_mode`" below), then calls `ems.teaching.sync_from_schedule`/`ems.attendance_template.sync_from_schedule_batch` reading straight off each affected teacher's calendar — the SAME entry points the Schedule tab's own live-edit grid widget uses (unified 2026-09-02, see below; there used to be a separate, importer-only pair here).
+
+**Explicit per-entry classroom override (`<Space name="<ems.space code>">`, added 2026-09-06):**
+found live-debugging a real merge-mode import - some groups share their own permanent `space_id`
+because they normally attend as one class, but occasionally split ("desdoblen") into two physical
+rooms for a specific session. The group's own `space_id` has to stay the shared default (it's
+correct for every other session), so a one-off room for a specific hour has to live in the file
+itself, per entry, not on the group. `_parse_schedule_entries` reads an optional `<Space>` sibling
+of `<Subject>`/`<Students>` inside `<Hour>`, resolves its `name` against `ems.space.code` (raising
+a clear `ValidationError` immediately if not found, same treatment as an unresolvable `<Subject>`
+code), and sets it as the entry's own `space_id`. Nothing new needed on the write side: an entry
+carrying its own `space_id` already took priority over the group-derived default everywhere a
+room actually gets used or written - `_entry_default_space_id` (conflict detection, room-conflict
+line pre-fill) and `ems.attendance_template._schedule_line_vals` (the final schedule sync,
+originally built for the wizard's own "Reassign rooms" resolution) - this is the new READ side of
+that same, already-existing preference, not a new mechanism. Two groups that would otherwise
+collide on their shared default room simply stop colliding at all once both sides carry their own
+distinct `<Space>` override, since `_find_internal_conflicts`'s room-based slot key differs.
 
 ### `import_mode`: combine vs. replace (2026-09-02, see `plans/calendar_pipeline_simplification.md`)
 

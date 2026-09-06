@@ -1754,6 +1754,67 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertFalse(line.right_space_id)
         self.assertFalse(wizard.continue_disabled)
 
+    def test_import_explicit_space_override_prevents_internal_conflict(self):
+        # New 2026-09-06 (developer feedback, live-debugging a real merge-mode import):
+        # 'self.group'/'self.single_group' share the SAME default room ('self.space') because they
+        # normally attend together - but when they genuinely split into two different rooms for a
+        # specific session, the file can now say so explicitly via '<Space name="...">' per entry
+        # (see '_parse_schedule_entries'), which '_entry_default_space_id' then prefers over the
+        # group's own shared default. With both sides carrying their own distinct override, this
+        # pair must never even be classified as a room conflict in the first place.
+        other_space = self.env['ems.space'].create({
+            'code': 'TWIW-B', 'name': 'Test Space B (Import Wizard)',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        second_teacher = self._second_teacher()
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_two_teachers_same_slot(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/><Space name="{self.space.code}"/>',
+                second_teacher.work_email,
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.single_group.name} Group"/><Space name="{other_space.code}"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
+        wizard.action_continue()  # teachers -> internal_conflicts
+
+        self.assertFalse(wizard.internal_conflict_line_ids)
+
+    def test_import_explicit_space_override_invalid_code_raises(self):
+        with self.assertRaises(ValidationError):
+            self._import({
+                'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                    'test.wizard.teacher.import.wizard@example.com Someone',
+                    f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                    f'<Students name="{self.group.name} Group"/>'
+                    '<Space name="TWIW-DOES-NOT-EXIST"/>',
+                )),
+            })
+
+    def test_import_explicit_space_override_writes_that_room(self):
+        other_space = self.env['ems.space'].create({
+            'code': 'TWIW-C', 'name': 'Test Space C (Import Wizard)',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        self._import({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>'
+                f'<Space name="{other_space.code}"/>',
+            )),
+        })
+        template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ])
+        self.assertEqual(template.attendance_schedule_ids.space_id, other_space)
+
     def test_continue_from_teachers_builds_plain_conflict_line_for_different_subject(self):
         second_teacher = self._second_teacher()
         wizard = self.env['ems.working_schedules_import_wizard'].create({

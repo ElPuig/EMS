@@ -28,6 +28,16 @@
   and fixed at the final import step itself (not just the review screen), where a real batch import
   in "replace" mode could still fail with a spurious overlap error naming several unrelated teachers.
 
+## Departed teachers no longer appear on the Guard Duty Board (or other cross-teacher schedule screens):
+- Archiving a teacher directly (a mid-course departure that never goes through a course
+  transition) left their own personal calendar - and every schedule row still on it, including
+  guard-duty slots - active indefinitely. This is a distinct gap from the one already fixed for
+  the course-transition rollover path: that fix cascaded a rolled-over calendar's own archival
+  down to its remaining rows, but nothing archived the calendar itself when a teacher is archived
+  directly instead. Fixed by cascading a teacher's archive/unarchive action to their own personal
+  calendar (never a shared framework or another teacher's calendar). Existing affected data (a
+  real departed teacher still showing on the Guard Duty Board) backfilled via migration.
+
 ## Manual group edits (rename, classroom reassignment) no longer reverted by the next upgrade:
 - `data/custom/ems.group.csv` reseeds every listed column (course, acronym, level, study,
   classroom) on every upgrade, since a plain CSV can never carry `noupdate=True` in this Odoo

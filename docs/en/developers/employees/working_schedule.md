@@ -137,6 +137,25 @@ sequenceDiagram
 - **`create()`** — every new `employee_type='teacher'` gets their **own** `resource.calendar` (never shared, never the company's own calendar — `resource.mixin`'s client-side default pre-fills `resource_calendar_id` with the company's calendar before `create()` even runs server-side, so that value can't be used to detect "nothing was chosen"; it's unconditionally overridden), seeded from `company.default_schedule_framework_id` (required field, see Settings below). Passes `employee_id`/`course_id` (the new employee, `company.current_course_id`) to the calendar's own `create()`, which derives `name` from them (see above) — no name string built here by hand.
 - **`write()`** — renaming an employee calls the calendar's own `_refresh_personal_name()`, which rebuilds `name` from its `employee_id`/`course_id` (or the reverse-search fallback for a legacy calendar) and no-ops for a framework calendar.
 - **`unlink()`** — deletes the employee's personal calendar (cascading its attendance rows), unless it's a framework, still referenced by another employee, or is the company's own base calendar.
+- **`action_archive()`/`action_unarchive()`** (added 2026-09-06) — cascades to the employee's own
+  personal calendar (`resource_calendar_id.employee_id == employee`; never a framework or a
+  calendar shared with another employee, same guard as `unlink()` above). Archiving calls the
+  calendar's own `action_archive()`, reusing its existing cascade to `attendance_ids` (see the
+  "Model extensions" section above) for free. Unarchiving only flips the calendar itself back to
+  active — it deliberately does **not** reactivate `attendance_ids`, since some of those rows
+  could have gone inactive earlier for an unrelated reason (e.g. superseded by a later room
+  change via `_write_or_new_version()`); a returning teacher gets a fresh schedule
+  import/assignment regardless. Fixes a real gap distinct from the course-transition-rollover
+  cascade (`ems_working_schedule.action_archive()`, 2026-09-01/02, see above): archiving a
+  teacher **directly** — a mid-course departure, never going through `_apply_calendar_rollover()`
+  — left their calendar, and every row still on it, active indefinitely, keeping them visible on
+  any screen that aggregates across every teacher's calendar (e.g. the Guard Duty Board) rather
+  than going through this one employee's own `resource_calendar_id`. Found via a real departed
+  teacher (David Tomás) still showing on the Guard Duty Board; pre-existing affected data backfilled
+  by `migrations/18.0.0.23.4/post-migrate.py`'s `_archive_departed_teacher_calendars` (ORM-based,
+  not raw SQL, so it reuses the calendar's own cascade — had to live in **post**-migrate, not
+  pre-migrate, since `resource.calendar.employee_id` isn't yet a resolvable ORM field from within
+  pre-migrate's own environment, confirmed empirically).
 
 **Backfill for employees that predate the `create()` auto-calendar (2026-08-11).** The override
 above only started running with commit `bc29e04b` (`18.0.0.20.0`, 2026-07-12) — any
@@ -175,7 +194,10 @@ UI. `views/community/working_schedules/list.xml` also gained the same two fields
 out) broken**: the widget is only ever bound to `hr.employee.schedule_attendance_ids` (the
 employee's *current* calendar) — the only realistic way to see it render an archived one is an
 archived *employee* whose calendar was never rolled over (a course transition rolls calendars,
-leaving mid-course doesn't). `employee_archived_reason_tour.js`/`test_employee_archived_reason_tour.py`
+leaving mid-course doesn't). At the time this was written, that was still a live scenario — since
+2026-09-06 `hr.employee.action_archive()` cascades to the employee's own calendar (see "Employee
+lifecycle hooks" above), so this widget now renders an *archived* calendar precisely in this case
+by design, not as a leftover gap. `employee_archived_reason_tour.js`/`test_employee_archived_reason_tour.py`
 extended to seed a real attendance row and open the Schedule tab — passed on the first try, no
 fix needed.
 

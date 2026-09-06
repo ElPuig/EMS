@@ -1,3 +1,23 @@
+# What's new:
+
+## MP 3003/3004 can now mean different things in different cycles (CFGB vs PFI):
+- The same official module code can be shared by two genuinely different subjects when they
+  belong to different studies with different curricula - e.g. MP 3003 ("Tècniques
+  administratives bàsiques") has different learning outcomes and a different internal/external
+  hour split in the "Serveis Administratius" CFGB than in the "Auxiliar d'oficina" PFI. `ems.
+  subject.code` used to be globally unique, which made this impossible without inventing a fake
+  code suffix that would then no longer match the real code used by grade imports or a
+  convalidation request. Replaced the global uniqueness rule with a narrower one: a duplicate
+  code is only a real conflict when the two subjects could actually be confused for one another
+  (either has no study assigned yet, or they share a study) - a code can be reused freely across
+  two subjects that belong to entirely disjoint studies. Added the missing PFI AO subject data
+  for MP 3003/3004 (with their own learning outcomes and hours, per the official curriculum) to
+  the "Auxiliar d'oficina" cycle, which previously had no professional-module data at all for
+  them. The teacher-schedule XML importer, which used to assume a module code always resolves to
+  exactly one subject, now disambiguates by the entry's own group's study when a code is shared,
+  the same way every other ambiguous match in that importer already refuses to guess instead of
+  picking one arbitrarily.
+
 # Fixes:
 
 ## Working schedules import no longer shows false conflicts when replacing a teacher's schedule:

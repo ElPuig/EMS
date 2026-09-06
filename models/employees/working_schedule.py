@@ -1740,6 +1740,25 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		matches = candidates.filtered(lambda group: pattern.match(group.name or ""))
 		return matches if len(matches) == 1 else self.env["ems.group"]
 
+	def _resolve_subject_code(self, code, groups):
+		"""Resolve one '<Subject name="...">' raw code into an 'ems.subject', disambiguating by
+		'groups' (this entry's own already-resolved groups) when more than one subject shares the
+		code - the same official code can legitimately be reused across cycles with genuinely
+		different content (see 'ems.subject._check_code_unique_per_study'). Returns the single
+		match directly when there is no ambiguity at all (the common case). When there is,
+		narrows to the subject(s) taught in 'groups' own study and accepts the result only if
+		that leaves exactly one - same "don't guess an ambiguous match" rule as
+		'_resolve_group_name's prefix heuristic; an unresolved ambiguity is reported by the
+		caller as the same 'not found' error already shown for a genuinely unknown code, since
+		either way the import can't proceed without the admin's own fix."""
+		candidates = self.env["ems.subject"].search([("code", "=", code)])
+		if len(candidates) <= 1:
+			return candidates
+		studies = groups.mapped('study_id')
+		matches = candidates.filtered(lambda subject: subject.study_ids & studies) if studies \
+			else self.env["ems.subject"]
+		return matches if len(matches) == 1 else self.env["ems.subject"]
+
 	def _finalize_pending_groups(self, entry, name_to_group):
 		"""Substitutes 'entry's still-unresolved 'pending_group_names' (see '_parse_schedule_entries')
 		with the picks made on the 'groups' step, using 'name_to_group' (a plain dict, raw name ->
@@ -1823,6 +1842,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					"hour_to": None,
 				}
 
+				subject_code = None
+				non_teaching_type = None
 				for content in hourNode:
 					# NOTE: 'NonTeaching' is only kept for backward compatibility with older planner
 					# exports — the current external app sends non-teaching hours as a 'Subject' node
@@ -1832,30 +1853,38 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 						code = content.attrib['name'].split(' ')[0]
 						if code in non_teaching_items:
 							non_teaching_type = non_teaching_items[code]
-							new_entry["name"] = "%s: %s" % (code, non_teaching_type.name)
-							new_entry["subject_id"] = False
-							new_entry["group_ids"] = [(6, 0, [])]
-							new_entry["non_teaching"] = non_teaching_type.id
 						else:
-							subject = self.env["ems.subject"].search([("code", "=", code)])
-							if not subject.id: raise ValidationError("Subject with code '%s' not found." % code)
-
-							new_entry["name"] = "%s: %s" % (subject.acronym, subject.name)
-							new_entry["subject_id"] = subject.id
-							new_entry["non_teaching"] = False
-
+							subject_code = code
 					elif content.tag == 'Students':
 						acronyms.append(content.attrib['name'])
 
-				if len(acronyms) > 0:
-					groups = self.env["ems.group"]
-					pending_names = []
-					for full_name in acronyms:
-						group = self._resolve_group_name(full_name)
-						if group:
-							groups |= group
-						else:
-							pending_names.append(full_name)
+				# NOTE: groups are resolved BEFORE the subject code, even though 'Students' can come
+				# after 'Subject' in the XML - '_resolve_subject_code' needs the entry's own groups
+				# to disambiguate a code shared by more than one subject (see
+				# 'ems.subject._check_code_unique_per_study'), which their study alone can tell apart.
+				groups = self.env["ems.group"]
+				pending_names = []
+				for full_name in acronyms:
+					group = self._resolve_group_name(full_name)
+					if group:
+						groups |= group
+					else:
+						pending_names.append(full_name)
+
+				if non_teaching_type:
+					new_entry["name"] = "%s: %s" % (non_teaching_type.code, non_teaching_type.name)
+					new_entry["subject_id"] = False
+					new_entry["group_ids"] = [(6, 0, [])]
+					new_entry["non_teaching"] = non_teaching_type.id
+				elif subject_code:
+					subject = self._resolve_subject_code(subject_code, groups)
+					if not subject:
+						raise ValidationError(_("Subject with code '%s' not found.") % subject_code)
+					new_entry["name"] = "%s: %s" % (subject.acronym, subject.name)
+					new_entry["subject_id"] = subject.id
+					new_entry["non_teaching"] = False
+
+				if acronyms:
 					new_entry["group_ids"] = [(6, 0, groups.ids)]
 					if pending_names:
 						# NOTE: deferred to the 'groups' step's own resolution screen (see

@@ -26,7 +26,7 @@ Al abrir el menú se muestra una lista de todas las asignaturas ordenada por có
 
 1. Haz clic en **Nuevo**.
 2. Rellena los campos obligatorios:
-   - **Código** *(obligatorio)*: Código oficial, debe ser único.
+   - **Código** *(obligatorio)*: Código oficial. Solo necesita ser único entre las asignaturas que comparten al menos un estudio — el mismo código puede reutilizarse en una asignatura que pertenezca a un estudio totalmente distinto (por ejemplo, un mismo código oficial que significa cosas distintas, con resultados de aprendizaje y horas distintas, en dos ciclos no relacionados). Guardar falla con "¡Código duplicado!" si el código ya lo usa otra asignatura que comparte un estudio con esta (o que todavía no tiene ningún estudio asignado).
    - **Acrónimo** *(obligatorio)*: Código corto que se utiliza en todo el sistema.
    - **Nombre** *(obligatorio)*: Nombre descriptivo completo.
 3. Opcionalmente, rellena:

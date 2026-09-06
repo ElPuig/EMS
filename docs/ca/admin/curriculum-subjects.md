@@ -26,7 +26,7 @@ En obrir el menú es mostra una llista de totes les assignatures ordenada per co
 
 1. Fes clic a **Nou**.
 2. Omple els camps obligatoris:
-   - **Codi** *(obligatori)*: Codi oficial, ha de ser únic.
+   - **Codi** *(obligatori)*: Codi oficial. Només cal que sigui únic entre les assignatures que comparteixen almenys un estudi — el mateix codi es pot reutilitzar en una assignatura que pertanyi a un estudi totalment diferent (per exemple, un mateix codi oficial que significa coses diferents, amb resultats d'aprenentatge i hores diferents, en dos cicles no relacionats). Desar falla amb "codi duplicat!" si el codi ja l'utilitza una altra assignatura que comparteix un estudi amb aquesta (o que encara no té cap estudi assignat).
    - **Acrònim** *(obligatori)*: Codi curt que s'utilitza a tot el sistema.
    - **Nom** *(obligatori)*: Nom descriptiu complet.
 3. Opcionalment, omple:

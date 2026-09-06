@@ -330,6 +330,40 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertEqual(attendance.subject_id, self.subject)
         self.assertEqual(attendance.group_ids, self.group)
 
+    def test_import_resolves_duplicate_subject_code_by_group_study(self):
+        # The same official code can legitimately be shared by two subjects that belong to
+        # different, disjoint studies (see ems.subject._check_code_unique_per_study - e.g. MP 3003
+        # meaning different things in a CFGB and a PFI). The parser must not just grab an
+        # arbitrary match for the code: it has to pick the one actually taught in the entry's own
+        # group's study.
+        other_study = self.env['ems.study'].create({
+            'code': 'TWIW005', 'acronym': 'TWIW5', 'name': 'Test Other Study (Import Wizard)',
+            'date': fields.Date.today(), 'deprecated': False, 'level_id': self.level.id,
+        })
+        other_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TWIW5', 'level_id': self.level.id, 'study_id': other_study.id,
+            'space_id': self.space.id,
+        })
+        duplicate_subject = self.env['ems.subject'].create({
+            'code': self.subject.code,
+            'acronym': 'TWIWDUP',
+            'name': 'Test Subject Duplicate Code (Import Wizard)',
+            'study_ids': [(6, 0, [other_study.id])],
+        })
+
+        self._import({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{other_group.name} Group"/>',
+            )),
+        })
+
+        attendance = self.teacher.resource_calendar_id.attendance_ids
+        self.assertTrue(attendance)
+        self.assertEqual(attendance.subject_id, duplicate_subject)
+        self.assertEqual(attendance.group_ids, other_group)
+
     def test_import_two_main_groups_share_one_session(self):
         # Real scenario: a level split into two official groups sharing the same classroom (a
         # "desdoblament") - distinct from a reinforcement group. The planner file lists them as two
@@ -820,6 +854,29 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
             wizard.action_continue()
 
         self.assertIn('ZZZZ', str(capture.exception))
+
+    def test_continue_from_intro_unknown_subject_code_raises_translated_message_in_catalan(self):
+        # Same pattern as test_continue_from_subjects_raises_translated_message_in_catalan: code
+        # ('_()') translations in this Odoo version are read straight from this module's own
+        # checked-in i18n/ca_ES.po at runtime, with no DB column to verify via psql - a functional
+        # check under a real 'lang' context is the only way to actually prove this message (newly
+        # wrapped in _() alongside 'ems.subject._check_code_unique_per_study') translates.
+        attachment = self.env['ir.attachment'].create({
+            'name': 'planner_unknown_subject_ca.xml',
+            'datas': self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                '<Subject name="ZZZZ Unknown subject"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            ),
+        })
+        wizard = self.env['ems.working_schedules_import_wizard'].with_context(lang='ca_ES').create({
+            'attachment_ids': [(6, 0, [attachment.id])],
+        })
+
+        with self.assertRaises(ValidationError) as capture:
+            wizard.action_continue()
+
+        self.assertIn("No s'ha trobat cap assignatura amb el codi", str(capture.exception))
         self.assertEqual(wizard.state, 'intro')
 
     def _create_self_conflict_setup(self):

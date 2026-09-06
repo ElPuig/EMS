@@ -26,7 +26,7 @@ Opening the menu shows a list of all subjects sorted by code. Each row shows the
 
 1. Click **New**.
 2. Fill in the required fields:
-   - **Code** *(required)*: Official code, must be unique.
+   - **Code** *(required)*: Official code. It only needs to be unique among subjects that share at least one study — the same code can be reused by a subject that belongs to a completely different study (e.g. the same official module code meaning different things, with different learning outcomes and hours, in two unrelated cycles). Saving fails with "duplicated code!" if the code is already used by another subject that shares a study with this one (or that has no study assigned yet).
    - **Acronym** *(required)*: Short code used across the system.
    - **Name** *(required)*: Full descriptive name.
 3. Optionally fill in:

@@ -584,6 +584,19 @@ SECOND list on this same screen, right below `group_line_ids`:
 
 ### Screen 3 — "Resolve subjects" (2026-08-11) — subject/study mismatch resolution
 
+**Code-level disambiguation added 2026-09-06:** `ems.subject.code` is no longer globally unique
+(see `ems.subject`'s own technical reference, "Code uniqueness: per-study, not global") — the
+same code can now resolve to more than one `ems.subject` row. `_parse_schedule_entries` resolves
+groups (and therefore their study) *before* the subject code for exactly this reason: its
+`_resolve_subject_code(code, groups)` helper returns the single match directly when the code
+isn't ambiguous (the common case, unchanged), and only when it is, narrows to the candidate(s)
+taught in the entry's own groups' study — same "don't guess, refuse instead" rule as
+`_resolve_group_name`'s own prefix heuristic. An ambiguity that still can't be resolved this way
+(no groups, or more than one candidate even after narrowing) falls through to the same "Subject
+with code '%s' not found" error already shown for a genuinely unknown code — this screen (built
+for a *different* problem, see below) never sees a code-level ambiguity at all, only a resolved
+subject that turns out not to be taught in its own group's study.
+
 Real error the developer hit importing a real batch: `"The subject 'MP C056: Català / Aranès
 professional' is not available in the following selected studies: AD (2024): Assistència a la
 direcció (template for group(s) AD1A, AD1B, teacher(s) Óscar Bagan)."` — `ems.attendance_template.

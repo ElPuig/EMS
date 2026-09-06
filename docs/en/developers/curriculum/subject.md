@@ -14,7 +14,7 @@
 
 | Field | Type | Required | Stored | Description |
 |-------|------|----------|--------|-------------|
-| `code` | `Char` | Yes | Yes | Official code, unique |
+| `code` | `Char` | Yes | Yes | Official code — unique per study, not globally (see below) |
 | `acronym` | `Char` | Yes | Yes | Short code |
 | `name` | `Char` | Yes | Yes | Full descriptive name |
 | `ects` | `Integer` | No | Yes | ECTS credits |
@@ -55,6 +55,49 @@ flowchart LR
     B["external_hours"] --> C
 ```
 
+### Code uniqueness: per-study, not global
+
+The official code assigned to a professional module by the education department is not
+guaranteed unique across every curriculum it's ever used in — the same code can mean two
+genuinely different subjects (different learning outcomes, different internal/external hours)
+when each belongs to a different study (e.g. MP 3003 in a CFGB vs. the same code in a PFI —
+see `ems.subject_3003` and `ems.subject_3003_pfi_ao` in `data/cat/ems.subject.csv`). A plain
+`unique(code)` SQL constraint (the model's behaviour before 2026-09-06) would force a fake
+suffix onto one of them, which would then no longer match the real code used by any external
+import or grade file, or by a convalidation request against the official curriculum.
+
+`_check_code_unique_per_study` (an `@api.constrains('code', 'study_ids')` method, replacing the
+old `_sql_constraints = [('unique_code', ...)]`) enforces a narrower rule instead: a duplicate
+code is only a real conflict when the two subjects could actually be confused for one another —
+either one of them has no study at all (nothing to disambiguate by, so treated as a genuine
+duplicate — this preserves the original behaviour for a subject not yet assigned to a study),
+or they share at least one study.
+
+```mermaid
+flowchart TD
+    A([Two subjects share the same code]) --> B{Does either have no study_ids?}
+    B -- Yes --> C[Conflict - raise 'duplicated code!']
+    B -- No --> D{Do their study_ids overlap?}
+    D -- Yes --> C
+    D -- No --> E[Allowed - different curricula, same official code]
+```
+
+Declared on `study_ids`, not just `code`, so re-validation also fires when a study is added to
+or removed from a subject via the **study's own** "Subjects" tab
+(`views/community/study/form.xml`) — that tab writes the exact same many2many relation from its
+other side, but Odoo does not automatically re-run `ems.subject`'s own constrains for that write
+direction (confirmed empirically 2026-09-06). `ems.study` therefore declares its own mirroring
+`_check_subject_codes_unique_per_study` (`@api.constrains('subject_ids')`,
+`models/curriculum/study.py`), which delegates to `ems.subject`'s method on the changed
+subjects rather than duplicating the logic.
+
+**Skipped entirely during data-file loading** (`self.env.context.get("install_mode")`, the same
+pattern already used by `ems.planning.check_ponderation`): a data-file-created subject's
+`study_ids` can only be populated by `ems.study.csv`, a separate file loaded *after*
+`ems.subject.csv` — so a brand-new subject's own `create()` always fires this constraint first,
+with no study yet. Skipping it under `install_mode` avoids a false positive on every clean
+install/upgrade; it never skips a real interactive edit through the UI.
+
 ### The `product.product` Sync (`create()` / `write()`)
 
 Every subject needs a matching `product.product` so it can be sold/invoiced through an enrolment (`sale.order`). This is fully automatic — there is no manual "create product" step for an administrator.
@@ -94,7 +137,7 @@ flowchart TD
     D --> E[Save]
     E --> F{ORM / DB validation}
     F -- missing required field --> G[Error: required field constraint]
-    F -- duplicate code --> H[Error: unique_code constraint]
+    F -- duplicate code sharing a study --> H["Error: _check_code_unique_per_study"]
     F -- valid --> I[(INSERT INTO ems_subject)]
     I --> J[Auto-create linked product.product]
     J --> K([Record created])

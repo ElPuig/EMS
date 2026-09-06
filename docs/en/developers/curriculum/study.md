@@ -20,7 +20,7 @@
 | `date` | `Date` | Yes | Yes | Release/curriculum publication date |
 | `deprecated` | `Boolean` | Yes | Yes | Marks a study as no longer offered, without deleting historical data |
 | `level_id` | `Many2one → ems.level` | No | Yes | The level this study belongs to |
-| `subject_ids` | `Many2many → ems.subject` | No | Yes | Subjects that make up this study |
+| `subject_ids` | `Many2many → ems.subject` | No | Yes | Subjects that make up this study — see "Editing `subject_ids` from here" below |
 | `follow_ids` | `One2many → ems.tracking` | No | No | Follow-up/tracking records for this study |
 | `attachment_ids` | `Many2many → ir.attachment` | No | Yes | Curriculum documents (BOE/DOGC references, guidance docs) |
 | `notes` | `Text` | No | Yes | Free-form administrative notes |
@@ -42,6 +42,18 @@ graph TD
     S -->|study_id, via contacts/enrollment| G
     G --> ST
 ```
+
+### Editing `subject_ids` from here
+
+The **Subjects** tab on this model's own form (`views/community/study/form.xml`) lets an admin
+add/remove subjects directly, writing the same many2many relation as `ems.subject.study_ids`
+from its other side. `ems.subject`'s own code-reuse rule (see `ems.subject`'s technical
+reference, "Code uniqueness: per-study, not global") must still hold after such an edit, but
+Odoo does not automatically re-run `ems.subject`'s constrains just because the relation changed
+from this side (confirmed empirically 2026-09-06). `_check_subject_codes_unique_per_study`
+(`@api.constrains('subject_ids')`) exists purely to close that gap — it delegates to
+`ems.subject._check_code_unique_per_study()` on the subjects that just changed, rather than
+duplicating the check.
 
 ### `display_name` Computation
 

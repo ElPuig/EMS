@@ -51,6 +51,82 @@ class TestSubject(TransactionCase):
         with self.assertRaises(Exception):
             self.env['ems.subject'].create({'code': 'UNIQ001', 'acronym': 'UQB', 'name': 'Second'})
 
+    def test_code_can_repeat_across_disjoint_studies(self):
+        # The same official code can mean two genuinely different subjects when each belongs to
+        # its own curriculum (e.g. MP 3003 has different learning outcomes and hours in a CFGB
+        # and in a PFI) - a plain global unique(code) would force a fake suffix on one of them.
+        study_a = self.env['ems.study'].create({
+            'code': 'DUPSTA', 'acronym': 'DSA', 'name': 'Dup Study A', 'date': '2024-09-01',
+        })
+        study_b = self.env['ems.study'].create({
+            'code': 'DUPSTB', 'acronym': 'DSB', 'name': 'Dup Study B', 'date': '2024-09-01',
+        })
+        self.env['ems.subject'].create({
+            'code': 'DUP001', 'acronym': 'DA', 'name': 'First', 'study_ids': [(6, 0, [study_a.id])],
+        })
+        second = self.env['ems.subject'].create({
+            'code': 'DUP001', 'acronym': 'DB', 'name': 'Second', 'study_ids': [(6, 0, [study_b.id])],
+        })
+        self.assertTrue(second.id)
+
+    def test_code_blocked_when_studies_overlap(self):
+        study = self.env['ems.study'].create({
+            'code': 'DUPSTC', 'acronym': 'DSC', 'name': 'Dup Study C', 'date': '2024-09-01',
+        })
+        self.env['ems.subject'].create({
+            'code': 'DUP002', 'acronym': 'DC', 'name': 'First', 'study_ids': [(6, 0, [study.id])],
+        })
+        with self.assertRaises(Exception):
+            self.env['ems.subject'].create({
+                'code': 'DUP002', 'acronym': 'DD', 'name': 'Second', 'study_ids': [(6, 0, [study.id])],
+            })
+
+    def test_code_blocked_when_other_subject_has_no_study(self):
+        study = self.env['ems.study'].create({
+            'code': 'DUPSTD', 'acronym': 'DSD', 'name': 'Dup Study D', 'date': '2024-09-01',
+        })
+        self.env['ems.subject'].create({'code': 'DUP003', 'acronym': 'DE', 'name': 'Unscoped'})
+        with self.assertRaises(Exception):
+            self.env['ems.subject'].create({
+                'code': 'DUP003', 'acronym': 'DF', 'name': 'Scoped', 'study_ids': [(6, 0, [study.id])],
+            })
+
+    def test_code_conflict_message_translates_to_catalan(self):
+        # Code ('_()') translations in this Odoo version are read straight from this module's
+        # own checked-in i18n/ca_ES.po at runtime, with no DB column to verify via psql - a
+        # functional check under a real 'lang' context is the only way to actually prove this
+        # message (moved from an SQL constraint to a Python-raised _() call) still translates.
+        study = self.env['ems.study'].with_context(lang='ca_ES').create({
+            'code': 'DUPSTG', 'acronym': 'DSG', 'name': 'Dup Study G', 'date': '2024-09-01',
+        })
+        self.env['ems.subject'].with_context(lang='ca_ES').create({
+            'code': 'DUP005', 'acronym': 'DI', 'name': 'First', 'study_ids': [(6, 0, [study.id])],
+        })
+        with self.assertRaises(Exception) as capture:
+            self.env['ems.subject'].with_context(lang='ca_ES').create({
+                'code': 'DUP005', 'acronym': 'DJ', 'name': 'Second', 'study_ids': [(6, 0, [study.id])],
+            })
+        self.assertIn('codi duplicat', str(capture.exception))
+
+    def test_code_conflict_detected_from_study_side(self):
+        # 'ems.study.subject_ids' is the same many2many relation viewed from the other side (the
+        # 'Subjects' tab on the study's own form) - editing it there must re-validate the subject's
+        # constraint just as reliably as editing 'study_ids' from the subject's own form.
+        study_e = self.env['ems.study'].create({
+            'code': 'DUPSTE', 'acronym': 'DSE', 'name': 'Dup Study E', 'date': '2024-09-01',
+        })
+        study_f = self.env['ems.study'].create({
+            'code': 'DUPSTF', 'acronym': 'DSF', 'name': 'Dup Study F', 'date': '2024-09-01',
+        })
+        self.env['ems.subject'].create({
+            'code': 'DUP004', 'acronym': 'DG', 'name': 'First', 'study_ids': [(6, 0, [study_e.id])],
+        })
+        second = self.env['ems.subject'].create({
+            'code': 'DUP004', 'acronym': 'DH', 'name': 'Second', 'study_ids': [(6, 0, [study_f.id])],
+        })
+        with self.assertRaises(Exception):
+            study_e.write({'subject_ids': [(4, second.id)]})
+
     def test_display_name_computed(self):
         subject = self.env['ems.subject'].create({
             'code': 'T05',

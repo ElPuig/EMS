@@ -103,6 +103,6 @@ The secretary model-access row (read/write/create/unlink all `0` except create) 
 |------|------|-------|
 | List/Form/Search | `views/community/enrollment/{list,form,search}.xml` | Standalone screen, admin/tutor-of-record only in practice (see `default_get` above) |
 | Menu | `views/community/enrollment/menu.xml` | `action_enrollment_tree`, "Enrollments (student x group x subject)", under Students config |
-| Embedded one2many | `views/community/contact/form.xml` (student's "Studies" area) | The real day-to-day entry point — `subject_id`'s domain excludes `inuse_subject_ids` |
+| Embedded one2many | `views/community/contact/form.xml` (student's "Studies" area) | The real day-to-day entry point — `subject_id`'s domain excludes `inuse_subject_ids`; `group_id`'s domain allows a group matching the student's own `study_id` **or** any `group_type = 'reinforcement'` group (fixed 2026-09-06 — reinforcement groups always have `study_id = False` by design, see [`group.md`](group.md), so a plain study-match domain silently excluded them entirely) |
 
 `views/communications/surveys/recipient/form.xml` embeds a **different**, unrelated model (`ems.limesurvey_enrollment`, in `models/communications/limesurvey.py`) that duplicates the same `inuse_subject_ids` filtering idea for its own purposes — not a consumer of this model, just a parallel pattern worth knowing about if the two are ever confused.

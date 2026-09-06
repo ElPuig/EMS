@@ -272,7 +272,7 @@
                             <field name="enrollment_ids" string="" context="{'default_group_id': main_group_id}" readonly="main_group_id == False or read_only_user or is_tutor_readonly">                            
                                 <list editable="top" default_order="subject_id asc, group_id asc">
                                     <field name="subject_id" domain="[('id','not in', inuse_subject_ids)]"/>
-                                    <field name="group_id" domain="[('study_id','=', parent.study_id)]"/>
+                                    <field name="group_id" domain="['|', ('study_id','=', parent.study_id), ('group_type','=','reinforcement')]"/>
                                     <field name="inuse_subject_ids" column_invisible="True"/>
                                 </list>
                             </field>

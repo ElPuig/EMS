@@ -170,9 +170,9 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
     def test_working_schedules_import_resolve_internal_conflict_tour(self):
         force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # Two reinforcement groups (no level/study/course needed, same simplification as the
-        # 'resolve_group' tour's own fixture) sharing the SAME classroom - the "desdoble" (split
-        # session) shape screen 4 needs to detect and let the admin resolve by reassigning one
-        # side's room (see TestWorkingSchedulesImportWizard.
+        # 'resolve_group' tour's own fixture) sharing the SAME classroom, taught by two DIFFERENT
+        # teachers - the "Room conflict" shape screen 4 needs to detect and let the admin resolve by
+        # reassigning one side's room (see TestWorkingSchedulesImportWizard.
         # test_continue_from_internal_conflicts_reassign_rooms_writes_different_rooms_and_completes_import).
         shared_space = self.env['ems.space'].create({
             'code': 'TOURRESOLVECONFLICT-A',
@@ -258,8 +258,9 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         # Developer feedback (2026-08-10, hit resolving a large real batch by hand): "me iría bien
         # que estuvieran agrupadas por tipo... y por 'left', y que cada grupo me permitiera escoger
         # el resolution que se aplica al grupo entero." Three groups sharing the SAME classroom -
-        # the anchor teacher's own entry collides (desdoble) with BOTH other teachers' entries at
-        # the exact same slot, forming one sub-group (same left_label: the anchor's own entry) with
+        # the anchor teacher's own entry collides (a "Room conflict") with BOTH other teachers'
+        # entries at the exact same slot, forming one sub-group (same left_label: the anchor's own
+        # entry) with
         # TWO rows underneath it - proves the sub-group's own bulk-resolution dropdown actually
         # writes onto every row in that sub-group at once, not just one.
         space = self.env['ems.space'].create({
@@ -291,7 +292,8 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         # at all. This fixture creates 85 colliding pairs (safely past Odoo's own x2many
         # 'DEFAULT_LIMIT' of 80, the actual number that silently truncated 'records' before this
         # fix) sharing ONE classroom - one anchor teacher/group against 85 others, all same subject
-        # so every pair lands in the SAME 'desdoble_eligible' sub-group (anchor is always "left") -
+        # so every pair lands in the SAME 'plain_conflict' ("Room conflict") sub-group (anchor is
+        # always "left") -
         # proving every one of the 85 rows actually renders (not just the first 80) and that
         # 'continue_disabled' correctly considers all of them. The tour deliberately does NOT also
         # bulk-apply to all 85 rows and complete the import - see the tour file's own comment for
@@ -320,7 +322,7 @@ class TestWorkingSchedulesImportWizardTour(HttpCase):
         force_user_language_to_english(self, self.env.ref('base.user_admin'))
         # Seeds a REAL, already-active 'ems.attendance_schedule' directly via the ORM (teacher A,
         # sharing 'Tour Resolve DB Conflict Space A' with a sibling reinforcement group B) - the
-        # tour then imports a SECOND, different teacher into group B, a "desdoble" against this
+        # tour then imports a SECOND, different teacher into group B, a "Room conflict" against this
         # existing DB session rather than another entry in the same batch (see
         # TestWorkingSchedulesImportWizard.
         # test_continue_from_db_conflicts_reassign_rooms_with_has_sessions_archives_and_clones for

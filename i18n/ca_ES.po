@@ -8127,9 +8127,9 @@ msgid "Co-teaching"
 msgstr "Co-docència"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__desdoble_eligible model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__kind__desdoble_eligible
-msgid "Split session"
-msgstr "Sessió desdoblada"
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__join_session model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__kind__join_session
+msgid "Join session"
+msgstr "Sessió conjunta"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__kind__plain_conflict model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__kind__plain_conflict
@@ -12257,8 +12257,8 @@ msgstr "Co-docència"
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
 #, python-format
-msgid "Split session"
-msgstr "Sessió desdoblada"
+msgid "Join session"
+msgstr "Sessió conjunta"
 
 #. module: ems
 #. odoo-javascript

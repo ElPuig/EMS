@@ -23,7 +23,7 @@
                                     </t>
                                 </div>
                                 <t t-foreach="subgroup.records" t-as="record" t-key="record.id">
-                                    <div class="ems_conflict_grid_row ems_conflict_row py-1 border-top">
+                                    <div t-attf-class="ems_conflict_grid_row ems_conflict_row py-1 border-top {{ isRowValid(record) ? 'ems_conflict_row_valid' : 'ems_conflict_row_invalid' }}">
                                         <span class="ems_conflict_row_text">
                                             <t t-if="isExternal">
                                                 <strong t-esc="labels.newPrefix"/>: <t t-esc="record.data.left_label"/><span class="ems_conflict_row_separator">→</span><strong t-esc="labels.oldPrefix"/>: <t t-esc="record.data.right_label"/>

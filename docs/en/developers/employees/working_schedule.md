@@ -884,20 +884,59 @@ n-way line; not expected to matter in practice (a genuine 3-way room collision w
 batch would be a very unusual planning error), documented here as a known simplification rather
 than engineered for speculatively.
 
-**Classification (`_classify_conflict_kind`)**, shared conceptually with screen 5 (not yet built)
-per the plan's own "Conflict kind classification" section:
+**Classification (`_classify_conflict_kind`)**, shared by screen 4 (file-internal) and screen 5
+(against an existing DB session):
 - same `subject_id` **and** a shared `group_id` → `co_teaching_eligible`.
-- same `subject_id`, **no** shared `group_id` → `desdoble_eligible` (a genuine split/"desdoble"
-  class needing two different rooms - the collision usually means the split's own destination room
-  was never in the source file, so both groups still carry their shared original one).
+- same `subject_id`, **no** shared `group_id`, **same** teacher on both sides → `join_session`.
+- same `subject_id`, **no** shared `group_id`, **different** teacher (or teacher not yet resolved)
+  → `plain_conflict`.
 - different `subject_id` → `plain_conflict` (pick one side, no other option makes sense).
 
 `kind`'s own `string` was renamed from "Type" to "Conflict" (2026-08-06, developer feedback) - the
 column sits next to `left_label`/`right_label` describing the two colliding sides, so "Conflict"
 reads more naturally as "what kind of conflict is this" than the more generic "Type".
-`desdoble_eligible`'s own option label was shortened from "Split session (different room needed)"
-to just **"Split session"** (2026-08-06) - too long for the column once every column's width was
-tightened (see the "Column width rebalancing" CSS note below).
+
+**`desdoble_eligible` ("Split session") merged into `plain_conflict`, `join_session` added
+(2026-09-06, developer feedback while live-debugging a real merge-mode import stuck with no
+visible cause):** the original rule above used to classify same-subject/no-shared-group as its own
+`desdoble_eligible` kind unconditionally, on the assumption that this shape reliably meant a
+genuine split session (one group's class divided into two, needing two different rooms). The
+developer pushed back on that assumption directly: *"no puedo garantizar si se trata ciertamente de
+eso o no (no siempre hacen la misma materia cuando se separan)"* - a real split doesn't reliably
+keep the same subject on both halves, so "same subject, no shared group" was never a trustworthy
+enough signal on its own; it just as easily describes two unrelated groups coincidentally
+scheduled into the same room for the same subject. Rather than try to guess harder, the two former
+outcomes were reduced to one: `desdoble_eligible` was deleted as a `kind` value and folded into
+`plain_conflict` ("Room conflict") - both already shared the exact same allowed-resolution set
+(`reassign_rooms`/`prevail_left`/`prevail_right`) and the same `reassign_rooms` default at every
+call site, so the merge is a pure card/label consolidation, not a behavior change for that case.
+
+A NEW `join_session` kind was added the same day for the one sub-case that IS a reliable,
+intentional signal: same subject, no shared group, but the **same real teacher** on both sides -
+one teacher deliberately running an identical session for two different groups at once (developer:
+*"cuando dos grupos distintos hacen la misma materia en la misma aula con el mismo profe, lo
+mostraremos como un join session (lo contrario del split) y por defecto estará en confirmar (mismo
+tratamiento que el co-teaching)"*). `join_session` reuses `co_teaching_eligible`'s own
+allowed-resolution set and default (`co_teaching`/"Confirm", `prevail_left`, `prevail_right`, no
+`reassign_rooms` - there's nothing to reassign, both entries are meant to coexist as-is). "Same
+teacher" is computed differently per screen since the two call sites have differently-shaped inputs
+- screen 4 compares both `node_cache` items' own resolved `employee_id`; screen 5 compares the
+file item's resolved teacher (`_resolve_teacher_for_classification`) against the DB candidate's own
+`attendance_template_id.teacher_ids` - both recomputed at build time in `_build_internal_conflict_
+lines`/`_build_external_conflict_lines` rather than threaded through the two `_find_*_conflicts`
+search methods, since `_classify_conflict_kind` itself stays a plain, cache-free classifier taking
+the flag as a parameter.
+
+**Per-row valid/invalid color coding (same day, same developer feedback session):** added directly
+to `EmsGroupedConflictLinesField` (`isRowValid()`, mirroring `_resolution_is_valid` client-side) and
+`grouped_conflict_lines_field.css` (`.ems_conflict_row_valid`/`_invalid`, a soft green/red
+background tint) - a genuinely reactive win found live: while debugging a stuck import with 100
+rows and no visible cause, 7 rows turned out to visually show two different-looking classroom names
+while their actual `left_space_id`/`right_space_id` were identical (see
+`plans/working_schedule_room_picker_display_desync.md` for that separate, still-open display/data
+desync bug) - reading the DOM alone could never have told the two states apart, but color-coding
+directly off `record.data` (the same reactive source every other binding in this widget already
+reads) would flag that row as invalid on sight regardless of what its text happens to display.
 
 **State renamed "Internal conflicts" → "File conflicts" (2026-08-06, developer feedback):** clearer
 against screen 5's "Existing schedule conflicts" - both entries colliding here come from the same
@@ -1056,9 +1095,11 @@ kind (below) on a real, large planner file. Two related, developer-approved asks
 `this.props.record.data[this.props.name].records` (the o2m's already-loaded sub-records - no new
 RPC) and groups **client-side**, in JS:
 - **Outer: by `kind`** - one Bootstrap `card` per kind actually present, in a fixed order
-  (`co_teaching_eligible`, `desdoble_eligible`, `plain_conflict`, `self_conflict`), reusing the
-  exact card/`card-header`/`card-body` classes the "Overall summary" screen's own cards already
-  use (`_summary_block_html()`) - "quizás el formato tarjetas... nos pueda venir bien."
+  (`co_teaching_eligible`, `join_session`, `plain_conflict`, `self_conflict` - `join_session` added
+  and `desdoble_eligible` merged into `plain_conflict` 2026-09-06, see the "Classification" section
+  above), reusing the exact card/`card-header`/`card-body` classes the "Overall summary" screen's
+  own cards already use (`_summary_block_html()`) - "quizás el formato tarjetas... nos pueda venir
+  bien."
 - **Inner: by `left_group_key`** (changed from the originally-shipped `left_label` a few hours
   later the SAME day, once the developer actually saw it rendered for real: *"veo una targeta por
   vila [sic, fila], no hay agrupación ninguna... creo que la forma más práctica de agrupar es por

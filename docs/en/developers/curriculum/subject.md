@@ -61,7 +61,7 @@ The official code assigned to a professional module by the education department 
 guaranteed unique across every curriculum it's ever used in — the same code can mean two
 genuinely different subjects (different learning outcomes, different internal/external hours)
 when each belongs to a different study (e.g. MP 3003 in a CFGB vs. the same code in a PFI —
-see `ems.subject_3003` and `ems.subject_3003_pfi_ao` in `data/cat/ems.subject.csv`). A plain
+see `ems.subject_3003_sa` and `ems.subject_3003_pfi` in `data/cat/ems.subject.csv`). A plain
 `unique(code)` SQL constraint (the model's behaviour before 2026-09-06) would force a fake
 suffix onto one of them, which would then no longer match the real code used by any external
 import or grade file, or by a convalidation request against the official curriculum.

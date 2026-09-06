@@ -1014,8 +1014,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         '_write_teacher_schedule' unconditionally unlinks the ENTIRE existing weekday schedule for
         a 'replace'-mode teacher regardless of overlap, so whatever this row's resolution would
         have been, the DB row is gone at Import time anyway. Found 2026-09-06 from real test data:
-        a same-subject, different-group file for an already-scheduled teacher wrongly surfaced as a
-        'Co-teaching'/'Split session' conflict against their own about-to-be-replaced row. Contrast
+        a different-subject, different-room file for an already-scheduled teacher wrongly surfaced
+        as a 'Room conflict' against their own about-to-be-replaced row. Contrast
         with 'test_import_prevail_left_default_archives_conflicting_self_session' - same fixture,
         default 'combine' mode, where this conflict is genuine and must still be resolved."""
         other_group = self._create_self_conflict_setup()
@@ -1689,7 +1689,14 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         left_labels = wizard.internal_conflict_line_ids.mapped('left_label')
         self.assertEqual(len(set(left_labels)), 2, "left_label itself must still differ (it includes the group)")
 
-    def test_continue_from_teachers_builds_desdoble_line_for_same_subject_different_group(self):
+    def test_continue_from_teachers_builds_plain_conflict_line_for_same_subject_different_group_different_teacher(self):
+        # Renamed 2026-09-06 (was 'builds_desdoble_line...', kind was 'desdoble_eligible') - same
+        # subject/no shared group is no longer its own kind, merged into 'plain_conflict' ("Room
+        # conflict") since it isn't a reliable enough signal of a genuine split session on its own
+        # (developer feedback, live-debugging a real import: "no siempre hacen la misma materia
+        # cuando se separan"). See test_continue_from_teachers_builds_join_session_line_for_same_
+        # subject_different_group_same_teacher below for the ONE case that DOES still get its own
+        # kind: the two different-teacher entries here are what keeps this one a plain conflict.
         second_teacher = self._second_teacher()
         wizard = self.env['ems.working_schedules_import_wizard'].create({
             'attachment_ids': self._attachment_ids(self._xml_two_teachers_same_slot(
@@ -1706,13 +1713,46 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         line = wizard.internal_conflict_line_ids
         self.assertEqual(len(line), 1)
-        self.assertEqual(line.kind, 'desdoble_eligible')
+        self.assertEqual(line.kind, 'plain_conflict')
         self.assertEqual(line.resolution, 'reassign_rooms')
         # Both sides pre-filled with the SAME colliding room - self.group and self.single_group
         # share 'self.space' - so left alone (untouched defaults), this is NOT actually resolved.
         self.assertEqual(line.left_space_id, self.space)
         self.assertEqual(line.right_space_id, self.space)
         self.assertTrue(wizard.continue_disabled)
+
+    def test_continue_from_teachers_builds_join_session_line_for_same_subject_different_group_same_teacher(self):
+        # New kind added 2026-09-06 (same session as the merge above): same subject, no shared
+        # group, but the SAME real teacher on both sides - unlike the merged case, this one IS a
+        # reliable, common, intentional signal (one teacher running an identical session for two
+        # different groups at once) - developer: "cuando dos grupos distintos hacen la misma
+        # materia en la misma aula con el mismo profe, lo mostraremos como un join session...
+        # y por defecto estará en confirmar (mismo tratamiento que el co-teaching)." Two different
+        # raw identifiers both manually assigned to the same existing employee, same pattern as
+        # test_continue_from_teachers_builds_self_conflict_line_when_two_identifiers_resolve_to_
+        # same_employee - but sharing a room (self.group/self.single_group both use 'self.space'),
+        # not different rooms, so this is a 'join_session' room-based pair, not a 'self_conflict'.
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_two_teachers_same_slot(
+                'JOINX1',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
+                'JOINX2',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.single_group.name} Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
+        wizard.teacher_line_ids.write({'create_new': False, 'employee_id': self.teacher.id})
+        wizard.action_continue()  # teachers -> internal_conflicts
+
+        line = wizard.internal_conflict_line_ids
+        self.assertEqual(len(line), 1)
+        self.assertEqual(line.kind, 'join_session')
+        self.assertEqual(line.resolution, 'co_teaching')
+        self.assertFalse(line.left_space_id)
+        self.assertFalse(line.right_space_id)
+        self.assertFalse(wizard.continue_disabled)
 
     def test_continue_from_teachers_builds_plain_conflict_line_for_different_subject(self):
         second_teacher = self._second_teacher()
@@ -2081,7 +2121,10 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertEqual(line.resolution, 'co_teaching')
         self.assertFalse(wizard.continue_disabled)
 
-    def test_continue_from_internal_conflicts_builds_desdoble_line_against_existing_db_session(self):
+    def test_continue_from_internal_conflicts_builds_plain_conflict_line_against_existing_db_session(self):
+        # Renamed 2026-09-06 (was 'builds_desdoble_line...', kind was 'desdoble_eligible') - see
+        # the analogous internal-conflict rename above for why: same subject/no shared group with
+        # a DIFFERENT teacher is a 'plain_conflict' now, not its own "Split session" kind.
         self._import({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
                 'test.wizard.teacher.import.wizard@example.com Someone',
@@ -2104,11 +2147,45 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         line = wizard.external_conflict_line_ids
         self.assertEqual(len(line), 1)
-        self.assertEqual(line.kind, 'desdoble_eligible')
+        self.assertEqual(line.kind, 'plain_conflict')
         self.assertEqual(line.resolution, 'reassign_rooms')
         self.assertEqual(line.left_space_id, self.space)
         self.assertEqual(line.right_space_id, self.space)
         self.assertTrue(wizard.continue_disabled)
+
+    def test_continue_from_internal_conflicts_builds_join_session_line_against_existing_db_session_same_teacher(self):
+        # New 2026-09-06, external-screen sibling of test_continue_from_teachers_builds_join_
+        # session_line_for_same_subject_different_group_same_teacher above - same subject/no
+        # shared group/same teacher against an already-active DB session (matched via
+        # '_find_external_conflicts's own 'self_candidates' search, which is always same-teacher
+        # by construction) must classify as 'join_session' too, not 'plain_conflict'.
+        self._import({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
+            )),
+        })
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                # 'self.single_group' shares 'self.space' with 'self.group' - same room, different
+                # group, SAME teacher (re-imported).
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.single_group.name} Group"/>',
+            )),
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
+        wizard.action_continue()  # teachers -> internal_conflicts
+        wizard.action_continue()  # internal_conflicts -> db_conflicts
+
+        line = wizard.external_conflict_line_ids
+        self.assertEqual(len(line), 1)
+        self.assertEqual(line.kind, 'join_session')
+        self.assertEqual(line.resolution, 'co_teaching')
+        self.assertFalse(line.left_space_id)
+        self.assertFalse(line.right_space_id)
+        self.assertFalse(wizard.continue_disabled)
 
     def test_continue_from_db_conflicts_raises_for_resolution_invalid_for_kind(self):
         self._import({
@@ -2480,7 +2557,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         line = wizard.internal_conflict_line_ids
         self.assertIn(
-            '%s vs. %s --&gt; Split session: resolved as Reassign rooms - rooms: %s / %s' % (
+            '%s vs. %s --&gt; Room conflict: resolved as Reassign rooms - rooms: %s / %s' % (
                 line.left_label, line.right_label, self.space.display_name, other_space.display_name,
             ),
             wizard.overall_summary_html,

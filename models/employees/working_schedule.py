@@ -1032,14 +1032,38 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		return self.env['ems.group'].browse(group_ids[0]).space_id.id
 
 	@staticmethod
-	def _classify_conflict_kind(entry_a, entry_b):
+	def _classify_conflict_kind(entry_a, entry_b, same_teacher):
 		"""Shared classification (see plans/working_schedule_import_redesign.md's "Conflict kind
-		classification", also meant for screen 5's not-yet-built external conflicts)."""
+		classification"), used by both screen 4 (file-internal) and screen 5 (against an existing
+		DB session).
+
+		'desdoble_eligible' (same subject, no shared group) used to be its own kind, shown as
+		"Split session" - removed 2026-09-06 (developer feedback, live debugging a real merge-mode
+		import): "no puedo garantizar si se trata ciertamente de eso o no (no siempre hacen la
+		misma materia cuando se separan)" - a genuine split session doesn't reliably keep the same
+		subject on both halves, so "same subject" was never actually a trustworthy signal that a
+		same-subject/different-group collision WAS a split (as opposed to two unrelated groups
+		coincidentally scheduled into the same room for the same subject). Merged into
+		'plain_conflict' ("Room conflict") - both already shared the exact same allowed-resolution
+		set ({reassign_rooms, prevail_left, prevail_right}) and the exact same 'reassign_rooms'
+		default at every call site, so the merge is purely a card/label consolidation, not a
+		behavior change for that case.
+
+		'join_session' (NEW, same day): same subject, no shared group, but the SAME teacher on
+		both sides - unlike the merged case above, this one IS a reliable, common, intentional
+		signal (one teacher running an identical session for two different groups at once, e.g.
+		joining two smaller groups into one class) - given its own kind, defaulting to 'co_teaching'
+		("Confirm") like 'co_teaching_eligible', since the resolution is the same idea: keep both
+		entries as-is, they're deliberately simultaneous. 'same_teacher' is computed by the caller
+		(different shape for screen 4's node_cache items vs. screen 5's DB candidate) rather than
+		here, so this method stays a plain, cache-free classifier."""
 		if entry_a['subject_id'] != entry_b['subject_id']:
 			return 'plain_conflict'
 		if set(entry_a.get('group_ids') or []) & set(entry_b.get('group_ids') or []):
 			return 'co_teaching_eligible'
-		return 'desdoble_eligible'
+		if same_teacher:
+			return 'join_session'
+		return 'plain_conflict'
 
 	def _teacher_label_for_item(self, item):
 		"""Best-effort display name for a node_cache item's teacher - already-resolved by this
@@ -1136,7 +1160,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	# room actually matches).
 	_RESOLUTION_DEFAULTS = {
 		'co_teaching_eligible': 'co_teaching',
-		'desdoble_eligible': 'reassign_rooms',
+		'join_session': 'co_teaching',
 		'plain_conflict': 'prevail_left',
 		'self_conflict': 'prevail_left',
 	}
@@ -1193,16 +1217,18 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		'_find_self_conflicts_in_batch' (2026-08-10, same-teacher-different-room). Positional
 		references (item/entry indices), not content matching - built once here, from the very
 		'node_cache' '_continue_from_internal_conflicts' re-reads unchanged, so they stay valid.
-		Unlike screen 5's own external conflicts, EVERY 'plain_conflict'/'desdoble_eligible' pair
-		found by '_find_internal_conflicts' is a genuine same-room clash - it only ever pairs
-		entries that already matched on 'space_id' - so it always overrides '_RESOLUTION_DEFAULTS'
-		to 'reassign_rooms' (developer feedback 2026-08-05: picking a room is the actual fix for a
+		Unlike screen 5's own external conflicts, EVERY 'plain_conflict' pair found by
+		'_find_internal_conflicts' is a genuine same-room clash - it only ever pairs entries that
+		already matched on 'space_id' - so it always overrides '_RESOLUTION_DEFAULTS' to
+		'reassign_rooms' (developer feedback 2026-08-05: picking a room is the actual fix for a
 		real room conflict, not an afterthought behind 'prevail_left'/'prevail_right'), with
 		'left_space_id'/'right_space_id' pre-filled with the colliding room (the group's own
 		currently-assigned classroom - the same value on both sides, since that's exactly why they
-		collided in the first place) so they're ready the moment 'reassign_rooms' is picked. A
-		'self_conflict' pair never gets a room pre-fill - reassigning a room fixes nothing when the
-		real problem is one teacher needed in two places at once, not a shared room (see
+		collided in the first place) so they're ready the moment 'reassign_rooms' is picked.
+		'co_teaching_eligible'/'join_session' pairs never get a room pre-fill - both default to
+		'co_teaching' (keep both entries as-is), so there's nothing to reassign. A 'self_conflict'
+		pair never gets one either, for a different reason: reassigning a room fixes nothing when
+		the real problem is one teacher needed in two places at once, not a shared room (see
 		'_resolution_is_valid's own 'allowed_by_kind', which excludes 'reassign_rooms' for this
 		kind entirely)."""
 		commands = []
@@ -1210,8 +1236,10 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		for item_index_a, entry_index_a, item_index_b, entry_index_b in room_pairs:
 			entry_a = node_cache[item_index_a]['entries'][entry_index_a]
 			entry_b = node_cache[item_index_b]['entries'][entry_index_b]
-			kind = self._classify_conflict_kind(entry_a, entry_b)
-			same_room_conflict = kind in ('desdoble_eligible', 'plain_conflict')
+			employee_id_a = node_cache[item_index_a].get('employee_id')
+			same_teacher = bool(employee_id_a) and employee_id_a == node_cache[item_index_b].get('employee_id')
+			kind = self._classify_conflict_kind(entry_a, entry_b, same_teacher)
+			same_room_conflict = kind == 'plain_conflict'
 			vals = {
 				'kind': kind,
 				'resolution': 'reassign_rooms' if same_room_conflict else self._RESOLUTION_DEFAULTS[kind],
@@ -1395,7 +1423,15 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		weekday/time overlap, no room involved at all) - reassigning rooms fixes nothing there (the
 		same teacher still can't be in two places at once regardless of which rooms are picked), so
 		that sub-case keeps the older 'prevail_left' default and no room pre-fill, exactly as before
-		this default changed for the genuine-room-clash case."""
+		this default changed for the genuine-room-clash case.
+
+		'same_teacher' (needed by '_classify_conflict_kind' to tell a 'join_session' apart from a
+		merely-coincidental 'plain_conflict') is recomputed here rather than threaded through
+		'_find_external_conflicts' - by construction, every 'external_candidates' triple has a
+		DIFFERENT teacher (that search explicitly excludes every teacher already in this batch) and
+		every 'self_candidates' triple has the SAME teacher (matched on that teacher's own
+		'hr.employee' id), but both searches are merged into one result list before this point, so
+		the flag is simplest to re-derive directly."""
 		commands = []
 		for item_index, entry_index, candidate in self._find_external_conflicts(node_cache):
 			entry = node_cache[item_index]['entries'][entry_index]
@@ -1403,7 +1439,9 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				'subject_id': candidate.attendance_template_id.subject_id.id,
 				'group_ids': candidate.attendance_template_id.group_ids.ids,
 			}
-			kind = self._classify_conflict_kind(entry, candidate_entry)
+			teacher = self._resolve_teacher_for_classification(node_cache[item_index])
+			same_teacher = bool(teacher) and teacher.id in candidate.attendance_template_id.teacher_ids.ids
+			kind = self._classify_conflict_kind(entry, candidate_entry, same_teacher)
 			space_id = self._entry_default_space_id(entry)
 			same_room_conflict = kind == 'plain_conflict' and candidate.space_id.id == space_id
 			vals = {
@@ -1416,7 +1454,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 				'right_schedule_id': candidate.id,
 				'right_label': self._external_conflict_label(candidate),
 			}
-			if kind == 'desdoble_eligible' or same_room_conflict:
+			if same_room_conflict:
 				vals['left_space_id'] = space_id
 				vals['right_space_id'] = space_id
 			commands.append((0, 0, vals))
@@ -2032,7 +2070,7 @@ class ems_working_schedules_import_wizard_conflict_mixin(models.AbstractModel):
 	# 'group_line.raw_name'/'teacher_line.raw_identifier'.
 	kind = fields.Selection([
 		('co_teaching_eligible', "Co-teaching"),
-		('desdoble_eligible', "Split session"),
+		('join_session', "Join session"),
 		('plain_conflict', "Room conflict"),
 		('self_conflict', "Same teacher, different room"),
 	], string="Conflict", required=True, readonly=True)
@@ -2054,7 +2092,7 @@ class ems_working_schedules_import_wizard_conflict_mixin(models.AbstractModel):
 		('reassign_rooms', "Reassign rooms"),
 	], string="Resolution", required=True)
 	# NOTE: only relevant when 'resolution' is 'reassign_rooms' - pre-filled with the colliding room
-	# for every desdoble-eligible line regardless of its current resolution, so they're ready the
+	# for every 'plain_conflict' line regardless of its current resolution, so they're ready the
 	# moment "reassign_rooms" is picked.
 	left_space_id = fields.Many2one(string="Left classroom", comodel_name="ems.space")
 	right_space_id = fields.Many2one(string="Right classroom", comodel_name="ems.space")
@@ -2063,7 +2101,7 @@ class ems_working_schedules_import_wizard_conflict_mixin(models.AbstractModel):
 		self.ensure_one()
 		allowed_by_kind = {
 			'co_teaching_eligible': {'co_teaching', 'prevail_left', 'prevail_right'},
-			'desdoble_eligible': {'reassign_rooms', 'prevail_left', 'prevail_right'},
+			'join_session': {'co_teaching', 'prevail_left', 'prevail_right'},
 			'plain_conflict': {'reassign_rooms', 'prevail_left', 'prevail_right'},
 			'self_conflict': {'prevail_left', 'prevail_right'},
 		}

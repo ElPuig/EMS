@@ -140,19 +140,21 @@ export class EmsGroupedConflictLinesField extends Component {
             : { left: _t("Left"), right: _t("Right") };
     }
 
-    // Only 'desdoble_eligible'/'plain_conflict' ever allow 'reassign_rooms' (see
-    // 'allowedResolutionsByKind' below) - the room-column header is only worth showing for a
-    // sub-group whose kind can actually need it.
+    // Only 'plain_conflict' ever allows 'reassign_rooms' (see 'allowedResolutionsByKind' below) -
+    // the room-column header is only worth showing for a sub-group whose kind can actually need it.
     kindHasRoomPicker(kind) {
         return (this.allowedResolutionsByKind[kind] || []).includes("reassign_rooms");
     }
 
     // Same 4 kinds as 'ems.working_schedules_import_wizard.conflict_mixin's own 'kind' Selection,
-    // in the same fixed order - a card only ever appears for a kind actually present.
+    // in the same fixed order - a card only ever appears for a kind actually present. The former
+    // 'desdoble_eligible' ("Split session") was merged into 'plain_conflict' ("Room conflict") and
+    // 'join_session' ("Join session") added 2026-09-06 - see '_classify_conflict_kind's own
+    // docstring (models/employees/working_schedule.py) for why.
     get kindLabels() {
         return {
             co_teaching_eligible: _t("Co-teaching"),
-            desdoble_eligible: _t("Split session"),
+            join_session: _t("Join session"),
             plain_conflict: _t("Room conflict"),
             self_conflict: _t("Same teacher, different room"),
         };
@@ -165,10 +167,33 @@ export class EmsGroupedConflictLinesField extends Component {
     get allowedResolutionsByKind() {
         return {
             co_teaching_eligible: ["co_teaching", "prevail_left", "prevail_right"],
-            desdoble_eligible: ["reassign_rooms", "prevail_left", "prevail_right"],
+            join_session: ["co_teaching", "prevail_left", "prevail_right"],
             plain_conflict: ["reassign_rooms", "prevail_left", "prevail_right"],
             self_conflict: ["prevail_left", "prevail_right"],
         };
+    }
+
+    // Client-side mirror of '_resolution_is_valid' (models/employees/working_schedule.py) - drives
+    // the per-row valid/invalid color coding (developer feedback 2026-09-06, live-debugging a real
+    // stuck import: "vamos con lo de los colores" - a row can visually look resolved, e.g. two
+    // different-looking classroom names, while 'record.data' still disagrees due to an AutoComplete
+    // display/data desync bug being tracked separately - see
+    // plans/working_schedule_room_picker_display_desync.md). Reads 'record.data' directly (the
+    // SAME reactive source the row's own template bindings read), never the DOM, so this is immune
+    // to that exact desync - if anything, this is what would have caught it immediately instead of
+    // needing OWL devtools to diagnose it by hand.
+    isRowValid(record) {
+        const data = record.data;
+        const allowed = this.allowedResolutionsByKind[data.kind] || [];
+        if (!allowed.includes(data.resolution)) {
+            return false;
+        }
+        if (data.resolution === "reassign_rooms") {
+            const left = data.left_space_id;
+            const right = data.right_space_id;
+            return !!left && !!right && left[0] !== right[0];
+        }
+        return true;
     }
 
     // "prevail_left"/"prevail_right" read "New prevails"/"Old prevails" on the external screen

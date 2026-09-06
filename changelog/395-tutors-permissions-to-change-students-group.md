@@ -14,6 +14,9 @@
 ## Teachers/tutors could not open any group's form:
 - Viewing a group's enrollment breakdown (used internally to show its enrolled students grouped with their subjects) ran an internal data-refresh step under the viewing user's own permissions, which a plain teacher or tutor does not have for that specific step. Simply opening any group's form as a teacher/tutor failed with an access error; fixed by running that refresh as a system operation instead.
 
+## "WPI enrolled" (Matriculat a FCT) looked editable for any student, not just a tutor's own:
+- This field's edit permission was missing half of the same check every other field on that tab uses, so it appeared editable to a teacher/tutor even when viewing a student they don't actually tutor - saving would still have been blocked, but the field misleadingly looked open to edit. Now consistent with the rest of the tab.
+
 # Internal changes
 
 ## New user documentation:

@@ -48,6 +48,13 @@ class TestContactGroupChangeTour(HttpCase):
         cls.enrollment = cls.env['ems.enrollment'].create({
             'student_id': cls.student.id, 'group_id': cls.group.id, 'subject_id': cls.subject.id,
         })
+        # 'other_group' has no tutor_id, so this student is visible to the tutor (unrestricted
+        # read for any teacher, rule_contact_teacher) but is NOT their tutorand - used to
+        # regression-test the "wpi_enrolled readable but writable by anyone" bug below.
+        cls.non_tutorand_student = cls.env['res.partner'].create({
+            'name': '0001 Group Change Tour Non-Tutorand', 'contact_type': 'student',
+            'level_id': cls.level.id, 'study_id': cls.study.id, 'main_group_id': cls.other_group.id,
+        })
 
     def test_tutor_can_change_student_main_group_tour(self):
         self.start_tour("/odoo", "ems_contact_group_change", login="test_tutor_contact_group_change_tour")
@@ -56,3 +63,11 @@ class TestContactGroupChangeTour(HttpCase):
         self.assertFalse(self.enrollment.exists())
         moved = self.env['ems.enrollment'].search([('student_id', '=', self.student.id)])
         self.assertEqual(moved.group_id, self.other_group)
+
+    def test_wpi_enrolled_is_readonly_for_a_non_tutorand_student_tour(self):
+        # Regression (found 2026-09-06): 'wpi_enrolled' was missing 'read_only_user' from its
+        # readonly condition (every sibling field in the tab combines both) - is_tutor_readonly
+        # alone is False for a teacher who is not THIS student's own tutor, so the field looked
+        # editable for any teacher viewing any other student, not just their own tutorands.
+        self.start_tour("/odoo", "ems_contact_wpi_readonly_for_non_tutorand",
+                         login="test_tutor_contact_group_change_tour")

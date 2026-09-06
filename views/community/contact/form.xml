@@ -287,7 +287,13 @@
                             </div>
                             <!-- TODO: a WIC section in order to add a link to the QBid's student data?  -->
                             <group>
-                                <field name="wpi_enrolled" readonly="is_tutor_readonly" />
+                                <!-- Bug found 2026-09-06: missing 'read_only_user' meant a teacher who is
+                                     NOT this student's own tutor (is_tutor_readonly is False for them too -
+                                     it only locks the field for the ACTUAL tutor-of-record) saw this field
+                                     as editable, unlike every sibling field in this tab/page, all of which
+                                     combine both conditions. The record rules already block the write
+                                     server-side either way, but the field looked editable when it wasn't. -->
+                                <field name="wpi_enrolled" readonly="read_only_user or is_tutor_readonly" />
                             </group>
                             <field name="enrollment_ids" string="" context="{'default_group_id': main_group_id}" readonly="main_group_id == False or read_only_user or is_tutor_readonly">                            
                                 <list editable="top" default_order="subject_id asc, group_id asc">

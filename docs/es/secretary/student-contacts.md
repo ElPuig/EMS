@@ -41,6 +41,8 @@ El grupo principal de un alumno (pestaña **Estudios**) no lo matricula por sí 
 
 Eliminar una línea de asignatura queda bloqueado una vez que el alumno ya tiene notas registradas para ella, para evitar perder trabajo evaluado sin querer — desmatricula antes de que se introduzca ninguna nota si hace falta corregir un error.
 
+**Cambiar el grupo principal de un alumno también mueve sus matrículas por asignatura.** Si cambias el campo **Grupo principal** (pestaña Estudios), cualquier matrícula que estuviera en el grupo antiguo pasa automáticamente al grupo nuevo — una asignatura ya matriculada a través de un grupo distinto (por ejemplo, un grupo de refuerzo) se mantiene igual. Esto se rechaza, por el mismo motivo que arriba, si alguna asignatura del grupo antiguo ya tiene notas registradas. El tutor/a del grupo también puede hacerlo, para sus propios alumnos tutorizados — ver [Cambiar el grupo de un alumno](../tutors/change-student-group.md).
+
 ## Bonificaciones y exenciones
 
 Los **beneficios** de cuota de un alumno (bonificaciones, que descuentan parte de la cuota de matrícula, y exenciones, que la eximen totalmente) se registran en la pestaña **Secretaría** de la ficha del alumno:

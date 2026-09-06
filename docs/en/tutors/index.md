@@ -12,6 +12,7 @@ This section contains the manuals for **group tutors**.
 
 | Manual | Description |
 |--------|------------|
+| [Changing a student's group](change-student-group.md) | Move one of your tutored students from one group to another, with their subject enrollments following automatically |
 | [Academic history of your students](academic-history.md) | Consult the permanent per-course record of your tutees: subjects, grades per learning outcome and attendance |
 | [Grading the work placement (EM)](work-placement-grade.md) | Enter the work placement grade of a student as they finish their internship: it completes the final grade of every module with a placement weight, including the pending finals of previous courses |
 | [Evaluation board: reviewing the grades per student](junta-avaluacio.md) | Review and adjust each group student's grades, subject by subject, for the evaluation board |

@@ -41,6 +41,8 @@ El grup principal d'un alumne (pestanya **Estudis**) no el matricula per si sol 
 
 Eliminar una línia d'assignatura queda bloquejat un cop l'alumne ja té notes registrades per a aquesta assignatura, per evitar perdre feina avaluada sense voler — desmatricula abans que s'introdueixi cap nota si cal corregir un error.
 
+**Canviar el grup principal d'un alumne també mou les seves matrícules per assignatura.** Si canvies el camp **Grup principal** (pestanya Estudis), qualsevol matrícula que estigués al grup antic passa automàticament al grup nou — una assignatura ja matriculada a través d'un grup diferent (per exemple, un grup de reforç) es manté igual. Això es rebutja, pel mateix motiu que a dalt, si alguna assignatura del grup antic ja té notes registrades. El tutor/a del grup també ho pot fer, per als seus propis alumnes tutoritzats — vegeu [Canviar el grup d'un alumne](../tutors/change-student-group.md).
+
 ## Bonificacions i exempcions
 
 Els **beneficis** de quota d'un alumne (bonificacions, que descompten part de la quota de matrícula, i exempcions, que l'eximeixen totalment) es registren a la pestanya **Secretaria** de la fitxa de l'alumne:

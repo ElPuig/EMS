@@ -202,6 +202,24 @@ class TestGroup(TransactionCase):
         self.test_group.invalidate_recordset(['enrollment_view_ids'])
         self.assertFalse(self.test_group.enrollment_view_ids)
 
+    def test_enrollment_view_ids_readable_by_a_plain_teacher(self):
+        # Regression (found 2026-09-06): the compute's own delete+recreate of ems.enrollment_view
+        # rows used to run as whoever opened the group's form. ems.enrollment_view's ACL grants
+        # teacher/tutor only perm_read (by design - it's a read-only helper view), so a plain
+        # teacher/tutor got an AccessError from simply reading enrollment_view_ids at all, on
+        # ANY group - not something specific to this test's own data.
+        student = self.env['res.partner'].create({
+            'name': 'Test Enrollment View Teacher Student (Group)', 'contact_type': 'student',
+        })
+        self.env['ems.enrollment'].create({
+            'student_id': student.id, 'group_id': self.test_group.id, 'subject_id': self._enrollment_subject().id,
+        })
+        self.test_group.invalidate_recordset(['enrollment_view_ids'])
+
+        lines = self.test_group.with_user(self.teacher_user).enrollment_view_ids
+
+        self.assertEqual(lines.student_id, student)
+
     def _enrollment_subject(self, suffix=''):
         return self.env['ems.subject'].create({
             'code': f'TSTG-ENR{suffix}', 'acronym': f'TGE{suffix}', 'name': f'Test Enrollment Subject {suffix}',

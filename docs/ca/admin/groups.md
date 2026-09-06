@@ -36,6 +36,8 @@ Navega a: **Comunitat Educativa → Grups**
 
 Els alumnes no s'afegeixen des d'aquí — consulta la pestanya **Alumnes** per revisar qui està assignat, però és el propi registre de l'alumne (o el procés de matrícula) el que realment l'assigna a un grup.
 
+**Canviar el grup d'un alumne també mou les seves matrícules per assignatura.** Editar el camp **Grup principal** de l'alumne (a la seva pròpia fitxa, pestanya Estudis) — això inclou el tutor/a del grup, que ara pot fer-ho directament per als seus propis alumnes tutoritzats, vegeu [Canviar el grup d'un alumne](../tutors/change-student-group.md) — mou automàticament qualsevol matrícula que estigués al grup antic cap al grup nou; una assignatura ja matriculada a través d'un grup diferent (per exemple, un grup de reforç) es manté igual. El canvi es rebutja si alguna assignatura del grup antic ja té notes registrades per a aquest alumne.
+
 ---
 
 ## Crear un grup de reforç

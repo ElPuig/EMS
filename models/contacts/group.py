@@ -92,8 +92,14 @@ class EmsGroup(models.Model):
 		# TransientModel (auto-vacuumed), so the churn is cheap, but this does mean every read
 		# of an unset/stale enrollment_view_ids re-runs a delete+insert, not just a select —
 		# worth knowing if this model's read patterns ever become a hot path.
+		# sudo() (bug found 2026-09-06): this delete+recreate is internal scratch-data
+		# bookkeeping for a computed field, not a real action the viewing user is taking - it
+		# used to run as whoever opened the group's form, so a teacher/tutor (perm_create=0,
+		# perm_unlink=0 on ems.enrollment_view - read-only by design) got an AccessError from
+		# simply opening any group's form at all.
+		EnrollmentView = self.env['ems.enrollment_view'].sudo()
 		for group in self:
-			self.env['ems.enrollment_view'].search([('group_id', '=', group.id)]).unlink()
+			EnrollmentView.search([('group_id', '=', group.id)]).unlink()
 			group.enrollment_view_ids = False
 			# Sources:
 			# 	https://www.odoo.com/documentation/16.0/developer/reference/backend/orm.html?highlight=read_group#search-read
@@ -103,7 +109,7 @@ class EmsGroup(models.Model):
 				subs = self.env["ems.enrollment"].search([("group_id", "=", group.id), ('student_id', '=', sid)]).mapped("subject_id")
 
 				# Source: https://www.odoo.com/fi_FI/forum/apua-1/how-to-insert-value-to-a-one2many-field-in-table-with-create-method-28714
-				group.enrollment_view_ids.create({
+				EnrollmentView.create({
 					"group_id": group.id,
 					"student_id": sid,
 					"subject_ids": subs,

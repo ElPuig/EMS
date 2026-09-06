@@ -41,6 +41,8 @@ A student's main group (**Studies** tab) does not by itself enroll them in any s
 
 Removing a subject line is blocked once the student already has grades recorded for it, to avoid silently losing graded work — un-enroll before any grade is entered if a mistake needs correcting.
 
+**Changing a student's main group moves their subject enrollments too.** If you change the **Main Group** field itself (Studies tab), any subject enrollment that was in the old group moves automatically to the new one — a subject already enrolled through a different group (e.g. a reinforcement group) is left as-is. This is rejected, for the same reason as above, if a subject in the old group already has grades recorded. The group tutor can do this too, for their own tutored students — see [Changing a student's group](../tutors/change-student-group.md).
+
 ## Bonifications and exemptions
 
 A student's fee **benefits** (bonifications, which discount part of the enrollment fee, and exemptions, which waive it entirely) are registered in the **Secretary** tab of the student's record:

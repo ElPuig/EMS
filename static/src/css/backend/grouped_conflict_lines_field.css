@@ -26,3 +26,11 @@
 .ems_conflict_space .o-autocomplete {
     width: 100%;
 }
+
+/* Visual break between a row's two halves (New/Old on the external screen, the two file entries
+   on the internal one) - a plain "-" read as unclear (developer feedback 2026-09-06); reuses the
+   same "→" convention already used elsewhere in this codebase for an analogous before/after or
+   left/right pairing (e.g. attendance_session_view.js's "Lastname A→Z"). */
+.ems_conflict_row_separator {
+    margin: 0 0.5rem;
+}

@@ -951,6 +951,108 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         ])
         self.assertEqual(templates.subject_id, self.other_subject)
 
+    def test_import_mode_replace_skips_self_conflict_against_own_pre_existing_session(self):
+        """A same-teacher self-conflict (see '_create_self_conflict_setup') against that teacher's
+        OWN pre-existing session must never surface at all in 'replace' mode -
+        '_write_teacher_schedule' unconditionally unlinks the ENTIRE existing weekday schedule for
+        a 'replace'-mode teacher regardless of overlap, so whatever this row's resolution would
+        have been, the DB row is gone at Import time anyway. Found 2026-09-06 from real test data:
+        a same-subject, different-group file for an already-scheduled teacher wrongly surfaced as a
+        'Co-teaching'/'Split session' conflict against their own about-to-be-replaced row. Contrast
+        with 'test_import_prevail_left_default_archives_conflicting_self_session' - same fixture,
+        default 'combine' mode, where this conflict is genuine and must still be resolved."""
+        other_group = self._create_self_conflict_setup()
+        self._import({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            )),
+        })
+
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/>'
+                f'<Students name="{other_group.name} Group"/>',
+            )),
+            'import_mode': 'replace',
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
+        wizard.action_continue()  # teachers -> internal_conflicts (only one teacher in this batch)
+        wizard.action_continue()  # internal_conflicts -> db_conflicts
+
+        self.assertEqual(wizard.state, 'db_conflicts')
+        self.assertFalse(wizard.external_conflict_line_ids)
+        self.assertFalse(wizard.continue_disabled)
+
+    def test_import_mode_replace_still_shows_genuine_external_conflict(self):
+        """'replace' only ever wipes the BATCH's own teachers' schedules - a real room/time clash
+        against a DIFFERENT teacher not in this batch at all must still surface and be resolved,
+        regardless of import_mode. Mirrors 'test_continue_from_internal_conflicts_builds_co_
+        teaching_line_against_existing_db_session', with 'import_mode=replace' this time - a
+        regression guard for the fix above, which must only skip SELF collisions, never
+        'external_candidates' ones."""
+        self._import({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
+            )),
+        })
+        second_teacher = self._second_teacher()
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                second_teacher.work_email,
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
+            )),
+            'import_mode': 'replace',
+        })
+        wizard.action_continue()  # intro -> groups
+        wizard.action_continue()  # groups -> subjects (no mismatch in this fixture)
+        wizard.action_continue()  # subjects -> teachers
+        wizard.action_continue()  # teachers -> internal_conflicts (nothing, only one teacher in this batch)
+        wizard.action_continue()  # internal_conflicts -> db_conflicts, builds the external conflict line
+
+        self.assertEqual(wizard.state, 'db_conflicts')
+        line = wizard.external_conflict_line_ids
+        self.assertEqual(len(line), 1)
+        self.assertEqual(line.kind, 'co_teaching_eligible')
+
+    def test_import_mode_replace_full_apply_does_not_raise_on_own_pre_existing_session(self):
+        """Reproduces a real reported bug (2026-09-06) that the two tests above did NOT catch: both
+        only drove the wizard up to the 'db_conflicts' screen, never all the way to
+        'import_planner_data()' - which is where the actual failure happened. '_apply_import' has
+        its OWN separate self-conflict safety net ('find_self_conflicts', called from
+        '_apply_import' directly, not through the wizard screen) that reads 'ems.attendance_schedule'
+        - a model only brought in sync with the calendar by 'sync_from_schedule_batch', which runs
+        AFTER this check, not before. In 'replace' mode this means the check always sees the
+        teacher's now-stale PRE-import 'ems.attendance_schedule' rows (the calendar itself was
+        already correctly rewritten earlier in the same call), producing the exact same false
+        positive this whole fix is about - just one step later in the pipeline than the interactive
+        screen. Must reach import_planner_data() to catch this - the true regression guard."""
+        other_group = self._create_self_conflict_setup()
+        self._import({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/>'
+                f'<Students name="{self.group.name} Group"/>',
+            )),
+        })
+
+        self._import({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/>'
+                f'<Students name="{other_group.name} Group"/>',
+            )),
+            'import_mode': 'replace',
+        })
+
+        rows = self.teacher.resource_calendar_id.attendance_ids.filtered(lambda a: a.subject_id)
+        self.assertEqual(rows.subject_id, self.other_subject)
+
     def test_import_two_files_together_merge_for_a_shared_teacher(self):
         """Confirmed directly with the developer (2026-09-02): a teacher shared between two
         departments (e.g. informática + administración), uploaded TOGETHER in the SAME wizard

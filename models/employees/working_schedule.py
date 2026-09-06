@@ -1361,7 +1361,16 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 					]).filtered(lambda c, entry=entry: c.ranges_overlap(c.start_time, c.end_time, entry['hour_from'], entry['hour_to']))
 
 				self_candidates = self.env['ems.attendance_schedule']
-				if teacher:
+				# NOTE: skipped entirely in 'replace' mode - '_write_teacher_schedule' unconditionally
+				# unlinks a 'replace'-mode teacher's ENTIRE existing weekday schedule regardless of
+				# overlap, so any collision against that same teacher's own pre-existing rows is a
+				# guaranteed false positive here: whatever resolution gets picked, that DB row is
+				# getting deleted at Import time anyway. Found 2026-09-06 from real test data - a
+				# same-subject, different-group import for an already-scheduled teacher surfaced as a
+				# spurious 'Co-teaching'/'Split session' conflict against their own soon-to-be-
+				# replaced row. 'external_candidates' above is unaffected either way - 'replace' only
+				# ever touches the batch's OWN teachers' schedules, never a different teacher's.
+				if teacher and self.import_mode != 'replace':
 					self_candidates = self.env['ems.attendance_schedule'].search([
 						('weekday', '=', entry['dayofweek']),
 						('attendance_template_id.teacher_ids', 'in', teacher.id),
@@ -1656,12 +1665,25 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		# the safety net for the rare case where the DB changed after that screen ran (e.g. a
 		# concurrent edit) - a genuine race, not the normal path, so still a hard stop rather than a
 		# silent re-resolution.
-		self_conflicts = self.env['ems.attendance_template'].find_self_conflicts(teacher_entries)
-		if self_conflicts:
-			raise ValidationError(_(
-				"This teacher already has an overlapping session for a different subject/group - "
-				"fix the schedule conflict and try again: %s"
-			) % "; ".join(self._conflict_lines(self_conflicts)))
+		#
+		# Skipped entirely in 'replace' mode (2026-09-06, found from a real import failing here) -
+		# 'find_self_conflicts' reads 'ems.attendance_schedule', which is only brought in sync with
+		# the calendar (already correctly rewritten by '_write_teacher_schedule' above, for every
+		# teacher in this batch) by 'sync_from_schedule_batch' further BELOW, not yet run at this
+		# point. In 'replace' mode this means any hit here is a guaranteed false positive: a stale
+		# 'ems.attendance_schedule' row for a slot the calendar write already dropped, not yet
+		# reflected because the sync that would clean it up hasn't executed yet - exactly the same
+		# root cause already fixed for the interactive 'db_conflicts' screen's own 'self_candidates'
+		# search (see '_find_external_conflicts'). In 'combine' mode a hit here can still be genuine
+		# (nothing was removed, so two real overlapping imports for the same teacher truly coexist),
+		# so the check stays active there.
+		if self.import_mode != 'replace':
+			self_conflicts = self.env['ems.attendance_template'].find_self_conflicts(teacher_entries)
+			if self_conflicts:
+				raise ValidationError(_(
+					"This teacher already has an overlapping session for a different subject/group - "
+					"fix the schedule conflict and try again: %s"
+				) % "; ".join(self._conflict_lines(self_conflicts)))
 
 		# NOTE: the template/teaching sync itself reads each teacher's CALENDAR (just written
 		# above), not 'teacher_entries' (built from the raw per-node parse) - '_write_teacher_
@@ -2040,6 +2062,22 @@ class ems_working_schedules_import_wizard_external_conflict_line(models.Transien
 	_name = "ems.working_schedules_import_wizard.external_conflict_line"
 	_inherit = ["ems.working_schedules_import_wizard.conflict_mixin"]
 	_description = "Working schedules import wizard: new entry vs. already-active DB schedule collision line."
+
+	# NOTE: overrides the mixin's own generic "Left prevails"/"Right prevails" labels - unlike
+	# 'internal_conflict_line' (both sides are file entries, so left/right is genuinely symmetric),
+	# here 'left' is ALWAYS the new file entry and 'right' is ALWAYS the already-persisted DB
+	# session (see 'left_item_index'/'right_schedule_id' below), so "New prevails"/"Old prevails" is
+	# clearer - developer feedback 2026-09-06. Same technical values, only the label text changes;
+	# this is what '_conflict_detail_line's own '_selection_label()' reads for the "Overall summary"
+	# screen. The interactive wizard screen itself ('ems_grouped_conflict_lines' widget) never reads
+	# this field's own labels at all - it renders its own hardcoded strings client-side (see
+	# 'grouped_conflict_lines_field.js's 'resolutionLabels'), kept in sync with this by hand.
+	resolution = fields.Selection([
+		('co_teaching', "Confirm"),
+		('prevail_left', "New prevails"),
+		('prevail_right', "Old prevails"),
+		('reassign_rooms', "Reassign rooms"),
+	], string="Resolution", required=True)
 
 	wizard_id = fields.Many2one(string="Wizard", comodel_name="ems.working_schedules_import_wizard", required=True, ondelete="cascade")
 	# NOTE: the LEFT side is a new entry from this import - positional reference into node_cache,

@@ -37,9 +37,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
           TAG: ${{ steps.version.outputs.tag }}
-          MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+          NOTES: ${{ github.event.pull_request.body }}
         run: |
-          NOTES=$(git log -1 --format=%b "$MERGE_COMMIT_SHA")
           gh release create "$TAG" \
             --target main \
             --title "$TAG" \

@@ -17,10 +17,23 @@
                                             <option t-att-value="option.value" t-esc="option.label"/>
                                         </t>
                                     </select>
+                                    <t t-if="kindHasRoomPicker(group.kind)">
+                                        <small class="text-muted" t-esc="roomColumnLabels.left"/>
+                                        <small class="text-muted" t-esc="roomColumnLabels.right"/>
+                                    </t>
                                 </div>
                                 <t t-foreach="subgroup.records" t-as="record" t-key="record.id">
-                                    <div class="ems_conflict_grid_row ems_conflict_row py-1 border-top">
-                                        <span t-esc="rowText(record)"/>
+                                    <div t-attf-class="ems_conflict_grid_row ems_conflict_row py-1 border-top {{ isRowValid(record) ? 'ems_conflict_row_valid' : 'ems_conflict_row_invalid' }}">
+                                        <span class="ems_conflict_row_text">
+                                            <t t-if="isExternal">
+                                                <strong t-esc="labels.newPrefix"/>: <t t-esc="record.data.left_label"/><span class="ems_conflict_row_separator">→</span><strong t-esc="labels.oldPrefix"/>: <t t-esc="record.data.right_label"/>
+                                            </t>
+                                            <t t-else="">
+                                                <t t-esc="record.data.left_label"/>
+                                                <span class="ems_conflict_row_separator">vs.</span>
+                                                <t t-esc="record.data.right_label"/>
+                                            </t>
+                                        </span>
                                         <select class="form-select form-select-sm"
                                             t-att-value="record.data.resolution"
                                             t-on-change="(ev) => this.onRowResolutionChange(record, ev)">

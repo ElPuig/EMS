@@ -176,6 +176,7 @@ class ems_company(models.Model):
         (config['test_enable']) - a throwaway test database never runs any of those scripts and
         never needs to."""
         super()._register_hook()
+        self._ems_freeze_living_custom_data()
         if config['test_enable']:
             return
         if not self.env['ir.config_parameter'].sudo().get_param('ems.environment_type'):
@@ -187,6 +188,37 @@ class ems_company(models.Model):
                 "sends to real people); if this is a real deployment, run deploy.sh, or set "
                 "ir.config_parameter 'ems.environment_type' to 'production' directly."
             )
+
+    # Models under 'data/custom/' whose records are the centre's own *living* data - an admin
+    # renames/relocates/archives them through the running app, not through this repo's git
+    # history - and must therefore never be pushed back to their file-seeded value once created.
+    # Extend this tuple as more 'data/custom/' models are confirmed living (not master) data -
+    # see docs/en/developers/shared/data_loading.md's "'data/custom/' living data" section.
+    _EMS_LIVING_CUSTOM_DATA_MODELS = ('ems.group',)
+
+    def _ems_freeze_living_custom_data(self):
+        """Freezes (ir.model.data.noupdate=True) every '__import__'-owned record of a model
+        listed in '_EMS_LIVING_CUSTOM_DATA_MODELS', right after every module (re)load.
+
+        CSV loaded via the manifest's plain 'data' key cannot itself carry noupdate=True in this
+        Odoo build (odoo/modules/loading.py silently discards init_xml/update_xml - see
+        docs/en/developers/shared/data_loading.md) - the only way to freeze such a record is to
+        flip its own stored ir.model.data.noupdate flag directly, here. Doing it in
+        '_register_hook()' (called once per server start, after all module data has already
+        loaded - install and upgrade alike) rather than in a version-pinned migration means a
+        brand-new row added to one of these CSVs in a future version still gets created normally
+        (noupdate only blocks *updates* to an already-existing row) and is then frozen in turn
+        the very next time the server starts - no per-PR migration bookkeeping needed.
+
+        Deliberately NOT skipped under config['test_enable'] (unlike the environment_type check
+        above): the test suite relies on this having already run so it can assert on it, and the
+        query is cheap and idempotent either way.
+        """
+        self.env['ir.model.data'].sudo().search([
+            ('module', '=', '__import__'),
+            ('model', 'in', self._EMS_LIVING_CUSTOM_DATA_MODELS),
+            ('noupdate', '=', False),
+        ]).write({'noupdate': True})
 
     @api.model
     def _get_fernet_key(self):

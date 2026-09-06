@@ -137,6 +137,25 @@ sequenceDiagram
 - **`create()`** — every new `employee_type='teacher'` gets their **own** `resource.calendar` (never shared, never the company's own calendar — `resource.mixin`'s client-side default pre-fills `resource_calendar_id` with the company's calendar before `create()` even runs server-side, so that value can't be used to detect "nothing was chosen"; it's unconditionally overridden), seeded from `company.default_schedule_framework_id` (required field, see Settings below). Passes `employee_id`/`course_id` (the new employee, `company.current_course_id`) to the calendar's own `create()`, which derives `name` from them (see above) — no name string built here by hand.
 - **`write()`** — renaming an employee calls the calendar's own `_refresh_personal_name()`, which rebuilds `name` from its `employee_id`/`course_id` (or the reverse-search fallback for a legacy calendar) and no-ops for a framework calendar.
 - **`unlink()`** — deletes the employee's personal calendar (cascading its attendance rows), unless it's a framework, still referenced by another employee, or is the company's own base calendar.
+- **`action_archive()`/`action_unarchive()`** (added 2026-09-06) — cascades to the employee's own
+  personal calendar (`resource_calendar_id.employee_id == employee`; never a framework or a
+  calendar shared with another employee, same guard as `unlink()` above). Archiving calls the
+  calendar's own `action_archive()`, reusing its existing cascade to `attendance_ids` (see the
+  "Model extensions" section above) for free. Unarchiving only flips the calendar itself back to
+  active — it deliberately does **not** reactivate `attendance_ids`, since some of those rows
+  could have gone inactive earlier for an unrelated reason (e.g. superseded by a later room
+  change via `_write_or_new_version()`); a returning teacher gets a fresh schedule
+  import/assignment regardless. Fixes a real gap distinct from the course-transition-rollover
+  cascade (`ems_working_schedule.action_archive()`, 2026-09-01/02, see above): archiving a
+  teacher **directly** — a mid-course departure, never going through `_apply_calendar_rollover()`
+  — left their calendar, and every row still on it, active indefinitely, keeping them visible on
+  any screen that aggregates across every teacher's calendar (e.g. the Guard Duty Board) rather
+  than going through this one employee's own `resource_calendar_id`. Found via a real departed
+  teacher (David Tomás) still showing on the Guard Duty Board; pre-existing affected data backfilled
+  by `migrations/18.0.0.23.4/post-migrate.py`'s `_archive_departed_teacher_calendars` (ORM-based,
+  not raw SQL, so it reuses the calendar's own cascade — had to live in **post**-migrate, not
+  pre-migrate, since `resource.calendar.employee_id` isn't yet a resolvable ORM field from within
+  pre-migrate's own environment, confirmed empirically).
 
 **Backfill for employees that predate the `create()` auto-calendar (2026-08-11).** The override
 above only started running with commit `bc29e04b` (`18.0.0.20.0`, 2026-07-12) — any
@@ -175,7 +194,10 @@ UI. `views/community/working_schedules/list.xml` also gained the same two fields
 out) broken**: the widget is only ever bound to `hr.employee.schedule_attendance_ids` (the
 employee's *current* calendar) — the only realistic way to see it render an archived one is an
 archived *employee* whose calendar was never rolled over (a course transition rolls calendars,
-leaving mid-course doesn't). `employee_archived_reason_tour.js`/`test_employee_archived_reason_tour.py`
+leaving mid-course doesn't). At the time this was written, that was still a live scenario — since
+2026-09-06 `hr.employee.action_archive()` cascades to the employee's own calendar (see "Employee
+lifecycle hooks" above), so this widget now renders an *archived* calendar precisely in this case
+by design, not as a leftover gap. `employee_archived_reason_tour.js`/`test_employee_archived_reason_tour.py`
 extended to seed a real attendance row and open the Schedule tab — passed on the first try, no
 fix needed.
 
@@ -388,7 +410,24 @@ all at once). So by the time a study's groups are due for a fresh import, there 
 nothing active left to reconcile against for that scope — an active overlap found during import
 is always either legitimate co-teaching or a real problem, never something to silently resolve.
 
-Parses a planner XML export (`<TeacherNode name="email ...">` → `<DayNode name="N ...">` → `<HourNode name="N HH:MM">` → `<Subject>`/`<NonTeaching>`/`<Students>` children) via `_parse_schedule_entries()`, writes the calendar (`_write_teacher_schedule`, see "`import_mode`" below), then calls `ems.teaching.sync_from_schedule`/`ems.attendance_template.sync_from_schedule_batch` reading straight off each affected teacher's calendar — the SAME entry points the Schedule tab's own live-edit grid widget uses (unified 2026-09-02, see below; there used to be a separate, importer-only pair here).
+Parses a planner XML export (`<TeacherNode name="email ...">` → `<DayNode name="N ...">` → `<HourNode name="N HH:MM">` → `<Subject>`/`<NonTeaching>`/`<Students>`/optional `<Space>` children) via `_parse_schedule_entries()`, writes the calendar (`_write_teacher_schedule`, see "`import_mode`" below), then calls `ems.teaching.sync_from_schedule`/`ems.attendance_template.sync_from_schedule_batch` reading straight off each affected teacher's calendar — the SAME entry points the Schedule tab's own live-edit grid widget uses (unified 2026-09-02, see below; there used to be a separate, importer-only pair here).
+
+**Explicit per-entry classroom override (`<Space name="<ems.space code>">`, added 2026-09-06):**
+found live-debugging a real merge-mode import - some groups share their own permanent `space_id`
+because they normally attend as one class, but occasionally split ("desdoblen") into two physical
+rooms for a specific session. The group's own `space_id` has to stay the shared default (it's
+correct for every other session), so a one-off room for a specific hour has to live in the file
+itself, per entry, not on the group. `_parse_schedule_entries` reads an optional `<Space>` sibling
+of `<Subject>`/`<Students>` inside `<Hour>`, resolves its `name` against `ems.space.code` (raising
+a clear `ValidationError` immediately if not found, same treatment as an unresolvable `<Subject>`
+code), and sets it as the entry's own `space_id`. Nothing new needed on the write side: an entry
+carrying its own `space_id` already took priority over the group-derived default everywhere a
+room actually gets used or written - `_entry_default_space_id` (conflict detection, room-conflict
+line pre-fill) and `ems.attendance_template._schedule_line_vals` (the final schedule sync,
+originally built for the wizard's own "Reassign rooms" resolution) - this is the new READ side of
+that same, already-existing preference, not a new mechanism. Two groups that would otherwise
+collide on their shared default room simply stop colliding at all once both sides carry their own
+distinct `<Space>` override, since `_find_internal_conflicts`'s room-based slot key differs.
 
 ### `import_mode`: combine vs. replace (2026-09-02, see `plans/calendar_pipeline_simplification.md`)
 
@@ -583,6 +622,19 @@ SECOND list on this same screen, right below `group_line_ids`:
   genuinely independent of each other.
 
 ### Screen 3 — "Resolve subjects" (2026-08-11) — subject/study mismatch resolution
+
+**Code-level disambiguation added 2026-09-06:** `ems.subject.code` is no longer globally unique
+(see `ems.subject`'s own technical reference, "Code uniqueness: per-study, not global") — the
+same code can now resolve to more than one `ems.subject` row. `_parse_schedule_entries` resolves
+groups (and therefore their study) *before* the subject code for exactly this reason: its
+`_resolve_subject_code(code, groups)` helper returns the single match directly when the code
+isn't ambiguous (the common case, unchanged), and only when it is, narrows to the candidate(s)
+taught in the entry's own groups' study — same "don't guess, refuse instead" rule as
+`_resolve_group_name`'s own prefix heuristic. An ambiguity that still can't be resolved this way
+(no groups, or more than one candidate even after narrowing) falls through to the same "Subject
+with code '%s' not found" error already shown for a genuinely unknown code — this screen (built
+for a *different* problem, see below) never sees a code-level ambiguity at all, only a resolved
+subject that turns out not to be taught in its own group's study.
 
 Real error the developer hit importing a real batch: `"The subject 'MP C056: Català / Aranès
 professional' is not available in the following selected studies: AD (2024): Assistència a la
@@ -871,20 +923,59 @@ n-way line; not expected to matter in practice (a genuine 3-way room collision w
 batch would be a very unusual planning error), documented here as a known simplification rather
 than engineered for speculatively.
 
-**Classification (`_classify_conflict_kind`)**, shared conceptually with screen 5 (not yet built)
-per the plan's own "Conflict kind classification" section:
+**Classification (`_classify_conflict_kind`)**, shared by screen 4 (file-internal) and screen 5
+(against an existing DB session):
 - same `subject_id` **and** a shared `group_id` → `co_teaching_eligible`.
-- same `subject_id`, **no** shared `group_id` → `desdoble_eligible` (a genuine split/"desdoble"
-  class needing two different rooms - the collision usually means the split's own destination room
-  was never in the source file, so both groups still carry their shared original one).
+- same `subject_id`, **no** shared `group_id`, **same** teacher on both sides → `join_session`.
+- same `subject_id`, **no** shared `group_id`, **different** teacher (or teacher not yet resolved)
+  → `plain_conflict`.
 - different `subject_id` → `plain_conflict` (pick one side, no other option makes sense).
 
 `kind`'s own `string` was renamed from "Type" to "Conflict" (2026-08-06, developer feedback) - the
 column sits next to `left_label`/`right_label` describing the two colliding sides, so "Conflict"
 reads more naturally as "what kind of conflict is this" than the more generic "Type".
-`desdoble_eligible`'s own option label was shortened from "Split session (different room needed)"
-to just **"Split session"** (2026-08-06) - too long for the column once every column's width was
-tightened (see the "Column width rebalancing" CSS note below).
+
+**`desdoble_eligible` ("Split session") merged into `plain_conflict`, `join_session` added
+(2026-09-06, developer feedback while live-debugging a real merge-mode import stuck with no
+visible cause):** the original rule above used to classify same-subject/no-shared-group as its own
+`desdoble_eligible` kind unconditionally, on the assumption that this shape reliably meant a
+genuine split session (one group's class divided into two, needing two different rooms). The
+developer pushed back on that assumption directly: *"no puedo garantizar si se trata ciertamente de
+eso o no (no siempre hacen la misma materia cuando se separan)"* - a real split doesn't reliably
+keep the same subject on both halves, so "same subject, no shared group" was never a trustworthy
+enough signal on its own; it just as easily describes two unrelated groups coincidentally
+scheduled into the same room for the same subject. Rather than try to guess harder, the two former
+outcomes were reduced to one: `desdoble_eligible` was deleted as a `kind` value and folded into
+`plain_conflict` ("Room conflict") - both already shared the exact same allowed-resolution set
+(`reassign_rooms`/`prevail_left`/`prevail_right`) and the same `reassign_rooms` default at every
+call site, so the merge is a pure card/label consolidation, not a behavior change for that case.
+
+A NEW `join_session` kind was added the same day for the one sub-case that IS a reliable,
+intentional signal: same subject, no shared group, but the **same real teacher** on both sides -
+one teacher deliberately running an identical session for two different groups at once (developer:
+*"cuando dos grupos distintos hacen la misma materia en la misma aula con el mismo profe, lo
+mostraremos como un join session (lo contrario del split) y por defecto estará en confirmar (mismo
+tratamiento que el co-teaching)"*). `join_session` reuses `co_teaching_eligible`'s own
+allowed-resolution set and default (`co_teaching`/"Confirm", `prevail_left`, `prevail_right`, no
+`reassign_rooms` - there's nothing to reassign, both entries are meant to coexist as-is). "Same
+teacher" is computed differently per screen since the two call sites have differently-shaped inputs
+- screen 4 compares both `node_cache` items' own resolved `employee_id`; screen 5 compares the
+file item's resolved teacher (`_resolve_teacher_for_classification`) against the DB candidate's own
+`attendance_template_id.teacher_ids` - both recomputed at build time in `_build_internal_conflict_
+lines`/`_build_external_conflict_lines` rather than threaded through the two `_find_*_conflicts`
+search methods, since `_classify_conflict_kind` itself stays a plain, cache-free classifier taking
+the flag as a parameter.
+
+**Per-row valid/invalid color coding (same day, same developer feedback session):** added directly
+to `EmsGroupedConflictLinesField` (`isRowValid()`, mirroring `_resolution_is_valid` client-side) and
+`grouped_conflict_lines_field.css` (`.ems_conflict_row_valid`/`_invalid`, a soft green/red
+background tint) - a genuinely reactive win found live: while debugging a stuck import with 100
+rows and no visible cause, 7 rows turned out to visually show two different-looking classroom names
+while their actual `left_space_id`/`right_space_id` were identical (see
+`plans/working_schedule_room_picker_display_desync.md` for that separate, still-open display/data
+desync bug) - reading the DOM alone could never have told the two states apart, but color-coding
+directly off `record.data` (the same reactive source every other binding in this widget already
+reads) would flag that row as invalid on sight regardless of what its text happens to display.
 
 **State renamed "Internal conflicts" → "File conflicts" (2026-08-06, developer feedback):** clearer
 against screen 5's "Existing schedule conflicts" - both entries colliding here come from the same
@@ -1043,9 +1134,11 @@ kind (below) on a real, large planner file. Two related, developer-approved asks
 `this.props.record.data[this.props.name].records` (the o2m's already-loaded sub-records - no new
 RPC) and groups **client-side**, in JS:
 - **Outer: by `kind`** - one Bootstrap `card` per kind actually present, in a fixed order
-  (`co_teaching_eligible`, `desdoble_eligible`, `plain_conflict`, `self_conflict`), reusing the
-  exact card/`card-header`/`card-body` classes the "Overall summary" screen's own cards already
-  use (`_summary_block_html()`) - "quizás el formato tarjetas... nos pueda venir bien."
+  (`co_teaching_eligible`, `join_session`, `plain_conflict`, `self_conflict` - `join_session` added
+  and `desdoble_eligible` merged into `plain_conflict` 2026-09-06, see the "Classification" section
+  above), reusing the exact card/`card-header`/`card-body` classes the "Overall summary" screen's
+  own cards already use (`_summary_block_html()`) - "quizás el formato tarjetas... nos pueda venir
+  bien."
 - **Inner: by `left_group_key`** (changed from the originally-shipped `left_label` a few hours
   later the SAME day, once the developer actually saw it rendered for real: *"veo una targeta por
   vila [sic, fila], no hay agrupación ninguna... creo que la forma más práctica de agrupar es por

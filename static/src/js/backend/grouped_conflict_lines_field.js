@@ -34,8 +34,21 @@ import { AutoComplete } from "@web/core/autocomplete/autocomplete";
 // own to carry that meaning. Fixed by never showing the bare words "left"/"right" in the UI at
 // all: on "File conflicts" (internal - both sides are file entries, so there is no asymmetry
 // worth naming) a row just joins the two full descriptions with "vs."; on "Existing schedule
-// conflicts" (external - genuinely asymmetric) each side is explicitly prefixed "File:"/
-// "Database:", reusing the exact words the old column headers already used.
+// conflicts" (external - genuinely asymmetric) each side is explicitly prefixed "New:"/"Old:"
+// (renamed 2026-09-06 from "File:"/"Database:" - developer feedback after real testing: the file
+// side is what's actually going to be kept, the DB side is what it replaces, so "new"/"old" reads
+// more directly than which SOURCE each side came from), in bold, joined by "→" instead of the
+// former plain "-" (found unclear the same day: "ese guion chiquito no es claro").
+//
+// The same asymmetry applies to the room-picker columns (only shown once a row's own resolution
+// is 'reassign_rooms'): these had NO header or label at all until 2026-09-06, and a placeholder
+// alone would not have fixed it either, since both pickers are pre-filled with the SAME colliding
+// room by default (see '_build_external_conflict_lines'/'_build_internal_conflict_lines' server-
+// side) - a placeholder never shows once a field already has a value. Fixed with a real, always-
+// visible header label per column, once per sub-group (not repeated per row): "New classroom"/
+// "Old classroom" for external, "Left"/"Right" for internal - the latter deliberately keeps the
+// bare left/right wording here (developer's own call, 2026-09-06: "como son conflictos del
+// fichero consigo mismo, usaremos left y right"), unlike the row text above.
 //
 // The grouping is entirely client-side (kind/left_label are already loaded, ordinary Char/
 // Selection values) - no new server method, no extra round-trip. Left/right room pickers (only
@@ -105,32 +118,43 @@ export class EmsGroupedConflictLinesField extends Component {
         return {
             bulkPlaceholder: _t("— apply to all —"),
             spacePlaceholder: _t("Classroom…"),
-            filePrefix: _t("File"),
-            databasePrefix: _t("Database"),
+            newPrefix: _t("New"),
+            oldPrefix: _t("Old"),
         };
     }
 
     // 'external_conflict_line_ids' is genuinely asymmetric (file entry vs. an already-active DB
     // session) - 'internal_conflict_line_ids' isn't (both sides are file entries), so only the
-    // former gets explicit "File:"/"Database:" prefixes on each row (see the file's own top
-    // comment for why plain, unlabeled "left"/"right" was dropped from the UI entirely).
+    // former gets explicit "New:"/"Old:" prefixes on each row (see the file's own top comment for
+    // why plain, unlabeled "left"/"right" was dropped from the row text entirely).
     get isExternal() {
         return this.props.name === "external_conflict_line_ids";
     }
 
-    rowText(record) {
-        if (this.isExternal) {
-            return `${this.labels.filePrefix}: ${record.data.left_label}   -   ${this.labels.databasePrefix}: ${record.data.right_label}`;
-        }
-        return `${record.data.left_label}   vs.   ${record.data.right_label}`;
+    // Column headers for the two room-picker cells, shown once per sub-group (see the template) -
+    // "New"/"Old" mirrors the row text's own prefixes for the external screen; the internal screen
+    // deliberately keeps plain "Left"/"Right" instead (developer's own call, see top comment).
+    get roomColumnLabels() {
+        return this.isExternal
+            ? { left: _t("New classroom"), right: _t("Old classroom") }
+            : { left: _t("Left"), right: _t("Right") };
+    }
+
+    // Only 'plain_conflict' ever allows 'reassign_rooms' (see 'allowedResolutionsByKind' below) -
+    // the room-column header is only worth showing for a sub-group whose kind can actually need it.
+    kindHasRoomPicker(kind) {
+        return (this.allowedResolutionsByKind[kind] || []).includes("reassign_rooms");
     }
 
     // Same 4 kinds as 'ems.working_schedules_import_wizard.conflict_mixin's own 'kind' Selection,
-    // in the same fixed order - a card only ever appears for a kind actually present.
+    // in the same fixed order - a card only ever appears for a kind actually present. The former
+    // 'desdoble_eligible' ("Split session") was merged into 'plain_conflict' ("Room conflict") and
+    // 'join_session' ("Join session") added 2026-09-06 - see '_classify_conflict_kind's own
+    // docstring (models/employees/working_schedule.py) for why.
     get kindLabels() {
         return {
             co_teaching_eligible: _t("Co-teaching"),
-            desdoble_eligible: _t("Split session"),
+            join_session: _t("Join session"),
             plain_conflict: _t("Room conflict"),
             self_conflict: _t("Same teacher, different room"),
         };
@@ -143,17 +167,47 @@ export class EmsGroupedConflictLinesField extends Component {
     get allowedResolutionsByKind() {
         return {
             co_teaching_eligible: ["co_teaching", "prevail_left", "prevail_right"],
-            desdoble_eligible: ["reassign_rooms", "prevail_left", "prevail_right"],
+            join_session: ["co_teaching", "prevail_left", "prevail_right"],
             plain_conflict: ["reassign_rooms", "prevail_left", "prevail_right"],
             self_conflict: ["prevail_left", "prevail_right"],
         };
     }
 
+    // Client-side mirror of '_resolution_is_valid' (models/employees/working_schedule.py) - drives
+    // the per-row valid/invalid color coding (developer feedback 2026-09-06, live-debugging a real
+    // stuck import: "vamos con lo de los colores" - a row can visually look resolved, e.g. two
+    // different-looking classroom names, while 'record.data' still disagrees due to an AutoComplete
+    // display/data desync bug being tracked separately - see
+    // plans/working_schedule_room_picker_display_desync.md). Reads 'record.data' directly (the
+    // SAME reactive source the row's own template bindings read), never the DOM, so this is immune
+    // to that exact desync - if anything, this is what would have caught it immediately instead of
+    // needing OWL devtools to diagnose it by hand.
+    isRowValid(record) {
+        const data = record.data;
+        const allowed = this.allowedResolutionsByKind[data.kind] || [];
+        if (!allowed.includes(data.resolution)) {
+            return false;
+        }
+        if (data.resolution === "reassign_rooms") {
+            const left = data.left_space_id;
+            const right = data.right_space_id;
+            return !!left && !!right && left[0] !== right[0];
+        }
+        return true;
+    }
+
+    // "prevail_left"/"prevail_right" read "New prevails"/"Old prevails" on the external screen
+    // (mirrors the row text's own "New:"/"Old:" prefixes - left is always the file entry, right
+    // the existing DB session there) and plain "Left prevails"/"Right prevails" on the internal
+    // one, where both sides are equally new file entries. Kept in sync by hand with the same
+    // rename on 'external_conflict_line's own 'resolution' Selection (models/employees/
+    // working_schedule.py) - that field's labels drive the "Overall summary" screen's text, this
+    // getter drives the live wizard screen, which never reads the model field's own labels at all.
     get resolutionLabels() {
         return {
             co_teaching: _t("Confirm"),
-            prevail_left: _t("Left prevails"),
-            prevail_right: _t("Right prevails"),
+            prevail_left: this.isExternal ? _t("New prevails") : _t("Left prevails"),
+            prevail_right: this.isExternal ? _t("Old prevails") : _t("Right prevails"),
             reassign_rooms: _t("Reassign rooms"),
         };
     }

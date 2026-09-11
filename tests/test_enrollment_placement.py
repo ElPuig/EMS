@@ -601,7 +601,7 @@ class TestEnrollmentPlacement(TransactionCase):
             active_ids=applicant.ids).create({})
         self.assertIn(applicant, wizard.student_ids)
         # The applicant itself is the recipient (personal email), no age/family logic.
-        self.assertEqual(wizard._resolve_recipients(applicant), applicant)
+        self.assertEqual(applicant._ems_notification_recipients(), applicant)
 
     def test_proposal_writes_group_and_preinscription_shift(self):
         applicant = self.env['res.partner'].create({

@@ -262,6 +262,39 @@ class ResPartner(models.Model):
         enrolling = Course.search([('is_enrollment_default', '=', True)], limit=1)
         return orders.filtered(lambda order: order.ems_course_id == enrolling)[:1]
 
+    def _ems_course_in_force(self):
+        """The academic year that governs what may be done with a student now.
+
+        Same two-tier rule as _ems_enrollment_in_force(), on the course itself rather than
+        on the enrollment: the year being TAUGHT comes first, with the year being enrolled
+        into as the fallback for the window where the student holds no enrollment for the
+        running one. Extracted so the authorization flags, the Secretary tab's list and the
+        send assistant (ems.authorization.send.wizard) all read one definition instead of
+        three.
+
+        Model-level, not record-level: it answers "which course is running", which is the
+        same for every student. Callable on an empty recordset.
+        """
+        Course = self.env['ems.course']
+        return (Course.search([('is_current', '=', True)], limit=1)
+                or Course.search([('is_enrollment_default', '=', True)], limit=1))
+
+    def _ems_level_study_in_force(self):
+        """(level, study) this student is attending right now.
+
+        From the enrollment in force when there is one - it is the authoritative statement
+        of what the student signed up for - and from the main group otherwise, which is what
+        a student still has between the course transition and the global flip. Feeds
+        ems.authorization.template._matches_scope() from the student side, the same predicate
+        the enrollment side already uses.
+        """
+        self.ensure_one()
+        enrollment = self._ems_enrollment_in_force()
+        if enrollment:
+            return enrollment.ems_level_id, enrollment.ems_study_id
+        group = self.main_group_id
+        return group.level_id, group.study_id
+
     @api.depends(
     'sale_order_ids.ems_course_id',
     'sale_order_ids.ems_authorization_ids.status',
@@ -347,6 +380,25 @@ class ResPartner(models.Model):
             'context': {
                 'active_ids': students.ids,
             },
+        }
+
+    def action_authorization_send_bulk(self):
+        """Open the authorization send assistant for the selected students/applicants.
+
+        Same reason as action_portal_access_bulk() below for living here rather than inline
+        in the server action: safe_eval's context has no `_`, so a translatable message is
+        only possible from real Python.
+        """
+        students = self.filtered(lambda p: p.contact_type in ('student', 'applicant'))
+        if not students:
+            raise UserError(_("Please select at least one student or applicant."))
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Send authorizations'),
+            'res_model': 'ems.authorization.send.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'active_ids': students.ids, 'default_target': 'students'},
         }
 
     def action_portal_access_bulk(self):

@@ -7,6 +7,12 @@
             <field name="arch" type="xml">
                 <form string="Authorization Template">
                     <header>
+                        <button name="action_send_to_scope"
+                                type="object"
+                                string="Send to Students"
+                                class="oe_highlight"
+                                help="Send this authorization to students during the course, without going through an enrollment."/>
+
                         <!-- Both buttons act on open enrollments, which a standalone
                              template deliberately never touches (see apply_on). -->
                         <button name="action_apply_to_open_enrollments" 

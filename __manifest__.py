@@ -279,6 +279,7 @@
             'views/academic_management/enrollment/enrollment_list.xml',
             'views/academic_management/enrollment/list_tutor.xml',
             'views/academic_management/enrollment/enrollment_proposal_wizard.xml',
+            'views/academic_management/enrollment/authorization_send_wizard.xml',
             'views/academic_management/enrollment/enrollment_search.xml',
             'views/academic_management/enrollment/menu.xml',
             'views/academic_management/enrollment/no_destination.xml',
@@ -334,6 +335,7 @@
         'mails/coexistence/strike_notification.xml',
         'mails/coexistence/strike_escalation.xml',
         'mails/enrollment/enrollment_send.xml',
+        'mails/enrollment/authorization_send.xml',
 
         ### Reports templates ###
         'reports/attendance/templates/sumary_table.xml',

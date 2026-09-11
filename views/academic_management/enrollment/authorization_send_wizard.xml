@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record model="ir.ui.view" id="view_authorization_send_wizard_form">
+            <field name="name">ems.authorization.send.wizard.form</field>
+            <field name="model">ems.authorization.send.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Send authorizations">
+                    <div class="alert alert-info" role="alert">
+                        Authorizations sent here reach the student on their own, without going
+                        through an enrollment - for the forms that come up once the academic
+                        year has already started. The students already holding one are left
+                        alone, never asked twice.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="template_ids" widget="many2many_tags"
+                                   options="{'no_create': True}"/>
+                            <field name="course_id" options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="target" widget="radio"/>
+                            <field name="notify" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    <group invisible="target != 'students'">
+                        <field name="student_ids" widget="many2many_tags" nolabel="1"
+                               options="{'no_create': True}"/>
+                    </group>
+                    <group invisible="target != 'scope'" string="Send to every enrolled student in">
+                        <field name="group_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                        <field name="ems_study_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                        <field name="ems_level_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                    </group>
+                    <separator string="Recipients (preview)"/>
+                    <field name="line_ids" readonly="1">
+                        <list create="false" delete="false" edit="false">
+                            <field name="student_id" string="Student"/>
+                            <field name="template_ids" string="Authorizations" widget="many2many_tags"/>
+                            <field name="recipient_emails" string="Notified at"/>
+                            <field name="note" string="Note" decoration-warning="note != False"/>
+                        </list>
+                    </field>
+                    <footer>
+                        <button name="action_apply" type="object" string="Send" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_ems_authorization_send" model="ir.actions.act_window">
+            <field name="name">Send Authorizations</field>
+            <field name="res_model">ems.authorization.send.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{'default_target': 'scope'}</field>
+        </record>
+
+        <!-- Cog-wheel / "Actions" entry on the students list: pick the students with the
+             filters that list already has, then send. -->
+        <record id="action_authorization_send_bulk" model="ir.actions.server">
+            <field name="name">Send authorizations</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="binding_model_id" ref="base.model_res_partner"/>
+            <field name="binding_view_types">list</field>
+            <field name="groups_id" eval="[(4, ref('ems.group_academic_admin')), (4, ref('ems.group_secretary')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="state">code</field>
+            <!-- Keep this to a single call: safe_eval's context has no `_`, so any
+                 translatable message has to come from real Python (res.partner). -->
+            <field name="code">
+action = env['res.partner'].browse(env.context.get('active_ids', [])).action_authorization_send_bulk()
+            </field>
+        </record>
+
+    </data>
+</odoo>

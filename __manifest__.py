@@ -313,6 +313,7 @@
             'views/portal/portal_loading_overlay.xml',
             'views/portal/portal_header.xml',
             'views/portal/portal_account_readonly.xml',
+            'views/portal/portal_authorizations.xml',
             'views/portal/portal_enrollment_draft.xml',
             'views/portal/portal_enrollment_confirmed.xml',
             'views/portal/portal_comms.xml',

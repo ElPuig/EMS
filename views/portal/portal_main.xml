@@ -26,9 +26,9 @@
 
                     <t t-call="portal.portal_docs_entry">
                         <t t-set="icon" t-value="'/ems/static/src/img/matriculas.svg'"/>
-                        <t t-set="title">Enrollment</t>
+                        <t t-set="title">Enrollment and authorizations</t>
                         <t t-set="url" t-value="'/my/gestion-matriculas'"/>
-                        <t t-set="text">Manage enrollment and payments</t>
+                        <t t-set="text">Manage enrollment, authorizations and payments</t>
                         <t t-set="config_card" t-value="True"/> 
                     </t>
 

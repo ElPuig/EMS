@@ -12,7 +12,7 @@
                             </div>
                         </t>
 
-                        <t t-if="not enrollment">
+                        <t t-if="not enrollment and not authorizations">
                             <div class="alert alert-info">No enrollment found.</div>
                         </t>
 
@@ -182,6 +182,13 @@
                                 </div>
                             </t>
 
+                        </t>
+
+                        <t t-if="authorizations">
+                            <t t-call="ems.portal_authorizations_block">
+                                <t t-set="authorizations" t-value="authorizations"/>
+                                <t t-set="section_number" t-value="'4' if enrollment else ''"/>
+                            </t>
                         </t>
                     </div>
                 </div>

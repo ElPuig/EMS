@@ -25,6 +25,33 @@ class TestPortalTour(HttpCase):
         self.start_tour("/my/gestion-matriculas", "ems_portal_enrollment_render",
                          login="test_portal_tour_student")
 
+    def test_portal_confirmed_authorizations_tour(self):
+        """Issue #443: an authorization sent during the school year must be answerable from
+        the portal even though the enrollment of that course is already confirmed and closed
+        - the page rendered for a confirmed enrollment showed no authorizations at all
+        before this."""
+        course = self.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1) \
+            or self.env['ems.course'].create({
+                'start': 2098, 'end': 2099, 'is_enrollment_default': True})
+        subject = self.env['ems.subject'].create({
+            'code': 'TPTSUB', 'acronym': 'TPT', 'name': 'Portal Tour Subject',
+        })
+        order = self.env['sale.order'].create({
+            'partner_id': self.student.id, 'ems_course_id': course.id,
+            'order_line': [(0, 0, {'product_id': subject.product_id.id})],
+        })
+        order.action_confirm()
+        self.assertEqual(order.state, 'sale')
+        template = self.env['ems.authorization.template'].create({
+            'name': 'Portal Tour Mid-year Authorization', 'legal_text': '<p>Mid-year text</p>',
+            'is_required': False, 'apply_on': 'standalone',
+        })
+        self.env['ems.authorization'].create({
+            'partner_id': self.student.id, 'course_id': course.id, 'template_id': template.id,
+        })
+        self.start_tour("/my/gestion-matriculas", "ems_portal_confirmed_authorizations",
+                        login="test_portal_tour_student")
+
     def test_portal_documentation_render_tour(self):
         self.start_tour("/my/documentacion", "ems_portal_documentation_render",
                          login="test_portal_tour_student")

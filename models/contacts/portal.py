@@ -155,6 +155,30 @@ class ems_contact_portal(models.Model):
         self.ensure_one()
         return [self.id] + self._ems_family_contacts().ids
 
+    def get_portal_authorizations(self):
+        """Every authorization addressed to this student for the courses that are live for
+        them - the one being taught and the one being enrolled into - whether it came through
+        an enrollment or was sent on its own during the school year (issue #443).
+
+        Read from partner_id rather than from the enrollment precisely because the second
+        kind has no enrollment: the running course's enrollment is confirmed and closed by
+        the time those are sent, which is why they exist at all.
+
+        sudo() for the same reason as every other helper here: a family's portal user does
+        not own its child's records.
+
+        Usage in controllers:
+            authorizations = student.get_portal_authorizations()
+        """
+        self.ensure_one()
+        Course = self.env['ems.course']
+        courses = Course.search(['|', ('is_current', '=', True),
+                                 ('is_enrollment_default', '=', True)])
+        return self.env['ems.authorization'].sudo().search([
+            ('partner_id', '=', self.id),
+            ('course_id', 'in', courses.ids),
+        ], order='course_id desc, id')
+
     def get_portal_enrollment_ids(self):
         """Returns all sale order IDs for this student in the portal context.
 

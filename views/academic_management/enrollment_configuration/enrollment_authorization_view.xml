@@ -23,6 +23,7 @@
             <field name="arch" type="xml">
                 <list string="Authorization Templates">
                     <field name="name"/>
+                    <field name="apply_on"/>
                     <field name="is_required" widget="boolean_toggle"/>
                     <field name="ems_level_ids" widget="many2many_tags" placeholder="All Levels"/>
                     <field name="ems_study_ids" widget="many2many_tags" placeholder="All Studies"/>

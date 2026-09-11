@@ -4,7 +4,7 @@ from datetime import date
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study
+from .common import create_level_study, create_level_study_group
 
 FAKE_PDF = base64.b64encode(b'%PDF-1.4 fake test content')
 
@@ -138,6 +138,48 @@ class TestAuthorizationTemplate(TransactionCase):
         self.assertTrue(order.ems_authorization_ids.filtered(lambda a: a.template_id == template))
 
 
+    # --- apply_on: standalone templates stay out of the enrollment process ---
+
+    def test_standalone_template_is_not_applied_on_create(self):
+        order = self._order(self.student1)
+        template = self.env['ems.authorization.template'].create({
+            'name': 'Mid-year Auth', 'legal_text': '<p>Text</p>', 'apply_on': 'standalone',
+        })
+        self.assertNotIn(template, order.ems_authorization_ids.mapped('template_id'))
+
+    def test_standalone_template_is_ignored_by_the_enrollment_sync(self):
+        """The one that matters: without the apply_on filter in
+        sale.order._get_authorization_commands(), the next onchange on any draft
+        enrollment would pull in a template created mid-year for another course."""
+        order = self._order(self.student1)
+        template = self.env['ems.authorization.template'].create({
+            'name': 'Mid-year Sync Auth', 'legal_text': '<p>Text</p>', 'apply_on': 'standalone',
+        })
+        order.apply_authorizations()
+        self.assertNotIn(template, order.ems_authorization_ids.mapped('template_id'))
+
+    def test_apply_to_open_enrollments_is_a_noop_for_a_standalone_template(self):
+        order = self._order(self.student1)
+        template = self.env['ems.authorization.template'].create({
+            'name': 'Mid-year Apply Auth', 'legal_text': '<p>Text</p>', 'apply_on': 'standalone',
+        })
+        template.action_apply_to_open_enrollments()
+        self.assertNotIn(template, order.ems_authorization_ids.mapped('template_id'))
+
+    def test_remove_from_open_enrollments_is_a_noop_for_a_standalone_template(self):
+        """A template switched to standalone after it had already been attached keeps
+        its existing enrollment rows - removing them is the enrollment-side button's
+        job, and it is hidden for a standalone template."""
+        order = self._order(self.student1)
+        template = self.env['ems.authorization.template'].create({
+            'name': 'Mid-year Remove Auth', 'legal_text': '<p>Text</p>',
+        })
+        self.assertIn(template, order.ems_authorization_ids.mapped('template_id'))
+        template.apply_on = 'standalone'
+        template.action_remove_from_open_enrollments()
+        self.assertIn(template, order.ems_authorization_ids.mapped('template_id'))
+
+
 class TestAuthorization(TransactionCase):
     """EmsAuthorization — the per-enrollment response row."""
 
@@ -230,3 +272,175 @@ class TestAuthorizationField(TransactionCase):
         # render.
         fields = self.env['ems.authorization.field'].search([('template_id', '=', template.id)])
         self.assertEqual(fields.mapped('label'), ['First', 'Second'])
+
+
+class TestAuthorizationStandalone(TransactionCase):
+    """EmsAuthorization with no enrollment - the mid-year authorizations of issue #443.
+
+    partner_id/course_id are the record's real anchor; enrollment_id only says which
+    route created it. See docs/en/developers/enrollment/authorization.md's
+    "Standalone authorizations" section.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        Course = cls.env['ems.course']
+        cls.course = Course.search([('is_enrollment_default', '=', True)], limit=1) \
+            or Course.create({'start': 2098, 'end': 2099, 'is_enrollment_default': True})
+        cls.level, cls.study, cls.group = create_level_study_group(cls, 'TAS', study={
+            'code': 'TAS001', 'acronym': 'TASS', 'name': 'Test Standalone Study',
+        })
+        cls.group_study = cls.env['ems.study'].create({
+            'code': 'TAS002', 'acronym': 'TASG', 'name': 'Group Standalone Study',
+            'date': date.today(), 'deprecated': False, 'level_id': cls.level.id,
+        })
+        cls.group.study_id = cls.group_study
+        cls.subject = cls.env['ems.subject'].create({
+            'code': 'TASSUB', 'acronym': 'TSS', 'name': 'Test Standalone Subject',
+            'study_ids': [(6, 0, [cls.study.id])],
+        })
+        cls.student = cls.env['res.partner'].create({
+            'name': 'Standalone Student', 'contact_type': 'student',
+            'main_group_id': cls.group.id,
+        })
+        cls.other_student = cls.env['res.partner'].create({
+            'name': 'Standalone Other Student', 'contact_type': 'student',
+        })
+        cls.template = cls.env['ems.authorization.template'].create({
+            'name': 'Mid-year Template', 'apply_on': 'standalone',
+            'legal_text': '<p>Hello {{student_name}}, year {{academic_year}}, '
+                          'study {{study_name}}.</p>',
+        })
+
+    def _standalone(self, student=None, template=None):
+        return self.env['ems.authorization'].create({
+            'partner_id': (student or self.student).id,
+            'course_id': self.course.id,
+            'template_id': (template or self.template).id,
+        })
+
+    def _order(self, student=None, with_line=False):
+        order = self.env['sale.order'].create({
+            'partner_id': (student or self.student).id,
+            'ems_study_id': self.study.id,
+            'ems_course_id': self.course.id,
+        })
+        if with_line:
+            order.order_line = [(0, 0, {'product_id': self.subject.product_id.id})]
+        return order
+
+    def test_create_without_an_enrollment(self):
+        auth = self._standalone()
+        self.assertFalse(auth.enrollment_id)
+        self.assertEqual(auth.partner_id, self.student)
+        self.assertEqual(auth.course_id, self.course)
+        self.assertEqual(auth.status, 'pending')
+
+    def test_partner_and_course_are_derived_from_the_enrollment(self):
+        order = self._order()
+        auth = self.env['ems.authorization'].create({
+            'enrollment_id': order.id, 'template_id': self.template.id,
+        })
+        self.assertEqual(auth.partner_id, self.student)
+        self.assertEqual(auth.course_id, self.course)
+
+    def test_standalone_target_survives_a_later_write(self):
+        auth = self._standalone()
+        auth.write({'status': 'yes', 'signed_document': FAKE_PDF, 'signed_document_name': 'x.pdf'})
+        self.assertEqual(auth.partner_id, self.student)
+        self.assertEqual(auth.course_id, self.course)
+
+    def test_a_standalone_may_duplicate_an_enrollment_bound_template(self):
+        """The partial index only covers standalone rows: the wizard, not the DB, is
+        what keeps a student from being asked the same thing twice."""
+        order = self._order()
+        enrollment_auth = self.env['ems.authorization'].create({
+            'enrollment_id': order.id, 'template_id': self.template.id,
+        })
+        standalone_auth = self._standalone()
+        self.assertNotEqual(enrollment_auth, standalone_auth)
+        self.assertEqual(standalone_auth.partner_id, enrollment_auth.partner_id)
+
+    def test_legal_text_rendered_without_an_enrollment(self):
+        auth = self._standalone()
+        rendered = auth.legal_text_rendered
+        self.assertIn(self.student.name, rendered)
+        self.assertIn(self.course.name, rendered)
+        self.assertIn(self.group_study.name, rendered)
+        self.assertNotIn('{{student_name}}', rendered)
+        self.assertNotIn('{{academic_year}}', rendered)
+        self.assertNotIn('{{study_name}}', rendered)
+
+    def test_legal_text_rendered_prefers_the_enrollment_study_over_the_group(self):
+        order = self._order()
+        auth = self.env['ems.authorization'].create({
+            'enrollment_id': order.id, 'template_id': self.template.id,
+        })
+        self.assertIn(self.study.name, auth.legal_text_rendered)
+        self.assertNotIn(self.group_study.name, auth.legal_text_rendered)
+
+    def test_acceptance_only_rule_still_applies(self):
+        self.template.acceptance_only = True
+        auth = self._standalone()
+        with self.assertRaises(ValidationError):
+            auth.write({'status': 'no', 'signed_document': FAKE_PDF, 'signed_document_name': 'x.pdf'})
+
+    def test_internal_user_must_still_attach_a_document(self):
+        auth = self._standalone()
+        with self.assertRaises(ValidationError):
+            auth.write({'status': 'yes'})
+
+    def test_certificate_filename_falls_back_to_the_course(self):
+        auth = self._standalone()
+        self.assertIn(self.course.name, auth._certificate_filename())
+        self.assertTrue(auth._certificate_filename().endswith('.pdf'))
+
+    def test_display_name_names_the_student_and_the_template(self):
+        auth = self._standalone()
+        self.assertIn(self.student.name, auth.display_name)
+        self.assertIn(self.template.name, auth.display_name)
+
+    def test_a_pending_required_standalone_does_not_block_action_confirm(self):
+        """A mid-year authorization must never gate an enrollment: action_confirm()
+        reads the enrollment's own one2many, which a standalone row is not part of."""
+        order = self._order(with_line=True)
+        self.assertTrue(self.template.is_required)
+        auth = self._standalone()
+        order.action_confirm()
+        self.assertEqual(order.state, 'sale')
+        self.assertEqual(auth.status, 'pending')
+
+    def test_portal_user_only_sees_own_authorizations(self):
+        """Pins rule_ems_authorization_portal's domain, which moves from
+        enrollment_id.partner_id to partner_id."""
+        portal_user = self.env['res.users'].create({
+            'name': 'Standalone Portal User', 'login': 'standalone_portal_tas',
+            'partner_id': self.student.id, 'lang': 'en_US',
+            'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
+        })
+        mine = self._standalone()
+        theirs = self._standalone(student=self.other_student)
+        visible = self.env['ems.authorization'].with_user(portal_user).search([])
+        self.assertIn(mine, visible)
+        self.assertNotIn(theirs, visible)
+
+    def test_missing_partner_is_rejected(self):
+        with self.assertRaises(ValidationError):
+            self.env['ems.authorization'].create({
+                'course_id': self.course.id, 'template_id': self.template.id,
+            })
+
+    def test_missing_course_is_rejected(self):
+        with self.assertRaises(ValidationError):
+            self.env['ems.authorization'].create({
+                'partner_id': self.student.id, 'template_id': self.template.id,
+            })
+
+    def test_duplicate_standalone_is_rejected(self):
+        """The ems_authorization_unique_standalone partial index. Last assertion in
+        this test on purpose: an IntegrityError leaves the cursor unusable."""
+        self._standalone()
+        with self.assertRaises(Exception):
+            self._standalone()
+            self.env.flush_all()

@@ -213,7 +213,7 @@
         <field name="name">Authorization: tutor (create/edit for own students)</field>
         <field name="model_id" ref="ems.model_ems_authorization"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('enrollment_id.partner_id.tutor_id.user_id', '=', user.id)]</field>
+        <field name="domain_force">[('partner_id.tutor_id.user_id', '=', user.id)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>

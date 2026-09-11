@@ -2,22 +2,36 @@
 
 ## Overview
 
-Four models cover the "the family must accept/reject this before the
-enrollment can be confirmed" flow — image rights, school trips, health data,
-sharing information with family, etc:
+Five models cover the "the family must accept/reject this" flow — image rights,
+school trips, health data, sharing information with family, etc. An
+authorization reaches a student by one of two routes:
+
+- **through the enrollment**, as part of the enrollment process: the family
+  answers it before the enrollment can be confirmed;
+- **standalone, during the school year**, for forms that only appear once the
+  course is already running (published by the Departament d'Educació, or
+  decided in a tutoring meeting) — the enrollment of the running course is
+  closed by then, so these hang off the student directly.
 
 - **`ems.authorization.template`** — the reusable definition (legal text,
   whether it's mandatory, whether it can only be accepted, which
-  level/study it applies to, optional extra data fields to collect).
+  level/study it applies to, whether it is attached automatically during
+  enrollment or sent by hand during the course (`apply_on`), optional extra
+  data fields to collect).
 - **`ems.authorization.field`** — an extra data field a template can ask
   for on acceptance (e.g. "passport number" for a trip authorization).
-- **`ems.authorization`** — one row per (enrollment, template): the actual
-  pending/accepted/rejected response, on [`sale.order`](enrollment.md)'s
+- **`ems.authorization`** — the actual pending/accepted/rejected response.
+  Always addressed to one student for one academic year (`partner_id`,
+  `course_id`); `enrollment_id` is set only for the enrollment route, where
+  the row also shows up on [`sale.order`](enrollment.md)'s
   `ems_authorization_ids`.
 - **`ems.authorization.response`** — one row per (`ems.authorization`,
   `ems.authorization.field`): the family's answer to an extra data field.
+- **`ems.authorization.send.wizard`** (+ `.line`) — the assistant that sends
+  standalone authorizations to a chosen set of students and emails them.
 
-**Module file:** `models/enrollment/authorization.py`
+**Module files:** `models/enrollment/authorization.py`,
+`models/enrollment/authorization_send_wizard.py`
 
 ---
 
@@ -25,15 +39,20 @@ sharing information with family, etc:
 
 | Model | Field | Notes |
 |-------|-------|-------|
-| `ems.authorization.template` | `is_required` | If pending and required, blocks `sale.order.action_confirm()` (see [`enrollment.md`](enrollment.md#authorization-sync)). |
+| `ems.authorization.template` | `apply_on` | `enrollment` (default) = attached automatically to every open enrollment matching the scope below. `standalone` = never attached automatically; it only reaches a student through the send wizard. This is what stops a template created mid-year from being pulled onto next year's draft enrollments — see [Standalone authorizations](#standalone-authorizations-sent-during-the-course). |
+| | `is_required` | If pending and required, blocks `sale.order.action_confirm()` (see [`enrollment.md`](enrollment.md#authorization-sync)). |
 | | `acceptance_only` | If set, `ems.authorization.write()` rejects any attempt to set `status='no'` on its responses. |
 | | `auth_type` | `image`/`trip`/`health`/`share`/`other` — drives `res.partner.auth_image`/`auth_trip`/`auth_healt`/`auth_share` (see below), not read anywhere else. |
 | | `ems_level_ids` / `ems_study_ids` | Scope. Empty on both = applies to every enrollment; when both are set, an enrollment must match **both** (AND-of-scopes — see [`_matches_scope()`](#keeping-authorizations-in-sync-with-open-enrollments) below). |
-| `ems.authorization` | `status` | `pending` → `yes`/`no`. Drives the confirm-blocking check and `res.partner`'s auth booleans. |
+| `ems.authorization` | `partner_id` / `course_id` | The student and academic year this authorization is addressed to — the real anchor of the record, stored on every row whichever route created it. Stored computes (`readonly=False`): mirrored from `enrollment_id` when there is one, set by the send wizard otherwise. Deliberately **not** `required=True`: they were introduced as stored computes on an existing table, and Odoo attempts `SET NOT NULL` before the backfill compute runs, which would leave the constraint silently absent on upgraded databases but present on fresh ones. `_check_target()` enforces them instead. |
+| | `enrollment_id` | Optional. Set for the enrollment route, empty for a standalone one. |
+| | `study_name` | Computed: the enrollment's study when there is one, else the study of the group the student actually sits in (`partner_id.main_group_id.study_id`), else `partner_id.study_id`. Feeds both `legal_text_rendered`'s `{{study_name}}` and the certificate report, so the two cannot drift. |
+| | `status` | `pending` → `yes`/`no`. Drives the confirm-blocking check and `res.partner`'s auth booleans. |
 | | `legal_text_rendered` | Computed, `sanitize=False` — `template_id.legal_text` with `{{student_name}}`/`{{academic_year}}`/`{{study_name}}` placeholders substituted. Feeds both the portal response page and `report_authorization_certificate`. |
 | | `signed_document` / `signed_document_name` | For an internal (staff) response, required before the status can leave `pending` (enforced in `write()`). For a portal response, the controller generates and attaches the certificate PDF itself right after the write — see [Portal response flow](#portal-response-flow) below. |
 | | `response_date` / `response_uid` | Set automatically by `write()` whenever `status` leaves `pending` — never set directly by a caller. |
-| `ems.authorization` | `_sql_constraints: unique_enrollment_template` | One row per (enrollment, template) — this is what `action_apply_to_open_enrollments`'s "already has this template" check exists to avoid violating. |
+| `ems.authorization` | `_sql_constraints: unique_enrollment_template` | One row per (enrollment, template) — this is what `action_apply_to_open_enrollments`'s "already has this template" check exists to avoid violating. PostgreSQL treats NULLs as distinct, so it imposes nothing on standalone rows. |
+| | `ems_authorization_unique_standalone` (partial index, `init()`) | One row per (student, course, template) **among standalone rows only** (`WHERE enrollment_id IS NULL`). Partial on purpose: an enrollment-bound row is already keyed by its own enrollment, and a cancelled enrollment may legitimately coexist with an active one for the same (student, course) — `sale_order_unique_enrollment_per_course` excludes cancelled orders, so a blanket index would not even build on real data. Same technique as `sale.order.init()`. |
 
 ---
 
@@ -78,6 +97,69 @@ again. Tested in `tests/test_authorization.py` (template → matching
 enrollments) and `tests/test_enrollment_header.py` (enrollment → matching
 templates), both exercising the same both-scopes-set case. See also the
 [`enrollment.md`](enrollment.md#authorization-sync) side of this coupling.
+
+---
+
+## Standalone authorizations (sent during the course)
+
+New authorizations appear in the middle of the school year: the Departament
+d'Educació publishes one, or a tutoring meeting decides one is needed. By then
+the running course's enrollment is confirmed and closed, so there is nothing to
+hang the authorization off — which is why `ems.authorization.enrollment_id` is
+optional and `partner_id`/`course_id` are the record's real anchor.
+
+A standalone authorization is identical to an enrollment-bound one in every
+respect that matters to the family: same legal text and placeholder rendering,
+same acceptance/rejection rules, same extra data fields, same certificate PDF,
+answered on the same portal page. The only differences are how it is created,
+and that it never gates an enrollment.
+
+### Creating and sending
+
+`ems.authorization.template.apply_on` decides whether a template takes part in
+the enrollment process at all. A `standalone` template is invisible to all four
+of the automatic-attachment paths:
+
+| Path | Behaviour for `apply_on = 'standalone'` |
+|------|------------------------------------------|
+| `template.create()` | Does not call `action_apply_to_open_enrollments()`. |
+| `action_apply_to_open_enrollments()` | Returns early; the form's header button is hidden. |
+| `sale.order._get_authorization_commands()` | Excluded from the template search — **the important one**: without it, the next onchange on any draft enrollment of the *following* course would pull in a template created mid-year for *this* one. |
+| `action_remove_from_open_enrollments()` | Returns early; the form's header button is hidden. |
+
+Sending is done by `ems.authorization.send.wizard`, which resolves its
+recipients three ways (`target`):
+
+- `students` — whatever was selected in the students list (`active_ids`), via
+  the `action_authorization_send_bulk` server action.
+- `scope` — groups / studies / levels chosen in the wizard, intersected with
+  the students actually enrolled in `course_id` (a `sale.order` whose state is
+  not `cancel`). Going through the enrollment rather than `ems.group`'s own
+  student list is what excludes ex-students still attached to a group record.
+- `template_scope` — each template's own `ems_level_ids`/`ems_study_ids`, via
+  the same `_matches_scope()` predicate the enrollment route uses, fed by
+  `res.partner._ems_level_study_in_force()`.
+
+The wizard never re-creates or overwrites an authorization the student already
+holds for that (course, template) — by either route — because `course_id` is
+stored on every row, so one search covers both. Skipped ones are counted and
+shown in the preview, never reset: a signed authorization must survive.
+
+### Notification
+
+One email per student per send, listing every authorization in that batch —
+not one email per authorization, which is how families start ignoring the
+channel. Recipients come from `res.partner._ems_notification_recipients()`
+(shared with the portal access wizard): an adult student is mailed himself, a
+minor's **family** is mailed instead of him.
+
+### What a standalone authorization must never do
+
+It must never block an enrollment. Both confirm-time gates —
+`sale.order.action_confirm()` and the portal's own
+`portal_enrollment_confirm` — read `enrollment.ems_authorization_ids`, the
+one2many, so a standalone row is out of scope by construction. That is a
+behavioural guarantee, not an accident: it is pinned by a test.
 
 ---
 

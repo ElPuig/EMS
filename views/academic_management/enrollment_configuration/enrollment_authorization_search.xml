@@ -9,7 +9,13 @@
                    
                     <field name="name" string="Name"/>
 
+                    <filter string="Enrollment process" name="enrollment_process"
+                            domain="[('apply_on', '=', 'enrollment')]"/>
+                    <filter string="Sent during the course" name="standalone"
+                            domain="[('apply_on', '=', 'standalone')]"/>
+
                     <group expand="0" string="Group By">
+                        <filter string="Applies on" name="groupby_apply_on" context="{'group_by': 'apply_on'}"/>
                         <filter string="Level" name="groupby_ems_level" context="{'group_by': 'ems_level_ids'}"/>
                         <filter string="Study" name="groupby_ems_study" context="{'group_by': 'ems_study_ids'}"/>
                     </group>

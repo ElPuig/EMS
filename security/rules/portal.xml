@@ -1,16 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data noupdate="1">
+    <!-- Deliberately NOT noupdate: this rule states which authorizations a portal user may
+         see, and that has to keep tracking the data model. It was noupdate="1" until
+         18.0.0.25.0, when issue #443 made an authorization able to exist without an
+         enrollment and the rule's domain had to change with it - and the edit silently did
+         nothing on every existing database, because odoo/tools/convert.py's _tag_record()
+         skips an already-existing record purely on the FILE's noupdate flag (line ~347),
+         before _load_records() ever gets to check the record's own ir_model_data.noupdate.
+         Clearing the stored flag is therefore not enough on its own; the block itself has to
+         be updatable. migrations/18.0.0.25.0/pre-migrate.py clears the stored flag that the
+         record still carries from its noupdate="1" days - without that, _load_records()'s own
+         second check would keep skipping it. Per CLAUDE.md, noupdate=True is earned per
+         record, not a default courtesy: this one had not earned it. -->
+    <data>
         <record id="rule_ems_authorization_portal" model="ir.rule">
             <field name="name">Portal Users: Own Authorizations Only</field>
             <field name="model_id" ref="model_ems_authorization"/>
             <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
-            <field name="domain_force">['|', ('enrollment_id.partner_id', '=', user.partner_id.id), ('enrollment_id.partner_id', '=', user.partner_id.parent_id.id)]</field>
+            <!-- Keyed on partner_id, not enrollment_id.partner_id: an authorization sent
+                 during the course (issue #443) has no enrollment behind it at all.
+                 get_portal_students() is the single source of truth for "which students may
+                 this portal user see" and resolves the family link through
+                 res.partner.relation.all, which a portal user cannot read itself - hence the
+                 method call rather than a domain traversal. -->
+            <field name="domain_force">[('partner_id', 'in', [user.partner_id.id] + user.partner_id.get_portal_students().ids)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
         </record>
+    </data>
+
+    <data noupdate="1">
         <record id="rule_sale_order_portal" model="ir.rule">
             <field name="name">Portal Users: Own Enrollments Only</field>
             <field name="model_id" ref="sale.model_sale_order"/>

@@ -22,7 +22,7 @@ class EmsAuthorizationSendWizard(models.TransientModel):
         'ems.course',
         string='Academic Year',
         required=True,
-        default=lambda self: self.env['res.partner']._ems_course_in_force(),
+        default=lambda self: self.env['res.partner']._ems_running_course(),
     )
     target = fields.Selection([
         ('students', 'Selected students'),

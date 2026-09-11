@@ -209,6 +209,12 @@ class ResPartner(models.Model):
         ('exemption', 'Exemption')
     ], string="Benefits", compute="_compute_benefit_status", store=True)
 
+    # The real relation, now that ems.authorization is anchored on the student rather than
+    # on the enrollment (issue #443) - it is what the two computes below hang their
+    # @api.depends on, and it spans every academic year.
+    ems_authorization_all_ids = fields.One2many(
+        'ems.authorization', 'partner_id', string='All Authorizations',
+    )
     ems_authorization_ids = fields.Many2many(
         'ems.authorization',
         compute='_compute_ems_authorization_ids',
@@ -262,22 +268,32 @@ class ResPartner(models.Model):
         enrolling = Course.search([('is_enrollment_default', '=', True)], limit=1)
         return orders.filtered(lambda order: order.ems_course_id == enrolling)[:1]
 
-    def _ems_course_in_force(self):
-        """The academic year that governs what may be done with a student now.
-
-        Same two-tier rule as _ems_enrollment_in_force(), on the course itself rather than
-        on the enrollment: the year being TAUGHT comes first, with the year being enrolled
-        into as the fallback for the window where the student holds no enrollment for the
-        running one. Extracted so the authorization flags, the Secretary tab's list and the
-        send assistant (ems.authorization.send.wizard) all read one definition instead of
-        three.
-
-        Model-level, not record-level: it answers "which course is running", which is the
-        same for every student. Callable on an empty recordset.
+    def _ems_running_course(self):
+        """The centre's academic year right now: the one being taught, falling back to the
+        one being enrolled into. Model-level - the same answer for everybody - so it is
+        callable on an empty recordset (ems.authorization.send.wizard's default course).
         """
         Course = self.env['ems.course']
         return (Course.search([('is_current', '=', True)], limit=1)
                 or Course.search([('is_enrollment_default', '=', True)], limit=1))
+
+    def _ems_course_in_force(self):
+        """The academic year that governs what may be done with THIS student now.
+
+        Per student, not per centre, and that distinction is the whole point: during the
+        summer a student's enrollment is already the incoming course while the running one
+        is still the outgoing one, so keying on the centre's running course alone left every
+        signed authorization invisible - 122 of 122 SMX students after the first real
+        transition. _ems_enrollment_in_force() already encodes that rule; this reads the
+        course off it and only falls back to the centre's own when the student holds no
+        enrollment at all, which is how a student who only ever received authorizations sent
+        during the course still resolves to something.
+
+        Shared by the authorization flags, the Secretary tab's list and
+        ems.authorization.send.wizard so the three cannot drift apart.
+        """
+        self.ensure_one()
+        return self._ems_enrollment_in_force().ems_course_id or self._ems_running_course()
 
     def _ems_level_study_in_force(self):
         """(level, study) this student is attending right now.
@@ -297,36 +313,42 @@ class ResPartner(models.Model):
 
     @api.depends(
     'sale_order_ids.ems_course_id',
-    'sale_order_ids.ems_authorization_ids.status',
-    'sale_order_ids.ems_authorization_ids.template_id.auth_type',
+    'sale_order_ids.state',
+    'ems_authorization_all_ids.status',
+    'ems_authorization_all_ids.course_id',
+    'ems_authorization_all_ids.template_id.auth_type',
     )
     def _compute_auth_booleans(self):
+        """Read from the student's own authorizations rather than from the enrollment's:
+        one accepted mid-year (issue #443) counts exactly as much as one accepted at
+        enrollment time, and before this it could not be seen at all.
+
+        Still scoped to the course in force - these flags answer "may we do this with this
+        student now", which is a per-year statement.
+
+        Note the depends does not cover the course flip itself (nothing here watches
+        ems.course.is_current), exactly as before this change: tests/test_contact.py
+        invalidates the cache explicitly for that case.
+        """
         for student in self:
-            image, trip, health, share = False, False, False, False
-            for order in student._ems_enrollment_in_force():
-                for auth in order.ems_authorization_ids:
-                    if auth.status == 'yes':
-                        if auth.template_id.auth_type == 'image':
-                            image = True
-                        elif auth.template_id.auth_type == 'trip':
-                            trip = True
-                        elif auth.template_id.auth_type == 'health':
-                            health = True
-                        elif auth.template_id.auth_type == 'share':
-                            share = True
-            student.auth_image = image
-            student.auth_trip = trip
-            student.auth_healt = health
-            student.auth_share = share        
+            course = student._ems_course_in_force()
+            accepted_types = set(student.ems_authorization_all_ids.filtered(
+                lambda auth: auth.status == 'yes' and auth.course_id == course
+            ).mapped('template_id.auth_type'))
+            student.auth_image = 'image' in accepted_types
+            student.auth_trip = 'trip' in accepted_types
+            student.auth_healt = 'health' in accepted_types
+            student.auth_share = 'share' in accepted_types
 
     @api.depends('sale_order_ids.ems_course_id', 'sale_order_ids.state',
-                 'sale_order_ids.ems_authorization_ids')
+                 'ems_authorization_all_ids.course_id')
     def _compute_ems_authorization_ids(self):
-        # Same enrollment the flags above read, so the Secretary tab cannot show an
-        # empty list next to a green badge: both come from _ems_enrollment_in_force().
+        # Same course the flags above read, so the Secretary tab cannot show an empty list
+        # next to a green badge: both come from _ems_course_in_force().
         for partner in self:
-            partner.ems_authorization_ids = \
-                partner._ems_enrollment_in_force().ems_authorization_ids
+            course = partner._ems_course_in_force()
+            partner.ems_authorization_ids = partner.ems_authorization_all_ids.filtered(
+                lambda auth: auth.course_id == course)
 
     def _search_current_enrollment(self, operator, value):
         return [('sale_order_ids.name', operator, value)]

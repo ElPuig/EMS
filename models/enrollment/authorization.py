@@ -213,6 +213,12 @@ class EmsAuthorization(models.Model):
     signed_document_name = fields.Char(string='Document Name')
     response_field_ids = fields.One2many('ems.authorization.response', 'authorization_id', string='Field Responses')
 
+    group_id = fields.Many2one(
+        related='partner_id.main_group_id',
+        string='Group',
+        readonly=True,
+        help="The student's current main group, for filtering the follow-up list.",
+    )
     study_name = fields.Char(
         string='Study',
         compute='_compute_study_name',

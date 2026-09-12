@@ -1280,7 +1280,7 @@ msgid "Academic Study"
 msgstr "Estudis acadèmics"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_authorization__course_id model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__course_id model:ir.model.fields,field_description:ems.field_sale_order__ems_course_id model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search
+#: model:ir.model.fields,field_description:ems.field_ems_authorization__course_id model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__course_id model:ir.model.fields,field_description:ems.field_sale_order__ems_course_id model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search
 msgid "Academic Year"
 msgstr "Any acadèmic"
 
@@ -14067,3 +14067,23 @@ msgid ""
 "The study this authorization is about, for display and for the legal text's "
 "{{study_name}} placeholder."
 msgstr "L'estudi del qual tracta aquesta autorització, per mostrar-lo i per a la variable {{study_name}} del text legal."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
+msgid "3. Payment"
+msgstr "3. Pagament"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
+msgid "4. Communications"
+msgstr "4. Comunicacions"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+msgid "Enrollment and authorizations"
+msgstr "Matrícula i autoritzacions"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+msgid "Manage enrollment, authorizations and payments"
+msgstr "Gestionar matrícula, autoritzacions i pagaments"

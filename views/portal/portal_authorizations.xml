@@ -9,7 +9,10 @@
          caller passes `authorizations` (see res.partner.get_portal_authorizations()) and an
          optional `section_number` for the heading. -->
     <template id="portal_authorizations_block" name="Portal Authorizations Block">
-                            <div class="card shadow-sm mb-5" id="portal_authorizations">
+                            <!-- mt-4 as well as mb-4: the block is placed between other cards on both pages, and
+                                 some of them carry their spacing as mt- rather than mb-, which left
+                                 this one glued to the card above it. -->
+                            <div class="card shadow-sm mt-4 mb-4" id="portal_authorizations">
 
                                 <div class="card-header bg-light">
                                     <h4 class="mb-0 d-flex align-items-center gap-2">

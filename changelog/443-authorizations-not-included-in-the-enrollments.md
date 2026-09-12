@@ -81,6 +81,15 @@ A pending authorization sent during the course deliberately does not block confi
 enrollment: both gates (`sale.order.action_confirm()` and the portal's own confirm) read the
 enrollment's own one2many, and a test now pins that.
 
+## Portal layout of the authorizations block:
+
+On a confirmed enrollment the block sits right under the enrollment details, as section 2, with
+payment and communications renumbered after it. It carries its own top and bottom margin, since
+some of the cards around it express their spacing as `mt-` rather than `mb-` and left it glued
+to the card above. It also renders for a student with no enrollment for the course being
+enrolled into: an authorization sent during the course hangs off the student, and that case
+previously fell inside the page's "no enrollment" branch and showed nothing.
+
 ## Student file reads the student's own authorizations:
 
 The four authorization badges and the Secretary tab's list now read `ems.authorization` by
@@ -196,3 +205,9 @@ never reports: labels like *Student*, *Academic Year*, *Study* or *Send to* alre
 other fields, so the text was not new - but the new field's own `#:` reference had to be added
 to the block that was already there or it would render untranslated. Verified by reading the
 jsonb values back out of the database rather than trusting the files.
+
+A first pass missed the portal's own menu label and home card, which stayed in English for
+Catalan and Spanish users: the terms were filtered by source file name (`portal_main`,
+`portal_header`) while the reference Odoo exports carries the view's xmlid
+(`portal_my_home_ems_custom_landing`, `ems_portal_custom_header_menu`). Filtering by xmlid
+found them, along with the renumbered section headings.

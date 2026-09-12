@@ -14,6 +14,15 @@
 
                         <t t-if="not enrollment">
                             <div class="alert alert-info">No active enrollment process found.</div>
+                            <!-- No enrollment does not mean nothing to answer: an authorization
+                                 sent during the course hangs off the student, not off an
+                                 enrollment (issue #443). -->
+                            <t t-if="authorizations">
+                                <t t-call="ems.portal_authorizations_block">
+                                <t t-set="authorizations" t-value="authorizations"/>
+                                <t t-set="section_number" t-value="''"/>
+                            </t>
+                            </t>
                         </t>
 
                         <t t-if="enrollment">

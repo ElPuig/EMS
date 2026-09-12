@@ -167,20 +167,43 @@ behavioural guarantee, not an accident: it is pinned by a test.
 
 `ems.contact` (`models/contacts/contact.py`) exposes four derived flags —
 `auth_image`, `auth_trip`, `auth_healt`, `auth_share` — computed from every
-`ems.authorization` with `status == 'yes'` on the student's **current
-course** enrollments, grouped by `template_id.auth_type`:
+`ems.authorization` with `status == 'yes'` addressed to the student for the
+**academic year in force**, grouped by `template_id.auth_type`:
 
 ```mermaid
 flowchart LR
-    A["res.partner._compute_auth_booleans()"] --> B["for each sale_order where\nems_course_id = current course"]
-    B --> C["for each ems_authorization\nwith status = 'yes'"]
+    A["res.partner._compute_auth_booleans()"] --> B["ems_authorization_all_ids\n(one2many on partner_id,\nevery year, either route)"]
+    B --> C["keep status = 'yes' AND\ncourse_id = _ems_course_in_force()"]
     C --> D["auth_image / auth_trip /\nauth_healt / auth_share = True\naccording to template auth_type"]
 ```
 
-`ems.contact.ems_authorization_ids` (a plain read-through, all of the
-student's current-course authorizations, not filtered by status) is a
-separate computed field, used e.g. by the contact form's read-only
-authorizations tab (`views/community/contact/form.xml`).
+They read the student's own authorizations, not the enrollment's, so one
+accepted mid-year counts exactly as much as one accepted at enrollment time.
+
+**`_ems_course_in_force()` is per student, not per centre**, and that
+distinction is load-bearing: during the summer a student's enrollment is
+already the incoming course while the centre's running course is still the
+outgoing one, so keying on the centre's own course left every signed
+authorization invisible — 122 of 122 SMX students after the first real
+transition. It reads the course off `_ems_enrollment_in_force()` and only
+falls back to `_ems_running_course()` (the per-centre answer, also the send
+wizard's default) when the student holds no enrollment at all, which is how
+a student who only ever received standalone authorizations still resolves to
+something. Re-introducing the per-centre shortcut here immediately re-breaks
+the four `tests/test_contact.py` cases covering that incident.
+
+The depends deliberately still spans `sale_order_ids` as well as
+`ems_authorization_all_ids`: the authorizations decide the value, the
+enrollments decide which year is in force. Neither the old nor the new
+version reacts to the course flip itself (nothing watches
+`ems.course.is_current`); `tests/test_contact.py` invalidates the cache
+explicitly for that case.
+
+`ems.contact.ems_authorization_ids` (all of the student's authorizations for
+that same year, not filtered by status) is a separate computed field, used by
+the contact form's read-only authorizations list
+(`views/community/contact/form.xml`). It stays scoped to the year in force so
+it can never show an empty table next to a green badge.
 
 **Bug fixed in this pass:** `_compute_ems_authorization_ids` had no
 `@api.depends` at all — a non-stored compute field with no dependencies is
@@ -225,9 +248,14 @@ write would make the portal flow impossible.
 
 ## Portal response flow
 
-`controllers/portal_enrollment.py` (not part of `models/enrollment/`, so
-out of this pass's direct scope, but the primary consumer of this file's
-models — documented here for the coupling, not re-tested):
+`controllers/portal_enrollment.py` is the primary consumer of these models.
+Both routes below are keyed on `auth.partner_id`, not on the enrollment's
+partner: an authorization sent during the course has no enrollment to check
+against. The page itself gets its list from
+`res.partner.get_portal_authorizations()` (everything addressed to the
+student for the running and the enrolling course, either route), which is
+what makes a mid-year authorization show up on the **confirmed** enrollment
+page — the one a student otherwise never sees again:
 
 ```mermaid
 flowchart TD
@@ -243,9 +271,28 @@ flowchart TD
 ```
 
 `/my/gestion-matriculas/authorization/<auth_id>/document` serves the
-attached `signed_document` back (inline PDF), same ownership check as
-above. Neither portal route has automated test coverage today — flagged as
-a gap, not filled in this pass (see "Not covered by this pass" below).
+attached `signed_document` back (inline PDF), same ownership check as above.
+The certificate's filename comes from `_certificate_filename()`, which falls
+back to the academic year when there is no enrollment code to name it after.
+
+Both routes are covered by `tests/test_portal_actions.py`, standalone
+authorizations included, plus a regression guard proving one student cannot
+answer another's.
+
+The list and the response modals live in one shared QWeb template,
+`views/portal/portal_authorizations.xml`, `t-call`ed by both the draft and
+the confirmed enrollment pages so the two cannot drift. On the confirmed
+page it sits **outside** that template's `t-if="enrollment"` wrapper, and the
+"no enrollment found" notice is conditioned on there being no authorizations
+either — a student with no enrollment row for the year can still have
+authorizations to answer.
+
+**A pending standalone authorization never blocks an enrollment.** Both
+confirm-time gates (`sale.order.action_confirm()` and the portal's own
+`portal_enrollment_confirm`) read `enrollment.ems_authorization_ids`, the
+one2many, so a standalone row is out of scope by construction. Pinned by
+`tests/test_authorization.py::TestAuthorizationStandalone::
+test_a_pending_required_standalone_does_not_block_action_confirm`.
 
 ---
 
@@ -256,35 +303,97 @@ a gap, not filled in this pass (see "Not covered by this pass" below).
 | List/Search/Form | `views/academic_management/enrollment_configuration/enrollment_authorization_{view,search,form}.xml` | Configuring `ems.authorization.template`; `action_ems_authorization_template`, under Academic Management → Configuration (admin + secretary, both full CRUD — see `security/ir.model.access.csv`). |
 | Enrollment form | `views/academic_management/enrollment/enrollment_form.xml` | `ems_authorization_ids` embedded on the enrollment itself. |
 | Contact form | `views/community/contact/form.xml` | Read-only `ems_authorization_ids` tab on the student. |
-| Portal | `views/portal/portal_enrollment_draft.xml` | The family-facing accept/reject UI — already documented from the user side in `docs/en/families/manual-confirmacio-matricula.md`, "Step 2 — Responding to the authorizations". |
-| Report | `reports/authorizations/report_authorization_certificate.xml` | The signed-response certificate PDF, rendered by the portal controller and attached as `signed_document`. |
+| Authorizations list/form/search | `views/academic_management/enrollment/authorization_{view,form,search}.xml` | The follow-up screens on `ems.authorization` itself (`action_ems_authorizations`, Academic Management → Enrollment → Authorizations), opening flat on the running year. `group_id` (related, non-stored, to `partner_id.main_group_id`) is searchable but deliberately not groupable: that would need `store=True`, which goes stale the moment a student changes group. |
+| Send assistant | `views/academic_management/enrollment/authorization_send_wizard.xml` | The wizard form, its menu action, and the `action_authorization_send_bulk` server action bound to the students list. |
+| Portal | `views/portal/portal_authorizations.xml` | The shared authorizations block, `t-call`ed by `portal_enrollment_draft.xml` and `portal_enrollment_confirmed.xml`. Documented from the user side in `docs/en/families/manual-portal-alumne.md`, "Step 5 — Answering an authorization". |
+| Report | `reports/authorizations/report_authorization_certificate.xml` | The signed-response certificate PDF, rendered by the portal controller and attached as `signed_document`. Reads the student, year and study off the authorization itself, hides the enrollment-code row when there is none, and tells a portal response from a backoffice one by `response_uid.share`. |
 
 ## Data
 
-Seed templates: `data/custom/ems_authorization_template_data.xml`
-(`__import__.`-prefixed, centre-owned).
+Seed templates: `data/custom/ems.authorization.template.csv`
+(`__import__.`-prefixed, centre-owned). The file carries no `apply_on`
+column, so all five seeds resolve to the field default, `enrollment` — which
+is correct for every one of them.
+
+Notification template: `mails/enrollment/authorization_send.xml`
+(`email_template_authorization_send`), on `res.partner`, with the three
+`context="{'lang': ...}"` sibling records this repo uses for a trilingual
+template. It deliberately declares **no** `<field name="lang">`: that would
+be re-resolved per record (the student) and override the
+`with_context(lang=...)` the wizard sets from the actual recipient, who for a
+minor is a family member with a language of their own. The authorizations
+themselves travel in the render context (`ctx.get('authorization_names')`),
+which is what allows one email per student instead of one per authorization.
 
 ## Access control
 
-Admin and secretary both get unrestricted CRUD on all four models
-(`security/ir.model.access.csv` + `security/rules/contacts.xml`). Teachers
-get read-only on `ems.authorization`; tutors get create/write (not unlink)
-restricted to `enrollment_id.partner_id.tutor_id.user_id = user.id` — the
-same OR-combination and tutor-identity pattern documented for `sale.order`
-in [`enrollment.md`](enrollment.md#tutor-blocking-guards). Portal users get
-read/write (no create/unlink) on `ems.authorization`, scoped to their own
-or their child's enrollments (`security/rules/portal.xml`).
+| Group | Templates / fields | `ems.authorization` | Notes |
+|-------|--------------------|---------------------|-------|
+| `group_academic_admin`, `group_secretary` | full CRUD | full CRUD | Unrestricted (`security/rules/contacts.xml`). |
+| `group_head_of_studies` | full CRUD | read/write/create | Needs a rule of its own with `domain_force = []`: rules of *different* groups are ANDed, so inheriting only the teacher's read-only rule and the tutor's own-students-only one would stop them sending anything to a student they do not tutor. |
+| `group_teacher` | read-only | read-only | |
+| tutors (`group_teacher` + the tutor rule) | read-only | create/write, no unlink | Scoped to `partner_id.tutor_id.user_id = user.id` — keyed on the student now, not on `enrollment_id.partner_id`. |
+| `base.group_portal` | read-only | read/write, no create/unlink | `[('partner_id', 'in', [user.partner_id.id] + user.partner_id.get_portal_students().ids)]`. |
+| `group_student_data_reader` | — | read-only | |
 
-## Not covered by this pass
+The portal rule calls `get_portal_students()` rather than traversing the
+relation table: the family↔student link goes through
+`res.partner.relation.all`, which a portal user cannot read, so a domain
+traversal would be a subquery-rights hazard. It is pinned by a real
+`with_user(portal_user).search([])` test rather than trusted.
 
-- `controllers/portal_enrollment.py`'s authorize/document routes have zero
-  automated test coverage (no `HttpCase`) — flagged, not filled here; this
-  pass's scope was the `ems.authorization*` models themselves.
-- No dedicated secretary/admin user doc for *configuring* templates was
-  written — same reasoning as `enrollment_template.md`: it's a small,
-  self-explanatory backend config screen with no complex workflow of its
-  own. The family-facing *response* flow already has a thorough manual
-  (`docs/en/families/manual-confirmacio-matricula.md`).
+The head of studies also reaches the template screens through Academic
+Management → Configuration, which was opened to them; the Enrollment Items
+and Enrollment Templates entries under it carry their own `groups=` so that
+does not also hand over the enrollment items and packs.
+
+## Migration notes (18.0.0.25.0)
+
+`migrations/18.0.0.25.0/post-migrate.py` backfills `partner_id`/`course_id`
+from each existing authorization's enrollment (plain SQL, idempotent) and
+logs a warning for any row it cannot resolve. Neither field is
+`required=True`, on purpose: Odoo attempts the column's `SET NOT NULL` during
+`_auto_init`, before post-migrate runs, and `sql.set_not_null()` swallows the
+failure with a warning — so the constraint would be silently absent on every
+upgraded database and present on every fresh one. `_check_target()` covers
+both paths identically. There is no `post_init_hook` counterpart, and that is
+deliberate: a fresh database has nothing to backfill.
+
+**The `noupdate` trap, worth knowing before editing any `noupdate="1"`
+record.** `rule_ems_authorization_portal` lived in a `<data noupdate="1">`
+block, and rewriting its `domain_force` in the file did nothing at all on an
+existing database. `odoo/tools/convert.py::_tag_record()` skips an
+already-existing record on the **file's** noupdate flag alone (around line
+347), before `models._load_records()` ever gets to check the record's own
+`ir_model_data.noupdate` — so clearing the stored flag from a migration is
+not sufficient on its own. Both halves were needed: the rule moved into a
+plain `<data>` block (it had not earned `noupdate=True`, per CLAUDE.md's own
+test), and `pre-migrate.py` clears the flag the record still carries from its
+old block, which `_load_records()` would otherwise keep honouring. Verified
+empirically on the dev database.
+
+## Regenerating the manual screenshots
+
+`tests/test_docs_screenshots.py` (tagged `-standard`, so `./test.sh` never
+runs it) rebuilds the four PNGs the user manuals use. Run it by hand when a
+documented screen changes:
+
+```
+sudo service odoo stop
+sudo -u odoo odoo -d ems --test-enable --test-tags='ems_screenshots/ems' \
+     --stop-after-init -c /etc/odoo/odoo.conf
+sudo service odoo start
+```
+
+It writes to `/tmp/ems_doc_screenshots` (the test process runs as `odoo` and
+cannot write to the repository, so the files are copied into `docs/assets/`
+by hand; the directory must exist and be writable by `odoo` — `/tmp` itself
+is not, on this box). Every shot is clipped to one element and taken against
+fixtures that live in a rolled-back transaction, which is what keeps this
+box's real students out of a published manual.
+
+## Not covered
+
 - The AND-vs-OR matching-semantics gap above.
 
 ## Fixed in this pass (2026-07-28)

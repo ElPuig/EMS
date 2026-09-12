@@ -59,9 +59,13 @@ class EmsAuthorizationSendWizard(models.TransientModel):
     @api.onchange('target', 'student_ids', 'group_ids', 'ems_study_ids', 'ems_level_ids',
                   'template_ids', 'course_id')
     def _onchange_selection(self):
-        """Rebuild the recipient preview. In an onchange the related records are virtual
-        (NewId), so ._origin is what the searches behind _resolve_students() need."""
-        self.line_ids = [(5, 0, 0)] + self._origin._build_lines(self._resolve_students())
+        """Rebuild the recipient preview.
+
+        ._origin belongs on the RELATED records (see _resolve_students), never on the wizard
+        itself: an unsaved wizard's _origin is an empty recordset, and building the lines off
+        that reads empty template_ids and silently produces no preview at all.
+        """
+        self.line_ids = [(5, 0, 0)] + self._build_lines(self._resolve_students())
 
     # ------------------------------------------------------------------
     # Resolving students
@@ -111,7 +115,9 @@ class EmsAuthorizationSendWizard(models.TransientModel):
         """The students this wizard would act on, deduplicated."""
         self.ensure_one()
         if self.target == 'students':
-            return self.student_ids
+            # ._origin: in an onchange these are virtual records, and everything downstream
+            # (searches, _ems_level_study_in_force) needs the persisted ones.
+            return self.student_ids._origin
         if self.target == 'scope':
             return self._students_from_scope()
         students = self.env['res.partner']

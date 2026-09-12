@@ -24,8 +24,8 @@
                             <field name="notify" widget="boolean_toggle"/>
                         </group>
                     </group>
-                    <group invisible="target != 'students'">
-                        <field name="student_ids" widget="many2many_tags" nolabel="1"
+                    <group invisible="target != 'students'" string="Students">
+                        <field name="student_ids" widget="many2many_tags" nolabel="1" colspan="2"
                                options="{'no_create': True}"/>
                     </group>
                     <group invisible="target != 'scope'" string="Send to every enrolled student in">

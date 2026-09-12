@@ -18,6 +18,7 @@ Esta sección contiene los manuales para el **personal de secretaría**.
 - [El horario semanal de un alumno](../admin/student-schedule.md) — Consultar el horario propio de un alumno (asignaturas, docentes, aulas, patios), incluyendo clases solapadas, y exportarlo a PDF.
 - [Informes de asistencia](attendance-reports.md) — Imprimir los 3 informes PDF de asistencia (por grupo/alumno/asignatura) y explorar los datos con la pantalla de Análisis de asistencia.
 - [Gestión de contactos de alumnado y familia](student-contacts.md) — Tipos de contacto y cómo cambian, añadir un contacto familiar a un alumno, y registrar bonificaciones y exenciones.
+- [Enviar autorizaciones durante el curso](authorizations.md) — Crear una autorización que surge con el curso empezado, enviarla al alumnado que corresponda y hacer el seguimiento de las respuestas.
 - [Revisar los documentos del alumnado](student-documents.md) — Aprobar, rechazar o reabrir tramitaciones de DNI/tarjeta sanitaria/IBAN/beneficios, y qué hace cada decisión por detrás.
 - [Marcar una graduación y tramitar una baja](graduation-withdrawal.md) — La diferencia entre la marca diferida de graduación y una baja inmediata, y toda la cascada de la baja paso a paso.
 - [Importar alumnado desde Esfera (SAGA)](student-import-esfera.md) — Actualizar masivamente los datos del alumnado ya matriculado (no confundir con la importación de preinscripción GEDAC), qué se hace coincidir/crea, y las limitaciones conocidas de deduplicación.

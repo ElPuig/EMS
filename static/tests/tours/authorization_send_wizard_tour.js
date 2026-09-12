@@ -61,6 +61,13 @@ registry.category("web_tour.tours").add("ems_authorization_send_wizard", {
             run: "click",
         },
         {
+            // The recipient preview is what tells the sender who is about to be emailed. It
+            // silently rendered empty until the manual screenshots showed it up, so it is
+            // asserted here rather than trusted.
+            trigger: ".o_dialog div[name='line_ids'] .o_data_row td:contains(Tour Send Wizard Student)",
+            content: "The preview lists the student who is about to be notified",
+        },
+        {
             trigger: ".o_dialog button[name='action_apply']",
             content: "Send it",
             run: "click",

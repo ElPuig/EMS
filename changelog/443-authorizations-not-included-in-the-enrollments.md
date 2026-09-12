@@ -145,6 +145,35 @@ from: Student Portal" - it distinguishes a portal response from a backoffice one
 `response_uid.share`. `_certificate_filename()` falls back to the academic year when there is no
 enrollment code to name the file after.
 
+## User and developer documentation:
+
+New trilingual manual `docs/{en,ca,es}/secretary/authorizations.md` (creating the form, the
+three ways of choosing recipients, what the family receives, following up the answers, and
+answering on a family's behalf), linked from the secretariat index and from the head of
+studies' one - the screens are identical for both roles, so it is one manual referenced twice
+rather than a duplicate. `manual-portal-alumne.md` gains a "Answering an authorization" step in
+all three languages, and `manual-confirmacio-matricula.md` follows the portal page's new name.
+The developer reference is rewritten throughout: the standalone route, the four filter points
+of `apply_on`, the per-student `_ems_course_in_force()` rule and why the per-centre shortcut
+re-breaks the 122-student incident, the shared portal template, an access-control table
+including the head of studies, and the `noupdate` trap in full.
+
+## Screenshot generator:
+
+`tests/test_docs_screenshots.py` rebuilds the four PNGs the manuals use. Tagged `-standard`, so
+`./test.sh` never runs it; run by hand with `--test-tags='ems_screenshots/ems'`. Each shot is
+clipped to a single element via the devtools protocol and taken against fixtures that live in a
+rolled-back transaction, so a published manual can never carry a real student's name. Writing
+it paid for itself immediately: the send assistant's recipient preview turned out to render
+empty, which no test had noticed.
+
+## Recipient preview fixed:
+
+The send assistant built its preview off `self._origin`, which for an unsaved wizard is an
+empty recordset, so the preview silently listed nobody at all. `._origin` belongs on the
+related records, not on the wizard. The tour now asserts the preview's contents rather than
+just its presence.
+
 ## Test coverage:
 
 New `TestAuthorizationStandalone` (15 cases: creation without an enrollment, derivation from it,
@@ -156,4 +185,14 @@ unenrolled students, skip-not-recreate, one-email-per-student, adult-vs-minor re
 may send). New portal action cases for answering and downloading a standalone authorization,
 plus a regression guard on the ownership check. New browser tours: the authorizations block on
 the CONFIRMED portal page, and the follow-up list plus the send assistant driven by a secretary
-account rather than admin. `apply_on` steps added to the existing template tour.
+account rather than admin. `apply_on` steps added to the existing template tour, and the send
+assistant tour now asserts the recipient preview actually lists the student.
+
+## Translations:
+
+47 new blocks in each of `i18n/ca_ES.po` and `i18n/es_ES.po`, plus 49 existing blocks that
+gained a reference to one of this feature's records. That second half is the part a msgid diff
+never reports: labels like *Student*, *Academic Year*, *Study* or *Send to* already existed for
+other fields, so the text was not new - but the new field's own `#:` reference had to be added
+to the block that was already there or it would render untranslated. Verified by reading the
+jsonb values back out of the database rather than trusting the files.

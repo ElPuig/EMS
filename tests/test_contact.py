@@ -676,10 +676,11 @@ class TestContactStudyChange(TransactionCase):
         self.assertFalse(student.main_group_id)
         self.assertFalse(self.env['ems.enrollment'].search([('student_id', '=', student.id)]))
 
-    def test_write_study_id_with_explicit_group_skips_template_refresh(self):
-        """An explicit main_group_id in the same write is handled by the pre-existing
-        group-change migration (TestContactMainGroupChange) instead - see contact.py
-        write()'s 'not values.get('main_group_id')' gate."""
+    def test_write_study_id_with_explicit_group_on_existing_placement_skips_template_refresh(self):
+        """An explicit main_group_id in the same write, for a student who ALREADY had a
+        group (a genuine group change, not a first placement), is handled by the
+        pre-existing group-change migration (TestContactMainGroupChange) instead - see
+        contact.py write()'s 'not partner.main_group_id' escape hatch."""
         student = self._student()
         self._old_enrollment(student)
         student.with_user(self.admin_user).write({
@@ -689,6 +690,22 @@ class TestContactStudyChange(TransactionCase):
         moved = self.env['ems.enrollment'].search([('student_id', '=', student.id)])
         self.assertEqual(moved.subject_id, self.old_subject)
         self.assertEqual(moved.group_id, self.new_group_b)
+
+    def test_write_study_id_with_explicit_group_on_first_placement_creates_enrollment_from_template(self):
+        """A student with NO previous group has nothing for the group-change migration to
+        move FROM, so setting study_id and main_group_id together still runs the template
+        refresh - using the given group instead of auto-picking one. Found the hard way
+        (issue #455 follow-up): filling Studies then Main Group before the very first save
+        is the normal way to place a new/unplaced student, and used to silently produce
+        zero enrollments."""
+        student = self.env['res.partner'].create({'name': 'Study Change Unplaced Student', 'contact_type': 'student'})
+        student.with_user(self.admin_user).write({
+            'study_id': self.new_study.id, 'main_group_id': self.new_group_b.id})
+
+        self.assertEqual(student.main_group_id, self.new_group_b)
+        enrollment = self.env['ems.enrollment'].search([('student_id', '=', student.id)])
+        self.assertEqual(enrollment.subject_id, self.new_subject)
+        self.assertEqual(enrollment.group_id, self.new_group_b)
 
     def test_sudo_write_study_id_does_not_refresh_enrollments(self):
         """Mirrors TestContactMainGroupChange.test_sudo_write_does_not_migrate_enrollment:
@@ -708,3 +725,104 @@ class TestContactStudyChange(TransactionCase):
         applicant.with_user(self.admin_user).write({'study_id': self.new_study.id})
         self.assertFalse(applicant.main_group_id)
         self.assertFalse(self.env['ems.enrollment'].search([('student_id', '=', applicant.id)]))
+
+
+class TestContactCreateWithStudy(TransactionCase):
+    """Creating a student with 'study_id' already set (issue: a brand-new student never got
+    the same auto-placement/enrollment-from-template treatment write() already gives an
+    EXISTING student on a study change - see TestContactStudyChange). See docs/en/developers/
+    contacts/contact.md and res.partner._ems_auto_group_for_study()/_ems_refresh_enrollments_from_template()."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.level, cls.study, cls.group_b = create_level_study_group(
+            cls, 'TCCS', level={'name': 'Test Create Study Level'}, study={
+                'code': 'TCCS001', 'acronym': 'TCCSS', 'name': 'Test Create Study Study'},
+            group={'acronym': 'B'})
+        # A second, alphabetically-earlier group for the same study+course, to prove the
+        # auto-pick lands on the first one by name (mirrors TestContactStudyChange).
+        cls.group_a = cls.env['ems.group'].create({
+            'course': 1, 'acronym': 'A', 'level_id': cls.level.id, 'study_id': cls.study.id,
+        })
+        cls.subject = cls.env['ems.subject'].create({
+            'code': 'TCCS001', 'acronym': 'TCCS', 'name': 'Test Create Study Subject',
+            'study_ids': [(6, 0, [cls.study.id])],
+        })
+        cls.template = cls.env['sale.order.template'].create({
+            'name': 'Test Create Study Template', 'ems_study_id': cls.study.id, 'study_year': 1,
+            'sale_order_template_line_ids': [(0, 0, {'product_id': cls.subject.product_id.id})],
+        })
+
+        # A real (non-superuser) user: see TestContactStudyChange's own admin_user for why.
+        cls.admin_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Admin (Create Study)', 'login': 'test_admin_create_study',
+            'email': 'test.admin.create.study@example.com',
+            'groups_id': [(4, cls.env.ref('ems.group_academic_admin').id)],
+        })
+
+    def _create(self, **values):
+        return self.env['res.partner'].with_user(self.admin_user).create({
+            'name': 'Create Study Student', 'contact_type': 'student', **values})
+
+    def test_create_with_study_id_auto_picks_first_group_alphabetically(self):
+        student = self._create(study_id=self.study.id)
+        self.assertEqual(student.main_group_id, self.group_a)
+
+    def test_create_with_study_id_creates_enrollment_from_template(self):
+        student = self._create(study_id=self.study.id)
+        enrollment = self.env['ems.enrollment'].search([('student_id', '=', student.id)])
+        self.assertEqual(enrollment.subject_id, self.subject)
+        self.assertEqual(enrollment.group_id, self.group_a)
+
+    def test_create_with_study_id_and_main_group_id_creates_enrollment_from_template(self):
+        """A create() is always a first placement (no previous group to migrate FROM), so
+        giving main_group_id explicitly alongside study_id still runs the template refresh
+        - using the given group instead of auto-picking one. Mirrors
+        TestContactStudyChange.test_write_study_id_with_explicit_group_on_first_placement_creates_enrollment_from_template.
+        Found the hard way (issue #455 follow-up): filling Studies then Main Group before
+        the very first save is the normal way to place a new student, and used to silently
+        produce zero enrollments."""
+        student = self._create(study_id=self.study.id, main_group_id=self.group_b.id)
+        self.assertEqual(student.main_group_id, self.group_b)
+        enrollment = self.env['ems.enrollment'].search([('student_id', '=', student.id)])
+        self.assertEqual(enrollment.subject_id, self.subject)
+        self.assertEqual(enrollment.group_id, self.group_b)
+
+    def test_create_applicant_with_study_id_creates_no_enrollment(self):
+        """Regression: mirrors applicant_import_wizard's own create() shape
+        (contact_type='applicant', study_id set, no main_group_id)."""
+        applicant = self.env['res.partner'].with_user(self.admin_user).create({
+            'name': 'Create Study Applicant', 'contact_type': 'applicant', 'study_id': self.study.id})
+        self.assertFalse(applicant.main_group_id)
+        self.assertFalse(self.env['ems.enrollment'].search([('student_id', '=', applicant.id)]))
+
+    def test_create_with_main_group_id_only_creates_no_template_enrollment(self):
+        """Regression: mirrors student_import_wizard's own create() shape (main_group_id set
+        directly, study_id absent) - no template lookup should run at all."""
+        student = self._create(main_group_id=self.group_b.id)
+        self.assertEqual(student.study_id, self.study)
+        self.assertFalse(self.env['ems.enrollment'].search([('student_id', '=', student.id)]))
+
+    def test_sudo_create_with_study_id_does_not_refresh_enrollments(self):
+        """Defensive regression, mirrors TestContactStudyChange.test_sudo_write_study_id_does_not_refresh_enrollments."""
+        student = self.env['res.partner'].sudo().create({
+            'name': 'Create Study Student Sudo', 'contact_type': 'student', 'study_id': self.study.id})
+        self.assertFalse(student.main_group_id)
+        self.assertFalse(self.env['ems.enrollment'].search([('student_id', '=', student.id)]))
+
+    def test_create_with_study_id_without_any_group_creates_nothing(self):
+        empty_level, empty_study = create_level_study(
+            self, 'TCCE', level={'name': 'Test Create Study Empty Level'}, study={
+                'code': 'TCCE001', 'acronym': 'TCCES', 'name': 'Test Create Study Empty Study'})
+        student = self._create(study_id=empty_study.id)
+        self.assertFalse(student.main_group_id)
+        self.assertFalse(self.env['ems.enrollment'].search([('student_id', '=', student.id)]))
+
+    def test_create_with_study_id_without_matching_template_creates_no_enrollment(self):
+        untemplated_level, untemplated_study, untemplated_group = create_level_study_group(
+            self, 'TCCU', level={'name': 'Test Create Study Untemplated Level'}, study={
+                'code': 'TCCU001', 'acronym': 'TCCUS', 'name': 'Test Create Study Untemplated Study'})
+        student = self._create(study_id=untemplated_study.id)
+        self.assertEqual(student.main_group_id, untemplated_group)
+        self.assertFalse(self.env['ems.enrollment'].search([('student_id', '=', student.id)]))

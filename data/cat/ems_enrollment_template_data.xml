@@ -1084,5 +1084,84 @@
             <field name="product_uom_qty">1</field>
         </record>
 
+        <!--Template AO-1-->
+        <record id="enrollment_template_ao_1" model="sale.order.template">
+            <field name="name">AO-1</field>
+            <field name="ems_study_id" ref="ems.study_pfi_ag10_ao_2024"/>
+            <field name="study_year">1</field>
+        </record>
+
+        <record id="line_ao1_enrollment_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ao_1"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_enrollment'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ao1_ampa_fee" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ao_1"/>
+            <field name="product_id" search="[('product_tmpl_id', '=', ref('ems.product_generic_ampa'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ao1_3003" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ao_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_3003_pfi'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ao1_3004" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ao_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_3004_pfi'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ao1_e001" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ao_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_E001'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ao1_mp" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ao_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_MP'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ao1_mprl" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ao_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_MPRL'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ao1_mfg1" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ao_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_MFG1'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ao1_mfg2" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ao_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_MFG2'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ao1_mfg3" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ao_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_MFG3'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ao1_mfg4" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ao_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_MFG4'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
+        <record id="line_ao1_tut" model="sale.order.template.line">
+            <field name="sale_order_template_id" ref="enrollment_template_ao_1"/>
+            <field name="product_id" search="[('product_tmpl_id.ems_subject_ids', '=', ref('ems.subject_T1_PFI_AG01_AO'))]"/>
+            <field name="product_uom_qty">1</field>
+        </record>
+
     </data>
 </odoo>

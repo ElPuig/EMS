@@ -587,11 +587,28 @@ class ResPartner(models.Model):
     @api.model_create_multi
     def create(self, values):
         # Fired when the model is created (Source: https://www.cybrosys.com/blog/how-to-override-create-write-and-unlink-methods-in-odoo-17)
-        # NOTE: values is a list of dicts (method fired only once) 
+        # NOTE: values is a list of dicts (method fired only once)
+        # Auto-place a brand-new student the same way write() already does for an EXISTING
+        # one on a study_id change (see write()'s own 'study_refresh_candidates' block for the
+        # full rationale) - mirrored entry-by-entry here instead of recordset-wide, since
+        # create() never has a "previous main_group_id" to compare against: every study_id
+        # given at create time is inherently a first placement, so - unlike write() - an
+        # explicit main_group_id given alongside it is never excluded here: there is no
+        # "previous group" a create() could ever be migrating enrollments away FROM. Same
+        # two remaining exclusions as write(): not self.env.su (system flows) and a
+        # non-'student' contact_type (applicant_import_wizard). student_import_wizard stays
+        # excluded too, since it never sets study_id in the first place.
+        is_su = self.env.su
+        study_refresh_flags = []
         for entry in values:
-            self._compute_group_data(entry) 
-            
-            # NOTE: I don't know why, but the 'contact_type' value does not arrive for contact data (contact within student 
+            is_candidate = not is_su and 'study_id' in entry and entry.get('contact_type') == 'student'
+            study_refresh_flags.append(is_candidate)
+            if is_candidate and not entry.get('main_group_id'):
+                entry['main_group_id'] = self._ems_auto_group_for_study(entry.get('study_id')).id
+
+            self._compute_group_data(entry)
+
+            # NOTE: I don't know why, but the 'contact_type' value does not arrive for contact data (contact within student
             #       form) so the value will be manually setup here.
             if 'parent_id' in entry and entry['parent_id']:
                 parent = self.env['res.partner'].browse(entry['parent_id'])
@@ -599,9 +616,16 @@ class ResPartner(models.Model):
                     entry['contact_type'] = 'family'
                 elif parent.contact_type == 'provider':
                     entry['contact_type'] = 'provider'
-        
+
         contact = super(ResPartner, self).create(values)
         contact._sync_category()
+
+        # zip() relies on api.model_create_multi's guaranteed order-preservation between the
+        # input values and the returned recordset.
+        study_refresh_candidates = self.browse(
+            record.id for record, is_candidate in zip(contact, study_refresh_flags) if is_candidate)
+        if study_refresh_candidates:
+            study_refresh_candidates._ems_refresh_enrollments_from_template()
 
         # Google Workspace: enqueue account creation for brand-new students without
         # a corporate email yet (skips CSV imports of existing students that already have one).
@@ -639,15 +663,8 @@ class ResPartner(models.Model):
             old_main_groups = {partner.id: partner.main_group_id for partner in self}
 
         # Refresh ems.enrollment from the matching enrollment template whenever a
-        # student's study_id actually changes interactively, without an explicit new
-        # main_group_id in the same write (see _ems_refresh_enrollments_from_template).
-        # Scoped narrowly on purpose:
-        # - 'not values.get('main_group_id')': when the caller also picks a group
-        #   explicitly in the same write, that already goes through the pre-existing
-        #   old_main_groups/_migrate_enrollments_on_group_change mechanism above, which
-        #   repoints the OLD (same-study) enrollments into the new group - mixing that
-        #   with a template-driven refresh for a different study would create enrollment
-        #   rows for subjects that don't belong to either the old or the new curriculum.
+        # student's study_id actually changes interactively (see
+        # _ems_refresh_enrollments_from_template). Scoped narrowly on purpose:
         # - 'not self.env.su': excludes system flows acting on the user's behalf that
         #   already resolve their own group/subjects, chiefly sale.order.
         #   _ems_apply_destination_placement() (always writes main_group_id and
@@ -658,28 +675,33 @@ class ResPartner(models.Model):
         #   applicants (applicant_import_wizard, the course transition wizard's pending
         #   graduates) which also write study_id without a group, on purpose - they are
         #   not placed yet, so there is nothing to enroll them into.
+        # - An explicit main_group_id in the same write is only excluded when the partner
+        #   ALREADY had a group before this write (a genuine group change, not a first
+        #   placement): that case is handled by the pre-existing old_main_groups/
+        #   _migrate_enrollments_on_group_change mechanism above instead, which repoints
+        #   the OLD (same-study) enrollments into the new group. A partner with NO
+        #   previous group has nothing to migrate FROM, so the template refresh runs
+        #   anyway, using the explicitly given group instead of auto-picking one - found
+        #   the hard way (issue #455 follow-up): filling Studies then Main Group before
+        #   the very first save is the normal way to place a new/unplaced student, and
+        #   used to silently produce zero enrollments.
         study_refresh_candidates = self.env['res.partner']
-        if 'study_id' in values and not self.env.su and not values.get('main_group_id'):
+        if 'study_id' in values and not self.env.su:
             new_study_id = values.get('study_id')
+            new_group_id = values.get('main_group_id')
             study_refresh_candidates = self.filtered(
                 lambda partner: values.get('contact_type', partner.contact_type) == 'student'
                 and partner.study_id.id != new_study_id
+                and (not new_group_id or not partner.main_group_id)
             )
-            if study_refresh_candidates:
+            if study_refresh_candidates and not new_group_id:
                 # Resolved explicitly either way (a found group, or False) rather than left
                 # as whatever it already was: otherwise a direct write() bypassing the form's
                 # own _onchange_study_id (which clears it client-side) would leave main_group_id
                 # stuck on a group belonging to the OLD study - the exact "incongruence between
                 # main_group, level and studies" _compute_group_data already guards against for
-                # every other path. First group alphabetically for the new study - no course
-                # filter needed: a main group's own name is built as study.acronym + course +
-                # acronym (see ems.group._compute_name), so ordering by name within the study
-                # already lands on its lowest course first.
-                auto_group = self.env['ems.group']
-                if new_study_id:
-                    auto_group = self.env['ems.group'].search(
-                        [('study_id', '=', new_study_id)], order='name', limit=1)
-                values['main_group_id'] = auto_group.id if auto_group else False
+                # every other path. See _ems_auto_group_for_study() for how the group is picked.
+                values['main_group_id'] = self._ems_auto_group_for_study(new_study_id).id
 
         self._compute_group_data(values)
         contact = super(ResPartner, self).write(values)
@@ -1019,6 +1041,18 @@ class ResPartner(models.Model):
                 items = kept_with_grades.mapped(
                     lambda enrollment: f"{enrollment.subject_id.display_name} ({enrollment.group_id.display_name})")
                 student.message_post(body=Markup("<p>{}</p>").format(intro) + base.EmsBase.build_html_list(self, items))
+
+    @api.model
+    def _ems_auto_group_for_study(self, study_id):
+        """First ems.group alphabetically for the given study (or an empty recordset if
+        study_id is falsy or no group exists yet for it) - no course filter needed: a main
+        group's own name is built as study.acronym + course + acronym (see
+        ems.group._compute_name), so ordering by name within the study already lands on its
+        lowest course first. Shared by write()'s and create()'s own study_id-driven
+        main_group_id auto-placement - see both callers for the full placement rationale."""
+        if not study_id:
+            return self.env['ems.group']
+        return self.env['ems.group'].search([('study_id', '=', study_id)], order='name', limit=1)
 
     def _compute_group_data(self, values):
         # Avoids incongruences between the main_group, level and studies.     

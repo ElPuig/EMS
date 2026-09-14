@@ -33,7 +33,7 @@ Rellenad:
 - **Obligatorio responder**: activadla si el alumno debe responderlo.
 - **Solo aceptación**: activadla si la familia solo puede aceptarlo, sin opción de rechazarlo.
 - **URL de descarga de plantilla**: un enlace a la versión en papel, si la hay.
-- **Tipo de autorización**: elegid el tipo que corresponda (derechos de imagen, salidas escolares, datos de salud o compartir con la familia) para que la respuesta actualice ese indicador en la ficha del alumno. Para lo demás, dejad *Otros / General*.
+- **Tipo de autorización**: elegid el tipo que corresponda (derechos de imagen, salidas escolares, datos de salud o compartir con la familia) para que la respuesta actualice ese indicador en la ficha del alumno. Para lo demás, dejad *Otro / General*.
 - **Aplica a los niveles** / **Aplica a los estudios**: dejadlos vacíos si el formulario afecta a todo el alumnado. Si los rellenáis, el formulario solo llega al alumnado de esos niveles y estudios, tanto cuando se añade a las matrículas como cuando se envía durante el curso.
 
 En la pestaña **Texto legal**, escribid el texto que leerá la familia antes de responder. Podéis usar `{{student_name}}`, `{{academic_year}}` y `{{study_name}}`; cada uno se sustituye por los datos del alumno.

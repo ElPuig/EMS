@@ -43,20 +43,22 @@ class TestDocsScreenshots(HttpCase):
     def setUpClass(cls):
         super().setUpClass()
         os.makedirs(OUTPUT_DIR, exist_ok=True)
-        cls.secretary = create_role_user(cls, 'secretary', 'doc_shot_secretary',
-                                         name='Secretariat', email='secretariat@example.com')
-        create_role_employee(cls, cls.secretary, employee_type='asp', name='0000 Secretariat')
+        # Catalan: the manuals are read at this centre in Catalan first, so every screen is shot in
+        # it - users in ca_ES, and the invented data written in Catalan too.
+        cls.secretary = create_role_user(cls, 'secretary', 'doc_shot_secretary', lang='ca_ES',
+                                         name='Secretaria', email='secretaria@example.com')
+        create_role_employee(cls, cls.secretary, employee_type='asp', name='0000 Secretaria')
 
         Course = cls.env['ems.course']
         cls.course = Course.search([('is_current', '=', True)], limit=1) \
             or Course.create({'start': 2096, 'end': 2097, 'is_current': True})
         cls.level, cls.study, cls.group = create_level_study_group(cls, 'DOC', level={
-            'name': 'Vocational Training',
+            'name': 'Formació professional',
         }, study={
-            'code': 'DOC001', 'acronym': 'DAM', 'name': 'Multiplatform Application Development',
+            'code': 'DOC001', 'acronym': 'DAM', 'name': "Desenvolupament d'aplicacions multiplataforma",
         }, group={'acronym': 'A', 'course': 1})
         cls.subject = cls.env['ems.subject'].create({
-            'code': 'DOCSUB', 'acronym': 'DSB', 'name': 'Databases',
+            'code': 'DOCSUB', 'acronym': 'DSB', 'name': 'Bases de dades',
             'study_ids': [(6, 0, [cls.study.id])],
         })
         # Invented people, on an invented group: these end up in a published manual.
@@ -65,17 +67,17 @@ class TestDocsScreenshots(HttpCase):
             cls.students |= cls._student(name)
 
         # A tutor of that same invented group, for the tutors' manual.
-        cls.tutor = create_role_user(cls, 'tutor', 'doc_shot_tutor',
-                                     name='Group Tutor', email='tutor@example.com')
-        cls.group.tutor_id = create_role_employee(cls, cls.tutor, name='0000 Group Tutor')
+        cls.tutor = create_role_user(cls, 'tutor', 'doc_shot_tutor', lang='ca_ES',
+                                     name='Tutor de grup', email='tutor@example.com')
+        cls.group.tutor_id = create_role_employee(cls, cls.tutor, name='0000 Tutor de grup')
 
         cls.template = cls.env['ems.authorization.template'].create({
-            'name': 'Museum visit (November)',
+            'name': 'Visita al museu (novembre)',
             'apply_on_enrollment': False, 'sendable_during_course': True,
-            'legal_text': '<p>I authorise {{student_name}}, enrolled in {{study_name}} during '
-                          '{{academic_year}}, to take part in the museum visit.</p>',
-            'field_ids': [(0, 0, {'label': 'Emergency phone number', 'field_type': 'char',
-                                  'placeholder': 'e.g. 600 123 456'})],
+            'legal_text': "<p>Autoritzo {{student_name}}, matriculat/da a {{study_name}} el curs "
+                          "{{academic_year}}, a participar en la visita al museu.</p>",
+            'field_ids': [(0, 0, {'label': "Telèfon d'emergència", 'field_type': 'char',
+                                  'placeholder': 'p. ex. 600 123 456'})],
         })
         # One already answered and one still pending, so the follow-up list shows both states.
         cls.env['ems.authorization'].create([{
@@ -84,13 +86,13 @@ class TestDocsScreenshots(HttpCase):
         answered = cls.env['ems.authorization'].search([
             ('template_id', '=', cls.template.id), ('partner_id', '=', cls.students[1].id)])
         answered.write({'status': 'yes', 'signed_document': base64.b64encode(b'%PDF-1.4 x'),
-                        'signed_document_name': 'Cert_museum.pdf'})
+                        'signed_document_name': 'Cert_visita_museu.pdf'})
 
         # Not sent to anybody yet, so the assistant's preview has something to show.
         cls.pending_template = cls.env['ems.authorization.template'].create({
-            'name': 'Swimming pool activity (term 2)',
+            'name': 'Activitat de piscina (2n trimestre)',
             'apply_on_enrollment': False, 'sendable_during_course': True,
-            'legal_text': '<p>I authorise {{student_name}} to take part in the activity.</p>',
+            'legal_text': "<p>Autoritzo {{student_name}} a participar en l'activitat.</p>",
         })
 
         # The portal shot needs a student who can log in and who has one authorization to
@@ -98,7 +100,7 @@ class TestDocsScreenshots(HttpCase):
         cls.portal_student = cls._student('Alex Exemple')
         cls.portal_user = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Alex Exemple', 'login': 'doc_shot_portal', 'password': 'doc_shot_portal',
-            'lang': 'en_US', 'partner_id': cls.portal_student.id,
+            'lang': 'ca_ES', 'partner_id': cls.portal_student.id,
             'groups_id': [(6, 0, [cls.env.ref('base.group_portal').id])],
         })
         cls.env['ems.authorization'].create({
@@ -109,7 +111,7 @@ class TestDocsScreenshots(HttpCase):
         # Actions of their own, scoped to these fixtures: it is what guarantees no real record
         # can appear in the shot, rather than trusting a crop.
         cls.list_action = cls.env['ir.actions.act_window'].create({
-            'name': 'Authorizations',
+            'name': 'Seguiment',
             'res_model': 'ems.authorization',
             'view_mode': 'list,form',
             'search_view_id': cls.env.ref('ems.view_ems_authorization_search').id,
@@ -118,7 +120,7 @@ class TestDocsScreenshots(HttpCase):
         # Opened on groups with the authorization preloaded, the way a form's own "Send to Students"
         # button opens it; the tour (ems_doc_shot_tutor_send) only types and picks the group.
         cls.tutor_wizard_action = cls.env['ir.actions.act_window'].create({
-            'name': 'Send Authorizations',
+            'name': 'Enviar autoritzacions',
             'res_model': 'ems.authorization.send.wizard',
             'view_mode': 'form',
             'target': 'new',
@@ -128,7 +130,7 @@ class TestDocsScreenshots(HttpCase):
             },
         })
         cls.wizard_action = cls.env['ir.actions.act_window'].create({
-            'name': 'Send Authorizations',
+            'name': 'Enviar autoritzacions',
             'res_model': 'ems.authorization.send.wizard',
             'view_mode': 'form',
             'target': 'new',

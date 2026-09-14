@@ -33,7 +33,7 @@ Ompliu:
 - **Obligatori respondre**: activeu-la si l'alumne l'ha de respondre.
 - **Només acceptació**: activeu-la si la família només el pot acceptar, sense opció de rebutjar-lo.
 - **URL de descàrrega de plantilla**: un enllaç a la versió en paper, si n'hi ha.
-- **Tipus d'autorització**: trieu el tipus que correspongui (drets d'imatge, sortides escolars, dades de salut o compartir amb la família) perquè la resposta actualitzi aquest indicador a la fitxa de l'alumne. Per a la resta, deixeu *Altres / General*.
+- **Tipus d'autorització**: trieu el tipus que correspongui (drets d'imatge, sortides escolars, dades de salut o compartir amb la família) perquè la resposta actualitzi aquest indicador a la fitxa de l'alumne. Per a la resta, deixeu *Altre / General*.
 - **Aplica als nivells** / **Aplica als estudis**: deixeu-los buits si el formulari afecta tot l'alumnat. Si els ompliu, el formulari només arriba a l'alumnat d'aquells nivells i estudis, tant quan s'afegeix a les matrícules com quan s'envia durant el curs.
 
 A la pestanya **Text legal**, escriviu el text que llegirà la família abans de respondre. Podeu utilitzar `{{student_name}}`, `{{academic_year}}` i `{{study_name}}`; cadascun se substitueix per les dades de l'alumne.

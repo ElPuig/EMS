@@ -97,6 +97,9 @@ del grup, de manera que no cal substituir mai l'enllaç. L'enllaç es construeix
 del grup: si el grup canvia de nom, l'enllaç també canvia. L'enllaç d'un grup arxivat deixa de
 funcionar.
 
+Per enllaçar els horaris de tots els grups d'un estudi amb un sol PDF, fes servir l'enllaç públic
+del mateix estudi (vegeu [Estudis](curriculum-studies.md#enllaç-públic-als-horaris-de-lestudi)).
+
 ---
 
 [← Tornar a l'índex general](index.md)

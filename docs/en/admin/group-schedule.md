@@ -97,6 +97,9 @@ The PDF behind the link is updated automatically a few seconds after any change 
 schedule, so the link never needs to be replaced. The link is built from the group's name: if
 the group is renamed, the link changes too. An archived group's link stops working.
 
+To link the schedules of every group of a study with a single PDF, use the study's own public
+link instead (see [Studies](curriculum-studies.md#public-link-to-the-studys-schedules)).
+
 ---
 
 [← Back to main index](index.md)

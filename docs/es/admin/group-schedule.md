@@ -103,6 +103,9 @@ horario del grupo, así que nunca hace falta sustituir el enlace. El enlace se c
 del nombre del grupo: si el grupo cambia de nombre, el enlace también cambia. El enlace de un
 grupo archivado deja de funcionar.
 
+Para enlazar los horarios de todos los grupos de un estudio con un solo PDF, usa el enlace público
+del propio estudio (ver [Estudios](curriculum-studies.md#enlace-público-a-los-horarios-del-estudio)).
+
 ---
 
 [← Volver al índice general](index.md)

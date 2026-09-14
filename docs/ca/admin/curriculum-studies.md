@@ -48,6 +48,24 @@ En obrir el menú es mostra una llista de tots els estudis ordenada per codi. Ca
 
 ---
 
+## Enllaç públic als horaris de l'estudi
+
+Cada estudi amb grups actius té un enllaç públic a un sol PDF amb l'horari setmanal de tots, un
+darrere l'altre per curs i grup (p. ex. SMX1A, SMX1B... i després SMX2A, SMX2B...). Qualsevol
+persona el pot obrir sense iniciar sessió a EMS, de manera que el web del centre pot enllaçar un
+PDF per estudi.
+
+1. Obre **Comunitat Educativa → Configuració → Currículum → Estudis → [un estudi]**.
+2. Al camp **Enllaç públic de l'horari** (p. ex. `.../ems/schedule/study/smx.pdf`), fes clic a
+   l'enllaç per obrir el PDF en una pestanya nova, o fes clic al botó de la dreta per copiar-lo.
+
+El PDF inclou sempre els grups actius de l'estudi en cada moment, cadascun amb l'horari tal com
+surt al seu propi enllaç públic (vegeu [L'horari setmanal d'un grup](group-schedule.md#enllaç-públic-al-pdf-de-lhorari)),
+de manera que no cal substituir l'enllaç quan els grups canvien d'un curs a l'altre. L'enllaç es
+construeix a partir de l'acrònim de l'estudi: si l'acrònim canvia, l'enllaç també canvia.
+
+---
+
 ## Retirar un estudi
 
 Els estudis rarament s'eliminen, ja que fer-ho es bloqueja tan bon punt altres registres (matrícules, grups, qualificacions) els referencien. Per deixar d'oferir un estudi mantenint el seu historial:

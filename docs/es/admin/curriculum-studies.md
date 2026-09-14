@@ -48,6 +48,25 @@ Al abrir el menú se muestra una lista de todos los estudios ordenada por códig
 
 ---
 
+## Enlace público a los horarios del estudio
+
+Cada estudio con grupos activos tiene un enlace público a un único PDF con el horario semanal de
+todos ellos, uno detrás de otro por curso y grupo (p. ej. SMX1A, SMX1B... y después SMX2A,
+SMX2B...). Cualquier persona puede abrirlo sin iniciar sesión en EMS, así que la web del centro
+puede enlazar un PDF por estudio.
+
+1. Abre **Comunidad Educativa → Configuración → Currículum → Estudios → [un estudio]**.
+2. En el campo **Enlace público del horario** (p. ej. `.../ems/schedule/study/smx.pdf`), haz clic
+   en el enlace para abrir el PDF en una pestaña nueva, o haz clic en el botón de la derecha para
+   copiarlo.
+
+El PDF incluye siempre los grupos activos del estudio en cada momento, cada uno con el horario tal
+como aparece en su propio enlace público (ver [El horario semanal de un grupo](group-schedule.md#enlace-público-al-pdf-del-horario)),
+así que no hace falta sustituir el enlace cuando los grupos cambian de un curso a otro. El enlace
+se construye a partir del acrónimo del estudio: si el acrónimo cambia, el enlace también cambia.
+
+---
+
 ## Retirar un estudio
 
 Los estudios raramente se eliminan, ya que hacerlo se bloquea en cuanto otros registros (matrículas, grupos, calificaciones) los referencian. Para dejar de ofrecer un estudio manteniendo su historial:

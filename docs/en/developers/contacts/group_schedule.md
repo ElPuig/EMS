@@ -344,6 +344,47 @@ it is covered by the block `active` write above.
 unknown, the group is archived, or its first PDF hasn't been generated yet - the route never
 renders.
 
+### Study schedule link (every group of a study in one PDF)
+
+The centre's website also links one PDF per study with every active group's timetable (e.g. SMX:
+SMX1A...SMX1D followed by SMX2A...SMX2D), which follows whatever groups the study has each year
+without replacing the link:
+
+```
+<web.base.url>/ems/schedule/study/<ems.study.public_schedule_slug>.pdf     e.g. /ems/schedule/study/smx.pdf
+```
+
+```mermaid
+flowchart LR
+    WEB["Anyone on the internet"] -->|"GET /ems/schedule/study/slug.pdf (auth=public)"| CTRL["controllers/group_public_schedule.py"]
+    CTRL -->|sudo, every study with that slug| ST["ems.study._get_public_schedule_pdf()"]
+    ST -->|"active groups, order course, name; skip groups with no PDF yet"| BIN["ems.group.public_schedule_pdf (one per group)"]
+    ST -->|odoo.tools.pdf.merge_pdf| RESP["one merged PDF, inline"]
+```
+
+**Nothing new is rendered or stored.** The study PDF is the groups' own stored PDFs
+(`public_schedule_pdf`, above) merged at request time with `odoo.tools.pdf.merge_pdf` - a
+page-copying operation, milliseconds for a study's handful of groups, not a wkhtmltopdf render.
+So it needs no flag, cron or trigger of its own: a schedule change reaches it as soon as the
+cron re-renders the affected group, and a group added to (or archived from) the study appears in
+(or disappears from) it on the next request.
+
+`models/curriculum/study_schedule.py` (`_inherit = 'ems.study'`):
+
+| Field / method | Notes |
+|----------------|-------|
+| `public_schedule_slug` | Char, computed from `acronym`, stored, indexed: `ir.http._slugify(acronym)` (`SMX` → `smx`). Changes if the acronym does. |
+| `public_schedule_url` | Char, computed, not stored: `web.base.url` + `/ems/schedule/study/<slug>.pdf`, **`False` while the study has no active group** (the link could only be a 404). Shown on the study form with `widget="CopyClipboardURL"`, same as the group's. |
+| `_get_public_schedule_groups()` | The studies' active groups (sudo), `order='course, name'`. |
+| `_get_public_schedule_pdf()` | Merged PDF bytes of those groups that already have a PDF, or `False` when none does. |
+
+`GET /ems/schedule/study/<slug>.pdf` (`auth='public'`) searches **every** study with that slug,
+not just one: two study records sharing an acronym (e.g. a new curriculum version for first year
+while second year finishes the old one) still publish a single PDF under the same link. `404`
+when no study matches or none of its active groups has a rendered PDF yet. The route can't
+collide with the group one: werkzeug's `string` converter never matches a `/`, so
+`/ems/schedule/<slug>.pdf` never sees `study/...`.
+
 ## Access control
 
 | Action | `base.group_user` (teacher, secretary, tutor, ...) | `ems.group_department_chief` and above |

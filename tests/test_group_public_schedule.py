@@ -1,11 +1,42 @@
 import base64
+import io
 from datetime import date
 
 from odoo.tests.common import HttpCase, TransactionCase, tagged
+from odoo.tools.pdf import PdfFileReader, PdfFileWriter
 
 from .common import create_level_study
 
 FAKE_PDF = b'%PDF-1.4 fake public schedule'
+
+
+def _blank_pdf(width):
+    """A real one-page PDF whose page width identifies it once merged into a study PDF."""
+    writer = PdfFileWriter()
+    writer.addBlankPage(width=width, height=100)
+    with io.BytesIO() as buffer:
+        writer.write(buffer)
+        return buffer.getvalue()
+
+
+def _page_widths(content):
+    reader = PdfFileReader(io.BytesIO(content), strict=False)
+    return [round(float(reader.getPage(page).mediaBox.getWidth())) for page in range(reader.getNumPages())]
+
+
+def _create_study_groups(cls, prefix, study=None):
+    """Main groups of one study, created out of order on purpose: the study PDF sorts them."""
+    if not study:
+        cls.level, cls.study = create_level_study(cls, prefix)
+        study = cls.study
+    Group = cls.env['ems.group']
+    vals = {'level_id': study.level_id.id, 'study_id': study.id}
+    return (Group.create({**vals, 'course': 2, 'acronym': 'A'}), Group.create({**vals, 'course': 1, 'acronym': 'B'}),
+        Group.create({**vals, 'course': 1, 'acronym': 'A'}))
+
+
+def _set_pdf(group, width):
+    group.write({'public_schedule_pdf': base64.b64encode(_blank_pdf(width)), 'public_schedule_dirty': False})
 
 
 def _create_fixtures(cls, prefix):
@@ -261,3 +292,88 @@ class TestGroupPublicScheduleRoute(HttpCase):
 
     def test_unknown_slug_is_not_found(self):
         self.assertEqual(self.url_open('/ems/schedule/tgpr-does-not-exist.pdf').status_code, 404)
+
+
+class TestStudyPublicSchedule(TransactionCase):
+    """One public PDF per study, merged from its active groups' own stored PDFs (see
+    docs/en/developers/contacts/group_schedule.md's "Study schedule link")."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.group_2a, cls.group_1b, cls.group_1a = _create_study_groups(cls, 'TSPS')
+
+    def test_slug_and_url_derived_from_acronym(self):
+        self.assertEqual(self.study.public_schedule_slug, 'tsps')
+        self.assertTrue(self.study.public_schedule_url.endswith('/ems/schedule/study/tsps.pdf'))
+
+    def test_study_without_active_groups_has_no_link(self):
+        _level, study = create_level_study(self, 'TSPE')
+        self.assertFalse(study.public_schedule_url)
+        group = self.env['ems.group'].create({'level_id': study.level_id.id, 'study_id': study.id, 'course': 1, 'acronym': 'A'})
+        group.active = False
+        study.invalidate_recordset(['public_schedule_url'])
+        self.assertFalse(study.public_schedule_url)
+
+    def test_pdf_merges_groups_by_course_then_name(self):
+        _set_pdf(self.group_2a, 130)
+        _set_pdf(self.group_1b, 120)
+        _set_pdf(self.group_1a, 110)
+        self.assertEqual(_page_widths(self.study._get_public_schedule_pdf()), [110, 120, 130])
+
+    def test_pdf_leaves_out_groups_without_pdf_and_archived_groups(self):
+        _set_pdf(self.group_2a, 130)
+        _set_pdf(self.group_1b, 120)
+        self.group_1b.active = False
+        self.assertEqual(_page_widths(self.study._get_public_schedule_pdf()), [130])
+
+    def test_pdf_follows_a_new_group(self):
+        _set_pdf(self.group_1a, 110)
+        group_1c = self.env['ems.group'].create({
+            'level_id': self.level.id, 'study_id': self.study.id, 'course': 1, 'acronym': 'C',
+        })
+        _set_pdf(group_1c, 140)
+        self.assertEqual(_page_widths(self.study._get_public_schedule_pdf()), [110, 140])
+
+    def test_no_rendered_group_gives_no_pdf(self):
+        self.assertFalse(self.study._get_public_schedule_pdf())
+
+    def test_studies_sharing_an_acronym_share_one_pdf(self):
+        new_version = self.env['ems.study'].create({
+            'code': 'TSPS-02', 'acronym': 'TSPS', 'name': 'Test TSPS Study (new version)', 'date': '2027-01-01',
+            'level_id': self.level.id,
+        })
+        _set_pdf(self.group_2a, 130)
+        new_group = self.env['ems.group'].create({
+            'level_id': self.level.id, 'study_id': new_version.id, 'course': 1, 'acronym': 'Z',
+        })
+        _set_pdf(new_group, 150)
+        studies = self.env['ems.study'].search([('public_schedule_slug', '=', 'tsps')])
+        self.assertEqual(studies, self.study | new_version)
+        self.assertEqual(_page_widths(studies._get_public_schedule_pdf()), [150, 130])
+
+
+@tagged('post_install', '-at_install')
+class TestStudyPublicScheduleRoute(HttpCase):
+    """The study route merges the groups' stored PDFs - no login, never renders."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        group_2a, _group_1b, group_1a = _create_study_groups(cls, 'TSPR')
+        _set_pdf(group_2a, 130)
+        _set_pdf(group_1a, 110)
+
+    def test_serves_merged_pdf_without_login(self):
+        response = self.url_open('/ems/schedule/study/tspr.pdf')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.headers['Content-Type'].startswith('application/pdf'))
+        self.assertIn('inline', response.headers['Content-Disposition'])
+        self.assertEqual(_page_widths(response.content), [110, 130])
+
+    def test_study_without_rendered_groups_is_not_found(self):
+        _create_study_groups(self, 'TSPN')
+        self.assertEqual(self.url_open('/ems/schedule/study/tspn.pdf').status_code, 404)
+
+    def test_unknown_slug_is_not_found(self):
+        self.assertEqual(self.url_open('/ems/schedule/study/tspr-does-not-exist.pdf').status_code, 404)

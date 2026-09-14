@@ -18,6 +18,19 @@
   Every existing group is flagged on upgrade, so the first PDFs appear on the cron's first run with
   no migration.
 
+## Public link to every group schedule of a study in one PDF:
+
+- Every study with active groups now has a public link too (`<web.base.url>/ems/schedule/study/<acronym-slug>.pdf`,
+  e.g. `/ems/schedule/study/smx.pdf`), shown on the study form with the same copy button: one PDF
+  with the schedule of each of the study's active groups, by course and then name (SMX1A...SMX1D,
+  then SMX2A...SMX2D), so the website needs a single link per study that follows each year's groups.
+- Nothing new is rendered or stored: the groups' own stored PDFs are merged on request, so the
+  study PDF picks up schedule changes as soon as each group is re-rendered, and a group added to or
+  archived from the study with no trigger of its own. Groups whose first PDF isn't rendered yet are
+  left out; studies sharing an acronym (a curriculum change mid-cycle) share one PDF. 404 when no
+  group has a PDF yet.
+- The group links stay as they are (the portal and the group form keep using them).
+
 ## Student's weekly schedule on the portal:
 
 - The portal's Attendance card (`/my/asistencia`) now shows the student's weekly class schedule
@@ -35,3 +48,5 @@
 - The weekly grid and Subject/Teacher(s) table were copied in the group and student schedule
   reports; both reports and the new portal page now call a single `ems.schedule_report_grid`
   QWeb sub-template.
+- `tests/__init__.py` had two imports fused on one line (a syntax error that stopped the test
+  package from loading); split back into two lines.

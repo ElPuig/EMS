@@ -13830,11 +13830,13 @@ msgstr "Tema (opcional)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__public_schedule_slug
+#: model:ir.model.fields,field_description:ems.field_ems_study__public_schedule_slug
 msgid "Public schedule slug"
 msgstr "Nombre del enlace público del horario"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__public_schedule_url
+#: model:ir.model.fields,field_description:ems.field_ems_study__public_schedule_url
 msgid "Public schedule link"
 msgstr "Enlace público del horario"
 

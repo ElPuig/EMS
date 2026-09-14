@@ -4,8 +4,9 @@ import base64
 
 from odoo import api, fields, models
 
+from ..shared.schedule_report_mixin import PUBLIC_SCHEDULE_ROUTE
+
 # Issue #453 - see docs/en/developers/contacts/group_schedule.md's "Public schedule link".
-PUBLIC_SCHEDULE_ROUTE = '/ems/schedule'
 # One public PDF per group, in the centre's own language (developer choice).
 PUBLIC_SCHEDULE_LANG = 'ca_ES'
 # 'name' itself is a stored compute over study/course/acronym for a main group, so the fields it

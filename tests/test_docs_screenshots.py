@@ -34,6 +34,10 @@ OUTPUT_DIR = os.environ.get('EMS_SCREENSHOT_DIR', '/tmp/ems_doc_screenshots')
 
 @tagged('-standard', 'ems_screenshots', 'post_install', '-at_install')
 class TestDocsScreenshots(HttpCase):
+    # A tour preparing a shot ends on a filled-in, unsaved form on purpose - that is the state
+    # being photographed. Odoo's own switch for it (ChromeBrowser._handle_console skips its
+    # end-of-tour dirty-form check when the test case sets this).
+    allow_end_on_form = True
 
     @classmethod
     def setUpClass(cls):
@@ -60,9 +64,14 @@ class TestDocsScreenshots(HttpCase):
         for name in ('Marina Exemple', 'Pau Mostra', 'Nerea Prova'):
             cls.students |= cls._student(name)
 
+        # A tutor of that same invented group, for the tutors' manual.
+        cls.tutor = create_role_user(cls, 'tutor', 'doc_shot_tutor',
+                                     name='Group Tutor', email='tutor@example.com')
+        cls.group.tutor_id = create_role_employee(cls, cls.tutor, name='0000 Group Tutor')
+
         cls.template = cls.env['ems.authorization.template'].create({
             'name': 'Museum visit (November)',
-            'apply_on': 'standalone',
+            'apply_on_enrollment': False, 'sendable_during_course': True,
             'legal_text': '<p>I authorise {{student_name}}, enrolled in {{study_name}} during '
                           '{{academic_year}}, to take part in the museum visit.</p>',
             'field_ids': [(0, 0, {'label': 'Emergency phone number', 'field_type': 'char',
@@ -80,7 +89,7 @@ class TestDocsScreenshots(HttpCase):
         # Not sent to anybody yet, so the assistant's preview has something to show.
         cls.pending_template = cls.env['ems.authorization.template'].create({
             'name': 'Swimming pool activity (term 2)',
-            'apply_on': 'standalone',
+            'apply_on_enrollment': False, 'sendable_during_course': True,
             'legal_text': '<p>I authorise {{student_name}} to take part in the activity.</p>',
         })
 
@@ -105,6 +114,18 @@ class TestDocsScreenshots(HttpCase):
             'view_mode': 'list,form',
             'search_view_id': cls.env.ref('ems.view_ems_authorization_search').id,
             'domain': [('template_id', '=', cls.template.id)],
+        })
+        # Opened on groups with the authorization preloaded, the way a form's own "Send to Students"
+        # button opens it; the tour (ems_doc_shot_tutor_send) only types and picks the group.
+        cls.tutor_wizard_action = cls.env['ir.actions.act_window'].create({
+            'name': 'Send Authorizations',
+            'res_model': 'ems.authorization.send.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_target': 'scope',
+                'default_template_ids': [(6, 0, cls.pending_template.ids)],
+            },
         })
         cls.wizard_action = cls.env['ir.actions.act_window'].create({
             'name': 'Send Authorizations',
@@ -172,7 +193,7 @@ class TestDocsScreenshots(HttpCase):
         """ % (quoted, quoted)
 
     def _capture(self, url_path, selector, filename, login, wait_for=None, padding=8,
-                 click=None, wait_after=None):
+                 click=None, wait_after=None, tour=None):
         """Load url_path as `login`, wait for `wait_for` (defaults to `selector`), optionally
         click `click` and wait for `wait_after`, then write a PNG clipped to `selector` into
         OUTPUT_DIR.
@@ -180,7 +201,10 @@ class TestDocsScreenshots(HttpCase):
         The click exists for the send assistant: its recipient preview is built by an onchange,
         which opening the form with defaults does not fire on its own.
         """
-        browser = ChromeBrowser(self, headless=True, success_signal='screenshot ready')
+        # A tour reports success with Odoo's own signal ('tour succeeded', the one start_tour()
+        # waits for); the plain wait for a selector uses ours.
+        browser = ChromeBrowser(self, headless=True,
+                                success_signal='tour succeeded' if tour else 'screenshot ready')
         try:
             self.authenticate(login, login, browser=browser)
             self.cr.flush()
@@ -193,7 +217,14 @@ class TestDocsScreenshots(HttpCase):
             })
             url = werkzeug.urls.url_join(self.base_url(), url_path)
             browser.navigate_to(url, wait_stop=True)
-            browser._wait_code_ok(self._appear_code(wait_for or selector), timeout=60)
+            if tour:
+                browser._wait_ready('odoo.isTourReady(%s)' % json.dumps(tour))
+                browser._wait_code_ok(
+                    'odoo.startTour(%s, {stepDelay: 0, keepWatchBrowser: false, debug: false, '
+                    'startUrl: %s, delayToCheckUndeterminisms: 0})'
+                    % (json.dumps(tour), json.dumps(url_path)), timeout=120)
+            else:
+                browser._wait_code_ok(self._appear_code(wait_for or selector), timeout=60)
             if click:
                 browser._websocket_request('Runtime.evaluate', params={
                     'expression': 'document.querySelector(%s).click()' % json.dumps(click),
@@ -233,7 +264,7 @@ class TestDocsScreenshots(HttpCase):
             '/odoo/action-ems.action_ems_authorization_template/%d' % self.template.id,
             '.o_form_sheet', 'authorizations-template-form.png',
             login='doc_shot_secretary',
-            wait_for=".o_form_sheet div[name='apply_on']",
+            wait_for=".o_form_sheet div[name='sendable_during_course']",
         )
         self._capture(
             '/odoo/action-%d' % self.list_action.id,
@@ -248,6 +279,12 @@ class TestDocsScreenshots(HttpCase):
             wait_for=".modal-content div[name='target'] input[data-value='students']",
             click=".modal-content div[name='target'] input[data-value='students']",
             wait_after=".modal-content div[name='line_ids'] .o_data_row",
+        )
+        self._capture(
+            '/odoo/action-%d' % self.tutor_wizard_action.id,
+            '.modal-content', 'authorizations-tutor-send.png',
+            login='doc_shot_tutor',
+            tour='ems_doc_shot_tutor_send',
         )
         self._capture(
             '/my/gestion-matriculas', '#portal_authorizations',

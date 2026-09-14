@@ -1581,7 +1581,7 @@ msgid "Allowed Attendance Schedule"
 msgstr "Horario de asistencia permitido"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__allowed_group_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__allowed_group_ids model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__allowed_group_ids
 msgid "Allowed Group"
 msgstr "Grupo permitido"
 
@@ -2098,7 +2098,7 @@ msgid "Authorization text"
 msgstr "Texto de autorización"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_ems_authorizations model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__template_ids model:ir.model.fields,field_description:ems.field_res_partner__ems_authorization_ids model:ir.model.fields,field_description:ems.field_res_users__ems_authorization_ids model:ir.model.fields,field_description:ems.field_sale_order__ems_authorization_ids model:ir.ui.menu,name:ems.menu_ems_authorizations model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_list model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+#: model:ir.actions.act_window,name:ems.action_ems_authorizations model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__template_ids model:ir.model.fields,field_description:ems.field_res_partner__ems_authorization_ids model:ir.model.fields,field_description:ems.field_res_users__ems_authorization_ids model:ir.model.fields,field_description:ems.field_sale_order__ems_authorization_ids model:ir.ui.menu,name:ems.menu_ems_authorization_root model:ir.ui.menu,name:ems.menu_ems_authorizations model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_list model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 msgid "Authorizations"
 msgstr "Autorizaciones"
 
@@ -2567,7 +2567,7 @@ msgid "Config Settings"
 msgstr "Ajustes de configuración"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_settings model:ir.ui.menu,name:ems.menu_attendance_config model:ir.ui.menu,name:ems.menu_coexistence_config model:ir.ui.menu,name:ems.menu_community_config model:ir.ui.menu,name:ems.menu_ems_configuration model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
+#: model:ir.actions.act_window,name:ems.action_settings model:ir.ui.menu,name:ems.menu_attendance_config model:ir.ui.menu,name:ems.menu_coexistence_config model:ir.ui.menu,name:ems.menu_community_config model:ir.ui.menu,name:ems.menu_ems_authorization_config model:ir.ui.menu,name:ems.menu_ems_configuration model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "Configuration"
 msgstr "Configuración"
 
@@ -13896,12 +13896,6 @@ msgid "An authorization must be addressed to a student."
 msgstr "Una autorización debe ir dirigida a un alumno."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_authorization_template__apply_on
-#: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
-msgid "Applies on"
-msgstr "Se aplica en"
-
-#. module: ems
 #: model:ir.model,name:ems.model_ems_authorization_send_wizard_line
 msgid "Authorization recipient (preview)"
 msgstr "Destinatario de autorización (previsualización)"
@@ -13943,24 +13937,9 @@ msgid "EMS: Send Authorizations"
 msgstr "EMS: Enviar autorizaciones"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_authorization_send_wizard__target__template_scope
-msgid "Each template's own scope"
-msgstr "Ámbito propio de cada plantilla"
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_authorization_template__apply_on__enrollment
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
 msgid "Enrollment process"
-msgstr "Proceso de matrícula"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_authorization_template__apply_on
-msgid ""
-"Enrollment process: automatically attached to every open enrollment matching"
-" the scope below. Sent during the course: never attached automatically, it "
-"only reaches a student through the 'Send Authorizations' assistant - for "
-"forms that appear once the academic year has already started and its "
-"enrollments are closed."
 msgstr "Proceso de matrícula"
 
 #. module: ems
@@ -14008,14 +13987,6 @@ msgid ""
 "One email per student listing every authorization sent in this batch. A "
 "minor's family is emailed instead of the student."
 msgstr "Un correo por alumno con la lista de todas las autorizaciones enviadas en este envío. Si el alumno es menor, el correo se envía a la familia en lugar de a él."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
-msgid ""
-"Only the secretary's office, the academic administration and the head of "
-"studies can send authorizations."
-msgstr "Solo secretaría, la administración académica y la jefatura de estudios pueden enviar autorizaciones."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_form
@@ -14085,14 +14056,6 @@ msgid "Sent during the course"
 msgstr "Enviada durante el curso"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_authorization_send_wizard__template_ids
-msgid ""
-"Templates of either kind can be sent: a template meant for the enrollment "
-"process is still the right thing to send by hand to a student who enrolled "
-"before it existed."
-msgstr "Se pueden enviar plantillas de ambos tipos: una plantilla pensada para el proceso de matrícula sigue siendo lo que hay que enviar a mano a un alumno que se matriculó antes de que existiera."
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/enrollment/authorization.py:0
 msgid "The authorization '%(name)s' needs an academic year."
@@ -14129,3 +14092,98 @@ msgstr "Matrícula y autorizaciones"
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "Manage enrollment, authorizations and payments"
 msgstr "Gestionar matrícula, autorizaciones y pagos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
+msgid "%s student(s) outside the scope of these authorizations"
+msgstr "%s alumnos fuera del ámbito de estas autorizaciones"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__allowed_level_ids
+msgid "Allowed Level"
+msgstr "Nivel permitido"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__allowed_study_ids
+msgid "Allowed Study"
+msgstr "Estudio permitido"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_authorization_template__apply_on_enrollment
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
+msgid "Applies to enrollment"
+msgstr "Se aplica a la matrícula"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_authorization_template__apply_on_enrollment
+msgid ""
+"Attached automatically to every open enrollment matching the scope below, "
+"and answered as part of the enrollment process."
+msgstr "Se añade automáticamente a todas las matrículas abiertas que coincidan con el ámbito de abajo, y se responde dentro del proceso de matrícula."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_authorization_template__sendable_during_course
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
+msgid "Can be sent during the course"
+msgstr "Se puede enviar durante el curso"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
+msgid ""
+"Choose at least one group, study or level to send the authorizations to."
+msgstr "Elegid al menos un grupo, estudio o nivel al que enviar las autorizaciones."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_authorization_template__sendable_during_course
+msgid ""
+"Offered in the 'Send Authorizations' assistant, to send by hand to students "
+"during the school year - including the ones whose enrollment was already "
+"confirmed when this form was created, which 'Apply to Pre-Enrollments' never"
+" reaches."
+msgstr "Aparece en el asistente 'Enviar autorizaciones' para enviarla a mano al alumnado durante el curso, incluidos los alumnos que ya tenían la matrícula confirmada cuando se creó este formulario, a los que 'Aplicar a prematrículas' no llega nunca."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_authorization_send_wizard__template_ids
+msgid ""
+"Only the authorization forms marked as 'Can be sent during the course'."
+msgstr "Solo los formularios de autorización marcados como 'Se puede enviar durante el curso'."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
+msgid "Outside the scope of these authorizations"
+msgstr "Fuera del ámbito de estas autorizaciones"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/authorization.py:0
+msgid ""
+"The authorization form '%(name)s' must apply to the enrollment, be sendable "
+"during the course, or both."
+msgstr "El formulario de autorización '%(name)s' debe aplicarse a la matrícula, poder enviarse durante el curso, o ambas cosas."
+
+#. module: ems
+#: model:ir.actions.server,name:ems.action_ems_authorizations_follow_up model:ir.ui.menu,name:ems.menu_ems_authorizations
+msgid "Responses"
+msgstr "Seguimiento"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
+msgid ""
+"Only the secretary's office, the academic administration, the head of "
+"studies and tutors can send authorizations."
+msgstr "Solo secretaría, la administración académica, la jefatura de estudios y los tutores pueden enviar autorizaciones."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
+msgid "Not one of your students"
+msgstr "No es uno de vuestros alumnos"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block
+msgid "Respond"
+msgstr "Responder"

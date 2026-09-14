@@ -97,7 +97,7 @@ Open **Enrollment and authorizations** from the top menu. The authorizations app
 For each one:
 
 1. Check the **Status** column: *Pending* means it is waiting for your answer.
-2. Click **Answer**. A window opens with the full text of the authorization.
+2. Click **Respond**. A window opens with the full text of the authorization.
 3. Fill in any data the school asks for. The fields marked with an asterisk are required to accept.
 4. Click **Accept Authorization** or, if the authorization allows it, **Reject**.
 

@@ -16,7 +16,8 @@ authorization reaches a student by one of two routes:
 - **`ems.authorization.template`** — the reusable definition (legal text,
   whether it's mandatory, whether it can only be accepted, which
   level/study it applies to, whether it is attached automatically during
-  enrollment or sent by hand during the course (`apply_on`), optional extra
+  enrollment, sent by hand during the course, or both
+  (`apply_on_enrollment` / `sendable_during_course`), optional extra
   data fields to collect).
 - **`ems.authorization.field`** — an extra data field a template can ask
   for on acceptance (e.g. "passport number" for a trip authorization).
@@ -39,7 +40,7 @@ authorization reaches a student by one of two routes:
 
 | Model | Field | Notes |
 |-------|-------|-------|
-| `ems.authorization.template` | `apply_on` | `enrollment` (default) = attached automatically to every open enrollment matching the scope below. `standalone` = never attached automatically; it only reaches a student through the send wizard. This is what stops a template created mid-year from being pulled onto next year's draft enrollments — see [Standalone authorizations](#standalone-authorizations-sent-during-the-course). |
+| `ems.authorization.template` | `apply_on_enrollment` / `sendable_during_course` | Two independent route flags; a form may take both, and `_check_has_a_route()` rejects one that takes neither. `apply_on_enrollment` (default on) = attached automatically to every open enrollment matching the scope below. `sendable_during_course` = offered in the send assistant. See [Standalone authorizations](#standalone-authorizations-sent-during-the-course). |
 | | `is_required` | If pending and required, blocks `sale.order.action_confirm()` (see [`enrollment.md`](enrollment.md#authorization-sync)). |
 | | `acceptance_only` | If set, `ems.authorization.write()` rejects any attempt to set `status='no'` on its responses. |
 | | `auth_type` | `image`/`trip`/`health`/`share`/`other` — drives `res.partner.auth_image`/`auth_trip`/`auth_healt`/`auth_share` (see below), not read anywhere else. |
@@ -116,34 +117,104 @@ and that it never gates an enrollment.
 
 ### Creating and sending
 
-`ems.authorization.template.apply_on` decides whether a template takes part in
-the enrollment process at all. A `standalone` template is invisible to all four
-of the automatic-attachment paths:
+Two independent flags on `ems.authorization.template` decide which routes a form takes part
+in, and a form may take both:
 
-| Path | Behaviour for `apply_on = 'standalone'` |
-|------|------------------------------------------|
-| `template.create()` | Does not call `action_apply_to_open_enrollments()`. |
-| `action_apply_to_open_enrollments()` | Returns early; the form's header button is hidden. |
-| `sale.order._get_authorization_commands()` | Excluded from the template search — **the important one**: without it, the next onchange on any draft enrollment of the *following* course would pull in a template created mid-year for *this* one. |
-| `action_remove_from_open_enrollments()` | Returns early; the form's header button is hidden. |
+- `apply_on_enrollment` (default on) — attached automatically to open enrollments matching its
+  scope. When off, the form is invisible to all four automatic-attachment paths:
 
-Sending is done by `ems.authorization.send.wizard`, which resolves its
-recipients three ways (`target`):
+  | Path | Behaviour with `apply_on_enrollment` off |
+  |------|-------------------------------------------|
+  | `template.create()` | Does not call `action_apply_to_open_enrollments()`. |
+  | `action_apply_to_open_enrollments()` | Returns early; the form's header button is hidden. |
+  | `sale.order._get_authorization_commands()` | Excluded from the template search — **the important one**: without it, the next onchange on any draft enrollment of the *following* course would pull in a form created mid-year for *this* one. |
+  | `action_remove_from_open_enrollments()` | Returns early; the form's header button is hidden. |
 
-- `students` — whatever was selected in the students list (`active_ids`), via
-  the `action_authorization_send_bulk` server action.
-- `scope` — groups / studies / levels chosen in the wizard, intersected with
-  the students actually enrolled in `course_id` (a `sale.order` whose state is
-  not `cancel`). Going through the enrollment rather than `ems.group`'s own
-  student list is what excludes ex-students still attached to a group record.
-- `template_scope` — each template's own `ems_level_ids`/`ems_study_ids`, via
-  the same `_matches_scope()` predicate the enrollment route uses, fed by
-  `res.partner._ems_level_study_in_force()`.
+- `sendable_during_course` — offered in the send assistant (its `template_ids` domain), and
+  shows the form's own "Send to Students" button.
 
-The wizard never re-creates or overwrites an authorization the student already
-holds for that (course, template) — by either route — because `course_id` is
-stored on every row, so one search covers both. Skipped ones are counted and
-shown in the preview, never reset: a signed authorization must survive.
+Taking both routes is a real case, which is why these are two flags rather than one selection
+(the first iteration of this feature had a single `apply_on` selection; developer testing
+replaced it): "Apply to Pre-Enrollments" only ever reaches draft/sent enrollments, so a form
+created once part of the enrollments were already confirmed — as several of this centre's
+June forms were — never reaches those students unless it can also be sent by hand.
+
+Sending is done by `ems.authorization.send.wizard`, which resolves its recipients two ways
+(`target`):
+
+- `students` — whatever was selected in the students list (`active_ids`, read only when
+  `active_model` is `res.partner`), via the `action_authorization_send_bulk` server action.
+- `scope` — groups / studies / levels chosen in the wizard, intersected with the students
+  actually enrolled in `course_id` (a `sale.order` whose state is not `cancel`). Going through
+  the enrollment rather than `ems.group`'s own student list is what excludes ex-students still
+  attached to a group record. **At least one choice is required**: nothing chosen resolves to
+  nobody, never the whole centre.
+
+The groups, studies and levels the sender may pick are bounded by the scope of the forms being
+sent: `allowed_group_ids` / `allowed_study_ids` / `allowed_level_ids` - plain fields set by
+`default_get()` and `_onchange_selection()`, deliberately not computes (see "Onchange
+trap" below) - are resolved through the same `_matches_scope()` predicate the enrollment route uses (plus its level-only counterpart,
+`_matches_level()`), and choices a newly selected form no longer allows are dropped. Whatever
+the route, each student only receives the forms whose own scope matches them
+(`_matches_scope()` on `res.partner._ems_level_study_in_force()`); a student picked by hand
+outside it is reported in the preview and in the summary, and skipped.
+
+A third route existed in the first iteration, `template_scope` ("each template's own scope"),
+and was removed after developer testing: a form with no scope, or a wide one, silently
+targeted every enrolled student it covered — the whole centre, or all of vocational training.
+
+The wizard never re-creates or overwrites an authorization the student already holds for that
+(course, template) — by either route — because `course_id` is stored on every row, so one
+search covers both. Skipped ones are counted and shown in the preview, never reset: a signed
+authorization must survive.
+
+**Onchange trap, found testing by hand.** The preview is built in `_onchange_selection()`,
+where every relational value is a virtual record wrapping the real one (`NewId origin=34`) and
+never compares equal to a persisted record. `._origin` therefore goes on the *related* records
+wherever they are compared or searched with — never on the wizard itself, whose own `_origin`
+is an empty recordset while unsaved.
+
+The onchange's *default phase* - what the web client calls to open a new record - is a
+second trap: it never computed a non-stored field depending on nothing but the context, and
+it left the scope computes out too. Values the client needs from the start therefore come
+from defaults: `allowed_*` are filled in `default_get()` (reading `default_template_ids` from the context) and recomputed in
+`_onchange_selection()`. Found by the tutor tour, pinned by a test that opens the wizard
+through `odoo.tests.Form` with a form preloaded. Missing it on the group/study/level choices made the
+preview list nobody while sending (on the saved record) worked; both halves are pinned by
+`tests/test_authorization_send_wizard.py`, the preview through `odoo.tests.Form`.
+
+
+### Tutors
+
+A tutor (`ems.group_tutor`, granted by the "Tutor" employee role; the students are the ones
+whose main group they tutor, `res.partner.tutor_id.user_id`) sends forms from the catalogue to
+their own students and follows up the answers:
+
+- **Menu.** The Authorizations submenu includes `ems.group_tutor`; its Configuration section
+  (the catalogue) does not.
+- **Sending.** `ems.authorization._ems_sees_every_student()` separates the staff from a
+  tutor, and the server is what enforces it: `_resolve_students()` drops every student who is
+  not the tutor's, whatever reached the wizard, and `_allowed_scope()` only offers their own
+  groups. Studies and levels are hidden from tutors with `groups=` on the view nodes (a whole
+  study or level would reach beyond their groups), so the server strips them rather than an
+  `invisible` expression deciding it in the browser. The student picker keeps its plain domain;
+  someone else's student picked by a tutor is listed in the preview as "Not one of your
+  students" and never sent to. What a tutor can read of the enrollments behind the scope target
+  (`rule_sale_order_teacher`) and what they may create (`rule_ems_authorization_tutor`) say the
+  same thing independently.
+
+  A first attempt drove the pickers and the hidden studies/levels from a per-user field
+  (`restricted_tutor_id`, first computed, then a default) read in client-side expressions
+  through the `=?` operator. The server served it correctly - verified through `get_views()`
+  and `onchange()` - yet in the browser the student picker found nobody and studies/levels
+  never hid. It was dropped for the server-side mechanisms above rather than debugged further
+  inside the web client.
+- **Following up.** The Responses menu entry opens `action_ems_authorizations_follow_up`, a
+  server action calling `ems.authorization.action_open_follow_up()`: the whole list for the
+  staff, `partner_id.tutor_id.user_id = uid` for a tutor. It is decided there, not in a record
+  rule, because the teacher read rule already lets every teacher read every authorization -
+  the same reason and pattern as `action_student_group_enrollment`. `action_ems_authorizations`
+  stays the window action tours and links open directly.
 
 ### Notification
 
@@ -300,20 +371,20 @@ test_a_pending_required_standalone_does_not_block_action_confirm`.
 
 | View | File | Notes |
 |------|------|-------|
-| List/Search/Form | `views/academic_management/enrollment_configuration/enrollment_authorization_{view,search,form}.xml` | Configuring `ems.authorization.template`; `action_ems_authorization_template`, under Academic Management → Configuration (admin + secretary, both full CRUD — see `security/ir.model.access.csv`). |
+| List/Search/Form | `views/academic_management/authorizations/authorization_template_{view,search,form}.xml` | Configuring `ems.authorization.template`; `action_ems_authorization_template`, under Academic Management → Authorizations → Configuration (admin + secretary, both full CRUD — see `security/ir.model.access.csv`). |
 | Enrollment form | `views/academic_management/enrollment/enrollment_form.xml` | `ems_authorization_ids` embedded on the enrollment itself. |
 | Contact form | `views/community/contact/form.xml` | Read-only `ems_authorization_ids` tab on the student. |
-| Authorizations list/form/search | `views/academic_management/enrollment/authorization_{view,form,search}.xml` | The follow-up screens on `ems.authorization` itself (`action_ems_authorizations`, Academic Management → Enrollment → Authorizations), opening flat on the running year. `group_id` (related, non-stored, to `partner_id.main_group_id`) is searchable but deliberately not groupable: that would need `store=True`, which goes stale the moment a student changes group. |
-| Send assistant | `views/academic_management/enrollment/authorization_send_wizard.xml` | The wizard form, its menu action, and the `action_authorization_send_bulk` server action bound to the students list. |
+| Authorizations list/form/search | `views/academic_management/authorizations/authorization_{view,form,search}.xml` | The follow-up screens on `ems.authorization` itself (`action_ems_authorizations`, Academic Management → Authorizations → Responses), opening flat on the running year. `group_id` (related, non-stored, to `partner_id.main_group_id`) is searchable but deliberately not groupable: that would need `store=True`, which goes stale the moment a student changes group. |
+| Send assistant | `views/academic_management/authorizations/authorization_send_wizard.xml` | The wizard form, its menu action, and the `action_authorization_send_bulk` server action bound to the students list. |
 | Portal | `views/portal/portal_authorizations.xml` | The shared authorizations block, `t-call`ed by `portal_enrollment_draft.xml` and `portal_enrollment_confirmed.xml`. Documented from the user side in `docs/en/families/manual-portal-alumne.md`, "Step 5 — Answering an authorization". |
 | Report | `reports/authorizations/report_authorization_certificate.xml` | The signed-response certificate PDF, rendered by the portal controller and attached as `signed_document`. Reads the student, year and study off the authorization itself, hides the enrollment-code row when there is none, and tells a portal response from a backoffice one by `response_uid.share`. |
 
 ## Data
 
 Seed templates: `data/custom/ems.authorization.template.csv`
-(`__import__.`-prefixed, centre-owned). The file carries no `apply_on`
-column, so all five seeds resolve to the field default, `enrollment` — which
-is correct for every one of them.
+(`__import__.`-prefixed, centre-owned). The file carries neither route column, so all five seeds resolve to
+the field defaults — applies to enrollment, not sendable during the course — which is
+correct for every one of them.
 
 Notification template: `mails/enrollment/authorization_send.xml`
 (`email_template_authorization_send`), on `res.partner`, with the three
@@ -331,8 +402,8 @@ which is what allows one email per student instead of one per authorization.
 |-------|--------------------|---------------------|-------|
 | `group_academic_admin`, `group_secretary` | full CRUD | full CRUD | Unrestricted (`security/rules/contacts.xml`). |
 | `group_head_of_studies` | full CRUD | read/write/create | Needs a rule of its own with `domain_force = []`: rules of *different* groups are ANDed, so inheriting only the teacher's read-only rule and the tutor's own-students-only one would stop them sending anything to a student they do not tutor. |
-| `group_teacher` | read-only | read-only | |
-| tutors (`group_teacher` + the tutor rule) | read-only | create/write, no unlink | Scoped to `partner_id.tutor_id.user_id = user.id` — keyed on the student now, not on `enrollment_id.partner_id`. |
+| `group_teacher` | read-only | read-only | Every teacher can read every authorization (`rule_ems_authorization_teacher`, domain `[]`); it predates issue #443 and the student file relies on it. |
+| `group_tutor` | read-only | create/write, no unlink, own students only | Scoped to `partner_id.tutor_id.user_id = user.id`. Sends forms from the catalogue to their own students through the send assistant and follows up their answers; never sees the catalogue's Configuration section. |
 | `base.group_portal` | read-only | read/write, no create/unlink | `[('partner_id', 'in', [user.partner_id.id] + user.partner_id.get_portal_students().ids)]`. |
 | `group_student_data_reader` | — | read-only | |
 
@@ -342,10 +413,13 @@ relation table: the family↔student link goes through
 traversal would be a subquery-rights hazard. It is pinned by a real
 `with_user(portal_user).search([])` test rather than trusted.
 
-The head of studies also reaches the template screens through Academic
-Management → Configuration, which was opened to them; the Enrollment Items
-and Enrollment Templates entries under it carry their own `groups=` so that
-does not also hand over the enrollment items and packs.
+Everything lives under its own submenu, Academic Management → Authorizations
+(`views/academic_management/authorizations/menu.xml`): Send Authorizations and Responses
+first, then a Configuration child holding Authorization Forms, which the navbar renders as
+a section header inside the same dropdown. The whole submenu is gated to academic admin,
+secretary and head of studies, so the head of studies reaches the forms without being given
+the enrollment Configuration menu. `menu_ems_authorization_forms` kept its xmlid (it exists
+on released databases); only its parent and defining file changed, so no migration.
 
 ## Migration notes (18.0.0.25.0)
 
@@ -358,6 +432,12 @@ failure with a warning — so the constraint would be silently absent on every
 upgraded database and present on every fresh one. `_check_target()` covers
 both paths identically. There is no `post_init_hook` counterpart, and that is
 deliberate: a fresh database has nothing to backfill.
+
+`_map_apply_on_to_route_flags()` covers the one database shape that is not a clean
+18.0.0.24.x → 18.0.0.25.0 upgrade: a box that ran an intermediate build of this unreleased
+version, with the old `apply_on` selection. It maps that column onto the two flags and
+drops it. Straight from 24.x there is no such column and the Boolean defaults are already
+right for every existing form.
 
 **The `noupdate` trap, worth knowing before editing any `noupdate="1"`
 record.** `rule_ems_authorization_portal` lived in a `<data noupdate="1">`
@@ -375,7 +455,8 @@ empirically on the dev database.
 ## Regenerating the manual screenshots
 
 `tests/test_docs_screenshots.py` (tagged `-standard`, so `./test.sh` never
-runs it) rebuilds the four PNGs the user manuals use. Run it by hand when a
+runs it) rebuilds the five PNGs the user manuals use, a tutor's view of the send assistant
+included. Run it by hand when a
 documented screen changes:
 
 ```
@@ -391,6 +472,15 @@ by hand; the directory must exist and be writable by `odoo` — `/tmp` itself
 is not, on this box). Every shot is clipped to one element and taken against
 fixtures that live in a rolled-back transaction, which is what keeps this
 box's real students out of a published manual.
+
+A screen that has to be filled in first is prepared by a real tour
+(`static/tests/tours/docs_screenshots_tour.js`, passed as `tour=` to `_capture()`), not by
+assigning input values from a script: Odoo's `edit` action types the way a person does, and a
+group picked after a value merely assigned from JavaScript was lost again before the shot.
+The tour deliberately ends on an unsaved form, so the test case sets `allow_end_on_form = True`,
+Odoo's own switch for skipping the end-of-tour dirty-form check (it is not a console error, so an
+`error_checker` cannot filter it); a tour reports success with `tour succeeded`, not the plain
+`browser_js()` signal.
 
 ## Not covered
 

@@ -1581,7 +1581,7 @@ msgid "Allowed Attendance Schedule"
 msgstr "Horari d'assistència permès"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__allowed_group_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__allowed_group_ids model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__allowed_group_ids
 msgid "Allowed Group"
 msgstr "Grup permès"
 
@@ -2098,7 +2098,7 @@ msgid "Authorization text"
 msgstr "Text d'autorització"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_ems_authorizations model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__template_ids model:ir.model.fields,field_description:ems.field_res_partner__ems_authorization_ids model:ir.model.fields,field_description:ems.field_res_users__ems_authorization_ids model:ir.model.fields,field_description:ems.field_sale_order__ems_authorization_ids model:ir.ui.menu,name:ems.menu_ems_authorizations model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_list model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+#: model:ir.actions.act_window,name:ems.action_ems_authorizations model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__template_ids model:ir.model.fields,field_description:ems.field_res_partner__ems_authorization_ids model:ir.model.fields,field_description:ems.field_res_users__ems_authorization_ids model:ir.model.fields,field_description:ems.field_sale_order__ems_authorization_ids model:ir.ui.menu,name:ems.menu_ems_authorization_root model:ir.ui.menu,name:ems.menu_ems_authorizations model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_list model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 msgid "Authorizations"
 msgstr "Autoritzacions"
 
@@ -2567,7 +2567,7 @@ msgid "Config Settings"
 msgstr "Paràmetres de configuració"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_settings model:ir.ui.menu,name:ems.menu_attendance_config model:ir.ui.menu,name:ems.menu_coexistence_config model:ir.ui.menu,name:ems.menu_community_config model:ir.ui.menu,name:ems.menu_ems_configuration model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
+#: model:ir.actions.act_window,name:ems.action_settings model:ir.ui.menu,name:ems.menu_attendance_config model:ir.ui.menu,name:ems.menu_coexistence_config model:ir.ui.menu,name:ems.menu_community_config model:ir.ui.menu,name:ems.menu_ems_authorization_config model:ir.ui.menu,name:ems.menu_ems_configuration model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 msgid "Configuration"
 msgstr "Configuració"
 
@@ -3012,7 +3012,7 @@ msgstr "Nom del fitxer"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization__signed_document model:ir.model.fields,field_description:ems.field_ems_student_benefit__document model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
 msgid "Document"
-msgstr ""
+msgstr "Document"
 
 #. module: ems
 #. odoo-python
@@ -13895,12 +13895,6 @@ msgid "An authorization must be addressed to a student."
 msgstr "Una autorització ha d'anar adreçada a un alumne."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_authorization_template__apply_on
-#: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
-msgid "Applies on"
-msgstr "S'aplica a"
-
-#. module: ems
 #: model:ir.model,name:ems.model_ems_authorization_send_wizard_line
 msgid "Authorization recipient (preview)"
 msgstr "Destinatari d'autorització (previsualització)"
@@ -13942,24 +13936,9 @@ msgid "EMS: Send Authorizations"
 msgstr "EMS: Enviar autoritzacions"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_authorization_send_wizard__target__template_scope
-msgid "Each template's own scope"
-msgstr "Àmbit propi de cada plantilla"
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_authorization_template__apply_on__enrollment
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
 msgid "Enrollment process"
-msgstr "Procés de matrícula"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_authorization_template__apply_on
-msgid ""
-"Enrollment process: automatically attached to every open enrollment matching"
-" the scope below. Sent during the course: never attached automatically, it "
-"only reaches a student through the 'Send Authorizations' assistant - for "
-"forms that appear once the academic year has already started and its "
-"enrollments are closed."
 msgstr "Procés de matrícula"
 
 #. module: ems
@@ -14007,14 +13986,6 @@ msgid ""
 "One email per student listing every authorization sent in this batch. A "
 "minor's family is emailed instead of the student."
 msgstr "Un correu per alumne amb la llista de totes les autoritzacions enviades en aquest enviament. Si l'alumne és menor, el correu s'envia a la família en lloc de a ell."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
-msgid ""
-"Only the secretary's office, the academic administration and the head of "
-"studies can send authorizations."
-msgstr "Només secretaria, l'administració acadèmica i la direcció d'estudis poden enviar autoritzacions."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_form
@@ -14084,14 +14055,6 @@ msgid "Sent during the course"
 msgstr "Enviada durant el curs"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_authorization_send_wizard__template_ids
-msgid ""
-"Templates of either kind can be sent: a template meant for the enrollment "
-"process is still the right thing to send by hand to a student who enrolled "
-"before it existed."
-msgstr "Es poden enviar plantilles dels dos tipus: una plantilla pensada per al procés de matrícula continua sent el que cal enviar a mà a un alumne que es va matricular abans que existís."
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/enrollment/authorization.py:0
 msgid "The authorization '%(name)s' needs an academic year."
@@ -14128,3 +14091,98 @@ msgstr "Matrícula i autoritzacions"
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "Manage enrollment, authorizations and payments"
 msgstr "Gestionar matrícula, autoritzacions i pagaments"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
+msgid "%s student(s) outside the scope of these authorizations"
+msgstr "%s alumnes fora de l'àmbit d'aquestes autoritzacions"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__allowed_level_ids
+msgid "Allowed Level"
+msgstr "Nivell permès"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__allowed_study_ids
+msgid "Allowed Study"
+msgstr "Estudi permès"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_authorization_template__apply_on_enrollment
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
+msgid "Applies to enrollment"
+msgstr "S'aplica a la matrícula"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_authorization_template__apply_on_enrollment
+msgid ""
+"Attached automatically to every open enrollment matching the scope below, "
+"and answered as part of the enrollment process."
+msgstr "S'afegeix automàticament a totes les matrícules obertes que coincideixin amb l'àmbit de sota, i es respon dins del procés de matrícula."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_authorization_template__sendable_during_course
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
+msgid "Can be sent during the course"
+msgstr "Es pot enviar durant el curs"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
+msgid ""
+"Choose at least one group, study or level to send the authorizations to."
+msgstr "Trieu almenys un grup, estudi o nivell al qual enviar les autoritzacions."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_authorization_template__sendable_during_course
+msgid ""
+"Offered in the 'Send Authorizations' assistant, to send by hand to students "
+"during the school year - including the ones whose enrollment was already "
+"confirmed when this form was created, which 'Apply to Pre-Enrollments' never"
+" reaches."
+msgstr "Apareix a l'assistent 'Enviar autoritzacions' per enviar-la a mà a l'alumnat durant el curs, inclosos els alumnes que ja tenien la matrícula confirmada quan es va crear aquest formulari, als quals 'Aplicar a prematrícules' no arriba mai."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_authorization_send_wizard__template_ids
+msgid ""
+"Only the authorization forms marked as 'Can be sent during the course'."
+msgstr "Només els formularis d'autorització marcats com a 'Es pot enviar durant el curs'."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
+msgid "Outside the scope of these authorizations"
+msgstr "Fora de l'àmbit d'aquestes autoritzacions"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/authorization.py:0
+msgid ""
+"The authorization form '%(name)s' must apply to the enrollment, be sendable "
+"during the course, or both."
+msgstr "El formulari d'autorització '%(name)s' s'ha d'aplicar a la matrícula, s'ha de poder enviar durant el curs, o totes dues coses."
+
+#. module: ems
+#: model:ir.actions.server,name:ems.action_ems_authorizations_follow_up model:ir.ui.menu,name:ems.menu_ems_authorizations
+msgid "Responses"
+msgstr "Seguiment"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
+msgid ""
+"Only the secretary's office, the academic administration, the head of "
+"studies and tutors can send authorizations."
+msgstr "Només secretaria, l'administració acadèmica, la direcció d'estudis i els tutors poden enviar autoritzacions."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
+msgid "Not one of your students"
+msgstr "No és un dels vostres alumnes"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block
+msgid "Respond"
+msgstr "Respondre"

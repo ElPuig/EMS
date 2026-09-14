@@ -2,88 +2,96 @@
 
 ---
 
-# Enviar autorizaciones durante el curso
+# Autorizaciones: crearlas, enviarlas y hacer el seguimiento
 
-Esta guía explica cómo crear una autorización que surge con el curso ya empezado — un formulario publicado por el Departament d'Educació, una salida acordada en una reunión de tutoría —, enviarla al alumnado que corresponda y hacer el seguimiento de las respuestas.
+Esta guía explica cómo crear formularios de autorización, enviarlos al alumnado durante el curso y hacer el seguimiento de las respuestas.
 
 ---
 
 ## Contenido
 
-1. [Crear el formulario de autorización](#crear-el-formulario-de-autorización)
-2. [Enviarla al alumnado](#enviarla-al-alumnado)
+1. [Crear un formulario de autorización](#crear-un-formulario-de-autorización)
+2. [Enviar autorizaciones al alumnado](#enviar-autorizaciones-al-alumnado)
 3. [Qué recibe la familia](#qué-recibe-la-familia)
 4. [Seguimiento de las respuestas](#seguimiento-de-las-respuestas)
 5. [Responder en nombre de una familia](#responder-en-nombre-de-una-familia)
 
 ---
 
-## Crear el formulario de autorización
+## Crear un formulario de autorización
 
-Id a **Gestión académica > Configuración > Formularios de autorización** y haced clic en **Nuevo**.
+Id a **Gestión académica > Autorizaciones > Configuración > Formularios de autorización** y haced clic en **Nuevo**.
 
 ![Formulario de autorización](../../assets/secretary/authorizations-template-form.png)
 
 Rellenad:
 
-- **Título**: lo que verán el alumno y la familia en la lista, por ejemplo *Visita al museo (noviembre)*.
-- **Se aplica en**: elegid **Enviada durante el curso**. Las autorizaciones creadas así no se asocian nunca a una matrícula; solo llegan al alumnado cuando las enviáis desde el asistente que se describe más abajo. Dejad **Proceso de matrícula** para los formularios que forman parte de la matrícula.
-- **Obligatoria de responder**: marcadla si el alumnado debe responderla.
-- **Solo aceptación**: marcadla si no hay opción de rechazo — la familia solo puede aceptar.
-- **URL de descarga de la plantilla**: un enlace al formulario en papel, si lo hay.
-- **Tipo de autorización**: elegid *Derechos de imagen*, *Salidas escolares*, *Datos de salud* o *Compartir con la familia* para que la respuesta actualice el indicador correspondiente en la ficha del alumno. Dejad *Otros / General* en el resto de casos.
-- **Se aplica a los niveles** / **Se aplica a los estudios**: dejadlos vacíos si el formulario afecta a todo el mundo. Si rellenáis ambos, el alumno debe cumplir los dos para recibirlo.
+- **Título**: el nombre que verán el alumno y la familia, por ejemplo *Visita al museo (noviembre)*.
+- **Se aplica a la matrícula**: activadla para un formulario que forma parte del proceso de matrícula. Se añade automáticamente a las matrículas abiertas que coinciden con sus niveles y estudios.
+- **Se puede enviar durante el curso**: activadla para un formulario que queráis enviar a mano al alumnado durante el curso.
+- Un formulario puede tener las dos opciones activadas. Necesita al menos una.
+- **Obligatorio responder**: activadla si el alumno debe responderlo.
+- **Solo aceptación**: activadla si la familia solo puede aceptarlo, sin opción de rechazarlo.
+- **URL de descarga de plantilla**: un enlace a la versión en papel, si la hay.
+- **Tipo de autorización**: elegid el tipo que corresponda (derechos de imagen, salidas escolares, datos de salud o compartir con la familia) para que la respuesta actualice ese indicador en la ficha del alumno. Para lo demás, dejad *Otros / General*.
+- **Aplica a los niveles** / **Aplica a los estudios**: dejadlos vacíos si el formulario afecta a todo el alumnado. Si los rellenáis, el formulario solo llega al alumnado de esos niveles y estudios, tanto cuando se añade a las matrículas como cuando se envía durante el curso.
 
-En la pestaña **Texto legal**, escribid el texto que leerá la familia antes de responder. Podéis utilizar `{{student_name}}`, `{{academic_year}}` y `{{study_name}}`: cada uno se sustituye por los datos del alumno.
+En la pestaña **Texto legal**, escribid el texto que leerá la familia antes de responder. Podéis usar `{{student_name}}`, `{{academic_year}}` y `{{study_name}}`; cada uno se sustituye por los datos del alumno.
 
-En la pestaña **Campos de datos**, añadid los datos adicionales que necesitéis recoger al aceptar (por ejemplo, *Teléfono de emergencia*). Marcad **Obligatorio al aceptar** los que no puedan dejarse en blanco.
+En la pestaña **Campos de datos**, añadid los datos adicionales que necesitéis al aceptar (por ejemplo, *Teléfono de emergencia*). Activad **Obligatorio al aceptar** en los que no pueden dejarse en blanco.
 
-Guardad.
+Haced clic en **Guardar**.
 
-## Enviarla al alumnado
+## Enviar autorizaciones al alumnado
 
-Id a **Gestión académica > Matrícula > Enviar autorizaciones**, o seleccionad al alumnado en una lista y usad **Acciones > Enviar autorizaciones**.
+Id a **Gestión académica > Autorizaciones > Enviar autorizaciones**. También podéis abrir el asistente desde:
 
-![Asistente de envío de autorizaciones](../../assets/secretary/authorizations-send-wizard.png)
+- la lista de alumnos: seleccionad los alumnos, abrid el menú del engranaje ⚙ y elegid **Enviar autorizaciones**;
+- el propio formulario: el botón **Enviar al alumnado**.
+
+![Asistente Enviar autorizaciones](../../assets/secretary/authorizations-send-wizard.png)
 
 Rellenad:
 
-- **Autorizaciones a enviar**: uno o más formularios. Todos van en el mismo correo.
-- **Curso académico**: el curso al que pertenece la autorización.
-- **Enviar a**: cómo se elige al alumnado.
-  - **Alumnado seleccionado**: el que habéis marcado en la lista, o el que añadáis aquí a mano.
-  - **Grupos / estudios / niveles**: todo el alumnado matriculado este curso en los grupos, estudios o niveles que elijáis.
-  - **Ámbito propio de cada plantilla**: todo el alumnado matriculado que coincida con los niveles y estudios definidos en el propio formulario.
-- **Enviar correo de notificación**: dejadlo activado para avisar al alumnado por correo. Desactivadlo para que la autorización aparezca en el portal sin enviar ningún correo.
+- **Autorizaciones a enviar**: uno o más formularios que se pueden enviar durante el curso. Todos van en el mismo correo.
+- **Año académico**: el curso al que pertenecen las autorizaciones.
+- **Enviar a**:
+  - **Alumnos seleccionados**: los alumnos que añadáis en la lista de abajo.
+  - **Grupos / estudios / niveles**: todo el alumnado matriculado este curso en los grupos, estudios o niveles que elijáis. Hay que elegir al menos uno. Solo se ofrecen los grupos, estudios y niveles del ámbito de los formularios.
+- **Enviar correo de notificación**: dejadlo activado para avisar por correo. Desactivadlo para que las autorizaciones aparezcan en el portal sin enviar ningún correo.
 
-**Destinatarios (previsualización)** muestra a quién se va a escribir, a qué dirección y una nota para los casos que necesitan vuestra atención: *Ya solicitada* para un alumno que ya tiene ese formulario (se salta), *Sin contacto familiar* o *Destinatario sin correo* para un alumno al que no se puede escribir.
+Cada alumno solo recibe los formularios que se aplican a sus niveles y estudios.
 
-Haced clic en **Enviar**. El resumen indica cuántas autorizaciones se han enviado, cuántos correos se han encolado y cuántos alumnos se han saltado.
+**Destinatarios (vista previa)** muestra quién recibirá las autorizaciones y en qué dirección. Revisad la columna **Nota** antes de enviar:
 
-Podéis volver a enviar el mismo formulario más adelante a alumnos nuevos: a quienes ya lo tienen no se les pide dos veces, y una respuesta ya dada no se reinicia nunca.
+- *Ya solicitada*: el alumno ya tiene ese formulario este curso. Se salta.
+- *Fuera del ámbito de estas autorizaciones*: ninguno de los formularios se aplica a ese alumno. Se salta.
+- *No se encontró contacto familiar* o *Destinatario sin correo electrónico*: la autorización se crea, pero no se puede enviar ningún correo.
 
-Para enviar el formulario que tenéis abierto sin salir de él, usad el botón **Enviar al alumnado** de la cabecera del propio formulario de autorización.
+Haced clic en **Enviar**. Un resumen indica cuántas autorizaciones se han enviado, cuántos correos se han encolado y cuántos alumnos se han saltado.
+
+Podéis volver a enviar el mismo formulario más adelante: a quien ya lo tiene no se le vuelve a pedir, y una respuesta ya dada no se reinicia nunca.
 
 ## Qué recibe la familia
 
-Un correo por alumno, con la lista de todas las autorizaciones enviadas en ese envío y un enlace al portal. Al alumnado mayor de edad se le escribe directamente; si el alumno es menor de 18 años, lo reciben los contactos familiares.
+Un correo por alumno, con la lista de todas las autorizaciones enviadas en ese envío y un enlace al portal. El alumnado mayor de edad lo recibe directamente; si el alumno es menor de 18 años, lo reciben los contactos familiares.
 
-El alumno y la familia encuentran las autorizaciones en **Matrícula y autorizaciones** del portal, tanto si la matrícula de ese curso ya está confirmada como si no.
+El alumno y la familia responden desde **Matrícula y autorizaciones** en el portal.
 
 ## Seguimiento de las respuestas
 
-Id a **Gestión académica > Matrícula > Autorizaciones**. La lista se abre con el curso académico actual.
+Id a **Gestión académica > Autorizaciones > Seguimiento**. La lista se abre con el curso académico actual.
 
-![Lista de autorizaciones](../../assets/secretary/authorizations-list.png)
+![Lista de seguimiento](../../assets/secretary/authorizations-list.png)
 
-- Filtrad por **Pendiente**, **Aceptada** o **Rechazada**, y por **Enviada durante el curso** o **De una matrícula**.
+- Filtrad por **Pendiente**, **Aceptado** o **Rechazado**, y por **Enviada durante el curso** o **De una matrícula**.
 - Agrupad por autorización, alumno, curso académico o estado.
 - Buscad por grupo para ver una clase cada vez.
-- La columna **Documento** contiene el certificado de respuesta, generado automáticamente cuando la familia responde desde el portal. Haced clic para descargar el PDF, que incluye el texto legal, los datos aportados, la fecha y quién ha respondido.
+- La columna **Documento** contiene el certificado de respuesta, generado cuando la familia responde desde el portal. Haced clic para descargar el PDF con el texto legal, los datos aportados, la fecha y quién ha respondido.
 
 ## Responder en nombre de una familia
 
-Cuando una familia entrega el formulario firmado en papel, abrid la autorización desde esa misma lista, indicad el **Estado** y adjuntad el documento escaneado en el campo **Documento**. El estado no se puede cambiar sin adjuntarlo.
+Cuando una familia entrega el formulario firmado en papel, abrid la autorización desde **Seguimiento**, indicad el **Estado** y adjuntad el documento escaneado en el campo **Documento**. El estado no se puede cambiar sin adjuntarlo.
 
 ---
 

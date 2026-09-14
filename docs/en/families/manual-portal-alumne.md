@@ -27,9 +27,9 @@ Currently, the portal allows the following tasks:
 * **Documentation:** Upload, store and consult all the official documents requested by the school.
 * **Communications:** Receive messages, circulars and notices sent by the management team, tutors or the secretariat immediately.
 * **Profile:** Keep the personal, contact and account security data up to date.
+* **Attendance:** Check the student's weekly class schedule and download it as a PDF.
 
-**Features available soon.** We are developing new modules to improve the tool. The following areas will be activated very soon:
-* **Attendance:** Check attendance records.
+**Features available soon.** We are developing new modules to improve the tool. The following area will be activated very soon:
 * **Grades:** Access the marks of the different evaluations directly.
 
 ---

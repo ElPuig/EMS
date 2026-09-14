@@ -38,5 +38,5 @@ class TestPortalTour(HttpCase):
                          login="test_portal_tour_student")
 
     def test_portal_under_construction_render_tour(self):
-        self.start_tour("/my/asistencia", "ems_portal_under_construction_render",
+        self.start_tour("/my/calificaciones", "ems_portal_under_construction_render",
                          login="test_portal_tour_student")

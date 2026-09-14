@@ -52,12 +52,12 @@ registry.category("web_tour.tours").add("ems_portal_account_render", {
 
 registry.category("web_tour.tours").add("ems_portal_under_construction_render", {
     test: true,
-    url: "/my/asistencia",
+    url: "/my/calificaciones",
     steps: () => [
         {
             // Structural, not text-based - see the account tour above for why.
             trigger: "h1.display-5.fw-bold",
-            content: "The placeholder page rendered (shared by /my/asistencia and /my/calificaciones)",
+            content: "The placeholder page rendered (/my/asistencia now shows the student's schedule instead)",
         },
     ],
 });

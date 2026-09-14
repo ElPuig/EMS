@@ -160,6 +160,8 @@ class ems_company(models.Model):
         res = super().write(vals)
         if 'current_course_id' in vals:
             self._sync_current_course_flag()
+            # Issue #453 - the current course is printed in every group's public schedule PDF title.
+            self.env['ems.group'].sudo().search([])._mark_public_schedule_dirty()
         if 'enrollment_course_id' in vals:
             self._sync_enrollment_course_flag()
         if 'director_id' in vals:

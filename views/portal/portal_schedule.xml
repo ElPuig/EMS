@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Issue #453 - the student's weekly schedule on the portal's Attendance card (/my/asistencia).
+    The grid itself is the same sub-template both schedule PDF reports call. -->
+    <template id="portal_schedule" name="Schedule">
+        <t t-call="portal.portal_layout">
+            <div id="schedule_content" class="container mt-4 o_ems_portal_schedule">
+                <style>
+                    .o_ems_portal_schedule .gs-table { min-width: 720px; font-size: 12px; }
+                    .o_ems_portal_schedule .gs-cell-room { font-size: 11px; }
+                    .o_ems_portal_schedule .gs-summary-table { font-size: 12px; }
+                </style>
+
+                <div class="mb-4 d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <div>
+                        <h3 class="mb-0">Schedule</h3>
+                        <span t-if="student" class="text-muted small">
+                            <t t-esc="student.name"/><t t-if="student.main_group_id"> - <t t-esc="student.main_group_id.name"/></t>
+                        </span>
+                    </div>
+                    <a t-if="lines" href="/my/asistencia/pdf" class="btn btn-primary o_ems_portal_schedule_pdf">
+                        <i class="fa fa-download me-2"/>Download PDF
+                    </a>
+                </div>
+
+                <div t-if="lines" class="table-responsive">
+                    <t t-call="ems.schedule_report_grid"/>
+                </div>
+                <div t-else="" class="alert alert-info">No schedule available.</div>
+            </div>
+        </t>
+    </template>
+</odoo>

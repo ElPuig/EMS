@@ -293,6 +293,7 @@
             'reports/contacts/report_google_credentials.xml',
             'reports/employees/report_google_credentials_employee.xml',
             'reports/employees/report_working_schedule.xml',
+            'reports/contacts/report_schedule_grid.xml',
             'reports/contacts/report_group_schedule.xml',
             'reports/contacts/report_student_schedule.xml',
         'reports/enrollment/templates/report_enrollment_template.xml',
@@ -315,6 +316,7 @@
             'views/portal/portal_enrollment_draft.xml',
             'views/portal/portal_enrollment_confirmed.xml',
             'views/portal/portal_comms.xml',
+            'views/portal/portal_schedule.xml',
             'views/portal/portal_documentation.xml',
             'views/portal/portal_under_construction.xml',
 
@@ -357,6 +359,7 @@
         'data/main/mail.template-google_welcome.csv',
         'data/main/mail.template-google_lifecycle.csv',
         'data/main/ir.cron-google_workspace.csv',
+        'data/main/ir.cron-group_public_schedule.csv',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
         'data/main/ems.attendance_status.csv',

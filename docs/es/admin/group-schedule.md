@@ -85,4 +85,24 @@ definidos.
 
 ---
 
+## Enlace público al PDF del horario
+
+Cada grupo activo tiene un enlace público al PDF de su horario, que cualquier persona puede abrir
+sin iniciar sesión en EMS — por ejemplo, para enlazar el horario de cada grupo desde la web del
+centro.
+
+1. Abre **Grupos → [un grupo]**.
+2. En el campo **Enlace público del horario** (p. ej. `.../ems/schedule/eso1a.pdf`), haz clic en
+   el enlace para abrir el PDF en una pestaña nueva, o haz clic en el botón de la derecha para
+   copiarlo.
+
+![Enlace público del horario en la ficha del grupo](../../assets/admin/group-schedule-public-link.png)
+
+El PDF del enlace se actualiza automáticamente unos segundos después de cualquier cambio en el
+horario del grupo, así que nunca hace falta sustituir el enlace. El enlace se construye a partir
+del nombre del grupo: si el grupo cambia de nombre, el enlace también cambia. El enlace de un
+grupo archivado deja de funcionar.
+
+---
+
 [← Volver al índice general](index.md)

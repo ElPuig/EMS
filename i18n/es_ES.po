@@ -3734,7 +3734,7 @@ msgstr "Comentario para el alumno de la asignatura"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__4 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__4 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
+#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__4 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__4 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 msgid "Friday"
 msgstr "Viernes"
 
@@ -4952,7 +4952,7 @@ msgstr "Modo"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__0 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
+#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__0 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 msgid "Monday"
 msgstr "Lunes"
 
@@ -6290,7 +6290,8 @@ msgid "Save"
 msgstr "Guardar"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_group__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_base__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_public__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form model_terms:ir.ui.view,arch_db:ems.view_employee_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_notice_form model:ir.model.fields,field_description:ems.field_ems_guard_duty_board__board_attendance_ids model:ir.model.fields,field_description:ems.field_res_partner__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_contact_form model:ir.model.fields,field_description:ems.field_res_users__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_users_form_profile_ems_restrictions
+#. odoo-python
+#: model:ir.model.fields,field_description:ems.field_ems_group__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_base__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_public__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form model_terms:ir.ui.view,arch_db:ems.view_employee_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_notice_form model:ir.model.fields,field_description:ems.field_ems_guard_duty_board__board_attendance_ids model:ir.model.fields,field_description:ems.field_res_partner__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_contact_form model:ir.model.fields,field_description:ems.field_res_users__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_users_form_profile_ems_restrictions model_terms:ir.ui.view,arch_db:ems.portal_schedule code:addons/ems/controllers/portal_schedule.py:0
 msgid "Schedule"
 msgstr "Horario"
 
@@ -6978,7 +6979,7 @@ msgstr "Estudio: El tipo concreto de estudio (tipo de licenciatura, titulación 
 
 #. module: ems
 #. odoo-javascript
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_template__subject_id model:ir.model.fields,field_description:ems.field_ems_content__subject_id model:ir.model.fields,field_description:ems.field_ems_enrollment__subject_id model:ir.model.fields,field_description:ems.field_ems_enrollment_view__subject_ids model:ir.model.fields,field_description:ems.field_ems_grade_session__subject_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__subject_id model:ir.model.fields,field_description:ems.field_ems_notice__subject model:ir.model.fields,field_description:ems.field_ems_outcome__subject_id model:ir.model.fields,field_description:ems.field_ems_planning__subject_id model:ir.model.fields,field_description:ems.field_ems_teaching__subject_id model:ir.model.fields,field_description:ems.field_ems_tracking__subject_id model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__subject_id model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.view_grade_session_search code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0 model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__subject_id model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__subject_id model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__subject_id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__subject_id model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_template__subject_id model:ir.model.fields,field_description:ems.field_ems_content__subject_id model:ir.model.fields,field_description:ems.field_ems_enrollment__subject_id model:ir.model.fields,field_description:ems.field_ems_enrollment_view__subject_ids model:ir.model.fields,field_description:ems.field_ems_grade_session__subject_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__subject_id model:ir.model.fields,field_description:ems.field_ems_notice__subject model:ir.model.fields,field_description:ems.field_ems_outcome__subject_id model:ir.model.fields,field_description:ems.field_ems_planning__subject_id model:ir.model.fields,field_description:ems.field_ems_teaching__subject_id model:ir.model.fields,field_description:ems.field_ems_tracking__subject_id model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__subject_id model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.view_grade_session_search code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0 model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__subject_id model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__subject_id model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__subject_id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__subject_id model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__subject_id model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 msgid "Subject"
 msgstr "Asignatura"
 
@@ -7525,7 +7526,7 @@ msgstr "Esta plantilla ya ha sido utilizada para registrar las asistencias del a
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__3 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__3 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
+#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__3 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__3 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 msgid "Thursday"
 msgstr "Jueves"
 
@@ -7593,7 +7594,7 @@ msgstr "Verdadero cuando la cuenta de Google Workspace del alumno está suspendi
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__1 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__1 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
+#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__1 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__1 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 msgid "Tuesday"
 msgstr "Martes"
 
@@ -7932,7 +7933,7 @@ msgstr "Historial de comunicaciones del sistio web"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__2 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__2 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
+#: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__2 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__2 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 msgid "Wednesday"
 msgstr "Miércoles"
 
@@ -10652,7 +10653,7 @@ msgid "No schedule available for this student."
 msgstr "Este alumno no tiene ningún horario disponible."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule
+#: model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 msgid "Teacher(s)"
 msgstr "Docente(s)"
 
@@ -12704,7 +12705,7 @@ msgid "Guard duty schedule (%s)"
 msgstr "Horario de guardias (%s)"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board model_terms:ir.ui.view,arch_db:ems.portal_schedule
 msgid "No schedule available."
 msgstr "No hay horario disponible."
 
@@ -13826,3 +13827,34 @@ msgstr "Tema"
 #: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0 code:addons/ems/static/src/xml/backend/schedule_grid_readonly_field.xml:0
 msgid "Topic (optional)"
 msgstr "Tema (opcional)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__public_schedule_slug
+msgid "Public schedule slug"
+msgstr "Nombre del enlace público del horario"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__public_schedule_url
+msgid "Public schedule link"
+msgstr "Enlace público del horario"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__public_schedule_pdf
+msgid "Public schedule PDF"
+msgstr "PDF público del horario"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__public_schedule_dirty
+msgid "Public schedule pending update"
+msgstr "Horario público pendiente de actualizar"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_group_public_schedule_ir_actions_server
+msgid "EMS: Group public schedule PDFs"
+msgstr "EMS: PDF públicos de los horarios de grupo"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_schedule
+msgid "<i class=\"fa fa-download me-2\"/>Download PDF"
+msgstr "<i class=\"fa fa-download me-2\"/>Descargar PDF"

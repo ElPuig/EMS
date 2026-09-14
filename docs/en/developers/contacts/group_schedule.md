@@ -264,6 +264,86 @@ classroom (`space_id`, `t-if="group.space_id"`) — both lines omitted when the 
 field is empty (see `test_report_group_schedule_shows_reference_classroom`/
 `test_report_group_schedule_hides_reference_classroom_when_unset` in `tests/test_group_schedule.py`).
 
+## Public schedule link (issue #453)
+
+The centre's website links to every group's timetable. Each **active** `ems.group` exposes a
+public, persistent, no-login URL serving a pre-rendered PDF of the same
+`ems.report_group_schedule` report:
+
+```
+<web.base.url>/ems/schedule/<public_schedule_slug>.pdf     e.g. /ems/schedule/eso1a.pdf
+```
+
+The PDF is **never rendered on request** - only when something it prints actually changes.
+
+```mermaid
+flowchart LR
+    CH["A change that alters the printed schedule (see triggers)"] --> MARK["ems.group._mark_public_schedule_dirty(): public_schedule_dirty = True + ir.cron._trigger()"]
+    MARK --> CRON["ir_cron_group_public_schedule (runs seconds later, batched)"]
+    CRON --> GEN["ems.group._generate_public_schedule(): render ems.report_group_schedule in ca_ES"]
+    GEN --> BIN["public_schedule_pdf (Binary, attachment) + public_schedule_dirty = False"]
+    WEB["Anyone on the internet"] -->|"GET /ems/schedule/slug.pdf (auth=public)"| CTRL["controllers/group_public_schedule.py"]
+    CTRL -->|sudo read, active groups only| BIN
+```
+
+### Fields (`models/contacts/group_schedule.py`)
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `public_schedule_slug` | Char, computed from `name`, stored, indexed | `ir.http._slugify(name)` (`GA2Matí` → `ga2mati`, `Reforç Programació` → `reforc-programacio`). Readable by design (developer choice): it changes if the group is renamed. |
+| `public_schedule_url` | Char, computed, not stored | `web.base.url` + `/ems/schedule/<slug>.pdf`, shown on the group form with `widget="CopyClipboardURL"`: a link opening the PDF in a new tab plus Odoo's copy button. The copy button uses `navigator.clipboard`, which browsers only expose over HTTPS or `localhost` - over plain `http://` (e.g. a dev box) it silently does nothing (Odoo's `CopyButton` only logs a console warning). |
+| `public_schedule_pdf` | Binary, `attachment=True`, readonly | The last rendered PDF. |
+| `public_schedule_dirty` | Boolean, default `True` | "Needs re-rendering". Default `True` means a brand-new group, or every existing group right after the upgrade that adds the column, gets its first PDF on the next cron run - no migration or `post_init_hook` needed. |
+
+### Regeneration: mark + triggered cron
+
+`_mark_public_schedule_dirty()` (sudo - a teacher editing their own calendar has no write access
+to `ems.group`) sets the flag and wakes `ems.ir_cron_group_public_schedule` up. A bulk operation
+(the working-schedules import touching hundreds of blocks) therefore renders **one PDF per
+affected group**, outside the user's request.
+
+- **One trigger per transaction.** Without deduplication, the first upgrade on a production copy
+  queued 558 trigger rows from its data reload alone - and each `ir.cron._trigger()` call also
+  queues its own post-commit NOTIFY connection (`Callbacks.add` doesn't dedupe).
+  `_trigger_public_schedule_cron()` skips the call when a trigger for this cron already has
+  `create_date == cr.now()`: the ORM stamps `create_date` with the transaction's own timestamp, so
+  that row can only come from this same transaction, and a trigger undone by a rolled-back
+  savepoint no longer counts. A transaction-scoped flag in `cr.precommit.data` was tried first
+  and doesn't work: every `cr.savepoint()` flushes (so runs and clears) the precommit callbacks,
+  and both the CSV loader (one savepoint per record) and `ems.group.write()` open savepoints.
+  A second trigger in the same transaction would only ever duplicate the first: a cron run deletes
+  only the triggers older than the moment that run *started* (`ir.cron._process_job`, same
+  transaction as the job lock), so a trigger committed while a run is in progress survives and
+  schedules the next run.
+- **The mark is an unconditional write**, even on an already-dirty group: if the cron is
+  rendering that very group, the concurrent row update makes its batch fail and retry, instead of
+  clearing the flag over a PDF that already misses the change.
+- **Batches through Odoo's own cron progress API.** `_cron_generate_public_schedules()` renders
+  up to 10 groups and reports `ir.cron._notify_progress(done, remaining)`; the cron framework
+  calls it again in a fresh, separately committed transaction while `remaining > 0`. Its daily
+  interval is only a safety net.
+- Rendered with `lang='ca_ES'` (developer choice: one link, the centre's language).
+
+### Triggers (what marks which groups dirty)
+
+| Change | Groups marked |
+|--------|---------------|
+| `resource.calendar.attendance` create / unlink, or write of a printed field (`_SYNC_TRIGGER_FIELDS` + `topic`, `day_period`) | every group in `group_ids` before and after the change; for a row on a schedule framework (`calendar_id.is_framework`), every group of that framework's `level_id` (the break block) |
+| `ems.group` write of `name`, `tutor_id`, `space_id`, `level_id`, `shift` or `active` | that group |
+| `ems.subject` write of `name` / `acronym`; `ems.space` write of `name` / `code` | groups with a block using that subject / classroom, or (space) whose reference classroom it is |
+| `hr.employee` write of `name` | groups with a block taught by them, or tutored by them |
+| `res.company` write of `current_course_id` (printed in the title) | every group |
+
+A teacher calendar's archiving cascades to its blocks (`resource.calendar.action_archive()`), so
+it is covered by the block `active` write above.
+
+### Controller (`controllers/group_public_schedule.py`)
+
+`GET /ems/schedule/<slug>.pdf`, `auth='public'`: looks the slug up among **active** groups
+(sudo) and streams `public_schedule_pdf` (`application/pdf`, inline). `404` when the slug is
+unknown, the group is archived, or its first PDF hasn't been generated yet - the route never
+renders.
+
 ## Access control
 
 | Action | `base.group_user` (teacher, secretary, tutor, ...) | `ems.group_department_chief` and above |

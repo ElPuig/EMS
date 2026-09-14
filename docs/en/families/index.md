@@ -16,6 +16,7 @@ This section contains the manuals for **families and students**.
 | [Confirming the enrollment proposal](manual-confirmacio-matricula.md) | How to review and confirm the enrollment proposal received by email |
 | [Recovering the school email password](manual-recuperacio-contrasenya-correu.md) | How to recover the password of the `@elpuig.xeill.net` email account |
 | [Uploading official documents, IBAN and benefit requests](manual-documentacio.md) | How to submit ID/health card documents, register your IBAN and request a bonification or exemption |
+| [Checking the class schedule](manual-horari.md) | How to see the student's weekly schedule on the portal and download it as a PDF |
 
 ---
 

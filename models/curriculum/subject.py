@@ -128,6 +128,8 @@ class EmsSubject(models.Model):
                 if update_vals:
                     subject.product_id.write(update_vals)
 
+        if vals.keys() & {'name', 'acronym'}:
+            self.env['ems.group']._mark_public_schedule_dirty_for_blocks([('subject_id', 'in', self.ids)])
         return result
 
     @api.depends('internal_hours', 'external_hours')

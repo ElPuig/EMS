@@ -82,4 +82,21 @@ tutor and reference classroom, when set.
 
 ---
 
+## Public Link to the Schedule PDF
+
+Every active group has a public link to its schedule PDF, which anyone can open without logging
+in to EMS — use it, for example, to link each group's timetable from the centre's website.
+
+1. Open **Groups → [a group]**.
+2. In the **Public schedule link** field (e.g. `.../ems/schedule/eso1a.pdf`), click the link to
+   open the PDF in a new tab, or click the button on its right to copy the link.
+
+![Public schedule link on the group form](../../assets/admin/group-schedule-public-link.png)
+
+The PDF behind the link is updated automatically a few seconds after any change to the group's
+schedule, so the link never needs to be replaced. The link is built from the group's name: if
+the group is renamed, the link changes too. An archived group's link stops working.
+
+---
+
 [← Back to main index](index.md)

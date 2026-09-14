@@ -20,3 +20,12 @@ class EmsSpace(models.Model):
 	def _compute_display_name(self):
 		for space in self:
 			space.display_name = f"{space.name} ({space.code})" if space.code else space.name
+
+	def write(self, vals):
+		res = super().write(vals)
+		if vals.keys() & {'name', 'code'}:
+			# Issue #453 - a group's public schedule PDF prints its blocks' rooms and its own reference classroom.
+			Group = self.env['ems.group']
+			Group._mark_public_schedule_dirty_for_blocks([('space_id', 'in', self.ids)])
+			Group.sudo().search([('space_id', 'in', self.ids)])._mark_public_schedule_dirty()
+		return res

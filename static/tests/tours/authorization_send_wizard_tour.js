@@ -78,3 +78,68 @@ registry.category("web_tour.tours").add("ems_authorization_send_wizard", {
         },
     ],
 });
+
+// A tutor (issue #443 testing): the Responses menu entry shows their own students' answers
+// only, and the send assistant offers their own groups only, without studies or levels.
+registry.category("web_tour.tours").add("ems_authorization_tutor_follow_up", {
+    test: true,
+    url: "/odoo/action-ems.action_ems_authorizations_follow_up",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Send Wizard Student')",
+            content: "The tutor's own student is listed",
+        },
+        {
+            trigger: ".o_list_view:not(:has(.o_data_row:contains('Tour Other Student')))",
+            content: "A student of a group they do not tutor is not",
+        },
+    ],
+});
+
+registry.category("web_tour.tours").add("ems_authorization_tutor_send", {
+    test: true,
+    url: "/odoo/action-ems.action_ems_authorization_send",
+    steps: () => [
+        {
+            trigger: ".o_dialog .o_form_view div[name='group_ids']",
+            content: "The send assistant opened, on groups",
+        },
+        {
+            // .modal-content and not .o_dialog: the latter is a wrapper with no box of its own,
+            // and a tour trigger has to be visible.
+            trigger: ".o_dialog .modal-content:not(:has(div[name='ems_study_ids'])):not(:has(div[name='ems_level_ids']))",
+            content: "No studies or levels to pick for a tutor",
+        },
+        {
+            trigger: ".o_dialog div[name='template_ids'] input",
+            content: "Pick the authorization from the catalogue",
+            run: "edit Tour Send Wizard Authorization",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item a:contains(Tour Send Wizard Authorization)",
+            run: "click",
+        },
+        {
+            trigger: ".o_dialog div[name='group_ids'] input",
+            content: "Pick their own group",
+            run: "edit TAWTS",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item a:contains(TAWTS)",
+            run: "click",
+        },
+        {
+            trigger: ".o_dialog div[name='line_ids'] .o_data_row td:contains(Tour Send Wizard Student)",
+            content: "The preview lists the tutor's student",
+        },
+        {
+            trigger: ".o_dialog button[name='action_apply']",
+            content: "Send it",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.o_dialog))",
+            content: "The assistant closed itself after sending",
+        },
+    ],
+});

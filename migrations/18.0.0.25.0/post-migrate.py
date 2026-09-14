@@ -41,22 +41,38 @@ def _backfill_authorization_target(env):
             orphans)
 
 
-def _default_template_apply_on(env):
-    """Every authorization template that existed before this version was, by definition, part of
-    the enrollment process - apply_on's own column default covers rows created from now on, this
-    covers the ones already on file."""
+def _map_apply_on_to_route_flags(env):
+    """apply_on_enrollment / sendable_during_course replaced a single apply_on selection that only
+    ever existed in intermediate builds of this same, unreleased version.
+
+    A database upgrading straight from 18.0.0.24.x never had that column: the two new Boolean
+    columns are filled from their field defaults (applies to enrollment, not sendable), which is
+    exactly right for every form that existed before this version. A database that did run an
+    intermediate build (a dev box) still has apply_on: map it across, so a form created as "sent
+    during the course" does not silently turn into an enrollment one, then drop the leftover
+    column - Odoo never drops the column of a removed field on its own.
+    """
     env.cr.execute("""
-        UPDATE ems_authorization_template SET apply_on = 'enrollment' WHERE apply_on IS NULL
+        SELECT 1 FROM information_schema.columns
+         WHERE table_name = 'ems_authorization_template' AND column_name = 'apply_on'
     """)
-    _logger.info("Migration 18.0.0.25.0: defaulted apply_on on %s authorization template(s).",
+    if not env.cr.fetchone():
+        return
+    env.cr.execute("""
+        UPDATE ems_authorization_template
+           SET apply_on_enrollment = coalesce(apply_on <> 'standalone', true),
+               sendable_during_course = coalesce(apply_on = 'standalone', false)
+    """)
+    _logger.info("Migration 18.0.0.25.0: mapped apply_on onto the route flags for %s form(s).",
                  env.cr.rowcount)
+    env.cr.execute("ALTER TABLE ems_authorization_template DROP COLUMN apply_on")
 
 
 def migrate(cr, version):
     """No post_init_hook counterpart, deliberately: a fresh database has no authorization rows to
-    backfill, no templates predating apply_on (the field's default covers the data/custom CSV
-    load), and no ir.rule carrying the old domain - the data file loads the correct one on first
+    backfill, no templates predating the route flags (their defaults cover the data/custom
+    CSV load), and no ir.rule carrying the old domain - the data file loads the correct one on first
     install."""
     env = api.Environment(cr, SUPERUSER_ID, {})
     _backfill_authorization_target(env)
-    _default_template_apply_on(env)
+    _map_apply_on_to_route_flags(env)

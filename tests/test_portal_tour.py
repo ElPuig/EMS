@@ -44,7 +44,7 @@ class TestPortalTour(HttpCase):
         self.assertEqual(order.state, 'sale')
         template = self.env['ems.authorization.template'].create({
             'name': 'Portal Tour Mid-year Authorization', 'legal_text': '<p>Mid-year text</p>',
-            'is_required': False, 'apply_on': 'standalone',
+            'is_required': False, 'apply_on_enrollment': False, 'sendable_during_course': True,
         })
         self.env['ems.authorization'].create({
             'partner_id': self.student.id, 'course_id': course.id, 'template_id': template.id,

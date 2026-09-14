@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <!-- Authorizations get a submenu of their own under Academic management (issue #443
+             testing): mixed into Enrollment they read as part of the enrollment, which the
+             ones sent during the course are not. Day-to-day entries come first; the forms
+             themselves sit under a "Configuration" child, which the navbar renders as a
+             section header inside the same dropdown (web/.../navbar.xml). -->
+        <!-- Tutors are in: they send forms from the catalogue to their own students and follow
+             their answers (issue #443 testing). The catalogue itself (Configuration) stays with
+             the secretary's office, the academic administration and the head of studies. -->
+        <menuitem id="menu_ems_authorization_root"
+                  name="Authorizations"
+                  parent="menu_ems_academic_management"
+                  groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies,ems.group_tutor"
+                  sequence="20"/>
+
+            <menuitem id="menu_ems_authorization_send"
+                      name="Send Authorizations"
+                      parent="menu_ems_authorization_root"
+                      action="action_ems_authorization_send"
+                      sequence="10"/>
+
+            <menuitem id="menu_ems_authorizations"
+                      name="Responses"
+                      parent="menu_ems_authorization_root"
+                      action="action_ems_authorizations_follow_up"
+                      sequence="20"/>
+
+            <menuitem id="menu_ems_authorization_config"
+                      name="Configuration"
+                      parent="menu_ems_authorization_root"
+                      groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"
+                      sequence="100"/>
+
+                <!-- Same xmlid it always had (it exists on released databases): only its
+                     parent and the file defining it changed, so no migration is needed. -->
+                <menuitem id="menu_ems_authorization_forms"
+                          name="Authorization Forms"
+                          parent="menu_ems_authorization_config"
+                          action="action_ems_authorization_template"
+                          sequence="10"/>
+    </data>
+</odoo>

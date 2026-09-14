@@ -7,35 +7,22 @@
                   groups="ems.group_academic_admin,ems.group_secretary"
                   sequence="10"/>
 
-        <!-- The head of studies is in here for the authorization forms alone (issue #443:
-             they draft and send the authorizations that come up mid-year). The other two
-             entries carry their own groups= so opening this menu to them does not also hand
-             over the enrollment items and packs, which stay with the secretary's office. -->
         <menuitem id="menu_ems_configuration"
                   name="Configuration"
                   parent="menu_ems_academic_management"
-                  groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"
+                  groups="ems.group_academic_admin,ems.group_secretary"
                   sequence="100"/>
 
         <menuitem id="menu_ems_enrollment_items"
                   name="Enrollment Items"
                   parent="menu_ems_configuration"
                   action="action_ems_enrollment_items"
-                  groups="ems.group_academic_admin,ems.group_secretary"
                   sequence="10"/>
-        
-        <menuitem id="menu_ems_authorization_forms"
-                  name="Authorization Forms"
-                  parent="menu_ems_configuration"
-                  action="action_ems_authorization_template"
-                  groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"
-                  sequence="20"/>
 
         <menuitem id="menu_ems_enrollment_templates"
                   name="Enrollment Templates"
                   parent="menu_ems_configuration"
                   action="action_ems_enrollment_template"
-                  groups="ems.group_academic_admin,ems.group_secretary"
                   sequence="30"/>
 
     </data>

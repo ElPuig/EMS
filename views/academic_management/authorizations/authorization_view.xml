@@ -47,5 +47,16 @@
             </field>
         </record>
 
+        <!-- What the Responses menu opens: the whole list for the staff, a tutor's own students
+             otherwise. Decided in Python (ems.authorization.action_open_follow_up) because the
+             teacher read rule already lets every teacher read every authorization. The window
+             action above stays the one tours and links open directly. -->
+        <record id="action_ems_authorizations_follow_up" model="ir.actions.server">
+            <field name="name">Responses</field>
+            <field name="model_id" ref="model_ems_authorization"/>
+            <field name="state">code</field>
+            <field name="code">action = model.action_open_follow_up()</field>
+        </record>
+
     </data>
 </odoo>

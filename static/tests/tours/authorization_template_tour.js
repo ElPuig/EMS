@@ -2,9 +2,9 @@
 
 import { registry } from "@web/core/registry";
 
-// ems.authorization.template (Academic Management > Enrollment Configuration > Authorization
-// Forms): had zero browser coverage, including its own widget="html" legal_text field. A
-// plain create-CRUD smoke test - both name and legal_text are required.
+// ems.authorization.template (Academic Management > Authorizations > Configuration >
+// Authorization Forms): create a form, flip both of its routes, and open the send assistant
+// from the form's own button - the way it failed when tested by hand.
 registry.category("web_tour.tours").add("ems_authorization_template_crud", {
     test: true,
     url: "/odoo/action-ems.action_ems_authorization_template",
@@ -29,23 +29,6 @@ registry.category("web_tour.tours").add("ems_authorization_template_crud", {
             run: "editor Tour legal text",
         },
         {
-            // apply_on='standalone' is what keeps a template created mid-year out of the
-            // enrollment process (issue #443), so the two buttons that act on open
-            // enrollments have to disappear with it.
-            trigger: ".o_form_view div[name='apply_on'] input[data-value='standalone']",
-            content: "Mark it as sent during the course rather than at enrollment time",
-            run: "click",
-        },
-        {
-            trigger: ".o_form_view:not(:has(button[name='action_apply_to_open_enrollments']))",
-            content: "The enrollment-only buttons are gone for a standalone template",
-        },
-        {
-            trigger: ".o_form_view div[name='apply_on'] input[data-value='enrollment']",
-            content: "Back to the enrollment process, which is what the rest of the tour saves",
-            run: "click",
-        },
-        {
             trigger: ".o_notebook .nav-link:contains('Data Fields')",
             content: "Open the Data Fields tab (field_ids, never rendered by any tour before)",
             run: "click",
@@ -55,17 +38,45 @@ registry.category("web_tour.tours").add("ems_authorization_template_crud", {
             content: "The (empty) fields list renders without crashing",
         },
         {
-            trigger: ".o_form_button_save",
-            content: "Save",
+            // A form that does not apply to the enrollment never touches open enrollments, so
+            // the two buttons acting on them have to disappear with the flag.
+            trigger: ".o_form_view .o_field_widget[name='apply_on_enrollment'] input",
+            content: "Stop applying it to the enrollment",
             run: "click",
         },
         {
-            trigger: ".o_form_button_save:not(:visible)",
-            content: "Save completed",
+            trigger: ".o_form_view:not(:has(button[name='action_apply_to_open_enrollments']))",
+            content: "The enrollment-only buttons are gone",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='sendable_during_course'] input",
+            content: "Make it sendable during the course",
+            run: "click",
+        },
+        {
+            // Regression guard: from here, active_ids carry this form's own id, which the
+            // assistant used to read as a student and fail with "record does not exist" - an
+            // error dialog logs a console error, which fails the tour.
+            trigger: ".o_form_view button[name='action_send_to_students']",
+            content: "Open the send assistant from the form itself (saves the form first)",
+            run: "click",
+        },
+        {
+            trigger: ".o_dialog .o_field_widget[name='template_ids']:contains('Tour Authorization Template')",
+            content: "The assistant opened, preloaded with this form",
+        },
+        {
+            trigger: ".o_dialog .modal-header .btn-close",
+            content: "Close the assistant",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.o_dialog))",
+            content: "Back on the form",
         },
         {
             trigger: ".o_breadcrumb:contains('Tour Authorization Template')",
-            content: "The authorization template was created and saved",
+            content: "The authorization template was saved",
         },
     ],
 });

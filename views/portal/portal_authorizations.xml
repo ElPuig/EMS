@@ -60,7 +60,7 @@
                                                 </td>
                                                 <td class="text-end">
                                                     <button type="button" class="btn btn-sm btn-outline-ems ems-auth-answer" data-bs-toggle="modal" t-attf-data-bs-target="#modal_auth_#{auth.id}">
-                                                        Answer
+                                                        Respond
                                                     </button>
                                                 </td>
                                             </tr>

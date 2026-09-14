@@ -15,14 +15,19 @@ class EmsAuthorizationTemplate(models.Model):
         default=False,
         help="If enabled, this authorization can only be accepted."
     )
-    apply_on = fields.Selection([
-        ('enrollment', 'Enrollment process'),
-        ('standalone', 'Sent during the course'),
-    ], string='Applies on', default='enrollment', required=True,
-    help="Enrollment process: automatically attached to every open enrollment matching "
-         "the scope below. Sent during the course: never attached automatically, it only "
-         "reaches a student through the 'Send Authorizations' assistant - for forms that "
-         "appear once the academic year has already started and its enrollments are closed.")
+    # Two independent routes, and a form may take both (developer decision, issue #443
+    # testing): "Apply to Pre-Enrollments" only ever reaches draft/sent enrollments, so a form
+    # created once some enrollments were already confirmed can only reach those students if it
+    # can also be sent by hand.
+    apply_on_enrollment = fields.Boolean(
+        string='Applies to enrollment', default=True,
+        help="Attached automatically to every open enrollment matching the scope below, and "
+             "answered as part of the enrollment process.")
+    sendable_during_course = fields.Boolean(
+        string='Can be sent during the course', default=False,
+        help="Offered in the 'Send Authorizations' assistant, to send by hand to students during "
+             "the school year - including the ones whose enrollment was already confirmed when "
+             "this form was created, which 'Apply to Pre-Enrollments' never reaches.")
     template_download_url = fields.Char(string='Template Download URL', help='URL to download the physical document template.')
     auth_type = fields.Selection([
         ('image', 'Image Rights'),
@@ -46,13 +51,23 @@ class EmsAuthorizationTemplate(models.Model):
     )
     field_ids = fields.One2many('ems.authorization.field', 'template_id', string='Data Fields')
 
+    @api.constrains('apply_on_enrollment', 'sendable_during_course')
+    def _check_has_a_route(self):
+        """A form that neither applies to the enrollment nor can be sent would never reach
+        anybody."""
+        for template in self:
+            if not (template.apply_on_enrollment or template.sendable_during_course):
+                raise ValidationError(_(
+                    "The authorization form '%(name)s' must apply to the enrollment, be sendable "
+                    "during the course, or both.", name=template.name))
+
     @api.model_create_multi
     def create(self, vals_list):
         """A new template retroactively attaches itself to every open enrollment
-        it applies to, not just future ones - unless it is a standalone one, which
-        never takes part in the enrollment process at all (see apply_on)."""
+        it applies to, not just future ones - unless it does not apply to the enrollment
+        process at all (see apply_on_enrollment)."""
         templates = super().create(vals_list)
-        for template in templates.filtered(lambda t: t.apply_on == 'enrollment'):
+        for template in templates.filtered('apply_on_enrollment'):
             template.action_apply_to_open_enrollments()
         return templates
 
@@ -62,8 +77,8 @@ class EmsAuthorizationTemplate(models.Model):
         the given value. An empty scope field applies to everything on that dimension.
         Shared by action_apply_to_open_enrollments() (template -> matching enrollments),
         sale.order._get_authorization_commands() (enrollment -> matching templates) and
-        ems.authorization.send.wizard's 'template_scope' target (template -> matching
-        students) so they can never drift apart again - see
+        ems.authorization.send.wizard (which forms each student receives, and which
+        groups/studies the sender may pick) so they can never drift apart again - see
         docs/en/developers/enrollment/authorization.md.
         """
         self.ensure_one()
@@ -73,13 +88,23 @@ class EmsAuthorizationTemplate(models.Model):
             return False
         return True
 
+    def _matches_level(self, level):
+        """Whether any study of `level` can fall inside this template's scope - the level-only
+        counterpart of _matches_scope(), for the send assistant's level choices."""
+        self.ensure_one()
+        if self.ems_level_ids and level not in self.ems_level_ids:
+            return False
+        if self.ems_study_ids and level not in self.ems_study_ids.level_id:
+            return False
+        return True
+
     def action_apply_to_open_enrollments(self):
         """Attach this template's authorization to every still-open (draft/sent)
         enrollment matching its level/study scope (AND-of-scopes, see
         _matches_scope()), skipping enrollments that already have it.
         """
         self.ensure_one()
-        if self.apply_on != 'enrollment':
+        if not self.apply_on_enrollment:
             return
         open_enrollments = self.env['sale.order'].search(
             [('state', 'in', ['draft', 'sent'])]
@@ -102,7 +127,7 @@ class EmsAuthorizationTemplate(models.Model):
         (draft/sent) enrollments. Answered ones (accepted/rejected) are
         never touched, on any enrollment state."""
         self.ensure_one()
-        if self.apply_on != 'enrollment':
+        if not self.apply_on_enrollment:
             return
         auths_to_delete = self.env['ems.authorization'].search([
             ('template_id', '=', self.id),
@@ -111,9 +136,9 @@ class EmsAuthorizationTemplate(models.Model):
         ])
         auths_to_delete.unlink()
 
-    def action_send_to_scope(self):
-        """Open the send assistant preloaded with these templates, targeting every
-        enrolled student their own level/study scope matches."""
+    def action_send_to_students(self):
+        """Open the send assistant preloaded with this form. The sender still picks the
+        students, or the groups/studies/levels - a scope is never targeted implicitly."""
         return {
             'type': 'ir.actions.act_window',
             'name': _("Send Authorizations"),
@@ -122,7 +147,7 @@ class EmsAuthorizationTemplate(models.Model):
             'target': 'new',
             'context': {
                 'default_template_ids': [(6, 0, self.ids)],
-                'default_target': 'template_scope',
+                'default_target': 'scope',
             },
         }
 
@@ -337,6 +362,29 @@ class EmsAuthorization(models.Model):
             vals['response_uid'] = False
 
         return super().write(vals)
+
+    @api.model
+    def _ems_sees_every_student(self):
+        """Secretary, academic admin and head of studies work with every student's
+        authorizations; anyone else who reaches them - a tutor - only with their own group's."""
+        user = self.env.user
+        return any(user.has_group(xmlid) for xmlid in (
+            'ems.group_academic_admin', 'ems.group_secretary', 'ems.group_head_of_studies'))
+
+    @api.model
+    def action_open_follow_up(self):
+        """The Responses screen: every authorization for the staff above, a tutor's own
+        students' ones otherwise.
+
+        The filter lives here and not in a record rule because rule_ems_authorization_teacher
+        already lets any teacher read every authorization (it predates issue #443, and the
+        student file relies on it) - the same reason, and the same pattern, as
+        action_student_group_enrollment.
+        """
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_ems_authorizations')
+        if not self._ems_sees_every_student():
+            action['domain'] = [('partner_id.tutor_id.user_id', '=', self.env.uid)]
+        return action
 
     def _fill_target_from_enrollment(self, vals, force=False):
         """Copy partner_id/course_id out of vals' enrollment, in place."""

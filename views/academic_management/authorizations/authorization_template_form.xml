@@ -7,26 +7,27 @@
             <field name="arch" type="xml">
                 <form string="Authorization Template">
                     <header>
-                        <button name="action_send_to_scope"
+                        <button name="action_send_to_students"
                                 type="object"
                                 string="Send to Students"
                                 class="oe_highlight"
+                                invisible="not sendable_during_course"
                                 help="Send this authorization to students during the course, without going through an enrollment."/>
 
-                        <!-- Both buttons act on open enrollments, which a standalone
-                             template deliberately never touches (see apply_on). -->
+                        <!-- Both buttons act on open enrollments, which a form that does not
+                             apply to the enrollment deliberately never touches. -->
                         <button name="action_apply_to_open_enrollments" 
                                 type="object" 
                                 string="Apply to Pre-Enrollments" 
                                 class="oe_highlight" 
-                                invisible="apply_on != 'enrollment'" 
+                                invisible="not apply_on_enrollment" 
                                 confirm="Are you sure you want to add this authorization to all Pre-enrollments matching the criteria?"
                                 help="Search for pre-enrollments that match the levels and studies, and add this authorization if they don't have it yet."/>
                         
                         <button name="action_remove_from_open_enrollments" 
                                 type="object" 
                                 string="Remove from Pre-Enrollments" 
-                                invisible="apply_on != 'enrollment'" 
+                                invisible="not apply_on_enrollment" 
                                 confirm="Are you sure you want to remove this authorization from all Pre-enrollments? (It is recommended to only remove unsigned ones)."
                                 help="Search for pre-enrollments that have this authorization and remove it."/>
                     </header>
@@ -40,7 +41,12 @@
                         
                         <group>
                             <group string="Configuration">
-                                <field name="apply_on" widget="radio"/>
+                                <!-- autosave off: a toggle saves on click by default, and switching
+                                     off "applies to enrollment" first would save a form with neither
+                                     route and trip _check_has_a_route() before the other one could
+                                     be switched on. These save with the form, like its other fields. -->
+                                <field name="apply_on_enrollment" widget="boolean_toggle" options="{'autosave': False}"/>
+                                <field name="sendable_during_course" widget="boolean_toggle" options="{'autosave': False}"/>
                                 <field name="is_required" widget="boolean_toggle"/>
                                 <field name="acceptance_only" widget="boolean_toggle"/>
                                 <field name="template_download_url" widget="url" placeholder="https://ejemplo.com/plantilla.pdf"/>

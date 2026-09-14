@@ -35,18 +35,5 @@
                       groups="ems.group_academic_admin,ems.group_secretary"
                       sequence="30"/>
 
-            <menuitem id="menu_ems_authorizations"
-                      name="Authorizations"
-                      parent="menu_ems_enrollment"
-                      action="action_ems_authorizations"
-                      groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"
-                      sequence="40"/>
-
-            <menuitem id="menu_ems_authorization_send"
-                      name="Send Authorizations"
-                      parent="menu_ems_enrollment"
-                      action="action_ems_authorization_send"
-                      groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"
-                      sequence="50"/>
     </data>
 </odoo>

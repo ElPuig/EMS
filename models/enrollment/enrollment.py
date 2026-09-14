@@ -391,12 +391,12 @@ class SaleOrder(models.Model):
         level/study selection (AND-of-scopes, see
         ems.authorization.template._matches_scope())."""
         self.ensure_one()
-        # Standalone templates (apply_on='standalone') are deliberately excluded: they
-        # are sent by hand during the school year, and without this filter the next
-        # onchange on any draft enrollment - including one for the following course -
-        # would pull in a template created mid-year for a different one.
+        # Forms that do not apply to the enrollment (only sent by hand during the school
+        # year) are deliberately excluded: without this filter the next onchange on any
+        # draft enrollment - including one for the following course - would pull in a form
+        # created mid-year for a different one.
         templates = self.env['ems.authorization.template'].search(
-            [('apply_on', '=', 'enrollment')]
+            [('apply_on_enrollment', '=', True)]
         ).filtered(
             lambda template: template._matches_scope(self.ems_level_id, self.ems_study_id))
         commands = []

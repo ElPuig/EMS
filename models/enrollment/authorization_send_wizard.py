@@ -14,9 +14,8 @@ class EmsAuthorizationSendWizard(models.TransientModel):
     template_ids = fields.Many2many(
         'ems.authorization.template',
         string='Authorizations to send',
-        help="Templates of either kind can be sent: a template meant for the enrollment "
-             "process is still the right thing to send by hand to a student who enrolled "
-             "before it existed.",
+        domain=[('sendable_during_course', '=', True)],
+        help="Only the authorization forms marked as 'Can be sent during the course'.",
     )
     course_id = fields.Many2one(
         'ems.course',
@@ -27,15 +26,33 @@ class EmsAuthorizationSendWizard(models.TransientModel):
     target = fields.Selection([
         ('students', 'Selected students'),
         ('scope', 'Groups / studies / levels'),
-        ('template_scope', "Each template's own scope"),
     ], string='Send to', default='students', required=True)
     student_ids = fields.Many2many(
         'res.partner', string='Students',
         domain=[('contact_type', 'in', ('student', 'applicant'))],
     )
-    group_ids = fields.Many2many('ems.group', string='Groups', domain=[('group_type', '=', 'main')])
-    ems_study_ids = fields.Many2many('ems.study', string='Studies')
-    ems_level_ids = fields.Many2many('ems.level', string='Levels')
+    # What the sender may pick stays inside the scope of the forms being sent: a form limited
+    # to vocational training never offers an ESO group. Plain fields filled by default_get() and
+    # kept up to date by _onchange_selection(), not computes: the web client gets a new record's
+    # values from the onchange's default phase, which left these computes out entirely, so the
+    # group picker came up empty until the chosen forms changed - even with a form preloaded
+    # from its own "Send to Students" button. They only drive the pickers; which students
+    # receive which form is decided per student on the server (_templates_for).
+    allowed_group_ids = fields.Many2many(
+        'ems.group', relation='ems_auth_send_allowed_group_rel',
+        column1='wizard_id', column2='group_id')
+    allowed_study_ids = fields.Many2many(
+        'ems.study', relation='ems_auth_send_allowed_study_rel',
+        column1='wizard_id', column2='study_id')
+    allowed_level_ids = fields.Many2many(
+        'ems.level', relation='ems_auth_send_allowed_level_rel',
+        column1='wizard_id', column2='level_id')
+    group_ids = fields.Many2many(
+        'ems.group', string='Groups', domain="[('id', 'in', allowed_group_ids)]")
+    ems_study_ids = fields.Many2many(
+        'ems.study', string='Studies', domain="[('id', 'in', allowed_study_ids)]")
+    ems_level_ids = fields.Many2many(
+        'ems.level', string='Levels', domain="[('id', 'in', allowed_level_ids)]")
     notify = fields.Boolean(
         string='Send notification email', default=True,
         help="One email per student listing every authorization sent in this batch. A "
@@ -46,10 +63,52 @@ class EmsAuthorizationSendWizard(models.TransientModel):
     )
 
     @api.model
+    def _allowed_scope(self, templates):
+        """(levels, studies, groups) the sender may pick for `templates`: the ones inside the
+        scope of at least one of them, through the same predicates the enrollment route uses,
+        and for a tutor only their own groups. No form chosen yet restricts nothing but that."""
+        levels = self.env['ems.level'].search([])
+        studies = self.env['ems.study'].search([])
+        groups = self.env['ems.group'].search([('group_type', '=', 'main')])
+        if not self.env['ems.authorization']._ems_sees_every_student():
+            groups = groups.filtered(lambda group: group.tutor_id.user_id == self.env.user)
+        if not templates:
+            return levels, studies, groups
+        return (
+            levels.filtered(lambda level: any(template._matches_level(level) for template in templates)),
+            studies.filtered(lambda study: any(template._matches_scope(study.level_id, study)
+                                               for template in templates)),
+            groups.filtered(lambda group: any(template._matches_scope(group.level_id, group.study_id)
+                                              for template in templates)),
+        )
+
+    @api.model
+    def _templates_from_context(self):
+        """The forms preloaded through default_template_ids, e.g. from a form's own button."""
+        ids = []
+        for command in self.env.context.get('default_template_ids') or []:
+            if isinstance(command, (list, tuple)) and command and command[0] == 6:
+                ids.extend(command[2])
+            elif isinstance(command, int):
+                ids.append(command)
+        return self.env['ems.authorization.template'].browse(ids).exists()
+
+    @api.model
     def default_get(self, fields_list):
+        """Preload the students selected in a list. Only when the list really was a students
+        list: opened from an authorization form, active_ids carry that form's own id, which
+        read as a res.partner id failed with "record does not exist"."""
         res = super().default_get(fields_list)
-        active_ids = self.env.context.get('active_ids') or []
-        students = self.env['res.partner'].browse(active_ids).filtered(
+        if {'allowed_group_ids', 'allowed_study_ids', 'allowed_level_ids'} & set(fields_list):
+            levels, studies, groups = self._allowed_scope(self._templates_from_context())
+            res.update({
+                'allowed_level_ids': [(6, 0, levels.ids)],
+                'allowed_study_ids': [(6, 0, studies.ids)],
+                'allowed_group_ids': [(6, 0, groups.ids)],
+            })
+        if self.env.context.get('active_model') != 'res.partner':
+            return res
+        students = self.env['res.partner'].browse(self.env.context.get('active_ids') or []).filtered(
             lambda p: p.contact_type in ('student', 'applicant'))
         if students:
             res.setdefault('target', 'students')
@@ -59,70 +118,88 @@ class EmsAuthorizationSendWizard(models.TransientModel):
     @api.onchange('target', 'student_ids', 'group_ids', 'ems_study_ids', 'ems_level_ids',
                   'template_ids', 'course_id')
     def _onchange_selection(self):
-        """Rebuild the recipient preview.
+        """Drop scope choices the chosen forms no longer allow, then rebuild the preview.
 
-        ._origin belongs on the RELATED records (see _resolve_students), never on the wizard
-        itself: an unsaved wizard's _origin is an empty recordset, and building the lines off
-        that reads empty template_ids and silently produces no preview at all.
+        In an onchange every relational value is a virtual record wrapping the real one
+        (NewId origin=34), and it never compares equal to a persisted record - so ._origin
+        goes on the RELATED records wherever they are compared or searched with, never on the
+        wizard itself, whose own _origin is an empty recordset while unsaved.
         """
-        self.line_ids = [(5, 0, 0)] + self._build_lines(self._resolve_students())
+        levels, studies, groups = self._allowed_scope(self.template_ids._origin)
+        self.allowed_level_ids = levels
+        self.allowed_study_ids = studies
+        self.allowed_group_ids = groups
+        for field_name, allowed in (('group_ids', groups), ('ems_study_ids', studies),
+                                    ('ems_level_ids', levels)):
+            chosen = self[field_name]._origin
+            kept = chosen & allowed
+            if kept != chosen:
+                self[field_name] = [(6, 0, kept.ids)]
+        students = self._resolve_students()
+        lines = self._build_lines(students)
+        if self.target == 'students':
+            # Someone else's student picked by a tutor: never sent to (see _resolve_students),
+            # and listed here so the tutor sees why rather than wondering where they went.
+            lines += [(0, 0, {'student_id': student.id, 'note': _("Not one of your students")})
+                      for student in self.student_ids._origin - students]
+        self.line_ids = [(5, 0, 0)] + lines
 
     # ------------------------------------------------------------------
     # Resolving students
     # ------------------------------------------------------------------
     def _check_rights(self):
-        """Secretary, academic admin and head of studies send authorizations. A plain
-        teacher (or tutor) may read them but never create them - the record rules say the
-        same thing, this is the early, legible error."""
-        user = self.env.user
-        if not (user.has_group('ems.group_academic_admin')
-                or user.has_group('ems.group_secretary')
-                or user.has_group('ems.group_head_of_studies')):
+        """Secretary, academic admin and head of studies send authorizations to anyone; a
+        tutor to their own students (enforced in _resolve_students). A plain teacher may read
+        them but never create them - the record rules say the same thing, this is the early,
+        legible error."""
+        if not (self.env['ems.authorization']._ems_sees_every_student()
+                or self.env.user.has_group('ems.group_tutor')):
             raise UserError(_(
-                "Only the secretary's office, the academic administration and the head of "
-                "studies can send authorizations."))
+                "Only the secretary's office, the academic administration, the head of studies "
+                "and tutors can send authorizations."))
 
     def _enrolled_students(self):
         """Students holding a live (not cancelled) enrollment for the selected academic year.
 
-        Every scope target starts here rather than from ems.group's own student list: a group
+        The scope target starts here rather than from ems.group's own student list: a group
         record still holds students who have since left, and asking an ex-student to sign
         anything is exactly the mistake this avoids.
         """
         enrollments = self.env['sale.order'].search([
-            ('ems_course_id', '=', self.course_id.id),
+            ('ems_course_id', '=', self.course_id._origin.id),
             ('state', '!=', 'cancel'),
         ])
         return enrollments.mapped('partner_id')
 
     def _students_from_scope(self):
-        candidates = self._enrolled_students()
-        if not (self.group_ids or self.ems_study_ids or self.ems_level_ids):
-            return candidates
-        return candidates.filtered(lambda student: (
-            (self.group_ids and student.main_group_id in self.group_ids)
-            or (self.ems_study_ids and student._ems_level_study_in_force()[1] in self.ems_study_ids)
-            or (self.ems_level_ids and student._ems_level_study_in_force()[0] in self.ems_level_ids)
-        ))
+        """Enrolled students in any of the chosen groups, studies or levels. Nothing chosen
+        means nobody, never the whole centre."""
+        groups = self.group_ids._origin
+        studies = self.ems_study_ids._origin
+        levels = self.ems_level_ids._origin
+        if not (groups or studies or levels):
+            return self.env['res.partner']
 
-    def _students_for_template(self, template):
-        """Enrolled students whose own level/study the template's scope matches - the same
-        AND-of-scopes predicate the enrollment route uses, read from the student side."""
-        return self._enrolled_students().filtered(
-            lambda student: template._matches_scope(*student._ems_level_study_in_force()))
+        def in_scope(student):
+            level, study = student._ems_level_study_in_force()
+            return student.main_group_id in groups or study in studies or level in levels
+
+        return self._enrolled_students().filtered(in_scope)
 
     def _resolve_students(self):
-        """The students this wizard would act on, deduplicated."""
+        """The students this wizard would act on, deduplicated.
+
+        For a tutor, only their own group's - whatever reached the wizard. The group picker only
+        offers their own groups, and what a tutor can read of the enrollments behind the scope
+        target is limited to them too, but this is the one place that decides, not the widgets.
+        """
         self.ensure_one()
         if self.target == 'students':
-            # ._origin: in an onchange these are virtual records, and everything downstream
-            # (searches, _ems_level_study_in_force) needs the persisted ones.
-            return self.student_ids._origin
-        if self.target == 'scope':
-            return self._students_from_scope()
-        students = self.env['res.partner']
-        for template in self.template_ids:
-            students |= self._students_for_template(template)
+            students = self.student_ids._origin
+        else:
+            students = self._students_from_scope()
+        if not self.env['ems.authorization']._ems_sees_every_student():
+            students = students.filtered(lambda student: student.tutor_id.user_id == self.env.user)
         return students
 
     # ------------------------------------------------------------------
@@ -136,20 +213,25 @@ class EmsAuthorizationSendWizard(models.TransientModel):
         thing twice, and an already-answered authorization is never reset.
         """
         existing = self.env['ems.authorization'].search([
-            ('course_id', '=', self.course_id.id),
-            ('template_id', 'in', self.template_ids.ids),
+            ('course_id', '=', self.course_id._origin.id),
+            ('template_id', 'in', self.template_ids._origin.ids),
             ('partner_id', 'in', students.ids),
         ])
         return {(auth.partner_id.id, auth.template_id.id) for auth in existing}
 
     def _templates_for(self, student, existing_pairs):
-        """Templates still to send to this student."""
-        if self.target == 'template_scope':
-            candidates = self.template_ids.filtered(
-                lambda t: t._matches_scope(*student._ems_level_study_in_force()))
-        else:
-            candidates = self.template_ids
-        return candidates.filtered(lambda t: (student.id, t.id) not in existing_pairs)
+        """(in_scope, to_send) for this student.
+
+        Each form only reaches the students its own level/study scope covers, however they were
+        picked - a student added by hand outside it is reported, not sent to - and a form already
+        on file for the student is never sent again.
+        """
+        level, study = student._ems_level_study_in_force()
+        in_scope = self.template_ids._origin.filtered(
+            lambda template: template._matches_scope(level, study))
+        to_send = in_scope.filtered(
+            lambda template: (student.id, template.id) not in existing_pairs)
+        return in_scope, to_send
 
     def _build_lines(self, students):
         """One line per student - the preview answers "who gets mailed", which a line per
@@ -159,10 +241,12 @@ class EmsAuthorizationSendWizard(models.TransientModel):
         existing_pairs = self._existing_pairs(students)
         lines = []
         for student in students:
-            templates = self._templates_for(student, existing_pairs)
+            in_scope, to_send = self._templates_for(student, existing_pairs)
             recipients = student._ems_notification_recipients()
             notes = []
-            if not templates:
+            if not in_scope:
+                notes.append(_("Outside the scope of these authorizations"))
+            elif not to_send:
                 notes.append(_("Already requested"))
             if not recipients:
                 notes.append(_("No family contact found"))
@@ -170,7 +254,7 @@ class EmsAuthorizationSendWizard(models.TransientModel):
                 notes.append(_("Recipient without email"))
             lines.append((0, 0, {
                 'student_id': student.id,
-                'template_ids': [(6, 0, templates.ids)],
+                'template_ids': [(6, 0, to_send.ids)],
                 'recipient_emails': ', '.join(recipients.filtered('email').mapped('email')),
                 'note': ' - '.join(notes),
             }))
@@ -184,24 +268,30 @@ class EmsAuthorizationSendWizard(models.TransientModel):
         self._check_rights()
         if not self.template_ids:
             raise UserError(_("Select at least one authorization to send."))
+        if self.target == 'scope' and not (self.group_ids or self.ems_study_ids or self.ems_level_ids):
+            raise UserError(_(
+                "Choose at least one group, study or level to send the authorizations to."))
         students = self._resolve_students()
         if not students:
             raise UserError(_("No student matches the selection."))
 
         existing_pairs = self._existing_pairs(students)
-        created = skipped = mailed = 0
+        created = skipped = mailed = out_of_scope = 0
         issues = []
         for student in students:
-            templates = self._templates_for(student, existing_pairs)
-            skipped += len(self.template_ids) - len(templates)
-            if not templates:
+            in_scope, to_send = self._templates_for(student, existing_pairs)
+            if not in_scope:
+                out_of_scope += 1
+                continue
+            skipped += len(in_scope) - len(to_send)
+            if not to_send:
                 continue
             authorizations = self.env['ems.authorization'].create([{
                 'partner_id': student.id,
                 'course_id': self.course_id.id,
                 'template_id': template.id,
                 'status': 'pending',
-            } for template in templates])
+            } for template in to_send])
             created += len(authorizations)
             if not self.notify:
                 continue
@@ -217,6 +307,8 @@ class EmsAuthorizationSendWizard(models.TransientModel):
             parts.append(_("%s email(s) queued") % mailed)
         if skipped:
             parts.append(_("%s skipped (already requested)") % skipped)
+        if out_of_scope:
+            parts.append(_("%s student(s) outside the scope of these authorizations") % out_of_scope)
         summary = ", ".join(parts) or _("Nothing to do")
         if issues:
             summary += "\n" + _("Issues:") + "\n- " + "\n- ".join(issues)

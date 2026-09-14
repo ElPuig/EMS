@@ -138,22 +138,22 @@ class TestAuthorizationTemplate(TransactionCase):
         self.assertTrue(order.ems_authorization_ids.filtered(lambda a: a.template_id == template))
 
 
-    # --- apply_on: standalone templates stay out of the enrollment process ---
+    # --- apply_on_enrollment: forms that do not apply to it stay out of the enrollment ---
 
     def test_standalone_template_is_not_applied_on_create(self):
         order = self._order(self.student1)
         template = self.env['ems.authorization.template'].create({
-            'name': 'Mid-year Auth', 'legal_text': '<p>Text</p>', 'apply_on': 'standalone',
+            'name': 'Mid-year Auth', 'legal_text': '<p>Text</p>', 'apply_on_enrollment': False, 'sendable_during_course': True,
         })
         self.assertNotIn(template, order.ems_authorization_ids.mapped('template_id'))
 
     def test_standalone_template_is_ignored_by_the_enrollment_sync(self):
-        """The one that matters: without the apply_on filter in
+        """The one that matters: without the apply_on_enrollment filter in
         sale.order._get_authorization_commands(), the next onchange on any draft
         enrollment would pull in a template created mid-year for another course."""
         order = self._order(self.student1)
         template = self.env['ems.authorization.template'].create({
-            'name': 'Mid-year Sync Auth', 'legal_text': '<p>Text</p>', 'apply_on': 'standalone',
+            'name': 'Mid-year Sync Auth', 'legal_text': '<p>Text</p>', 'apply_on_enrollment': False, 'sendable_during_course': True,
         })
         order.apply_authorizations()
         self.assertNotIn(template, order.ems_authorization_ids.mapped('template_id'))
@@ -161,7 +161,7 @@ class TestAuthorizationTemplate(TransactionCase):
     def test_apply_to_open_enrollments_is_a_noop_for_a_standalone_template(self):
         order = self._order(self.student1)
         template = self.env['ems.authorization.template'].create({
-            'name': 'Mid-year Apply Auth', 'legal_text': '<p>Text</p>', 'apply_on': 'standalone',
+            'name': 'Mid-year Apply Auth', 'legal_text': '<p>Text</p>', 'apply_on_enrollment': False, 'sendable_during_course': True,
         })
         template.action_apply_to_open_enrollments()
         self.assertNotIn(template, order.ems_authorization_ids.mapped('template_id'))
@@ -175,10 +175,29 @@ class TestAuthorizationTemplate(TransactionCase):
             'name': 'Mid-year Remove Auth', 'legal_text': '<p>Text</p>',
         })
         self.assertIn(template, order.ems_authorization_ids.mapped('template_id'))
-        template.apply_on = 'standalone'
+        template.write({'apply_on_enrollment': False, 'sendable_during_course': True})
         template.action_remove_from_open_enrollments()
         self.assertIn(template, order.ems_authorization_ids.mapped('template_id'))
 
+
+    def test_a_form_must_take_at_least_one_route(self):
+        with self.assertRaises(ValidationError):
+            self.env['ems.authorization.template'].create({
+                'name': 'Nowhere Auth', 'legal_text': '<p>Text</p>',
+                'apply_on_enrollment': False, 'sendable_during_course': False,
+            })
+
+    def test_a_form_can_apply_to_enrollment_and_be_sent_during_the_course(self):
+        """'Apply to Pre-Enrollments' only reaches draft/sent enrollments, so a form created once
+        some enrollments were already confirmed can only reach those students by hand."""
+        order = self._order(self.student1)
+        template = self.env['ems.authorization.template'].create({
+            'name': 'Both Routes Auth', 'legal_text': '<p>Text</p>',
+            'sendable_during_course': True,
+        })
+        self.assertIn(template, order.ems_authorization_ids.mapped('template_id'))
+        self.assertIn(template, self.env['ems.authorization.template'].search(
+            [('sendable_during_course', '=', True)]))
 
 class TestAuthorization(TransactionCase):
     """EmsAuthorization — the per-enrollment response row."""
@@ -308,7 +327,7 @@ class TestAuthorizationStandalone(TransactionCase):
             'name': 'Standalone Other Student', 'contact_type': 'student',
         })
         cls.template = cls.env['ems.authorization.template'].create({
-            'name': 'Mid-year Template', 'apply_on': 'standalone',
+            'name': 'Mid-year Template', 'apply_on_enrollment': False, 'sendable_during_course': True,
             'legal_text': '<p>Hello {{student_name}}, year {{academic_year}}, '
                           'study {{study_name}}.</p>',
         })

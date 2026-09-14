@@ -6,7 +6,10 @@
             <field name="res_model">ems.authorization.template</field>
             <field name="view_mode">list,form</field>
             <field name="search_view_id" ref="ems.view_ems_authorization_template_search"/>
-            <field name="context">{'search_default_groupby_ems_level': 1}</field>
+            <!-- Flat, not grouped by level: grouped and collapsed, nothing in the list showed
+                 which route each form takes. Explicitly empty so an upgrade clears the old
+                 grouping instead of keeping the stored value. -->
+            <field name="context">{}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     Create your first Authorization Template!
@@ -23,7 +26,8 @@
             <field name="arch" type="xml">
                 <list string="Authorization Templates">
                     <field name="name"/>
-                    <field name="apply_on"/>
+                    <field name="apply_on_enrollment"/>
+                    <field name="sendable_during_course"/>
                     <field name="is_required" widget="boolean_toggle"/>
                     <field name="ems_level_ids" widget="many2many_tags" placeholder="All Levels"/>
                     <field name="ems_study_ids" widget="many2many_tags" placeholder="All Studies"/>

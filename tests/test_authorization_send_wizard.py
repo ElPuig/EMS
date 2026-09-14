@@ -4,9 +4,11 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 
 from odoo.exceptions import UserError
+from odoo.tests import Form
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group, create_role_user, mock_outgoing_email
+from .common import (create_level_study_group, create_role_employee, create_role_user,
+                     mock_outgoing_email)
 
 FAKE_PDF = base64.b64encode(b'%PDF-1.4 fake test content')
 
@@ -43,7 +45,12 @@ class TestAuthorizationSendWizard(TransactionCase):
                                     name='Test Head (Send Wizard)', email='head.sw@example.com')
         cls.teacher = create_role_user(cls, 'teacher', 'test_teacher_send_wizard',
                                        name='Test Teacher (Send Wizard)')
+        cls.tutor = create_role_user(cls, 'tutor', 'test_tutor_send_wizard',
+                                     name='Test Tutor (Send Wizard)')
+        cls.tutor_employee = create_role_employee(cls, cls.tutor)
 
+        # cls.group is the tutor's; cls.other_group, and its student, are somebody else's.
+        cls.group.tutor_id = cls.tutor_employee
         cls.adult = cls._student('Adult Student (Send Wizard)', cls.group, age=19,
                                  email='adult.sw@example.com')
         cls.minor = cls._student('Minor Student (Send Wizard)', cls.group, age=15)
@@ -69,15 +76,15 @@ class TestAuthorizationSendWizard(TransactionCase):
         Template = cls.env['ems.authorization.template']
         cls.template = Template.create({
             'name': 'Mid-year Trip', 'legal_text': '<p>Trip for {{student_name}}</p>',
-            'apply_on': 'standalone',
+            'apply_on_enrollment': False, 'sendable_during_course': True,
         })
         cls.second_template = Template.create({
             'name': 'Mid-year Image', 'legal_text': '<p>Image rights</p>',
-            'apply_on': 'standalone',
+            'apply_on_enrollment': False, 'sendable_during_course': True,
         })
         cls.scoped_template = Template.create({
             'name': 'Mid-year Scoped', 'legal_text': '<p>Only one study</p>',
-            'apply_on': 'standalone', 'ems_study_ids': [(6, 0, [cls.study.id])],
+            'apply_on_enrollment': False, 'sendable_during_course': True, 'ems_study_ids': [(6, 0, [cls.study.id])],
         })
 
     @classmethod
@@ -119,8 +126,10 @@ class TestAuthorizationSendWizard(TransactionCase):
     # Resolving recipients
     # ------------------------------------------------------------------
     def test_selected_students_come_from_active_ids(self):
+        # active_model included, as action_authorization_send_bulk passes it: active_ids alone
+        # are no longer trusted to be students (see the test opening it from a form below).
         wizard = self.env['ems.authorization.send.wizard'].with_user(self.sender).with_context(
-            active_ids=(self.adult | self.minor | self.family).ids,
+            active_ids=(self.adult | self.minor | self.family).ids, active_model='res.partner',
         ).create({'template_ids': [(6, 0, self.template.ids)]})
         self.assertEqual(wizard.target, 'students')
         self.assertEqual(wizard.student_ids, self.adult | self.minor)
@@ -149,13 +158,76 @@ class TestAuthorizationSendWizard(TransactionCase):
         wizard = self._wizard(target='scope', group_ids=[(6, 0, self.group.ids)])
         self.assertNotIn(self.unenrolled, wizard._resolve_students())
 
-    def test_template_scope_uses_the_templates_own_levels_and_studies(self):
-        wizard = self._wizard(target='template_scope',
-                              template_ids=[(6, 0, self.scoped_template.ids)])
-        wizard.action_apply()
+    def test_scope_choices_are_ready_when_the_assistant_opens_preloaded(self):
+        """Found by the tutor tour: computed, the allowed groups never reached the web client
+        when the assistant opened (the onchange's default phase leaves them out), so a form
+        preloaded from its own button offered no group at all. Form goes through that same
+        default phase."""
+        form = Form(self.env['ems.authorization.send.wizard'].with_user(self.sender).with_context(
+            lang='en_US', default_target='scope',
+            default_template_ids=[(6, 0, self.scoped_template.ids)]))
+        wizard = form.save()
+        self.assertIn(self.group, wizard.allowed_group_ids)
+        self.assertNotIn(self.other_group, wizard.allowed_group_ids)
+
+    def test_scope_choices_stay_inside_the_authorizations_scope(self):
+        wizard = self._wizard(target='scope', template_ids=[(6, 0, self.scoped_template.ids)])
+        wizard._onchange_selection()  # what the form runs when the chosen forms change
+        self.assertIn(self.group, wizard.allowed_group_ids)
+        self.assertNotIn(self.other_group, wizard.allowed_group_ids)
+        self.assertIn(self.study, wizard.allowed_study_ids)
+        self.assertNotIn(self.other_study, wizard.allowed_study_ids)
+        self.assertIn(self.level, wizard.allowed_level_ids)
+        self.assertNotIn(self.other_level, wizard.allowed_level_ids)
+
+    def test_a_student_outside_the_authorizations_scope_is_skipped(self):
+        action = self._wizard(student_ids=[(6, 0, (self.adult | self.other_student).ids)],
+                              template_ids=[(6, 0, self.scoped_template.ids)]).action_apply()
         self.assertTrue(self._auths(self.adult, self.scoped_template))
         self.assertFalse(self._auths(self.other_student, self.scoped_template))
+        self.assertIn('outside the scope', action['params']['message'])
 
+    def test_sending_to_a_scope_requires_choosing_one(self):
+        """An empty choice used to mean every enrolled student in the centre."""
+        with self.assertRaises(UserError):
+            self._wizard(target='scope').action_apply()
+
+    def test_only_authorizations_sendable_during_the_course_are_offered(self):
+        Template = self.env['ems.authorization.template']
+        enrollment_only = Template.create({
+            'name': 'Enrollment Only (Send Wizard)', 'legal_text': '<p>x</p>',
+            'ems_study_ids': [(6, 0, self.other_study.ids)],
+        })
+        both_routes = Template.create({
+            'name': 'Both Routes (Send Wizard)', 'legal_text': '<p>x</p>',
+            'sendable_during_course': True, 'ems_study_ids': [(6, 0, self.other_study.ids)],
+        })
+        domain = self.env['ems.authorization.send.wizard']._fields['template_ids'].domain
+        offered = Template.search(domain)
+        self.assertIn(self.template, offered)
+        self.assertIn(both_routes, offered)
+        self.assertNotIn(enrollment_only, offered)
+
+    def test_preview_lists_the_students_of_a_chosen_group(self):
+        """Found testing by hand: the preview is built in an onchange, where the chosen group is a
+        virtual record wrapping the real one. Compared straight against each student's real group
+        it matched nothing, so the preview came out empty while sending worked."""
+        form = Form(self.env['ems.authorization.send.wizard'].with_user(self.sender)
+                    .with_context(lang='en_US', default_target='scope'))
+        form.template_ids.add(self.template)
+        form.group_ids.add(self.group)
+        self.assertEqual(len(form.line_ids), 2)  # adult + minor; the unenrolled one is not
+
+    def test_opening_from_an_authorization_form_does_not_read_its_id_as_a_student(self):
+        """Found testing by hand: from the form's own button, active_ids carry the form's id, and
+        reading it as a res.partner id failed with "record does not exist"."""
+        action = self.template.action_send_to_students()
+        wizard = self.env['ems.authorization.send.wizard'].with_user(self.sender).with_context(
+            action['context'], active_id=self.template.id, active_ids=self.template.ids,
+            active_model='ems.authorization.template').create({})
+        self.assertEqual(wizard.template_ids, self.template)
+        self.assertEqual(wizard.target, 'scope')
+        self.assertFalse(wizard.student_ids)
     # ------------------------------------------------------------------
     # Creating the authorizations
     # ------------------------------------------------------------------
@@ -241,6 +313,49 @@ class TestAuthorizationSendWizard(TransactionCase):
     def test_head_of_studies_can_send(self):
         self._wizard(user=self.head, student_ids=[(6, 0, self.adult.ids)]).action_apply()
         self.assertTrue(self._auths(self.adult, self.template))
+
+    def test_staff_are_not_restricted_to_their_own_students(self):
+        Authorization = self.env['ems.authorization']
+        self.assertTrue(Authorization.with_user(self.sender)._ems_sees_every_student())
+        self.assertTrue(Authorization.with_user(self.head)._ems_sees_every_student())
+        self.assertFalse(Authorization.with_user(self.tutor)._ems_sees_every_student())
+
+    def test_a_tutor_sees_why_someone_elses_student_is_left_out(self):
+        wizard = self._wizard(user=self.tutor,
+                              student_ids=[(6, 0, (self.adult | self.other_student).ids)])
+        wizard._onchange_selection()
+        notes = {line.student_id: line.note for line in wizard.line_ids}
+        self.assertIn('Not one of your students', notes[self.other_student])
+        self.assertNotIn('Not one of your students', notes[self.adult] or '')
+
+    def test_a_tutor_can_send_to_their_own_group(self):
+        self._wizard(user=self.tutor, target='scope', group_ids=[(6, 0, self.group.ids)]).action_apply()
+        self.assertTrue(self._auths(self.adult, self.template))
+        self.assertTrue(self._auths(self.minor, self.template))
+
+    def test_a_tutor_is_offered_only_their_own_groups(self):
+        wizard = self._wizard(user=self.tutor, target='scope')
+        wizard._onchange_selection()
+        self.assertIn(self.group, wizard.allowed_group_ids)
+        self.assertNotIn(self.other_group, wizard.allowed_group_ids)
+
+    def test_a_tutor_never_sends_to_someone_elses_student(self):
+        """Whatever reaches the wizard: the picker's domain is the widget's business, this is
+        the server's."""
+        self._wizard(user=self.tutor,
+                     student_ids=[(6, 0, (self.adult | self.other_student).ids)]).action_apply()
+        self.assertTrue(self._auths(self.adult, self.template))
+        self.assertFalse(self._auths(self.other_student, self.template))
+
+    def test_a_tutor_follows_up_only_their_own_students(self):
+        self._wizard(student_ids=[(6, 0, (self.adult | self.other_student).ids)]).action_apply()
+        Authorization = self.env['ems.authorization']
+        tutor_action = Authorization.with_user(self.tutor).action_open_follow_up()
+        seen = Authorization.with_user(self.tutor).search(tutor_action['domain'])
+        self.assertIn(self._auths(self.adult, self.template), seen)
+        self.assertNotIn(self._auths(self.other_student, self.template), seen)
+        staff_action = Authorization.with_user(self.sender).action_open_follow_up()
+        self.assertFalse(staff_action.get('domain'))
 
     def test_a_plain_teacher_cannot_send(self):
         with self.assertRaises(Exception):

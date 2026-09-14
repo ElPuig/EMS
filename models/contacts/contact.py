@@ -420,7 +420,8 @@ class ResPartner(models.Model):
             'res_model': 'ems.authorization.send.wizard',
             'view_mode': 'form',
             'target': 'new',
-            'context': {'active_ids': students.ids, 'default_target': 'students'},
+            'context': {'active_ids': students.ids, 'active_model': 'res.partner',
+                        'default_target': 'students'},
         }
 
     def action_portal_access_bulk(self):

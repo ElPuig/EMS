@@ -41,11 +41,11 @@ class TestPortalActions(HttpCase):
             'name': 'Portal Action Tour Authorization', 'legal_text': '<p>Legal text</p>',
             'is_required': False, 'acceptance_only': False,
         })
-        # apply_on='standalone' keeps this one out of the enrollment sync entirely, which is
-        # what lets it be sent to the student on its own.
+        # Not applying to the enrollment keeps this one out of the enrollment sync entirely,
+        # which is what lets it be sent to the student on its own.
         cls.standalone_template = cls.env['ems.authorization.template'].create({
             'name': 'Portal Action Mid-year Authorization', 'legal_text': '<p>Mid-year</p>',
-            'is_required': False, 'apply_on': 'standalone',
+            'is_required': False, 'apply_on_enrollment': False, 'sendable_during_course': True,
         })
         cls.order = cls.env['sale.order'].create({
             'partner_id': cls.student.id, 'ems_course_id': cls.course.id,

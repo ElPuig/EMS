@@ -22,6 +22,17 @@
         <field name="perm_unlink" eval="True"/>
     </record>
 
+    <record id="rule_contact_head_of_studies" model="ir.rule">
+        <field name="name">Contact: head of studies (full access, issue #448)</field>
+        <field name="model_id" ref="ems.model_res_partner"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
     <record id="rule_contact_teacher" model="ir.rule">
         <field name="name">Contact: teacher (read only)</field>
         <field name="model_id" ref="ems.model_res_partner"/>

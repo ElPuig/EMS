@@ -8,7 +8,8 @@
                     <sheet>
                         <field name="confirm_disabled" invisible="1"/>
                         <group>
-                            <field name="group_id" readonly="1"/>
+                            <field name="group_id" readonly="1" invisible="not group_id"/>
+                            <field name="employee_id" readonly="1" invisible="not employee_id"/>
                         </group>
                         <p>
                             These teaching blocks could not move to the group's new classroom

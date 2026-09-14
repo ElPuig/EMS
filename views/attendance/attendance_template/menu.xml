@@ -4,8 +4,12 @@
         <record model="ir.actions.act_window" id="action_attendance_template_tree">
             <field name="name">Attendance template</field>
             <field name="res_model">ems.attendance_template</field>
-            <field name="view_mode">list,form</field>    
-            <field name="context">{'search_default_only_mine': 0}</field>           
+            <field name="view_mode">list,form</field>
+            <!-- NOTE: default-checked (issue #444) - now that Head of Studies/Deputy Head of
+                 Studies/Director see every teacher's template (security/rules/attendance.xml's
+                 rule_attendance_template_hos), this list would otherwise open showing the whole
+                 school's schedule at once for them by default. -->
+            <field name="context">{'search_default_only_mine': 1}</field>
         </record>
         <menuitem name="Templates" sequence="2" id="menu_attendance_template" parent="menu_attendance_config_sessions" action="action_attendance_template_tree"/>
     </data>

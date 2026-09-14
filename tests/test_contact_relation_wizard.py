@@ -47,6 +47,13 @@ class TestContactRelationWizard(TransactionCase):
             'lang': 'en_US',
             'groups_id': [(4, cls.env.ref('ems.group_secretary').id), (4, cls.env.ref('base.group_user').id)],
         })
+        # Issue #448: Head of Studies / Deputy Head of Studies / Director - not the student's
+        # tutor, proving the access is centre-wide and not an accident of also being the tutor.
+        cls.hos_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test HoS User (Relation Wizard)', 'login': 'test_hos_relation_wizard',
+            'lang': 'en_US',
+            'groups_id': [(4, cls.env.ref('ems.group_head_of_studies').id), (4, cls.env.ref('base.group_user').id)],
+        })
         cls.level, cls.study, cls.group = create_level_study_group(
             cls, 'TCRW', level={'name': 'Test Contact Relation Wizard Level'}, study={
                 'code': 'TCRW001', 'acronym': 'TCRW', 'name': 'Test Contact Relation Wizard Study',
@@ -182,6 +189,25 @@ class TestContactRelationWizard(TransactionCase):
         relation = self.env['res.partner.relation'].search([
             ('left_partner_id', '=', new_partner.id), ('right_partner_id', '=', self.student.id)])
         self.assertTrue(relation)
+
+    def test_save_as_head_of_studies_succeeds(self):
+        # Issue #448: HoS/DHoS/Director must be able to add a family contact for any
+        # student, not just their own tutees'.
+        wizard = self.env['ems.contact.relation.wizard'].with_user(self.hos_user).create({
+            'student_id': self.student.id, 'type_selection_id': self.relation_father.id,
+            'is_new_contact': True, 'firstname': 'HoS', 'lastname': 'Saved', 'phone': '600000000',
+        })
+        wizard.action_save()
+        new_partner = self.env['res.partner'].search([('lastname', '=', 'Saved'), ('firstname', '=', 'HoS')])
+        self.assertTrue(new_partner)
+        relation = self.env['res.partner.relation'].search([
+            ('left_partner_id', '=', new_partner.id), ('right_partner_id', '=', self.student.id)])
+        self.assertTrue(relation)
+
+    def test_head_of_studies_can_read_wizard_action(self):
+        action = self.student.with_user(self.hos_user).action_open_relation_wizard()
+        self.assertEqual(action['res_model'], 'ems.contact.relation.wizard')
+        self.assertTrue(action['res_id'])
 
     def test_secretary_can_read_wizard_action(self):
         # The failure reported in issue #423 happened on opening the wizard, before

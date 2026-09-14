@@ -804,3 +804,64 @@ CI pieces work together:
   reporting a real result, deliberately not using `[skip ci]` or a path-filtered trigger for
   this, both of which risk GitHub leaving a required check stuck "pending" forever instead of
   passing.
+
+## Staff newsletter email
+
+Whenever the developer asks directly for a "correo"/"boletín de novedades", **or right after the
+PR changelog text has been prepared/delivered**, send a formatted HTML newsletter email to
+**ems@elpuig.xeill.net** summarizing the same changes for a general staff audience — Catalan, no
+tecnicismes, condensed and friendly, not a translation of the English PR body. Distinct from the
+PR changelog file: that stays English/technical for GitHub; this email is Catalan/audience-facing,
+for the developer to review and forward to staff themselves — this mechanism never broadcasts
+directly to students/families/staff itself.
+
+**Recipient is always the fixed address above, never one read from the database** — same
+principle as this file's "Email safety in tests": an address must be explicit and
+developer-authorized, never pulled from student/family/staff records, applied here to a real send.
+
+**This is an outgoing-email action** — covered by this file's "Development vs. production
+environment declaration" one-off check (confirm `ems.environment_type` before the first send of a
+session, unless already checked that session for another reason).
+
+**Visual style to reuse** (plain HTML fragment — no `<!DOCTYPE>`/`<html>`/`<head>`, since it
+becomes an `ir.mail_server`-relayed `mail.mail`'s `body_html`):
+- Section headers as bold `<h2>` with a light-gray bottom border/rule
+  (`border-bottom:1px solid #dadce0`), not a plain bold paragraph.
+- A callout box for anything the reader must not miss: light blue background with a blue left
+  accent border (`background:#eef4fb; border-left:4px solid #4a86e8`), not a plain bold sentence.
+- Manual links as a descriptive title, never a raw URL: `📘 Manual: <what the reader will find>`,
+  hyperlinked. **Every link must point at a doc file confirmed to exist under `docs/ca/` first**
+  (`ls`/`find` it — never construct a URL from a guessed filename pattern); if a feature's
+  Close-step user doc is still pending, link nothing for that item rather than a guessed path.
+- Closing with a link to the full docs index (`https://docs.ems.elpuig.xeill.net/ca/`) when the
+  content spans more than one role's manuals.
+- Friendly, informal closing ("Si trobeu res que no funcioni com esperàveu, digueu-nos-ho i ho
+  mirem.") and sign-off ("Una salutació, Equip EMS - Institut Puig Castellar").
+- Do **not** add the centre's logo to the body — what appears next to the sender name in a
+  received copy is Gmail's own display of the `ems@elpuig.xeill.net` Google Workspace account's
+  profile photo, not something embedded in the HTML; adding it again would duplicate it.
+
+**How to actually send it — a plain SQL insert into `mail_mail` will not deliver anything**,
+since delivery is triggered by the ORM's `send()` method (resolves the outgoing `ir.mail_server`
+and does the real SMTP call), not by the row's mere existence. Use `odoo shell`:
+```bash
+sudo -u odoo /usr/bin/odoo shell -c /etc/odoo/odoo.conf -d ems --no-http < script.py
+```
+where `script.py` does roughly:
+```python
+with open('/tmp/<world-readable-copy>.html', 'r', encoding='utf-8') as f:
+    body_html = f.read()
+mail = env['mail.mail'].create({
+    'subject': "...",
+    'body_html': body_html,
+    'email_from': 'EMS - Institut Puig Castellar <ems@elpuig.xeill.net>',
+    'email_to': 'ems@elpuig.xeill.net',
+})
+mail.send()
+env.cr.commit()
+```
+**Gotcha confirmed 2026-09-11:** the `odoo` system user cannot read a file under a Claude Code
+session's own scratchpad directory tree (each level is `700`, owned by the session's own user) —
+`odoo shell` fails with `PermissionError` trying to open it directly. Copy the HTML body to a
+world-readable path under `/tmp/` first (`chmod 644`), point the script at that copy, and delete
+the temporary copy again once the send confirms `state=sent` in the shell's own output.

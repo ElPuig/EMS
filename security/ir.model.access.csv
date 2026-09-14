@@ -22,6 +22,7 @@ ems.access_hr_contract_type_secretary,ems.access_hr_contract_type_secretary,hr.m
 ems.access_res_partner_admin,ems.access_res_partner_admin,ems.model_res_partner,ems.group_academic_admin,1,1,1,1
 ems.access_res_partner_teacher,ems.access_res_partner_teacher,ems.model_res_partner,ems.group_teacher,1,1,0,0
 ems.access_res_partner_secretary,ems.access_res_partner_secretary,ems.model_res_partner,ems.group_secretary,1,1,1,1
+ems.access_res_partner_head_of_studies,ems.access_res_partner_head_of_studies,ems.model_res_partner,ems.group_head_of_studies,1,1,1,1
 
 ems.access_ems_space_admin,ems.access_ems_space_admin,ems.model_ems_space,ems.group_academic_admin,1,1,1,1
 ems.access_ems_space_teacher,ems.access_ems_space_teacher,ems.model_ems_space,ems.group_teacher,1,0,0,0

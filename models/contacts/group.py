@@ -6,6 +6,7 @@ from odoo.exceptions import RedirectWarning, ValidationError
 class EmsGroup(models.Model):
 	_name = "ems.group"
 	_description = "Groups: Where the students are assigned to."
+	_inherit = ["mail.thread", "mail.activity.mixin"]
 	_order = "name"
 
 	active = fields.Boolean(default=True, help="A group that won't be used this course but may come back in a "
@@ -51,6 +52,12 @@ class EmsGroup(models.Model):
 	suggested_space_id = fields.Many2one(
 		string="Suggested classroom", comodel_name="ems.space",
 		compute="_compute_suggested_space_id", search="_search_suggested_space_id")
+	# NOTE: issue #446 - same gate as 'hr.employee.can_edit_schedule' (drives the Edit/Import/New
+	# buttons on the teacher's own Schedule tab), mirrored here so the group form's own Schedule
+	# tab knows whether to show its inline topic/classroom edit affordance (see
+	# 'ReadonlyScheduleGridField', schedule_grid_readonly_field.js). Not stored - a plain
+	# per-request permission check, same as the teacher's own field.
+	can_edit_schedule = fields.Boolean(string="Can edit schedule", compute="_compute_can_edit_schedule", compute_sudo=True)
 
 	@api.depends("group_type", "study_id.acronym", "course", "acronym")
 	def _compute_name(self):
@@ -136,6 +143,11 @@ class EmsGroup(models.Model):
 				('group_ids', '=', group.id),
 				('space_pending_group_sync', '=', True),
 			])
+
+	def _compute_can_edit_schedule(self):
+		can_edit = self.env.user.has_group('ems.group_department_chief')
+		for group in self:
+			group.can_edit_schedule = can_edit
 
 	@api.depends('space_id')
 	def _compute_suggested_space_id(self):
@@ -382,33 +394,15 @@ class EmsGroup(models.Model):
 			self._resolve_or_flag_pending_block(block, new_space)
 
 	def _resolve_or_flag_pending_block(self, block, new_space):
-		"""Attempts to move 'block' (and its derived 'ems.attendance_schedule' line, if it has one)
-		to 'new_space'. Moves it and clears 'space_pending_group_sync' when there is no collision;
-		otherwise (re)flags it as pending and returns the conflicts found, as
-		'ems.attendance_schedule.find_room_conflicts' returns them - shared by
+		"""Thin wrapper for 'resource.calendar.attendance.relocate_or_flag_pending()' (moved there
+		2026-09-12, issue #444's follow-up - the block being relocated and the pending flag itself
+		both genuinely belong to that model, not this one; see that method's own docstring for the
+		full behaviour). Kept here, unchanged in name/signature, since it's shared by
 		'_propagate_classroom_change' (a block just left in 'old_space') and
 		'ems.group_classroom_change_wizard' (re-checking an already-flagged block when the wizard
 		opens, in case the collision it was flagged for has since resolved itself)."""
 		self.ensure_one()
-		# 'schedule' is never empty here: 'block' is a genuine teaching block (subject_id set, see
-		# '_propagate_classroom_change's own domain), and the bottom-up sync redesign's invariant
-		# (closed for good by Phase 7, 2026-09-08 - see ems.attendance_schedule.
-		# '_relocate_via_calendar_blocks's own docstring) guarantees one always exists.
-		schedule = block.attendance_schedule_id
-		conflicts = schedule.find_room_conflicts(new_space.id)
-		if conflicts:
-			block.space_pending_group_sync = True
-			return conflicts
-		# Bottom-up sync redesign (2026-09-08) - moves EVERY calendar block deriving 'schedule'
-		# (not just 'block'), letting the automatic hook keep 'ems.attendance_schedule' in sync as
-		# a consequence, exactly like 'ems.group_classroom_change_wizard'/the import wizard's own
-		# conflict resolutions. Fixes a real latent bug the previous direct-write version had: if
-		# 'schedule' is shared by a co-teacher (has_sessions clones it under a new id),
-		# only 'block' itself got re-pointed at the new id - any OTHER teacher's own block still
-		# sharing this same line was left pointing at the now-archived one.
-		schedule._relocate_via_calendar_blocks(new_space)
-		block.space_pending_group_sync = False
-		return []
+		return block.relocate_or_flag_pending(new_space)
 
 	def _ems_equivalent_for_course(self, course):
 		"""The group where a subject of a different `course` is actually taught for a

@@ -331,12 +331,24 @@ class TestEmployeeAutocheckout(TransactionCase):
     def test_a_whole_day_absence_leaves_nothing_to_close_at(self):
         """Nothing was expected of them at all, so there is no scheduled hour to close at and
         the attendance is deliberately left open for a human to correct - inventing an hour
-        here is exactly what this fix is removing."""
-        self._add_slot(8.0, 14.0)
-        self._approved_absence(self.today)
+        here is exactly what this fix is removing.
+
+        Must land on a real Mon-Fri workday, not necessarily 'self.today': a whole-day absence's
+        duration is computed by 'ems.absence._ems_working_days', which counts Mon-Fri days only
+        (the centre's own business rule, unrelated to any calendar slot a test contrives) - on a
+        weekend that yields a 0-day duration, which hr_holidays' own action_validate() then reads
+        as 'nobody was supposed to work that day at all' and refuses to approve, regardless of
+        the slot added below. Same class of date-dependent flake test_absence.py's own _monday()
+        helper already exists to avoid; found here 2026-09-12 when CI happened to run on a
+        Saturday."""
+        day = self.today
+        while day.weekday() >= 5:
+            day += timedelta(days=1)
+        self._add_slot(8.0, 14.0, dayofweek=str(day.weekday()))
+        self._approved_absence(day)
 
         self.assertIsNone(
-            self.env['hr.attendance']._get_last_working_hour(self.teacher, self.today))
+            self.env['hr.attendance']._get_last_working_hour(self.teacher, day))
 
     def test_a_pending_request_does_not_move_the_check_out(self):
         """Only an approved absence frees the employee from those hours."""

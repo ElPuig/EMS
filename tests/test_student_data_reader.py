@@ -64,6 +64,7 @@ class TestStudentDataReader(TransactionCase):
         cls.group_reader = cls.env.ref('ems.group_student_data_reader')
         cls.group_orientation = cls.env.ref('ems.group_orientation')
         cls.group_orientation_admin = cls.env.ref('ems.group_orientation_admin')
+        cls.group_head_of_studies = cls.env.ref('ems.group_head_of_studies')
 
         cls.role_orientation = cls.env.ref('ems.role_orientation')
         # The post is held by a team; clear any pre-existing assignment so the tests are
@@ -121,6 +122,15 @@ class TestStudentDataReader(TransactionCase):
             'groups_id': [(4, cls.group_teacher.id), (4, cls.group_user.id)],
         })
 
+        # Issue #448: Head of Studies / Deputy Head of Studies / Director (they all share
+        # group_head_of_studies) - deliberately NOT the tutor of the group below, so these
+        # tests prove the access is centre-wide and not an accident of also being the tutor.
+        cls.hos_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Head of Studies (Reader)', 'login': 'test_hos_reader',
+            'email': 'test_hos_reader@example.com', 'lang': 'en_US',
+            'groups_id': [(4, cls.group_head_of_studies.id), (4, cls.group_user.id)],
+        })
+
         cls.level, cls.study, cls.group_record = create_level_study_group(
             cls, 'TSDR',
             level={'name': 'Test Level (Reader)'},
@@ -173,6 +183,15 @@ class TestStudentDataReader(TransactionCase):
     def test_coexistence_implies_reader(self):
         """The coexistence coordinator gains the same access without a second set of rules."""
         self.assertIn(self.group_reader, self.group_coexistence.implied_ids)
+
+    def test_head_of_studies_implies_reader(self):
+        """Issue #448: HoS/DHoS/Director see every student's data centre-wide too."""
+        self.assertIn(self.group_reader, self.group_head_of_studies.implied_ids)
+
+    def test_head_of_studies_implies_partner_manager(self):
+        """Issue #448: needed for full CRUD on res.partner.relation/.all (family contacts) -
+        without it, deleting a family contact raises an AccessError naming that model."""
+        self.assertIn(self.env.ref('base.group_partner_manager'), self.group_head_of_studies.implied_ids)
 
     def test_orientation_is_its_own_category(self):
         """Transversal to the teacher -> tutor -> HoS chain, like Quality/Coexistence/TAC."""
@@ -352,3 +371,78 @@ class TestStudentDataReader(TransactionCase):
                 with self.subTest(user=user.login, menu=xmlid):
                     self.assertIn(self.env.ref(xmlid).id, visible,
                                   f"{xmlid} is not reachable by {user.login}")
+
+    # ------------------------------------------------- issue #448: Head of Studies write access
+
+    def test_head_of_studies_sees_every_record_of_those_models(self):
+        """Same read reach as an academic admin, for a student the HoS does not tutor."""
+        hos_rules = self.env['ir.rule'].with_user(self.hos_user)
+        admin_rules = self.env['ir.rule'].with_user(self.academic_admin_user)
+
+        def unfiltered(domain):
+            return [leaf for leaf in (domain or []) if leaf != (1, '=', 1)]
+
+        for model in STUDENT_DATA_MODELS:
+            with self.subTest(model=model):
+                self.assertEqual(
+                    unfiltered(hos_rules._compute_domain(model, 'read')),
+                    unfiltered(admin_rules._compute_domain(model, 'read')),
+                    f"{model} is still row-filtered for group_head_of_studies")
+
+    def test_head_of_studies_reads_grades_of_a_group_it_does_not_tutor(self):
+        session = self.grade_session.with_user(self.hos_user)
+        self.assertEqual(session.subject_id, self.subject)
+
+    def test_head_of_studies_read_only_user_is_false(self):
+        """The reported bug: the student's personal-data block was hidden (read_only_user=True)
+        because _get_read_only_user() never checked for HoS/DHoS/Director."""
+        self.assertFalse(self.student.with_user(self.hos_user)._get_read_only_user())
+
+    def test_head_of_studies_is_tutor_readonly_is_false(self):
+        """Even when the HoS also happens to be the literal tutor of the group, the extra
+        tutor-only restrictions (is_tutor_readonly) must not apply - HoS already has full access."""
+        employee = self.env['hr.employee'].create({
+            'name': 'Test HoS Employee (Reader)', 'employee_type': 'teacher',
+            'user_id': self.hos_user.id,
+        })
+        self.group_record.write({'tutor_id': employee.id})
+        # Making this employee a tutor runs update_tutor_role() -> _sync_security_groups()
+        # (models/employees/employee.py), which reconciles hos_user.groups_id against its
+        # role_ids - and this fixture hos_user was hand-assigned group_head_of_studies
+        # directly (setUpClass), with no backing ems.role, so the sync strips it right back
+        # off as a side effect of this very write. A real HoS holds the group via role_hos/
+        # role_dhos instead (see docs/en/developers/employees/role_hierarchy.md), which does
+        # not have this problem - re-assert group membership here to test the is_tutor_readonly
+        # logic itself, not this unrelated fixture/role-sync interaction.
+        self.hos_user.write({'groups_id': [(4, self.group_head_of_studies.id)]})
+        self.assertFalse(self.student.with_user(self.hos_user)._get_is_tutor_readonly())
+
+    def test_head_of_studies_can_write_a_student_it_does_not_tutor(self):
+        self.student.with_user(self.hos_user).write({'phone': '600111222'})
+        self.assertEqual(self.student.phone, '600111222')
+
+    def test_head_of_studies_can_delete_a_family_relation(self):
+        """The literal bug report: clicking the inline unlink button on relation_all_ids raised
+        an AccessError naming res.partner.relation - not routed through any sudo(), so this
+        needs real ACL/ir.rule access (base.group_partner_manager), unlike the "Add contact"
+        wizard which sudo()s once _get_read_only_user() allows it."""
+        contact = self.env['res.partner'].create({'name': 'Test Family Contact (Reader)', 'contact_type': 'family'})
+        relation = self.env['res.partner.relation'].create({
+            'left_partner_id': contact.id,
+            'type_id': self.env.ref('ems.relation_type_father').id,
+            'right_partner_id': self.student.id,
+        })
+        relation.with_user(self.hos_user).unlink()
+        self.assertFalse(relation.exists())
+
+    def test_head_of_studies_cannot_write_a_strike(self):
+        """Issue #448 only extends write access to res.partner/relations - the rest of the
+        read-only student dataset (grades, attendance, strikes...) stays with the teacher who
+        owns the record or the student's own tutor, same control case as
+        test_orientation_cannot_write_a_strike above."""
+        with self.assertRaises(AccessError):
+            self.strike.with_user(self.hos_user).write({'notes': 'nope'})
+
+    def test_head_of_studies_cannot_write_a_year_record(self):
+        with self.assertRaises(AccessError):
+            self.year_record.with_user(self.hos_user).write({'study_name': 'nope'})

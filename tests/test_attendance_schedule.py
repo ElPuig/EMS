@@ -23,6 +23,7 @@ class TestAttendanceScheduleAccess(TransactionCase):
         super().setUpClass()
         cls.group_teacher = cls.env.ref('ems.group_teacher')
         cls.group_academic_admin = cls.env.ref('ems.group_academic_admin')
+        cls.group_head_of_studies = cls.env.ref('ems.group_head_of_studies')
 
         cls.level, cls.study = create_level_study(cls, 'TASC', level={'name': 'Test Level (Attendance Schedule)'}, study={
             'code': 'TASC001', 'name': 'Test Study (Attendance Schedule)', 'date': date.today(),
@@ -71,6 +72,18 @@ class TestAttendanceScheduleAccess(TransactionCase):
             'name': 'Test Admin (Attendance Schedule)', 'login': 'test_admin_asc',
             'email': 'test_admin_asc@example.com',
             'groups_id': [(4, cls.group_academic_admin.id), (4, cls.env.ref('base.group_user').id)],
+        })
+
+        # Issue #444: Head of Studies/Deputy Head of Studies/Director are NOT group_academic_admin
+        # (security/groups.xml keeps that block deliberately independent) - without their own
+        # rule_attendance_schedule_hos (security/rules/attendance.xml), this user would fall back to
+        # group_teacher's "own data" rule and be as blind as 'unrelated_user' above to a colleague's
+        # schedule, which is exactly what let the sync pipeline create a duplicate colliding with a
+        # template it couldn't see.
+        cls.hos_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Head of Studies (Attendance Schedule)', 'login': 'test_hos_asc',
+            'email': 'test_hos_asc@example.com',
+            'groups_id': [(4, cls.group_head_of_studies.id), (4, cls.env.ref('base.group_user').id)],
         })
 
         cls.template = cls.env['ems.attendance_template'].create({
@@ -125,6 +138,12 @@ class TestAttendanceScheduleAccess(TransactionCase):
 
     def test_admin_reads_all_schedules(self):
         schedule = self.env['ems.attendance_schedule'].with_user(self.admin_user).search(
+            [('id', '=', self.schedule.id)]
+        )
+        self.assertIn(self.schedule, schedule)
+
+    def test_head_of_studies_reads_all_schedules(self):
+        schedule = self.env['ems.attendance_schedule'].with_user(self.hos_user).search(
             [('id', '=', self.schedule.id)]
         )
         self.assertIn(self.schedule, schedule)

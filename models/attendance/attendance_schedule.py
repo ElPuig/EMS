@@ -161,7 +161,13 @@ class EmsAttendanceSchedule(models.Model):
         if not template.active or not (template.start_date and template.end_date):
             return []
 
-        candidates = self.search([
+        # NOTE: sudo() - whether a room/teacher is already double-booked is a fact about the whole
+        # school's schedule, not something that should depend on the acting user's own record-rule
+        # visibility (e.g. ir.rule's "own data" restriction for group_teacher, security/rules/
+        # attendance.xml). Without this, a non-admin user (a Head/Deputy Head of Studies editing a
+        # colleague's schedule, not their own) silently can't see an already-existing conflicting
+        # line and this whole check becomes a no-op for them - see issue #444.
+        candidates = self.sudo().search([
             ('id', '!=', self.id),
             ('weekday', '=', self.weekday),
             ('attendance_template_id.active', '=', True),

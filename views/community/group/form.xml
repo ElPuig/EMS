@@ -12,22 +12,34 @@
                     <field name="active" invisible="1"/>
                     <field name="pending_classroom_conflict_count" invisible="1"/>
                     <field name="suggested_space_id" invisible="1"/>
+                    <field name="can_edit_schedule" invisible="1"/>
+                    <!-- Outside <sheet> (above the white card), matching the equivalent banner on
+                    the employee form's own "before sheet" placement (views/community/employee/
+                    form.xml) - moved here 2026-09-12 (developer feedback: it used to render INSIDE
+                    the card here, unlike the employee form's version). -->
+                    <!-- Wording kept origin-neutral (issue #446) - a pending block can come from
+                    EITHER this group's own space_id changing (issue #405) OR a single teaching
+                    block's classroom being edited directly from this tab (issue #446), and
+                    nothing on this model distinguishes which one afterwards. "This group's
+                    classroom changed" would be misleading for the second case, so this text -
+                    unlike the employee form's own tailored wording for ITS single origin - covers
+                    both truthfully instead of picking one. -->
+                    <div class="alert alert-warning" role="alert" invisible="not pending_classroom_conflict_count">
+                        <p>
+                            <field name="pending_classroom_conflict_count" nolabel="1" class="oe_inline"/>
+                            teaching block(s) couldn't move to their requested classroom automatically because of a room collision.
+                        </p>
+                        <button name="action_open_classroom_change_wizard" type="object" string="Resolve pending classrooms" class="btn-warning"/>
+                    </div>
+                    <div class="alert alert-info" role="alert" invisible="not suggested_space_id">
+                        <p>
+                            This group's teaching schedule doesn't actually use its assigned classroom - it mostly
+                            meets in <field name="suggested_space_id" nolabel="1" class="oe_inline"/> instead.
+                        </p>
+                        <button name="action_apply_suggested_space" type="object" string="Apply suggested classroom" class="btn-info"/>
+                    </div>
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
-                        <div class="alert alert-warning" role="alert" invisible="not pending_classroom_conflict_count">
-                            <p>
-                                This group's classroom changed, but <field name="pending_classroom_conflict_count" nolabel="1" class="oe_inline"/>
-                                teaching block(s) could not move to it automatically because of a room collision.
-                            </p>
-                            <button name="action_open_classroom_change_wizard" type="object" string="Resolve pending classrooms" class="btn-warning"/>
-                        </div>
-                        <div class="alert alert-info" role="alert" invisible="not suggested_space_id">
-                            <p>
-                                This group's teaching schedule doesn't actually use its assigned classroom - it mostly
-                                meets in <field name="suggested_space_id" nolabel="1" class="oe_inline"/> instead.
-                            </p>
-                            <button name="action_apply_suggested_space" type="object" string="Apply suggested classroom" class="btn-info"/>
-                        </div>
                         <group string="Main data" col="4">
                             <group colspan="2">
                                 <field name="group_type" widget="radio" options="{'horizontal': true}" />
@@ -111,6 +123,7 @@
                             </page>
                         </notebook>
                     </sheet>
+                    <chatter/>
                 </form>
             </field>			
         </record>       

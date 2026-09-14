@@ -9,6 +9,12 @@
              than fighting them. Read only throughout: write/create/unlink stay with the groups
              that already own them.
 
+             Issue #448: group_head_of_studies (Head/Deputy Head of Studies and, transitively,
+             Director) also implies this technical group now, for the same centre-wide read
+             reason - they additionally get real write access on res.partner via their own
+             rule_contact_head_of_studies (security/rules/contacts.xml), which this file does
+             not grant (read only, as above).
+
              ems.strike.reason (the strike-reason catalog) deliberately has no rule here: no
              group row-filters it in the first place, so the ACL read line alone is the whole
              permission and a rule would only add noise. -->

@@ -58,6 +58,29 @@ You can switch an existing group between Main and Reinforcement, but:
 
 ---
 
+## Changing a Group's Reference Classroom
+
+Changing a group's **Reference classroom** (the group's own default room) automatically moves every one of that group's classes still using the old room to the new one. If the new room is already taken by someone else at the exact same day/time as one of those classes, that one specific class is left in its current room instead of failing the whole save — see "Resolving a Pending Classroom Conflict" below.
+
+The same collision handling also applies when a *single* class's room is changed from a teacher's own **Schedule** tab (see [Edit a Teacher's Schedule](working-schedules.md#edit-a-teachers-schedule)), or when it's changed directly from the group's own Schedule tab (see [A Group's Weekly Schedule](group-schedule.md#editing-a-blocks-topic-or-classroom)) — all three cases are resolved from the same screen.
+
+## Resolving a Pending Classroom Conflict
+
+When a classroom change (any of the three kinds above) can't apply automatically because the new room is already taken, a yellow banner appears at the top of the form, visible regardless of which tab is open:
+- On the **group's own form**: *"N teaching block(s) couldn't move to their requested classroom automatically because of a room collision."* — this covers both a group-wide reference-classroom change and a single block edited directly from the group's own Schedule tab, since both end up needing the exact same resolution.
+- On the **teacher's own form**, for a single class changed from their Schedule tab: *"A classroom change requested from this teacher's own schedule, but N teaching block(s) could not move to it automatically because of a room collision."*
+
+Click **Resolve pending classrooms** on either banner to open the resolution screen, which lists every still-unresolved conflict as a "Room conflict" row (grouped by teacher + subject when there's more than one), each showing the pending class on one side and the existing session it collides with on the other. For each row, pick a resolution:
+- **Reassign rooms** — pick a different room for each side (both are pre-filled with the same colliding room to start from; **Confirm** stays disabled until you've picked two genuinely different rooms).
+- **Left prevails** — the pending class takes the requested room; the existing session it collided with is archived.
+- **Right prevails** — the pending class keeps its current room for that slot instead (a deliberate exception from the group's own room, or from what was requested); the existing session is left untouched.
+
+Click **Confirm** once every row has a valid resolution. The banner disappears once nothing is left pending.
+
+For a co-taught class, the same collision shows up on every co-teacher's own form (and on the group's own form) at once, since it's genuinely the same conflict seen from each side. Resolving it from any one of those screens clears it everywhere — there's no need to repeat the resolution on the other teacher's schedule or on the group's own form.
+
+---
+
 ## Delete a Group
 
 Select it in the list and use the **Action** menu (⚙) → **Delete**. Blocked if the group is still referenced elsewhere (students, sessions, teaching assignments...).

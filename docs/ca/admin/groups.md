@@ -58,6 +58,29 @@ Pots canviar un grup existent entre Principal i Reforç, però:
 
 ---
 
+## Canviar l'Aula de Referència d'un Grup
+
+Canviar l'**Aula de referència** d'un grup (la seva aula per defecte) mou automàticament totes les classes d'aquest grup que encara usaven l'aula antiga a la nova. Si la nova aula ja està ocupada per algú altre exactament el mateix dia i hora que una d'aquestes classes, aquesta classe concreta es queda a la seva aula actual en comptes de fer fallar tot el desat — vegeu "Resoldre un Conflicte d'Aula Pendent" a sota.
+
+La mateixa gestió de conflictes també s'aplica quan es canvia l'aula d'una *sola* classe des de la pestanya **Horari** d'un docent (vegeu [Editar l'Horari d'un Docent](working-schedules.md#editar-lhorari-dun-docent)), o directament des de la pestanya Horari del propi grup (vegeu [L'horari setmanal d'un grup](group-schedule.md#editar-el-tema-o-laula-dun-bloc)) — els tres casos es resolen des de la mateixa pantalla.
+
+## Resoldre un Conflicte d'Aula Pendent
+
+Quan un canvi d'aula (qualsevol dels tres anteriors) no es pot aplicar automàticament perquè la nova aula ja està ocupada, apareix un avís groc a la part superior de la fitxa, visible sigui quina sigui la pestanya oberta:
+- A la **fitxa del grup**: *"N bloc(s) de classe no s'han pogut traslladar a l'aula demanada automàticament per una col·lisió d'aula."* — cobreix tant un canvi de l'aula de referència de tot el grup com un bloc editat directament des de la pestanya Horari del grup, ja que tots dos acaben necessitant la mateixa resolució.
+- A la **fitxa del docent**, per a una sola classe canviada des de la seva pestanya Horari: *"S'ha demanat un canvi d'aula des de l'horari d'aquest docent, però N bloc(s) de classe no s'han pogut traslladar automàticament per una col·lisió d'aula."*
+
+Fes clic a **Resoldre aules pendents** a qualsevol dels dos avisos per obrir la pantalla de resolució, que llista cada conflicte encara sense resoldre com una fila "Conflicte d'aula" (agrupades per docent + assignatura quan n'hi ha més d'una), cadascuna mostrant la classe pendent a un costat i la sessió ja existent amb què xoca a l'altre. Per a cada fila, tria una resolució:
+- **Reassignar aules** — tria una aula diferent per a cada costat (les dues comencen preomplertes amb la mateixa aula en conflicte; **Confirmar** queda desactivat fins que triïs dues aules genuïnament diferents).
+- **Preval l'esquerra** — la classe pendent pren l'aula demanada; la sessió existent amb què xocava s'arxiva.
+- **Preval la dreta** — la classe pendent es queda a la seva aula actual per a aquella franja (una excepció deliberada respecte a l'aula del grup, o a la demanada); la sessió existent no es toca.
+
+Fes clic a **Confirmar** un cop cada fila tingui una resolució vàlida. L'avís desapareix quan no queda res pendent.
+
+Per a una classe de co-docència, la mateixa col·lisió apareix alhora a la fitxa de cada docent (i a la fitxa del grup), ja que és realment el mateix conflicte vist des de cada costat. Resoldre'l des de qualsevol d'aquestes pantalles el neteja a totes — no cal repetir la resolució a l'horari de l'altre docent ni a la fitxa del grup.
+
+---
+
 ## Eliminar un grup
 
 Selecciona'l a la llista i usa el menú **Acció** (⚙) → **Suprimeix**. Es bloqueja si el grup encara està referenciat en un altre lloc (alumnes, sessions, assignacions docents...).

@@ -138,6 +138,8 @@ La cuadrícula semanal se divide en 5 columnas de día (lunes–viernes); dentro
 
 Las tarjetas de un mismo día siempre se muestran ordenadas por hora de inicio y luego por hora de fin — dos tarjetas a la misma hora exacta se ordenan por su propia fecha de inicio.
 
+**Cambiar el aula de una tarjeta (paso 5) cuando la clase es de co-docencia:** si el aula nueva está libre en ese día y hora, el cambio se aplica inmediatamente para todos los docentes que comparten esa clase — no hace falta nada más. Si el aula nueva ya la ocupa otra persona exactamente a la misma hora, el cambio se queda pendiente en vez de fallar del todo: aparece un aviso amarillo en la parte superior de la ficha del docente, sea cual sea la pestaña abierta ("Se ha solicitado un cambio de aula desde el horario de este docente, pero N bloque(s) de clase no se han podido trasladar automáticamente por una colisión de aula"), con un botón **Resolver aulas pendientes**. Ver "Resolver un Conflicto de Aula Pendiente" en [Grupos](groups.md) para saber cómo resolverlo desde ahí — la misma pantalla también se abre desde la ficha de un grupo cuando un cambio de aula de todo el grupo choca con el mismo tipo de colisión.
+
 > Si dejas sin asignar una tarjeta añadida a mano y guardas, simplemente se descarta — solo se conservan las asignaciones reales. Si vuelves a abrir **Editar** más adelante, las tarjetas propias del marco reaparecen como huecos por rellenar, pero una tarjeta manual descartada no.
 
 No hay arrastrar y soltar entre tarjetas ni entre días — para mover una tarjeta a otro día, elimínala y añade una nueva allí.

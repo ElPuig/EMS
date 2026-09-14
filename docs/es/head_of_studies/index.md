@@ -11,6 +11,7 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 ## Manuales disponibles
 
 - [Histórico académico: consultas de cohorte](academic-history.md)
+- [Gestión de contactos de alumnos y familias](../secretary/student-contacts.md) — tienes el mismo acceso completo de lectura/escritura que secretaría aquí, para cualquier alumno de todo el centro.
 - [Decidir sobre solicitudes de corrección de fichajes](attendance-corrections.md)
 - [Strikes: menú Convivencia y correos de escalado](strike.md)
 - [El horario semanal de un grupo](../admin/group-schedule.md)

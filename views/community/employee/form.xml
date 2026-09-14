@@ -74,6 +74,20 @@
                         <field name="google_ws_deactivation_date" readonly="1" nolabel="1"
                                class="oe_inline"/>.
                     </div>
+                    <!-- Issue #444's follow-up (2026-09-12) - moved here from inside the "Schedule"
+                    page (developer feedback: burying it in a tab meant the teacher/whoever edited
+                    their schedule had no way to notice a pending conflict without opening that tab
+                    specifically). Same header-adjacent, always-visible placement as the Google
+                    account alert above, and the equivalent location to where ems.group's own
+                    version of this banner already sits - see that form's own comment. -->
+                    <field name="pending_classroom_conflict_count" invisible="1"/>
+                    <div class="alert alert-warning" role="alert" invisible="not pending_classroom_conflict_count">
+                        <p>
+                            A classroom change requested from this teacher's own schedule, but <field name="pending_classroom_conflict_count" nolabel="1" class="oe_inline"/>
+                            teaching block(s) could not move to it automatically because of a room collision.
+                        </p>
+                        <button name="action_open_classroom_change_wizard" type="object" string="Resolve pending classrooms" class="btn-warning"/>
+                    </div>
                 </xpath>
 
                 <field name="work_email" position="attributes">

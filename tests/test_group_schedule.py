@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study
+from .common import create_level_study, create_role_user
 
 
 class TestGroupSchedule(TransactionCase):
@@ -336,3 +336,102 @@ class TestGroupSchedule(TransactionCase):
         content, _content_type = self.env['ir.actions.report']._render_qweb_pdf('ems.report_group_schedule', [no_space_group.id])
 
         self.assertNotIn(b'Reference classroom:', content)
+
+    def test_can_edit_schedule_true_for_department_chief(self):
+        """Issue #446 - same gate as 'hr.employee.can_edit_schedule' (Edit/Import/New on the
+        teacher's own tab), mirrored here to drive the group form's own inline edit affordance."""
+        chief_user = create_role_user(self, 'department_chief', 'test_dept_chief_group_schedule')
+        self.assertTrue(self.group.with_user(chief_user).can_edit_schedule)
+
+    def test_can_edit_schedule_false_for_plain_teacher(self):
+        self.assertFalse(self.group.with_user(self.teacher_user).can_edit_schedule)
+
+    def _other_space(self, code, name):
+        return self.env['ems.space'].create({
+            'code': code, 'name': name,
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+
+    def test_update_topic_and_relocate_writes_topic_only(self):
+        """Issue #446 - 'topic' is free text with no collision semantics: a plain write, even
+        with no 'space_id' passed at all (falsy - "leave the room untouched")."""
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Update Topic Only)')
+        calendar_a.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TGSL: TGSL',
+        }])
+        block = self.group.schedule_attendance_ids.filtered('subject_id')
+
+        block.update_topic_and_relocate('New Topic', False)
+
+        self.assertEqual(block.topic, 'New Topic')
+        self.assertEqual(block.space_id, self.space)
+
+    def test_update_topic_and_relocate_moves_room_without_conflict(self):
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Move Room)')
+        calendar_a.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TGSL: TGSL',
+        }])
+        block = self.group.schedule_attendance_ids.filtered('subject_id')
+        new_space = self._other_space('TGSL-MOVE', 'Test Space (Move Room)')
+
+        block.update_topic_and_relocate(False, new_space.id)
+
+        self.assertEqual(block.space_id, new_space)
+        self.assertFalse(block.space_pending_group_sync)
+
+    def test_update_topic_and_relocate_flags_pending_on_conflict(self):
+        """Issue #446 - a collision NEVER blocks the edit: 'topic' still lands, the room stays
+        put and gets flagged 'space_pending_group_sync' instead of raising, exactly like editing
+        the same room from the colliding teacher's own calendar already does (issue #444)."""
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Conflict)')
+        calendar_a.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TGSL: TGSL',
+        }])
+        block = self.group.schedule_attendance_ids.filtered('subject_id')
+        new_space = self._other_space('TGSL-COLL', 'Test Space (Conflict)')
+        other_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TGSL-OTH', 'level_id': self.level.id, 'study_id': self.study.id,
+            'space_id': new_space.id, 'shift': 'morning',
+        })
+        calendar_c = self._new_calendar(self.teacher_b, 'Test Calendar C (Conflict, other side)')
+        calendar_c.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [other_group.id], 'name': 'TGSL: TGSL-OTH',
+            'space_id': new_space.id,
+        }])
+
+        block.update_topic_and_relocate('Conflicting Topic', new_space.id)
+
+        self.assertEqual(block.topic, 'Conflicting Topic')
+        self.assertEqual(block.space_id, self.space)
+        self.assertTrue(block.space_pending_group_sync)
+        self.assertEqual(block.pending_new_space_id, new_space)
+        self.assertEqual(self.group.pending_classroom_conflict_count, 1)
+
+    def test_update_topic_and_relocate_moves_every_co_teaching_block(self):
+        """Issue #446 - a co-taught block (same subject/topic/slot) must move together: calling
+        this on the whole visual block (both underlying resource.calendar.attendance rows, one
+        per co-teacher) relocates both, never leaving one teacher's own calendar stale (exactly
+        the desync bug 'relocate_or_flag_pending' was written to prevent, issue #444)."""
+        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Co-teaching Move)')
+        calendar_a.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TGSL: TGSL',
+        }])
+        calendar_b = self._new_calendar(self.teacher_b, 'Test Calendar B (Co-teaching Move)')
+        calendar_b.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TGSL: TGSL',
+        }])
+        blocks = self.group.schedule_attendance_ids.filtered('subject_id')
+        self.assertEqual(len(blocks), 2)
+        new_space = self._other_space('TGSL-COTEACH', 'Test Space (Co-teaching Move)')
+
+        blocks.update_topic_and_relocate('Shared Topic', new_space.id)
+
+        self.assertTrue(all(block.space_id == new_space for block in blocks))
+        self.assertTrue(all(block.topic == 'Shared Topic' for block in blocks))

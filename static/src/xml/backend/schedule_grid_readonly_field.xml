@@ -3,12 +3,25 @@
     <t t-name="ems.ReadonlyScheduleGridField">
         <div class="o_schedule_grid">
             <div class="o_schedule_grid_toolbar">
-                <button type="button" class="btn btn-sm btn-secondary" t-on-click="() => this.onPdfClick()">
-                    <i class="fa fa-file-pdf-o me-1"/>PDF
-                </button>
+                <t t-if="!editing.value">
+                    <button t-if="canEditSchedule" type="button" class="btn btn-sm btn-secondary" t-on-click="() => this.startEdit()">
+                        <i class="fa fa-pencil me-1"/>Edit
+                    </button>
+                    <button type="button" class="btn btn-sm btn-secondary ms-2" t-on-click="() => this.onPdfClick()">
+                        <i class="fa fa-file-pdf-o me-1"/>PDF
+                    </button>
+                </t>
+                <t t-else="">
+                    <button type="button" class="btn btn-sm btn-primary" t-on-click="() => this.save()">
+                        <i class="fa fa-check me-1"/>Save
+                    </button>
+                    <button type="button" class="btn btn-sm btn-secondary ms-2" t-on-click="() => this.cancelEdit()">
+                        Cancel
+                    </button>
+                </t>
             </div>
 
-            <div class="o_schedule_grid_grid">
+            <div t-if="!editing.value" class="o_schedule_grid_grid">
                 <div class="o_schedule_grid_header"/>
                 <t t-foreach="days" t-as="day" t-key="day.index">
                     <div class="o_schedule_grid_header" t-esc="day.label"/>
@@ -22,7 +35,7 @@
 
                 <t t-foreach="days" t-as="day" t-key="day.index">
                     <div class="o_schedule_grid_column" t-att-style="columnStyle()">
-                        <t t-foreach="blocksForDay(day.index)" t-as="block" t-key="block.hour_from + '_' + block.hour_to + '_' + blockLabel(block)">
+                        <t t-foreach="blocksForDay(day.index)" t-as="block" t-key="blockKey(block)">
                             <div class="o_schedule_grid_entry"
                                  t-att-class="blockIsBreak(block) ? 'o_schedule_grid_entry_break' : ''"
                                  t-att-style="blockStyle(block)"
@@ -41,7 +54,41 @@
                 </t>
             </div>
 
-            <div t-if="subjectTeachersSummary.length" class="o_schedule_grid_summary mt-3">
+            <!-- Issue #446 - card-based edit mode (only ever reachable via canEditSchedule, e.g.
+                 ems.group), visually mirroring the teacher's own editable grid
+                 (schedule_grid_field.xml) - same CSS classes/day-column layout - but every field
+                 except Topic/Classroom is plain read-only text, and only cards for blocks that
+                 already have real content are shown (no blank/unassigned placeholders - there
+                 never are any here, 'blocksForDay' only ever returns real entries). -->
+            <div t-else="" class="o_schedule_grid_cards_edit">
+                <t t-foreach="days" t-as="day" t-key="day.index">
+                    <div class="o_schedule_grid_day_column" t-att-data-day="day.index">
+                        <div class="o_schedule_grid_day_header" t-esc="day.label"/>
+                        <t t-foreach="cardsForDay(day.index)" t-as="card" t-key="card.key">
+                            <div class="o_schedule_grid_card" t-att-data-day="day.index">
+                                <div class="o_schedule_grid_card_row o_schedule_grid_card_readonly" t-esc="card.timeLabel"/>
+                                <div class="o_schedule_grid_card_row o_schedule_grid_card_readonly" t-esc="card.subjectLabel"/>
+                                <div t-if="card.teacherLabel" class="o_schedule_grid_card_row o_schedule_grid_card_readonly text-muted" t-esc="card.teacherLabel"/>
+                                <t t-if="card.editable">
+                                    <input type="text" class="o_schedule_grid_card_topic"
+                                           t-att-value="card.topic" placeholder="Topic (optional)"
+                                           t-on-change="(ev) => this.onCardTopicChange(day.index, card.key, ev)"/>
+                                    <select class="o_schedule_grid_select o_schedule_grid_card_space"
+                                            t-on-change="(ev) => this.onCardSpaceChange(day.index, card.key, ev)">
+                                        <option value="" t-att-selected="!card.spaceId">—</option>
+                                        <t t-foreach="catalog.spaces" t-as="space" t-key="space.id">
+                                            <option t-att-value="space.id" t-esc="space.display_name"
+                                                    t-att-selected="card.spaceId === space.id"/>
+                                        </t>
+                                    </select>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </div>
+
+            <div t-if="!editing.value and subjectTeachersSummary.length" class="o_schedule_grid_summary mt-3">
                 <div class="o_schedule_grid_summary_header">Subject → Teacher(s)</div>
                 <table class="o_schedule_grid_summary_table">
                     <tbody>

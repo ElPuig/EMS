@@ -102,10 +102,10 @@
         </record>
 
         <!-- Technical group, deliberately with no category_id: it never appears as a pickable
-             role selector on the user form, and is granted only by implication (group_orientation
-             and group_coexistence below). It owns the whole read-only surface over the student
-             dataset - record rules (security/rules/student_data_reader.xml), ACL lines and menu
-             visibility - so the two transversal posts that need it share one set of rules instead
+             role selector on the user form, and is granted only by implication (group_orientation,
+             group_coexistence and group_head_of_studies below). It owns the whole read-only surface
+             over the student dataset - record rules (security/rules/student_data_reader.xml), ACL
+             lines and menu visibility - so the posts that need it share one set of rules instead
              of duplicating ~17 of them each. It carries its own ACL lines rather than leaning on
              group_teacher's, because group_coexistence does not imply group_teacher: a coexistence
              coordinator who is not a teacher still gets the full read access issue #393 asks for.
@@ -145,15 +145,25 @@
             <field name="implied_ids" eval="[(4, ref('ems.group_tutor'))]"/>
         </record>
 
+        <!-- group_student_data_reader (issue #448): HoS/DHoS/Director must see every student's
+             academic, attendance and coexistence data centre-wide, not just their own tutees' -
+             same reasoning as group_coexistence/group_orientation above. base.group_partner_manager
+             (issue #448): full CRUD on res.partner.relation/.all (the family-contact relation
+             models, owned by the OCA partner_multi_relation module) - without it, HoS/DHoS/Director
+             get read-only access on those models and hit an AccessError deleting a family contact,
+             even after _get_read_only_user() (models/contacts/contact.py) recognizes them for the
+             student's own personal-data block. Mirrors group_secretary, which already implies it. -->
         <record model="res.groups" id="group_head_of_studies">
             <field name="name">Head of Studies</field>
-            <field name="comment">Access rights for Head of Studies / Deputy Head of Studies. Grants full read/write access to all employees' attendance records, and the right to create and edit teachers.</field>
+            <field name="comment">Access rights for Head of Studies / Deputy Head of Studies. Grants full read/write access to all employees' attendance records, the right to create and edit teachers, and full read/write access to every student's data centre-wide.</field>
             <field name="category_id" ref="ems.category_roles"/>
             <field name="implied_ids" eval="[
                 (4, ref('ems.group_department_chief')),
                 (4, ref('hr_attendance.group_hr_attendance_manager')),
                 (4, ref('hr_holidays.group_hr_holidays_user')),
                 (4, ref('hr.group_hr_user')),
+                (4, ref('ems.group_student_data_reader')),
+                (4, ref('base.group_partner_manager')),
             ]"/>
         </record>
 

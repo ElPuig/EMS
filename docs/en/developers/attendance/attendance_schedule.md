@@ -151,6 +151,15 @@ by `ems.attendance_template.find_external_conflicts()` (see
 [`attendance_template.md`](attendance_template.md)) against a not-yet-created entry dict,
 since one side isn't a real record yet there.
 
+**`find_room_conflicts()`'s own candidate search runs with `sudo()`** (issue #444, 2026-09-12) —
+whether a room/teacher is already double-booked is a fact about the whole school's schedule, not
+something that should depend on the acting user's own `ir.rule` visibility (`security/rules/
+attendance.xml`'s "own data" restriction for `group_teacher`). See
+[`attendance_template.md`](attendance_template.md#a-record-rule-blind-spot-in-the-sync-pipelines-own-internal-searches-issue-444-2026-09-12)
+for the full incident this fixed — a Head of Studies/Deputy Head of Studies editing a colleague's
+schedule couldn't see that colleague's own already-existing session here, so the sync created a
+duplicate that then collided with it.
+
 ## `find_schedule_lines_for_teaching`: reverse lookup from a calendar block to a schedule line
 
 `ems.attendance_mixin.find_schedule_lines_for_teaching(teacher, subject, groups, weekday,

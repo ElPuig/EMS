@@ -286,6 +286,16 @@
     max-width: 260px;
 }
 
+/* Issue #446 - group form's own card-based edit mode (gated by 'can_edit_schedule', only ever
+   true on ems.group, never a student's read-only tab). Reuses every other '.o_schedule_grid_card*'
+   rule above as-is (same cards, same day columns as the teacher's own editable grid) - this is
+   the one addition needed: a plain read-only line for a field this widget never lets you edit
+   (time, subject, teacher), visually distinct from the editable Topic/Classroom inputs below it. */
+.o_schedule_grid_card_readonly {
+    font-size: 11px;
+    padding: 1px 0;
+}
+
 .o_schedule_grid_summary_columns {
     display: flex;
     gap: 32px;

@@ -1,14 +1,19 @@
-# Technical Reference: Group Schedule (read-only aggregation)
+# Technical Reference: Group Schedule (read-only aggregation, partially editable)
 
 ## Overview
 
 `ems.group` has no schedule of its own — every timetable slot lives on a *teacher's*
 personal `resource.calendar` (see [Teacher working schedules & schedule frameworks](../employees/working_schedule.md)),
 tagged with `group_ids` (Many2many `ems.group`). The **Schedule** tab on the group form is
-a read-only "photo" of that data, built by aggregating every `resource.calendar.attendance`
+mostly a read-only "photo" of that data, built by aggregating every `resource.calendar.attendance`
 row across every teacher's calendar whose `group_ids` includes this group — plus, when
-derivable, the group's break/patio period — with a PDF export. There is no editing here:
-changes are made from the teacher's own Schedule tab, exactly as today.
+derivable, the group's break/patio period — with a PDF export.
+
+**Issue #446:** `ems.group_department_chief` and above can additionally edit two fields per
+teaching block directly from this tab - `topic` and the classroom (`space_id`) - without
+leaving the group's own form. Every other field (day, hour, subject, teacher(s), groups) stays
+read-only here; changing any of those still requires the teacher's own Schedule tab. See "Editing
+from the group form" below.
 
 The exact same rendering problem, one level down, is what a **student's own** Schedule tab
 solves — see [Student schedule (read-only aggregation)](student_schedule.md), which shares
@@ -166,6 +171,84 @@ A single toolbar action, **PDF**, calling
 schedule is already universal for staff (see Access control below). The PDF itself is where
 `get_schedule_report_lines()`/`get_subject_teachers_summary()` actually run, server-side.
 
+## Editing from the group form (issue #446)
+
+`ems.group_department_chief` and above (same check as `hr.employee.can_edit_schedule`, mirrored
+here as `ems.group.can_edit_schedule`, `models/contacts/group.py`) can edit a teaching block's
+`topic` and classroom (`space_id`) directly from this tab, without opening the teacher's own
+form. Every other field (weekday, hour, subject, teacher(s), groups) stays locked here — those
+still require the teacher's own Schedule tab.
+
+**Backend:** `resource.calendar.attendance.update_topic_and_relocate(topic, space_id)`
+(`models/employees/working_schedule.py`, right below `relocate_or_flag_pending`) — called with
+every calendar block making up ONE visual entry (more than one for a co-taught session, one row
+per co-teacher, since each carries its own `resource.calendar.attendance` row even though they
+share a single `ems.attendance_schedule` line):
+- `topic` is a plain `write({'topic': ...})` — free text, no collision semantics, always safe.
+  Not part of `_SYNC_TRIGGER_FIELDS`, so it never triggers the bottom-up calendar-sync hook.
+- The classroom reuses `relocate_or_flag_pending()` **unmodified**, once per underlying block —
+  the exact same method a teacher's own calendar edit already calls (issue #444), so behaviour is
+  byte-for-byte identical: no collision moves every co-teacher's block together (via
+  `ems.attendance_schedule._relocate_via_calendar_blocks`); a collision leaves the block
+  untouched and flags `space_pending_group_sync`/`pending_new_space_id` on it instead of raising.
+
+No new wizard code was needed: the pre-existing `ems.group_classroom_change_wizard` already
+queries every `space_pending_group_sync=True` block for the group (`_build_conflict_lines`),
+regardless of which of the three flows flagged it (a group-wide reference-classroom change,
+issue #405; a teacher's own calendar edit, issue #444; or this feature).
+
+**Real bug found and fixed while building this (2026-09-12):** the group-scoped wizard's own
+`action_confirm()` crashed with a `MissingError` when TWO conflict lines happened to share the
+same `right_schedule_id` — exactly the shape this feature makes common (a co-taught block
+colliding with the same already-active session flags BOTH co-teachers' blocks independently, see
+`ems.group._propagate_classroom_change`'s own pre-existing per-block loop). Required Many2one
+fields default to `ondelete='cascade'` (`odoo/fields.py`'s `Many2one.setup_nonrelated`), so
+resolving the first line (e.g. `prevail_left` archiving the colliding session down to deletion)
+cascade-deleted the second, still-unprocessed wizard line right along with it.
+`action_confirm()` now guards with a plain `line.exists()` before calling `_apply_resolution()` —
+safe, since the vanishing line's own calendar block is still correctly resolved by the first
+line's own "clear siblings" pass (`_apply_resolution`, issue #444's third follow-up). See
+`tests/test_group_classroom_change.py`'s
+`test_group_wizard_with_co_teaching_conflict_builds_two_lines_confirm_does_not_crash`.
+
+The group's own pending-classroom banner text (`views/community/group/form.xml`) was reworded to
+stay accurate for BOTH origins now possible on this model - it used to read "This group's
+classroom changed, but...", which would be misleading for a block edited directly from this tab
+without the group's own `space_id` ever changing. Now origin-neutral: "N teaching block(s)
+couldn't move to their requested classroom automatically because of a room collision."
+
+**Frontend:** `ReadonlyScheduleGridField` (`schedule_grid_readonly_field.js` +
+`schedule_grid_readonly_field.xml`) gains a card-based edit mode, visually mirroring the
+teacher's own editable grid (`schedule_grid_field.js`/`.xml`) rather than an inline per-block
+popover — a first version used a pencil icon opening a small panel per block, but the developer
+found it too fiddly to click reliably (target size/position depend on the block's own label
+text) and asked for the teacher-grid's own card layout instead:
+- Gated by a new `canEditSchedule` getter reading `ems.group.can_edit_schedule` off the host
+  record — `false` (and the "Edit" toolbar button absent) for every OTHER model reusing this
+  widget (`res.partner`/student never defines that field at all).
+- **"Edit"** (toolbar, next to PDF) switches every day column from the visual grid into a list
+  of cards — one per block, built by `startEdit()` snapshotting `blocksForDay()` into `buffer`
+  (`_cardFromBlock()`), decoupled from the live entries for the rest of the edit session, same
+  reasoning as the teacher grid's own buffer. Unlike that widget, there is no schedule-framework
+  baseline to overlay — `blocksForDay()` only ever returns real entries, so no blank/unassigned
+  placeholder cards are ever shown, and there is no add/remove/day/hour/subject/group editing at
+  all.
+- Every card shows day/time, the subject (or non-teaching reason) name, and — new here, since a
+  teacher's own card never needs it (their calendar only has one teacher) — which teacher(s)
+  teach it, as **plain read-only text**. Only a teaching block's card (`card.editable`, i.e. not
+  a break/guard-duty/meeting, which has neither `topic` nor a classroom to edit) additionally
+  shows an editable **Topic** input and classroom `<select>` (same `catalog.spaces` pattern
+  `schedule_grid_field.js` already uses).
+- A single **Save**/**Cancel** pair (replacing "Edit"/"PDF" while editing, same toolbar
+  swap the teacher grid already does) applies to every card at once: `save()` calls
+  `update_topic_and_relocate` once per editable card (its own block's underlying
+  `resource.calendar.attendance` ids, topic and classroom), in parallel via `Promise.all`, then
+  `record.load()` to refresh the group (which also naturally refreshes
+  `pending_classroom_conflict_count` and the banner, no extra wiring needed). Sent
+  unconditionally for every editable card, not just changed ones — both a no-op topic write and
+  an unchanged-room `relocate_or_flag_pending` call are harmless server-side, and a group's own
+  schedule is small enough that this stays cheap; no dirty-tracking was worth the complexity.
+
 ## PDF report (`ems.report_group_schedule`)
 
 `reports/contacts/report_group_schedule.xml` — a `qweb-pdf` `ir.actions.report` on
@@ -187,11 +270,17 @@ field is empty (see `test_report_group_schedule_shows_reference_classroom`/
 |--------|------------------------------|------------------------------|
 | Read a group's aggregated schedule (`schedule_attendance_ids`, `get_schedule_report_lines()`, `get_subject_teachers_summary()`) | Yes | Yes |
 | Export a group's schedule to PDF | Yes | Yes |
-| Edit a group's schedule | No (not possible from this tab at all — edit from the teacher's own Schedule tab) | No (same) |
+| Edit a block's `topic`/classroom from the group form (issue #446) | No | Yes |
+| Edit day/hour/subject/teacher(s)/groups | No (never possible from this tab — edit from the teacher's own Schedule tab) | No (same) |
 
-No new ACL rows are needed: every internal user already has read access to
+No new ACL rows are needed for reading: every internal user already has read access to
 `resource.calendar`/`resource.calendar.attendance` (base Odoo ACL) and, via
-`ems.access_ems_group_teacher`/`ems.access_ems_group_secretary`, to `ems.group` itself.
+`ems.access_ems_group_teacher`/`ems.access_ems_group_secretary`, to `ems.group` itself. Writing
+`topic`/`space_id` on `resource.calendar.attendance` from the group form reuses the existing
+`ems.access_resource_calendar_attendance_admin` ACL row (`ems.group_department_chief`+ already has
+full CRUD there, needed for `apply_schedule_changes()`/the classroom-change wizard) - a plain
+teacher has no write ACL on that model at all, so this is enforced the same way as every other
+schedule write already is, with no new security row.
 Portal users (families/students, `base.group_portal`) have **no** access to `ems.group` or
 `resource.calendar*` today — out of scope for this feature. See the student doc for the
 equivalent table on `res.partner` (same shape, same "staff-only, portal out of scope"

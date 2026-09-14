@@ -39,8 +39,37 @@ mostra una fila per tema. Quan una assignatura (o assignatura+tema) es fa en cod
 d'un professor alhora), tots els noms apareixen junts a la fila corresponent — la graella, en
 canvi, sempre mostra l'assignatura una única vegada, no un cop per professor.
 
-Aquesta pestanya és de només lectura: per canviar qualsevol cosa cal editar-ho des de la
-pestanya Horari del professor corresponent.
+El dia, l'hora, l'assignatura, el(s) docent(s) i els grups només es poden canviar des de la
+pestanya Horari del professor corresponent. En canvi, el tema i l'aula també es poden editar
+directament des d'aquí — vegeu més avall.
+
+---
+
+## Editar el tema o l'aula d'un bloc
+
+**Rol necessari:** Cap de Departament o superior (Cap d'Estudis, Sotscap d'Estudis, Director/a,
+Administrador/a Acadèmic/a).
+
+En lloc d'anar professor per professor, pots corregir el **tema** o l'**aula** d'una
+assignatura per a aquest grup directament des d'aquesta pestanya:
+
+1. Fes clic a **Editar** a la barra d'eines de la pestanya Horari — els blocs de cada dia es
+   converteixen en targetes, igual que a la pestanya Horari d'un professor quan s'edita.
+2. A la targeta de qualsevol classe, canvia el **Tema** i/o tria una **Aula** diferent. La resta
+   de dades de la targeta (dia, hora, assignatura, docent(s)) només es mostren com a referència i
+   no es poden canviar des d'aquí — per moure una classe a un altre dia/hora o reassignar-la a un
+   altre docent, fes-ho des de la pestanya Horari del professor. Una targeta de pati/guàrdia/
+   reunió no té cap camp editable.
+3. Fes clic a **Desar** per aplicar tots els canvis alhora, o a **Cancel·la** per descartar-los.
+
+Si una classe es fa en codocència, s'actualitzen alhora els calendaris de tots dos docents, de
+manera que mai acaben mostrant una aula diferent per a la mateixa classe.
+
+Si l'aula nova ja s'utilitza en un altre lloc exactament el mateix dia i hora, el canvi mai es
+bloqueja: el bloc es queda a la seva aula anterior i es marca per revisar-lo — se n'encarrega
+el mateix avís d'"aula pendent" i l'assistent de resolució que ja s'utilitza quan canvia l'aula
+de referència d'un grup (vegeu
+[Resoldre un Conflicte d'Aula Pendent](groups.md#resoldre-un-conflicte-daula-pendent)).
 
 ---
 

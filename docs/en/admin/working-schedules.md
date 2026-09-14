@@ -138,6 +138,8 @@ The weekly grid splits into 5 day columns (Monday–Friday); within each day, in
 
 Cards within a day are always shown sorted by start time, then end time — two cards at the exact same time sort by their own start date instead.
 
+**Changing a card's classroom (step 5) when the class is co-taught:** if the new room is free at that day/time, the change applies immediately for every teacher sharing that class — nothing else to do. If the new room is already taken by someone else at that exact time, the change is held back instead of failing outright: a yellow banner appears at the top of the teacher's own form, regardless of which tab is open ("A classroom change requested from this teacher's own schedule, but N teaching block(s) could not move to it automatically because of a room collision"), with a **Resolve pending classrooms** button. See "Resolving a Pending Classroom Conflict" in [Groups](groups.md) for how to resolve it from there — the same screen also opens from a group's own form when a group-wide classroom change hits the same kind of collision.
+
 > Leaving a manually-added card unassigned and saving simply drops it — only real assignments are kept. If you re-open **Edit** later, the framework's own cards reappear as gaps to fill in, but a discarded manual card does not.
 
 There is no drag-and-drop between cards or days — to move a card to a different day, remove it and add a new one there instead.

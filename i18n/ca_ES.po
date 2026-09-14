@@ -1166,6 +1166,11 @@ msgid "<strong>Valid until: </strong>"
 msgstr "<strong>Vàlid fins: </strong>"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "A classroom change requested from this teacher's own schedule, but"
+msgstr "S'ha demanat un canvi d'aula des de l'horari d'aquest docent, però"
+
+#. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_grade_session_grade_session_is_duped
 msgid "A grade session already exists for this group, subject and round."
 msgstr "Ja existeix una sessió d'avaluació per a aquest grup, assignatura i avaluació."
@@ -1640,7 +1645,7 @@ msgstr "Marc horari predeterminat"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
+#: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 code:addons/ems/static/src/xml/backend/schedule_grid_readonly_field.xml:0 model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
 msgid "Edit"
 msgstr "Edita"
 
@@ -2308,7 +2313,7 @@ msgstr "Pot editar"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0 code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_attendance_report_group_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_student_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_subject_wizard model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_session_state_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_session_wizard_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_add_student_popup model_terms:ir.ui.view,arch_db:ems.view_notice_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0 code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 code:addons/ems/static/src/xml/backend/schedule_grid_readonly_field.xml:0 model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_attendance_report_group_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_student_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_subject_wizard model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_session_state_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_session_wizard_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_add_student_popup model_terms:ir.ui.view,arch_db:ems.view_notice_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -6280,7 +6285,7 @@ msgstr "Dissabte"
 
 #. module: ems
 #. odoo-javascript
-#: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form code:addons/ems/static/src/js/backend/attendance_session_view.js:0 code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form code:addons/ems/static/src/js/backend/attendance_session_view.js:0 code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 code:addons/ems/static/src/xml/backend/schedule_grid_readonly_field.xml:0
 msgid "Save"
 msgstr "Desar"
 
@@ -6596,7 +6601,7 @@ msgstr "Text curt"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search model_terms:ir.ui.view,arch_db:ems.view_notice_search model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_search
 msgid "Show only mine"
-msgstr "Mostrar tan sols els meuss"
+msgstr "Mostrar tan sols els meus"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_benefit__benefit_type__single_parent_gen
@@ -8084,6 +8089,13 @@ msgid "Resolve subjects"
 msgstr "Resoldre assignatures"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+#: model_terms:ir.ui.view,arch_db:ems.view_group_classroom_change_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
+msgid "Resolve pending classrooms"
+msgstr "Resoldre aules pendents"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 msgid "EMS also checks that the subject found in the file is actually taught in the group's own study - a wrong subject code, or a group assigned to the wrong subject, would otherwise only surface as a confusing error at the very end. Any mismatch is listed below: correct whichever side was actually wrong - the group(s), the subject, or both."
 msgstr "L'EMS també comprova que l'assignatura trobada al fitxer s'imparteixi realment als estudis del grup - un codi d'assignatura incorrecte, o un grup assignat a l'assignatura equivocada, altrament només apareixeria com un error confús al final de tot. Qualsevol discrepància es llista a sota: corregeix el costat que realment estigui malament - el(s) grup(s), l'assignatura, o tots dos."
@@ -8359,6 +8371,17 @@ msgid "Their weekly schedule will be synced with this file's content. Each affec
 msgstr "El seu horari setmanal se sincronitzarà amb el contingut d'aquest fitxer. Cada plantilla d'assistència afectada s'actualitza in situ si encara no té historial real d'assistència, o s'arxiva i es substitueix per una nova versió si en té - l'historial de l'original mai es perd."
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_group_classroom_change_wizard
+msgid ""
+"These teaching blocks could not move to the group's new classroom\n"
+"                            automatically because of a room collision - pick a classroom for\n"
+"                            each side, or a different resolution, then confirm."
+msgstr ""
+"Aquests blocs de classe no s'han pogut traslladar a la nova aula del grup\n"
+"                            automàticament per una col·lisió d'aula - trieu una aula per a\n"
+"                            cada costat, o una resolució diferent, i confirmeu."
+
+#. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/working_schedule.py:0
 msgid "These are placeholder employees, created now so their schedule and subjects are ready immediately. Afterwards, open each one's own record to replace the placeholder name with the real one, fill in their personal e-mail, and click Generate Google account - exactly like any other new teacher."
@@ -8556,6 +8579,24 @@ msgstr "envia el teu IBAN"
 #: model_terms:ir.ui.view,arch_db:ems.view_teaching_search
 msgid "teacher"
 msgstr "docent"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid ""
+"teaching block(s) could not move to it automatically because of a room "
+"collision."
+msgstr ""
+"bloc(s) de classe no s'han pogut traslladar automàticament per una "
+"col·lisió d'aula."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
+msgid ""
+"teaching block(s) couldn't move to their requested classroom automatically "
+"because of a room collision."
+msgstr ""
+"bloc(s) de classe no s'han pogut traslladar a l'aula sol·licitada "
+"automàticament per una col·lisió d'aula."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_teaching_form
@@ -10628,7 +10669,7 @@ msgid "PDF"
 msgstr "PDF"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_hr_employee__can_edit_schedule model:ir.model.fields,field_description:ems.field_hr_employee_base__can_edit_schedule model:ir.model.fields,field_description:ems.field_hr_employee_public__can_edit_schedule model:ir.model.fields,field_description:ems.field_res_users__can_edit_schedule
+#: model:ir.model.fields,field_description:ems.field_ems_group__can_edit_schedule model:ir.model.fields,field_description:ems.field_hr_employee__can_edit_schedule model:ir.model.fields,field_description:ems.field_hr_employee_base__can_edit_schedule model:ir.model.fields,field_description:ems.field_hr_employee_public__can_edit_schedule model:ir.model.fields,field_description:ems.field_res_users__can_edit_schedule
 msgid "Can edit schedule"
 msgstr "Pot editar l'horari"
 
@@ -13781,7 +13822,7 @@ msgstr "Tema"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0
+#: code:addons/ems/static/src/js/backend/schedule_grid_field.js:0 code:addons/ems/static/src/xml/backend/schedule_grid_readonly_field.xml:0
 msgid "Topic (optional)"
 msgstr "Tema (opcional)"
 

@@ -21,7 +21,25 @@
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>
         <field name="perm_unlink" eval="True"/>
-    </record>  
+    </record>
+
+    <record id="rule_attendance_template_hos" model="ir.rule">
+        <!-- NOTE: group_head_of_studies is global (not scoped per branch, see rule_attendance_
+             correction_hos above for the same reasoning), and also covers Deputy Head of Studies
+             and Director (both imply it - security/groups.xml). Without this, group_teacher's own
+             "own data" rule above was the only one that applied to them, which is exactly the gap
+             found 2026-09-12 (issue #444): editing a colleague's schedule as Head/Deputy Head of
+             Studies made the sync's own internal reconciliation blind to that colleague's already-
+             existing template. -->
+        <field name="name">Attendance template: Head of Studies (all data)</field>
+        <field name="model_id" ref="ems.model_ems_attendance_template"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
 
     <!-- ems.attendance_schedule -->
      <record id="rule_attendance_schedule_admin" model="ir.rule">
@@ -40,6 +58,18 @@
         <field name="model_id" ref="ems.model_ems_attendance_schedule"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
         <field name="domain_force">['|', ('create_uid', '=', user.id), ('teacher_ids.user_id.id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_attendance_schedule_hos" model="ir.rule">
+        <!-- NOTE: same reasoning as rule_attendance_template_hos above (issue #444). -->
+        <field name="name">Attendance schedule: Head of Studies (all data)</field>
+        <field name="model_id" ref="ems.model_ems_attendance_schedule"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>

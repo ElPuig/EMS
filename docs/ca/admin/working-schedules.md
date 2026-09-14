@@ -138,6 +138,8 @@ La graella setmanal es divideix en 5 columnes de dia (dilluns–divendres); dins
 
 Les targetes d'un mateix dia sempre es mostren ordenades per hora d'inici i després per hora de fi — dues targetes exactament a la mateixa hora s'ordenen per la seva pròpia data d'inici.
 
+**Canviar l'aula d'una targeta (pas 5) quan la classe és de co-docència:** si l'aula nova està lliure en aquell dia i hora, el canvi s'aplica immediatament per a tots els docents que comparteixen aquella classe — no cal fer res més. Si l'aula nova ja l'ocupa algú altre exactament a la mateixa hora, el canvi es queda pendent en comptes de fallar del tot: apareix un avís groc a la part superior de la fitxa del docent, sigui quina sigui la pestanya oberta ("S'ha demanat un canvi d'aula des de l'horari d'aquest docent, però N bloc(s) de classe no s'han pogut traslladar automàticament per una col·lisió d'aula"), amb un botó **Resoldre aules pendents**. Vegeu "Resoldre un Conflicte d'Aula Pendent" a [Grups](groups.md) per saber com resoldre-ho des d'allà — la mateixa pantalla també s'obre des de la fitxa d'un grup quan un canvi d'aula de tot el grup topa amb el mateix tipus de col·lisió.
+
 > Si deixes sense assignar una targeta afegida a mà i desa, simplement es descarta — només es conserven les assignacions reals. Si tornes a obrir **Edita** més endavant, les targetes pròpies del marc reapareixen com a forats per omplir, però una targeta manual descartada no.
 
 No hi ha arrossegar i deixar anar entre targetes ni entre dies — per moure una targeta a un altre dia, elimina-la i afegeix-ne una de nova allà.

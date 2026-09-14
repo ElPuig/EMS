@@ -5,7 +5,7 @@ from odoo.tests.common import TransactionCase
 
 from odoo.addons.ems.models.shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC
 
-from .common import create_level_study
+from .common import create_level_study, create_role_employee, create_role_user
 
 
 class TestAttendanceTemplate(TransactionCase):
@@ -481,6 +481,20 @@ class TestAttendanceTemplate(TransactionCase):
         template = template.with_user(self.teacher_b.user_id)
         self.assertFalse(template._get_read_only_user())
 
+    def test_head_of_studies_reads_a_colleagues_template(self):
+        """Issue #444: rule_attendance_template_hos (security/rules/attendance.xml) - Head of
+        Studies/Deputy Head of Studies/Director are NOT group_academic_admin (that block is
+        deliberately independent, security/groups.xml), so without their own "all data" rule they
+        would fall back to group_teacher's "own data" one and be as blind to a colleague's template
+        as a plain teacher who neither created it nor teaches on it - exactly the gap that let the
+        sync pipeline create a duplicate colliding with a template it couldn't see."""
+        template = self._create_template(self.teacher_a, self.space_a)
+        hos_user = create_role_user(self, 'head_of_studies', 'test_hos_template_444@example.com')
+
+        visible = self.env['ems.attendance_template'].with_user(hos_user).search([('id', '=', template.id)])
+
+        self.assertIn(template, visible)
+
 
 class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
 
@@ -585,6 +599,33 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         # the schedule line's own space_id/study_id are derived from the FIRST group only. Safe as
         # long as every combined group shares the same classroom - not validated/warned otherwise.
         self.assertEqual(template.attendance_schedule_ids.space_id, self.space)
+
+    def test_solo_edit_of_a_co_taught_slot_applies_the_new_space_for_both_teachers(self):
+        # Real-world bug found 2026-09-12: a co-taught class's room change, submitted by only ONE
+        # of the two co-teachers (e.g. via the 'Schedule' tab's live single-teacher editor), used
+        # to be silently discarded - '_reconcile_teacher_groups' populated the shared slot's
+        # 'entry' from the OTHER, untouched co-teacher's still-old data first, and the submitting
+        # teacher's own fresh entry only ever contributed their id to 'teacher_ids', never
+        # overwrote 'entry'. No error was raised either - the room simply never changed, silently.
+        self.env['ems.attendance_template'].sync_from_schedule_batch([
+            (self.teacher, [self._entry(9, 10, '0')]),
+            (self.other_teacher, [self._entry(9, 10, '0')]),
+        ])
+        template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ])
+        self.assertEqual(template.teacher_ids, self.teacher | self.other_teacher)
+        self.assertEqual(template.attendance_schedule_ids.space_id, self.space)
+
+        # Only 'self.teacher' submits now (a solo live-edit of their own calendar), moving this
+        # shared slot to 'other_space' - 'self.other_teacher' is "untouched" in this call.
+        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [self._entry(9, 10, '0', space=self.other_space)])
+
+        template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id), ('active', '=', True),
+        ])
+        self.assertEqual(template.teacher_ids, self.teacher | self.other_teacher)
+        self.assertEqual(template.attendance_schedule_ids.space_id, self.other_space)
 
     def test_fill_students_pulls_students_from_every_shared_group(self):
         student_a = self.env['res.partner'].create({
@@ -1372,6 +1413,38 @@ class TestDecideScheduleLineChanges(TransactionCase):
         # Monday: matched, identical - confirmed by exclusion from every other bucket above.
         self.assertNotIn(monday_line, result['stale_lines'])
 
+    def test_matched_line_with_conflicting_space_change_is_pending(self):
+        # A room change that would collide with someone else's already-active session must not be
+        # silently rewritten (that would just move the conflict, not resolve it) - issue #444's
+        # follow-up, 2026-09-12: it lands in 'lines_pending' instead, left for later resolution via
+        # ems.group_classroom_change_wizard, exactly like the group-wide classroom-change flow
+        # already does for a genuine collision.
+        other_teacher = self.env['hr.employee'].create({
+            'name': 'Test Other Teacher (Decide Schedule Line Changes)', 'employee_type': 'teacher',
+        })
+        other_subject = self.env['ems.subject'].create({
+            'code': 'TDSL002', 'acronym': 'TDSL2', 'name': 'Test Other Subject (Decide Schedule Line Changes)',
+            'study_ids': [(6, 0, [self.study.id])],
+        })
+        other_template = self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, [other_teacher.id])], 'subject_id': other_subject.id,
+            'group_ids': [(6, 0, [self.group.id])], 'study_ids': [(6, 0, [self.study.id])],
+            'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
+        })
+        self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': other_template.id, 'weekday': '0',
+            'start_time': 9, 'end_time': 10, 'space_id': self.other_space.id,
+        })
+        template = self._template_with_lines((9, 10, '0', self.space))
+        entry = self._entry(9, 10, '0', space=self.other_space)
+
+        result = self.env['ems.attendance_template']._decide_schedule_line_changes(template, [entry], self.space.id)
+
+        self.assertFalse(result['stale_lines'])
+        self.assertFalse(result['lines_to_rewrite'])
+        self.assertEqual(result['lines_pending'], [(template.attendance_schedule_ids, entry)])
+        self.assertFalse(result['fresh_entries'])
+
 
 class TestApplyScheduleLineChanges(TransactionCase):
     """Bottom-up sync redesign (issue: resource.calendar.attendance -> sync, 2026-09-08) - Phase 2:
@@ -1459,7 +1532,9 @@ class TestApplyScheduleLineChanges(TransactionCase):
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
         })
         entry = self._entry(9, 10, '0')
-        template._apply_schedule_line_write_pass({'stale_lines': template.env['ems.attendance_schedule'], 'lines_to_rewrite': [], 'fresh_entries': [entry]}, self.space.id)
+        template._apply_schedule_line_write_pass(
+            {'stale_lines': template.env['ems.attendance_schedule'], 'lines_to_rewrite': [], 'lines_pending': [], 'fresh_entries': [entry]},
+            self.space.id, self.teacher)
         self.assertEqual(len(template.attendance_schedule_ids), 1)
         self.assertEqual(template.attendance_schedule_ids.space_id, self.space)
 
@@ -1467,7 +1542,9 @@ class TestApplyScheduleLineChanges(TransactionCase):
         template, line = self._template_with_line()
         line_id = line.id
         entry = self._entry(9, 10, '0', space=self.other_space)
-        template._apply_schedule_line_write_pass({'stale_lines': template.env['ems.attendance_schedule'], 'lines_to_rewrite': [(line, entry)], 'fresh_entries': []}, self.space.id)
+        template._apply_schedule_line_write_pass(
+            {'stale_lines': template.env['ems.attendance_schedule'], 'lines_to_rewrite': [(line, entry)], 'lines_pending': [], 'fresh_entries': []},
+            self.space.id, self.teacher)
         self.assertEqual(len(template.attendance_schedule_ids), 1)
         self.assertEqual(template.attendance_schedule_ids.id, line_id)
         self.assertEqual(template.attendance_schedule_ids.space_id, self.other_space)
@@ -1478,13 +1555,13 @@ class TestApplyScheduleLineChanges(TransactionCase):
         student = self.env['res.partner'].create({'name': 'Test Student (Apply Schedule Line Changes)', 'contact_type': 'student'})
         line.student_ids = [(6, 0, [student.id])]
         entry = self._entry(9, 10, '0', space=self.other_space)
-        changes = {'stale_lines': template.env['ems.attendance_schedule'], 'lines_to_rewrite': [(line, entry)], 'fresh_entries': []}
+        changes = {'stale_lines': template.env['ems.attendance_schedule'], 'lines_to_rewrite': [(line, entry)], 'lines_pending': [], 'fresh_entries': []}
         # The archive step must run first (see test_archive_archives_real_session_rewrite) - reuse
         # it here instead of hand-rolling the bypass context, same ordering the real callers enforce.
         template._apply_schedule_line_archive_pass(changes)
         line_id = line.id
 
-        template._apply_schedule_line_write_pass(changes, self.space.id)
+        template._apply_schedule_line_write_pass(changes, self.space.id, self.teacher)
 
         new_line = template.attendance_schedule_ids
         self.assertEqual(len(new_line), 1)
@@ -1495,7 +1572,9 @@ class TestApplyScheduleLineChanges(TransactionCase):
     def test_write_fills_students_only_for_fresh_slots(self):
         template, line = self._template_with_line()
         fresh_entry = self._entry(10, 11, '0')
-        template._apply_schedule_line_write_pass({'stale_lines': template.env['ems.attendance_schedule'], 'lines_to_rewrite': [], 'fresh_entries': [fresh_entry]}, self.space.id)
+        template._apply_schedule_line_write_pass(
+            {'stale_lines': template.env['ems.attendance_schedule'], 'lines_to_rewrite': [], 'lines_pending': [], 'fresh_entries': [fresh_entry]},
+            self.space.id, self.teacher)
         fresh_line = template.attendance_schedule_ids.filtered(lambda candidate, line=line: candidate != line)
         old_line = template.attendance_schedule_ids - fresh_line
         self.assertEqual(old_line, line)
@@ -1572,3 +1651,127 @@ class TestEmployeeSyncScheduleFromCalendar(TransactionCase):
         # No real attendance history behind it - _archive_or_delete() removes it outright rather
         # than leaving dead clutter (same convention already covered elsewhere in this file).
         self.assertFalse(self.env['ems.attendance_template'].browse(template_id).exists())
+
+    def test_room_change_colliding_with_another_session_is_left_pending_not_rewritten(self):
+        """Issue #444's follow-up, 2026-09-12: a room change for a single class, made directly on
+        a teacher's own calendar block (e.g. via the 'Schedule' tab), that would collide with
+        another active session must not be silently rewritten (that would just move the conflict,
+        not resolve it) nor raise a raw ValidationError - it lands in 'lines_pending' and is left
+        for later resolution via ems.group_classroom_change_wizard, exactly like the group-wide
+        classroom-change flow (issue #405) already does for a genuine collision. The calendar
+        block itself must revert to its own still-current room and get flagged pending, rather
+        than keep showing a room the derived schedule never actually adopted."""
+        other_space = self.env['ems.space'].create({
+            'code': 'TESF-B', 'name': 'Test Space B (Employee Sync Schedule From Calendar)',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        other_teacher = self.env['hr.employee'].create({
+            'name': 'Test Other Teacher (Employee Sync Schedule From Calendar)', 'employee_type': 'teacher',
+        })
+        other_subject = self.env['ems.subject'].create({
+            'code': 'TESF002', 'acronym': 'TESF2', 'name': 'Test Other Subject (Employee Sync Schedule From Calendar)',
+            'study_ids': [(6, 0, [self.study.id])],
+        })
+        self.env['resource.calendar.attendance'].create({
+            'calendar_id': other_teacher.resource_calendar_id.id, 'name': 'Test other block',
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'group_ids': [self.group.id], 'subject_id': other_subject.id, 'space_id': other_space.id,
+        })
+        other_teacher._ems_sync_schedule_from_calendar()
+
+        block = self._add_calendar_block()
+        self.teacher._ems_sync_schedule_from_calendar()
+        template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ])
+        line = template.attendance_schedule_ids
+
+        # Moving to 'other_space' now would collide with 'other_teacher's already-active session
+        # there - the same write the 'Schedule' tab's grid widget makes when the teacher picks a
+        # new room for this one class, which auto-triggers the sync via the calendar hook.
+        block.space_id = other_space.id
+
+        self.assertEqual(line.space_id, self.space)
+        self.assertEqual(block.space_id, self.space)
+        self.assertTrue(block.space_pending_group_sync)
+        self.assertEqual(block.pending_new_space_id, other_space)
+
+    def test_room_change_with_no_conflict_propagates_to_every_co_teachers_own_calendar(self):
+        """Issue #444's SECOND follow-up, 2026-09-12: a room change for a co-taught class, made
+        from ONE teacher's own calendar, that does NOT collide with anything must still reach the
+        OTHER co-teacher's own real calendar block - not just this teacher's own calendar (already
+        correct, from apply_schedule_changes()'s own earlier write) and the derived schedule line
+        (written above). Found on real data: moving Fernando's own DAM1A/17h class (co-taught with
+        another teacher) to a genuinely free room changed Fernando's calendar and the group's own
+        schedule, but silently left the co-teacher's own calendar pointing at the old room, with no
+        error and no pending flag (this room had no conflict - see the sibling 'pending' test
+        above for the case that DOES flag one)."""
+        other_teacher = self.env['hr.employee'].create({
+            'name': 'Test Other Teacher (Employee Sync Schedule From Calendar, Co-teaching)', 'employee_type': 'teacher',
+        })
+        block = self._add_calendar_block()
+        other_block = self.env['resource.calendar.attendance'].create({
+            'calendar_id': other_teacher.resource_calendar_id.id, 'name': 'Test other block',
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'group_ids': [self.group.id], 'subject_id': self.subject.id, 'space_id': self.space.id,
+        })
+        # Both teachers' calendars sync together into ONE shared, co-taught template/line.
+        self.env['ems.attendance_template'].sync_from_schedule_batch([
+            (self.teacher, self.teacher._teaching_entries_from_calendar()),
+            (other_teacher, other_teacher._teaching_entries_from_calendar()),
+        ])
+        template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ])
+        self.assertEqual(template.teacher_ids, self.teacher | other_teacher)
+        other_space = self.env['ems.space'].create({
+            'code': 'TESF-C', 'name': 'Test Space C (Employee Sync Schedule From Calendar)',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+
+        # Only 'self.teacher' moves the room - a genuinely free room, no collision.
+        block.space_id = other_space.id
+
+        self.assertEqual(template.attendance_schedule_ids.space_id, other_space)
+        self.assertEqual(block.space_id, other_space)
+        self.assertEqual(other_block.space_id, other_space)
+        self.assertFalse(other_block.space_pending_group_sync)
+
+    def test_sync_by_a_non_owning_user_does_not_duplicate_an_existing_template(self):
+        """Issue #444: a Head of Studies / Deputy Head of Studies (in group_teacher +
+        group_head_of_studies, neither of which grants ems.attendance_template/
+        ems.attendance_schedule's "all data" ir.rule reserved for group_academic_admin) editing a
+        COLLEAGUE's schedule triggers this same sync under their own, restricted user context.
+        Before the fix, '_reconcile_teacher_groups'/'_plan_schedule_sync's own internal search()
+        calls silently returned nothing for the colleague's already-existing template (invisible
+        under the acting user's own "own data" ir.rule - security/rules/attendance.xml), so the
+        sync believed no template existed yet and created a duplicate - which then collided with
+        the very template it couldn't see, raising ems.attendance_schedule.check_overlap's
+        ValidationError on a save that should have been a no-op. Reproduces the real-world case
+        found 2026-09-12 (Salva Monzó's and Krissis Blázquez Jofra's schedules)."""
+        self._add_calendar_block()
+        self.teacher._ems_sync_schedule_from_calendar()
+        template = self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ])
+        self.assertEqual(len(template), 1)
+
+        hos_user = create_role_user(self, 'head_of_studies', 'test_hos_444@example.com')
+        create_role_employee(self, hos_user, name='0000 Test HOS (Employee Sync Schedule From Calendar)')
+
+        # The acting user is neither one of this template's own teachers nor its creator - exactly
+        # the condition that made the internal reconciliation blind before the fix.
+        self.assertNotIn(hos_user, template.teacher_ids.mapped('user_id'))
+        self.assertNotEqual(template.create_uid, hos_user)
+
+        # Re-triggering the sync as the HOS user (e.g. from editing an unrelated part of this same
+        # teacher's calendar) must be a no-op: no ValidationError, no duplicate template/line.
+        self.teacher.with_user(hos_user)._ems_sync_schedule_from_calendar()
+
+        self.assertEqual(len(self.env['ems.attendance_template'].search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ])), 1)
+        self.assertTrue(template.exists())
+        self.assertEqual(len(template.attendance_schedule_ids), 1)

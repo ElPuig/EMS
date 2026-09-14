@@ -639,10 +639,45 @@ class ems_employee(models.AbstractModel):
         string="Archived reason color", related="departure_reason_id.color",
         groups="hr.group_hr_user,ems.group_teacher")
 
+    # NOTE: issue #444's follow-up (2026-09-12) - same field/action pair as 'ems.group's own
+    # 'pending_classroom_conflict_count'/'action_open_classroom_change_wizard' (models/contacts/
+    # group.py), for the OTHER origin a 'resource.calendar.attendance' block can be flagged
+    # 'space_pending_group_sync' from: a single class's room change requested from THIS
+    # teacher's own calendar (the "Schedule" tab), not the group-wide default-classroom change
+    # issue #405 was originally built for. Not stored, same reasoning as the group's own field -
+    # cheap to compute, and pending conflicts are rare/short-lived by design.
+    pending_classroom_conflict_count = fields.Integer(
+        string="Pending classroom conflicts", compute="_compute_pending_classroom_conflict_count")
+
     @api.depends("schedule_import_code")
     def _compute_pending_identification(self):
         for employee in self:
             employee.pending_identification = bool(employee.schedule_import_code)
+
+    def _compute_pending_classroom_conflict_count(self):
+        Attendance = self.env['resource.calendar.attendance']
+        for employee in self:
+            employee.pending_classroom_conflict_count = Attendance.search_count([
+                ('calendar_id', '=', employee.resource_calendar_id.id),
+                ('space_pending_group_sync', '=', True),
+            ])
+
+    def action_open_classroom_change_wizard(self):
+        """Opens 'ems.group_classroom_change_wizard' for this teacher's own pending classroom
+        conflicts (see 'pending_classroom_conflict_count' and the banner button on the "Schedule"
+        tab) - issue #444's follow-up, 2026-09-12. Same pattern as 'ems.group's own action of the
+        same name: creates the wizard record here, before ever opening the form, with 'group_id'
+        left empty so the wizard's own create() knows to build its conflict lines from this
+        teacher's calendar instead of a group's."""
+        self.ensure_one()
+        wizard = self.env['ems.group_classroom_change_wizard'].create({'employee_id': self.id})
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": "ems.group_classroom_change_wizard",
+            "res_id": wizard.id,
+            "view_mode": "form",
+            "target": "new",
+        }
 
     @api.depends("leave_manager_id")
     def _compute_attendance_manager_id(self):

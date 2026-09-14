@@ -41,8 +41,38 @@ muestra una fila por tema. Cuando una asignatura (o asignatura+tema) se da en co
 de un profesor a la vez), todos los nombres aparecen juntos en la fila correspondiente — la
 rejilla, en cambio, siempre muestra la asignatura una única vez, no una vez por profesor.
 
-Esta pestaña es de solo lectura: para cambiar cualquier cosa hay que editarlo desde la
-pestaña Horario del profesor correspondiente.
+El día, la hora, la asignatura, el/los docente(s) y los grupos solo se pueden cambiar desde
+la pestaña Horario del profesor correspondiente. El tema y el aula, en cambio, también se
+pueden editar directamente desde aquí — ver más abajo.
+
+---
+
+## Editar el tema o el aula de un bloque
+
+**Rol necesario:** Jefatura de Departamento o superior (Jefatura de Estudios, Vicejefatura de
+Estudios, Dirección, Administración Académica).
+
+En lugar de ir profesor por profesor, puedes corregir el **tema** o el **aula** de una
+asignatura para este grupo directamente desde esta pestaña:
+
+1. Haz clic en **Editar** en la barra de herramientas de la pestaña Horario — los bloques de
+   cada día se convierten en tarjetas, igual que en la pestaña Horario de un profesor al editar.
+2. En la tarjeta de cualquier clase, cambia el **Tema** y/o elige un **Aula** distinta. El resto
+   de datos de la tarjeta (día, hora, asignatura, docente(s)) solo se muestran como referencia y
+   no se pueden cambiar desde aquí — para mover una clase a otro día/hora o reasignarla a otro
+   profesor, hazlo desde la pestaña Horario del profesor. Una tarjeta de patio/guardia/reunión no
+   tiene ningún campo editable.
+3. Haz clic en **Guardar** para aplicar todos los cambios a la vez, o en **Cancelar** para
+   descartarlos.
+
+Si una clase se imparte en codocencia, se actualizan a la vez los calendarios de ambos docentes,
+de modo que nunca acaban mostrando un aula distinta para la misma clase.
+
+Si el aula nueva ya se usa en otro sitio exactamente el mismo día y hora, el cambio nunca se
+bloquea: el bloque se queda en su aula anterior y se marca para revisión — se encarga de ello
+el mismo aviso de "aula pendiente" y el asistente de resolución que ya se usa cuando cambia el
+aula de referencia de un grupo (ver
+[Resolver un Conflicto de Aula Pendiente](groups.md#resolver-un-conflicto-de-aula-pendiente)).
 
 ---
 

@@ -357,6 +357,13 @@ class ems_working_schedule_assignation(models.Model):
 		help="This block's classroom no longer matches its group's main classroom because of a "
 			"collision detected when the group's classroom changed - resolve it from the group's "
 			"pending-classrooms notice.")
+	# NOTE: added for issue #444's follow-up (a teacher moving ONE class's room from their own
+	# calendar, not the whole group's default) - remembers the room actually requested while this
+	# block sits pending, since (unlike the group-wide classroom change) there is no other field
+	# to derive it from: 'ems.group.space_id' only ever tells you the group's OWN default room,
+	# never a one-off room a single teacher asked for one of their own classes. Cleared alongside
+	# 'space_pending_group_sync' once resolved either way (see 'relocate_or_flag_pending' below).
+	pending_new_space_id = fields.Many2one(string="Pending new classroom", comodel_name="ems.space")
 	# NOTE: 'date_from'/'date_to' are NOT new fields - they already exist on core
 	# 'resource.calendar.attendance' (odoo/addons/resource/models/resource_calendar_attendance.py),
 	# reused here as-is rather than adding EMS-specific duplicates (2026-08-11, see plans/
@@ -459,6 +466,65 @@ class ems_working_schedule_assignation(models.Model):
 		"language it was saved in" to freeze in the first place."""
 		self.ensure_one()
 		return "%s - %s" % (self.subject_id.display_name, self.topic) if self.topic else self.subject_id.display_name
+
+	def relocate_or_flag_pending(self, new_space):
+		"""Attempts to move this block (and its derived 'ems.attendance_schedule' line, if it has
+		one) to 'new_space'. Moves it and clears 'space_pending_group_sync'/'pending_new_space_id'
+		when there is no collision; otherwise (re)flags it as pending and returns the conflicts
+		found, as 'ems.attendance_schedule.find_room_conflicts' returns them.
+
+		Extracted here from 'ems.group._resolve_or_flag_pending_block' (issue #405) - issue #444's
+		follow-up - since both the pending flag itself and the block being relocated genuinely
+		belong to 'resource.calendar.attendance': the calendar is the real, authoritative source
+		of truth (see the "bottom-up sync" docs throughout this module),
+		'ems.attendance_schedule' is only ever a derived read-model of it. Shared by
+		'ems.group._resolve_or_flag_pending_block' (a group-wide classroom change),
+		'ems.attendance_template._apply_schedule_line_write_pass' (a single teacher moving one
+		class's room from their own calendar) and 'update_topic_and_relocate' below (issue #446 -
+		the same room edit reached directly from the GROUP's own Schedule tab, once per co-teacher
+		block making up the visual entry being edited there)."""
+		self.ensure_one()
+		# 'schedule' is never empty here: 'self' is a genuine teaching block (subject_id set - see
+		# both callers' own domains), and the bottom-up sync redesign's invariant (closed for good
+		# by Phase 7, 2026-09-08) guarantees one always exists.
+		schedule = self.attendance_schedule_id
+		conflicts = schedule.find_room_conflicts(new_space.id)
+		if conflicts:
+			self.space_pending_group_sync = True
+			self.pending_new_space_id = new_space.id
+			return conflicts
+		# Bottom-up sync redesign (2026-09-08) - moves EVERY calendar block deriving 'schedule'
+		# (not just 'self'), letting the automatic hook keep 'ems.attendance_schedule' in sync as
+		# a consequence, exactly like 'ems.group_classroom_change_wizard'/the import wizard's own
+		# conflict resolutions. Fixes a real latent bug the previous direct-write version had: if
+		# 'schedule' is shared by a co-teacher (has_sessions clones it under a new id), only
+		# 'self' itself got re-pointed at the new id - any OTHER teacher's own block still sharing
+		# this same line was left pointing at the now-archived one.
+		schedule._relocate_via_calendar_blocks(new_space)
+		self.space_pending_group_sync = False
+		self.pending_new_space_id = False
+		return []
+
+	def update_topic_and_relocate(self, topic, space_id):
+		"""Issue #446 - editing 'topic'/classroom directly from the GROUP's own Schedule tab
+		('ReadonlyScheduleGridField', schedule_grid_readonly_field.js), instead of the teacher's.
+		'self' is every 'resource.calendar.attendance' row making up ONE visual block there - more
+		than one for a co-taught session (same subject/topic/slot, one row per co-teacher, see
+		'is_co_teaching_with') - so both fields stay consistent across every co-teacher's own
+		calendar, never just the one row a naive single-record write would touch.
+
+		'topic' is a plain write - free text, no collision semantics, always safe. The classroom
+		reuses 'relocate_or_flag_pending' unmodified, once per underlying row (exactly like a
+		co-taught class's room already gets handled when changed from the group-wide classroom
+		change flow, issue #405, or a single teacher's own calendar, issue #444) - a collision
+		never blocks this edit, it flags 'space_pending_group_sync' and is resolved via the
+		pre-existing 'ems.group_classroom_change_wizard'."""
+		self.write({'topic': topic or False})
+		if space_id:
+			new_space = self.env['ems.space'].browse(space_id)
+			for block in self:
+				if block.space_id != new_space:
+					block.relocate_or_flag_pending(new_space)
 
 class ems_working_schedules_import_wizard(models.TransientModel):
 	_name = "ems.working_schedules_import_wizard"

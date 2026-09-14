@@ -41,8 +41,36 @@ When a subject (or subject+topic) is co-taught by more than one teacher at the s
 all of their names appear together in that row — the grid itself still shows that
 subject only once, not once per teacher.
 
-This tab is entirely read-only: to change anything, edit the relevant teacher's own
-Schedule tab instead.
+Day, hour, subject, teacher(s) and groups can only be changed from the relevant teacher's
+own Schedule tab. Topic and classroom, however, can also be edited directly here — see below.
+
+---
+
+## Editing a Block's Topic or Classroom
+
+**Required role:** Department Chief and above (Head of Studies, Deputy Head of Studies,
+Director, Academic Administrator).
+
+Instead of going teacher by teacher, you can correct a subject's **topic** or **classroom**
+for this group directly from this tab:
+
+1. Click **Edit** in the Schedule tab's toolbar — each day's blocks turn into cards, the same
+   way they do on a teacher's own Schedule tab when editing.
+2. On any class's card, change the **Topic** and/or pick a different **Classroom**. Every other
+   detail on the card (day, time, subject, teacher(s)) is shown for reference only and can't be
+   changed here — to move a class to a different day/time or reassign it to another teacher, use
+   the teacher's own Schedule tab instead. A break/guard-duty/meeting card has neither field to
+   edit at all.
+3. Click **Save** to apply every change at once, or **Cancel** to discard them.
+
+If a class is co-taught by more than one teacher, both teachers' own calendars are updated
+together, so they never end up showing a different classroom for the same class.
+
+If the new classroom is already in use elsewhere at that exact day and time, the change is
+never blocked: the block is left in its previous classroom and flagged for review — the same
+"pending classroom" notice and resolution assistant already used when a group's own reference
+classroom changes takes care of it (see
+[Resolving a Pending Classroom Conflict](groups.md#resolving-a-pending-classroom-conflict)).
 
 ---
 

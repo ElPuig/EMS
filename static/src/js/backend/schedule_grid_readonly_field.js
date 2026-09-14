@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import { Component } from "@odoo/owl";
+import { Component, useState, onWillStart } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { useService } from "@web/core/utils/hooks";
@@ -23,14 +23,19 @@ const PDF_ACTION_BY_MODEL = {
     "res.partner": "ems.action_report_student_schedule",
 };
 
-// Read-only weekly grid (day columns x hourly rows) for any record exposing its own aggregated
-// 'schedule_attendance_ids' (a Many2many of resource.calendar.attendance, computed, not stored —
-// see ems.group._compute_schedule_attendance_ids and res.partner (student)'s own version) —
-// originally built for a GROUP's schedule (aggregating every teacher whose calendar includes that
-// group) and reused as-is for a STUDENT's schedule (aggregating every entry matching one of their
-// own subject+group enrollment pairs) since the two are the exact same rendering problem: a
-// read-only "photo" built entirely client-side from prefetched sub-records, with no edit buffer/
-// toolbar beyond 'PDF' — editing always happens from the relevant teacher's own Schedule tab.
+// Mostly-read-only weekly grid (day columns x hourly rows) for any record exposing its own
+// aggregated 'schedule_attendance_ids' (a Many2many of resource.calendar.attendance, computed,
+// not stored — see ems.group._compute_schedule_attendance_ids and res.partner (student)'s own
+// version) — originally built for a GROUP's schedule (aggregating every teacher whose calendar
+// includes that group) and reused as-is for a STUDENT's schedule (aggregating every entry
+// matching one of their own subject+group enrollment pairs) since the two are the exact same
+// rendering problem: a "photo" built entirely client-side from prefetched sub-records. Day/hour/
+// subject/teacher(s)/groups always stay read-only here — those still require the relevant
+// teacher's own Schedule tab. Issue #446 added ONE exception: a permission-gated "Edit" mode
+// (see 'canEditSchedule' below, true only for 'ems.group' and only for
+// 'ems.group_department_chief' and above — a student's own tab never has it) turns each day's
+// blocks into cards, mirroring the teacher's own edit mode's visual language, where 'topic' and
+// classroom become editable while everything else on the card stays plain text.
 // Co-teaching (two teachers, same subject, same slot) collapses into ONE block (never one per
 // teacher) — see who teaches what in the "Subject -> Teacher(s)" table below the grid.
 export class ReadonlyScheduleGridField extends Component {
@@ -39,6 +44,24 @@ export class ReadonlyScheduleGridField extends Component {
 
     setup() {
         this.actionService = useService("action");
+        this.orm = useService("orm");
+        // Issue #446 - card-based edit mode for 'topic'/classroom, gated by 'can_edit_schedule'
+        // (only ever true on 'ems.group', never on a student's own read-only tab - see the
+        // field's own docstring, models/contacts/group.py).
+        this.editing = useState({ value: false });
+        this.buffer = useState({ 0: [], 1: [], 2: [], 3: [], 4: [] });
+        this.catalog = useState({ spaces: [] });
+        onWillStart(async () => {
+            this.catalog.spaces = await this.orm.searchRead("ems.space", [], ["id", "display_name"]);
+        });
+    }
+
+    // Gates the "Edit" toolbar button below - a plain per-request permission check
+    // ('ems.group.can_edit_schedule', mirroring 'hr.employee.can_edit_schedule'), false (and thus
+    // absent from the record's own data) for every OTHER model reusing this widget (a student's
+    // own read-only tab never defines this field at all).
+    get canEditSchedule() {
+        return !!this.props.record.data.can_edit_schedule;
     }
 
     get entries() {
@@ -197,6 +220,98 @@ export class ReadonlyScheduleGridField extends Component {
 
     blockTime(block) {
         return `${formatHourMinutes(block.hour_from)}-${formatHourMinutes(block.hour_to)}`;
+    }
+
+    // Stable identity for a block - used as the read-view's own t-key and as each edit-mode
+    // card's own key (see '_cardFromBlock').
+    blockKey(block) {
+        return `${block.hour_from}_${block.hour_to}_${this.blockLabel(block)}`;
+    }
+
+    // ── Inline edit (issue #446: topic/classroom only, from the group's own Schedule tab) ────
+    // Mirrors the teacher's own card-based edit mode (schedule_grid_field.js) visually - same CSS
+    // classes, same day-column layout - but purpose-built here rather than shared: unlike that
+    // widget, there is no framework baseline to overlay (no blank/unassigned cards are ever
+    // shown - 'blocksForDay' already only ever contains real entries), no add/remove, no
+    // day/hour/subject/group editing - only 'topic' and classroom, on cards seeded straight from
+    // the currently displayed blocks. Developer feedback (2026-09-12): a per-block pencil icon
+    // was too fiddly to click, hard to target depending on the label's own text length - a full
+    // "Edit" mode switching the day columns into cards (like the teacher's own tab already does)
+    // is the familiar, easier-to-use equivalent instead.
+
+    // Snapshotted into 'buffer' on 'startEdit()' (decoupled from the live 'entries'/'blocksForDay'
+    // getters for the rest of the edit session, same reasoning as the teacher grid's own buffer) -
+    // editing several cards, then a single Save/Cancel for all of them at once.
+    startEdit() {
+        for (const day of WEEKDAYS) {
+            this.buffer[day] = this.blocksForDay(day).map((block) => this._cardFromBlock(block));
+        }
+        this.editing.value = true;
+    }
+
+    cancelEdit() {
+        this.editing.value = false;
+    }
+
+    cardsForDay(dayIndex) {
+        return this.buffer[dayIndex];
+    }
+
+    // Only a real teaching block has a 'topic'/classroom worth editing - a non-teaching entry
+    // (break, guard duty, meeting) has neither and is shown fully read-only, same as every other
+    // field on a teaching card except topic/classroom.
+    _cardFromBlock(block) {
+        const entry = block.entries[0].data;
+        const editable = !this.blockIsBreak(block) && !!entry.subject_id;
+        return {
+            key: this.blockKey(block),
+            ids: block.entries.map((blockEntry) => blockEntry.resId),
+            timeLabel: this.blockTime(block),
+            // The subject/non-teaching name alone, WITHOUT the topic suffix 'blockLabel' adds -
+            // topic gets its own editable line right below this read-only one instead.
+            subjectLabel: entry.non_teaching ? entry.non_teaching[1] : entry.subject_id[1],
+            // New here (not on the teacher's own card, which has no need for it - a teacher's
+            // calendar only ever has ONE teacher): which teacher(s) teach this block, since a
+            // group's schedule aggregates several - lets two cards sharing the same day/time
+            // (e.g. a subject split by topic) be told apart at a glance.
+            teacherLabel: [...new Set(block.entries.map((blockEntry) => blockEntry.data.employee_id?.[1]).filter(Boolean))].sort().join(", "),
+            editable,
+            topic: entry.topic || "",
+            spaceId: entry.space_id ? entry.space_id[0] : false,
+        };
+    }
+
+    onCardTopicChange(dayIndex, cardKey, ev) {
+        const card = this.buffer[dayIndex].find((candidate) => candidate.key === cardKey);
+        if (card) {
+            card.topic = ev.target.value;
+        }
+    }
+
+    onCardSpaceChange(dayIndex, cardKey, ev) {
+        const card = this.buffer[dayIndex].find((candidate) => candidate.key === cardKey);
+        if (card) {
+            card.spaceId = ev.target.value ? Number(ev.target.value) : false;
+        }
+    }
+
+    // Applies to EVERY underlying 'resource.calendar.attendance' row behind each editable card
+    // (more than one for a co-taught session, one per co-teacher - see 'is_co_teaching_with') so
+    // both fields stay consistent across every co-teacher's own calendar, never just one of them
+    // - see 'resource.calendar.attendance.update_topic_and_relocate()' for why. A room collision
+    // never blocks this: it flags 'space_pending_group_sync' server-side instead of raising,
+    // surfaced by the group form's own pre-existing pending-classroom banner + wizard (issue
+    // #405/#444) once 'record.load()' below refreshes it - nothing more to handle here. Every
+    // editable card is sent unconditionally (no dirty-tracking) - both a no-op topic write and a
+    // same-room 'relocate_or_flag_pending' call are harmless server-side, and a group's own
+    // schedule is small enough that this stays cheap.
+    async save() {
+        const editableCards = WEEKDAYS.flatMap((day) => this.buffer[day].filter((card) => card.editable));
+        await Promise.all(editableCards.map((card) =>
+            this.orm.call("resource.calendar.attendance", "update_topic_and_relocate", [card.ids, card.topic, card.spaceId])
+        ));
+        this.editing.value = false;
+        await this.props.record.load();
     }
 
     // "Subject -> Teacher(s)" summary table, below the grid: one row per distinct (subject, topic)

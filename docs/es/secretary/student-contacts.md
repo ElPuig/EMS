@@ -16,7 +16,7 @@ Esta guía explica cómo gestionar los contactos de tipo **alumno, familia, aspi
 4. [Bonificaciones y exenciones](#bonificaciones-y-exenciones)
 5. [Filtros aplicados al abrir la lista de alumnado](#filtros-aplicados-al-abrir-la-lista-de-alumnado)
 6. [Columnas que se muestran en la vista de lista de alumnado](#columnas-que-se-muestran-en-la-vista-de-lista-de-alumnado)
-7. [Campos que solo ven admin/secretaría/tutores](#campos-que-solo-ven-adminsecretaríatutores)
+7. [Campos que solo ven admin/secretaría/Jefatura de Estudios/tutores](#campos-que-solo-ven-adminsecretaríajefatura-de-estudiostutores)
 
 ---
 
@@ -44,7 +44,9 @@ Eliminar una línea de asignatura queda bloqueado una vez que el alumno ya tiene
 
 **Cambiar el grupo principal de un alumno también mueve sus matrículas por asignatura.** Si cambias el campo **Grupo principal** (pestaña Estudios), cualquier matrícula que estuviera en el grupo antiguo pasa automáticamente al grupo nuevo — una asignatura ya matriculada a través de un grupo distinto (por ejemplo, un grupo de refuerzo) se mantiene igual. Esto se rechaza, por el mismo motivo que arriba, si alguna asignatura del grupo antiguo ya tiene notas registradas. El tutor/a del grupo también puede hacerlo, para sus propios alumnos tutorizados — ver [Cambiar el grupo de un alumno](../tutors/change-student-group.md).
 
-**Cambiar el estudio de un alumno actualiza sus matrículas por asignatura a partir de la plantilla de matrícula del nuevo estudio.** Cambia el campo **Estudios** en sí (no solo el Grupo principal) y, al guardar, EMS elige automáticamente el primer grupo del nuevo estudio (por orden alfabético) como nuevo Grupo principal y regenera las líneas de matrícula por asignatura a partir de la plantilla de matrícula configurada para ese estudio y curso — las mismas asignaturas que ofrecería una propuesta de matrícula para ese estudio/curso. Si el nuevo estudio todavía no tiene ningún grupo, no se matricula nada automáticamente hasta que se cree uno; añade entonces las líneas de asignatura a mano. Las matrículas antiguas que no formen parte de la nueva plantilla se eliminan, salvo las que ya tengan notas registradas — esas se mantienen tal cual y se anotan en el registro de mensajes (chatter) del alumno para que las revises a mano.
+**Cambiar el estudio de un alumno actualiza sus matrículas por asignatura a partir de la plantilla de matrícula del nuevo estudio.** Cambia el campo **Estudios** en sí (no solo el Grupo principal) y, al guardar, EMS elige automáticamente el primer grupo del nuevo estudio (por orden alfabético) como nuevo Grupo principal y regenera las líneas de matrícula por asignatura a partir de la plantilla de matrícula configurada para ese estudio y curso — las mismas asignaturas que ofrecería una propuesta de matrícula para ese estudio/curso. Si el nuevo estudio todavía no tiene ningún grupo, no se matricula nada automáticamente hasta que se cree uno; añade entonces las líneas de asignatura a mano. Las matrículas antiguas que no formen parte de la nueva plantilla se eliminan, salvo las que ya tengan notas registradas — esas se mantienen tal cual y se anotan en el registro de mensajes (chatter) del alumno para que las revises a mano. Si el alumno ya tenía Grupo principal y cambias **Estudios** y **Grupo principal** a la vez en el mismo guardado, sus matrículas antiguas se mueven al grupo nuevo en lugar de regenerarse a partir de la plantilla — ver "Cambiar el grupo principal de un alumno" justo arriba.
+
+**La misma colocación automática también ocurre al colocar a un alumno por primera vez** — ya sea al crear la ficha de un alumno nuevo, o al rellenar el campo **Estudios** de un alumno o solicitante existente que nunca había tenido Grupo principal. Pon **Estudios** (dejando el Grupo principal vacío) y, al guardar, EMS elige automáticamente el Grupo principal y genera las matrículas por asignatura a partir de la plantilla de ese estudio — sin ningún paso adicional. **También puedes rellenar tú mismo el Grupo principal en el mismo guardado** (la forma habitual de completar la pestaña Estudios en orden) — como no hay ningún grupo anterior del que mover matrículas, EMS igualmente genera las matrículas por asignatura a partir de la plantilla, usando el Grupo principal que hayas elegido.
 
 ## Bonificaciones y exenciones
 
@@ -64,9 +66,9 @@ La barra de búsqueda se abre con dos filtros ya aplicados: **Alumnado**, que oc
 
 Cambiar la pantalla de Alumnado de vista Kanban a vista de Lista muestra, por defecto, la mayoría de campos ya usados en la exportación oficial de datos de alumnado del centro (documento de identidad/DNI-NIE, fecha de nacimiento, si el alumno es mayor de edad, número de la seguridad social, nacionalidad, dirección y código postal), más los cuatro distintivos de autorización (derechos de imagen, salidas escolares, datos de salud, compartir con la familia). Cualquier columna se puede ocultar — haz clic en el icono a la derecha de las cabeceras de columna y desmarca las que no necesites; la elección se recuerda para tu próxima visita.
 
-## Campos que solo ven admin/secretaría/tutores
+## Campos que solo ven admin/secretaría/Jefatura de Estudios/tutores
 
-Los datos personales (documentos, información médica, necesidades educativas especiales, autorizaciones…) quedan ocultos para cualquier persona que no sea admin, secretaría, ni el tutor propio del alumno. Un tutor también puede editar la ficha de un alumno que tutoriza y la de sus familiares, pero ve un conjunto de campos editables más reducido que secretaría/admin.
+Los datos personales (documentos, información médica, necesidades educativas especiales, autorizaciones…) quedan ocultos para cualquier persona que no sea admin, secretaría, Jefatura de Estudios/Jefatura de Estudios Adjunta/Dirección, ni el tutor propio del alumno. Jefatura de Estudios/Jefatura de Estudios Adjunta/Dirección tienen el mismo acceso completo que secretaría aquí, para **cualquier** alumno de todo el centro, no solo sus propios tutorizados. Un tutor también puede editar la ficha de un alumno que tutoriza y la de sus familiares, pero ve un conjunto de campos editables más reducido que secretaría/admin/Jefatura de Estudios.
 
 ---
 

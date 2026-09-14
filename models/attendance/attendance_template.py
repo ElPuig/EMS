@@ -5,7 +5,7 @@ from datetime import date, datetime
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
-from ..shared.attendance_mixin import EMS_BYPASS_TEMPLATE_LOCK_KEY
+from ..shared.attendance_mixin import EMS_BYPASS_TEMPLATE_LOCK_KEY, EMS_SKIP_AUTO_SCHEDULE_SYNC
 
 TEMPLATE_COLOR_PALETTE = [
 	'#EE2D2D', '#DC8534', '#E8BB1D', '#5794DD', '#9F628F', '#DB8865',
@@ -137,7 +137,10 @@ class EmsAttendanceTemplate(models.Model):
 				continue
 			teacher_ids = frozenset(template.teacher_ids.ids)
 			group_ids = frozenset(template.group_ids.ids)
-			candidates = self.search([
+			# NOTE: sudo() - see the identical note on ems.attendance_schedule.find_room_conflicts
+			# (issue #444): whether a duplicate teaching assignment already exists must not depend
+			# on the acting user's own record-rule visibility.
+			candidates = self.sudo().search([
 				('id', '!=', template.id),
 				('subject_id', '=', template.subject_id.id),
 				('active', '=', True),
@@ -576,7 +579,17 @@ class EmsAttendanceTemplate(models.Model):
 		# NOTE: also reconcile (subject, group) combos a submitting teacher used to teach but is not
 		# submitting anything for anymore in this call — otherwise a dropped combo belonging solely to
 		# that teacher would never be reconsidered at all (see 'vacated' above).
-		touched_templates = self.env['ems.attendance_template'].search([
+		#
+		# NOTE: sudo() on both searches below (issue #444) - reconciling "what does the DB already
+		# have for this teacher/subject/group" must reflect the whole school's real state, never just
+		# what the acting user's own ir.rule visibility happens to allow (security/rules/
+		# attendance.xml's "own data" rule for group_teacher). Without this, a Head/Deputy Head of
+		# Studies (in group_teacher + group_head_of_studies, neither of which grants the "all data"
+        # rule reserved for group_academic_admin) editing a colleague's schedule silently can't see
+		# that colleague's own already-existing template, and ends up creating a duplicate that
+		# collides with the very record it couldn't see - found 2026-09-12 on Salva Monzó's and
+		# Krissis Blázquez Jofra's schedules.
+		touched_templates = self.env['ems.attendance_template'].sudo().search([
 			('teacher_ids', 'in', list(submitting_teacher_ids)), ('active', '=', True),
 		])
 		for template in touched_templates:
@@ -584,9 +597,12 @@ class EmsAttendanceTemplate(models.Model):
 			by_key_submitted.setdefault(key, [])
 
 		merged = []
-		vacated = self.env['ems.attendance_template']
+		# NOTE: sudo() - every template ever added to this comes from 'existing_templates' below
+		# (also sudo'd, issue #444); a plain non-sudo empty recordset here would silently strip the
+		# sudo() the moment '|=' unions it with one ('|' binds to the LEFT operand's env).
+		vacated = self.env['ems.attendance_template'].sudo()
 		for (subject_id, group_ids), submitted in by_key_submitted.items():
-			existing_templates = self.env['ems.attendance_template'].search([
+			existing_templates = self.env['ems.attendance_template'].sudo().search([
 				('subject_id', '=', subject_id),
 				('group_ids', 'in', list(group_ids)),
 				('active', '=', True),
@@ -622,7 +638,15 @@ class EmsAttendanceTemplate(models.Model):
 
 			for teacher, entry in submitted:
 				slot_key = (entry['dayofweek'], entry['hour_from'], entry['hour_to'])
-				by_slot.setdefault(slot_key, {'teacher_ids': set(), 'entry': entry})
+				by_slot.setdefault(slot_key, {'teacher_ids': set()})
+				# NOTE: a submitting teacher's own freshly-read entry always wins over whatever
+				# placeholder the "untouched" loop above may have already populated for this same
+				# slot (derived from the EXISTING line, i.e. stale the moment ANY submitting
+				# teacher's own calendar disagrees with it) - found 2026-09-12: a room change
+				# submitted by one co-teacher for a shared slot was silently discarded, because
+				# this used to be 'setdefault(slot_key, {..., 'entry': entry})', a no-op once the
+				# untouched loop had already set 'entry' first.
+				by_slot[slot_key]['entry'] = entry
 				by_slot[slot_key]['teacher_ids'].add(teacher.id)
 
 			by_teacher_set = dict()
@@ -666,14 +690,20 @@ class EmsAttendanceTemplate(models.Model):
 		import), so an external overlap found here is always either legitimate co-teaching or a real
 		problem to resolve, never something to archive automatically."""
 		teacher_ids = {teacher.id for teacher, _entries in teacher_entries}
-		co_teaching = self.env['ems.attendance_schedule']
-		space_conflicts = self.env['ems.attendance_schedule']
+		# NOTE: sudo() - every record ever unioned into these comes from the sudo'd 'candidates'
+		# search below (issue #444); a plain non-sudo empty recordset here would silently strip
+		# that sudo() the moment '|=' unions it with one ('|' binds to the LEFT operand's env).
+		co_teaching = self.env['ems.attendance_schedule'].sudo()
+		space_conflicts = self.env['ems.attendance_schedule'].sudo()
 		for _teacher, entries in teacher_entries:
 			for entry in entries:
 				if not entry.get('group_ids'):
 					continue  # non-teaching entries carry no group, hence no space to collide on
 				space_id = self.env['ems.group'].browse(entry['group_ids'][0]).space_id.id
-				candidates = self.env['ems.attendance_schedule'].search([
+				# NOTE: sudo() - see the identical note on ems.attendance_schedule.find_room_conflicts
+				# (issue #444): an external double-booking is a fact about the whole school's
+				# schedule, not the importing user's own record-rule visibility.
+				candidates = self.env['ems.attendance_schedule'].sudo().search([
 					('weekday', '=', entry['dayofweek']),
 					('space_id', '=', space_id),
 					('attendance_template_id.teacher_ids', 'not in', list(teacher_ids)),
@@ -721,7 +751,8 @@ class EmsAttendanceTemplate(models.Model):
 		imports - it does not catch two overlapping entries for the same teacher within the single
 		batch being submitted right now (a malformed source file), which still surfaces as a raw
 		check_overlap ValidationError at write time."""
-		conflicts = self.env['ems.attendance_schedule']
+		# NOTE: sudo() - see the identical note on 'classify_external_conflicts' above (issue #444).
+		conflicts = self.env['ems.attendance_schedule'].sudo()
 		for teacher, entries in teacher_entries:
 			submitted_combos = {
 				(entry['subject_id'], tuple(sorted(entry['group_ids'])))
@@ -730,7 +761,10 @@ class EmsAttendanceTemplate(models.Model):
 			for entry in entries:
 				if not entry.get('group_ids'):
 					continue
-				candidates = self.env['ems.attendance_schedule'].search([
+				# NOTE: sudo() - see the identical note on ems.attendance_schedule.find_room_conflicts
+				# (issue #444): a self double-booking is a fact about this teacher's own real
+				# schedule, not the importing user's own record-rule visibility.
+				candidates = self.env['ems.attendance_schedule'].sudo().search([
 					('weekday', '=', entry['dayofweek']),
 					('attendance_template_id.teacher_ids', 'in', teacher.id),
 				])
@@ -798,7 +832,10 @@ class EmsAttendanceTemplate(models.Model):
 		# working-schedules re-import that wiped every template for several teachers matching exactly
 		# this pattern (e.g. Juan Morote, teaching both SMX1A and SMX1B solo).
 		old_items = dict()
-		candidates = self.env['ems.attendance_template'].search([
+		# NOTE: sudo() - see the identical note on '_reconcile_teacher_groups' above (issue #444):
+		# which templates already exist must reflect the whole school's real state, not the acting
+		# user's own record-rule visibility.
+		candidates = self.env['ems.attendance_template'].sudo().search([
 			('subject_id', 'in', list({entry["subject_id"] for entry in entries})),
 			('active', '=', True),
 		])
@@ -808,7 +845,10 @@ class EmsAttendanceTemplate(models.Model):
 			key = "%s.%s" % (template.subject_id.id, ",".join(str(g) for g in sorted(template.group_ids.ids)))
 			if key not in grouped_entries:
 				continue
-			old_items[key] = old_items.get(key, self.env['ems.attendance_template']) | template
+			# NOTE: base recordset built from 'candidates.browse()' (not 'self.env[...]'), so the
+			# union stays sudo'd - '|' binds to the LEFT operand's env, and a bare 'self.env[...]'
+			# empty recordset would silently strip the sudo() from 'candidates' above (issue #444).
+			old_items[key] = old_items.get(key, candidates.browse()) | template
 
 		# NOTE: precompute the per-line breakdown for every persisting key ONCE here, so
 		# '_archive_stale_schedule_sync' and '_write_schedule_sync' both read the exact same
@@ -842,18 +882,30 @@ class EmsAttendanceTemplate(models.Model):
 		Matches 'template's current active schedule lines against 'entries' (this sync's freshly
 		reconciled slots for the same subject+group-set+teacher-set key) by (weekday, start_time,
 		end_time) - a line's own identity within a template. Returns {'stale_lines',
-		'lines_to_rewrite', 'fresh_entries'}:
+		'lines_to_rewrite', 'lines_pending', 'fresh_entries'}:
 		- 'stale_lines': lines with no matching entry at all - genuinely gone, always archived
 		  outright regardless of 'has_sessions' (archiving is never locked, only in-place field
 		  edits are - see 'ems.attendance_mixin').
-		- 'lines_to_rewrite': (line, entry) pairs whose matched entry wants a different 'space_id' -
-		  handled per 'has_sessions' by the two callers below (write in place, or archive+recreate).
+		- 'lines_to_rewrite': (line, entry) pairs whose matched entry wants a different 'space_id',
+		  and moving there doesn't collide with anything - handled per 'has_sessions' by the two
+		  callers below (write in place, or archive+recreate).
+		- 'lines_pending': (line, entry) pairs whose matched entry wants a different 'space_id' that
+		  DOES collide with something (`line.find_room_conflicts()`) - added 2026-09-12 (issue
+		  #444's follow-up), so a room change reachable from a single teacher's own calendar (not
+		  just the group-wide classroom-change flow, issue #405) gets the same "never fail the
+		  save outright, flag pending and resolve later via ems.group_classroom_change_wizard"
+		  treatment instead of either a raw check_overlap ValidationError or (before this fix)
+		  silently discarding the change. The line itself is left completely untouched - checked
+		  BEFORE deciding 'lines_to_rewrite' vs archiving, precisely so a `has_sessions` line never
+		  gets archived by '_apply_schedule_line_archive_pass' only to find out here that its
+		  replacement can't actually be created yet.
 		- 'fresh_entries': entries with no matching existing line - a genuinely new schedule line.
 		A line whose matched entry is identical in every synced field (including 'space_id') is left
 		out of all three entirely - not even a no-op archive+recreate."""
 		lines_by_slot = {(line.weekday, line.start_time, line.end_time): line for line in template.attendance_schedule_ids}
 		matched_slots = set()
 		lines_to_rewrite = []
+		lines_pending = []
 		fresh_entries = []
 		for entry in entries:
 			slot = (entry["dayofweek"], entry["hour_from"], entry["hour_to"])
@@ -862,11 +914,18 @@ class EmsAttendanceTemplate(models.Model):
 				fresh_entries.append(entry)
 				continue
 			matched_slots.add(slot)
-			if line.space_id.id != entry.get("space_id", space_id):
-				lines_to_rewrite.append((line, entry))
+			new_space_id = entry.get("space_id", space_id)
+			if line.space_id.id != new_space_id:
+				if line.find_room_conflicts(new_space_id):
+					lines_pending.append((line, entry))
+				else:
+					lines_to_rewrite.append((line, entry))
 		stale_lines = template.attendance_schedule_ids.filtered(
 			lambda line: (line.weekday, line.start_time, line.end_time) not in matched_slots)
-		return {'stale_lines': stale_lines, 'lines_to_rewrite': lines_to_rewrite, 'fresh_entries': fresh_entries}
+		return {
+			'stale_lines': stale_lines, 'lines_to_rewrite': lines_to_rewrite,
+			'lines_pending': lines_pending, 'fresh_entries': fresh_entries,
+		}
 
 	def _schedule_line_vals(self, entry, space_id):
 		"""Plain create/write vals for one schedule line built from a parsed XML/grid entry -
@@ -914,7 +973,7 @@ class EmsAttendanceTemplate(models.Model):
 			if line.has_sessions:
 				line.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
 
-	def _apply_schedule_line_write_pass(self, changes, space_id):
+	def _apply_schedule_line_write_pass(self, changes, space_id, teachers):
 		"""Bottom-up sync redesign, Phase 2 (2026-09-08, renamed from '_write_schedule_changes') -
 		the SECOND of the mandatory pair with '_apply_schedule_line_archive_pass' above, for the
 		SAME template ('self' - one record) - must run after it: a 'lines_to_rewrite' entry whose
@@ -922,8 +981,14 @@ class EmsAttendanceTemplate(models.Model):
 		replacement clone (carrying the new room + the original's own student roster forward
 		unchanged). The other 'lines_to_rewrite' entries (no real history) were deliberately left
 		untouched by the archive pass - this is what writes their new room in place instead.
-		Extracted unchanged from '_write_schedule_sync''s own per-key body, only renamed."""
+		Extracted unchanged from '_write_schedule_sync''s own per-key body, only renamed.
+
+		'teachers' (added issue #444's follow-up, 2026-09-12): the teacher(s) this sync call is
+		for - needed by 'changes['lines_pending']' below to locate the calendar block(s) actually
+		requesting the blocked room change (see '_flag_room_change_pending')."""
 		self.ensure_one()
+		for line, entry in changes['lines_pending']:
+			self._flag_room_change_pending(line, entry, teachers)
 		new_lines = [(0, 0, self._schedule_line_vals(entry, space_id)) for entry in changes['fresh_entries']]
 		for line, entry in changes['lines_to_rewrite']:
 			vals = self._schedule_line_vals(entry, space_id)
@@ -947,6 +1012,25 @@ class EmsAttendanceTemplate(models.Model):
 		self.with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).sudo().write({
 			'attendance_schedule_ids': new_lines,
 		})
+		# NOTE: issue #444's SECOND follow-up (2026-09-12) - a 'lines_to_rewrite' room change is
+		# only ever written on the LINE above (or, for 'apply_schedule_changes()', already present
+		# on the submitting teacher's own calendar too, from that method's own earlier write) - a
+		# co-teacher who ISN'T the one submitting right now never had their own calendar block
+		# touched by any of this. Found the hard way (real data, 2026-09-12): moving a co-taught
+		# class's room from ONE teacher's own "Schedule" tab silently left the OTHER teacher's own
+		# calendar pointing at the old room, with no error and no pending flag (this room genuinely
+		# had no conflict - see '_flag_room_change_pending' for the case that DOES). Every
+		# co-teacher's own block for this exact slot is brought in line here, suppressed since this
+		# sync is still in progress - matches the group-wide classroom-change flow's own
+		# 'ems.attendance_schedule._relocate_via_calendar_blocks', which can't be reused as-is here
+		# because 'attendance_schedule_id' isn't linked yet at this point (see
+		# '_find_calendar_blocks_for_entry').
+		for _line, entry in changes['lines_to_rewrite']:
+			new_space_id = entry.get("space_id", space_id)
+			blocks = self._find_calendar_blocks_for_entry(entry, teachers)
+			stale_blocks = blocks.filtered(lambda block, new_space_id=new_space_id: block.space_id.id != new_space_id)
+			if stale_blocks:
+				stale_blocks.with_context(**{EMS_SKIP_AUTO_SCHEDULE_SYNC: True}).space_id = new_space_id
 		# NOTE: only the genuinely NEW slots ('fresh_entries') need fill_students() - a
 		# rewritten line (has_sessions or not) already carries or keeps its own roster
 		# untouched above, and blindly filling every line here would silently overwrite a
@@ -957,6 +1041,47 @@ class EmsAttendanceTemplate(models.Model):
 			self.attendance_schedule_ids.filtered(
 				lambda line, fresh_slots=fresh_slots: (line.weekday, line.start_time, line.end_time) in fresh_slots
 			).fill_students()
+
+	def _flag_room_change_pending(self, line, entry, teachers):
+		"""'entry' wants to move 'line' to a room that collides with something else
+		('_decide_schedule_line_changes' already checked) - issue #444's follow-up, 2026-09-12.
+		'line' itself is left completely untouched (never written, never archived) - the room
+		change is resolved later via 'ems.group_classroom_change_wizard' (from either the affected
+		group's or the teacher's own ficha), exactly like the group-wide classroom-change flow
+		(issue #405).
+
+		The calendar block(s) behind 'entry' already carry the newly-requested room -
+		'apply_schedule_changes()' (models/employees/working_schedule.py) always writes the
+		calendar BEFORE this sync ever runs. They're matched here by calendar+slot, not by
+		'attendance_schedule_id', since that FK is only ever linked at the very end of this whole
+		sync ('sync_from_schedule_batch's own '_link_calendar_attendance' call, after this write
+		pass has already run). Developer decision (2026-09-12): revert them to 'line's own current
+		room while pending, exactly like the group-wide flow already does - the calendar must
+		never show a room that isn't genuinely in use yet, and 'pending_new_space_id' is what
+		remembers the room actually requested until someone resolves it."""
+		new_space_id = entry.get("space_id")
+		blocks = self._find_calendar_blocks_for_entry(entry, teachers)
+		blocks.with_context(**{EMS_SKIP_AUTO_SCHEDULE_SYNC: True}).write({
+			'space_id': line.space_id.id,
+			'space_pending_group_sync': True,
+			'pending_new_space_id': new_space_id,
+		})
+
+	def _find_calendar_blocks_for_entry(self, entry, teachers):
+		"""The real 'resource.calendar.attendance' block(s) behind 'entry', for every teacher in
+		'teachers' - matched by calendar+slot+subject, not by 'attendance_schedule_id', since that
+		FK is only ever linked at the very end of the whole sync ('sync_from_schedule_batch's own
+		'_link_calendar_attendance' call, which runs after this template's own write pass) - see
+		'_flag_room_change_pending's own docstring for the fuller reasoning. Shared by that method
+		and '_apply_schedule_line_write_pass's own co-teacher room-propagation step below (issue
+		#444's second follow-up, 2026-09-12)."""
+		return self.env['resource.calendar.attendance'].search([
+			('calendar_id', 'in', teachers.mapped('resource_calendar_id').ids),
+			('dayofweek', '=', entry['dayofweek']),
+			('hour_from', '=', entry['hour_from']),
+			('hour_to', '=', entry['hour_to']),
+			('subject_id', '=', self.subject_id.id),
+		])
 
 	def _archive_stale_schedule_sync(self, plan):
 		"""First pass: archive every schedule line about to be removed or replaced by '_write_schedule_sync'.
@@ -990,7 +1115,7 @@ class EmsAttendanceTemplate(models.Model):
 				# order) — any other duplicate sharing this key was already fully archived there.
 				survivor = templates[0]
 				first_group = self.env['ems.group'].browse(grouped_entries[key][0]["group_ids"][0])
-				survivor._apply_schedule_line_write_pass(plan['line_sync'][key], first_group.space_id.id)
+				survivor._apply_schedule_line_write_pass(plan['line_sync'][key], first_group.space_id.id, plan['teachers'])
 
 		# NOTE: offset by the count of every template ever created (not just this batch), so
 		# consecutive sync calls keep rotating through the palette instead of every batch

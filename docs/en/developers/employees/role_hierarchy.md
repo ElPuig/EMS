@@ -78,7 +78,7 @@ flowchart LR
 | `ems.group_teacher` | `hr_attendance.group_hr_attendance_own_reader` | Base teacher access |
 | `ems.group_tutor` | `ems.group_teacher` | Teacher in charge of a group; row-level access to their group's students is granted via record rules in `security/rules/*.xml` that filter on `group_teacher` + a domain on `tutor_id`, not on `group_tutor` itself |
 | `ems.group_department_chief` | `ems.group_tutor` | Department head. Grants full read/write/create/unlink access to `ems.group` (see `access_ems_group_department_chief`), otherwise currently identical to Tutor |
-| `ems.group_head_of_studies` | `ems.group_department_chief`, `hr_attendance.group_hr_attendance_manager`, `hr.group_hr_user` | Full read/write access to all employees' attendance records, plus create/edit on teachers - see [Staff management](#staff-management-issue-391) below |
+| `ems.group_head_of_studies` | `ems.group_department_chief`, `hr_attendance.group_hr_attendance_manager`, `hr.group_hr_user`, `ems.group_student_data_reader`, `base.group_partner_manager` | Full read/write access to all employees' attendance records, plus create/edit on teachers - see [Staff management](#staff-management-issue-391) below - plus full read/write access to every student's data centre-wide - see [Full access to student data for Head of Studies / Director](#full-access-to-student-data-for-head-of-studies--director-issue-448) below |
 | `ems.group_director` | `ems.group_head_of_studies` | Currently identical to Head of Studies |
 | `ems.group_academic_admin` | `ems.group_director` (+ Secretary/Quality/Settings admin chains) | All access rights |
 | `ems.group_tac` | `ems.group_teacher`, `hr.group_hr_user` | TAC (Learning and Knowledge Technologies) team. Own category, transversal to the chain above: same create/edit rights on teachers as the Head of Studies, and nothing else |
@@ -234,6 +234,62 @@ unchanged; it inherits the new access purely through that group's new `implied_i
 
 No migration is needed: every XML ID here is new, and the role row is added to a
 `noupdate=False` CSV that re-syncs on upgrade.
+
+## Full access to student data for Head of Studies / Director (issue #448)
+
+Unlike the guidance/coexistence posts above, Head of Studies / Deputy Head of Studies / Director
+(all three share `group_head_of_studies`) need **full read and write** access to a student's own
+contact record and family contacts, not just read. Reported directly by the developer: logging in
+as a Head of Studies, the student's personal-data block was hidden entirely, and deleting a family
+contact raised an `AccessError` naming `res.partner.relation`.
+
+Three independent gaps, found by tracing every layer the "Add contact" flow and the student form
+actually go through - fixing only one would have left the other two failing:
+
+1. **View gate** (`models/contacts/contact.py::_get_read_only_user()` /
+   `_get_is_tutor_readonly()`): only ever recognized `group_academic_admin`, `group_secretary` and
+   "is the literal tutor of this student" - `group_head_of_studies` was never checked, so
+   `views/community/contact/form.xml`'s `invisible="read_only_user"` on the whole personal-data
+   `<group>`, and the "Add contact" button, stayed hidden for a Head of Studies who was not
+   personally that student's tutor. Fixed by adding `base.EmsBase.get_user_is_head_of_studies()`
+   (`models/shared/base.py`) to both checks.
+2. **Row-level write on `res.partner`**: `group_head_of_studies` already implied `group_teacher`
+   (**read**-only on `res.partner` via `rule_contact_teacher`, domain `[]`) and, through it,
+   `rule_contact_tutor` (write, but domain-restricted to `tutor_id.user_id = user.id` - true only
+   when the Head of Studies happens to literally be that student's own group tutor). Fixed with a
+   new `rule_contact_head_of_studies` rule (`security/rules/contacts.xml`), domain `[]`, full CRUD
+   - the same shape as `rule_contact_admin`/`rule_contact_secretary` - plus a matching
+   `ir.model.access.csv` row (`access_res_partner_head_of_studies`), since a permissive `ir.rule`
+   domain does nothing without the underlying ACL also granting `create`/`unlink`.
+3. **`res.partner.relation`/`.relation.all`** (the OCA `partner_multi_relation` models backing a
+   student's family contacts): EMS carries no ACL rows of its own for these at all - the only
+   access comes from that module's own `ir.model.access.csv`, `base.group_user` (read only) and
+   `base.group_partner_manager` (full CRUD, implied in EMS only by `group_secretary`). The
+   "Add contact" wizard (`EmsContactRelationWizard.action_save()`) was never blocked by this, since
+   it explicitly `sudo()`s both the `res.partner` create and the `res.partner.relation` create once
+   `_get_read_only_user()` allows it - but the inline **unlink** button on `relation_all_ids`
+   (`views/community/contact/form.xml`, `<button name="unlink" type="object">`) is a plain
+   object-method call with no `sudo()`, so it hits the raw ACL directly. This is the literal
+   `AccessError` the developer saw. Fixed by adding `base.group_partner_manager` to
+   `group_head_of_studies`'s own `implied_ids`, mirroring `group_secretary`.
+
+`group_head_of_studies` additionally gained `group_student_data_reader` (the same technical group
+`group_coexistence`/`group_orientation` use, see above), for the **read**-only half of "all
+student data" - centre-wide visibility into enrolment, grades, attendance, authorizations,
+strikes and enrolment (`sale.order`). This is deliberately kept read-only for everything except
+`res.partner`: writing a grade, an attendance session or a strike stays with the teacher who owns
+the record or the student's own tutor, exactly as before - only contact data (the student's own
+record and their family contacts) gained write access, since that is the only part of the reported
+bug that asked for it. `Director` needs no separate wiring: it already implies
+`group_head_of_studies`, so every fix above reaches it transitively.
+
+```mermaid
+flowchart LR
+    HS["group_head_of_studies"] --> SDR["group_student_data_reader<br/>(read-only, centre-wide)"]
+    HS --> PM["base.group_partner_manager<br/>(res.partner.relation/.all CRUD)"]
+    HS --> RC["rule_contact_head_of_studies<br/>(res.partner CRUD, domain [])"]
+    D["group_director"] --> HS
+```
 
 ## Staff management (issue #391)
 

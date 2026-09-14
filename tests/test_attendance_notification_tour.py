@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study, mock_outgoing_email
+from .common import create_level_study, mock_outgoing_email, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -40,7 +40,7 @@ class TestAttendanceNotificationTour(HttpCase):
             'tutor_id': cls.tutor_employee.id,
         })
         cls.student = cls.env['res.partner'].create({
-            'name': 'Attendance Notification Tour Student', 'contact_type': 'student',
+            'name': 'Attendance Notification Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': cls.group.id, 'student_email': 'attendance.notification.tour.student@example.com',
         })
         cls.template = cls.env['ems.attendance_template'].create({

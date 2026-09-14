@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group
+from .common import create_level_study_group, next_student_id
 
 
 class TestExitManagement(TransactionCase):
@@ -34,7 +34,7 @@ class TestExitManagement(TransactionCase):
 
     def _student(self, name, **vals):
         return self.env['res.partner'].create(dict(
-            {'name': name, 'contact_type': 'student', 'main_group_id': self.group.id}, **vals))
+            {'name': name, 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.group.id}, **vals))
 
     # --- uses_enrollment_flow -----------------------------------------------
 
@@ -112,9 +112,9 @@ class TestExitManagement(TransactionCase):
         g2 = self.env['ems.group'].create({
             'course': 2, 'acronym': 'A', 'level_id': self.level.id, 'study_id': study.id})
         first = self.env['res.partner'].create({
-            'name': 'First Year', 'contact_type': 'student', 'main_group_id': g1.id})
+            'name': 'First Year', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': g1.id})
         last = self.env['res.partner'].create({
-            'name': 'Last Year', 'contact_type': 'student', 'main_group_id': g2.id})
+            'name': 'Last Year', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': g2.id})
         wizard = self.env['ems.graduation_wizard'].with_context(
             active_ids=(first + last).ids).create({})
         wizard.action_apply()

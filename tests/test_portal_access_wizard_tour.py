@@ -4,7 +4,7 @@ from dateutil.relativedelta import relativedelta
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group, force_user_language_to_english, mock_outgoing_email
+from .common import create_level_study_group, force_user_language_to_english, mock_outgoing_email, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -25,7 +25,7 @@ class TestPortalAccessWizardTour(HttpCase):
             study={'code': 'TPAWT001', 'name': 'Test Study (Portal Access Wizard Tour)', 'date': date.today()},
         )
         cls.student = cls.env['res.partner'].create({
-            'name': 'Portal Wizard Tour Student', 'contact_type': 'student',
+            'name': 'Portal Wizard Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': cls.group.id, 'email': 'portal.wizard.tour.student@example.com',
             'birth_date': date.today() - relativedelta(years=19),
         })

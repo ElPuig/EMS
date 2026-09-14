@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests import tagged, HttpCase
 
-from .common import create_level_study, force_user_language_to_english
+from .common import create_level_study, force_user_language_to_english, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -46,7 +46,7 @@ class TestAttendanceStatusTour(HttpCase):
             'mode': 'manual', 'session_teacher_id': admin_employee.id,
         })
         student = self.env['res.partner'].create({
-            'name': 'Attendance Status Tour Student', 'contact_type': 'student',
+            'name': 'Attendance Status Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'student_email': 'attendance_status_tour_student@example.com', 'main_group_id': group.id,
         })
         self.env['ems.attendance_session_line'].create({

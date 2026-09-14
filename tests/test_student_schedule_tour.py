@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests import tagged, HttpCase
 
-from .common import create_level_study, create_role_employee, create_role_user
+from .common import create_level_study, create_role_employee, create_role_user, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -43,7 +43,7 @@ class TestStudentScheduleTour(HttpCase):
             'subject_id': subject.id, 'group_ids': [group.id], 'name': 'TSST: TSST',
         }])
         student = self.env['res.partner'].create({
-            'name': 'Tour Schedule Student', 'contact_type': 'student', 'main_group_id': group.id,
+            'name': 'Tour Schedule Student', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': group.id,
         })
         self.env['ems.enrollment'].create({
             'student_id': student.id, 'group_id': group.id, 'subject_id': subject.id,

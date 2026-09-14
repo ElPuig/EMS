@@ -61,8 +61,18 @@ class EmsStudentBenefit(models.Model):
             else:
                 self.renewal_date = today + relativedelta(years=2)
 
+# Every contact_type of a student's lifecycle. A contact of any of them is identified by its
+# Student ID (IDALU), which must be unique (issue #460).
+STUDENT_LIFECYCLE_TYPES = ('student', 'applicant', 'alumni', 'withdrawal', 'expelled')
+
 class ResPartner(models.Model):
     _inherit = ['res.partner'] # NOTE: unable to inherit also from ems.base, I got an error like 'TypeError: Many2many fields ResPartner.channel_ids and res.partner.channel_ids use the same table and columns'.
+    # Database backstop for _ems_check_student_id_available() (issue #460). NULLs never
+    # collide, so contacts without an IDALU (families, providers, legacy students) are fine.
+    _sql_constraints = [
+        ('student_id_unique', 'UNIQUE(student_id)',
+         "This Student ID (IDALU) already belongs to another contact."),
+    ]
             
     # view-oriented fields:
     # level_id and study_id are used for form view purposes (linked dropdowns: level > study > group) and will be computed on save.
@@ -171,7 +181,7 @@ class ResPartner(models.Model):
     document_id = fields.Char(string="Document ID")
     passport_id = fields.Char(string="Passport")
     student_email = fields.Char(string="Student email")	
-    student_id = fields.Char(string="Student ID")
+    student_id = fields.Char(string="Student ID", copy=False)
     medical_id = fields.Char(string="Medical ID")
     nuss = fields.Char(string="NUSS")
 
@@ -584,6 +594,60 @@ class ResPartner(models.Model):
         for partner in self:
             partner.main_group_id = False
      
+    # Student ID (IDALU) rules (issue #460). Run from create()/write() instead of as
+    # @api.constrains for two reasons: the uniqueness check must run before the INSERT/UPDATE
+    # (the student_id_unique database constraint would otherwise fire first, unable to say
+    # who holds the IDALU), and "required" only applies going forward - it depends on the
+    # value a contact had before the write, which a constraint cannot see.
+    @api.model
+    def _ems_normalize_student_id(self, values):
+        """Strip the Student ID (IDALU) and store a blank one as empty, so ' 123 ' and '123'
+        are the same identifier for the uniqueness check."""
+        if 'student_id' in values:
+            values['student_id'] = (values['student_id'] or '').strip() or False
+
+    def _ems_check_student_id_available(self, student_id):
+        """Raise if `student_id` already belongs to a contact other than `self`, archived
+        contacts included. Naming the holder is what sends the user to the existing record of
+        a returning former student instead of creating a duplicate."""
+        if not student_id:
+            return
+        holder = self.sudo().with_context(active_test=False).search(
+            [('student_id', '=', student_id), ('id', 'not in', self.ids)], limit=1)
+        if not holder:
+            return
+        contact_types = dict(holder._fields['contact_type']._description_selection(self.env))
+        status = contact_types.get(holder.contact_type) or _("Contact")
+        if not holder.active:
+            status = _("%(contact_type)s, archived", contact_type=status)
+        raise ValidationError(_(
+            "The Student ID (IDALU) %(student_id)s already belongs to %(name)s (%(status)s). "
+            "Open that contact instead of creating a new one.",
+            student_id=student_id, name=holder.display_name, status=status))
+
+    @api.model
+    def _ems_raise_student_id_required(self, name):
+        raise ValidationError(_(
+            "%(name)s needs a Student ID (IDALU) to be registered as a student.", name=name))
+
+    def _ems_check_student_id_on_write(self, values):
+        """Contacts that already lacked an IDALU (created before it became required) stay
+        editable, and can still move along the student lifecycle. Only removing an IDALU, or
+        turning a non-student contact into a student without one, is refused."""
+        if 'student_id' in values:
+            changing = self.filtered(lambda partner: partner.student_id != values['student_id'])
+            if changing:
+                changing._ems_check_student_id_available(values['student_id'])
+        for partner in self:
+            student_id = values['student_id'] if 'student_id' in values else partner.student_id
+            if student_id or (values.get('contact_type') or partner.contact_type) not in STUDENT_LIFECYCLE_TYPES:
+                continue
+            if partner.student_id:
+                raise ValidationError(_(
+                    "The Student ID (IDALU) of %(name)s cannot be removed.", name=partner.display_name))
+            if partner.contact_type not in STUDENT_LIFECYCLE_TYPES:
+                partner._ems_raise_student_id_required(partner.display_name)
+
     @api.model_create_multi
     def create(self, values):
         # Fired when the model is created (Source: https://www.cybrosys.com/blog/how-to-override-create-write-and-unlink-methods-in-odoo-17)
@@ -617,6 +681,16 @@ class ResPartner(models.Model):
                 elif parent.contact_type == 'provider':
                     entry['contact_type'] = 'provider'
 
+            # Checked after the parent_id block above: a contact added under a student arrives
+            # with the Students action's default_contact_type='student' but becomes a family.
+            self._ems_normalize_student_id(entry)
+            contact_type = entry.get('contact_type', self.env.context.get('default_contact_type'))
+            if contact_type in STUDENT_LIFECYCLE_TYPES and not entry.get('student_id'):
+                name = entry.get('name') or ' '.join(
+                    filter(None, (entry.get('firstname'), entry.get('lastname'))))
+                self._ems_raise_student_id_required(name or _("This contact"))
+            self._ems_check_student_id_available(entry.get('student_id'))
+
         contact = super(ResPartner, self).create(values)
         contact._sync_category()
 
@@ -638,6 +712,8 @@ class ResPartner(models.Model):
     def write(self, values):
         # Fired when the model is updated (Source: https://www.cybrosys.com/blog/how-to-override-create-write-and-unlink-methods-in-odoo-17)
         # Note: values is a dict (method fired once per entry)
+        self._ems_normalize_student_id(values)
+        self._ems_check_student_id_on_write(values)
         # Capture (before the write) the students/families whose main email is about
         # to change while they hold active portal access: their access must be moved
         # from the old email to the new one (see _apply_portal_email_change).

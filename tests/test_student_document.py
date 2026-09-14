@@ -4,6 +4,7 @@ import os
 
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
+from .common import next_student_id
 
 
 class TestStudentDocument(TransactionCase):
@@ -12,10 +13,10 @@ class TestStudentDocument(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.student = cls.env['res.partner'].create({
-            'name': 'Student Document Test', 'contact_type': 'student',
+            'name': 'Student Document Test', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         cls.other_student = cls.env['res.partner'].create({
-            'name': 'Other Student Document Test', 'contact_type': 'student',
+            'name': 'Other Student Document Test', 'contact_type': 'student', 'student_id': next_student_id(),
         })
 
     def _create(self, **vals):
@@ -260,7 +261,7 @@ class TestStudentDocumentPortalAccess(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.student = cls.env['res.partner'].create({
-            'name': 'Portal Access Student Document Test', 'contact_type': 'student',
+            'name': 'Portal Access Student Document Test', 'contact_type': 'student', 'student_id': next_student_id(),
             'email': 'portal.doc.test@example.com',
         })
         cls.portal_user = cls.env['res.users'].with_context(no_reset_password=True).create({

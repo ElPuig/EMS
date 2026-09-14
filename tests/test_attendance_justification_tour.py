@@ -2,7 +2,7 @@ from datetime import datetime
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import force_user_language_to_english
+from .common import force_user_language_to_english, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -15,7 +15,7 @@ class TestAttendanceJustificationTour(HttpCase):
             'name': 'Attendance Justification Tour Teacher', 'employee_type': 'teacher',
         })
         cls.student = cls.env['res.partner'].create({
-            'name': 'Attendance Justification Tour Student', 'contact_type': 'student',
+            'name': 'Attendance Justification Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         cls.justification = cls.env['ems.attendance_justification'].create({
             'teacher_id': cls.teacher.id, 'student_id': cls.student.id,
@@ -24,7 +24,7 @@ class TestAttendanceJustificationTour(HttpCase):
         # Dedicated student for the creation-flow tour, kept separate from cls.student/
         # cls.justification above so the two test methods stay independent of each other.
         cls.student2 = cls.env['res.partner'].create({
-            'name': 'Attendance Justification Tour Student 2', 'contact_type': 'student',
+            'name': 'Attendance Justification Tour Student 2', 'contact_type': 'student', 'student_id': next_student_id(),
         })
 
     def test_attendance_justification_open_and_edit_tour(self):

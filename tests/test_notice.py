@@ -3,7 +3,7 @@ from datetime import date
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group, mock_outgoing_email
+from .common import create_level_study_group, mock_outgoing_email, next_student_id
 
 
 class TestNotice(TransactionCase):
@@ -29,7 +29,7 @@ class TestNotice(TransactionCase):
         cls.relation_father = cls.env.ref('ems.relation_type_father')
 
         cls.minor_student = cls.env['res.partner'].create({
-            'name': 'Notice Minor Student', 'contact_type': 'student', 'main_group_id': cls.group.id,
+            'name': 'Notice Minor Student', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': cls.group.id,
             'email': 'minor.student@example.com',
         })
         cls.minor_family = cls.env['res.partner'].create({
@@ -41,7 +41,7 @@ class TestNotice(TransactionCase):
         })
 
         cls.adult_no_share_student = cls.env['res.partner'].create({
-            'name': 'Notice Adult No-Share Student', 'contact_type': 'student', 'main_group_id': cls.group.id,
+            'name': 'Notice Adult No-Share Student', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': cls.group.id,
             'email': 'adult.noshare@example.com', 'birth_date': date(2000, 1, 1),
         })
         cls.adult_no_share_family = cls.env['res.partner'].create({
@@ -198,7 +198,7 @@ class TestNotice(TransactionCase):
 
     def test_recipient_email_type_both_still_skips_and_warns_with_no_email_at_all(self):
         no_email_student = self.env['res.partner'].create({
-            'name': 'No Email Student', 'contact_type': 'student', 'main_group_id': self.group.id,
+            'name': 'No Email Student', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.group.id,
         })
         notice = self._notice(
             recipient_type='students', recipient_email_type='both',

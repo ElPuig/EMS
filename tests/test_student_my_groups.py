@@ -6,7 +6,7 @@ See docs/en/developers/contacts/contact.md, "is_my_student / _search_is_my_stude
 
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group
+from .common import create_level_study_group, next_student_id
 
 
 class TestStudentMyGroups(TransactionCase):
@@ -42,19 +42,19 @@ class TestStudentMyGroups(TransactionCase):
         # group and reaches the reinforcement one only through an ems.enrollment row - the case
         # a plain main_group_id domain misses.
         cls.own_student = cls.Partner.create({
-            'name': 'Test Own Student (My Groups)', 'contact_type': 'student',
+            'name': 'Test Own Student (My Groups)', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': cls.taught_group.id,
         })
         cls.other_student = cls.Partner.create({
-            'name': 'Test Other Student (My Groups)', 'contact_type': 'student',
+            'name': 'Test Other Student (My Groups)', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': cls.other_group.id,
         })
         cls.tutored_student = cls.Partner.create({
-            'name': 'Test Tutored Student (My Groups)', 'contact_type': 'student',
+            'name': 'Test Tutored Student (My Groups)', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': cls.tutored_group.id,
         })
         cls.reinforcement_student = cls.Partner.create({
-            'name': 'Test Reinforcement Student (My Groups)', 'contact_type': 'student',
+            'name': 'Test Reinforcement Student (My Groups)', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': cls.other_group.id,
         })
         cls.env['ems.enrollment'].create({
@@ -120,7 +120,7 @@ class TestStudentMyGroups(TransactionCase):
         # actually teach there - matching on the group alone showed a teacher of SMX1A/SMX1B
         # 19 students of SMX2A/SMX2B on the strength of another teacher's subject.
         repeater = self.Partner.create({
-            'name': 'Test Repeater Student (My Groups)', 'contact_type': 'student',
+            'name': 'Test Repeater Student (My Groups)', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': self.other_group.id,
         })
         self.env['ems.enrollment'].create({
@@ -145,7 +145,7 @@ class TestStudentMyGroups(TransactionCase):
     def test_filter_combines_with_students_only(self):
         # The two facets must AND: an alumni of the taught group is 'mine' but not a student.
         alumni = self.Partner.create({
-            'name': 'Test Own Alumni (My Groups)', 'contact_type': 'alumni',
+            'name': 'Test Own Alumni (My Groups)', 'contact_type': 'alumni', 'student_id': next_student_id(),
             'main_group_id': self.taught_group.id,
         })
         mine = self._search_as(self.teacher_user)

@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study
+from .common import create_level_study, next_student_id
 
 
 def create_portal_schedule_fixtures(cls):
@@ -38,8 +38,8 @@ def create_portal_schedule_fixtures(cls):
         'subject_id': cls.other_subject.id, 'group_ids': [cls.group.id], 'name': 'TPSO: TPSO',
     }])
     cls.student, cls.sibling, cls.family = cls.env['res.partner'].create([
-        {'name': 'Portal Schedule Student', 'contact_type': 'student', 'main_group_id': cls.group.id},
-        {'name': 'Portal Schedule Sibling', 'contact_type': 'student', 'main_group_id': cls.group.id},
+        {'name': 'Portal Schedule Student', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': cls.group.id},
+        {'name': 'Portal Schedule Sibling', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': cls.group.id},
         {'name': 'Portal Schedule Family', 'contact_type': 'family'},
     ])
     cls.env['ems.enrollment'].create([

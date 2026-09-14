@@ -1,7 +1,7 @@
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import Form, TransactionCase
 
-from .common import create_level_study
+from .common import create_level_study, next_student_id
 
 
 class TestEmGradingWizard(TransactionCase):
@@ -74,7 +74,7 @@ class TestEmGradingWizard(TransactionCase):
 
     def _student(self, name, group=None):
         return self.env['res.partner'].create({
-            'name': name, 'contact_type': 'student',
+            'name': name, 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': (group or self.group).id})
 
     def _enroll(self, student, subject, group=None):

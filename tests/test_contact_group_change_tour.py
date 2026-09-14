@@ -1,6 +1,6 @@
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group, create_role_employee, create_role_user
+from .common import create_level_study_group, create_role_employee, create_role_user, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -37,7 +37,7 @@ class TestContactGroupChangeTour(HttpCase):
         # without this the fixture could land past the first page (see test_contact_tour.py
         # / test_withdrawal_tour.py for the same pattern).
         cls.student = cls.env['res.partner'].create({
-            'name': '0000 Group Change Tour Student', 'contact_type': 'student',
+            'name': '0000 Group Change Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'level_id': cls.level.id, 'study_id': cls.study.id, 'main_group_id': cls.group.id,
         })
         cls.enrollment = cls.env['ems.enrollment'].create({
@@ -47,7 +47,7 @@ class TestContactGroupChangeTour(HttpCase):
         # read for any teacher, rule_contact_teacher) but is NOT their tutorand - used to
         # regression-test the "wpi_enrolled readable but writable by anyone" bug below.
         cls.non_tutorand_student = cls.env['res.partner'].create({
-            'name': '0001 Group Change Tour Non-Tutorand', 'contact_type': 'student',
+            'name': '0001 Group Change Tour Non-Tutorand', 'contact_type': 'student', 'student_id': next_student_id(),
             'level_id': cls.level.id, 'study_id': cls.study.id, 'main_group_id': cls.other_group.id,
         })
 

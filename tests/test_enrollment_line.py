@@ -2,7 +2,7 @@ from odoo.exceptions import ValidationError
 from odoo.tests import Form
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study
+from .common import create_level_study, next_student_id
 
 
 class TestEnrollmentLine(TransactionCase):
@@ -38,7 +38,7 @@ class TestEnrollmentLine(TransactionCase):
             'is_generic': True, 'ems_is_enrollment_fee': True,
             'list_price': 40.0, 'ems_subject_unit_cost': 25.0,
         })
-        cls.student = cls.env['res.partner'].create({'name': 'Line Test Student', 'contact_type': 'student'})
+        cls.student = cls.env['res.partner'].create({'name': 'Line Test Student', 'contact_type': 'student', 'student_id': next_student_id()})
 
     def _order(self):
         return self.env['sale.order'].create({

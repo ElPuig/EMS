@@ -1,6 +1,6 @@
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group, force_user_language_to_english, mock_outgoing_email
+from .common import create_level_study_group, force_user_language_to_english, mock_outgoing_email, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -24,7 +24,7 @@ class TestNoticeTour(HttpCase):
             group={'acronym': 'NOTC'},
         )
         cls.student = cls.env['res.partner'].create({
-            'name': 'Notice Tour Student', 'contact_type': 'student',
+            'name': 'Notice Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': cls.group.id, 'email': 'notice.tour.student@example.com',
         })
 

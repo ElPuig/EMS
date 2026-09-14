@@ -1,4 +1,5 @@
 from odoo.tests.common import HttpCase, tagged
+from .common import next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -13,7 +14,7 @@ class TestPortalTour(HttpCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.student = cls.env['res.partner'].create({
-            'name': 'Portal Tour Student', 'contact_type': 'student',
+            'name': 'Portal Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         cls.portal_user = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Portal Tour Student', 'login': 'test_portal_tour_student',

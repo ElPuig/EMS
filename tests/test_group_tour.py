@@ -1,6 +1,6 @@
 from odoo.tests import tagged, HttpCase
 
-from .common import force_user_language_to_english
+from .common import force_user_language_to_english, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -36,7 +36,7 @@ class TestGroupTour(HttpCase):
             'code': 'TOURARCH', 'acronym': 'TARC', 'name': 'Tour Archive Confirm Subject',
         })
         student_accept = self.env['res.partner'].create({
-            'name': 'Tour Archive Confirm Student Accept', 'contact_type': 'student',
+            'name': 'Tour Archive Confirm Student Accept', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         accept_group = self.env['ems.group'].create({
             'group_type': 'reinforcement', 'name': 'Tour Archive Confirm Accept',
@@ -45,7 +45,7 @@ class TestGroupTour(HttpCase):
             'student_id': student_accept.id, 'group_id': accept_group.id, 'subject_id': subject.id,
         })
         student_decline = self.env['res.partner'].create({
-            'name': 'Tour Archive Confirm Student Decline', 'contact_type': 'student',
+            'name': 'Tour Archive Confirm Student Decline', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         decline_group = self.env['ems.group'].create({
             'group_type': 'reinforcement', 'name': 'Tour Archive Confirm Decline',

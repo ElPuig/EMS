@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group, force_user_language_to_english
+from .common import create_level_study_group, force_user_language_to_english, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -26,7 +26,7 @@ class TestNoDestinationTour(HttpCase):
             'name': 'No Destination Tour Template', 'ems_study_id': cls.study.id, 'study_year': 2,
         })
         cls.student = cls.env['res.partner'].create({
-            'name': 'No Destination Tour Student', 'contact_type': 'student',
+            'name': 'No Destination Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'study_id': cls.study.id, 'main_group_id': cls.group1.id,
         })
         # ems_course_id defaults to the real current/enrollment-default ems.course - no

@@ -5,7 +5,7 @@ from datetime import date, datetime
 from odoo import fields as odoo_fields
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group
+from .common import create_level_study_group, next_student_id
 
 
 class TestStudentImportWizard(TransactionCase):
@@ -421,7 +421,7 @@ class TestStudentImportWizard(TransactionCase):
         self.assertEqual(stats['warnings'], [])
 
     def test_process_tutor_links_family_with_deduced_relation(self):
-        student = self.env['res.partner'].create({'name': 'Tutor Link Student', 'contact_type': 'student'})
+        student = self.env['res.partner'].create({'name': 'Tutor Link Student', 'contact_type': 'student', 'student_id': next_student_id()})
         row, col_map = self._row_and_col_map({
             'Tutor 1 - nom': 'Maria',
             'Tutor 1 - 1r cognom ': 'Garcia',
@@ -447,7 +447,7 @@ class TestStudentImportWizard(TransactionCase):
         self.assertEqual(relation.type_id, self.env.ref('ems.relation_type_mother'))
 
     def test_process_tutor_fallback_relation_adds_note_on_student(self):
-        student = self.env['res.partner'].create({'name': 'Fallback Note Student', 'contact_type': 'student'})
+        student = self.env['res.partner'].create({'name': 'Fallback Note Student', 'contact_type': 'student', 'student_id': next_student_id()})
         row, col_map = self._row_and_col_map({
             'Tutor 2 - nom': 'Jordi',
             'Tutor 2 - 1r cognom': 'Puig',
@@ -462,7 +462,7 @@ class TestStudentImportWizard(TransactionCase):
         self.assertIn('Tutor per defecte', student.comment)
 
     def test_process_tutor_without_name_is_noop(self):
-        student = self.env['res.partner'].create({'name': 'No Tutor Student', 'contact_type': 'student'})
+        student = self.env['res.partner'].create({'name': 'No Tutor Student', 'contact_type': 'student', 'student_id': next_student_id()})
         row, col_map = self._row_and_col_map({'Tutor 1 - nom': ''})
         wizard = self._wizard()
         stats = self._stats()
@@ -475,7 +475,7 @@ class TestStudentImportWizard(TransactionCase):
         # fallback - false-positive merge risk), but surface it in stats['warnings']
         # so it's visible in the result summary instead of only discoverable by
         # noticing an extra family contact after the fact.
-        student = self.env['res.partner'].create({'name': 'Undocumented Tutor Student', 'contact_type': 'student'})
+        student = self.env['res.partner'].create({'name': 'Undocumented Tutor Student', 'contact_type': 'student', 'student_id': next_student_id()})
         row, col_map = self._row_and_col_map({
             'Tutor 1 - nom': 'Sense', 'Tutor 1 - 1r cognom ': 'Document',
         })
@@ -487,7 +487,7 @@ class TestStudentImportWizard(TransactionCase):
         self.assertIn('Undocumented Tutor Student', stats['warnings'][0])
 
     def test_process_tutor_with_document_adds_no_warning(self):
-        student = self.env['res.partner'].create({'name': 'Documented Tutor Student', 'contact_type': 'student'})
+        student = self.env['res.partner'].create({'name': 'Documented Tutor Student', 'contact_type': 'student', 'student_id': next_student_id()})
         row, col_map = self._row_and_col_map({
             'Tutor 1 - nom': 'Amb', 'Tutor 1 - 1r cognom ': 'Document',
             'Tutor 1 - doc. identitat': '99999999Z',
@@ -500,7 +500,7 @@ class TestStudentImportWizard(TransactionCase):
     # --- _build_log_csv / _build_result_html --------------------------------------
 
     def test_build_log_csv_contains_logged_entries(self):
-        student = self.env['res.partner'].create({'name': 'CSV Log Student', 'contact_type': 'student'})
+        student = self.env['res.partner'].create({'name': 'CSV Log Student', 'contact_type': 'student', 'student_id': next_student_id()})
         wizard = self._wizard()
         csv_b64 = wizard._build_log_csv([
             {'tipus': 'Alumne', 'accio': 'Creat', 'partner_id': student.id, 'ts': datetime.now()},

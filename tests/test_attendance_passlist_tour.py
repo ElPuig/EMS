@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study, create_role_employee, create_role_user
+from .common import create_level_study, create_role_employee, create_role_user, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -39,11 +39,11 @@ class TestAttendancePasslistTour(HttpCase):
         cls.teacher_employee = create_role_employee(
             cls, cls.teacher_user, name='Attendance Take Tour Teacher')
         cls.student1 = cls.env['res.partner'].create({
-            'name': 'Attendance Take Tour Student 1', 'contact_type': 'student',
+            'name': 'Attendance Take Tour Student 1', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': cls.group.id,
         })
         cls.student2 = cls.env['res.partner'].create({
-            'name': 'Attendance Take Tour Student 2', 'contact_type': 'student',
+            'name': 'Attendance Take Tour Student 2', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': cls.group.id,
         })
         cls.template = cls.env['ems.attendance_template'].create({

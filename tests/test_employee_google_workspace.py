@@ -10,6 +10,7 @@ from odoo.addons.ems.models.shared.google_workspace_mixin import (
 )
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
+from .common import next_student_id
 
 
 class TestEmployeeGoogleWorkspace(TransactionCase):
@@ -269,7 +270,7 @@ class TestEmployeeGoogleWorkspace(TransactionCase):
     def test_email_used_by_student(self):
         self.env['res.partner'].create({
             'name': 'Student X',
-            'contact_type': 'student',
+            'contact_type': 'student', 'student_id': next_student_id(),
             'student_email': 'shared@elpuig.xeill.net',
         })
         teacher = self._new_teacher(private_email='s@example.com')

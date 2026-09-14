@@ -3,7 +3,7 @@ from datetime import date
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, mock_outgoing_email
+from .common import create_level_study, mock_outgoing_email, next_student_id
 
 
 class TestEnrollmentPlacement(TransactionCase):
@@ -133,7 +133,7 @@ class TestEnrollmentPlacement(TransactionCase):
 
     def test_admit_converts_applicant(self):
         applicant = self.env['res.partner'].create({
-            'name': 'Adm Applicant', 'contact_type': 'applicant', 'study_id': self.study.id})
+            'name': 'Adm Applicant', 'contact_type': 'applicant', 'student_id': next_student_id(), 'study_id': self.study.id})
         order = self._order(applicant, group=self.g1a)
         order._ems_admit_student()
         # Converted to student; study still active -> no placement yet (bulk later).
@@ -143,7 +143,7 @@ class TestEnrollmentPlacement(TransactionCase):
 
     def test_admit_student_keeps_group(self):
         student = self.env['res.partner'].create({
-            'name': 'Adm Student', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+            'name': 'Adm Student', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.g2a.id})
         order = self._order(student, group=self.g1a)
         order._ems_admit_student()
         self.assertEqual(student.contact_type, 'student')
@@ -155,7 +155,7 @@ class TestEnrollmentPlacement(TransactionCase):
         """An ex-student as _ems_convert_to_ex_student() leaves it: archived, with the
         study/level/group cleared and the exit metadata stamped."""
         return self.env['res.partner'].create({
-            'name': name, 'contact_type': contact_type, 'active': False,
+            'name': name, 'contact_type': contact_type, 'student_id': next_student_id(), 'active': False,
             'exit_type': 'withdrawal', 'exit_course_id': self.course.id,
             'exit_date': date(2099, 6, 30),
         })
@@ -211,7 +211,7 @@ class TestEnrollmentPlacement(TransactionCase):
 
     def test_send_leaves_a_current_student_alone(self):
         student = self.env['res.partner'].create({
-            'name': 'Current Student', 'contact_type': 'student',
+            'name': 'Current Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': self.g2a.id})
         order = self._order(student, group=self.g1a)
         order.action_quotation_sent()
@@ -252,7 +252,7 @@ class TestEnrollmentPlacement(TransactionCase):
 
     def test_placement_creates_enrollments_idempotent(self):
         student = self.env['res.partner'].create({
-            'name': 'Plc Student', 'contact_type': 'student'})
+            'name': 'Plc Student', 'contact_type': 'student', 'student_id': next_student_id()})
         order = self._order(student, group=self.g1a)
         order._ems_apply_destination_placement()
         self.assertEqual(student.main_group_id, self.g1a)
@@ -266,7 +266,7 @@ class TestEnrollmentPlacement(TransactionCase):
 
     def test_placement_without_group_is_noop(self):
         student = self.env['res.partner'].create({
-            'name': 'Plc NoGroup', 'contact_type': 'student'})
+            'name': 'Plc NoGroup', 'contact_type': 'student', 'student_id': next_student_id()})
         order = self._order(student, group=False)
         order._ems_apply_destination_placement()
         self.assertFalse(student.main_group_id)
@@ -306,7 +306,7 @@ class TestEnrollmentPlacement(TransactionCase):
 
     def test_group_shift_mismatch_warns(self):
         student = self.env['res.partner'].create({
-            'name': 'Warn Student', 'contact_type': 'student'})
+            'name': 'Warn Student', 'contact_type': 'student', 'student_id': next_student_id()})
         order = self._order(student, group=self.g1a_aft, shift='morning')
         res = order._onchange_ems_group_id()
         self.assertTrue(res and 'warning' in res)
@@ -315,21 +315,21 @@ class TestEnrollmentPlacement(TransactionCase):
 
     def test_suggested_group_continuing_student(self):
         student = self.env['res.partner'].create({
-            'name': 'Sug Cont', 'contact_type': 'student',
+            'name': 'Sug Cont', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': self.g1a.id, 'study_id': self.study.id})
         # Same letter + shift in the destination course: PLST1A -> PLST2A.
         self.assertEqual(self.Wizard._ems_suggested_group(student, self.template2), self.g2a)
 
     def test_suggested_group_applicant_smallest_letter(self):
         applicant = self.env['res.partner'].create({
-            'name': 'Sug App', 'contact_type': 'applicant',
+            'name': 'Sug App', 'contact_type': 'applicant', 'student_id': next_student_id(),
             'study_id': self.study.id, 'preinscription_shift': 'morning'})
         # Lowest-letter first-course group of the granted shift.
         self.assertEqual(self.Wizard._ems_suggested_group(applicant, self.template1), self.g1a)
 
     def test_suggested_group_applicant_shift(self):
         applicant = self.env['res.partner'].create({
-            'name': 'Sug App Aft', 'contact_type': 'applicant',
+            'name': 'Sug App Aft', 'contact_type': 'applicant', 'student_id': next_student_id(),
             'study_id': self.study.id, 'preinscription_shift': 'afternoon'})
         self.assertEqual(self.Wizard._ems_suggested_group(applicant, self.template1), self.g1a_aft)
 
@@ -337,7 +337,7 @@ class TestEnrollmentPlacement(TransactionCase):
 
     def test_proposal_preselects_first_course_for_applicant(self):
         applicant = self.env['res.partner'].create({
-            'name': 'Presel App', 'contact_type': 'applicant',
+            'name': 'Presel App', 'contact_type': 'applicant', 'student_id': next_student_id(),
             'study_id': self.study.id, 'preinscription_shift': 'morning'})
         wizard = self.Wizard.with_context(active_ids=applicant.ids).create({})
         # First-course template auto-selected (study_year=1 over study_year=2).
@@ -346,7 +346,7 @@ class TestEnrollmentPlacement(TransactionCase):
     def test_proposal_preselects_by_entry_course(self):
         # An applicant granted 2nd course preselects the 2nd-course template.
         applicant = self.env['res.partner'].create({
-            'name': 'C2 App', 'contact_type': 'applicant',
+            'name': 'C2 App', 'contact_type': 'applicant', 'student_id': next_student_id(),
             'study_id': self.study.id, 'preinscription_shift': 'morning',
             'preinscription_course': '2'})
         wizard = self.Wizard.with_context(active_ids=applicant.ids).create({})
@@ -354,7 +354,7 @@ class TestEnrollmentPlacement(TransactionCase):
 
     def test_proposal_onchange_suggests_group_for_applicant(self):
         applicant = self.env['res.partner'].create({
-            'name': 'Onch App', 'contact_type': 'applicant',
+            'name': 'Onch App', 'contact_type': 'applicant', 'student_id': next_student_id(),
             'study_id': self.study.id, 'preinscription_shift': 'afternoon'})
         wizard = self.Wizard.with_context(active_ids=applicant.ids).create({})
         wizard._onchange_suggest_group()
@@ -364,7 +364,7 @@ class TestEnrollmentPlacement(TransactionCase):
 
     def test_order_suggest_group_continuing(self):
         student = self.env['res.partner'].create({
-            'name': 'OSG Cont', 'contact_type': 'student', 'main_group_id': self.g1a.id})
+            'name': 'OSG Cont', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.g1a.id})
         order = self.env['sale.order'].create({
             'partner_id': student.id, 'ems_study_id': self.study.id,
             'ems_course_id': self.course.id, 'shift': 'morning',
@@ -378,7 +378,7 @@ class TestEnrollmentPlacement(TransactionCase):
         time anybody suggests groups the 'applicant' branch no longer fires — and the
         continuing-student one has no current group to copy the letter from."""
         newcomer = self.env['res.partner'].create({
-            'name': 'PL Converted Newcomer', 'contact_type': 'student',
+            'name': 'PL Converted Newcomer', 'contact_type': 'student', 'student_id': next_student_id(),
             'study_id': self.study.id, 'preinscription_shift': 'morning'})
         self.assertFalse(newcomer.main_group_id)
         order = self.env['sale.order'].create({
@@ -390,7 +390,7 @@ class TestEnrollmentPlacement(TransactionCase):
     def test_a_groupless_student_takes_the_shift_from_its_preinscription(self):
         """The order may carry no shift; the one granted at pre-enrollment stands in."""
         newcomer = self.env['res.partner'].create({
-            'name': 'PL Converted Afternoon', 'contact_type': 'student',
+            'name': 'PL Converted Afternoon', 'contact_type': 'student', 'student_id': next_student_id(),
             'study_id': self.study.id, 'preinscription_shift': 'afternoon'})
         order = self.env['sale.order'].create({
             'partner_id': newcomer.id, 'ems_study_id': self.study.id,
@@ -402,7 +402,7 @@ class TestEnrollmentPlacement(TransactionCase):
         """The fallback must not steal the continuing-student rule: a student that
         does have a group keeps matching by acronym."""
         student = self.env['res.partner'].create({
-            'name': 'PL Keeps Letter', 'contact_type': 'student',
+            'name': 'PL Keeps Letter', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': self.g1a.id})
         order = self.env['sale.order'].create({
             'partner_id': student.id, 'ems_study_id': self.study.id,
@@ -435,7 +435,7 @@ class TestEnrollmentPlacement(TransactionCase):
         template, so study_year is empty and the suggestion used to give up."""
         tutorship = self._tutorship('PLTUT2', 2)
         student = self.env['res.partner'].create({
-            'name': 'PL Repeater', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+            'name': 'PL Repeater', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.g2a.id})
         order = self._repeater_order(student, tutorship)
         self.assertFalse(order.sale_order_template_id)
         self.assertEqual(order._ems_suggest_group(), self.g2a)
@@ -447,7 +447,7 @@ class TestEnrollmentPlacement(TransactionCase):
         self.template1.sale_order_template_line_ids = [
             (0, 0, {'product_id': self.subject1.product_id.id})]
         student = self.env['res.partner'].create({
-            'name': 'PL Mixed', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+            'name': 'PL Mixed', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.g2a.id})
         order = self._repeater_order(student, tutorship, self.subject1)
         self.assertEqual(order._ems_suggest_group(), self.g2a)
 
@@ -461,7 +461,7 @@ class TestEnrollmentPlacement(TransactionCase):
         self.template1.sale_order_template_line_ids = [
             (0, 0, {'product_id': self.subject1.product_id.id})]
         student = self.env['res.partner'].create({
-            'name': 'PL Pending Subject', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+            'name': 'PL Pending Subject', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.g2a.id})
         order = self._repeater_order(student, tutorship, self.subject1)
         order.ems_group_id = self.g2a
         order._ems_apply_destination_placement()
@@ -483,7 +483,7 @@ class TestEnrollmentPlacement(TransactionCase):
             'course': 2, 'acronym': 'C', 'shift': 'morning',
             'level_id': self.level.id, 'study_id': self.study.id})
         student = self.env['res.partner'].create({
-            'name': 'PL No Exact Match', 'contact_type': 'student', 'main_group_id': g2c.id})
+            'name': 'PL No Exact Match', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': g2c.id})
         order = self._repeater_order(student, tutorship, self.subject1)
         order.ems_group_id = g2c
         order._ems_apply_destination_placement()
@@ -503,7 +503,7 @@ class TestEnrollmentPlacement(TransactionCase):
             (0, 0, {'product_id': self.subject1.product_id.id}),
         ]
         student = self.env['res.partner'].create({
-            'name': 'PL Both Courses', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+            'name': 'PL Both Courses', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.g2a.id})
         order = self._repeater_order(student, tutorship, self.subject1)
         order.ems_group_id = self.g2a
         order._ems_apply_destination_placement()
@@ -515,7 +515,7 @@ class TestEnrollmentPlacement(TransactionCase):
         the order's own destination group, unaffected by this fix."""
         tutorship = self._tutorship('PLTUT2J', 2)
         student = self.env['res.partner'].create({
-            'name': 'PL No Template', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+            'name': 'PL No Template', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.g2a.id})
         order = self._repeater_order(student, tutorship, self.subject1)
         order.ems_group_id = self.g2a
         order._ems_apply_destination_placement()
@@ -542,7 +542,7 @@ class TestEnrollmentPlacement(TransactionCase):
 
     def test_no_suggestion_without_a_tutorship_line(self):
         student = self.env['res.partner'].create({
-            'name': 'PL No Tutorship', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+            'name': 'PL No Tutorship', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.g2a.id})
         order = self._repeater_order(student, self.subject1)
         self.assertFalse(order._ems_suggest_group())
 
@@ -551,7 +551,7 @@ class TestEnrollmentPlacement(TransactionCase):
         first = self._tutorship('PLTUT1C', 1)
         second = self._tutorship('PLTUT2C', 2)
         student = self.env['res.partner'].create({
-            'name': 'PL Two Tutorships', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+            'name': 'PL Two Tutorships', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.g2a.id})
         order = self._repeater_order(student, first, second)
         self.assertFalse(order._ems_suggest_group())
 
@@ -561,7 +561,7 @@ class TestEnrollmentPlacement(TransactionCase):
         self.template1.sale_order_template_line_ids = [
             (0, 0, {'product_id': tutorship.product_id.id})]
         student = self.env['res.partner'].create({
-            'name': 'PL Shared Tutorship', 'contact_type': 'student', 'main_group_id': self.g2a.id})
+            'name': 'PL Shared Tutorship', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.g2a.id})
         order = self._repeater_order(student, tutorship)
         self.assertFalse(order._ems_suggest_group())
 
@@ -569,7 +569,7 @@ class TestEnrollmentPlacement(TransactionCase):
         """The tutorship is a fallback, not a replacement."""
         self._tutorship('PLTUT1D', 1)
         student = self.env['res.partner'].create({
-            'name': 'PL Templated', 'contact_type': 'student', 'main_group_id': self.g1a.id})
+            'name': 'PL Templated', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.g1a.id})
         order = self.env['sale.order'].create({
             'partner_id': student.id, 'ems_study_id': self.study.id,
             'ems_course_id': self.course.id, 'shift': 'morning',
@@ -578,13 +578,13 @@ class TestEnrollmentPlacement(TransactionCase):
 
     def test_action_suggest_fills_enrolled_skips_unenrolled(self):
         enrolled = self.env['res.partner'].create({
-            'name': 'ASG Enrolled', 'contact_type': 'student', 'main_group_id': self.g1a.id})
+            'name': 'ASG Enrolled', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.g1a.id})
         self.env['sale.order'].create({
             'partner_id': enrolled.id, 'ems_study_id': self.study.id,
             'ems_course_id': self.course.id, 'shift': 'morning',
             'sale_order_template_id': self.template2.id})
         missing = self.env['res.partner'].create({
-            'name': 'ASG Missing', 'contact_type': 'student', 'main_group_id': self.g1a.id})
+            'name': 'ASG Missing', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.g1a.id})
         self.assertEqual(enrolled.transition_status, 'unplaced')
         (enrolled + missing).action_suggest_destination_group()
         # Enrolled student gets the suggested group; unenrolled one is untouched.
@@ -594,7 +594,7 @@ class TestEnrollmentPlacement(TransactionCase):
 
     def test_portal_wizard_targets_applicant_directly(self):
         applicant = self.env['res.partner'].create({
-            'name': 'Portal App', 'contact_type': 'applicant',
+            'name': 'Portal App', 'contact_type': 'applicant', 'student_id': next_student_id(),
             'study_id': self.study.id, 'preinscription_shift': 'morning',
             'email': 'portal.app@example.com'})
         wizard = self.env['ems.portal.access.wizard'].with_context(
@@ -605,7 +605,7 @@ class TestEnrollmentPlacement(TransactionCase):
 
     def test_proposal_writes_group_and_preinscription_shift(self):
         applicant = self.env['res.partner'].create({
-            'name': 'Prop App', 'contact_type': 'applicant',
+            'name': 'Prop App', 'contact_type': 'applicant', 'student_id': next_student_id(),
             'study_id': self.study.id, 'preinscription_shift': 'afternoon'})
         wizard = self.Wizard.with_context(active_ids=applicant.ids).create({
             'template_id': self.template1.id})
@@ -622,7 +622,7 @@ class TestEnrollmentPlacement(TransactionCase):
 
     def _student(self, name, study=None, group=None):
         return self.env['res.partner'].create({
-            'name': name, 'contact_type': 'student',
+            'name': name, 'contact_type': 'student', 'student_id': next_student_id(),
             'study_id': study.id if study else False,
             'main_group_id': group.id if group else False})
 
@@ -717,7 +717,7 @@ class TestEnrollmentPlacement(TransactionCase):
         is not the granted one.
         """
         return self.env['res.partner'].create({
-            'name': name, 'contact_type': 'student',
+            'name': name, 'contact_type': 'student', 'student_id': next_student_id(),
             'study_id': self.study.id, 'main_group_id': self.g1b.id,
             'preinscription_study_id': self.study2.id,
             'preinscription_shift': shift, 'preinscription_course': course,
@@ -730,7 +730,7 @@ class TestEnrollmentPlacement(TransactionCase):
         # An applicant's destination already lives in study_id, and a continuer with
         # no assignment simply renews its own study.
         applicant = self.env['res.partner'].create({
-            'name': 'Dest App', 'contact_type': 'applicant', 'study_id': self.study2.id})
+            'name': 'Dest App', 'contact_type': 'applicant', 'student_id': next_student_id(), 'study_id': self.study2.id})
         self.assertEqual(applicant._ems_destination_study(), self.study2)
         renewing = self._student('Dest Cont', self.study, self.g1a)
         self.assertEqual(renewing._ems_destination_study(), self.study)

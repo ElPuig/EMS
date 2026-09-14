@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group
+from .common import create_level_study_group, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -21,7 +21,7 @@ class TestEnrollmentConfigTour(HttpCase):
             'study_ids': [(4, cls.study.id)],
         })
         cls.student = cls.env['res.partner'].create({
-            'name': 'Enrollment Config Tour Student', 'contact_type': 'student',
+            'name': 'Enrollment Config Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
         })
 
     def test_enrollment_config_crud_tour(self):

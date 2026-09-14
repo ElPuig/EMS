@@ -1,12 +1,15 @@
 import base64
 from datetime import date
 
+import psycopg2
 from dateutil.relativedelta import relativedelta
 
+from odoo.addons.ems.models.contacts.contact import STUDENT_LIFECYCLE_TYPES
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
+from odoo.tools import mute_logger
 
-from .common import create_level_study, create_level_study_group, mock_outgoing_email
+from .common import create_level_study, create_level_study_group, mock_outgoing_email, next_student_id
 
 
 class TestContactLifecycle(TransactionCase):
@@ -43,7 +46,7 @@ class TestContactLifecycle(TransactionCase):
     def _enrolled(self, name, course, auth_type=None, status='yes', state='sale'):
         """A student holding an enrollment for 'course', with one authorization."""
         student = self.env['res.partner'].create({
-            'name': name, 'contact_type': 'student', 'main_group_id': self.group.id})
+            'name': name, 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.group.id})
         order = self.env['sale.order'].create({
             'partner_id': student.id, 'ems_study_id': self.study.id,
             'ems_course_id': course.id, 'shift': 'morning'})
@@ -103,7 +106,7 @@ class TestContactLifecycle(TransactionCase):
 
     def test_auth_flags_are_false_without_an_enrollment(self):
         student = self.env['res.partner'].create({
-            'name': 'LFC Auth None', 'contact_type': 'student',
+            'name': 'LFC Auth None', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': self.group.id})
         self.assertFalse(student.auth_image)
         self.assertFalse(student.auth_trip)
@@ -128,39 +131,39 @@ class TestContactLifecycle(TransactionCase):
 
     def test_create_applicant(self):
         applicant = self.env['res.partner'].create({
-            'name': 'New Applicant', 'contact_type': 'applicant'})
+            'name': 'New Applicant', 'contact_type': 'applicant', 'student_id': next_student_id()})
         self.assertEqual(applicant.contact_type, 'applicant')
 
     def test_create_alumni_and_withdrawal(self):
         alumni = self.env['res.partner'].create({
-            'name': 'Old Alumni', 'contact_type': 'alumni'})
+            'name': 'Old Alumni', 'contact_type': 'alumni', 'student_id': next_student_id()})
         withdrawal = self.env['res.partner'].create({
-            'name': 'Dropout', 'contact_type': 'withdrawal'})
+            'name': 'Dropout', 'contact_type': 'withdrawal', 'student_id': next_student_id()})
         self.assertEqual(alumni.contact_type, 'alumni')
         self.assertEqual(withdrawal.contact_type, 'withdrawal')
 
     def test_has_graduated_defaults_false(self):
         student = self.env['res.partner'].create({
-            'name': 'Fresh Student', 'contact_type': 'student'})
+            'name': 'Fresh Student', 'contact_type': 'student', 'student_id': next_student_id()})
         self.assertFalse(student.has_graduated)
 
     # --- archived_reason_label / archived_reason_color (ems_archived_reason_ribbon widget) ---
 
     def test_archived_reason_blank_for_active_student(self):
         student = self.env['res.partner'].create({
-            'name': 'Active Student (Archived Reason)', 'contact_type': 'student'})
+            'name': 'Active Student (Archived Reason)', 'contact_type': 'student', 'student_id': next_student_id()})
         self.assertFalse(student.archived_reason_label)
         self.assertFalse(student.archived_reason_color)
 
     def test_archived_reason_alumni(self):
         alumni = self.env['res.partner'].create({
-            'name': 'Alumni (Archived Reason)', 'contact_type': 'alumni'})
+            'name': 'Alumni (Archived Reason)', 'contact_type': 'alumni', 'student_id': next_student_id()})
         self.assertEqual(alumni.archived_reason_label, 'Alumni')
         self.assertEqual(alumni.archived_reason_color, '#4C7A5D')
 
     def test_archived_reason_withdrawal(self):
         withdrawal = self.env['res.partner'].create({
-            'name': 'Withdrawal (Archived Reason)', 'contact_type': 'withdrawal'})
+            'name': 'Withdrawal (Archived Reason)', 'contact_type': 'withdrawal', 'student_id': next_student_id()})
         self.assertEqual(withdrawal.archived_reason_label, 'Withdrawal')
         self.assertEqual(withdrawal.archived_reason_color, '#C97B3D')
 
@@ -169,7 +172,7 @@ class TestContactLifecycle(TransactionCase):
         # the same severity-signalling reasoning as leaving hr.departure.reason's "Fired"
         # record uncolored (see docs/en/developers/contacts/contact.md).
         expelled = self.env['res.partner'].create({
-            'name': 'Expelled (Archived Reason)', 'contact_type': 'expelled'})
+            'name': 'Expelled (Archived Reason)', 'contact_type': 'expelled', 'student_id': next_student_id()})
         self.assertEqual(expelled.archived_reason_label, 'Expelled')
         self.assertFalse(expelled.archived_reason_color)
 
@@ -184,14 +187,14 @@ class TestContactLifecycle(TransactionCase):
 
     def test_sync_category_on_create(self):
         applicant = self.env['res.partner'].create({
-            'name': 'Applicant Cat', 'contact_type': 'applicant'})
+            'name': 'Applicant Cat', 'contact_type': 'applicant', 'student_id': next_student_id()})
         self.assertIn(self.cat_applicant, applicant.category_id)
         # "student" doubles as the shared student-lifecycle marker.
         self.assertIn(self.cat_student, applicant.category_id)
 
     def test_sync_category_swaps_on_write(self):
         student = self.env['res.partner'].create({
-            'name': 'Swap Student', 'contact_type': 'student'})
+            'name': 'Swap Student', 'contact_type': 'student', 'student_id': next_student_id()})
         self.assertIn(self.cat_student, student.category_id)
         student.write({'contact_type': 'alumni'})
         self.assertIn(self.cat_alumni, student.category_id)
@@ -202,7 +205,7 @@ class TestContactLifecycle(TransactionCase):
 
     def test_convert_to_ex_student_graduated_becomes_alumni(self):
         student = self.env['res.partner'].create({
-            'name': 'Graduate', 'contact_type': 'student',
+            'name': 'Graduate', 'contact_type': 'student', 'student_id': next_student_id(),
             'has_graduated': True, 'main_group_id': self.group.id})
         student._ems_convert_to_ex_student()
         self.assertEqual(student.contact_type, 'alumni')
@@ -215,7 +218,7 @@ class TestContactLifecycle(TransactionCase):
 
     def test_convert_to_ex_student_not_graduated_becomes_withdrawal(self):
         student = self.env['res.partner'].create({
-            'name': 'Quitter', 'contact_type': 'student',
+            'name': 'Quitter', 'contact_type': 'student', 'student_id': next_student_id(),
             'has_graduated': False, 'main_group_id': self.group.id})
         student._ems_convert_to_ex_student()
         self.assertEqual(student.contact_type, 'withdrawal')
@@ -226,7 +229,7 @@ class TestContactLifecycle(TransactionCase):
         # Expulsion is never alumni, even for a student who already graduated once -
         # unlike the default (no kind) path, which defers entirely to has_graduated.
         student = self.env['res.partner'].create({
-            'name': 'Expelled Graduate', 'contact_type': 'student',
+            'name': 'Expelled Graduate', 'contact_type': 'student', 'student_id': next_student_id(),
             'has_graduated': True, 'main_group_id': self.group.id})
         student._ems_convert_to_ex_student(kind='expulsion')
         self.assertEqual(student.contact_type, 'expelled')
@@ -237,7 +240,7 @@ class TestContactLifecycle(TransactionCase):
 
     def test_convert_to_student_clears_exit_keeps_has_graduated(self):
         alumni = self.env['res.partner'].create({
-            'name': 'Returning Alumni', 'contact_type': 'alumni',
+            'name': 'Returning Alumni', 'contact_type': 'alumni', 'student_id': next_student_id(),
             'has_graduated': True, 'exit_type': 'graduation',
             'exit_course_id': self.course.id, 'exit_date': date.today(),
             'exit_reason': 'Finished studies'})
@@ -254,7 +257,7 @@ class TestContactLifecycle(TransactionCase):
 
     def test_applicant_admission_to_student(self):
         applicant = self.env['res.partner'].create({
-            'name': 'Admitted', 'contact_type': 'applicant'})
+            'name': 'Admitted', 'contact_type': 'applicant', 'student_id': next_student_id()})
         applicant._ems_convert_to_student()
         self.assertEqual(applicant.contact_type, 'student')
         self.assertIn(self.cat_student, applicant.category_id)
@@ -264,7 +267,7 @@ class TestContactLifecycle(TransactionCase):
 
     def test_create_child_of_student_becomes_family(self):
         student = self.env['res.partner'].create({
-            'name': 'Parent Of Contact', 'contact_type': 'student'})
+            'name': 'Parent Of Contact', 'contact_type': 'student', 'student_id': next_student_id()})
         child = self.env['res.partner'].create({
             'name': 'Auto Family Contact', 'parent_id': student.id})
         self.assertEqual(child.contact_type, 'family')
@@ -280,7 +283,7 @@ class TestContactLifecycle(TransactionCase):
 
     def test_resync_lifecycle_categories_heals_applicant(self):
         applicant = self.env['res.partner'].create({
-            'name': 'Uncategorized Applicant', 'contact_type': 'applicant'})
+            'name': 'Uncategorized Applicant', 'contact_type': 'applicant', 'student_id': next_student_id()})
         applicant.category_id = [(5, 0, 0)]
         self.assertFalse(applicant.category_id)
         self.env['res.partner']._ems_resync_lifecycle_categories()
@@ -308,20 +311,20 @@ class TestContactFields(TransactionCase):
 
     def test_is_adult_true_for_over_18(self):
         student = self.env['res.partner'].create({
-            'name': 'Adult Student', 'contact_type': 'student',
+            'name': 'Adult Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'birth_date': date.today() - relativedelta(years=19),
         })
         self.assertTrue(student.is_adult)
 
     def test_is_adult_false_for_under_18(self):
         student = self.env['res.partner'].create({
-            'name': 'Minor Student', 'contact_type': 'student',
+            'name': 'Minor Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'birth_date': date.today() - relativedelta(years=15),
         })
         self.assertFalse(student.is_adult)
 
     def test_is_adult_false_without_birth_date(self):
-        student = self.env['res.partner'].create({'name': 'No Birthdate Student', 'contact_type': 'student'})
+        student = self.env['res.partner'].create({'name': 'No Birthdate Student', 'contact_type': 'student', 'student_id': next_student_id()})
         self.assertFalse(student.is_adult)
 
     # --- strike_count -----------------------------------------------------------
@@ -329,7 +332,7 @@ class TestContactFields(TransactionCase):
     def test_strike_count(self):
         teacher = self.env['hr.employee'].create({
             'name': 'Strike Count Teacher', 'employee_type': 'teacher'})
-        student = self.env['res.partner'].create({'name': 'Struck Student', 'contact_type': 'student'})
+        student = self.env['res.partner'].create({'name': 'Struck Student', 'contact_type': 'student', 'student_id': next_student_id()})
         self.assertEqual(student.strike_count, 0)
         self.env['ems.strike'].create({'student_id': student.id, 'teacher_id': teacher.id})
         self.env['ems.strike'].create({'student_id': student.id, 'teacher_id': teacher.id})
@@ -346,7 +349,7 @@ class TestContactFields(TransactionCase):
         # display value scoped to this one student.
         other_teacher = self.env['hr.employee'].create({'name': 'Other Teacher (TCF)', 'employee_type': 'teacher'})
         student = self.env['res.partner'].create({
-            'name': 'Tutor Readonly Student', 'contact_type': 'student', 'main_group_id': self.group.id})
+            'name': 'Tutor Readonly Student', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.group.id})
 
         # A readonly related field with no inverse is silently ignored by write(), not
         # rejected with an exception - it only ends up staged in this recordset's own
@@ -363,29 +366,29 @@ class TestContactFields(TransactionCase):
 
     def test_nuss_valid_12_digits(self):
         student = self.env['res.partner'].create({
-            'name': 'Valid Nuss Student', 'contact_type': 'student', 'nuss': '123456789012'})
+            'name': 'Valid Nuss Student', 'contact_type': 'student', 'student_id': next_student_id(), 'nuss': '123456789012'})
         self.assertEqual(student.nuss, '123456789012')
 
     def test_nuss_invalid_raises(self):
         with self.assertRaises(ValidationError):
             self.env['res.partner'].create({
-                'name': 'Invalid Nuss Student', 'contact_type': 'student', 'nuss': '12345'})
+                'name': 'Invalid Nuss Student', 'contact_type': 'student', 'student_id': next_student_id(), 'nuss': '12345'})
 
     # --- _compute_group_data -----------------------------------------------------
 
     def test_group_data_synced_from_main_group_on_create(self):
         student = self.env['res.partner'].create({
-            'name': 'Group Data Student', 'contact_type': 'student', 'main_group_id': self.group.id})
+            'name': 'Group Data Student', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.group.id})
         self.assertEqual(student.level_id, self.level)
         self.assertEqual(student.study_id, self.study)
 
     def test_group_data_synced_from_study_on_create(self):
         student = self.env['res.partner'].create({
-            'name': 'Study Only Student', 'contact_type': 'student', 'study_id': self.study.id})
+            'name': 'Study Only Student', 'contact_type': 'student', 'student_id': next_student_id(), 'study_id': self.study.id})
         self.assertEqual(student.level_id, self.level)
 
     def test_group_data_synced_from_main_group_on_write(self):
-        student = self.env['res.partner'].create({'name': 'Later Group Student', 'contact_type': 'student'})
+        student = self.env['res.partner'].create({'name': 'Later Group Student', 'contact_type': 'student', 'student_id': next_student_id()})
         student.write({'main_group_id': self.group.id})
         self.assertEqual(student.level_id, self.level)
         self.assertEqual(student.study_id, self.study)
@@ -412,7 +415,7 @@ class TestContactFields(TransactionCase):
         docs/en/developers/enrollment/authorization.md."""
         course = self.env['ems.course'].search([('is_current', '=', True)], limit=1) \
             or self.env['ems.course'].create({'start': 2098, 'end': 2099, 'is_current': True})
-        student = self.env['res.partner'].create({'name': 'Auth Recompute Student', 'contact_type': 'student'})
+        student = self.env['res.partner'].create({'name': 'Auth Recompute Student', 'contact_type': 'student', 'student_id': next_student_id()})
         template = self.env['ems.authorization.template'].create({
             'name': 'Recompute Template', 'legal_text': '<p>Text</p>'})
 
@@ -457,7 +460,7 @@ class TestContactMainGroupChange(TransactionCase):
 
     def _student(self, group):
         return self.env['res.partner'].create({
-            'name': 'Move Group Student', 'contact_type': 'student',
+            'name': 'Move Group Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': group.id if group else False})
 
     def _enrollment(self, student, group):
@@ -607,7 +610,7 @@ class TestContactStudyChange(TransactionCase):
 
     def _student(self):
         return self.env['res.partner'].create({
-            'name': 'Study Change Student', 'contact_type': 'student', 'main_group_id': self.old_group.id})
+            'name': 'Study Change Student', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.old_group.id})
 
     def _old_enrollment(self, student):
         return self.env['ems.enrollment'].create({
@@ -698,7 +701,7 @@ class TestContactStudyChange(TransactionCase):
         (issue #455 follow-up): filling Studies then Main Group before the very first save
         is the normal way to place a new/unplaced student, and used to silently produce
         zero enrollments."""
-        student = self.env['res.partner'].create({'name': 'Study Change Unplaced Student', 'contact_type': 'student'})
+        student = self.env['res.partner'].create({'name': 'Study Change Unplaced Student', 'contact_type': 'student', 'student_id': next_student_id()})
         student.with_user(self.admin_user).write({
             'study_id': self.new_study.id, 'main_group_id': self.new_group_b.id})
 
@@ -721,7 +724,7 @@ class TestContactStudyChange(TransactionCase):
 
     def test_write_study_id_on_non_student_contact_is_noop(self):
         applicant = self.env['res.partner'].create({
-            'name': 'Study Change Applicant', 'contact_type': 'applicant'})
+            'name': 'Study Change Applicant', 'contact_type': 'applicant', 'student_id': next_student_id()})
         applicant.with_user(self.admin_user).write({'study_id': self.new_study.id})
         self.assertFalse(applicant.main_group_id)
         self.assertFalse(self.env['ems.enrollment'].search([('student_id', '=', applicant.id)]))
@@ -763,7 +766,7 @@ class TestContactCreateWithStudy(TransactionCase):
 
     def _create(self, **values):
         return self.env['res.partner'].with_user(self.admin_user).create({
-            'name': 'Create Study Student', 'contact_type': 'student', **values})
+            'name': 'Create Study Student', 'contact_type': 'student', 'student_id': next_student_id(), **values})
 
     def test_create_with_study_id_auto_picks_first_group_alphabetically(self):
         student = self._create(study_id=self.study.id)
@@ -793,7 +796,7 @@ class TestContactCreateWithStudy(TransactionCase):
         """Regression: mirrors applicant_import_wizard's own create() shape
         (contact_type='applicant', study_id set, no main_group_id)."""
         applicant = self.env['res.partner'].with_user(self.admin_user).create({
-            'name': 'Create Study Applicant', 'contact_type': 'applicant', 'study_id': self.study.id})
+            'name': 'Create Study Applicant', 'contact_type': 'applicant', 'student_id': next_student_id(), 'study_id': self.study.id})
         self.assertFalse(applicant.main_group_id)
         self.assertFalse(self.env['ems.enrollment'].search([('student_id', '=', applicant.id)]))
 
@@ -807,7 +810,7 @@ class TestContactCreateWithStudy(TransactionCase):
     def test_sudo_create_with_study_id_does_not_refresh_enrollments(self):
         """Defensive regression, mirrors TestContactStudyChange.test_sudo_write_study_id_does_not_refresh_enrollments."""
         student = self.env['res.partner'].sudo().create({
-            'name': 'Create Study Student Sudo', 'contact_type': 'student', 'study_id': self.study.id})
+            'name': 'Create Study Student Sudo', 'contact_type': 'student', 'student_id': next_student_id(), 'study_id': self.study.id})
         self.assertFalse(student.main_group_id)
         self.assertFalse(self.env['ems.enrollment'].search([('student_id', '=', student.id)]))
 
@@ -826,3 +829,130 @@ class TestContactCreateWithStudy(TransactionCase):
         student = self._create(study_id=untemplated_study.id)
         self.assertEqual(student.main_group_id, untemplated_group)
         self.assertFalse(self.env['ems.enrollment'].search([('student_id', '=', student.id)]))
+
+
+class TestContactStudentId(TransactionCase):
+    """Student ID (IDALU): unique across every contact, required for new students (issue #460)."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.Partner = cls.env['res.partner']
+
+    def _student(self, **values):
+        return self.Partner.create({
+            'name': 'IDALU Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            **values})
+
+    def _student_created_before_the_rule(self):
+        """A student created while the IDALU was still optional (production had some)."""
+        student = self._student(name='IDALU Legacy Student')
+        self.env.cr.execute("UPDATE res_partner SET student_id = NULL WHERE id = %s", [student.id])
+        student.invalidate_recordset(['student_id'])
+        return student
+
+    # --- required ------------------------------------------------------------
+
+    def test_every_student_lifecycle_type_requires_a_student_id_on_create(self):
+        for contact_type in STUDENT_LIFECYCLE_TYPES:
+            with self.subTest(contact_type=contact_type), self.assertRaises(ValidationError):
+                self.Partner.create({'name': 'IDALU Missing', 'contact_type': contact_type})
+
+    def test_the_students_action_default_type_requires_a_student_id(self):
+        with self.assertRaises(ValidationError):
+            self.Partner.with_context(default_contact_type='student').create({'name': 'IDALU From Action'})
+
+    def test_family_provider_and_untyped_contacts_need_no_student_id(self):
+        for contact_type in ('family', 'provider', False):
+            with self.subTest(contact_type=contact_type):
+                self.assertTrue(self.Partner.create({'name': 'IDALU Not A Student', 'contact_type': contact_type}))
+
+    def test_contact_added_under_a_student_needs_no_student_id(self):
+        """The student form's "Contacts & Addresses" tab creates it with the Students action's
+        default_contact_type still in context; create() turns it into a family contact."""
+        student = self._student()
+        family = self.Partner.with_context(default_contact_type='student').create(
+            {'name': 'IDALU Child Contact', 'parent_id': student.id})
+        self.assertEqual(family.contact_type, 'family')
+
+    def test_student_id_cannot_be_removed(self):
+        student = self._student()
+        for blank in (False, '', '   '):
+            with self.subTest(blank=blank), self.assertRaises(ValidationError):
+                student.write({'student_id': blank})
+
+    def test_contact_cannot_become_a_student_without_a_student_id(self):
+        contact = self.Partner.create({'name': 'IDALU Family', 'contact_type': 'family'})
+        with self.assertRaises(ValidationError):
+            contact.write({'contact_type': 'student'})
+        contact.write({'contact_type': 'student', 'student_id': next_student_id()})
+        self.assertEqual(contact.contact_type, 'student')
+
+    def test_student_created_before_the_rule_can_still_be_edited_and_leave(self):
+        student = self._student_created_before_the_rule()
+        student.write({'name': 'IDALU Legacy Renamed', 'contact_type': 'withdrawal', 'active': False})
+        self.assertEqual(student.contact_type, 'withdrawal')
+
+    def test_student_created_before_the_rule_gets_its_student_id_later(self):
+        student = self._student_created_before_the_rule()
+        student_id = next_student_id()
+        student.write({'student_id': student_id})
+        self.assertEqual(student.student_id, student_id)
+
+    # --- unique --------------------------------------------------------------
+
+    def test_student_id_is_stripped_and_a_blank_one_is_empty(self):
+        student_id = next_student_id()
+        self.assertEqual(self._student(student_id=f'  {student_id} ').student_id, student_id)
+        family = self.Partner.create({'name': 'IDALU Blank', 'contact_type': 'family', 'student_id': '   '})
+        self.assertFalse(family.student_id)
+
+    def test_duplicate_student_id_is_refused_naming_its_holder(self):
+        holder = self._student(name='IDALU Holder')
+        with self.assertRaisesRegex(ValidationError, 'IDALU Holder'):
+            self._student(name='IDALU Duplicate', student_id=f' {holder.student_id}')
+
+    def test_student_id_of_an_archived_former_student_is_taken(self):
+        former = self._student(name='IDALU Former Student', contact_type='alumni', active=False)
+        with self.assertRaisesRegex(ValidationError, 'IDALU Former Student'):
+            self._student(student_id=former.student_id)
+
+    def test_duplicate_student_id_is_refused_on_write(self):
+        holder, other = self._student(), self._student()
+        with self.assertRaises(ValidationError):
+            other.write({'student_id': holder.student_id})
+
+    def test_writing_a_student_its_own_student_id_again_is_allowed(self):
+        student = self._student()
+        student.write({'student_id': student.student_id, 'name': 'IDALU Renamed'})
+        self.assertEqual(student.name, 'IDALU Renamed')
+
+    def test_database_refuses_a_duplicate_student_id(self):
+        first, second = self._student(), self._student()
+        with self.assertRaises(psycopg2.IntegrityError), mute_logger('odoo.sql_db'), self.env.cr.savepoint():
+            self.env.cr.execute(
+                "UPDATE res_partner SET student_id = %s WHERE id = %s", [first.student_id, second.id])
+
+    def test_copying_a_contact_does_not_copy_its_student_id(self):
+        family = self.Partner.create({'name': 'IDALU Copy', 'contact_type': 'family', 'student_id': next_student_id()})
+        self.assertFalse(family.copy().student_id)
+
+    # --- merging a duplicate -------------------------------------------------
+
+    def test_merge_hands_the_former_student_id_to_the_new_contact(self):
+        """The duplicate a returning former student leaves behind: the archived record holds the
+        IDALU, the new active one has none. Merging into the new one moves the IDALU over."""
+        former = self._student(name='IDALU Merge Former', contact_type='alumni', active=False)
+        student_id = former.student_id
+        current = self._student_created_before_the_rule()
+        self.env['base.partner.merge.automatic.wizard']._merge((former | current).ids, current)
+        self.assertFalse(former.exists())
+        self.assertEqual(current.student_id, student_id)
+
+    def test_merge_into_the_former_contact_keeps_its_student_id(self):
+        former = self._student(name='IDALU Merge Keep', contact_type='alumni', active=False)
+        student_id = former.student_id
+        current = self._student_created_before_the_rule()
+        self.env['base.partner.merge.automatic.wizard']._merge((former | current).ids, former)
+        self.assertFalse(current.exists())
+        self.assertEqual(former.student_id, student_id)

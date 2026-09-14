@@ -1,5 +1,6 @@
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
+from .common import next_student_id
 
 
 class TestTracking(TransactionCase):
@@ -21,7 +22,7 @@ class TestTracking(TransactionCase):
             'name': 'Test Tracking Teacher', 'employee_type': 'teacher',
         })
         cls.student = cls.env['res.partner'].create({
-            'name': 'Test Tracking Student', 'contact_type': 'student',
+            'name': 'Test Tracking Student', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         cls.test_tracking = cls.env['ems.tracking'].create({
             'notes': 'Initial note', 'teacher_id': cls.teacher.id, 'student_id': cls.student.id,

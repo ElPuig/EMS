@@ -2,6 +2,7 @@
 
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
+from .common import next_student_id
 
 
 class TestAttendanceStatus(TransactionCase):
@@ -73,7 +74,7 @@ class TestAttendanceStatus(TransactionCase):
         # from default searches and new-selection dropdowns, it does not affect reads
         # of an already-set field. Confirms that directly, rather than just asserting it.
         student = self.env['res.partner'].create({
-            'name': 'Test Student (Archived Issue Reference)', 'contact_type': 'student',
+            'name': 'Test Student (Archived Issue Reference)', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         line = self.env['ems.attendance_session_line'].create({
             'student_id': student.id, 'status_id': self.status_issue.id,
@@ -115,12 +116,12 @@ class TestAttendanceStatus(TransactionCase):
     # --- integration with ems.attendance_session_line ---------------------
 
     def test_session_line_defaults_to_attended(self):
-        student = self.env['res.partner'].create({'name': 'Test Student (Attendance Status)', 'contact_type': 'student'})
+        student = self.env['res.partner'].create({'name': 'Test Student (Attendance Status)', 'contact_type': 'student', 'student_id': next_student_id()})
         line = self.env['ems.attendance_session_line'].create({'student_id': student.id})
         self.assertEqual(line.status_id, self.status_attended)
 
     def test_status_is_notificable_reads_from_model(self):
-        student = self.env['res.partner'].create({'name': 'Test Student 2 (Attendance Status)', 'contact_type': 'student'})
+        student = self.env['res.partner'].create({'name': 'Test Student 2 (Attendance Status)', 'contact_type': 'student', 'student_id': next_student_id()})
         attended_line = self.env['ems.attendance_session_line'].create({
             'student_id': student.id, 'status_id': self.status_attended.id,
         })

@@ -231,6 +231,62 @@ Covered by `tests/test_contact.py::TestContactCreateWithStudy` (auto-pick, templ
 
 The Spanish Social Security number (NUSS) must be exactly 12 numeric digits (`re.fullmatch(r'\d{12}', nuss)`) when set.
 
+### Student ID (IDALU): unique, and required for new students (issue #460)
+
+`student_id` is what identifies a student-lifecycle contact (`STUDENT_LIFECYCLE_TYPES` in
+`contact.py`: student, applicant, alumni, withdrawal, expelled), and the key the Esfer@
+(`student_import_wizard`) and GEDAC (`applicant_import_wizard`) importers match rows on. While it
+was optional, returning former students got registered again as brand-new contacts, producing
+duplicates that had to be merged by hand.
+
+```mermaid
+flowchart TD
+    A["create() / write()"] --> N["_ems_normalize_student_id: strip, blank -> False"]
+    N --> U{"IDALU given and held by<br/>another contact?<br/>(archived included)"}
+    U -- yes --> E1["ValidationError naming the holder"]
+    U -- no --> R{"Result has no IDALU and<br/>is a student-lifecycle type?"}
+    R -- no --> OK["saved"]
+    R -- "create()" --> E2["ValidationError: IDALU required"]
+    R -- "write(): had an IDALU" --> E3["ValidationError: cannot be removed"]
+    R -- "write(): was not a student type" --> E2
+    R -- "write(): student without IDALU from before the rule" --> OK
+```
+
+- **Unique, across every contact, archived ones included.** `_ems_check_student_id_available()`
+  runs from `create()`/`write()` *before* the INSERT/UPDATE (as `sudo()`, `active_test=False`) and
+  raises a message naming the contact that already holds it, so a returning former student is
+  reopened instead of duplicated. `student_id_unique` (`UNIQUE(student_id)`) is the database
+  backstop; NULLs never collide, so families, providers and legacy students without an IDALU are
+  unaffected. It is not an `@api.constrains` because that runs after the INSERT, when the database
+  constraint has already refused the row with a message that cannot name the holder.
+- **Required, going forward only.** Production still had students without an IDALU when the rule
+  shipped, so it is enforced on the operations that would create a new one, not retroactively:
+
+  | Operation | Result without an IDALU |
+  |---|---|
+  | `create()` with a student-lifecycle type (explicit, or `default_contact_type` from context) | refused |
+  | `write()` turning a non-student contact (family, provider, none) into a student-lifecycle type | refused |
+  | `write()` clearing the IDALU of a student-lifecycle contact | refused |
+  | any other `write()` on a student-lifecycle contact created without one (course transition, withdrawal, graduation...) | allowed |
+
+  A contact created under a student (the "Contacts & Addresses" tab) keeps the Students action's
+  `default_contact_type='student'` in context, but `create()` turns it into `family` first, so it
+  needs no IDALU.
+- **Normalization:** `_ems_normalize_student_id()` strips the value and stores a blank one as
+  `False`, in both `create()` and `write()`.
+- **View:** the "Student data" page marks it `required="not id and contact_type == 'student'"`
+  (new records only, matching the server rule); the "Applicant data" page already required it.
+- **`copy=False`**, so duplicating a contact never duplicates its IDALU.
+- **Merging a duplicate** (`models/contacts/partner_merge_wizard.py`): the base
+  `base.partner.merge.automatic.wizard._update_values()` writes the source's IDALU onto the
+  destination while the source still holds it, which `student_id_unique` refuses. The override
+  releases the sources' IDALU with plain SQL first (they are deleted right after; an ORM write
+  would be refused as a removal) and then writes it onto the destination if it has none.
+
+Covered by `tests/test_contact.py::TestContactStudentId`. Test fixtures get a unique IDALU from
+`tests/common.py::next_student_id()` (`TEST000001`...), which can never match a real, digits-only
+IDALU in the development database the test shards are cloned from.
+
 ---
 
 ## Portal email change

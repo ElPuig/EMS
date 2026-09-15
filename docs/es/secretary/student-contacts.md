@@ -24,7 +24,11 @@ Esta guía explica cómo gestionar los contactos de tipo **alumno, familia, aspi
 
 Cada persona o entidad en EMS es un contacto con un **tipo**: Alumno, Familia, Aspirante, Extitulado, Baja o Proveedor. El tipo de un contacto cambia automáticamente a medida que avanza por su recorrido habitual — un aspirante pasa a alumno una vez admitido, un alumno pasa a extitulado (si se ha graduado) o baja (si no lo ha hecho) al marcharse, y ambos pueden volver a ser alumno en una nueva matrícula. Añadir un contacto nuevo bajo un alumno o proveedor existente (desde la pestaña "Contactos y direcciones") le asigna automáticamente el tipo Familia o Proveedor — nunca hace falta elegirlo manualmente ahí.
 
-**ID de estudiante (IDALU).** Rellene el campo **ID de estudiante** (pestaña **Datos del estudiante**) al crear un alumno: EMS no guarda un alumno nuevo sin él. Cada IDALU pertenece a un único contacto. Si escribe uno que ya está en uso, EMS le indica qué alumno lo tiene, aunque esté archivado (por ejemplo, un antiguo alumno que vuelve): abra la ficha de ese alumno en lugar de crear una nueva. El ID de un alumno se puede corregir, pero no dejar vacío.
+**ID de estudiante (IDALU).** Rellene el campo **ID de estudiante** (pestaña **Datos del estudiante**) al crear un alumno: EMS no guarda un alumno nuevo sin él. Cada IDALU pertenece a un único contacto de todo el centro, archivados incluidos — si escribe uno que ya está en uso, EMS le indica qué contacto lo tiene (por ejemplo, un antiguo alumno que vuelve): abra esa ficha en lugar de crear una nueva. Una vez un alumno tiene ID de estudiante, se puede corregir, pero ya no se puede volver a dejar vacío.
+
+Una ficha de alumno que ya existía sin ID de estudiante sigue funcionando con normalidad — edición, cambio de curso, baja, graduación — no hace falta rellenarlo a mano solo porque falte; EMS lo guardará la próxima vez que disponga de uno para ese alumno.
+
+> **Desde la versión 18.0.0.25.0:** el ID de estudiante es obligatorio para los alumnos nuevos y único para todos los contactos.
 
 > Cómo marcar una graduación o tramitar una baja, y todo lo que ocurre con los datos de un alumno al hacerlo, se documenta en [Marcar una graduación y tramitar una baja](graduation-withdrawal.md).
 

@@ -24,7 +24,11 @@ This guide explains how to manage **student, family, applicant and provider cont
 
 Every person or organisation in EMS is a contact with a **type**: Student, Family, Applicant, Alumni, Withdrawal or Provider. A contact's type changes automatically as it moves through its normal path — an applicant becomes a student once admitted, a student becomes alumni (if they graduated) or withdrawal (if they didn't) once they leave, and either can become a student again on re-enrolment. Adding a new contact under an existing student or provider (from the "Contacts & Addresses" tab) sets its type to Family or Provider automatically — you never need to pick it manually there.
 
-**Student ID (IDALU).** Fill in the **Student ID** field (in the **Student data** tab) when you create a student: EMS doesn't save a new student without it. Each IDALU belongs to a single contact. If you type one that is already in use, EMS tells you which student has it, even when that student is archived (for example, a former student who is coming back): open that student's record instead of creating a new one. A student's Student ID can be corrected, but not left empty.
+**Student ID (IDALU).** Fill in the **Student ID** field (in the **Student data** tab) when you create a student: EMS doesn't save a new student without it. Each IDALU belongs to a single contact across the whole centre, archived contacts included — if you type one that is already in use, EMS tells you which contact has it (for example, a former student who is coming back): open that record instead of creating a new one. Once a student has a Student ID, it can be corrected but never left empty again.
+
+A student record that already existed with no Student ID keeps working normally — editing, course transition, withdrawal, graduation — you don't need to fill one in by hand just because it's missing; EMS saves it the next time one becomes available for that student.
+
+> **Since 18.0.0.25.0:** the Student ID is required for new students and unique across every contact.
 
 > How to mark a graduation or register a withdrawal, and everything that happens to a student's data when they do, is covered in [Marking a graduation and registering a withdrawal](graduation-withdrawal.md).
 

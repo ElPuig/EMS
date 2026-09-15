@@ -26,6 +26,8 @@
 | `notes` | `Text` | No | Yes | Free-form administrative notes |
 | `display_name` | `Char` (computed) | — | No | Format: `ACRONYM (Year): Name` |
 | `uses_enrollment_flow` | `Boolean` (computed, searchable) | — | No | Whether the study has at least one active `sale.order.template` |
+| `public_schedule_slug` | `Char` (computed, stored) | No | Yes | URL slug derived from `acronym` (`models/curriculum/study_schedule.py`) |
+| `public_schedule_url` | `Char` (computed) | — | No | Public link to the study's merged schedule PDF; `False` while no active group has a rendered PDF yet. Full mechanism (merging groups' own pre-rendered PDFs, no rendering or storage of its own) in [`group_schedule.md`](../contacts/group_schedule.md#study-schedule-link-every-group-of-a-study-in-one-pdf) |
 
 ### Curriculum Hierarchy
 
@@ -185,6 +187,8 @@ No record-level rules exist for this model. Teacher/Secretary/Portal read access
 | Action + Menu | `views/community/study/menu.xml` | `action_study_tree`, under Community → Configuration → Curriculum (sequence 2) |
 
 `study_ids`/`study_id` are also rendered as `many2many_tags` on `ems.authorization.template`, `ems.enrollment.authorization`, `ems.minute` and the grading wizard forms — these are simple tag pickers, not custom widgets, so they don't require dedicated tour coverage beyond the model's own CRUD screen.
+
+The form also shows `public_schedule_url` (with a copy-to-clipboard button) when set — see [`group_schedule.md`](../contacts/group_schedule.md#study-schedule-link-every-group-of-a-study-in-one-pdf) for the public controller route and `TestStudyPublicSchedule`/`TestStudyPublicScheduleRoute` (`tests/test_group_public_schedule.py`) for its test coverage.
 
 ---
 

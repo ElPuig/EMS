@@ -14258,3 +14258,18 @@ msgstr "No se puede eliminar el ID de estudiante (IDALU) de %(name)s."
 #: code:addons/ems/models/contacts/contact.py:0
 msgid "This contact"
 msgstr "Este contacto"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/migrations/18.0.0.25.0/post-migrate.py:0
+msgid "Duplicate Student ID (IDALU) %(student_id)s needs a manual Merge"
+msgstr "El ID de estudiante (IDALU) %(student_id)s está duplicado y necesita una fusión manual"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/migrations/18.0.0.25.0/post-migrate.py:0
+msgid ""
+"Contacts %(ids)s share the Student ID (IDALU) %(student_id)s, which must be unique. EMS could "
+"not merge them automatically: %(reason)s. Open Contacts, select them and use the Merge action "
+"by hand once you have decided which record should hold the data."
+msgstr "Los contactos %(ids)s comparten el ID de estudiante (IDALU) %(student_id)s, que debe ser único. EMS no ha podido fusionarlos automáticamente: %(reason)s. Abra Contactos, selecciónelos y use la acción Fusionar a mano una vez haya decidido qué registro debe conservar los datos."

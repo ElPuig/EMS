@@ -24,7 +24,11 @@ Aquesta guia explica com gestionar els contactes de tipus **alumne, família, as
 
 Cada persona o entitat a EMS és un contacte amb un **tipus**: Alumne, Família, Aspirant, Extitulat, Baixa o Proveïdor. El tipus d'un contacte canvia automàticament a mesura que avança pel seu recorregut habitual — un aspirant esdevé alumne un cop admès, un alumne esdevé extitulat (si ha graduat) o baixa (si no ho ha fet) en marxar, i tots dos poden tornar a ser alumne en una nova matrícula. Afegir un contacte nou sota un alumne o proveïdor existent (des de la pestanya "Contactes i adreces") li assigna automàticament el tipus Família o Proveïdor — no cal triar-lo mai manualment allà.
 
-**Identificador d'estudiant (IDALU).** Ompliu el camp **Identificador d'estudiant** (pestanya **Dades de l'estudiant**) quan creeu un alumne: EMS no desa un alumne nou sense aquest camp. Cada IDALU pertany a un sol contacte. Si n'escriviu un que ja està en ús, EMS us indica quin alumne el té, encara que estigui arxivat (per exemple, un antic alumne que torna): obriu la fitxa d'aquest alumne en lloc de crear-ne una de nova. L'identificador d'un alumne es pot corregir, però no es pot deixar buit.
+**Identificador d'estudiant (IDALU).** Ompliu el camp **Identificador d'estudiant** (pestanya **Dades de l'estudiant**) quan creeu un alumne: EMS no desa un alumne nou sense aquest camp. Cada IDALU pertany a un sol contacte de tot el centre, arxivats inclosos — si n'escriviu un que ja està en ús, EMS us indica quin contacte el té (per exemple, un antic alumne que torna): obriu aquesta fitxa en lloc de crear-ne una de nova. Un cop un alumne té Identificador d'estudiant, es pot corregir, però ja no es pot tornar a deixar buit.
+
+Una fitxa d'alumne que ja existia sense Identificador d'estudiant continua funcionant amb normalitat — edició, canvi de curs, baixa, graduació — no cal que l'ompliu a mà només perquè hi falta; EMS el desarà la propera vegada que en tingueu un de disponible per a aquest alumne.
+
+> **Des de la versió 18.0.0.25.0:** l'Identificador d'estudiant és obligatori per als alumnes nous i únic per a tots els contactes.
 
 > Com marcar una graduació o tramitar una baixa, i tot el que passa amb les dades d'un alumne quan ho feu, es documenta a [Marcar una graduació i tramitar una baixa](graduation-withdrawal.md).
 

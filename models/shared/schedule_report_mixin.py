@@ -13,6 +13,12 @@ from odoo import models
 # tolerance for the same kind of comparison.
 HOUR_EPSILON = 1 / 120
 
+# Issue #453 - base path of the public, no-login schedule PDFs: one per group (models/contacts/
+# group_schedule.py) and one per study (models/curriculum/study_schedule.py). Shared here, not in
+# either of those files: 'shared' is imported first, so importing it from another area never
+# changes the order Odoo registers that area's models in.
+PUBLIC_SCHEDULE_ROUTE = '/ems/schedule'
+
 
 class EmsScheduleReportMixin(models.AbstractModel):
     _name = 'ems.schedule_report_mixin'

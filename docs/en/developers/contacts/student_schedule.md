@@ -124,7 +124,44 @@ header showing the student's name and (when set) their main group instead of a t
 No new ACL rows needed: `res.partner` is already readable by every internal role that opens
 the student form (`ems.access_res_partner_admin`/`_teacher`/`_secretary`), and
 `resource.calendar`/`resource.calendar.attendance` are already readable by every internal
-user (base Odoo ACL) — same as the group's own tab. This tab is reached from the **backend**
-student form only; portal-facing roles (`ems.group_student_data_reader`, families/students
-via `base.group_portal`) have no access to it and are out of scope for this feature, matching
-the group tab's own scoping.
+user (base Odoo ACL) — same as the group's own tab. The backend tab is reached from the student
+form only; portal users reach the same schedule through the portal page below.
+
+## Student portal page (issue #453)
+
+Families and students see the schedule on the portal's **Attendance** card (`/my/asistencia`),
+which replaces that card's "under construction" placeholder (`/my/calificaciones` keeps it).
+
+```mermaid
+flowchart LR
+    U["Portal user (student, or family with the header's selected child)"] -->|GET /my/asistencia| C["controllers/portal_schedule.py"]
+    C -->|"request.env.user.partner_id.get_portal_student()"| S["res.partner (student), sudo"]
+    S --> L["get_schedule_report_lines() / get_subject_teachers_summary()"]
+    L --> P["ems.portal_schedule page: grid in .table-responsive + PDF button"]
+    L --> G["ems.schedule_report_grid (shared QWeb: grid + Subject/Teacher(s) table)"]
+    P --> G
+    U -->|GET /my/asistencia/pdf| R["ems.report_student_schedule rendered on request"]
+    R --> G
+```
+
+- **Which student:** always `get_portal_student()` - the student themself, or the child selected
+  in the portal header for a family with several children. No student id travels in the URL, so a
+  family can never ask for someone else's child.
+- **Page** (`views/portal/portal_schedule.xml`, `ems.portal_schedule`): student name and main
+  group, then the grid and the "Subject → Teacher(s)" table through `ems.schedule_report_grid`
+  (`reports/contacts/report_schedule_grid.xml`), the same sub-template both PDF reports call.
+  The grid sits in a `.table-responsive` wrapper: horizontal scroll on narrow screens (developer
+  choice, no per-day list layout). An empty state covers a partner with no schedule (e.g. a family
+  contact with no linked student).
+- **PDF** (`/my/asistencia/pdf`): renders `ems.report_student_schedule` **on request**, in the
+  portal user's language, and streams it inline. Unlike the group's public link, nothing is
+  stored: it's private, per student and low volume (developer choice). A partner that isn't a
+  student is redirected back to the page.
+- **sudo:** portal users have no ACL on `resource.calendar*` (nor on other students' partners),
+  so both routes read the resolved student with sudo; the scoping is entirely `get_portal_student()`.
+
+| Action | Portal user (student / family) |
+|--------|--------------------------------|
+| See their own (or their selected child's) weekly schedule on the portal | Yes |
+| Download that schedule as PDF | Yes |
+| See or download another student's schedule | No (no student id in the URL; always `get_portal_student()`) |

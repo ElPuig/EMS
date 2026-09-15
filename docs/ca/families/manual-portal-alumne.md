@@ -28,9 +28,9 @@ Actualment, el portal permet realitzar les següents gestions:
 * **Documentació:** Pujar, desar i consultar tots els documents oficials sol·licitats pel centre.
 * **Comunicacions:** Rebre de forma immediata els missatges, circulars i avisos enviats per l'equip directiu, tutors o secretaria.
 * **Perfil:** Mantenir actualitzades les dades personals, de contacte i de seguretat del compte d'accés.
+* **Assistència:** Consultar l'horari setmanal de classes de l'alumne i descarregar-lo en PDF.
 
-**Funcionalitats disponibles pròximament.** Estem treballant en el desenvolupament de nous mòduls per millorar l'eina. Molt aviat s'activaran els següents entorns:
-* **Assistència:** Consultar els registres d'assistència.
+**Funcionalitats disponibles pròximament.** Estem treballant en el desenvolupament de nous mòduls per millorar l'eina. Molt aviat s'activarà l'entorn següent:
 * **Qualificacions:** Accedir de forma directa a les notes de les diferents avaluacions.
 
 ---

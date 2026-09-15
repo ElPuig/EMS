@@ -48,6 +48,23 @@ Opening the menu shows a list of all studies sorted by code. Each row shows the 
 
 ---
 
+## Public Link to the Study's Schedules
+
+Every study with active groups has a public link to a single PDF with the weekly schedule of all
+of them, one after another by course and group (e.g. SMX1A, SMX1B... then SMX2A, SMX2B...). Anyone
+can open it without logging in to EMS, so the centre's website can link one PDF per study.
+
+1. Open **Educational Community → Configuration → Curriculum → Studies → [a study]**.
+2. In the **Public schedule link** field (e.g. `.../ems/schedule/study/smx.pdf`), click the link
+   to open the PDF in a new tab, or click the button on its right to copy the link.
+
+The PDF always includes the study's current active groups, each with its schedule as shown by its
+own public link (see [A Group's Weekly Schedule](group-schedule.md#public-link-to-the-schedule-pdf)),
+so the link never needs to be replaced when groups change from one year to the next. The link is
+built from the study's acronym: if the acronym changes, the link changes too.
+
+---
+
 ## Retire a Study
 
 Studies are rarely deleted, since doing so is blocked once other records (enrolments, groups, grades) reference them. To stop offering a study while keeping its history:

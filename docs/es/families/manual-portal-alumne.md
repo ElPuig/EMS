@@ -28,9 +28,9 @@ Actualmente, el portal permite realizar las siguientes gestiones:
 * **Documentación:** Subir, guardar y consultar todos los documentos oficiales solicitados por el centro.
 * **Comunicaciones:** Recibir de forma inmediata los mensajes, circulares y avisos enviados por el equipo directivo, tutores o secretaría.
 * **Perfil:** Mantener actualizados los datos personales, de contacto y de seguridad de la cuenta de acceso.
+* **Asistencia:** Consultar el horario semanal de clases del alumno y descargarlo en PDF.
 
-**Funcionalidades disponibles próximamente.** Estamos trabajando en el desarrollo de nuevos módulos para mejorar la herramienta. Muy pronto se activarán los siguientes entornos:
-* **Asistencia:** Consultar los registros de asistencia.
+**Funcionalidades disponibles próximamente.** Estamos trabajando en el desarrollo de nuevos módulos para mejorar la herramienta. Muy pronto se activará el siguiente entorno:
 * **Calificaciones:** Acceder de forma directa a las notas de las diferentes evaluaciones.
 
 ---

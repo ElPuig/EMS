@@ -406,6 +406,9 @@ class ems_working_schedule_assignation(models.Model):
 		'active', 'subject_id', 'group_ids', 'dayofweek', 'hour_from', 'hour_to', 'space_id',
 		'date_from', 'date_to', 'non_teaching', 'calendar_id',
 	}
+	# Issue #453 - every field ems.report_group_schedule prints (or filters by) from a block, so a
+	# change to any of them has to re-render the affected groups' public PDF.
+	_PUBLIC_SCHEDULE_TRIGGER_FIELDS = _SYNC_TRIGGER_FIELDS | {'topic', 'day_period'}
 
 	@api.model_create_multi
 	def create(self, vals_list):
@@ -420,24 +423,42 @@ class ems_working_schedule_assignation(models.Model):
 		# 'hr.employee._ems_sync_schedule_from_calendar_unless_suppressed()', the one place that
 		# decision is made, regardless of which of the three overrides below reached it.
 		records.mapped('employee_id')._ems_sync_schedule_from_calendar_unless_suppressed()
+		records._get_public_schedule_groups()._mark_public_schedule_dirty()
 		return records
 
 	def write(self, vals):
 		trigger = bool(vals.keys() & self._SYNC_TRIGGER_FIELDS)
+		public_trigger = bool(vals.keys() & self._PUBLIC_SCHEDULE_TRIGGER_FIELDS)
 		# 'calendar_id' should never actually change here (see the field set's own note above), but
 		# capturing the PRE-write teacher(s) too costs nothing and closes that edge case for real,
 		# rather than only trusting it never happens.
 		before = self.mapped('employee_id') if trigger else self.env['hr.employee']
+		groups_before = self._get_public_schedule_groups() if public_trigger else self.env['ems.group']
 		res = super().write(vals)
 		if trigger:
 			(before | self.mapped('employee_id'))._ems_sync_schedule_from_calendar_unless_suppressed()
+		if public_trigger:
+			(groups_before | self._get_public_schedule_groups())._mark_public_schedule_dirty()
 		return res
 
 	def unlink(self):
 		before = self.mapped('employee_id')
+		groups_before = self._get_public_schedule_groups()
 		res = super().unlink()
 		before._ems_sync_schedule_from_calendar_unless_suppressed()
+		groups_before._mark_public_schedule_dirty()
 		return res
+
+	def _get_public_schedule_groups(self):
+		"""Every ems.group whose public schedule PDF prints one of these blocks: the block's own
+		'group_ids', plus - for a block on a schedule framework, i.e. a break - every group of that
+		framework's level (see 'ems.schedule_report_mixin._get_level_break_entries')."""
+		blocks = self.sudo()
+		frameworks = blocks.calendar_id.filtered(lambda calendar: calendar.is_framework and calendar.level_id)
+		groups = blocks.group_ids
+		if frameworks:
+			groups |= self.env['ems.group'].sudo().search([('level_id', 'in', frameworks.level_id.ids)])
+		return groups
 
 	@api.depends("calendar_id")
 	def _compute_employee_id(self):

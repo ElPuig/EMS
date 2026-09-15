@@ -115,6 +115,10 @@ from . import test_group_classroom_suggestion
 from . import test_group_classroom_suggestion_tour
 from . import test_group_schedule
 from . import test_group_schedule_topic_classroom_edit_tour
+from . import test_group_public_schedule
+from . import test_group_public_schedule_tour
+from . import test_portal_schedule
+from . import test_portal_schedule_tour
 from . import test_guard_duty_board
 from . import test_guard_duty_board_tour
 from . import test_em_grading_wizard

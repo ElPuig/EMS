@@ -16,6 +16,7 @@ Esta sección contiene los manuales para **familias y alumnos**.
 | [Confirmar la propuesta de matrícula](manual-confirmacio-matricula.md) | Cómo revisar y confirmar la propuesta de matrícula que llega por correo |
 | [Recuperar la contraseña del correo del instituto](manual-recuperacio-contrasenya-correu.md) | Cómo recuperar la contraseña de la cuenta de correo `@elpuig.xeill.net` |
 | [Subir documentos oficiales, IBAN y solicitudes de beneficios](manual-documentacio.md) | Cómo enviar documentos de DNI/tarjeta sanitaria, registrar tu IBAN y solicitar una bonificación o exención |
+| [Consultar el horario de clases](manual-horari.md) | Cómo ver el horario semanal del alumno en el portal y descargarlo en PDF |
 
 ---
 

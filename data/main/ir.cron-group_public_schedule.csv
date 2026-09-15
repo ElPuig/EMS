@@ -1,0 +1,2 @@
+"id","name","model_id/id","user_id/id","state","code","interval_number","interval_type"
+"ems.ir_cron_group_public_schedule","EMS: Group public schedule PDFs","ems.model_ems_group","base.user_root","code","model._cron_generate_public_schedules()","1","days"

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <!-- Follow-up screen for the secretary's office: who has answered what, across both
+             routes an authorization can reach a student by (the enrollment process, and the
+             send assistant during the course - issue #443). The enrollment form's own
+             Authorizations page only ever shows one enrollment's worth. -->
+        <record id="action_ems_authorizations" model="ir.actions.act_window">
+            <field name="name">Authorizations</field>
+            <field name="res_model">ems.authorization</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="ems.view_ems_authorization_search"/>
+            <!-- Opens flat on the running year's working set. Grouping by authorization is
+                 one click away in the search panel, but it is not the default: the common
+                 question here is "what is still pending", which a flat list answers. -->
+            <field name="context">{'search_default_current_course': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No authorization has been requested yet.
+                </p>
+                <p>
+                    Authorizations reach a student either with their enrollment or, during the
+                    course, through the Send Authorizations assistant.
+                </p>
+            </field>
+        </record>
+
+        <record id="view_ems_authorization_list" model="ir.ui.view">
+            <field name="name">ems.authorization.list</field>
+            <field name="model">ems.authorization</field>
+            <field name="arch" type="xml">
+                <list string="Authorizations" create="false">
+                    <field name="partner_id"/>
+                    <field name="course_id"/>
+                    <field name="template_id"/>
+                    <field name="status"
+                           decoration-danger="status == 'no'"
+                           decoration-success="status == 'yes'"
+                           decoration-warning="status == 'pending'"/>
+                    <field name="response_date"/>
+                    <field name="signed_document" widget="binary" filename="signed_document_name"/>
+                    <field name="signed_document_name" column_invisible="1"/>
+                    <field name="enrollment_id" optional="hide"/>
+                    <field name="group_id" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- What the Responses menu opens: the whole list for the staff, a tutor's own students
+             otherwise. Decided in Python (ems.authorization.action_open_follow_up) because the
+             teacher read rule already lets every teacher read every authorization. The window
+             action above stays the one tours and links open directly. -->
+        <record id="action_ems_authorizations_follow_up" model="ir.actions.server">
+            <field name="name">Responses</field>
+            <field name="model_id" ref="model_ems_authorization"/>
+            <field name="state">code</field>
+            <field name="code">action = model.action_open_follow_up()</field>
+        </record>
+
+    </data>
+</odoo>

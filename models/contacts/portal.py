@@ -72,6 +72,47 @@ class ems_contact_portal(models.Model):
             _revoke(member)
         return summary
 
+    def _ems_family_contacts(self):
+        """Family contacts related to this student, empty if none is on file.
+
+        sudo() because res.partner.relation.all is not readable by the portal users that
+        reach this through get_portal_inner_circle_ids(), and because a tutor granting
+        access to their own students has no rights on it either.
+        """
+        self.ensure_one()
+        return self.env['res.partner.relation.all'].sudo().search([
+            ('this_partner_id', '=', self.id),
+            ('other_partner_id.contact_type', '=', 'family'),
+        ]).mapped('other_partner_id')
+
+    def _ems_notification_recipients(self):
+        """Partners that should be contacted on this student's behalf - portal credentials,
+        an authorization sent during the course, anything addressed to "the student" that a
+        minor's family must receive instead.
+
+        - Adult (student or applicant) -> himself (uses his main `email`).
+        - Minor with family contacts -> those family contacts, whether he is a
+          student or an applicant. An ex-student coming back is an applicant of the
+          study he is heading to (sale.order._ems_offer_to_ex_student), and his family
+          relations survived the withdrawal, so the family is known and is who must
+          be contacted, exactly as for any other minor.
+        - Minor applicant with no family contact -> himself. This is the applicant
+          straight from a GEDAC preinscription: the family contacts are genuinely not
+          known yet, so his personal `email` is the only address available.
+        - Minor student with no family contact -> nobody; the callers
+          (ems.portal.access.wizard, ems.authorization.send.wizard) report it as an issue.
+
+        Lives here rather than on either wizard because both need the identical rule -
+        see docs/en/developers/contacts/portal_access_wizard.md.
+        """
+        self.ensure_one()
+        if self.is_adult:
+            return self
+        family = self._ems_family_contacts()
+        if family or self.contact_type != 'applicant':
+            return family
+        return self
+
     def get_portal_student(self, student_id=None):
         """Returns the student partner for this partner.
 
@@ -112,11 +153,31 @@ class ems_contact_portal(models.Model):
         via get_portal_student()).
         """
         self.ensure_one()
-        relations = self.env['res.partner.relation.all'].sudo().search([
-            ('this_partner_id', '=', self.id),
-            ('other_partner_id.contact_type', '=', 'family'),
-        ])
-        return [self.id] + relations.mapped('other_partner_id').ids
+        return [self.id] + self._ems_family_contacts().ids
+
+    def get_portal_authorizations(self):
+        """Every authorization addressed to this student for the courses that are live for
+        them - the one being taught and the one being enrolled into - whether it came through
+        an enrollment or was sent on its own during the school year (issue #443).
+
+        Read from partner_id rather than from the enrollment precisely because the second
+        kind has no enrollment: the running course's enrollment is confirmed and closed by
+        the time those are sent, which is why they exist at all.
+
+        sudo() for the same reason as every other helper here: a family's portal user does
+        not own its child's records.
+
+        Usage in controllers:
+            authorizations = student.get_portal_authorizations()
+        """
+        self.ensure_one()
+        Course = self.env['ems.course']
+        courses = Course.search(['|', ('is_current', '=', True),
+                                 ('is_enrollment_default', '=', True)])
+        return self.env['ems.authorization'].sudo().search([
+            ('partner_id', '=', self.id),
+            ('course_id', 'in', courses.ids),
+        ], order='course_id desc, id')
 
     def get_portal_enrollment_ids(self):
         """Returns all sale order IDs for this student in the portal context.

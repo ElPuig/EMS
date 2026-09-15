@@ -367,11 +367,15 @@
                                     <field name="notes" optional="hide"/>
                                 </list>
                             </field>
-                            <separator string="Enrollment Authorizations" colspan="2"/>
+                            <!-- Scoped to the academic year in force, same as the badges
+                                 above (res.partner._ems_course_in_force()), so the list can
+                                 never look empty next to a green badge. -->
+                            <separator string="Authorizations" colspan="2"/>
                             <field name="ems_authorization_ids" nolabel="1" colspan="2" readonly="1">
                                 <list create="0" delete="0" edit="0">
                                     <field name="template_id" string="Authorization"/>
-                                    <field name="course_id" string="Enrollment / Year"/>
+                                    <field name="course_id" string="Academic Year"/>
+                                    <field name="enrollment_id" optional="hide"/>
                                     <field name="status" 
                                             decoration-danger="status == 'no'" 
                                             decoration-success="status == 'yes'" 

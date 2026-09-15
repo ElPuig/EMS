@@ -33,7 +33,7 @@ Per iniciar el tràmit, feu clic sobre l'enllaç **la meva matrícula** del corr
 
 ## Pas 1 — Accés al portal i a l'apartat Matrícula
 
-Un cop heu iniciat sessió, arribareu a la pàgina d'inici del portal (*El meu compte*). Des del menú superior o des de les targetes centrals, feu clic a **Matrícula**.
+Un cop heu iniciat sessió, arribareu a la pàgina d'inici del portal (*El meu compte*). Des del menú superior o des de les targetes centrals, feu clic a **Matrícula i autoritzacions**.
 
 ![Pàgina d'inici del portal amb l'accés a l'apartat Matrícula](../../assets/families/Matricula-confirmacio-00.png)
 

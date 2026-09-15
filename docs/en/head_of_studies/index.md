@@ -18,6 +18,7 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 - [Attendance Reports](attendance-reports.md)
 - [Managing staff absences](absences.md)
 - [Creating and Editing Teachers](staff-management.md)
+- [Authorizations: creating, sending and following up](../secretary/authorizations.md) — Creating authorization forms, sending them to students during the course and following up the answers (shared manual with the secretariat).
 - [Notices: Sending Your Own Bulk Emails](notice.md)
 - [Guard Duty Schedule](../teachers/guard-duty-schedule.md) — Who is missing each time block, and who is on guard duty to cover it.
 

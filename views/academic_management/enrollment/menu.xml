@@ -34,5 +34,6 @@
                       action="action_ems_enrollments"
                       groups="ems.group_academic_admin,ems.group_secretary"
                       sequence="30"/>
+
     </data>
 </odoo>

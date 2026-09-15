@@ -33,7 +33,7 @@ To start the process, click the **my enrollment** link in the email, or access t
 
 ## Step 1 — Accessing the portal and the Enrollment section
 
-Once you have logged in, you will land on the portal's home page (*My account*). From the top menu or the central cards, click **Enrollment**.
+Once you have logged in, you will land on the portal's home page (*My account*). From the top menu or the central cards, click **Enrollment and authorizations**.
 
 ![Portal home page with access to the Enrollment section](../../assets/families/Matricula-confirmacio-00.png)
 

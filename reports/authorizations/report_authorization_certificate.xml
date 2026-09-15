@@ -38,19 +38,21 @@
                                 <tbody>
                                     <tr>
                                         <td>Student</td>
-                                        <td><span t-field="auth.enrollment_id.partner_id.name"/></td>
+                                        <td><span t-field="auth.partner_id.name"/></td>
                                     </tr>
-                                    <tr>
+                                    <!-- An authorization sent during the course has no
+                                         enrollment to quote a code from. -->
+                                    <tr t-if="auth.enrollment_id">
                                         <td>Enrollment code</td>
                                         <td><span t-field="auth.enrollment_id.name"/></td>
                                     </tr>
                                     <tr>
                                         <td>Academic year</td>
-                                        <td><span t-field="auth.enrollment_id.ems_course_id.name"/></td>
+                                        <td><span t-field="auth.course_id.name"/></td>
                                     </tr>
                                     <tr>
                                         <td>Study</td>
-                                        <td><span t-field="auth.enrollment_id.ems_study_id.name"/></td>
+                                        <td><span t-field="auth.study_name"/></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -114,7 +116,11 @@
                                     </tr>
                                     <tr>
                                         <td>Responded from</td>
-                                        <td>Student Portal</td>
+                                        <!-- Staff answering on the student's behalf (with the
+                                             signed paper form attached) is a real path, more so
+                                             for authorizations sent during the course. -->
+                                        <td t-if="auth.response_uid.share">Student Portal</td>
+                                        <td t-else="">Backoffice</td>
                                     </tr>
                                 </tbody>
                             </table>

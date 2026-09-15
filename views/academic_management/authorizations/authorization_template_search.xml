@@ -9,7 +9,14 @@
                    
                     <field name="name" string="Name"/>
 
+                    <filter string="Enrollment process" name="enrollment_process"
+                            domain="[('apply_on_enrollment', '=', True)]"/>
+                    <filter string="Sent during the course" name="sendable"
+                            domain="[('sendable_during_course', '=', True)]"/>
+
                     <group expand="0" string="Group By">
+                        <filter string="Applies to enrollment" name="groupby_apply_on_enrollment" context="{'group_by': 'apply_on_enrollment'}"/>
+                        <filter string="Can be sent during the course" name="groupby_sendable" context="{'group_by': 'sendable_during_course'}"/>
                         <filter string="Level" name="groupby_ems_level" context="{'group_by': 'ems_level_ids'}"/>
                         <filter string="Study" name="groupby_ems_study" context="{'group_by': 'ems_study_ids'}"/>
                     </group>

@@ -101,6 +101,50 @@ class TestContactLifecycle(TransactionCase):
         self.assertTrue(student.auth_image)
         self.assertEqual(student.ems_authorization_ids, order.ems_authorization_ids)
 
+    def test_auth_flags_read_an_authorization_sent_during_the_course(self):
+        """Issue #443: an authorization accepted mid-year, with no enrollment behind it,
+        counts exactly as much as one accepted at enrollment time - before this it could
+        not be seen at all, since the flags only ever walked the enrollment."""
+        incoming = self._incoming_course()
+        self.env.company.current_course_id = self.course     # outgoing still current
+        student, _order = self._enrolled('LFC Auth Standalone', incoming)
+        self.assertFalse(student.auth_trip)
+        self.env['ems.authorization'].create({
+            'partner_id': student.id,
+            'course_id': incoming.id,
+            'template_id': self._auth_template('trip').id,
+            'status': 'yes',
+        })
+        self.assertTrue(student.auth_trip)
+
+    def test_the_authorization_list_includes_the_ones_sent_during_the_course(self):
+        incoming = self._incoming_course()
+        self.env.company.current_course_id = self.course
+        student, order = self._enrolled('LFC Auth Standalone List', incoming, 'image')
+        standalone = self.env['ems.authorization'].create({
+            'partner_id': student.id,
+            'course_id': incoming.id,
+            'template_id': self._auth_template('trip').id,
+        })
+        self.assertEqual(student.ems_authorization_ids,
+                         order.ems_authorization_ids | standalone)
+
+    def test_the_authorization_list_stays_scoped_to_the_course_in_force(self):
+        """An authorization from another academic year does not belong next to badges
+        that speak about this one."""
+        incoming = self._incoming_course()
+        self.env.company.current_course_id = self.course
+        student, _order = self._enrolled('LFC Auth Other Year', incoming)
+        other_year = self.env['ems.course'].create({'start': 2080, 'end': 2081})
+        self.env['ems.authorization'].create({
+            'partner_id': student.id,
+            'course_id': other_year.id,
+            'template_id': self._auth_template('health').id,
+            'status': 'yes',
+        })
+        self.assertFalse(student.ems_authorization_ids)
+        self.assertFalse(student.auth_healt)
+
     def test_auth_flags_are_false_without_an_enrollment(self):
         student = self.env['res.partner'].create({
             'name': 'LFC Auth None', 'contact_type': 'student',

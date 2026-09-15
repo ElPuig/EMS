@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
 """Regenerates the screenshots used by the user manuals.
 
-Not part of the test suite: tagged '-standard', so `./test.sh` never runs it. Run it by hand
-when a documented screen changes its look:
+Not part of the test suite: tagged '-standard', so `./test.sh` never runs it - nor can it, since
+test.sh's own `/ems:<Class>` selector leaves non-standard tests out (it runs 0 tests). Run it by
+hand when a documented screen changes its look, selecting it by its own tag:
 
-    ./test.sh '/ems:TestDocsScreenshots'
+    sudo service odoo stop
+    sudo -u odoo odoo -d ems --test-enable --test-tags='ems_screenshots/ems' \\
+         --stop-after-init -c /etc/odoo/odoo.conf
+    sudo service odoo start
+
+(append `:TestDocsScreenshots.<test_method>` to the tag to rebuild just one manual's shots).
 
 It writes PNGs to /tmp/ems_doc_screenshots (override with EMS_SCREENSHOT_DIR) and they are
 then copied into docs/assets/ by hand - the test process runs as the `odoo` user, which has
@@ -20,20 +26,25 @@ one element for the same reason, plus it is what makes the image readable in a m
 import base64
 import json
 import os
-from datetime import date
+from datetime import date, datetime
 
 import werkzeug.urls
 from dateutil.relativedelta import relativedelta
 
 from odoo.tests.common import ChromeBrowser, HttpCase, tagged
 
-from .common import create_level_study_group, create_role_employee, create_role_user
+from .common import (
+    create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email, next_student_id,
+)
 
 OUTPUT_DIR = os.environ.get('EMS_SCREENSHOT_DIR', '/tmp/ems_doc_screenshots')
 
 
 @tagged('-standard', 'ems_screenshots', 'post_install', '-at_install')
 class TestDocsScreenshots(HttpCase):
+    # The invented school day the tutors' justification manual is shot on.
+    JUSTIFIED_DAY = date(2026, 3, 2)
+
     # A tour preparing a shot ends on a filled-in, unsaved form on purpose - that is the state
     # being photographed. Odoo's own switch for it (ChromeBrowser._handle_console skips its
     # end-of-tour dirty-form check when the test case sets this).
@@ -141,10 +152,61 @@ class TestDocsScreenshots(HttpCase):
             },
         })
 
+        cls._setup_justifications()
+
+    @classmethod
+    def _setup_justifications(cls):
+        """Two classes of the invented group on JUSTIFIED_DAY - one taught by the tutor, one by a
+        colleague - with every student absent, and a justification already saved for Pau."""
+        # Marking a line as a miss queues family notifications.
+        mock_outgoing_email(cls)
+        colleague = cls.env['hr.employee'].create({'name': 'Laia Docent', 'employee_type': 'teacher'})
+        space = cls.env['ems.space'].create({
+            'code': 'DOC-A', 'name': 'Aula 21',
+            'space_type_id': cls.env.ref('ems.space_type_classroom').id,
+            'work_location_id': cls.env.ref('ems.work_location_main').id,
+        })
+        miss = cls.env.ref('ems.attendance_status_miss')
+        for teacher, start_time in ((cls.group.tutor_id, 9.0), (colleague, 11.0)):
+            template = cls.env['ems.attendance_template'].create({
+                'teacher_ids': [(6, 0, teacher.ids)], 'study_ids': [(6, 0, cls.study.ids)],
+                'subject_id': cls.subject.id, 'group_ids': [(6, 0, cls.group.ids)],
+                'start_date': date(2020, 1, 1), 'end_date': date(2099, 12, 31),
+            })
+            schedule = cls.env['ems.attendance_schedule'].create({
+                'attendance_template_id': template.id, 'weekday': str(cls.JUSTIFIED_DAY.weekday()),
+                'start_time': start_time, 'end_time': start_time + 1, 'space_id': space.id,
+                'student_ids': [(6, 0, cls.students.ids)],
+            })
+            session = cls.env['ems.attendance_session_header'].create({
+                'attendance_schedule_id': schedule.id, 'date': cls.JUSTIFIED_DAY,
+                'mode': 'scheduled', 'session_teacher_id': teacher.id,
+            })
+            for line in session.attendance_session_line_ids:
+                line.status_id = miss
+
+        pau = cls.students[1]
+        cls.justification = cls.env['ems.attendance_justification'].create({
+            'teacher_id': cls.group.tutor_id.id, 'student_id': pau.id,
+            'start_date': datetime(2026, 3, 2, 7, 0), 'end_date': datetime(2026, 3, 2, 13, 0),
+            'attendance_session_line_ids': [(6, 0, cls.env['ems.attendance_session_line'].search([
+                ('student_id', '=', pau.id), ('date', '=', cls.JUSTIFIED_DAY)]).ids)],
+            'notes': 'Visita mèdica',
+        })
+        cls.justification.attachment_ids = cls.env['ir.attachment'].create({
+            'name': 'Justificant_metge.pdf', 'datas': base64.b64encode(b'%PDF-1.4 x'),
+            'res_model': 'ems.attendance_justification', 'res_id': cls.justification.id,
+        })
+        cls.justification_action = cls.env['ir.actions.act_window'].create({
+            'name': 'Justificants', 'res_model': 'ems.attendance_justification',
+            'view_mode': 'list,form', 'domain': [('student_id', 'in', cls.students.ids)],
+        })
+
     @classmethod
     def _student(cls, name):
         student = cls.env['res.partner'].create({
             'name': name, 'contact_type': 'student', 'main_group_id': cls.group.id,
+            'student_id': next_student_id(),
             'email': '%s@example.com' % name.split()[0].lower(),
             'birth_date': date.today() - relativedelta(years=19),
         })
@@ -293,4 +355,27 @@ class TestDocsScreenshots(HttpCase):
             'authorizations-portal.png',
             login='doc_shot_portal',
             wait_for='#portal_authorizations .ems-auth-answer',
+        )
+
+    def test_capture_tutor_justification_screenshots(self):
+        self._capture(
+            '/odoo/action-%d' % self.justification_action.id,
+            '.o_content', 'justificants-01-llista.png',
+            login='doc_shot_tutor',
+            wait_for='.o_list_renderer .o_data_row',
+        )
+        self._capture(
+            '/odoo/action-%d/new' % self.justification_action.id,
+            '.o_form_sheet', 'justificants-02-nou.png',
+            login='doc_shot_tutor',
+            tour='ems_doc_shot_tutor_justification',
+        )
+        # Third tab of the notebook: Affected sessions, Affected teachers, Attached files, Notes.
+        self._capture(
+            '/odoo/action-%d/%d' % (self.justification_action.id, self.justification.id),
+            '.o_form_sheet', 'justificants-03-adjunts.png',
+            login='doc_shot_tutor',
+            wait_for='.o_form_sheet .o_notebook',
+            click='.o_notebook .nav-item:nth-child(3) .nav-link',
+            wait_after=".o_field_widget[name='attachment_ids'] .o_data_row",
         )

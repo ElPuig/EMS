@@ -455,9 +455,10 @@ empirically on the dev database.
 ## Regenerating the manual screenshots
 
 `tests/test_docs_screenshots.py` (tagged `-standard`, so `./test.sh` never
-runs it) rebuilds the five PNGs the user manuals use, a tutor's view of the send assistant
-included. Run it by hand when a
-documented screen changes:
+runs it, not even by class name) rebuilds the PNGs the user manuals use: this feature's five, a
+tutor's view of the send assistant included, in `test_capture_manual_screenshots`, and the
+tutors' justification manual's three in `test_capture_tutor_justification_screenshots`. Run it
+by hand when a documented screen changes:
 
 ```
 sudo service odoo stop

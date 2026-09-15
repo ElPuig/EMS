@@ -90,7 +90,13 @@ class EmsAttendanceJustification(models.Model):
             if justification.student_id.id != False and justification.start_date != False and justification.end_date != False:
                 # NOTE: Because changing dates is allowed, already justified abscences must be included
                 # 		(already justified will fail due overlapping check).
-                statuses = self.env["ems.attendance_session_line"].search([
+                # NOTE: sudo() for the student's tutor (or an admin): most sessions within the period are
+                #       taught by other teachers, whose headers the teacher record rules hide - the search
+                #       below filters on them, so it silently skipped those absences (issue #469).
+                lines = self.env["ems.attendance_session_line"]
+                if justification._check_permissions():
+                    lines = lines.sudo()
+                statuses = lines.search([
                     '|',
                     ("status_id", "=", self.env.ref("ems.attendance_status_miss").id),
                     ("status_id", "=", self.env.ref("ems.attendance_status_justified").id),
@@ -111,7 +117,7 @@ class EmsAttendanceJustification(models.Model):
                             status_ids.append(status.id)
                             # NOTE: shoudl be done with write, direct attribute assignation does not work if the current
                             #		item is beeing created (the ID will be something like NEW_xxxx).
-                            status.write({
+                            status.sudo(False).write({
                                 "attendance_justification_id" : [(4, justification.id)]
                             })
 

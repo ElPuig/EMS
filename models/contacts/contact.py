@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools import email_normalize
 from ..shared import base
 import datetime
 import re
 from dateutil.relativedelta import relativedelta
 from markupsafe import Markup
+
+# The only fields guidance (Orientació) may write on a student or applicant it could not edit
+# otherwise - see rule_contact_orientation_special_needs and _ems_check_orientation_write() (issue #465).
+ORIENTATION_WRITABLE_FIELDS = {'special_needs'}
 
 class EmsStudentBenefit(models.Model):
     _name = 'ems.student.benefit'
@@ -118,11 +122,12 @@ class ResPartner(models.Model):
         help="Course granted to the applicant at pre-enrollment (1st to 4th).")
     # Special educational needs (NEE) typology, as reported by the preinscription
     # ("Tipus alumne"). Sensitive data: the ORM `groups` restrict it to tutors,
-    # secretary and admin, and it is never rendered on the portal. Empty = ordinary.
+    # secretary, admin and guidance (which also edits it on any student, issue #465),
+    # and it is never rendered on the portal. Empty = ordinary.
     special_needs = fields.Selection(
         selection=[('nee_a', 'NEE-A'), ('nee_b', 'NEE-B')],
         string='Special educational needs',
-        groups='ems.group_tutor,ems.group_secretary,ems.group_academic_admin',
+        groups='ems.group_tutor,ems.group_secretary,ems.group_academic_admin,ems.group_orientation',
         help="Special educational needs typology from the preinscription: type A "
              "(disability, ASD, serious behavioural/developmental/mental disorders); "
              "type B (specially disadvantaged socio-economic or socio-cultural "
@@ -243,6 +248,10 @@ class ResPartner(models.Model):
     # NOTE: this field is computed when loaded within a form or list
     read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
     is_tutor_readonly = fields.Boolean(default=lambda self:self._get_is_tutor_readonly(), store=False)
+    # read_only_user minus guidance, which edits the special educational needs of any student
+    # (issue #465) - same default()-only idiom as the two booleans above.
+    special_needs_readonly = fields.Boolean(
+        string='Special needs read-only', default=lambda self: self._get_special_needs_readonly(), store=False)
     # Drives the Studies tab's "saving will move this student's enrollments" warning
     # (issue #395) - unlike the two booleans above, this one must react live to an
     # on-screen, not-yet-saved edit of main_group_id, so it needs a real compute/depends,
@@ -789,6 +798,7 @@ class ResPartner(models.Model):
         # Note: values is a dict (method fired once per entry)
         self._ems_normalize_student_id(values)
         self._ems_check_student_id_on_write(values)
+        self._ems_check_orientation_write(values)
         # Capture (before the write) the students/families whose main email is about
         # to change while they hold active portal access: their access must be moved
         # from the old email to the new one (see _apply_portal_email_change).
@@ -1221,6 +1231,27 @@ class ResPartner(models.Model):
         is_secretary = base.EmsBase.get_user_is_secretary(self)
         is_head_of_studies = base.EmsBase.get_user_is_head_of_studies(self)
         return not (is_admin or is_secretary or is_head_of_studies or self._user_is_tutor_of_record())
+
+    def _get_special_needs_readonly(self):
+        return self._get_read_only_user() and not self.env.user.has_group('ems.group_orientation')
+
+    def _ems_check_orientation_write(self, values):
+        """The field-level half of 'rule_contact_orientation_special_needs' (issue #465).
+
+        That rule lets guidance write every student and applicant, because an ir.rule cannot name
+        fields; this closes it back down to ORIENTATION_WRITABLE_FIELDS on the records guidance
+        reaches only through that rule - the ones its user is neither admin, secretary, Head of
+        Studies nor tutor of. Same pattern as hr.leave._ems_check_own_approved_write().
+        """
+        if self.env.su or not (values.keys() - ORIENTATION_WRITABLE_FIELDS):
+            return
+        if not self.env.user.has_group('ems.group_orientation') or not self._get_read_only_user():
+            return
+        blocked = self.filtered(
+            lambda partner: partner.contact_type in ('student', 'applicant') and not partner._user_is_tutor_of_record())
+        if blocked:
+            raise AccessError(_(
+                "As a member of the guidance team you can only change a student's special educational needs."))
 
     def _user_is_tutor_of_record(self):
         # True when the current user is a tutor of this student, or a tutor of a

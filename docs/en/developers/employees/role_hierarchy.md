@@ -138,6 +138,21 @@ Odoo ORs record rules across the groups a user belongs to, so a domain of `[]` o
 already allow, rather than fighting them. Nothing narrows: every rule below is `perm_read` only,
 with write/create/unlink left to the groups that already own them.
 
+### Guidance edits a student's special educational needs (issue #465)
+
+The one exception to "read only" above, and only for `group_orientation` (coexistence still
+cannot even read it): the special educational needs typology (`res.partner.special_needs`,
+NEE-A/NEE-B) is the guidance team's own subject, so they read **and edit** it on every student
+and applicant, not only their tutees'.
+
+| Piece | What it does |
+|-------|--------------|
+| `special_needs`'s ORM `groups` | Gains `ems.group_orientation` next to tutor, secretary and admin. Without it the field is stripped from every view and any read raises `AccessError`. |
+| `rule_contact_orientation_special_needs` (`security/rules/contacts.xml`) | `perm_write` on contacts whose `contact_type` is `student` or `applicant`. An `ir.rule` cannot name fields, so on its own this would open the whole file. |
+| `res.partner._ems_check_orientation_write()` | The field-level half of that rule, same pattern as `hr.leave._ems_check_own_approved_write()`: a write touching anything other than `special_needs` raises `AccessError` on every student/applicant the user reaches **only** through the rule above - neither admin, secretary, Head of Studies nor tutor of the record. A guidance member who is also someone's tutor keeps full edit of their own tutees. |
+| `special_needs_readonly` (non-stored, form only) | `read_only_user` minus guidance: the Student data tab shows the editable dropdown instead of the read-only badge, and the Applicant data tab's field is editable. |
+
+
 ### Models covered
 
 Read-only (`domain_force` `[]`, `perm_read` only), in `security/rules/student_data_reader.xml`:

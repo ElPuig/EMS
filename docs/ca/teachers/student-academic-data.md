@@ -31,7 +31,19 @@ Amb el rol de **Coordinador/a d'orientació** o de **Coordinador/a de convivènc
 - **Faltes de convivència** — Convivència.
 - **Fitxa de l'alumne** — Comunitat Educativa → Alumnes, inclosa la pestanya **Secretaria** (bonificacions, exempcions i autoritzacions de matrícula).
 
-Tot és només de lectura, i no inclou factures ni pagaments.
+Tot és només de lectura, llevat de les necessitats educatives especials per a Orientació (vegeu l'apartat següent), i no inclou factures ni pagaments.
+
+---
+
+## Indicar les necessitats educatives especials d'un alumne (Orientació)
+
+Amb el rol de **Coordinador/a d'orientació**, indiques la tipologia de necessitats educatives especials (NEE) de qualsevol alumne o sol·licitant del centre:
+
+1. Comunitat Educativa → Alumnes → *[obre l'alumne]*.
+2. A la pestanya **Dades de l'estudiant**, al camp **Necessitats educatives especials**, tria **NEE-A** o **NEE-B**, o deixa'l buit si l'alumne no en té.
+3. Clica **Desar**.
+
+En un sol·licitant, el camp és a la pestanya **Dades del sol·licitant**. La resta de la fitxa continua sent només de lectura.
 
 ---
 

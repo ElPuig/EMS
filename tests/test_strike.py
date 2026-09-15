@@ -5,7 +5,7 @@ from datetime import date
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group, mock_outgoing_email
+from .common import create_level_study_group, mock_outgoing_email, next_student_id
 
 
 class TestStrike(TransactionCase):
@@ -114,7 +114,7 @@ class TestStrike(TransactionCase):
 
         cls.minor_student = cls.env['res.partner'].create({
             'name': 'Test Minor Student (Strike)',
-            'contact_type': 'student',
+            'contact_type': 'student', 'student_id': next_student_id(),
             'student_email': 'test_minor_student_strike@example.com',
             'birth_date': date(date.today().year - 15, 1, 1),
             'main_group_id': cls.group_record.id,
@@ -208,7 +208,7 @@ class TestStrike(TransactionCase):
     def test_notification_recipients_adult_no_auth(self):
         adult_student = self.env['res.partner'].create({
             'name': 'Test Adult Student No Auth (Strike)',
-            'contact_type': 'student',
+            'contact_type': 'student', 'student_id': next_student_id(),
             'student_email': 'test_adult_student_noauth_strike@example.com',
             'birth_date': date(date.today().year - 20, 1, 1),
             'main_group_id': self.group_record.id,
@@ -226,7 +226,7 @@ class TestStrike(TransactionCase):
     def test_notification_recipients_adult_with_auth_share(self):
         adult_student = self.env['res.partner'].create({
             'name': 'Test Adult Student Auth (Strike)',
-            'contact_type': 'student',
+            'contact_type': 'student', 'student_id': next_student_id(),
             'student_email': 'test_adult_student_auth_strike@example.com',
             'birth_date': date(date.today().year - 20, 1, 1),
             'main_group_id': self.group_record.id,

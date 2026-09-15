@@ -1,6 +1,6 @@
 from odoo.tests import tagged, HttpCase
 
-from .common import force_user_language_to_english
+from .common import force_user_language_to_english, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -10,7 +10,7 @@ class TestWithdrawalTour(HttpCase):
         # "0000 " prefix: res.partner's _order is "name", so these sort first on the
         # list's very first page among the ~1000+ real students already in this DB.
         return self.env['res.partner'].create({
-            'name': '0000 %s' % name, 'contact_type': 'student',
+            'name': '0000 %s' % name, 'contact_type': 'student', 'student_id': next_student_id(),
         })
 
     def test_generic_archive_action_opens_withdrawal_wizard_tour(self):

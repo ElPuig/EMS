@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study
+from .common import create_level_study, next_student_id
 
 
 class TestStudentSchedule(TransactionCase):
@@ -69,7 +69,7 @@ class TestStudentSchedule(TransactionCase):
         cls.teacher_b = cls.env['hr.employee'].create({'name': 'Test Teacher B (Student Schedule)', 'employee_type': 'teacher'})
 
         cls.student = cls.env['res.partner'].create({
-            'name': 'Test Student (Student Schedule)', 'contact_type': 'student', 'main_group_id': cls.main_group.id,
+            'name': 'Test Student (Student Schedule)', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': cls.main_group.id,
         })
         cls.env['ems.enrollment'].create({
             'student_id': cls.student.id, 'group_id': cls.main_group.id, 'subject_id': cls.subject_main.id,
@@ -216,7 +216,7 @@ class TestStudentSchedule(TransactionCase):
 
     def test_break_not_shown_without_main_group(self):
         no_group_student = self.env['res.partner'].create({
-            'name': 'Test Student No Group (Student Schedule)', 'contact_type': 'student',
+            'name': 'Test Student No Group (Student Schedule)', 'contact_type': 'student', 'student_id': next_student_id(),
         })
 
         self.assertFalse(no_group_student._get_break_entries())
@@ -231,7 +231,7 @@ class TestStudentSchedule(TransactionCase):
 
     def test_empty_student_without_enrollments_returns_no_lines(self):
         unenrolled_student = self.env['res.partner'].create({
-            'name': 'Test Unenrolled Student (Student Schedule)', 'contact_type': 'student', 'main_group_id': self.main_group.id,
+            'name': 'Test Unenrolled Student (Student Schedule)', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.main_group.id,
         })
 
         # Still picks up the main group's derived break (level+shift are enough on their own),

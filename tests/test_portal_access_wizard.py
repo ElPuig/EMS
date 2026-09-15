@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group, mock_outgoing_email
+from .common import create_level_study_group, mock_outgoing_email, next_student_id
 
 
 class TestPortalAccessWizard(TransactionCase):
@@ -60,12 +60,12 @@ class TestPortalAccessWizard(TransactionCase):
         })
 
         cls.adult_student = cls.env['res.partner'].create({
-            'name': 'Adult Student (Portal Wizard)', 'contact_type': 'student',
+            'name': 'Adult Student (Portal Wizard)', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': cls.group.id, 'email': 'adult.student.pw@example.com',
             'birth_date': date.today() - relativedelta(years=19),
         })
         cls.minor_student = cls.env['res.partner'].create({
-            'name': 'Minor Student (Portal Wizard)', 'contact_type': 'student',
+            'name': 'Minor Student (Portal Wizard)', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': cls.group.id,
             'birth_date': date.today() - relativedelta(years=15),
         })
@@ -80,12 +80,12 @@ class TestPortalAccessWizard(TransactionCase):
             'right_partner_id': cls.minor_student.id,
         })
         cls.orphan_minor = cls.env['res.partner'].create({
-            'name': 'Orphan Minor (Portal Wizard)', 'contact_type': 'student',
+            'name': 'Orphan Minor (Portal Wizard)', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': cls.group.id,
             'birth_date': date.today() - relativedelta(years=15),
         })
         cls.applicant = cls.env['res.partner'].create({
-            'name': 'Applicant (Portal Wizard)', 'contact_type': 'applicant',
+            'name': 'Applicant (Portal Wizard)', 'contact_type': 'applicant', 'student_id': next_student_id(),
             'email': 'applicant.pw@example.com',
         })
 
@@ -128,7 +128,7 @@ class TestPortalAccessWizard(TransactionCase):
         is confirmed. The guard used to blow up with NameError: name '_' is not
         defined (safe_eval has no `_`), hiding the real cause."""
         ex_student = self.env['res.partner'].create({
-            'name': 'Ex Student (Portal Wizard)', 'contact_type': 'withdrawal',
+            'name': 'Ex Student (Portal Wizard)', 'contact_type': 'withdrawal', 'student_id': next_student_id(),
             'email': 'ex.student.pw@example.com',
             'birth_date': date.today() - relativedelta(years=19),
         })
@@ -172,7 +172,7 @@ class TestPortalAccessWizard(TransactionCase):
         """An ex-student coming back is an applicant, but his family relations survived
         the withdrawal: a minor's credentials must reach the family, not the minor."""
         returning = self.env['res.partner'].create({
-            'name': 'Returning Minor (Portal Wizard)', 'contact_type': 'applicant',
+            'name': 'Returning Minor (Portal Wizard)', 'contact_type': 'applicant', 'student_id': next_student_id(),
             'email': 'returning.minor.pw@example.com',
             'birth_date': date.today() - relativedelta(years=15),
         })
@@ -187,7 +187,7 @@ class TestPortalAccessWizard(TransactionCase):
     def test_resolve_recipients_minor_applicant_without_family_returns_self(self):
         """A real GEDAC preinscription has no family contacts yet: unchanged behaviour."""
         minor_applicant = self.env['res.partner'].create({
-            'name': 'Minor Applicant (Portal Wizard)', 'contact_type': 'applicant',
+            'name': 'Minor Applicant (Portal Wizard)', 'contact_type': 'applicant', 'student_id': next_student_id(),
             'email': 'minor.applicant.pw@example.com',
             'birth_date': date.today() - relativedelta(years=15),
         })
@@ -196,7 +196,7 @@ class TestPortalAccessWizard(TransactionCase):
 
     def test_resolve_recipients_adult_applicant_returns_self_despite_family(self):
         adult_applicant = self.env['res.partner'].create({
-            'name': 'Adult Applicant (Portal Wizard)', 'contact_type': 'applicant',
+            'name': 'Adult Applicant (Portal Wizard)', 'contact_type': 'applicant', 'student_id': next_student_id(),
             'email': 'adult.applicant.pw@example.com',
             'birth_date': date.today() - relativedelta(years=19),
         })
@@ -229,7 +229,7 @@ class TestPortalAccessWizard(TransactionCase):
 
     def test_build_lines_no_email_note(self):
         no_email_adult = self.env['res.partner'].create({
-            'name': 'No Email Adult (Portal Wizard)', 'contact_type': 'student',
+            'name': 'No Email Adult (Portal Wizard)', 'contact_type': 'student', 'student_id': next_student_id(),
             'birth_date': date.today() - relativedelta(years=20),
         })
         wizard = self._wizard(students=no_email_adult)
@@ -305,7 +305,7 @@ class TestPortalAccessWizard(TransactionCase):
 
     def test_action_apply_issue_adult_student_without_email(self):
         no_email_adult = self.env['res.partner'].create({
-            'name': 'No Email Adult 2 (Portal Wizard)', 'contact_type': 'student',
+            'name': 'No Email Adult 2 (Portal Wizard)', 'contact_type': 'student', 'student_id': next_student_id(),
             'birth_date': date.today() - relativedelta(years=20),
         })
         wizard = self._wizard(students=no_email_adult)

@@ -1,22 +1,26 @@
 <odoo>
     <data>    
         <record id="hr.work_contact_jve" model="res.partner">           
-            <field name="contact_type">student</field>       
+            <field name="contact_type">student</field>
+            <field name="student_id">DEMO0001</field>       
             <!-- <field name="main_group_id" ref="group_1"/> -->
         </record>
 
         <record id="hr.work_contact_stw" model="res.partner">           
-            <field name="contact_type">student</field> 
+            <field name="contact_type">student</field>
+            <field name="student_id">DEMO0002</field> 
             <!-- <field name="main_group_id" ref="group_2"/>            -->
         </record>
 
         <record id="hr.work_contact_vad" model="res.partner">           
-            <field name="contact_type">student</field> 
+            <field name="contact_type">student</field>
+            <field name="student_id">DEMO0003</field> 
             <!-- <field name="main_group_id" ref="group_3"/>            -->
         </record>
 
         <record id="hr.work_contact_jth" model="res.partner">           
-            <field name="contact_type">student</field>            
+            <field name="contact_type">student</field>
+            <field name="student_id">DEMO0004</field>            
         </record>
     </data>
 </odoo>

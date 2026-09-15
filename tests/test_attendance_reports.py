@@ -4,7 +4,7 @@ from datetime import date, timedelta
 
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study
+from .common import create_level_study, next_student_id
 
 
 class TestAttendanceReportWizards(TransactionCase):
@@ -99,10 +99,10 @@ class TestAttendanceReportWizards(TransactionCase):
         })
 
         cls.student1 = cls.env['res.partner'].create({
-            'name': 'Test Student 1 (Attendance Reports)', 'contact_type': 'student',
+            'name': 'Test Student 1 (Attendance Reports)', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         cls.student2 = cls.env['res.partner'].create({
-            'name': 'Test Student 2 (Attendance Reports)', 'contact_type': 'student',
+            'name': 'Test Student 2 (Attendance Reports)', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         # student1 is enrolled in both subjects of group1; student2 only in subject_a.
         cls.env['ems.enrollment'].create({

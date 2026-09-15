@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 
 from odoo.tests import tagged, HttpCase
 
-from .common import force_user_language_to_english
+from .common import force_user_language_to_english, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -31,7 +31,7 @@ class TestStudentGoogleWorkspaceTour(HttpCase):
         # first on the list's very first page among the real ones already in this DB.
         base = {
             'name': '0000 %s' % name,
-            'contact_type': 'student',
+            'contact_type': 'student', 'student_id': next_student_id(),
             'email': '%s@example.com' % name.lower().replace(' ', '.'),
         }
         base.update(vals)

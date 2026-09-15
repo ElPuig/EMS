@@ -1,6 +1,6 @@
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study
+from .common import create_level_study, next_student_id
 
 
 class TestEnrollmentMailActivity(TransactionCase):
@@ -29,7 +29,7 @@ class TestEnrollmentMailActivity(TransactionCase):
         cls.level, cls.study = create_level_study(cls, 'TMA', level={'name': 'Test Mail Activity Level'}, study={
             'code': 'TMA001', 'acronym': 'TMAS', 'name': 'Test Mail Activity Study',
         })
-        cls.student = cls.env['res.partner'].create({'name': 'Mail Activity Student', 'contact_type': 'student'})
+        cls.student = cls.env['res.partner'].create({'name': 'Mail Activity Student', 'contact_type': 'student', 'student_id': next_student_id()})
         cls.order = cls.env['sale.order'].create({
             'partner_id': cls.student.id, 'ems_study_id': cls.study.id, 'ems_course_id': cls.course.id,
         })
@@ -96,7 +96,7 @@ class TestEnrollmentMailActivity(TransactionCase):
         self.assertFalse(self.order.activity_ids.filtered(lambda a: a.activity_type_id == self.comment_type))
 
     def test_unlink_does_not_cascade_across_different_enrollments(self):
-        other_student = self.env['res.partner'].create({'name': 'Other Mail Activity Student', 'contact_type': 'student'})
+        other_student = self.env['res.partner'].create({'name': 'Other Mail Activity Student', 'contact_type': 'student', 'student_id': next_student_id()})
         other_order = self.env['sale.order'].create({
             'partner_id': other_student.id, 'ems_study_id': self.study.id, 'ems_course_id': self.course.id,
         })

@@ -1,7 +1,7 @@
 from odoo.exceptions import AccessError, RedirectWarning, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group
+from .common import create_level_study_group, next_student_id
 
 
 class TestGroup(TransactionCase):
@@ -83,10 +83,10 @@ class TestGroup(TransactionCase):
             'study_id': other_study.id,
         })
         student_a = self.env['res.partner'].create({
-            'name': 'Reinforcement Student A', 'contact_type': 'student', 'main_group_id': self.test_group.id,
+            'name': 'Reinforcement Student A', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.test_group.id,
         })
         student_b = self.env['res.partner'].create({
-            'name': 'Reinforcement Student B', 'contact_type': 'student', 'main_group_id': other_group.id,
+            'name': 'Reinforcement Student B', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': other_group.id,
         })
         group = self.env['ems.group'].create({
             'group_type': 'reinforcement',
@@ -118,7 +118,7 @@ class TestGroup(TransactionCase):
 
     def test_switching_main_group_with_students_to_reinforcement_raises(self):
         self.env['res.partner'].create({
-            'name': 'Main Student (Group)', 'contact_type': 'student', 'main_group_id': self.test_group.id,
+            'name': 'Main Student (Group)', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.test_group.id,
         })
         # '_sanitize_group_type_vals' clears every 'main'-only field on this same write() — the
         # still-enrolled main student alone (a res.partner, not a field of this record) is what must
@@ -165,7 +165,7 @@ class TestGroup(TransactionCase):
 
     def test_enrolled_student_ids_from_enrollment_lines(self):
         student = self.env['res.partner'].create({
-            'name': 'Test Enrolled Student (Group)', 'contact_type': 'student',
+            'name': 'Test Enrolled Student (Group)', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         self.env['ems.enrollment'].create({
             'student_id': student.id, 'group_id': self.test_group.id, 'subject_id': self._enrollment_subject().id,
@@ -174,7 +174,7 @@ class TestGroup(TransactionCase):
 
     def test_enrollment_view_ids_aggregates_subjects_per_student(self):
         student = self.env['res.partner'].create({
-            'name': 'Test Enrollment View Student (Group)', 'contact_type': 'student',
+            'name': 'Test Enrollment View Student (Group)', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         subject_a = self._enrollment_subject('A')
         subject_b = self._enrollment_subject('B')
@@ -194,7 +194,7 @@ class TestGroup(TransactionCase):
         # Regression-style check for the compute's own delete+recreate side effect: stale
         # rows from a prior computation must not linger once the underlying enrollments change.
         student = self.env['res.partner'].create({
-            'name': 'Test Enrollment Refresh Student (Group)', 'contact_type': 'student',
+            'name': 'Test Enrollment Refresh Student (Group)', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         enrollment = self.env['ems.enrollment'].create({
             'student_id': student.id, 'group_id': self.test_group.id, 'subject_id': self._enrollment_subject().id,
@@ -212,7 +212,7 @@ class TestGroup(TransactionCase):
         # teacher/tutor got an AccessError from simply reading enrollment_view_ids at all, on
         # ANY group - not something specific to this test's own data.
         student = self.env['res.partner'].create({
-            'name': 'Test Enrollment View Teacher Student (Group)', 'contact_type': 'student',
+            'name': 'Test Enrollment View Teacher Student (Group)', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         self.env['ems.enrollment'].create({
             'student_id': student.id, 'group_id': self.test_group.id, 'subject_id': self._enrollment_subject().id,
@@ -266,7 +266,7 @@ class TestGroup(TransactionCase):
 
     def test_archive_group_with_active_main_students_raises_confirmation(self):
         self.env['res.partner'].create({
-            'name': 'Active Main Student (Group Archive)', 'contact_type': 'student',
+            'name': 'Active Main Student (Group Archive)', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': self.test_group.id,
         })
         with self.assertRaises(RedirectWarning):
@@ -275,7 +275,7 @@ class TestGroup(TransactionCase):
 
     def test_archive_group_with_active_reinforcement_students_raises_confirmation(self):
         student = self.env['res.partner'].create({
-            'name': 'Active Reinforcement Student (Group Archive)', 'contact_type': 'student',
+            'name': 'Active Reinforcement Student (Group Archive)', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         reinforcement_group = self.env['ems.group'].create({
             'group_type': 'reinforcement', 'name': 'REF-ARCHIVE-TEST',
@@ -290,7 +290,7 @@ class TestGroup(TransactionCase):
 
     def test_archive_group_ignores_already_archived_reinforcement_students(self):
         student = self.env['res.partner'].create({
-            'name': 'Archived Reinforcement Student (Group Archive)', 'contact_type': 'student',
+            'name': 'Archived Reinforcement Student (Group Archive)', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         reinforcement_group = self.env['ems.group'].create({
             'group_type': 'reinforcement', 'name': 'REF-ARCHIVE-TEST-2',
@@ -313,7 +313,7 @@ class TestGroup(TransactionCase):
 
     def test_action_confirm_archive_actually_archives(self):
         self.env['res.partner'].create({
-            'name': 'Active Main Student (Group Confirm Archive)', 'contact_type': 'student',
+            'name': 'Active Main Student (Group Confirm Archive)', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': self.test_group.id,
         })
         self.test_group.action_confirm_archive()
@@ -324,7 +324,7 @@ class TestGroup(TransactionCase):
 
     def test_get_archive_confirmation_message_mentions_the_count(self):
         self.env['res.partner'].create({
-            'name': 'Active Main Student (Group Archive Message)', 'contact_type': 'student',
+            'name': 'Active Main Student (Group Archive Message)', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': self.test_group.id,
         })
         message = self.test_group.get_archive_confirmation_message()

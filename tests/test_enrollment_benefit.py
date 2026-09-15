@@ -4,7 +4,7 @@ from datetime import date
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, mock_outgoing_email
+from .common import create_level_study, mock_outgoing_email, next_student_id
 
 
 class TestEnrollmentBenefit(TransactionCase):
@@ -48,7 +48,7 @@ class TestEnrollmentBenefit(TransactionCase):
             'ems_subject_unit_cost': 25.0,
         })
         cls.student = cls.env['res.partner'].create({
-            'name': 'Benefit Student', 'contact_type': 'student'})
+            'name': 'Benefit Student', 'contact_type': 'student', 'student_id': next_student_id()})
 
     def _order(self, partner=None):
         order = self.env['sale.order'].create({
@@ -117,7 +117,7 @@ class TestEnrollmentBenefit(TransactionCase):
         # a confirmed enrollment is cross-checked against a second student's
         # draft one: the same kind of benefit only recomputes the draft.
         student2 = self.env['res.partner'].create({
-            'name': 'Benefit Student 2', 'contact_type': 'student'})
+            'name': 'Benefit Student 2', 'contact_type': 'student', 'student_id': next_student_id()})
         confirmed = self._order()
         confirmed.write({'state': 'sale'})
         self.env.flush_all()

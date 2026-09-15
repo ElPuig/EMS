@@ -1,6 +1,6 @@
 from odoo.tests.common import HttpCase, tagged
 
-from .common import force_user_language_to_english
+from .common import force_user_language_to_english, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -24,7 +24,7 @@ class TestLimesurveyRecipientTour(HttpCase):
             'tsv_raw_text': 'placeholder', 'state': 'computed',
         })
         cls.student = cls.env['res.partner'].create({
-            'name': 'LimeSurvey Recipient Tour Student', 'contact_type': 'student',
+            'name': 'LimeSurvey Recipient Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
         })
 
     def test_limesurvey_recipient_add_student_tour(self):
@@ -44,7 +44,7 @@ class TestLimesurveyRecipientTour(HttpCase):
             'tsv_raw_text': 'placeholder', 'state': 'computed',
         })
         student = self.env['res.partner'].create({
-            'name': 'LimeSurvey Recipient Error Tour Student', 'contact_type': 'student',
+            'name': 'LimeSurvey Recipient Error Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         self.env['ems.limesurvey_recipient'].create({
             'limesurvey_header_id': header.id, 'student_id': student.id,

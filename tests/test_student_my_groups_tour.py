@@ -1,6 +1,6 @@
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group, create_role_employee, create_role_user
+from .common import create_level_study_group, create_role_employee, create_role_user, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -39,12 +39,12 @@ class TestStudentMyGroupsTour(HttpCase):
         # what the last step, taken with the facet removed, actually needs (see
         # test_contact_tour.py for the same pattern).
         cls.own_student = cls.env['res.partner'].create({
-            'name': '0000 My Groups Own Student', 'contact_type': 'student',
+            'name': '0000 My Groups Own Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'level_id': cls.level.id, 'study_id': cls.study.id,
             'main_group_id': cls.taught_group.id,
         })
         cls.other_student = cls.env['res.partner'].create({
-            'name': '0001 My Groups Other Student', 'contact_type': 'student',
+            'name': '0001 My Groups Other Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'level_id': cls.level.id, 'study_id': cls.study.id,
             'main_group_id': cls.other_group.id,
         })

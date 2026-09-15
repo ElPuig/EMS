@@ -2599,6 +2599,8 @@ msgid "Connected"
 msgstr "Conectado"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
 #: model:ir.model,name:ems.model_res_partner model:ir.model.fields,field_description:ems.field_ems_notice_line__partner_id model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
 msgid "Contact"
 msgstr "Contacto"
@@ -14221,3 +14223,38 @@ msgstr "EMS: PDF públicos de los horarios de grupo"
 #: model_terms:ir.ui.view,arch_db:ems.portal_schedule
 msgid "<i class=\"fa fa-download me-2\"/>Download PDF"
 msgstr "<i class=\"fa fa-download me-2\"/>Descargar PDF"
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_res_partner_student_id_unique
+msgid "This Student ID (IDALU) already belongs to another contact."
+msgstr "Este ID de estudiante (IDALU) ya pertenece a otro contacto."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "%(contact_type)s, archived"
+msgstr "%(contact_type)s, archivado"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "The Student ID (IDALU) %(student_id)s already belongs to %(name)s (%(status)s). Open that contact instead of creating a new one."
+msgstr "El ID de estudiante (IDALU) %(student_id)s ya pertenece a %(name)s (%(status)s). Abra ese contacto en lugar de crear uno nuevo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "%(name)s needs a Student ID (IDALU) to be registered as a student."
+msgstr "%(name)s necesita un ID de estudiante (IDALU) para registrarse como estudiante."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "The Student ID (IDALU) of %(name)s cannot be removed."
+msgstr "No se puede eliminar el ID de estudiante (IDALU) de %(name)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "This contact"
+msgstr "Este contacto"

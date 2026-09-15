@@ -5,7 +5,7 @@ from psycopg2 import IntegrityError
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, mock_outgoing_email
+from .common import create_level_study, mock_outgoing_email, next_student_id
 
 
 class TestEnrollmentHeader(TransactionCase):
@@ -50,9 +50,9 @@ class TestEnrollmentHeader(TransactionCase):
             'study_ids': [(6, 0, [cls.study.id])],
         })
         cls.student = cls.env['res.partner'].create({
-            'name': 'Header Test Student', 'contact_type': 'student'})
+            'name': 'Header Test Student', 'contact_type': 'student', 'student_id': next_student_id()})
         cls.other_student = cls.env['res.partner'].create({
-            'name': 'Other Header Test Student', 'contact_type': 'student'})
+            'name': 'Other Header Test Student', 'contact_type': 'student', 'student_id': next_student_id()})
 
         cls.tutor_user = cls.env['res.users'].create({
             'name': 'Header Tutor', 'login': 'header_tutor_teh',
@@ -301,7 +301,7 @@ class TestEnrollmentHeader(TransactionCase):
         # setup in setUpClass) — a plain ems.group_tutor membership is not
         # enough on its own.
         tutored_student = self.env['res.partner'].create({
-            'name': 'Tutored Student', 'contact_type': 'student',
+            'name': 'Tutored Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': self.tutor_group.id,
         })
         order = self._order(partner=tutored_student)
@@ -310,7 +310,7 @@ class TestEnrollmentHeader(TransactionCase):
 
     def test_tutor_can_confirm_own_tutored_student(self):
         tutored_student = self.env['res.partner'].create({
-            'name': 'Tutored Confirm Student', 'contact_type': 'student',
+            'name': 'Tutored Confirm Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': self.tutor_group.id,
         })
         order = self._order(partner=tutored_student)

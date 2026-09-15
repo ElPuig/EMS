@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study, create_role_employee, create_role_user
+from .common import create_level_study, create_role_employee, create_role_user, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -54,11 +54,11 @@ class TestAttendanceSessionTour(HttpCase):
         # can't tell the two apart would pass by accident either way.
         cls.student1 = cls.env['res.partner'].create({
             'name': 'Zoe Aguilar', 'firstname': 'Zoe', 'lastname': 'Aguilar',
-            'contact_type': 'student', 'main_group_id': cls.group.id,
+            'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': cls.group.id,
         })
         cls.student2 = cls.env['res.partner'].create({
             'name': 'Ana Bosch', 'firstname': 'Ana', 'lastname': 'Bosch',
-            'contact_type': 'student', 'main_group_id': cls.group.id,
+            'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': cls.group.id,
         })
 
         cls.template = cls.env['ems.attendance_template'].create({

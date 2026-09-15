@@ -5,7 +5,7 @@ from odoo.tests.common import TransactionCase
 
 from odoo.addons.ems.models.shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC
 
-from .common import create_level_study, create_role_employee, create_role_user
+from .common import create_level_study, create_role_employee, create_role_user, next_student_id
 
 
 class TestAttendanceTemplate(TransactionCase):
@@ -629,9 +629,9 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
 
     def test_fill_students_pulls_students_from_every_shared_group(self):
         student_a = self.env['res.partner'].create({
-            'name': 'Student Group A (Attendance Template Sync)', 'contact_type': 'student'})
+            'name': 'Student Group A (Attendance Template Sync)', 'contact_type': 'student', 'student_id': next_student_id()})
         student_b = self.env['res.partner'].create({
-            'name': 'Student Group B (Attendance Template Sync)', 'contact_type': 'student'})
+            'name': 'Student Group B (Attendance Template Sync)', 'contact_type': 'student', 'student_id': next_student_id()})
         self.env['ems.enrollment'].create({
             'student_id': student_a.id, 'group_id': self.group.id, 'subject_id': self.subject.id})
         self.env['ems.enrollment'].create({
@@ -996,7 +996,7 @@ class TestAttendanceTemplateSyncFromSchedule(TransactionCase):
         self.assertTrue(stale_template.active)
 
         student = self.env['res.partner'].create({
-            'name': 'Test Student (Regenerate From Calendars)', 'contact_type': 'student'})
+            'name': 'Test Student (Regenerate From Calendars)', 'contact_type': 'student', 'student_id': next_student_id()})
         self.env['ems.enrollment'].create({
             'student_id': student.id, 'group_id': self.group.id, 'subject_id': self.subject.id})
 
@@ -1552,7 +1552,7 @@ class TestApplyScheduleLineChanges(TransactionCase):
     def test_write_clones_real_session_rewrite_carrying_students(self):
         template, line = self._template_with_line()
         self._give_real_session(line)
-        student = self.env['res.partner'].create({'name': 'Test Student (Apply Schedule Line Changes)', 'contact_type': 'student'})
+        student = self.env['res.partner'].create({'name': 'Test Student (Apply Schedule Line Changes)', 'contact_type': 'student', 'student_id': next_student_id()})
         line.student_ids = [(6, 0, [student.id])]
         entry = self._entry(9, 10, '0', space=self.other_space)
         changes = {'stale_lines': template.env['ems.attendance_schedule'], 'lines_to_rewrite': [(line, entry)], 'lines_pending': [], 'fresh_entries': []}

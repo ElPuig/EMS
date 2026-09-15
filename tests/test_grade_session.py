@@ -1,7 +1,7 @@
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study
+from .common import create_level_study, next_student_id
 
 
 class TestGradeSession(TransactionCase):
@@ -60,8 +60,8 @@ class TestGradeSession(TransactionCase):
         cls.group = cls.env['ems.group'].create({
             'course': 1, 'acronym': 'A', 'level_id': cls.level.id, 'study_id': cls.study.id,
         })
-        cls.student1 = cls.env['res.partner'].create({'name': 'Student One', 'contact_type': 'student'})
-        cls.student2 = cls.env['res.partner'].create({'name': 'Student Two', 'contact_type': 'student'})
+        cls.student1 = cls.env['res.partner'].create({'name': 'Student One', 'contact_type': 'student', 'student_id': next_student_id()})
+        cls.student2 = cls.env['res.partner'].create({'name': 'Student Two', 'contact_type': 'student', 'student_id': next_student_id()})
         for student in (cls.student1, cls.student2):
             cls.env['ems.enrollment'].create({
                 'student_id': student.id, 'group_id': cls.group.id, 'subject_id': cls.subject.id,

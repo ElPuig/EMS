@@ -4,7 +4,7 @@ from unittest.mock import patch
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, mock_outgoing_email
+from .common import create_level_study, mock_outgoing_email, next_student_id
 
 
 class TestAttendanceSessionHeader(TransactionCase):
@@ -47,8 +47,8 @@ class TestAttendanceSessionHeader(TransactionCase):
             'name': 'Test Teacher (Attendance Session)', 'employee_type': 'teacher',
             'user_id': cls.teacher_user.id,
         })
-        cls.student1 = cls.env['res.partner'].create({'name': 'Session Student 1', 'contact_type': 'student'})
-        cls.student2 = cls.env['res.partner'].create({'name': 'Session Student 2', 'contact_type': 'student'})
+        cls.student1 = cls.env['res.partner'].create({'name': 'Session Student 1', 'contact_type': 'student', 'student_id': next_student_id()})
+        cls.student2 = cls.env['res.partner'].create({'name': 'Session Student 2', 'contact_type': 'student', 'student_id': next_student_id()})
         cls.template = cls.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, [cls.teacher.id])], 'study_ids': [(6, 0, [cls.study.id])],
             'subject_id': cls.subject.id, 'group_ids': [(6, 0, [cls.group.id])],
@@ -333,7 +333,7 @@ class TestAttendanceSessionLine(TransactionCase):
             'tutor_id': cls.tutor_employee.id,
         })
         cls.student = cls.env['res.partner'].create({
-            'name': 'Session Line Student', 'contact_type': 'student', 'main_group_id': cls.tutor_group.id,
+            'name': 'Session Line Student', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': cls.tutor_group.id,
         })
         cls.template = cls.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, [cls.teacher.id])], 'study_ids': [(6, 0, [cls.study.id])],

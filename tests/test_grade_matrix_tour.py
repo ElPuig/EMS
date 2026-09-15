@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group
+from .common import create_level_study_group, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -45,10 +45,10 @@ class TestGradeMatrixTour(HttpCase):
         # lastname) - the tour edits the first row's first outcome cell, so the test needs to
         # know exactly which student that row belongs to, to assert on the right DB record.
         cls.student_first = cls.env['res.partner'].create({
-            'name': 'Ada Alpha', 'firstname': 'Ada', 'lastname': 'Alpha', 'contact_type': 'student',
+            'name': 'Ada Alpha', 'firstname': 'Ada', 'lastname': 'Alpha', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         cls.student_second = cls.env['res.partner'].create({
-            'name': 'Bea Beta', 'firstname': 'Bea', 'lastname': 'Beta', 'contact_type': 'student',
+            'name': 'Bea Beta', 'firstname': 'Bea', 'lastname': 'Beta', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         for student in (cls.student_first, cls.student_second):
             cls.env['ems.enrollment'].create({

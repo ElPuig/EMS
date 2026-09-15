@@ -4,7 +4,7 @@ from datetime import date
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, create_level_study_group
+from .common import create_level_study, create_level_study_group, next_student_id
 
 FAKE_PDF = base64.b64encode(b'%PDF-1.4 fake test content')
 
@@ -35,9 +35,9 @@ class TestAuthorizationTemplate(TransactionCase):
             'code': 'TATSUB', 'acronym': 'TAS', 'name': 'Test Auth Template Subject',
             'study_ids': [(6, 0, [cls.study.id])],
         })
-        cls.student1 = cls.env['res.partner'].create({'name': 'Auth Student 1', 'contact_type': 'student'})
-        cls.student2 = cls.env['res.partner'].create({'name': 'Auth Student 2', 'contact_type': 'student'})
-        cls.student3 = cls.env['res.partner'].create({'name': 'Auth Student 3', 'contact_type': 'student'})
+        cls.student1 = cls.env['res.partner'].create({'name': 'Auth Student 1', 'contact_type': 'student', 'student_id': next_student_id()})
+        cls.student2 = cls.env['res.partner'].create({'name': 'Auth Student 2', 'contact_type': 'student', 'student_id': next_student_id()})
+        cls.student3 = cls.env['res.partner'].create({'name': 'Auth Student 3', 'contact_type': 'student', 'student_id': next_student_id()})
 
     def _order(self, partner, study=None, state=None, with_line=False):
         order = self.env['sale.order'].create({
@@ -211,7 +211,7 @@ class TestAuthorization(TransactionCase):
         cls.level, cls.study = create_level_study(cls, 'TAU', level={'name': 'Test Auth Level'}, study={
             'code': 'TAU001', 'acronym': 'TAUS', 'name': 'Test Auth Study',
         })
-        cls.student = cls.env['res.partner'].create({'name': 'Auth Response Student', 'contact_type': 'student'})
+        cls.student = cls.env['res.partner'].create({'name': 'Auth Response Student', 'contact_type': 'student', 'student_id': next_student_id()})
         cls.order = cls.env['sale.order'].create({
             'partner_id': cls.student.id, 'ems_study_id': cls.study.id, 'ems_course_id': cls.course.id,
         })

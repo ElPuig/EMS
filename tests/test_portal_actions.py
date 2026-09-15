@@ -105,6 +105,7 @@ class TestPortalActions(HttpCase):
         """Regression guard for the ownership check moving to auth.partner_id."""
         other_student = self.env['res.partner'].create({
             'name': 'Someone Else (Portal Actions)', 'contact_type': 'student',
+            'student_id': next_student_id(),
         })
         theirs = self.env['ems.authorization'].create({
             'partner_id': other_student.id,

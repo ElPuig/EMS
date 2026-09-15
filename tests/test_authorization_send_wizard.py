@@ -8,7 +8,7 @@ from odoo.tests import Form
 from odoo.tests.common import TransactionCase
 
 from .common import (create_level_study_group, create_role_employee, create_role_user,
-                     mock_outgoing_email)
+                     mock_outgoing_email, next_student_id)
 
 FAKE_PDF = base64.b64encode(b'%PDF-1.4 fake test content')
 
@@ -68,6 +68,7 @@ class TestAuthorizationSendWizard(TransactionCase):
             'name': 'Unenrolled Student (Send Wizard)', 'contact_type': 'student',
             'main_group_id': cls.group.id, 'email': 'unenrolled.sw@example.com',
             'birth_date': date.today() - relativedelta(years=19),
+            'student_id': next_student_id(),
         })
         cls.other_student = cls._student('Other Study Student (Send Wizard)', cls.other_group,
                                          age=19, study=cls.other_study,
@@ -94,6 +95,7 @@ class TestAuthorizationSendWizard(TransactionCase):
         student = cls.env['res.partner'].create({
             'name': name, 'contact_type': 'student', 'main_group_id': group.id,
             'email': email, 'birth_date': date.today() - relativedelta(years=age),
+            'student_id': next_student_id(),
         })
         cls.env['sale.order'].create({
             'partner_id': student.id,

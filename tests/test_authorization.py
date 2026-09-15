@@ -321,10 +321,11 @@ class TestAuthorizationStandalone(TransactionCase):
         })
         cls.student = cls.env['res.partner'].create({
             'name': 'Standalone Student', 'contact_type': 'student',
-            'main_group_id': cls.group.id,
+            'main_group_id': cls.group.id, 'student_id': next_student_id(),
         })
         cls.other_student = cls.env['res.partner'].create({
             'name': 'Standalone Other Student', 'contact_type': 'student',
+            'student_id': next_student_id(),
         })
         cls.template = cls.env['ems.authorization.template'].create({
             'name': 'Mid-year Template', 'apply_on_enrollment': False, 'sendable_during_course': True,

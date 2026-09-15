@@ -42,7 +42,18 @@ class TestStudentGoogleWorkspace(TransactionCase):
             'birth_date': date.today() - relativedelta(years=15),  # minor by default
         }
         base.update(vals)
-        return self.env['res.partner'].create(base)
+        # A missing IDALU (issue #460) can no longer be created directly - only a legacy row
+        # predating the rule can be in that state. Simulate it the same way
+        # tests/test_contact.py's own _student_created_before_the_rule() does: create with a
+        # real one, then null it out via SQL, bypassing the create()-time requirement on purpose.
+        missing_student_id = base['student_id'] is False
+        if missing_student_id:
+            base['student_id'] = '0000000000'
+        student = self.env['res.partner'].create(base)
+        if missing_student_id:
+            self.env.cr.execute("UPDATE res_partner SET student_id = NULL WHERE id = %s", [student.id])
+            student.invalidate_recordset(['student_id'])
+        return student
 
     # --- readiness -----------------------------------------------------
 

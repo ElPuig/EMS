@@ -4,7 +4,8 @@ from dateutil.relativedelta import relativedelta
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email
+from .common import (create_level_study_group, create_role_employee, create_role_user,
+                     mock_outgoing_email, next_student_id)
 
 
 @tagged('post_install', '-at_install')
@@ -34,6 +35,7 @@ class TestAuthorizationSendWizardTour(HttpCase):
             'name': 'Tour Send Wizard Student', 'contact_type': 'student',
             'main_group_id': cls.group.id, 'email': 'tour.send.wizard@example.com',
             'birth_date': date.today() - relativedelta(years=19),
+            'student_id': next_student_id(),
         })
         cls.env['sale.order'].create({
             'partner_id': cls.student.id, 'ems_study_id': cls.study.id,
@@ -68,6 +70,7 @@ class TestAuthorizationSendWizardTour(HttpCase):
             'name': 'Tour Other Student', 'contact_type': 'student',
             'main_group_id': other_group.id, 'email': 'tour.other@example.com',
             'birth_date': date.today() - relativedelta(years=19),
+            'student_id': next_student_id(),
         })
         self.env['ems.authorization'].create({
             'partner_id': other.id, 'course_id': self.course.id,

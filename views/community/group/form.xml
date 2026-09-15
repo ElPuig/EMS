@@ -74,6 +74,12 @@
                             <group>
                                 <field name="space_id" />
                             </group>
+                            <!-- Issue #453 - public, no-login link to the group's pre-rendered schedule PDF.
+                            CopyClipboardURL: a real link (opens in a new tab) plus Odoo's copy button, which the
+                            browser only allows over HTTPS or localhost (it silently does nothing over plain http). -->
+                            <group colspan="4" invisible="not active or not public_schedule_url">
+                                <field name="public_schedule_url" widget="CopyClipboardURL"/>
+                            </group>
                         </group>
 
                         <notebook>

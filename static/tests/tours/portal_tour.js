@@ -52,12 +52,44 @@ registry.category("web_tour.tours").add("ems_portal_account_render", {
 
 registry.category("web_tour.tours").add("ems_portal_under_construction_render", {
     test: true,
-    url: "/my/asistencia",
+    url: "/my/calificaciones",
     steps: () => [
         {
             // Structural, not text-based - see the account tour above for why.
             trigger: "h1.display-5.fw-bold",
-            content: "The placeholder page rendered (shared by /my/asistencia and /my/calificaciones)",
+            content: "The placeholder page rendered (/my/asistencia now shows the student's schedule instead)",
+        },
+    ],
+});
+
+// The mid-year authorizations of issue #443: a student whose enrollment is already confirmed
+// still has to be able to answer an authorization sent during the course. That page
+// (portal_enrollment_confirmed) showed no authorizations at all before this, so this tour
+// guards the case the whole feature exists for.
+//
+// Structural selectors only, no text: this file's portal user is created without an explicit
+// 'lang' and a fresh res.users does not reliably default to en_US on every box (see CLAUDE.md,
+// "Tour tests and language").
+registry.category("web_tour.tours").add("ems_portal_confirmed_authorizations", {
+    test: true,
+    url: "/my/gestion-matriculas",
+    steps: () => [
+        {
+            trigger: "#enrollment_content",
+            content: "The confirmed enrollment page rendered",
+        },
+        {
+            trigger: "#portal_authorizations",
+            content: "The authorizations block is there even though the enrollment is closed",
+        },
+        {
+            trigger: "#portal_authorizations .ems-auth-answer",
+            content: "Open the response modal of the authorization sent during the course",
+            run: "click",
+        },
+        {
+            trigger: ".modal.show form[data-auth-form] button[value='yes']",
+            content: "The response form rendered inside the modal",
         },
     ],
 });

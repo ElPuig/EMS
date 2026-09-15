@@ -15,6 +15,7 @@ Esta guía explica de forma detallada los pasos que deben seguir los alumnos (o 
 3. [Paso 2 — Formulario de contraseña](#paso-2--formulario-de-contraseña)
 4. [Paso 3 — Email de confirmación](#paso-3--email-de-confirmación)
 5. [Paso 4 — Acceso al portal](#paso-4--acceso-al-portal)
+6. [Paso 5 — Responder una autorización](#paso-5--responder-una-autorización)
 
 ---
 
@@ -23,13 +24,13 @@ Esta guía explica de forma detallada los pasos que deben seguir los alumnos (o 
 El portal del alumnado es el espacio virtual centralizado desde donde el estudiante y su familia pueden gestionar su vida académica y administrativa con el centro de manera sencilla, ágil y 100% en línea.
 
 Actualmente, el portal permite realizar las siguientes gestiones:
-* **Matrícula:** Gestionar el proceso de matrícula, responder y firmar las autorizaciones de centro de forma digital y revisar los pagos o cuotas.
+* **Matrícula y autorizaciones:** Gestionar el proceso de matrícula, revisar los pagos o cuotas y responder y firmar las autorizaciones de centro de forma digital — tanto las que llegan con la matrícula como las que el centro envía durante el curso.
 * **Documentación:** Subir, guardar y consultar todos los documentos oficiales solicitados por el centro.
 * **Comunicaciones:** Recibir de forma inmediata los mensajes, circulares y avisos enviados por el equipo directivo, tutores o secretaría.
 * **Perfil:** Mantener actualizados los datos personales, de contacto y de seguridad de la cuenta de acceso.
+* **Asistencia:** Consultar el horario semanal de clases del alumno y descargarlo en PDF.
 
-**Funcionalidades disponibles próximamente.** Estamos trabajando en el desarrollo de nuevos módulos para mejorar la herramienta. Muy pronto se activarán los siguientes entornos:
-* **Asistencia:** Consultar los registros de asistencia.
+**Funcionalidades disponibles próximamente.** Estamos trabajando en el desarrollo de nuevos módulos para mejorar la herramienta. Muy pronto se activará el siguiente entorno:
 * **Calificaciones:** Acceder de forma directa a las notas de las diferentes evaluaciones.
 
 ---
@@ -78,10 +79,29 @@ Una vez registrados, entraréis directamente en el panel principal o página de 
 
 La interfaz web está optimizada y diseñada para facilitar una navegación limpia e intuitiva:
 * **Menú superior:** Tenéis un acceso permanente a todas las áreas de gestión del centro.
-* **Tarjetas centralizadas:** Disponéis de botones visuales para acceder a cada uno de los servicios clave (**Asistencia**, **Calificaciones**, **Matrícula**, **Comunicaciones**, **Documentación** y **Perfil**).
+* **Tarjetas centralizadas:** Disponéis de botones visuales para acceder a cada uno de los servicios clave (**Asistencia**, **Calificaciones**, **Matrícula y autorizaciones**, **Comunicaciones**, **Documentación** y **Perfil**).
 * **Perfil del usuario:** En la parte derecha tendréis siempre visible la información básica del perfil activo del alumno junto con su fotografía identificativa del expediente.
 
 ![Panel principal y tarjetas de servicios del portal del alumno](../../assets/families/manual-portal-alumne-02.png)
+
+---
+
+## Paso 5 — Responder una autorización
+
+Durante el curso pueden llegar autorizaciones nuevas: una visita a un museo, una salida acordada en una reunión de tutoría, un formulario publicado por el Departament d'Educació. Recibiréis un correo con la lista y un enlace al portal.
+
+Abrid **Matrícula y autorizaciones** desde el menú superior. Las autorizaciones aparecen en un bloque propio, tanto si la matrícula de ese curso ya está confirmada como si no.
+
+![Bloque de autorizaciones en el portal](../../assets/families/authorizations-portal.png)
+
+Para cada una:
+
+1. Mirad la columna **Estado**: *Pendiente* significa que espera vuestra respuesta.
+2. Haced clic en **Responder**. Se abre una ventana con el texto completo de la autorización.
+3. Rellenad los datos que pida el centro. Los campos marcados con un asterisco son obligatorios para aceptar.
+4. Haced clic en **Aceptar autorización** o, si la autorización lo permite, en **Rechazar**.
+
+Una vez respondidas, la columna **Documento** contiene un certificado PDF de vuestra respuesta. Podéis hacer clic en cualquier momento para descargarlo o imprimirlo.
 
 ---
 

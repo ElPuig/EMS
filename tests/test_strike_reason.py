@@ -1,6 +1,6 @@
 from odoo.tests.common import TransactionCase
 
-from .common import mock_outgoing_email
+from .common import mock_outgoing_email, next_student_id
 
 
 class TestStrikeReason(TransactionCase):
@@ -38,7 +38,7 @@ class TestStrikeReason(TransactionCase):
         teacher = self.env['hr.employee'].create({
             'name': 'Test Teacher (Strike Reason)', 'employee_type': 'teacher'})
         student = self.env['res.partner'].create({
-            'name': 'Test Student (Strike Reason)', 'contact_type': 'student'})
+            'name': 'Test Student (Strike Reason)', 'contact_type': 'student', 'student_id': next_student_id()})
         strike = self.env['ems.strike'].create({
             'student_id': student.id, 'teacher_id': teacher.id, 'reason_id': reason.id,
         })

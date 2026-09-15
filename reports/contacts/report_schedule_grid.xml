@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Weekly grid + "Subject -> Teacher(s)" table, shared by ems.report_group_schedule,
+        ems.report_student_schedule and the student's portal page (ems.portal_schedule, issue #453)
+        instead of a copy in each. Expects 'lines' (ems.schedule_report_mixin.get_schedule_report_lines())
+        and 'summary' (get_subject_teachers_summary()) in the calling context. -->
+        <template id="schedule_report_grid">
+            <style>
+                .gs-table { font-size: 10px; table-layout: fixed; }
+                .gs-table th, .gs-table td { padding: 4px 6px !important; text-align: center; vertical-align: middle; overflow: hidden; }
+                .gs-table td.gs-time { white-space: nowrap; font-weight: bold; }
+                .gs-summary-wrap { page-break-inside: avoid; }
+                .gs-cell-content { display: block; border-radius: 3px; padding: 3px 4px; margin-bottom: 2px; color: #fff; }
+                .gs-cell-content.gs-break {
+                    background-color: #8a6240 !important;
+                    background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.2), rgba(255,255,255,0.2) 6px, transparent 6px, transparent 12px) !important;
+                }
+                .gs-cell-label { display: block; font-weight: 600; }
+                .gs-cell-room { display: block; font-size: 9px; color: #fff; }
+                .gs-summary-table { width: 100%; margin-top: 16px; font-size: 10px; border-collapse: collapse; }
+                .gs-summary-table th { text-align: left; padding: 6px 10px; }
+                .gs-summary-table td { padding: 3px 10px; border-bottom: 1px solid #eee; }
+            </style>
+            <table class="table table-bordered gs-table">
+                <thead>
+                    <tr>
+                        <th/>
+                        <th>Monday</th>
+                        <th>Tuesday</th>
+                        <th>Wednesday</th>
+                        <th>Thursday</th>
+                        <th>Friday</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="lines" t-as="line">
+                        <tr>
+                            <td class="gs-time" t-esc="line['time_label']"/>
+                            <t t-foreach="line['cells']" t-as="cell">
+                                <td>
+                                    <t t-foreach="cell['blocks']" t-as="block">
+                                        <span t-attf-class="gs-cell-content #{'gs-break' if not block['entries'][:1].subject_id else ''}"
+                                              t-att-style="'background-color:' + block['color'] if block['color'] else ''">
+                                            <span class="gs-cell-label" t-esc="block['entries'][:1].non_teaching.name or block['entries'][:1].get_subject_display_label()"/>
+                                            <span t-if="block['entries'][:1].space_id" class="gs-cell-room" t-esc="block['entries'][:1].space_id.display_name"/>
+                                        </span>
+                                    </t>
+                                </td>
+                            </t>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+
+            <div t-if="summary" class="gs-summary-wrap">
+                <table class="gs-summary-table">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Teacher(s)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="summary" t-as="row">
+                            <tr>
+                                <td t-esc="row['subject']"/>
+                                <td t-esc="row['teachers']"/>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+        </template>
+    </data>
+</odoo>

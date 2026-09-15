@@ -19,7 +19,7 @@
                         <a href="/my/calificaciones" class="nav-link">Grades</a>
                     </li>
                     <li class="nav-item">
-                        <a href="/my/gestion-matriculas" class="nav-link">Enrollment</a>
+                        <a href="/my/gestion-matriculas" class="nav-link">Enrollment and authorizations</a>
                     </li>
                     <li class="nav-item">
                         <a href="/my/comunicaciones" class="nav-link">Communications</a>

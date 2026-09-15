@@ -15,6 +15,7 @@ Aquesta guia explica de forma detallada els passos que han de seguir els alumnes
 3. [Pas 2 — Formulari de contrasenya](#pas-2--formulari-de-contrasenya)
 4. [Pas 3 — Email de confirmació](#pas-3--email-de-confirmació)
 5. [Pas 4 — Accés al portal](#pas-4--accés-al-portal)
+6. [Pas 5 — Respondre una autorització](#pas-5--respondre-una-autorització)
 
 ---
 
@@ -23,13 +24,13 @@ Aquesta guia explica de forma detallada els passos que han de seguir els alumnes
 El portal de l'alumnat és l'espai virtual centralitzat des d'on l'estudiant i la seva família poden gestionar la seva vida acadèmica i administrativa amb el centre de manera senzilla, àgil i 100% en línia.
 
 Actualment, el portal permet realitzar les següents gestions:
-* **Matrícula:** Gestionar el procés de matrícula, respondre i signar les autoritzacions de centre de forma digital i revisar els pagaments o quotes.
+* **Matrícula i autoritzacions:** Gestionar el procés de matrícula, revisar els pagaments o quotes i respondre i signar les autoritzacions de centre de forma digital — tant les que arriben amb la matrícula com les que el centre envia durant el curs.
 * **Documentació:** Pujar, desar i consultar tots els documents oficials sol·licitats pel centre.
 * **Comunicacions:** Rebre de forma immediata els missatges, circulars i avisos enviats per l'equip directiu, tutors o secretaria.
 * **Perfil:** Mantenir actualitzades les dades personals, de contacte i de seguretat del compte d'accés.
+* **Assistència:** Consultar l'horari setmanal de classes de l'alumne i descarregar-lo en PDF.
 
-**Funcionalitats disponibles pròximament.** Estem treballant en el desenvolupament de nous mòduls per millorar l'eina. Molt aviat s'activaran els següents entorns:
-* **Assistència:** Consultar els registres d'assistència.
+**Funcionalitats disponibles pròximament.** Estem treballant en el desenvolupament de nous mòduls per millorar l'eina. Molt aviat s'activarà l'entorn següent:
 * **Qualificacions:** Accedir de forma directa a les notes de les diferents avaluacions.
 
 ---
@@ -78,10 +79,29 @@ Un cop registrats, entrareu directament al tauler principal o pàgina d'inici (*
 
 La interfície web està optimitzada i dissenyada per facilitar una navegació neta i intuïtiva:
 * **Menú superior:** Teniu un accés permanent a totes les àrees de gestió del centre.
-* **Targetes centralitzades:** Disposeu de botons visuals per accedir a cadascun dels serveis clau (**Assistència**, **Qualificacions**, **Matrícula**, **Comunicacions**, **Documentació** i **Perfil**).
+* **Targetes centralitzades:** Disposeu de botons visuals per accedir a cadascun dels serveis clau (**Assistència**, **Qualificacions**, **Matrícula i autoritzacions**, **Comunicacions**, **Documentació** i **Perfil**).
 * **Perfil de l'usuari:** A la part dreta tindreu sempre visible la informació bàsica del perfil actiu de l'alumne juntament amb la seva fotografia identificativa de l'expedient.
 
 ![Panell principal i targetes de serveis del portal de l'alumne](../../assets/families/manual-portal-alumne-02.png)
+
+---
+
+## Pas 5 — Respondre una autorització
+
+Durant el curs poden arribar autoritzacions noves: una visita a un museu, una sortida acordada en una reunió de tutoria, un formulari publicat pel Departament d'Educació. Rebreu un correu amb la llista i un enllaç al portal.
+
+Obriu **Matrícula i autoritzacions** des del menú superior. Les autoritzacions apareixen en un bloc propi, tant si la matrícula d'aquell curs ja està confirmada com si no.
+
+![Bloc d'autoritzacions al portal](../../assets/families/authorizations-portal.png)
+
+Per a cadascuna:
+
+1. Mireu la columna **Estat**: *Pendent* vol dir que espera la vostra resposta.
+2. Feu clic a **Respondre**. S'obre una finestra amb el text complet de l'autorització.
+3. Ompliu les dades que demani el centre. Els camps marcats amb un asterisc són obligatoris per acceptar.
+4. Feu clic a **Acceptar autorització** o, si l'autorització ho permet, a **Rebutjar**.
+
+Un cop respostes, la columna **Document** conté un certificat PDF de la vostra resposta. Hi podeu fer clic en qualsevol moment per descarregar-lo o imprimir-lo.
 
 ---
 

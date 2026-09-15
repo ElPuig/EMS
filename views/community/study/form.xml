@@ -13,6 +13,11 @@
                             <group colspan="3">
                                 <field name="name" />
                             </group>
+                            <!-- Issue #453 follow-up - public, no-login link to one PDF with every active group's
+                            schedule of this study. Hidden while the study has no active group (it would be a 404). -->
+                            <group colspan="4" invisible="not public_schedule_url">
+                                <field name="public_schedule_url" widget="CopyClipboardURL"/>
+                            </group>
                         </group>
                          <group string="Administrative data" col="4">
                             <group>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="view_ems_authorization_form" model="ir.ui.view">
+            <field name="name">ems.authorization.form</field>
+            <field name="model">ems.authorization</field>
+            <field name="arch" type="xml">
+                <form string="Authorization">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="template_id" options="{'no_create': True}" required="1"/></h1>
+                        </div>
+                        <group>
+                            <group string="Addressed to">
+                                <field name="partner_id" options="{'no_create': True}" required="1"/>
+                                <field name="course_id" options="{'no_create': True}" required="1"/>
+                                <field name="study_name"/>
+                                <!-- Empty for an authorization sent during the course. -->
+                                <field name="enrollment_id" readonly="1"/>
+                            </group>
+                            <group string="Response">
+                                <field name="status"/>
+                                <field name="response_date"/>
+                                <field name="response_uid"/>
+                                <field name="signed_document" filename="signed_document_name"/>
+                                <field name="signed_document_name" invisible="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Legal Text" name="legal_text">
+                                <field name="legal_text_rendered" readonly="1"/>
+                            </page>
+                            <page string="Provided Data" name="provided_data">
+                                <field name="response_field_ids" readonly="1">
+                                    <list create="false" delete="false" edit="false">
+                                        <field name="label"/>
+                                        <field name="value"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

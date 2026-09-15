@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 from odoo.exceptions import AccessError, RedirectWarning, UserError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group, make_synchronous_run_in_thread
+from .common import create_level_study_group, make_synchronous_run_in_thread, next_student_id
 
 
 class TestLimesurveyHeaderCore(TransactionCase):
@@ -19,14 +19,14 @@ class TestLimesurveyHeaderCore(TransactionCase):
         cls.subject = cls.env['ems.subject'].create({'code': 'TLM4SUB', 'acronym': 'TLM4S', 'name': 'Test Subject'})
 
         cls.student = cls.env['res.partner'].create({
-            'name': 'Header Test Student', 'contact_type': 'student', 'main_group_id': cls.group.id,
+            'name': 'Header Test Student', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': cls.group.id,
             'level_id': cls.level.id, 'study_id': cls.study.id, 'student_email': 'porrino.fernando+student@example.com',
             'wpi_enrolled': False,
         })
         cls.env['ems.enrollment'].create({'student_id': cls.student.id, 'group_id': cls.group.id, 'subject_id': cls.subject.id})
 
         cls.no_group_student = cls.env['res.partner'].create({
-            'name': 'No Group Student', 'contact_type': 'student', 'level_id': cls.level.id,
+            'name': 'No Group Student', 'contact_type': 'student', 'student_id': next_student_id(), 'level_id': cls.level.id,
         })
 
     def _header(self, **overrides):
@@ -80,7 +80,7 @@ class TestLimesurveyHeaderCore(TransactionCase):
 
     def test_action_compute_falls_back_to_generic_email(self):
         student = self.env['res.partner'].create({
-            'name': 'Fallback Email Student', 'contact_type': 'student', 'main_group_id': self.group.id,
+            'name': 'Fallback Email Student', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.group.id,
             'level_id': self.level.id, 'email': 'porrino.fernando+fallback@example.com',
         })
         header = self._header(group_ids=[(6, 0, [self.group.id])])
@@ -210,7 +210,7 @@ class TestComputeSurveyData(TransactionCase):
         cls.env['ems.teaching'].create({'teacher_id': cls.teacher.id, 'group_id': cls.group.id, 'subject_id': cls.subject.id})
 
         cls.student = cls.env['res.partner'].create({
-            'name': 'Compute Survey Data Student', 'contact_type': 'student', 'main_group_id': cls.group.id,
+            'name': 'Compute Survey Data Student', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': cls.group.id,
             'level_id': cls.level.id, 'study_id': cls.study.id,
         })
 
@@ -248,7 +248,7 @@ class TestComputeSurveyData(TransactionCase):
         # special_wpi_enrolled/special_subject_enrolled -> special_type Selection fix
         # (2026-07-30, see docs/en/developers/communications/limesurvey.md).
         wpi_student = self.env['res.partner'].create({
-            'name': 'WPI Student', 'contact_type': 'student', 'main_group_id': self.group.id,
+            'name': 'WPI Student', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.group.id,
             'level_id': self.level.id, 'study_id': self.study.id, 'wpi_enrolled': True,
         })
         wpi_block = self.env['ems.limesurvey_block'].create({

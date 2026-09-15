@@ -15,6 +15,7 @@ This guide explains in detail the steps students (or their families) must follow
 3. [Step 2 — Password form](#step-2--password-form)
 4. [Step 3 — Confirmation email](#step-3--confirmation-email)
 5. [Step 4 — Portal access](#step-4--portal-access)
+6. [Step 5 — Answering an authorization](#step-5--answering-an-authorization)
 
 ---
 
@@ -23,13 +24,13 @@ This guide explains in detail the steps students (or their families) must follow
 The student portal is the centralized virtual space from which the student and their family can manage their academic and administrative life with the school in a simple, fast and fully online way.
 
 Currently, the portal allows the following tasks:
-* **Enrollment:** Manage the enrollment process, answer and sign the school authorizations digitally, and review payments or fees.
+* **Enrollment and authorizations:** Manage the enrollment process, review payments or fees, and answer and sign the school authorizations digitally — both the ones that come with the enrollment and the ones the school sends during the course.
 * **Documentation:** Upload, store and consult all the official documents requested by the school.
 * **Communications:** Receive messages, circulars and notices sent by the management team, tutors or the secretariat immediately.
 * **Profile:** Keep the personal, contact and account security data up to date.
+* **Attendance:** Check the student's weekly class schedule and download it as a PDF.
 
-**Features available soon.** We are developing new modules to improve the tool. The following areas will be activated very soon:
-* **Attendance:** Check attendance records.
+**Features available soon.** We are developing new modules to improve the tool. The following area will be activated very soon:
 * **Grades:** Access the marks of the different evaluations directly.
 
 ---
@@ -78,10 +79,29 @@ Once registered, you will go directly to the main dashboard or home page of the 
 
 The web interface is optimized and designed to provide clean and intuitive navigation:
 * **Top menu:** You have permanent access to all the school's management areas.
-* **Centralized cards:** You have visual buttons to access each of the key services (**Attendance**, **Grades**, **Enrollment**, **Communications**, **Documentation** and **Profile**).
+* **Centralized cards:** You have visual buttons to access each of the key services (**Attendance**, **Grades**, **Enrollment and authorizations**, **Communications**, **Documentation** and **Profile**).
 * **User profile:** On the right side you will always see the basic information of the active student profile along with their ID photo from the record.
 
 ![Main dashboard and service cards of the student portal](../../assets/families/manual-portal-alumne-02.png)
+
+---
+
+## Step 5 — Answering an authorization
+
+New authorizations may arrive during the school year: a museum visit, an outing agreed in a tutoring meeting, a form published by the Departament d'Educació. You will receive an email listing them, with a link to the portal.
+
+Open **Enrollment and authorizations** from the top menu. The authorizations appear in their own block, whether or not the enrollment for that year is already confirmed.
+
+![Authorizations block on the portal](../../assets/families/authorizations-portal.png)
+
+For each one:
+
+1. Check the **Status** column: *Pending* means it is waiting for your answer.
+2. Click **Respond**. A window opens with the full text of the authorization.
+3. Fill in any data the school asks for. The fields marked with an asterisk are required to accept.
+4. Click **Accept Authorization** or, if the authorization allows it, **Reject**.
+
+Once answered, the **Document** column holds a PDF certificate of your answer. Click it at any time to download or print it.
 
 ---
 

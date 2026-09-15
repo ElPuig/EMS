@@ -115,6 +115,10 @@ from . import test_group_classroom_suggestion
 from . import test_group_classroom_suggestion_tour
 from . import test_group_schedule
 from . import test_group_schedule_topic_classroom_edit_tour
+from . import test_group_public_schedule
+from . import test_group_public_schedule_tour
+from . import test_portal_schedule
+from . import test_portal_schedule_tour
 from . import test_guard_duty_board
 from . import test_guard_duty_board_tour
 from . import test_em_grading_wizard
@@ -128,6 +132,9 @@ from . import test_department_head_optional_tour
 from . import test_attendance_template_color_tour
 from . import test_withdrawal_tour
 from . import test_enrollment_header
+from . import test_authorization_send_wizard
+from . import test_authorization_send_wizard_tour
+from . import test_docs_screenshots
 from . import test_authorization
 from . import test_authorization_template_tour
 from . import test_attendance_notification_tour

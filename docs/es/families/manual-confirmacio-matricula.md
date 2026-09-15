@@ -33,7 +33,7 @@ Para iniciar el trámite, haced clic en el enlace **mi matrícula** del correo, 
 
 ## Paso 1 — Acceso al portal y al apartado Matrícula
 
-Una vez que habéis iniciado sesión, llegaréis a la página de inicio del portal (*Mi cuenta*). Desde el menú superior o desde las tarjetas centrales, haced clic en **Matrícula**.
+Una vez que habéis iniciado sesión, llegaréis a la página de inicio del portal (*Mi cuenta*). Desde el menú superior o desde las tarjetas centrales, haced clic en **Matrícula y autorizaciones**.
 
 ![Página de inicio del portal con el acceso al apartado Matrícula](../../assets/families/Matricula-confirmacio-00.png)
 

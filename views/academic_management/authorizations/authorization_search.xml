@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_ems_authorization_search" model="ir.ui.view">
+            <field name="name">ems.authorization.search</field>
+            <field name="model">ems.authorization</field>
+            <field name="arch" type="xml">
+                <search string="Search Authorizations">
+                    <field name="partner_id" string="Student"/>
+                    <field name="template_id" string="Authorization"/>
+                    <field name="group_id" string="Group"/>
+                    <field name="course_id"/>
+
+                    <filter string="Pending" name="status_pending" domain="[('status', '=', 'pending')]"/>
+                    <filter string="Accepted" name="status_yes" domain="[('status', '=', 'yes')]"/>
+                    <filter string="Rejected" name="status_no" domain="[('status', '=', 'no')]"/>
+                    <separator/>
+                    <filter string="Sent during the course" name="standalone" domain="[('enrollment_id', '=', False)]"/>
+                    <filter string="From an enrollment" name="from_enrollment" domain="[('enrollment_id', '!=', False)]"/>
+                    <separator/>
+                    <filter string="Current academic year" name="current_course"
+                            domain="[('course_id.is_current', '=', True)]"/>
+
+                    <group expand="0" string="Group By">
+                        <filter string="Authorization" name="groupby_template" context="{'group_by': 'template_id'}"/>
+                        <filter string="Student" name="groupby_partner" context="{'group_by': 'partner_id'}"/>
+                        <filter string="Academic Year" name="groupby_course" context="{'group_by': 'course_id'}"/>
+                        <filter string="Status" name="groupby_status" context="{'group_by': 'status'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+    </data>
+</odoo>

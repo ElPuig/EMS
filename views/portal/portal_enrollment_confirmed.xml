@@ -14,6 +14,12 @@
 
                         <t t-if="not enrollment">
                             <div class="alert alert-info">No enrollment found.</div>
+                            <t t-if="authorizations">
+                                <t t-call="ems.portal_authorizations_block">
+                                <t t-set="authorizations" t-value="authorizations"/>
+                                <t t-set="section_number" t-value="''"/>
+                            </t>
+                            </t>
                         </t>
 
                         <t t-if="enrollment">
@@ -94,9 +100,16 @@
                             </div>
 
                             <!-- Bloque 2: Pago -->
+                            <t t-if="authorizations">
+                                <t t-call="ems.portal_authorizations_block">
+                                <t t-set="authorizations" t-value="authorizations"/>
+                                <t t-set="section_number" t-value="'2'"/>
+                            </t>
+                            </t>
+
                             <div class="card shadow-sm mb-4">
                                 <div class="card-header bg-light">
-                                    <h4 class="mb-0">2. Payment</h4>
+                                    <h4 class="mb-0">3. Payment</h4>
                                 </div>
                                 <div class="card-body p-4">
                                     <t t-if="enrollment.payment_term_id">
@@ -161,7 +174,7 @@
                             <t t-if="enrollment_messages">
                                 <div class="card shadow-sm mt-4">
                                     <div class="card-header bg-light">
-                                        <h4 class="mb-0">3. Communications</h4>
+                                        <h4 class="mb-0">4. Communications</h4>
                                     </div>
                                     <div class="card-body p-4">
                                         <t t-foreach="enrollment_messages" t-as="msg">
@@ -183,6 +196,7 @@
                             </t>
 
                         </t>
+
                     </div>
                 </div>
             </div>

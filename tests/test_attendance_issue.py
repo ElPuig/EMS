@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, mock_outgoing_email
+from .common import create_level_study, mock_outgoing_email, next_student_id
 
 
 class TestAttendanceIssue(TransactionCase):
@@ -42,11 +42,11 @@ class TestAttendanceIssue(TransactionCase):
             'tutor_id': cls.tutor_employee.id,
         })
         cls.student1 = cls.env['res.partner'].create({
-            'name': 'Issue Student 1', 'contact_type': 'student', 'main_group_id': cls.group.id,
+            'name': 'Issue Student 1', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': cls.group.id,
             'student_email': 'issue.student1@example.com',
         })
         cls.student2 = cls.env['res.partner'].create({
-            'name': 'Issue Student 2', 'contact_type': 'student', 'main_group_id': cls.group.id,
+            'name': 'Issue Student 2', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': cls.group.id,
             'student_email': 'issue.student2@example.com',
         })
         cls.template = cls.env['ems.attendance_template'].create({

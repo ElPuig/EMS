@@ -220,11 +220,26 @@
         <field name="perm_unlink" eval="False"/>
     </record>
 
+    <!-- Without a rule of its own, the head of studies would inherit only the teacher's
+         read-only rule and the tutor's own-students-only one (rules of different groups are
+         ANDed), so they could not send an authorization to a student they do not tutor -
+         which is precisely their job here (issue #443). -->
+    <record id="rule_ems_authorization_head_of_studies" model="ir.rule">
+        <field name="name">Authorization: head of studies</field>
+        <field name="model_id" ref="ems.model_ems_authorization"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
     <record id="rule_ems_authorization_tutor" model="ir.rule">
         <field name="name">Authorization: tutor (create/edit for own students)</field>
         <field name="model_id" ref="ems.model_ems_authorization"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('enrollment_id.partner_id.tutor_id.user_id', '=', user.id)]</field>
+        <field name="domain_force">[('partner_id.tutor_id.user_id', '=', user.id)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>

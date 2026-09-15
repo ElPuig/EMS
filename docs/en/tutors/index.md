@@ -17,6 +17,7 @@ This section contains the manuals for **group tutors**.
 | [Grading the work placement (EM)](work-placement-grade.md) | Enter the work placement grade of a student as they finish their internship: it completes the final grade of every module with a placement weight, including the pending finals of previous courses |
 | [Evaluation board: reviewing the grades per student](junta-avaluacio.md) | Review and adjust each group student's grades, subject by subject, for the evaluation board |
 | [How to generate enrollment proposals](propostes-matricula.md) | Propose the enrollment for the next course for approved students, including special enrollments |
+| [Authorizations: sending them to your students and following up](authorizations.md) | Send authorizations from the catalogue to your students or your groups, and follow up their answers |
 | [How to manage portal access](acces-portal.md) | Grant, revoke or resend portal access invitations for students and families |
 | [Strikes: Consulting Your Group's Records](strike.md) | Consult the strikes issued to your tutees and the ones you issued yourself |
 | [Attendance Reports](attendance-reports.md) | Print the 3 PDF attendance reports (by group/student/subject) and explore attendance data yourself with the Attendance analysis pivot/graph screen |

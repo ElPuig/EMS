@@ -80,6 +80,10 @@ class EMSPortalController(CustomerPortal):
 
         values.update({
             'enrollment': enrollment,
+            # Not enrollment.ems_authorization_ids: an authorization sent during the course
+            # (issue #443) hangs off the student, not off the enrollment, and the running
+            # course's enrollment is already confirmed by the time those are sent.
+            'authorizations': student.get_portal_authorizations() if student else [],
             'page_name': 'gestion-matriculas',
             'message_sent': message_sent,
             'enrollment_messages': enrollment_messages,
@@ -105,7 +109,7 @@ class EMSPortalController(CustomerPortal):
         redirect_base = '/my/gestion-matriculas'
         auth = request.env['ems.authorization'].sudo().browse(auth_id)
         student = request.env.user.partner_id.get_portal_student()
-        if not auth.exists() or auth.enrollment_id.partner_id != student:
+        if not auth.exists() or auth.partner_id != student:
             _logger.warning(
                 "Unauthorized authorization attempt: user %s tried to respond to auth_id %s",
                 request.env.user.id, auth_id
@@ -157,10 +161,7 @@ class EMSPortalController(CustomerPortal):
                     )
                     auth.sudo().write({
                         'signed_document': base64.b64encode(pdf_content),
-                        'signed_document_name': 'Cert_%s_%s.pdf' % (
-                            auth.enrollment_id.name,
-                            auth.template_id.name[:30],
-                        ),
+                        'signed_document_name': auth._certificate_filename(),
                     })
             except Exception:
                 _logger.exception(
@@ -308,7 +309,7 @@ class EMSPortalController(CustomerPortal):
         """ Sirve el documento firmado de una autorización """
         auth = request.env['ems.authorization'].sudo().browse(auth_id)
         student = request.env.user.partner_id.get_portal_student()
-        if not auth.exists() or auth.enrollment_id.partner_id != student:
+        if not auth.exists() or auth.partner_id != student:
             return request.redirect('/my/gestion-matriculas')
         if not auth.signed_document:
             return request.redirect('/my/gestion-matriculas')
@@ -326,7 +327,8 @@ class EMSPortalController(CustomerPortal):
     # -------------------------------------------------------------
     # (Páginas en Construcción)
     # -------------------------------------------------------------
-    @http.route(['/my/asistencia', '/my/calificaciones'], type='http', auth='user', website=True)
+    # '/my/asistencia' shows the student's schedule now (controllers/portal_schedule.py, issue #453).
+    @http.route(['/my/calificaciones'], type='http', auth='user', website=True)
     def under_construction(self, **kwargs):
         values = self._prepare_portal_layout_values()
         return request.render('ems.portal_under_construction_page', values)

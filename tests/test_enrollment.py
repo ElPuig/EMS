@@ -3,7 +3,7 @@ from datetime import date
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study
+from .common import create_level_study, next_student_id
 
 
 class TestEnrollment(TransactionCase):
@@ -46,8 +46,8 @@ class TestEnrollment(TransactionCase):
             'name': 'Test Teacher (Enrollment)',
             'employee_type': 'teacher',
         })
-        cls.student = cls.env['res.partner'].create({'name': 'Test Student (Enrollment)', 'contact_type': 'student'})
-        cls.other_student = cls.env['res.partner'].create({'name': 'Test Student B (Enrollment)', 'contact_type': 'student'})
+        cls.student = cls.env['res.partner'].create({'name': 'Test Student (Enrollment)', 'contact_type': 'student', 'student_id': next_student_id()})
+        cls.other_student = cls.env['res.partner'].create({'name': 'Test Student B (Enrollment)', 'contact_type': 'student', 'student_id': next_student_id()})
 
     def _create_template(self, groups, weekday='0'):
         template = self.env['ems.attendance_template'].create({
@@ -429,7 +429,7 @@ class TestEnrollmentSyncAsRestrictedUser(TransactionCase):
             'name': 'Test Other Teacher (Enrollment Sync)', 'employee_type': 'teacher',
         })
         cls.student = cls.env['res.partner'].create({
-            'name': 'Test Student (Enrollment Sync)', 'contact_type': 'student'})
+            'name': 'Test Student (Enrollment Sync)', 'contact_type': 'student', 'student_id': next_student_id()})
 
         # A secretary who is ALSO a teacher: the exact real-world combination behind #435 (a
         # secretary teaching a couple of hours). Their teacher group brings in the record rule

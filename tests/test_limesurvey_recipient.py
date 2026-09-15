@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group, make_synchronous_run_in_thread
+from .common import create_level_study_group, make_synchronous_run_in_thread, next_student_id
 
 
 class TestLimesurveyBlock(TransactionCase):
@@ -42,7 +42,7 @@ class TestLimesurveyRecipient(TransactionCase):
         })
         cls.subject = cls.env['ems.subject'].create({'code': 'TLM6SUB', 'acronym': 'TLM6S', 'name': 'Test Subject'})
         cls.student = cls.env['res.partner'].create({
-            'name': 'Recipient Test Student', 'contact_type': 'student', 'main_group_id': cls.group.id,
+            'name': 'Recipient Test Student', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': cls.group.id,
             'level_id': cls.level.id, 'study_id': cls.study.id, 'student_email': 'porrino.fernando+recipient@example.com',
         })
         cls.env['ems.enrollment'].create({'student_id': cls.student.id, 'group_id': cls.group.id, 'subject_id': cls.subject.id})
@@ -150,7 +150,7 @@ class TestLimesurveyRecipient(TransactionCase):
         # onchange, never as a value create() actually persists) - so state is set via write()
         # here to observe the compute in isolation, bypassing create()'s override entirely.
         other_student = self.env['res.partner'].create({
-            'name': 'Other Recipient Student', 'contact_type': 'student', 'main_group_id': self.group.id,
+            'name': 'Other Recipient Student', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.group.id,
         })
         self._recipient(student_id=other_student.id)
         manual_recipient = self._recipient()
@@ -229,7 +229,7 @@ class TestLimesurveyEnrollment(TransactionCase):
             'name': 'Test LimeSurvey Enrollment Study',
         })
         cls.subject = cls.env['ems.subject'].create({'code': 'TLM7SUB', 'acronym': 'TLM7S', 'name': 'Test Subject'})
-        cls.student = cls.env['res.partner'].create({'name': 'Enrollment Test Student', 'contact_type': 'student'})
+        cls.student = cls.env['res.partner'].create({'name': 'Enrollment Test Student', 'contact_type': 'student', 'student_id': next_student_id()})
         cls.env['ems.enrollment'].create({'student_id': cls.student.id, 'group_id': cls.group.id, 'subject_id': cls.subject.id})
 
         cls.header = cls.env['ems.limesurvey_header'].create({

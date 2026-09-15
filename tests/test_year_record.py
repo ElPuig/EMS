@@ -3,7 +3,7 @@ from datetime import date
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study
+from .common import create_level_study, next_student_id
 
 
 class TestYearRecord(TransactionCase):
@@ -107,7 +107,7 @@ class TestYearRecord(TransactionCase):
 
     def _student(self, name, **vals):
         return self.env['res.partner'].create(dict(
-            {'name': name, 'contact_type': 'student', 'main_group_id': self.group.id}, **vals))
+            {'name': name, 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.group.id}, **vals))
 
     def _frozen(self, student, course=None):
         return self.env['ems.student.year_record'].search([
@@ -387,7 +387,7 @@ class TestYearRecord(TransactionCase):
 
     def test_academic_result_empty_without_flow(self):
         student = self.env['res.partner'].create({
-            'name': 'No Flow Student', 'contact_type': 'student',
+            'name': 'No Flow Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': self.group_no_flow.id})
         record = self._generate(student)
         self.assertFalse(record.academic_result)

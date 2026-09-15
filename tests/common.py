@@ -4,7 +4,20 @@
 identically across dozens of test files)."""
 
 import base64
+import itertools
 from unittest.mock import patch
+
+
+_test_student_id_sequence = itertools.count(1)
+
+
+def next_student_id():
+    """A fresh Student ID (IDALU) for a test fixture student (issue #460).
+
+    Every student-lifecycle contact needs one to be created, and it must be unique across the
+    whole database, archived contacts included. The 'TEST' prefix can never match a real IDALU
+    (digits only), so a fixture never collides with the development data test shards clone."""
+    return f"TEST{next(_test_student_id_sequence):06d}"
 
 
 def create_level_study(cls, prefix, **overrides):
@@ -166,7 +179,7 @@ def create_student_academic_file(cls, prefix, group, course=None, student=None):
         or Course.create({'start': 2098, 'end': 2099})
 
     student = student or cls.env['res.partner'].create({
-        'name': f'Test {prefix} Student', 'contact_type': 'student',
+        'name': f'Test {prefix} Student', 'contact_type': 'student', 'student_id': next_student_id(),
         'student_email': f'test_{prefix.lower()}_student@example.com',
         'main_group_id': group.id,
     })

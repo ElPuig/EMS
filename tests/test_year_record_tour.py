@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group, force_user_language_to_english
+from .common import create_level_study_group, force_user_language_to_english, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -39,7 +39,7 @@ class TestYearRecordTour(HttpCase):
             'name': 'Year Record Tour Template', 'ems_study_id': cls.study.id, 'study_year': 1,
         })
         cls.student = cls.env['res.partner'].create({
-            'name': 'Year Record Tour Student', 'contact_type': 'student', 'main_group_id': cls.group.id,
+            'name': 'Year Record Tour Student', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': cls.group.id,
         })
         cls.env['ems.enrollment'].create({
             'student_id': cls.student.id, 'group_id': cls.group.id, 'subject_id': cls.subject.id,

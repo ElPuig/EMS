@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group, create_role_employee, create_role_user
+from .common import create_level_study_group, create_role_employee, create_role_user, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -35,10 +35,10 @@ class TestGradeTutorMatrixTour(HttpCase):
         # lastname) - the tour edits the first-shown student's first cell, then pages to the
         # second, so the test needs to know exactly which student is which.
         cls.student_first = cls.env['res.partner'].create({
-            'name': 'Tgtm Alpha', 'firstname': 'Tgtm', 'lastname': 'Alpha', 'contact_type': 'student',
+            'name': 'Tgtm Alpha', 'firstname': 'Tgtm', 'lastname': 'Alpha', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         cls.student_second = cls.env['res.partner'].create({
-            'name': 'Tgtm Beta', 'firstname': 'Tgtm', 'lastname': 'Beta', 'contact_type': 'student',
+            'name': 'Tgtm Beta', 'firstname': 'Tgtm', 'lastname': 'Beta', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         for student in (cls.student_first, cls.student_second):
             cls.env['ems.enrollment'].create({

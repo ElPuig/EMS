@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group
+from .common import create_level_study_group, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -31,7 +31,7 @@ class TestEmGradingWizardTour(HttpCase):
         })
         cls.student = cls.env['res.partner'].create({
             'name': 'EmgwtStudent Test', 'firstname': 'EmgwtStudent', 'lastname': 'Test',
-            'contact_type': 'student', 'main_group_id': cls.group.id,
+            'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': cls.group.id,
         })
         cls.env['ems.enrollment'].create({
             'student_id': cls.student.id, 'group_id': cls.group.id, 'subject_id': cls.subject.id,

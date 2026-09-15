@@ -4,7 +4,7 @@ from datetime import date
 from odoo.http import Request
 from odoo.tests.common import HttpCase, tagged
 
-from .common import mock_outgoing_email
+from .common import mock_outgoing_email, next_student_id
 
 FAKE_PDF = base64.b64encode(b'%PDF-1.4 fake test content')
 
@@ -25,7 +25,7 @@ class TestPortalActions(HttpCase):
         cls.course = cls.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1) \
             or cls.env['ems.course'].create({'start': 2098, 'end': 2099, 'is_enrollment_default': True})
         cls.student = cls.env['res.partner'].create({
-            'name': 'Portal Action Tour Student', 'contact_type': 'student',
+            'name': 'Portal Action Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         cls.portal_user = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Portal Action Tour Student', 'login': 'test_portal_action_student',
@@ -40,6 +40,12 @@ class TestPortalActions(HttpCase):
         cls.auth_template = cls.env['ems.authorization.template'].create({
             'name': 'Portal Action Tour Authorization', 'legal_text': '<p>Legal text</p>',
             'is_required': False, 'acceptance_only': False,
+        })
+        # Not applying to the enrollment keeps this one out of the enrollment sync entirely,
+        # which is what lets it be sent to the student on its own.
+        cls.standalone_template = cls.env['ems.authorization.template'].create({
+            'name': 'Portal Action Mid-year Authorization', 'legal_text': '<p>Mid-year</p>',
+            'is_required': False, 'apply_on_enrollment': False, 'sendable_during_course': True,
         })
         cls.order = cls.env['sale.order'].create({
             'partner_id': cls.student.id, 'ems_course_id': cls.course.id,
@@ -76,6 +82,56 @@ class TestPortalActions(HttpCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.authorization.status, 'yes')
+
+    def test_enrollment_authorize_standalone(self):
+        """An authorization sent during the course (issue #443) is answered through the very
+        same route - it just has no enrollment behind it."""
+        standalone = self.env['ems.authorization'].create({
+            'partner_id': self.student.id,
+            'course_id': self.course.id,
+            'template_id': self.standalone_template.id,
+        })
+        response = self._post(
+            '/my/gestion-matriculas/authorize/%d' % standalone.id, {'decision': 'yes'},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(standalone.status, 'yes')
+        # The certificate is generated and named after the academic year, there being no
+        # enrollment code to name it after.
+        self.assertTrue(standalone.signed_document)
+        self.assertIn(self.course.name, standalone.signed_document_name)
+
+    def test_cannot_answer_another_students_authorization(self):
+        """Regression guard for the ownership check moving to auth.partner_id."""
+        other_student = self.env['res.partner'].create({
+            'name': 'Someone Else (Portal Actions)', 'contact_type': 'student',
+            'student_id': next_student_id(),
+        })
+        theirs = self.env['ems.authorization'].create({
+            'partner_id': other_student.id,
+            'course_id': self.course.id,
+            'template_id': self.standalone_template.id,
+        })
+        response = self._post(
+            '/my/gestion-matriculas/authorize/%d' % theirs.id, {'decision': 'yes'},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(theirs.status, 'pending')
+
+    def test_authorization_document_download_standalone(self):
+        standalone = self.env['ems.authorization'].create({
+            'partner_id': self.student.id,
+            'course_id': self.course.id,
+            'template_id': self.standalone_template.id,
+            'signed_document': FAKE_PDF,
+            'signed_document_name': 'standalone_cert.pdf',
+        })
+        self._authenticate()
+        response = self.url_open(
+            url='/my/gestion-matriculas/authorization/%d/document' % standalone.id,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, base64.b64decode(FAKE_PDF))
 
     def test_enrollment_confirm_comment(self):
         response = self._post(

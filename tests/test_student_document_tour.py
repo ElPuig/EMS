@@ -1,6 +1,6 @@
 from odoo.tests import tagged, HttpCase
 
-from .common import force_user_language_to_english
+from .common import force_user_language_to_english, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -12,7 +12,7 @@ class TestStudentDocumentTour(HttpCase):
         # first on the list's very first page among the ~1000+ real students already in
         # this DB (see test_withdrawal_tour.py for the same pattern).
         student = self.env['res.partner'].create({
-            'name': '0000 Tour Doc Student', 'contact_type': 'student',
+            'name': '0000 Tour Doc Student', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         self.env['ems.student.document'].create({
             'partner_id': student.id, 'doc_type': 'dni',

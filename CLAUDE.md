@@ -438,6 +438,25 @@ illustrate. Before saving any screenshot into `docs/assets/`:
 This applies regardless of source: a tour-driven capture, a manual `Read` of a screenshot file, or
 anything the developer hands you directly.
 
+**Documentation describes current behavior, not history (2026-09-15).** Both technical
+(`docs/en/developers/`) and user (`docs/{en,ca,es}/<role>/`) documentation must describe the
+system as it behaves *now* — never as an account of how it used to work or how an earlier design
+iteration implemented it. Found during a close review the same day: a developer doc table
+described `ems.authorization.partner_id`/`course_id` as "stored computes", a leftover from an
+earlier draft of the design; the actual shipped implementation (plain fields populated in
+`create()`/`write()`/an `@api.onchange`) was already correctly described in that feature's own PR
+changelog text, just never back-ported into the doc itself.
+
+*Exception — a short, explicit callout for a behavior change the user needs to know isn't their own
+mistake:* when a change tightens previously-allowed behavior (a field becomes required, a value
+becomes unique, an action becomes restricted), it's fine — and often helpful — to add a brief note
+giving the version the change was introduced in, so a user who remembers the old behavior doesn't
+mistake the new restriction for a bug or a mistake on their part. Developer's own example
+(2026-09-15): a yellow callout box reading "La obligatorietat d'informar l'IDALU es va introduir a
+la versió 18.0.0.25.0." The callout is a footnote, not the documentation's main description — the
+surrounding prose must still state the current rule directly and plainly, not read like a
+changelog entry.
+
 ## Optional tooling: qmd for searching `docs/`/`plans/` (2026-08-10)
 
 [qmd](https://github.com/tobi/qmd) is a local, MIT-licensed hybrid search tool (BM25 + vector
@@ -655,6 +674,39 @@ whether Spec/Red start from a blank file or a diff:
    **Defer the full user-doc pass — and especially screenshots — while the feature is still under active design iteration in the same conversation (developer feedback 2026-08-10):** found while doing exactly this on the working-schedules import wizard — several small, still-evolving design tweaks in a row (a screen's position, its name, its own technical `state` key, then per-screen intro text) each triggered their own full Close step, rewriting the same admin-manual prose repeatedly for what was really one feature the developer hadn't yet confirmed as final. Screenshots are the expensive part to redo (capture, crop, verify no personal data leaked, re-crop); prose is cheaper but still wasted effort when the next message changes the same paragraph again. **How to apply:** keep the Spec-time *stub* current every cycle (already the rule above, and cheap either way), and keep the developer-facing English dev doc (`docs/en/developers/...`) current every cycle too (plain text, no screenshots, and it's the running record of *why*, needed to explain each iteration's own reasoning while it's still fresh) — but hold off writing the *full* three-language user-doc content and any screenshots until the developer actually confirms the feature has reached its final shape (a clear signal like "ya está", or simply moving on to unrelated work without more tweaks), then do one real Close pass covering everything that changed since the stub. If a change is genuinely a one-shot (no back-and-forth expected), there's no "still iterating" state to wait out — do the full Close immediately as before. When unsure whether more iteration is coming, ask rather than guessing which side to default to.
 
    **Track every deferred Close-step obligation proactively once it's been deferred — don't rely on being reminded (developer feedback 2026-08-11):** deferring the screenshot/full-doc pass above, or pushing the full unscoped `./test.sh` gate to "later, once confirmed," is fine — but once deferred, it must stay tracked as a live, explicit item (e.g. via the `TodoWrite` tool) for the rest of the session, not just left as prose inside this file or a memory/plan file to be re-discovered later. Real incident: after finishing a feature (a new wizard screen, tested and working), the developer asked "¿qué nos queda de este trabajo?" — the answer covered an unrelated plan-file audit but omitted that the full test gate had never been run and the screenshot-inclusive doc close was still outstanding, both already known to be deferred. The developer had to point out both themselves: *"te has olvidado de lo que quedaba pendiente... que esto no vuelva a pasar, por favor. Si te pregunto que queda pendiente, deberías saberlo si esto ya se ha hecho o no."* **How to apply:** the moment a Close-step item is deliberately deferred, add it to the todo list right then, not after the fact. When asked "what's left/pending" in any phrasing, check that tracked state first, before answering from memory/plan files alone — the answer should reflect what you already know is outstanding, not require the developer to notice a gap you already knew about.
+
+## "Revisión del cierre" — pre-production close review across merged branches (2026-09-15)
+
+A distinct, developer-invoked audit, triggered by phrases like *"revisa el cierre"* / *"haz una
+revisión del cierre"* — typically requested once several feature branches have all been merged
+into a release branch (e.g. `v18.0.0.25.0`) and before that branch is merged into `main` /
+deployed to production. Distinct from the per-feature Close step above, which each feature
+branch's own session already did on its own branch in isolation: a "revisión del cierre" is a
+second, holistic pass across *everything that landed together*, since one feature's own Close step
+has no visibility into whether it stayed consistent with another feature merged alongside it.
+
+**Covers, across every branch merged since the last release tag:**
+- Technical documentation (`docs/en/developers/`) — actually reflects current behavior (see
+  "Documentation describes current behavior, not history" above), not stale from an earlier
+  design iteration that shipped differently than first drafted.
+- User documentation (`docs/{en,ca,es}/<role>/`) — trilingual parity, linked from each role's
+  `index.md`.
+- Translations (`i18n/{ca_ES,es_ES}.po`) — verified via a DB read-back (see "All literals must be
+  translatable" above), not just `.po` presence.
+- Test coverage: backend `TransactionCase`, feature-specific tours, **and** the 5 role-smoke
+  crawler tours (`tests/test_role_smoke_*_tour.py`, see "Per-role smoke tours" above) actually run
+  against the fully-integrated branch. This is the moment the per-branch role-tour obligation
+  (deliberately deferred while each feature branch was still being developed independently, since
+  the crawler is only meaningful once every branch's menus are merged together) gets discharged —
+  running these 5 classes together is a scoped run (`./test.sh '/ems:ClassA,/ems:ClassB,...'`), not
+  the full unscoped suite, so it doesn't need the developer's separate go-ahead.
+
+**When asked for the PR changelog text (see "PR changelog" section below) and no close review has
+been done yet for the branch being delivered, offer one before delivering the text** — don't just
+assume it happened. If every change on the branch was made by the developer directly, they'll
+usually decline (they already know whether they closed their own work properly) — but always
+offer when the branch integrates a colleague's changes, since that's precisely the situation where
+the developer can't already know by memory alone.
 
 ## PR changelog: persist silently, deliver only on request
 

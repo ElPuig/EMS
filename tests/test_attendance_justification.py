@@ -4,7 +4,7 @@ from datetime import date, datetime
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study
+from .common import create_level_study, next_student_id
 
 
 class TestAttendanceJustification(TransactionCase):
@@ -18,7 +18,7 @@ class TestAttendanceJustification(TransactionCase):
         })
         cls.student = cls.env['res.partner'].create({
             'name': 'Test Student (Attendance Justification)',
-            'contact_type': 'student',
+            'contact_type': 'student', 'student_id': next_student_id(),
         })
 
     def test_overlapping_justification_raises(self):
@@ -130,7 +130,7 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
             'tutor_id': cls.tutor_employee.id,
         })
         cls.student = cls.env['res.partner'].create({
-            'name': 'Test Student (Attendance Justification Perms)', 'contact_type': 'student',
+            'name': 'Test Student (Attendance Justification Perms)', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': cls.group.id,
         })
         cls.other_teacher_user = cls.env['res.users'].with_context(no_reset_password=True).create({

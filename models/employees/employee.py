@@ -757,6 +757,12 @@ class ems_employee(models.AbstractModel):
                 if employee.user_id:
                     write_photo(employee.user_id.partner_id.sudo(), employee.image_1920)
 
+        if 'name' in vals:
+            # Issue #453 - a group's public schedule PDF prints its teachers and its tutor.
+            Group = self.env['ems.group']
+            Group._mark_public_schedule_dirty_for_blocks([('employee_id', 'in', self.ids)])
+            Group.sudo().search([('tutor_id', 'in', self.ids)])._mark_public_schedule_dirty()
+
         return result
 
     def _refresh_stale_avatar_placeholder(self):

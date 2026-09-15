@@ -1,6 +1,6 @@
 from odoo.tests import tagged, HttpCase
 
-from .common import create_level_study_group, create_role_user, force_user_language_to_english
+from .common import create_level_study_group, create_role_user, force_user_language_to_english, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -23,7 +23,7 @@ class TestContactTour(HttpCase):
         # first on the list's very first page among the ~1000+ real students already in
         # this DB (see test_withdrawal_tour.py for the same pattern).
         self.env['res.partner'].create({
-            'name': '0000 Contact Tour Student', 'contact_type': 'student',
+            'name': '0000 Contact Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'student_email': 'contact.tour.student@example.com',
             'level_id': level.id, 'study_id': study.id, 'main_group_id': group.id,
         })
@@ -45,8 +45,15 @@ class TestContactTour(HttpCase):
         hos_user = create_role_user(self, 'head_of_studies', 'test_hos_contact_tour', name='HoS Contact Tour')
         level, study, group = create_level_study_group(self, 'TCNH')
         self.env['res.partner'].create({
-            'name': '0000 HoS Contact Tour Student', 'contact_type': 'student',
+            'name': '0000 HoS Contact Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'student_email': 'hos.contact.tour.student@example.com',
             'level_id': level.id, 'study_id': study.id, 'main_group_id': group.id,
         })
         self.start_tour("/odoo", "ems_contact_head_of_studies_full_access", login=hos_user.login, step_delay=300)
+
+    def test_new_student_requires_student_id_tour(self):
+        # Issue #460: the Student data tab marks the Student ID (IDALU) required while the
+        # student is new, and the student saves once it is filled in. Logged in as secretary,
+        # the least-privileged role that registers students.
+        secretary = create_role_user(self, 'secretary', 'test_secretary_student_id_tour', name='Secretary IDALU Tour')
+        self.start_tour("/odoo", "ems_contact_new_student_requires_student_id", login=secretary.login)

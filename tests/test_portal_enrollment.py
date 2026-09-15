@@ -1,7 +1,7 @@
 from odoo.http import Request
 from odoo.tests.common import HttpCase, tagged
 
-from .common import mock_outgoing_email
+from .common import mock_outgoing_email, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -20,7 +20,7 @@ class TestPortalEnrollmentRenewIban(HttpCase):
         super().setUpClass()
         mock_outgoing_email(cls)
         cls.student = cls.env['res.partner'].create({
-            'name': 'Portal Renew Student', 'contact_type': 'student',
+            'name': 'Portal Renew Student', 'contact_type': 'student', 'student_id': next_student_id(),
         })
         cls.portal_user = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Portal Renew Student', 'login': 'test_portal_renew_iban',

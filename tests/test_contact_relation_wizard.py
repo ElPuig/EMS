@@ -1,7 +1,7 @@
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group
+from .common import create_level_study_group, next_student_id
 
 
 class TestContactRelationWizard(TransactionCase):
@@ -12,7 +12,7 @@ class TestContactRelationWizard(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.student = cls.env['res.partner'].create({
-            'name': 'Relation Wizard Student', 'contact_type': 'student',
+            'name': 'Relation Wizard Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'street': 'Carrer Test', 'city': 'Santa Coloma'})
         cls.relation_father = cls.env.ref('ems.relation_type_father')
 

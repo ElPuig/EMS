@@ -18,6 +18,7 @@ This section contains the manuals for **secretariat staff**.
 - [A Student's Weekly Schedule](../admin/student-schedule.md) — Viewing a student's own timetable (subjects, teachers, classrooms, breaks), including overlapping classes, and exporting it to PDF.
 - [Attendance Reports](attendance-reports.md) — Print the 3 PDF attendance reports (by group/student/subject) and explore attendance data with the Attendance analysis pivot/graph screen.
 - [Managing student and family contacts](student-contacts.md) — Contact types and how they change, adding a family contact to a student, and registering bonifications and exemptions.
+- [Authorizations: creating, sending and following up](authorizations.md) — Creating authorization forms, sending them to students during the course and following up the answers.
 - [Reviewing student documents](student-documents.md) — Approving, rejecting or reopening ID/medical/IBAN/benefit submissions, and what each decision does behind the scenes.
 - [Marking a graduation and registering a withdrawal](graduation-withdrawal.md) — The difference between the deferred graduation mark and an immediate withdrawal, and the full withdrawal cascade step by step.
 - [Importing students from Esfera (SAGA)](student-import-esfera.md) — Bulk-refreshing already-enrolled students' data (not to be confused with the GEDAC preinscription import), what gets matched/created, and known dedup limitations.

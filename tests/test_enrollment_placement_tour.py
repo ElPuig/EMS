@@ -1,6 +1,6 @@
 from odoo.tests import tagged, HttpCase
 
-from .common import create_level_study, force_user_language_to_english
+from .common import create_level_study, force_user_language_to_english, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -43,7 +43,7 @@ class TestEnrollmentPlacementTour(HttpCase):
         template2.sale_order_template_line_ids = [
             (0, 0, {'product_id': cls.tutorship.product_id.id})]
         cls.student = cls.env['res.partner'].create({
-            'name': 'Enrollment Placement Tour Student', 'contact_type': 'student',
+            'name': 'Enrollment Placement Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': cls.g2a.id})
         cls.order = cls.env['sale.order'].create({
             'partner_id': cls.student.id, 'ems_study_id': cls.study.id,

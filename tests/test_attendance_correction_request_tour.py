@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from odoo.tests.common import HttpCase, tagged
 
@@ -37,3 +37,33 @@ class TestAttendanceCorrectionRequestTour(HttpCase):
         self.assertEqual(correction.attendance_id, self.attendance)
         self.assertEqual(correction.original_check_in, self.attendance.check_in)
         self.assertEqual(correction.original_check_out, self.attendance.check_out)
+
+    def test_attendance_correction_request_open_within_schedule_tour(self):
+        # Issue #479: the requested_check_out field must not even render while the employee
+        # is still clocked in and still within today's expected working hours - a real browser
+        # check, since a TransactionCase can't prove the invisible attribute actually hides it
+        # (see tests/test_attendance_correction.py for the field-value-level coverage).
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
+        employee = self.env['hr.employee'].create({
+            'name': 'Attendance Correction Open Schedule Tour Employee', 'employee_type': 'teacher',
+        })
+        check_in = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=2)
+        self.env['resource.calendar.attendance'].create({
+            'calendar_id': employee.resource_calendar_id.id,
+            'name': 'Tour Slot (Attendance Correction)',
+            'dayofweek': str(check_in.weekday()),
+            'hour_from': 0.0,
+            'hour_to': 23.9,
+            'day_period': 'morning',
+        })
+        attendance = self.env['hr.attendance'].create({
+            'employee_id': employee.id,
+            'check_in': check_in,
+        })
+
+        self.start_tour("/odoo", "ems_attendance_correction_request_open_within_schedule", login="admin")
+
+        self.assertEqual(attendance.correction_count, 1)
+        correction = attendance.correction_ids
+        self.assertTrue(correction.requested_check_in)
+        self.assertFalse(correction.requested_check_out)

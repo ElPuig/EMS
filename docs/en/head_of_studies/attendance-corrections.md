@@ -20,6 +20,8 @@ If a request has been routed to you (you'll see it as an **Activity** to-do, and
 
    ![Correction requests list, with the requested check-in/check-out and its status](../../assets/head_of_studies/hos-attendance-correction-list.png)
 2. Review the original time against the requested one, and the reason given.
+
+   > A request showing only a requested check-in, with no check-out, is expected when the teacher was still clocked in and still within their working hours at the time they asked for the correction — it's not an incomplete request.
 3. Click **Accept** to apply the correction to the attendance record, or **Reject** to leave it unchanged (or restore it, if you're reversing a previous acceptance). You can optionally leave a note for the teacher.
 4. The teacher who made the request is notified of your decision automatically.
 

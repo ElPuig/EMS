@@ -27,6 +27,8 @@ If a check-in or check-out was recorded with the wrong time (you forgot to clock
 1. Open the attendance record with the wrong time.
 2. Click **Request Correction** in the header.
 3. A form opens with the **Check-in** and/or **Check-out** time already filled in with the current value — you only need to change the one(s) that are wrong. Note that you can only correct the *time of day*, not the date.
+
+   > If you're still clocked in (no check-out yet) and still within today's expected working hours, only the **Check-in** field is shown — you haven't checked out yet, so there's nothing to correct there. The **Check-out** field appears once your working day for that date has ended.
 4. Explain why in the **Reason** field.
 5. Click **Save**. The request is now **Pending**.
 

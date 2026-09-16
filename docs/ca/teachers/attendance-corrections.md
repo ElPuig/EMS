@@ -27,6 +27,8 @@ Si una entrada o sortida s'ha registrat amb una hora incorrecta (has oblidat fit
 1. Obre el fitxatge amb l'hora incorrecta.
 2. Fes clic a **Sol·licitar correcció** a la capçalera.
 3. S'obre un formulari amb l'**hora d'entrada** i/o **sortida** ja omplertes amb el valor actual — només cal que canviïs la que estigui malament. Recorda que només es pot corregir l'hora del dia, no la data.
+
+   > Si encara estàs fitxat/ada (no has fitxat sortida) i encara estàs dins del teu horari laboral d'avui, només es mostra el camp d'**hora d'entrada** — encara no has sortit, així que no hi ha res a corregir en la sortida. El camp de **sortida** apareix un cop hagi acabat la teva jornada laboral d'aquell dia.
 4. Explica el motiu al camp **Motiu**.
 5. Fes clic a **Desar**. La sol·licitud queda **Pendent**.
 

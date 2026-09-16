@@ -13,6 +13,7 @@
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                         <field name="active" invisible="1"/>
+                        <field name="is_check_out_requestable" invisible="1"/>
                         <group>
                             <group string="Employee">
                                 <field name="employee_id" widget="many2one_avatar_employee" readonly="1"/>
@@ -22,7 +23,7 @@
                                 <field name="original_check_in" readonly="1"/>
                                 <field name="requested_check_in" widget="float_time"/>
                                 <field name="original_check_out" readonly="1"/>
-                                <field name="requested_check_out" widget="float_time"/>
+                                <field name="requested_check_out" widget="float_time" invisible="not is_check_out_requestable"/>
                             </group>
                         </group>
                         <group string="Reason">

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from odoo import fields
 from odoo.exceptions import AccessError, UserError
@@ -77,6 +77,26 @@ class TestAttendanceCorrection(TransactionCase):
             'employee_id': cls.teacher_employee.id,
             'check_in': datetime(2026, 1, 5, 8, 0),
             'check_out': datetime(2026, 1, 5, 16, 0),
+        })
+
+        # NOTE: relative to real execution time (no freezegun in this codebase) - same
+        # pattern as tests/test_employee_autocheckout.py, so these fixtures stay correct
+        # regardless of when the suite actually runs.
+        cls.today = datetime.now(timezone.utc).date()
+        cls.weekday = str(cls.today.weekday())
+
+    def _add_slot(self, employee, hour_from, hour_to, dayofweek=None):
+        # NOTE: a freshly created teacher's personal calendar starts with zero
+        # attendance_ids (seed_from_framework() wipes the Mon-Fri lines copied from the
+        # company calendar at create() time - see models/employees/working_schedule.py),
+        # so adding a slot here never collides with a pre-existing one.
+        return self.env['resource.calendar.attendance'].create({
+            'calendar_id': employee.resource_calendar_id.id,
+            'name': 'Test Slot (Attendance Correction)',
+            'dayofweek': dayofweek or self.weekday,
+            'hour_from': hour_from,
+            'hour_to': hour_to,
+            'day_period': 'morning',
         })
 
     def _create_correction(self, user, **values):
@@ -171,6 +191,69 @@ class TestAttendanceCorrection(TransactionCase):
             default_attendance_id=open_attendance.id
         ).with_user(self.teacher_user).new({})
         self.assertEqual(correction.requested_check_out, 15.0)
+
+    def test_is_check_out_requestable_true_when_attendance_closed(self):
+        # self.attendance already has both check_in and check_out set - closed, so the
+        # schedule check never even applies, regardless of the employee's calendar.
+        correction = self._create_correction(self.teacher_user)
+        self.assertTrue(correction.is_check_out_requestable)
+
+    def test_is_check_out_requestable_false_when_open_and_within_schedule(self):
+        check_in = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=2)
+        # Slot spans almost the whole day, so "now" is always still before hour_to.
+        self._add_slot(self.teacher_employee, 0.0, 23.9, dayofweek=str(check_in.weekday()))
+        open_attendance = self.env['hr.attendance'].create({
+            'employee_id': self.teacher_employee.id,
+            'check_in': check_in,
+        })
+        correction = self.env['ems.attendance_correction'].with_context(
+            default_attendance_id=open_attendance.id
+        ).with_user(self.teacher_user).new({})
+        self.assertFalse(correction.is_check_out_requestable)
+        self.assertFalse(correction.requested_check_out)
+
+    def test_is_check_out_requestable_true_when_open_and_schedule_already_ended(self):
+        check_in = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=2)
+        # ~1 minute after local midnight - already passed for any reasonable test run time.
+        self._add_slot(self.teacher_employee, 0.0, 0.02, dayofweek=str(check_in.weekday()))
+        open_attendance = self.env['hr.attendance'].create({
+            'employee_id': self.teacher_employee.id,
+            'check_in': check_in,
+        })
+        correction = self.env['ems.attendance_correction'].with_context(
+            default_attendance_id=open_attendance.id
+        ).with_user(self.teacher_user).new({})
+        self.assertTrue(correction.is_check_out_requestable)
+        self.assertEqual(correction.requested_check_out, 0.02)
+
+    def test_is_check_out_requestable_true_when_open_and_no_schedule_that_day(self):
+        # No slot added at all - the teacher's personal calendar has zero attendance_ids.
+        open_attendance = self.env['hr.attendance'].create({
+            'employee_id': self.teacher_employee.id,
+            'check_in': datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=2),
+        })
+        correction = self.env['ems.attendance_correction'].with_context(
+            default_attendance_id=open_attendance.id
+        ).with_user(self.teacher_user).new({})
+        self.assertTrue(correction.is_check_out_requestable)
+
+    def test_create_strips_requested_check_out_when_not_requestable(self):
+        check_in = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=2)
+        self._add_slot(self.teacher_employee, 0.0, 23.9, dayofweek=str(check_in.weekday()))
+        open_attendance = self.env['hr.attendance'].create({
+            'employee_id': self.teacher_employee.id,
+            'check_in': check_in,
+        })
+        # A stale/tampered client still sends a requested_check_out - create() must not
+        # trust it once the server-side check says it isn't requestable.
+        correction = self.env['ems.attendance_correction'].with_context(
+            default_attendance_id=open_attendance.id
+        ).with_user(self.teacher_user).create({
+            'reason': 'Forgot to check in on time.',
+            'requested_check_in': 8.5,
+            'requested_check_out': 16.0,
+        })
+        self.assertFalse(correction.requested_check_out)
 
     def test_accept_applies_correction(self):
         original_check_in = self.attendance.check_in

@@ -8843,6 +8843,11 @@ msgid "Is approver"
 msgstr "Es aprobador"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__is_check_out_requestable
+msgid "Check-out requestable"
+msgstr "Salida solicitable"
+
+#. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_correction.py:0
 msgid "New correction request"

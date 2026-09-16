@@ -41,6 +41,7 @@ def post_init_hook(env):
     env['mail.activity.type']._ems_fix_approval_activity_names()
     _default_strike_family_notification_kicked_out(env)
     _seed_notice_email_signature_default(env)
+    _apply_icu_collation_to_sort_fields(env)
 
 
 def _backfill_default_schedule_framework(env):
@@ -124,3 +125,50 @@ def _enable_unaccent_extension(env):
     here; existing installs upgrading to this version get it via
     migrations/18.0.0.22.0/post-migrate.py."""
     env.cr.execute("CREATE EXTENSION IF NOT EXISTS unaccent;")
+
+
+def _apply_icu_collation_to_sort_fields(env):
+    """This database's default collation ('C.UTF-8', fixed at CREATE DATABASE time and never
+    changeable afterwards without recreating the whole database) sorts strings by raw Unicode
+    code point rather than alphabetically - an accented uppercase letter like 'Á' (U+00C1) has
+    a higher code point than 'Z' (U+005A), so it sorts *after* every plain A-Z letter instead of
+    next to 'A' (issue #454). This has nothing to do with the 'unaccent' extension above, which
+    only affects ilike/like search, never ORDER BY.
+
+    PostgreSQL's built-in ICU collations (bundled with this server, no extra install needed)
+    fix this per-column: overriding a column's collation to 'und-x-icu' (locale-neutral Unicode
+    default ordering - deliberately not a Catalan/Spanish-specific collation, since these
+    columns hold personal names of many different origins) makes every ORDER BY on that column
+    sort accented letters next to their base letter, with no application code changes. Verified
+    empirically (2026-09-16): ALTER TABLE ... ALTER COLUMN ... TYPE varchar COLLATE "und-x-icu"
+    transparently rewrites the column and rebuilds any dependent index in place - existing data,
+    NOT NULL constraints and indexes all survive untouched, only the sort order changes.
+
+    Scoped to the columns actually used to order the app's main people/catalog list views -
+    not a blanket fix for every text column in the database. Fresh installs get it here;
+    existing installs upgrading to this version get it via
+    migrations/18.0.0.26.0/pre-migrate.py.
+
+    Gotcha confirmed empirically 2026-09-16: PostgreSQL refuses to ALTER COLUMN TYPE on a
+    column any view depends on ('cannot alter type of a column used by a view or rule').
+    hr_employee.name is one such column - hr.employee.public (hr/models/hr_employee_public.py)
+    is a native Odoo SQL-view model selecting it. Drop the view first; Odoo unconditionally
+    recreates it (CREATE OR REPLACE VIEW in its own init(), inherited/extended by
+    hr_attendance and hr_skills) as part of every module load that follows, install or
+    upgrade alike, so dropping it here is always safe."""
+    env.cr.execute("DROP VIEW IF EXISTS hr_employee_public")
+    for table, column in _ICU_COLLATION_SORT_COLUMNS:
+        env.cr.execute(f'ALTER TABLE {table} ALTER COLUMN {column} TYPE varchar COLLATE "und-x-icu"')
+
+
+_ICU_COLLATION_SORT_COLUMNS = [
+    ('ems_group', 'name'),
+    ('ems_level', 'name'),
+    ('ems_study', 'name'),
+    ('ems_subject', 'name'),
+    ('hr_employee', 'name'),
+    ('res_partner', 'name'),
+    ('res_partner', 'firstname'),
+    ('res_partner', 'lastname'),
+    ('res_partner', 'complete_name'),
+]

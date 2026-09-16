@@ -176,6 +176,26 @@ class TestStrike(TransactionCase):
         found = self.env['ems.strike'].with_user(self.coexistence_a_user).search([('id', '=', strike.id)])
         self.assertIn(strike, found)
 
+    def test_hos_sees_all_strikes_centrewide(self):
+        # hos_b is on a different branch than teacher_a (issued from hos_a's branch) - the
+        # centre-wide read comes from group_student_data_reader, not branch matching.
+        strike = self._create_strike(self.teacher_a_user)
+        found = self.env['ems.strike'].with_user(self.hos_b_user).search([('id', '=', strike.id)])
+        self.assertIn(strike, found)
+
+    def test_hos_can_unlink_any_strike(self):
+        # Issue #464: Head of Studies / Deputy Head of Studies / Director can delete any
+        # strike centre-wide, not just their own tutees' - hos_b deleting a strike issued on
+        # hos_a's branch proves this isn't scoped by branch.
+        strike = self._create_strike(self.teacher_a_user)
+        strike.with_user(self.hos_b_user).unlink()
+
+    def test_coexistence_can_unlink_any_strike(self):
+        # Issue #464: coexistence coordinators can delete any strike centre-wide, regardless
+        # of which HoS/DHoS branch issued it - same transversal reach as their read access.
+        strike = self._create_strike(self.teacher_a_user)
+        strike.with_user(self.coexistence_b_user).unlink()
+
     def test_secretary_can_open_student_form_strike_count(self):
         strike = self._create_strike(self.teacher_a_user)
         student_as_secretary = self.minor_student.with_user(self.secretary_user)

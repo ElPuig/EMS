@@ -22,7 +22,9 @@ erDiagram
 
 **See also:** [`em_grading_wizard.md`](em_grading_wizard.md) (the work-placement grade entry
 point, which writes into `grade_subject_line` after the normal rounds are closed) and
-[`year_record.md`](year_record.md) (the archived history these sessions eventually feed).
+[`year_record.md`](year_record.md) (the archived history these sessions eventually feed) and
+[`convalidation.md`](convalidation.md) (`grade_subject_line.is_convalidated`: a convalidated
+subject is complete with a final grade of 5, whatever its outcomes hold).
 
 ---
 
@@ -113,6 +115,9 @@ context flag (`ems_em_grading`) set only by [`ems.em_grading_wizard`](em_grading
 scoped to *only* `external_score`/`external_is_scored` — a work-placement grade legitimately
 arrives after the rounds are closed, but every other field on the line stays protected
 regardless of context.
+The same kind of exception covers `is_convalidated`, through the `ems_convalidation_sync`
+context set by [`ems.convalidation.line`](convalidation.md): the Head of Studies resolves a
+convalidation whenever the Department answers, which can be after the session is finalised.
 
 ---
 

@@ -96,7 +96,7 @@ A la dreta de les columnes de RA hi ha les columnes que resumeixen la nota del m
 | **Empresa** | Nota de pràctiques en empresa (part externa). S'informa manualment, com un RA més. |
 | **Sobreescriure centre** | Casella per **sobreescriure la nota del centre**. En marcar-la, pots fixar manualment la nota del centre en lloc de deixar que es calculi a partir dels RA. |
 | **Centre** | **Nota del centre**, calculada automàticament a partir dels RA segons els seus pesos. |
-| **Final** | **Nota final** del mòdul, que combina la nota del centre i la d'empresa segons els percentatges de la planificació. |
+| **Final** | **Nota final** del mòdul, que combina la nota del centre i la d'empresa segons els percentatges de la planificació. **CV** vol dir que el mòdul està convalidat per a aquest alumne: compta com a aprovat amb un 5. |
 | **Comentaris** | Observació lliure per alumne (opcional). |
 
 ![Columnes de nota del mòdul: Empresa, Sobreescriure centre, Centre, Final i Comentaris](../../assets/teachers/teachers-05-columnes-nota.png)

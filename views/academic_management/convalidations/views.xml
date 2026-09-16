@@ -78,19 +78,19 @@
                                                decoration-danger="state == 'rejected'"
                                                decoration-warning="state == 'forwarded'"/>
                                         <field name="resolution_notes"/>
-                                        <button name="action_grant" type="object" string="Convalidate"
+                                        <button name="action_grant" type="object" title="Convalidate"
                                                 icon="fa-check" class="text-success"
                                                 invisible="state == 'granted'"
                                                 groups="ems.group_head_of_studies,ems.group_academic_admin"/>
-                                        <button name="action_reject" type="object" string="Reject"
+                                        <button name="action_reject" type="object" title="Reject"
                                                 icon="fa-times" class="text-danger"
                                                 invisible="state == 'rejected'"
                                                 groups="ems.group_head_of_studies,ems.group_academic_admin"/>
-                                        <button name="action_forward" type="object" string="Forward to the Department"
+                                        <button name="action_forward" type="object" title="Forward to the Department"
                                                 icon="fa-share"
                                                 invisible="state != 'pending'"
                                                 groups="ems.group_head_of_studies,ems.group_academic_admin"/>
-                                        <button name="action_reset" type="object" string="Back to pending"
+                                        <button name="action_reset" type="object" title="Back to pending"
                                                 icon="fa-undo"
                                                 invisible="state == 'pending'"
                                                 groups="ems.group_head_of_studies,ems.group_academic_admin"/>

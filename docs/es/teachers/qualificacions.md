@@ -96,7 +96,7 @@ A la derecha de las columnas de RA están las columnas que resumen la nota del m
 | **Empresa** | Nota de prácticas en empresa (parte externa). Se informa manualmente, como un RA más. |
 | **Sobrescribir centro** | Casilla para **sobrescribir la nota del centro**. Al marcarla, puedes fijar manualmente la nota del centro en lugar de dejar que se calcule a partir de los RA. |
 | **Centro** | **Nota del centro**, calculada automáticamente a partir de los RA según sus pesos. |
-| **Final** | **Nota final** del módulo, que combina la nota del centro y la de empresa según los porcentajes de la planificación. |
+| **Final** | **Nota final** del módulo, que combina la nota del centro y la de empresa según los porcentajes de la planificación. **CV** significa que el módulo está convalidado para ese alumno: cuenta como aprobado con un 5. |
 | **Comentarios** | Observación libre por alumno (opcional). |
 
 ![Columnas de nota del módulo: Empresa, Sobrescribir centro, Centro, Final y Comentarios](../../assets/teachers/teachers-05-columnes-nota.png)

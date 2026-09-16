@@ -17,6 +17,7 @@ Aquesta secció conté els manuals per a **famílies i alumnes**.
 | [Recuperar la contrasenya del correu de l'institut](manual-recuperacio-contrasenya-correu.md) | Com recuperar la contrasenya del compte de correu `@elpuig.xeill.net` |
 | [Pujar documents oficials, IBAN i sol·licituds de beneficis](manual-documentacio.md) | Com enviar documents de DNI/targeta sanitària, registrar el teu IBAN i sol·licitar una bonificació o exempció |
 | [Consultar l'horari de classes](manual-horari.md) | Com veure l'horari setmanal de l'alumne al portal i descarregar-lo en PDF |
+| [Sol·licitar convalidacions](manual-convalidacions.md) | Com demanar la convalidació de mòduls de formació professional i seguir-ne la resolució |
 
 ---
 

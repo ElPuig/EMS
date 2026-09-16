@@ -27,6 +27,7 @@ Actualment, el portal permet realitzar les següents gestions:
 * **Matrícula i autoritzacions:** Gestionar el procés de matrícula, revisar els pagaments o quotes i respondre i signar les autoritzacions de centre de forma digital — tant les que arriben amb la matrícula com les que el centre envia durant el curs.
 * **Documentació:** Pujar, desar i consultar tots els documents oficials sol·licitats pel centre.
 * **Comunicacions:** Rebre de forma immediata els missatges, circulars i avisos enviats per l'equip directiu, tutors o secretaria.
+* **Convalidacions:** Sol·licitar la convalidació de mòduls de formació professional i seguir-ne la resolució. Vegeu [Sol·licitar convalidacions](manual-convalidacions.md).
 * **Perfil:** Mantenir actualitzades les dades personals, de contacte i de seguretat del compte d'accés.
 * **Assistència:** Consultar l'horari setmanal de classes de l'alumne i descarregar-lo en PDF.
 
@@ -79,7 +80,7 @@ Un cop registrats, entrareu directament al tauler principal o pàgina d'inici (*
 
 La interfície web està optimitzada i dissenyada per facilitar una navegació neta i intuïtiva:
 * **Menú superior:** Teniu un accés permanent a totes les àrees de gestió del centre.
-* **Targetes centralitzades:** Disposeu de botons visuals per accedir a cadascun dels serveis clau (**Assistència**, **Qualificacions**, **Matrícula i autoritzacions**, **Comunicacions**, **Documentació** i **Perfil**).
+* **Targetes centralitzades:** Disposeu de botons visuals per accedir a cadascun dels serveis clau (**Assistència**, **Qualificacions**, **Matrícula i autoritzacions**, **Comunicacions**, **Documentació**, **Convalidacions** i **Perfil**).
 * **Perfil de l'usuari:** A la part dreta tindreu sempre visible la informació bàsica del perfil actiu de l'alumne juntament amb la seva fotografia identificativa de l'expedient.
 
 ![Panell principal i targetes de serveis del portal de l'alumne](../../assets/families/manual-portal-alumne-02.png)

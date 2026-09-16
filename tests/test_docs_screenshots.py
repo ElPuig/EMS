@@ -27,7 +27,7 @@ from dateutil.relativedelta import relativedelta
 
 from odoo.tests.common import ChromeBrowser, HttpCase, tagged
 
-from .common import create_level_study_group, create_role_employee, create_role_user
+from .common import create_level_study_group, create_role_employee, create_role_user, next_student_id
 
 OUTPUT_DIR = os.environ.get('EMS_SCREENSHOT_DIR', '/tmp/ems_doc_screenshots')
 
@@ -145,6 +145,7 @@ class TestDocsScreenshots(HttpCase):
     def _student(cls, name):
         student = cls.env['res.partner'].create({
             'name': name, 'contact_type': 'student', 'main_group_id': cls.group.id,
+            'student_id': next_student_id(),
             'email': '%s@example.com' % name.split()[0].lower(),
             'birth_date': date.today() - relativedelta(years=19),
         })
@@ -293,4 +294,56 @@ class TestDocsScreenshots(HttpCase):
             'authorizations-portal.png',
             login='doc_shot_portal',
             wait_for='#portal_authorizations .ems-auth-answer',
+        )
+
+    def test_capture_convalidation_screenshots(self):
+        """Issue #276 - the Head of Studies' request form and list, and the portal page."""
+        self.level.allows_convalidation = True
+        subjects = self.subject | self.env['ems.subject'].create([{
+            'code': code, 'acronym': acronym, 'name': name, 'study_ids': [(6, 0, self.study.ids)],
+        } for code, acronym, name in (
+            ('DOCSUB2', 'DSP', 'Programació'),
+            ('DOCSUB3', 'DSI', 'Sistemes informàtics'),
+            ('DOCSUB4', 'DFO', 'Formació i orientació laboral'),
+        )])
+        head_of_studies = create_role_user(self, 'head_of_studies', 'doc_shot_hos', lang='ca_ES',
+                                           name="Cap d'estudis", email='capestudis@example.com')
+        create_role_employee(self, head_of_studies, name="0000 Cap d'estudis")
+        request = self.env['ems.convalidation'].create({
+            'student_id': self.portal_student.id, 'requester_id': self.portal_student.id,
+            'study_id': self.study.id, 'course_id': self.course.id, 'basis': 'prior_studies',
+            'student_notes': "Vaig cursar el CFGM de Sistemes microinformàtics i xarxes.",
+            'line_ids': [(0, 0, {'subject_id': subject.id}) for subject in subjects[1:]],
+            'attachment_ids': [(0, 0, {'name': 'Certificat_academic_SMX.pdf',
+                                       'datas': base64.b64encode(b'%PDF-1.4 x')})],
+        })
+        request.line_ids[0].sudo().write({'state': 'granted', 'resolution_notes': 'Mòdul equivalent a SMX'})
+        request.line_ids[1].sudo().action_forward()
+        list_action = self.env['ir.actions.act_window'].create({
+            'name': 'Convalidacions',
+            'res_model': 'ems.convalidation',
+            'view_mode': 'list,form',
+            'domain': [('id', '=', request.id)],
+        })
+        self._capture(
+            '/odoo/action-ems.action_convalidation/%d' % request.id,
+            '.o_form_sheet', 'convalidations-form.png',
+            login='doc_shot_hos',
+            wait_for=".o_form_sheet div[name='line_ids'] .o_data_row",
+        )
+        self._capture(
+            '/odoo/action-%d' % list_action.id,
+            '.o_content', 'convalidations-list.png',
+            login='doc_shot_hos',
+            wait_for='.o_list_renderer .o_data_row',
+        )
+        self._capture(
+            '/my/convalidaciones', '.o_ems_convalidation_new',
+            'convalidations-portal-new.png',
+            login='doc_shot_portal',
+        )
+        self._capture(
+            '/my/convalidaciones', '.o_ems_convalidation_request',
+            'convalidations-portal-request.png',
+            login='doc_shot_portal',
         )

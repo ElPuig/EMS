@@ -27,6 +27,7 @@ Currently, the portal allows the following tasks:
 * **Enrollment and authorizations:** Manage the enrollment process, review payments or fees, and answer and sign the school authorizations digitally — both the ones that come with the enrollment and the ones the school sends during the course.
 * **Documentation:** Upload, store and consult all the official documents requested by the school.
 * **Communications:** Receive messages, circulars and notices sent by the management team, tutors or the secretariat immediately.
+* **Convalidations:** Request the convalidation of vocational training modules and follow the resolution. See [Requesting convalidations](manual-convalidacions.md).
 * **Profile:** Keep the personal, contact and account security data up to date.
 * **Attendance:** Check the student's weekly class schedule and download it as a PDF.
 
@@ -79,7 +80,7 @@ Once registered, you will go directly to the main dashboard or home page of the 
 
 The web interface is optimized and designed to provide clean and intuitive navigation:
 * **Top menu:** You have permanent access to all the school's management areas.
-* **Centralized cards:** You have visual buttons to access each of the key services (**Attendance**, **Grades**, **Enrollment and authorizations**, **Communications**, **Documentation** and **Profile**).
+* **Centralized cards:** You have visual buttons to access each of the key services (**Attendance**, **Grades**, **Enrollment and authorizations**, **Communications**, **Documentation**, **Convalidations** and **Profile**).
 * **User profile:** On the right side you will always see the basic information of the active student profile along with their ID photo from the record.
 
 ![Main dashboard and service cards of the student portal](../../assets/families/manual-portal-alumne-02.png)

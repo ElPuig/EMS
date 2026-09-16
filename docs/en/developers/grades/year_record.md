@@ -58,6 +58,7 @@ flowchart LR
 
 - **Subject `state` is binary and determined only by RAs**: `passed` = every RA resolved ≥ 5; `failed` = some RA < 5 (or never scored) after all rounds. A failed/pending work placement (EM) never fails a subject — the student repeats the placement, not the subject.
 - **`final_grade` empty while the EM is pending**: `has_final` is copied from the subject line; `final_pending` (stored compute) = `passed` + `external_weight > 0` + no final. It is the work list of the EM grading wizard (phase 1bis).
+- **Convalidated subjects** (`is_convalidated`, copied from the subject line) are `passed` with a final grade of 5. A convalidation resolved after the record was frozen updates the record of the request's course; see [`convalidation.md`](convalidation.md).
 - **`roundN_score` reflects "the grade as of that round"** (`fill_students()` carries the best previous grade forward); `final_score` is the last scored round.
 - **`academic_result`** is written by the generator (plain field, manually adjustable):
   - `exit_type = 'withdrawal'` that course → `withdrawn`

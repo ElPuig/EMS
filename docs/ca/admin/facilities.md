@@ -4,9 +4,9 @@
 
 # Espais i tipus d'espai
 
-Els espais són les aules físiques del centre (aules, laboratoris, tallers...), cadascun assignat a un **Tipus d'espai** i una **Ubicació de treball** (seu/edifici). S'utilitzen a tota l'aplicació allà on una sessió, grup, acta o horari necessita una sala.
+Els espais són les aules físiques del centre (aules, laboratoris, tallers...), cadascun assignat a un **Tipus** i una **Ubicació** (seu/edifici). S'utilitzen a tota l'aplicació allà on una sessió, grup, acta o horari necessita una sala. Cada espai té també el seu propi **horari d'ocupació** setmanal — vegeu [L'horari d'ocupació d'una aula](space-schedule.md).
 
-**Rol necessari:** Administrador
+**Rol necessari:** Administrador (Professorat i Secretaria poden veure un espai, però no crear-lo, editar-lo ni eliminar-lo).
 
 ---
 
@@ -27,13 +27,15 @@ Els espais són les aules físiques del centre (aules, laboratoris, tallers...),
 
 ## Crear un espai
 
-1. Fes clic a **Nou**.
+1. Fes clic a **Nou**. El **Tipus** i la **Ubicació** ja venen preomplerts amb "Aula" i "Edifici principal" — canvia'ls si aquest espai és diferent.
 2. Omple:
-   - **Codi** *(obligatori)*: ha de ser únic dins la seva Ubicació de treball — el mateix codi es pot reutilitzar en seus diferents.
+   - **Codi** *(obligatori)*: ha de ser únic dins la seva Ubicació — el mateix codi es pot reutilitzar en seus diferents.
    - **Nom** *(obligatori)*.
    - **Tipus** *(obligatori)*: tria un Tipus d'espai.
-   - **Ubicació de treball** *(obligatori)*: a quina seu/edifici pertany aquest espai.
+   - **Ubicació** *(obligatori)*: a quina seu/edifici pertany aquest espai.
 3. Fes clic a **Desa**.
+
+Un cop creat l'espai, hi ha disponibles una pestanya **Horari** i un xat (per a notes internes, missatges i activitats).
 
 ---
 

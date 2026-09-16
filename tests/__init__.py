@@ -57,6 +57,8 @@ from . import test_space_type
 from . import test_space_type_tour
 from . import test_space
 from . import test_space_tour
+from . import test_space_schedule
+from . import test_space_schedule_tour
 from . import test_group_tour
 from . import test_attendance_template
 from . import test_attendance_schedule
@@ -135,6 +137,7 @@ from . import test_enrollment_header
 from . import test_authorization_send_wizard
 from . import test_authorization_send_wizard_tour
 from . import test_docs_screenshots
+from . import test_docs_screenshots_head_of_studies
 from . import test_authorization
 from . import test_authorization_template_tour
 from . import test_attendance_notification_tour

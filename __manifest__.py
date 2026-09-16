@@ -293,6 +293,7 @@
             'reports/contacts/report_schedule_grid.xml',
             'reports/contacts/report_group_schedule.xml',
             'reports/contacts/report_student_schedule.xml',
+            'reports/facilities/report_space_schedule.xml',
         'reports/enrollment/templates/report_enrollment_template.xml',
         'reports/enrollment/enrollment.xml',
             'views/academic_management/enrollment_configuration/enrollment_template_form.xml',

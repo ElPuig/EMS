@@ -5,7 +5,13 @@ identically across dozens of test files)."""
 
 import base64
 import itertools
+import json
+import os
 from unittest.mock import patch
+
+import werkzeug.urls
+
+from odoo.tests.common import ChromeBrowser
 
 
 _test_student_id_sequence = itertools.count(1)
@@ -208,3 +214,125 @@ def create_student_academic_file(cls, prefix, group, course=None, student=None):
     })
     return {'student': student, 'course': course, 'order': order, 'auth_template': template,
             'authorization': authorization, 'benefit': benefit, 'year_record': year_record}
+
+
+class DocsScreenshotMixin:
+    """Shared `_capture()` machinery for regenerating user-manual screenshots - extracted from
+    `tests/test_docs_screenshots.py`'s original, private version once a second, per-role file
+    needed the exact same method (see docs/en/developers/shared/testing.md). Mix into an
+    `odoo.tests.common.HttpCase` subclass (needs `self.authenticate`, `self.cr`, `self.base_url()`,
+    `self._wait_remaining_requests()`, `self._logger` - all HttpCase-provided).
+
+    Writes PNGs to /tmp/ems_doc_screenshots (override with EMS_SCREENSHOT_DIR) - copy them into
+    docs/assets/<role>/ by hand afterwards (the test runs as the `odoo` user, which has no write
+    access to the repository). Every screenshot must use fixture data created in the test's own
+    (rolled-back) transaction, never real data from this box - see CLAUDE.md's "Screenshots must
+    never expose real personal data"."""
+
+    OUTPUT_DIR = os.environ.get('EMS_SCREENSHOT_DIR', '/tmp/ems_doc_screenshots')
+
+    @staticmethod
+    def _trim(path, margin=6):
+        """Crop the uniform background off the edges - an element's bounding box routinely
+        includes a large empty area (an unfilled list, the rest of a form sheet) that only
+        makes the image smaller in the manual."""
+        from PIL import Image, ImageChops
+        image = Image.open(path).convert('RGB')
+        background = Image.new('RGB', image.size, image.getpixel((image.width - 1, image.height - 1)))
+        box = ImageChops.difference(image, background).getbbox()
+        if not box:
+            return
+        left, top, right, bottom = box
+        image.crop((
+            max(left - margin, 0), max(top - margin, 0),
+            min(right + margin, image.width), min(bottom + margin, image.height),
+        )).save(path)
+
+    @staticmethod
+    def _appear_code(selector):
+        """JS that signals success once `selector` is on the page (plus a beat for the
+        rendering to settle), and fails loudly rather than hanging if it never shows up."""
+        quoted = json.dumps(selector)
+        return """
+            (function () {
+                var attempts = 0;
+                var timer = setInterval(function () {
+                    attempts++;
+                    if (document.querySelector(%s)) {
+                        clearInterval(timer);
+                        setTimeout(function () { console.log('screenshot ready'); }, 700);
+                    } else if (attempts > 100) {
+                        clearInterval(timer);
+                        console.error('never appeared: ' + %s);
+                    }
+                }, 200);
+            })();
+        """ % (quoted, quoted)
+
+    def _capture(self, url_path, selector, filename, login, wait_for=None, padding=8,
+                 click=None, wait_after=None, tour=None):
+        """Load url_path as `login`, wait for `wait_for` (defaults to `selector`), optionally
+        click `click` and wait for `wait_after`, then write a PNG clipped to `selector` into
+        OUTPUT_DIR.
+
+        The click exists for a send/confirm assistant whose preview is built by an onchange,
+        which opening the form with defaults does not fire on its own.
+        """
+        os.makedirs(self.OUTPUT_DIR, exist_ok=True)
+        # A tour reports success with Odoo's own signal ('tour succeeded', the one start_tour()
+        # waits for); the plain wait for a selector uses ours.
+        browser = ChromeBrowser(self, headless=True,
+                                success_signal='tour succeeded' if tour else 'screenshot ready')
+        try:
+            self.authenticate(login, login, browser=browser)
+            self.cr.flush()
+            self.cr.clear()
+            # A taller viewport than the default 1366x768, set BEFORE navigating so the page
+            # lays out against it: anything below the fold renders as a grey band otherwise,
+            # even with captureBeyondViewport.
+            browser._websocket_request('Emulation.setDeviceMetricsOverride', params={
+                'width': 1400, 'height': 1600, 'deviceScaleFactor': 1, 'mobile': False,
+            })
+            url = werkzeug.urls.url_join(self.base_url(), url_path)
+            browser.navigate_to(url, wait_stop=True)
+            if tour:
+                browser._wait_ready('odoo.isTourReady(%s)' % json.dumps(tour))
+                browser._wait_code_ok(
+                    'odoo.startTour(%s, {stepDelay: 0, keepWatchBrowser: false, debug: false, '
+                    'startUrl: %s, delayToCheckUndeterminisms: 0})'
+                    % (json.dumps(tour), json.dumps(url_path)), timeout=120)
+            else:
+                browser._wait_code_ok(self._appear_code(wait_for or selector), timeout=60)
+            if click:
+                browser._websocket_request('Runtime.evaluate', params={
+                    'expression': 'document.querySelector(%s).click()' % json.dumps(click),
+                })
+                browser._wait_code_ok(self._appear_code(wait_after or selector), timeout=60)
+            rect = browser._websocket_request('Runtime.evaluate', params={
+                'expression': """JSON.stringify((function () {
+                    var el = document.querySelector(%s);
+                    var r = el.getBoundingClientRect();
+                    return {x: r.x, y: r.y, width: r.width, height: r.height};
+                })())""" % json.dumps(selector),
+                'returnByValue': True,
+            })['result']['value']
+            box = json.loads(rect)
+            clip = {
+                'x': max(box['x'] - padding, 0),
+                'y': max(box['y'] - padding, 0),
+                'width': box['width'] + padding * 2,
+                'height': box['height'] + padding * 2,
+                'scale': 1,
+            }
+            png = browser._websocket_request('Page.captureScreenshot', params={
+                'clip': clip, 'captureBeyondViewport': True,
+            }, timeout=30.0)['data']
+            path = os.path.join(self.OUTPUT_DIR, filename)
+            with open(path, 'wb') as handle:
+                handle.write(base64.b64decode(png))
+            self._trim(path)
+            self.assertGreater(os.path.getsize(path), 2000, "%s looks empty" % filename)
+            self._logger.info("Wrote %s", path)
+        finally:
+            browser.stop()
+            self._wait_remaining_requests()

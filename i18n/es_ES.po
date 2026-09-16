@@ -2434,9 +2434,29 @@ msgid "City"
 msgstr "Ciudad"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__space_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__space_id
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__space_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__space_id model:ems.space_type,name:ems.space_type_classroom
 msgid "Classroom"
 msgstr "Aula"
+
+#. module: ems
+#: model:ems.space_type,name:ems.space_type_equipment
+msgid "Equipment"
+msgstr "Equipamiento"
+
+#. module: ems
+#: model:ems.space_type,name:ems.space_type_laboratory
+msgid "Laboratory"
+msgstr "Laboratorio"
+
+#. module: ems
+#: model:ems.space_type,name:ems.space_type_office
+msgid "Office"
+msgstr "Despacho"
+
+#. module: ems
+#: model:ems.space_type,name:ems.space_type_workshop
+msgid "Workshop"
+msgstr "Taller"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__space_id
@@ -6293,7 +6313,7 @@ msgstr "Guardar"
 
 #. module: ems
 #. odoo-python
-#: model:ir.model.fields,field_description:ems.field_ems_group__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_base__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_public__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form model_terms:ir.ui.view,arch_db:ems.view_employee_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_notice_form model:ir.model.fields,field_description:ems.field_ems_guard_duty_board__board_attendance_ids model:ir.model.fields,field_description:ems.field_res_partner__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_contact_form model:ir.model.fields,field_description:ems.field_res_users__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_users_form_profile_ems_restrictions model_terms:ir.ui.view,arch_db:ems.portal_schedule code:addons/ems/controllers/portal_schedule.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_group__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_base__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_public__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form model_terms:ir.ui.view,arch_db:ems.view_employee_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_notice_form model:ir.model.fields,field_description:ems.field_ems_guard_duty_board__board_attendance_ids model:ir.model.fields,field_description:ems.field_res_partner__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_contact_form model:ir.model.fields,field_description:ems.field_res_users__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_users_form_profile_ems_restrictions model_terms:ir.ui.view,arch_db:ems.portal_schedule code:addons/ems/controllers/portal_schedule.py:0 model:ir.model.fields,field_description:ems.field_ems_space__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_space_form
 msgid "Schedule"
 msgstr "Horario"
 
@@ -7995,9 +8015,14 @@ msgid "Work Locations"
 msgstr "Lugares de trabajo"
 
 #. module: ems
+#: model:hr.work.location,name:ems.work_location_main
+msgid "Main building"
+msgstr "Edificio principal"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_space__work_location_id model_terms:ir.ui.view,arch_db:ems.view_space_search
-msgid "Work location"
-msgstr "lugar de trabajo"
+msgid "Location"
+msgstr "Ubicación"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__special_wpi_enrolled
@@ -10645,6 +10670,11 @@ msgid "Student Schedule"
 msgstr "Horario del alumno"
 
 #. module: ems
+#: model:ir.actions.report,name:ems.action_report_space_schedule
+msgid "Classroom Schedule"
+msgstr "Horario del aula"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_group_schedule
 msgid "No schedule available for this group."
 msgstr "Este grupo no tiene ningún horario disponible."
@@ -10653,6 +10683,16 @@ msgstr "Este grupo no tiene ningún horario disponible."
 #: model_terms:ir.ui.view,arch_db:ems.report_student_schedule
 msgid "No schedule available for this student."
 msgstr "Este alumno no tiene ningún horario disponible."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_space_schedule
+msgid "No schedule available for this classroom."
+msgstr "Esta aula no tiene ningún horario disponible."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_space_schedule
+msgid "Location:"
+msgstr "Ubicación:"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.schedule_report_grid

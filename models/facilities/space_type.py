@@ -7,4 +7,4 @@ class EmsSpaceType(models.Model):
 	_description = "Space type: classroom, laboratory, etc."
 	_order = "name"
 
-	name = fields.Char(string="Name", required=True)
+	name = fields.Char(string="Name", translate=True, required=True)

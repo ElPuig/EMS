@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Regenerates the screenshots used by the user manuals.
+"""Regenerates the screenshots used by the Administrator/tutor/family/secretary user manuals.
 
-Not part of the test suite: tagged '-standard', so `./test.sh` never runs it. Run it by hand
-when a documented screen changes its look:
+Tagged '-standard' on purpose (see the NOTE below the imports) so `./test.sh` (no args) and the
+CI shards never run it. Run it by hand when a documented screen changes its look:
 
-    ./test.sh '/ems:TestDocsScreenshots'
+    sudo -u odoo bash -c "odoo -d ems -u ems --test-enable --test-tags='*/ems:TestDocsScreenshots' --stop-after-init -c /etc/odoo/odoo.conf"
 
 It writes PNGs to /tmp/ems_doc_screenshots (override with EMS_SCREENSHOT_DIR) and they are
 then copied into docs/assets/ by hand - the test process runs as the `odoo` user, which has
@@ -16,24 +16,37 @@ its fixtures live in a transaction that is rolled back, so the screenshots show 
 people and nothing from this box's real data - which is what makes them publishable at all
 (see CLAUDE.md, "Screenshots must never expose real personal data"). Each shot is clipped to
 one element for the same reason, plus it is what makes the image readable in a manual.
+
+The actual `_capture()`/`_trim()`/`_appear_code()` machinery lives in
+`tests.common.DocsScreenshotMixin` - shared with the other per-role screenshot files (e.g.
+`test_docs_screenshots_head_of_studies.py`) once a second one needed the exact same methods.
 """
 import base64
-import json
-import os
 from datetime import date
 
-import werkzeug.urls
 from dateutil.relativedelta import relativedelta
 
-from odoo.tests.common import ChromeBrowser, HttpCase, tagged
+from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group, create_role_employee, create_role_user
+from .common import (
+    DocsScreenshotMixin, create_level_study_group, create_role_employee, create_role_user, next_student_id,
+)
 
-OUTPUT_DIR = os.environ.get('EMS_SCREENSHOT_DIR', '/tmp/ems_doc_screenshots')
 
-
+# NOTE: '-standard' is required, not just historical - it is the ONLY thing keeping this class
+# out of the full, unscoped './test.sh' run. The "fast" shard's own --test-tags expression
+# (scripts/testing/compute_test_shards.py) is built as '/ems,-/ems:TourClassA,...' - a bare
+# '/ems' selector with no explicit tag component implicitly requires the 'standard' tag (Odoo's
+# own TagsSelector, odoo/tests/tag_selector.py: "including /module:class.method implicitly
+# requires 'standard'"), and this file isn't a '*_tour.py' file so the tour-class exclusion list
+# never catches it either. Confirmed empirically 2026-09-16: dropping '-standard' here to make
+# the plain './test.sh ClassName' shorthand work (which needs that SAME 'standard' tag) would
+# silently pull real-browser screenshot regeneration into every normal full-suite run instead -
+# the opposite of what this file needs. Keep '-standard', and use the explicit
+# '*/ems:ClassName' raw invocation above instead (see feedback_screenshot_self_verify_use_
+# chromebrowser_pattern in project memory for the general gotcha).
 @tagged('-standard', 'ems_screenshots', 'post_install', '-at_install')
-class TestDocsScreenshots(HttpCase):
+class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
     # A tour preparing a shot ends on a filled-in, unsaved form on purpose - that is the state
     # being photographed. Odoo's own switch for it (ChromeBrowser._handle_console skips its
     # end-of-tour dirty-form check when the test case sets this).
@@ -42,7 +55,6 @@ class TestDocsScreenshots(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        os.makedirs(OUTPUT_DIR, exist_ok=True)
         # Catalan: the manuals are read at this centre in Catalan first, so every screen is shot in
         # it - users in ca_ES, and the invented data written in Catalan too.
         cls.secretary = create_role_user(cls, 'secretary', 'doc_shot_secretary', lang='ca_ES',
@@ -144,7 +156,8 @@ class TestDocsScreenshots(HttpCase):
     @classmethod
     def _student(cls, name):
         student = cls.env['res.partner'].create({
-            'name': name, 'contact_type': 'student', 'main_group_id': cls.group.id,
+            'name': name, 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': cls.group.id,
             'email': '%s@example.com' % name.split()[0].lower(),
             'birth_date': date.today() - relativedelta(years=19),
         })
@@ -155,111 +168,6 @@ class TestDocsScreenshots(HttpCase):
         })
         order.action_confirm()
         return student
-
-    @staticmethod
-    def _trim(path, margin=6):
-        """Crop the uniform background off the edges - an element's bounding box routinely
-        includes a large empty area (an unfilled list, the rest of a form sheet) that only
-        makes the image smaller in the manual."""
-        from PIL import Image, ImageChops
-        image = Image.open(path).convert('RGB')
-        background = Image.new('RGB', image.size, image.getpixel((image.width - 1, image.height - 1)))
-        box = ImageChops.difference(image, background).getbbox()
-        if not box:
-            return
-        left, top, right, bottom = box
-        image.crop((
-            max(left - margin, 0), max(top - margin, 0),
-            min(right + margin, image.width), min(bottom + margin, image.height),
-        )).save(path)
-
-    @staticmethod
-    def _appear_code(selector):
-        """JS that signals success once `selector` is on the page (plus a beat for the
-        rendering to settle), and fails loudly rather than hanging if it never shows up."""
-        quoted = json.dumps(selector)
-        return """
-            (function () {
-                var attempts = 0;
-                var timer = setInterval(function () {
-                    attempts++;
-                    if (document.querySelector(%s)) {
-                        clearInterval(timer);
-                        setTimeout(function () { console.log('screenshot ready'); }, 700);
-                    } else if (attempts > 100) {
-                        clearInterval(timer);
-                        console.error('never appeared: ' + %s);
-                    }
-                }, 200);
-            })();
-        """ % (quoted, quoted)
-
-    def _capture(self, url_path, selector, filename, login, wait_for=None, padding=8,
-                 click=None, wait_after=None, tour=None):
-        """Load url_path as `login`, wait for `wait_for` (defaults to `selector`), optionally
-        click `click` and wait for `wait_after`, then write a PNG clipped to `selector` into
-        OUTPUT_DIR.
-
-        The click exists for the send assistant: its recipient preview is built by an onchange,
-        which opening the form with defaults does not fire on its own.
-        """
-        # A tour reports success with Odoo's own signal ('tour succeeded', the one start_tour()
-        # waits for); the plain wait for a selector uses ours.
-        browser = ChromeBrowser(self, headless=True,
-                                success_signal='tour succeeded' if tour else 'screenshot ready')
-        try:
-            self.authenticate(login, login, browser=browser)
-            self.cr.flush()
-            self.cr.clear()
-            # A taller viewport than the default 1366x768, set BEFORE navigating so the page
-            # lays out against it: anything below the fold renders as a grey band otherwise,
-            # even with captureBeyondViewport.
-            browser._websocket_request('Emulation.setDeviceMetricsOverride', params={
-                'width': 1400, 'height': 1600, 'deviceScaleFactor': 1, 'mobile': False,
-            })
-            url = werkzeug.urls.url_join(self.base_url(), url_path)
-            browser.navigate_to(url, wait_stop=True)
-            if tour:
-                browser._wait_ready('odoo.isTourReady(%s)' % json.dumps(tour))
-                browser._wait_code_ok(
-                    'odoo.startTour(%s, {stepDelay: 0, keepWatchBrowser: false, debug: false, '
-                    'startUrl: %s, delayToCheckUndeterminisms: 0})'
-                    % (json.dumps(tour), json.dumps(url_path)), timeout=120)
-            else:
-                browser._wait_code_ok(self._appear_code(wait_for or selector), timeout=60)
-            if click:
-                browser._websocket_request('Runtime.evaluate', params={
-                    'expression': 'document.querySelector(%s).click()' % json.dumps(click),
-                })
-                browser._wait_code_ok(self._appear_code(wait_after or selector), timeout=60)
-            rect = browser._websocket_request('Runtime.evaluate', params={
-                'expression': """JSON.stringify((function () {
-                    var el = document.querySelector(%s);
-                    var r = el.getBoundingClientRect();
-                    return {x: r.x, y: r.y, width: r.width, height: r.height};
-                })())""" % json.dumps(selector),
-                'returnByValue': True,
-            })['result']['value']
-            box = json.loads(rect)
-            clip = {
-                'x': max(box['x'] - padding, 0),
-                'y': max(box['y'] - padding, 0),
-                'width': box['width'] + padding * 2,
-                'height': box['height'] + padding * 2,
-                'scale': 1,
-            }
-            png = browser._websocket_request('Page.captureScreenshot', params={
-                'clip': clip, 'captureBeyondViewport': True,
-            }, timeout=30.0)['data']
-            path = os.path.join(OUTPUT_DIR, filename)
-            with open(path, 'wb') as handle:
-                handle.write(base64.b64decode(png))
-            self._trim(path)
-            self.assertGreater(os.path.getsize(path), 2000, "%s looks empty" % filename)
-            self._logger.info("Wrote %s", path)
-        finally:
-            browser.stop()
-            self._wait_remaining_requests()
 
     def test_capture_manual_screenshots(self):
         self._capture(

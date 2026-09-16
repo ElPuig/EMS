@@ -55,6 +55,20 @@
         <field name="perm_unlink" eval="False"/>
     </record>
 
+    <record id="rule_contact_orientation_special_needs" model="ir.rule">
+        <!-- Guidance edits the special educational needs of every student and applicant (issue
+             #465). An ir.rule cannot name fields, so res.partner._ems_check_orientation_write()
+             narrows this back down to special_needs. -->
+        <field name="name">Contact: guidance (special educational needs of any student)</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="groups" eval="[(4, ref('ems.group_orientation'))]"/>
+        <field name="domain_force">[('contact_type', 'in', ('student', 'applicant'))]</field>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
     <record id="rule_enrollment_admin" model="ir.rule">
         <field name="name">Enrollment: admin</field>
         <field name="model_id" ref="ems.model_ems_enrollment"/>

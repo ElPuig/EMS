@@ -20,6 +20,7 @@ Aquesta secció conté els manuals per als **tutors de grup**.
 | [Autoritzacions: enviar-les al vostre alumnat i fer-ne el seguiment](authorizations.md) | Enviar autoritzacions del catàleg al vostre alumnat o als vostres grups i fer el seguiment de les respostes |
 | [Com gestionar l'accés al portal](acces-portal.md) | Donar d'alta, donar de baixa o reenviar les invitacions d'accés al portal per a alumnes i famílies |
 | [Strikes: consultar els registres del teu grup](strike.md) | Consultar els strikes posats als teus alumnes tutoritzats i els que has posat tu mateix/a |
+| [Justificar les faltes del teu alumnat](attendance-justifications.md) | Registrar un justificant (per exemple, un informe mèdic) perquè les faltes d'un alumne tutoritzat passin a falta justificada, i adjuntar-hi el document |
 | [Informes d'assistència](attendance-reports.md) | Imprimir els 3 informes PDF d'assistència (per grup/alumne/assignatura) i explorar les dades tu mateix amb la pantalla d'Anàlisi d'assistència |
 | [L'horari setmanal d'un grup](../admin/group-schedule.md) | Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF |
 | [L'horari setmanal d'un alumne](../admin/student-schedule.md) | Consultar l'horari propi d'un dels teus tutorands (assignatures, docents, aules, patis), incloent-hi classes solapades, i exportar-lo a PDF |

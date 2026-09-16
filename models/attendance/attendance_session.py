@@ -770,7 +770,10 @@ class EmsAttendanceSessionLine(models.Model):
     @api.depends('attendance_session_id', 'student_id')
     def _compute_display_name(self):
         for line in self:
-            line.display_name = "%s | %s" % (line.attendance_session_id.display_name, line.student_id.display_name)
+            # sudo(): only the session's label - a tutor lists the lines of sessions taught by other
+            # teachers (a justification's affected sessions), whose headers the teacher record rules
+            # hide (issue #469).
+            line.display_name = f"{line.attendance_session_id.sudo().display_name} | {line.student_id.display_name}"
 
     @api.depends('strike_ids')
     def _compute_strike_count(self):

@@ -238,15 +238,16 @@
                                 </div>
                                 <!-- Special educational needs (NEE): benefits-like display.
                                      Editable dropdown for tutor/secretary/admin (of this
-                                     student); read-only badge otherwise. Restricted to
-                                     tutor/secretary/admin, off the portal. -->
-                                <span class="o_form_label" groups="ems.group_tutor,ems.group_secretary,ems.group_academic_admin">Special educational needs</span>
-                                <div class="o_row" groups="ems.group_tutor,ems.group_secretary,ems.group_academic_admin">
+                                     student) and guidance (any student, issue #465); read-only badge
+                                     otherwise. Restricted to those four, off the portal. -->
+                                <span class="o_form_label" groups="ems.group_tutor,ems.group_secretary,ems.group_academic_admin,ems.group_orientation">Special educational needs</span>
+                                <div class="o_row" groups="ems.group_tutor,ems.group_secretary,ems.group_academic_admin,ems.group_orientation">
+                                    <field name="special_needs_readonly" invisible="1"/>
                                     <field name="special_needs" nolabel="1" placeholder="None"
-                                           invisible="read_only_user"/>
-                                    <span class="badge text-bg-danger" invisible="special_needs != 'nee_a' or not read_only_user">NEE-A</span>
-                                    <span class="badge text-bg-warning" invisible="special_needs != 'nee_b' or not read_only_user">NEE-B</span>
-                                    <span class="badge text-bg-secondary" invisible="special_needs or not read_only_user">None</span>
+                                           invisible="special_needs_readonly"/>
+                                    <span class="badge text-bg-danger" invisible="special_needs != 'nee_a' or not special_needs_readonly">NEE-A</span>
+                                    <span class="badge text-bg-warning" invisible="special_needs != 'nee_b' or not special_needs_readonly">NEE-B</span>
+                                    <span class="badge text-bg-secondary" invisible="special_needs or not special_needs_readonly">None</span>
                                 </div>
                             </group>
 
@@ -423,7 +424,7 @@
                                 <field name="student_id" required="contact_type == 'applicant'"/>
                                 <!-- Plain field so it matches its neighbours; ORM groups keep
                                      it staff-only and off the portal. -->
-                                <field name="special_needs" readonly="read_only_user or is_tutor_readonly"/>
+                                <field name="special_needs" readonly="special_needs_readonly or is_tutor_readonly"/>
                             </group>
                             <group string="Personal data">
                                 <field name="email" widget="email" required="contact_type == 'applicant'"/>

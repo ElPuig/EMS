@@ -14313,3 +14313,14 @@ msgid ""
 "not merge them automatically: %(reason)s. Open Contacts, select them and use the Merge action "
 "by hand once you have decided which record should hold the data."
 msgstr "Los contactos %(ids)s comparten el ID de estudiante (IDALU) %(student_id)s, que debe ser único. EMS no ha podido fusionarlos automáticamente: %(reason)s. Abra Contactos, selecciónelos y use la acción Fusionar a mano una vez haya decidido qué registro debe conservar los datos."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "As a member of the guidance team you can only change a student's special educational needs."
+msgstr "Como miembro del equipo de orientación, solo puedes cambiar las necesidades educativas especiales de un alumno."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__special_needs_readonly model:ir.model.fields,field_description:ems.field_res_users__special_needs_readonly
+msgid "Special needs read-only"
+msgstr "Necesidades educativas especiales de solo lectura"

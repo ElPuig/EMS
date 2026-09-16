@@ -101,6 +101,28 @@ put a permission check in front of every unrelated write.
 
 ---
 
+## Tutors and sessions taught by other teachers
+
+A student's absences are spread across sessions taught by several teachers, but
+`rule_attendance_session_teacher_own` only lets a teacher read the session headers (and
+`rule_attendance_schedule_teacher_*` the schedules) they teach or created. A tutor
+justifying an absence therefore works with session lines whose headers they cannot read.
+Session **lines** themselves are readable by every teacher
+(`rule_attendance_session_line_teacher_all_read`) and writable by the student's tutor
+(`rule_attendance_session_line_teacher_tutor`); only the header side needs `sudo()`, in
+exactly two places:
+
+| Where | What runs as `sudo()` | Why |
+|-------|----------------------|-----|
+| `_onchange_attendance_session_line_ids()` | The search for the student's miss/justified lines within the period, and the session start/end dates compared against it. Only when `_check_permissions()` holds (the student's tutor or an admin); anyone else searches with their own rules. | The domain filters on `attendance_session_id.date`, so the header rules would silently drop every other teacher's session: the justification would be saved and those absences left unjustified, with no error. The lines found are still written back with the user's own rights. |
+| `EmsAttendanceSessionLine._compute_display_name()` | Reading the session header's label (`schedule \| date \| space`). | The affected-sessions list shows each line's `display_name`; without it the tutor gets an `AccessError` opening the justification as soon as another teacher's line is linked. The label is all that is exposed: the tutor still cannot open, list or edit those sessions. |
+
+Record rules were deliberately not widened instead (a tutor read rule on headers and
+schedules): that would also list other teachers' sessions under Attendances > History
+for every tutor. Issue #469.
+
+---
+
 ## Fixed in this pass (2026-07-28)
 
 **Real bug found and fixed:** `student_id`'s domain was

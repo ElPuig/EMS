@@ -20,6 +20,7 @@ This section contains the manuals for **group tutors**.
 | [Authorizations: sending them to your students and following up](authorizations.md) | Send authorizations from the catalogue to your students or your groups, and follow up their answers |
 | [How to manage portal access](acces-portal.md) | Grant, revoke or resend portal access invitations for students and families |
 | [Strikes: Consulting Your Group's Records](strike.md) | Consult the strikes issued to your tutees and the ones you issued yourself |
+| [Justifying Your Students' Absences](attendance-justifications.md) | Record a justification (for example, a medical certificate) so a tutee's absences become justified absences, and attach the document |
 | [Attendance Reports](attendance-reports.md) | Print the 3 PDF attendance reports (by group/student/subject) and explore attendance data yourself with the Attendance analysis pivot/graph screen |
 | [A Group's Weekly Schedule](../admin/group-schedule.md) | View a group's aggregated timetable (subjects, teachers, classrooms, breaks) and export it to PDF |
 | [A Student's Weekly Schedule](../admin/student-schedule.md) | View one of your tutorands' own timetable (subjects, teachers, classrooms, breaks), including overlapping classes, and export it to PDF |

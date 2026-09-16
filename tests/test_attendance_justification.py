@@ -4,7 +4,7 @@ from datetime import date, datetime
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, next_student_id
+from .common import create_level_study, mock_outgoing_email, next_student_id
 
 
 class TestAttendanceJustification(TransactionCase):
@@ -105,6 +105,8 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # Marking a line as a miss queues family notifications.
+        mock_outgoing_email(cls)
         cls.level, cls.study = create_level_study(cls, 'TAJ', study={
             'name': 'Test Study (Attendance Justification)', 'date': date.today(),
         }, level={'name': 'Test Level (Attendance Justification)'})
@@ -160,21 +162,49 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
     def _line(self):
         return self.session.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student)
 
+    def _today_range(self):
+        return {
+            'start_date': datetime.combine(date.today(), datetime.min.time()),
+            'end_date': datetime.combine(date.today(), datetime.max.time()),
+        }
+
+    def _other_teacher_schedule(self):
+        """A second slot for the same student, taught by a teacher who is neither
+        the student's tutor nor any justification's author."""
+        template = self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, [self.other_teacher.id])], 'study_ids': [(6, 0, [self.study.id])],
+            'subject_id': self.subject.id, 'group_ids': [(6, 0, [self.group.id])],
+            'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
+        })
+        return self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': str(date.today().weekday()),
+            'start_time': 10.0, 'end_time': 11.0, 'space_id': self.space.id,
+            'student_ids': [(6, 0, [self.student.id])],
+        })
+
+    def _other_teacher_miss_line(self):
+        """The student's line, marked as a miss, in a session the tutor cannot read."""
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': self._other_teacher_schedule().id, 'date': date.today(),
+            'mode': 'scheduled', 'session_teacher_id': self.other_teacher.id,
+        })
+        line = session.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student)
+        line.status_id = self.env.ref('ems.attendance_status_miss')
+        return line
+
     def test_non_tutor_teacher_cannot_create_justification(self):
         # default_get's admin/tutor guard fires before create()'s own
         # _check_permissions check, and raises UserError, not ValidationError.
         with self.assertRaises(UserError):
             self.env['ems.attendance_justification'].with_user(self.other_teacher_user).create({
                 'teacher_id': self.other_teacher.id, 'student_id': self.student.id,
-                'start_date': datetime.combine(date.today(), datetime.min.time()),
-                'end_date': datetime.combine(date.today(), datetime.max.time()),
+                **self._today_range(),
             })
 
     def test_tutor_can_create_justification(self):
         justification = self.env['ems.attendance_justification'].with_user(self.tutor_user).create({
             'teacher_id': self.tutor_employee.id, 'student_id': self.student.id,
-            'start_date': datetime.combine(date.today(), datetime.min.time()),
-            'end_date': datetime.combine(date.today(), datetime.max.time()),
+            **self._today_range(),
         })
         self.assertTrue(justification.id)
 
@@ -184,8 +214,7 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
 
         justification = self.env['ems.attendance_justification'].create({
             'teacher_id': self.tutor_employee.id, 'student_id': self.student.id,
-            'start_date': datetime.combine(date.today(), datetime.min.time()),
-            'end_date': datetime.combine(date.today(), datetime.max.time()),
+            **self._today_range(),
             'attendance_session_line_ids': [(6, 0, [line.id])],
         })
         self.assertEqual(line.status_id, self.env.ref('ems.attendance_status_justified'))
@@ -194,8 +223,7 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
     def test_non_tutor_cannot_change_dates(self):
         justification = self.env['ems.attendance_justification'].create({
             'teacher_id': self.tutor_employee.id, 'student_id': self.student.id,
-            'start_date': datetime.combine(date.today(), datetime.min.time()),
-            'end_date': datetime.combine(date.today(), datetime.max.time()),
+            **self._today_range(),
         })
         with self.assertRaises(UserError):
             justification.with_user(self.other_teacher_user).write({
@@ -205,8 +233,7 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
     def test_unlink_requires_tutor_permission(self):
         justification = self.env['ems.attendance_justification'].with_user(self.tutor_user).create({
             'teacher_id': self.tutor_employee.id, 'student_id': self.student.id,
-            'start_date': datetime.combine(date.today(), datetime.min.time()),
-            'end_date': datetime.combine(date.today(), datetime.max.time()),
+            **self._today_range(),
         })
         with self.assertRaises(UserError):
             justification.with_user(self.other_teacher_user).unlink()
@@ -216,8 +243,7 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
         line.status_id = self.env.ref('ems.attendance_status_miss')
         justification = self.env['ems.attendance_justification'].create({
             'teacher_id': self.tutor_employee.id, 'student_id': self.student.id,
-            'start_date': datetime.combine(date.today(), datetime.min.time()),
-            'end_date': datetime.combine(date.today(), datetime.max.time()),
+            **self._today_range(),
             'attendance_session_line_ids': [(6, 0, [line.id])],
         })
         self.assertEqual(line.status_id, self.env.ref('ems.attendance_status_justified'))
@@ -228,8 +254,7 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
         line = self._line()
         justification = self.env['ems.attendance_justification'].create({
             'teacher_id': self.tutor_employee.id, 'student_id': self.student.id,
-            'start_date': datetime.combine(date.today(), datetime.min.time()),
-            'end_date': datetime.combine(date.today(), datetime.max.time()),
+            **self._today_range(),
             'attendance_session_line_ids': [(6, 0, [line.id])],
         })
         self.assertIn(self.tutor_employee, justification.session_teacher_ids)
@@ -246,22 +271,9 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
         the teacher is not yet allowed to perform."""
         justification = self.env['ems.attendance_justification'].with_user(self.tutor_user).create({
             'teacher_id': self.tutor_employee.id, 'student_id': self.student.id,
-            'start_date': datetime.combine(date.today(), datetime.min.time()),
-            'end_date': datetime.combine(date.today(), datetime.max.time()),
+            **self._today_range(),
         })
-
-        # A second slot for the same student, taught by a teacher who is neither
-        # the student's tutor nor the justification's author.
-        template = self.env['ems.attendance_template'].create({
-            'teacher_ids': [(6, 0, [self.other_teacher.id])], 'study_ids': [(6, 0, [self.study.id])],
-            'subject_id': self.subject.id, 'group_ids': [(6, 0, [self.group.id])],
-            'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
-        })
-        schedule = self.env['ems.attendance_schedule'].create({
-            'attendance_template_id': template.id, 'weekday': str(date.today().weekday()),
-            'start_time': 10.0, 'end_time': 11.0, 'space_id': self.space.id,
-            'student_ids': [(6, 0, [self.student.id])],
-        })
+        schedule = self._other_teacher_schedule()
 
         # The justification is normally created in an earlier request, so its
         # attendance_session_line_ids is a cold read when the session is started.
@@ -280,3 +292,58 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
         line = session.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student)
         self.assertEqual(line.attendance_prevision_id, justification)
         line.with_user(self.other_teacher_user).read(['attendance_prevision_id'])
+
+    def test_tutor_reads_affected_sessions_taught_by_other_teachers(self):
+        """Regression (#469): once another teacher's session line was linked to a
+        justification, its tutor could no longer open it - the affected-sessions list
+        shows each line's display_name, built from a session header the teacher
+        record rules only let its own teachers read."""
+        line = self._other_teacher_miss_line()
+        justification = self.env['ems.attendance_justification'].create({
+            'teacher_id': self.tutor_employee.id, 'student_id': self.student.id,
+            **self._today_range(),
+            'attendance_session_line_ids': [(6, 0, [line.id])],
+        })
+        self.env.invalidate_all()
+
+        names = justification.with_user(self.tutor_user).attendance_session_line_ids.read(['display_name'])
+        self.assertIn(self.space.name, names[0]['display_name'])
+
+    def test_tutor_onchange_finds_miss_lines_taught_by_other_teachers(self):
+        """Regression (#469): the header record rules also filtered the onchange's own
+        search, so a justification for past absences silently left every other
+        teacher's miss unjustified."""
+        line = self._other_teacher_miss_line()
+        self.env.invalidate_all()
+
+        justification = self.env['ems.attendance_justification'].with_user(self.tutor_user).new({
+            'teacher_id': self.tutor_employee.id, 'student_id': self.student.id,
+            **self._today_range(),
+        })
+        justification._onchange_attendance_session_line_ids()
+        self.assertIn(line.id, justification.attendance_session_line_ids.ids)
+
+    def test_tutor_create_justifies_miss_lines_taught_by_other_teachers(self):
+        line = self._other_teacher_miss_line()
+        self.env.invalidate_all()
+
+        justification = self.env['ems.attendance_justification'].with_user(self.tutor_user).create({
+            'teacher_id': self.tutor_employee.id, 'student_id': self.student.id,
+            **self._today_range(),
+            'attendance_session_line_ids': [(6, 0, [line.id])],
+        })
+        self.assertEqual(line.status_id, self.env.ref('ems.attendance_status_justified'))
+        self.assertEqual(line.attendance_justification_id, justification)
+
+    def test_non_tutor_onchange_does_not_see_unreadable_sessions(self):
+        """The onchange only searches past the record rules for the student's own tutor
+        (or an admin): any other teacher still gets just the sessions they can read."""
+        self._line().status_id = self.env.ref('ems.attendance_status_miss')
+        self.env.invalidate_all()
+
+        justification = self.env['ems.attendance_justification'].with_user(self.other_teacher_user).new({
+            'teacher_id': self.other_teacher.id, 'student_id': self.student.id,
+            **self._today_range(),
+        })
+        justification._onchange_attendance_session_line_ids()
+        self.assertFalse(justification.attendance_session_line_ids)

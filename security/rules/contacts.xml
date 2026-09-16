@@ -142,6 +142,25 @@
         <field name="perm_unlink" eval="True"/>
     </record>
 
+    <!-- Without this, Head/Deputy Head of Studies and Director only inherit group_teacher's
+         two rules above (read-only everywhere; write/create/unlink limited to their own
+         tutorands) - the same OR-combination gap already fixed for res.partner (issue #448,
+         rule_contact_head_of_studies) and ems.attendance_template/ems.attendance_schedule
+         (issue #444). Director/academic_admin already have full access via their own rules,
+         but also match this one (group_academic_admin implies group_director implies
+         group_head_of_studies) - harmless, since ir.rule domains for different groups are
+         OR-ed together. -->
+    <record id="rule_enrollment_head_of_studies" model="ir.rule">
+        <field name="name">enrollment: Head of Studies (all data)</field>
+        <field name="model_id" ref="ems.model_ems_enrollment"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
     <record id="rule_sale_order_admin" model="ir.rule">
         <field name="name">Enrollment (sale.order): admin</field>
         <field name="model_id" ref="sale.model_sale_order"/>

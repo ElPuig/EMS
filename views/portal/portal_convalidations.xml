@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Issue #276 - subject convalidation requests on the portal (/my/convalidaciones). -->
+    <template id="portal_convalidations" name="Convalidations">
+        <t t-call="portal.portal_layout">
+            <div id="convalidation_content" class="container mt-4 o_ems_portal_convalidations">
+                <div class="row">
+                    <div class="col-12">
+
+                        <t t-call="ems.portal_loading_overlay"/>
+
+                        <h3 class="mb-1">Convalidations</h3>
+                        <p t-if="student" class="text-muted small mb-3">
+                            <t t-esc="student.name"/><t t-if="study"> - <t t-esc="study.name"/></t>
+                        </p>
+
+                        <div t-if="viewing_as_family and student" class="alert alert-info mb-3">
+                            <i class="fa fa-user me-1"/> Viewing convalidations for: <strong t-esc="student.name"/>
+                        </div>
+
+                        <div t-if="submitted" class="alert alert-success mb-3 o_ems_convalidation_submitted">
+                            <i class="fa fa-check-circle me-1"/> Your request has been submitted. You will receive the resolution by email.
+                        </div>
+                        <div t-if="error == 'no_subjects'" class="alert alert-danger mb-3">
+                            <i class="fa fa-exclamation-triangle me-1"/> Select at least one subject to convalidate.
+                        </div>
+                        <div t-if="error == 'no_basis'" class="alert alert-danger mb-3">
+                            <i class="fa fa-exclamation-triangle me-1"/> Select the grounds for the request.
+                        </div>
+                        <div t-if="error == 'no_documents'" class="alert alert-danger mb-3">
+                            <i class="fa fa-exclamation-triangle me-1"/> Attach the supporting documents before submitting.
+                        </div>
+                        <div t-if="error == 'no_study'" class="alert alert-danger mb-3">
+                            <i class="fa fa-exclamation-triangle me-1"/> Convalidations can only be requested for vocational training cycles.
+                        </div>
+
+                        <!-- New request -->
+                        <div t-if="study" class="card shadow-sm mb-4 o_ems_convalidation_new">
+                            <div class="card-header bg-ems-primary text-white">
+                                <i class="fa fa-plus me-2"/>New convalidation request
+                            </div>
+                            <div class="card-body">
+                                <t t-if="requestable_subjects">
+                                    <form action="/my/convalidaciones/submit" method="post"
+                                          enctype="multipart/form-data" class="ems-loading-form">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <p class="fw-bold mb-1">Subjects to convalidate <span class="text-danger">*</span></p>
+                                        <p class="text-muted small mb-2">Mark the subjects you already passed in other studies.</p>
+                                        <div class="row mb-3">
+                                            <t t-foreach="requestable_subjects" t-as="subject">
+                                                <div class="col-md-6">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="subject_ids"
+                                                               t-att-value="subject.id" t-attf-id="subject_#{subject.id}"/>
+                                                        <label class="form-check-label" t-attf-for="subject_#{subject.id}"
+                                                               t-esc="subject.display_name"/>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold" for="convalidation_basis">Grounds <span class="text-danger">*</span></label>
+                                            <select id="convalidation_basis" name="basis" class="form-select" required="required">
+                                                <t t-foreach="basis_options" t-as="option">
+                                                    <option t-att-value="option[0]" t-esc="option[1]"/>
+                                                </t>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold" for="convalidation_documents">Supporting documents <span class="text-danger">*</span></label>
+                                            <p class="text-muted small mb-1">Academic certificate or transcript of the studies passed, and any other document that proves them (PDF, JPG, PNG).</p>
+                                            <input id="convalidation_documents" type="file" name="documents" class="form-control"
+                                                   accept=".pdf,.jpg,.jpeg,.png" multiple="multiple" required="required"/>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold" for="convalidation_notes">Comments <span class="text-muted">(optional)</span></label>
+                                            <textarea id="convalidation_notes" name="student_notes" class="form-control" rows="3" maxlength="2000"/>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fa fa-paper-plane me-1"/>Submit request
+                                        </button>
+                                    </form>
+                                </t>
+                                <p t-else="" class="text-muted mb-0">Every subject of your study has already been requested.</p>
+                            </div>
+                        </div>
+                        <div t-elif="student" class="alert alert-info mb-4">
+                            <i class="fa fa-info-circle me-1"/> Convalidations can only be requested for vocational training cycles.
+                        </div>
+
+                        <!-- Requests -->
+                        <t t-foreach="convalidations" t-as="convalidation">
+                            <div class="card shadow-sm mb-3 o_ems_convalidation_request">
+                                <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                    <span>
+                                        <i class="fa fa-file-text-o me-2"/>
+                                        <t t-esc="convalidation.submission_date" t-options='{"widget": "date"}'/>
+                                        - <t t-esc="convalidation.study_id.name"/>
+                                    </span>
+                                    <span t-attf-class="badge #{
+                                        'bg-success' if convalidation.state == 'resolved' else
+                                        'bg-secondary' if convalidation.state == 'cancelled' else
+                                        'bg-warning text-dark' if convalidation.state == 'in_progress' else 'bg-info text-dark'
+                                    }" t-esc="state_labels.get(convalidation.state)"/>
+                                </div>
+                                <div class="card-body p-0">
+                                    <table class="table table-sm mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th class="ps-3">Subject</th>
+                                                <th>Resolution</th>
+                                                <th class="pe-3">Remarks</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="convalidation.line_ids" t-as="line">
+                                                <td class="ps-3" t-esc="line.subject_id.display_name"/>
+                                                <td>
+                                                    <span t-attf-class="badge #{
+                                                        'bg-success' if line.state == 'granted' else
+                                                        'bg-danger' if line.state == 'rejected' else
+                                                        'bg-warning text-dark' if line.state == 'forwarded' else 'bg-light text-dark'
+                                                    }" t-esc="line_state_labels.get(line.state)"/>
+                                                </td>
+                                                <td class="pe-3 text-muted small" t-esc="line.resolution_notes or ''"/>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div t-if="convalidation.resolution_notes or convalidation.state == 'submitted'"
+                                     class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                    <span class="small" t-esc="convalidation.resolution_notes or ''"/>
+                                    <form t-if="convalidation.state == 'submitted'"
+                                          t-attf-action="/my/convalidaciones/cancel/#{convalidation.id}"
+                                          method="post" class="mb-0">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fa fa-times me-1"/>Cancel request
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </t>
+
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

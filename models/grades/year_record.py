@@ -2,6 +2,8 @@
 
 from odoo import api, fields, models
 
+from .convalidation import CONVALIDATED_GRADE
+
 # The year record is a frozen COPY of the grades subsystem output — never recalculated
 # here. The single source of truth for grade computation is ems.grade_subject_line /
 # ems.grade_outcome_line; this model copies their values (and the planning weights in
@@ -190,6 +192,8 @@ class EmsStudentYearRecord(models.Model):
             # round is a single-digit selection, so a string comparison is enough.
             last = max(subject_lines, key=lambda line: line.grade_session_id.round)
             outcome_vals, state = self._outcome_vals_and_state(student, subject)
+            if last.is_convalidated:
+                state = 'passed'
             vals_list.append({
                 'subject_id': subject.id,
                 'subject_name': subject.display_name,
@@ -201,6 +205,7 @@ class EmsStudentYearRecord(models.Model):
                 'external_is_scored': last.external_is_scored,
                 'final_grade': last.final_score,
                 'has_final': last.has_final,
+                'is_convalidated': last.is_convalidated,
                 'state': state,
                 'notes': last.notes,
                 'attendance_rate': subject_rates.get(subject, 0.0),
@@ -313,6 +318,9 @@ class EmsStudentYearRecordSubject(models.Model):
                                         "waiting for the work placement (EM) grade.")
     notes = fields.Char(string="Comments")
     attendance_rate = fields.Float(string="Attendance (%)")
+    # Copied from the live grade line, and kept in sync afterwards for a convalidation resolved
+    # once the year is already frozen (see _ems_set_convalidated).
+    is_convalidated = fields.Boolean(string="Convalidated", default=False)
     outcome_record_ids = fields.One2many(string="Outcomes",
                                          comodel_name='ems.student.year_record.outcome',
                                          inverse_name='subject_record_id')
@@ -329,6 +337,34 @@ class EmsStudentYearRecordSubject(models.Model):
     def _compute_display_name(self):
         for subject_record in self:
             subject_record.display_name = subject_record.subject_name or ""
+
+    def _ems_set_convalidated(self, convalidated):
+        """Apply a convalidation resolved after this subject was frozen. Granting it passes the
+        subject with CONVALIDATED_GRADE; revoking it rebuilds state and final from what the
+        record itself holds (its RAs, internal and external grades), exactly as the generator
+        and apply_external_grade() derive them."""
+        for subject_record in self:
+            if convalidated:
+                subject_record.write({
+                    'is_convalidated': True,
+                    'state': 'passed',
+                    'final_grade': CONVALIDATED_GRADE,
+                    'has_final': True,
+                })
+                continue
+            outcomes = subject_record.outcome_record_ids
+            passed = bool(outcomes) and all(
+                outcome.final_is_scored and outcome.final_score >= 5 for outcome in outcomes)
+            final_grade, has_final = self.env['ems.grade_subject_line']._final_from_parts(
+                subject_record.internal_grade, bool(outcomes.filtered('final_is_scored')),
+                subject_record.external_grade, subject_record.external_is_scored,
+                subject_record.internal_weight, subject_record.external_weight)
+            subject_record.write({
+                'is_convalidated': False,
+                'state': 'passed' if passed else 'failed',
+                'final_grade': final_grade,
+                'has_final': has_final,
+            })
 
     def apply_external_grade(self, score):
         """Write the work placement (EM) grade on an archived subject (called by the EM

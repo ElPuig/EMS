@@ -1,0 +1,70 @@
+import base64
+
+from odoo.tests import HttpCase, tagged
+
+from .common import mock_outgoing_email
+from .test_portal_convalidation import create_portal_convalidation_fixtures
+
+
+@tagged('post_install', '-at_install')
+class TestConvalidationTour(HttpCase):
+    """Issue #276 - proves every screen convalidations reach renders in a browser, each one for
+    the least-privileged role that uses it: the request list/form and the student form's stat
+    button (Head of Studies), CV in both grade views (the teacher who is also the group's tutor)
+    and the portal page (a student). Logic is covered by test_convalidation.py and
+    test_portal_convalidation.py."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        mock_outgoing_email(cls)
+        create_portal_convalidation_fixtures(cls)
+        cls.request = cls.env['ems.convalidation'].create({
+            'student_id': cls.student.id, 'study_id': cls.study.id, 'course_id': cls.course.id,
+            'line_ids': [(0, 0, {'subject_id': cls.subject.id})],
+            'attachment_ids': [(0, 0, {
+                'name': 'certificate.pdf', 'datas': base64.b64encode(b'%PDF-1.4 tour'),
+            })],
+        })
+
+    def _convalidated_session(self):
+        """The fixture teacher tutors the group and teaches the subject; the student's subject
+        grade is convalidated."""
+        teacher_employee = self.teacher.employee_ids[:1]
+        self.group.tutor_id = teacher_employee
+        self.env['ems.enrollment'].create({
+            'student_id': self.student.id, 'group_id': self.group.id, 'subject_id': self.subject.id})
+        session = self.env['ems.grade_session'].search([
+            ('group_id', '=', self.group.id), ('subject_id', '=', self.subject.id)], limit=1) \
+            or self.env['ems.grade_session'].create({'group_id': self.group.id, 'subject_id': self.subject.id})
+        session.teacher_id = teacher_employee
+        session.fill_students()
+        self.request.line_ids.sudo().action_grant()
+        self.assertTrue(session.grade_subject_line_ids.is_convalidated)
+        return session
+
+    def test_head_of_studies_resolves(self):
+        self.start_tour("/odoo", "ems_convalidation_resolve", login=self.head_of_studies.login)
+        self.assertEqual(self.request.state, 'resolved')
+
+    def test_student_form_button(self):
+        self.start_tour(f"/odoo/res.partner/{self.student.id}", "ems_convalidation_student_button",
+                        login=self.head_of_studies.login)
+
+    def test_grade_matrix_shows_cv(self):
+        session = self._convalidated_session()
+        self.start_tour(f"/odoo/action-ems.action_grade_session_tree/{session.id}",
+                        "ems_convalidation_grade_matrix", login=self.teacher.login)
+
+    def test_grade_tutor_matrix_shows_cv(self):
+        self._convalidated_session()
+        self.start_tour("/odoo", "ems_convalidation_grade_tutor_matrix", login=self.teacher.login)
+
+    def test_portal_student_submits(self):
+        self.request.action_cancel()
+        self.start_tour("/my/convalidaciones", "ems_portal_convalidation_submit", login=self.student_user.login)
+        submitted = self.env['ems.convalidation'].search([
+            ('student_id', '=', self.student.id), ('state', '=', 'submitted')])
+        self.assertEqual(len(submitted), 1)
+        self.assertEqual(submitted.basis, 'certificate')
+        self.assertEqual(submitted.attachment_ids.mapped('name'), ['certificate.pdf'])

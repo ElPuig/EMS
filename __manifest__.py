@@ -308,6 +308,8 @@
             'views/academic_management/authorizations/menu.xml',
             'views/academic_management/task_assignment/view.xml',
             'views/academic_management/task_assignment/menu.xml',
+            'views/academic_management/convalidations/views.xml',
+            'views/academic_management/convalidations/menu.xml',
 
         'views/sales/product_view.xml',
         'views/accounting/payment_term_views.xml',
@@ -324,6 +326,7 @@
             'views/portal/portal_comms.xml',
             'views/portal/portal_schedule.xml',
             'views/portal/portal_documentation.xml',
+            'views/portal/portal_convalidations.xml',
             'views/portal/portal_under_construction.xml',
 
         'views/documentation/menu.xml',       
@@ -343,6 +346,7 @@
         'mails/coexistence/strike_escalation.xml',
         'mails/enrollment/enrollment_send.xml',
         'mails/enrollment/authorization_send.xml',
+        'mails/grades/convalidation_resolved.xml',
 
         ### Reports templates ###
         'reports/attendance/templates/sumary_table.xml',

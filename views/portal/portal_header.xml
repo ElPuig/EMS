@@ -28,6 +28,9 @@
                         <a href="/my/documentacion" class="nav-link">Documentation</a>
                     </li>
                     <li class="nav-item">
+                        <a href="/my/convalidaciones" class="nav-link">Convalidations</a>
+                    </li>
+                    <li class="nav-item">
                         <a href="/my/account" class="nav-link">Profile</a>
                     </li>
 

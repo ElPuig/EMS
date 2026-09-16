@@ -101,7 +101,7 @@ export class GradeTutorMatrix extends Component {
                 "subject_id", "subject_name", "student_id", "student_firstname", "student_lastname",
                 "internal_ponderation", "external_ponderation", "internal_score", "internal_is_scored",
                 "internal_is_complete", "external_score", "external_is_scored", "computed_score",
-                "computed_is_scored", "is_overridden", "final_score", "has_final", "notes",
+                "computed_is_scored", "is_overridden", "final_score", "has_final", "notes", "is_convalidated",
             ]
         );
         const outcomeLines = await this.orm.searchRead(
@@ -163,6 +163,7 @@ export class GradeTutorMatrix extends Component {
                     computed_is_scored: sl.computed_is_scored,
                     final_score: sl.final_score,
                     has_final: sl.has_final,
+                    is_convalidated: sl.is_convalidated,
                 },
             });
         }
@@ -428,6 +429,9 @@ export class GradeTutorMatrix extends Component {
     }
 
     finalScore(row) {
+        if (row.model.is_convalidated) {
+            return _t("CV");
+        }
         return row.model.has_final ? this.formatScore(row.model.final_score) + this.provisionalMark(row) : "";
     }
 

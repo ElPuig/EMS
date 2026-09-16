@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="view_convalidation_list" model="ir.ui.view">
+            <field name="name">ems.convalidation.list</field>
+            <field name="model">ems.convalidation</field>
+            <field name="arch" type="xml">
+                <list string="Convalidations"
+                      decoration-muted="state == 'cancelled'"
+                      decoration-success="state == 'resolved'">
+                    <field name="student_id"/>
+                    <field name="study_id"/>
+                    <field name="course_id" optional="show"/>
+                    <field name="submission_date"/>
+                    <field name="basis" optional="hide"/>
+                    <field name="pending_count"/>
+                    <field name="granted_count" optional="show"/>
+                    <field name="resolution_date" optional="hide"/>
+                    <field name="state" widget="badge"
+                           decoration-info="state == 'submitted'"
+                           decoration-warning="state == 'in_progress'"
+                           decoration-success="state == 'resolved'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_convalidation_form" model="ir.ui.view">
+            <field name="name">ems.convalidation.form</field>
+            <field name="model">ems.convalidation</field>
+            <field name="arch" type="xml">
+                <form string="Convalidation">
+                    <header>
+                        <button name="action_grant_pending" type="object" string="Convalidate pending subjects"
+                                class="btn-primary"
+                                invisible="state == 'cancelled' or pending_count == 0"
+                                groups="ems.group_head_of_studies,ems.group_academic_admin"/>
+                        <button name="action_cancel" type="object" string="Cancel request"
+                                invisible="state != 'submitted'"
+                                confirm="The request will be cancelled. Continue?"/>
+                        <button name="action_reopen" type="object" string="Reopen"
+                                invisible="state != 'cancelled'"/>
+                        <field name="state" widget="statusbar" statusbar_visible="submitted,in_progress,resolved"/>
+                    </header>
+                    <sheet>
+                        <widget name="web_ribbon" title="Cancelled" bg_color="text-bg-secondary"
+                                invisible="state != 'cancelled'"/>
+                        <div class="oe_title">
+                            <h1><field name="student_id" placeholder="Student" options="{'no_create': True}"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="study_id" options="{'no_create': True}"/>
+                                <field name="course_id" options="{'no_create': True}"/>
+                                <field name="basis"/>
+                            </group>
+                            <group>
+                                <field name="submission_date"/>
+                                <field name="requester_id" readonly="1" invisible="not requester_id"/>
+                                <field name="resolution_date" invisible="not resolution_date"/>
+                                <field name="resolved_by_id" invisible="not resolved_by_id"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="subjects" string="Subjects">
+                                <field name="allowed_subject_ids" invisible="1"/>
+                                <field name="line_ids">
+                                    <list editable="bottom"
+                                          decoration-success="state == 'granted'"
+                                          decoration-danger="state == 'rejected'"
+                                          decoration-warning="state == 'forwarded'">
+                                        <field name="subject_id"
+                                               domain="[('id', 'in', parent.allowed_subject_ids)]"
+                                               options="{'no_create': True}"
+                                               readonly="state != 'pending'"/>
+                                        <field name="state" widget="badge" readonly="1"
+                                               decoration-success="state == 'granted'"
+                                               decoration-danger="state == 'rejected'"
+                                               decoration-warning="state == 'forwarded'"/>
+                                        <field name="resolution_notes"/>
+                                        <button name="action_grant" type="object" string="Convalidate"
+                                                icon="fa-check" class="text-success"
+                                                invisible="state == 'granted'"
+                                                groups="ems.group_head_of_studies,ems.group_academic_admin"/>
+                                        <button name="action_reject" type="object" string="Reject"
+                                                icon="fa-times" class="text-danger"
+                                                invisible="state == 'rejected'"
+                                                groups="ems.group_head_of_studies,ems.group_academic_admin"/>
+                                        <button name="action_forward" type="object" string="Forward to the Department"
+                                                icon="fa-share"
+                                                invisible="state != 'pending'"
+                                                groups="ems.group_head_of_studies,ems.group_academic_admin"/>
+                                        <button name="action_reset" type="object" string="Back to pending"
+                                                icon="fa-undo"
+                                                invisible="state == 'pending'"
+                                                groups="ems.group_head_of_studies,ems.group_academic_admin"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page name="documents" string="Supporting documents">
+                                <field name="attachment_ids" widget="many2many_binary"/>
+                            </page>
+                            <page name="applicant" string="Applicant's comments">
+                                <field name="student_notes" placeholder="Comments from the student or the family..."/>
+                            </page>
+                            <page name="resolution" string="Resolution">
+                                <field name="resolution_notes"
+                                       placeholder="Comments for the student, sent with the resolution..."/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_convalidation_search" model="ir.ui.view">
+            <field name="name">ems.convalidation.search</field>
+            <field name="model">ems.convalidation</field>
+            <field name="arch" type="xml">
+                <search string="Convalidations">
+                    <field name="student_id"/>
+                    <field name="study_id"/>
+                    <field name="course_id"/>
+                    <field name="line_ids" string="Subject" filter_domain="[('line_ids.subject_id', 'ilike', self)]"/>
+                    <filter name="to_resolve" string="To resolve" domain="[('state', 'in', ('submitted', 'in_progress'))]"/>
+                    <filter name="forwarded" string="Forwarded to the Department"
+                            domain="[('line_ids.state', '=', 'forwarded')]"/>
+                    <filter name="resolved" string="Resolved" domain="[('state', '=', 'resolved')]"/>
+                    <filter name="cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_state" string="State" context="{'group_by': 'state'}"/>
+                        <filter name="group_by_study" string="Study" context="{'group_by': 'study_id'}"/>
+                        <filter name="group_by_course" string="Course" context="{'group_by': 'course_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_convalidation" model="ir.actions.act_window">
+            <field name="name">Convalidations</field>
+            <field name="res_model">ems.convalidation</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_convalidation_search"/>
+            <field name="context">{'search_default_to_resolve': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">No convalidation requests</p>
+                <p>Students and families request convalidations from the portal. The secretariat can also register a request received on paper.</p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

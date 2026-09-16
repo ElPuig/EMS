@@ -92,6 +92,7 @@ class ResPartner(models.Model):
     enrollment_ids = fields.One2many(string='Enrollment', comodel_name='ems.enrollment', inverse_name='student_id')
     strike_ids = fields.One2many(string='Strikes', comodel_name='ems.strike', inverse_name='student_id')
     strike_count = fields.Integer(string='Strike count', compute='_compute_strike_count')
+    convalidation_count = fields.Integer(string='Convalidation count', compute='_compute_convalidation_count')
     # Study granted at pre-enrollment (GEDAC), for a student the centre already has:
     # the internal continuer changing studies next course (ESO4 -> SMX1). Only active
     # students use it -- an applicant's destination already lives in study_id, which is
@@ -379,6 +380,13 @@ class ResPartner(models.Model):
             'target': 'current',
         }
 
+    def action_view_convalidations(self):
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_convalidation')
+        action['domain'] = [('student_id', '=', self.id)]
+        action['context'] = {'default_student_id': self.id}
+        return action
+
     def action_view_strikes(self):
         self.ensure_one()
         action = self.env['ir.actions.act_window']._for_xml_id('ems.action_strike_list')
@@ -636,6 +644,14 @@ class ResPartner(models.Model):
                 # If there are lines but no defined category
                 else:
                     partner.benefit_status = 'none'
+
+    def _compute_convalidation_count(self):
+        # sudo: the student form is open to roles with no access to convalidations; the button
+        # that uses the count is only shown to the ones that do.
+        counts = dict(self.env['ems.convalidation'].sudo()._read_group(
+            [('student_id', 'in', self._origin.ids)], ['student_id'], ['__count']))
+        for partner in self:
+            partner.convalidation_count = counts.get(partner._origin, 0)
 
     @api.depends('strike_ids')
     def _compute_strike_count(self):

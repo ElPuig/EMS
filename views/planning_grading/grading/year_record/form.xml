@@ -41,6 +41,7 @@
                                         <field name="external_grade" optional="show"/>
                                         <field name="final_grade"/>
                                         <field name="final_pending" optional="show"/>
+                                        <field name="is_convalidated" optional="show"/>
                                         <field name="internal_weight" optional="hide"/>
                                         <field name="external_weight" optional="hide"/>
                                         <field name="attendance_rate" optional="hide"/>
@@ -66,6 +67,7 @@
                                 <field name="subject_name" readonly="1"/>
                                 <field name="state" readonly="1"/>
                                 <field name="final_pending" readonly="1"/>
+                                <field name="is_convalidated" readonly="1"/>
                                 <field name="attendance_rate" readonly="1"/>
                             </group>
                             <group>

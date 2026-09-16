@@ -1,5 +1,7 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+from unittest.mock import patch
 
+from odoo import fields
 from odoo.tests.common import HttpCase, tagged
 
 from .common import force_user_language_to_english
@@ -47,7 +49,16 @@ class TestAttendanceCorrectionRequestTour(HttpCase):
         employee = self.env['hr.employee'].create({
             'name': 'Attendance Correction Open Schedule Tour Employee', 'employee_type': 'teacher',
         })
-        check_in = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=2)
+        # A fixed reference moment, not real "now": using the actual wall clock made this
+        # flaky whenever the suite happened to run close to local midnight (Europe/Madrid) -
+        # check_in was computed at fixture-setup time, but the server re-reads
+        # fields.Datetime.now() later (once per request, while the tour interacts with the
+        # dialog), and if the schedule's own hour_to fell in between those reads, "now" had
+        # already rolled past it. Confirmed in practice 2026-09-16 (suite run just after local
+        # midnight). Freezing fields.Datetime.now() for the whole tour, to the same reference
+        # check_in is computed from, removes the wall-clock dependency entirely.
+        frozen_now = datetime(2026, 1, 12, 10, 0)
+        check_in = frozen_now - timedelta(hours=2)
         self.env['resource.calendar.attendance'].create({
             'calendar_id': employee.resource_calendar_id.id,
             'name': 'Tour Slot (Attendance Correction)',
@@ -61,7 +72,8 @@ class TestAttendanceCorrectionRequestTour(HttpCase):
             'check_in': check_in,
         })
 
-        self.start_tour("/odoo", "ems_attendance_correction_request_open_within_schedule", login="admin")
+        with patch.object(fields.Datetime, 'now', return_value=frozen_now):
+            self.start_tour("/odoo", "ems_attendance_correction_request_open_within_schedule", login="admin")
 
         self.assertEqual(attendance.correction_count, 1)
         correction = attendance.correction_ids

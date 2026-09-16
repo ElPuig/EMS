@@ -10,13 +10,19 @@ Aquesta pàgina cobreix tant l'historial complet de strikes (Cap d'Estudis / Cap
 
 ---
 
-## Consultar tots els strikes (coordinadors de convivència)
+## Consultar tots els strikes
 
-Si tens el rol de Convivència, **Convivència → Strikes** mostra tots els strikes posats a tot el centre, independentment de quin professor els hagi posat o a quina branca pertanyi l'alumne — l'accés de convivència és transversal, no està limitat per departament.
-
-Cap d'Estudis, Cap d'Estudis Adjunt/a i Direcció veuen els strikes segons les mateixes regles que professors/tutors (els que han posat ells mateixos i els dels seus alumnes tutoritzats), llevat que també tinguin el rol de Convivència.
+**Convivència → Strikes** mostra tots els strikes posats a tot el centre, independentment de quin professor els hagi posat, a quina branca pertanyi l'alumne, o del teu propi rol de Cap d'Estudis / Cap d'Estudis Adjunt/a / Direcció — aquesta vista centralitzada no està limitada per departament. Si a més tens el rol de Convivència, veus exactament la mateixa llista completa.
 
 A la fitxa del propi alumne, apareix un botó de **Strikes** a la capçalera que mostra el recompte acumulat. En obrir qualsevol strike concret es mostra una casella **Expulsat de classe**, per saber d'un cop d'ull si aquella incidència va acabar amb l'alumne fora de l'aula.
+
+![Fitxa d'un strike amb la casella Expulsat de classe marcada](../../assets/head_of_studies/hos-strike-kicked-out.png)
+
+---
+
+## Eliminar un strike
+
+Cap d'Estudis, Cap d'Estudis Adjunt/a, Direcció i els coordinadors/es de Convivència poden eliminar qualsevol strike de tot el centre — obre el registre del strike (o selecciona'l a la llista) i fes servir l'acció d'eliminar habitual. Això és útil per corregir un strike posat per error o duplicat. Eliminar un strike el treu de forma permanent, també del recompte acumulat de l'alumne; no es pot desfer.
 
 ---
 

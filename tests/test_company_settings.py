@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 from odoo.tools import config
 
@@ -44,6 +45,14 @@ class TestCompanySettings(TransactionCase):
         # it should degrade to an empty value.
         self.env.company.limesurvey_pwd_encrypted = 'not-a-valid-fernet-token'
         self.assertFalse(self.env.company.limesurvey_pwd)
+
+    def test_secretariat_email_invalid_format_raises(self):
+        with self.assertRaises(ValidationError):
+            self.env.company.secretariat_email = '612345678'
+
+    def test_secretariat_email_empty_does_not_raise(self):
+        self.env.company.secretariat_email = False
+        self.assertFalse(self.env.company.secretariat_email)
 
     def _clear_environment_type(self):
         self.env['ir.config_parameter'].sudo().search([('key', '=', 'ems.environment_type')]).unlink()

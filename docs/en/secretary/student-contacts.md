@@ -42,6 +42,10 @@ Open the student's record and, in the **Contacts & Addresses** tab, click **Add 
 
 The same relation shows up on the family member's own record too, listing which student(s) they are related to.
 
+> **Since 18.0.0.26.0:** any email address entered on a contact (personal or student/corporate) must be well-formed (`name@domain`) — EMS refuses to save a value that isn't, such as a phone number typed in the wrong field by mistake.
+
+**To remove a family member**, click the trash icon on their row and confirm with **Ok**. The family member is no longer linked to the student. If they are left related to no other student and have no user (portal access), their contact is deleted too; otherwise it is kept.
+
 ## Enrolling a student in subjects
 
 A student's main group (**Studies** tab) does not by itself enroll them in any subject — that is a separate step, right below it in the same tab: add one line per subject, choosing the subject and the group it is taught in (usually the student's own main group, but a different one for a subject taken elsewhere, e.g. a reinforcement group). Once a subject is added here, the student starts appearing in that subject's attendance sheets and grading sessions. A subject already added can't be picked twice — it drops out of the selection list automatically.
@@ -74,7 +78,7 @@ Switching the Students screen from Kanban to List view shows, by default, most o
 
 ## Fields only admin/secretary/Head of Studies/tutors can see
 
-Personal data (documents, medical information, special educational needs, authorizations…) is hidden from anyone who is neither admin, secretary, Head of Studies/Deputy Head of Studies/Director, nor the student's own tutor. Head of Studies/Deputy Head of Studies/Director have the same full access as secretary here, for **any** student centre-wide, not just their own tutees. A tutor can also edit the record of a student they tutor and that student's family contacts, but sees a narrower set of editable fields than secretary/admin/Head of Studies.
+Personal data (documents, medical information, special educational needs, authorizations…) is hidden from anyone who is neither admin, secretary, Head of Studies/Deputy Head of Studies/Director, nor the student's own tutor. Head of Studies/Deputy Head of Studies/Director have the same full access as secretary here, for **any** student centre-wide, not just their own tutees. A tutor can also edit the record of a student they tutor and that student's family contacts, but sees a narrower set of editable fields than secretary/admin/Head of Studies. They can also add and remove the family contacts of the students they tutor. Guidance sees and edits the special educational needs of any student.
 
 ---
 

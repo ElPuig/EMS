@@ -5,6 +5,7 @@ from odoo import models, fields, api
 class EmsSpace(models.Model):
 	_name = "ems.space"
 	_description = "Space: where each student group are assigned to."
+	_inherit = ['mail.thread', 'mail.activity.mixin']
 	_order = "name"
 	_rec_names_search = ['name', 'code']
 	_sql_constraints = [
@@ -13,8 +14,12 @@ class EmsSpace(models.Model):
 
 	code = fields.Char(string="Code", required=True)
 	name = fields.Char(string="Name", required=True)
-	space_type_id = fields.Many2one(string="Type", comodel_name="ems.space_type", required=True)
-	work_location_id = fields.Many2one(string="Work location", comodel_name="hr.work.location", required=True)
+	space_type_id = fields.Many2one(
+		string="Type", comodel_name="ems.space_type", required=True,
+		default=lambda self: self.env.ref("ems.space_type_classroom", raise_if_not_found=False))
+	work_location_id = fields.Many2one(
+		string="Location", comodel_name="hr.work.location", required=True,
+		default=lambda self: self.env.ref("ems.work_location_main", raise_if_not_found=False))
 
 	@api.depends('name', 'code')
 	def _compute_display_name(self):

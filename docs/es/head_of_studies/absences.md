@@ -39,6 +39,8 @@ Nadie aprueba su propia ausencia: la de un responsable de área la resuelve Dire
 
 Ahí tienes las solicitudes de tu área. Las que esperan decisión están en estado **Pendiente**, y las puedes resolver desde el listado o abriéndolas.
 
+![Listado de ausencias, con las acciones Aprobar/Rechazar sobre una solicitud pendiente](../../assets/head_of_studies/hos-absences-list.png)
+
 Tú ves el **motivo escrito** y el **justificante**; el resto del personal, no.
 
 **Rechazar es definitivo.** Nadie del centro puede devolver una solicitud rechazada a *Pendiente*: para concederla finalmente, la persona tiene que hacer una nueva. Como el botón Rechazar está al lado de Aprobar, y en el listado es solo una cruz al final de la fila, siempre pide confirmación antes - lee el mensaje antes de aceptarlo.

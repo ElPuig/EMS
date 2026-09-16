@@ -38,6 +38,10 @@ Se encuentra en **Comunicaciones → Comunicados**.
    alumno no tiene ninguna dirección que coincida con su selección de **Correo del
    destinatario** (p. ej. eligió "Corporativo" pero aún no tiene cuenta institucional creada),
    aparece un aviso con sus nombres para que sepa que se han quedado fuera.
+
+   > **Desde la 18.0.0.26.0:** el correo de una fila de destinatario debe tener un formato
+   > válido (`nombre@dominio`) — EMS no permite guardar un valor que no lo sea, como un número
+   > de teléfono escrito por error.
 8. Haga una de las dos opciones:
    - Pulse **Enviar** para poner los correos en cola inmediatamente, o
    - Marque **Programar el envío** y elija una fecha/hora, y pulse **Enviar** — el comunicado
@@ -46,6 +50,8 @@ Se encuentra en **Comunicaciones → Comunicados**.
    (o **Fallido** si el envío ha fallado para todos los destinatarios). Cada fila de
    destinatario muestra su propio estado de envío, con el detalle del error disponible en las
    filas fallidas.
+
+![Un comunicado en borrador, con la lista de destinatarios generada automáticamente a partir del grupo seleccionado](../../assets/admin/admin-notice-create-form.png)
 
 Un comunicado **programado** (aún no enviado) se puede **cancelar**, devolviéndolo a Borrador
 para que pueda editarlo y volver a enviarlo.

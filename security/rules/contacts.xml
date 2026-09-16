@@ -55,6 +55,49 @@
         <field name="perm_unlink" eval="False"/>
     </record>
 
+    <record id="rule_contact_orientation_special_needs" model="ir.rule">
+        <!-- Guidance edits the special educational needs of every student and applicant (issue
+             #465). An ir.rule cannot name fields, so res.partner._ems_check_orientation_write()
+             narrows this back down to special_needs. -->
+        <field name="name">Contact: guidance (special educational needs of any student)</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="groups" eval="[(4, ref('ems.group_orientation'))]"/>
+        <field name="domain_force">[('contact_type', 'in', ('student', 'applicant'))]</field>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- res.partner.relation (issue #470): the student form's trash button deletes a family
+         contact through res.partner.relation.all, which partner_multi_relation delegates to
+         res.partner.relation with the user's own rights. access_res_partner_relation_teacher
+         opens write/create/unlink to teachers; these two rules narrow it back down. -->
+    <record id="rule_partner_relation_tutor" model="ir.rule">
+        <field name="name">Partner relation: tutor (relations of its tutorands)</field>
+        <field name="model_id" ref="partner_multi_relation.model_res_partner_relation"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">['|', ('left_partner_id.tutor_id.user_id', '=', user.id), ('right_partner_id.tutor_id.user_id', '=', user.id)]</field>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_partner_relation_contact_manager" model="ir.rule">
+        <!-- Secretary, Head of Studies and academic admin hold base.group_partner_manager, but
+             Head of Studies and academic admin are also teachers: rules of a user's groups are
+             OR-ed, so without this one the tutor rule above would narrow them to their tutees. -->
+        <field name="name">Partner relation: contact managers (all relations)</field>
+        <field name="model_id" ref="partner_multi_relation.model_res_partner_relation"/>
+        <field name="groups" eval="[(4, ref('base.group_partner_manager'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
     <record id="rule_enrollment_admin" model="ir.rule">
         <field name="name">Enrollment: admin</field>
         <field name="model_id" ref="ems.model_ems_enrollment"/>
@@ -93,6 +136,25 @@
         <field name="model_id" ref="ems.model_ems_enrollment"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
         <field name="domain_force">[('student_id.tutor_id.user_id', '=' , user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- Without this, Head/Deputy Head of Studies and Director only inherit group_teacher's
+         two rules above (read-only everywhere; write/create/unlink limited to their own
+         tutorands) - the same OR-combination gap already fixed for res.partner (issue #448,
+         rule_contact_head_of_studies) and ems.attendance_template/ems.attendance_schedule
+         (issue #444). Director/academic_admin already have full access via their own rules,
+         but also match this one (group_academic_admin implies group_director implies
+         group_head_of_studies) - harmless, since ir.rule domains for different groups are
+         OR-ed together. -->
+    <record id="rule_enrollment_head_of_studies" model="ir.rule">
+        <field name="name">enrollment: Head of Studies (all data)</field>
+        <field name="model_id" ref="ems.model_ems_enrollment"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>
@@ -243,6 +305,48 @@
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- ems.student.document: tutors read only their own students' Google credentials PDF, and
+         the TAC team every student's, since they reset those passwords (issue #478); DNI, IBAN,
+         medical card... stay with secretary and admin. The academic
+         admin inherits group_tutor through the Head of Studies chain, and a secretary may also
+         tutor a group, so both need an unrestricted rule of their own - otherwise the tutor
+         rule would narrow them too. -->
+    <record id="rule_ems_student_document_admin" model="ir.rule">
+        <field name="name">Student document: admin (full access)</field>
+        <field name="model_id" ref="ems.model_ems_student_document"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
+        <field name="domain_force">[]</field>
+    </record>
+
+    <record id="rule_ems_student_document_secretary" model="ir.rule">
+        <field name="name">Student document: secretary (full access)</field>
+        <field name="model_id" ref="ems.model_ems_student_document"/>
+        <field name="groups" eval="[(4, ref('ems.group_secretary'))]"/>
+        <field name="domain_force">[]</field>
+    </record>
+
+    <record id="rule_ems_student_document_tutor" model="ir.rule">
+        <field name="name">Student document: tutor (own students' Google credentials, read only)</field>
+        <field name="model_id" ref="ems.model_ems_student_document"/>
+        <field name="groups" eval="[(4, ref('ems.group_tutor'))]"/>
+        <field name="domain_force">[('doc_type', '=', 'google_credentials'), ('partner_id.tutor_id.user_id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_ems_student_document_tac" model="ir.rule">
+        <field name="name">Student document: TAC (every student's Google credentials, read only)</field>
+        <field name="model_id" ref="ems.model_ems_student_document"/>
+        <field name="groups" eval="[(4, ref('ems.group_tac'))]"/>
+        <field name="domain_force">[('doc_type', '=', 'google_credentials')]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
         <field name="perm_unlink" eval="False"/>
     </record>
 </odoo>

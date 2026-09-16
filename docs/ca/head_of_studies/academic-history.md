@@ -14,6 +14,8 @@ Com a cap d'estudis o director/a teniu **accés de lectura a tot l'històric**, 
 
 **Planificació i avaluació → Notes → Històric acadèmic** llista tots els registres, agrupats per curs per defecte.
 
+![Llistat de l'històric acadèmic, agrupat per curs, amb el resultat acadèmic de cada registre](../../assets/head_of_studies/hos-academic-history-list.png)
+
 A més, a la fitxa de qualsevol alumne/a, la pestanya **Històric acadèmic** mostra els seus registres — també per a l'**antic alumnat** (graduats/des i baixes), la pestanya del qual es manté com a registre permanent.
 
 ## Consultes útils

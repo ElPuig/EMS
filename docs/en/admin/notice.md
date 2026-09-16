@@ -37,6 +37,9 @@ under **Communications → Notices**.
    address matching your **Recipient email** choice (e.g. "Corporate" was picked but a student's
    institutional account hasn't been created yet), a warning names them so you know they were
    left out.
+
+   > **Since 18.0.0.26.0:** a recipient row's email must be well-formed (`name@domain`) — EMS
+   > refuses to save a value that isn't, such as a phone number typed in by mistake.
 8. Either:
    - Click **Send** to queue the emails immediately, or
    - Tick **Schedule sending** and pick a date/time, then click **Send** — the notice moves to
@@ -44,6 +47,8 @@ under **Communications → Notices**.
 9. The notice's **State** tracks progress: **Draft** → **Scheduled** → **Sent** (or **Failed**
    if every recipient's email failed). Each recipient row shows its own delivery status, with
    any error detail available on failed rows.
+
+![A draft notice, with its recipient list built automatically from the selected group](../../assets/admin/admin-notice-create-form.png)
 
 A **scheduled** notice (not yet sent) can be **cancelled**, returning it to Draft so you can
 edit and resend it.

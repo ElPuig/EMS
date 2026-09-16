@@ -21,6 +21,7 @@ const SHIFT_HOURS = {
 const PDF_ACTION_BY_MODEL = {
     "ems.group": "ems.action_report_group_schedule",
     "res.partner": "ems.action_report_student_schedule",
+    "ems.space": "ems.action_report_space_schedule",
 };
 
 // Mostly-read-only weekly grid (day columns x hourly rows) for any record exposing its own
@@ -28,7 +29,8 @@ const PDF_ACTION_BY_MODEL = {
 // not stored — see ems.group._compute_schedule_attendance_ids and res.partner (student)'s own
 // version) — originally built for a GROUP's schedule (aggregating every teacher whose calendar
 // includes that group) and reused as-is for a STUDENT's schedule (aggregating every entry
-// matching one of their own subject+group enrollment pairs) since the two are the exact same
+// matching one of their own subject+group enrollment pairs) and a SPACE's own occupation
+// schedule (aggregating every entry booked in that room) since all three are the exact same
 // rendering problem: a "photo" built entirely client-side from prefetched sub-records. Day/hour/
 // subject/teacher(s)/groups always stay read-only here — those still require the relevant
 // teacher's own Schedule tab. Issue #446 added ONE exception: a permission-gated "Edit" mode

@@ -1,5 +1,7 @@
+from psycopg2 import IntegrityError
+
 from odoo import _, api, fields, models
-from odoo.exceptions import AccessError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 
 class ems_partner_relation_all(models.AbstractModel):
     _inherit = 'res.partner.relation.all'
@@ -9,6 +11,41 @@ class ems_partner_relation_all(models.AbstractModel):
     other_partner_phone = fields.Char(related='other_partner_id.phone', string='Phone')
     other_partner_mobile = fields.Char(related='other_partner_id.mobile', string='Mobile')
     other_partner_email = fields.Char(related='other_partner_id.email', string='Email')
+
+class EmsPartnerRelation(models.Model):
+    _inherit = 'res.partner.relation'
+
+    def unlink(self):
+        # Set only by the trash button on the student's Contacts & Addresses tab
+        # (views/community/contact/form.xml): removing a family member there also removes the
+        # contact itself once it is left without any student (issue #470). Any other deletion
+        # of a relation (a contact merge, an import) leaves the contact alone.
+        families = self.env['res.partner']
+        if self.env.context.get('ems_remove_orphan_family'):
+            families = (self.left_partner_id | self.right_partner_id).filtered(
+                lambda partner: partner.contact_type == 'family')
+        result = super().unlink()
+        self._ems_remove_orphan_families(families)
+        return result
+
+    @api.model
+    def _ems_remove_orphan_families(self, families):
+        """Delete, as superuser, the family contacts left with no relation and no user. Runs only
+        after the user's own unlink() of the relation passed its access checks, so it never widens
+        who can remove a family member - only what removing one cleans up. A contact something
+        else still references is archived instead."""
+        relations = self.sudo().with_context(active_test=False)
+        for family in families.sudo().with_context(active_test=False):
+            if family.user_ids or relations.search_count(
+                    ['|', ('left_partner_id', '=', family.id), ('right_partner_id', '=', family.id)]):
+                continue
+            try:
+                with self.env.cr.savepoint():
+                    family.unlink()
+            except (IntegrityError, UserError):
+                self.env.invalidate_all()
+                family.active = False
+
 
 class EmsContactRelationWizard(models.TransientModel):
     _name = 'ems.contact.relation.wizard'

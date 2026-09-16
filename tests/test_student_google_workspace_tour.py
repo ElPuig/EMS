@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 
 from odoo.tests import tagged, HttpCase
 
-from .common import force_user_language_to_english, next_student_id
+from .common import create_role_user, force_user_language_to_english, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -65,3 +65,23 @@ class TestStudentGoogleWorkspaceTour(HttpCase):
         #                   login="admin", watch=True)
         self.start_tour(
             "/odoo", "ems_student_google_workspace_lifecycle", login="admin")
+
+    def test_student_google_password_reset_tour(self):
+        # Issue #478: logged in as the TAC team, the least-privileged role allowed to reset.
+        self.env.company.write({
+            'google_ws_enabled': True, 'google_ws_dry_run': True, 'google_ws_domain': 'elpuig.xeill.net',
+        })
+        tac = create_role_user(self, 'tac', 'test_tac_gw_reset_tour', name='TAC Reset Tour')
+        student = self._seed_student('GW Student Reset', student_email='gw.reset@elpuig.xeill.net')
+        self.env['ems.student.document'].create({
+            'partner_id': student.id, 'doc_type': 'google_credentials', 'status': 'approved',
+        })
+        # The real delivery runs (new document + welcome email, whose transport is mocked above);
+        # only the PDF rendering is skipped.
+        with patch.object(type(self.env['ir.actions.report']), '_render_qweb_pdf',
+                          return_value=(b'%PDF-1.4 x', 'pdf')):
+            self.start_tour(f"/odoo/res.partner/{student.id}", "ems_student_google_password_reset",
+                            login=tac.login)
+        documents = self.env['ems.student.document'].search([('partner_id', '=', student.id)])
+        self.assertEqual(sorted(documents.mapped('status')), ['approved', 'cancelled'])
+

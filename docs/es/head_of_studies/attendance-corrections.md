@@ -17,7 +17,11 @@ Si te han enviado una solicitud (la verás como una actividad pendiente, y tambi
 1. Abre la solicitud — desde la actividad, desde **Fichajes de empleados → Asistencia → Solicitudes de corrección**, o desde el botón **Correcciones** del propio fichaje.
 
    > La lista muestra solo las solicitudes **Pendientes** por defecto, para no tener que revisar las que ya tienen una decisión. Quita el filtro **Pendiente** (o cambia al filtro **Aceptada**/**Rechazada**) para ver el resto.
+
+   ![Listado de solicitudes de corrección, con la entrada/salida solicitada y su estado](../../assets/head_of_studies/hos-attendance-correction-list.png)
 2. Revisa la hora original frente a la solicitada, y el motivo indicado.
+
+   > Una solicitud que solo muestra una hora de entrada solicitada, sin salida, es normal cuando el profesor o profesora todavía estaba fichado/a y dentro de su horario laboral en el momento de pedir la corrección — no es una solicitud incompleta.
 3. Haz clic en **Aceptar** para aplicar la corrección al fichaje, o en **Rechazar** para dejarlo sin cambios (o restaurarlo, si estás deshaciendo una aceptación anterior). Puedes dejar una nota opcional para el profesor o profesora.
 4. El profesor o profesora que hizo la solicitud recibe una notificación automática con tu decisión.
 

@@ -58,3 +58,62 @@ registry.category("web_tour.tours").add("ems_attendance_correction_request", {
         },
     ],
 });
+
+// Issue #479: while the teacher is still clocked in (no check-out yet) AND still within their
+// expected working hours for that day, the correction dialog must hide requested_check_out
+// entirely - only the check-in can be requested, since they haven't left yet.
+registry.category("web_tour.tours").add("ems_attendance_correction_request_open_within_schedule", {
+    test: true,
+    url: "/odoo/action-hr_attendance.hr_attendance_action",
+    steps: () => [
+        { trigger: ".o_list_view", content: "Employee Attendances list loaded" },
+        {
+            trigger: ".o_searchview_input",
+            content: "Search for the seeded employee",
+            run: "edit Attendance Correction Open Schedule Tour Employee",
+        },
+        { trigger: ".o_searchview_input", content: "Confirm the search", run: "press Enter" },
+        {
+            trigger: ".o_searchview_facet:contains('Attendance Correction Open Schedule Tour Employee')",
+            content: "The search facet is applied",
+        },
+        {
+            trigger: ".o_searchview_facet:contains('Date') .o_facet_remove",
+            content: "Remove the default 'Date: Month > Employee' grouping facet",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row .o_data_cell",
+            content: "Open the seeded open attendance",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_statusbar button:contains('Request Correction')",
+            content: "Open the correction request dialog",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='requested_check_in']",
+            content: "Only the check-in field is shown - the schedule hasn't ended yet",
+            run: () => {
+                if (document.querySelector(".modal .o_field_widget[name='requested_check_out']")) {
+                    throw new Error("requested_check_out should be hidden while still within the working schedule");
+                }
+            },
+        },
+        {
+            trigger: ".modal .o_field_widget[name='reason'] textarea",
+            content: "Fill in the reason",
+            run: "edit Tour: still within today's schedule",
+        },
+        {
+            trigger: ".modal .o_form_button_save",
+            content: "Save the correction request",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .oe_stat_button:contains('Corrections')",
+            content: "Back on the attendance form - the 'Corrections' stat button now shows the new request",
+        },
+    ],
+});

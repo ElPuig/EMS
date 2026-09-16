@@ -1,3 +1,5 @@
+from datetime import date
+
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
@@ -216,3 +218,85 @@ class TestContactRelationWizard(TransactionCase):
         action = self.student.with_user(self.secretary_user).action_open_relation_wizard()
         self.assertEqual(action['res_model'], 'ems.contact.relation.wizard')
         self.assertTrue(action['res_id'])
+
+    # ------------------------------------------------ deleting a family contact (issue #470)
+
+    def _family_relation(self, student=None, name='Family Contact (Delete)'):
+        family = self.env['res.partner'].create({'name': name, 'contact_type': 'family'})
+        self.env['res.partner.relation'].create({
+            'left_partner_id': family.id, 'type_id': self.relation_father.id,
+            'right_partner_id': (student or self.student).id,
+        })
+        return family
+
+    def _delete_from_student_form(self, student, family, user):
+        """What the trash button on the student's Contacts & Addresses tab does."""
+        line = student.relation_all_ids.filtered(lambda relation: relation.other_partner_id == family)
+        line.with_user(user).with_context(ems_remove_orphan_family=True).unlink()
+
+    def test_tutor_deletes_a_family_contact_of_its_tutee(self):
+        family = self._family_relation()
+        self._delete_from_student_form(self.student, family, self.tutor_user)
+        self.assertFalse(self.env['res.partner.relation'].search([('left_partner_id', '=', family.id)]))
+
+    def test_deleting_the_last_relation_removes_the_orphan_family_contact(self):
+        family = self._family_relation()
+        self._delete_from_student_form(self.student, family, self.tutor_user)
+        self.assertFalse(family.exists())
+
+    def test_family_contact_related_to_another_student_is_kept(self):
+        family = self._family_relation()
+        sibling = self.env['res.partner'].create({
+            'name': 'Relation Wizard Sibling', 'contact_type': 'student', 'student_id': next_student_id()})
+        self.env['res.partner.relation'].create({
+            'left_partner_id': family.id, 'type_id': self.relation_father.id, 'right_partner_id': sibling.id,
+        })
+        self._delete_from_student_form(self.student, family, self.tutor_user)
+        self.assertTrue(family.exists())
+        self.assertEqual(family.relation_all_ids.other_partner_id, sibling)
+
+    def test_family_contact_with_a_user_is_kept(self):
+        family = self._family_relation()
+        self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': family.name, 'login': 'test_family_user_relation_wizard', 'partner_id': family.id,
+            'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
+        })
+        self._delete_from_student_form(self.student, family, self.tutor_user)
+        self.assertTrue(family.exists())
+
+    def test_relation_deleted_outside_the_student_form_keeps_the_family_contact(self):
+        """Only the student form's trash button cleans up: a relation deleted from code (a
+        contact merge, an import) leaves the family contact alone."""
+        family = self._family_relation()
+        self.env['res.partner.relation'].search([('left_partner_id', '=', family.id)]).unlink()
+        self.assertTrue(family.exists())
+
+    def test_non_tutoring_teacher_cannot_delete_a_family_contact(self):
+        family = self._family_relation()
+        with self.assertRaises(AccessError):
+            self._delete_from_student_form(self.student, family, self.other_teacher_user)
+        self.assertTrue(family.exists())
+
+    def test_tutor_cannot_delete_a_family_contact_of_a_student_it_does_not_tutor(self):
+        other_student = self.env['res.partner'].create({
+            'name': 'Relation Wizard Other Student', 'contact_type': 'student', 'student_id': next_student_id()})
+        family = self._family_relation(other_student)
+        with self.assertRaises(AccessError):
+            self._delete_from_student_form(other_student, family, self.tutor_user)
+        self.assertTrue(family.exists())
+
+    def test_tutor_edits_a_relation_of_its_tutee(self):
+        family = self._family_relation()
+        relation = self.env['res.partner.relation'].search([('left_partner_id', '=', family.id)])
+        relation.with_user(self.tutor_user).write({'date_end': date(2030, 1, 1)})
+        self.assertEqual(relation.date_end, date(2030, 1, 1))
+
+    def test_secretary_deletes_a_family_contact_of_any_student(self):
+        family = self._family_relation()
+        self._delete_from_student_form(self.student, family, self.secretary_user)
+        self.assertFalse(family.exists())
+
+    def test_head_of_studies_deletes_a_family_contact_of_any_student(self):
+        family = self._family_relation()
+        self._delete_from_student_form(self.student, family, self.hos_user)
+        self.assertFalse(family.exists())

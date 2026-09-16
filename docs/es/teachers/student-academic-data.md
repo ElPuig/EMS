@@ -31,7 +31,19 @@ Con el rol de **Coordinador/a de orientación** o de **Coordinador/a de conviven
 - **Faltas de convivencia** — Convivencia.
 - **Ficha del alumno** — Comunidad Educativa → Alumnos, incluida la pestaña **Secretaría** (bonificaciones, exenciones y autorizaciones de matrícula).
 
-Todo es solo de lectura, y no incluye facturas ni pagos.
+Todo es solo de lectura, salvo las necesidades educativas especiales para Orientación (ver el apartado siguiente), y no incluye facturas ni pagos.
+
+---
+
+## Indicar las necesidades educativas especiales de un alumno (Orientación)
+
+Con el rol de **Coordinador/a de orientación**, indicas la tipología de necesidades educativas especiales (NEE) de cualquier alumno o solicitante del centro:
+
+1. Comunidad Educativa → Alumnos → *[abre el alumno]*.
+2. En la pestaña **Datos del estudiante**, en el campo **Necesidades educativas especiales**, elige **NEE-A** o **NEE-B**, o déjalo vacío si el alumno no tiene.
+3. Pulsa **Guardar**.
+
+En un solicitante, el campo está en la pestaña **Datos del solicitante**. El resto de la ficha sigue siendo de solo lectura.
 
 ---
 

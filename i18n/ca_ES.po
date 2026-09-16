@@ -2434,9 +2434,29 @@ msgid "City"
 msgstr "Ciutat"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__space_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__space_id
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__space_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__space_id model:ems.space_type,name:ems.space_type_classroom
 msgid "Classroom"
 msgstr "Aula"
+
+#. module: ems
+#: model:ems.space_type,name:ems.space_type_equipment
+msgid "Equipment"
+msgstr "Equipament"
+
+#. module: ems
+#: model:ems.space_type,name:ems.space_type_laboratory
+msgid "Laboratory"
+msgstr "Laboratori"
+
+#. module: ems
+#: model:ems.space_type,name:ems.space_type_office
+msgid "Office"
+msgstr "Despatx"
+
+#. module: ems
+#: model:ems.space_type,name:ems.space_type_workshop
+msgid "Workshop"
+msgstr "Taller"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__space_id
@@ -5143,7 +5163,7 @@ msgstr "Nota"
 #. odoo-javascript
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__notes model:ir.model.fields,field_description:ems.field_ems_attendance_justification__notes model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__notes model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__notes model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__notes model:ir.model.fields,field_description:ems.field_ems_content__notes model:ir.model.fields,field_description:ems.field_ems_criteria__notes model:ir.model.fields,field_description:ems.field_ems_group__notes model:ir.model.fields,field_description:ems.field_ems_level__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__notes model:ir.model.fields,field_description:ems.field_ems_outcome__notes model:ir.model.fields,field_description:ems.field_ems_role__notes model:ir.model.fields,field_description:ems.field_ems_student_benefit__notes model:ir.model.fields,field_description:ems.field_ems_study__notes model:ir.model.fields,field_description:ems.field_ems_subject__notes model:ir.model.fields,field_description:ems.field_ems_tracking__notes model:ir.model.fields,field_description:ems.field_ems_workgroup__notes model:ir.model.fields,field_description:ems.field_hr_employee__notes model:ir.model.fields,field_description:ems.field_hr_employee_base__notes model:ir.model.fields,field_description:ems.field_hr_employee_public__notes model_terms:ir.ui.view,arch_db:ems.attendance_report_session model_terms:ir.ui.view,arch_db:ems.level_view_form model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form model_terms:ir.ui.view,arch_db:ems.view_content_form model_terms:ir.ui.view,arch_db:ems.view_criteria_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form model_terms:ir.ui.view,arch_db:ems.view_outcome_form model_terms:ir.ui.view,arch_db:ems.view_role_form model_terms:ir.ui.view,arch_db:ems.view_study_form model_terms:ir.ui.view,arch_db:ems.view_subject_form model_terms:ir.ui.view,arch_db:ems.view_workgroup_form model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 msgid "Notes"
-msgstr "Notas"
+msgstr "Notes"
 
 #. module: ems
 #. odoo-python
@@ -5297,8 +5317,8 @@ msgstr "Només els administradors poden canviar l'estat de l'avaluació."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/enrollment.py:0
-msgid "Only admins and secretary staff can create manual enrollments."
-msgstr "Només els administradors i el personal de secretaria poden crear matrícules manuals."
+msgid "Only admins, secretary staff and Head of Studies can create manual enrollments."
+msgstr "Només els administradors, el personal de secretaria i la Cap d'Estudis poden crear matrícules manuals."
 
 #. module: ems
 #. odoo-python
@@ -6293,7 +6313,7 @@ msgstr "Desar"
 
 #. module: ems
 #. odoo-python
-#: model:ir.model.fields,field_description:ems.field_ems_group__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_base__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_public__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form model_terms:ir.ui.view,arch_db:ems.view_employee_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_notice_form model:ir.model.fields,field_description:ems.field_ems_guard_duty_board__board_attendance_ids model:ir.model.fields,field_description:ems.field_res_partner__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_contact_form model:ir.model.fields,field_description:ems.field_res_users__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_users_form_profile_ems_restrictions model_terms:ir.ui.view,arch_db:ems.portal_schedule code:addons/ems/controllers/portal_schedule.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_group__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_base__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_public__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form model_terms:ir.ui.view,arch_db:ems.view_employee_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_notice_form model:ir.model.fields,field_description:ems.field_ems_guard_duty_board__board_attendance_ids model:ir.model.fields,field_description:ems.field_res_partner__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_contact_form model:ir.model.fields,field_description:ems.field_res_users__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_users_form_profile_ems_restrictions model_terms:ir.ui.view,arch_db:ems.portal_schedule code:addons/ems/controllers/portal_schedule.py:0 model:ir.model.fields,field_description:ems.field_ems_space__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_space_form
 msgid "Schedule"
 msgstr "Horari"
 
@@ -7263,6 +7283,21 @@ msgid "The NUSS must be exactly 12 numeric digits."
 msgstr "El NUSS ha de tenir exactament 12 dígits numèrics."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+#: code:addons/ems/models/communications/limesurvey.py:0
+#: code:addons/ems/models/communications/notice.py:0
+#: code:addons/ems/models/settings/company.py:0
+msgid "%(email)s is not a valid email address."
+msgstr "%(email)s no és una adreça de correu vàlida."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "%(email)s is not a valid student email address."
+msgstr "%(email)s no és una adreça de correu de l'alumne vàlida."
+
+#. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_level_acronym_unique
 msgid "The acronym must be unique."
 msgstr ""
@@ -7995,9 +8030,14 @@ msgid "Work Locations"
 msgstr "Llocs de treball"
 
 #. module: ems
+#: model:hr.work.location,name:ems.work_location_main
+msgid "Main building"
+msgstr "Edifici principal"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_space__work_location_id model_terms:ir.ui.view,arch_db:ems.view_space_search
-msgid "Work location"
-msgstr "Lloc de treball"
+msgid "Location"
+msgstr "Ubicació"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__special_wpi_enrolled
@@ -8816,6 +8856,11 @@ msgstr "Decisió"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__is_approver
 msgid "Is approver"
 msgstr "És aprovador"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__is_check_out_requestable
+msgid "Check-out requestable"
+msgstr "Sortida sol·licitable"
 
 #. module: ems
 #. odoo-python
@@ -10645,6 +10690,11 @@ msgid "Student Schedule"
 msgstr "Horari de l'alumne"
 
 #. module: ems
+#: model:ir.actions.report,name:ems.action_report_space_schedule
+msgid "Classroom Schedule"
+msgstr "Horari de l'aula"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_group_schedule
 msgid "No schedule available for this group."
 msgstr "Aquest grup no té cap horari disponible."
@@ -10653,6 +10703,16 @@ msgstr "Aquest grup no té cap horari disponible."
 #: model_terms:ir.ui.view,arch_db:ems.report_student_schedule
 msgid "No schedule available for this student."
 msgstr "Aquest alumne no té cap horari disponible."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_space_schedule
+msgid "No schedule available for this classroom."
+msgstr "Aquesta aula no té cap horari disponible."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_space_schedule
+msgid "Location:"
+msgstr "Ubicació:"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
@@ -14272,3 +14332,76 @@ msgid ""
 "not merge them automatically: %(reason)s. Open Contacts, select them and use the Merge action "
 "by hand once you have decided which record should hold the data."
 msgstr "Els contactes %(ids)s comparteixen l'identificador d'estudiant (IDALU) %(student_id)s, que ha de ser únic. L'EMS no els ha pogut fusionar automàticament: %(reason)s. Obriu Contactes, seleccioneu-los i utilitzeu l'acció Fusiona manualment un cop hàgiu decidit quin registre ha de conservar les dades."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "As a member of the guidance team you can only change a student's special educational needs."
+msgstr "Com a membre de l'equip d'orientació, només pots canviar les necessitats educatives especials d'un alumne."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__special_needs_readonly model:ir.model.fields,field_description:ems.field_res_users__special_needs_readonly
+msgid "Special needs read-only"
+msgstr "Necessitats educatives especials només de lectura"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.action_google_credentials_download_bulk
+msgid "Download Google credentials"
+msgstr "Descarregar credencials de Google"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid ""
+"None of the selected students has Google credentials you can download."
+msgstr "Cap dels alumnes seleccionats té credencials de Google que puguis descarregar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/controllers/google_credentials.py:0
+msgid "Google credentials"
+msgstr "Credencials de Google"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "%s has no active Google account."
+msgstr "%s no té cap compte de Google actiu."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Google Workspace password reset: %(email)s%(dry)s. %(pdf)s%(mail)s."
+msgstr "Contrasenya de Google Workspace restablerta: %(email)s%(dry)s. %(pdf)s%(mail)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid ""
+"Google refused to reset the password of %(email)s. Check that the service "
+"account's admin role has the \"Reset password\" privilege. Error: %(err)s"
+msgstr "Google no ha permès restablir la contrasenya de %(email)s. Comproveu que el rol d'administrador del compte de servei té el privilegi \"Restablir la contrasenya\". Error: %(err)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Only administrators and the TAC team can reset a Google password."
+msgstr "Només els administradors i l'equip TAC poden restablir una contrasenya de Google."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Reset Google password"
+msgstr "Restablir la contrasenya de Google"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "The Google Workspace integration is not enabled."
+msgstr "La integració amb Google Workspace no està activada."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"This gives the student's Google account a new password: the current one "
+"stops working and new credentials are generated. Continue?"
+msgstr "Això assigna una contrasenya nova al compte de Google de l'alumne: l'actual deixa de funcionar i es generen credencials noves. Voleu continuar?"

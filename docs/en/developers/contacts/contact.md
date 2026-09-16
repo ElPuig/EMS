@@ -231,6 +231,26 @@ Covered by `tests/test_contact.py::TestContactCreateWithStudy` (auto-pick, templ
 
 The Spanish Social Security number (NUSS) must be exactly 12 numeric digits (`re.fullmatch(r'\d{12}', nuss)`) when set.
 
+### `_check_email_format` (`@api.constrains('email', 'student_email')`, issue #467)
+
+Both `email` (the native `res.partner` field, used as the personal/family address) and
+`student_email` (the corporate one) must be a single well-formed address when set, validated
+with Odoo's own `odoo.tools.mail.email_normalize()` (returns `False` for anything that isn't a
+single valid address) rather than a hand-rolled regex. Empty/`False` is allowed on both — this
+is a format check, not a "required" one.
+
+Added after an Amazon SES delivery got flagged as suspected spam, traced back to a phone number
+stored in an email field. The same `email_normalize()`-based check is also applied, independently,
+to `ems.notice.line.email` and `ems.limesurvey_recipient.email` (both manually editable in their
+own screens before a send — see `docs/en/developers/communications/notice.md` and
+`limesurvey.md`) and to `res.company.secretariat_email`. Validating on `res.partner` itself also
+covers every CSV import wizard that creates/updates a contact (`student_import_wizard.py`,
+`applicant_import_wizard.py`, `student_update_wizard.py`) and the "Add family contact" wizard
+(`ems.contact.relation.wizard`), since they all funnel into `res.partner.create()`/`write()` and
+`@api.constrains` runs regardless of `sudo()`. A malformed value in an import source row now
+fails just that row (already caught and logged per-row by the wizard's own
+try/except) instead of being silently imported.
+
 ### Student ID (IDALU): unique, and required for new students (issue #460)
 
 `student_id` is what identifies a student-lifecycle contact (`STUDENT_LIFECYCLE_TYPES` in
@@ -325,6 +345,24 @@ The three roles `action_save()`'s own guard clears (`_get_read_only_user()`: aca
 `_onchange_student_id` pre-fills the address fields from the student (client-side convenience only — `action_open_relation_wizard` already seeds them server-side when the wizard is created, since it's opened with `target: 'new'` on an already-saved record, not a blank `new()` form).
 
 ---
+
+## Deleting a family contact (issue #470)
+
+The trash button on the student's "Contacts & Addresses" list calls `unlink()` on the
+`res.partner.relation.all` line, which `partner_multi_relation` delegates to the underlying
+`res.partner.relation` **with the user's own rights** - no `sudo()`, unlike the "Add contact"
+wizard. So deleting needs real access on `res.partner.relation`, which the OCA module only grants
+to `base.group_partner_manager` (secretary and Head of Studies imply it; tutors do not).
+
+| Piece | What it does |
+|-------|--------------|
+| `access_res_partner_relation_teacher` (`ir.model.access.csv`) | Write/create/unlink on `res.partner.relation` for `ems.group_teacher`; read was already granted to every internal user. |
+| `rule_partner_relation_tutor` (`security/rules/contacts.xml`) | Narrows that to relations where either side is a student the user tutors (`left_partner_id`/`right_partner_id.tutor_id.user_id`). `perm_read` off, so reading stays unrestricted. |
+| `rule_partner_relation_contact_manager` | `[]` for `base.group_partner_manager`. Needed because Head of Studies and academic admin are also in `ems.group_teacher`: record rules of a user's groups are OR-ed, so without it the tutor rule alone would narrow them to their own tutees. |
+| `EmsPartnerRelation.unlink()` (`models/contacts/contact_relation.py`) | With `ems_remove_orphan_family` in the context (set only by that trash button), after deleting the relation it removes, as superuser, every `family` contact left with no relation and no user. If the contact cannot be deleted (something else still references it), it is archived instead. Any other deletion of a relation (a merge, an import, code) leaves the contact alone. |
+
+Giving tutors `base.group_partner_manager` instead was ruled out: no teacher record rule
+restricts `unlink` on `res.partner`, so it would let every tutor delete any contact in the centre.
 
 ## Google Workspace
 

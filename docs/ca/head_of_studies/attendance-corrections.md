@@ -17,7 +17,11 @@ Si t'han enviat una sol·licitud (la veuràs com a activitat pendent, i també a
 1. Obre la sol·licitud — des de l'activitat, des de **Fitxatges dels empleats → Assistència → Sol·licituds de correcció**, o des del botó **Correccions** del propi fitxatge.
 
    > La llista mostra només les sol·licituds **Pendents** per defecte, perquè no calgui repassar les que ja tenen una decisió. Treu el filtre **Pendent** (o canvia al filtre **Acceptada**/**Rebutjada**) per veure la resta.
+
+   ![Llistat de sol·licituds de correcció, amb l'entrada/sortida sol·licitada i el seu estat](../../assets/head_of_studies/hos-attendance-correction-list.png)
 2. Revisa l'hora original davant de la sol·licitada, i el motiu indicat.
+
+   > Una sol·licitud que només mostra una hora d'entrada sol·licitada, sense sortida, és normal quan el professor/a encara estava fitxat/ada i dins del seu horari laboral en el moment de demanar la correcció — no és una sol·licitud incompleta.
 3. Fes clic a **Acceptar** per aplicar la correcció al fitxatge, o a **Rebutjar** per deixar-lo sense canvis (o restaurar-lo, si estàs desfent una acceptació anterior). Pots deixar una nota opcional per al professor/a.
 4. El professor o professora que va fer la sol·licitud rep una notificació automàtica amb la teva decisió.
 

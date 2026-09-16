@@ -70,6 +70,31 @@ registry.category("web_tour.tours").add("ems_attendance_justification_open_and_e
     ],
 });
 
+// Issue #469: a tutor opening a justification whose affected sessions were taught by other
+// teachers - sessions the teacher record rules do not let the tutor read. Any AccessError
+// raised while the form loads its data is logged to the console, which fails the tour.
+registry.category("web_tour.tours").add("ems_attendance_justification_tutor_open", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_justification_tree",
+    steps: () => [
+        { trigger: ".o_list_view", content: "Justifications list loaded" },
+        {
+            trigger: ".o_list_view .o_data_row td:contains('Attendance Justification Tutor Tour Student')",
+            content: "Open the justification",
+            run: "click",
+        },
+        {
+            trigger: ".o_notebook .nav-link:contains('Affected sessions')",
+            content: "Open Affected sessions tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='attendance_session_line_ids'] .o_data_row:contains('Attendance Justification Tour Space')",
+            content: "The other teacher's session is listed by name",
+        },
+    ],
+});
+
 // Creating a brand-new justification through the UI: exercises widget="daterange" (confirmed
 // working the same way as ems.attendance_template's own daterange fields, see
 // attendance_template_tour.js - single combined-range widget here though, since the form only

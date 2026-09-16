@@ -40,8 +40,8 @@ class EmsEnrollment(models.Model):
         # opened from the UI never carries it, a placement running on their behalf always does.
         if not self.env.su and "user_is_admin" in fields_list:
             # This happens when opening the form, when storing fires again but field per field
-            if not (res["user_is_admin"] or self.get_user_is_secretary()):
-                raise UserError(_("Only admins and secretary staff can create manual enrollments."))
+            if not (res["user_is_admin"] or self.get_user_is_secretary() or self.get_user_is_head_of_studies()):
+                raise UserError(_("Only admins, secretary staff and Head of Studies can create manual enrollments."))
         return res
 
     @api.depends('student_id')

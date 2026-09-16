@@ -334,6 +334,32 @@ screenshot (`/tmp/odoo_tests/ems/screenshots/`) is what actually revealed it, no
   (button labels, status/selection names) that gets translated out from under a hardcoded
   English selector.
 
+**Time-relative fixtures compared against a local-calendar-day cutoff:** this codebase
+deliberately builds test fixtures relative to real `datetime.now(timezone.utc)` rather than
+using a time-freezing library (no `freezegun` dependency — see `tests/test_attendance_correction.py`'s
+own `cls.today`/`cls.weekday` comment), specifically so fixtures "stay correct regardless of when
+the suite actually runs." That holds for picking a weekday/hour-of-day, but **not** when the
+fixture is also compared against a value scoped to a single **local calendar day** — e.g. a
+`resource.calendar.attendance` slot's `hour_to`, read via `hr.attendance._get_last_working_hour()`
+(`ems.attendance_correction.is_check_out_requestable`, `_auto_close_attendance()`). A `check_in`
+built as `now - 2h` and a slot ending near local midnight (`hour_to=23.9`, "spans almost the whole
+day") looks maximally safe, but isn't: if the *later* re-read of "now" (during the actual
+compute, or partway through a tour's browser interaction) lands in the roughly two-hour window
+after local midnight while `check_in` itself is still "yesterday" locally, the code correctly
+judges yesterday's schedule as already over — failing a test that expected it to still be open.
+Found 2026-09-16 (three tests around issue #479 all failed together when the suite happened to
+run just after local midnight, Europe/Madrid). Widening the margin doesn't fix this — it only
+narrows the flaky window, it can't remove it, since any local-day-scoped end time is eventually in
+the past relative to *some* later real-time read. **How to apply:** when a fixture's correctness
+depends on "now" staying before/after a local-calendar-day-scoped cutoff, freeze the reference
+moment instead: `unittest.mock.patch.object(fields.Datetime, 'now', return_value=frozen_now)`
+(stdlib `unittest.mock`, not `freezegun` — the "no freezegun" stance is about that specific
+package, not about mocking `now()` at all) wrapping the compute/`create()`/`start_tour()` call,
+with `check_in` derived from that same `frozen_now` rather than a second independent real-time
+read. See `tests/test_attendance_correction.py`/`tests/test_attendance_correction_request_tour.py`
+for the pattern. Fixtures that only pick a weekday/hour-of-day (not compared against a local-day
+cutoff) don't need this — real "now" is still the right choice there, per the existing convention.
+
 **Per-role smoke tours (`tests/test_role_smoke_<role>_tour.py`, added 2026-09-11, issue #434
 follow-up):** in addition to feature-specific tours, EMS has one generic "crawler" tour per role
 that logs in as that role, fetches the exact menu tree the real webclient would (`ir.ui.menu`
@@ -436,7 +462,52 @@ illustrate. Before saving any screenshot into `docs/assets/`:
   (read the image back before treating the task as done), or tell the developer exactly which file
   and region needs redaction and let them decide, rather than publishing it as-is.
 This applies regardless of source: a tour-driven capture, a manual `Read` of a screenshot file, or
-anything the developer hands you directly.
+anything the developer hands you directly. **When in doubt whether a screenshot still shows some
+personal data — a crop or blur that might not fully cover it, a background element you're not
+sure about — don't guess either way (neither "probably fine" nor discarding it yourself without
+saying anything): ask the developer to look and decide.** This is the same rule as the bullet
+above, stated again because it is the one most likely to get skipped under time pressure.
+
+**How to actually take a screenshot (2026-09-16) — reuse the project's own mechanism, never a
+fresh Playwright install or a hand-minted session.** Both a permanent doc screenshot (this
+section) and a throwaway self-verification screenshot during development (see "Self-verify UI
+before asking user" pattern) use the exact same mechanism: `tests/test_docs_screenshots.py`'s
+`ChromeBrowser` (from `odoo.tests.common`) + its `_capture` helper — a `HttpCase`-based test that
+authenticates as a fixture user, navigates to a URL, waits for a CSS selector, and clips a
+screenshot of just that element to a PNG. This already exists and is proven safe; do not install
+Playwright/chromium-cli, download a browser, or mint an Odoo session cookie by hand via `odoo
+shell` — a session spent real effort re-inventing this on 2026-09-16 before the developer pointed
+out the existing mechanism. It is also the *only* form a screenshot may take here: never attempt
+anything that could capture the developer's own real desktop/screen — this container has no view
+onto it, the developer is doing other things concurrently, and a past incident captured real
+private conversations that way. `ChromeBrowser` never goes near that risk in the first place: it
+only ever drives its own headless Chrome against the local Odoo test server, with fixtures created
+inside a rolled-back test transaction (which is also what keeps a *doc* screenshot from showing
+real data in the first place — see the personal-data rule above; fabricated names off a
+`create_role_user`/`create_role_employee` (`tests/common.py`) fixture, never real production rows).
+- **Permanent doc screenshot:** add a new `_capture(...)` call to `test_docs_screenshots.py`
+  itself (or a new `TestDocsScreenshots`-style class if the fixtures are unrelated), following its
+  own fixture-building conventions. Output lands in `/tmp/ems_doc_screenshots` (override via
+  `EMS_SCREENSHOT_DIR`); copy the PNG into `docs/assets/` by hand afterward (the test runs as the
+  `odoo` user, which has no write access to the repo).
+- **Throwaway self-verification during dev:** write a temporary `tests/test_<topic>_verify_tmp.py`
+  copying the same `ChromeBrowser`/`_capture` pattern, run it, `Read` the resulting PNG to actually
+  look at it, then delete both the file and its screenshots once you're done — it never becomes a
+  doc asset and was never meant to.
+- **Either way, add `from . import <file>` to `tests/__init__.py`** or Odoo's test loader never
+  discovers the class — it fails silently ("0 tests", no error), which is easy to mistake for a
+  passing run.
+- **Gotcha:** a class tagged `-standard` (as `test_docs_screenshots.py` is) can't be run via the
+  plain `./test.sh ClassName` shorthand — Odoo's tag selector implicitly requires the `standard`
+  tag for a bare class-name selector, so a `-standard` class silently matches "0 tests" that way
+  (confirmed 2026-09-16; `test_docs_screenshots.py`'s own docstring instruction to run it as
+  `./test.sh '/ems:TestDocsScreenshots'` does not actually work in this Odoo build). For a
+  throwaway verification file, simplest fix is to just not tag it `-standard` (plain
+  `@tagged('post_install', '-at_install')`, like the tour test classes). If `-standard` must stay,
+  the raw `--test-tags='*/ems:ClassName'` invocation is needed instead (the `*` bypasses the
+  implicit `standard` requirement) — that can't go through `test.sh`'s bare-classname shorthand, so
+  call `odoo -d ems -u ems --test-enable --test-tags='*/ems:ClassName' --stop-after-init -c
+  /etc/odoo/odoo.conf` directly, mirroring what `test.sh` itself runs.
 
 **Documentation describes current behavior, not history (2026-09-15).** Both technical
 (`docs/en/developers/`) and user (`docs/{en,ca,es}/<role>/`) documentation must describe the
@@ -859,13 +930,25 @@ CI pieces work together:
 
 ## Staff newsletter email
 
-Whenever the developer asks directly for a "correo"/"boletín de novedades", **or right after the
-PR changelog text has been prepared/delivered**, send a formatted HTML newsletter email to
-**ems@elpuig.xeill.net** summarizing the same changes for a general staff audience — Catalan, no
-tecnicismes, condensed and friendly, not a translation of the English PR body. Distinct from the
-PR changelog file: that stays English/technical for GitHub; this email is Catalan/audience-facing,
-for the developer to review and forward to staff themselves — this mechanism never broadcasts
-directly to students/families/staff itself.
+Whenever the developer asks directly for a "correo"/"boletín de novedades", send a formatted HTML
+newsletter email to **ems@elpuig.xeill.net** summarizing the same changes for a general staff
+audience — Catalan, no tecnicismes, condensed and friendly, not a translation of the English PR
+body. Distinct from the PR changelog file: that stays English/technical for GitHub; this email is
+Catalan/audience-facing, for the developer to review and forward to staff themselves — this
+mechanism never broadcasts directly to students/families/staff itself.
+
+**Corrected 2026-09-15 — offer, don't auto-send, right after the PR changelog text.** This used to
+say to send the email automatically as soon as the PR changelog text was prepared/delivered. Real
+incident (PR #462, branch `v18.0.0.25.0`): the changelog text was delivered and the newsletter
+offer never came — the developer had to point it out afterward ("Como no te lo he pedido, deberías
+haberme ofrecido enviar el correo con las novedades... es importante"). Sending a real email (even
+to this fixed, developer-controlled address) is an externally-visible action — it should be
+offered and confirmed, not fired automatically, matching this project's general standing caution
+around actions with real-world effects (see "Executing actions with care" in the surrounding
+agent instructions). **How to apply:** right after delivering PR changelog text (see "PR
+changelog" below), if the newsletter hasn't already been sent for that PR, **offer** to send it —
+a short question, not silence and not an automatic send. A direct request for the "correo"/
+"boletín" at any point is already a request — send it right away without needing to offer first.
 
 **Recipient is always the fixed address above, never one read from the database** — same
 principle as this file's "Email safety in tests": an address must be explicit and
@@ -883,10 +966,15 @@ becomes an `ir.mail_server`-relayed `mail.mail`'s `body_html`):
   accent border (`background:#eef4fb; border-left:4px solid #4a86e8`), not a plain bold sentence.
 - Manual links as a descriptive title, never a raw URL: `📘 Manual: <what the reader will find>`,
   hyperlinked. **Every link must point at a doc file confirmed to exist under `docs/ca/` first**
-  (`ls`/`find` it — never construct a URL from a guessed filename pattern); if a feature's
-  Close-step user doc is still pending, link nothing for that item rather than a guessed path.
-- Closing with a link to the full docs index (`https://docs.ems.elpuig.xeill.net/ca/`) when the
-  content spans more than one role's manuals.
+  (`ls`/`find` it); if a feature's Close-step user doc is still pending, link nothing for that item
+  rather than a guessed path. **The confirmed URL pattern** (verified live 2026-09-16, after a
+  first send guessed a mkdocs-style trailing slash and got it wrong — caught by the developer, not
+  by anything in this file): a repo doc file `docs/ca/<path>.md` is published at
+  `https://docs.ems.elpuig.xeill.net/ca/<path>.html` — **`.html`, not a trailing slash**. The docs
+  *index* is the one exception (see below) — it serves its directory's `index.html` implicitly and
+  needs no filename at all.
+- Closing with a link to the full docs index (`https://docs.ems.elpuig.xeill.net/ca/` — no filename,
+  unlike an individual page) when the content spans more than one role's manuals.
 - Friendly, informal closing ("Si trobeu res que no funcioni com esperàveu, digueu-nos-ho i ho
   mirem.") and sign-off ("Una salutació, Equip EMS - Institut Puig Castellar").
 - Do **not** add the centre's logo to the body — what appears next to the sender name in a

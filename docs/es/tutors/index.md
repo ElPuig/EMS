@@ -20,6 +20,9 @@ Esta sección contiene los manuales para los **tutores de grupo**.
 | [Autorizaciones: enviarlas a vuestro alumnado y hacer el seguimiento](authorizations.md) | Enviar autorizaciones del catálogo a vuestro alumnado o a vuestros grupos y hacer el seguimiento de las respuestas |
 | [Cómo gestionar el acceso al portal](acces-portal.md) | Dar de alta, dar de baja o reenviar las invitaciones de acceso al portal para alumnos y familias |
 | [Strikes: consultar los registros de tu grupo](strike.md) | Consultar los strikes puestos a tus alumnos tutorizados y los que has puesto tú mismo/a |
+| [Gestionar los contactos familiares de tu alumnado](family-contacts.md) | Añadir y quitar los familiares (padre, madre, tutor legal…) de los alumnos que tutorizas |
+| [Consultar las credenciales de Google de tu alumnado](google-credentials.md) | Descargar el PDF con el usuario y la contraseña de la cuenta de Google de los alumnos que tutorizas, uno a uno o de varios alumnos a la vez en un ZIP |
+| [Justificar las faltas de tu alumnado](attendance-justifications.md) | Registrar un justificante (por ejemplo, un informe médico) para que las faltas de un alumno tutorizado pasen a falta justificada, y adjuntar el documento |
 | [Informes de asistencia](attendance-reports.md) | Imprimir los 3 informes PDF de asistencia (por grupo/alumno/asignatura) y explorar los datos tú mismo con la pantalla de Análisis de asistencia |
 | [El horario semanal de un grupo](../admin/group-schedule.md) | Consultar el horario agregado de un grupo (asignaturas, docentes, aulas, patios) y exportarlo a PDF |
 | [El horario semanal de un alumno](../admin/student-schedule.md) | Consultar el horario propio de uno de tus tutorandos (asignaturas, docentes, aulas, patios), incluyendo clases solapadas, y exportarlo a PDF |

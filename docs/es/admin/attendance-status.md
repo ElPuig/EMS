@@ -12,6 +12,8 @@
 
 Cada botón que un profesor puede pulsar para un alumno en la vista de pasar lista (Asistió, Retraso leve, Retraso grave, Falta, Falta justificada...) proviene de una lista configurable en **Asistencia → Configuración → Sesiones → Estados**, en lugar de estar fijada en el código de la aplicación. Puedes añadir uno nuevo, reordenarlos o retirar uno que el centro ya no use.
 
+![Listado de estados de asistencia, con categoría, notificación a la familia y color de cada estado](../../assets/admin/admin-attendance-status-list.png)
+
 ---
 
 ## Gestionar los estados

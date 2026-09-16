@@ -20,6 +20,8 @@ role, **Communications → Notices** opens with a **"Show only mine"** filter al
 (visible as a tag in the search bar), so day to day you comfortably work with just the notices
 **you personally created** — the same experience as everyone else.
 
+![Notices list, filtered to the notices created by the current user](../../assets/head_of_studies/hos-notice-only-mine.png)
+
 If you ever need to check what a colleague holding the same role has sent — for supervision —
 click the **✕** on the "Show only mine" tag in the search bar (or open the search panel and
 untick it) to see every notice centre-wide. You can still only **edit or delete your own**;

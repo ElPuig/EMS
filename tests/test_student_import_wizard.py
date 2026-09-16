@@ -606,6 +606,35 @@ class TestStudentImportWizard(TransactionCase):
         self.assertIn('Students created:', wizard.result_html)
         self.assertTrue(wizard.log_file)
 
+    def test_action_import_invalid_email_fails_only_that_row(self):
+        # Regression (issue #467): a malformed email (e.g. a phone number ending up in the
+        # wrong column) must not silently import - res.partner's own _check_email_format
+        # constraint now rejects it - but it also must not abort the rest of the file: the
+        # existing per-row try/except in action_import() already isolates one row's failure.
+        import openpyxl
+        headers = ["Identificador de l'alumne/a", 'Nom', 'Correu electrònic']
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.append(headers)
+        ws.append(['9100010', 'Good Email', 'good.email@example.com'])
+        ws.append(['9100011', 'Bad Email', '612345678'])
+        buf = io.BytesIO()
+        wb.save(buf)
+
+        wizard = self.env['ems.student_import_wizard'].create({
+            'file': base64.b64encode(buf.getvalue()), 'file_name': 'mixed_emails.xlsx',
+        })
+        wizard.action_import()
+
+        good_student = self.env['res.partner'].search([('student_id', '=', '9100010')])
+        self.assertTrue(good_student)
+        self.assertEqual(good_student.email, 'good.email@example.com')
+
+        bad_student = self.env['res.partner'].search([('student_id', '=', '9100011')])
+        self.assertFalse(bad_student)
+        self.assertIn('Errors (1):', wizard.result_html)
+        self.assertIn('is not a valid email address', wizard.result_html)
+
     def test_action_import_raises_when_student_id_column_is_absent(self):
         from odoo.exceptions import UserError
         wizard = self.env['ems.student_import_wizard'].create({

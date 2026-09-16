@@ -249,6 +249,7 @@ access_ems_study_portal,ems.study.portal,model_ems_study,base.group_portal,1,0,0
 access_mail_message_portal,mail.message.portal,mail.model_mail_message,base.group_portal,1,0,0,0
 access_res_partner_relation_portal,res.partner.relation.portal,partner_multi_relation.model_res_partner_relation,base.group_portal,1,0,0,0
 access_res_partner_relation_all_portal,res.partner.relation.all.portal,partner_multi_relation.model_res_partner_relation_all,base.group_portal,1,0,0,0
+ems.access_res_partner_relation_teacher,ems.access_res_partner_relation_teacher,partner_multi_relation.model_res_partner_relation,ems.group_teacher,1,1,1,1
 
 ems.access_ems_limesurvey_block_quality_admin,ems.access_ems_limesurvey_block_quality_admin,ems.model_ems_limesurvey_block,ems.group_quality_admin,1,1,1,1
 ems.access_ems_limesurvey_header_quality_admin,ems.access_ems_limesurvey_header_quality_admin,ems.model_ems_limesurvey_header,ems.group_quality_admin,1,1,1,1
@@ -311,6 +312,8 @@ ems.access_ems_withdrawal_wizard_secretary,ems.access_ems_withdrawal_wizard_secr
 ems.access_ems_withdrawal_wizard_line_admin,ems.access_ems_withdrawal_wizard_line_admin,ems.model_ems_withdrawal_wizard_line,ems.group_academic_admin,1,1,1,1
 ems.access_ems_withdrawal_wizard_line_secretary,ems.access_ems_withdrawal_wizard_line_secretary,ems.model_ems_withdrawal_wizard_line,ems.group_secretary,1,1,1,1
 ems.access_ems_student_document_secretary,ems.access_ems_student_document_secretary,ems.model_ems_student_document,ems.group_secretary,1,1,1,1
+ems.access_ems_student_document_tutor,ems.access_ems_student_document_tutor,ems.model_ems_student_document,ems.group_tutor,1,0,0,0
+ems.access_ems_student_document_tac,ems.access_ems_student_document_tac,ems.model_ems_student_document,ems.group_tac,1,0,0,0
 ems.access_ems_student_document_portal,ems.access_ems_student_document_portal,ems.model_ems_student_document,base.group_portal,1,0,0,0
 ems.access_account_move_teacher,ems.access_account_move_teacher,account.model_account_move,ems.group_teacher,1,0,0,0
 ems.access_account_move_line_teacher,ems.access_account_move_line_teacher,account.model_account_move_line,ems.group_teacher,1,0,0,0
@@ -320,8 +323,9 @@ ems.access_ems_strike_reason_teacher,ems.access_ems_strike_reason_teacher,ems.mo
 ems.access_ems_strike_reason_secretary,ems.access_ems_strike_reason_secretary,ems.model_ems_strike_reason,ems.group_secretary,1,0,0,0
 
 ems.access_ems_strike_admin,ems.access_ems_strike_admin,ems.model_ems_strike,ems.group_academic_admin,1,1,1,1
+ems.access_ems_strike_head_of_studies,ems.access_ems_strike_head_of_studies,ems.model_ems_strike,ems.group_head_of_studies,1,0,0,1
 ems.access_ems_strike_teacher,ems.access_ems_strike_teacher,ems.model_ems_strike,ems.group_teacher,1,0,1,0
-ems.access_ems_strike_coexistence,ems.access_ems_strike_coexistence,ems.model_ems_strike,ems.group_coexistence,1,0,0,0
+ems.access_ems_strike_coexistence,ems.access_ems_strike_coexistence,ems.model_ems_strike,ems.group_coexistence,1,0,0,1
 ems.access_ems_strike_secretary,ems.access_ems_strike_secretary,ems.model_ems_strike,ems.group_secretary,1,0,0,0
 ems.access_mail_activity_type_secretary_admin,ems.access_mail_activity_type_secretary_admin,mail.model_mail_activity_type,ems.group_secretary_admin,1,1,0,0
 ems.access_ems_course_transition_wizard_admin,ems.access_ems_course_transition_wizard_admin,ems.model_ems_course_transition_wizard,ems.group_academic_admin,1,1,1,1

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
+from odoo.tools import email_normalize
 
 class EmsNotice(models.Model):
     _name = "ems.notice"
@@ -280,6 +281,12 @@ class EmsNoticeLine(models.Model):
         for line in self:
             job_state = line.notification_id.state if line.notification_id else 'draft'
             line.display_status = 'draft' if job_state == 'cancelled' else job_state
+
+    @api.constrains('email')
+    def _check_email_format(self):
+        for line in self:
+            if not email_normalize(line.email):
+                raise ValidationError(_("%(email)s is not a valid email address.", email=line.email))
 
     def send_notification(self):
         self.ensure_one()

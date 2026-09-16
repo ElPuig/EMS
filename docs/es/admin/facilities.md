@@ -4,9 +4,9 @@
 
 # Espacios y tipos de espacio
 
-Los espacios son las aulas físicas del centro (aulas, laboratorios, talleres...), cada uno asignado a un **Tipo de espacio** y una **Ubicación de trabajo** (sede/edificio). Se usan en toda la aplicación allí donde una sesión, grupo, acta u horario necesita una sala.
+Los espacios son las aulas físicas del centro (aulas, laboratorios, talleres...), cada uno asignado a un **Tipo** y una **Ubicación** (sede/edificio). Se usan en toda la aplicación allí donde una sesión, grupo, acta u horario necesita una sala. Cada espacio tiene también su propio **horario de ocupación** semanal — consulta [El horario de ocupación de un aula](space-schedule.md).
 
-**Rol requerido:** Administrador
+**Rol requerido:** Administrador (Profesorado y Secretaría pueden ver un espacio, pero no crearlo, editarlo ni eliminarlo).
 
 ---
 
@@ -27,13 +27,15 @@ Los espacios son las aulas físicas del centro (aulas, laboratorios, talleres...
 
 ## Crear un espacio
 
-1. Haz clic en **Nuevo**.
+1. Haz clic en **Nuevo**. El **Tipo** y la **Ubicación** ya vienen precargados con "Aula" y "Edificio principal" — cámbialos si este espacio es diferente.
 2. Rellena:
-   - **Código** *(obligatorio)*: debe ser único dentro de su Ubicación de trabajo — el mismo código se puede reutilizar en sedes diferentes.
+   - **Código** *(obligatorio)*: debe ser único dentro de su Ubicación — el mismo código se puede reutilizar en sedes diferentes.
    - **Nombre** *(obligatorio)*.
    - **Tipo** *(obligatorio)*: elige un Tipo de espacio.
-   - **Ubicación de trabajo** *(obligatorio)*: a qué sede/edificio pertenece este espacio.
+   - **Ubicación** *(obligatorio)*: a qué sede/edificio pertenece este espacio.
 3. Haz clic en **Guardar**.
+
+Una vez creado el espacio, están disponibles una pestaña **Horario** y un chat (para notas internas, mensajes y actividades).
 
 ---
 

@@ -252,6 +252,14 @@ class TestEnrollment(TransactionCase):
         # Must not raise UserError, unlike a plain teacher (test_default_get_blocks_non_admin).
         self.env['ems.enrollment'].with_user(secretary_user).default_get(['user_is_admin'])
 
+    def test_default_get_allows_head_of_studies(self):
+        hos_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Head of Studies (Enrollment)', 'login': 'test_hos_enrollment',
+            'groups_id': [(4, self.env.ref('ems.group_head_of_studies').id)],
+        })
+        # Must not raise UserError, unlike a plain teacher (test_default_get_blocks_non_admin).
+        self.env['ems.enrollment'].with_user(hos_user).default_get(['user_is_admin'])
+
     def test_default_get_blocks_non_admin_message_is_translated(self):
         # Verifies the .po translation actually loaded and applies at runtime - a msgid
         # existing in the .po file is necessary but not sufficient (see CLAUDE.md's i18n
@@ -262,7 +270,7 @@ class TestEnrollment(TransactionCase):
         })
         with self.assertRaises(UserError) as cm:
             self.env['ems.enrollment'].with_user(teacher_user).with_context(lang='es_ES').default_get(['user_is_admin'])
-        self.assertIn('Solo los administradores y el personal de secretaría', str(cm.exception))
+        self.assertIn('Solo los administradores, el personal de secretaría y la Jefatura de Estudios', str(cm.exception))
 
     def test_secretary_can_create_enrollment_manually(self):
         secretary_user = self.env['res.users'].with_context(no_reset_password=True).create({
@@ -273,6 +281,41 @@ class TestEnrollment(TransactionCase):
             'student_id': self.other_student.id, 'group_id': self.group.id, 'subject_id': self.subject.id,
         })
         self.assertTrue(enrollment.id)
+
+    # -- record rules: head of studies (issue #466) --
+
+    def test_head_of_studies_can_create_enrollment_for_non_tutored_student(self):
+        hos_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test HoS Create (Enrollment)', 'login': 'test_hos_create_enrollment',
+            'groups_id': [(4, self.env.ref('ems.group_head_of_studies').id)],
+        })
+        # other_student has no tutor at all, let alone hos_user - proves the access is
+        # centre-wide, not limited to the HoS's own tutorands (rule_enrollment_tutor's scope).
+        enrollment = self.env['ems.enrollment'].with_user(hos_user).create({
+            'student_id': self.other_student.id, 'group_id': self.group.id, 'subject_id': self.subject.id,
+        })
+        self.assertTrue(enrollment.id)
+
+    def test_head_of_studies_can_write_enrollment_for_non_tutored_student(self):
+        # Reproduces issue #466: a Head/Deputy Head of Studies editing an enrollment from the
+        # student's own form for a student they don't personally tutor.
+        other_group = self.other_group
+        enrollment = self._create_enrollment(student=self.other_student)
+        hos_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test HoS Write (Enrollment)', 'login': 'test_hos_write_enrollment',
+            'groups_id': [(4, self.env.ref('ems.group_head_of_studies').id)],
+        })
+        enrollment.with_user(hos_user).write({'group_id': other_group.id})
+        self.assertEqual(enrollment.group_id, other_group)
+
+    def test_head_of_studies_can_unlink_enrollment_for_non_tutored_student(self):
+        enrollment = self._create_enrollment(student=self.other_student)
+        hos_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test HoS Unlink (Enrollment)', 'login': 'test_hos_unlink_enrollment',
+            'groups_id': [(4, self.env.ref('ems.group_head_of_studies').id)],
+        })
+        enrollment.with_user(hos_user).unlink()
+        self.assertFalse(enrollment.exists())
 
     # -- inuse_subject_ids --
 

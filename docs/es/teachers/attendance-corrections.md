@@ -27,6 +27,8 @@ Si una entrada o salida se ha registrado con una hora incorrecta (has olvidado f
 1. Abre el fichaje con la hora incorrecta.
 2. Haz clic en **Solicitar corrección** en la cabecera.
 3. Se abre un formulario con la **hora de entrada** y/o **salida** ya rellenadas con el valor actual — solo necesitas cambiar la que esté mal. Recuerda que solo se puede corregir la hora del día, no la fecha.
+
+   > Si todavía estás fichado/a (no has fichado salida) y sigues dentro de tu horario laboral de hoy, solo se muestra el campo de **hora de entrada** — todavía no has salido, así que no hay nada que corregir en la salida. El campo de **salida** aparece cuando tu jornada laboral de ese día ya ha terminado.
 4. Explica el motivo en el campo **Motivo**.
 5. Haz clic en **Guardar**. La solicitud queda **Pendiente**.
 

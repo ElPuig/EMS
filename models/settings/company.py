@@ -2,7 +2,7 @@
 
 import logging
 
-from odoo.tools import config
+from odoo.tools import config, email_normalize
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 from cryptography.fernet import Fernet
@@ -105,6 +105,13 @@ class ems_company(models.Model):
     google_ws_sa_json           = fields.Text(compute='_compute_google_ws_sa_json',
                                               inverse='_inverse_google_ws_sa_json', store=False)
     google_ws_sa_json_encrypted = fields.Char(copy=False)
+
+    @api.constrains('secretariat_email')
+    def _check_secretariat_email_format(self):
+        for company in self:
+            if company.secretariat_email and not email_normalize(company.secretariat_email):
+                raise ValidationError(_(
+                    "%(email)s is not a valid email address.", email=company.secretariat_email))
 
     def get_current_course_or_raise(self):
         """The configured "Current course" (current_course_id), or a friendly ValidationError

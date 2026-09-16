@@ -39,6 +39,8 @@ Ningú aprova la seva pròpia absència: la d'un responsable d'àrea la resol Di
 
 Hi tens les sol·licituds de la teva àrea. Les que esperen decisió estan en estat **Pendent**, i les pots resoldre des del llistat o obrint-les.
 
+![Llistat d'absències, amb les accions Aprova/Rebutja sobre una sol·licitud pendent](../../assets/head_of_studies/hos-absences-list.png)
+
 Tu hi veus el **motiu escrit** i el **justificant**; la resta del personal, no.
 
 **Rebutjar és definitiu.** Ningú del centre pot tornar una sol·licitud rebutjada a *Pendent*: per concedir-la finalment, la persona ha de fer-ne una de nova. Com que el botó Rebutja és al costat d'Aprova, i al llistat és només una creu al final de la fila, sempre demana confirmació abans - llegeix el missatge abans d'acceptar-lo.

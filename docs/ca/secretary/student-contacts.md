@@ -42,6 +42,8 @@ Obre la fitxa de l'alumne i, a la pestanya **Contactes i adreces**, fes clic a *
 
 La mateixa relació també apareix a la fitxa del familiar, indicant amb quin(s) alumne(s) està relacionat.
 
+**Per treure un familiar**, clica la icona de la paperera de la seva fila i confirma amb **Ok**. El familiar deixa d'estar vinculat a l'alumne. Si no queda relacionat amb cap altre alumne i no té usuari (accés al portal), també s'esborra el seu contacte; si no, es conserva.
+
 ## Matricular un alumne en assignatures
 
 El grup principal d'un alumne (pestanya **Estudis**) no el matricula per si sol en cap assignatura — és un pas independent, just a sota, a la mateixa pestanya: afegeix una línia per assignatura, triant l'assignatura i el grup en què es fa (normalment el grup principal de l'alumne, però un altre de diferent si cursa l'assignatura en un altre grup, per exemple un grup de reforç). Un cop afegida una assignatura aquí, l'alumne comença a aparèixer als fulls d'assistència i a les sessions d'avaluació d'aquesta assignatura. Una assignatura ja afegida no es pot tornar a triar — desapareix automàticament de la llista de selecció.
@@ -74,7 +76,7 @@ Canviar la pantalla d'Alumnat de vista Kanban a vista de Llista mostra, per defe
 
 ## Camps que només veuen admin/secretaria/Cap d'Estudis/tutors
 
-Les dades personals (documents, informació mèdica, necessitats educatives especials, autoritzacions…) queden ocultes per a qualsevol persona que no sigui admin, secretaria, Cap d'Estudis/Cap d'Estudis Adjunt/a/Direcció, ni el tutor propi de l'alumne. Cap d'Estudis/Cap d'Estudis Adjunt/a/Direcció tenen el mateix accés complet que secretaria aquí, per a **qualsevol** alumne de tot el centre, no només els seus propis tutoritzats. Un tutor també pot editar la fitxa d'un alumne que tutoritza i la dels seus familiars, però veu un conjunt de camps editables més reduït que secretaria/admin/Cap d'Estudis.
+Les dades personals (documents, informació mèdica, necessitats educatives especials, autoritzacions…) queden ocultes per a qualsevol persona que no sigui admin, secretaria, Cap d'Estudis/Cap d'Estudis Adjunt/a/Direcció, ni el tutor propi de l'alumne. Cap d'Estudis/Cap d'Estudis Adjunt/a/Direcció tenen el mateix accés complet que secretaria aquí, per a **qualsevol** alumne de tot el centre, no només els seus propis tutoritzats. Un tutor també pot editar la fitxa d'un alumne que tutoritza i la dels seus familiars, però veu un conjunt de camps editables més reduït que secretaria/admin/Cap d'Estudis. També pot afegir i treure els contactes familiars dels alumnes que tutoritza. Orientació veu i edita les necessitats educatives especials de qualsevol alumne.
 
 ---
 

@@ -190,7 +190,10 @@
                             <field name="other_partner_phone" readonly="True"/>
                             <field name="other_partner_mobile" readonly="True"/>
                             <field name="other_partner_email" readonly="True"/>
+                            <!-- The context makes the relation's unlink() also remove the family
+                                 contact once it is left without any student (issue #470). -->
                             <button name="unlink" type="object" icon="fa-trash" title="Delete relation"
+                                    context="{'ems_remove_orphan_family': True}"
                                     confirm="Are you sure you want to delete this relation? This action cannot be undone."/>
                         </list>
                     </field>

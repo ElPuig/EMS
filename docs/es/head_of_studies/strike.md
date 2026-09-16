@@ -10,15 +10,19 @@ Esta página cubre tanto el historial completo de strikes (Jefatura de Estudios 
 
 ---
 
-## Consultar todos los strikes (coordinadores de convivencia)
+## Consultar todos los strikes
 
-Si tienes el rol de Convivencia, **Convivencia → Strikes** muestra todos los strikes puestos en todo el centro, independientemente de qué profesor los haya puesto o a qué rama pertenezca el alumno — el acceso de convivencia es transversal, no está limitado por departamento.
-
-Jefatura de Estudios, Jefatura de Estudios Adjunta y Dirección ven los strikes según las mismas reglas que profesores/tutores (los que han puesto ellos mismos y los de sus alumnos tutorizados), salvo que también tengan el rol de Convivencia.
+**Convivencia → Strikes** muestra todos los strikes puestos en todo el centro, independientemente de qué profesor los haya puesto, a qué rama pertenezca el alumno, o de tu propio rol de Jefatura de Estudios / Jefatura de Estudios Adjunta / Dirección — esta vista centralizada no está limitada por departamento. Si además tienes el rol de Convivencia, ves exactamente la misma lista completa.
 
 En la ficha del propio alumno, aparece un botón de **Strikes** en la cabecera que muestra el recuento acumulado. Al abrir cualquier strike concreto se muestra una casilla **Expulsado de clase**, para saber de un vistazo si esa incidencia terminó con el alumno fuera del aula.
 
 ![Ficha de un strike con la casilla Expulsado de clase marcada](../../assets/head_of_studies/hos-strike-kicked-out.png)
+
+---
+
+## Eliminar un strike
+
+Jefatura de Estudios, Jefatura de Estudios Adjunta, Dirección y los coordinadores/as de Convivencia pueden eliminar cualquier strike de todo el centro — abre el registro del strike (o selecciónalo en la lista) y usa la acción de eliminar habitual. Esto es útil para corregir un strike puesto por error o duplicado. Eliminar un strike lo quita de forma permanente, también del recuento acumulado del alumno; no se puede deshacer.
 
 ---
 

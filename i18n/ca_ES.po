@@ -5317,8 +5317,8 @@ msgstr "Només els administradors poden canviar l'estat de l'avaluació."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/enrollment.py:0
-msgid "Only admins and secretary staff can create manual enrollments."
-msgstr "Només els administradors i el personal de secretaria poden crear matrícules manuals."
+msgid "Only admins, secretary staff and Head of Studies can create manual enrollments."
+msgstr "Només els administradors, el personal de secretaria i la Cap d'Estudis poden crear matrícules manuals."
 
 #. module: ems
 #. odoo-python

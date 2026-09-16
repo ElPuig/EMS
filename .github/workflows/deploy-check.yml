@@ -117,7 +117,21 @@ jobs:
 
       - name: Clone production data into a scratch database
         run: |
-          sudo -u odoo dropdb --if-exists ems_pr_check
+          # --force (PostgreSQL 13+) disconnects any lingering sessions before dropping - e.g. a
+          # previous run's `odoo` process not yet fully torn down when this run starts, which is
+          # what let a "database is being accessed by other users" error strand ems_pr_check
+          # undropped in production before (see the same retry+force pattern in the Cleanup step
+          # below for the full story). Retried too, since --force can still lose a race against a
+          # connection landing at the exact moment of the drop.
+          for i in 1 2 3 4 5; do
+            sudo -u odoo dropdb --if-exists --force ems_pr_check && break
+            echo "dropdb ems_pr_check failed (attempt $i/5), retrying in 5s..."
+            sleep 5
+            if [ "$i" -eq 5 ]; then
+              echo "::error::dropdb ems_pr_check failed after 5 attempts - cannot start a clean scratch DB."
+              exit 1
+            fi
+          done
           sudo -u odoo createdb ems_pr_check
           sudo -u odoo bash -c "pg_dump --no-owner -d ems | psql -q -d ems_pr_check"
 
@@ -153,7 +167,23 @@ jobs:
       - name: Cleanup
         if: always()
         run: |
-          sudo -u odoo dropdb --if-exists ems_pr_check
+          # Sometimes fails with "database is being accessed by other users" - the dry-run's own
+          # `odoo` process (or a cancelled run's, since this job has cancel-in-progress: true) can
+          # still hold a connection open at the exact moment this step starts tearing down. Left
+          # unhandled, that stranded ems_pr_check undropped on the production host indefinitely
+          # (see https://github.com/ElPuig/EMS/actions/runs/34955251842/job/104335613216). `--force`
+          # (PostgreSQL 13+) makes dropdb terminate other sessions itself before dropping; the retry
+          # loop on top covers a connection landing in the tiny window between --force's own
+          # termination and the actual DROP DATABASE.
+          for i in 1 2 3 4 5; do
+            sudo -u odoo dropdb --if-exists --force ems_pr_check && break
+            echo "dropdb ems_pr_check failed (attempt $i/5), retrying in 5s..."
+            sleep 5
+            if [ "$i" -eq 5 ]; then
+              echo "::error::dropdb ems_pr_check failed after 5 attempts - a stale scratch DB may be left behind on the production host, check manually."
+              exit 1
+            fi
+          done
           sudo -u odoo rm -rf /var/lib/odoo/.local/share/Odoo/filestore/ems_pr_check
 
       - name: Upload log

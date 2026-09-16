@@ -966,10 +966,15 @@ becomes an `ir.mail_server`-relayed `mail.mail`'s `body_html`):
   accent border (`background:#eef4fb; border-left:4px solid #4a86e8`), not a plain bold sentence.
 - Manual links as a descriptive title, never a raw URL: `📘 Manual: <what the reader will find>`,
   hyperlinked. **Every link must point at a doc file confirmed to exist under `docs/ca/` first**
-  (`ls`/`find` it — never construct a URL from a guessed filename pattern); if a feature's
-  Close-step user doc is still pending, link nothing for that item rather than a guessed path.
-- Closing with a link to the full docs index (`https://docs.ems.elpuig.xeill.net/ca/`) when the
-  content spans more than one role's manuals.
+  (`ls`/`find` it); if a feature's Close-step user doc is still pending, link nothing for that item
+  rather than a guessed path. **The confirmed URL pattern** (verified live 2026-09-16, after a
+  first send guessed a mkdocs-style trailing slash and got it wrong — caught by the developer, not
+  by anything in this file): a repo doc file `docs/ca/<path>.md` is published at
+  `https://docs.ems.elpuig.xeill.net/ca/<path>.html` — **`.html`, not a trailing slash**. The docs
+  *index* is the one exception (see below) — it serves its directory's `index.html` implicitly and
+  needs no filename at all.
+- Closing with a link to the full docs index (`https://docs.ems.elpuig.xeill.net/ca/` — no filename,
+  unlike an individual page) when the content spans more than one role's manuals.
 - Friendly, informal closing ("Si trobeu res que no funcioni com esperàveu, digueu-nos-ho i ho
   mirem.") and sign-off ("Una salutació, Equip EMS - Institut Puig Castellar").
 - Do **not** add the centre's logo to the body — what appears next to the sender name in a

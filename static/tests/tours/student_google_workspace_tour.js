@@ -85,11 +85,16 @@ registry.category("web_tour.tours").add("ems_student_google_workspace_lifecycle"
     ],
 });
 
-// Issue #478: the TAC team resets a student's Google password from the form header. Opened by
+// Issue #478: the TAC team resets a student's Google password from the form header (and is
+// offered the suspend button next to it). Opened by
 // URL on the seeded student (see test_student_google_workspace_tour.py).
 registry.category("web_tour.tours").add("ems_student_google_password_reset", {
     test: true,
     steps: () => [
+        {
+            trigger: ".o_form_view .o_form_statusbar button[name='action_suspend_google_account']",
+            content: "The TAC team can also suspend the account",
+        },
         {
             trigger: ".o_form_view .o_form_statusbar button[name='action_reset_google_password']",
             content: "Click 'Reset Google password'",

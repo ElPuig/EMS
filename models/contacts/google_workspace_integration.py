@@ -304,7 +304,8 @@ class ResPartnerGoogleWorkspace(models.Model):
     def action_create_google_account(self):
         """Create the student's Google Workspace account and deliver credentials.
 
-        Idempotent: does nothing if the student already has a corporate email.
+        Idempotent: does nothing if the student already has a corporate email. Chatter notes go
+        through sudo() because the TAC team, who may press the button, only reads students.
         """
         self.ensure_one()
         company = self.env.company
@@ -330,7 +331,7 @@ class ResPartnerGoogleWorkspace(models.Model):
 
         candidates = self._gw_email_full_candidates()
         if not candidates:
-            self.message_post(body=_("Google Workspace: could not generate a free email address."))
+            self.sudo().message_post(body=_("Google Workspace: could not generate a free email address."))
             return
 
         password = gw._gw_random_password()
@@ -375,7 +376,7 @@ class ResPartnerGoogleWorkspace(models.Model):
                     _logger.exception("Google Workspace account creation failed for %s", self.name)
                     raise
             if not email:
-                self.message_post(body=_(
+                self.sudo().message_post(body=_(
                     "Google Workspace: all candidate emails already exist in Google."))
                 return
 
@@ -385,7 +386,7 @@ class ResPartnerGoogleWorkspace(models.Model):
         # Deliver credentials: PDF (always) + email (if personal email exists)
         pdf_saved, emailed = self._gw_deliver_credentials(email, password)
 
-        self.message_post(body=_(
+        self.sudo().message_post(body=_(
             "Google Workspace account created: %(email)s (OU %(ou)s)%(dry)s. "
             "%(pdf)s%(mail)s."
         ) % {
@@ -522,7 +523,8 @@ class ResPartnerGoogleWorkspace(models.Model):
         """Suspend the student's Google account and move it to the suspended OU.
 
         Triggered when a student is archived or converted to an ex-student
-        (withdrawal/graduation). Idempotent.
+        (withdrawal/graduation). Idempotent. Every write, chatter notes included, goes through
+        sudo(): the TAC team, who may press the button, only reads students.
         """
         self.ensure_one()
         company = self.env.company
@@ -553,12 +555,12 @@ class ResPartnerGoogleWorkspace(models.Model):
                         'google_ws_deactivation_date': False,
                         'google_ws_deleted': True,
                     })
-                    self.message_post(body=_(
+                    self.sudo().message_post(body=_(
                         "Google Workspace: account %s no longer exists; marked as suspended.")
                         % self.student_email)
                     return
                 _logger.exception("Could not suspend Google account for %s", self.name)
-                self.message_post(body=_(
+                self.sudo().message_post(body=_(
                     "Google Workspace: could not suspend %(email)s. Check that the OU "
                     "%(ou)s exists in Admin. Error: %(err)s") % {
                         'email': self.student_email, 'ou': ou, 'err': str(e)[:200]})
@@ -570,7 +572,7 @@ class ResPartnerGoogleWorkspace(models.Model):
             'google_ws_deactivation_date': False,
             'google_ws_deletion_date': deletion_due,
         })
-        self.message_post(body=_(
+        self.sudo().message_post(body=_(
             "Google Workspace account suspended: %(email)s (moved to OU %(ou)s)%(dry)s. "
             "It will be deleted for good on %(date)s unless the student comes back.") % {
                 'email': self.student_email, 'ou': ou, 'date': deletion_due,

@@ -19,5 +19,11 @@
 - Only academic admin and the TAC team (`ems.group_tac`), checked in the method too, not just by the button's groups. The secretary stays out: it only takes part in account creation as a step of enrolling a student. Individual only, no bulk reset.
 - The TAC team can now read every student's Google credentials PDF (read only, no other document type) and use "Download Google credentials".
 - Requires the service account's Google admin role to include the "Reset password" privilege on the student OUs; a refusal from Google is reported with that hint and leaves the previous credentials untouched.
-- New admin manual "Resetting a student's Google password" (ca/es/en, with a screenshot), and the TAC coordinator description in the roles manual now lists this permission.
+- New admin manual on the student Google account (ca/es/en, with a screenshot), and the TAC coordinator description in the roles manual now lists this permission.
+
+## TAC team can create and suspend student Google accounts:
+
+- The "Create Google account" and "Suspend Google account" buttons on the student form header are now also available to the TAC team (`ems.group_tac`), alongside secretary and academic admin. Reactivate, delete and cancel-scheduled-deactivation stay with secretary and admin.
+- The chatter notes of both actions are now posted with `sudo()` (still authored by the real user), since posting on a student needs write access that the TAC team, who only reads students, does not have.
+- The admin manual became "Managing a student's Google account" (create, suspend, reset password, download credentials), with an updated header screenshot, and the TAC coordinator description in the roles manual lists these permissions.
 

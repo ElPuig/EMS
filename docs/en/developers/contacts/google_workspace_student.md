@@ -227,7 +227,9 @@ creation note through `_gw_delivery_note()`.
 
 The secretary is deliberately left out: it takes part in account *creation* only as a step
 of enrolling a student. The TAC team reads students only (`rule_contact_teacher`), which is
-why every write in the flow goes through `sudo()`.
+why every write in the flow goes through `sudo()`. The same applies to the create and suspend
+buttons, which the TAC team also has: their chatter notes are posted with `sudo()` (posting on a
+partner needs write access), still authored by the real user.
 
 ## Access control
 
@@ -249,7 +251,8 @@ write path.
 
 | Action | Who |
 |---|---|
-| Header buttons (create/suspend/reactivate/delete/cancel) | `ems.group_secretary`, `ems.group_academic_admin` |
+| Header buttons create/suspend | `ems.group_secretary`, `ems.group_academic_admin`, `ems.group_tac` |
+| Header buttons reactivate/delete/cancel | `ems.group_secretary`, `ems.group_academic_admin` |
 | Reset Google password (button, plus the same check inside the method) | `ems.group_academic_admin`, `ems.group_tac` |
 | Reading the credentials PDFs (Documentation tab, bulk download) | see [student_document.md](student_document.md#access-control): tutors their own students', TAC everyone's |
 | Grace-period banners, optional list columns, search filters | same as above |

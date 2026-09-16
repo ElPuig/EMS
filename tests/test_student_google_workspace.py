@@ -568,3 +568,43 @@ class TestStudentGooglePasswordReset(TransactionCase):
             self._reset(self.tac)
         self.assertEqual(self.old_credentials.status, 'approved')
 
+
+class TestStudentGoogleWorkspaceTac(TransactionCase):
+    """The TAC team creates and suspends student Google accounts too, from the form header, while
+    only reading students (rule_contact_teacher). Dry-run; credentials delivery patched."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        mock_outgoing_email(cls)
+        cls.env.company.write({
+            'google_ws_enabled': True, 'google_ws_dry_run': True, 'google_ws_domain': 'elpuig.xeill.net',
+            'google_ws_ou_minor': '/alumnos', 'google_ws_ou_adult': '/alumnos/+18',
+            'google_ws_ou_suspended': '/alumnos/bajas',
+        })
+        cls.tac = create_role_user(cls, 'tac', 'test_tac_gw_account', email='tac.gw@example.com')
+        cls.student = cls.env['res.partner'].create({
+            'name': 'Tac Account Student', 'firstname': 'Tac', 'lastname': 'Account Student',
+            'contact_type': 'student', 'student_id': next_student_id(), 'email': 'tac.account@example.com',
+            'birth_date': date.today() - relativedelta(years=15),
+        })
+
+    def test_tac_creates_the_account(self):
+        with patch.object(type(self.student), '_gw_deliver_credentials', return_value=(True, True)):
+            self.student.with_user(self.tac).action_create_google_account()
+        self.assertTrue(self.student.student_email)
+        self.assertEqual(self.student.message_ids[:1].author_id, self.tac.partner_id)
+
+    def test_tac_suspends_the_account(self):
+        self.student.student_email = 'tac.account@elpuig.xeill.net'
+        self.student.with_user(self.tac).action_suspend_google_account()
+        self.assertEqual(self.student.google_ws_state, 'suspended')
+        self.assertEqual(self.student.message_ids[:1].author_id, self.tac.partner_id)
+
+    def test_tac_sees_the_create_and_suspend_buttons(self):
+        arch = self.env['res.partner'].with_user(self.tac).get_view(
+            self.env.ref('ems.view_contact_form').id, 'form')['arch']
+        self.assertIn('action_create_google_account', arch)
+        self.assertIn('action_suspend_google_account', arch)
+        self.assertNotIn('action_reactivate_google_account', arch)
+

@@ -46,12 +46,12 @@
                                 string="Create Google account"
                                 class="btn-secondary"
                                 invisible="google_ws_state != 'none'"
-                                groups="ems.group_secretary,ems.group_academic_admin"/>
+                                groups="ems.group_secretary,ems.group_academic_admin,ems.group_tac"/>
                         <button name="action_suspend_google_account" type="object"
                                 string="Suspend Google account"
                                 class="btn-secondary"
                                 invisible="google_ws_state != 'active'"
-                                groups="ems.group_secretary,ems.group_academic_admin"/>
+                                groups="ems.group_secretary,ems.group_academic_admin,ems.group_tac"/>
                         <!-- Not the secretary: they only create accounts, as part of enrolling
                              a student (issue #478). action_reset_google_password() repeats the
                              group check. -->

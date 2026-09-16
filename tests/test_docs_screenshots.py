@@ -422,7 +422,7 @@ class TestDocsScreenshots(HttpCase):
         # Written to the same folder; this one goes to docs/assets/admin/.
         self._capture(
             '/odoo/action-%d/%d' % (self.student_list_action.id, self.students[0].id),
-            '.o_form_view', 'credencials-google-03-restablir.png',
+            '.o_form_view', 'compte-google-alumne-capcalera.png',
             login='doc_shot_tac',
             wait_for=".o_form_statusbar button[name='action_reset_google_password']",
             max_height=200,

@@ -158,6 +158,7 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
         })
 
         cls._setup_justifications()
+        cls._setup_google_credentials()
 
     @classmethod
     def _setup_justifications(cls):
@@ -205,6 +206,26 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
         cls.justification_action = cls.env['ir.actions.act_window'].create({
             'name': 'Justificants', 'res_model': 'ems.attendance_justification',
             'view_mode': 'list,form', 'domain': [('student_id', 'in', cls.students.ids)],
+        })
+
+    @classmethod
+    def _setup_google_credentials(cls):
+        """A credentials PDF for every invented student (plus a DNI the tutor must not see), and a
+        students list scoped to them, for the tutors' Google credentials manual."""
+        cls.env['ems.student.document'].create([{
+            'partner_id': student.id, 'doc_type': 'google_credentials', 'status': 'approved',
+            'doc_file': base64.b64encode(b'%PDF-1.4 x'),
+            'doc_file_name': f'Credencials_Google_{student.student_id}.pdf',
+        } for student in cls.students] + [{
+            'partner_id': cls.students[0].id, 'doc_type': 'dni', 'status': 'approved',
+        }])
+        # An active Google account, so the TAC team gets the reset button on Marina's form.
+        cls.students[0].student_email = 'marina.exemple@example.com'
+        cls.tac = create_role_user(cls, 'tac', 'doc_shot_tac', lang='ca_ES',
+                                   name='Coordinació TAC', email='tac@example.com')
+        cls.student_list_action = cls.env['ir.actions.act_window'].create({
+            'name': 'Estudiants', 'res_model': 'res.partner', 'view_mode': 'list,form',
+            'domain': [('id', 'in', cls.students.ids)],
         })
 
     @classmethod
@@ -278,4 +299,30 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             wait_for='.o_form_sheet .o_notebook',
             click='.o_notebook .nav-item:nth-child(3) .nav-link',
             wait_after=".o_field_widget[name='attachment_ids'] .o_data_row",
+        )
+
+    def test_capture_tutor_google_credentials_screenshots(self):
+        self._capture(
+            '/odoo/action-%d/%d' % (self.student_list_action.id, self.students[0].id),
+            '.o_notebook', 'credencials-google-01-documentacio.png',
+            login='doc_shot_tutor',
+            wait_for=".o_notebook .nav-link[name='documentation']",
+            click=".o_notebook .nav-link[name='documentation']",
+            wait_after=".o_field_widget[name='document_ids'] .o_data_row a",
+        )
+        # The Actions dropdown is an overlay outside the list's own container, hence the body.
+        self._capture(
+            '/odoo/action-%d' % self.student_list_action.id,
+            'body', 'credencials-google-02-accions.png',
+            login='doc_shot_tutor',
+            tour='ems_doc_shot_tutor_google_credentials',
+            max_height=380,
+        )
+        # Written to the same folder; this one goes to docs/assets/admin/.
+        self._capture(
+            '/odoo/action-%d/%d' % (self.student_list_action.id, self.students[0].id),
+            '.o_form_view', 'compte-google-alumne-capcalera.png',
+            login='doc_shot_tac',
+            wait_for=".o_form_statusbar button[name='action_reset_google_password']",
+            max_height=200,
         )

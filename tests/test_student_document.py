@@ -1,10 +1,13 @@
 import base64
 import importlib.util
+import io
 import os
+import zipfile
 
-from odoo.exceptions import AccessError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.tests import HttpCase, tagged
 from odoo.tests.common import TransactionCase
-from .common import next_student_id
+from .common import create_level_study_group, create_role_employee, create_role_user, next_student_id
 
 
 class TestStudentDocument(TransactionCase):
@@ -285,3 +288,162 @@ class TestStudentDocumentPortalAccess(TransactionCase):
             self.env['ems.student.document'].with_user(self.portal_user).create({
                 'partner_id': self.student.id, 'doc_type': 'other',
             })
+
+
+def create_tutored_students_with_credentials(cls, prefix):
+    """A tutor user with one tutored student and one student of another group, each with a
+    Google credentials PDF, plus a DNI on the tutored one. Sets cls.tutor_user, cls.student,
+    cls.other_student, cls.credentials, cls.dni and cls.other_credentials."""
+    cls.tutor_user = create_role_user(cls, 'tutor', f'test_tutor_{prefix.lower()}')
+    tutor = create_role_employee(cls, cls.tutor_user)
+    __, __, group = create_level_study_group(cls, f'{prefix}T', group={'tutor_id': tutor.id})
+    __, __, other_group = create_level_study_group(cls, f'{prefix}O')
+    Partner = cls.env['res.partner']
+    cls.student = Partner.create({
+        'name': f'{prefix} Tutored Student', 'contact_type': 'student', 'student_id': next_student_id(),
+        'main_group_id': group.id,
+    })
+    cls.other_student = Partner.create({
+        'name': f'{prefix} Other Student', 'contact_type': 'student', 'student_id': next_student_id(),
+        'main_group_id': other_group.id,
+    })
+    Document = cls.env['ems.student.document']
+    cls.credentials = Document.create({
+        'partner_id': cls.student.id, 'doc_type': 'google_credentials', 'status': 'approved',
+        'doc_file': base64.b64encode(b'credentials-pdf'), 'doc_file_name': 'credentials.pdf',
+    })
+    cls.dni = Document.create({'partner_id': cls.student.id, 'doc_type': 'dni', 'status': 'approved'})
+    cls.other_credentials = Document.create({
+        'partner_id': cls.other_student.id, 'doc_type': 'google_credentials', 'status': 'approved',
+        'doc_file': base64.b64encode(b'other-credentials-pdf'), 'doc_file_name': 'other.pdf',
+    })
+
+
+class TestStudentDocumentTutorAccess(TransactionCase):
+    """Issue #478: tutors read their own students' Google credentials PDF - and nothing else
+    from the Documentation tab (DNI, IBAN, medical card... stay with secretary/admin)."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        create_tutored_students_with_credentials(cls, 'TSD')
+
+    def _documents_seen_by(self, user):
+        return self.env['ems.student.document'].with_user(user).search(
+            [('id', 'in', (self.credentials | self.dni | self.other_credentials).ids)])
+
+    def test_tutor_reads_only_own_students_credentials(self):
+        self.assertEqual(self._documents_seen_by(self.tutor_user), self.credentials)
+
+    def test_tutor_sees_only_credentials_in_documentation_tab(self):
+        self.assertEqual(self.student.with_user(self.tutor_user).document_ids, self.credentials)
+
+    def test_tutor_downloads_credentials_file(self):
+        attachment = self.env['ir.attachment'].search([
+            ('res_model', '=', 'ems.student.document'), ('res_field', '=', 'doc_file'),
+            ('res_id', '=', self.credentials.id),
+        ])
+        self.assertEqual(attachment.with_user(self.tutor_user).datas, base64.b64encode(b'credentials-pdf'))
+
+    def test_tutor_cannot_modify_credentials(self):
+        credentials = self.credentials.with_user(self.tutor_user)
+        with self.assertRaises(AccessError):
+            credentials.write({'status': 'pending'})
+        with self.assertRaises(AccessError):
+            credentials.unlink()
+        with self.assertRaises(AccessError):
+            self.env['ems.student.document'].with_user(self.tutor_user).create({
+                'partner_id': self.student.id, 'doc_type': 'google_credentials',
+            })
+
+    def test_secretary_who_tutors_still_sees_every_document(self):
+        # The tutor rule must not narrow staff who also tutor a group (academic admin implies
+        # group_tutor through the Head of Studies chain, and a secretary may teach too).
+        self.tutor_user.groups_id = [(4, self.env.ref('ems.group_secretary').id)]
+        self.assertEqual(len(self._documents_seen_by(self.tutor_user)), 3)
+
+    def test_academic_admin_sees_every_document(self):
+        admin = create_role_user(self, 'academic_admin', 'test_admin_student_document')
+        self.assertEqual(len(self._documents_seen_by(admin)), 3)
+
+
+class TestStudentDocumentTacAccess(TransactionCase):
+    """Issue #478: the TAC team reads every student's Google credentials (they reset them), and
+    nothing else from the Documentation tab."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        create_tutored_students_with_credentials(cls, 'TAC')
+        cls.tac = create_role_user(cls, 'tac', 'test_tac_student_document')
+
+    def test_tac_reads_every_students_credentials_only(self):
+        documents = self.env['ems.student.document'].with_user(self.tac).search(
+            [('id', 'in', (self.credentials | self.dni | self.other_credentials).ids)])
+        self.assertEqual(documents, self.credentials | self.other_credentials)
+
+    def test_tac_cannot_modify_credentials(self):
+        with self.assertRaises(AccessError):
+            self.credentials.with_user(self.tac).write({'status': 'pending'})
+
+    def test_tac_downloads_every_students_credentials(self):
+        students = (self.student | self.other_student).with_user(self.tac)
+        self.assertEqual(students._get_google_credentials_documents(), self.credentials | self.other_credentials)
+
+
+class TestGoogleCredentialsBulkDownload(TransactionCase):
+    """Issue #478: "Download Google credentials" on the students list."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        create_tutored_students_with_credentials(cls, 'GCD')
+
+    def test_action_downloads_only_readable_credentials(self):
+        students = (self.student | self.other_student).with_user(self.tutor_user)
+        action = students.action_download_google_credentials()
+        self.assertEqual(action['type'], 'ir.actions.act_url')
+        self.assertEqual(action['url'], f'/ems/google_credentials/download?partner_ids={self.student.id}')
+
+    def test_action_without_readable_credentials_raises(self):
+        with self.assertRaises(UserError):
+            self.other_student.with_user(self.tutor_user).action_download_google_credentials()
+
+    def test_only_latest_credentials_per_student(self):
+        newer = self.env['ems.student.document'].create({
+            'partner_id': self.student.id, 'doc_type': 'google_credentials', 'status': 'approved',
+            'doc_file': base64.b64encode(b'newer-pdf'), 'doc_file_name': 'newer.pdf',
+        })
+        self.assertEqual(self.student._get_google_credentials_documents(), newer)
+
+    def test_secretary_gets_every_student(self):
+        secretary = create_role_user(self, 'secretary', 'test_secretary_gcd')
+        documents = (self.student | self.other_student).with_user(secretary)._get_google_credentials_documents()
+        self.assertEqual(documents, self.credentials | self.other_credentials)
+
+
+@tagged('post_install', '-at_install')
+class TestGoogleCredentialsDownloadRoute(HttpCase):
+    """The download route re-checks access itself: a tutor editing the URL by hand still only
+    gets their own students' PDFs."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        create_tutored_students_with_credentials(cls, 'GCR')
+
+    def test_route_zips_only_readable_credentials(self):
+        self.authenticate(self.tutor_user.login, self.tutor_user.login)
+        response = self.url_open(
+            f'/ems/google_credentials/download?partner_ids={self.student.id},{self.other_student.id}')
+        self.assertEqual(response.status_code, 200)
+        with zipfile.ZipFile(io.BytesIO(response.content)) as archive:
+            names = archive.namelist()
+            self.assertEqual(len(names), 1)
+            self.assertIn(self.student.name, names[0])
+            self.assertEqual(archive.read(names[0]), b'credentials-pdf')
+
+    def test_route_without_readable_credentials_is_not_found(self):
+        self.authenticate(self.tutor_user.login, self.tutor_user.login)
+        response = self.url_open(f'/ems/google_credentials/download?partner_ids={self.other_student.id}')
+        self.assertEqual(response.status_code, 404)

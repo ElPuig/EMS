@@ -270,13 +270,14 @@ class DocsScreenshotMixin:
         """ % (quoted, quoted)
 
     def _capture(self, url_path, selector, filename, login, wait_for=None, padding=8,
-                 click=None, wait_after=None, tour=None):
+                 click=None, wait_after=None, tour=None, max_height=None):
         """Load url_path as `login`, wait for `wait_for` (defaults to `selector`), optionally
         click `click` and wait for `wait_after`, then write a PNG clipped to `selector` into
         OUTPUT_DIR.
 
         The click exists for a send/confirm assistant whose preview is built by an onchange,
-        which opening the form with defaults does not fire on its own.
+        which opening the form with defaults does not fire on its own. max_height cuts the shot
+        short, for a selector as big as the page whose empty lower part _trim() can't tell apart.
         """
         os.makedirs(self.OUTPUT_DIR, exist_ok=True)
         # A tour reports success with Odoo's own signal ('tour succeeded', the one start_tour()
@@ -321,7 +322,7 @@ class DocsScreenshotMixin:
                 'x': max(box['x'] - padding, 0),
                 'y': max(box['y'] - padding, 0),
                 'width': box['width'] + padding * 2,
-                'height': box['height'] + padding * 2,
+                'height': min(box['height'] + padding * 2, max_height or float('inf')),
                 'scale': 1,
             }
             png = browser._websocket_request('Page.captureScreenshot', params={

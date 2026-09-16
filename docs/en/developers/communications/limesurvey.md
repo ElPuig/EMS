@@ -399,6 +399,12 @@ Three smaller satellite models:
   `ems.enrollment` rows, editable independently so quality staff can tweak survey content
   without touching the real enrollment data (only secretarial staff should do that).
 
+**`_check_email_format` (`@api.constrains('email')`, issue #467):** `ems.limesurvey_recipient.email`
+is explicitly meant to be editable by hand for a manually-added recipient, so a malformed value
+is rejected on save with `odoo.tools.mail.email_normalize()` — same check as `res.partner.email`/
+`ems.notice.line.email` (see `docs/en/developers/contacts/contact.md`). Empty is still allowed;
+this only rejects a non-empty value that isn't a single well-formed address.
+
 ### Fixed in this pass
 
 - **Two real bugs found and fixed in `action_remind`/`action_delete`.** Unlike every other

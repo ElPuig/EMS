@@ -37,6 +37,9 @@ under **Communications → Notices**.
    address matching your **Recipient email** choice (e.g. "Corporate" was picked but a student's
    institutional account hasn't been created yet), a warning names them so you know they were
    left out.
+
+   > **Since 18.0.0.26.0:** a recipient row's email must be well-formed (`name@domain`) — EMS
+   > refuses to save a value that isn't, such as a phone number typed in by mistake.
 8. Either:
    - Click **Send** to queue the emails immediately, or
    - Tick **Schedule sending** and pick a date/time, then click **Send** — the notice moves to

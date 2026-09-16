@@ -231,6 +231,26 @@ Covered by `tests/test_contact.py::TestContactCreateWithStudy` (auto-pick, templ
 
 The Spanish Social Security number (NUSS) must be exactly 12 numeric digits (`re.fullmatch(r'\d{12}', nuss)`) when set.
 
+### `_check_email_format` (`@api.constrains('email', 'student_email')`, issue #467)
+
+Both `email` (the native `res.partner` field, used as the personal/family address) and
+`student_email` (the corporate one) must be a single well-formed address when set, validated
+with Odoo's own `odoo.tools.mail.email_normalize()` (returns `False` for anything that isn't a
+single valid address) rather than a hand-rolled regex. Empty/`False` is allowed on both — this
+is a format check, not a "required" one.
+
+Added after an Amazon SES delivery got flagged as suspected spam, traced back to a phone number
+stored in an email field. The same `email_normalize()`-based check is also applied, independently,
+to `ems.notice.line.email` and `ems.limesurvey_recipient.email` (both manually editable in their
+own screens before a send — see `docs/en/developers/communications/notice.md` and
+`limesurvey.md`) and to `res.company.secretariat_email`. Validating on `res.partner` itself also
+covers every CSV import wizard that creates/updates a contact (`student_import_wizard.py`,
+`applicant_import_wizard.py`, `student_update_wizard.py`) and the "Add family contact" wizard
+(`ems.contact.relation.wizard`), since they all funnel into `res.partner.create()`/`write()` and
+`@api.constrains` runs regardless of `sudo()`. A malformed value in an import source row now
+fails just that row (already caught and logged per-row by the wizard's own
+try/except) instead of being silently imported.
+
 ### Student ID (IDALU): unique, and required for new students (issue #460)
 
 `student_id` is what identifies a student-lifecycle contact (`STUDENT_LIFECYCLE_TYPES` in

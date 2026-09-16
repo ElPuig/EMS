@@ -7283,6 +7283,21 @@ msgid "The NUSS must be exactly 12 numeric digits."
 msgstr "El NUSS debe tener exactamente 12 dígitos numéricos."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+#: code:addons/ems/models/communications/limesurvey.py:0
+#: code:addons/ems/models/communications/notice.py:0
+#: code:addons/ems/models/settings/company.py:0
+msgid "%(email)s is not a valid email address."
+msgstr "%(email)s no es una dirección de correo válida."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "%(email)s is not a valid student email address."
+msgstr "%(email)s no es una dirección de correo del alumno válida."
+
+#. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_level_acronym_unique
 msgid "The acronym must be unique."
 msgstr ""

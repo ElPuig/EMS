@@ -27,6 +27,12 @@ in this phase, which talks to a real LimeSurvey instance).
 `source_group_id` (which auto-population group produced this row; `False` for a manually
 added recipient), `notification_id` (the `queue.job` tracking this line's send).
 
+**`_check_email_format` (`@api.constrains('email')`, issue #467):** `email` is required and
+freely editable in the recipient list before sending, so a malformed value (e.g. a phone number
+typed or pasted in by mistake — the incident that prompted this) is rejected on save with
+`odoo.tools.mail.email_normalize()`, the same check applied to `res.partner.email`/
+`student_email` — see `docs/en/developers/contacts/contact.md`.
+
 ---
 
 ## Recipient auto-population (`_build_auto_lines` / `_onchange_groups`)

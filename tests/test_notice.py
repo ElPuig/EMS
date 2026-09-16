@@ -1,6 +1,6 @@
 from datetime import date
 
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
 from .common import create_level_study_group, mock_outgoing_email, next_student_id
@@ -358,6 +358,19 @@ class TestNoticeLine(TransactionCase):
     def test_display_status_defaults_to_draft(self):
         line = self._line()
         self.assertEqual(line.display_status, 'draft')
+
+    # --- _check_email_format -----------------------------------------------------
+
+    def test_email_invalid_format_raises(self):
+        # Regression (issue reported 2026-09-16): the notice line's own email is
+        # manually editable in the list view before sending (views/communications/
+        # notice/form.xml) - an Amazon SES suspected-spam alert traced back to a
+        # phone number stored here instead of an actual address.
+        with self.assertRaises(ValidationError):
+            self.env['ems.notice.line'].create({
+                'notice_id': self.notice.id, 'partner_id': self.partner.id,
+                'email': '612345678', 'recipient_type': 'student',
+            })
 
     # --- signature / reply_to rendering (ems.mail_notice) -----------------------------------
 

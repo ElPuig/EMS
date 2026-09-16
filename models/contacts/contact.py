@@ -185,7 +185,15 @@ class ResPartner(models.Model):
     family_relation = fields.Char(string="Family relation")
     document_id = fields.Char(string="Document ID")
     passport_id = fields.Char(string="Passport")
-    student_email = fields.Char(string="Student email")	
+    student_email = fields.Char(string="Student email")
+
+    @api.constrains('email', 'student_email')
+    def _check_email_format(self):
+        for partner in self:
+            if partner.email and not email_normalize(partner.email):
+                raise ValidationError(_("%(email)s is not a valid email address.", email=partner.email))
+            if partner.student_email and not email_normalize(partner.student_email):
+                raise ValidationError(_("%(email)s is not a valid student email address.", email=partner.student_email))
     student_id = fields.Char(string="Student ID", copy=False)
     medical_id = fields.Char(string="Medical ID")
     nuss = fields.Char(string="NUSS")

@@ -47,6 +47,8 @@ Se encuentra en **Comunicaciones → Comunicados**.
    destinatario muestra su propio estado de envío, con el detalle del error disponible en las
    filas fallidas.
 
+![Un comunicado en borrador, con la lista de destinatarios generada automáticamente a partir del grupo seleccionado](../../assets/admin/admin-notice-create-form.png)
+
 Un comunicado **programado** (aún no enviado) se puede **cancelar**, devolviéndolo a Borrador
 para que pueda editarlo y volver a enviarlo.
 

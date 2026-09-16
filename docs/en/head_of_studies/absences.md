@@ -39,6 +39,8 @@ Nobody approves their own absence: an Area Manager's request is decided by Direc
 
 That lists your area's requests. The ones awaiting a decision are in state **Pending**, and you can resolve them from the list or by opening them.
 
+![Absences list, with Approve/Refuse actions on a pending request](../../assets/head_of_studies/hos-absences-list.png)
+
 You see the **written reason** and the **supporting document**; the rest of the staff do not.
 
 **Refusing is final.** Nobody at the centre can put a refused request back to *Pending*: to grant it after all, the employee has to file a new one. Because the Refuse button sits next to Approve, and in the list is a bare cross at the end of the row, it always asks for confirmation first - read the dialog before accepting it.

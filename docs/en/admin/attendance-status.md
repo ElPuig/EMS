@@ -12,6 +12,8 @@
 
 Every button a teacher can click for a student in the roll-call view (Attended, Minor Delay, Severe Delay, Miss, Justified Miss...) comes from a configurable list under **Attendance → Configuration → Sessions → Statuses**, instead of being fixed in the app's code. You can add a new one, reorder them, or retire one the centre no longer uses.
 
+![Attendance statuses list, with category, family notification and color per status](../../assets/admin/admin-attendance-status-list.png)
+
 ---
 
 ## Managing Statuses

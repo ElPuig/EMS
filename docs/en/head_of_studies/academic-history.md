@@ -14,6 +14,8 @@ As Head of Studies or Director you have **read access to the whole history**, fo
 
 **Planning and Grading → Grades → Academic history** lists every record, grouped by course by default.
 
+![Academic history list, grouped by course, with the academic result of each record](../../assets/head_of_studies/hos-academic-history-list.png)
+
 Also, on any student's form, the **Academic history** tab shows that student's records — including **former students** (alumni and withdrawals), whose tab remains as their permanent record.
 
 ## Useful queries

@@ -138,6 +138,7 @@ from . import test_authorization_send_wizard
 from . import test_authorization_send_wizard_tour
 from . import test_docs_screenshots
 from . import test_docs_screenshots_head_of_studies
+from . import test_docs_screenshots_admin
 from . import test_authorization
 from . import test_authorization_template_tour
 from . import test_attendance_notification_tour

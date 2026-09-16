@@ -21,6 +21,8 @@ ya aplicado (visible como una etiqueta en la barra de búsqueda), de modo que en
 trabajas cómodamente solo con los comunicados que **tú mismo/a has creado** — la misma
 experiencia que el resto.
 
+![Listado de comunicados, filtrado a los creados por el usuario actual](../../assets/head_of_studies/hos-notice-only-mine.png)
+
 Si alguna vez necesitas comprobar qué ha enviado un compañero con el mismo rol — para
 supervisar — pulsa la **✕** de la etiqueta "Mostrar solo los míos" en la barra de búsqueda (o
 abre el panel de búsqueda y desmárcala) para ver todos los comunicados de todo el centro. Solo

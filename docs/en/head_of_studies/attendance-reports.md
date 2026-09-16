@@ -22,6 +22,8 @@ yourself, plus 3 printable PDF reports (by group, by student, by subject) reacha
    with disciplinary strikes attached.
 3. Use the search bar to filter further (by student, group, subject or status), and **Group By** to change
    how the table is folded — e.g. by group to compare assistance rates across the school.
+
+   ![Attendance reports pivot table, expanded by subject and student](../../assets/head_of_studies/hos-attendance-reports-pivot.png)
 4. Use the **spreadsheet/download icon** in the header to export the current pivot to Excel.
 5. Switch to the **graph** view (top-right icons) for a visual breakdown — by default it shows the
    **% of absence per subject** across the whole centre, so you can spot which subjects have the highest

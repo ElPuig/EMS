@@ -14,6 +14,8 @@ Como jefe/a de estudios o director/a tiene **acceso de lectura a todo el histór
 
 **Planificación y evaluación → Notas → Histórico académico** lista todos los registros, agrupados por curso por defecto.
 
+![Listado del histórico académico, agrupado por curso, con el resultado académico de cada registro](../../assets/head_of_studies/hos-academic-history-list.png)
+
 Además, en la ficha de cualquier alumno/a, la pestaña **Histórico académico** muestra sus registros — también para el **antiguo alumnado** (graduados/as y bajas), cuya pestaña se mantiene como registro permanente.
 
 ## Consultas útiles

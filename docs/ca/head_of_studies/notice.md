@@ -21,6 +21,8 @@ Si teniu el rol de **Cap d'estudis**, **Cap d'estudis adjunt** o **Coordinador d
 només amb els comunicats que **vosaltres mateixos heu creat** — la mateixa experiència que la
 resta.
 
+![Llistat de comunicats, filtrat als creats per l'usuari actual](../../assets/head_of_studies/hos-notice-only-mine.png)
+
 Si mai necessiteu comprovar què ha enviat un company amb el mateix rol — per supervisar —
 cliqueu la **✕** de l'etiqueta "Mostra només els meus" a la barra de cerca (o obriu el panell
 de cerca i desmarqueu-la) per veure tots els comunicats de tot el centre. Només podreu **editar

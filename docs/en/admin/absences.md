@@ -19,6 +19,8 @@
 
 The allowance **warns, it does not block**: someone going over it is warned and the request is flagged for the Head of Studies, but it goes through.
 
+![Staff Absence Settings block, with the whole-day and health allowance fields](../../assets/admin/admin-absences-settings.png)
+
 ---
 
 ## The absence type catalogue

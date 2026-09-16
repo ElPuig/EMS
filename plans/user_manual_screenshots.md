@@ -1,9 +1,29 @@
 # Plan: Add screenshots to every user manual missing one
 
-**Status as of 2026-09-16: paused mid-first-batch (quota), to be resumed on a different branch,
-at a different time.** This plan may go stale between then and now — re-check the current state
-of `docs/{en,ca,es}/<role>/` and `tests/test_docs_screenshots*.py` before resuming, don't assume
-this file is still accurate.
+**Status as of 2026-09-16 (third session, branch v18.0.0.26.0): head_of_studies (7/7) DONE,
+admin batch 1/4 (4/17) DONE** — see "Status per role" below for both. **Developer asked this
+session to split each remaining role into smaller batches for quota control** (not just
+role-at-a-time) - `admin`'s remaining 3 batches are already planned out below, ready to resume
+without re-deriving the grouping. This plan may go stale between sessions - re-check the current
+state of `docs/{en,ca,es}/<role>/` and `tests/test_docs_screenshots*.py` before resuming, don't
+assume this file is still accurate.
+
+## Batching convention (per developer request, 2026-09-16 third session)
+
+Within a role, split into topical batches of ~4-5 manuals each (not the whole role in one
+sitting) - one **test method** per batch, all in the same `tests/test_docs_screenshots_<role>.py`
+file (unlike `head_of_studies`, which had few enough manuals for one method to cover the whole
+role). Group manuals by shared subject matter so fixtures can be reused within a batch. Current
+breakdown:
+
+**admin (17 manuals, 4 batches):**
+1. ✅ DONE - absences, attendance-status, notice, strike (attendance/coexistence config)
+2. NOT STARTED - course-settings, course-transition, teacher-roles, groups (config/org structure)
+3. NOT STARTED - curriculum-levels, curriculum-studies, curriculum-subjects, workgroups (curriculum)
+4. NOT STARTED - facilities, grade-import, space-schedule, student-schedule, survey (facilities/scheduling/import)
+
+The other 4 roles (teachers, secretary, tutors, families) have not been broken into batches yet -
+do that when picked up, following the same topical-grouping approach.
 
 ## Why
 
@@ -16,31 +36,22 @@ conversation:
 - Work **by role, one batch at a time, with a check-in after each batch** (developer's own
   choice when asked) - not all 47 in one uninterrupted sweep.
 
-## The 47 manuals with no screenshot (found 2026-09-16)
+## The remaining 36 manuals with no screenshot (found 2026-09-16, head_of_studies + admin batch 1 done since)
 
 Detection: no `![...](...)` or `<img` anywhere in the file. Identical set across `en/`, `ca/` and
 `es/` (screenshots are shared assets referenced the same way in each language version), so the
-list below only needs stating once. 64 manuals total, 17 already have screenshots.
+list below only needs stating once. 64 manuals total, 17 already had screenshots before this
+plan, 11 more (head_of_studies + admin batch 1) done by this plan - 36 left.
 
 | Role | Missing / total |
 |---|---|
-| head_of_studies | 7 / 7 |
-| admin | 17 / 21 |
+| admin | 13 / 21 |
 | teachers | 10 / 12 |
 | secretary | 8 / 10 |
 | tutors | 4 / 9 |
 | families | 1 / 5 |
 
 ```
-head_of_studies/absences.md
-head_of_studies/academic-history.md
-head_of_studies/attendance-corrections.md
-head_of_studies/attendance-reports.md
-head_of_studies/notice.md
-head_of_studies/staff-management.md
-head_of_studies/strike.md
-admin/absences.md
-admin/attendance-status.md
 admin/course-settings.md
 admin/course-transition.md
 admin/curriculum-levels.md
@@ -49,9 +60,7 @@ admin/curriculum-subjects.md
 admin/facilities.md
 admin/grade-import.md
 admin/groups.md
-admin/notice.md
 admin/space-schedule.md
-admin/strike.md
 admin/student-schedule.md
 admin/survey.md
 admin/teacher-roles.md
@@ -156,51 +165,126 @@ created, see status below), each:
   one.
 - `hr.leave`'s own approval action needs `action_approve()` (not e.g. `write({'state': ...})`
   directly) to reach a real "Accepted" state realistically.
+- **A native action with no `domain` of its own is not safe to screenshot through as-is, even
+  when it's not one of the "obviously scoped-to-me" cases CLAUDE.md already calls out.** Found on
+  `action_year_record_list`: it has no domain because it relies on model-level access
+  (`group_student_data_reader`) rather than view scoping, so it shows every real record
+  centre-wide to anyone with read access - exactly the head_of_studies role being screenshotted.
+  Always check a candidate action's own `<field name="domain">` (or lack of it) before using it
+  directly in a capture; when absent or too broad, create your own domain-scoped
+  `ir.actions.act_window` in `setUpClass`, same as `absence_action`/`pivot_action`/
+  `year_record_action` already do.
+- **`_trim`'s background-color-diff crop can silently fail to crop a huge empty area**, when the
+  clip selector's own element stretches (via flex-grow) to fill remaining viewport height, AND
+  that element has some edge/border of a different, uniform color than the page's true empty-area
+  background (the trim's reference pixel, sampled from the bottom-right corner of the capture).
+  Two confirmed cases: a left filter sidebar (`hr.leave`'s "ESTAT" facet panel, solid white the
+  full column height, while the reference background was grey) and even the plain
+  `.o_list_renderer`/`.o_content` wrapper's own left border/edge (a ~7px solid-white strip,
+  same issue at smaller scale). **Fix: clip to the actual `<table class="o_list_table">` instead
+  of `.o_list_renderer`/`.o_content`** - it's sized to its own rows, not flex-stretched, so there's
+  nothing left for `_trim` to even need to crop. **Caveat:** don't use `.o_list_table` for a
+  capture that `click`s to expand something first (e.g. a group header) - confirmed on
+  `academic-history`, where `.o_list_table`'s `getBoundingClientRect()` was read before the table
+  had relaid-out for the newly-expanded row (even though the row already existed in the DOM per
+  `wait_after`), silently cropping the last row off. For a click-then-expand capture, `.o_content`
+  (or another non-table wrapper) is the safer choice - its own box doesn't depend on the table's
+  just-updated height, and `_trim`'s pixel-diff crop runs against the already-painted screenshot,
+  strictly after that layout settles. **Only use `.o_list_table` for a capture that does NOT
+  click/expand anything.**
+- **`wait_after`/`wait_for` selector to confirm "2 or more rows exist" - don't use `:nth-of-type(N)`
+  for this.** `:nth-of-type` counts an element's position among ALL sibling `<tr>` regardless of
+  class, so if a `<tr class="o_group_header">` precedes the data rows (any grouped list),
+  `:nth-of-type(2)` actually matches the FIRST `.o_data_row` (position 2 counting the group
+  header), not the second one - it resolves immediately without ever having waited for a second
+  row. Use the adjacent-sibling combinator instead: `.o_data_row + .o_data_row` correctly
+  requires two consecutive data rows to exist, regardless of what precedes them. General lesson:
+  when a `wait_for`/`wait_after` condition resolves suspiciously fast, or the resulting PNG's
+  pixel dimensions look implausibly short for what should be several rows, actually check the
+  PNG's dimensions (`PIL.Image.open(path).size`) rather than trusting "the test passed" - a passing
+  assertion here (`getsize() > 2000`) only proves the file isn't near-empty, not that it shows the
+  right content.
+- **Capturing a block on Odoo's own Settings screen (`res.config.settings`, e.g. "Settings →
+  EMS Management → ...")**: two things confirmed by reading the actual web addon source this
+  session (`settings_form_compiler.js`, `form_compiler.js`, `setting.xml`, `settings_page.js`):
+  - Each `<setting id="some_id">` in the view XML renders with that exact same `id` as a real DOM
+    attribute on its wrapping `<div>` - `#some_id` is a stable, reliable selector for one
+    individual setting row. The `<block title="...">` wrapping several settings does **not**
+    render any stable id/class of its own (only the title text, not selector-safe) - to clip a
+    whole block, use `.o_settings_container:has(#first_settings_id)` (Chrome 150 here, well past
+    the `:has()` baseline) rather than trying to select the block directly.
+  - The settings page only shows one `<app>` (module tab) at a time; opening the generic
+    `base_setup.action_general_configuration` action lands on the *first* tab, not necessarily
+    the one you need. Reliably reach the right tab with `click='a.tab[data-key="<app name=\"...\">
+    attribute>"]'` (e.g. `a.tab[data-key="ems"]` for `<app name="ems">`) + `wait_after` on the
+    target setting's own id.
+  - **Login group requirement, easy to miss:** `res.config.settings` itself requires
+    `base.group_system` at the model-access level (`ir.model.access.csv`), and
+    `ems.group_academic_admin` does **not** imply it - only `ems.group_settings_admin` does (see
+    `security/groups.xml`). A fixture user built only with `academic_admin` gets an AccessError
+    opening any Settings screen at all, even though "Administrator" is the role every admin/*.md
+    manual names. Give the capture-file's admin fixture user **both** groups (matching how the
+    real centre's own admin account actually holds both) rather than creating a second login just
+    for Settings-screen captures.
 
 ## Status per role
 
-### head_of_studies (7/7) - IN PROGRESS, not committed as docs yet
+### head_of_studies (7/7) - ✅ DONE 2026-09-16
 `tests/test_docs_screenshots_head_of_studies.py` exists and is registered in `tests/__init__.py`.
-Last run (2026-09-16 08:33): **5 of 7 captures succeeded**, written to
-`/tmp/ems_doc_screenshots/` (ephemeral - may already be gone if this box restarted since; just
-re-run the test if so, no fixture changes needed for these 5):
-- `hos-absences-list.png` ✅ (for `absences.md`)
-- `hos-academic-history-list.png` ✅ (for `academic-history.md`)
-- `hos-attendance-correction-list.png` ✅ (for `attendance-corrections.md`)
-- `hos-attendance-reports-pivot.png` ✅ (for `attendance-reports.md`)
-- `hos-notice-only-mine.png` ✅ (for `notice.md`)
-- `hos-staff-management-create-account.png` ❌ **broken selector** - the capture method's own
-  `wait_for=".o_form_statusbar button:contains('Create Google account')"` uses `:contains()`,
-  invalid in plain `querySelector` (see gotcha above). **Fix:** change to
-  `button[name="action_create_google_account"]` (the form already has exactly one button with
-  that `name`). Not yet re-run after this fix.
-- `hos-strike-kicked-out.png` ⏸ **never ran** - the test method aborts at the first failure
-  (staff-management, above), so this last capture (for `strike.md`) was never reached. Should
-  work as written once the fix above lands and the test re-runs cleanly end to end - no other
-  known issue with its own fixture/selector.
+All 7 PNGs generated cleanly (`*/ems:TestDocsScreenshotsHeadOfStudies`, exit 0, no WARNING/ERROR
+beyond 2 pre-existing unrelated deprecation warnings), visually verified with `Read` (no personal
+data - every fixture is fake, per CLAUDE.md), copied into `docs/assets/head_of_studies/`, and
+referenced with `![...]`  in all 3 languages of all 7 manuals (`absences.md`,
+`academic-history.md`, `attendance-corrections.md`, `attendance-reports.md`, `notice.md`,
+`staff-management.md`, `strike.md`). Two real bugs found and fixed along the way, beyond the
+`:contains()` selector bug already known from the first session:
+- **`action_year_record_list` (academic-history) had no domain of its own** - it relies on
+  `group_student_data_reader` access, not view scoping, so the native action shows *every real
+  student's* history centre-wide. A screenshot through it leaked real aggregate counts (e.g.
+  "2024-2025 (184)"). Fixed by creating our own domain-scoped `ir.actions.act_window` in
+  `setUpClass` (`cls.year_record_action`), same trick already used for `absence_action`/
+  `pivot_action` - see the general warning in "Mechanism" below, this is not a one-off.
+- **`new_teacher` fixture had `work_email` set**, which computes `google_ws_state` straight to
+  `'pending_user'` (shows "Create EMS User") instead of `'none'` (shows "Create Google account",
+  the button the manual/screenshot needs) - `_compute_google_ws_state` in
+  `models/employees/google_workspace_integration.py` only returns `'none'` when `work_email` is
+  unset. Fixed by dropping `work_email` from that fixture.
 
-**None of these 5 successful PNGs have been:** visually verified (`Read` the PNG - not done yet),
-copied into `docs/assets/head_of_studies/` (folder already created, empty), or referenced from
-the actual `.md` files (English/Catalan/Spanish, all 3 unedited so far - `head_of_studies/*.md`
-still has zero `![...]` anywhere). **Next steps to close this role out:**
-1. Fix the `:contains()` selector, re-run the test, confirm all 7 PNGs write successfully.
-2. `Read` each PNG - check it actually shows what it should, crop/composition is sensible, no
-   personal data (should already be true since every fixture is fake, but verify per CLAUDE.md's
-   "never assume a crop is clean without looking").
-3. Copy the 7 PNGs into `docs/assets/head_of_studies/`.
-4. Add `![...](../../assets/head_of_studies/<file>.png)` at the right spot in each of the 7
-   manuals, **in all 3 languages** (`docs/en/head_of_studies/`, `docs/ca/head_of_studies/`,
-   `docs/es/head_of_studies/`) - same image file, one reference per language file.
-5. Delete this role's rows from the "missing" table above once genuinely done, or just delete
-   this whole plan file once every role is done (see CLAUDE.md's own `plans/` convention).
+### admin - batch 1/4 (4/17) - ✅ DONE 2026-09-16, batches 2-4 NOT STARTED
+`tests/test_docs_screenshots_admin.py` exists and is registered in `tests/__init__.py`, one test
+method per batch (see "Batching convention" above) -
+`test_capture_batch1_absences_attendance_notice_strike` covers batch 1's 4 manuals. All 4 PNGs
+generated cleanly (`*/ems:TestDocsScreenshotsAdmin`, exit 0, only the same pre-existing unrelated
+deprecation warning as always), visually verified with `Read`, copied into `docs/assets/admin/`,
+referenced with `![...]` in all 3 languages of `absences.md`, `attendance-status.md`, `notice.md`,
+`strike.md`. Login: a single `doc_shot_admin` fixture user holding both `ems.group_academic_admin`
+and `ems.group_settings_admin` (the latter needed only for the Settings-screen capture, see
+Mechanism below) - reused across every capture in the file, not recreated per batch. One real bug
+found and fixed, beyond the reusable technique gotchas already folded into "Mechanism" below:
+- **`res.partner.relation.all` (what `res.partner.relation_all_ids` actually reads) is a SQL VIEW
+  model** - creating a `res.partner.relation` row and immediately calling
+  `student.relation_all_ids` in the same transaction/method silently returned empty (0 relations),
+  so the notice's auto-populated family recipient never appeared even though the underlying
+  `res.partner.relation` record existed and the student was correctly a minor (`is_adult=False`).
+  Fixed with an explicit `self.env.flush_all()` + `self.env.invalidate_all()` between creating the
+  relation and calling `notice._onchange_groups()` (confirmed via a temporary debug assertion
+  before/after - 0 relations found without the flush, 1 found with it). Any future capture that
+  creates a `res.partner.relation` fixture and then immediately reads it back (directly, or via
+  `_onchange_groups()`/similar) needs this same flush.
 
-### admin, teachers, secretary, tutors, families - NOT STARTED
-No test file exists yet for any of these 5 roles. Each will need its own research pass (grep the
+Also fixed a **DRY violation from the head_of_studies batch**: that file had hand-rolled its own
+`_level_study_group()` classmethod duplicating `tests.common.create_level_study_group()`, which
+already existed - not noticed at the time. Replaced with the shared helper and re-verified
+`TestDocsScreenshotsHeadOfStudies` still passes clean (all 7 captures identical). Use
+`create_level_study_group(cls, prefix, level={...}, study={...}, group={...})` (not a per-file
+local copy) for every future batch that needs a level+study+group fixture.
+
+### teachers, secretary, tutors, families - NOT STARTED
+No test file exists yet for any of these 4 roles. Each will need its own research pass (grep the
 relevant `views/`/`models/` for action ids, model fields, native action domains that might leak
-real data) before writing captures - see the "Mechanism" section above and
-`test_docs_screenshots_head_of_studies.py` as the worked example once it's finished. `admin` is
-the largest remaining batch (17 manuals) and likely the most varied in subject matter (curriculum
-config, imports, surveys, working schedules...).
+real data) before writing captures, and its own topical batch breakdown (see "Batching
+convention" above) - see the "Mechanism" section below and `test_docs_screenshots_admin.py` /
+`test_docs_screenshots_head_of_studies.py` as worked examples.
 
 ## Reminder: this is a big, multi-session effort
 

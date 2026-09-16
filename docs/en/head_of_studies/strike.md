@@ -18,6 +18,8 @@ Head of Studies, Deputy Head of Studies and Director see strikes according to th
 
 From a student's own form, a **Strikes** button appears in the header showing their accumulated count. Opening any individual strike record shows a **Kicked out of class** checkbox, so you can tell at a glance whether that incident ended with the student being sent out of the classroom.
 
+![Strike record with the Kicked out of class checkbox ticked](../../assets/head_of_studies/hos-strike-kicked-out.png)
+
 ---
 
 ## Escalation Emails (Coexistence Coordinators)

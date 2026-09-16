@@ -18,6 +18,8 @@ Cap d'Estudis, Cap d'Estudis Adjunt/a i Direcció veuen els strikes segons les m
 
 A la fitxa del propi alumne, apareix un botó de **Strikes** a la capçalera que mostra el recompte acumulat. En obrir qualsevol strike concret es mostra una casella **Expulsat de classe**, per saber d'un cop d'ull si aquella incidència va acabar amb l'alumne fora de l'aula.
 
+![Fitxa d'un strike amb la casella Expulsat de classe marcada](../../assets/head_of_studies/hos-strike-kicked-out.png)
+
 ---
 
 ## Correus d'escalat (coordinadors de convivència)

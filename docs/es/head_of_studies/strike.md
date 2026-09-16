@@ -18,6 +18,8 @@ Jefatura de Estudios, Jefatura de Estudios Adjunta y Dirección ven los strikes 
 
 En la ficha del propio alumno, aparece un botón de **Strikes** en la cabecera que muestra el recuento acumulado. Al abrir cualquier strike concreto se muestra una casilla **Expulsado de clase**, para saber de un vistazo si esa incidencia terminó con el alumno fuera del aula.
 
+![Ficha de un strike con la casilla Expulsado de clase marcada](../../assets/head_of_studies/hos-strike-kicked-out.png)
+
 ---
 
 ## Correos de escalado (coordinadores de convivencia)

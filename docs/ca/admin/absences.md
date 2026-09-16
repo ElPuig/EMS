@@ -19,6 +19,8 @@
 
 El crèdit **avisa, no bloqueja**: qui el supera rep un avís i la sol·licitud queda marcada per al cap d'estudis, però es tramita igual.
 
+![Bloc de configuració d'absències del personal, amb els camps de dia sencer i crèdit de salut](../../assets/admin/admin-absences-settings.png)
+
 ---
 
 ## El catàleg de tipus d'absència

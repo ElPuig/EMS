@@ -47,6 +47,8 @@ troba a **Comunicacions → Comunicats**.
    mostra el seu propi estat d'enviament, amb el detall de l'error disponible a les files
    fallides.
 
+![Un comunicat en esborrany, amb la llista de destinataris generada automàticament a partir del grup seleccionat](../../assets/admin/admin-notice-create-form.png)
+
 Un comunicat **programat** (encara no enviat) es pot **cancel·lar**, tornant-lo a Esborrany
 perquè el pugueu editar i tornar a enviar.
 

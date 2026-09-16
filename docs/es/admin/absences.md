@@ -19,6 +19,8 @@
 
 El crédito **avisa, no bloquea**: quien lo supera recibe un aviso y la solicitud queda marcada para la jefatura de estudios, pero se tramita igual.
 
+![Bloque de configuración de ausencias del personal, con los campos de día entero y crédito de salud](../../assets/admin/admin-absences-settings.png)
+
 ---
 
 ## El catálogo de tipos de ausencia

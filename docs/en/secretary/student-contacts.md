@@ -42,6 +42,8 @@ Open the student's record and, in the **Contacts & Addresses** tab, click **Add 
 
 The same relation shows up on the family member's own record too, listing which student(s) they are related to.
 
+> **Since 18.0.0.26.0:** any email address entered on a contact (personal or student/corporate) must be well-formed (`name@domain`) — EMS refuses to save a value that isn't, such as a phone number typed in the wrong field by mistake.
+
 **To remove a family member**, click the trash icon on their row and confirm with **Ok**. The family member is no longer linked to the student. If they are left related to no other student and have no user (portal access), their contact is deleted too; otherwise it is kept.
 
 ## Enrolling a student in subjects

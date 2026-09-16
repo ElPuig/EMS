@@ -38,6 +38,10 @@ Se encuentra en **Comunicaciones → Comunicados**.
    alumno no tiene ninguna dirección que coincida con su selección de **Correo del
    destinatario** (p. ej. eligió "Corporativo" pero aún no tiene cuenta institucional creada),
    aparece un aviso con sus nombres para que sepa que se han quedado fuera.
+
+   > **Desde la 18.0.0.26.0:** el correo de una fila de destinatario debe tener un formato
+   > válido (`nombre@dominio`) — EMS no permite guardar un valor que no lo sea, como un número
+   > de teléfono escrito por error.
 8. Haga una de las dos opciones:
    - Pulse **Enviar** para poner los correos en cola inmediatamente, o
    - Marque **Programar el envío** y elija una fecha/hora, y pulse **Enviar** — el comunicado

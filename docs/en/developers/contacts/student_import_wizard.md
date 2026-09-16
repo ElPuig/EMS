@@ -18,8 +18,8 @@ flowchart TD
     B --> C["for each sheet in the workbook"]
     C --> D["_find_headers() — scan first 20 rows\nfor the student ID column"]
     D -->|not found| E["skip this sheet"]
-    D --> F["for each data row:\n_process_row(), wrapped in try/except"]
-    F -->|exception| G["append to stats.errors,\ncontinue with next row"]
+    D --> F["for each data row:\n_process_row(), wrapped in\ncr.savepoint() + try/except"]
+    F -->|exception| G["savepoint rolls back this row,\nappend to stats.errors,\ncontinue with next row"]
     F --> H["_get_or_create_student()\n+ _prepend_import_notes()"]
     H --> I["_process_tutor() × 2\n(Tutor 1, Tutor 2)"]
     C -->|no sheet had a header| X1["UserError"]
@@ -29,6 +29,22 @@ flowchart TD
 **Every sheet holding data is imported**, not just the workbook's active one — a real Esfera export regularly splits its students across several sheets, and reading only `wb.active` silently dropped all the others. A sheet whose first 20 rows carry no student-ID column (an empty or auxiliary tab) is skipped rather than aborting the file; the `UserError` fires only when *no* sheet in the workbook has one.
 
 One row failing (a raised exception anywhere in `_process_row`) does **not** abort the batch — it's logged into `stats['errors']` and the loop continues, so a single malformed row can't block importing the rest of the file.
+
+**`with self.env.cr.savepoint():` around each row (issue #467, fixed alongside the email check
+below).** Before this, an exception raised partway through `_process_row` (e.g. `_get_or_create_student`'s
+single `create()`/`write()` call failing one of `res.partner`'s own `@api.constrains`, which runs
+*after* the underlying SQL write already flushed) still left that partial write committed in the
+transaction — a row reported as "failed" wasn't actually rolled back, the same gap
+`student_update_wizard.py` had already fixed for its own per-row write. The savepoint makes a
+failed row genuinely not-applied, matching what `stats['errors']` reporting it as failed implies.
+Covered by `tests/test_student_import_wizard.py::test_action_import_invalid_email_fails_only_that_row`
+(same fix and test mirrored in `applicant_import_wizard.py`).
+
+**`res.partner._check_email_format` (see `docs/en/developers/contacts/contact.md`)** now rejects a
+malformed `email`/`student_email` — most likely to surface here, since a garbled source row (e.g.
+the phone/email split in `_parse_contact_value`-style parsing elsewhere in this file, or simply a
+mis-mapped column in the source export) is exactly how a phone number ends up stored as an email
+in the first place (the incident that prompted this whole check).
 
 ### Required columns — only the student identifier
 

@@ -418,6 +418,34 @@ class TestContactFields(TransactionCase):
             self.env['res.partner'].create({
                 'name': 'Invalid Nuss Student', 'contact_type': 'student', 'student_id': next_student_id(), 'nuss': '12345'})
 
+    # --- _check_email_format -----------------------------------------------------
+
+    def test_email_valid_format(self):
+        student = self.env['res.partner'].create({
+            'name': 'Valid Email Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'email': 'valid.email@example.com'})
+        self.assertEqual(student.email, 'valid.email@example.com')
+
+    def test_email_invalid_format_raises(self):
+        # Regression (issue reported 2026-09-16): Amazon SES flagged an outgoing send as
+        # suspected spam because a phone number had ended up stored in an email field -
+        # see the CSV import's "phone - email" positional parsing in student_import_wizard.py.
+        with self.assertRaises(ValidationError):
+            self.env['res.partner'].create({
+                'name': 'Invalid Email Student', 'contact_type': 'student', 'student_id': next_student_id(),
+                'email': '612345678'})
+
+    def test_student_email_invalid_format_raises(self):
+        with self.assertRaises(ValidationError):
+            self.env['res.partner'].create({
+                'name': 'Invalid Student Email Student', 'contact_type': 'student', 'student_id': next_student_id(),
+                'student_email': '612345678'})
+
+    def test_email_empty_does_not_raise(self):
+        student = self.env['res.partner'].create({
+            'name': 'No Email Student', 'contact_type': 'student', 'student_id': next_student_id()})
+        self.assertFalse(student.email)
+
     # --- _compute_group_data -----------------------------------------------------
 
     def test_group_data_synced_from_main_group_on_create(self):

@@ -42,6 +42,8 @@ Abre la ficha del alumno y, en la pestaña **Contactos y direcciones**, haz clic
 
 La misma relación también aparece en la ficha del familiar, indicando con qué alumno(s) está relacionado.
 
+> **Desde la 18.0.0.26.0:** cualquier dirección de correo introducida en un contacto (personal o del alumno/corporativa) debe tener un formato válido (`nombre@dominio`) — EMS no permite guardar un valor que no lo sea, como un número de teléfono escrito por error en el campo equivocado.
+
 **Para quitar un familiar**, pulsa el icono de la papelera de su fila y confirma con **Aceptar**. El familiar deja de estar vinculado al alumno. Si no queda relacionado con ningún otro alumno y no tiene usuario (acceso al portal), también se borra su contacto; si no, se conserva.
 
 ## Matricular a un alumno en asignaturas

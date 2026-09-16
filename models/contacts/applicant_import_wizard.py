@@ -83,7 +83,8 @@ class EmsApplicantImportWizard(models.TransientModel):
             if not any(row):
                 continue
             try:
-                self._process_row(row, col_map, center_code, stats)
+                with self.env.cr.savepoint():
+                    self._process_row(row, col_map, center_code, stats)
             except Exception as e:
                 _logger.warning("Error processing GEDAC row: %s", e)
                 stats['errors'].append(str(e))

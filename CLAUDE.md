@@ -436,7 +436,52 @@ illustrate. Before saving any screenshot into `docs/assets/`:
   (read the image back before treating the task as done), or tell the developer exactly which file
   and region needs redaction and let them decide, rather than publishing it as-is.
 This applies regardless of source: a tour-driven capture, a manual `Read` of a screenshot file, or
-anything the developer hands you directly.
+anything the developer hands you directly. **When in doubt whether a screenshot still shows some
+personal data — a crop or blur that might not fully cover it, a background element you're not
+sure about — don't guess either way (neither "probably fine" nor discarding it yourself without
+saying anything): ask the developer to look and decide.** This is the same rule as the bullet
+above, stated again because it is the one most likely to get skipped under time pressure.
+
+**How to actually take a screenshot (2026-09-16) — reuse the project's own mechanism, never a
+fresh Playwright install or a hand-minted session.** Both a permanent doc screenshot (this
+section) and a throwaway self-verification screenshot during development (see "Self-verify UI
+before asking user" pattern) use the exact same mechanism: `tests/test_docs_screenshots.py`'s
+`ChromeBrowser` (from `odoo.tests.common`) + its `_capture` helper — a `HttpCase`-based test that
+authenticates as a fixture user, navigates to a URL, waits for a CSS selector, and clips a
+screenshot of just that element to a PNG. This already exists and is proven safe; do not install
+Playwright/chromium-cli, download a browser, or mint an Odoo session cookie by hand via `odoo
+shell` — a session spent real effort re-inventing this on 2026-09-16 before the developer pointed
+out the existing mechanism. It is also the *only* form a screenshot may take here: never attempt
+anything that could capture the developer's own real desktop/screen — this container has no view
+onto it, the developer is doing other things concurrently, and a past incident captured real
+private conversations that way. `ChromeBrowser` never goes near that risk in the first place: it
+only ever drives its own headless Chrome against the local Odoo test server, with fixtures created
+inside a rolled-back test transaction (which is also what keeps a *doc* screenshot from showing
+real data in the first place — see the personal-data rule above; fabricated names off a
+`create_role_user`/`create_role_employee` (`tests/common.py`) fixture, never real production rows).
+- **Permanent doc screenshot:** add a new `_capture(...)` call to `test_docs_screenshots.py`
+  itself (or a new `TestDocsScreenshots`-style class if the fixtures are unrelated), following its
+  own fixture-building conventions. Output lands in `/tmp/ems_doc_screenshots` (override via
+  `EMS_SCREENSHOT_DIR`); copy the PNG into `docs/assets/` by hand afterward (the test runs as the
+  `odoo` user, which has no write access to the repo).
+- **Throwaway self-verification during dev:** write a temporary `tests/test_<topic>_verify_tmp.py`
+  copying the same `ChromeBrowser`/`_capture` pattern, run it, `Read` the resulting PNG to actually
+  look at it, then delete both the file and its screenshots once you're done — it never becomes a
+  doc asset and was never meant to.
+- **Either way, add `from . import <file>` to `tests/__init__.py`** or Odoo's test loader never
+  discovers the class — it fails silently ("0 tests", no error), which is easy to mistake for a
+  passing run.
+- **Gotcha:** a class tagged `-standard` (as `test_docs_screenshots.py` is) can't be run via the
+  plain `./test.sh ClassName` shorthand — Odoo's tag selector implicitly requires the `standard`
+  tag for a bare class-name selector, so a `-standard` class silently matches "0 tests" that way
+  (confirmed 2026-09-16; `test_docs_screenshots.py`'s own docstring instruction to run it as
+  `./test.sh '/ems:TestDocsScreenshots'` does not actually work in this Odoo build). For a
+  throwaway verification file, simplest fix is to just not tag it `-standard` (plain
+  `@tagged('post_install', '-at_install')`, like the tour test classes). If `-standard` must stay,
+  the raw `--test-tags='*/ems:ClassName'` invocation is needed instead (the `*` bypasses the
+  implicit `standard` requirement) — that can't go through `test.sh`'s bare-classname shorthand, so
+  call `odoo -d ems -u ems --test-enable --test-tags='*/ems:ClassName' --stop-after-init -c
+  /etc/odoo/odoo.conf` directly, mirroring what `test.sh` itself runs.
 
 **Documentation describes current behavior, not history (2026-09-15).** Both technical
 (`docs/en/developers/`) and user (`docs/{en,ca,es}/<role>/`) documentation must describe the

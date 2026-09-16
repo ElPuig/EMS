@@ -84,7 +84,47 @@ Small shared helper (`dict(self._fields['doc_type'].selection).get(self.doc_type
 |------|:------:|:----:|:-----:|:------:|
 | Academic admin | ✓ | ✓ | ✓ | ✓ |
 | Secretary | ✓ | ✓ | ✓ | ✓ |
+| Tutor (`ems.group_tutor`) | — | ✓ | — | — |
+| TAC (`ems.group_tac`) | — | ✓ | — | — |
 | Portal (`base.group_portal`) | — | ✓ | — | — |
+
+### `security/rules/contacts.xml` — tutor access to Google credentials
+
+The tutor and TAC rows exist only to read the **Google Workspace credentials PDF** (`doc_type='google_credentials'`, created by `_gw_deliver_credentials()` in `google_workspace_integration.py`) from the student form's **Documentation** tab: tutors for their own students, the TAC team for every student, since they reset those passwords (see [google_workspace_student.md](google_workspace_student.md#password-reset)). Four rules:
+
+| Rule | Group | Domain |
+|------|-------|--------|
+| `rule_ems_student_document_tutor` | `ems.group_tutor` | `doc_type = 'google_credentials'` and `partner_id.tutor_id.user_id = user` (read only) |
+| `rule_ems_student_document_tac` | `ems.group_tac` | `doc_type = 'google_credentials'` (read only) |
+| `rule_ems_student_document_secretary` | `ems.group_secretary` | none (full access) |
+| `rule_ems_student_document_admin` | `ems.group_academic_admin` | none (full access) |
+
+Rules of the groups a user belongs to are ORed, so the two unrestricted rules are what keep the tutor rule from narrowing staff who are also in `group_tutor`: the academic admin always is (admin → director → head of studies → department chief → tutor), and a secretary may also tutor a group. Every other document type (ID card, IBAN, medical card, benefit proof) stays invisible to tutors and TAC. The PDF download works through the normal `ir.attachment` check, which defers to read access on the owning `ems.student.document` record.
+
+In the views, the Documentation page adds `ems.group_tutor` and `ems.group_tac` to its `groups`, and the Approve / Reject / Reset to pending buttons of the document list and form are restricted to `ems.group_academic_admin,ems.group_secretary`, so a tutor opening a credentials row gets a plain read-only form.
+
+### Bulk download: "Download Google credentials"
+
+A server action (`action_google_credentials_download_bulk`, `views/community/contact/google_credentials_download.xml`) bound to the `res.partner` list's Actions menu, for academic admin, secretary, tutor and TAC:
+
+```mermaid
+sequenceDiagram
+    participant U as User (students list)
+    participant P as res.partner
+    participant C as /ems/google_credentials/download
+    U->>P: action_download_google_credentials() on the selection
+    P->>P: _get_google_credentials_documents()
+    alt no readable credentials
+        P-->>U: UserError
+    else
+        P-->>U: act_url (target download, partner_ids of the documents found)
+        U->>C: GET ?partner_ids=...
+        C->>P: _get_google_credentials_documents() again, as the user
+        C-->>U: ZIP, one "<student name> - <file name>" PDF per student (404 if none)
+    end
+```
+
+`_get_google_credentials_documents()` (`models/contacts/google_workspace_integration.py`) searches with the user's own rights, so the record rules above decide what a tutor gets, and keeps only the most recent credentials document per student (by `upload_date`). The route repeats that search instead of trusting the ids in the URL, so a hand-edited `partner_ids` never yields more than the user can already read.
 
 ### `security/rules/portal.xml` — `rule_ems_student_document_portal`
 

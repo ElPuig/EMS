@@ -6,9 +6,12 @@ from dateutil.relativedelta import relativedelta
 from odoo.addons.ems.models.shared.google_workspace_mixin import (
     GW_DEACTIVATION_DELAY_DAYS,
     GW_DELETION_DELAY_DAYS,
+    HttpError,
 )
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
+
+from .common import create_role_user, mock_outgoing_email, next_student_id
 
 
 class TestStudentGoogleWorkspace(TransactionCase):
@@ -485,3 +488,83 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
                 type(student), 'action_suspend_google_account', autospec=True) as suspend:
             student.unlink()
         suspend.assert_called_once()
+
+
+class TestStudentGooglePasswordReset(TransactionCase):
+    """Issue #478: "Reset Google password" on the student form, for academic admin and TAC only.
+    Dry-run unless a test switches it off, and the credentials delivery (PDF + email) is patched."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        mock_outgoing_email(cls)
+        cls.company = cls.env.company
+        cls.company.write({
+            'google_ws_enabled': True, 'google_ws_dry_run': True, 'google_ws_domain': 'elpuig.xeill.net',
+        })
+        cls.student = cls.env['res.partner'].create({
+            'name': 'Reset Password Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'student_email': 'reset.student@elpuig.xeill.net', 'email': 'reset.personal@example.com',
+        })
+        cls.old_credentials = cls.env['ems.student.document'].create({
+            'partner_id': cls.student.id, 'doc_type': 'google_credentials', 'status': 'approved',
+        })
+        cls.tac = create_role_user(cls, 'tac', 'test_tac_gw_reset')
+
+    def _reset(self, user):
+        student = self.student.with_user(user)
+        with patch.object(type(self.student), '_gw_deliver_credentials', autospec=True,
+                          return_value=(True, True)) as deliver:
+            student.action_reset_google_password()
+        return deliver
+
+    def test_tac_resets_password_and_delivers_new_credentials(self):
+        deliver = self._reset(self.tac)
+        deliver.assert_called_once()
+        __, email, password = deliver.call_args.args
+        self.assertEqual(email, 'reset.student@elpuig.xeill.net')
+        self.assertGreaterEqual(len(password), 12)
+        self.assertEqual(self.old_credentials.status, 'cancelled', "the old PDF holds a dead password")
+        note = self.student.message_ids[:1]
+        self.assertIn('reset.student@elpuig.xeill.net', note.body)
+        self.assertEqual(note.author_id, self.tac.partner_id)
+
+    def test_academic_admin_can_reset(self):
+        admin = create_role_user(self, 'academic_admin', 'test_admin_gw_reset')
+        self._reset(admin).assert_called_once()
+
+    def test_other_roles_cannot_reset(self):
+        for role in ('secretary', 'tutor', 'teacher'):
+            with self.subTest(role=role), self.assertRaises(AccessError):
+                self._reset(create_role_user(self, role, f'test_{role}_gw_reset'))
+        self.assertEqual(self.old_credentials.status, 'approved')
+
+    def test_reset_requires_an_active_account(self):
+        self.student.google_ws_suspended = True
+        with self.assertRaises(UserError):
+            self._reset(self.tac)
+
+    def test_reset_sends_the_password_to_google(self):
+        mock_service = Mock()
+        self.company.google_ws_dry_run = False
+        with patch('odoo.addons.ems.models.shared.google_workspace_mixin.'
+                   'GoogleWorkspaceMixin._gw_get_service', return_value=mock_service):
+            deliver = self._reset(self.tac)
+        __, kwargs = mock_service.users.return_value.patch.call_args
+        self.assertEqual(kwargs['userKey'], 'reset.student@elpuig.xeill.net')
+        self.assertEqual(kwargs['body'], {
+            'password': deliver.call_args.args[2], 'changePasswordAtNextLogin': True,
+        })
+
+    def test_google_refusal_is_reported_and_keeps_old_credentials(self):
+        mock_service = Mock()
+        # HttpError falls back to a plain Exception when the Google libraries are missing.
+        error = HttpError(Mock(status=403), b'Not Authorized') if HttpError is not Exception else HttpError('403')
+        mock_service.users.return_value.patch.return_value.execute.side_effect = error
+        self.company.google_ws_dry_run = False
+        with patch('odoo.addons.ems.models.shared.google_workspace_mixin.'
+                   'GoogleWorkspaceMixin._gw_get_service', return_value=mock_service), \
+                self.assertRaises(UserError):
+            self._reset(self.tac)
+        self.assertEqual(self.old_credentials.status, 'approved')
+

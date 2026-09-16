@@ -84,3 +84,34 @@ registry.category("web_tour.tours").add("ems_student_google_workspace_lifecycle"
         },
     ],
 });
+
+// Issue #478: the TAC team resets a student's Google password from the form header. Opened by
+// URL on the seeded student (see test_student_google_workspace_tour.py).
+registry.category("web_tour.tours").add("ems_student_google_password_reset", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_form_statusbar button[name='action_reset_google_password']",
+            content: "Click 'Reset Google password'",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer .btn-primary",
+            content: "Confirm the reset",
+            run: "click",
+        },
+        {
+            trigger: ".o-mail-Message:contains('password reset')",
+            content: "The chatter records the reset",
+        },
+        {
+            trigger: ".o_form_view .o_notebook .nav-link[name='documentation']",
+            content: "Open the Documentation tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='document_ids'] .o_data_row:contains('Cancelled') ~ .o_data_row:contains('Approved'), .o_field_widget[name='document_ids'] .o_data_row:contains('Approved') ~ .o_data_row:contains('Cancelled')",
+            content: "The new credentials are listed next to the cancelled old ones",
+        },
+    ],
+});

@@ -65,3 +65,25 @@ registry.category("web_tour.tours").add("ems_doc_shot_tutor_justification", {
         },
     ],
 });
+
+// Tutors' Google credentials manual: every student of the list selected and the Actions menu
+// open on "Download Google credentials". The capture opens the (fixture-only) list itself.
+registry.category("web_tour.tours").add("ems_doc_shot_tutor_google_credentials", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_list_view thead .o_list_record_selector input",
+            content: "Select every student of the list",
+            run: "click",
+        },
+        {
+            trigger: ".o_cp_action_menus button:has(.fa-cog)",
+            content: "Open the Actions menu",
+            run: "click",
+        },
+        {
+            trigger: ".o_menu_item:contains(Google)",
+            content: "The download action is listed",
+        },
+    ],
+});

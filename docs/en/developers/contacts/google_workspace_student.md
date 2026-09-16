@@ -194,12 +194,40 @@ stateDiagram-v2
 | `google_ws_state` | Header button shown (`views/community/contact/form.xml`) | Meaning |
 |---|---|---|
 | `none` | Create Google account | Not a student, or no corporate email yet |
-| `active` | Suspend Google account | Fully set up |
+| `active` | Suspend Google account, Reset Google password | Fully set up |
 | `suspended` | Reactivate Google account | `google_ws_suspended = True` |
 
 The same one-off migration as the staff side (`migrations/18.0.0.22.0/post-migrate.py`,
 `_backfill_google_ws_suspended`) backfills `google_ws_suspended = True` for students
 already archived/withdrawn before the field existed.
+
+## Password reset
+
+`action_reset_google_password()` (header button **Reset Google password**, only while
+`google_ws_state == 'active'`, behind a `confirm`) gives an existing account a new password:
+
+```mermaid
+sequenceDiagram
+    participant U as Academic admin / TAC
+    participant P as res.partner
+    participant G as Directory API
+    U->>P: action_reset_google_password()
+    P->>P: group check, active account, integration enabled
+    P->>G: users().patch(password, changePasswordAtNextLogin=True)
+    Note over P,G: skipped in dry-run; an HttpError becomes a UserError<br/>naming the "Reset password" admin-role privilege
+    P->>P: sudo: previous google_credentials documents -> cancelled
+    P->>P: _gw_deliver_credentials() (new PDF + welcome email)
+    P->>P: sudo: chatter note, authored by the user
+```
+
+The Google call happens first, so a refusal leaves the previous PDF untouched. The service
+account's custom admin role needs Google's **Reset password** privilege on the student OUs,
+which is separate from **Update**. The chatter note shares its PDF/email wording with the
+creation note through `_gw_delivery_note()`.
+
+The secretary is deliberately left out: it takes part in account *creation* only as a step
+of enrolling a student. The TAC team reads students only (`rule_contact_teacher`), which is
+why every write in the flow goes through `sudo()`.
 
 ## Access control
 
@@ -222,6 +250,8 @@ write path.
 | Action | Who |
 |---|---|
 | Header buttons (create/suspend/reactivate/delete/cancel) | `ems.group_secretary`, `ems.group_academic_admin` |
+| Reset Google password (button, plus the same check inside the method) | `ems.group_academic_admin`, `ems.group_tac` |
+| Reading the credentials PDFs (Documentation tab, bulk download) | see [student_document.md](student_document.md#access-control): tutors their own students', TAC everyone's |
 | Grace-period banners, optional list columns, search filters | same as above |
 | `_gw_deliver_credentials`'s document/email creation | `sudo()` inside the flow (queue jobs run as the job's own user, not necessarily one with `ems.student.document`/mail rights) |
 

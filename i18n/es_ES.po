@@ -14284,3 +14284,65 @@ msgstr "Como miembro del equipo de orientación, solo puedes cambiar las necesid
 #: model:ir.model.fields,field_description:ems.field_res_partner__special_needs_readonly model:ir.model.fields,field_description:ems.field_res_users__special_needs_readonly
 msgid "Special needs read-only"
 msgstr "Necesidades educativas especiales de solo lectura"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.action_google_credentials_download_bulk
+msgid "Download Google credentials"
+msgstr "Descargar credenciales de Google"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid ""
+"None of the selected students has Google credentials you can download."
+msgstr "Ninguno de los alumnos seleccionados tiene credenciales de Google que puedas descargar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/controllers/google_credentials.py:0
+msgid "Google credentials"
+msgstr "Credenciales de Google"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "%s has no active Google account."
+msgstr "%s no tiene ninguna cuenta de Google activa."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Google Workspace password reset: %(email)s%(dry)s. %(pdf)s%(mail)s."
+msgstr "Contraseña de Google Workspace restablecida: %(email)s%(dry)s. %(pdf)s%(mail)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid ""
+"Google refused to reset the password of %(email)s. Check that the service "
+"account's admin role has the \"Reset password\" privilege. Error: %(err)s"
+msgstr "Google no ha permitido restablecer la contraseña de %(email)s. Comprobad que el rol de administrador de la cuenta de servicio tiene el privilegio \"Restablecer contraseña\". Error: %(err)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Only administrators and the TAC team can reset a Google password."
+msgstr "Solo los administradores y el equipo TAC pueden restablecer una contraseña de Google."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Reset Google password"
+msgstr "Restablecer contraseña de Google"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "The Google Workspace integration is not enabled."
+msgstr "La integración con Google Workspace no está activada."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"This gives the student's Google account a new password: the current one "
+"stops working and new credentials are generated. Continue?"
+msgstr "Esto asigna una contraseña nueva a la cuenta de Google del alumno: la actual deja de funcionar y se generan credenciales nuevas. ¿Continuar?"

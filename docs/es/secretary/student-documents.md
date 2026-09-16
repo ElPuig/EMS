@@ -15,6 +15,7 @@ Esta guía explica cómo revisar los documentos que envían alumnos y familias �
 3. [Qué hace aprobar un IBAN](#qué-hace-aprobar-un-iban)
 4. [Qué hace aprobar un documento de beneficio](#qué-hace-aprobar-un-documento-de-beneficio)
 5. [Notificaciones](#notificaciones)
+6. [Descargar las credenciales de Google](#descargar-las-credenciales-de-google)
 
 ---
 
@@ -42,6 +43,10 @@ Aprobar un documento de bonificación/exención crea la entrada correspondiente 
 ## Notificaciones
 
 El alumno recibe un correo cuando su documento se aprueba o rechaza. Los revisores (configurados en *Gestión académica > Configuración > Asignación de tareas*) reciben una tarea pendiente en lugar de un correo por cada nueva tramitación pendiente — consulta tus Actividades para ver "Review document: ...".
+
+## Descargar las credenciales de Google
+
+Para descargar de golpe el PDF de credenciales de Google de varios alumnos: en **Comunidad educativa → Estudiantes**, en vista de lista, marca los alumnos, abre **Acciones** y pulsa **Descargar credenciales de Google**. Se descarga un ZIP con un PDF por alumno.
 
 ---
 

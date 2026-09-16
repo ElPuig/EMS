@@ -3,7 +3,7 @@ import base64
 import logging
 
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 
 from ..shared.google_workspace_mixin import (
     GW_DEACTIVATION_DELAY_DAYS,
@@ -392,9 +392,61 @@ class ResPartnerGoogleWorkspace(models.Model):
             'email': email,
             'ou': ou,
             'dry': _(" [dry-run]") if dry_run else '',
+            **self._gw_delivery_note(pdf_saved, emailed),
+        })
+
+    def _gw_delivery_note(self, pdf_saved, emailed):
+        """The 'pdf'/'mail' parts of the chatter note that follows a credentials delivery."""
+        return {
             'pdf': _("Credentials PDF saved in the student documentation")
                    if pdf_saved else _("Credentials PDF could NOT be generated (see logs)"),
-            'mail': _("; sent by email to %s") % recovery_email if emailed else _("; no personal email on file"),
+            'mail': _("; sent by email to %s") % self.email if emailed else _("; no personal email on file"),
+        }
+
+    def action_reset_google_password(self):
+        """Give the student's Google account a new random password and deliver it like a new
+        account's (issue #478). Academic admin and TAC only: the button's groups only hide it,
+        so the check is repeated here. TAC merely reads students, hence the sudo() writes."""
+        self.ensure_one()
+        user = self.env.user
+        if not (user.has_group('ems.group_academic_admin') or user.has_group('ems.group_tac')):
+            raise AccessError(_("Only administrators and the TAC team can reset a Google password."))
+        if self.google_ws_state != 'active':
+            raise UserError(_("%s has no active Google account.") % self.name)
+        company = self.env.company
+        if not company.google_ws_enabled:
+            raise UserError(_("The Google Workspace integration is not enabled."))
+
+        email = self.student_email
+        password = self._gw()._gw_random_password()
+        if company.google_ws_dry_run:
+            _logger.info("[GW dry-run] reset password of %s", email)
+        else:
+            service = self._gw()._gw_get_service()
+            try:
+                service.users().patch(
+                    userKey=email,
+                    body={'password': password, 'changePasswordAtNextLogin': True},
+                ).execute()
+            except HttpError as e:
+                _logger.exception("Could not reset the Google password of %s", self.name)
+                raise UserError(_(
+                    "Google refused to reset the password of %(email)s. Check that the service "
+                    "account's admin role has the \"Reset password\" privilege. Error: %(err)s") % {
+                        'email': email, 'err': str(e)[:200]}) from e
+
+        # The previous PDFs hold a password that no longer works.
+        self.env['ems.student.document'].sudo().search([
+            ('partner_id', '=', self.id),
+            ('doc_type', '=', 'google_credentials'),
+            ('status', '!=', 'cancelled'),
+        ]).write({'status': 'cancelled'})
+        pdf_saved, emailed = self._gw_deliver_credentials(email, password)
+        self.sudo().message_post(body=_(
+            "Google Workspace password reset: %(email)s%(dry)s. %(pdf)s%(mail)s.") % {
+                'email': email,
+                'dry': _(" [dry-run]") if company.google_ws_dry_run else '',
+                **self._gw_delivery_note(pdf_saved, emailed),
         })
 
     def _gw_deliver_credentials(self, email, password):
@@ -431,6 +483,37 @@ class ResPartnerGoogleWorkspace(models.Model):
                 ).send_mail(self.id, force_send=True)
                 emailed = True
         return pdf_saved, emailed
+
+    # ------------------------------------------------------------------
+    # Bulk credentials download (issue #478)
+    # ------------------------------------------------------------------
+    def _get_google_credentials_documents(self):
+        """Latest Google credentials PDF of each partner in self, as far as the current user may
+        read it (a tutor only reaches their own students' - see rule_ems_student_document_tutor)."""
+        documents = self.env['ems.student.document'].search([
+            ('partner_id', 'in', self.ids),
+            ('doc_type', '=', 'google_credentials'),
+            ('doc_file_name', '!=', False),
+        ], order='upload_date desc, id desc')
+        latest = self.env['ems.student.document']
+        for document in documents:
+            if document.partner_id not in latest.partner_id:
+                latest |= document
+        return latest
+
+    def action_download_google_credentials(self):
+        """"Download Google credentials" on the students list: one ZIP with the selected
+        students' PDFs, served by EmsGoogleCredentialsController. Lives here rather than inline
+        in the server action for the same reason as action_portal_access_bulk()."""
+        documents = self._get_google_credentials_documents()
+        if not documents:
+            raise UserError(_("None of the selected students has Google credentials you can download."))
+        partner_ids = ','.join(str(partner_id) for partner_id in documents.partner_id.ids)
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/ems/google_credentials/download?partner_ids={partner_ids}',
+            'target': 'download',
+        }
 
     # ------------------------------------------------------------------
     # Deactivation / reactivation (former students)

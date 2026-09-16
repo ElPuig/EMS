@@ -15,6 +15,7 @@ This guide explains how to review the documents students and families submit —
 3. [What approving an IBAN does](#what-approving-an-iban-does)
 4. [What approving a benefit document does](#what-approving-a-benefit-document-does)
 5. [Notifications](#notifications)
+6. [Downloading Google credentials](#downloading-google-credentials)
 
 ---
 
@@ -42,6 +43,10 @@ Approving a benefit/exemption document creates the corresponding entry in the st
 ## Notifications
 
 The student is notified by email when their document is approved or rejected. Reviewers (configured in *Academic Management > Configuration > Task Assignment*) get a to-do task instead of an email for each new pending submission — check your Activities for "Review document: ...".
+
+## Downloading Google credentials
+
+To download the Google credentials PDF of several students at once: in **Educational Community → Students**, list view, tick the students, open **Actions** and click **Download Google credentials**. A ZIP with one PDF per student is downloaded.
 
 ---
 

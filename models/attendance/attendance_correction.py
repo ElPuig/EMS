@@ -24,7 +24,15 @@ class ems_attendance_correction(models.Model):
         ),
     ]
 
-    attendance_id = fields.Many2one(string="Attendance", comodel_name="hr.attendance", required=True, ondelete="cascade")
+    # NOTE: explicit default, matching requested_check_in/out below, instead of relying purely on
+    # Odoo's generic default_<field> context lookup.
+    attendance_id = fields.Many2one(
+        string="Attendance",
+        comodel_name="hr.attendance",
+        required=True,
+        ondelete="cascade",
+        default=lambda self: self.env.context.get("default_attendance_id"),
+    )
     employee_id = fields.Many2one(string="Employee", comodel_name="hr.employee", related="attendance_id.employee_id", store=True, readonly=True)
     # NOTE: snapshotted at create() time (not related to attendance_id.check_in/out) so the
     # true original value survives even after action_accept() overwrites the attendance, which
@@ -44,6 +52,16 @@ class ems_attendance_correction(models.Model):
     decision_date = fields.Datetime(string="Decision date", readonly=True)
     decision_note = fields.Text(string="Decision note")
     is_approver = fields.Boolean(string="Is approver", compute="_compute_is_approver", compute_sudo=True, store=False)
+    # NOTE: deliberately no compute_sudo=True - found empirically (2026-09) that computing this
+    # field via the sudo'd environment compute_sudo switches to breaks resolving attendance_id
+    # from the "Request Correction" button's default_attendance_id context on a fresh .new()
+    # record (it reads back empty there, even though the same context key is present and
+    # correct). _is_check_out_requestable_for()'s own inner sudo() calls already cover the one
+    # access-rights concern (reading another employee's resource.calendar.leaves) that
+    # compute_sudo would otherwise have been for.
+    is_check_out_requestable = fields.Boolean(
+        string="Check-out requestable", compute="_compute_is_check_out_requestable", store=False
+    )
 
     @api.depends("employee_id", "attendance_id.check_in")
     def _compute_display_name(self):
@@ -60,15 +78,51 @@ class ems_attendance_correction(models.Model):
         for correction in self:
             correction.is_approver = bool(correction.id) and correction._check_is_approver()
 
+    @api.depends("attendance_id.check_in", "attendance_id.check_out", "attendance_id.employee_id")
+    def _compute_is_check_out_requestable(self):
+        for correction in self:
+            correction.is_check_out_requestable = correction._is_check_out_requestable_for(correction._get_correction_attendance())
+
+    def _get_correction_attendance(self):
+        # Shared by every place that needs "the attendance this correction is/will be about".
+        # The button's default_attendance_id context is checked first, ahead of attendance_id
+        # itself: an already-saved correction (e.g. the approver reopening a pending request)
+        # never carries this context key, so it correctly falls back to attendance_id then.
+        default_attendance_id = self.env.context.get("default_attendance_id")
+        if default_attendance_id:
+            return self.env["hr.attendance"].browse(default_attendance_id)
+        return self.attendance_id
+
+    def _is_check_out_requestable_for(self, attendance):
+        # A teacher who is still clocked in and still within their expected working hours
+        # for that day hasn't left yet - any check-out they'd type in would be invented, not
+        # remembered. Once the day's schedule ends (or there was none to begin with - a
+        # holiday, an absence covering the whole day, a non-working weekday), there's nothing
+        # left to be "still within", so the check-out becomes requestable again.
+        is_open = bool(attendance.check_in) and not attendance.check_out
+        if not is_open:
+            return True
+        # sudo() on both the model and the employee: _get_last_working_hour() reads
+        # resource.calendar.leaves, which core's own ir.rule restricts to the requesting
+        # user's own leaves - without it, a Head of Studies/admin evaluating someone else's
+        # request could get an incomplete picture of that other employee's calendar.
+        last_working_hour = self.env["hr.attendance"].sudo()._get_last_working_hour(
+            attendance.employee_id.sudo(), attendance.check_in.date()
+        )
+        return last_working_hour is None or fields.Datetime.now() >= last_working_hour
+
     def _default_requested_time(self, kind):
-        # NOTE: default_attendance_id comes from the "Request Correction" button's context;
-        # defaults to the original time so the requester only has to tweak what's wrong.
-        attendance = self.env["hr.attendance"].browse(self.env.context.get("default_attendance_id"))
+        # NOTE: defaults to the original time so the requester only has to tweak what's wrong.
+        attendance = self._get_correction_attendance()
         if not attendance:
             return False
         original = attendance.check_in if kind == "check_in" else attendance.check_out
         if original:
             return self.time_to_float(self.utc_datetime_to_local(original).time())
+        if kind == "check_out" and not self._is_check_out_requestable_for(attendance):
+            # Never pre-fill a value the requester can't see (the field is hidden in the
+            # view via is_check_out_requestable) - action_accept() would otherwise apply it.
+            return False
         return self._schedule_time_for(attendance, kind)
 
     def _schedule_time_for(self, attendance, kind):
@@ -103,6 +157,11 @@ class ems_attendance_correction(models.Model):
             attendance = self.env["hr.attendance"].browse(attendance_id)
             vals.setdefault("original_check_in", attendance.check_in)
             vals.setdefault("original_check_out", attendance.check_out)
+            # Defense-in-depth: the view hides requested_check_out via is_check_out_requestable,
+            # but a stale/tampered client could still send a value - never trust it once the
+            # server-side check says the check-out isn't requestable yet.
+            if vals.get("requested_check_out") and not self._is_check_out_requestable_for(attendance):
+                vals["requested_check_out"] = False
         corrections = super().create(vals_list)
         activity_type = self.env.ref("ems.mail_activity_attendance_correction")
         for correction in corrections:

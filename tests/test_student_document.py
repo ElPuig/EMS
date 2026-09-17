@@ -7,7 +7,9 @@ import zipfile
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests import HttpCase, tagged
 from odoo.tests.common import TransactionCase
-from .common import create_level_study_group, create_role_employee, create_role_user, next_student_id
+from .common import (
+    create_head_of_studies_branch, create_level_study_group, create_role_employee, create_role_user, next_student_id,
+)
 
 
 class TestStudentDocument(TransactionCase):
@@ -292,11 +294,11 @@ class TestStudentDocumentPortalAccess(TransactionCase):
 
 def create_tutored_students_with_credentials(cls, prefix):
     """A tutor user with one tutored student and one student of another group, each with a
-    Google credentials PDF, plus a DNI on the tutored one. Sets cls.tutor_user, cls.student,
+    Google credentials PDF, plus a DNI on the tutored one. Sets cls.tutor_user, cls.tutor, cls.student,
     cls.other_student, cls.credentials, cls.dni and cls.other_credentials."""
     cls.tutor_user = create_role_user(cls, 'tutor', f'test_tutor_{prefix.lower()}')
-    tutor = create_role_employee(cls, cls.tutor_user)
-    __, __, group = create_level_study_group(cls, f'{prefix}T', group={'tutor_id': tutor.id})
+    cls.tutor = create_role_employee(cls, cls.tutor_user)
+    __, __, group = create_level_study_group(cls, f'{prefix}T', group={'tutor_id': cls.tutor.id})
     __, __, other_group = create_level_study_group(cls, f'{prefix}O')
     Partner = cls.env['res.partner']
     cls.student = Partner.create({
@@ -392,34 +394,42 @@ class TestStudentDocumentTacAccess(TransactionCase):
 
 
 class TestStudentDocumentHeadOfStudiesAccess(TransactionCase):
-    """Issue #483: Head of Studies (and Director) inherit the tutor's Google credentials rights,
-    but for every student centre-wide - they tutor no group, so the tutor rule alone gave them
-    nothing. Still read only, and still nothing else from the Documentation tab."""
+    """Issue #483: Head of Studies and Director read the Google credentials of the students whose
+    tutor sits below them, through the tutor rule itself - still read only, and still nothing
+    else from the Documentation tab."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         create_tutored_students_with_credentials(cls, 'HSD')
-        cls.head_of_studies = create_role_user(cls, 'head_of_studies', 'test_hos_student_document')
+        create_head_of_studies_branch(cls, 'HSD', cls.tutor)
 
     def _documents_seen_by(self, user):
         return self.env['ems.student.document'].with_user(user).search(
             [('id', 'in', (self.credentials | self.dni | self.other_credentials).ids)])
 
-    def test_head_of_studies_reads_every_students_credentials_only(self):
-        self.assertEqual(self._documents_seen_by(self.head_of_studies), self.credentials | self.other_credentials)
+    def test_head_of_studies_reads_their_branch_credentials_only(self):
+        self.assertEqual(self._documents_seen_by(self.head_of_studies), self.credentials)
 
-    def test_director_reads_every_students_credentials_only(self):
-        director = create_role_user(self, 'director', 'test_director_student_document')
-        self.assertEqual(self._documents_seen_by(director), self.credentials | self.other_credentials)
+    def test_other_head_of_studies_reads_no_credentials(self):
+        self.assertFalse(self._documents_seen_by(self.other_head_of_studies))
+
+    def test_department_chief_reads_their_department_credentials_only(self):
+        self.assertEqual(self._documents_seen_by(self.department_chief), self.credentials)
+        self.assertFalse(self._documents_seen_by(self.other_department_chief))
+
+    def test_director_reads_every_tutored_students_credentials(self):
+        director = create_role_user(self, 'director', 'test_director_student_document', name='HSD Director')
+        self.env.company.director_id = create_role_employee(self, director)
+        self.assertEqual(self._documents_seen_by(director), self.credentials)
 
     def test_head_of_studies_cannot_modify_credentials(self):
         with self.assertRaises(AccessError):
             self.credentials.with_user(self.head_of_studies).write({'status': 'pending'})
 
-    def test_head_of_studies_downloads_every_students_credentials(self):
+    def test_head_of_studies_downloads_their_branch_credentials(self):
         students = (self.student | self.other_student).with_user(self.head_of_studies)
-        self.assertEqual(students._get_google_credentials_documents(), self.credentials | self.other_credentials)
+        self.assertEqual(students._get_google_credentials_documents(), self.credentials)
 
 
 class TestGoogleCredentialsBulkDownload(TransactionCase):

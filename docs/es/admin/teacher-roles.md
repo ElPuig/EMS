@@ -37,6 +37,8 @@ Los niveles de permisos forman una jerarquía — cada nivel incluye todos los p
 > **El cargo de Coordinador/a TAC tampoco forma parte de esta jerarquía.** Concede un bloque de permisos propio y separado (TAC: Manager/Administrador) y, a diferencia de todos los demás cargos de esta tabla, se asigna a mano, desde el campo **Cargos** de la ficha del profesor. Concede dos cosas: poder crear y editar fichas de profesorado enteras, información privada incluida, el mismo derecho que ha ganado la jefatura de estudios, y [crear y suspender la cuenta de Google de cualquier alumno, restablecer su contraseña](student-google-account.md) y consultar sus credenciales. Nada más de la escala de arriba. No es unipersonal: el cargo lo puede ocupar un equipo de varias personas a la vez.
 >
 > **La jefatura de estudios, la adjunta y la dirección ya pueden crear y editar profesorado.** Hasta hace poco solo podía hacerlo la administración; ved [Crear y editar profesorado](../head_of_studies/staff-management.md). Borrar una ficha de personal y gestionar el PAS siguen siendo exclusivos de la administración.
+>
+> **Los permisos del tutor suben por la jerarquía.** El jefe de seminario, el jefe de departamento y el jefe de estudios (o el adjunto) de un tutor tienen, sobre el alumnado de ese tutor, todos sus permisos; la dirección, sobre el alumnado de todos los tutores. Solo los jefes del tutor, no los de otros departamentos o áreas. Los listados de "Mis alumnos" solo muestran los grupos propios.
 
 ---
 

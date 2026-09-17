@@ -161,6 +161,26 @@ def create_role_employee(cls, user, employee_type='teacher', **overrides):
     return cls.env['hr.employee'].create(vals)
 
 
+def create_head_of_studies_branch(cls, prefix, tutor_employee):
+    """Hangs `tutor_employee` below a Department Chief who hangs below a new Head of Studies
+    (parent_id set directly, as the department cascade would), plus the people who must stay
+    out of that tutor's scope: another Department Chief under the same Head of Studies and a
+    second Head of Studies with nothing below them (issue #483). Sets cls.head_of_studies,
+    cls.department_chief, cls.other_department_chief and cls.other_head_of_studies (res.users)."""
+    key = prefix.lower()
+    cls.head_of_studies = create_role_user(cls, 'head_of_studies', f'test_hos_{key}', name=f'{prefix} Head of Studies')
+    head = create_role_employee(cls, cls.head_of_studies)
+    cls.department_chief = create_role_user(
+        cls, 'department_chief', f'test_chief_{key}', name=f'{prefix} Department Chief')
+    tutor_employee.parent_id = create_role_employee(cls, cls.department_chief, parent_id=head.id)
+    cls.other_department_chief = create_role_user(
+        cls, 'department_chief', f'test_other_chief_{key}', name=f'{prefix} Other Department Chief')
+    create_role_employee(cls, cls.other_department_chief, parent_id=head.id)
+    cls.other_head_of_studies = create_role_user(
+        cls, 'head_of_studies', f'test_other_hos_{key}', name=f'{prefix} Other Head of Studies')
+    create_role_employee(cls, cls.other_head_of_studies)
+
+
 def create_student_academic_file(cls, prefix, group, course=None, student=None):
     """Seeds the data the student form's Secretary and Academic history tabs render.
 

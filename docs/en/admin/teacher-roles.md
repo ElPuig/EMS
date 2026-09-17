@@ -37,6 +37,8 @@ Permission levels form a hierarchy — each level includes all the permissions o
 > **TAC coordinator is not part of this ladder either.** It grants its own separate permission block (TAC: Manager/Administrator), and unlike every other role in this table it is assigned by hand, from the teacher's own **Roles** field. It grants two things: the ability to create and edit teacher records in full, private information included (the same right the Head of Studies gained), and to [create, suspend and reset the password of any student's Google account](student-google-account.md) and view their credentials. Nothing else from the ladder above. It is not unipersonal: the post can be held by a team of several teachers at once.
 >
 > **Head of Studies, Deputy and Director can now create and edit teachers.** Until recently only the Administrator could; see [Creating and Editing Teachers](../head_of_studies/staff-management.md). Deleting a staff record and managing ASP staff both remain exclusive to the Administrator.
+>
+> **Tutor permissions escalate up the hierarchy.** A tutor's Seminar Chief, Department Chief and Head of Studies (or Deputy) hold every permission of that tutor over the tutor's students; the Director holds them over the students of every tutor. Only the tutor's own chiefs, not those of other departments or areas. "My students" lists still show only their own groups.
 
 ---
 

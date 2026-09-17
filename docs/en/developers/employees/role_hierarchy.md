@@ -76,7 +76,7 @@ flowchart LR
 | Group | Implies | Comment |
 |-------|---------|---------|
 | `ems.group_teacher` | `hr_attendance.group_hr_attendance_own_reader` | Base teacher access |
-| `ems.group_tutor` | `ems.group_teacher` | Teacher in charge of a group; row-level access to their group's students is granted via record rules in `security/rules/*.xml` that filter on `group_teacher` + a domain on `tutor_id`, not on `group_tutor` itself |
+| `ems.group_tutor` | `ems.group_teacher` | Teacher in charge of a group; row-level access to their group's students is granted via record rules in `security/rules/*.xml` that filter on `group_teacher` + a domain on `tutor_id.tutor_scope_user_ids`, not on `group_tutor` itself - see [Tutor scope](#tutor-scope-permissions-escalate-along-the-chain-of-command-issue-483) |
 | `ems.group_department_chief` | `ems.group_tutor` | Department head. Grants full read/write/create/unlink access to `ems.group` (see `access_ems_group_department_chief`), otherwise currently identical to Tutor |
 | `ems.group_head_of_studies` | `ems.group_department_chief`, `hr_attendance.group_hr_attendance_manager`, `hr.group_hr_user`, `ems.group_student_data_reader`, `base.group_partner_manager` | Full read/write access to all employees' attendance records, plus create/edit on teachers - see [Staff management](#staff-management-issue-391) below - plus full read/write access to every student's data centre-wide - see [Full access to student data for Head of Studies / Director](#full-access-to-student-data-for-head-of-studies--director-issue-448) below |
 | `ems.group_director` | `ems.group_head_of_studies` | Currently identical to Head of Studies |
@@ -305,6 +305,67 @@ flowchart LR
     HS --> RC["rule_contact_head_of_studies<br/>(res.partner CRUD, domain [])"]
     D["group_director"] --> HS
 ```
+
+## Tutor scope: permissions escalate along the chain of command (issue #483)
+
+Every chief above a tutor - their Seminar Chief, their Department Chief, their Head of Studies
+(or Deputy) and the Director - holds every tutor right over that tutor's students. Only *their*
+chiefs: another department's chief, or the Head of Studies of another area, gets nothing from
+it. This is the "escalate by hierarchy, not by role" rule of `CLAUDE.md` applied to every
+tutor-scoped permission at once.
+
+The group implication alone never gave chiefs that: every tutor-scoped record rule compared
+`tutor_id.user_id` with the current user, and a chief usually tutors no group, so each of those
+rules matched nothing for them. Found with the Google credentials of #478: a Head of Studies was
+left with a plain teacher's view.
+
+The fix is a single shared field, not one extra rule per model:
+
+| Piece | What it does |
+|-------|--------------|
+| `tutor_scope_user_ids` (`ems_employee_base`, so on `hr.employee` and `hr.employee.public`) | Non-stored `Many2many → res.users`: the employee's own user, every ancestor through `parent_id` whose user is in `group_department_chief` (`TUTOR_SCOPE_CHIEF_GROUP` - Seminar Chief, Department Chief, Head of Studies and Director all have it), and the user of `res.company.director_id`. |
+| `_search_tutor_scope_user_ids` | Its mirror for domains (`=`/`in` a user id): the user's own employee records, plus everything `child_of` them when the user is a chief, plus every employee of the company when the user is its Director. A falsy id matches nobody. |
+| Record rules (`security/rules/{contacts,attendance,coexistence,grading}.xml`) | Every `...tutor_id.user_id = user.id` became `...tutor_id.tutor_scope_user_ids = user.id`. `=` on a many2many means "contains". |
+| `ems.base.user_acts_as_tutor(tutor)` (`models/shared/base.py`) | The same test for Python checks: `get_user_is_tutor_of_self()`, the grade session's `can_edit`, the portal access, graduation and EM grading wizards, the authorization send wizard's student filter, and `res.partner._user_is_tutor_of_record()`/`_get_is_tutor_readonly()` (a chief edits exactly what the tutor edits, no more). |
+| `ems.base.get_user_is_tutor()` | "Acts as tutor of some group": an employee with tutorships has the user in their scope. Gates creating attendance justifications. |
+| Pickers | The EM grading wizard's group picker (`_tutor_scope_domain`) and the justification's student picker (`_onchange_allowed_student_ids`) also match on `tutor_scope_user_ids`, so they offer exactly what the server then accepts. |
+
+```mermaid
+graph TD
+    D["Director<br/>(res.company.director_id)"] --> H["Head of Studies / Deputy<br/>(top-level department manager)"]
+    H --> C["Department Chief"]
+    C --> SC["Seminar Chief"]
+    SC --> T["Tutor"]
+    H --> C2["Another Department Chief<br/>(out of scope)"]
+    T --> G["ems.group.tutor_id"]
+    G --> S["Students (main_group_id)"]
+    T -. "tutor_scope_user_ids" .-> U["{Tutor, Seminar Chief, Department Chief,<br/>Head of Studies, Director}"]
+```
+
+Design points:
+
+- **Follows `parent_id`**, which the department cascade (`hr.employee._compute_parent_id`,
+  `hr.department._effective_manager()`) already keeps equal to the real chain of command,
+  including departments without a Seminar Chief and `shares_manager_with_parent`.
+- **Not stored**, so a change of department, chief, area manager or Director applies on the next
+  request, with no recomputation to trigger. `ir.rule` caches the evaluated domain (which still
+  only carries the user id), not the search result, so the cache never goes stale. The search
+  costs a couple of `hr.employee` queries (about 20 ms on the development data), once per query,
+  not per row.
+- **Permissions only.** Lists of "my students" keep matching on the literal tutor - the default
+  "My students" facet (`_ems_my_students_domain`), the tutor enrollment list and the
+  authorization follow-up screen - so a chief does not open those screens on hundreds of
+  students. Notifications (strike escalation, attendance issue emails) still go to `tutor_id`
+  alone.
+- **The Director** covers every student with a tutor, even when a broken department chain would
+  not lead up to them.
+- Only students whose group has a tutor are in anyone's scope; the centre-wide rights of
+  `group_student_data_reader` (#393/#448) are unchanged and still cover the rest for reading.
+- **New tutor-scoped rules or checks** should match on `tutor_scope_user_ids` /
+  `user_acts_as_tutor()`, never on `tutor_id.user_id`, so they escalate the same way.
+- Tests: `tests/test_tutor_scope.py`; `create_head_of_studies_branch()` in `tests/common.py`
+  builds the Head of Studies → Department Chief → tutor chain, plus an out-of-scope chief and Head
+  of Studies, for any test that needs it.
 
 ## Staff management (issue #391)
 

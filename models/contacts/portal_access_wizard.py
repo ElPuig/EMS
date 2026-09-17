@@ -2,6 +2,7 @@
 import logging
 from odoo import models, fields, api, _
 from odoo.tools import email_normalize
+from ..shared import base
 
 _logger = logging.getLogger(__name__)
 
@@ -55,7 +56,7 @@ class EmsPortalAccessWizard(models.TransientModel):
         """Admin/secretary manage any student; a tutor only its own students."""
         if self.env.user.has_group('ems.group_academic_admin') or self.env.user.has_group('ems.group_secretary'):
             return True
-        return bool(student.tutor_id) and student.tutor_id.user_id.id == self.env.uid
+        return base.EmsBase.user_acts_as_tutor(self, student.tutor_id)
 
     def _build_lines(self, students):
         """Build the One2many command list for the recipient preview."""

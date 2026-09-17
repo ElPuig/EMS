@@ -1,7 +1,9 @@
 # Escalado de permisos por jerarquía real (no por rol) — plan a futuro
 
-**Estado: vigente a fecha de creación (2026-09-17). No se ha empezado a implementar nada de
-lo descrito aquí** — es un plan de diseño para retomar más adelante, no una tarea en curso.
+**Estado: parcialmente implementado (2026-09-17).** Los permisos *de tutor* ya escalan por la
+jerarquía (issue #483, ver "Ya implementado" abajo). Lo que queda pendiente es la auditoría de
+las reglas planas que no dependen del tutor (paso 1 del alcance) — es un plan de diseño para
+retomar más adelante, no una tarea en curso.
 Si el código de permisos/jerarquía cambia significativamente antes de retomarlo (nuevos campos
 en `hr.employee`/`hr.department`, cambios en `find_head_of_studies()`, etc.), revisar que lo
 descrito abajo siga siendo cierto antes de actuar sobre él.
@@ -54,6 +56,22 @@ El organigrama real ya está modelado, no hace falta crearlo desde cero:
 Conclusión: la pieza que falta no es "modelar la jerarquía" (ya existe), sino **usarla** en los
 sitios donde hoy se concede acceso por grupo de forma plana.
 
+## Ya implementado: permisos de tutor (issue #483)
+
+- `hr.employee.tutor_scope_user_ids` (`models/employees/employee.py`): Many2many a `res.users`,
+  **no almacenado y con método de búsqueda**. Contiene el propio tutor, todo ascendiente por
+  `parent_id` cuyo usuario esté en `ems.group_department_chief` (jefe de seminario, jefe de
+  departamento, HOS/DHOS y Dirección lo tienen) y el `director_id` de la compañía.
+- Las 18 `ir.rule` que filtraban por `tutor_id.user_id` filtran ahora por
+  `tutor_id.tutor_scope_user_ids`, y las comprobaciones Python usan
+  `ems.base.user_acts_as_tutor()`. Detalle en la sección "Tutor scope" de
+  `docs/en/developers/employees/role_hierarchy.md`.
+- Se optó por **no almacenar** el campo (a diferencia de lo que proponía el paso 3 de abajo): la
+  búsqueda se ejecuta una vez por consulta, no por fila (~20 ms con los datos de desarrollo), y
+  así cualquier cambio de organigrama se aplica al instante sin recomputar nada.
+- Cualquier retrofit futuro de una regla que dependa de "el tutor de X" debe reutilizar este
+  campo, no crear uno paralelo.
+
 ## Problema concreto confirmado
 
 `security/rules/attendance.xml::rule_attendance_correction_hos` (y su ACL) da acceso de
@@ -79,7 +97,9 @@ paso de este plan.
    para *decidir* sobre correcciones de fichaje) o si es un descuido que debería pasar a estar
    jerarquizado — siguiendo la norma de "Full-scenario exploration" de `CLAUDE.md`: verificar
    trazando el código real, no adivinar.
-3. **Mecanismo técnico propuesto** para los casos que sí deban jerarquizarse:
+3. **Mecanismo técnico propuesto** para los casos que sí deban jerarquizarse (primero, ver si
+   `tutor_scope_user_ids` ya sirve o si basta con un campo gemelo con el mismo patrón no
+   almacenado + búsqueda, p.ej. sobre el propio empleado en vez de sobre su tutor):
    - Generalizar `find_head_of_studies()` en algo parametrizable por grupo, p.ej.
      `hr.employee._find_ancestor_in_group(group_xmlid)`, reutilizado tanto para Jefe de
      Estudios/Adjunto como para Jefe de Departamento/Seminario (mismo patrón, grupo distinto).

@@ -1,15 +1,18 @@
 # Plan: Add screenshots to every user manual missing one
 
-**Status as of 2026-09-17 (fourth session, branch 476-add-missing-screenshots-to-the-user-manuals):
-head_of_studies (7/7) DONE, admin batch 1/4 (4/17) DONE, teachers 2/10 DONE** — see "Status per
-role" below for all three. **This session the developer asked to prioritize `teachers` next, and
-to go through it one manual at a time (not in topical batches of 4-5 like `admin`)** - `tests/
+**Status as of 2026-09-17 (fifth session, branch 486-documentation-images-phase-1 - renamed/
+recreated from 476 between sessions by the developer):
+head_of_studies (7/7) DONE, admin batch 1/4 (4/17) DONE, teachers 4/10 DONE** — see "Status per
+role" below for all three. **The developer asked to prioritize `teachers` next, and to go
+through it one manual at a time (not in topical batches of 4-5 like `admin`)** - `tests/
 test_docs_screenshots_teachers.py` now exists, one test method per manual so far
-(`test_capture_acces_ems_google`, `test_capture_attendance_corrections`). Continue the same way
-(one manual, one check-in, repeat) unless the developer says otherwise; `admin`'s remaining 3
-batches are still planned out below for whenever that role is picked back up. This plan may go
-stale between sessions - re-check the current state of `docs/{en,ca,es}/<role>/` and `tests/
-test_docs_screenshots*.py` before resuming, don't assume this file is still accurate.
+(`test_capture_acces_ems_google`, `test_capture_attendance_corrections`,
+`test_capture_attendance_reports`, `test_capture_attendance_session`). Continue the same way
+(one manual, one check-in, repeat)
+unless the developer says otherwise; `admin`'s remaining 3 batches are still planned out below
+for whenever that role is picked back up. This plan may go stale between sessions - re-check the
+current state of `docs/{en,ca,es}/<role>/` and `tests/test_docs_screenshots*.py` before resuming,
+don't assume this file is still accurate.
 
 ## Batching convention (per developer request, 2026-09-16 third session)
 
@@ -30,8 +33,10 @@ explicit choice, 2026-09-17 session)** - not grouped, no batch numbering; each m
 test method in `tests/test_docs_screenshots_teachers.py`:
 1. ✅ DONE - acces-ems-google
 2. ✅ DONE - attendance-corrections
-3-10. NOT STARTED - attendance-reports, attendance-session, guard-duty-schedule,
-   photo-visibility, strike, student-academic-data, student-list-my-groups, working-schedules
+3. ✅ DONE - attendance-reports
+4. ✅ DONE - attendance-session
+5-10. NOT STARTED - guard-duty-schedule, photo-visibility, strike, student-academic-data,
+   student-list-my-groups, working-schedules
 
 secretary, tutors and families have not been started at all yet - decide batching vs. one-at-a-
 time with the developer when picked up (don't assume either convention carries over automatically).
@@ -300,6 +305,61 @@ created, see status below), each:
   `project_attendance_correction_i18n_gap` in memory / a future PR). The screenshot itself was kept
   as-is (an accurate "what the screen currently shows" capture, not something to fake around).
 
+**Gotchas found 2026-09-17 (teachers, `attendance-reports.md`):**
+- **`_capture()`'s `click`/`wait_after` now accept a list, for a sequence of clicks that each
+  need their own settle before the next fires** - needed for a pivot's "Expand all" button,
+  clicked twice (once per row level: subject, then student). Backward compatible - a plain single
+  selector still works exactly as before, `_capture()` just wraps it into a one-item list
+  internally. Each `(click, wait_after)` pair goes through the same `_poll_for()` (see the
+  `_poll_for` gotcha above) rather than a second `_wait_code_ok()`, so this is safe for a
+  click-sequence where later steps need a real server round-trip too, not just the first one.
+- **Counting a pivot table's row position with `:nth-of-type(N)` is safe, unlike the analogous
+  list-view gotcha documented above** - a pivot's `<tbody>` only ever contains plain `<tr>` rows
+  (no separate "group header" vs. "data row" class split the way a grouped list view has), so
+  `:nth-of-type(N)` genuinely counts the Nth row regardless of expand state, with no equivalent to
+  the list-view trap where a `.o_group_header` row's own position skews a class-scoped count. Used
+  as `.o_pivot table tbody tr:nth-of-type(2)` / `:nth-of-type(4)` to confirm each of the two
+  "Expand all" clicks actually added the expected row(s) before capturing.
+- **A stale `.po` reference from an earlier design can leave a *current* view's own button strings
+  completely untranslated, even though the exact same text is translated elsewhere in the same
+  file.** Found on `ems.attendance_report_wizard`'s Print/Cancel footer buttons (English in a
+  `ca_ES` capture) - `i18n/ca_ES.po` has zero `#:` references to
+  `model_terms:ir.ui.view,arch_db:ems.view_attendance_report_wizard` (confirmed via grep, not
+  just visual read), even though `msgid "Print"`/`"Cancel"` blocks exist with real Catalan
+  `msgstr`s - they just reference 3 *different*, no-longer-existing view ids
+  (`view_attendance_report_{group,student,subject}_wizard`, confirmed via
+  `grep -rl` over `views/`/`models/` returning nothing) left over from before this wizard was
+  unified into one `report_type`-driven form. Same underlying mechanism as the "Code vs. model
+  translation buckets" gotcha (binding is by exact `#:` reference, never by msgid text) but this
+  specific flavor is a view **rename/consolidation** leaving orphaned references behind, not a
+  brand-new field reusing existing text. Not fixed (out of scope) - see
+  `project_attendance_report_wizard_i18n_gap` in memory.
+
+**Gotchas found 2026-09-17 (teachers, `attendance-session.md`):**
+- **`_capture()` now also accepts `run` - a raw JS expression (or list, paired with `wait_after`
+  the same way `click` is) for an interaction a plain `.click()` can't express.** Needed for the
+  roll-call screen's view-mode selector, a `<select>` that reacts to its own `change` event
+  (`t-on-change`), not a click on an `<option>`: `run="(function(){ var el =
+  document.querySelector(sel); el.value = 'guard'; el.dispatchEvent(new Event('change')); })();"`.
+  Mutually exclusive with `click` per call (pick whichever fits), both go through the same
+  `_poll_for()`-based wait described above.
+- **A custom OWL client action's root container can stretch to fill the remaining viewport height
+  even with barely any real content** (the roll-call screen's `.ems-av-root`, for an empty-state
+  placeholder that needs the room) - same underlying issue as the already-documented `_trim`
+  flex-stretch gotcha, but there's no `<table>`-like inner element here to clip to instead. Used
+  the mixin's own `max_height` param (already existed, documented for exactly this: "for a
+  selector as big as the page whose empty lower part `_trim()` can't tell apart") rather than
+  hunting for a content-sized wrapper class - simplest fix when one doesn't obviously exist.
+- **A schedule spanning the whole day (`start_time=0.0, end_time=23.0`)** is the established trick
+  (already used by `test_attendance_session_tour.py`) for making a fixture "current" regardless of
+  the real wall-clock time the capture happens to run at - reused here for both the normal-mode
+  and Guard-mode captures, avoiding any time-freezing.
+- **A justification's `attendance_session_line_ids` back-link (which flips the line's own
+  `attendance_justification_id`, the "shield icon" condition) only happens via an `@api.onchange`
+  (`_onchange_attendance_session_line_ids`), never fired by a plain ORM `.create()`.** Set
+  `line.attendance_justification_id` directly instead (works fine on an already-real, non-`NEW`
+  line) rather than trying to reproduce the onchange's own side effect.
+
 ## Status per role
 
 ### head_of_studies (7/7) - ✅ DONE 2026-09-16
@@ -323,7 +383,7 @@ referenced with `![...]`  in all 3 languages of all 7 manuals (`absences.md`,
   `models/employees/google_workspace_integration.py` only returns `'none'` when `work_email` is
   unset. Fixed by dropping `work_email` from that fixture.
 
-### teachers - 2/10 - IN PROGRESS 2026-09-17, one manual at a time
+### teachers - 4/10 - IN PROGRESS 2026-09-17, one manual at a time
 `tests/test_docs_screenshots_teachers.py` exists and is registered in `tests/__init__.py`, one
 test method per MANUAL (not per batch - see "Batching convention" above for why this role is
 different). Login: a single `doc_shot_teacher` fixture user (`ems.group_teacher`, `lang='ca_ES'`)
@@ -340,9 +400,25 @@ different). Login: a single `doc_shot_teacher` fixture user (`ems.group_teacher`
   "Professor Exemple" fixture only), copied into `docs/assets/teachers/`, referenced in all 3
   languages. See the Mechanism gotchas above for what this manual actually took to get right (the
   `_poll_for` fix, the nested-group-by workaround, the i18n gap found along the way).
-- **Remaining 8 (`attendance-reports`, `attendance-session`, `guard-duty-schedule`,
-  `photo-visibility`, `strike`, `student-academic-data`, `student-list-my-groups`,
-  `working-schedules`) - NOT STARTED.**
+- **`attendance-reports.md` - ✅ DONE.** `test_capture_attendance_reports` covers: the pivot table
+  (expanded by subject then student via 2 "Expand all" clicks) and the print wizard (by-group
+  variant, group pre-selected via context default, tutor/dates auto-filled). 2 PNGs
+  (`informes-01-taula-dinamica.png`, `informes-02-imprimir.png`), visually verified with `Read`
+  (fake "Laia Exemple"/"Jordi Mostra"/"0000 Tutora Exemple" fixtures only), copied into
+  `docs/assets/teachers/`, referenced in all 3 languages. See the Mechanism gotchas above for the
+  multi-click `_capture()` extension this needed, and the second i18n gap found along the way
+  (`ems.attendance_report_wizard`'s Print/Cancel buttons).
+- **`attendance-session.md` - ✅ DONE.** `test_capture_attendance_session` covers: the roll-call
+  ("Current session") passlist with status buttons, a note preview and a justified-absence shield
+  icon, plus Guard mode showing a colleague's not-yet-started slot. 2 PNGs
+  (`passlist-01-assistencia-actual.png`, `passlist-02-mode-guarida.png`), visually verified with
+  `Read` (fake "Marina Exemple"/"Pau Mostra"/"Nerea Prova"/"0000 Companya Exemple" fixtures only),
+  copied into `docs/assets/teachers/`, referenced in all 3 languages. See the Mechanism gotchas
+  above for what this manual needed: the new `run=` param (a `<select>`'s `change` event, not a
+  click), the `max_height` fix for the OWL component's own flex-stretch, the whole-day-schedule
+  trick, and the justification-onchange gotcha.
+- **Remaining 6 (`guard-duty-schedule`, `photo-visibility`, `strike`, `student-academic-data`,
+  `student-list-my-groups`, `working-schedules`) - NOT STARTED.**
 
 ### admin - batch 1/4 (4/17) - ✅ DONE 2026-09-16, batches 2-4 NOT STARTED
 `tests/test_docs_screenshots_admin.py` exists and is registered in `tests/__init__.py`, one test
@@ -373,8 +449,9 @@ already existed - not noticed at the time. Replaced with the shared helper and r
 `create_level_study_group(cls, prefix, level={...}, study={...}, group={...})` (not a per-file
 local copy) for every future batch that needs a level+study+group fixture.
 
-### teachers, secretary, tutors, families - NOT STARTED
-No test file exists yet for any of these 4 roles. Each will need its own research pass (grep the
+### secretary, tutors, families - NOT STARTED
+No test file exists yet for any of these 3 roles (`teachers` now has its own section above). Each
+will need its own research pass (grep the
 relevant `views/`/`models/` for action ids, model fields, native action domains that might leak
 real data) before writing captures, and its own topical batch breakdown (see "Batching
 convention" above) - see the "Mechanism" section below and `test_docs_screenshots_admin.py` /

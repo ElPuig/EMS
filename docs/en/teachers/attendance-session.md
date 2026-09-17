@@ -73,6 +73,8 @@ status for that session — it's saved immediately, no need to click a separate 
 - Use the **sort** dropdown (top-right) to reorder the list by lastname or first name, ascending or
   descending.
 
+![Current session with the status buttons, a note, and a student with a justified absence (shield)](../../assets/teachers/passlist-01-assistencia-actual.png)
+
 ---
 
 ## Adding Notes
@@ -100,6 +102,8 @@ substitution). It shows, for today only:
   under **Current**/**Manual**).
 - Slots from other teachers' timetables that haven't been turned into a session yet — pick one and
   click **Start session** just like in normal mode.
+
+![Guard mode, showing a colleague's slot not started yet](../../assets/teachers/passlist-02-mode-guarida.png)
 
 Marking statuses, adding notes and issuing strikes work exactly the same way as in your own
 sessions. The **Delete session** button isn't available in Guard mode — only the teacher who

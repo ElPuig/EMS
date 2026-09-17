@@ -309,16 +309,19 @@ class DocsScreenshotMixin:
         raise TimeoutError("never appeared: %s" % selector)
 
     def _capture(self, url_path, selector, filename, login=None, wait_for=None, padding=8,
-                 click=None, wait_after=None, tour=None, max_height=None):
+                 click=None, run=None, wait_after=None, tour=None, max_height=None):
         """Load url_path as `login`, wait for `wait_for` (defaults to `selector`), optionally
-        click `click` and wait for `wait_after`, then write a PNG clipped to `selector` into
-        OUTPUT_DIR.
+        click `click` (or run arbitrary JS via `run`) and wait for `wait_after`, then write a
+        PNG clipped to `selector` into OUTPUT_DIR.
 
         The click exists for a send/confirm assistant whose preview is built by an onchange,
         which opening the form with defaults does not fire on its own. max_height cuts the shot
         short, for a selector as big as the page whose empty lower part _trim() can't tell apart.
         login=None skips authentication entirely, for a page shown before signing in (e.g. the
-        login screen itself) - there is no session to set up.
+        login screen itself) - there is no session to set up. `run` is a raw JS expression (or
+        list of them, paired with `wait_after` the same way `click` is) for an interaction a
+        plain `.click()` can't express - e.g. setting a <select>'s value and dispatching its own
+        change event, needed for an OWL component that reacts to 'change' rather than a click.
         """
         os.makedirs(self.OUTPUT_DIR, exist_ok=True)
         # A tour reports success with Odoo's own signal ('tour succeeded', the one start_tour()
@@ -354,22 +357,30 @@ class DocsScreenshotMixin:
                     % (json.dumps(tour), json.dumps(url_path)), timeout=120)
             else:
                 browser._wait_code_ok(self._appear_code(wait_for or selector), timeout=60)
-            if click:
-                browser._websocket_request('Runtime.evaluate', params={
-                    'expression': 'document.querySelector(%s).click()' % json.dumps(click),
-                })
-                # Not a second browser._wait_code_ok(): ChromeBrowser's own success future
-                # (self._result) is single-use, set once in __init__ and never reset - a SECOND
-                # call just re-reads the FIRST wait's already-resolved value instead of actually
-                # waiting again, so it returns near-instantly regardless of whether wait_after's
-                # own condition is true yet. Harmless for a click whose effect is a synchronous
-                # DOM update (already rendered by the time this line runs), but silently wrong
-                # for one that needs a server round-trip (e.g. opening a dialog whose defaults
-                # come from an onchange) - found 2026-09-17 capturing the "Request Correction"
-                # wizard, where the rect grab right after used to fail with a null selector
-                # because the dialog hadn't mounted yet. Poll from Python instead, which has no
-                # such single-use limitation.
-                self._poll_for(browser, wait_after or selector)
+            if click or run:
+                # click/run/wait_after each accept either one item or a list, for a sequence of
+                # steps that each need their own settle before the next one fires (e.g. a pivot's
+                # "Expand all" clicked twice, once per row level - found 2026-09-17 capturing the
+                # attendance-reports pivot). click and run are mutually exclusive per call (pick
+                # whichever fits the interaction), not mixed within the same list.
+                steps = run if run else click
+                steps = steps if isinstance(steps, (list, tuple)) else [steps]
+                wait_afters = wait_after if isinstance(wait_after, (list, tuple)) else [wait_after] * len(steps)
+                for step, step_wait in zip(steps, wait_afters):
+                    expression = step if run else 'document.querySelector(%s).click()' % json.dumps(step)
+                    browser._websocket_request('Runtime.evaluate', params={'expression': expression})
+                    # Not a second browser._wait_code_ok(): ChromeBrowser's own success future
+                    # (self._result) is single-use, set once in __init__ and never reset - a SECOND
+                    # call just re-reads the FIRST wait's already-resolved value instead of actually
+                    # waiting again, so it returns near-instantly regardless of whether wait_after's
+                    # own condition is true yet. Harmless for a click whose effect is a synchronous
+                    # DOM update (already rendered by the time this line runs), but silently wrong
+                    # for one that needs a server round-trip (e.g. opening a dialog whose defaults
+                    # come from an onchange) - found 2026-09-17 capturing the "Request Correction"
+                    # wizard, where the rect grab right after used to fail with a null selector
+                    # because the dialog hadn't mounted yet. Poll from Python instead, which has no
+                    # such single-use limitation.
+                    self._poll_for(browser, step_wait or selector)
             rect = browser._websocket_request('Runtime.evaluate', params={
                 'expression': """JSON.stringify((function () {
                     var el = document.querySelector(%s);

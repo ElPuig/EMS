@@ -7,6 +7,7 @@ import base64
 import itertools
 import json
 import os
+import time
 from unittest.mock import patch
 
 import werkzeug.urls
@@ -269,7 +270,25 @@ class DocsScreenshotMixin:
             })();
         """ % (quoted, quoted)
 
-    def _capture(self, url_path, selector, filename, login, wait_for=None, padding=8,
+    @staticmethod
+    def _poll_for(browser, selector, timeout=20, interval=0.2, settle=0.7):
+        """Python-side equivalent of `_appear_code`, for a wait that happens after the first
+        one in the same browser instance - see the comment at its call site for why the
+        browser's own success-future can't be reused for this."""
+        deadline = time.time() + timeout
+        quoted = json.dumps(selector)
+        while time.time() < deadline:
+            found = browser._websocket_request('Runtime.evaluate', params={
+                'expression': 'document.querySelector(%s) !== null' % quoted,
+                'returnByValue': True,
+            })['result']['value']
+            if found:
+                time.sleep(settle)
+                return
+            time.sleep(interval)
+        raise TimeoutError("never appeared: %s" % selector)
+
+    def _capture(self, url_path, selector, filename, login=None, wait_for=None, padding=8,
                  click=None, wait_after=None, tour=None, max_height=None):
         """Load url_path as `login`, wait for `wait_for` (defaults to `selector`), optionally
         click `click` and wait for `wait_after`, then write a PNG clipped to `selector` into
@@ -278,6 +297,8 @@ class DocsScreenshotMixin:
         The click exists for a send/confirm assistant whose preview is built by an onchange,
         which opening the form with defaults does not fire on its own. max_height cuts the shot
         short, for a selector as big as the page whose empty lower part _trim() can't tell apart.
+        login=None skips authentication entirely, for a page shown before signing in (e.g. the
+        login screen itself) - there is no session to set up.
         """
         os.makedirs(self.OUTPUT_DIR, exist_ok=True)
         # A tour reports success with Odoo's own signal ('tour succeeded', the one start_tour()
@@ -285,7 +306,16 @@ class DocsScreenshotMixin:
         browser = ChromeBrowser(self, headless=True,
                                 success_signal='tour succeeded' if tour else 'screenshot ready')
         try:
-            self.authenticate(login, login, browser=browser)
+            if login:
+                self.authenticate(login, login, browser=browser)
+            else:
+                # No session means no res.users.lang to render against - every other capture
+                # gets Catalan from its fixture user's own lang, this is the one path that needs
+                # it forced onto the request itself (the login page honours Accept-Language, not
+                # the ?lang= query param - confirmed empirically).
+                browser._websocket_request('Network.enable')
+                browser._websocket_request('Network.setExtraHTTPHeaders',
+                                           params={'headers': {'Accept-Language': 'ca'}})
             self.cr.flush()
             self.cr.clear()
             # A taller viewport than the default 1366x768, set BEFORE navigating so the page
@@ -308,7 +338,18 @@ class DocsScreenshotMixin:
                 browser._websocket_request('Runtime.evaluate', params={
                     'expression': 'document.querySelector(%s).click()' % json.dumps(click),
                 })
-                browser._wait_code_ok(self._appear_code(wait_after or selector), timeout=60)
+                # Not a second browser._wait_code_ok(): ChromeBrowser's own success future
+                # (self._result) is single-use, set once in __init__ and never reset - a SECOND
+                # call just re-reads the FIRST wait's already-resolved value instead of actually
+                # waiting again, so it returns near-instantly regardless of whether wait_after's
+                # own condition is true yet. Harmless for a click whose effect is a synchronous
+                # DOM update (already rendered by the time this line runs), but silently wrong
+                # for one that needs a server round-trip (e.g. opening a dialog whose defaults
+                # come from an onchange) - found 2026-09-17 capturing the "Request Correction"
+                # wizard, where the rect grab right after used to fail with a null selector
+                # because the dialog hadn't mounted yet. Poll from Python instead, which has no
+                # such single-use limitation.
+                self._poll_for(browser, wait_after or selector)
             rect = browser._websocket_request('Runtime.evaluate', params={
                 'expression': """JSON.stringify((function () {
                     var el = document.querySelector(%s);

@@ -14,6 +14,9 @@ Cada entrada y salida que haces queda registrada automáticamente. Esta página 
 
 1. Ve a **Fichajes de empleados → Asistencia → Vista general**.
 2. La lista muestra todos tus fichajes de entrada/salida, los más recientes primero.
+
+   ![Lista de tus propios fichajes](../../assets/teachers/assistencia-01-llistat.png)
+
 3. Haz clic en cualquier registro para ver sus detalles: hora de entrada, hora de salida y cómo se registró (quiosco, manual, etc.).
 
 > Aquí solo ves tus propios fichajes — son privados para ti y para la Jefatura de Estudios / Jefatura de Estudios Adjunta / Dirección / Administrador, que pueden ver los de todos.
@@ -27,6 +30,8 @@ Si una entrada o salida se ha registrado con una hora incorrecta (has olvidado f
 1. Abre el fichaje con la hora incorrecta.
 2. Haz clic en **Solicitar corrección** en la cabecera.
 3. Se abre un formulario con la **hora de entrada** y/o **salida** ya rellenadas con el valor actual — solo necesitas cambiar la que esté mal. Recuerda que solo se puede corregir la hora del día, no la fecha.
+
+   ![Formulario de solicitud de corrección, con la hora de entrada y salida ya rellenadas](../../assets/teachers/assistencia-02-sol-licitar-correccio.png)
 
    > Si todavía estás fichado/a (no has fichado salida) y sigues dentro de tu horario laboral de hoy, solo se muestra el campo de **hora de entrada** — todavía no has salido, así que no hay nada que corregir en la salida. El campo de **salida** aparece cuando tu jornada laboral de ese día ya ha terminado.
 4. Explica el motivo en el campo **Motivo**.
@@ -51,6 +56,8 @@ Tu solicitud se envía automáticamente a quien puede validarla — normalmente 
 ## Consultar el estado de tus solicitudes
 
 - **Fichajes de empleados → Asistencia → Solicitudes de corrección** muestra todas las solicitudes que has hecho y su estado actual (Pendiente / Aceptada / Rechazada).
+
+  ![Lista de tus solicitudes de corrección](../../assets/teachers/assistencia-03-sol-licituds.png)
 - Desde el propio fichaje, el botón **Correcciones** de la cabecera (solo visible si existe alguna solicitud para ese registro) te lleva directamente a ella.
 
 > De forma predeterminada, la lista solo muestra las solicitudes **Pendientes**. Quita el filtro **Pendiente** de la barra de búsqueda (o cambia al filtro **Aceptada**/**Rechazada**) para ver las solicitudes que ya tienen una decisión.

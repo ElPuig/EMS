@@ -1,12 +1,15 @@
 # Plan: Add screenshots to every user manual missing one
 
-**Status as of 2026-09-16 (third session, branch v18.0.0.26.0): head_of_studies (7/7) DONE,
-admin batch 1/4 (4/17) DONE** — see "Status per role" below for both. **Developer asked this
-session to split each remaining role into smaller batches for quota control** (not just
-role-at-a-time) - `admin`'s remaining 3 batches are already planned out below, ready to resume
-without re-deriving the grouping. This plan may go stale between sessions - re-check the current
-state of `docs/{en,ca,es}/<role>/` and `tests/test_docs_screenshots*.py` before resuming, don't
-assume this file is still accurate.
+**Status as of 2026-09-17 (fourth session, branch 476-add-missing-screenshots-to-the-user-manuals):
+head_of_studies (7/7) DONE, admin batch 1/4 (4/17) DONE, teachers 2/10 DONE** — see "Status per
+role" below for all three. **This session the developer asked to prioritize `teachers` next, and
+to go through it one manual at a time (not in topical batches of 4-5 like `admin`)** - `tests/
+test_docs_screenshots_teachers.py` now exists, one test method per manual so far
+(`test_capture_acces_ems_google`, `test_capture_attendance_corrections`). Continue the same way
+(one manual, one check-in, repeat) unless the developer says otherwise; `admin`'s remaining 3
+batches are still planned out below for whenever that role is picked back up. This plan may go
+stale between sessions - re-check the current state of `docs/{en,ca,es}/<role>/` and `tests/
+test_docs_screenshots*.py` before resuming, don't assume this file is still accurate.
 
 ## Batching convention (per developer request, 2026-09-16 third session)
 
@@ -22,8 +25,16 @@ breakdown:
 3. NOT STARTED - curriculum-levels, curriculum-studies, curriculum-subjects, workgroups (curriculum)
 4. NOT STARTED - facilities, grade-import, space-schedule, student-schedule, survey (facilities/scheduling/import)
 
-The other 4 roles (teachers, secretary, tutors, families) have not been broken into batches yet -
-do that when picked up, following the same topical-grouping approach.
+**teachers (10 manuals): going one-manual-at-a-time instead of topical batches (developer's
+explicit choice, 2026-09-17 session)** - not grouped, no batch numbering; each manual is its own
+test method in `tests/test_docs_screenshots_teachers.py`:
+1. ✅ DONE - acces-ems-google
+2. ✅ DONE - attendance-corrections
+3-10. NOT STARTED - attendance-reports, attendance-session, guard-duty-schedule,
+   photo-visibility, strike, student-academic-data, student-list-my-groups, working-schedules
+
+secretary, tutors and families have not been started at all yet - decide batching vs. one-at-a-
+time with the developer when picked up (don't assume either convention carries over automatically).
 
 ## Why
 
@@ -43,12 +54,17 @@ Detection: no `![...](...)` or `<img` anywhere in the file. Identical set across
 list below only needs stating once. 64 manuals total, 17 already had screenshots before this
 plan, 11 more (head_of_studies + admin batch 1) done by this plan - 36 left.
 
+**Refreshed 2026-09-17 (fourth session)** - teachers' 2 done manuals removed below; also found
+`tutors/family-contacts.md` now missing a screenshot too (5th tutors manual, not in the
+2026-09-16 count of 4 - either a new manual added since, or one that lost its screenshot; not
+investigated, just re-counted here).
+
 | Role | Missing / total |
 |---|---|
 | admin | 13 / 21 |
-| teachers | 10 / 12 |
+| teachers | 8 / 12 |
 | secretary | 8 / 10 |
-| tutors | 4 / 9 |
+| tutors | 5 / 9 |
 | families | 1 / 5 |
 
 ```
@@ -73,8 +89,6 @@ secretary/student-contacts.md
 secretary/student-documents.md
 secretary/student-import-esfera.md
 secretary/student-update-csv.md
-teachers/acces-ems-google.md
-teachers/attendance-corrections.md
 teachers/attendance-reports.md
 teachers/attendance-session.md
 teachers/guard-duty-schedule.md
@@ -86,6 +100,7 @@ teachers/working-schedules.md
 tutors/academic-history.md
 tutors/attendance-reports.md
 tutors/change-student-group.md
+tutors/family-contacts.md
 tutors/strike.md
 families/manual-documentacio.md
 ```
@@ -227,6 +242,64 @@ created, see status below), each:
     real centre's own admin account actually holds both) rather than creating a second login just
     for Settings-screen captures.
 
+**Gotchas found 2026-09-17 (teachers, one-at-a-time session):**
+- **A screen shown BEFORE login (the login page itself) needs `login=None`** - `_capture()` was
+  extended to accept it (defaults unchanged for every existing caller): skips
+  `self.authenticate(...)` entirely, since there's no session to set up. This is the one and only
+  capture in the whole project expected to need it (`teachers/acces-ems-google.md`, the "Sign in
+  with Google" button).
+- **The login page's language follows the `Accept-Language` HTTP header, not `?lang=`** (confirmed
+  empirically: `curl "...?lang=ca_ES"` still returned English, `curl -H "Accept-Language: ca"`
+  returned Catalan). `_capture()` now sets `Accept-Language: ca` via CDP
+  (`Network.enable` + `Network.setExtraHTTPHeaders`) whenever `login=None`, matching the "shot in
+  Catalan" convention every other (authenticated, `lang='ca_ES'` fixture) capture already gets for
+  free from the user's own language.
+- **Found and fixed a real, previously-latent bug in `_capture()` itself: a second
+  `browser._wait_code_ok()` call on the same `ChromeBrowser` instance (the `wait_after` after a
+  `click`) doesn't actually wait for anything new.** `ChromeBrowser.__init__` creates `self._result`
+  (a plain `concurrent.futures.Future`) exactly once; `_wait_code_ok()` blocks on
+  `self._result.result(timeout)`, which on an already-resolved Future (set by the FIRST wait this
+  browser instance ever did) returns the cached value immediately - so a second call "succeeds" in
+  a few milliseconds regardless of whether its own condition is true yet. Harmless when the click's
+  effect is a synchronous DOM update (fast enough to already be there by the time the rect is
+  read a few ms later) - which is presumably why every existing click+wait_after capture (the
+  wizard captures in `test_docs_screenshots.py`, the academic-history group-expand in
+  `test_docs_screenshots_head_of_studies.py`) has "worked" so far. It broke outright for a click
+  whose effect needs a server round-trip (opening the "Request Correction" wizard, whose defaults
+  come from an onchange): `.modal-content`'s bounding-rect read failed with a null-selector
+  `KeyError: 'value'`, because the dialog hadn't mounted yet. **Fixed in `DocsScreenshotMixin`
+  itself** (`tests/common.py`): added `_poll_for(browser, selector, timeout=20, interval=0.2,
+  settle=0.7)`, a plain Python-side polling loop with no single-use-Future limitation: `_capture()`
+  now calls this instead of a second `_wait_code_ok()` after a `click`. This strengthens every
+  existing click-based capture too (they were "getting away with it" on timing, not verified to
+  actually wait) - no call sites needed to change, the fix is internal to `_capture()`.
+- **A list action's default `context` can group two levels deep, and the OUTER group can already
+  be open while the INNER one is folded** - found on the native `hr_attendance.hr_attendance_action`
+  (`search_default_groupby_name: 1` groups by employee, but the view *also* defaults to grouping by
+  month on top, producing "de març 2027 (1)" as the outer group with "0000 Professor Exemple (1)"
+  nested and folded inside it). `document.querySelector('.o_list_renderer .o_group_header')`
+  matches the FIRST (outer, open) header, not the folded inner one - `:not(.o_group_open)` fixes
+  *that* part, but even a real, verified click (confirmed via CDP `Input.dispatchMouseEvent` at the
+  element's exact coordinates, plus a manually-attached `addEventListener('click', ...)` that DID
+  fire) on the correctly-targeted inner header produced **no visible change and no RPC at all** -
+  Owl's own `onGroupHeaderClicked`/`toggleGroup` silently did nothing, root cause not chased
+  further (not worth the time for a one-off capture). **Practical fix: don't fight the native
+  action's default grouping - create a domain-scoped `ir.actions.act_window` of your own with no
+  `group_by` context** (same "actions of their own" trick already used repeatedly elsewhere in this
+  plan), which also sidesteps the whole "is this group already open or folded" question entirely.
+  Reach for this any time a native list action's default context includes a `group_by` and the
+  screenshot only needs to show one or two records - simpler and more robust than fighting the
+  click.
+- **A model's field labels can be untranslated into `ca_ES` even when everything else on the same
+  screen renders correctly in Catalan** - found on `ems.attendance_correction`: its `employee_id`/
+  `attendance_id`/`state` fields show "Employee"/"Attendance"/"Status" in English on the
+  `assistencia-03-sol-licituds.png` capture, confirmed via
+  `psql -c "SELECT field_description->>'ca_ES' ... WHERE model='ems.attendance_correction'"`
+  (empty for all three). This is a genuine, real i18n gap in EMS's own `i18n/ca_ES.po` - out of
+  scope to fix inside this screenshots task, tracked separately (see
+  `project_attendance_correction_i18n_gap` in memory / a future PR). The screenshot itself was kept
+  as-is (an accurate "what the screen currently shows" capture, not something to fake around).
+
 ## Status per role
 
 ### head_of_studies (7/7) - ✅ DONE 2026-09-16
@@ -249,6 +322,27 @@ referenced with `![...]`  in all 3 languages of all 7 manuals (`absences.md`,
   the button the manual/screenshot needs) - `_compute_google_ws_state` in
   `models/employees/google_workspace_integration.py` only returns `'none'` when `work_email` is
   unset. Fixed by dropping `work_email` from that fixture.
+
+### teachers - 2/10 - IN PROGRESS 2026-09-17, one manual at a time
+`tests/test_docs_screenshots_teachers.py` exists and is registered in `tests/__init__.py`, one
+test method per MANUAL (not per batch - see "Batching convention" above for why this role is
+different). Login: a single `doc_shot_teacher` fixture user (`ems.group_teacher`, `lang='ca_ES'`)
++ `teacher_employee`, both built once in `setUpClass`, reused across every capture in the file.
+- **`acces-ems-google.md` - ✅ DONE.** `test_capture_acces_ems_google` captures the "Log in with
+  Google" button on the plain `/web/login` screen (`login=None`, the new unauthenticated capture
+  path - see the Mechanism gotchas above). 1 PNG (`acces-google-boto.png`), no personal data (the
+  screen is generic, shown before anyone signs in), copied into `docs/assets/teachers/`, referenced
+  in all 3 languages.
+- **`attendance-corrections.md` - ✅ DONE.** `test_capture_attendance_corrections` covers: the
+  teacher's own attendance Overview list, the "Request Correction" wizard (pre-filled Check-in/
+  Check-out), and the Correction Requests list. 3 PNGs (`assistencia-01-llistat.png`,
+  `-02-sol-licitar-correccio.png`, `-03-sol-licituds.png`), visually verified with `Read` (fake
+  "Professor Exemple" fixture only), copied into `docs/assets/teachers/`, referenced in all 3
+  languages. See the Mechanism gotchas above for what this manual actually took to get right (the
+  `_poll_for` fix, the nested-group-by workaround, the i18n gap found along the way).
+- **Remaining 8 (`attendance-reports`, `attendance-session`, `guard-duty-schedule`,
+  `photo-visibility`, `strike`, `student-academic-data`, `student-list-my-groups`,
+  `working-schedules`) - NOT STARTED.**
 
 ### admin - batch 1/4 (4/17) - ✅ DONE 2026-09-16, batches 2-4 NOT STARTED
 `tests/test_docs_screenshots_admin.py` exists and is registered in `tests/__init__.py`, one test

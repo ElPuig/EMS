@@ -30,6 +30,9 @@ Si todavía no has activado la cuenta corporativa, hazlo primero: inicia sesión
 
 1. Abre la dirección del EMS en el navegador (el mismo enlace incluido en el correo de bienvenida).
 2. En la página de inicio de sesión, haz clic en el botón **Iniciar sesión con Google** — **no** rellenes los campos de correo/contraseña.
+
+   ![Botón "Iniciar sesión con Google" en la pantalla de acceso](../../assets/teachers/acces-google-boto.png)
+
 3. Elige (o introduce) tu cuenta corporativa `@elpuig.xeill.net`.
 
 Y ya está: entrarás en la página de inicio del EMS con tus permisos de profesor/a.

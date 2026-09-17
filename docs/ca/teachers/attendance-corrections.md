@@ -14,6 +14,9 @@ Cada entrada i sortida que fas queda registrada automàticament. Aquesta pàgina
 
 1. Vés a **Fitxatges dels empleats → Assistència → Vista general**.
 2. La llista mostra tots els teus fitxatges d'entrada/sortida, els més recents primer.
+
+   ![Llista dels teus propis fitxatges](../../assets/teachers/assistencia-01-llistat.png)
+
 3. Fes clic a qualsevol registre per veure'n els detalls: hora d'entrada, hora de sortida i com es va registrar (quiosc, manual, etc.).
 
 > Aquí només veus els teus propis fitxatges — són privats per a tu i per al Cap d'Estudis / Cap d'Estudis Adjunt/a / Direcció / Administrador, que poden veure els de tothom.
@@ -27,6 +30,8 @@ Si una entrada o sortida s'ha registrat amb una hora incorrecta (has oblidat fit
 1. Obre el fitxatge amb l'hora incorrecta.
 2. Fes clic a **Sol·licitar correcció** a la capçalera.
 3. S'obre un formulari amb l'**hora d'entrada** i/o **sortida** ja omplertes amb el valor actual — només cal que canviïs la que estigui malament. Recorda que només es pot corregir l'hora del dia, no la data.
+
+   ![Formulari de sol·licitud de correcció, amb l'hora d'entrada i sortida ja omplertes](../../assets/teachers/assistencia-02-sol-licitar-correccio.png)
 
    > Si encara estàs fitxat/ada (no has fitxat sortida) i encara estàs dins del teu horari laboral d'avui, només es mostra el camp d'**hora d'entrada** — encara no has sortit, així que no hi ha res a corregir en la sortida. El camp de **sortida** apareix un cop hagi acabat la teva jornada laboral d'aquell dia.
 4. Explica el motiu al camp **Motiu**.
@@ -51,6 +56,8 @@ La teva sol·licitud s'envia automàticament a qui la pot validar — normalment
 ## Consultar l'estat de les teves sol·licituds
 
 - **Fitxatges dels empleats → Assistència → Sol·licituds de correcció** mostra totes les sol·licituds que has fet i el seu estat actual (Pendent / Acceptada / Rebutjada).
+
+  ![Llista de les teves sol·licituds de correcció](../../assets/teachers/assistencia-03-sol-licituds.png)
 - Des del mateix fitxatge, el botó **Correccions** de la capçalera (només visible si hi ha alguna sol·licitud per aquell registre) t'hi porta directament.
 
 > Per defecte, la llista només mostra les sol·licituds **Pendents**. Treu el filtre **Pendent** de la barra de cerca (o canvia al filtre **Acceptada**/**Rebutjada**) per veure les sol·licituds que ja tenen una decisió.

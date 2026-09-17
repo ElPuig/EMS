@@ -14,6 +14,9 @@ Every check-in and check-out you make is recorded automatically. This page expla
 
 1. Navigate to **Employee Attendances → Attendance → Overview**.
 2. The list shows all your check-in/check-out records, most recent first.
+
+   ![List of your own attendance records](../../assets/teachers/assistencia-01-llistat.png)
+
 3. Click any record to see its details: check-in time, check-out time, and how the time was recorded (kiosk, manual, etc.).
 
 > You only ever see your own records here — this is private to you and to the Head of Studies / Deputy Head of Studies / Director / Administrator, who can see everyone's.
@@ -27,6 +30,8 @@ If a check-in or check-out was recorded with the wrong time (you forgot to clock
 1. Open the attendance record with the wrong time.
 2. Click **Request Correction** in the header.
 3. A form opens with the **Check-in** and/or **Check-out** time already filled in with the current value — you only need to change the one(s) that are wrong. Note that you can only correct the *time of day*, not the date.
+
+   ![Correction request form, with the check-in and check-out time already filled in](../../assets/teachers/assistencia-02-sol-licitar-correccio.png)
 
    > If you're still clocked in (no check-out yet) and still within today's expected working hours, only the **Check-in** field is shown — you haven't checked out yet, so there's nothing to correct there. The **Check-out** field appears once your working day for that date has ended.
 4. Explain why in the **Reason** field.
@@ -51,6 +56,8 @@ Your request is sent automatically to whoever can validate it — normally your 
 ## Checking the Status of Your Requests
 
 - **Employee Attendances → Attendance → Correction Requests** lists all the requests you've made and their current status (Pending / Accepted / Rejected).
+
+  ![List of your correction requests](../../assets/teachers/assistencia-03-sol-licituds.png)
 - From the attendance record itself, the **Corrections** button in the header (only visible if a request exists for that record) takes you straight to it.
 
 > By default the list only shows **Pending** requests. Remove the **Pending** filter from the search bar (or switch to the **Accepted**/**Rejected** filter instead) to see requests that already have a decision.

@@ -30,6 +30,9 @@ Si encara no has activat el compte corporatiu, fes-ho primer: inicia sessió a [
 
 1. Obre l'adreça de l'EMS al navegador (el mateix enllaç inclòs al correu de benvinguda).
 2. A la pàgina d'inici de sessió, fes clic al botó **Inicia la sessió amb Google** — **no** omplis els camps de correu/contrasenya.
+
+   ![Botó "Inicia sessió amb Google" a la pantalla d'accés](../../assets/teachers/acces-google-boto.png)
+
 3. Tria (o introdueix) el teu compte corporatiu `@elpuig.xeill.net`.
 
 I ja està: entraràs a la pàgina d'inici de l'EMS amb els teus permisos de professor/a.

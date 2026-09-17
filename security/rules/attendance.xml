@@ -241,14 +241,16 @@
 
     <record id="rule_attendance_correction_hos" model="ir.rule">
         <!-- NOTE: group_head_of_studies is global (not scoped per branch), so any
-             Head/Deputy Head of Studies can decide on any pending request. -->
+             Head/Deputy Head of Studies can decide on any pending request, and - same
+             reasoning - create a correction request on behalf of any employee (issue #480),
+             not only their own. -->
         <field name="name">Attendance correction: Head of Studies (all data)</field>
         <field name="model_id" ref="ems.model_ems_attendance_correction"/>
         <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
-        <field name="perm_create" eval="False"/>
+        <field name="perm_create" eval="True"/>
         <field name="perm_unlink" eval="False"/>
     </record>
 

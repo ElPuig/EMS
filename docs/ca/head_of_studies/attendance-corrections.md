@@ -4,9 +4,21 @@
 
 # Decidir sobre sol·licituds de correcció de fitxatges
 
-Els professors poden sol·licitar una correcció d'una hora d'entrada/sortida del seu propi fitxatge. Aquesta pàgina explica com decidir sobre les sol·licituds que t'arriben. Consulta el [manual de Professors](../teachers/attendance-corrections.md) per veure com es fa la sol·licitud.
+Els professors poden sol·licitar una correcció d'una hora d'entrada/sortida del seu propi fitxatge. Aquesta pàgina explica com decidir sobre les sol·licituds que t'arriben, i com fer una sol·licitud en nom d'una altra persona. Consulta el [manual de Professors](../teachers/attendance-corrections.md) per veure com es fa la sol·licitud.
 
 **Rol necessari:** Cap d'Estudis, Cap d'Estudis Adjunt/a, Direcció o Administrador
+
+---
+
+## Crear una sol·licitud en nom d'una altra persona
+
+A diferència d'un professor/a, que només pot sol·licitar una correcció del seu propi fitxatge, tu ho pots fer per **qualsevol** empleat/ada:
+
+1. Obre el fitxatge d'aquell empleat/ada (per exemple, des de **Fitxatges dels empleats → Assistència → Resum**, o des de la seva fitxa).
+2. Fes clic a **Sol·licitar correcció** a la capçalera — el mateix botó i formulari que faria servir un professor/a per al seu propi fitxatge.
+3. Omple l'hora d'entrada/sortida sol·licitada i el motiu, i **Desa**.
+
+La sol·licitud segueix el mateix procés de revisió que qualsevol altra — incloent-hi, si tu no ets qui l'ha de decidir, que s'enviï a qui correspongui.
 
 ---
 

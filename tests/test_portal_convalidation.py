@@ -78,6 +78,17 @@ class TestPortalConvalidation(HttpCase):
         self.assertIn(self.subject.name, response.text)
         self.assertIn(self.other_subject.name, response.text)
         self.assertNotIn(self.tutorship.name, response.text)
+        self.assertIn('id="convalidation_new_body" class="collapse "', response.text)
+
+    def test_form_opens_after_a_validation_error(self):
+        self._login(self.student_user)
+        page = self.url_open('/my/convalidaciones?error=no_documents').text
+        self.assertIn('id="convalidation_new_body" class="collapse show"', page)
+
+    def test_form_opens_on_request(self):
+        self._login(self.student_user)
+        page = self.url_open('/my/convalidaciones?new=1').text
+        self.assertIn('id="convalidation_new_body" class="collapse show"', page)
 
     def test_student_submits_a_request(self):
         self._login(self.student_user)
@@ -154,6 +165,15 @@ class TestPortalConvalidation(HttpCase):
         self._login(self.other_user)
         self.url_open(f'/my/convalidaciones/cancel/{request.id}', data={'csrf_token': Request.csrf_token(self)})
         self.assertEqual(request.state, 'submitted')
+
+    def test_communications_page_records_the_request_and_its_resolution(self):
+        self._login(self.student_user)
+        self._submit(self.subject)
+        self._requests(self.student).line_ids.sudo().action_reject()
+        page = self.url_open('/my/comunicaciones').text
+        self.assertIn('Convalidation request submitted', page)
+        self.assertIn('Convalidation request resolved', page)
+        self.assertIn(self.subject.name, page)
 
     def test_resolved_requests_show_their_resolution(self):
         request = self.env['ems.convalidation'].create({

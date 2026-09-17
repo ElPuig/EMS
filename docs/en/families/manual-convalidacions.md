@@ -22,7 +22,7 @@ If you are a family with more than one child at the school, first choose the chi
 
 Before you start, have the academic certificate or transcript of the studies you passed ready as a PDF or an image.
 
-1. In **New convalidation request**, tick the modules you want to convalidate.
+1. Click **New convalidation request** to open the form, and tick the modules you want to convalidate.
 2. Choose the **Grounds**.
 3. In **Supporting documents**, attach the certificate and any other document that proves the studies. You can select several files at once.
 4. Optionally, write a comment.
@@ -49,7 +49,7 @@ The table shows the resolution of each module (**Pending**, **Forwarded to the D
 
 ![A request on the portal](../../assets/families/convalidations-portal-request.png)
 
-When every module is resolved, you receive an email with the resolution.
+When every module is resolved, you receive an email with the resolution. The request, its cancellation and the resolution are also recorded on the **Communications** page.
 
 ---
 

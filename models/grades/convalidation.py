@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from markupsafe import Markup
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
@@ -115,8 +117,17 @@ class EmsConvalidation(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        convalidations = super().create(vals_list)
+        # Nobody follows a request on creation: the portal creates it on the student's behalf,
+        # and a follower would get an email for every message posted to the student's
+        # Communications page (see _ems_post_communication) on top of the resolution email.
+        convalidations = super(EmsConvalidation, self.with_context(mail_create_nosubscribe=True)).create(vals_list)
         convalidations._ems_link_attachments()
+        for convalidation in convalidations:
+            convalidation._ems_post_communication(
+                _("Convalidation request submitted"),
+                Markup("<p>{}</p>{}").format(
+                    _("Subjects requested:"),
+                    self.env['ems.base'].build_html_list(convalidation.line_ids.subject_id.mapped('display_name'))))
         return convalidations
 
     def write(self, vals):
@@ -147,8 +158,9 @@ class EmsConvalidation(models.Model):
     def _ems_on_resolved(self):
         """Stamp and notify the requests that have just become resolved. Called after every
         change that can resolve one: a write on the request itself or on one of its lines, so
-        it is idempotent - the stamp is what tells a request already notified. A request reopened after its resolution loses the stamp, so resolving it again
-        notifies the new outcome."""
+        it is idempotent - the stamp is what tells a request already notified. A request
+        reopened after its resolution loses the stamp, so resolving it again notifies the new
+        outcome."""
         reopened = self.filtered(lambda convalidation: convalidation.state != 'resolved'
                                  and convalidation.resolution_date)
         if reopened:
@@ -174,11 +186,26 @@ class EmsConvalidation(models.Model):
         for recipient in addressable:
             template.with_context(lang=recipient.lang or self.student_id.lang).sudo().send_mail(
                 self.id, force_send=False, email_values={'email_to': recipient.email})
+        # The same text, in the language of whoever reads it, on the Communications page.
+        lang = recipients[:1].lang or self.student_id.lang or self.env.lang
+        localized = template.with_context(lang=lang).sudo()
+        self._ems_post_communication(
+            localized._render_field('subject', self.ids)[self.id],
+            localized._render_field('body_html', self.ids)[self.id])
         if addressable:
             body = _("Resolution sent to %s.") % ", ".join(addressable.mapped('email'))
         else:
             body = _("The resolution could not be emailed: nobody to notify has an email address.")
         self.sudo().message_post(body=body, message_type='comment', subtype_xmlid='mail.mt_note')
+
+    def _ems_post_communication(self, subject, body):
+        """Record a message the student (or the family) has to see on the portal's
+        Communications page, which lists the requests' comments but never their internal
+        notes. Nobody follows a request (see create), so posting notifies nobody: the emails
+        are sent on their own terms (_ems_send_resolution)."""
+        self.ensure_one()
+        self.sudo().message_post(subject=subject, body=body, message_type='comment',
+                                 subtype_xmlid='mail.mt_comment')
 
     # --- actions ---
 
@@ -187,9 +214,17 @@ class EmsConvalidation(models.Model):
             if convalidation.line_ids.filtered(lambda line: line.state != 'pending'):
                 raise UserError(_("A request cannot be cancelled once a subject has been resolved or forwarded."))
         self.write({'is_cancelled': True})
+        for convalidation in self:
+            convalidation._ems_post_communication(
+                _("Convalidation request cancelled"),
+                _("The request has been cancelled by %s.") % self.env.user.name)
 
     def action_reopen(self):
         self.write({'is_cancelled': False})
+        for convalidation in self:
+            convalidation._ems_post_communication(
+                _("Convalidation request reopened"),
+                _("The request has been reopened by %s.") % self.env.user.name)
 
     def action_grant_pending(self):
         self.line_ids.filtered(lambda line: line.state == 'pending').action_grant()

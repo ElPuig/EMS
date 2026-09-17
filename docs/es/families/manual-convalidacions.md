@@ -22,7 +22,7 @@ Si sois una familia con más de un hijo en el centro, primero elige el hijo en l
 
 Antes de empezar, ten preparado en PDF o en imagen el certificado académico o el expediente de los estudios que has superado.
 
-1. En **Nueva solicitud de convalidación**, marca los módulos que quieres convalidar.
+1. Haz clic en **Nueva solicitud de convalidación** para abrir el formulario, y marca los módulos que quieres convalidar.
 2. Elige el **Motivo**.
 3. En **Documentación justificativa**, adjunta el certificado y cualquier otro documento que acredite los estudios. Puedes seleccionar varios ficheros a la vez.
 4. Si quieres, escribe observaciones.
@@ -49,7 +49,7 @@ La tabla muestra la resolución de cada módulo (**Pendiente**, **Derivado al De
 
 ![Una solicitud en el portal](../../assets/families/convalidations-portal-request.png)
 
-Cuando todos los módulos están resueltos, recibirás un correo con la resolución.
+Cuando todos los módulos están resueltos, recibirás un correo con la resolución. La solicitud, su anulación y la resolución también quedan registradas en la página **Comunicaciones**.
 
 ---
 

@@ -2,9 +2,7 @@
 
 import base64
 
-from markupsafe import Markup, escape
-
-from odoo import _, http
+from odoo import http
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
 
@@ -47,6 +45,8 @@ class EmsPortalConvalidationController(CustomerPortal):
             'line_state_labels': dict(line_states['state']['selection']),
             'error': kwargs.get('error'),
             'submitted': kwargs.get('submitted'),
+            # ?new=1 opens the (folded by default) new-request form, as a direct link to it.
+            'open_new': bool(kwargs.get('new')),
         })
         return request.render('ems.portal_convalidations', values)
 
@@ -91,9 +91,6 @@ class EmsPortalConvalidationController(CustomerPortal):
             'res_id': convalidation.id,
         } for upload in files])
         convalidation.attachment_ids = [(6, 0, attachments.ids)]
-        convalidation.message_post(
-            body=Markup(_("Request submitted from the portal by %s.")) % escape(requester.name),
-            message_type='comment', subtype_xmlid='mail.mt_note')
         return request.redirect(f'{self._redirect}?submitted=1')
 
     @http.route('/my/convalidaciones/cancel/<int:convalidation_id>', type='http', auth='user',
@@ -104,8 +101,4 @@ class EmsPortalConvalidationController(CustomerPortal):
         if student and convalidation.exists() and convalidation.student_id == student \
                 and convalidation.state == 'submitted':
             convalidation.action_cancel()
-            convalidation.message_post(
-                body=Markup(_("Request cancelled from the portal by %s."))
-                % escape(request.env.user.partner_id.name),
-                message_type='comment', subtype_xmlid='mail.mt_note')
         return request.redirect(self._redirect)

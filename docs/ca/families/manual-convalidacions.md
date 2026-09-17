@@ -22,7 +22,7 @@ Si sou una família amb més d'un fill al centre, primer tria el fill a la barra
 
 Abans de començar, tingues a punt en PDF o en imatge el certificat acadèmic o l'expedient dels estudis que has superat.
 
-1. A **Nova sol·licitud de convalidació**, marca els mòduls que vols convalidar.
+1. Fes clic a **Nova sol·licitud de convalidació** per obrir el formulari, i marca els mòduls que vols convalidar.
 2. Tria el **Motiu**.
 3. A **Documentació justificativa**, adjunta el certificat i qualsevol altre document que acrediti els estudis. Pots seleccionar diversos fitxers alhora.
 4. Si vols, escriu-hi observacions.
@@ -49,7 +49,7 @@ La taula mostra la resolució de cada mòdul (**Pendent**, **Derivat al Departam
 
 ![Una sol·licitud al portal](../../assets/families/convalidations-portal-request.png)
 
-Quan tots els mòduls estan resolts, rebràs un correu amb la resolució.
+Quan tots els mòduls estan resolts, rebràs un correu amb la resolució. La sol·licitud, la seva anul·lació i la resolució també queden registrades a la pàgina **Comunicacions**.
 
 ---
 

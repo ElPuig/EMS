@@ -14520,6 +14520,7 @@ msgstr "Sol·licitud de convalidació: un alumne demana convalidar alguns mòdul
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_list
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "Convalidations"
 msgstr "Convalidacions"
 
@@ -14610,18 +14611,6 @@ msgstr "Observacions"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__convalidation_id
 msgid "Request"
 msgstr "Sol·licitud"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/controllers/portal_convalidation.py:0
-msgid "Request cancelled from the portal by %s."
-msgstr "Sol·licitud anul·lada des del portal per %s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/controllers/portal_convalidation.py:0
-msgid "Request submitted from the portal by %s."
-msgstr "Sol·licitud presentada des del portal per %s."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__requester_id
@@ -14724,3 +14713,44 @@ msgstr "El mòdul està convalidat per a aquest alumne."
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 msgid "To resolve"
 msgstr "Per resoldre"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Convalidation request submitted"
+msgstr "Sol·licitud de convalidació presentada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Subjects requested:"
+msgstr "Mòduls sol·licitats:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Convalidation request cancelled"
+msgstr "Sol·licitud de convalidació anul·lada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "The request has been cancelled by %s."
+msgstr "%s ha anul·lat la sol·licitud."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Convalidation request reopened"
+msgstr "Sol·licitud de convalidació reoberta"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "The request has been reopened by %s."
+msgstr "%s ha reobert la sol·licitud."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+msgid "Request the convalidation of subjects you already passed"
+msgstr "Sol·licita la convalidació dels mòduls que ja has superat"

@@ -90,7 +90,13 @@ registry.category("web_tour.tours").add("ems_portal_convalidation_submit", {
     url: "/my/convalidaciones",
     steps: () => [
         {
-            trigger: ".o_ems_convalidation_new input[name='subject_ids']:first",
+            // Tour triggers only match visible nodes, so the folded state is read off the toggle.
+            trigger: ".o_ems_convalidation_new .o_ems_convalidation_toggle.collapsed",
+            content: "The new-request form starts folded; unfold it",
+            run: "click",
+        },
+        {
+            trigger: ".o_ems_convalidation_new #convalidation_new_body.show input[name='subject_ids']:first",
             content: "Mark the first subject",
             run: "click",
         },

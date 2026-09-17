@@ -338,9 +338,10 @@ class TestDocsScreenshots(HttpCase):
             wait_for='.o_list_renderer .o_data_row',
         )
         self._capture(
-            '/my/convalidaciones', '.o_ems_convalidation_new',
+            '/my/convalidaciones?new=1', '.o_ems_convalidation_new',
             'convalidations-portal-new.png',
             login='doc_shot_portal',
+            wait_for='#convalidation_new_body.show',
         )
         self._capture(
             '/my/convalidaciones', '.o_ems_convalidation_request',

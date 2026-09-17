@@ -24,12 +24,12 @@ Esta guía explica de forma detallada los pasos que deben seguir los alumnos (o 
 El portal del alumnado es el espacio virtual centralizado desde donde el estudiante y su familia pueden gestionar su vida académica y administrativa con el centro de manera sencilla, ágil y 100% en línea.
 
 Actualmente, el portal permite realizar las siguientes gestiones:
+* **Asistencia:** Consultar el horario semanal de clases del alumno y descargarlo en PDF.
 * **Matrícula y autorizaciones:** Gestionar el proceso de matrícula, revisar los pagos o cuotas y responder y firmar las autorizaciones de centro de forma digital — tanto las que llegan con la matrícula como las que el centro envía durante el curso.
+* **Convalidaciones:** Solicitar la convalidación de módulos de formación profesional y seguir su resolución. Véase [Solicitar convalidaciones](manual-convalidacions.md).
 * **Documentación:** Subir, guardar y consultar todos los documentos oficiales solicitados por el centro.
 * **Comunicaciones:** Recibir de forma inmediata los mensajes, circulares y avisos enviados por el equipo directivo, tutores o secretaría.
-* **Convalidaciones:** Solicitar la convalidación de módulos de formación profesional y seguir su resolución. Véase [Solicitar convalidaciones](manual-convalidacions.md).
 * **Perfil:** Mantener actualizados los datos personales, de contacto y de seguridad de la cuenta de acceso.
-* **Asistencia:** Consultar el horario semanal de clases del alumno y descargarlo en PDF.
 
 **Funcionalidades disponibles próximamente.** Estamos trabajando en el desarrollo de nuevos módulos para mejorar la herramienta. Muy pronto se activará el siguiente entorno:
 * **Calificaciones:** Acceder de forma directa a las notas de las diferentes evaluaciones.
@@ -80,7 +80,7 @@ Una vez registrados, entraréis directamente en el panel principal o página de 
 
 La interfaz web está optimizada y diseñada para facilitar una navegación limpia e intuitiva:
 * **Menú superior:** Tenéis un acceso permanente a todas las áreas de gestión del centro.
-* **Tarjetas centralizadas:** Disponéis de botones visuales para acceder a cada uno de los servicios clave (**Asistencia**, **Calificaciones**, **Matrícula y autorizaciones**, **Comunicaciones**, **Documentación**, **Convalidaciones** y **Perfil**).
+* **Tarjetas centralizadas:** Disponéis de botones visuales para acceder a cada uno de los servicios clave (**Asistencia**, **Calificaciones**, **Matrícula y autorizaciones**, **Convalidaciones**, **Documentación**, **Comunicaciones** y **Perfil**).
 * **Perfil del usuario:** En la parte derecha tendréis siempre visible la información básica del perfil activo del alumno junto con su fotografía identificativa del expediente.
 
 ![Panel principal y tarjetas de servicios del portal del alumno](../../assets/families/manual-portal-alumne-02.png)

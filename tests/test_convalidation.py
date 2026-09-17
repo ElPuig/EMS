@@ -247,6 +247,34 @@ class TestConvalidation(TransactionCase):
         self._line(request).with_user(self.head_of_studies).action_grant()
         self.assertEqual(self._resolution_mails(request).mapped('email_to'), [family.email])
 
+    def test_student_communications_are_comments_nobody_follows(self):
+        request = self._request(user=self.head_of_studies)
+        comment = self.env.ref('mail.mt_comment')
+        submitted = request.message_ids.filtered(lambda message: message.subtype_id == comment)
+        self.assertEqual(submitted.mapped('subject'), ['Convalidation request submitted'])
+        self.assertIn(self.subject.display_name, submitted.body)
+        self.assertFalse(request.message_partner_ids)
+        self._line(request).with_user(self.head_of_studies).action_grant()
+        request.invalidate_recordset(['message_ids'])
+        # Rendered in the recipient's language, so only its shape is checked.
+        resolved = request.message_ids.filtered(lambda message: message.subtype_id == comment) - submitted
+        self.assertEqual(len(resolved), 1)
+        self.assertIn(self.student.name, resolved.subject)
+        self.assertIn(self.subject.display_name, resolved.body)
+        # Posting emails nobody: the only email is the resolution itself.
+        self.assertEqual(len(self._resolution_mails(request)), 1)
+        self.assertEqual(len(self.env['mail.mail'].sudo().search([
+            ('model', '=', 'ems.convalidation'), ('res_id', '=', request.id)])), 1)
+
+    def test_cancel_and_reopen_are_communicated(self):
+        request = self._request()
+        request.with_user(self.secretary).action_cancel()
+        request.with_user(self.secretary).action_reopen()
+        self.assertEqual(
+            request.message_ids.filtered(lambda message: message.subtype_id == self.env.ref('mail.mt_comment'))
+            .mapped('subject'),
+            ['Convalidation request reopened', 'Convalidation request cancelled', 'Convalidation request submitted'])
+
     def test_resolution_without_any_email_is_logged(self):
         student = self.env['res.partner'].create({
             'name': 'Convalidation No Email', 'contact_type': 'student', 'student_id': next_student_id(),

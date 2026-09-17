@@ -84,6 +84,8 @@ A forwarded line keeps the request open: the Department's answer is recorded lat
 
 Reopening clears the stamp, so resolving again notifies the new outcome.
 
+**Communications page.** The portal's Communications page (`controllers/portal_comms.py`) lists the comments posted on the student's requests, never their internal notes. `_ems_post_communication()` posts one comment each time the request is created (with the subjects asked for), cancelled, reopened or resolved. The resolution comment is the email's own rendered subject and body, in the language of the first recipient. Requests are created with `mail_create_nosubscribe`, so they have no followers and these comments email nobody; the only email stays the resolution one. The chatter note naming the recipients (or the lack of any) remains internal.
+
 ## Grades integration
 
 `ems.grade_subject_line.is_convalidated` and `ems.student.year_record.subject.is_convalidated` are **mirrors** kept in sync by `ems.convalidation.line._ems_sync_grades()`. The source of truth is `_ems_is_convalidated(student, subject)`: some granted line, in a request that is not cancelled, for that student and subject, in any course.
@@ -108,7 +110,7 @@ flowchart LR
 
 | Route | Behaviour |
 |-------|-----------|
-| `GET /my/convalidaciones` | Requests of the student, plus the new-request form when `_ems_portal_study()` finds a study. |
+| `GET /my/convalidaciones` | Requests of the student, plus the new-request form when `_ems_portal_study()` finds a study. The form is a Bootstrap collapse, folded by default; it opens with `?new=1` or when the page comes back with a validation `?error=`. |
 | `POST /my/convalidaciones/submit` | Checks that at least one subject in `_ems_portal_requestable_subjects()`, a valid `basis` and at least one file are sent, then creates the request, attachments and a chatter note. Anything else redirects with `?error=`. |
 | `POST /my/convalidaciones/cancel/<id>` | Only the student's own request, only while `submitted`. |
 

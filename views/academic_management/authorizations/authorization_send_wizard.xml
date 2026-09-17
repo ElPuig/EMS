@@ -66,13 +66,13 @@
             <field name="context">{'default_target': 'scope'}</field>
         </record>
 
-        <!-- Cog-wheel / "Actions" entry on the students list: pick the students with the
-             filters that list already has, then send. -->
+        <!-- Cog-wheel / "Actions" entry on both the students list (pick the students with the
+             filters that list already has, then send) and a student's own form (issue #482). -->
         <record id="action_authorization_send_bulk" model="ir.actions.server">
             <field name="name">Send authorizations</field>
             <field name="model_id" ref="base.model_res_partner"/>
             <field name="binding_model_id" ref="base.model_res_partner"/>
-            <field name="binding_view_types">list</field>
+            <field name="binding_view_types">list,form</field>
             <field name="groups_id" eval="[(4, ref('ems.group_academic_admin')), (4, ref('ems.group_secretary')), (4, ref('ems.group_head_of_studies')), (4, ref('ems.group_tutor'))]"/>
             <field name="state">code</field>
             <!-- Keep this to a single call: safe_eval's context has no `_`, so any

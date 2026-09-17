@@ -33,6 +33,8 @@ En la pestaña **Documentación** solo ves las credenciales de Google de los alu
 
 Se descarga un archivo ZIP con un PDF por alumno, con el nombre del alumno delante. Si ninguno de los alumnos seleccionados tiene credenciales, aparece un aviso y no se descarga nada. Solo se incluyen los alumnos que tutorizas.
 
+> **Nota:** la misma acción **Descargar credenciales de Google** también está disponible desde la ficha de un solo alumno, con el mismo menú **Acciones** ⚙ — aunque para un solo alumno, descargar el PDF directamente desde la pestaña **Documentación** de arriba es más rápido.
+
 ---
 
 [← Volver a los manuales de Tutores](index.md)

@@ -33,6 +33,8 @@ In the **Documentation** tab you only see the Google credentials of the students
 
 A ZIP file is downloaded with one PDF per student, named after the student. If none of the selected students has credentials, a warning is shown and nothing is downloaded. Only the students you tutor are included.
 
+> **Note:** the same **Download Google credentials** action is also available from a single student's own form, using the same **Actions** ⚙ menu — though for just one student, downloading the PDF directly from the **Documentation** tab above is quicker.
+
 ---
 
 [← Back to Tutor manuals](index.md)

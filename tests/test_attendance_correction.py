@@ -15,6 +15,7 @@ class TestAttendanceCorrection(TransactionCase):
         super().setUpClass()
         cls.group_teacher = cls.env.ref('ems.group_teacher')
         cls.group_head_of_studies = cls.env.ref('ems.group_head_of_studies')
+        cls.group_director = cls.env.ref('ems.group_director')
         cls.group_academic_admin = cls.env.ref('ems.group_academic_admin')
 
         cls.admin_user = cls.env['res.users'].with_context(no_reset_password=True).create({
@@ -34,6 +35,16 @@ class TestAttendanceCorrection(TransactionCase):
             'name': 'Test HOS Employee (Attendance Correction)',
             'employee_type': 'teacher',
             'user_id': cls.hos_user.id,
+        })
+
+        cls.director_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Director (Attendance Correction)',
+            'login': 'test_director_attendance_correction',
+            'email': 'test_director_attendance_correction@example.com',
+            # group_director implies group_head_of_studies (security/groups.xml) - never
+            # added explicitly, so this fixture actually proves the implication carries the
+            # fix through, rather than assuming it from reading groups.xml alone.
+            'groups_id': [(4, cls.group_director.id), (4, cls.env.ref('base.group_user').id)],
         })
 
         cls.manager_user = cls.env['res.users'].with_context(no_reset_password=True).create({
@@ -145,6 +156,26 @@ class TestAttendanceCorrection(TransactionCase):
         correction = self._create_correction(self.teacher_user)
         with self.assertRaises(AccessError):
             correction.with_user(self.teacher_user).unlink()
+
+    def test_hos_can_create_correction_for_other_employee(self):
+        # Issue #480: a Head of Studies/Deputy Head of Studies (both map to the same
+        # group_head_of_studies - see docs/en/developers/attendance/attendance_correction.md)
+        # must be able to request a correction on behalf of any employee, not only their own,
+        # matching the unrestricted read/write access they already have on this model.
+        correction = self._create_correction(self.hos_user)
+        self.assertEqual(correction.state, 'pending')
+        self.assertEqual(correction.employee_id, self.teacher_employee)
+
+    def test_teacher_cannot_create_correction_for_other_employee(self):
+        with self.assertRaises(AccessError):
+            self._create_correction(self.other_teacher_user)
+
+    def test_director_can_create_correction_for_other_employee(self):
+        # Issue #480 follow-up: group_director implies group_head_of_studies, so the same
+        # fix must carry through to Director without any Director-specific rule.
+        correction = self._create_correction(self.director_user)
+        self.assertEqual(correction.state, 'pending')
+        self.assertEqual(correction.employee_id, self.teacher_employee)
 
     def test_approver_resolution_immediate_manager(self):
         # manager_employee's direct manager (hos_employee) is in group_head_of_studies.

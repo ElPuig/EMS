@@ -107,3 +107,9 @@ class TestAuthorizationSendWizardTour(HttpCase):
         self.assertEqual(authorization.status, 'pending')
         self.assertFalse(authorization.enrollment_id)
         self.assertEqual(authorization.course_id, self.course)
+
+    def test_authorization_send_wizard_form_action_tour(self):
+        # Issue #482: the bulk cog action must also be offered from the student's own form.
+        self.start_tour(f"/odoo/res.partner/{self.student.id}",
+                        "ems_authorization_send_wizard_form_action",
+                        login="test_secretary_auth_tour")

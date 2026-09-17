@@ -107,7 +107,7 @@ In the views, the Documentation page adds `ems.group_tutor` (which Head of Studi
 
 ### Bulk download: "Download Google credentials"
 
-A server action (`action_google_credentials_download_bulk`, `views/community/contact/google_credentials_download.xml`) bound to the `res.partner` list's Actions menu, for academic admin, secretary, tutor (and so Head of Studies and Director) and TAC:
+A server action (`action_google_credentials_download_bulk`, `views/community/contact/google_credentials_download.xml`) bound to both the `res.partner` list's and form's Actions menu, for academic admin, secretary, tutor (and so Head of Studies and Director) and TAC:
 
 ```mermaid
 sequenceDiagram

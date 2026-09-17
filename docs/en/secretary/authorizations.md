@@ -47,7 +47,8 @@ Click **Save**.
 Go to **Academic management > Authorizations > Send Authorizations**. You can also open the assistant from:
 
 - the students list: select the students, then use the gear menu ⚙ and choose **Send authorizations**;
-- the form itself: the **Send to Students** button.
+- a single student's own form: the same gear menu ⚙;
+- the authorization form itself: the **Send to Students** button.
 
 ![Send Authorizations assistant](../../assets/secretary/authorizations-send-wizard.png)
 

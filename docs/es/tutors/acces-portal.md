@@ -37,6 +37,8 @@ Una vez hecha la selección, abre el menú **Acciones** en la barra superior y h
 
 ![Lista de alumnos con selección y menú Acciones](../../assets/tutors/tutor-accesalportal0.png)
 
+> **Nota:** también puedes abrir este cuadro de diálogo para un solo alumno desde su propia ficha, con el mismo menú **Acciones** ⚙.
+
 > **Nota:** como tutor, solo verás y podrás gestionar tus alumnos. Aunque selecciones alumnos de otros grupos, el cuadro de diálogo solo mostrará los que te corresponden.
 
 > **Nota:** el cuadro de diálogo solo gestiona alumnado actual y solicitantes. Para un alumno que se dio de baja en un curso anterior, envíale primero su nueva matrícula: al enviarla pasa a ser solicitante y ya puede recibir el acceso al portal como cualquier otro.

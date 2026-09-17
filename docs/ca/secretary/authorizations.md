@@ -47,7 +47,8 @@ Feu clic a **Desar**.
 Aneu a **Gestió acadèmica > Autoritzacions > Enviar autoritzacions**. També podeu obrir l'assistent des de:
 
 - la llista d'alumnes: seleccioneu els alumnes, obriu el menú de l'engranatge ⚙ i trieu **Enviar autoritzacions**;
-- el mateix formulari: el botó **Enviar a l'alumnat**.
+- la fitxa d'un sol alumne: el mateix menú de l'engranatge ⚙;
+- el formulari de l'autorització: el botó **Enviar a l'alumnat**.
 
 ![Assistent Enviar autoritzacions](../../assets/secretary/authorizations-send-wizard.png)
 

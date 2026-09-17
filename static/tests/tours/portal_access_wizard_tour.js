@@ -92,3 +92,31 @@ registry.category("web_tour.tours").add("ems_portal_access_wizard_revoke", {
         },
     ],
 });
+
+// Issue #482: the same server action must also be reachable from the student's own form, not
+// only from the list's cog menu (see the tour above) - opened directly on the seeded student's
+// form (see test_portal_access_wizard_form_action_tour), no list/search steps needed here.
+registry.category("web_tour.tours").add("ems_portal_access_wizard_form", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_cp_action_menus button",
+            content: "Open the form's Actions (cog) menu",
+            run: "click",
+        },
+        {
+            trigger: ".o_menu_item:contains('students/families')",
+            content: "'Portal access (students/families)' is also offered from the form",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='mode'] input[type='radio']:checked",
+            content: "The wizard opened, same as from the list",
+        },
+        {
+            trigger: ".modal footer button.btn-secondary",
+            content: "Cancel - parity with the list is already proven by the tour above",
+            run: "click",
+        },
+    ],
+});

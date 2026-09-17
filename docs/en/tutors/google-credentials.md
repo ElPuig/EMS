@@ -6,7 +6,7 @@
 
 You can view and download the PDF with the Google Workspace account credentials of the students you tutor.
 
-**Required role:** Tutor (read only)
+**Required role:** Tutor (read only). Your Seminar Chief, Department Chief and Head of Studies see your students' credentials too, and the Director those of every tutor, following the same steps.
 
 ---
 

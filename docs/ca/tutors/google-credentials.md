@@ -6,7 +6,7 @@
 
 Pots consultar i descarregar el PDF amb les credencials del compte de Google Workspace dels alumnes que tutoritzes.
 
-**Rol necessari:** Tutor (només lectura)
+**Rol necessari:** Tutor (només lectura). El teu cap de seminari, el teu cap de departament i el teu cap d'estudis també veuen les credencials del teu alumnat, i la direcció les de tots els tutors, amb els mateixos passos.
 
 ---
 

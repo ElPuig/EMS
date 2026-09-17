@@ -30,17 +30,21 @@ class EmsBase(models.AbstractModel):
     def get_user_is_head_of_studies(self):
         return self.env.user.has_group('ems.group_head_of_studies')
 
-    # The current user is tutor of some group.
+    # The current user acts as tutor of some group: its tutor, or a chief above the tutor (issue #483).
     def get_user_is_tutor(self):
-        for employee in self.env.user.employee_ids:
-            if employee.tutorship_ids != False and len(employee.tutorship_ids) > 0:
-                return True
-        return False
+        return bool(self.env['hr.employee'].sudo().search_count([
+            ('tutorship_ids', '!=', False), ('tutor_scope_user_ids', '=', self.env.uid)], limit=1))
+
+    # The current user acts as tutor of `tutor`'s tutees: `tutor` themselves, or a Head of
+    # Studies/Director above them (hr.employee.tutor_scope_user_ids, issue #483). Called unbound
+    # (base.EmsBase.user_acts_as_tutor(self, tutor)) from models that don't inherit ems.base.
+    def user_acts_as_tutor(self, tutor):
+        return bool(tutor) and self.env.user in tutor.sudo().tutor_scope_user_ids
 
     # The current user is the tutor of the current model's instance.
     def get_user_is_tutor_of_self(self):
         if 'tutor_id' in self.env[self._name]._fields:
-            return self.tutor_id.id != False and self.tutor_id.user_id == self.env.user
+            return EmsBase.user_acts_as_tutor(self, self.tutor_id)
 
     # Returns a hashcode which is persistent between execution (not like the Python's native one).
     def persistent_hash(self, data):

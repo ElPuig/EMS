@@ -37,6 +37,8 @@ Els nivells de permisos formen una jerarquia — cada nivell inclou tots els per
 > **El càrrec de Coordinador/a TAC tampoc no forma part d'aquesta jerarquia.** Concedeix un bloc de permisos propi i separat (TAC: Manager/Administrador) i, a diferència de tots els altres càrrecs d'aquesta taula, s'assigna a mà, des del camp **Càrrecs** de la fitxa del professor. Concedeix dues coses: poder crear i editar fitxes de professorat senceres, informació privada inclosa, el mateix dret que ha guanyat la prefectura d'estudis, i [crear i suspendre el compte de Google de qualsevol alumne, restablir-ne la contrasenya](student-google-account.md) i consultar-ne les credencials. Res més de l'escala de dalt. No és unipersonal: el càrrec el pot ocupar un equip de diverses persones alhora.
 >
 > **La prefectura d'estudis, l'adjunta i la direcció ja poden crear i editar professorat.** Fins fa poc només ho podia fer l'administració; vegeu [Crear i editar professorat](../head_of_studies/staff-management.md). Esborrar una fitxa de personal i gestionar el PAS continuen sent exclusius de l'administració.
+>
+> **Els permisos del tutor pugen per la jerarquia.** El cap de seminari, el cap de departament i el cap d'estudis (o l'adjunt) d'un tutor tenen, sobre l'alumnat d'aquest tutor, tots els seus permisos; la direcció, sobre l'alumnat de tots els tutors. Només els caps del tutor, no els de la resta de departaments o àrees. Els llistats de "Els meus alumnes" només mostren els grups propis.
 
 ---
 

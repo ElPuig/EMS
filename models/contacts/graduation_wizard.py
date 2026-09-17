@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+from ..shared import base
 
 
 class EmsGraduationWizard(models.TransientModel):
@@ -24,7 +25,7 @@ class EmsGraduationWizard(models.TransientModel):
         """Admin/secretary manage any student; a tutor only its own students."""
         if self.env.user.has_group('ems.group_academic_admin') or self.env.user.has_group('ems.group_secretary'):
             return True
-        return bool(student.tutor_id) and student.tutor_id.user_id.id == self.env.uid
+        return base.EmsBase.user_acts_as_tutor(self, student.tutor_id)
 
     def _next_course(self):
         return self.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1)

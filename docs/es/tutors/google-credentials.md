@@ -6,7 +6,7 @@
 
 Puedes consultar y descargar el PDF con las credenciales de la cuenta de Google Workspace de los alumnos que tutorizas.
 
-**Rol necesario:** Tutor (solo lectura)
+**Rol necesario:** Tutor (solo lectura). Tu jefe de seminario, tu jefe de departamento y tu jefe de estudios también ven las credenciales de tu alumnado, y la dirección las de todos los tutores, con los mismos pasos.
 
 ---
 

@@ -78,7 +78,7 @@
             <field name="name">Strike: tutees</field>
             <field name="model_id" ref="ems.model_ems_strike"/>
             <field name="groups" eval="[(4, ref('ems.group_tutor'))]"/>
-            <field name="domain_force">[('student_id.tutor_id.user_id', '=', user.id)]</field>
+            <field name="domain_force">[('student_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>

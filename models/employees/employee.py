@@ -15,6 +15,9 @@ employee_types = [
 
 WEEKDAYS = ('0', '1', '2', '3', '4')
 
+# Every chief rung of the chain implies it: Seminar/Department Chief, Head of Studies, Director.
+TUTOR_SCOPE_CHIEF_GROUP = 'ems.group_department_chief'
+
 # Classifies a real entry or a candidate break into "works mornings"/"works afternoons" for
 # '_get_derived_break_entries' - computed directly from 'hour_from' rather than trusting the
 # stored 'day_period' field, since two different write paths populate that field with two
@@ -112,6 +115,15 @@ class ems_employee_base(models.AbstractModel):
     roles = fields.Char(string="Role names", compute="_compute_roles_str", store=True)	
     tutorships = fields.Char(string="Tutorship names", compute="_compute_tutorships_str", store=True)	
 
+    # Users who act as this employee's tutees' tutor (issue #483): the employee's own user, every
+    # chief above them in the hierarchy (Seminar Chief, Department Chief, Head of Studies - all in
+    # group_department_chief) and the Director. Record rules and tutor checks match on this field
+    # instead of tutor_id.user_id, so permissions escalate along the real chain of command, not by
+    # role centre-wide. Not stored: always follows the current hierarchy.
+    tutor_scope_user_ids = fields.Many2many(
+        string="Users acting as tutor", comodel_name="res.users",
+        compute="_compute_tutor_scope_user_ids", search="_search_tutor_scope_user_ids", compute_sudo=True)
+
     # This field is used to set the entire form as read-only; compute_sudo needed to compute on read-only.
     read_only = fields.Boolean(string="Read only", compute="_compute_read_only", compute_sudo=True, store=False)
 
@@ -120,6 +132,34 @@ class ems_employee_base(models.AbstractModel):
     # button visibility). 'PDF' export is intentionally NOT gated by this field — every role that
     # can already read a schedule may also export it.
     can_edit_schedule = fields.Boolean(string="Can edit schedule", compute="_compute_can_edit_schedule", compute_sudo=True, store=False)
+
+    def _compute_tutor_scope_user_ids(self):
+        for employee in self:
+            users = employee.user_id | employee.company_id.director_id.user_id
+            ancestor, seen = employee.parent_id, employee
+            while ancestor and ancestor not in seen:
+                if ancestor.user_id and ancestor.user_id.has_group(TUTOR_SCOPE_CHIEF_GROUP):
+                    users |= ancestor.user_id
+                seen |= ancestor
+                ancestor = ancestor.parent_id
+            employee.tutor_scope_user_ids = users
+
+    def _search_tutor_scope_user_ids(self, operator, value):
+        """The mirror of the compute, for record rules: the employees whose tutees the given users
+        tutor - their own employee records, everyone below them when they are a chief, everyone
+        in a company they direct."""
+        if operator not in ('=', 'in'):
+            raise NotImplementedError(_("Unsupported search on tutor_scope_user_ids"))
+        user_ids = [user_id for user_id in ([value] if isinstance(value, int) else value or []) if user_id]
+        Employee = self.env['hr.employee'].sudo().with_context(active_test=False)
+        own = Employee.search([('user_id', 'in', user_ids)])
+        chiefs = own.filtered(lambda employee: employee.user_id.has_group(TUTOR_SCOPE_CHIEF_GROUP))
+        if chiefs:
+            own |= Employee.search([('id', 'child_of', chiefs.ids)])
+        domain = [('id', 'in', own.ids)]
+        if own.directed_company_ids:
+            domain = ['|', ('company_id', 'in', own.directed_company_ids.ids)] + domain
+        return domain
 
     def _compute_read_only(self):
         # compute_sudo=True (needed so a read-only user can compute this field at all — see

@@ -6,7 +6,7 @@
 
 You can view and download the PDF with the Google Workspace account credentials of the students you tutor.
 
-**Required role:** Tutor (read only)
+**Required role:** Tutor (read only). Head of Studies and Director follow the same steps for any student in the centre.
 
 ---
 

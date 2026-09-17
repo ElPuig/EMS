@@ -391,6 +391,37 @@ class TestStudentDocumentTacAccess(TransactionCase):
         self.assertEqual(students._get_google_credentials_documents(), self.credentials | self.other_credentials)
 
 
+class TestStudentDocumentHeadOfStudiesAccess(TransactionCase):
+    """Issue #483: Head of Studies (and Director) inherit the tutor's Google credentials rights,
+    but for every student centre-wide - they tutor no group, so the tutor rule alone gave them
+    nothing. Still read only, and still nothing else from the Documentation tab."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        create_tutored_students_with_credentials(cls, 'HSD')
+        cls.head_of_studies = create_role_user(cls, 'head_of_studies', 'test_hos_student_document')
+
+    def _documents_seen_by(self, user):
+        return self.env['ems.student.document'].with_user(user).search(
+            [('id', 'in', (self.credentials | self.dni | self.other_credentials).ids)])
+
+    def test_head_of_studies_reads_every_students_credentials_only(self):
+        self.assertEqual(self._documents_seen_by(self.head_of_studies), self.credentials | self.other_credentials)
+
+    def test_director_reads_every_students_credentials_only(self):
+        director = create_role_user(self, 'director', 'test_director_student_document')
+        self.assertEqual(self._documents_seen_by(director), self.credentials | self.other_credentials)
+
+    def test_head_of_studies_cannot_modify_credentials(self):
+        with self.assertRaises(AccessError):
+            self.credentials.with_user(self.head_of_studies).write({'status': 'pending'})
+
+    def test_head_of_studies_downloads_every_students_credentials(self):
+        students = (self.student | self.other_student).with_user(self.head_of_studies)
+        self.assertEqual(students._get_google_credentials_documents(), self.credentials | self.other_credentials)
+
+
 class TestGoogleCredentialsBulkDownload(TransactionCase):
     """Issue #478: "Download Google credentials" on the students list."""
 

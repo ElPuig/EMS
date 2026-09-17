@@ -6,7 +6,7 @@
 
 Pots consultar i descarregar el PDF amb les credencials del compte de Google Workspace dels alumnes que tutoritzes.
 
-**Rol necessari:** Tutor (només lectura)
+**Rol necessari:** Tutor (només lectura). La prefectura d'estudis i la direcció segueixen els mateixos passos per a qualsevol alumne del centre.
 
 ---
 

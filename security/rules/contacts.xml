@@ -309,7 +309,10 @@
     </record>
 
     <!-- ems.student.document: tutors read only their own students' Google credentials PDF, and
-         the TAC team every student's, since they reset those passwords (issue #478); DNI, IBAN,
+         the TAC team every student's, since they reset those passwords (issue #478); Head of
+         Studies and Director too, centre-wide like the rest of their student data (issue #483 -
+         they inherit group_tutor but tutor no group, so the tutor rule alone gave them nothing).
+         DNI, IBAN,
          medical card... stay with secretary and admin. The academic
          admin inherits group_tutor through the Head of Studies chain, and a secretary may also
          tutor a group, so both need an unrestricted rule of their own - otherwise the tutor
@@ -343,6 +346,17 @@
         <field name="name">Student document: TAC (every student's Google credentials, read only)</field>
         <field name="model_id" ref="ems.model_ems_student_document"/>
         <field name="groups" eval="[(4, ref('ems.group_tac'))]"/>
+        <field name="domain_force">[('doc_type', '=', 'google_credentials')]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_ems_student_document_head_of_studies" model="ir.rule">
+        <field name="name">Student document: head of studies (every student's Google credentials, read only)</field>
+        <field name="model_id" ref="ems.model_ems_student_document"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
         <field name="domain_force">[('doc_type', '=', 'google_credentials')]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="False"/>

@@ -254,7 +254,7 @@ write path.
 | Header buttons create/suspend | `ems.group_secretary`, `ems.group_academic_admin`, `ems.group_tac` |
 | Header buttons reactivate/delete/cancel | `ems.group_secretary`, `ems.group_academic_admin` |
 | Reset Google password (button, plus the same check inside the method) | `ems.group_academic_admin`, `ems.group_tac` |
-| Reading the credentials PDFs (Documentation tab, bulk download) | see [student_document.md](student_document.md#access-control): tutors their own students', TAC everyone's |
+| Reading the credentials PDFs (Documentation tab, bulk download) | see [student_document.md](student_document.md#access-control): tutors their own students', TAC, Head of Studies and Director everyone's |
 | Grace-period banners, optional list columns, search filters | same as above |
 | `_gw_deliver_credentials`'s document/email creation | `sudo()` inside the flow (queue jobs run as the job's own user, not necessarily one with `ems.student.document`/mail rights) |
 

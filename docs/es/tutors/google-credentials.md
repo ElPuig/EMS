@@ -6,7 +6,7 @@
 
 Puedes consultar y descargar el PDF con las credenciales de la cuenta de Google Workspace de los alumnos que tutorizas.
 
-**Rol necesario:** Tutor (solo lectura)
+**Rol necesario:** Tutor (solo lectura). La jefatura de estudios y la dirección siguen los mismos pasos para cualquier alumno del centro.
 
 ---
 

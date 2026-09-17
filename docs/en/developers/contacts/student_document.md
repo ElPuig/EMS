@@ -86,26 +86,28 @@ Small shared helper (`dict(self._fields['doc_type'].selection).get(self.doc_type
 | Secretary | ✓ | ✓ | ✓ | ✓ |
 | Tutor (`ems.group_tutor`) | — | ✓ | — | — |
 | TAC (`ems.group_tac`) | — | ✓ | — | — |
+| Head of Studies / Director (`ems.group_head_of_studies`) | — | ✓ | — | — |
 | Portal (`base.group_portal`) | — | ✓ | — | — |
 
 ### `security/rules/contacts.xml` — tutor access to Google credentials
 
-The tutor and TAC rows exist only to read the **Google Workspace credentials PDF** (`doc_type='google_credentials'`, created by `_gw_deliver_credentials()` in `google_workspace_integration.py`) from the student form's **Documentation** tab: tutors for their own students, the TAC team for every student, since they reset those passwords (see [google_workspace_student.md](google_workspace_student.md#password-reset)). Four rules:
+The tutor, TAC and Head of Studies rows exist only to read the **Google Workspace credentials PDF** (`doc_type='google_credentials'`, created by `_gw_deliver_credentials()` in `google_workspace_integration.py`) from the student form's **Documentation** tab: tutors for their own students, the TAC team for every student, since they reset those passwords (see [google_workspace_student.md](google_workspace_student.md#password-reset)), and Head of Studies / Director for every student too, matching the centre-wide reach they have on the rest of the student's data (`group_student_data_reader`). Five rules:
 
 | Rule | Group | Domain |
 |------|-------|--------|
 | `rule_ems_student_document_tutor` | `ems.group_tutor` | `doc_type = 'google_credentials'` and `partner_id.tutor_id.user_id = user` (read only) |
 | `rule_ems_student_document_tac` | `ems.group_tac` | `doc_type = 'google_credentials'` (read only) |
+| `rule_ems_student_document_head_of_studies` | `ems.group_head_of_studies` (Director implies it) | `doc_type = 'google_credentials'` (read only) |
 | `rule_ems_student_document_secretary` | `ems.group_secretary` | none (full access) |
 | `rule_ems_student_document_admin` | `ems.group_academic_admin` | none (full access) |
 
-Rules of the groups a user belongs to are ORed, so the two unrestricted rules are what keep the tutor rule from narrowing staff who are also in `group_tutor`: the academic admin always is (admin → director → head of studies → department chief → tutor), and a secretary may also tutor a group. Every other document type (ID card, IBAN, medical card, benefit proof) stays invisible to tutors and TAC. The PDF download works through the normal `ir.attachment` check, which defers to read access on the owning `ems.student.document` record.
+Rules of the groups a user belongs to are ORed, so the two unrestricted rules are what keep the tutor rule from narrowing staff who are also in `group_tutor`: the academic admin always is (admin → director → head of studies → department chief → tutor), and a secretary may also tutor a group. Head of Studies and Director are in `group_tutor` too, but tutor no group, so the tutor rule alone gives them nothing: their own rule is what opens every student's credentials to them. Every other document type (ID card, IBAN, medical card, benefit proof) stays invisible to tutors, TAC, Head of Studies and Director. The PDF download works through the normal `ir.attachment` check, which defers to read access on the owning `ems.student.document` record.
 
-In the views, the Documentation page adds `ems.group_tutor` and `ems.group_tac` to its `groups`, and the Approve / Reject / Reset to pending buttons of the document list and form are restricted to `ems.group_academic_admin,ems.group_secretary`, so a tutor opening a credentials row gets a plain read-only form.
+In the views, the Documentation page adds `ems.group_tutor` (which Head of Studies and Director imply) and `ems.group_tac` to its `groups`, and the Approve / Reject / Reset to pending buttons of the document list and form are restricted to `ems.group_academic_admin,ems.group_secretary`, so a tutor opening a credentials row gets a plain read-only form.
 
 ### Bulk download: "Download Google credentials"
 
-A server action (`action_google_credentials_download_bulk`, `views/community/contact/google_credentials_download.xml`) bound to the `res.partner` list's Actions menu, for academic admin, secretary, tutor and TAC:
+A server action (`action_google_credentials_download_bulk`, `views/community/contact/google_credentials_download.xml`) bound to the `res.partner` list's Actions menu, for academic admin, secretary, tutor (and so Head of Studies and Director) and TAC:
 
 ```mermaid
 sequenceDiagram

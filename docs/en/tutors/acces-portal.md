@@ -37,6 +37,8 @@ Once selected, open the **Actions** menu in the top bar and click **Portal acces
 
 ![Student list with selection and Actions menu](../../assets/tutors/tutor-accesalportal0.png)
 
+> **Note:** you can also open this dialog for a single student from their own form, using the same **Actions** ⚙ menu.
+
 > **Note:** as a tutor, you will only see and be able to manage your own students. Even if you select students from other groups, the dialog will only show those that belong to you.
 
 > **Note:** the dialog only handles current students and applicants. For a student who left in a previous course, send them their new enrollment first: sending it turns them into an applicant, and they can then receive portal access like anyone else.

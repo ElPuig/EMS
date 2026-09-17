@@ -119,7 +119,10 @@ class ems_attendance(models.Model):
                     'because the check-in time (%s) is after the last scheduled hour. '
                     'The check-out has been set to one hour after check-in (%s). '
                     'Please review and correct the actual check-out time.'
-                ) % (self.check_in, check_out),
+                ) % (
+                    self._format_local_for_employee(self.employee_id, self.check_in),
+                    self._format_local_for_employee(self.employee_id, check_out),
+                ),
                 partner_ids=partners.ids,
             )
         else:
@@ -143,6 +146,22 @@ class ems_attendance(models.Model):
         it at the single source create()/write()/both crons all go through."""
         day_start, day = super()._get_day_start_and_day(employee, dt)
         return day_start.replace(microsecond=0), day
+
+    def _format_local_for_employee(self, employee, dt):
+        """Format a naive-UTC datetime (Odoo ORM's own storage convention) in the
+        employee's own timezone, for a message the employee (or their manager) will
+        actually read - e.g. the fallback notification below. Interpolating the raw
+        naive-UTC value directly (str(dt)/%s) silently shows server time instead of
+        the reader's own time: unlike the backend list/form views, message_post()'s
+        body is plain text, so no client-side tz conversion ever applies to it.
+        Found 2026-09-17: a forced check-out email showed times 2h behind what the
+        same record's backend view showed for the same reader (UTC vs. Europe/Madrid
+        CEST). Resolves the employee's own tz the same way '_get_last_working_hour'
+        already does, rather than 'ems.datetime_utils.current_tz()' - that one
+        resolves the *acting user's* (or company's) tz, which is right for its own
+        callers but not for a message addressed to this specific employee."""
+        employee_tz = pytz.timezone(employee._get_tz())
+        return pytz.utc.localize(dt).astimezone(employee_tz).strftime('%Y-%m-%d %H:%M:%S')
 
     def _get_last_working_hour(self, employee, work_date):
         """End of the last stretch the employee was actually expected to work on work_date, as

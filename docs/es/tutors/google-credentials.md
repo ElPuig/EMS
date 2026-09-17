@@ -6,7 +6,7 @@
 
 Puedes consultar y descargar el PDF con las credenciales de la cuenta de Google Workspace de los alumnos que tutorizas.
 
-**Rol necesario:** Tutor (solo lectura)
+**Rol necesario:** Tutor (solo lectura). Tu jefe de seminario, tu jefe de departamento y tu jefe de estudios también ven las credenciales de tu alumnado, y la dirección las de todos los tutores, con los mismos pasos.
 
 ---
 
@@ -32,6 +32,8 @@ En la pestaña **Documentación** solo ves las credenciales de Google de los alu
 ![Lista de alumnos seleccionados con el menú Acciones abierto](../../assets/tutors/credencials-google-02-accions.png)
 
 Se descarga un archivo ZIP con un PDF por alumno, con el nombre del alumno delante. Si ninguno de los alumnos seleccionados tiene credenciales, aparece un aviso y no se descarga nada. Solo se incluyen los alumnos que tutorizas.
+
+> **Nota:** la misma acción **Descargar credenciales de Google** también está disponible desde la ficha de un solo alumno, con el mismo menú **Acciones** ⚙ — aunque para un solo alumno, descargar el PDF directamente desde la pestaña **Documentación** de arriba es más rápido.
 
 ---
 

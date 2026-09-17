@@ -75,6 +75,8 @@ Desar.
 - Fes servir el desplegable d'**ordenació** (a dalt a la dreta) per reordenar la llista per cognom
   o nom, ascendent o descendent.
 
+![Sessió actual amb els botons d'estat, una nota i un alumne amb absència justificada (escut)](../../assets/teachers/passlist-01-assistencia-actual.png)
+
 ---
 
 ## Afegir notes
@@ -103,6 +105,8 @@ substitució). Mostra, només per al dia d'avui:
   **Actual**/**Manual**).
 - Franges de l'horari d'altres docents que encara no s'han convertit en sessió — tria'n una i fes
   clic a **Iniciar sessió**, igual que en mode normal.
+
+![Mode Guàrdia, mostrant una franja d'una companya encara no iniciada](../../assets/teachers/passlist-02-mode-guarida.png)
 
 Marcar estats, afegir notes i posar strikes funciona exactament igual que a les teves pròpies
 sessions. El botó **Eliminar sessió** no està disponible en mode Guàrdia — només el docent titular

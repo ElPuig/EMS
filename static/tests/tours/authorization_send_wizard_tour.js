@@ -79,6 +79,36 @@ registry.category("web_tour.tours").add("ems_authorization_send_wizard", {
     ],
 });
 
+// Issue #482: the bulk "Send authorizations" server action (action_authorization_send_bulk,
+// bound to res.partner's cog menu) must be reachable from the student's own form, not only from
+// the students list - opened directly on the seeded student's form (see
+// test_authorization_send_wizard_form_action_tour). Distinct from "ems_authorization_send_wizard"
+// above, which opens the wizard's own standalone act_window, not this cog-bound action.
+registry.category("web_tour.tours").add("ems_authorization_send_wizard_form_action", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_cp_action_menus button",
+            content: "Open the form's Actions (cog) menu",
+            run: "click",
+        },
+        {
+            trigger: ".o_menu_item:contains('Send authorizations')",
+            content: "'Send authorizations' is also offered from the form",
+            run: "click",
+        },
+        {
+            trigger: ".o_dialog div[name='student_ids'] .o_tag:contains('Tour Send Wizard Student')",
+            content: "The wizard opened preloaded with this student, same as from the list",
+        },
+        {
+            trigger: ".o_dialog .modal-footer button.btn-secondary",
+            content: "Cancel - parity with the list is already proven by the tours above",
+            run: "click",
+        },
+    ],
+});
+
 // A tutor (issue #443 testing): the Responses menu entry shows their own students' answers
 // only, and the send assistant offers their own groups only, without studies or levels.
 registry.category("web_tour.tours").add("ems_authorization_tutor_follow_up", {

@@ -6,7 +6,7 @@
 
 You can view and download the PDF with the Google Workspace account credentials of the students you tutor.
 
-**Required role:** Tutor (read only)
+**Required role:** Tutor (read only). Your Seminar Chief, Department Chief and Head of Studies see your students' credentials too, and the Director those of every tutor, following the same steps.
 
 ---
 
@@ -32,6 +32,8 @@ In the **Documentation** tab you only see the Google credentials of the students
 ![Students list with a selection and the Actions menu open](../../assets/tutors/credencials-google-02-accions.png)
 
 A ZIP file is downloaded with one PDF per student, named after the student. If none of the selected students has credentials, a warning is shown and nothing is downloaded. Only the students you tutor are included.
+
+> **Note:** the same **Download Google credentials** action is also available from a single student's own form, using the same **Actions** ⚙ menu — though for just one student, downloading the PDF directly from the **Documentation** tab above is quicker.
 
 ---
 

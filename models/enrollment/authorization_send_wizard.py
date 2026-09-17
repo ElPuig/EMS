@@ -3,6 +3,7 @@ import logging
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+from ..shared import base
 
 _logger = logging.getLogger(__name__)
 
@@ -199,7 +200,7 @@ class EmsAuthorizationSendWizard(models.TransientModel):
         else:
             students = self._students_from_scope()
         if not self.env['ems.authorization']._ems_sees_every_student():
-            students = students.filtered(lambda student: student.tutor_id.user_id == self.env.user)
+            students = students.filtered(lambda student: base.EmsBase.user_acts_as_tutor(self, student.tutor_id))
         return students
 
     # ------------------------------------------------------------------

@@ -14406,3 +14406,14 @@ msgid ""
 "This gives the student's Google account a new password: the current one "
 "stops working and new credentials are generated. Continue?"
 msgstr "Esto asigna una contraseña nueva a la cuenta de Google del alumno: la actual deja de funcionar y se generan credenciales nuevas. ¿Continuar?"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__tutor_scope_user_ids model:ir.model.fields,field_description:ems.field_hr_employee_base__tutor_scope_user_ids model:ir.model.fields,field_description:ems.field_hr_employee_public__tutor_scope_user_ids
+msgid "Users acting as tutor"
+msgstr "Usuarios que actúan como tutor"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Unsupported search on tutor_scope_user_ids"
+msgstr "Búsqueda no admitida sobre tutor_scope_user_ids"

@@ -6,7 +6,7 @@
 
 Pots consultar i descarregar el PDF amb les credencials del compte de Google Workspace dels alumnes que tutoritzes.
 
-**Rol necessari:** Tutor (només lectura)
+**Rol necessari:** Tutor (només lectura). El teu cap de seminari, el teu cap de departament i el teu cap d'estudis també veuen les credencials del teu alumnat, i la direcció les de tots els tutors, amb els mateixos passos.
 
 ---
 
@@ -32,6 +32,8 @@ A la pestanya **Documentació** només hi veus les credencials de Google dels al
 ![Llista d'alumnes seleccionats amb el menú Accions obert](../../assets/tutors/credencials-google-02-accions.png)
 
 Es descarrega un fitxer ZIP amb un PDF per alumne, amb el nom de l'alumne al davant. Si cap dels alumnes seleccionats té credencials, surt un avís i no es descarrega res. Només s'hi inclouen els alumnes que tutoritzes.
+
+> **Nota:** la mateixa acció **Descarregar credencials de Google** també està disponible des de la fitxa d'un sol alumne, amb el mateix menú **Accions** ⚙ — encara que per a un sol alumne, descarregar el PDF directament des de la pestanya **Documentació** de dalt és més ràpid.
 
 ---
 

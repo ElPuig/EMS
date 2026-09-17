@@ -14,6 +14,8 @@
 
 1. Ve a **Asistencia → Informes**. Se abre directamente con una **tabla dinámica**, mostrando por defecto **solo tus propios grupos y asignaturas**.
 2. La tabla agrupa por **asignatura y luego por alumno**. Haz clic en el icono **Expandir todo** (arriba a la derecha, junto a Invertir ejes) dos veces: una para desplegar las asignaturas y otra para desplegar los alumnos de cada asignatura. El número principal es el **% de faltas por alumno** — el **Recuento** (número de sesiones contabilizadas) y el **Recuento de strikes** se muestran al lado, así puedes saber si un 33% sale de 3 sesiones o de 30, y si viene acompañado de strikes disciplinarios.
+
+   ![Tabla dinámica de informes de asistencia, expandida por asignatura y alumno](../../assets/teachers/informes-01-taula-dinamica.png)
 3. Usa la barra de búsqueda para filtrar más (por alumno, grupo, asignatura o estado), y **Agrupar por** para cambiar cómo se pliega la tabla.
 4. Usa el icono de **hoja de cálculo/descarga** de la cabecera para exportar la tabla dinámica actual a Excel.
 5. Cambia a la vista de **gráfico** (iconos arriba a la derecha) para ver un resumen visual — por defecto muestra el **% de absentismo por asignatura**, así puedes detectar de un vistazo qué asignaturas tienen más absentismo. El gráfico muestra una medida a la vez — usa el desplegable **Medidas** de su cabecera para cambiar a **Recuento de strikes** si quieres ver los strikes disciplinarios por asignatura.
@@ -23,6 +25,8 @@
 ## Imprimir un informe PDF
 
 En la pantalla de **Informes de asistencia**, haz clic en el icono **⚙ (engranaje)** de la cabecera y elige **Imprimir informe de asistencia**. En el formulario, elige el **Tipo de informe** — por grupo, por alumno o por asignatura — y los campos se adaptan a tu elección.
+
+![Formulario de impresión de informe de asistencia, con el grupo seleccionado y los campos rellenados](../../assets/teachers/informes-02-imprimir.png)
 
 **Informe de asistencia (por grupo):**
 1. Selecciona un **Grupo** — el desplegable solo muestra los grupos que **realmente impartes**; si te falta algún grupo, comprueba que estás asignado/a en tu horario docente.

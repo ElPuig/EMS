@@ -46,3 +46,26 @@ registry.category("web_tour.tours").add("ems_google_credentials_download", {
         },
     ],
 });
+
+// Issue #482: the same server action must also be reachable from the student's own form, not
+// only from the list's cog menu (see the tour above) - opened directly on the seeded student's
+// form (see test_google_credentials_download_form_tour), no list/search steps needed here.
+registry.category("web_tour.tours").add("ems_google_credentials_download_form", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_cp_action_menus button",
+            content: "Open the form's Actions (cog) menu",
+            run: "click",
+        },
+        {
+            trigger: ".o_menu_item:contains('Download Google credentials')",
+            content: "'Download Google credentials' is also offered from the form",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-body:contains('Google credentials')",
+            content: "The tutor is told there is nothing to download, same as from the list",
+        },
+    ],
+});

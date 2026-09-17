@@ -37,6 +37,8 @@ Un cop feta la selecció, obre el menú **Accions** a la barra superior i fes cl
 
 ![Llista d'alumnes amb selecció i menú Accions](../../assets/tutors/tutor-accesalportal0.png)
 
+> **Nota:** també pots obrir aquest quadre de diàleg per a un sol alumne des de la seva pròpia fitxa, amb el mateix menú **Accions** ⚙.
+
 > **Nota:** com a tutor, només veuràs i podràs gestionar els teus alumnes. Encara que seleccionis alumnes d'altres grups, el quadre de diàleg només mostrarà els que et corresponen.
 
 > **Nota:** el quadre de diàleg només gestiona alumnat actual i sol·licitants. Per a un alumne que va ser baixa en un curs anterior, envia-li primer la seva nova matrícula: en enviar-la passa a ser sol·licitant i ja pot rebre l'accés al portal com qualsevol altre.

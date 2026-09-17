@@ -1265,16 +1265,12 @@ class ResPartner(models.Model):
         # True when the current user is a tutor of this student, or a tutor of a
         # student related to this family contact (so tutors can also edit the
         # profiles of their students' parents/legal guardians).
-        tutors = self.env.user.employee_ids.filtered(lambda t: t.tutorship_ids)
-        if not tutors:
-            return False
-        if self.tutor_id in tutors:
-            return True
-        related_tutors = self.relation_all_ids.other_partner_id.tutor_id
-        return bool(related_tutors & tutors)
+        return any(base.EmsBase.user_acts_as_tutor(self, tutor)
+                   for tutor in self.tutor_id | self.relation_all_ids.other_partner_id.tutor_id)
 
     def _get_is_tutor_readonly(self):
-        # True only when the user is a tutor of this student and NOT admin/secretary/HoS.
+        # True only when the user acts as tutor of this student (the tutor or a chief above them,
+        # see hr.employee.tutor_scope_user_ids) and is NOT admin/secretary/HoS.
         # Used to make non-contact fields read-only for tutors while admin/secretary/HoS
         # keep full edit access.
         is_admin = base.EmsBase.get_user_is_admin(self)
@@ -1282,11 +1278,7 @@ class ResPartner(models.Model):
         is_head_of_studies = base.EmsBase.get_user_is_head_of_studies(self)
         if is_admin or is_secretary or is_head_of_studies:
             return False
-        for t in self.env.user.employee_ids:
-            if t.id != False and len(t.tutorship_ids) > 0:
-                if self.tutor_id == t:
-                    return True
-        return False
+        return base.EmsBase.user_acts_as_tutor(self, self.tutor_id)
 
     def open_form(self):
         return {

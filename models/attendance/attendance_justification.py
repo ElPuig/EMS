@@ -71,16 +71,15 @@ class EmsAttendanceJustification(models.Model):
 
     @api.onchange("teacher_id")
     def _onchange_allowed_student_ids(self):
+        # The students of every group the justifying teacher acts as tutor of: their own, or those
+        # of the tutors below them (hr.employee.tutor_scope_user_ids, issue #483).
+        is_admin = self.env.user.has_group('ems.group_academic_admin')
         for justification in self:
-            allowed = []
-            where = [('contact_type', '=', 'student')]
-
-            students = self.env["res.partner"].search(where)
-            for student in students:
-                if self.env.user.has_group('ems.group_academic_admin') or student.main_group_id in justification.teacher_id.tutorship_ids:
-                    allowed.append(student.id)
-
-            justification.allowed_student_ids = [(6, 0, allowed)]
+            domain = [('contact_type', '=', 'student')]
+            if not is_admin:
+                domain.append(('main_group_id.tutor_id.tutor_scope_user_ids', '=',
+                               justification.teacher_id.user_id.id))
+            justification.allowed_student_ids = self.env["res.partner"].search(domain)
 
     # NOTE: only fired when adding from the form (so wont be fire), so won't be fired twice when
     # using the regular attendance form.

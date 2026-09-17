@@ -48,7 +48,7 @@
         <field name="name">Contact: tutor (edit its tutorands and their family)</field>
         <field name="model_id" ref="ems.model_res_partner"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">['|', ('tutor_id.user_id', '=', user.id), ('relation_all_ids.other_partner_id.tutor_id.user_id', '=', user.id)]</field>
+        <field name="domain_force">['|', ('tutor_id.tutor_scope_user_ids', '=', user.id), ('relation_all_ids.other_partner_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="False"/>
@@ -77,7 +77,7 @@
         <field name="name">Partner relation: tutor (relations of its tutorands)</field>
         <field name="model_id" ref="partner_multi_relation.model_res_partner_relation"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">['|', ('left_partner_id.tutor_id.user_id', '=', user.id), ('right_partner_id.tutor_id.user_id', '=', user.id)]</field>
+        <field name="domain_force">['|', ('left_partner_id.tutor_id.tutor_scope_user_ids', '=', user.id), ('right_partner_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
         <field name="perm_read" eval="False"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>
@@ -135,7 +135,7 @@
         <field name="name">enrollment: tutor (edit its tutorands)</field>
         <field name="model_id" ref="ems.model_ems_enrollment"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('student_id.tutor_id.user_id', '=' , user.id)]</field>
+        <field name="domain_force">[('student_id.tutor_id.tutor_scope_user_ids', '=' , user.id)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>
@@ -187,7 +187,7 @@
         <field name="name">Enrollment (sale.order): teacher (read only)</field>
         <field name="model_id" ref="sale.model_sale_order"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('partner_id.tutor_id.user_id', '=', user.id)]</field>
+        <field name="domain_force">[('partner_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="False"/>
         <field name="perm_create" eval="False"/>
@@ -198,7 +198,7 @@
         <field name="name">Enrollment (sale.order): tutor (create/edit for own students, draft/sent only)</field>
         <field name="model_id" ref="sale.model_sale_order"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('partner_id.tutor_id.user_id', '=', user.id), ('state', '=', 'draft')]</field>
+        <field name="domain_force">[('partner_id.tutor_id.tutor_scope_user_ids', '=', user.id), ('state', '=', 'draft')]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>
@@ -231,7 +231,7 @@
         <field name="name">Enrollment line: teacher (read only)</field>
         <field name="model_id" ref="sale.model_sale_order_line"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('order_id.partner_id.tutor_id.user_id', '=', user.id)]</field>
+        <field name="domain_force">[('order_id.partner_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="False"/>
         <field name="perm_create" eval="False"/>
@@ -242,7 +242,7 @@
         <field name="name">Enrollment line: tutor (edit/delete on draft only)</field>
         <field name="model_id" ref="sale.model_sale_order_line"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('order_id.partner_id.tutor_id.user_id', '=', user.id), ('order_id.state', '=', 'draft')]</field>
+        <field name="domain_force">[('order_id.partner_id.tutor_id.tutor_scope_user_ids', '=', user.id), ('order_id.state', '=', 'draft')]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>
@@ -301,7 +301,7 @@
         <field name="name">Authorization: tutor (create/edit for own students)</field>
         <field name="model_id" ref="ems.model_ems_authorization"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('partner_id.tutor_id.user_id', '=', user.id)]</field>
+        <field name="domain_force">[('partner_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>
@@ -309,7 +309,9 @@
     </record>
 
     <!-- ems.student.document: tutors read only their own students' Google credentials PDF, and
-         the TAC team every student's, since they reset those passwords (issue #478); DNI, IBAN,
+         the TAC team every student's, since they reset those passwords (issue #478). The tutor
+         rule also covers Head of Studies and Director for the students of the tutors below them
+         (tutor_scope_user_ids, issue #483). DNI, IBAN,
          medical card... stay with secretary and admin. The academic
          admin inherits group_tutor through the Head of Studies chain, and a secretary may also
          tutor a group, so both need an unrestricted rule of their own - otherwise the tutor
@@ -332,7 +334,7 @@
         <field name="name">Student document: tutor (own students' Google credentials, read only)</field>
         <field name="model_id" ref="ems.model_ems_student_document"/>
         <field name="groups" eval="[(4, ref('ems.group_tutor'))]"/>
-        <field name="domain_force">[('doc_type', '=', 'google_credentials'), ('partner_id.tutor_id.user_id', '=', user.id)]</field>
+        <field name="domain_force">[('doc_type', '=', 'google_credentials'), ('partner_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="False"/>
         <field name="perm_create" eval="False"/>
@@ -349,4 +351,5 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_unlink" eval="False"/>
     </record>
+
 </odoo>

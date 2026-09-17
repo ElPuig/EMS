@@ -4,9 +4,21 @@
 
 # Decidir sobre solicitudes de corrección de fichajes
 
-Los profesores pueden solicitar una corrección de una hora de entrada/salida de su propio fichaje. Esta página explica cómo decidir sobre las solicitudes que te llegan. Consulta el [manual de Profesores](../teachers/attendance-corrections.md) para ver cómo se hace la solicitud.
+Los profesores pueden solicitar una corrección de una hora de entrada/salida de su propio fichaje. Esta página explica cómo decidir sobre las solicitudes que te llegan, y cómo hacer una solicitud en nombre de otra persona. Consulta el [manual de Profesores](../teachers/attendance-corrections.md) para ver cómo se hace la solicitud.
 
 **Rol necesario:** Jefatura de Estudios, Jefatura de Estudios Adjunta, Dirección o Administrador
+
+---
+
+## Crear una solicitud en nombre de otra persona
+
+A diferencia de un profesor o profesora, que solo puede solicitar una corrección de su propio fichaje, tú puedes hacerlo para **cualquier** empleado o empleada:
+
+1. Abre el fichaje de esa persona (por ejemplo, desde **Fichajes de empleados → Asistencia → Resumen**, o desde su ficha).
+2. Haz clic en **Solicitar corrección** en la cabecera — el mismo botón y formulario que usaría un profesor o profesora para su propio fichaje.
+3. Rellena la hora de entrada/salida solicitada y el motivo, y **Guarda**.
+
+La solicitud sigue el mismo proceso de revisión que cualquier otra — incluido, si tú no eres quien debe decidir, que se envíe a quien corresponda.
 
 ---
 

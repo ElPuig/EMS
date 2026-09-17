@@ -4,9 +4,21 @@
 
 # Deciding on Attendance Correction Requests
 
-Teachers can request a correction to a check-in/check-out time on their own attendance record. This page explains how to decide on the requests routed to you. See the [Teachers manual](../teachers/attendance-corrections.md) for how a request is made in the first place.
+Teachers can request a correction to a check-in/check-out time on their own attendance record. This page explains how to decide on the requests routed to you, and how to submit a request on behalf of someone else. See the [Teachers manual](../teachers/attendance-corrections.md) for how a request is made in the first place.
 
 **Required role:** Head of Studies, Deputy Head of Studies, Director or Administrator
+
+---
+
+## Creating a Request on Someone Else's Behalf
+
+Unlike a Teacher, who can only request a correction for their own attendance, you can do it for **any** employee:
+
+1. Open that employee's attendance record (e.g. from **Employee Attendances → Attendance → Overview**, or from their profile).
+2. Click **Request Correction** in the header — the same button and form a teacher would use for their own record.
+3. Fill in the requested check-in/check-out time and the reason, then **Save**.
+
+The request goes through the same review process as any other — including, if you're not the one who'll decide on it, being routed to whoever should.
 
 ---
 

@@ -77,6 +77,8 @@ Since `group_head_of_studies` implies `group_tutor` which implies `group_teacher
 
 A teacher opens one of their own `hr.attendance` records and clicks **Request Correction** in the header, which opens `ems.attendance_correction` in a dialog with `attendance_id` pre-filled. `requested_check_in`/`requested_check_out` default (`_default_requested_time()`) to the original time of that attendance, so the requester only has to tweak the value that's wrong. If the original `check_out` isn't set yet (employee still clocked in) and the check-out is requestable (see below), `_schedule_time_for()` falls back to the requester's `resource.calendar` (working schedule) for that weekday — earliest `hour_from` for check-in, latest `hour_to` for check-out — instead of leaving the field blank. On `create()`, the resolved approver(s) get a `mail.activity` to-do (activity type `ems.mail_activity_attendance_correction`) and the record's chatter logs the request.
 
+A Head of Studies, Deputy Head of Studies, Director or Academic Admin can do the exact same thing on behalf of **any** employee (issue #480): the "Request Correction" button is on the native `hr.attendance` form itself, so opening any employee's attendance record (already possible for these roles, see the read access note below) and clicking it works identically, `create()` included, regardless of whose attendance it is.
+
 ### Read
 
 Teachers see their own requests (`views/attendance/attendance_correction/list.xml`); Head of Studies/Director/Academic Admin see all pending and historic requests, under the native "Attendances" menu. The list defaults to the **Pending** filter (`action_attendance_correction_tree`'s `context: {'search_default_pending': 1}`), matching the same pattern already used by `ems.student.document` — an approver isn't forced to wade through already-decided requests by default. The search view also exposes standalone **Accepted**/**Rejected** filters, so switching to (or combining) any other state, or removing the default filter to see all requests, is a single click. `action_view_corrections()` (the "Corrections" smart button on `hr.attendance`) explicitly resets the context to `{}` when drilling into one specific attendance's requests, so that view is never filtered.
@@ -99,11 +101,11 @@ Only Academic Admin can delete correction requests (audit trail is otherwise kep
 
 | Role | Create | Read | Write | Delete | Group XML ID |
 |------|:------:|:----:|:-----:|:------:|--------------|
-| Administrator | ✓ | ✓ | ✓ | ✓ | `ems.group_academic_admin` |
-| Head of Studies / Deputy / Director | — | ✓ | ✓ | — | `ems.group_head_of_studies` |
-| Teacher | ✓ | ✓ | — | — | `ems.group_teacher` |
+| Administrator | ✓ (any employee) | ✓ | ✓ | ✓ | `ems.group_academic_admin` |
+| Head of Studies / Deputy / Director | ✓ (any employee) | ✓ | ✓ | — | `ems.group_head_of_studies` |
+| Teacher | ✓ (own only) | ✓ | — | — | `ems.group_teacher` |
 
-Record rules (`security/rules/attendance.xml`): Admin unrestricted; Head of Studies unrestricted (global group, see limitation above); Teacher restricted to `employee_id.user_id = user.id`.
+Record rules (`security/rules/attendance.xml`): Admin unrestricted; Head of Studies unrestricted, including create (global group, see limitation above); Teacher restricted to `employee_id.user_id = user.id`, including on create — a plain Teacher cannot request a correction on another employee's behalf.
 
 ---
 

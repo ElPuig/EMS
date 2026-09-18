@@ -7,6 +7,11 @@
   while the September one is still pending, which the invoice's overall state (`partial`) could
   not express. With no invoice issued yet, the page falls back to the plan's own breakdown
   exactly as before.
+- The schedule does not depend on the enrollment carrying a payment plan. An enrollment confirmed
+  from the back office has neither a payment plan nor a payment method (only the portal
+  confirmation writes those), and used to show "payment information not yet specified" even when
+  its invoice was issued and fully paid. Those enrollments now show their schedule like any other,
+  and the placeholder is only shown when there really is nothing to report.
 - Registering the payment of an installment now posts a notice on the enrollment itself, so the
   family sees it both in the **Communications** block of the enrollment page and in the portal's
   **Communications** menu. The notice names the installment, the amount and the due date, and is

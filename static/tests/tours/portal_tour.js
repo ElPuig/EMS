@@ -131,3 +131,21 @@ registry.category("web_tour.tours").add("ems_portal_payment_status_comms", {
         },
     ],
 });
+
+// Issue #491: an enrollment confirmed from the backend has no payment plan and no payment method,
+// but its invoice is real - its schedule must show all the same, and the "payment information not
+// specified" placeholder (the credit-card icon) must not.
+registry.category("web_tour.tours").add("ems_portal_payment_status_without_plan", {
+    test: true,
+    url: "/my/gestion-matriculas",
+    steps: () => [
+        {
+            trigger: "#portal_enrollment_payment .ems-payment-schedule [data-installment-state='paid']",
+            content: "The paid installment shows even with no payment plan on the enrollment",
+        },
+        {
+            trigger: "#portal_enrollment_payment:not(:has(.fa-credit-card))",
+            content: "The 'payment information not specified' placeholder is gone",
+        },
+    ],
+});

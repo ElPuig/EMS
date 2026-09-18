@@ -71,8 +71,12 @@ class TestPortalTour(HttpCase):
         self.start_tour("/my/calificaciones", "ems_portal_under_construction_render",
                          login="test_portal_tour_student")
 
-    def _confirmed_enrollment_with_paid_installment(self):
-        """A confirmed enrollment billed in two installments, the first one already settled.
+    def _confirmed_enrollment_with_paid_installment(self, with_plan=True):
+        """A confirmed enrollment with its invoice issued and a settled installment.
+
+        With `with_plan`, it is billed in two installments and the first one is settled, the way a
+        portal confirmation leaves it. Without, it carries no payment plan and no payment method
+        and is paid in full, the way an enrollment confirmed from the backend does.
 
         Mirrors what the secretary's office does: confirm, invoice, register the payment of the
         first installment. See tests/test_portal_payment_status.py for the same flow asserted at
@@ -99,7 +103,7 @@ class TestPortalTour(HttpCase):
             ]})
         order = self.env['sale.order'].create({
             'partner_id': self.student.id, 'ems_course_id': course.id, 'ems_study_id': study.id,
-            'payment_term_id': term.id})
+            'payment_term_id': term.id if with_plan else False})
         # Lines added after the order exists, not inline in create(): the fee line prices itself
         # from the subject lines of its own order, which are not all there yet during create().
         order.order_line = [
@@ -114,7 +118,8 @@ class TestPortalTour(HttpCase):
         wizard = self.env['account.payment.register'].with_context(
             active_model='account.move', active_ids=invoice.ids,
         ).create({'payment_date': date.today()})
-        wizard.amount = abs(first.amount_currency)
+        if with_plan:
+            wizard.amount = abs(first.amount_currency)
         wizard._create_payments()
         self.assertTrue(first.reconciled)
         return order
@@ -130,4 +135,14 @@ class TestPortalTour(HttpCase):
         """The same notification on the Communications page, the other list it has to reach."""
         self._confirmed_enrollment_with_paid_installment()
         self.start_tour("/my/comunicaciones", "ems_portal_payment_status_comms",
+                        login="test_portal_tour_student")
+
+    def test_portal_payment_status_without_plan_tour(self):
+        """Issue #491: an enrollment confirmed from the backend has no payment plan, but its
+        invoice is real - 149 of the 544 confirmed enrollments of this box's database are in that
+        state and used to show no payment information at all."""
+        order = self._confirmed_enrollment_with_paid_installment(with_plan=False)
+        self.assertFalse(order.payment_term_id)
+        self.assertFalse(order.ems_payment_method)
+        self.start_tour("/my/gestion-matriculas", "ems_portal_payment_status_without_plan",
                         login="test_portal_tour_student")

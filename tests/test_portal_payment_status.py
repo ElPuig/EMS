@@ -119,6 +119,22 @@ class TestPortalPaymentStatus(TransactionCase):
         self.assertFalse(installments[1]['paid'], "the second one is still pending")
         self.assertEqual(invoice.payment_state, 'partial')
 
+    def test_an_enrollment_without_payment_plan_still_reports_its_installments(self):
+        # An enrollment confirmed from the backend carries no payment_term_id and no payment
+        # method, but its invoice is just as real: 149 of the 544 confirmed enrollments of this
+        # box's database are in that state, and they showed no payment information at all.
+        order = self._order()
+        self.assertFalse(order.payment_term_id)
+        self.assertFalse(order.ems_payment_method)
+        invoice = self._invoice(order)
+
+        installments = order._ems_portal_installments()
+        self.assertEqual(len(installments), 1)
+        self.assertEqual(installments[0]['amount'], invoice.amount_total)
+
+        self._pay(invoice)
+        self.assertTrue(order._ems_portal_installments()[0]['paid'])
+
     def test_no_invoice_yet_reports_no_installments(self):
         self.assertEqual(self._order()._ems_portal_installments(), [])
 

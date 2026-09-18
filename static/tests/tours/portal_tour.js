@@ -93,3 +93,41 @@ registry.category("web_tour.tours").add("ems_portal_confirmed_authorizations", {
         },
     ],
 });
+
+// Issue #491: a confirmed enrollment whose first installment is already paid shows one row per
+// installment with its own state, and the payment notification in the page's own communications
+// block. Structural selectors only, same reason as the tour above.
+registry.category("web_tour.tours").add("ems_portal_payment_status", {
+    test: true,
+    url: "/my/gestion-matriculas",
+    steps: () => [
+        {
+            trigger: "#enrollment_content",
+            content: "The confirmed enrollment page rendered",
+        },
+        {
+            trigger: ".ems-payment-schedule [data-installment-state='paid']",
+            content: "The settled installment is marked as paid",
+        },
+        {
+            trigger: ".ems-payment-schedule [data-installment-state='pending']",
+            content: "The one still due is marked as pending",
+        },
+        {
+            trigger: "#portal_enrollment_messages",
+            content: "The payment notification reached the enrollment page's communications block",
+        },
+    ],
+});
+
+// The same notification, on the Communications page of the portal menu.
+registry.category("web_tour.tours").add("ems_portal_payment_status_comms", {
+    test: true,
+    url: "/my/comunicaciones",
+    steps: () => [
+        {
+            trigger: "#communications_content .ems-bubble-center",
+            content: "The payment notification is listed among the communications",
+        },
+    ],
+});

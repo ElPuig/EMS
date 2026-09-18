@@ -18,6 +18,7 @@ Aquesta guia explica, pas a pas, com han de confirmar les famílies (o l'alumnat
 6. [Pas 5 — Triar el pla i el mètode de pagament](#pas-5--triar-el-pla-i-el-mètode-de-pagament)
 7. [Pas 6 — Registrar el compte bancari (IBAN)](#pas-6--registrar-el-compte-bancari-iban)
 8. [Pas 7 — Confirmar la matrícula](#pas-7--confirmar-la-matrícula)
+9. [Després de confirmar: seguiment dels pagaments](#després-de-confirmar-seguiment-dels-pagaments)
 
 ---
 
@@ -159,6 +160,22 @@ Quan es compleixen totes, el botó **Confirmar matrícula** s'activa (color gran
 ![Botó Confirmar matrícula activat](../../assets/families/Matricula-confirmacio-08-ConfirmacioOK.png)
 
 > Un cop confirmada, la matrícula queda registrada i la pàgina passa a mode de només lectura, amb la informació de la matrícula. Si més endavant necessiteu fer cap canvi, haureu de contactar amb la [Secretaria del centre](https://elpuig.xeill.net/el-centre/secretaria).
+
+---
+
+## Després de confirmar: seguiment dels pagaments
+
+Un cop el centre emet la factura de la matrícula, a l'apartat **Matrícula**, dins del bloc **Pagament**, hi trobeu el calendari de pagaments amb una línia per termini. Cada línia mostra:
+
+* De quin termini es tracta (**Pagament únic**, o **Pagament 1 de 2** i **Pagament 2 de 2**) i la seva data de venciment.
+* L'import.
+* L'estat: **Pagat** (en verd) o **Pendent** (en groc).
+
+En un pagament en dos terminis, el primer pot constar com a **Pagat** i el segon seguir **Pendent** fins al cobrament de setembre.
+
+Quan el centre registra el cobrament d'un termini, rebeu també un avís al portal, tant al bloc **Comunicacions** de la mateixa pàgina de matrícula com a l'apartat **Comunicacions** del menú principal. L'avís indica el termini cobrat, l'import i la data de venciment.
+
+> Els terminis s'actualitzen quan el centre registra el cobrament al seu sistema, no en el moment exacte del càrrec bancari: poden passar uns dies entre una cosa i l'altra. Si un termini continua com a **Pendent** molt després de la data de venciment, contacteu amb la [Secretaria del centre](https://elpuig.xeill.net/el-centre/secretaria).
 
 ---
 

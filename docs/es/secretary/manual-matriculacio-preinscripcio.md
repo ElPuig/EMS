@@ -181,6 +181,17 @@ Si el alumno tenía derecho al beneficio pero lo ha subido y se ha aprobado **de
 
 ---
 
+## Los pagos registrados se ven en el portal
+
+Cuando registráis el cobro de un plazo de la factura de una matrícula (desde **Contabilidad**, o con la remesa SEPA), el portal de la familia se actualiza solo:
+
+* En el apartado **Matrícula**, dentro del bloque **Pago**, el plazo pasa de **Pendiente** a **Pagado**. En un pago en dos plazos, cada plazo tiene su propio estado.
+* En el bloque **Comunicaciones** de la propia página, y en el apartado **Comunicaciones** del portal, aparece un aviso con el plazo cobrado, el importe y la fecha de vencimiento.
+
+El aviso no se envía por correo electrónico: solo se publica en el portal. Un cobro parcial de un plazo no lo marca como pagado ni genera ningún aviso; el plazo debe quedar cubierto por completo.
+
+---
+
 ## Preguntas frecuentes
 
 **No me sale ningún alumno con el filtro «Con asignación GEDAC».**

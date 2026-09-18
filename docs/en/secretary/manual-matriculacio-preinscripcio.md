@@ -181,6 +181,17 @@ If the student was entitled to the benefit but uploaded it and it was approved *
 
 ---
 
+## Registered payments are visible in the portal
+
+When you register the payment of an installment of an enrollment invoice (from **Accounting**, or through the SEPA batch), the family's portal updates on its own:
+
+* In the **Enrollment** section, inside the **Payment** block, the installment goes from **Pending** to **Paid**. With a two-installment plan, each installment has its own status.
+* In the **Communications** block of that same page, and in the portal's **Communications** section, a notice appears with the installment collected, the amount and the due date.
+
+The notice is not emailed: it is only published in the portal. A partial payment of an installment neither marks it as paid nor produces a notice; the installment has to be covered in full.
+
+---
+
 ## FAQ
 
 **The "With GEDAC assignment" filter shows no students.**

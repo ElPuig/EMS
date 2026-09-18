@@ -14417,3 +14417,55 @@ msgstr "Usuarios que actúan como tutor"
 #: code:addons/ems/models/employees/employee.py:0
 msgid "Unsupported search on tutor_scope_user_ids"
 msgstr "Búsqueda no admitida sobre tutor_scope_user_ids"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "%(period)s (due %(due_date)s)"
+msgstr "%(period)s (vence el %(due_date)s)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
+msgid "<span class=\"badge rounded-pill bg-success\">Paid</span>"
+msgstr "<span class=\"badge rounded-pill bg-success\">Pagado</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
+msgid "<span class=\"badge rounded-pill bg-warning text-dark\">Pending</span>"
+msgstr "<span class=\"badge rounded-pill bg-warning text-dark\">Pendiente</span>"
+
+#. module: ems
+#: model:mail.message.subtype,description:ems.mt_enrollment_payment
+msgid "A payment of an enrollment installment has been registered."
+msgstr "Se ha registrado el pago de un plazo de la matrícula."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Payment %(number)s of %(count)s"
+msgstr "Pago %(number)s de %(count)s"
+
+#. module: ems
+#: model:mail.message.subtype,name:ems.mt_enrollment_payment
+msgid "Payment received"
+msgstr "Pago recibido"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/invoice.py:0
+msgid "Payment received for enrollment %(enrollment)s: %(amount)s."
+msgstr "Pago recibido de la matrícula %(enrollment)s: %(amount)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/invoice.py:0
+msgid ""
+"Payment received for installment %(number)s of %(count)s of enrollment "
+"%(enrollment)s: %(amount)s (due %(due_date)s)."
+msgstr "Pago recibido del plazo %(number)s de %(count)s de la matrícula %(enrollment)s: %(amount)s (vence el %(due_date)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Single payment"
+msgstr "Pago único"

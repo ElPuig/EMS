@@ -365,6 +365,7 @@
         'data/main/hr.departure.reason.csv',
         'data/main/res.partner.relation.type.csv',
         'data/main/mail.activity.type.csv',
+        'data/main/mail.message.subtype.csv',
         'data/main/mail.template-google_welcome.csv',
         'data/main/mail.template-google_lifecycle.csv',
         'data/main/ir.cron-google_workspace.csv',

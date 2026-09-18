@@ -181,6 +181,17 @@ Si l'alumne tenia dret al benefici però l'ha pujat i s'ha aprovat **després** 
 
 ---
 
+## Els pagaments registrats es veuen al portal
+
+Quan registreu el cobrament d'un termini de la factura d'una matrícula (des de **Comptabilitat**, o amb la remesa SEPA), el portal de la família s'actualitza tot sol:
+
+* A l'apartat **Matrícula**, dins del bloc **Pagament**, el termini passa de **Pendent** a **Pagat**. En un pagament en dos terminis, cada termini té el seu propi estat.
+* Al bloc **Comunicacions** de la mateixa pàgina, i a l'apartat **Comunicacions** del portal, hi apareix un avís amb el termini cobrat, l'import i la data de venciment.
+
+L'avís no s'envia per correu electrònic: només es publica al portal. Un cobrament parcial d'un termini no el marca com a pagat ni genera cap avís; cal que el termini quedi cobert del tot.
+
+---
+
 ## Preguntes freqüents
 
 **No em surt cap alumne amb el filtre «Amb assignació GEDAC».**

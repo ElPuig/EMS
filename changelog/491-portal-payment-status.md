@@ -37,5 +37,6 @@
 - New `TestPortalPaymentStatus` covers single and deferred plans, partial payments, the
   once-per-installment rule, the absence of email, non-enrollment invoices and the family's
   language; two browser tours cover the rendered badges and the notice on both portal pages.
-- Family and secretary manuals updated in the three languages, plus the developer documentation
-  and the Catalan/Spanish translations.
+- Family and secretary manuals updated in the three languages, with screenshots of the payment
+  schedule as the family sees it (pending installments and a collected one), plus the developer
+  documentation and the Catalan/Spanish translations.

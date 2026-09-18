@@ -188,6 +188,10 @@ Cuando registráis el cobro de un plazo de la factura de una matrícula (desde *
 * En el apartado **Matrícula**, dentro del bloque **Pago**, el plazo pasa de **Pendiente** a **Pagado**. En un pago en dos plazos, cada plazo tiene su propio estado.
 * En el bloque **Comunicaciones** de la propia página, y en el apartado **Comunicaciones** del portal, aparece un aviso con el plazo cobrado, el importe y la fecha de vencimiento.
 
+Así es como la familia ve el calendario de pagos en su portal:
+
+![Calendario de pagos tal como lo ve la familia en el portal](../../assets/families/Matricula-confirmacio-09-CalendariPagaments.png)
+
 El aviso no se envía por correo electrónico: solo se publica en el portal. Un cobro parcial de un plazo no lo marca como pagado ni genera ningún aviso; el plazo debe quedar cubierto por completo.
 
 ---

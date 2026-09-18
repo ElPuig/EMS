@@ -171,7 +171,13 @@ Una vez el centro emite la factura de la matrícula, en el apartado **Matrícula
 * El importe.
 * El estado: **Pagado** (en verde) o **Pendiente** (en amarillo).
 
+![Calendario de pagos con los dos plazos pendientes](../../assets/families/Matricula-confirmacio-09-CalendariPagaments.png)
+
 En un pago en dos plazos, el primero puede constar como **Pagado** y el segundo seguir **Pendiente** hasta el cobro de septiembre.
+
+Cuando el centro registra el cobro, el plazo pasa a **Pagado**:
+
+![Calendario de pagos con el pago único ya cobrado](../../assets/families/Matricula-confirmacio-10-PagamentPagat.png)
 
 Cuando el centro registra el cobro de un plazo, recibís también un aviso en el portal, tanto en el bloque **Comunicaciones** de la propia página de matrícula como en el apartado **Comunicaciones** del menú principal. El aviso indica el plazo cobrado, el importe y la fecha de vencimiento.
 

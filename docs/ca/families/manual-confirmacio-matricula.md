@@ -171,7 +171,13 @@ Un cop el centre emet la factura de la matrícula, a l'apartat **Matrícula**, d
 * L'import.
 * L'estat: **Pagat** (en verd) o **Pendent** (en groc).
 
+![Calendari de pagaments amb els dos terminis pendents](../../assets/families/Matricula-confirmacio-09-CalendariPagaments.png)
+
 En un pagament en dos terminis, el primer pot constar com a **Pagat** i el segon seguir **Pendent** fins al cobrament de setembre.
+
+Quan el centre registra el cobrament, el termini passa a **Pagat**:
+
+![Calendari de pagaments amb el pagament únic ja cobrat](../../assets/families/Matricula-confirmacio-10-PagamentPagat.png)
 
 Quan el centre registra el cobrament d'un termini, rebeu també un avís al portal, tant al bloc **Comunicacions** de la mateixa pàgina de matrícula com a l'apartat **Comunicacions** del menú principal. L'avís indica el termini cobrat, l'import i la data de venciment.
 

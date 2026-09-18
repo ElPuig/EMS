@@ -188,6 +188,10 @@ Quan registreu el cobrament d'un termini de la factura d'una matrícula (des de 
 * A l'apartat **Matrícula**, dins del bloc **Pagament**, el termini passa de **Pendent** a **Pagat**. En un pagament en dos terminis, cada termini té el seu propi estat.
 * Al bloc **Comunicacions** de la mateixa pàgina, i a l'apartat **Comunicacions** del portal, hi apareix un avís amb el termini cobrat, l'import i la data de venciment.
 
+Així és com la família veu el calendari de pagaments al seu portal:
+
+![Calendari de pagaments tal com el veu la família al portal](../../assets/families/Matricula-confirmacio-09-CalendariPagaments.png)
+
 L'avís no s'envia per correu electrònic: només es publica al portal. Un cobrament parcial d'un termini no el marca com a pagat ni genera cap avís; cal que el termini quedi cobert del tot.
 
 ---

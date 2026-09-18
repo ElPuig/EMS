@@ -171,7 +171,13 @@ Once the school issues the enrollment invoice, the **Enrollment** section shows 
 * The amount.
 * Its status: **Paid** (green) or **Pending** (yellow).
 
+![Payment schedule with both installments pending](../../assets/families/Matricula-confirmacio-09-CalendariPagaments.png)
+
 With a two-installment plan, the first one can read **Paid** while the second stays **Pending** until the September collection.
+
+Once the school registers the payment, the installment turns to **Paid**:
+
+![Payment schedule with the single payment already collected](../../assets/families/Matricula-confirmacio-10-PagamentPagat.png)
 
 When the school registers the payment of an installment, you also get a notice in the portal, both in the **Communications** block of the enrollment page itself and in the **Communications** section of the main menu. The notice states which installment was collected, the amount and the due date.
 

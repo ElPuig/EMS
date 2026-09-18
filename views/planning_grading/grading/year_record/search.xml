@@ -15,8 +15,8 @@
                             domain="[('title_obtained', '=', True)]"/>
                     <filter name="final_pending" string="Finals pending placement"
                             domain="[('subject_record_ids.final_pending', '=', True)]"/>
-                    <filter name="diligenced" string="Corrected by a diligence"
-                            domain="[('subject_record_ids.diligence_date', '!=', False)]"/>
+                    <filter name="reviewed" string="Corrected by a grade review"
+                            domain="[('subject_record_ids.review_date', '!=', False)]"/>
                     <separator/>
                     <filter name="result_full" string="Fully passed"
                             domain="[('academic_result', '=', 'full')]"/>

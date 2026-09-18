@@ -2,7 +2,7 @@
 
 import { registry } from "@web/core/registry";
 
-// The diligence wizard (issue #493): the only write path into an academic file already closed.
+// The grade review wizard (issue #493): the only write path into an academic file already closed.
 // Driven as the secretariat, the least-privileged role that must reach the screen - the whole
 // point of the issue is that this is secretariat work, and every other field of the history
 // stays read-only for everyone.
@@ -10,7 +10,7 @@ import { registry } from "@web/core/registry";
 // Covers the three renderings the feature adds: the button on the year record form, the wizard
 // dialog itself (its outcome grid and its live preview), and the corrected values landing back
 // on the record's own Subjects list.
-registry.category("web_tour.tours").add("ems_year_record_diligence", {
+registry.category("web_tour.tours").add("ems_grade_review", {
     test: true,
     url: "/odoo/action-ems.action_year_record_list",
     steps: () => [
@@ -18,11 +18,11 @@ registry.category("web_tour.tours").add("ems_year_record_diligence", {
         {
             trigger: ".o_searchview_input",
             content: "Search for the seeded student",
-            run: "edit Diligence Tour Student",
+            run: "edit Grade Review Tour Student",
         },
         { trigger: ".o_searchview_input", content: "Confirm the search", run: "press Enter" },
         {
-            trigger: ".o_searchview_facet:contains('Diligence Tour Student')",
+            trigger: ".o_searchview_facet:contains('Grade Review Tour Student')",
             content: "The search facet is applied",
         },
         // The action's own context defaults to grouping by course.
@@ -32,27 +32,27 @@ registry.category("web_tour.tours").add("ems_year_record_diligence", {
             run: "click",
         },
         {
-            trigger: ".o_list_view .o_data_cell:contains('Diligence Tour Student')",
+            trigger: ".o_list_view .o_data_cell:contains('Grade Review Tour Student')",
             content: "Open the seeded year record",
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_data_cell:contains('Diligence Tour Subject')",
+            trigger: ".o_form_view .o_data_cell:contains('Grade Review Tour Subject')",
             content: "The Subjects tab rendered with the failed subject",
         },
         {
-            trigger: ".o_form_view button.o_ems_diligence",
-            content: "Open the diligence wizard",
+            trigger: ".o_form_view button.o_ems_grade_review",
+            content: "Open the grade review wizard",
             run: "click",
         },
         { trigger: ".modal .o_form_view", content: "The wizard dialog opened" },
         {
             trigger: ".modal div[name='subject_record_id'] input",
-            content: "Pick the subject the diligence corrects",
-            run: "edit Diligence Tour Subject",
+            content: "Pick the subject the review corrects",
+            run: "edit Grade Review Tour Subject",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item a:contains('Diligence Tour Subject')",
+            trigger: ".o-autocomplete--dropdown-item a:contains('Grade Review Tour Subject')",
             content: "Select it from the autocomplete",
             run: "click",
         },
@@ -72,7 +72,7 @@ registry.category("web_tour.tours").add("ems_year_record_diligence", {
         },
         {
             trigger: ".modal div[name='resolution'] textarea",
-            content: "Write down what the diligence resolves",
+            content: "Write down what the review resolves",
             run: "edit Reviewed after the closure: the module is passed.",
         },
         {
@@ -87,7 +87,7 @@ registry.category("web_tour.tours").add("ems_year_record_diligence", {
         },
         {
             trigger: ".modal footer button[name='action_apply']",
-            content: "Apply the diligence",
+            content: "Apply the review",
             run: "click",
         },
         {

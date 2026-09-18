@@ -6,7 +6,7 @@
 
 L'**històric acadèmic** conserva un registre permanent per alumne/a i curs: estudi, grup, mòduls amb les notes per resultat d'aprenentatge, assistència i resultat acadèmic. Es genera automàticament (a cada baixa i a la transició de curs) com una **còpia congelada** del subsistema de notes, de manera que sobreviu a la neteja anual de les dades operatives.
 
-Com a cap d'estudis o director/a teniu **accés a tot l'històric**: consultes a nivell de cohort i aplicació de diligències a un curs ja tancat.
+Com a cap d'estudis o director/a teniu **accés a tot l'històric**: consultes a nivell de cohort i aplicació de revisions de qualificacions a un curs ja tancat.
 
 ---
 
@@ -31,11 +31,11 @@ A més, a la fitxa de qualsevol alumne/a, la pestanya **Històric acadèmic** mo
 - Les **ponderacions** desades (interna/EM i per RA) són les vigents aquell curs: l'històric és autocontingut i conserva el seu significat encara que una programació posterior canviï els pesos.
 - El **resultat acadèmic** es proposa automàticament a partir de les notes i de la matrícula de destinació; secretaria/administració pot haver-lo ajustat a mà.
 
-## Aplicar una diligència
+## Aplicar una revisió de qualificacions
 
-Una diligència corregeix l'històric acadèmic d'un curs ja tancat: la nota d'un mòdul a través dels seus resultats d'aprenentatge, un mòdul que falta en un registre o un mòdul que no hi hauria de ser.
+Una revisió de qualificacions corregeix l'històric acadèmic d'un curs ja tancat: la nota d'un mòdul a través dels seus resultats d'aprenentatge, un mòdul que falta en un registre o un mòdul que no hi hauria de ser.
 
-Obriu el registre de l'alumne/a d'aquell curs i feu clic a **Aplica la diligència**. Teniu el pas a pas complet al [manual de secretaria](../secretary/academic-history.md#aplicar-una-diligència) — la pantalla i les regles són les mateixes per als dos rols.
+Obriu el registre de l'alumne/a d'aquell curs i feu clic a **Revisió de qualificacions**. Teniu el pas a pas complet al [manual de secretaria](../secretary/academic-history.md#aplicar-una-revisió-de-qualificacions) — la pantalla i les regles són les mateixes per als dos rols.
 
 ---
 

@@ -7,10 +7,10 @@
                 <form create="0">
                     <header>
                         <!-- The single write path into a closed academic file (issue #493).
-                             Restricted to the roles that sign a diligence; everything else on
+                             Restricted to the roles that sign a grade review; everything else on
                              this form stays read-only. -->
-                        <button name="%(action_year_record_diligence_wizard)d" type="action"
-                                string="Apply diligence" class="btn-primary o_ems_diligence"
+                        <button name="%(action_grade_review_wizard)d" type="action"
+                                string="Grade review" class="btn-primary o_ems_grade_review"
                                 context="{'default_record_id': id}"
                                 groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"/>
                     </header>
@@ -55,8 +55,8 @@
                                         <field name="attendance_rate" optional="hide"/>
                                         <field name="is_overridden" optional="hide"/>
                                         <field name="notes" optional="hide"/>
-                                        <field name="diligence_date" optional="show"/>
-                                        <field name="diligence_user_id" optional="hide"/>
+                                        <field name="review_date" optional="show"/>
+                                        <field name="review_user_id" optional="hide"/>
                                     </list>
                                 </field>
                             </page>
@@ -92,10 +92,10 @@
                         <group>
                             <field name="notes" readonly="1"/>
                         </group>
-                        <group string="Diligence" invisible="not diligence_date">
-                            <field name="diligence_date" readonly="1"/>
-                            <field name="diligence_user_id" readonly="1"/>
-                            <field name="diligence_note" readonly="1"/>
+                        <group string="Grade review" invisible="not review_date">
+                            <field name="review_date" readonly="1"/>
+                            <field name="review_user_id" readonly="1"/>
+                            <field name="review_note" readonly="1"/>
                         </group>
                         <field name="outcome_record_ids" readonly="1">
                             <list>

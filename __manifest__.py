@@ -194,7 +194,7 @@
             'views/planning_grading/grading/wizard.xml',
             'views/planning_grading/grading/import_wizard.xml',
             'views/planning_grading/grading/em_wizard.xml',
-            'views/planning_grading/grading/year_record/diligence_wizard.xml',
+            'views/planning_grading/grading/year_record/grade_review_wizard.xml',
             'views/planning_grading/grading/year_record/list.xml',
             'views/planning_grading/grading/year_record/form.xml',
             'views/planning_grading/grading/year_record/search.xml',

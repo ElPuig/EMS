@@ -7,7 +7,7 @@ from odoo.exceptions import UserError
 
 from ..shared import base
 
-# A diligence is a formal resolution signed once the academic file of a course is already
+# A grade review is a formal resolution signed once the academic file of a course is already
 # closed: the frozen history (ems.student.year_record) is by then the only surviving trace of
 # that year, since the course transition deleted the live grade lines it was copied from. This
 # wizard is the single write path into it — correcting a subject through its learning outcomes
@@ -18,9 +18,9 @@ from ..shared import base
 # sessions are the source of truth and the history does not exist yet.
 
 
-class EmsYearRecordDiligenceWizard(models.TransientModel):
-    _name = 'ems.year_record_diligence_wizard'
-    _description = 'Diligence wizard: post-closure correction of a student academic year record.'
+class EmsGradeReviewWizard(models.TransientModel):
+    _name = 'ems.grade_review_wizard'
+    _description = 'Grade review wizard: post-closure correction of a student academic year record.'
 
     record_id = fields.Many2one(string="Year record", comodel_name='ems.student.year_record',
                                 required=True, ondelete='cascade')
@@ -45,12 +45,12 @@ class EmsYearRecordDiligenceWizard(models.TransientModel):
     internal_weight = fields.Float(string="Internal weight (%)", default=100.0)
     external_weight = fields.Float(string="Work placement weight (%)")
     line_ids = fields.One2many(string="Learning outcomes",
-                               comodel_name='ems.year_record_diligence_wizard.line',
+                               comodel_name='ems.grade_review_wizard.line',
                                inverse_name='wizard_id')
-    diligence_date = fields.Date(string="Diligence date", required=True,
-                                 default=fields.Date.context_today)
+    review_date = fields.Date(string="Review date", required=True,
+                              default=fields.Date.context_today)
     resolution = fields.Text(string="Resolution", required=True,
-                             help="What the diligence resolves. Kept on the record and posted "
+                             help="What the review resolves. Kept on the record and posted "
                                   "in the student's chatter.")
     preview_internal_grade = fields.Integer(string="Internal grade", compute='_compute_preview')
     preview_state = fields.Selection(string="State", compute='_compute_preview', selection=[
@@ -70,7 +70,7 @@ class EmsYearRecordDiligenceWizard(models.TransientModel):
                                        ])
     update_result = fields.Boolean(string="Update the course result", default=True,
                                    help="Write the proposed academic result on the course "
-                                        "record once the diligence is applied.")
+                                        "record once the review is applied.")
 
     @api.depends('record_id')
     def _compute_available_subject_ids(self):
@@ -166,7 +166,7 @@ class EmsYearRecordDiligenceWizard(models.TransientModel):
             self.internal_weight, self.external_weight)
 
     def _result_after(self, other_subject_records, state):
-        """The academic result the record would show once this diligence is applied: the state
+        """The academic result the record would show once this grade review is applied: the state
         of the subject being corrected or added (None when it is being removed) plus the state
         of every other subject, run through the record's own rule."""
         self.ensure_one()
@@ -180,10 +180,10 @@ class EmsYearRecordDiligenceWizard(models.TransientModel):
         return 'full' if all(subject_state == 'passed' for subject_state in states) else 'partial'
 
     def action_apply(self):
-        """Apply the diligence, stamp it on the record and post its detail in the student's
+        """Apply the review, stamp it on the record and post its detail in the student's
         chatter."""
         self.ensure_one()
-        self._check_can_diligence()
+        self._check_can_review()
         # Read while the record is still whole: 'remove' deletes what the preview is computed
         # from, and reading it afterwards would only raise on a record that no longer exists.
         previous_result = self.record_id.academic_result
@@ -194,11 +194,11 @@ class EmsYearRecordDiligenceWizard(models.TransientModel):
                              previous=self._result_label(previous_result),
                              new=self._result_label(proposed_result)))
             self.record_id.academic_result = proposed_result
-        self._log_diligence(changes)
+        self._log_review(changes)
         return {'type': 'ir.actions.act_window_close'}
 
-    def _check_can_diligence(self):
-        """Secretariat, academic administration, Head of Studies and Director sign diligences;
+    def _check_can_review(self):
+        """Secretariat, academic administration, Head of Studies and Director sign grade reviews;
         the ACL and the record rules grant them the write access this needs. The check is the
         defensive one: the button is already restricted to the same groups in the view."""
         self.ensure_one()
@@ -206,12 +206,12 @@ class EmsYearRecordDiligenceWizard(models.TransientModel):
         if not (ems_base.get_user_is_secretary() or ems_base.get_user_is_admin()
                 or ems_base.get_user_is_head_of_studies()):
             raise UserError(_("Only the secretariat, the academic administration, the Head of "
-                              "Studies and the Director may apply a diligence."))
+                              "Studies and the Director may apply a grade review."))
 
     def _apply_correct(self):
         self.ensure_one()
         if not self.subject_record_id:
-            raise UserError(_("Pick the subject the diligence corrects."))
+            raise UserError(_("Pick the subject the review corrects."))
         changes = []
         for line in self.line_ids:
             if line.score == line.previous_score and line.is_scored == line.previous_is_scored:
@@ -223,7 +223,7 @@ class EmsYearRecordDiligenceWizard(models.TransientModel):
             line.outcome_record_id.write({'final_score': line.score,
                                           'final_is_scored': line.is_scored})
         if not changes:
-            raise UserError(_("The diligence does not change any learning outcome grade."))
+            raise UserError(_("The review does not change any learning outcome grade."))
         previous_state = self.subject_record_id.state
         self.subject_record_id._recompute_from_outcomes()
         changes.append(_("%(subject)s: %(previous)s → %(new)s (grade %(grade)s)",
@@ -237,7 +237,7 @@ class EmsYearRecordDiligenceWizard(models.TransientModel):
     def _apply_add(self):
         self.ensure_one()
         if not self.subject_id:
-            raise UserError(_("Pick the subject the diligence adds."))
+            raise UserError(_("Pick the subject the review adds."))
         subject_record = self.env['ems.student.year_record.subject'].create({
             'record_id': self.record_id.id,
             'subject_id': self.subject_id.id,
@@ -262,7 +262,7 @@ class EmsYearRecordDiligenceWizard(models.TransientModel):
     def _apply_remove(self):
         self.ensure_one()
         if not self.subject_record_id:
-            raise UserError(_("Pick the subject the diligence removes."))
+            raise UserError(_("Pick the subject the review removes."))
         subject_record = self.subject_record_id
         changes = [_("Subject removed: %(subject)s", subject=subject_record.subject_name)]
         # Dropped from the wizard first: any later read of the wizard recomputes the preview,
@@ -273,22 +273,22 @@ class EmsYearRecordDiligenceWizard(models.TransientModel):
 
     def _stamp(self, subject_record):
         subject_record.write({
-            'diligence_date': self.diligence_date,
-            'diligence_user_id': self.env.user.id,
-            'diligence_note': self.resolution,
+            'review_date': self.review_date,
+            'review_user_id': self.env.user.id,
+            'review_note': self.resolution,
         })
 
-    def _log_diligence(self, changes):
-        """Post the diligence in the student's chatter: its date, its author, what it resolves
-        and every value it changed. The history itself only keeps the last diligence per
+    def _log_review(self, changes):
+        """Post the review in the student's chatter: its date, its author, what it resolves
+        and every value it changed. The history itself only keeps the last grade review per
         subject, so the chatter is what makes the whole sequence auditable."""
         self.ensure_one()
-        intro = _("Diligence of %(date)s applied by %(user)s on the academic history of "
+        intro = _("Grade review of %(date)s applied by %(user)s on the academic history of "
                   "%(course)s: %(resolution)s",
-                  date=fields.Date.to_string(self.diligence_date), user=self.env.user.name,
+                  date=fields.Date.to_string(self.review_date), user=self.env.user.name,
                   course=self.record_id.course_id.name, resolution=self.resolution)
         # _message_log, not message_post: this is an automatic audit note on the student, so it
-        # needs neither a subtype nor an email address on whoever signed the diligence.
+        # needs neither a subtype nor an email address on whoever signed the review.
         self.record_id.student_id._message_log(
             body=Markup("<p>{}</p>").format(intro)
             + base.EmsBase.build_html_list(self, changes))
@@ -307,14 +307,14 @@ class EmsYearRecordDiligenceWizard(models.TransientModel):
         return self._selection_label('ems.student.year_record', 'academic_result', result)
 
 
-class EmsYearRecordDiligenceWizardLine(models.TransientModel):
-    _name = 'ems.year_record_diligence_wizard.line'
-    _description = 'Diligence wizard: the resolved grade of one learning outcome (RA).'
+class EmsGradeReviewWizardLine(models.TransientModel):
+    _name = 'ems.grade_review_wizard.line'
+    _description = 'Grade review wizard: the resolved grade of one learning outcome (RA).'
     # The grid is built in the order of the outcomes it was filled from, and its name is not a
     # stored column to sort on (see _compute_outcome_name).
     _order = 'id asc'
 
-    wizard_id = fields.Many2one(string="Wizard", comodel_name='ems.year_record_diligence_wizard',
+    wizard_id = fields.Many2one(string="Wizard", comodel_name='ems.grade_review_wizard',
                                 required=True, ondelete='cascade')
     # Empty while adding a subject: there is no frozen outcome to write back to yet.
     outcome_record_id = fields.Many2one(string="Outcome record", ondelete='cascade',
@@ -322,7 +322,7 @@ class EmsYearRecordDiligenceWizardLine(models.TransientModel):
     outcome_id = fields.Many2one(string="Outcome", comodel_name='ems.outcome', ondelete='cascade')
     # Everything the user does not type is derived, never copied into the line: a field the view
     # shows read-only is not sent back by the client when the wizard is saved, so a plain copy
-    # would reach action_apply() empty and the diligence would read every outcome as changed.
+    # would reach action_apply() empty and the review would read every outcome as changed.
     outcome_name = fields.Char(string="Learning outcome", compute='_compute_outcome_name')
     # Frozen with the outcome being corrected; typed by the user only when adding a subject.
     weight = fields.Float(string="Weight (%)", compute='_compute_weight',

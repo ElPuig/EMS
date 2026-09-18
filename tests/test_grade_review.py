@@ -8,34 +8,34 @@ from odoo.tests.common import Form, TransactionCase
 from .common import create_level_study, create_role_user, next_student_id
 
 
-class TestYearRecordDiligence(TransactionCase):
-    """The diligence wizard: the only write path into a closed academic file (issue #493)."""
+class TestGradeReview(TransactionCase):
+    """The review wizard: the only write path into a closed academic file (issue #493)."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.course = cls.env['ems.course'].create({'start': 2088, 'end': 2089})
-        cls.level, cls.study = create_level_study(cls, 'DLG', level={'name': 'Diligence Level'},
-                                                  study={'code': 'DLGSTD', 'acronym': 'DLG',
-                                                         'name': 'Diligence Study'})
+        cls.level, cls.study = create_level_study(cls, 'GRV', level={'name': 'Grade Review Level'},
+                                                  study={'code': 'GRVSTD', 'acronym': 'GRV',
+                                                         'name': 'Grade Review Study'})
         # Subject 1 is internal only (the English module of the real case); subject 3 carries a
         # work placement weight, so a correction on it leaves the final pending.
         cls.subject1 = cls.env['ems.subject'].create({
-            'code': 'DLGSUB1', 'acronym': 'DLG1', 'name': 'Diligence Subject 1',
+            'code': 'GRVSUB1', 'acronym': 'GRV1', 'name': 'Grade Review Subject 1',
             'study_ids': [(4, cls.study.id)]})
         cls.subject2 = cls.env['ems.subject'].create({
-            'code': 'DLGSUB2', 'acronym': 'DLG2', 'name': 'Diligence Subject 2',
+            'code': 'GRVSUB2', 'acronym': 'GRV2', 'name': 'Grade Review Subject 2',
             'study_ids': [(4, cls.study.id)]})
         cls.subject3 = cls.env['ems.subject'].create({
-            'code': 'DLGSUB3', 'acronym': 'DLG3', 'name': 'Diligence Subject 3',
+            'code': 'GRVSUB3', 'acronym': 'GRV3', 'name': 'Grade Review Subject 3',
             'study_ids': [(4, cls.study.id)]})
         cls.outcome3a = cls.env['ems.outcome'].create({
-            'code': 'DLGSUB3_01RA', 'acronym': 'RA1', 'name': 'Outcome 3A',
+            'code': 'GRVSUB3_01RA', 'acronym': 'RA1', 'name': 'Outcome 3A',
             'subject_id': cls.subject3.id})
         cls.outcome3b = cls.env['ems.outcome'].create({
-            'code': 'DLGSUB3_02RA', 'acronym': 'RA2', 'name': 'Outcome 3B',
+            'code': 'GRVSUB3_02RA', 'acronym': 'RA2', 'name': 'Outcome 3B',
             'subject_id': cls.subject3.id})
-        # The teaching plan of subject 3 is what an "add a missing subject" diligence reads.
+        # The teaching plan of subject 3 is what an "add a missing subject" grade review reads.
         cls.planning3 = cls.env['ems.planning'].create({
             'study_id': cls.study.id, 'subject_id': cls.subject3.id,
             'internal_ponderation': 90.0, 'external_ponderation': 10.0,
@@ -44,9 +44,9 @@ class TestYearRecordDiligence(TransactionCase):
                 (0, 0, {'outcome_id': cls.outcome3b.id, 'ponderation': 50.0}),
             ]})
 
-        cls.secretary = create_role_user(cls, 'secretary', 'test_secretary_diligence')
-        cls.head_of_studies = create_role_user(cls, 'head_of_studies', 'test_hos_diligence')
-        cls.teacher = create_role_user(cls, 'teacher', 'test_teacher_diligence')
+        cls.secretary = create_role_user(cls, 'secretary', 'test_secretary_grade_review')
+        cls.head_of_studies = create_role_user(cls, 'head_of_studies', 'test_hos_grade_review')
+        cls.teacher = create_role_user(cls, 'teacher', 'test_teacher_grade_review')
 
     # --- fixtures ------------------------------------------------------------
 
@@ -55,7 +55,7 @@ class TestYearRecordDiligence(TransactionCase):
         so the internal grade is capped at 4) and subject 2 passed - the shape of the real case
         this wizard was built for."""
         student = self.env['res.partner'].create({
-            'name': 'Diligence Student', 'contact_type': 'student',
+            'name': 'Grade Review Student', 'contact_type': 'student',
             'student_id': next_student_id()})
         return self.env['ems.student.year_record'].create({
             'student_id': student.id, 'course_id': self.course.id,
@@ -90,17 +90,17 @@ class TestYearRecordDiligence(TransactionCase):
 
     def _form(self, record, user=None, operation='correct'):
         """The wizard exactly as the web client drives it (view spec and onchains included)."""
-        Wizard = self.env['ems.year_record_diligence_wizard']
+        Wizard = self.env['ems.grade_review_wizard']
         if user:
             Wizard = Wizard.with_user(user)
         form = Form(Wizard.with_context(default_record_id=record.id),
-                    view='ems.view_year_record_diligence_wizard_form')
+                    view='ems.view_grade_review_wizard_form')
         form.operation = operation
         form.resolution = 'Reviewed and resolved as passed.'
         return form
 
     def _pass_failing_outcomes(self, form):
-        """What the secretariat types in: a 5 on every outcome the diligence resolves."""
+        """What the secretariat types in: a 5 on every outcome the review resolves."""
         for index in range(len(form.line_ids)):
             with form.line_ids.edit(index) as line:
                 if line.previous_score < 5:
@@ -156,7 +156,7 @@ class TestYearRecordDiligence(TransactionCase):
 
     def test_correct_keeps_a_result_the_grades_do_not_decide(self):
         # 'repeating' and 'withdrawn' come from the exit and the destination enrollment, not
-        # from the grades: a diligence on a subject cannot resolve them.
+        # from the grades: a grade review on a subject cannot resolve them.
         for result in ('repeating', 'withdrawn'):
             record = self._record(academic_result=result)
             form = self._form(record)
@@ -165,17 +165,17 @@ class TestYearRecordDiligence(TransactionCase):
             form.save().action_apply()
             self.assertEqual(record.academic_result, result)
 
-    def test_correct_stamps_the_diligence_on_the_subject(self):
+    def test_correct_stamps_the_review_on_the_subject(self):
         record = self._record()
         subject_record = self._failed_subject(record)
         form = self._form(record, user=self.secretary)
         form.subject_record_id = subject_record
         self._pass_failing_outcomes(form)
-        form.diligence_date = date(2088, 6, 30)
+        form.review_date = date(2088, 6, 30)
         form.save().action_apply()
-        self.assertEqual(subject_record.diligence_date, date(2088, 6, 30))
-        self.assertEqual(subject_record.diligence_user_id, self.secretary)
-        self.assertEqual(subject_record.diligence_note, 'Reviewed and resolved as passed.')
+        self.assertEqual(subject_record.review_date, date(2088, 6, 30))
+        self.assertEqual(subject_record.review_user_id, self.secretary)
+        self.assertEqual(subject_record.review_note, 'Reviewed and resolved as passed.')
 
     def test_correct_logs_the_detail_in_the_student_chatter(self):
         record = self._record()
@@ -261,11 +261,11 @@ class TestYearRecordDiligence(TransactionCase):
         self.assertEqual(added.state, 'passed')
         self.assertEqual(added.internal_grade, 7)
         self.assertEqual(added.outcome_record_ids.mapped('weight'), [50.0, 50.0])
-        self.assertEqual(added.diligence_note, 'Reviewed and resolved as passed.')
+        self.assertEqual(added.review_note, 'Reviewed and resolved as passed.')
 
     def test_add_only_offers_subjects_the_record_does_not_have(self):
         record = self._record()
-        wizard = self.env['ems.year_record_diligence_wizard'].create({
+        wizard = self.env['ems.grade_review_wizard'].create({
             'record_id': record.id, 'resolution': 'x'})
         self.assertIn(self.subject3, wizard.available_subject_ids)
         self.assertNotIn(self.subject1, wizard.available_subject_ids)
@@ -273,7 +273,7 @@ class TestYearRecordDiligence(TransactionCase):
 
     def test_add_without_a_subject_is_rejected(self):
         record = self._record()
-        wizard = self.env['ems.year_record_diligence_wizard'].create({
+        wizard = self.env['ems.grade_review_wizard'].create({
             'record_id': record.id, 'operation': 'add', 'resolution': 'x'})
         with self.assertRaises(UserError):
             wizard.action_apply()
@@ -298,9 +298,9 @@ class TestYearRecordDiligence(TransactionCase):
         form.save().action_apply()
         self.assertIn(self.subject1.display_name, record.student_id.message_ids[0].body)
 
-    # --- who may sign a diligence --------------------------------------------
+    # --- who may sign a grade review --------------------------------------------
 
-    def test_the_secretariat_may_apply_a_diligence(self):
+    def test_the_secretariat_may_apply_a_review(self):
         record = self._record()
         form = self._form(record, user=self.secretary)
         form.subject_record_id = self._failed_subject(record)
@@ -308,7 +308,7 @@ class TestYearRecordDiligence(TransactionCase):
         form.save().action_apply()
         self.assertEqual(self._failed_subject(record).state, 'passed')
 
-    def test_the_head_of_studies_may_apply_a_diligence(self):
+    def test_the_head_of_studies_may_apply_a_review(self):
         record = self._record()
         form = self._form(record, user=self.head_of_studies)
         form.subject_record_id = self._failed_subject(record)
@@ -316,12 +316,12 @@ class TestYearRecordDiligence(TransactionCase):
         form.save().action_apply()
         self.assertEqual(self._failed_subject(record).state, 'passed')
 
-    def test_a_teacher_may_not_apply_a_diligence(self):
+    def test_a_teacher_may_not_apply_a_review(self):
         record = self._record()
         # The ACL stops a teacher at the wizard itself, before the defensive role check even
         # gets a chance to run.
         with self.assertRaises(AccessError):
-            self.env['ems.year_record_diligence_wizard'].with_user(self.teacher).create({
+            self.env['ems.grade_review_wizard'].with_user(self.teacher).create({
                 'record_id': record.id, 'subject_record_id': self._failed_subject(record).id,
                 'resolution': 'x'}).action_apply()
         self.assertEqual(self._failed_subject(record).state, 'failed')

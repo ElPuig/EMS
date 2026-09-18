@@ -280,15 +280,15 @@ class EmsStudentYearRecord(models.Model):
             ('ems_course_id', '=', destination_course.id),
             ('state', '=', 'sale')], limit=1)
 
-    # --- diligences (issue #493) ---
+    # --- grade reviews (issue #493) ---
 
     def grade_based_result(self):
         """The academic result the frozen subjects yield: 'full' when every subject is passed,
-        'partial' otherwise. Used by the diligence wizard to propose the new result after a
+        'partial' otherwise. Used by the review wizard to propose the new result after a
         correction, never to write it silently.
 
         'withdrawn' and 'repeating' are returned untouched: they do not come from the grades but
-        from the exit and from the destination enrollment (see _academic_result), so a diligence
+        from the exit and from the destination enrollment (see _academic_result), so a grade review
         on a subject cannot resolve them. An empty record keeps its current result too — there
         is nothing to derive it from."""
         self.ensure_one()
@@ -330,14 +330,14 @@ class EmsStudentYearRecordSubject(models.Model):
                                         "waiting for the work placement (EM) grade.")
     notes = fields.Char(string="Comments")
     attendance_rate = fields.Float(string="Attendance (%)")
-    # Trace of the last diligence applied to this subject (issue #493). A diligence is a
+    # Trace of the last grade review applied to this subject (issue #493). A grade review is a
     # formal, signed resolution taken once the academic file is already closed, so the
     # record keeps who applied it, when and what it resolved; the detail of every change
     # is posted in the student's chatter.
-    diligence_date = fields.Date(string="Diligence date")
-    diligence_user_id = fields.Many2one(string="Diligence applied by", comodel_name='res.users',
-                                        ondelete='set null')
-    diligence_note = fields.Text(string="Diligence resolution")
+    review_date = fields.Date(string="Review date")
+    review_user_id = fields.Many2one(string="Review applied by", comodel_name='res.users',
+                                     ondelete='set null')
+    review_note = fields.Text(string="Review resolution")
     outcome_record_ids = fields.One2many(string="Outcomes",
                                          comodel_name='ems.student.year_record.outcome',
                                          inverse_name='subject_record_id')
@@ -357,13 +357,13 @@ class EmsStudentYearRecordSubject(models.Model):
 
     def _recompute_from_outcomes(self):
         """Recompute the internal grade, the state and the final grade of an archived subject
-        from its own frozen outcomes (RAs) — what a diligence corrects (issue #493).
+        from its own frozen outcomes (RAs) — what a grade review corrects (issue #493).
 
         The formulas are the grades model's own, never a rewrite: the internal grade comes from
         ems.grade_subject_line._internal_from_outcomes and the final one from _final_from_parts,
         with the weights frozen in the record. The state follows the same rule the freeze
         applies (ems.student.year_record._outcome_vals_and_state): passed only when every RA is
-        resolved at 5 or above. is_overridden is cleared: after a diligence the internal grade
+        resolved at 5 or above. is_overridden is cleared: after a grade review the internal grade
         is the one its RAs yield, no longer a teacher's manual override of them."""
         for subject_record in self:
             outcomes = subject_record.outcome_record_ids
@@ -381,7 +381,7 @@ class EmsStudentYearRecordSubject(models.Model):
         """Internal grade, state and final grade of a subject from the (score, weight) pairs
         of its SCORED outcomes (`outcome_count` being how many it has in total).
 
-        Shared by _recompute_from_outcomes and by the diligence wizard, which previews the
+        Shared by _recompute_from_outcomes and by the review wizard, which previews the
         result of a correction before applying it — the preview and what gets written must
         come from the very same code."""
         GradeSubjectLine = self.env['ems.grade_subject_line']

@@ -60,7 +60,7 @@ class EmsGradeSubjectLine(models.Model):
         # incomplete evaluation yields a provisional grade rather than counting the missing ones
         # as zeros. The grade is a whole number (round half up).
         # Shared with the archived history (ems.student.year_record.subject._recompute_from_outcomes),
-        # which recomputes a diligenced subject from its frozen outcomes: the formula must be the
+        # which recomputes a grade reviewd subject from its frozen outcomes: the formula must be the
         # same one in both places.
         scored_pond = sum(ponderation for _score, ponderation in scored_outcomes)
         if not scored_pond:

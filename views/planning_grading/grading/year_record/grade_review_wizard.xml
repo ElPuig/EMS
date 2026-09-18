@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <record model="ir.ui.view" id="view_year_record_diligence_wizard_form">
-            <field name="name">ems.year_record_diligence_wizard.form</field>
-            <field name="model">ems.year_record_diligence_wizard</field>
+        <record model="ir.ui.view" id="view_grade_review_wizard_form">
+            <field name="name">ems.grade_review_wizard.form</field>
+            <field name="model">ems.grade_review_wizard</field>
             <field name="arch" type="xml">
-                <form string="Apply a diligence">
+                <form string="Grade review">
                     <sheet>
                         <div class="alert alert-info" role="alert">
-                            A diligence corrects the academic history of a course already closed.
+                            A grade review corrects the academic history of a course already closed.
                             A subject is corrected through its learning outcomes (RA): set the
-                            resolved grade of the ones the diligence resolves and the internal
+                            resolved grade of the ones the review resolves and the internal
                             grade, the state and the final grade of the subject are recomputed
                             with the weights frozen that course. Everything applied here is
                             recorded on the subject and posted in the student's chatter.
@@ -25,7 +25,7 @@
                             </group>
                             <group>
                                 <field name="operation" widget="radio"/>
-                                <field name="diligence_date"/>
+                                <field name="review_date"/>
                             </group>
                         </group>
                         <group>
@@ -54,7 +54,7 @@
                                 <field name="is_scored"/>
                             </list>
                         </field>
-                        <group string="Result of the diligence" invisible="operation == 'remove'">
+                        <group string="Result of the review" invisible="operation == 'remove'">
                             <group>
                                 <field name="preview_internal_grade"/>
                                 <field name="preview_state" widget="badge"
@@ -73,11 +73,11 @@
                         </group>
                         <group string="Resolution">
                             <field name="resolution" nolabel="1"
-                                   placeholder="What the diligence resolves, as signed."/>
+                                   placeholder="What the review resolves, as signed."/>
                         </group>
                     </sheet>
                     <footer>
-                        <button name="action_apply" type="object" string="Apply diligence"
+                        <button name="action_apply" type="object" string="Apply review"
                                 class="btn-primary" data-hotkey="q"/>
                         <button string="Cancel" class="btn-secondary" special="cancel"
                                 data-hotkey="x"/>
@@ -86,9 +86,9 @@
             </field>
         </record>
 
-        <record model="ir.actions.act_window" id="action_year_record_diligence_wizard">
-            <field name="name">Apply a diligence</field>
-            <field name="res_model">ems.year_record_diligence_wizard</field>
+        <record model="ir.actions.act_window" id="action_grade_review_wizard">
+            <field name="name">Grade review</field>
+            <field name="res_model">ems.grade_review_wizard</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>
         </record>

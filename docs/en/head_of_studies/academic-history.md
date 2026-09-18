@@ -6,7 +6,7 @@
 
 The **academic history** keeps one permanent record per student and course: study, group, subjects with their grades per learning outcome, attendance and academic result. It is generated automatically (at each withdrawal and at the course transition) as a **frozen copy** of the grades subsystem, so it survives the yearly cleanup of operational data.
 
-As Head of Studies or Director you have **access to the whole history**: cohort-level queries, and applying a diligence to a course already closed.
+As Head of Studies or Director you have **access to the whole history**: cohort-level queries, and applying a grade review to a course already closed.
 
 ---
 
@@ -31,11 +31,11 @@ Also, on any student's form, the **Academic history** tab shows that student's r
 - The stored **weights** (internal/EM and per RA) are the ones in force that course: the history is self-contained and keeps its meaning even if a later teaching plan changes the weights.
 - The **academic result** is proposed automatically from grades and the destination enrollment; secretariat/administrators may have adjusted it by hand.
 
-## Applying a diligence
+## Applying a grade review
 
-A diligence corrects the academic history of a course already closed: the grade of a subject through its learning outcomes, a subject missing from a record, or a subject that should not be there.
+A grade review corrects the academic history of a course already closed: the grade of a subject through its learning outcomes, a subject missing from a record, or a subject that should not be there.
 
-Open the student's record for that course and click **Apply diligence**. The full step-by-step is in the [secretariat manual](../secretary/academic-history.md#applying-a-diligence) — the screen and the rules are the same for both roles.
+Open the student's record for that course and click **Grade review**. The full step-by-step is in the [secretariat manual](../secretary/academic-history.md#applying-a-grade-review) — the screen and the rules are the same for both roles.
 
 ---
 

@@ -118,7 +118,14 @@ class EmsStudentYearRecord(models.Model):
 
     @api.model
     def _generate_one(self, student, course, group=None):
-        group = group or student.main_group_id
+        # sudo() the arguments too, not just the model: every caller already reaches this
+        # generator through .sudo() (the operator registering an exit is a secretary, who has
+        # no rights over grades or attendance), but that only elevates self - a student passed
+        # in still carries the caller's own environment, and dereferencing it (group.tutor_id,
+        # an hr.employee the secretary cannot read) fails halfway through the withdrawal.
+        # Issue #492.
+        student = student.sudo()
+        group = (group or student.main_group_id).sudo()
         # A record already frozen is never rewritten from an empty group. Once the
         # transition has run, the student has no main_group_id (step 4b detached it) and
         # its live grade lines are gone (step 8 deleted them, precisely because this

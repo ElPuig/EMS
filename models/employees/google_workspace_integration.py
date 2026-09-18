@@ -22,27 +22,40 @@ class HrEmployeeGoogleWorkspace(models.Model):
     # self.env['google.workspace.mixin'] (see _gw()).
     _inherit = 'hr.employee'
 
+    # groups=: every field below lives on hr.employee and not on hr.employee.public, so it
+    # must be group-restricted or the ORM prefetches it for users who only reach the employee
+    # through the public profile (no hr.group_hr_user, e.g. a secretary), and
+    # hr.employee.fetch() then raises AccessError over it wherever any employee field is read
+    # in Python - see the rule in Odoo's own hr.employee docstring and issue #492. The trio
+    # matches employee.py's own fields: base.group_system holds a read ACL on hr.employee, so
+    # it never goes through the public profile in the first place.
     google_ws_login = fields.Char(
         string="Suggested Google username", copy=False,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="Preferred username (the part before @domain) tried first when creating the "
              "corporate account. If it is already taken in Google, an alternative is "
              "generated automatically from the name.")
     google_ws_suspended = fields.Boolean(
         string="Google account suspended", default=False, copy=False,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="True when the employee's Google Workspace account is suspended (former staff).")
     google_ws_manual_email = fields.Boolean(
         string="Assign corporate email manually", copy=False,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="Tick to edit the Work Email by hand instead of letting EMS generate it "
              "when creating the Google account. For exceptional cases only.")
     google_ws_domain = fields.Char(
         related='company_id.google_ws_domain', readonly=True,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         string="Google Workspace domain")
     google_ws_deactivation_date = fields.Date(
         string="Scheduled Google deactivation", copy=False, readonly=True,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="Date the corporate account is due to be suspended, set when the employee is "
              "archived. Until then the account keeps working; unarchiving cancels it.")
     google_ws_missing_notice_sent = fields.Boolean(
         copy=False, default=False,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="Internal flag: a chatter note about missing required data was already "
              "posted, to avoid repeating it on every write.")
     google_ws_state = fields.Selection(
@@ -54,10 +67,12 @@ class HrEmployeeGoogleWorkspace(models.Model):
             ('suspended', 'Google account suspended'),
         ],
         string="Google account status", compute='_compute_google_ws_state', store=True,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="Single source of truth for the header buttons: which Google Workspace "
              "/ EMS user action, if any, applies to this employee right now.")
     google_signin_missing = fields.Boolean(
         string="Google sign-in not linked", compute='_compute_google_signin_missing',
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="True when the employee has an active account and an EMS user, but that "
              "user has lost its OAuth data and can no longer sign in with Google.")
 

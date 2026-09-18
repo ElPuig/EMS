@@ -38,7 +38,7 @@ The student can no longer sign in, and the account moves to the organizational u
 
 The previous password stops working straight away, and the student must change the new one the first time they sign in. A new **Google Workspace credentials** PDF appears in the **Documentation** tab and the previous one becomes **Cancelled**. If the student has a personal email, they also receive the credentials by email.
 
-Only administration and TAC coordination can reset passwords.
+Passwords can be reset by administration, TAC coordination and the student's own tutor (plus the chiefs above that tutor: Seminar Chief, Department Chief, Head of Studies and Director).
 
 ---
 

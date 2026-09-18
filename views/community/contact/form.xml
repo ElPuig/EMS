@@ -42,6 +42,7 @@
                 <xpath expr="//sheet" position="before">
                     <header>
                         <field name="google_ws_state" invisible="1"/>
+                        <field name="can_reset_google_password" invisible="1"/>
                         <button name="action_create_google_account" type="object"
                                 string="Create Google account"
                                 class="btn-secondary"
@@ -53,14 +54,17 @@
                                 invisible="google_ws_state != 'active'"
                                 groups="ems.group_secretary,ems.group_academic_admin,ems.group_tac"/>
                         <!-- Not the secretary: they only create accounts, as part of enrolling
-                             a student (issue #478). action_reset_google_password() repeats the
-                             group check. -->
+                             a student (issue #478). Tutors reset their own students' password
+                             (issue #490); group_tutor is what the chiefs above them imply, but
+                             group membership alone does not say *whose* tutor the user is - hence
+                             can_reset_google_password, which action_reset_google_password()
+                             re-checks server-side. -->
                         <button name="action_reset_google_password" type="object"
                                 string="Reset Google password"
                                 class="btn-secondary"
-                                invisible="google_ws_state != 'active'"
+                                invisible="google_ws_state != 'active' or not can_reset_google_password"
                                 confirm="This gives the student's Google account a new password: the current one stops working and new credentials are generated. Continue?"
-                                groups="ems.group_academic_admin,ems.group_tac"/>
+                                groups="ems.group_academic_admin,ems.group_tac,ems.group_tutor"/>
                         <button name="action_reactivate_google_account" type="object"
                                 string="Reactivate Google account"
                                 class="btn-secondary"

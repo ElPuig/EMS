@@ -2,11 +2,11 @@
 
 ---
 
-# Consultar las credenciales de Google de tu alumnado
+# Credenciales de Google de tu alumnado
 
-Puedes consultar y descargar el PDF con las credenciales de la cuenta de Google Workspace de los alumnos que tutorizas.
+Puedes consultar y descargar el PDF con las credenciales de la cuenta de Google Workspace de los alumnos que tutorizas, y restablecerles la contraseña.
 
-**Rol necesario:** Tutor (solo lectura). Tu jefe de seminario, tu jefe de departamento y tu jefe de estudios también ven las credenciales de tu alumnado, y la dirección las de todos los tutores, con los mismos pasos.
+**Rol necesario:** Tutor. Tu jefe de seminario, tu jefe de departamento y tu jefe de estudios también pueden hacerlo con tu alumnado, y la dirección con el de todos los tutores, con los mismos pasos.
 
 ---
 
@@ -20,6 +20,21 @@ Puedes consultar y descargar el PDF con las credenciales de la cuenta de Google 
 Si la lista está vacía, el alumno aún no tiene cuenta de Google creada: pídelo a secretaría.
 
 En la pestaña **Documentación** solo ves las credenciales de Google de los alumnos que tutorizas. El resto de documentos (DNI, IBAN, tarjeta sanitaria…) los gestiona secretaría.
+
+---
+
+## Restablecer la contraseña de Google de un alumno
+
+1. Abre la ficha del alumno.
+2. En la cabecera, pulsa **Restablecer la contraseña de Google**.
+
+![Botón Restablecer la contraseña de Google en la cabecera de la ficha](../../assets/tutors/credencials-google-03-restablir.png)
+
+3. Confirma el mensaje que aparece.
+
+El alumno recibe la contraseña nueva en su correo personal y se guarda un PDF de credenciales nuevo en la pestaña **Documentación**. La contraseña anterior deja de funcionar y su PDF queda marcado como **Cancelado**. La primera vez que entre en Google, el alumno tendrá que cambiar la contraseña.
+
+El botón solo aparece si el alumno tiene una cuenta de Google activa. Si no lo ves, el alumno aún no la tiene: pídelo a secretaría.
 
 ---
 

@@ -48,12 +48,20 @@ registry.category("web_tour.tours").add("ems_grade_review", {
         { trigger: ".modal .o_form_view", content: "The wizard dialog opened" },
         {
             trigger: ".modal div[name='subject_record_id'] input",
-            content: "Pick the subject the review corrects",
-            run: "edit Grade Review Tour Subject",
+            content: "Open the subject picker",
+            run: "click",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item a:contains('Grade Review Tour Subject')",
-            content: "Select it from the autocomplete",
+            trigger: ".o_m2o_dropdown_option_search_more",
+            content: "Go through 'Search More...' rather than the autocomplete",
+            run: "click",
+        },
+        {
+            // The regression this covers: ems.student.year_record.subject had no _rec_name, so
+            // Odoo generated a single-column view out of _rec_name_fallback() and this dialog
+            // listed raw ids instead of the modules' names.
+            trigger: ".modal td[name='subject_name']:contains('Grade Review Tour Subject')",
+            content: "The dialog lists the module by name, not by id",
             run: "click",
         },
         {

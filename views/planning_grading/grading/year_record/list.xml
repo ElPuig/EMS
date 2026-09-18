@@ -22,5 +22,25 @@
                 </list>
             </field>
         </record>
+
+        <!-- Standalone list of the subject lines: what the "Search more..." dialog of the grade
+             review wizard's subject picker renders. Without it Odoo falls back to a generated
+             single-column view, and the reader has to pick a module out of a list of ids. -->
+        <record model="ir.ui.view" id="view_year_record_subject_list">
+            <field name="name">ems.student.year_record.subject.list</field>
+            <field name="model">ems.student.year_record.subject</field>
+            <field name="arch" type="xml">
+                <list create="0" delete="0">
+                    <field name="subject_name"/>
+                    <field name="state" widget="badge"
+                           decoration-success="state == 'passed'"
+                           decoration-danger="state == 'failed'"/>
+                    <field name="internal_grade"/>
+                    <field name="final_grade"/>
+                    <field name="final_pending" optional="show"/>
+                    <field name="review_date" optional="hide"/>
+                </list>
+            </field>
+        </record>
     </data>
 </odoo>

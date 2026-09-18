@@ -326,6 +326,27 @@ class TestGradeReview(TransactionCase):
                 'resolution': 'x'}).action_apply()
         self.assertEqual(self._failed_subject(record).state, 'failed')
 
+    # --- the subject picker --------------------------------------------------
+
+    def test_the_subject_picker_lists_names_not_ids(self):
+        """ems.student.year_record.subject had no _rec_name, so the "Search More..." dialog of
+        the wizard's subject picker rendered the single-column view Odoo generates out of
+        _rec_name_fallback() - a list of raw ids instead of the modules' names."""
+        SubjectRecord = self.env['ems.student.year_record.subject']
+        self.assertEqual(SubjectRecord._rec_name, 'subject_name')
+        self.assertEqual(self.env['ems.student.year_record.outcome']._rec_name, 'outcome_name')
+        arch = SubjectRecord.get_view(view_type='list')['arch']
+        self.assertIn('subject_name', arch)
+        self.assertNotIn('name="id"', arch)
+
+    def test_the_subject_picker_searches_by_name(self):
+        record = self._record()
+        subject_record = self._failed_subject(record)
+        found = self.env['ems.student.year_record.subject'].name_search(
+            self.subject1.name, args=[('record_id', '=', record.id)])
+        self.assertEqual([subject_record.id], [entry[0] for entry in found])
+        self.assertEqual(subject_record.subject_name, found[0][1])
+
     # --- the recomputation itself --------------------------------------------
 
     def test_recompute_uses_the_same_formula_as_the_live_grades(self):

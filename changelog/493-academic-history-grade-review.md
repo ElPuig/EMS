@@ -24,6 +24,12 @@ Real case behind it: a student's *MP 0156 Anglès professional* of 2025-2026 was
 
 They were read-only on `ems.student.year_record` and its children. Both `ir.model.access` rows and the record rules now grant them write and create, so they can sign a grade review like the secretariat and the academic administration. The secretariat and Head of Studies also gained `unlink` on the subject and outcome lines (needed by the "remove a subject" operation); deleting a whole year record is still admin-only. Teachers stay read-only.
 
+# Fixes
+
+## Picking a subject in a grade review listed raw ids:
+
+The subject picker of the grade review wizard offers a "Search More..." dialog when the module is not among the first entries of the drop-down. That dialog was showing a single column of record ids instead of the modules' names, so there was no way to tell which one to pick. The subject and learning-outcome lines of the academic history had no display field declared, which makes Odoo fall back to the record id for every view it generates on the fly and for the search box of that dialog. Both now declare one, and the dialog has a real list showing the module, its state and its grades.
+
 # Internal changes
 
 ## The grading formulas are shared with the frozen history instead of duplicated:

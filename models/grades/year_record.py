@@ -301,6 +301,10 @@ class EmsStudentYearRecord(models.Model):
 class EmsStudentYearRecordSubject(models.Model):
     _name = 'ems.student.year_record.subject'
     _description = 'Student academic year record: one subject taken that course.'
+    # Without a _rec_name, name_search and every auto-generated view fall back to 'id'
+    # (see ir.ui.view._get_default_list_view / models._rec_name_fallback), which is what the
+    # "Search more..." dialog of the grade review wizard's subject picker was showing.
+    _rec_name = 'subject_name'
     _order = 'subject_name asc'
 
     record_id = fields.Many2one(string="Year record", comodel_name='ems.student.year_record',
@@ -424,6 +428,8 @@ class EmsStudentYearRecordSubject(models.Model):
 class EmsStudentYearRecordOutcome(models.Model):
     _name = 'ems.student.year_record.outcome'
     _description = 'Student academic year record: one learning outcome (RA) of a subject.'
+    # Same reason as its parent's _rec_name just above.
+    _rec_name = 'outcome_name'
     _order = 'outcome_name asc'
 
     subject_record_id = fields.Many2one(string="Subject record",

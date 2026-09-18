@@ -14,7 +14,8 @@ Esta guía explica el **histórico académico**: un resumen permanente por curso
 2. [Cuándo se crean los registros](#cuándo-se-crean-los-registros)
 3. [Consultar el histórico](#consultar-el-histórico)
 4. [Ajustar el resultado académico](#ajustar-el-resultado-académico)
-5. [Finales pendientes de la estancia](#finales-pendientes-de-la-estancia)
+5. [Aplicar una diligencia](#aplicar-una-diligencia)
+6. [Finales pendientes de la estancia](#finales-pendientes-de-la-estancia)
 
 ---
 
@@ -47,6 +48,24 @@ Dos puntos de entrada:
 ## Ajustar el resultado académico
 
 El **resultado académico** (*Superado íntegramente*, *Superado parcialmente*, *Repite curso*, *Baja*) se propone automáticamente a partir de las notas y de la matrícula de destino, pero es un campo normal: secretaría y administradores pueden **ajustarlo a mano** en el registro cuando la propuesta automática no coincide con la realidad (p. ej. un estudio sin flujo de matrícula resuelto en septiembre).
+
+## Aplicar una diligencia
+
+Una diligencia corrige el histórico académico de un curso ya cerrado. Pueden aplicarla secretaría, administración, jefatura de estudios y dirección.
+
+1. Abrid **Planificación y evaluación → Notas → Histórico académico** y abrid el registro del alumno/a del curso que hay que corregir.
+2. Haced clic en **Aplicar diligencia**.
+3. Elegid qué hace la diligencia:
+   - **Corregir un módulo:** elegid el módulo y poned la **Nota resuelta** de cada resultado de aprendizaje que resuelve la diligencia.
+   - **Añadir un módulo que falta:** elegid el módulo. Las ponderaciones y los resultados de aprendizaje se proponen a partir de la programación del estudio; poned sus notas.
+   - **Eliminar un módulo:** elegid el módulo que hay que quitar del registro.
+4. Leed **Resultado de la diligencia**: la nota interna, el estado y la nota final que da la corrección.
+5. Leed **Resultado del curso**: el resultado propuesto se escribe en el registro mientras **Actualizar el resultado del curso** esté marcado. Desmarcadlo para conservar el actual.
+6. Escribid la **Resolución** y haced clic en **Aplicar diligencia**.
+
+Un módulo queda superado cuando todos los resultados de aprendizaje se resuelven con 5 o más. Un módulo con la estancia (EM) todavía sin calificar queda superado con la nota final pendiente; calificad la estancia desde la pantalla de estancia. *Repite curso* y *Baja* no los propone una diligencia: ajustadlos a mano en el registro.
+
+El módulo conserva la fecha, el autor/a y el texto de la última diligencia que se le ha aplicado, y el filtro **Corregido por una diligencia** de la lista del histórico muestra los registros que tienen alguna. El detalle de cada cambio queda registrado en el registro del alumno/a.
 
 ## Finales pendientes de la estancia
 

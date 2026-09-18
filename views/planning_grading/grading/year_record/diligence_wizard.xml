@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_year_record_diligence_wizard_form">
+            <field name="name">ems.year_record_diligence_wizard.form</field>
+            <field name="model">ems.year_record_diligence_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Apply a diligence">
+                    <sheet>
+                        <div class="alert alert-info" role="alert">
+                            A diligence corrects the academic history of a course already closed.
+                            A subject is corrected through its learning outcomes (RA): set the
+                            resolved grade of the ones the diligence resolves and the internal
+                            grade, the state and the final grade of the subject are recomputed
+                            with the weights frozen that course. Everything applied here is
+                            recorded on the subject and posted in the student's chatter.
+                        </div>
+                        <group>
+                            <group>
+                                <field name="record_id" invisible="1"/>
+                                <field name="available_subject_ids" invisible="1"/>
+                                <field name="student_id" readonly="1"/>
+                                <field name="course_id" readonly="1"/>
+                                <field name="study_name" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="operation" widget="radio"/>
+                                <field name="diligence_date"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="subject_record_id" options="{'no_create': True}"
+                                   domain="[('record_id', '=', record_id)]"
+                                   invisible="operation == 'add'"
+                                   required="operation != 'add'"/>
+                            <field name="subject_id" options="{'no_create': True}"
+                                   domain="[('id', 'in', available_subject_ids)]"
+                                   invisible="operation != 'add'"
+                                   required="operation == 'add'"/>
+                            <field name="internal_weight" invisible="operation != 'add'"/>
+                            <field name="external_weight" invisible="operation != 'add'"/>
+                        </group>
+                        <field name="line_ids" invisible="operation == 'remove'" nolabel="1">
+                            <list editable="bottom" create="0" delete="0">
+                                <field name="outcome_record_id" column_invisible="1"/>
+                                <field name="outcome_id" column_invisible="1"/>
+                                <field name="outcome_name" readonly="1"/>
+                                <field name="weight" readonly="parent.operation != 'add'"/>
+                                <field name="previous_score" readonly="1"
+                                       column_invisible="parent.operation == 'add'"/>
+                                <field name="previous_is_scored" readonly="1"
+                                       column_invisible="parent.operation == 'add'"/>
+                                <field name="score"/>
+                                <field name="is_scored"/>
+                            </list>
+                        </field>
+                        <group string="Result of the diligence" invisible="operation == 'remove'">
+                            <group>
+                                <field name="preview_internal_grade"/>
+                                <field name="preview_state" widget="badge"
+                                       decoration-success="preview_state == 'passed'"
+                                       decoration-danger="preview_state == 'failed'"/>
+                            </group>
+                            <group>
+                                <field name="preview_final_grade"/>
+                                <field name="preview_has_final"/>
+                            </group>
+                        </group>
+                        <group string="Course result">
+                            <field name="current_result" readonly="1"/>
+                            <field name="proposed_result" readonly="1"/>
+                            <field name="update_result"/>
+                        </group>
+                        <group string="Resolution">
+                            <field name="resolution" nolabel="1"
+                                   placeholder="What the diligence resolves, as signed."/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_apply" type="object" string="Apply diligence"
+                                class="btn-primary" data-hotkey="q"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"
+                                data-hotkey="x"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_year_record_diligence_wizard">
+            <field name="name">Apply a diligence</field>
+            <field name="res_model">ems.year_record_diligence_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

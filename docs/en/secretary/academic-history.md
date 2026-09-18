@@ -14,7 +14,8 @@ This guide explains the **academic history**: a permanent, per-course summary of
 2. [When records are created](#when-records-are-created)
 3. [Consulting the history](#consulting-the-history)
 4. [Adjusting the academic result](#adjusting-the-academic-result)
-5. [Finals pending the work placement](#finals-pending-the-work-placement)
+5. [Applying a diligence](#applying-a-diligence)
+6. [Finals pending the work placement](#finals-pending-the-work-placement)
 
 ---
 
@@ -47,6 +48,24 @@ Two entry points:
 ## Adjusting the academic result
 
 The **academic result** (*Fully passed*, *Partially passed*, *Repeating*, *Withdrawn*) is proposed automatically from the grades and the destination enrollment, but it is a plain field: secretariat and administrators can **adjust it by hand** on the record when the automatic proposal does not match reality (e.g. a study without enrollment flow resolved in September).
+
+## Applying a diligence
+
+A diligence corrects the academic history of a course already closed. Secretariat, administration, Head of Studies and Director may apply one.
+
+1. Open **Planning and Grading → Grades → Academic history** and open the student's record for the course to correct.
+2. Click **Apply diligence**.
+3. Choose what the diligence does:
+   - **Correct a subject:** pick the subject and set the **Resolved grade** of every learning outcome the diligence resolves.
+   - **Add a missing subject:** pick the subject. Its weights and learning outcomes are proposed from the teaching plan of the study; fill in their grades.
+   - **Remove a subject:** pick the subject to delete from the record.
+4. Read **Result of the diligence**: the internal grade, the state and the final grade the correction yields.
+5. Read **Course result**: the proposed result is written on the record while **Update the course result** is ticked. Untick it to keep the current one.
+6. Write the **Resolution** and click **Apply diligence**.
+
+A subject is passed when every learning outcome is resolved at 5 or above. A subject whose work placement (EM) is not graded yet becomes passed with its final grade pending; grade the placement from the work placement screen. *Repeating* and *Withdrawn* are not proposed by a diligence: adjust them by hand on the record.
+
+The subject keeps the date, the author and the text of the last diligence applied to it, and the **Corrected by a diligence** filter of the history list shows the records with at least one. The detail of every change is recorded in the student's log.
 
 ## Finals pending the work placement
 

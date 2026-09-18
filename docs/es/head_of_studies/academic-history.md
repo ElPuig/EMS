@@ -6,7 +6,7 @@
 
 El **histórico académico** conserva un registro permanente por alumno/a y curso: estudio, grupo, módulos con las notas por resultado de aprendizaje, asistencia y resultado académico. Se genera automáticamente (en cada baja y en la transición de curso) como una **copia congelada** del subsistema de notas, de modo que sobrevive a la limpieza anual de los datos operativos.
 
-Como jefe/a de estudios o director/a tiene **acceso de lectura a todo el histórico**, para consultas a nivel de cohorte.
+Como jefe/a de estudios o director/a tiene **acceso a todo el histórico**: consultas a nivel de cohorte y aplicación de diligencias a un curso ya cerrado.
 
 ---
 
@@ -30,6 +30,12 @@ Además, en la ficha de cualquier alumno/a, la pestaña **Histórico académico*
 - El **estado del módulo** (Superado / No superado) lo deciden **solo los resultados de aprendizaje**: una estancia pendiente o suspendida nunca suspende un módulo, solo deja la nota final vacía hasta que se apruebe una nueva estancia.
 - Las **ponderaciones** guardadas (interna/EM y por RA) son las vigentes ese curso: el histórico es autocontenido y conserva su significado aunque una programación posterior cambie los pesos.
 - El **resultado académico** se propone automáticamente a partir de las notas y de la matrícula de destino; secretaría/administración puede haberlo ajustado a mano.
+
+## Aplicar una diligencia
+
+Una diligencia corrige el histórico académico de un curso ya cerrado: la nota de un módulo a través de sus resultados de aprendizaje, un módulo que falta en un registro o un módulo que no debería estar.
+
+Abra el registro del alumno/a de ese curso y haga clic en **Aplicar diligencia**. Tiene el paso a paso completo en el [manual de secretaría](../secretary/academic-history.md#aplicar-una-diligencia) — la pantalla y las reglas son las mismas para ambos roles.
 
 ---
 

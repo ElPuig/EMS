@@ -14524,8 +14524,8 @@ msgstr "Nota actual"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__previous_is_scored
-msgid "Currently graded"
-msgstr "Qualificat actualment"
+msgid "Graded before"
+msgstr "Ja qualificada"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_grade_review_wizard

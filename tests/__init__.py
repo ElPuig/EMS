@@ -158,6 +158,7 @@ from . import test_applicant_tour
 from . import test_no_destination_tour
 from . import test_year_record_tour
 from . import test_grade_review_tour
+from . import test_docs_screenshots_academic_history
 from . import test_planning_tour
 from . import test_em_grading_wizard_tour
 from . import test_provider_tour

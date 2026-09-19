@@ -45,6 +45,8 @@ Dos puntos de entrada:
 - **Por alumno/a:** abra la ficha del alumno/a — la pestaña **Histórico académico** lista sus registros, ordenados por estudio y curso. La pestaña sigue visible para el **antiguo alumnado** (graduados/as y bajas): es su registro permanente.
 - **Consultas de cohorte:** **Planificación y evaluación → Notas → Histórico académico** lista todos los registros. Filtre o agrupe por curso, estudio, grupo o resultado académico — p. ej. "todo el alumnado del estudio X en el curso Y", o todos los registros con la marca **Título obtenido**.
 
+![Registro de un curso del histórico académico, con la pestaña de módulos y sus notas](../../assets/secretary/academic-history-record.png)
+
 ## Ajustar el resultado académico
 
 El **resultado académico** (*Superado íntegramente*, *Superado parcialmente*, *Repite curso*, *Baja*) se propone automáticamente a partir de las notas y de la matrícula de destino, pero es un campo normal: secretaría y administradores pueden **ajustarlo a mano** en el registro cuando la propuesta automática no coincide con la realidad (p. ej. un estudio sin flujo de matrícula resuelto en septiembre).
@@ -66,6 +68,8 @@ Una revisión de calificaciones corrige el histórico académico de un curso ya 
 Un módulo queda superado cuando todos los resultados de aprendizaje se resuelven con 5 o más. Un módulo con la estancia (EM) todavía sin calificar queda superado con la nota final pendiente; calificad la estancia desde la pantalla de estancia. *Repite curso* y *Baja* no los propone una revisión de calificaciones: ajustadlos a mano en el registro.
 
 El módulo conserva la fecha, el autor/a y el texto de la última revisión que se le ha aplicado, y el filtro **Corregido por una revisión de calificaciones** de la lista del histórico muestra los registros que tienen alguna. El detalle de cada cambio queda registrado en el registro del alumno/a.
+
+![Asistente de revisión de calificaciones, con la rejilla de resultados de aprendizaje y el resultado que se obtiene](../../assets/secretary/academic-history-grade-review.png)
 
 ## Finales pendientes de la estancia
 

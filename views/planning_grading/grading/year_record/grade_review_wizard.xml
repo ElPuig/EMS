@@ -5,7 +5,7 @@
             <field name="name">ems.grade_review_wizard.form</field>
             <field name="model">ems.grade_review_wizard</field>
             <field name="arch" type="xml">
-                <form string="Grade review">
+                <form string="Grade review" class="o_ems_grade_review_dialog">
                     <sheet>
                         <div class="alert alert-info" role="alert">
                             A grade review corrects the academic history of a course already closed.
@@ -46,11 +46,16 @@
                                 <field name="outcome_id" column_invisible="1"/>
                                 <field name="outcome_name" readonly="1"/>
                                 <field name="weight" readonly="parent.operation != 'add'"/>
-                                <field name="previous_score" readonly="1"
+                                <!-- The frozen values are muted and the grade being resolved is
+                                     emphasised: Odoo only marks a read-only cell once its row is
+                                     in edit mode, so up to the first click every column of an
+                                     editable list looks equally editable. -->
+                                <field name="previous_score" readonly="1" class="text-muted"
                                        column_invisible="parent.operation == 'add'"/>
-                                <field name="previous_is_scored" readonly="1"
+                                <field name="previous_is_scored" readonly="1" class="text-muted"
+                                       optional="hide"
                                        column_invisible="parent.operation == 'add'"/>
-                                <field name="score"/>
+                                <field name="score" class="fw-bold"/>
                                 <field name="is_scored"/>
                             </list>
                         </field>
@@ -91,6 +96,10 @@
             <field name="res_model">ems.grade_review_wizard</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>
+            <!-- The default dialog width squeezes the outcome grid's numeric columns until
+                 their own headers no longer fit (Odoo truncates a column header rather than
+                 widening or wrapping it). -->
+            <field name="context">{'dialog_size': 'extra-large'}</field>
         </record>
     </data>
 </odoo>

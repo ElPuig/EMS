@@ -329,7 +329,7 @@ class EmsGradeReviewWizardLine(models.TransientModel):
                           store=True, readonly=False)
     previous_score = fields.Integer(string="Current grade",
                                     related='outcome_record_id.final_score')
-    previous_is_scored = fields.Boolean(string="Currently graded",
+    previous_is_scored = fields.Boolean(string="Graded before",
                                         related='outcome_record_id.final_is_scored')
     score = fields.Integer(string="Resolved grade")
     is_scored = fields.Boolean(string="Graded")

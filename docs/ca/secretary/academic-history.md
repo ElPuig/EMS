@@ -45,6 +45,8 @@ Dos punts d'entrada:
 - **Per alumne/a:** obriu la fitxa de l'alumne/a — la pestanya **Històric acadèmic** llista els seus registres, ordenats per estudi i curs. La pestanya es manté visible per a l'**antic alumnat** (graduats/des i baixes): és el seu registre permanent.
 - **Consultes de cohort:** **Planificació i avaluació → Notes → Històric acadèmic** llista tots els registres. Filtreu o agrupeu per curs, estudi, grup o resultat acadèmic — p. ex. "tot l'alumnat de l'estudi X al curs Y", o tots els registres amb la marca **Títol obtingut**.
 
+![Registre d'un curs de l'històric acadèmic, amb la pestanya de mòduls i les seves notes](../../assets/secretary/academic-history-record.png)
+
 ## Ajustar el resultat acadèmic
 
 El **resultat acadèmic** (*Superat íntegrament*, *Superat parcialment*, *Repeteix curs*, *Baixa*) es proposa automàticament a partir de les notes i de la matrícula de destinació, però és un camp normal: secretaria i administradors poden **ajustar-lo a mà** al registre quan la proposta automàtica no coincideix amb la realitat (p. ex. un estudi sense flux de matrícula resolt al setembre).
@@ -66,6 +68,8 @@ Una revisió de qualificacions corregeix l'històric acadèmic d'un curs ja tanc
 Un mòdul queda superat quan tots els resultats d'aprenentatge es resolen amb 5 o més. Un mòdul amb l'estada (EM) encara sense qualificar queda superat amb la nota final pendent; qualifiqueu l'estada des de la pantalla d'estada. *Repeteix curs* i *Baixa* no els proposa una revisió de qualificacions: ajusteu-los a mà al registre.
 
 El mòdul conserva la data, l'autor/a i el text de l'última revisió que s'hi ha aplicat, i el filtre **Corregit per una revisió de qualificacions** de la llista de l'històric mostra els registres que en tenen alguna. El detall de cada canvi queda registrat al registre de l'alumne/a.
+
+![Assistent de revisió de qualificacions, amb la graella de resultats d'aprenentatge i el resultat que en surt](../../assets/secretary/academic-history-grade-review.png)
 
 ## Finals pendents de l'estada
 

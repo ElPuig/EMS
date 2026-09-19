@@ -465,6 +465,11 @@
         'data/custom/ems.authorization.template.csv',
         'data/custom/ir.sequence-enrollment_number.csv',
 
+        # Quality management system: the centre's process map. Load order matters - a procedure
+        # references its process, and a document references its procedure.
+        'data/custom/quality/ems.quality.process.csv',
+        'data/custom/quality/ems.quality.procedure.csv',
+
         # Teacher's data (teaching = subject x teacher x group)
         #'data/custom/hr.employee.csv',        
         #'data/custom/ems.teaching.csv',

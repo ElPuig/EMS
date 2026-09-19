@@ -1,0 +1,9 @@
+id,code,name,kind,responsible_role_id/id,is_quality_process,sequence
+__import__.quality_process_pe1,PE1,Plan and organise the centre,strategic,ems.role_director,1,10
+__import__.quality_process_pe2,PE2,Manage information; communication and knowledge,strategic,ems.role_director,1,20
+__import__.quality_process_pe3,PE3,Develop and manage quality,strategic,ems.role_quality,1,30
+__import__.quality_process_pc1,PC1,Manage information and admission,key,ems.role_secretary,1,40
+__import__.quality_process_pc2,PC2,Manage vocational teaching and learning,key,ems.role_dhos,1,50
+__import__.quality_process_pc3,PC3,Manage academic and administrative affairs,key,ems.role_secretary,1,60
+__import__.quality_process_ps1,PS1,Manage the human team,support,ems.role_director,1,70
+__import__.quality_process_ps2,PS2,Manage resources,support,ems.role_secretary,1,80

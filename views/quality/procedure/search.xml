@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_quality_procedure_search">
+            <field name="name">ems.quality.procedure.search</field>
+            <field name="model">ems.quality.procedure</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="process_id"/>
+                    <group expand="0" string="Group by">
+                        <filter name="group_by_process" string="Process" context="{'group_by': 'process_id'}"/>
+                        <filter name="group_by_role" string="Responsible post" context="{'group_by': 'responsible_role_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

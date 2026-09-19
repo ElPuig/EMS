@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_quality_document_list">
+            <field name="name">ems.quality.document.list</field>
+            <field name="model">ems.quality.document</field>
+            <field name="arch" type="xml">
+                <list decoration-warning="needs_review == True" decoration-muted="state == 'obsolete'">
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="kind"/>
+                    <field name="process_id"/>
+                    <field name="responsible_role_id"/>
+                    <field name="version"/>
+                    <field name="approval_date"/>
+                    <field name="next_review_date"/>
+                    <field name="state"/>
+                    <field name="needs_review" column_invisible="1"/>
+                    <field name="is_legacy_code" optional="hide"/>
+                    <field name="url" widget="url" optional="hide"/>
+                </list>
+            </field>
+        </record>
+    </data>
+</odoo>

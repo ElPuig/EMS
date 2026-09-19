@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_quality_action_search">
+            <field name="name">ems.quality.action.search</field>
+            <field name="model">ems.quality.action</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="responsible_role_id"/>
+                    <field name="responsible_employee_ids"/>
+                    <field name="department_id"/>
+                    <!-- Own filter group: adjacent filters are ORed, and "open" has to narrow the
+                         result set on top of whatever facet sits above it, not widen it. -->
+                    <filter name="open" string="Open" domain="[('state', '!=', 'closed')]"/>
+                    <filter name="late" string="Overdue" domain="[('is_late', '=', True)]"/>
+                    <separator/>
+                    <filter name="current_course" string="Current course" domain="[('course_id.is_current', '=', True)]"/>
+                    <separator/>
+                    <filter name="agreements" string="Meeting agreements" domain="[('type', '=', 'agreement')]"/>
+                    <filter name="improvements" string="Improvement actions" domain="[('type', 'in', ['improvement', 'change'])]"/>
+                    <filter name="corrective" string="Corrective and preventive" domain="[('type', 'in', ['corrective', 'preventive', 'repair', 'immediate'])]"/>
+                    <group expand="0" string="Group by">
+                        <filter name="group_by_state" string="State" context="{'group_by': 'state'}"/>
+                        <filter name="group_by_role" string="Responsible post" context="{'group_by': 'responsible_role_id'}"/>
+                        <filter name="group_by_scope" string="Scope" context="{'group_by': 'scope_name'}"/>
+                        <filter name="group_by_type" string="Type" context="{'group_by': 'type'}"/>
+                        <filter name="group_by_course" string="Course" context="{'group_by': 'course_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

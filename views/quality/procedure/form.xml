@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_quality_procedure_form">
+            <field name="name">ems.quality.procedure.form</field>
+            <field name="model">ems.quality.procedure</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="code" placeholder="PE3.01"/></h1>
+                            <h2><field name="name" placeholder="Procedure name"/></h2>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="process_id"/>
+                                <field name="responsible_role_id"/>
+                            </group>
+                            <group>
+                                <field name="active"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Purpose" name="purpose">
+                                <group>
+                                    <field name="what" placeholder="What it establishes"/>
+                                    <field name="what_for" placeholder="What it is for"/>
+                                    <field name="for_whom" placeholder="Who it applies to"/>
+                                </group>
+                            </page>
+                            <page string="Phases" name="phases">
+                                <field name="phase_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name"/>
+                                        <field name="tools"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Documents and records" name="documents">
+                                <field name="document_ids">
+                                    <list>
+                                        <field name="code"/>
+                                        <field name="name"/>
+                                        <field name="kind"/>
+                                        <field name="version"/>
+                                        <field name="state"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

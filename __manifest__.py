@@ -71,6 +71,22 @@
 
 
         'views/menu.xml',
+        'views/quality/menu.xml',
+            'views/quality/process/list.xml',
+            'views/quality/process/form.xml',
+            'views/quality/process/menu.xml',
+            'views/quality/procedure/list.xml',
+            'views/quality/procedure/form.xml',
+            'views/quality/procedure/search.xml',
+            'views/quality/procedure/menu.xml',
+            'views/quality/document/list.xml',
+            'views/quality/document/form.xml',
+            'views/quality/document/search.xml',
+            'views/quality/document/menu.xml',
+            'views/quality/action/list.xml',
+            'views/quality/action/form.xml',
+            'views/quality/action/search.xml',
+            'views/quality/action/menu.xml',
 
         # Before form.xml: the settings button references this action by XML ID.
         'views/settings/course.xml',

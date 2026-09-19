@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_quality_process_form">
+            <field name="name">ems.quality.process.form</field>
+            <field name="model">ems.quality.process</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="code" placeholder="PE1"/></h1>
+                            <h2><field name="name" placeholder="Process name"/></h2>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="kind"/>
+                                <field name="responsible_role_id"/>
+                                <field name="responsible_employee_ids" widget="many2many_tags"/>
+                            </group>
+                            <group>
+                                <field name="is_quality_process"/>
+                                <field name="swot_review_date"/>
+                                <field name="sequence"/>
+                                <field name="active"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Procedures" name="procedures">
+                                <field name="procedure_ids">
+                                    <list editable="bottom">
+                                        <field name="code"/>
+                                        <field name="name"/>
+                                        <field name="responsible_role_id"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Documents" name="documents">
+                                <field name="document_ids">
+                                    <list>
+                                        <field name="code"/>
+                                        <field name="name"/>
+                                        <field name="kind"/>
+                                        <field name="version"/>
+                                        <field name="state"/>
+                                        <field name="next_review_date"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

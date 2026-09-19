@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_quality_process_list">
+            <field name="name">ems.quality.process.list</field>
+            <field name="model">ems.quality.process</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="kind"/>
+                    <field name="responsible_role_id"/>
+                    <field name="responsible_employee_ids" widget="many2many_tags"/>
+                    <field name="procedure_count"/>
+                    <field name="is_quality_process"/>
+                    <field name="swot_review_date"/>
+                </list>
+            </field>
+        </record>
+    </data>
+</odoo>

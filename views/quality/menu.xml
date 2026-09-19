@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Root menu of the quality management system. Restricted to the posts that actually
+             operate it: the staff-facing application (minutes and agreements) is a separate root
+             menu created by phase 2, so nobody from the teaching staff sees a half-built app here. -->
+        <menuitem name="Quality" sequence="9" id="menu_quality"
+                  groups="ems.group_quality,ems.group_quality_admin,ems.group_head_of_studies,ems.group_secretary,ems.group_director"/>
+
+        <menuitem name="Configuration" sequence="90" id="menu_quality_config" parent="menu_quality"
+                  groups="ems.group_quality_admin,ems.group_director"/>
+    </data>
+</odoo>

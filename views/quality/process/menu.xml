@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.actions.act_window" id="action_quality_process">
+            <field name="name">Processes</field>
+            <field name="res_model">ems.quality.process</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <menuitem name="Processes" sequence="1" id="menu_quality_processes"
+                  parent="menu_quality_config" action="action_quality_process"/>
+    </data>
+</odoo>

@@ -13,6 +13,7 @@ class EmsCourse(models.Model):
     ]
 
 	name = fields.Char(string="Name", compute="_compute_name", store=True)
+	short_code = fields.Char(string="Short code", compute="_compute_short_code", store=True, help="The course written as the centre writes it (2026-27). Used as the year segment of the quality codes.")
 	start = fields.Integer(string="Start", default=lambda self: datetime.now().year, required=True)
 	end = fields.Integer(string="End", default=lambda self: datetime.now().year+1, required=True)	
 
@@ -32,6 +33,15 @@ class EmsCourse(models.Model):
 	def _compute_name(self):
 		for course in self:
 			course.name = "%s-%s" % (course.start, course.end)
+
+	@api.depends("start", "end")
+	def _compute_short_code(self):
+		"""The course as the centre writes it everywhere: 2026-27.
+
+		Single source of that string: the quality code sequences take their prefix from here, so
+		'2026-27' can never end up spelled two different ways."""
+		for course in self:
+			course.short_code = "%s-%s" % (course.start, str(course.end)[-2:])
 
 	def date_range(self):
 		"""The course's calendar window, as (first day, last day): 1 September of 'start' to

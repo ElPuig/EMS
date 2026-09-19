@@ -52,7 +52,7 @@ registry.category("web_tour.tours").add("ems_doc_shot_grade_review", {
         {
             trigger: ".modal div[name='resolution'] textarea",
             content: "Write down what the review resolves",
-            run: "edit Revisio de la qualificacio del modul: es resol com a superat amb un 5.",
+            run: "edit Revisió de la qualificació del mòdul: es resol com a superat amb un 5.",
         },
         {
             trigger: ".modal div[name='preview_state'] .badge",

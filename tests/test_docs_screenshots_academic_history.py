@@ -30,11 +30,16 @@ class TestDocsScreenshotsAcademicHistory(DocsScreenshotMixin, HttpCase):
                                          email='secretaria.historic@example.com')
         create_role_employee(cls, cls.secretary, employee_type='asp', name='0000 Secretaria')
 
-        cls.course = cls.env['ems.course'].create({'start': 2095, 'end': 2096})
+        # A real past course, so the shot reads like the case this exists for: a file closed
+        # last year, reviewed now. Reused when the database already has it.
+        Course = cls.env['ems.course']
+        cls.course = Course.search([('start', '=', 2024)], limit=1) \
+            or Course.create({'start': 2024, 'end': 2025})
         cls.level, cls.study, cls.group = create_level_study_group(
             cls, 'DOCH',
             level={'name': 'Cicles Formatius (Grau Mitjà)'},
-            study={'code': 'DOCHSMX', 'acronym': 'SMX',
+            # The study's own year is part of its name on screen, so it matches the course.
+            study={'code': 'DOCHSMX', 'acronym': 'SMX', 'date': '2024-01-01',
                    'name': 'Sistemes microinformàtics i xarxes'},
         )
         # Invented student and modules - nothing from this box's real data.
@@ -83,4 +88,7 @@ class TestDocsScreenshotsAcademicHistory(DocsScreenshotMixin, HttpCase):
             record_url, '.modal-content', 'academic-history-grade-review.png',
             login='doc_shot_history_secretary',
             tour='ems_doc_shot_grade_review',
+            # No padding: the dialog's own edges are the crop, or the shot bleeds a sliver of
+            # the page behind it in through the backdrop.
+            padding=0,
         )

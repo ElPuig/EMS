@@ -14694,3 +14694,8 @@ msgstr "Escriu el resultat acadèmic proposat al registre del curs un cop aplica
 #: code:addons/ems/models/grades/grade_review_wizard.py:0
 msgid "not graded"
 msgstr "sense qualificar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_form
+msgid "EM"
+msgstr "EM"

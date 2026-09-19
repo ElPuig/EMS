@@ -14695,3 +14695,8 @@ msgstr "Escribe el resultado académico propuesto en el registro del curso una v
 #: code:addons/ems/models/grades/grade_review_wizard.py:0
 msgid "not graded"
 msgstr "sin calificar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_form
+msgid "EM"
+msgstr "EM"

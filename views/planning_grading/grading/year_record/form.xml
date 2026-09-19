@@ -4,7 +4,7 @@
             <field name="name">ems.student.year_record.form</field>
             <field name="model">ems.student.year_record</field>
             <field name="arch" type="xml">
-                <form create="0">
+                <form create="0" class="o_ems_wrap_list_headers">
                     <header>
                         <!-- The single write path into a closed academic file (issue #493).
                              Restricted to the roles that sign a grade review; everything else on
@@ -47,7 +47,7 @@
                                                decoration-success="state == 'passed'"
                                                decoration-danger="state == 'failed'"/>
                                         <field name="internal_grade"/>
-                                        <field name="external_grade" optional="show"/>
+                                        <field name="external_grade" string="EM" optional="show"/>
                                         <field name="final_grade"/>
                                         <field name="final_pending" optional="show"/>
                                         <field name="internal_weight" optional="hide"/>

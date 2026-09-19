@@ -5,7 +5,7 @@
             <field name="name">ems.grade_review_wizard.form</field>
             <field name="model">ems.grade_review_wizard</field>
             <field name="arch" type="xml">
-                <form string="Grade review" class="o_ems_grade_review_dialog">
+                <form string="Grade review" class="o_ems_wrap_list_headers">
                     <sheet>
                         <div class="alert alert-info" role="alert">
                             A grade review corrects the academic history of a course already closed.

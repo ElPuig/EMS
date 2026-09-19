@@ -1,0 +1,65 @@
+id,code,name,kind,procedure_id/id,responsible_role_id/id,state,approval_date,is_minute_template
+__import__.quality_doc_pe1_09_01,PE1.09.01,Management review model,template,__import__.quality_procedure_pe1_09,ems.role_quality,approved,,0
+__import__.quality_doc_pe1_09_02,PE1.09.02,Management review model (January),template,__import__.quality_procedure_pe1_09,ems.role_quality,approved,,0
+__import__.quality_doc_pe1_09_03,PE1.09.03,Management review model (spreadsheet),template,__import__.quality_procedure_pe1_09,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_01_02,PE3.01.02,Generic meeting minute (template),template,__import__.quality_procedure_pe3_01,ems.role_quality,approved,,1
+__import__.quality_doc_pe3_01_03,PE3.01.03,Manual for writing minutes,manual,__import__.quality_procedure_pe3_01,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_01_04,PE3.01.04,Manual for the analysis and follow-up document,manual,__import__.quality_procedure_pe3_01,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_01_05,PE3.01.05,Basic guide to the teacher's documentation,manual,__import__.quality_procedure_pe3_01,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_01_06,PE3.01.06,Basic guide to the tutor's documentation,manual,__import__.quality_procedure_pe3_01,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_01_07,PE3.01.07,Manual for change and version control with Google Drive,manual,__import__.quality_procedure_pe3_01,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_01_08,PE3.01.08,Manual for collecting indicators,manual,__import__.quality_procedure_pe3_01,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_01_09,PE3.01.09,EPIQ user manual,manual,__import__.quality_procedure_pe3_01,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_01_10,PE3.01.10,Module syllabus (template used before 2024-2025),template,__import__.quality_procedure_pe3_01,ems.role_dhos,obsolete,,0
+__import__.quality_doc_pe3_01_11,PE3.01.11,Manual for preparing the management review,manual,__import__.quality_procedure_pe3_01,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_01_12,PE3.01.12,LOE syllabus guide,manual,__import__.quality_procedure_pe3_01,ems.role_dhos,approved,,0
+__import__.quality_doc_pe3_01_13,PE3.01.13,Module syllabus (template from 2024-2025),template,__import__.quality_procedure_pe3_01,ems.role_dhos,approved,,0
+__import__.quality_doc_pe3_01_14,PE3.01.14,Department meeting minute (template for ESO and upper secondary),template,__import__.quality_procedure_pe3_01,ems.role_quality,approved,,1
+__import__.quality_doc_pe3_01_15,PE3.01.15,Department meeting minute (template for vocational studies),template,__import__.quality_procedure_pe3_01,ems.role_quality,approved,,1
+__import__.quality_doc_pe3_01_16,PE3.01.16,Logo of the Department of Education and Vocational Training,form,__import__.quality_procedure_pe3_01,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_02_02,PE3.02.02,Improvement team constitution minute (template),template,__import__.quality_procedure_pe3_02,ems.role_quality,approved,,1
+__import__.quality_doc_ps23_2_1,PS23.2.1,Minute model (superseded coding scheme),template,__import__.quality_procedure_pe3_01,ems.role_quality,approved,2020-11-26,1
+__import__.quality_doc_pe3_03_01,PE3.03.01,Audit reports and plans,record,__import__.quality_procedure_pe3_03,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_03_02,PE3.03.02,Internal audit plan model,template,__import__.quality_procedure_pe3_03,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_03_03,PE3.03.03,Pre-audit plan model,template,__import__.quality_procedure_pe3_03,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_03_04,PE3.03.04,Checklist (ISO 9001:2015),template,__import__.quality_procedure_pe3_03,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_03_05,PE3.03.05,Audit examples,manual,__import__.quality_procedure_pe3_03,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_03_06,PE3.03.06,Sworn declaration for auditors,form,__import__.quality_procedure_pe3_03,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_03_07,PE3.03.07,Internal audit plan template,template,__import__.quality_procedure_pe3_03,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_03_08,PE3.03.08,Audit programme,record,__import__.quality_procedure_pe3_03,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_03_09,PE3.03.09,Internal audit report model,template,__import__.quality_procedure_pe3_03,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_03_10,PE3.03.10,Interpreting ISO 9001:2015 for schools,manual,__import__.quality_procedure_pe3_03,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_03_11,PE3.03.11,Auditor's code of ethics,manual,__import__.quality_procedure_pe3_03,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_03_12,PE3.03.12,Auditor profile,manual,__import__.quality_procedure_pe3_03,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_04_01,PE3.04.01,Audit reports,record,__import__.quality_procedure_pe3_04,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_04_02,PE3.04.02,Nonconformity analysis and follow-up document,record,__import__.quality_procedure_pe3_04,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_04_03,PE3.04.03,Nonconformity action plan (template),template,__import__.quality_procedure_pe3_04,ems.role_quality,approved,,0
+__import__.quality_doc_pe3_04_04,PE3.04.04,Improvement opportunity analysis and follow-up document,record,__import__.quality_procedure_pe3_04,ems.role_quality,approved,,0
+__import__.quality_doc_strategic_pec,,Educational project of the centre (PEC),strategic,__import__.quality_procedure_pe1_04,ems.role_director,approved,2025-04-09,0
+__import__.quality_doc_strategic_nofc,,Organisation and functioning rules (NOFC),strategic,__import__.quality_procedure_pe1_05,ems.role_director,approved,2025-04-09,0
+__import__.quality_doc_strategic_plc,,Language project of the centre (PLC),strategic,__import__.quality_procedure_pe1_06,ems.role_director,approved,2024-11-28,0
+__import__.quality_doc_strategic_pat,,Tutorial action plan (PAT),strategic,__import__.quality_procedure_pc2_07,ems.role_dhos,approved,2025-09-01,0
+__import__.quality_doc_strategic_pad,,Diversity attention plan (PAD),strategic,__import__.quality_procedure_pe2_01,ems.role_orientation,approved,2021-01-09,0
+__import__.quality_doc_strategic_convivencia,,Coexistence plan,strategic,__import__.quality_procedure_pe2_01,ems.role_coexistence,approved,2021-04-14,0
+__import__.quality_doc_strategic_emergencia,,Emergency and contingency plan,strategic,__import__.quality_procedure_pe2_06,ems.role_secretary,approved,2024-09-23,0
+__import__.quality_doc_strategic_pccfp,,Vocational curriculum project (PCC-FP),strategic,__import__.quality_procedure_pe1_10,ems.role_dhos,approved,2020-12-27,0
+__import__.quality_doc_strategic_participacio,,Participation plan,strategic,__import__.quality_procedure_pe2_01,ems.role_director,approved,2021-04-14,0
+__import__.quality_doc_strategic_tac,,Learning technologies plan (TAC),strategic,__import__.quality_procedure_pe2_01,ems.role_tac,approved,2021-06-30,0
+__import__.quality_doc_strategic_biblioteca,,Library project,strategic,__import__.quality_procedure_pe2_07,ems.role_director,approved,2021-06-30,0
+__import__.quality_doc_strategic_orientacio,,Academic and careers guidance plan,strategic,__import__.quality_procedure_pc2_03,ems.role_orientation,approved,2021-04-14,0
+__import__.quality_doc_strategic_acollida,,Welcome plan,strategic,__import__.quality_procedure_ps1_01,ems.role_director,approved,2022-06-30,0
+__import__.quality_doc_strategic_enquestes,,Survey plan,strategic,__import__.quality_procedure_pe3_05,ems.role_quality,approved,2021-06-30,0
+__import__.quality_doc_strategic_comunicacio,,Communication plan,strategic,__import__.quality_procedure_pe2_01,ems.role_director,approved,2024-10-01,0
+__import__.quality_doc_strategic_manteniment,,Maintenance plan,strategic,__import__.quality_procedure_ps2_05,ems.role_secretary,approved,2022-04-26,0
+__import__.quality_doc_strategic_manteniment_tic,,IT maintenance plan,strategic,__import__.quality_procedure_ps2_04,ems.role_tac,approved,2022-04-26,0
+__import__.quality_doc_strategic_formacio,,Training plan,strategic,__import__.quality_procedure_ps1_04,ems.role_director,draft,,0
+__import__.quality_doc_strategic_dossier,,Teachers' dossier,strategic,__import__.quality_procedure_pe3_01,ems.role_quality,draft,,0
+__import__.quality_doc_strategic_projecte_direccio,,Management project 2024-2028,strategic,__import__.quality_procedure_pe1_01,ems.role_director,approved,,0
+__import__.quality_doc_strategic_pga,,Annual general plan (PGA),strategic,__import__.quality_procedure_pe1_02,ems.role_director,approved,,0
+__import__.quality_doc_strategic_memoria,,Annual report,strategic,__import__.quality_procedure_pe1_02,ems.role_director,approved,,0
+__import__.quality_doc_strategic_memoria_mandat,,End of term report,strategic,__import__.quality_procedure_pe1_01,ems.role_director,approved,,0
+__import__.quality_doc_strategic_carta_compromis,,Educational commitment charter,strategic,__import__.quality_procedure_pe2_01,ems.role_director,approved,,0
+__import__.quality_doc_strategic_carta_serveis_eso,,Service charter (lower secondary),strategic,__import__.quality_procedure_pe2_01,ems.role_director,approved,,0
+__import__.quality_doc_strategic_carta_serveis_btx,,Service charter (upper secondary),strategic,__import__.quality_procedure_pe2_01,ems.role_director,approved,,0
+__import__.quality_doc_strategic_carta_serveis_ccff,,Service charter (vocational studies),strategic,__import__.quality_procedure_pe2_01,ems.role_dhos,approved,,0
+__import__.quality_doc_strategic_politica_qualitat,,Quality policy,strategic,__import__.quality_procedure_pe3_01,ems.role_quality,approved,,0

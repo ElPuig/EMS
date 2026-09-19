@@ -469,6 +469,7 @@
         # references its process, and a document references its procedure.
         'data/custom/quality/ems.quality.process.csv',
         'data/custom/quality/ems.quality.procedure.csv',
+        'data/custom/quality/ems.quality.document.csv',
 
         # Teacher's data (teaching = subject x teacher x group)
         #'data/custom/hr.employee.csv',        

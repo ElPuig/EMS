@@ -92,10 +92,15 @@ class EmsQualityDocument(models.Model):
 
     @api.depends('code')
     def _compute_is_legacy_code(self):
-        prefixes = tuple(self.env['ems.quality.process'].search([]).mapped('code'))
+        """Flag codes whose leading segment is not a process of the current map.
+
+        Compared segment by segment rather than with startswith(): 'PS23.2.1' - a code from the
+        superseded scheme - does start with 'PS2', so a prefix test would let exactly the codes
+        this is meant to catch slip through."""
+        process_codes = set(self.env['ems.quality.process'].with_context(active_test=False).search([]).mapped('code'))
         for document in self:
             code = (document.code or '').strip()
-            document.is_legacy_code = bool(code) and bool(prefixes) and not code.startswith(prefixes)
+            document.is_legacy_code = bool(code) and bool(process_codes) and code.split('.')[0] not in process_codes
 
     def _compute_needs_review(self):
         today = fields.Date.context_today(self)

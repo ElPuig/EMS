@@ -18,6 +18,7 @@ Selecciona tu perfil para acceder a los manuales correspondientes:
 | [Secretaría](secretary/index.md) | Gestión de matrículas, documentos, pagos y bonificaciones |
 | [Jefatura de Estudios](head_of_studies/index.md) | Decidir sobre solicitudes de corrección de fichajes |
 | [Administrador](admin/index.md) | Configuración curricular, gestión de profesores y cuentas de Google Workspace |
+| [Coordinación de Calidad](quality/index.md) | Sistema de gestión de la calidad: procesos, documentación y acuerdos |
 | [Desarrolladores](../en/developers/index.md) | Referencia técnica para desarrolladores |
 
 ---

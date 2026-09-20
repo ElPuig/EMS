@@ -18,6 +18,7 @@ Select your profile to access the corresponding manuals:
 | [Secretariat](secretary/index.md) | Management of enrollments, documents, payments and bonifications |
 | [Head of Studies](head_of_studies/index.md) | Deciding on attendance correction requests |
 | [Administrator](admin/index.md) | Curriculum configuration, teacher management and Google Workspace accounts |
+| [Quality Coordination](quality/index.md) | Quality management system: processes, documentation and agreements |
 | [Developers](developers/index.md) | Technical reference for developers |
 
 ---

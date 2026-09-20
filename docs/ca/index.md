@@ -18,6 +18,7 @@ Seleccioneu el vostre perfil per accedir als manuals corresponents:
 | [Secretaria](secretary/index.md) | Gestió de matrícules, documents, pagaments i bonificacions |
 | [Cap d'Estudis](head_of_studies/index.md) | Decidir sobre sol·licituds de correcció de fitxatges |
 | [Administrador](admin/index.md) | Configuració curricular, gestió de professors i comptes de Google Workspace |
+| [Coordinació de Qualitat](quality/index.md) | Sistema de gestió de la qualitat: processos, documentació i acords |
 | [Desenvolupadors](../en/developers/index.md) | Referència tècnica per a desenvolupadors |
 
 ---

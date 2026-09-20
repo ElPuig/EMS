@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.actions.report" id="action_report_minute">
+            <field name="name">Minute</field>
+            <field name="model">ems.minute</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_minute</field>
+            <field name="report_file">ems.report_minute</field>
+            <field name="binding_model_id" ref="ems.model_ems_minute"/>
+            <field name="binding_type">report</field>
+            <field name="binding_view_types">list,form</field>
+            <field name="print_report_name">object.code or 'minute'</field>
+        </record>
+
+        <template id="report_minute">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <h2 t-out="doc.name"/>
+                            <p class="text-muted" t-out="doc.code"/>
+
+                            <table class="table table-sm o_main_table">
+                                <tr>
+                                    <th>Date</th><td t-out="doc.date"/>
+                                    <th>Time</th><td t-out="doc.time or ''"/>
+                                </tr>
+                                <tr>
+                                    <th>Nature</th><td t-out="dict(doc._fields['nature']._description_selection(doc.env)).get(doc.nature)"/>
+                                    <th>Modality</th><td t-out="dict(doc._fields['modality']._description_selection(doc.env)).get(doc.modality)"/>
+                                </tr>
+                                <tr>
+                                    <th>Place</th><td t-out="doc.place_name"/>
+                                    <th>Scope</th><td t-out="doc.scope_name"/>
+                                </tr>
+                            </table>
+
+                            <t t-if="doc.attendee_ids">
+                                <h4>Attendees</h4>
+                                <p t-out="', '.join(doc.attendee_ids.mapped('name'))"/>
+                            </t>
+                            <t t-if="doc.absentee_ids">
+                                <h4>Absentees</h4>
+                                <p>
+                                    <span t-out="', '.join(doc.absentee_ids.mapped('name'))"/>
+                                    <span t-if="doc.absence_notes"> (<span t-out="doc.absence_notes"/>)</span>
+                                </p>
+                            </t>
+
+                            <t t-if="doc.agenda_ids">
+                                <h4>Agenda</h4>
+                                <ol>
+                                    <li t-foreach="doc.agenda_ids" t-as="item" t-out="item.name"/>
+                                </ol>
+                            </t>
+
+                            <t t-foreach="doc.section_value_ids" t-as="section">
+                                <t t-if="section.content">
+                                    <h4 t-out="section.name"/>
+                                    <div t-out="section.content"/>
+                                </t>
+                            </t>
+
+                            <t t-if="doc.member_line_ids">
+                                <h4>Team members</h4>
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th t-if="doc.type_id.print_identification">Identification</th>
+                                            <th>Speciality</th>
+                                            <th>Post in the team</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="doc.member_line_ids" t-as="member">
+                                            <td t-out="member.employee_id.name"/>
+                                            <td t-if="doc.type_id.print_identification" t-out="member.identification or ''"/>
+                                            <td t-out="member.speciality or ''"/>
+                                            <td t-out="dict(member._fields['team_role']._description_selection(member.env)).get(member.team_role)"/>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+
+                            <t t-if="doc.objective_line_ids">
+                                <h4>Objectives and indicators</h4>
+                                <table class="table table-sm">
+                                    <thead><tr><th>Objective</th><th>Indicator</th><th>Acceptance</th><th>Target</th></tr></thead>
+                                    <tbody>
+                                        <tr t-foreach="doc.objective_line_ids" t-as="objective">
+                                            <td t-out="objective.name"/>
+                                            <td t-out="objective.indicator or ''"/>
+                                            <td t-out="objective.acceptance_value or ''"/>
+                                            <td t-out="objective.target_value or ''"/>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+
+                            <t t-if="doc.followed_agreement_ids">
+                                <h4>Follow-up of earlier agreements</h4>
+                                <table class="table table-sm">
+                                    <thead><tr><th>Code</th><th>Agreement</th><th>State</th></tr></thead>
+                                    <tbody>
+                                        <tr t-foreach="doc.followed_agreement_ids" t-as="followed">
+                                            <td t-out="followed.code"/>
+                                            <td t-out="followed.name"/>
+                                            <td t-out="dict(followed._fields['state']._description_selection(followed.env)).get(followed.state)"/>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+
+                            <t t-if="doc.agreement_ids">
+                                <h4>Agreements</h4>
+                                <table class="table table-sm">
+                                    <thead><tr><th>Code</th><th>Agreement</th><th>Responsible</th><th>Deadline</th></tr></thead>
+                                    <tbody>
+                                        <tr t-foreach="doc.agreement_ids" t-as="agreement">
+                                            <td t-out="agreement.code"/>
+                                            <td t-out="agreement.name"/>
+                                            <td>
+                                                <span t-out="agreement.responsible_role_id.name or ''"/>
+                                                <span t-if="agreement.responsible_employee_ids"> (<span t-out="', '.join(agreement.responsible_employee_ids.mapped('name'))"/>)</span>
+                                            </td>
+                                            <td t-out="agreement.deadline_date or agreement.deadline_text or ''"/>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+
+                            <t t-if="doc.pending_topic_ids.filtered(lambda topic: not topic.is_done)">
+                                <h4>Pending topics</h4>
+                                <ul>
+                                    <li t-foreach="doc.pending_topic_ids.filtered(lambda topic: not topic.is_done)" t-as="topic" t-out="topic.name"/>
+                                </ul>
+                            </t>
+
+                            <t t-if="doc.annex_document_ids">
+                                <h4>Annexes</h4>
+                                <ul>
+                                    <li t-foreach="doc.annex_document_ids" t-as="annex">
+                                        <span t-out="annex.code or ''"/> <span t-out="annex.name"/>
+                                    </li>
+                                </ul>
+                            </t>
+
+                            <table class="table table-sm mt-4">
+                                <tr>
+                                    <td>
+                                        <strong>Written by</strong><br/>
+                                        <span t-out="doc.redactor_employee_id.name or ''"/>
+                                    </td>
+                                    <td>
+                                        <strong>Approved by</strong><br/>
+                                        <span t-out="doc.approver_employee_id.name or doc.approver_role_id.name or ''"/><br/>
+                                        <!-- The real evidence: who approved it in EMS and when. A pasted
+                                             signature image is decoration on top of this. -->
+                                        <span t-if="doc.approval_date" class="text-muted">
+                                            Approved in EMS on <span t-out="doc.approval_date"/>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p class="text-muted small mt-4" t-if="doc.template_document_id">
+                                <span t-out="doc.template_document_id.code or ''"/>
+                                <span t-out="doc.template_document_id.name"/>
+                                <span t-if="doc.template_version"> · version <span t-out="doc.template_version"/></span>
+                            </p>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

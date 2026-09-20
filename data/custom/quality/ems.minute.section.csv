@@ -1,0 +1,18 @@
+id,code,name,kind,help_text
+__import__.minute_section_previous,PREV,Approval of the previous minute,previous_approval,
+__import__.minute_section_agreement_followup,SEGAC,Follow-up of earlier agreements,agreement_followup,Review here the agreements that were still open; the list is preloaded from the previous minute.
+__import__.minute_section_agenda,ODJ,Agenda,agenda,
+__import__.minute_section_development,DESEN,Development of the session,text,What was discussed on each item of the agenda.
+__import__.minute_section_requests,PRECS,Requests and questions,text,
+__import__.minute_section_agreements,ACORDS,Agreements,agreements,
+__import__.minute_section_pending,PEND,Pending topics,pending_topics,Anything left unticked is carried into the next minute of the same scope.
+__import__.minute_section_annexes,ANNEX,Annexes,annexes,
+__import__.minute_section_signature,SIGN,Signatures,signature,
+__import__.minute_section_harmonisation,HARM,Harmonisation,harmonisation,
+__import__.minute_section_clil,GEP,CLIL (GEP),clil,
+__import__.minute_section_constitution,CONST,Team constitution,team_constitution,
+__import__.minute_section_objectives,OBJ,Objectives and indicators,objectives,An indicator has to measure a single objective fact; acceptance is the minimum that counts as achieved and the target is what is aimed for.
+__import__.minute_section_calendar,CAL,Meeting calendar,meeting_calendar,
+__import__.minute_section_summary,RESUM,Summary of the previous year,text,
+__import__.minute_section_method,METOD,Working method,text,
+__import__.minute_section_record_data,DADES,Record details,text,What is being put on record.

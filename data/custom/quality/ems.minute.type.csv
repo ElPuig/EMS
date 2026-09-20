@@ -1,0 +1,9 @@
+id,code,name,kind,scope_kind,approver_role_id/id,template_document_id/id,print_identification,sequence
+__import__.minute_type_generic,GEN,Generic meeting minute,meeting,generic,,__import__.quality_doc_pe3_01_17,0,10
+__import__.minute_type_dep_ccff,DEP-CCFF,Department meeting (vocational studies),meeting,department,ems.role_dchieff,__import__.quality_doc_pe3_01_17,0,20
+__import__.minute_type_dep_eso,DEP-ESO,Department meeting (lower and upper secondary),meeting,department,ems.role_dchieff,__import__.quality_doc_pe3_01_17,0,30
+__import__.minute_type_claustre,CLA,Staff meeting,meeting,centre,ems.role_director,__import__.quality_doc_pe3_01_17,0,40
+__import__.minute_type_teaching_team,ED,Teaching team meeting,meeting,teaching_team,ems.role_tutor,__import__.quality_doc_pe3_01_17,0,50
+__import__.minute_type_team_const,EM-CONST,Improvement team constitution,meeting,workgroup,ems.role_quality,__import__.quality_doc_pe3_01_17,1,60
+__import__.minute_type_team_meeting,EM-REU,Improvement team meeting,meeting,workgroup,ems.role_quality,__import__.quality_doc_pe3_01_17,0,70
+__import__.minute_type_team_end,EM-FI,Improvement team closure,meeting,workgroup,ems.role_quality,__import__.quality_doc_pe3_01_17,1,80

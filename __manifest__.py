@@ -72,6 +72,7 @@
 
         'views/menu.xml',
         'views/quality/menu.xml',
+        'reports/minute_report.xml',
         'views/minutes_agreements/menu.xml',
             'views/minutes_agreements/minute/search.xml',
             'views/minutes_agreements/minute/list.xml',
@@ -474,6 +475,9 @@
         'data/custom/quality/ems.quality.process.csv',
         'data/custom/quality/ems.quality.procedure.csv',
         'data/custom/quality/ems.quality.document.csv',
+        'data/custom/quality/ems.minute.section.csv',
+        'data/custom/quality/ems.minute.type.csv',
+        'data/custom/quality/ems.minute.type.section.csv',
 
         # Teacher's data (teaching = subject x teacher x group)
         #'data/custom/hr.employee.csv',        

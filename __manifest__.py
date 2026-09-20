@@ -58,6 +58,7 @@
    'data': [
         'security/groups.xml',
         'security/rules/attendance.xml',
+        'security/rules/quality.xml',
         'security/rules/coexistence.xml',
         'security/rules/communications.xml',
         'security/rules/contacts.xml',

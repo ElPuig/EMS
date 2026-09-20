@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Minutes. Rules of different groups are ORed, so the teaching staff gets a narrow rule and
+             the roles that oversee the whole centre get a permissive one of their own; without the
+             latter, the narrow domain would apply to them too. -->
+        <record model="ir.rule" id="rule_minute_teacher">
+            <field name="name">Minutes: the teaching staff sees the ones of their own scopes</field>
+            <field name="model_id" ref="ems.model_ems_minute"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+            <field name="domain_force">['|', '|', '|', '|', '|',
+                ('is_centre', '=', True),
+                ('redactor_employee_id.user_id', '=', user.id),
+                ('attendee_ids.user_id', '=', user.id),
+                ('department_id.member_ids.user_id', '=', user.id),
+                ('workgroup_id.employee_ids.user_id', '=', user.id),
+                ('approver_role_id.employee_ids.user_id', '=', user.id)]</field>
+        </record>
+
+        <!-- Writing is narrower than reading, and never on an approved minute: a correction after
+             approval is a new version, not an edit. -->
+        <record model="ir.rule" id="rule_minute_teacher_write">
+            <field name="name">Minutes: the teaching staff writes its own, while not approved</field>
+            <field name="model_id" ref="ems.model_ems_minute"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+            <field name="domain_force">[('state', '!=', 'approved'), '|', '|',
+                ('redactor_employee_id.user_id', '=', user.id),
+                ('approver_role_id.employee_ids.user_id', '=', user.id),
+                ('redactor_employee_id', '=', False)]</field>
+        </record>
+
+        <record model="ir.rule" id="rule_minute_oversight">
+            <field name="name">Minutes: the roles that oversee the centre see them all</field>
+            <field name="model_id" ref="ems.model_ems_minute"/>
+            <field name="groups" eval="[(4, ref('ems.group_secretary')), (4, ref('ems.group_head_of_studies')), (4, ref('ems.group_director')), (4, ref('ems.group_quality')), (4, ref('ems.group_quality_admin')), (4, ref('ems.group_academic_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <!-- Agreements and actions. A teacher sees what is theirs and what belongs to a minute they
+             took part in; they do not see another department's action plan. -->
+        <record model="ir.rule" id="rule_quality_action_teacher">
+            <field name="name">Actions: the teaching staff sees its own and those of its minutes</field>
+            <field name="model_id" ref="ems.model_ems_quality_action"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+            <field name="domain_force">['|', '|', '|',
+                ('responsible_employee_ids.user_id', '=', user.id),
+                ('responsible_role_id.employee_ids.user_id', '=', user.id),
+                ('minute_id.attendee_ids.user_id', '=', user.id),
+                ('create_uid', '=', user.id)]</field>
+        </record>
+
+        <record model="ir.rule" id="rule_quality_action_oversight">
+            <field name="name">Actions: the roles that oversee the centre see them all</field>
+            <field name="model_id" ref="ems.model_ems_quality_action"/>
+            <field name="groups" eval="[(4, ref('ems.group_secretary')), (4, ref('ems.group_head_of_studies')), (4, ref('ems.group_director')), (4, ref('ems.group_quality')), (4, ref('ems.group_quality_admin')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_department_chief'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_quality_document_link_import_form">
+            <field name="name">ems.quality.document.link.import.form</field>
+            <field name="model">ems.quality.document.link.import</field>
+            <field name="arch" type="xml">
+                <form string="Load document links">
+                    <group invisible="result">
+                        <field name="file_data" filename="file_name"/>
+                        <field name="file_name" invisible="1"/>
+                        <field name="has_header"/>
+                    </group>
+                    <div invisible="not result">
+                        <field name="result" readonly="1" widget="text"/>
+                    </div>
+                    <footer>
+                        <button name="action_import" string="Load" type="object" class="btn-primary" invisible="result"/>
+                        <button string="Close" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_quality_document_link_import">
+            <field name="name">Load document links</field>
+            <field name="res_model">ems.quality.document.link.import</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem name="Load document links" sequence="5" id="menu_quality_document_link_import"
+                  parent="menu_quality_config" action="action_quality_document_link_import"/>
+    </data>
+</odoo>

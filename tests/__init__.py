@@ -205,3 +205,4 @@ from . import test_quality_process
 from . import test_quality_document
 from . import test_quality_action
 from . import test_quality_tour
+from . import test_quality_document_link_import

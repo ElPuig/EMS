@@ -396,3 +396,4 @@ ems.access_quality_followup_hos,ems.access_quality_followup_hos,ems.model_ems_qu
 ems.access_quality_followup_secretary,ems.access_quality_followup_secretary,ems.model_ems_quality_followup,ems.group_secretary,1,0,0,0
 ems.access_quality_followup_quality,ems.access_quality_followup_quality,ems.model_ems_quality_followup,ems.group_quality,1,1,1,0
 ems.access_quality_followup_admin,ems.access_quality_followup_admin,ems.model_ems_quality_followup,ems.group_quality_admin,1,1,1,1
+ems.access_quality_document_link_import_admin,ems.access_quality_document_link_import_admin,ems.model_ems_quality_document_link_import,ems.group_quality_admin,1,1,1,1

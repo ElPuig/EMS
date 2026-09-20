@@ -5,3 +5,4 @@ from . import procedure
 from . import document
 from . import action
 from . import followup
+from . import document_link_import

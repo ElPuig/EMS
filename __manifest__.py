@@ -87,6 +87,7 @@
             'views/quality/action/form.xml',
             'views/quality/action/search.xml',
             'views/quality/action/menu.xml',
+            'views/quality/document_link_import/form.xml',
 
         # Before form.xml: the settings button references this action by XML ID.
         'views/settings/course.xml',

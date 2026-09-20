@@ -212,7 +212,12 @@ class ems_company(models.Model):
     # history - and must therefore never be pushed back to their file-seeded value once created.
     # Extend this tuple as more 'data/custom/' models are confirmed living (not master) data -
     # see docs/en/developers/shared/data_loading.md's "'data/custom/' living data" section.
-    _EMS_LIVING_CUSTOM_DATA_MODELS = ('ems.group',)
+    # 'ems.quality.document': the controlled-document registry. Its version, state, approval and
+    # review dates are moved by the quality coordination through the app during the year, so a
+    # synced CSV would revert them on the next upgrade (the same failure already found on
+    # ems.group). The process map itself (ems.quality.process/procedure) is deliberately NOT here:
+    # that one really is configuration and the file stays its source of truth.
+    _EMS_LIVING_CUSTOM_DATA_MODELS = ('ems.group', 'ems.quality.document')
 
     def _ems_freeze_living_custom_data(self):
         """Freezes (ir.model.data.noupdate=True) every '__import__'-owned record of a model

@@ -79,8 +79,12 @@
                             </page>
                             <page string="Content" name="content">
                                 <field name="section_value_ids" readonly="state == 'approved'">
-                                    <list editable="bottom">
+                                    <list editable="bottom" create="0">
                                         <field name="sequence" widget="handle"/>
+                                        <!-- Present on purpose: the layout is filled in by an onchange,
+                                             and the web client only sends back fields the view knows
+                                             about - without this the section of every row arrives null. -->
+                                        <field name="section_id" column_invisible="1"/>
                                         <field name="name"/>
                                         <field name="kind" optional="hide"/>
                                         <field name="required" optional="hide"/>

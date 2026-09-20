@@ -544,6 +544,7 @@
         ],
         'web.assets_tests': [
             'ems/static/tests/tours/quality_tour.js',
+            'ems/static/tests/tours/minute_tour.js',
             'ems/static/tests/tours/**/*',
         ],
     },

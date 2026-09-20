@@ -207,3 +207,4 @@ from . import test_quality_action
 from . import test_quality_tour
 from . import test_quality_document_link_import
 from . import test_quality_minute
+from . import test_quality_minute_tour

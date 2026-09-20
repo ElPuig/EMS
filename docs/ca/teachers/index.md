@@ -26,6 +26,7 @@ Aquesta secció conté els manuals per als **professors**.
 | [L'horari setmanal d'un alumne](../admin/student-schedule.md) | Consultar l'horari propi d'un alumne (assignatures, docents, aules, patis), incloent-hi classes solapades, i exportar-lo a PDF |
 | [Consultar les dades acadèmiques d'un alumne](student-academic-data.md) | On consultar l'historial acadèmic de qualsevol alumne, i quines dades poden llegir els rols d'Orientació i Convivència |
 | [Sol·licitar una absència](absences.md) | Demanar una absència: triar-ne el tipus, dia sencer o unes hores, la declaració responsable, el justificant i enviar-la |
+| [Actes de reunió](minutes.md) | Redactar actes de departament, claustre, equip docent o equip de millora, amb els assistents i els acords arrossegats automàticament |
 
 ## Temes previstos
 

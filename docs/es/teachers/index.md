@@ -26,6 +26,7 @@ Esta sección contiene los manuales para los **profesores**.
 | [El horario semanal de un alumno](../admin/student-schedule.md) | Consultar el horario propio de un alumno (asignaturas, docentes, aulas, patios), incluyendo clases solapadas, y exportarlo a PDF |
 | [Consultar los datos académicos de un alumno](student-academic-data.md) | Dónde consultar el historial académico de cualquier alumno, y qué datos pueden leer los roles de Orientación y Convivencia |
 | [Solicitar una ausencia](absences.md) | Pedir una ausencia: elegir el tipo, día entero o unas horas, la declaración responsable, el justificante y enviarla |
+| [Actas de reunión](minutes.md) | Redactar actas de departamento, claustro, equipo docente o equipo de mejora, con los asistentes y los acuerdos arrastrados automáticamente |
 
 ## Temas previstos
 

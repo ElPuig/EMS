@@ -1388,6 +1388,7 @@ msgstr "Acció"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_minute__message_needaction
 msgid "Action Needed"
 msgstr "Acció Necessària"
 
@@ -1422,6 +1423,8 @@ msgstr "Acció Necessària"
 #: model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__active
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__active
 #: model:ir.model.fields.selection,name:ems.selection__ems_study__transition_state__active
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section__active
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type__active
 msgid "Active"
 msgstr "Actiu"
 
@@ -1507,6 +1510,7 @@ msgstr "Confirmar l'arxivat de grup(s) amb alumnes actius"
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__activity_ids
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__activity_ids
 #: model:ir.model.fields,field_description:ems.field_hr_employee__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_minute__activity_ids
 msgid "Activities"
 msgstr "Activitats"
 
@@ -1540,6 +1544,7 @@ msgstr "Activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_hr_employee__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_minute__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "Decorador de la excepció a una activitad"
 
@@ -1568,6 +1573,7 @@ msgstr "Decorador de la excepció a una activitad"
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__activity_state
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__activity_state
 #: model:ir.model.fields,field_description:ems.field_hr_employee__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_minute__activity_state
 msgid "Activity State"
 msgstr "Estat de l'activitat"
 
@@ -1596,6 +1602,7 @@ msgstr "Estat de l'activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__activity_type_icon
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__activity_type_icon
 #: model:ir.model.fields,field_description:ems.field_hr_employee__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_minute__activity_type_icon
 msgid "Activity Type Icon"
 msgstr "Icona del tipus d'activitat"
 
@@ -1893,6 +1900,7 @@ msgstr "Aplicant els canvis…"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form model_terms:ir.ui.view,arch_db:ems.view_student_document_list
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 msgid "Approve"
 msgstr "Aprovar"
 
@@ -1900,6 +1908,10 @@ msgstr "Aprovar"
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_document__status__approved model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 #: model:ir.model.fields.selection,name:ems.selection__ems_quality_document__state__approved
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__previous_approved__yes
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__state__approved
+#: model:ir.model.fields.selection,name:ems.selection__ems_signed_record__state__approved
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
 msgid "Approved"
 msgstr "Aprovat"
 
@@ -2027,12 +2039,14 @@ msgstr "Adjunt"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_minute__message_attachment_count
 msgid "Attachment Count"
 msgstr "Quantitat d'adjunts"
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_hr_attendance_group
 #: model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form model_terms:ir.ui.view,arch_db:ems.view_employee_form
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 msgid "Attendance"
 msgstr "Assistència"
 
@@ -2683,6 +2697,11 @@ msgstr "Tancant enquestes"
 #: model:ir.model.fields,field_description:ems.field_ems_study__code
 #: model:ir.model.fields,field_description:ems.field_ems_subject__code
 #: model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__code
+#: model:ir.model.fields,field_description:ems.field_ems_minute__code
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section__code
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type__code
+#: model:ir.model.fields,field_description:ems.field_ems_signed_record__code
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Code"
 msgstr "Codi"
 
@@ -2725,6 +2744,8 @@ msgstr "Comentari"
 #. module: ems
 #. odoo-javascript
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__notes code:addons/ems/static/src/xml/backend/grade_matrix_field.xml:0 code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0 model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__notes
+#: model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__notes
+#: model:ir.model.fields,field_description:ems.field_ems_minute_harmonisation_line__notes
 msgid "Comments"
 msgstr "Comentaris"
 
@@ -2792,6 +2813,7 @@ msgstr "Paràmetres de configuració"
 #: model:ir.ui.menu,name:ems.menu_ems_configuration
 #: model:ir.ui.menu,name:ems.menu_quality_config
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
+#: model:ir.ui.menu,name:ems.menu_minutes_config
 msgid "Configuration"
 msgstr "Configuració"
 
@@ -2836,6 +2858,8 @@ msgstr "Tipus de contacte"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_subject__content_ids model_terms:ir.ui.view,arch_db:ems.view_notice_form model_terms:ir.ui.view,arch_db:ems.view_subject_form
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__content
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 msgid "Content"
 msgstr "Contingut"
 
@@ -2910,6 +2934,8 @@ msgstr "País"
 #: model_terms:ir.ui.view,arch_db:ems.view_resource_calendar_search_ems
 #: model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment
 #: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+#: model:ir.model.fields,field_description:ems.field_ems_minute__course_id
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
 msgid "Course"
 msgstr "Curs"
 
@@ -3058,6 +3084,16 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_harmonisation_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -3151,6 +3187,16 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_harmonisation_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3213,6 +3259,7 @@ msgstr "Accés actual"
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form model:ir.model.fields.selection,name:ems.selection__ems_em_grading_wizard_line__source__live
 #: model:ir.model.fields.selection,name:ems.selection__ems_em_grading_wizard_line__source__live
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
 msgid "Current course"
 msgstr "Curs actual"
 
@@ -3257,6 +3304,8 @@ msgstr "Dades descarregades"
 #: model:ir.model.fields.selection,name:ems.selection__ems_authorization_field__field_type__date
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search
+#: model:ir.model.fields,field_description:ems.field_ems_signed_record__date
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Date"
 msgstr "Data"
 
@@ -3345,6 +3394,7 @@ msgstr "Esborrant"
 #: model:ir.model.fields,field_description:ems.field_ems_minute__department_id
 #: model:ir.model,name:ems.model_hr_department
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__department_id
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_type__scope_kind__department
 msgid "Department"
 msgstr "Departament"
 
@@ -3355,6 +3405,7 @@ msgstr "Cap de departament"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute__type__department
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_type_form
 msgid "Department meeting"
 msgstr "Reunió del departament"
 
@@ -3510,6 +3561,16 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_minute_harmonisation_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -3642,6 +3703,8 @@ msgstr "Descarregant enquestes"
 #: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard__state__draft
 #: model:ir.model.fields.selection,name:ems.selection__ems_notice__state__draft
 #: model:ir.model.fields.selection,name:ems.selection__ems_quality_document__state__draft
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__state__draft
+#: model:ir.model.fields.selection,name:ems.selection__ems_signed_record__state__draft
 msgid "Draft"
 msgstr "Esborrany"
 
@@ -4265,6 +4328,7 @@ msgstr "Seguiment"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_minute__message_follower_ids
 msgid "Followers"
 msgstr "Seguidors"
 
@@ -4295,6 +4359,7 @@ msgstr "Seguidors"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_minute__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "Seguidors (Companys)"
 
@@ -4323,6 +4388,7 @@ msgstr "Seguidors (Companys)"
 #: model:ir.model.fields,help:ems.field_ems_student_document__activity_type_icon
 #: model:ir.model.fields,help:ems.field_ems_teaching__activity_type_icon
 #: model:ir.model.fields,help:ems.field_hr_employee__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_minute__activity_type_icon
 msgid "Font awesome icon e.g. fa-tasks"
 msgstr "Icona de font impressionant, p. ex. tasques-fa"
 
@@ -4611,6 +4677,8 @@ msgstr "Atorgar accés"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
 #: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+#: model:ir.model.fields,field_description:ems.field_ems_minute__group_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__group_id
 msgid "Group"
 msgstr "Grup"
 
@@ -4632,6 +4700,7 @@ msgstr "Dades de grup"
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_search
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
 msgid "Group by"
 msgstr "Agrupar per"
 
@@ -4647,6 +4716,7 @@ msgstr "Grup:"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_template__group_ids model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__group_ids model:ir.model.fields,field_description:ems.field_ems_notice__group_ids model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__group_ids model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__group_ids model:ir.ui.menu,name:ems.menu_groups
+#: model:ir.model.fields,field_description:ems.field_ems_minute_harmonisation_line__group_ids
 msgid "Groups"
 msgstr "Grups"
 
@@ -4713,6 +4783,7 @@ msgstr "Té taxes"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_minute__has_message
 msgid "Has Message"
 msgstr "Té missatge"
 
@@ -4901,6 +4972,16 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_harmonisation_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section__id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type__id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__id
 msgid "ID"
 msgstr "ID"
 
@@ -4935,6 +5016,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__activity_exception_icon
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__activity_exception_icon
 #: model:ir.model.fields,field_description:ems.field_hr_employee__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_minute__activity_exception_icon
 msgid "Icon"
 msgstr "Icona"
 
@@ -4963,6 +5045,7 @@ msgstr "Icona"
 #: model:ir.model.fields,help:ems.field_ems_student_document__activity_exception_icon
 #: model:ir.model.fields,help:ems.field_ems_teaching__activity_exception_icon
 #: model:ir.model.fields,help:ems.field_hr_employee__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_minute__activity_exception_icon
 msgid "Icon to indicate an exception activity."
 msgstr "Icona per indicar una activitat d'excepció."
 
@@ -4998,6 +5081,7 @@ msgstr "Si l'IBAN està mapejat i una fila té valor, tots els comptes bancaris 
 #: model:ir.model.fields,help:ems.field_ems_strike__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_student_document__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_teaching__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_minute__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr "Si està marcat, nous missatges que requereixen de la vostra atenció. "
 
@@ -5054,6 +5138,8 @@ msgstr "Si està marcat, nous missatges que requereixen de la vostra atenció. "
 #: model:ir.model.fields,help:ems.field_ems_student_document__message_has_sms_error
 #: model:ir.model.fields,help:ems.field_ems_teaching__message_has_error
 #: model:ir.model.fields,help:ems.field_ems_teaching__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_minute__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_minute__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Si està marcat, alguns missatges han fallat en intentar ser lliurats."
 
@@ -5333,6 +5419,7 @@ msgstr "És taxa de matrícula"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_minute__message_is_follower
 msgid "Is Follower"
 msgstr "És seguidor"
 
@@ -5379,6 +5466,7 @@ msgstr "Incidències:"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__name
 msgid "Item"
 msgstr "Element"
 
@@ -5534,6 +5622,16 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_harmonisation_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -5627,6 +5725,16 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_harmonisation_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -5953,6 +6061,7 @@ msgstr "Targeta sanitària (TIS)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__members model:ir.model.fields,field_description:ems.field_ems_workgroup__employee_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 msgid "Members"
 msgstr "Membres"
 
@@ -5988,6 +6097,7 @@ msgstr "Missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_minute__message_has_error
 msgid "Message Delivery error"
 msgstr "Error de lliurament del missatge"
 
@@ -6018,6 +6128,7 @@ msgstr "Error de lliurament del missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_minute__message_ids
 msgid "Messages"
 msgstr "Missatges"
 
@@ -6033,6 +6144,15 @@ msgstr "Beca ministeri"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+#: model:ir.actions.report,name:ems.action_report_minute
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__minute_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__minute_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_harmonisation_line__minute_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__minute_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__minute_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__minute_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__minute_id
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__minute_id
 msgid "Minute"
 msgstr "Acta"
 
@@ -6058,6 +6178,7 @@ msgstr "Mòbil"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__modality
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Modality"
 msgstr "Modalitat"
 
@@ -6117,6 +6238,7 @@ msgstr "Mare"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__my_activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__my_activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_minute__my_activity_date_deadline
 msgid "My Activity Deadline"
 msgstr "Data límit de la meva activitat"
 
@@ -6157,6 +6279,10 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section__name
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__name
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type__name
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Name"
 msgstr "Nom"
 
@@ -6167,6 +6293,7 @@ msgstr "Natiu (després de les hores màximes)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__nature
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Nature"
 msgstr "Natura"
 
@@ -6209,6 +6336,7 @@ msgstr "Nou contacte d'alumne/a"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_minute__activity_date_deadline
 msgid "Next Activity Deadline"
 msgstr "Data límit de la següent activitat"
 
@@ -6237,6 +6365,7 @@ msgstr "Data límit de la següent activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__activity_summary
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__activity_summary
 #: model:ir.model.fields,field_description:ems.field_hr_employee__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_minute__activity_summary
 msgid "Next Activity Summary"
 msgstr "Resum de l'activitat següent"
 
@@ -6265,6 +6394,7 @@ msgstr "Resum de l'activitat següent"
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__activity_type_id
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__activity_type_id
 #: model:ir.model.fields,field_description:ems.field_hr_employee__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute__activity_type_id
 msgid "Next Activity Type"
 msgstr "Tipus d'activitat següent"
 
@@ -6474,6 +6604,7 @@ msgstr "Número"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_minute__message_needaction_counter
 msgid "Number of Actions"
 msgstr "Quantitat d'accions"
 
@@ -6504,6 +6635,7 @@ msgstr "Quantitat d'accions"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_minute__message_has_error_counter
 msgid "Number of errors"
 msgstr "Quantitat d'errors"
 
@@ -6534,6 +6666,7 @@ msgstr "Quantitat d'errors"
 #: model:ir.model.fields,help:ems.field_ems_strike__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_student_document__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_teaching__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_minute__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr "Quantitat de missatges que requereixen d'una acció"
 
@@ -6564,6 +6697,7 @@ msgstr "Quantitat de missatges que requereixen d'una acció"
 #: model:ir.model.fields,help:ems.field_ems_strike__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_student_document__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_teaching__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_minute__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "Quantitat de missatges amb error de lliurament"
 
@@ -7210,6 +7344,7 @@ msgstr "Plantilla de pressupost"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_minute__rating_ids
 msgid "Ratings"
 msgstr "Qualificacions"
 
@@ -7516,6 +7651,7 @@ msgstr "Detalls de la resposta"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__activity_user_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__activity_user_id
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute__activity_user_id
 msgid "Responsible User"
 msgstr "Usuari responsable"
 
@@ -7677,6 +7813,7 @@ msgstr "En execució"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_minute__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Error de lliurament d'un SMS"
 
@@ -7814,6 +7951,7 @@ msgstr "Signatura"
 
 #. module: ems
 #: model:ems.role,name:ems.role_secretary model:hr.job,name:ems.job_secretary model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_role__secretary model:project.project,name:ems.project_secretary model:res.groups,name:ems.group_secretary model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_member_line__team_role__secretary
 msgid "Secretary"
 msgstr "Secretaria"
 
@@ -7957,6 +8095,13 @@ msgstr "Enviat el"
 #: model:ir.model.fields,field_description:ems.field_ems_quality_procedure_phase__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_quality_process__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_strike_reason__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__sequence
 msgid "Sequence"
 msgstr "Seqüència"
 
@@ -8191,6 +8336,10 @@ msgstr "Iniciant procés en segon pla; rebràs una notificació en finalitzar (p
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__state
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
+#: model:ir.model.fields,field_description:ems.field_ems_minute__state
+#: model:ir.model.fields,field_description:ems.field_ems_signed_record__state
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
 msgid "State"
 msgstr "Estat"
 
@@ -8206,6 +8355,7 @@ msgstr "Estat"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_attendance_issue_status__activity_state model:ir.model.fields,help:ems.field_ems_attendance_issue_student__activity_state model:ir.model.fields,help:ems.field_ems_attendance_issue_tutor__activity_state model:ir.model.fields,help:ems.field_ems_attendance_justification__activity_state model:ir.model.fields,help:ems.field_ems_attendance_schedule__activity_state model:ir.model.fields,help:ems.field_ems_attendance_session_header__activity_state model:ir.model.fields,help:ems.field_ems_attendance_template__activity_state model:ir.model.fields,help:ems.field_ems_base__activity_state model:ir.model.fields,help:ems.field_ems_enrollment__activity_state model:ir.model.fields,help:ems.field_ems_grade_session__activity_state model:ir.model.fields,help:ems.field_ems_limesurvey_block__activity_state model:ir.model.fields,help:ems.field_ems_limesurvey_enrollment__activity_state model:ir.model.fields,help:ems.field_ems_limesurvey_header__activity_state model:ir.model.fields,help:ems.field_ems_limesurvey_recipient__activity_state model:ir.model.fields,help:ems.field_ems_notice__activity_state model:ir.model.fields,help:ems.field_ems_notice_line__activity_state model:ir.model.fields,help:ems.field_ems_student_document__activity_state model:ir.model.fields,help:ems.field_ems_teaching__activity_state model:ir.model.fields,help:ems.field_hr_employee__activity_state
+#: model:ir.model.fields,help:ems.field_ems_minute__activity_state
 msgid ""
 "Status based on activities\n"
 "Overdue: Due date is already passed\n"
@@ -8436,6 +8586,8 @@ msgstr "Estudi: El tipus d'estudi concret (tipus de batxillerat, grau universita
 #: model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_search
+#: model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_harmonisation_line__subject_id
 msgid "Subject"
 msgstr "Assignatura"
 
@@ -8599,6 +8751,8 @@ msgstr "Sistema"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__target
+#: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__target_value
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Target"
 msgstr "Destinataris"
 
@@ -8644,6 +8798,8 @@ msgstr "Drets d'accés del professorat."
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_employee_kanban model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__teacher_ids model:ir.model.fields,field_description:ems.field_ems_attendance_template__teacher_ids model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__target__teachers model:ir.ui.menu,name:ems.menu_community_config_teachers model:ir.ui.menu,name:ems.menu_teachers
+#: model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__teacher_ids
+#: model:ir.model.fields,field_description:ems.field_ems_minute_harmonisation_line__teacher_ids
 msgid "Teachers"
 msgstr "Professors"
 
@@ -8663,6 +8819,8 @@ msgstr "Ensenyament: relació ternària entre professor-grup-assignatura."
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_field__template_id
 #: model:ir.model.fields.selection,name:ems.selection__ems_quality_document__kind__template
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
+#: model:ir.model.fields,field_description:ems.field_ems_minute__template_document_id
+#: model:ir.model.fields,field_description:ems.field_ems_signed_record__template_document_id
 msgid "Template"
 msgstr "Plantilla"
 
@@ -9018,6 +9176,7 @@ msgstr "Franja horaria"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_template__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__title model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+#: model:ir.model.fields,field_description:ems.field_ems_minute__name
 msgid "Title"
 msgstr "Títol"
 
@@ -9140,6 +9299,8 @@ msgstr "Tutories"
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
 #: model_terms:ir.ui.view,arch_db:ems.view_space_search
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
+#: model:ir.model.fields,field_description:ems.field_ems_minute__type_id
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
 msgid "Type"
 msgstr "Tipus"
 
@@ -9173,6 +9334,7 @@ msgstr "Conflicte"
 #: model:ir.model.fields,help:ems.field_ems_student_document__activity_exception_decoration
 #: model:ir.model.fields,help:ems.field_ems_teaching__activity_exception_decoration
 #: model:ir.model.fields,help:ems.field_hr_employee__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_minute__activity_exception_decoration
 msgid "Type of the exception activity on record."
 msgstr "Tipus de l'activitat d'excepció registrada."
 
@@ -9456,6 +9618,7 @@ msgstr "Estem treballant en aquesta secció per oferir-te la millor experiència
 #: model:ir.model.fields,field_description:ems.field_ems_strike__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_minute__website_message_ids
 msgid "Website Messages"
 msgstr "Missatges del lloc web"
 
@@ -9486,6 +9649,7 @@ msgstr "Missatges del lloc web"
 #: model:ir.model.fields,help:ems.field_ems_strike__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_student_document__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_teaching__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_minute__website_message_ids
 msgid "Website communication history"
 msgstr "Històric de comunicacions del lloc web"
 
@@ -9568,6 +9732,7 @@ msgstr "Formació a Llocs de Treball (si matriculat)"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__workgroup_id
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__workgroup_id
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_type__scope_kind__workgroup
 msgid "Workgroup"
 msgstr "Grup de treball"
 
@@ -10936,6 +11101,11 @@ msgstr "Això expulsa immediatament els estudiants seleccionats. Vols continuar?
 #: model:ir.model.fields,field_description:ems.field_ems_quality_document__kind
 #: model:ir.model.fields,field_description:ems.field_ems_quality_process__kind
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
+#: model:ir.model.fields,field_description:ems.field_ems_minute__type_kind
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section__kind
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__kind
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type__kind
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__kind
 msgid "Kind"
 msgstr "Tipus"
 
@@ -12255,6 +12425,8 @@ msgstr "Assignatura → Docent(s)"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/schedule_grid_readonly_field.xml:0 code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 code:addons/ems/static/src/xml/backend/guard_duty_board_field.xml:0
+#: model:ir.model.fields,field_description:ems.field_ems_minute__pdf_attachment_id
+#: model:ir.model.fields,field_description:ems.field_ems_signed_record__pdf_attachment_id
 msgid "PDF"
 msgstr "PDF"
 
@@ -14759,6 +14931,7 @@ msgstr "Les hores d'aquesta absència quan consumeix el crèdit de salut, i zero
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_hr_holidays_filter_ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
 msgid "Month"
 msgstr "Mes"
 
@@ -15280,6 +15453,7 @@ msgstr "Data de suspensió de Google"
 
 #. module: ems
 #: model:ir.module.category,name:ems.category_orientation
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section__help_text
 msgid "Guidance"
 msgstr "Orientació"
 
@@ -15407,6 +15581,7 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__topic
+#: model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__name
 msgid "Topic"
 msgstr "Tema"
 
@@ -15958,6 +16133,7 @@ msgstr "Accions i acords"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__type__agreement
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Agreement"
 msgstr "Acord"
 
@@ -15989,6 +16165,7 @@ msgstr "Ja hi ha un altre procés amb aquest codi."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_document__approval_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute__approval_date
 msgid "Approved on"
 msgstr "Aprovat el"
 
@@ -16014,6 +16191,8 @@ msgstr "Quan es faci la reunió final de curs"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__is_centre
+#: model:ir.model.fields,field_description:ems.field_ems_minute__is_centre
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_type__scope_kind__centre
 msgid "Centre-wide"
 msgstr "De centre"
 
@@ -16058,6 +16237,7 @@ msgstr "Ocupat actualment per"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__deadline_date
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Deadline"
 msgstr "Data limit"
 
@@ -16094,6 +16274,8 @@ msgstr "Documents i registres"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_document__drive_file_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute__drive_file_id
+#: model:ir.model.fields,field_description:ems.field_ems_signed_record__drive_file_id
 msgid "Drive file id"
 msgstr "Identificador del fitxer al Drive"
 
@@ -16194,6 +16376,7 @@ msgstr "Nou (pendent)"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__activity_calendar_event_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__activity_calendar_event_id
 #: model:ir.model.fields,field_description:ems.field_ems_teaching__activity_calendar_event_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute__activity_calendar_event_id
 msgid "Next Activity Calendar Event"
 msgstr "Proper esdeveniment del calendari"
 
@@ -16414,6 +16597,11 @@ msgstr "DAFO revisat per última vegada"
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__scope_name
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
+#: model:ir.model.fields,field_description:ems.field_ems_minute__scope_name
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type__scope_kind
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
 msgid "Scope"
 msgstr "Àmbit"
 
@@ -16543,6 +16731,7 @@ msgstr "A qui s'aplica"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_followup__author_employee_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute__redactor_employee_id
 msgid "Written by"
 msgstr "Escrit per"
 
@@ -16633,3 +16822,628 @@ msgid ""
 "The employees holding the responsible post right now. Not stored: it follows"
 " the post."
 msgstr "Les persones que ocupen el càrrec responsable ara mateix. No s'emmagatzema: segueix el càrrec."
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "<strong>Approved by</strong><br/>"
+msgstr "<strong>Vistiplau</strong><br/>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "<strong>Written by</strong><br/>"
+msgstr "<strong>Redacció de l'acta</strong><br/>"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "A minute needs to say who wrote it before it can be approved."
+msgstr "Una acta ha de dir qui l'ha redactat abans de poder-se aprovar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "A video call, a mailing list..."
+msgstr "Una videotrucada, una llista de correu..."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__absence_notes
+msgid "About the absences"
+msgstr "Sobre les absències"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__absentee_ids
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Absentees"
+msgstr "Persones que hi manquen"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__acceptance_value
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Acceptance"
+msgstr "Acceptació"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__agenda_ids
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__agenda
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Agenda"
+msgstr "Ordre del dia"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_minute_agenda
+msgid "Agenda item of a minute."
+msgstr "Punt de l'ordre del dia d'una acta."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_minute_agreement
+#: model:ir.model.fields,field_description:ems.field_ems_minute__agreement_ids
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__agreements
+#: model:ir.ui.menu,name:ems.menu_minutes_agreements
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Agreements"
+msgstr "Acords"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__followed_agreement_ids
+msgid "Agreements followed up"
+msgstr "Acords amb seguiment"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Agreements still open, carried over"
+msgstr "Acords encara oberts, arrossegats"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__annex_document_ids
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__annexes
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Annexes"
+msgstr "Documents annexos"
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_minute_unique_code
+msgid "Another minute already uses this code."
+msgstr "Ja hi ha una altra acta amb aquest codi."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_minute_type_unique_code
+msgid "Another minute type already uses this code."
+msgstr "Ja hi ha un altre tipus d'acta amb aquest codi."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_minute_section_unique_code
+msgid "Another section already uses this code."
+msgstr "Ja hi ha una altra secció amb aquest codi."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__previous_approval
+msgid "Approval of the previous minute"
+msgstr "Aprovació de l'acta anterior"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__approver_employee_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type__approver_role_id
+msgid "Approved by"
+msgstr "Vistiplau"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__approver_role_id
+msgid "Approved by (post)"
+msgstr "Vistiplau (càrrec)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Approved in EMS on"
+msgstr "Aprovat a l'EMS el"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__previous_approved__with_changes
+msgid "Approved with changes"
+msgstr "Aprovada amb canvis"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute__time
+msgid "As the minute states it, for example 12:00."
+msgstr "Tal com ho indica l'acta, per exemple 12:00."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__attendee_ids
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Attendees"
+msgstr "Persones assistents"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
+msgid "Awaiting my approval"
+msgstr "Pendents que jo aprovi"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Back to draft"
+msgstr "Tornar a esborrany"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__clil_line_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "CLIL"
+msgstr "GEP"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__clil
+msgid "CLIL (GEP)"
+msgstr "GEP (AICLE)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__carried_from_minute_id
+msgid "Carried from"
+msgstr "Arrossegat de"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Centre"
+msgstr "Centre"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__worked_in_english
+msgid "Content worked in English"
+msgstr "S'ha treballat contingut en anglès"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type__template_document_id
+msgid "Controlled template"
+msgstr "Plantilla controlada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__is_done
+msgid "Dealt with"
+msgstr "Tractat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
+msgid "Drafts"
+msgstr "Esborranys"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__drive_url
+#: model:ir.model.fields,field_description:ems.field_ems_signed_record__drive_url
+msgid "Drive link"
+msgstr "Enllaç al Drive"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_type__kind__record
+msgid "Evidence record"
+msgstr "Registre puntual"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
+msgid "Evidence records"
+msgstr "Registres puntuals"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_member_line__team_role__facilitator
+msgid "Facilitator"
+msgstr "Facilitador"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__agreement_followup
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Follow-up of earlier agreements"
+msgstr "Seguiment dels acords anteriors"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "For example, which of them were justified"
+msgstr "Per exemple, quines eren justificades"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute__absence_notes
+msgid "For example, which of them were justified."
+msgstr "Per exemple, quines eren justificades."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__text
+msgid "Free text"
+msgstr "Text lliure"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_type__scope_kind__generic
+msgid "Generic"
+msgstr "Genèrica"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__harmonisation_line_ids
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__harmonisation
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Harmonisation"
+msgstr "Harmonització"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_harmonisation_line__is_harmonised
+msgid "Harmonised"
+msgstr "Harmonitzat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Identification"
+msgstr "DNI"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__identification
+msgid "Identification number"
+msgstr "DNI"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__indicator
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Indicator"
+msgstr "Indicador"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__intro_text
+msgid "Introduction"
+msgstr "Introducció"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Meeting"
+msgstr "Reunió"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__meeting_calendar
+msgid "Meeting calendar"
+msgstr "Calendari de reunions"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_type__kind__meeting
+msgid "Meeting minute"
+msgstr "Acta de reunió"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
+msgid "Meeting minutes"
+msgstr "Actes de reunió"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__employee_id
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_member_line__team_role__member
+msgid "Member"
+msgstr "Participant"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_minute_member_line
+msgid "Member of a team being constituted, with the post held inside it."
+msgstr "Membre d'un equip que es constitueix, amb el càrrec que hi ocupa."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
+msgid "Mine"
+msgstr "Les meves"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_minute_section
+msgid "Minute section: one of the blocks a minute can be made of."
+msgstr "Secció d'acta: un dels blocs de què pot estar feta una acta."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__type_id
+msgid "Minute type"
+msgstr "Tipus d'acta"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_minute_type_section
+msgid "Minute type section: a section of a minute type, in its place."
+msgstr "Secció d'un tipus d'acta, al seu lloc."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_minute_type
+#: model:ir.ui.menu,name:ems.menu_minute_types
+msgid "Minute types"
+msgstr "Tipus d'acta"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_minutes
+msgid "Minutes and agreements"
+msgstr "Actes i acords"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_minute
+#: model:ir.ui.menu,name:ems.menu_minutes_list
+msgid "Minutes and records"
+msgstr "Actes i registres"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__previous_approved__na
+msgid "Not applicable"
+msgstr "No aplica"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__previous_approved__no
+msgid "Not approved"
+msgstr "No aprovada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__previous_approval_notes
+msgid "Notes on the previous minute"
+msgstr "Observacions sobre l'acta anterior"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__attendee_count
+msgid "Number of attendees"
+msgstr "Nombre d'assistents"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__name
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Objective"
+msgstr "Objectiu"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_minute_objective_line
+msgid "Objective and its indicator, as stated when a team is constituted."
+msgstr "Objectiu i el seu indicador, tal com es fixen en constituir un equip."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__objective_line_ids
+msgid "Objectives"
+msgstr "Objectius"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__objectives
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Objectives and indicators"
+msgstr "Objectius i indicadors"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/signed_record.py:0
+msgid "Only a draft can be sent for approval."
+msgstr "Només es pot enviar a aprovar un esborrany."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_type_section__intro_text
+msgid "Optional text shown at the top of the section in this type of minute."
+msgstr "Text opcional que es mostra a l'encapçalament de la secció en aquest tipus d'acta."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_minute_pending_topic
+msgid "Pending topic of a minute, carried over until somebody deals with it."
+msgstr "Tema pendent d'una acta, que s'arrossega fins que algú el tracta."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__pending_topic_ids
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__pending_topics
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Pending topics"
+msgstr "Temes pendents"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__place_text
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Place"
+msgstr "Lloc"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__team_role
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Post in the team"
+msgstr "Càrrec a l'equip"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__previous_minute_id
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Previous minute"
+msgstr "Acta anterior"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__previous_approved
+msgid "Previous minute approved"
+msgstr "Acta anterior aprovada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type__print_identification
+msgid "Print the identification number"
+msgstr "Imprimir el DNI"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__required
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__required
+msgid "Required"
+msgstr "Obligatòria"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Responsible"
+msgstr "Responsable"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__space_id
+msgid "Room"
+msgstr "Espai"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__scope_kind
+msgid "Scope kind"
+msgstr "Tipus d'àmbit"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__section_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__section_id
+msgid "Section"
+msgstr "Secció"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_minute_section_value
+msgid "Section of a minute, with whatever was written in it."
+msgstr "Secció d'una acta, amb el que s'hi hagi escrit."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_minute_section
+#: model:ir.model.fields,field_description:ems.field_ems_minute__section_value_ids
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type__section_ids
+#: model:ir.ui.menu,name:ems.menu_minute_sections
+msgid "Sections"
+msgstr "Seccions"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_type_form
+msgid "Sections, in the order they appear"
+msgstr "Seccions, en l'ordre en què apareixen"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Send for approval"
+msgstr "Enviar a aprovar"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_section__help_text
+msgid "Shown to whoever writes the minute, above the section."
+msgstr "Es mostra a qui redacta l'acta, damunt de la secció."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__signature
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Signatures"
+msgstr "Signatures"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Speciality"
+msgstr "Especialitat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_member_line__speciality
+msgid "Teaching speciality"
+msgstr "Especialitat docent"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_type__scope_kind__teaching_team
+msgid "Teaching team (group)"
+msgstr "Equip docent (grup)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Team"
+msgstr "Equip"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__team_constitution
+msgid "Team constitution"
+msgstr "Constitució de l'equip"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__team_date_to
+msgid "Team ends"
+msgstr "L'equip acaba"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__member_line_ids
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Team members"
+msgstr "Membres de l'equip"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__team_date_from
+msgid "Team starts"
+msgstr "L'equip comença"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__template_version
+#: model:ir.model.fields,field_description:ems.field_ems_signed_record__template_version
+msgid "Template version"
+msgstr "Versió de la plantilla"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_objective_line__acceptance_value
+msgid "The minimum value that counts as achieved."
+msgstr "El valor mínim que es considera assolit."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_type_section__required
+msgid "The minute cannot be approved while this section is empty."
+msgstr "L'acta no es pot aprovar mentre aquesta secció estigui buida."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_type__approver_role_id
+msgid "The post that normally gives the approval."
+msgstr "El càrrec que normalment dona el vistiplau."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_objective_line__target_value
+msgid "The value aimed for in future iterations."
+msgstr "El valor al qual s'aspira en properes iteracions."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/signed_record.py:0
+msgid "This record is already approved."
+msgstr "Aquest registre ja està aprovat."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__time
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Time"
+msgstr "Hora"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Title of the minute"
+msgstr "Títol de l'acta"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__state__to_approve
+#: model:ir.model.fields.selection,name:ems.selection__ems_signed_record__state__to_approve
+msgid "To approve"
+msgstr "Per aprovar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__type
+msgid "Type (legacy)"
+msgstr "Tipus"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_pending_topic__is_done
+msgid "Unticked topics are carried into the next minute of the same scope."
+msgstr "Els temes sense marcar s'arrosseguen a l'acta següent del mateix àmbit."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_objective_line__indicator
+msgid "What is measured, as a single objective fact."
+msgstr "Què es mesura, com una dada objectiva i atòmica."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_agenda__notes
+msgid "What the meeting actually discussed on this item."
+msgstr "Què es va tractar realment en aquest punt."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__notes
+msgid "What was said"
+msgstr "Què s'hi va dir"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__place_name
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Where"
+msgstr "On"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_search
+msgid "With open agreements"
+msgstr "Amb acords oberts"
+
+#. module: ems
+#: model:ir.actions.report,print_report_name:ems.action_report_minute
+msgid "object.code or 'minute'"
+msgstr "object.code or 'minute'"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "· version"
+msgstr "· versió"

@@ -51,6 +51,13 @@ class EmsQualityAction(models.Model):
     resources = fields.Char(string="Resources")
     completion_criteria = fields.Text(string="When will it be finished")
     efficacy_criteria = fields.Text(string="How will efficacy be measured")
+    minute_id = fields.Many2one(
+        string="Minute",
+        comodel_name="ems.minute",
+        ondelete='cascade',
+        index=True,
+        help="The minute this agreement was taken in. Later phases add the other origins.",
+    )
     course_id = fields.Many2one(
         string="Course",
         comodel_name="ems.course",

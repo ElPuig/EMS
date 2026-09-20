@@ -345,10 +345,6 @@
             'views/portal/portal_documentation.xml',
             'views/portal/portal_under_construction.xml',
 
-        'views/documentation/menu.xml',       
-            'views/documentation/minutes/menu.xml',       
-            'views/documentation/minutes/list.xml',       
-            'views/documentation/minutes/form.xml',   
 
         'views/shared/attachment/form.xml',  
 

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- The first staff-facing screen of the quality work. It exists from this phase on, and not
+             earlier, so nobody meets a half-built application: phase 1 shipped only the coordination
+             side under its own root menu. -->
+        <menuitem name="Minutes and agreements" sequence="4" id="menu_minutes" groups="ems.group_teacher,ems.group_secretary"/>
+
+        <menuitem name="Configuration" sequence="90" id="menu_minutes_config" parent="menu_minutes"
+                  groups="ems.group_quality_admin,ems.group_director"/>
+    </data>
+</odoo>

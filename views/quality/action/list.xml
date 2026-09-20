@@ -10,6 +10,7 @@
                     <field name="name"/>
                     <field name="type"/>
                     <field name="scope_name"/>
+                    <field name="minute_id" optional="hide"/>
                     <field name="responsible_role_id"/>
                     <field name="responsible_employee_ids" widget="many2many_tags" optional="show"/>
                     <field name="deadline_date"/>

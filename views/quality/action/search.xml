@@ -11,6 +11,13 @@
                     <field name="responsible_role_id"/>
                     <field name="responsible_employee_ids"/>
                     <field name="department_id"/>
+                    <field name="minute_id"/>
+                    <!-- What the staff-facing screen opens on: mine, meaning the post I hold or my
+                         own name. Inert for a user with no employee record, which is correct: they
+                         have no agreements. -->
+                    <filter name="mine" string="Mine" domain="['|', ('responsible_employee_ids.user_id', '=', uid), ('responsible_role_id.employee_ids.user_id', '=', uid)]"/>
+                    <filter name="mine_written" string="From minutes I attended" domain="[('minute_id.attendee_ids.user_id', '=', uid)]"/>
+                    <separator/>
                     <!-- Own filter group: adjacent filters are ORed, and "open" has to narrow the
                          result set on top of whatever facet sits above it, not widen it. -->
                     <filter name="open" string="Open" domain="[('state', '!=', 'closed')]"/>

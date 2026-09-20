@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_minute_type_list">
+            <field name="name">ems.minute.type.list</field>
+            <field name="model">ems.minute.type</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="sequence" widget="handle"/>
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="kind"/>
+                    <field name="scope_kind"/>
+                    <field name="approver_role_id"/>
+                    <field name="template_document_id"/>
+                    <field name="print_identification" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_minute_type_form">
+            <field name="name">ems.minute.type.form</field>
+            <field name="model">ems.minute.type</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name" placeholder="Department meeting"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="code"/>
+                                <field name="kind"/>
+                                <field name="scope_kind"/>
+                            </group>
+                            <group>
+                                <field name="approver_role_id"/>
+                                <field name="template_document_id"/>
+                                <field name="print_identification"/>
+                                <field name="active"/>
+                            </group>
+                        </group>
+                        <separator string="Sections, in the order they appear"/>
+                        <field name="section_ids">
+                            <list editable="bottom">
+                                <field name="sequence" widget="handle"/>
+                                <field name="section_id"/>
+                                <field name="kind" readonly="1"/>
+                                <field name="required"/>
+                                <field name="intro_text"/>
+                            </list>
+                        </field>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_minute_section_list">
+            <field name="name">ems.minute.section.list</field>
+            <field name="model">ems.minute.section</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="kind"/>
+                    <field name="help_text"/>
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_minute_type">
+            <field name="name">Minute types</field>
+            <field name="res_model">ems.minute.type</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_minute_section">
+            <field name="name">Sections</field>
+            <field name="res_model">ems.minute.section</field>
+            <field name="view_mode">list</field>
+        </record>
+
+        <menuitem name="Minute types" sequence="1" id="menu_minute_types"
+                  parent="menu_minutes_config" action="action_minute_type"/>
+        <menuitem name="Sections" sequence="2" id="menu_minute_sections"
+                  parent="menu_minutes_config" action="action_minute_section"/>
+    </data>
+</odoo>

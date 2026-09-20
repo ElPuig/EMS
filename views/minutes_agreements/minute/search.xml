@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_minute_search">
+            <field name="name">ems.minute.search</field>
+            <field name="model">ems.minute</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="type_id"/>
+                    <field name="scope_name"/>
+                    <field name="attendee_ids"/>
+                    <!-- Own filter group: "mine" and "awaiting my approval" are ORed on purpose, so the
+                         screen opens on everything that is actually the reader's business. -->
+                    <filter name="mine" string="Mine" domain="['|', ('redactor_employee_id.user_id', '=', uid), ('attendee_ids.user_id', '=', uid)]"/>
+                    <filter name="to_approve_by_me" string="Awaiting my approval" domain="[('state', '=', 'to_approve'), ('approver_role_id.employee_ids.user_id', '=', uid)]"/>
+                    <separator/>
+                    <filter name="meetings" string="Meeting minutes" domain="[('type_kind', '=', 'meeting')]"/>
+                    <filter name="records" string="Evidence records" domain="[('type_kind', '=', 'record')]"/>
+                    <separator/>
+                    <filter name="current_course" string="Current course" domain="[('course_id.is_current', '=', True)]"/>
+                    <separator/>
+                    <filter name="drafts" string="Drafts" domain="[('state', '=', 'draft')]"/>
+                    <filter name="approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                    <filter name="with_open_agreements" string="With open agreements" domain="[('agreement_ids.state', '!=', 'closed')]"/>
+                    <group expand="0" string="Group by">
+                        <filter name="group_by_type" string="Type" context="{'group_by': 'type_id'}"/>
+                        <filter name="group_by_scope" string="Scope" context="{'group_by': 'scope_name'}"/>
+                        <filter name="group_by_course" string="Course" context="{'group_by': 'course_id'}"/>
+                        <filter name="group_by_state" string="State" context="{'group_by': 'state'}"/>
+                        <filter name="group_by_month" string="Month" context="{'group_by': 'date:month'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

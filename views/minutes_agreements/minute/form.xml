@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_minute_form">
+            <field name="name">ems.minute.form</field>
+            <field name="model">ems.minute</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_submit" string="Send for approval" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                        <button name="action_approve" string="Approve" type="object" class="btn-primary" invisible="state != 'to_approve'"/>
+                        <button name="action_back_to_draft" string="Back to draft" type="object" invisible="state != 'to_approve'"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h2><field name="code" readonly="1"/></h2>
+                            <h1><field name="name" placeholder="Title of the minute"/></h1>
+                        </div>
+                        <group>
+                            <group string="Meeting">
+                                <field name="type_id" readonly="state != 'draft'"/>
+                                <field name="type_kind" invisible="1"/>
+                                <field name="scope_kind" invisible="1"/>
+                                <field name="date"/>
+                                <field name="time" placeholder="12:00"/>
+                                <field name="nature" invisible="type_kind == 'record'"/>
+                                <field name="modality" invisible="type_kind == 'record'"/>
+                            </group>
+                            <group string="Where">
+                                <field name="space_id"/>
+                                <field name="place_text" placeholder="A video call, a mailing list..."/>
+                                <field name="course_id"/>
+                            </group>
+                        </group>
+                        <group string="Scope">
+                            <group>
+                                <field name="department_id" invisible="scope_kind not in ['department', 'generic']"/>
+                                <field name="workgroup_id" invisible="scope_kind not in ['workgroup', 'generic']"/>
+                            </group>
+                            <group>
+                                <field name="group_id" invisible="scope_kind not in ['teaching_team', 'generic']"/>
+                                <field name="is_centre" invisible="scope_kind not in ['centre', 'generic']"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Attendance" name="attendance" invisible="type_kind == 'record'">
+                                <group>
+                                    <field name="attendee_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                                    <field name="absentee_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                                    <field name="absence_notes" placeholder="For example, which of them were justified"/>
+                                    <field name="attendee_count"/>
+                                </group>
+                            </page>
+                            <page string="Agenda" name="agenda" invisible="type_kind == 'record'">
+                                <field name="agenda_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Previous minute" name="previous" invisible="type_kind == 'record'">
+                                <group>
+                                    <field name="previous_minute_id" readonly="1"/>
+                                    <field name="previous_approved"/>
+                                    <field name="previous_approval_notes"/>
+                                </group>
+                                <separator string="Agreements still open, carried over"/>
+                                <field name="followed_agreement_ids" widget="many2many" readonly="1">
+                                    <list>
+                                        <field name="code"/>
+                                        <field name="name"/>
+                                        <field name="responsible_role_id"/>
+                                        <field name="deadline_date"/>
+                                        <field name="state"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Content" name="content">
+                                <field name="section_value_ids" readonly="state == 'approved'">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name"/>
+                                        <field name="kind" optional="hide"/>
+                                        <field name="required" optional="hide"/>
+                                        <field name="content" widget="html"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Agreements" name="agreements" invisible="type_kind == 'record'">
+                                <field name="agreement_ids" context="{'default_type': 'agreement', 'default_course_id': course_id, 'default_department_id': department_id, 'default_workgroup_id': workgroup_id, 'default_group_id': group_id, 'default_is_centre': is_centre}">
+                                    <list editable="bottom">
+                                        <field name="code" readonly="1"/>
+                                        <field name="name"/>
+                                        <field name="responsible_role_id"/>
+                                        <field name="responsible_employee_ids" widget="many2many_tags"/>
+                                        <field name="deadline_date"/>
+                                        <field name="deadline_text"/>
+                                        <field name="state" readonly="1"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Pending topics" name="pending" invisible="type_kind == 'record'">
+                                <field name="pending_topic_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name"/>
+                                        <field name="is_done"/>
+                                        <field name="carried_from_minute_id" readonly="1" optional="show"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Harmonisation" name="harmonisation" invisible="not context.get('show_harmonisation') and not harmonisation_line_ids">
+                                <field name="harmonisation_line_ids">
+                                    <list editable="bottom">
+                                        <field name="group_ids" widget="many2many_tags"/>
+                                        <field name="subject_id"/>
+                                        <field name="is_harmonised"/>
+                                        <field name="teacher_ids" widget="many2many_tags"/>
+                                        <field name="notes"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="CLIL" name="clil" invisible="not context.get('show_clil') and not clil_line_ids">
+                                <field name="clil_line_ids">
+                                    <list editable="bottom">
+                                        <field name="subject_id"/>
+                                        <field name="group_id"/>
+                                        <field name="worked_in_english"/>
+                                        <field name="teacher_ids" widget="many2many_tags"/>
+                                        <field name="notes"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Team" name="team" invisible="not member_line_ids and not objective_line_ids">
+                                <group>
+                                    <field name="team_date_from"/>
+                                    <field name="team_date_to"/>
+                                </group>
+                                <separator string="Members"/>
+                                <field name="member_line_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="employee_id"/>
+                                        <field name="team_role"/>
+                                        <field name="speciality"/>
+                                        <field name="identification"/>
+                                    </list>
+                                </field>
+                                <separator string="Objectives and indicators"/>
+                                <field name="objective_line_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name"/>
+                                        <field name="indicator"/>
+                                        <field name="acceptance_value"/>
+                                        <field name="target_value"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Annexes" name="annexes">
+                                <field name="annex_document_ids" widget="many2many">
+                                    <list>
+                                        <field name="code"/>
+                                        <field name="name"/>
+                                        <field name="version"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                        <group string="Signatures">
+                            <group>
+                                <field name="redactor_employee_id"/>
+                                <field name="template_document_id" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="approver_role_id"/>
+                                <field name="approver_employee_id" readonly="1" invisible="state != 'approved'"/>
+                                <field name="approval_date" readonly="1" invisible="state != 'approved'"/>
+                                <field name="template_version" readonly="1" invisible="state != 'approved'"/>
+                                <field name="pdf_attachment_id" readonly="1" invisible="state != 'approved'"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

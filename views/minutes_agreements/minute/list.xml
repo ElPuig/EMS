@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_minute_list">
+            <field name="name">ems.minute.list</field>
+            <field name="model">ems.minute</field>
+            <field name="arch" type="xml">
+                <list decoration-muted="state == 'approved'">
+                    <field name="code"/>
+                    <field name="date"/>
+                    <field name="type_id"/>
+                    <field name="scope_name"/>
+                    <field name="name" optional="hide"/>
+                    <field name="attendee_count"/>
+                    <field name="redactor_employee_id" optional="show"/>
+                    <field name="state"/>
+                    <field name="course_id" optional="hide"/>
+                </list>
+            </field>
+        </record>
+    </data>
+</odoo>

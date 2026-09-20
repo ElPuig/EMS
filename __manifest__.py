@@ -72,6 +72,13 @@
 
         'views/menu.xml',
         'views/quality/menu.xml',
+        'views/minutes_agreements/menu.xml',
+            'views/minutes_agreements/minute/search.xml',
+            'views/minutes_agreements/minute/list.xml',
+            'views/minutes_agreements/minute/form.xml',
+            'views/minutes_agreements/minute/menu.xml',
+            'views/minutes_agreements/minute_type/menu.xml',
+            'views/minutes_agreements/agreement/menu.xml',
             'views/quality/process/list.xml',
             'views/quality/process/form.xml',
             'views/quality/process/menu.xml',

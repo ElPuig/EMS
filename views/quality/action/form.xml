@@ -28,6 +28,7 @@
                                 <field name="deadline_date"/>
                                 <field name="deadline_text" placeholder="By the final meeting of the year"/>
                                 <field name="course_id"/>
+                                <field name="minute_id" readonly="1"/>
                                 <field name="is_late" invisible="1"/>
                             </group>
                         </group>

@@ -181,6 +181,14 @@ class EmsMinute(models.Model):
     def create(self, vals_list):
         minutes = super().create(vals_list)
         for minute in minutes:
+            # The onchange only fires in the form: a minute created by code, by an import or by a
+            # future wizard must end up laid out the same way, or its PDF would quote no template.
+            if not minute.template_document_id:
+                minute.template_document_id = minute.type_id.template_document_id
+            if not minute.approver_role_id:
+                minute.approver_role_id = minute.type_id.approver_role_id
+            if minute.type_id.scope_kind == 'centre' and not minute.is_centre:
+                minute.is_centre = True
             if not minute.section_value_ids:
                 minute._ems_build_sections()
             if not minute.attendee_ids:

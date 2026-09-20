@@ -188,6 +188,9 @@ ems.access_ems_working_schedules_import_wizard_external_conflict_line_admin,ems.
 ems.access_ems_course_admin,ems.access_ems_course_admin,ems.model_ems_course,ems.group_academic_admin,1,1,1,1
 ems.access_ems_course_teacher,ems.access_ems_course_teacher,ems.model_ems_course,ems.group_teacher,1,0,0,0
 ems.access_ems_course_secretary,ems.access_ems_course_secretary,ems.model_ems_course,ems.group_secretary,1,0,0,0
+ems.access_ems_course_quality,ems.access_ems_course_quality,ems.model_ems_course,ems.group_quality,1,0,0,0
+ems.access_ems_course_hos,ems.access_ems_course_hos,ems.model_ems_course,ems.group_head_of_studies,1,0,0,0
+ems.access_ems_course_director,ems.access_ems_course_director,ems.model_ems_course,ems.group_director,1,0,0,0
 
 ems.access_ems_student_benefit_admin,ems.access_ems_student_benefit_admin,ems.model_ems_student_benefit,ems.group_academic_admin,1,1,1,1
 ems.access_ems_student_benefit_teacher,ems.access_ems_student_benefit_teacher,ems.model_ems_student_benefit,ems.group_teacher,1,0,0,0

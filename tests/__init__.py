@@ -204,3 +204,4 @@ from . import test_user_profile_tour
 from . import test_quality_process
 from . import test_quality_document
 from . import test_quality_action
+from . import test_quality_tour

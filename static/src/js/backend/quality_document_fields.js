@@ -3,6 +3,7 @@
 import { Component, xml } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
+import { X2ManyField, x2ManyField } from "@web/views/fields/x2many/x2many_field";
 import { FormRenderer } from "@web/views/form/form_renderer";
 import { formView } from "@web/views/form/form_view";
 
@@ -60,3 +61,22 @@ registry.category("views").add("ems_quality_form", {
     ...formView,
     Renderer: QualityFormRenderer,
 });
+
+// The procedures and documents listed inside a process or procedure form (widget
+// "ems_quality_linked_rows"): while the form is only being read, clicking anywhere on a row opens
+// that record in its own form, with the parent kept in the breadcrumbs, instead of Odoo's read-only
+// dialog. While editing, a click still edits the row in place.
+export class QualityLinkedRowsField extends X2ManyField {
+    async openRecord(record) {
+        if (this.props.readonly && !record.isNew) {
+            return this.switchToForm(record);
+        }
+        return super.openRecord(record);
+    }
+}
+
+registry.category("fields").add("ems_quality_linked_rows", {
+    ...x2ManyField,
+    component: QualityLinkedRowsField,
+});
+

@@ -45,7 +45,7 @@ registry.category("web_tour.tours").add("ems_quality_registry", {
             run: "click",
         },
         {
-            trigger: ".o_control_panel .o_list_buttons button:not(.o_list_button_add):not(.o_list_button_save):not(.o_list_button_discard)",
+            trigger: ".o_control_panel button.o_quality_load_links",
             content: "Open the wizard that loads links in one go",
             run: "click",
         },

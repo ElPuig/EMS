@@ -11,7 +11,6 @@
                     <field name="process_id"/>
                     <group expand="0" string="Group by">
                         <filter name="group_by_process" string="Process" context="{'group_by': 'process_id'}"/>
-                        <filter name="group_by_role" string="Responsible post" context="{'group_by': 'responsible_role_id'}"/>
                     </group>
                 </search>
             </field>

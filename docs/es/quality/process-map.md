@@ -2,44 +2,32 @@
 
 ---
 
-# Mapa de procesos y procedimientos
+# Mapa de procesos
 
-El mapa de procesos del centro vive en **Calidad → Configuración → Procesos**. Cada proceso lleva su
-código (`PE1`, `PC2`, `PS1`...), su tipo (estratégico, clave o de soporte) y el **cargo** que se hace
-responsable.
+**Calidad → Mapa de procesos** muestra el mapa de procesos del centro, el documento de Google donde está
+dibujada la estructura de la documentación de calidad.
 
-**Por qué un cargo y no una persona:** el mapa dice "Director/a" o "Coordinador/a de calidad", no un
-nombre propio. Cuando en septiembre cambia quien ocupa el cargo, el mapa sigue siendo correcto sin tocar
-nada, y la ficha os muestra al lado quién lo ocupa ahora mismo.
-
-**Quién tiene acceso:** la coordinación de calidad y la dirección pueden modificarlo; el resto de cargos
-pueden consultarlo.
+**Quién tiene acceso:** todo el que tiene el menú Calidad (coordinación de calidad, dirección, jefatura de
+estudios y secretaría).
 
 ---
 
-## La ficha de un proceso
+## Consultar el mapa
 
-Contiene el código, el nombre, el tipo, el cargo responsable, si es un **proceso de calidad** (la
-pregunta que hace la revisión por la dirección) y la fecha en que se revisó su DAFO por última vez.
+1. Id a **Calidad → Mapa de procesos**.
+2. Para verlo a pantalla completa, haced clic en **Abrir en una pestaña nueva**.
 
-Debajo hay dos pestañas:
+El mapa se edita en su documento de Google. EMS muestra la copia publicada, que Google actualiza solo unos
+minutos después de cada cambio.
 
-- **Procedimientos** — los procedimientos que cuelgan del proceso. Se pueden añadir desde aquí mismo.
-- **Documentos** — todos los documentos controlados del proceso, con su versión y su estado.
+## Configurar el mapa (una sola vez)
 
-## La ficha de un procedimiento
+Hace falta acceso a los ajustes de Odoo.
 
-En **Calidad → Configuración → Procedimientos**, o abriéndolo desde su proceso. Recoge lo que la ficha
-de procedimiento del centro ya dice:
-
-- **Qué**, **Para qué** y **A quién se aplica** — los tres bloques de encabezado.
-- **Fases** — los pasos del procedimiento y con qué herramientas se llevan a cabo. Se pueden reordenar
-  arrastrándolos.
-- **Documentos y registros** — lo que el procedimiento genera y lo que utiliza.
-
-## Comprobaciones que vale la pena hacer una vez al año
-
-- Que cada proceso tenga su **cargo responsable** informado y que el cargo esté ocupado.
-- Que la **fecha de revisión del DAFO** no sea de hace dos cursos.
-- En el registro documental, el filtro **Código fuera del mapa actual**: si aparece algún documento, cita
-  un proceso que ya no existe en el mapa.
+1. Abrid el documento del mapa de procesos en Google Docs.
+2. **Archivo → Compartir → Publicar en la Web**, pestaña **Insertar**, y haced clic en **Publicar**.
+3. Copiad la dirección que hay dentro de `src="..."` en el código que aparece. Acaba en
+   `pub?embedded=true`.
+4. En EMS, id a **Ajustes → Gestión del EMS → Configuración de calidad** y pegadla en **Mapa de
+   procesos**.
+5. Guardad.

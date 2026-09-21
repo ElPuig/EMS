@@ -6,8 +6,8 @@ The `ems.quality.*` models bring the centre's ISO 9001 quality management system
 document is the area overview**; each model gets its own reference as it lands. The design of record for
 the whole feature, including the phases still to come, is `plans/quality_iso.md`.
 
-**Phase 1 (this one) delivers the foundation:** the process map, the controlled-document registry, and the
-unified action/agreement model. It is visible only to quality coordination and management; the
+**Phase 1 (this one) delivers the foundation:** the embedded process map, the documentary structure
+(processes, procedures and documents, each with its Drive link), and the unified action/agreement model. It is visible only to quality coordination and management; the
 staff-facing application arrives in phase 2 with the minutes.
 
 **Module files:** `models/quality/` · **Views:** `views/quality/` · **Security:**
@@ -23,7 +23,6 @@ graph TD
     PROCED --> DOC["ems.quality.document<br/><i>controlled documents</i>"]
     PROC --> DOC
     ACT["ems.quality.action<br/><i>agreement / action</i>"] --> FUP["ems.quality.followup"]
-    ROLE["ems.role<br/><i>post</i>"] --> PROC
     ROLE --> PROCED
     ROLE --> DOC
     ROLE --> ACT
@@ -34,77 +33,73 @@ graph TD
 
 Three ideas carry the whole area and are worth stating before the field tables:
 
-1. **Responsibility is a post, not a person.** Every owner field points at `ems.role` (Director, Head of
-   studies, Secretary, Quality coordinator…) and resolves to the employee holding it. The centre's own
+1. **One owner per piece of information.** A controlled document lives in the centre's Drive, and its
+   version, state, dates and owner are written there and only there. EMS keeps where each document sits
+   in the structure and its link, nothing else, so nobody updates the same thing twice.
+2. **Responsibility is a post, not a person.** Every owner field of an action points at `ems.role`
+   (Director, Head of studies, Secretary, Quality coordinator…) and resolves to the employee holding it. The centre's own
    records work this way, and it survives someone changing job in September.
-2. **An agreement and an improvement action are the same thing.** One model, `ems.quality.action`, with a
+3. **An agreement and an improvement action are the same thing.** One model, `ems.quality.action`, with a
    `type`. That is what makes a single "what do I owe and by when" screen possible instead of one per
    origin.
-3. **State is computed, never typed.** It derives from the latest follow-up entry, so changing state
+4. **State is computed, never typed.** It derives from the latest follow-up entry, so changing state
    requires recording why.
 
 ---
 
-## `ems.quality.process`
+## Process map
 
-The eight processes of the centre's map: strategic (`PE*`), key (`PC*`) and support (`PS*`).
+`Quality > Process map` is the first entry of the app. It embeds, in an `<iframe>`, the published copy of
+the centre's process map, which is a Google document: the map is drawn and edited there, and Google keeps
+the published copy up to date by itself. Nothing is redrawn in EMS.
 
-| Field | Type | Notes |
-|-------|------|-------|
-| `code` | `Char`, required, unique | `PE1`…`PS2` |
-| `name` | `Char`, required, translatable | |
-| `kind` | `Selection` | `strategic` / `key` / `support` |
-| `responsible_role_id` | `Many2one → ems.role` | The post responsible for the process |
-| `responsible_employee_ids` | computed, not stored | The employees currently holding that post |
-| `is_quality_process` | `Boolean` | Answers the management review's "is this a quality process?" |
-| `swot_review_date` | `Date` | When the process's SWOT was last reviewed |
-| `procedure_ids` | `One2many` | |
-| `sequence`, `active` | | |
+- Client action `ems.action_quality_process_map` (tag `ems_quality_process_map`,
+  `static/src/js/backend/quality_process_map.js`).
+- The address is `res.company.quality_process_map_url`, set in *Settings > EMS Management > Quality
+  Settings*. Use the address from Google Docs' *File > Share > Publish to the web > Embed*
+  (`.../pub?embedded=true`): the ordinary `/edit` address refuses to be framed.
+- The screen reads it through `ems.quality.process.get_process_map_url()`, which checks read access on the
+  processes, so every role with the Quality menu can see the map without access to the company settings.
+- With no address set, the screen explains where to configure it.
 
-## `ems.quality.procedure`
+## Documentary structure
 
-| Field | Type | Notes |
-|-------|------|-------|
-| `code` | `Char`, required, unique | `PE3.01` |
-| `name` | `Char`, required, translatable | |
-| `process_id` | `Many2one`, required | |
-| `what` / `what_for` / `for_whom` | `Text`, translatable | The three opening blocks of the centre's procedure sheet |
-| `responsible_role_id` | `Many2one → ems.role` | Who drafts and maintains it |
-| `phase_ids` | `One2many → ems.quality.procedure.phase` | `sequence`, `name`, `tools` |
-| `document_ids` | `One2many → ems.quality.document` | Its records and documentation |
+Three models, under `Quality > Configuration`, that hold **only the structure and the links**:
 
-## `ems.quality.document` — the controlled-document registry
+| Model | Fields |
+|-------|--------|
+| `ems.quality.process` | `code` (unique, `PE1`…`PS2`), `name`, `kind` (`strategic` / `key` / `support`), `sequence`, `active`, `procedure_ids`, `document_ids` |
+| `ems.quality.procedure` | `code` (unique, `PE3.01`), `name`, `process_id` (required), `document_ids`, `active` |
+| `ems.quality.document` | `code` (unique when set, nullable: some documents have no code yet), `name`, `procedure_id`, `process_id` (computed from the procedure, editable when there is none), `url`, `active` |
 
-The file itself stays in the centre's Drive. This model records **what it is, who owns it, which version
-it is at, and where it lives**.
-
-| Field | Type | Notes |
-|-------|------|-------|
-| `code` | `Char`, unique when set | `PE3.01.15`. Nullable: a document can be registered before it is coded |
-| `name` | `Char`, required | |
-| `kind` | `Selection` | `procedure` / `record` / `template` / `strategic` / `form` / `manual` |
-| `process_id` / `procedure_id` | `Many2one` | `process_id` is computed from the procedure when there is one |
-| `responsible_role_id` | `Many2one → ems.role` | |
-| `version` | `Char` | |
-| `approval_date`, `revision_date`, `next_review_date` | `Date` | What the management review asks for |
-| `state` | `Selection` | `draft` → `review` → `approved` → `obsolete` |
-| `superseded_by_id` | `Many2one` self | Set when a document is replaced; `obsolete` without it is a loose end |
-| `requested_by_role_id`, `request_date`, `due_date` | | The request side of the lifecycle |
-| `url`, `drive_file_id` | `Char` | **Deliberately not `data/custom/` CSV columns** — live application state, loaded separately. See below |
-| `is_minute_template` | `Boolean` | Phase 2 uses it from `ems.minute.type` |
-| `published_moodle`, `published_web`, `published_mail` (+ dates) | | Distribution channels, today maintained by hand in three places |
-| `is_legacy_code` | computed, stored | True when the code does not resolve to any process in the current map — catches documents still carrying codes from a superseded scheme |
+There is deliberately **no version, state, date, owner or distribution field**: the document itself, in
+Drive, is the only place those are kept. A document no longer in force is archived (`active = False`).
+The document list is editable in place; its *Load links* button opens
+`ems.quality.document.link.import`, which fills `url` from a `code,url` file in one go.
 
 ### Why the links are not in the data files
 
-`url` and `drive_file_id` change whenever a document is replaced, which makes them live application state.
-The repository's conventions say a field the running application mutates must not be a synced CSV column
-(same carve-out as `ems.course.is_current` and `ir.sequence.number_next_actual`): a synced column would
-revert the change on the next upgrade. They are loaded from a `code,url` file kept outside the repository.
+The links point into the centre's Drive, and several of those documents are shared by link: publishing
+them in this public repository would expose them. So `url` is not a `data/custom/` CSV column; it is
+filled in from the interface, or loaded with the wizard from a file kept outside the repository.
 
-The registry as a whole is **seeded once and then frozen** via
-`res.company._ems_freeze_living_custom_data()`, the mechanism already used for `ems.group`, because
-versions and states change from the interface.
+The three models are **seeded once and then frozen** via
+`res.company._ems_freeze_living_custom_data()`, the mechanism already used for `ems.group`: the quality
+coordination keeps the structure from the interface, and a synced CSV would revert those edits on the
+next upgrade.
+
+### Why the seeded names are in Catalan
+
+The process map, the procedures, the document registry, the minute types and the minute sections are
+seeded from `data/custom/quality/*.csv` with their **Catalan** names, taken verbatim from the centre's
+own controlled documents. Those records are owned by `__import__`, and `.po` translation never reaches
+them: the exporter (`TranslationModuleReader._export_translatable_records`) only looks at
+`ir_model_data` rows whose `module` is a module being exported, and `__import__` is not a module. The
+value written by the CSV — stored under the `en_US` key of the jsonb field — is therefore what every
+reader sees, whatever their language, so it has to be the wording the centre actually uses.
+
+Module strings (field labels, menus, buttons, report headings, selection values) are unaffected: they
+stay English in the source and are translated through `i18n/ca_ES.po` and `i18n/es_ES.po` as usual.
 
 ## `ems.quality.action` — agreements and improvement actions
 
@@ -180,7 +175,7 @@ Two new groups: `ems.group_quality_coordinator` (quality coordination) and
 |---|---|---|---|---|---|---|---|
 | `ems.quality.process` | — | R | R | R | R+W | R | R+W |
 | `ems.quality.procedure` | — | R | R | R | R+W | R | R+W |
-| `ems.quality.document` | R approved | R+W own | R | R | R+W | R | R+W |
+| `ems.quality.document` | R | R+W | R | R | R+W | R | R+W |
 | `ems.quality.action` | R+W own | R+W in scope | R in their line | R | R+W | R+W | R+W |
 | `ems.quality.followup` | R+W own actions | R+W in scope | R | R | R+W | R+W | R+W |
 

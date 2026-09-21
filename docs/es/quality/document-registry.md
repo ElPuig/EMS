@@ -2,73 +2,55 @@
 
 ---
 
-# Registro documental
+# Procesos, procedimientos y documentos
 
-El registro documental es la lista de todos los documentos controlados del sistema de calidad: qué
-código tienen, en qué versión están, quién se hace cargo, cuándo toca revisarlos y dónde está el
-fichero.
+**Calidad → Configuración** contiene la estructura de la documentación de calidad: los procesos, sus
+procedimientos y sus documentos, cada uno con su enlace al Drive. Los documentos en sí (contenido, versión
+y aprobación) se mantienen en el Drive.
 
-**El fichero sigue viviendo en el Drive del centro.** EMS no guarda una copia: guarda la ficha y el
-enlace. Es decir, seguís editando los documentos como siempre; lo que cambia es que el estado de cada
-documento deja de estar solo en la cabeza de alguien.
-
-**Quién tiene acceso:** la coordinación de calidad y la dirección pueden crear y modificar fichas. El
-jefe de estudios y la secretaría pueden consultarlas. El profesorado ve los documentos aprobados.
+**Quién tiene acceso:** la coordinación de calidad y la dirección.
 
 ---
 
-## Abrir el registro
+## Procesos
 
-Id a **Calidad → Documentación**. La pantalla se abre con el filtro **Vigentes** ya aplicado, de modo
-que veis solo lo que está en vigor: ni borradores ni versiones sustituidas. El filtro se ve en la barra
-de búsqueda y se quita con un clic si queréis verlo todo.
+**Calidad → Configuración → Procesos.** Cada proceso tiene su código (`PE1`, `PC2`, `PS1`...), su nombre y
+su tipo (estratégico, clave o de soporte). Arrastrad las filas para cambiar el orden.
 
-## Qué contiene una ficha
+Abrid un proceso para ver y añadir, en sus pestañas, sus **Procedimientos** y sus **Documentos**.
 
-| Campo | Para qué sirve |
+## Procedimientos
+
+**Calidad → Configuración → Procedimientos**, agrupados por proceso. Cada procedimiento tiene su código
+(`PE3.01`), su nombre y su proceso. Abridlo para ver y añadir sus documentos en la pestaña **Documentos**.
+
+## Documentos
+
+**Calidad → Configuración → Documentos**, agrupados por proceso. La lista se edita directamente: haced
+clic en una fila, cambiadla y guardad.
+
+| Columna | Qué hay que poner |
 |---|---|
-| **Código** | El código del documento (`PE3.01.15`). Se puede dejar vacío mientras el documento no esté codificado |
-| **Nombre** | Cómo se conoce el documento |
-| **Tipo** | Procedimiento, registro, plantilla, documento estratégico, formulario o manual |
-| **Procedimiento** y **Proceso** | Dónde cuelga dentro del mapa de procesos. Si indicáis el procedimiento, el proceso se rellena solo |
-| **Cargo responsable** | Quién lo elabora y lo mantiene. Es un cargo, no una persona: si cambia quien lo ocupa, la ficha sigue siendo correcta |
-| **Versión** | La versión vigente |
-| **Aprobado el / Revisado por última vez el / Próxima revisión** | Las fechas que la revisión por la dirección pregunta cada año |
-| **Estado** | Borrador, En revisión, Aprobado u Obsoleto |
-| **Sustituido por** | Cuando un documento queda obsoleto, cuál lo reemplaza |
-| **Enlace** | Dónde está el fichero en el Drive |
+| **Código** | El código del documento (`PE3.01.15`). Dejadlo vacío si el documento no tiene |
+| **Nombre** | El nombre del documento |
+| **Procedimiento** | El procedimiento al que pertenece. El proceso se rellena solo |
+| **Proceso** | Solo para los documentos que dependen directamente de un proceso, sin procedimiento |
+| **Enlace** | La dirección del documento en el Drive. Haced clic para abrir el documento |
 
-## Filtros que os ahorran trabajo
+- **Añadir un documento:** **Nuevo**, rellenad la fila y guardad.
+- **Retirar un documento que ya no está en vigor:** seleccionadlo, **Acciones → Archivar**. Para ver los
+  archivados, usad la faceta **Archivados**.
+- **Encontrar lo que falta:** las facetas **Sin enlace** y **Aún sin código**.
 
-En la barra de búsqueda, además de **Vigentes**:
+## Cargar muchos enlaces a la vez
 
-- **Pendiente de revisión o aprobación** — lo que está en marcha y aún no se ha cerrado.
-- **Revisión vencida** — documentos aprobados con la fecha de próxima revisión ya pasada. Esta es la
-  lista que necesitáis para preparar la revisión por la dirección.
-- **Documentos estratégicos** — PEC, NOFC, PLC, planes... con su fecha de aprobación.
-- **Todavía sin código** — documentos registrados que esperan codificación.
-- **Código fuera del mapa actual** — documentos que arrastran un código de un esquema de procesos
-  anterior. Si sale alguno, es que cita un proceso que ya no existe.
-- **Sin enlace** — fichas a las que todavía no se les ha puesto la dirección del fichero.
-
-Y con **Agrupar por** podéis ver el registro por proceso, por procedimiento, por tipo, por estado o por
-cargo responsable.
-
-## Dar de alta un documento
-
-1. **Calidad → Documentación**, botón **Nuevo**.
-2. Poned el nombre y el tipo. El código lo podéis dejar para después.
-3. Indicad el procedimiento del que depende: el proceso se rellenará solo.
-4. Indicad el cargo responsable.
-5. Cuando el documento esté aprobado, poned la versión, la fecha de aprobación y la fecha de próxima
-   revisión, y cambiad el estado a **Aprobado** desde la barra de arriba.
-
-## Sustituir un documento por una versión nueva
-
-Cuando un documento deja paso a otro:
-
-1. Abrid la ficha antigua y cambiad su estado a **Obsoleto**.
-2. En el campo **Sustituido por**, elegid la ficha nueva.
-
-Así, cualquier registro antiguo que cite el código antiguo sigue teniendo dónde ir a parar, que es lo
-que os pedirán en una auditoría.
+1. Preparad un fichero CSV con dos columnas, el código y el enlace (por ejemplo, exportado de una hoja de
+   cálculo):
+   ```
+   code,url
+   PE3.01.15,https://docs.google.com/document/d/.../edit
+   ```
+2. **Calidad → Configuración → Documentos → Cargar enlaces.**
+3. Elegid el fichero y haced clic en **Cargar**.
+4. El resultado dice cuántos enlaces se han cargado, qué códigos no existen y cuántos documentos siguen
+   sin enlace.

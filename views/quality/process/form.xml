@@ -7,22 +7,14 @@
             <field name="arch" type="xml">
                 <form>
                     <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                         <div class="oe_title">
                             <h1><field name="code" placeholder="PE1"/></h1>
                             <h2><field name="name" placeholder="Process name"/></h2>
                         </div>
                         <group>
-                            <group>
-                                <field name="kind"/>
-                                <field name="responsible_role_id"/>
-                                <field name="responsible_employee_ids" widget="many2many_tags"/>
-                            </group>
-                            <group>
-                                <field name="is_quality_process"/>
-                                <field name="swot_review_date"/>
-                                <field name="sequence"/>
-                                <field name="active"/>
-                            </group>
+                            <field name="kind"/>
+                            <field name="active" invisible="1"/>
                         </group>
                         <notebook>
                             <page string="Procedures" name="procedures">
@@ -30,25 +22,21 @@
                                     <list editable="bottom">
                                         <field name="code"/>
                                         <field name="name"/>
-                                        <field name="responsible_role_id"/>
                                     </list>
                                 </field>
                             </page>
                             <page string="Documents" name="documents">
                                 <field name="document_ids">
-                                    <list>
+                                    <list editable="bottom">
                                         <field name="code"/>
                                         <field name="name"/>
-                                        <field name="kind"/>
-                                        <field name="version"/>
-                                        <field name="state"/>
-                                        <field name="next_review_date"/>
+                                        <field name="procedure_id"/>
+                                        <field name="url" widget="url"/>
                                     </list>
                                 </field>
                             </page>
                         </notebook>
                     </sheet>
-                    <chatter/>
                 </form>
             </field>
         </record>

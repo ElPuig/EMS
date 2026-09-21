@@ -18,6 +18,9 @@ class ems_company(models.Model):
     attendance_issue_status_delay = fields.Integer(default=15)
     attendance_issue_tutor_default = fields.Float(default=21.0)
     strike_escalation_threshold = fields.Integer(default=3)
+    # The process map is kept as a Google document; this is its "Publish to the web" embed
+    # address, shown as it is in Quality > Process map so the map is never redrawn in EMS.
+    quality_process_map_url = fields.Char()
     # NOTE: defaults to 'all' so an installation upgrading into this version keeps today's
     # always-notify-the-family behaviour unchanged. A brand-new installation starts on the
     # stricter 'kicked_out' instead, set by post_init_hook (see __init__.py).
@@ -212,12 +215,10 @@ class ems_company(models.Model):
     # history - and must therefore never be pushed back to their file-seeded value once created.
     # Extend this tuple as more 'data/custom/' models are confirmed living (not master) data -
     # see docs/en/developers/shared/data_loading.md's "'data/custom/' living data" section.
-    # 'ems.quality.document': the controlled-document registry. Its version, state, approval and
-    # review dates are moved by the quality coordination through the app during the year, so a
-    # synced CSV would revert them on the next upgrade (the same failure already found on
-    # ems.group). The process map itself (ems.quality.process/procedure) is deliberately NOT here:
-    # that one really is configuration and the file stays its source of truth.
-    _EMS_LIVING_CUSTOM_DATA_MODELS = ('ems.group', 'ems.quality.document')
+    # 'ems.quality.process'/'procedure'/'document': the documentary structure of the quality
+    # system. The quality coordination keeps it (and its Drive links) from Quality > Configuration,
+    # so the CSV only seeds it once; a synced file would revert those edits on the next upgrade.
+    _EMS_LIVING_CUSTOM_DATA_MODELS = ('ems.group', 'ems.quality.process', 'ems.quality.procedure', 'ems.quality.document')
 
     def _ems_freeze_living_custom_data(self):
         """Freezes (ir.model.data.noupdate=True) every '__import__'-owned record of a model

@@ -10,27 +10,13 @@
                     <field name="name"/>
                     <field name="process_id"/>
                     <field name="procedure_id"/>
-                    <field name="responsible_role_id"/>
-                    <!-- Applied by default from the action, so the screen opens on what is in force
-                         rather than on every draft and superseded version ever registered. -->
-                    <filter name="current" string="Current" domain="[('state', '=', 'approved'), ('superseded_by_id', '=', False)]"/>
-                    <separator/>
-                    <filter name="pending" string="Pending review or approval" domain="[('state', 'in', ['draft', 'review'])]"/>
-                    <filter name="review_due" string="Review due" domain="[('needs_review', '=', True)]"/>
-                    <filter name="obsolete" string="Obsolete" domain="[('state', '=', 'obsolete')]"/>
-                    <separator/>
-                    <filter name="templates" string="Templates" domain="[('kind', '=', 'template')]"/>
-                    <filter name="strategic" string="Strategic documents" domain="[('kind', '=', 'strategic')]"/>
                     <filter name="uncoded" string="Not coded yet" domain="[('code', '=', False)]"/>
-                    <filter name="legacy_code" string="Code out of the current map" domain="[('is_legacy_code', '=', True)]"/>
-                    <separator/>
                     <filter name="no_link" string="No link" domain="[('url', '=', False)]"/>
+                    <separator/>
+                    <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
                     <group expand="0" string="Group by">
                         <filter name="group_by_process" string="Process" context="{'group_by': 'process_id'}"/>
                         <filter name="group_by_procedure" string="Procedure" context="{'group_by': 'procedure_id'}"/>
-                        <filter name="group_by_kind" string="Kind" context="{'group_by': 'kind'}"/>
-                        <filter name="group_by_state" string="State" context="{'group_by': 'state'}"/>
-                        <filter name="group_by_role" string="Responsible post" context="{'group_by': 'responsible_role_id'}"/>
                     </group>
                 </search>
             </field>

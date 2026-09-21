@@ -10,6 +10,7 @@ class ems_settings(models.TransientModel):
    attendance_issue_tutor_default = fields.Float(related="company_id.attendance_issue_tutor_default", readonly=False)
    strike_escalation_threshold = fields.Integer(related="company_id.strike_escalation_threshold", readonly=False)
    strike_family_notification_mode = fields.Selection(related="company_id.strike_family_notification_mode", readonly=False)
+   quality_process_map_url = fields.Char(related="company_id.quality_process_map_url", readonly=False)
    auto_checkin_mode = fields.Selection(related="company_id.auto_checkin_mode", readonly=False)
    auto_checkout_mode = fields.Selection(related="company_id.auto_checkout_mode", readonly=False)
    auto_checkout_time = fields.Float(related="company_id.auto_checkout_time", readonly=False)

@@ -1,61 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
+        <!-- Reached from the other screens that point at a document (a minute's annexes, a process). -->
         <record model="ir.ui.view" id="view_quality_document_form">
             <field name="name">ems.quality.document.form</field>
             <field name="model">ems.quality.document</field>
             <field name="arch" type="xml">
                 <form>
-                    <header>
-                        <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
-                    </header>
                     <sheet>
-                        <widget name="web_ribbon" title="Code out of the current map" bg_color="text-bg-warning"
-                                invisible="not is_legacy_code"/>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                         <div class="oe_title">
                             <h1><field name="code" placeholder="PE3.01.15"/></h1>
                             <h2><field name="name" placeholder="Document name"/></h2>
                         </div>
                         <group>
-                            <group string="Ownership">
-                                <field name="kind"/>
-                                <field name="procedure_id"/>
-                                <field name="process_id"/>
-                                <field name="responsible_role_id"/>
-                                <field name="is_minute_template"/>
-                            </group>
-                            <group string="Version">
-                                <field name="version"/>
-                                <field name="approval_date"/>
-                                <field name="revision_date"/>
-                                <field name="next_review_date"/>
-                                <field name="superseded_by_id" invisible="state != 'obsolete'"/>
-                                <field name="is_legacy_code" invisible="1"/>
-                            </group>
+                            <field name="procedure_id"/>
+                            <field name="process_id"/>
+                            <field name="url" widget="url"/>
+                            <field name="active" invisible="1"/>
                         </group>
-                        <group>
-                            <group string="Where the file lives">
-                                <!-- Deliberately not seeded from the data files: these two change
-                                     whenever a document is replaced, so they are live application
-                                     state and are loaded separately. -->
-                                <field name="url" widget="url"/>
-                                <field name="drive_file_id"/>
-                            </group>
-                            <group string="Distribution">
-                                <field name="published_moodle"/>
-                                <field name="published_web"/>
-                                <field name="published_mail"/>
-                                <field name="published_date"/>
-                            </group>
-                        </group>
-                        <group string="Request" invisible="not requested_by_role_id and not request_date">
-                            <field name="requested_by_role_id"/>
-                            <field name="request_date"/>
-                            <field name="due_date"/>
-                        </group>
-                        <field name="active" invisible="1"/>
                     </sheet>
-                    <chatter/>
                 </form>
             </field>
         </record>

@@ -2,72 +2,55 @@
 
 ---
 
-# Registre documental
+# Processos, procediments i documents
 
-El registre documental és la llista de tots els documents controlats del sistema de qualitat: quin codi
-tenen, en quina versió estan, qui se'n fa càrrec, quan toca revisar-los i on es troba el fitxer.
+**Qualitat → Configuració** conté l'estructura de la documentació de qualitat: els processos, els seus
+procediments i els seus documents, cadascun amb l'enllaç al Drive. Els documents en si (contingut, versió
+i aprovació) es mantenen al Drive.
 
-**El fitxer segueix vivint al Drive del centre.** L'EMS no en guarda una còpia: en guarda la fitxa i
-l'enllaç. Això vol dir que continueu editant els documents com sempre; el que canvia és que l'estat de
-cada document deixa d'estar només al cap d'algú.
-
-**Qui hi té accés:** la coordinació de qualitat i la direcció poden crear i modificar fitxes. El cap
-d'estudis i la secretaria les poden consultar. El professorat veu els documents aprovats.
+**Qui hi té accés:** la coordinació de qualitat i la direcció.
 
 ---
 
-## Obrir el registre
+## Processos
 
-Aneu a **Qualitat → Documentació**. La pantalla s'obre amb el filtre **Vigents** ja aplicat, de manera
-que veieu només el que està en vigor: ni esborranys ni versions substituïdes. El filtre es veu a la
-barra de cerca i es treu amb un clic si voleu veure-ho tot.
+**Qualitat → Configuració → Processos.** Cada procés té el codi (`PE1`, `PC2`, `PS1`...), el nom i el
+tipus (estratègic, clau o de suport). Arrossegueu les files per canviar-ne l'ordre.
 
-## Què conté una fitxa
+Obriu un procés per veure i afegir, a les seves pestanyes, els **Procediments** i els **Documents**.
 
-| Camp | Per a què serveix |
+## Procediments
+
+**Qualitat → Configuració → Procediments**, agrupats per procés. Cada procediment té el codi (`PE3.01`), el
+nom i el procés. Obriu-lo per veure i afegir els seus documents a la pestanya **Documents**.
+
+## Documents
+
+**Qualitat → Configuració → Documents**, agrupats per procés. La llista s'edita directament: feu clic a una
+fila, canvieu-la i deseu.
+
+| Columna | Què hi heu de posar |
 |---|---|
-| **Codi** | El codi del document (`PE3.01.15`). Es pot deixar buit mentre el document encara no s'hagi codificat |
-| **Nom** | Com es coneix el document |
-| **Tipus** | Procediment, registre, plantilla, document estratègic, formulari o manual |
-| **Procediment** i **Procés** | On penja dins el mapa de processos. Si indiqueu el procediment, el procés s'omple sol |
-| **Càrrec responsable** | Qui l'elabora i el manté. És un càrrec, no una persona: si canvia qui l'ocupa, la fitxa continua sent correcta |
-| **Versió** | La versió vigent |
-| **Aprovat el / Revisat per última vegada el / Propera revisió** | Les dates que la revisió per la direcció pregunta cada any |
-| **Estat** | Esborrany, En revisió, Aprovat o Obsolet |
-| **Substituït per** | Quan un document queda obsolet, quin el reemplaça |
-| **Enllaç** | On és el fitxer al Drive |
+| **Codi** | El codi del document (`PE3.01.15`). Deixeu-lo buit si el document no en té |
+| **Nom** | El nom del document |
+| **Procediment** | El procediment al qual pertany. El procés s'omple sol |
+| **Procés** | Només per als documents que depenen directament d'un procés, sense procediment |
+| **Enllaç** | L'adreça del document al Drive. Feu-hi clic per obrir el document |
 
-## Filtres que us estalvien feina
+- **Afegir un document:** **Nou**, ompliu la fila i deseu.
+- **Retirar un document que ja no està en vigor:** seleccioneu-lo, **Accions → Arxiva**. Per veure els
+  arxivats, feu servir la faceta **Arxivats**.
+- **Trobar el que falta:** les facetes **Sense enllaç** i **Encara sense codi**.
 
-A la barra de cerca, a més de **Vigents**:
+## Carregar molts enllaços alhora
 
-- **Pendent de revisió o aprovació** — el que està en marxa i encara no s'ha tancat.
-- **Revisió vençuda** — documents aprovats amb la data de propera revisió ja passada. Aquesta és la
-  llista que necessiteu per preparar la revisió per la direcció.
-- **Documents estratègics** — PEC, NOFC, PLC, plans... amb la seva data d'aprovació.
-- **Encara sense codi** — documents registrats que esperen codificació.
-- **Codi fora del mapa actual** — documents que arrosseguen un codi d'un esquema de processos anterior.
-  Si en surt algun, és que cita un procés que ja no existeix.
-- **Sense enllaç** — fitxes a les quals encara no se'ls ha posat l'adreça del fitxer.
-
-I amb **Agrupar per** podeu veure el registre per procés, per procediment, per tipus, per estat o per
-càrrec responsable.
-
-## Donar d'alta un document
-
-1. **Qualitat → Documentació**, botó **Nou**.
-2. Poseu-hi el nom i el tipus. El codi el podeu deixar per després.
-3. Indiqueu el procediment del qual depèn: el procés s'omplirà sol.
-4. Indiqueu el càrrec responsable.
-5. Quan el document estigui aprovat, poseu-hi la versió, la data d'aprovació i la data de propera
-   revisió, i canvieu l'estat a **Aprovat** des de la barra de dalt.
-
-## Substituir un document per una versió nova
-
-Quan un document deixa pas a un altre:
-
-1. Obriu la fitxa antiga i canvieu-ne l'estat a **Obsolet**.
-2. Al camp **Substituït per**, trieu la fitxa nova.
-
-Així, qualsevol registre antic que citi el codi antic continua tenint on anar a parar, que és el que us
-demanaran en una auditoria.
+1. Prepareu un fitxer CSV amb dues columnes, el codi i l'enllaç (per exemple, exportat d'un full de
+   càlcul):
+   ```
+   code,url
+   PE3.01.15,https://docs.google.com/document/d/.../edit
+   ```
+2. **Qualitat → Configuració → Documents → Carrega enllaços.**
+3. Trieu el fitxer i feu clic a **Carrega**.
+4. El resultat diu quants enllaços s'han carregat, quins codis no existeixen i quants documents encara
+   no tenen enllaç.

@@ -9,7 +9,6 @@
                     <field name="code"/>
                     <field name="name"/>
                     <field name="process_id"/>
-                    <field name="responsible_role_id"/>
                 </list>
             </field>
         </record>

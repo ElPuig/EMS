@@ -79,6 +79,7 @@
             'views/quality/procedure/form.xml',
             'views/quality/procedure/search.xml',
             'views/quality/procedure/menu.xml',
+            'views/quality/document_link_import/form.xml',
             'views/quality/document/list.xml',
             'views/quality/document/form.xml',
             'views/quality/document/search.xml',
@@ -87,7 +88,7 @@
             'views/quality/action/form.xml',
             'views/quality/action/search.xml',
             'views/quality/action/menu.xml',
-            'views/quality/document_link_import/form.xml',
+            'views/quality/process_map/menu.xml',
 
         # Before form.xml: the settings button references this action by XML ID.
         'views/settings/course.xml',

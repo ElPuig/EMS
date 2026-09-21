@@ -3,17 +3,9 @@
 import base64
 import csv
 import io
-import re
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
-
-# Accepts the two shapes a Drive address comes in: /d/<id>/ for documents and spreadsheets,
-# and ?id=<id> for files opened through the viewer.
-_DRIVE_ID_PATTERNS = (
-    re.compile(r'/d/([A-Za-z0-9_-]{10,})'),
-    re.compile(r'[?&]id=([A-Za-z0-9_-]{10,})'),
-)
 
 
 class EmsQualityDocumentLinkImport(models.TransientModel):
@@ -26,7 +18,7 @@ class EmsQualityDocumentLinkImport(models.TransientModel):
     result = fields.Text(string="Result", readonly=True)
 
     def action_import(self):
-        """Fill url/drive_file_id on the documents whose code appears in the file.
+        """Fill the link of the documents whose code appears in the file.
 
         The links are not a data-file column on purpose (they are live application state, see
         docs/en/developers/quality/quality_overview.md), so this is how they get in: one file,
@@ -44,7 +36,7 @@ class EmsQualityDocumentLinkImport(models.TransientModel):
             if not document:
                 unknown.append(code)
                 continue
-            document.write({'url': url, 'drive_file_id': self._drive_id(url)})
+            document.url = url
             updated.append(code)
         self.result = self._summary(updated, unknown, empty)
         return {
@@ -76,14 +68,6 @@ class EmsQualityDocumentLinkImport(models.TransientModel):
         Spanish or Catalan locale does, and a Drive link never contains one."""
         first_line = content.splitlines()[0] if content else ''
         return ';' if first_line.count(';') > first_line.count(',') else ','
-
-    @api.model
-    def _drive_id(self, url):
-        for pattern in _DRIVE_ID_PATTERNS:
-            found = pattern.search(url or '')
-            if found:
-                return found.group(1)
-        return False
 
     @api.model
     def _summary(self, updated, unknown, empty):

@@ -12,7 +12,7 @@ A new **Quality** menu, visible only to quality coordination, management, the he
 
 ## Documentary structure and links:
 
-Under **Quality > Configuration**, the eight processes, their 48 procedures and 64 documents, each document with its Drive link. A document's form shows the document itself inside EMS (Google Docs, Sheets, Slides and Drive files), built from its ordinary link, and opens it for editing in a new tab: one link per document, no "Publish to the web" copy. The list has a *Load links* button to fill many links at once from a `code,url` file. Seeded in Catalan from `data/custom/`, then kept from the interface.
+Under **Quality > Documentation**, which opens on the process map, the eight processes, their 48 procedures and 64 documents. Each one has its Drive link: a process and a procedure show their own sheet in a first *Document* tab, like the map. A document's form shows the document itself inside EMS (Google Docs, Sheets, Slides and Drive files), built from its ordinary link, and opens it for editing in a new tab: one link per document, no "Publish to the web" copy. The documents list has a *Load links* button to fill many links at once from a `code,url` file, which can carry processes, procedures and documents alike. There is no configuration menu: everything is consulted there and changed with *Edit*. Seeded in Catalan from `data/custom/`, then kept from the interface.
 
 ## Read-only until "Edit":
 

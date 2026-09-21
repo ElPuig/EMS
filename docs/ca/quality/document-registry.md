@@ -4,17 +4,19 @@
 
 # Processos, procediments i documents
 
-**Qualitat → Configuració** conté l'estructura de la documentació de qualitat: els processos, els seus
+**Qualitat → Documentació** conté l'estructura de la documentació de qualitat: els processos, els seus
 procediments i els seus documents, cadascun amb l'enllaç al Drive. Els documents en si (contingut, versió
 i aprovació) es mantenen al Drive.
 
-**Qui hi té accés:** la coordinació de qualitat i la direcció.
+**Qui hi té accés:** tothom qui té el menú Qualitat la pot consultar. La coordinació de qualitat i la
+direcció, a més, la poden canviar.
 
 ---
 
 ## Consultar i editar
 
-Cada procés, procediment i document s'obre **només en lectura**. Per canviar-lo:
+Cada procés, procediment i document s'obre **només en lectura**. Per canviar-lo (coordinació de
+qualitat i direcció):
 
 1. Feu clic a **Edita** a la capçalera. Els camps es poden modificar.
 2. Feu els canvis i deseu (icona del núvol), o descarteu-los (icona de la creu).
@@ -23,20 +25,27 @@ En desar o descartar, el registre torna a quedar només en lectura.
 
 ## Processos
 
-**Qualitat → Configuració → Processos.** Cada procés té el codi (`PE1`, `PC2`, `PS1`...), el nom i el
+**Qualitat → Documentació → Processos.** Cada procés té el codi (`PE1`, `PC2`, `PS1`...), el nom i el
 tipus (estratègic, clau o de suport). Arrossegueu les files per canviar-ne l'ordre.
 
-Obriu un procés per veure, a les seves pestanyes, els **Procediments** i els **Documents**. Amb **Edita**
-els podeu afegir o canviar des d'allà mateix.
+Obriu un procés per veure, a les seves pestanyes:
+
+- **Document** — la fitxa del procés, que es mostra dins de la pantalla. **Obre el document** l'obre a
+  Google en una pestanya nova, per editar-la allà.
+- **Procediments** i **Documents** — el que depèn del procés. Amb **Edita** els podeu afegir o canviar des
+  d'allà mateix.
+
+L'enllaç de la fitxa del procés es posa amb **Edita**, al camp **Enllaç**.
 
 ## Procediments
 
-**Qualitat → Configuració → Procediments**, agrupats per procés. Cada procediment té el codi (`PE3.01`), el
-nom i el procés. Obriu-lo per veure els seus documents a la pestanya **Documents**.
+**Qualitat → Documentació → Procediments**, agrupats per procés. Cada procediment té el codi (`PE3.01`), el
+nom i el procés. Obriu-lo per veure, a les seves pestanyes, la seva fitxa (**Document**, igual que un
+procés) i els seus **Documents**.
 
 ## Documents
 
-**Qualitat → Configuració → Documents**, agrupats per procés. Feu clic a un document per obrir-lo: el
+**Qualitat → Documentació → Documents**, agrupats per procés. Feu clic a un document per obrir-lo: el
 document es mostra dins de la pantalla, i **Obre el document** l'obre a Google en una pestanya nova, per
 editar-lo allà.
 
@@ -59,13 +68,15 @@ Per a qualsevol altre tipus d'enllaç, feu servir **Obre el document**.
 
 ## Carregar molts enllaços alhora
 
+El mateix fitxer pot portar processos, procediments i documents: cada línia es relaciona pel seu codi.
+
 1. Prepareu un fitxer CSV amb dues columnes, el codi i l'enllaç (per exemple, exportat d'un full de
    càlcul):
    ```
    code,url
    PE3.01.15,https://docs.google.com/document/d/.../edit
    ```
-2. **Qualitat → Configuració → Documents → Carrega enllaços.**
+2. **Qualitat → Documentació → Documents → Carrega enllaços** (coordinació de qualitat i direcció).
 3. Trieu el fitxer i feu clic a **Carrega**.
-4. El resultat diu quants enllaços s'han carregat, quins codis no existeixen i quants documents encara
-   no tenen enllaç.
+4. El resultat diu quants enllaços s'han carregat, quins codis no existeixen i quants processos,
+   procediments i documents encara no tenen enllaç.

@@ -4,17 +4,19 @@
 
 # Processes, procedures and documents
 
-**Quality → Configuration** holds the structure of the quality documentation: the processes, their
+**Quality → Documentation** holds the structure of the quality documentation: the processes, their
 procedures and their documents, each with its link to Drive. The documents themselves (their content,
 version and approval) are kept in Drive.
 
-**Who has access:** quality coordination and management.
+**Who has access:** everyone with the Quality menu can consult it. Quality coordination and management
+can also change it.
 
 ---
 
 ## Consulting and editing
 
-Every process, procedure and document opens **read-only**. To change it:
+Every process, procedure and document opens **read-only**. To change it (quality coordination and
+management):
 
 1. Click **Edit** in the header. The fields become editable.
 2. Make the changes and save (cloud icon), or discard them (cross icon).
@@ -23,20 +25,27 @@ Saving or discarding brings the record back to read-only.
 
 ## Processes
 
-**Quality → Configuration → Processes.** Each process has its code (`PE1`, `PC2`, `PS1`...), its name and
+**Quality → Documentation → Processes.** Each process has its code (`PE1`, `PC2`, `PS1`...), its name and
 its kind (strategic, key or support). Drag the rows to change the order.
 
-Open a process to see, in its tabs, its **Procedures** and its **Documents**. With **Edit** you can add or
-change them from there.
+Open a process to see, in its tabs:
+
+- **Document** — the process sheet itself, shown inside the screen. **Open document** opens it in Google
+  in a new tab, to edit it there.
+- **Procedures** and **Documents** — what hangs off the process. With **Edit** you can add or change them
+  from there.
+
+The process sheet's link is set with **Edit**, in the **Link** field.
 
 ## Procedures
 
-**Quality → Configuration → Procedures**, grouped by process. Each procedure has its code (`PE3.01`), its
-name and its process. Open it to see its documents in the **Documents** tab.
+**Quality → Documentation → Procedures**, grouped by process. Each procedure has its code (`PE3.01`), its
+name and its process. Open it to see, in its tabs, its own sheet (**Document**, the same way as a process)
+and its **Documents**.
 
 ## Documents
 
-**Quality → Configuration → Documents**, grouped by process. Click a document to open it: the document
+**Quality → Documentation → Documents**, grouped by process. Click a document to open it: the document
 itself is shown inside the screen, and **Open document** opens it in Google in a new tab, to edit it there.
 
 | Field | What to fill in |
@@ -58,12 +67,14 @@ of link, use **Open document**.
 
 ## Loading many links at once
 
+The same file can carry processes, procedures and documents: each line is matched by its code.
+
 1. Prepare a CSV file with two columns, the code and the link (for example exported from a spreadsheet):
    ```
    code,url
    PE3.01.15,https://docs.google.com/document/d/.../edit
    ```
-2. **Quality → Configuration → Documents → Load links.**
+2. **Quality → Documentation → Documents → Load links** (quality coordination and management).
 3. Choose the file and click **Load**.
-4. The result says how many links were loaded, which codes do not exist and how many documents are still
-   without a link.
+4. The result says how many links were loaded, which codes do not exist and how many processes,
+   procedures and documents are still without a link.

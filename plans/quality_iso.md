@@ -162,8 +162,9 @@ Only the documentary structure and the links (see "One owner per piece of inform
   derived from `url`, and opens it for editing in a new tab: one link per document.
 - **Process map** — the centre's process map is a Google document, registered as one more document with
   `is_process_map`; `Quality > Process map` opens its form, so the picture is never redrawn in EMS.
+- A process and a procedure also carry the link to their own sheet, shown in a first *Document* tab.
 - The three forms open **read-only** and unlock their fields with an *Edit* button, for whoever may
-  write.
+  write; there is no configuration menu, everything sits under *Quality > Documentation*.
 
 ### 3.2. Actions and agreements
 
@@ -400,9 +401,8 @@ Quality                                      [seq 9 · quality coordination, man
 ├── Records               → nonconformities, improvements, observations, change plans, risks: one model
 ├── Complaints                               [restricted]
 ├── Audits                → findings inside the audit
-├── Process map           → the process map document, previewed (first entry)
+├── Documentation         → Process map (first, what clicking Quality opens) · Processes · Procedures · Documents
 ├── Management review
-└── Configuration         → Processes · Procedures · Documents (structure + Drive links)
 ```
 
 Two details that decide whether the default screen is useful or empty: default facets **inside the same
@@ -649,7 +649,7 @@ graph LR
 - **F1 — Process map, documentary structure, actions** *(small)*. The code base every other phase
   cites. Ships with the centre's real structure loaded. Delivers the process map as the first screen of
   *Quality*, and the processes → procedures → documents structure with each document's Drive link and
-  an in-app preview, under *Configuration*, read-only until *Edit*. Deliberately nothing else about a document (see the top of this file).
+  an in-app preview, under *Documentation*, read-only until *Edit*. Deliberately nothing else about a document (see the top of this file).
 - **F2 — Minutes and evidence records** *(large; the biggest return)*. Types, sections, presets, PDF,
   Drive upload, agreement carry-over, signature and approval. Suggested internal order: generic and
   department minutes with agreements and PDF; teaching team and staff meeting with attendee preloading;

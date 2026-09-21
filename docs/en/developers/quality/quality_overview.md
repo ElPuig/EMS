@@ -94,6 +94,12 @@ an **Edit** button (field widget `ems_quality_edit_mode`) only when `can_edit`. 
 `edit_mode` on the client; saving or discarding reloads the record, so it comes back read-only. Record
 access is unchanged: this is only about not presenting every field as editable by default.
 
+The three forms use `js_class="ems_quality_form"` (`QualityFormRenderer` in
+`static/src/js/backend/quality_document_fields.js`), which always opens them on their first tab, the
+record's own document: Odoo otherwise restores the last tab opened on the same form, even for another
+record. Their embedded procedure and document lists carry `open_form_view="True"`, whose row arrow opens
+that record in its own form, with the parent kept in the breadcrumbs.
+
 There is no configuration menu: everyone with the *Quality* menu consults the structure under
 *Documentation*, and whoever may write changes it with *Edit* on the record itself. The document list is
 not editable in place, so every change goes through the form. Its *Load links* button (quality

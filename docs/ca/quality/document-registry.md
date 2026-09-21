@@ -35,6 +35,10 @@ Obriu un procés per veure, a les seves pestanyes:
 - **Procediments** i **Documents** — el que depèn del procés. Amb **Edita** els podeu afegir o canviar des
   d'allà mateix.
 
+Per anar a un dels seus procediments o documents, feu clic a la fletxa del final de la fila: s'obre a la
+seva pròpia fitxa, i les molles de pa us tornen al procés. Cada procés, procediment i document s'obre a
+la pestanya **Document**.
+
 L'enllaç de la fitxa del procés es posa amb **Edita**, al camp **Enllaç**.
 
 ## Procediments

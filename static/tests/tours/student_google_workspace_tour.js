@@ -120,3 +120,40 @@ registry.category("web_tour.tours").add("ems_student_google_password_reset", {
         },
     ],
 });
+
+// Issue #490: a tutor resets the Google password of one of their own students, with none of the
+// account-lifecycle buttons the secretary and the TAC team get, and reads the fresh credentials
+// from the Documentation tab. Opened by URL on the seeded student (see
+// test_student_google_workspace_tour.py).
+registry.category("web_tour.tours").add("ems_student_google_password_reset_tutor", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_form_statusbar:not(:has(button[name='action_suspend_google_account']))",
+            content: "The tutor is not offered the account lifecycle buttons",
+        },
+        {
+            trigger: ".o_form_view .o_form_statusbar button[name='action_reset_google_password']",
+            content: "Click 'Reset Google password'",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer .btn-primary",
+            content: "Confirm the reset",
+            run: "click",
+        },
+        {
+            trigger: ".o-mail-Message:contains('password reset')",
+            content: "The chatter records the reset",
+        },
+        {
+            trigger: ".o_form_view .o_notebook .nav-link[name='documentation']",
+            content: "Open the Documentation tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='document_ids'] .o_data_row:contains('Cancelled') ~ .o_data_row:contains('Approved'), .o_field_widget[name='document_ids'] .o_data_row:contains('Approved') ~ .o_data_row:contains('Cancelled')",
+            content: "The tutor reads the new credentials next to the cancelled old ones",
+        },
+    ],
+});

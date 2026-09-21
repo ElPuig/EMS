@@ -38,7 +38,7 @@ El alumno ya no puede entrar en la cuenta, que pasa a la unidad organizativa de 
 
 La contraseña anterior deja de funcionar al instante, y el alumno tendrá que cambiar la nueva la primera vez que entre. En la pestaña **Documentación** aparece un PDF nuevo de **Credenciales de Google Workspace** y el anterior queda como **Cancelado**. Si el alumno tiene correo personal, también las recibe por correo.
 
-Solo administración y coordinación TAC pueden restablecer contraseñas.
+Pueden restablecer contraseñas administración, coordinación TAC y el tutor o tutora del alumno (y los jefes por encima de ese tutor: jefe de seminario, jefe de departamento, jefe de estudios y dirección).
 
 ---
 

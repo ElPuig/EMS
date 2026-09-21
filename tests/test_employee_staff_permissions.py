@@ -256,3 +256,36 @@ class TestEmployeeStaffPermissions(TransactionCase):
         employee.write({'role_ids': [(4, self.role_tac.id)]})
         employee.write({'role_ids': [(3, self.role_tac.id)]})
         self.assertNotIn(self.group_tac_admin, user.groups_id)
+
+    # --- hr.employee-only fields must be group-restricted (issue #492) -------
+
+    def test_ems_hr_employee_only_fields_declare_groups(self):
+        """Structural guard over the rule stated in Odoo's own hr.employee docstring:
+        every field that exists on hr.employee but not on hr.employee.public must declare
+        groups=, or the ORM prefetches it for users who only reach the employee through
+        hr.employee.public (no hr.group_hr_user, e.g. ems.group_secretary) and
+        hr.employee.fetch() raises AccessError over it.
+
+        The failure surfaces far from its cause - any Python attribute read of an
+        employee field is enough - which is how it reached production as a secretary
+        being unable to register a student's withdrawal (year_record._generate_one's
+        group.tutor_id.name, covered in test_exit_management.py).
+        """
+        public_fields = set(self.env['hr.employee.public']._fields)
+        employee_fields = self.env['hr.employee']._fields
+        # Which hr.employee fields EMS declares, read from the module's own xmlids and not
+        # from ir.model.fields.modules: that compute only counts modules already flagged
+        # 'installed', and an at_install test runs while ems is still 'to upgrade', which
+        # would leave this test silently checking nothing.
+        ems_field_ids = self.env['ir.model.data'].search([
+            ('module', '=', 'ems'), ('model', '=', 'ir.model.fields')]).mapped('res_id')
+        ems_fields = self.env['ir.model.fields'].browse(ems_field_ids).filtered(
+            lambda field: field.model == 'hr.employee')
+        self.assertTrue(ems_fields, "No hr.employee field is reported as declared by ems")
+        offenders = sorted(
+            field.name for field in ems_fields
+            if field.name not in public_fields
+            and not employee_fields[field.name].groups)
+        self.assertFalse(offenders, (
+            "These hr.employee-only fields are added by EMS without groups=, so they are "
+            f"prefetched for users without hr.group_hr_user: {', '.join(offenders)}"))

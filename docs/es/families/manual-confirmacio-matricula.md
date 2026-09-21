@@ -18,6 +18,7 @@ Esta guía explica, paso a paso, cómo deben confirmar las familias (o el alumna
 6. [Paso 5 — Elegir el plan y el método de pago](#paso-5--elegir-el-plan-y-el-método-de-pago)
 7. [Paso 6 — Registrar la cuenta bancaria (IBAN)](#paso-6--registrar-la-cuenta-bancaria-iban)
 8. [Paso 7 — Confirmar la matrícula](#paso-7--confirmar-la-matrícula)
+9. [Después de confirmar: seguimiento de los pagos](#después-de-confirmar-seguimiento-de-los-pagos)
 
 ---
 
@@ -159,6 +160,28 @@ Cuando se cumplen todas, el botón **Confirmar matrícula** se activa (color gra
 ![Botón Confirmar matrícula activado](../../assets/families/Matricula-confirmacio-08-ConfirmacioOK.png)
 
 > Una vez confirmada, la matrícula queda registrada y la página pasa a modo de solo lectura, con la información de la matrícula. Si más adelante necesitáis hacer algún cambio, deberéis contactar con la [Secretaría del centro](https://elpuig.xeill.net/el-centre/secretaria).
+
+---
+
+## Después de confirmar: seguimiento de los pagos
+
+Una vez el centro emite la factura de la matrícula, en el apartado **Matrícula**, dentro del bloque **Pago**, encontraréis el calendario de pagos con una línea por plazo. Cada línea muestra:
+
+* De qué plazo se trata (**Pago único**, o **Pago 1 de 2** y **Pago 2 de 2**) y su fecha de vencimiento.
+* El importe.
+* El estado: **Pagado** (en verde) o **Pendiente** (en amarillo).
+
+![Calendario de pagos con los dos plazos pendientes](../../assets/families/Matricula-confirmacio-09-CalendariPagaments.png)
+
+En un pago en dos plazos, el primero puede constar como **Pagado** y el segundo seguir **Pendiente** hasta el cobro de septiembre.
+
+Cuando el centro registra el cobro, el plazo pasa a **Pagado**:
+
+![Calendario de pagos con el pago único ya cobrado](../../assets/families/Matricula-confirmacio-10-PagamentPagat.png)
+
+Cuando el centro registra el cobro de un plazo, recibís también un aviso en el portal, tanto en el bloque **Comunicaciones** de la propia página de matrícula como en el apartado **Comunicaciones** del menú principal. El aviso indica el plazo cobrado, el importe y la fecha de vencimiento.
+
+> Los plazos se actualizan cuando el centro registra el cobro en su sistema, no en el momento exacto del cargo bancario: pueden pasar unos días entre una cosa y otra. Si un plazo continúa como **Pendiente** mucho después de la fecha de vencimiento, contactad con la [Secretaría del centro](https://elpuig.xeill.net/el-centre/secretaria).
 
 ---
 

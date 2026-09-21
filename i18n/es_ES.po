@@ -1734,11 +1734,14 @@ msgstr "Aplicando cambios…"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form model_terms:ir.ui.view,arch_db:ems.view_student_document_list
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
 msgid "Approve"
 msgstr "Aprobar"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_document__status__approved model_terms:ir.ui.view,arch_db:ems.view_student_document_search
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_head_state__approved
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__approved
 msgid "Approved"
 msgstr "Aprobado"
 
@@ -2314,11 +2317,13 @@ msgstr "Puede editar"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0 code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 code:addons/ems/static/src/xml/backend/schedule_grid_readonly_field.xml:0 model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_attendance_report_group_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_student_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_subject_wizard model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_session_state_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_session_wizard_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_add_student_popup model_terms:ir.ui.view,arch_db:ems.view_notice_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_document__status__cancelled model_terms:ir.ui.view,arch_db:ems.view_student_document_search
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__cancel
 msgid "Cancelled"
 msgstr "Cancelado"
 
@@ -2696,6 +2701,7 @@ msgstr "País"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__course model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__special_course_filter model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment model:ir.model.fields,field_description:ems.field_ems_student_year_record__course_id model_terms:ir.ui.view,arch_db:ems.view_applicant_search model_terms:ir.ui.view,arch_db:ems.view_year_record_search model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__course_name model:ir.model.fields,field_description:ems.field_resource_calendar__course_id model_terms:ir.ui.view,arch_db:ems.view_resource_calendar_search_ems model:ir.model.fields,field_description:ems.field_ems_guard_duty_board__course_id
 #: model:ir.model.fields,field_description:ems.field_hr_leave__ems_course_id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__course_id
 msgid "Course"
 msgstr "Curso"
 
@@ -2756,11 +2762,15 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_justification__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_template__create_uid model:ir.model.fields,field_description:ems.field_ems_authorization__create_uid model:ir.model.fields,field_description:ems.field_ems_authorization_field__create_uid model:ir.model.fields,field_description:ems.field_ems_authorization_response__create_uid model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__create_uid model:ir.model.fields,field_description:ems.field_ems_authorization_template__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_content__create_uid model:ir.model.fields,field_description:ems.field_ems_course__create_uid model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__create_uid model:ir.model.fields,field_description:ems.field_ems_criteria__create_uid model:ir.model.fields,field_description:ems.field_ems_csv_column__create_uid model:ir.model.fields,field_description:ems.field_ems_enrollment__create_uid model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_enrollment_view__create_uid model:ir.model.fields,field_description:ems.field_ems_grade_outcome__create_uid model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__create_uid model:ir.model.fields,field_description:ems.field_ems_grade_session__create_uid model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__create_uid model:ir.model.fields,field_description:ems.field_ems_group__create_uid model:ir.model.fields,field_description:ems.field_ems_level__create_uid model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__create_uid model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__create_uid model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__create_uid model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__create_uid model:ir.model.fields,field_description:ems.field_ems_minute__create_uid model:ir.model.fields,field_description:ems.field_ems_notice__create_uid model:ir.model.fields,field_description:ems.field_ems_notice_line__create_uid model:ir.model.fields,field_description:ems.field_ems_outcome__create_uid model:ir.model.fields,field_description:ems.field_ems_planning__create_uid model:ir.model.fields,field_description:ems.field_ems_planning_outcome__create_uid model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__create_uid model:ir.model.fields,field_description:ems.field_ems_role__create_uid model:ir.model.fields,field_description:ems.field_ems_space__create_uid model:ir.model.fields,field_description:ems.field_ems_space_type__create_uid model:ir.model.fields,field_description:ems.field_ems_student_benefit__create_uid model:ir.model.fields,field_description:ems.field_ems_student_document__create_uid model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_study__create_uid model:ir.model.fields,field_description:ems.field_ems_subject__create_uid model:ir.model.fields,field_description:ems.field_ems_teaching__create_uid model:ir.model.fields,field_description:ems.field_ems_tracking__create_uid model:ir.model.fields,field_description:ems.field_ems_workgroup__create_uid model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_justification__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_template__create_date model:ir.model.fields,field_description:ems.field_ems_authorization__create_date model:ir.model.fields,field_description:ems.field_ems_authorization_field__create_date model:ir.model.fields,field_description:ems.field_ems_authorization_response__create_date model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__create_date model:ir.model.fields,field_description:ems.field_ems_authorization_template__create_date model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_content__create_date model:ir.model.fields,field_description:ems.field_ems_course__create_date model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__create_date model:ir.model.fields,field_description:ems.field_ems_criteria__create_date model:ir.model.fields,field_description:ems.field_ems_csv_column__create_date model:ir.model.fields,field_description:ems.field_ems_enrollment__create_date model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_enrollment_view__create_date model:ir.model.fields,field_description:ems.field_ems_grade_outcome__create_date model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__create_date model:ir.model.fields,field_description:ems.field_ems_grade_session__create_date model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__create_date model:ir.model.fields,field_description:ems.field_ems_group__create_date model:ir.model.fields,field_description:ems.field_ems_level__create_date model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__create_date model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__create_date model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__create_date model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__create_date model:ir.model.fields,field_description:ems.field_ems_minute__create_date model:ir.model.fields,field_description:ems.field_ems_notice__create_date model:ir.model.fields,field_description:ems.field_ems_notice_line__create_date model:ir.model.fields,field_description:ems.field_ems_outcome__create_date model:ir.model.fields,field_description:ems.field_ems_planning__create_date model:ir.model.fields,field_description:ems.field_ems_planning_outcome__create_date model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__create_date model:ir.model.fields,field_description:ems.field_ems_role__create_date model:ir.model.fields,field_description:ems.field_ems_space__create_date model:ir.model.fields,field_description:ems.field_ems_space_type__create_date model:ir.model.fields,field_description:ems.field_ems_student_benefit__create_date model:ir.model.fields,field_description:ems.field_ems_student_document__create_date model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_study__create_date model:ir.model.fields,field_description:ems.field_ems_subject__create_date model:ir.model.fields,field_description:ems.field_ems_teaching__create_date model:ir.model.fields,field_description:ems.field_ems_tracking__create_date model:ir.model.fields,field_description:ems.field_ems_workgroup__create_date model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3018,6 +3028,8 @@ msgstr "Desactivado"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_justification__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_template__display_name model:ir.model.fields,field_description:ems.field_ems_authorization__display_name model:ir.model.fields,field_description:ems.field_ems_authorization_field__display_name model:ir.model.fields,field_description:ems.field_ems_authorization_response__display_name model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__display_name model:ir.model.fields,field_description:ems.field_ems_authorization_template__display_name model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_content__display_name model:ir.model.fields,field_description:ems.field_ems_course__display_name model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__display_name model:ir.model.fields,field_description:ems.field_ems_criteria__display_name model:ir.model.fields,field_description:ems.field_ems_csv_column__display_name model:ir.model.fields,field_description:ems.field_ems_enrollment__display_name model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_enrollment_view__display_name model:ir.model.fields,field_description:ems.field_ems_grade_outcome__display_name model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__display_name model:ir.model.fields,field_description:ems.field_ems_grade_session__display_name model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__display_name model:ir.model.fields,field_description:ems.field_ems_group__display_name model:ir.model.fields,field_description:ems.field_ems_level__display_name model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__display_name model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__display_name model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__display_name model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__display_name model:ir.model.fields,field_description:ems.field_ems_minute__display_name model:ir.model.fields,field_description:ems.field_ems_notice__display_name model:ir.model.fields,field_description:ems.field_ems_notice_line__display_name model:ir.model.fields,field_description:ems.field_ems_outcome__display_name model:ir.model.fields,field_description:ems.field_ems_planning__display_name model:ir.model.fields,field_description:ems.field_ems_planning_outcome__display_name model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__display_name model:ir.model.fields,field_description:ems.field_ems_role__display_name model:ir.model.fields,field_description:ems.field_ems_space__display_name model:ir.model.fields,field_description:ems.field_ems_space_type__display_name model:ir.model.fields,field_description:ems.field_ems_student_benefit__display_name model:ir.model.fields,field_description:ems.field_ems_student_document__display_name model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_study__display_name model:ir.model.fields,field_description:ems.field_ems_subject__display_name model:ir.model.fields,field_description:ems.field_ems_teaching__display_name model:ir.model.fields,field_description:ems.field_ems_tracking__display_name model:ir.model.fields,field_description:ems.field_ems_workgroup__display_name model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -3695,6 +3707,7 @@ msgstr "Final"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__final_score model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__final_grade
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__preview_final_grade
 msgid "Final grade"
 msgstr "Nota final"
 
@@ -4089,6 +4102,7 @@ msgstr "Tiene mensaje"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__has_final model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__has_final
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__preview_has_final
 msgid "Has final"
 msgstr "Tiene nota final"
 
@@ -4184,6 +4198,8 @@ msgstr "Datos IBAN"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__id model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__id model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__id model:ir.model.fields,field_description:ems.field_ems_attendance_justification__id model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__id model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__id model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__id model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__id model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__id model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__id model:ir.model.fields,field_description:ems.field_ems_attendance_template__id model:ir.model.fields,field_description:ems.field_ems_authorization__id model:ir.model.fields,field_description:ems.field_ems_authorization_field__id model:ir.model.fields,field_description:ems.field_ems_authorization_response__id model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__id model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__id model:ir.model.fields,field_description:ems.field_ems_authorization_template__id model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__id model:ir.model.fields,field_description:ems.field_ems_content__id model:ir.model.fields,field_description:ems.field_ems_course__id model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__id model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__id model:ir.model.fields,field_description:ems.field_ems_criteria__id model:ir.model.fields,field_description:ems.field_ems_csv_column__id model:ir.model.fields,field_description:ems.field_ems_enrollment__id model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__id model:ir.model.fields,field_description:ems.field_ems_enrollment_view__id model:ir.model.fields,field_description:ems.field_ems_grade_outcome__id model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__id model:ir.model.fields,field_description:ems.field_ems_grade_session__id model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__id model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__id model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__id model:ir.model.fields,field_description:ems.field_ems_group__id model:ir.model.fields,field_description:ems.field_ems_level__id model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__id model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__id model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__id model:ir.model.fields,field_description:ems.field_ems_minute__id model:ir.model.fields,field_description:ems.field_ems_notice__id model:ir.model.fields,field_description:ems.field_ems_notice_line__id model:ir.model.fields,field_description:ems.field_ems_outcome__id model:ir.model.fields,field_description:ems.field_ems_planning__id model:ir.model.fields,field_description:ems.field_ems_planning_outcome__id model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__id model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__id model:ir.model.fields,field_description:ems.field_ems_role__id model:ir.model.fields,field_description:ems.field_ems_space__id model:ir.model.fields,field_description:ems.field_ems_space_type__id model:ir.model.fields,field_description:ems.field_ems_student_benefit__id model:ir.model.fields,field_description:ems.field_ems_student_document__id model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__id model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__id model:ir.model.fields,field_description:ems.field_ems_study__id model:ir.model.fields,field_description:ems.field_ems_subject__id model:ir.model.fields,field_description:ems.field_ems_teaching__id model:ir.model.fields,field_description:ems.field_ems_tracking__id model:ir.model.fields,field_description:ems.field_ems_workgroup__id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__id
 msgid "ID"
 msgstr "ID"
 
@@ -4582,11 +4598,15 @@ msgstr "Familia numerosa (Especial)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_justification__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_template__write_uid model:ir.model.fields,field_description:ems.field_ems_authorization__write_uid model:ir.model.fields,field_description:ems.field_ems_authorization_field__write_uid model:ir.model.fields,field_description:ems.field_ems_authorization_response__write_uid model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__write_uid model:ir.model.fields,field_description:ems.field_ems_authorization_template__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_content__write_uid model:ir.model.fields,field_description:ems.field_ems_course__write_uid model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__write_uid model:ir.model.fields,field_description:ems.field_ems_criteria__write_uid model:ir.model.fields,field_description:ems.field_ems_csv_column__write_uid model:ir.model.fields,field_description:ems.field_ems_enrollment__write_uid model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_enrollment_view__write_uid model:ir.model.fields,field_description:ems.field_ems_grade_outcome__write_uid model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__write_uid model:ir.model.fields,field_description:ems.field_ems_grade_session__write_uid model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__write_uid model:ir.model.fields,field_description:ems.field_ems_group__write_uid model:ir.model.fields,field_description:ems.field_ems_level__write_uid model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__write_uid model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__write_uid model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__write_uid model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__write_uid model:ir.model.fields,field_description:ems.field_ems_minute__write_uid model:ir.model.fields,field_description:ems.field_ems_notice__write_uid model:ir.model.fields,field_description:ems.field_ems_notice_line__write_uid model:ir.model.fields,field_description:ems.field_ems_outcome__write_uid model:ir.model.fields,field_description:ems.field_ems_planning__write_uid model:ir.model.fields,field_description:ems.field_ems_planning_outcome__write_uid model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__write_uid model:ir.model.fields,field_description:ems.field_ems_role__write_uid model:ir.model.fields,field_description:ems.field_ems_space__write_uid model:ir.model.fields,field_description:ems.field_ems_space_type__write_uid model:ir.model.fields,field_description:ems.field_ems_student_benefit__write_uid model:ir.model.fields,field_description:ems.field_ems_student_document__write_uid model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_study__write_uid model:ir.model.fields,field_description:ems.field_ems_subject__write_uid model:ir.model.fields,field_description:ems.field_ems_teaching__write_uid model:ir.model.fields,field_description:ems.field_ems_tracking__write_uid model:ir.model.fields,field_description:ems.field_ems_workgroup__write_uid model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_justification__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_template__write_date model:ir.model.fields,field_description:ems.field_ems_authorization__write_date model:ir.model.fields,field_description:ems.field_ems_authorization_field__write_date model:ir.model.fields,field_description:ems.field_ems_authorization_response__write_date model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__write_date model:ir.model.fields,field_description:ems.field_ems_authorization_template__write_date model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_content__write_date model:ir.model.fields,field_description:ems.field_ems_course__write_date model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__write_date model:ir.model.fields,field_description:ems.field_ems_criteria__write_date model:ir.model.fields,field_description:ems.field_ems_csv_column__write_date model:ir.model.fields,field_description:ems.field_ems_enrollment__write_date model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_enrollment_view__write_date model:ir.model.fields,field_description:ems.field_ems_grade_outcome__write_date model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__write_date model:ir.model.fields,field_description:ems.field_ems_grade_session__write_date model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__write_date model:ir.model.fields,field_description:ems.field_ems_group__write_date model:ir.model.fields,field_description:ems.field_ems_level__write_date model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__write_date model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__write_date model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__write_date model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__write_date model:ir.model.fields,field_description:ems.field_ems_minute__write_date model:ir.model.fields,field_description:ems.field_ems_notice__write_date model:ir.model.fields,field_description:ems.field_ems_notice_line__write_date model:ir.model.fields,field_description:ems.field_ems_outcome__write_date model:ir.model.fields,field_description:ems.field_ems_planning__write_date model:ir.model.fields,field_description:ems.field_ems_planning_outcome__write_date model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__write_date model:ir.model.fields,field_description:ems.field_ems_role__write_date model:ir.model.fields,field_description:ems.field_ems_space__write_date model:ir.model.fields,field_description:ems.field_ems_space_type__write_date model:ir.model.fields,field_description:ems.field_ems_student_benefit__write_date model:ir.model.fields,field_description:ems.field_ems_student_document__write_date model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_study__write_date model:ir.model.fields,field_description:ems.field_ems_subject__write_date model:ir.model.fields,field_description:ems.field_ems_teaching__write_date model:ir.model.fields,field_description:ems.field_ems_tracking__write_date model:ir.model.fields,field_description:ems.field_ems_workgroup__write_date model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -5428,6 +5448,7 @@ msgstr "Otra exención"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__outcome_id model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__outcome_id model:ir.model.fields,field_description:ems.field_ems_planning_outcome__outcome_id model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__outcome_id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__outcome_id
 msgid "Outcome"
 msgstr "Resultado de Aprendizaje"
 
@@ -5580,6 +5601,9 @@ msgstr "Plan de pago"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__pending model:ir.model.fields.selection,name:ems.selection__ems_attendance_correction__state__pending model:ir.model.fields.selection,name:ems.selection__ems_authorization__status__pending model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__pending model:ir.model.fields.selection,name:ems.selection__ems_notice_line__display_status__pending model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__state__confirm
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__not_done
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_head_state__pending
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__pending
 msgid "Pending"
 msgstr "Pendiente"
 
@@ -6784,6 +6808,7 @@ msgstr "Iniciando proceso en segundo plano; recibirás una notificación al fina
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__state_id model:ir.model.fields,field_description:ems.field_ems_grade_session__state model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__state model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__state model:ir.model.fields,field_description:ems.field_ems_notice__state model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__state model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__state
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__preview_state
 msgid "State"
 msgstr "Estado"
 
@@ -6794,6 +6819,8 @@ msgstr "Estado / Provincia"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__status model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__status_id model:ir.model.fields,field_description:ems.field_ems_authorization__status model:ir.model.fields,field_description:ems.field_ems_notice_line__display_status model:ir.model.fields,field_description:ems.field_ems_student_document__status model_terms:ir.ui.view,arch_db:ems.attendance_report_session model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search model_terms:ir.ui.view,arch_db:ems.view_student_document_search
+#: model:ir.model.fields,field_description:ems.field_hr_leave__state
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
 msgid "Status"
 msgstr "Estado"
 
@@ -6838,6 +6865,7 @@ msgstr "Calle 2"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__student_id model:ir.model.fields,field_description:ems.field_ems_attendance_justification__student_id model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__student_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__student_id model:ir.model.fields,field_description:ems.field_ems_authorization__partner_id model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__student_id model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__student_id model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__student_id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__student_id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__student_id model:ir.model.fields,field_description:ems.field_ems_enrollment__student_id model:ir.model.fields,field_description:ems.field_ems_enrollment_view__student_id model:ir.model.fields,field_description:ems.field_ems_grade_outcome__student_id model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__student_id model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__student_id model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__student_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__student_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__student_id model:ir.model.fields,field_description:ems.field_ems_notice_line__student_id model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__student_id model:ir.model.fields,field_description:ems.field_ems_strike__student_id model:ir.model.fields,field_description:ems.field_ems_student_benefit__student_id model:ir.model.fields,field_description:ems.field_ems_student_year_record__student_id model:ir.model.fields,field_description:ems.field_ems_tracking__student_id model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__student_id model:ir.model.fields.selection,name:ems.selection__ems_notice_line__recipient_type__student model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__student model:res.partner.category,name:ems.partner_category_student model:res.partner.relation.type,name_inverse:ems.relation_type_tutor model_terms:ir.ui.view,arch_db:ems.attendance_report_session model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate model_terms:ir.ui.view,arch_db:ems.report_google_credentials model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search model_terms:ir.ui.view,arch_db:ems.view_enrollment_collection_list model_terms:ir.ui.view,arch_db:ems.view_enrollment_search model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment model_terms:ir.ui.view,arch_db:ems.view_order_tree_inherit_ems_enrollment model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment model_terms:ir.ui.view,arch_db:ems.view_student_document_list model_terms:ir.ui.view,arch_db:ems.view_student_document_search model_terms:ir.ui.view,arch_db:ems.view_student_list_no_destination model_terms:ir.ui.view,arch_db:ems.view_student_search model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__student_id
 msgid "Student"
 msgstr "Alumno"
 
@@ -6981,6 +7009,7 @@ msgstr "Estudios para matriculación"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__study_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__study_id model:ir.model.fields,field_description:ems.field_ems_attendance_template__study_id model:ir.model.fields,field_description:ems.field_ems_authorization__study_name model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__study_id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__study_id model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__study_id model:ir.model.fields,field_description:ems.field_ems_group__study_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__study_id model:ir.model.fields,field_description:ems.field_ems_planning__study_id model:ir.model.fields,field_description:ems.field_ems_student_year_record__study_id model:ir.model.fields,field_description:ems.field_ems_tracking__study_id model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate model_terms:ir.ui.view,arch_db:ems.view_applicant_search model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search model_terms:ir.ui.view,arch_db:ems.view_sale_order_template_search_inherit_ems model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__study_name
 msgid "Study"
 msgstr "Estudio"
 
@@ -7002,6 +7031,7 @@ msgstr "Estudio: El tipo concreto de estudio (tipo de licenciatura, titulación 
 #. module: ems
 #. odoo-javascript
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_template__subject_id model:ir.model.fields,field_description:ems.field_ems_content__subject_id model:ir.model.fields,field_description:ems.field_ems_enrollment__subject_id model:ir.model.fields,field_description:ems.field_ems_enrollment_view__subject_ids model:ir.model.fields,field_description:ems.field_ems_grade_session__subject_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__subject_id model:ir.model.fields,field_description:ems.field_ems_notice__subject model:ir.model.fields,field_description:ems.field_ems_outcome__subject_id model:ir.model.fields,field_description:ems.field_ems_planning__subject_id model:ir.model.fields,field_description:ems.field_ems_teaching__subject_id model:ir.model.fields,field_description:ems.field_ems_tracking__subject_id model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__subject_id model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.view_grade_session_search code:addons/ems/static/src/xml/backend/grade_tutor_matrix.xml:0 model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__subject_id model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__subject_id model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__subject_id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__subject_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__subject_id model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__subject_id model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__subject_record_id
 msgid "Subject"
 msgstr "Asignatura"
 
@@ -8016,6 +8046,7 @@ msgstr "Indica si hay nota final (la nota calculada está disponible)."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_csv_column__wizard_id model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__wizard_id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__wizard_id
 msgid "Wizard"
 msgstr "Asistente"
 
@@ -8239,6 +8270,8 @@ msgstr "Derecha"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__resolution model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__resolution
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__resolution
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
 msgid "Resolution"
 msgstr "Resolución"
 
@@ -10951,11 +10984,13 @@ msgstr "Finales pendientes de estancia"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__academic_result__full model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_review_wizard__proposed_result__full
 msgid "Fully passed"
 msgstr "Superado íntegramente"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_student_year_record_outcome__final_score
+#: model:ir.model.fields,help:ems.field_ems_grade_review_wizard_line__previous_score
 msgid "Grade of the last scored round."
 msgstr "Nota de la última evaluación informada."
 
@@ -10966,11 +11001,13 @@ msgstr "Nombre del grupo"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__internal_grade model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__internal_grade
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__preview_internal_grade
 msgid "Internal grade"
 msgstr "Nota del centro"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__internal_weight
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__internal_weight
 msgid "Internal weight (%)"
 msgstr "Ponderación nota del centro (%)"
 
@@ -10991,11 +11028,13 @@ msgstr "Resultados de aprendizaje"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__academic_result__partial model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_review_wizard__proposed_result__partial
 msgid "Partially passed"
 msgstr "Superado parcialmente"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record_subject__state__passed
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_review_wizard__preview_state__passed
 msgid "Passed"
 msgstr "Superado"
 
@@ -11006,6 +11045,7 @@ msgstr "Asignatura superada cuya nota final sigue vacía, a la espera de la nota
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__academic_result__repeating model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_review_wizard__proposed_result__repeating
 msgid "Repeating"
 msgstr "Repite curso"
 
@@ -11021,6 +11061,7 @@ msgstr "Resolver profesores"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__final_score
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__score
 msgid "Resolved grade"
 msgstr "Nota resuelta"
 
@@ -11086,21 +11127,25 @@ msgstr "Nombre del tutor/a"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__weight
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__weight
 msgid "Weight (%)"
 msgstr "Ponderación (%)"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__academic_result__withdrawn model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_review_wizard__proposed_result__withdrawn
 msgid "Withdrawn"
 msgstr "Baja"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__record_id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__record_id
 msgid "Year record"
 msgstr "Registro de curso"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record_subject__state__failed
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_review_wizard__preview_state__failed
 msgid "Not passed"
 msgstr "No superado"
 
@@ -12854,11 +12899,6 @@ msgid "Adds the hours to the monthly report"
 msgstr "Suma las horas al informe mensual"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_direction_state
-msgid "Direction check"
-msgstr "Verificación de dirección"
-
-#. module: ems
 #: model:ir.model.fields,help:ems.field_hr_leave__ems_direction_state
 msgid ""
 "Direction's own check of the supporting document and, for ATRI absences, of "
@@ -12919,13 +12959,10 @@ msgstr "Declaro, bajo mi responsabilidad, que los datos y el motivo de esta ause
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__missing_doc
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
 msgid "Missing document"
 msgstr "Falta documento"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__not_done
-msgid "Not done"
-msgstr "No hecho"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
@@ -13353,6 +13390,7 @@ msgstr "Rechazar esta solicitud de ausencia"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_kanban_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
 msgid "Refuse"
 msgstr "Rechazar"
 
@@ -14386,8 +14424,18 @@ msgstr "Google no ha permitido restablecer la contraseña de %(email)s. Comproba
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0
-msgid "Only administrators and the TAC team can reset a Google password."
-msgstr "Solo los administradores y el equipo TAC pueden restablecer una contraseña de Google."
+msgid "Only administrators, the TAC team and the student's own tutor can reset a Google password."
+msgstr "Solo los administradores, el equipo TAC y el tutor o tutora del alumno pueden restablecer una contraseña de Google."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_reset_google_password model:ir.model.fields,field_description:ems.field_res_users__can_reset_google_password
+msgid "Can reset the Google password"
+msgstr "Puede restablecer la contraseña de Google"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__can_reset_google_password model:ir.model.fields,help:ems.field_res_users__can_reset_google_password
+msgid "Whether the user looking at this student may reset their Google password: the academic admin, the TAC team, or the student's own tutor scope."
+msgstr "Indica si el usuario que consulta a este alumno puede restablecerle la contraseña de Google: la administración académica, el equipo TAC o el ámbito de tutoría del alumno."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -14417,3 +14465,376 @@ msgstr "Usuarios que actúan como tutor"
 #: code:addons/ems/models/employees/employee.py:0
 msgid "Unsupported search on tutor_scope_user_ids"
 msgstr "Búsqueda no admitida sobre tutor_scope_user_ids"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "%(period)s (due %(due_date)s)"
+msgstr "%(period)s (vence el %(due_date)s)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
+msgid "<span class=\"badge rounded-pill bg-success\">Paid</span>"
+msgstr "<span class=\"badge rounded-pill bg-success\">Pagado</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
+msgid "<span class=\"badge rounded-pill bg-warning text-dark\">Pending</span>"
+msgstr "<span class=\"badge rounded-pill bg-warning text-dark\">Pendiente</span>"
+
+#. module: ems
+#: model:mail.message.subtype,description:ems.mt_enrollment_payment
+msgid "A payment of an enrollment installment has been registered."
+msgstr "Se ha registrado el pago de un plazo de la matrícula."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Payment %(number)s of %(count)s"
+msgstr "Pago %(number)s de %(count)s"
+
+#. module: ems
+#: model:mail.message.subtype,name:ems.mt_enrollment_payment
+msgid "Payment received"
+msgstr "Pago recibido"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/invoice.py:0
+msgid "Payment received for enrollment %(enrollment)s: %(amount)s."
+msgstr "Pago recibido de la matrícula %(enrollment)s: %(amount)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/invoice.py:0
+msgid ""
+"Payment received for installment %(number)s of %(count)s of enrollment "
+"%(enrollment)s: %(amount)s (due %(due_date)s)."
+msgstr "Pago recibido del plazo %(number)s de %(count)s de la matrícula %(enrollment)s: %(amount)s (vence el %(due_date)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Single payment"
+msgstr "Pago único"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "%(outcome)s: %(previous)s → %(new)s"
+msgstr "%(outcome)s: %(previous)s → %(new)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "%(subject)s: %(previous)s → %(new)s (grade %(grade)s)"
+msgstr "%(subject)s: %(previous)s → %(new)s (nota %(grade)s)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
+msgid ""
+"A grade review corrects the academic history of a course already closed.\n"
+"                            A subject is corrected through its learning outcomes (RA): set the\n"
+"                            resolved grade of the ones the review resolves and the internal\n"
+"                            grade, the state and the final grade of the subject are recomputed\n"
+"                            with the weights frozen that course. Everything applied here is\n"
+"                            recorded on the subject and posted in the student's chatter."
+msgstr "Una revisión de calificaciones corrige el histórico académico de un curso ya cerrado. Un módulo se corrige a través de sus resultados de aprendizaje (RA): poned la nota resuelta de los que resuelve la revisión y la nota del centro, el estado y la nota final del módulo se recalculan con las ponderaciones congeladas de ese curso. Todo lo que se aplica aquí queda registrado en el módulo y publicado en el registro del alumno/a."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_review_wizard__operation__add
+msgid "Add a missing subject"
+msgstr "Añadir un módulo que falta"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
+msgid "Apply review"
+msgstr "Aplicar revisión"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__available_subject_ids
+msgid "Available subjects"
+msgstr "Módulos disponibles"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_review_wizard__operation__correct
+msgid "Correct a subject"
+msgstr "Corregir un módulo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Corrected by a grade review"
+msgstr "Corregido por una revisión de calificaciones"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
+msgid "Course result"
+msgstr "Resultado del curso"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "Course result: %(previous)s → %(new)s"
+msgstr "Resultado del curso: %(previous)s → %(new)s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__current_result
+msgid "Current course result"
+msgstr "Resultado actual del curso"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__previous_score
+msgid "Current grade"
+msgstr "Nota actual"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__previous_is_scored
+msgid "Graded before"
+msgstr "Ya calificada"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_grade_review_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_form
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_subject_form
+msgid "Grade review"
+msgstr "Revisión de calificaciones"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid ""
+"Grade review of %(date)s applied by %(user)s on the academic history of "
+"%(course)s: %(resolution)s"
+msgstr "Revisión de calificaciones"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_grade_review_wizard
+msgid ""
+"Grade review wizard: post-closure correction of a student academic year "
+"record."
+msgstr "Asistente de revisión de calificaciones: corrección posterior al cierre de un registro de curso del alumnado."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_grade_review_wizard_line
+msgid "Grade review wizard: the resolved grade of one learning outcome (RA)."
+msgstr "Asistente de revisión de calificaciones: la nota resuelta de un resultado de aprendizaje (RA)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__is_scored
+msgid "Graded"
+msgstr "Calificado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__outcome_name
+msgid "Learning outcome"
+msgstr "Resultado de aprendizaje"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__line_ids
+msgid "Learning outcomes"
+msgstr "Resultados de aprendizaje"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid ""
+"Only the secretariat, the academic administration, the Head of Studies and "
+"the Director may apply a grade review."
+msgstr "Solo secretaría, la administración académica, la jefatura de estudios y la dirección pueden aplicar una revisión de calificaciones."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__operation
+msgid "Operation"
+msgstr "Operación"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__outcome_record_id
+msgid "Outcome record"
+msgstr "Registro del resultado de aprendizaje"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "Pick the subject the review adds."
+msgstr "Elegid el módulo que añade la revisión."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "Pick the subject the review corrects."
+msgstr "Elegid el módulo que corrige la revisión."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "Pick the subject the review removes."
+msgstr "Elegid el módulo que elimina la revisión."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__proposed_result
+msgid "Proposed course result"
+msgstr "Resultado propuesto del curso"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_grade_review_wizard__operation__remove
+msgid "Remove a subject"
+msgstr "Eliminar un módulo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
+msgid "Result of the review"
+msgstr "Resultado de la revisión"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__review_user_id
+msgid "Review applied by"
+msgstr "Revisión aplicada por"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__review_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__review_date
+msgid "Review date"
+msgstr "Fecha de la revisión"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__review_note
+msgid "Review resolution"
+msgstr "Resolución de la revisión"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "Subject added: %(subject)s (%(state)s, grade %(grade)s)"
+msgstr "Módulo añadido: %(subject)s (%(state)s, nota %(grade)s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "Subject removed: %(subject)s"
+msgstr "Módulo eliminado: %(subject)s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__subject_id
+msgid "Subject to add"
+msgstr "Módulo a añadir"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "The review does not change any learning outcome grade."
+msgstr "La revisión no cambia ninguna nota de resultado de aprendizaje."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__update_result
+msgid "Update the course result"
+msgstr "Actualizar el resultado del curso"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
+msgid "What the review resolves, as signed."
+msgstr "Qué resuelve la revisión, tal como se ha firmado."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_review_wizard__resolution
+msgid ""
+"What the review resolves. Kept on the record and posted in the student's "
+"chatter."
+msgstr "Qué resuelve la revisión. Se conserva en el registro y se publica en el registro del alumno/a."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__external_weight
+msgid "Work placement weight (%)"
+msgstr "Ponderación de la estancia (%)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_review_wizard__update_result
+msgid ""
+"Write the proposed academic result on the course record once the review is "
+"applied."
+msgstr "Escribe el resultado académico propuesto en el registro del curso una vez aplicada la revisión."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "not graded"
+msgstr "sin calificar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_form
+msgid "EM"
+msgstr "EM"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_direction_state
+msgid "Direction status"
+msgstr "Estado Dirección"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_head_state
+msgid "Head status"
+msgstr "Estado Jefatura"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_status
+msgid "Overall status"
+msgstr "Estado global"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__pending_head
+msgid "Pending Head"
+msgstr "Pendiente Jefatura"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__pending_direction
+msgid "Pending Direction"
+msgstr "Pendiente Dirección"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__pending_document
+msgid "Pending Document"
+msgstr "Pendiente Documento"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+msgid "Direction: done"
+msgstr "Dirección: hecho"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+msgid "Direction: pending"
+msgstr "Dirección: pendiente"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+msgid "Validate"
+msgstr "Validar"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__refused
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_head_state__refused
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__refused
+msgid "Refused"
+msgstr "Rechazado"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_holidays_filter_ems
+msgid "Waiting For Me"
+msgstr "Esperándome"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_direction_state
+msgid "Direction's own approval: the check of the supporting document and, for ATRI absences, of the request having really been filed on the portal. Independent of the Head's approval and possible in either order; refusing it refuses the whole request."
+msgstr "La aprobación propia de Dirección: la comprobación del justificante y, en las ausencias ATRI, de que la solicitud se ha presentado de verdad en el portal. Independiente de la aprobación de la jefatura y posible en cualquier orden; rechazarla rechaza toda la solicitud."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_head_state
+msgid "The decision of the Area Manager who approves this employee's absences - what Odoo's own approval records, with Direction's refusal told apart from it."
+msgstr "La decisión del jefe de área que aprueba las ausencias de este trabajador, con el rechazo de Dirección distinguido de ella."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_status
+msgid "Where the request stands between its two approvals, the Head's and Direction's, which can happen in either order. The absence takes effect (calendar, hour balance, guard duty board) as soon as the Head approves it."
+msgstr "En qué punto está la solicitud entre sus dos aprobaciones, la de la jefatura y la de Dirección, que pueden llegar en cualquier orden. La ausencia tiene efecto (calendario, saldo de horas, cuadrante de guardias) en cuanto la aprueba la jefatura."

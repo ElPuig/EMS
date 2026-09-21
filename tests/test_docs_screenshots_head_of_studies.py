@@ -47,11 +47,20 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
             'ems_submitted': True, 'ems_responsible_declaration': True,
         })
         cls.leave_health.sudo().action_approve()
+        # A third one approved by both, so the list shows the three stages of the double
+        # approval: pending for both, approved by the Head only, and approved by both.
+        cls.leave_done = cls.env['hr.leave'].create({
+            'employee_id': cls.other_employee.id, 'holiday_status_id': cls.leave_type_justified.id,
+            'request_date_from': datetime(2027, 3, 1).date(), 'request_date_to': datetime(2027, 3, 1).date(),
+            'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
+        })
+        cls.leave_done.sudo().action_approve()
+        cls.leave_done.sudo().action_ems_direction_done()
         cls.absence_action = cls.env['ir.actions.act_window'].create({
             'name': 'Absències',
             'res_model': 'hr.leave',
             'view_mode': 'list,form',
-            'domain': [('id', 'in', [cls.leave_pending.id, cls.leave_health.id])],
+            'domain': [('id', 'in', [cls.leave_pending.id, cls.leave_health.id, cls.leave_done.id])],
             'context': {'hide_employee_name': 0},
         })
 

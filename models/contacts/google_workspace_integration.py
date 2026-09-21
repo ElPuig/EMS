@@ -5,6 +5,7 @@ import logging
 from odoo import models, fields, api, _
 from odoo.exceptions import AccessError, UserError
 
+from ..shared import base
 from ..shared.google_workspace_mixin import (
     GW_DEACTIVATION_DELAY_DAYS,
     GW_DELETION_DELAY_DAYS,
@@ -45,6 +46,11 @@ class ResPartnerGoogleWorkspace(models.Model):
         string="Google account status", compute='_compute_google_ws_state', store=True,
         help="Single source of truth for the header buttons: which Google Workspace "
              "action, if any, applies to this student right now.")
+    can_reset_google_password = fields.Boolean(
+        string="Can reset the Google password", compute='_compute_can_reset_google_password',
+        compute_sudo=True, store=False,
+        help="Whether the user looking at this student may reset their Google password: the "
+             "academic admin, the TAC team, or the student's own tutor scope.")
 
     # ------------------------------------------------------------------
     # Compute
@@ -58,6 +64,19 @@ class ResPartnerGoogleWorkspace(models.Model):
                 partner.google_ws_state = 'suspended'
             else:
                 partner.google_ws_state = 'active'
+
+    # NOTE (issue #490): drives the "Reset Google password" button's own invisible, since a
+    # teacher reads every student (rule_contact_teacher) and the button's groups alone would
+    # offer it on students the user cannot reset. compute_sudo so a tutor can resolve the
+    # chain at all; sudo() keeps env.uid, so env.user is still the real reader.
+    @api.depends('tutor_id')
+    @api.depends_context('uid')
+    def _compute_can_reset_google_password(self):
+        user = self.env.user
+        privileged = user.has_group('ems.group_academic_admin') or user.has_group('ems.group_tac')
+        for partner in self:
+            partner.can_reset_google_password = privileged or base.EmsBase.user_acts_as_tutor(
+                partner, partner.tutor_id)
 
     # ------------------------------------------------------------------
     # Helpers
@@ -406,12 +425,15 @@ class ResPartnerGoogleWorkspace(models.Model):
 
     def action_reset_google_password(self):
         """Give the student's Google account a new random password and deliver it like a new
-        account's (issue #478). Academic admin and TAC only: the button's groups only hide it,
-        so the check is repeated here. TAC merely reads students, hence the sudo() writes."""
+        account's (issue #478). Academic admin, TAC and the student's own tutor scope - the
+        tutor, the chiefs above them and the Director (issue #490, hr.employee.tutor_scope_user_ids):
+        the button's invisible only hides it, so the same check is repeated here. Neither TAC nor
+        a tutor writes on students, hence the sudo() writes."""
         self.ensure_one()
-        user = self.env.user
-        if not (user.has_group('ems.group_academic_admin') or user.has_group('ems.group_tac')):
-            raise AccessError(_("Only administrators and the TAC team can reset a Google password."))
+        if not self.can_reset_google_password:
+            raise AccessError(_(
+                "Only administrators, the TAC team and the student's own tutor can reset a "
+                "Google password."))
         if self.google_ws_state != 'active':
             raise UserError(_("%s has no active Google account.") % self.name)
         company = self.env.company

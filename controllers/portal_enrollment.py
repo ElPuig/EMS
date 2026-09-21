@@ -49,14 +49,11 @@ class EMSPortalController(CustomerPortal):
         student = partner.get_portal_student()
         enrollment = student.get_portal_enrollment(current_course)
 
-        # Mensajes relevantes para el portal
-        discussions_subtype = request.env.ref('mail.mt_comment')
-        enrollment_messages = request.env['mail.message'].sudo().search([
-            ('res_id', '=', enrollment.id),
-            ('model', '=', 'sale.order'),
-            ('message_type', '=', 'comment'),
-            ('subtype_id', '=', discussions_subtype.id),
-        ], order='date desc') if enrollment else []
+        # Mensajes relevantes para el portal: la conversacion con Secretaria y los avisos de
+        # pago (issue #491). El dominio vive en el modelo para que los tests comprueben lo
+        # mismo que renderiza esta pagina.
+        enrollment_messages = request.env['mail.message'].sudo().search(
+            enrollment._ems_portal_message_domain(), order='date desc') if enrollment else []
 
         # 3. Actualizamos los valores para la vista
         message_sent = request.session.pop('ems_message_sent', None)
@@ -80,6 +77,8 @@ class EMSPortalController(CustomerPortal):
 
         values.update({
             'enrollment': enrollment,
+            # Issue #491: paid/pending per installment, read from the enrollment invoice.
+            'installments': enrollment._ems_portal_installments() if enrollment else [],
             # Not enrollment.ems_authorization_ids: an authorization sent during the course
             # (issue #443) hangs off the student, not off the enrollment, and the running
             # course's enrollment is already confirmed by the time those are sent.

@@ -194,7 +194,7 @@ stateDiagram-v2
 | `google_ws_state` | Header button shown (`views/community/contact/form.xml`) | Meaning |
 |---|---|---|
 | `none` | Create Google account | Not a student, or no corporate email yet |
-| `active` | Suspend Google account, Reset Google password | Fully set up |
+| `active` | Suspend Google account, Reset Google password (the latter also needs `can_reset_google_password`) | Fully set up |
 | `suspended` | Reactivate Google account | `google_ws_suspended = True` |
 
 The same one-off migration as the staff side (`migrations/18.0.0.22.0/post-migrate.py`,
@@ -208,11 +208,11 @@ already archived/withdrawn before the field existed.
 
 ```mermaid
 sequenceDiagram
-    participant U as Academic admin / TAC
+    participant U as Academic admin / TAC / the student's tutor scope
     participant P as res.partner
     participant G as Directory API
     U->>P: action_reset_google_password()
-    P->>P: group check, active account, integration enabled
+    P->>P: permission check, active account, integration enabled
     P->>G: users().patch(password, changePasswordAtNextLogin=True)
     Note over P,G: skipped in dry-run; an HttpError becomes a UserError<br/>naming the "Reset password" admin-role privilege
     P->>P: sudo: previous google_credentials documents -> cancelled
@@ -224,6 +224,23 @@ The Google call happens first, so a refusal leaves the previous PDF untouched. T
 account's custom admin role needs Google's **Reset password** privilege on the student OUs,
 which is separate from **Update**. The chatter note shares its PDF/email wording with the
 creation note through `_gw_delivery_note()`.
+
+A tutor resets the password of their own students (issue #490): they already hand those
+students their credentials, so making them go through TAC for a forgotten password added a
+detour and no protection. The right is per record, not per role: `action_reset_google_password()`
+accepts the acting user when `ems.base.user_acts_as_tutor(partner.tutor_id)` is true, which is
+where the hierarchy escalation comes from for free — `hr.employee.tutor_scope_user_ids` (issue
+#483) already resolves a tutor to themselves, every chief above them along `parent_id` holding
+`ems.group_department_chief` (Department/Seminar Chief, and Head of Studies/Deputy, which imply
+it) and the Director of their company. A chief of a *different* branch gets nothing, which is the
+whole point: the button must not follow flat group membership. A student whose group has no tutor
+(`tutor_id` empty) stays with academic admin and TAC only.
+
+Since `rule_contact_teacher` lets any teacher read every student, the button's `groups=` alone
+would show it on students the user cannot actually reset. `res.partner.can_reset_google_password`
+(computed, `compute_sudo=True`, not stored) answers the same question the method enforces, and the
+button's `invisible` reads it; the method still repeats the check, since a view attribute only
+hides.
 
 The secretary is deliberately left out: it takes part in account *creation* only as a step
 of enrolling a student. The TAC team reads students only (`rule_contact_teacher`), which is
@@ -253,7 +270,7 @@ write path.
 |---|---|
 | Header buttons create/suspend | `ems.group_secretary`, `ems.group_academic_admin`, `ems.group_tac` |
 | Header buttons reactivate/delete/cancel | `ems.group_secretary`, `ems.group_academic_admin` |
-| Reset Google password (button, plus the same check inside the method) | `ems.group_academic_admin`, `ems.group_tac` |
+| Reset Google password (button, plus the same check inside the method) | `ems.group_academic_admin`, `ems.group_tac`, and the student's own tutor scope (`can_reset_google_password` / `user_acts_as_tutor`, issue #490) |
 | Reading the credentials PDFs (Documentation tab, bulk download) | see [student_document.md](student_document.md#access-control): tutors their own students' (every chief above a tutor, that tutor's students), TAC everyone's |
 | Grace-period banners, optional list columns, search filters | same as above |
 | `_gw_deliver_credentials`'s document/email creation | `sudo()` inside the flow (queue jobs run as the job's own user, not necessarily one with `ems.student.document`/mail rights) |

@@ -87,6 +87,7 @@ from . import test_planning
 from . import test_portal_access_wizard
 from . import test_portal_access_wizard_tour
 from . import test_portal_enrollment
+from . import test_portal_payment_status
 from . import test_data_custom_import_prefix
 from . import test_data_main_cat_prefix
 from . import test_security_group_references
@@ -109,6 +110,7 @@ from . import test_working_schedule_stale_breaks_tour
 from . import test_working_schedule_multi_group_tour
 from . import test_task_assignment
 from . import test_year_record
+from . import test_grade_review
 from . import test_non_teaching_type
 from . import test_teaching_reduction_type
 from . import test_group
@@ -156,6 +158,8 @@ from . import test_enrollment_proposal_tour
 from . import test_applicant_tour
 from . import test_no_destination_tour
 from . import test_year_record_tour
+from . import test_grade_review_tour
+from . import test_docs_screenshots_academic_history
 from . import test_planning_tour
 from . import test_em_grading_wizard_tour
 from . import test_provider_tour

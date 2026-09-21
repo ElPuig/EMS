@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.26.1',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.27.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -194,6 +194,7 @@
             'views/planning_grading/grading/wizard.xml',
             'views/planning_grading/grading/import_wizard.xml',
             'views/planning_grading/grading/em_wizard.xml',
+            'views/planning_grading/grading/year_record/grade_review_wizard.xml',
             'views/planning_grading/grading/year_record/list.xml',
             'views/planning_grading/grading/year_record/form.xml',
             'views/planning_grading/grading/year_record/search.xml',
@@ -365,6 +366,7 @@
         'data/main/hr.departure.reason.csv',
         'data/main/res.partner.relation.type.csv',
         'data/main/mail.activity.type.csv',
+        'data/main/mail.message.subtype.csv',
         'data/main/mail.template-google_welcome.csv',
         'data/main/mail.template-google_lifecycle.csv',
         'data/main/ir.cron-google_workspace.csv',

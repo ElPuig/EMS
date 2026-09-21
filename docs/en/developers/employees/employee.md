@@ -128,3 +128,24 @@ Defined in `security/ir.model.access.csv` (lines 2–3).
 | Teacher | — | ✓ | — | — | `ems.group_teacher` |
 
 Plus Odoo's own `hr.group_hr_user`/`hr.group_hr_manager` access, unchanged by EMS. Several individual fields carry their own `groups=` restriction (e.g. `activity_*` fields limited to `hr.group_hr_user,ems.group_teacher`) rather than being gated at the model level.
+
+### Every field EMS adds to `hr.employee` must declare `groups=`
+
+Not a style preference - it is the rule stated in Odoo's own `hr.employee` class docstring, and breaking it produces an `AccessError` far away from the field that caused it.
+
+A user without `hr.group_hr_user` (and without the `base.group_system` read ACL) has no access to `hr.employee` at all: `hr.employee.fetch()` redirects the read to the `hr.employee.public` mirror and raises over any requested field that mirror does not have. Reading one field in Python does not request one field - `_fetch_field()` prefetches every field of the same prefetch group that the user *may* access, so a private field with no `groups=` is silently added to that batch and fails the whole read:
+
+```
+AccessError: The fields “…”, which you are trying to read,
+             are not available for employee public profiles.
+```
+
+Views are not affected (the web client requests an explicit field list, which never expands), which is why this only ever surfaces server-side, in an unrelated feature. Issue #492 is the worked example: eight EMS fields (`schedule_import_code`, `pending_identification` and the six stored `google_ws_*` ones) had no `groups=`, and a secretary registering a student's withdrawal hit the error through `ems.student.year_record._generate_one()`'s `group.tutor_id.name` - a screen with no connection to Google Workspace or schedule imports.
+
+| | |
+|---|---|
+| **Applies to** | every field declared on `hr.employee` and not on `hr.employee.public`. A field added to `hr.employee.base` instead (`models/employees/employee.py`'s first class) lands on both models and needs nothing. |
+| **Value to use** | `base.group_system,hr.group_hr_user,ems.group_teacher` - the trio already used by `employee_type`. Every EMS role that can read `hr.employee` holds one of them, and `base.group_system` carries its own read ACL (`hr/security/ir.model.access.csv`), so it never reaches the public profile. |
+| **Enforced by** | `tests/test_employee_staff_permissions.py::test_ems_hr_employee_only_fields_declare_groups`, which fails listing any EMS field that regresses. |
+
+Keep the field's `groups=` consistent with the `groups=` of any view element whose `invisible`/`readonly` expression reads it, or `./upgrade.sh` reports an "Access Rights Inconsistency" warning for that element.

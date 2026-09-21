@@ -659,12 +659,23 @@ class ems_employee(models.AbstractModel):
     activity_type_id = fields.Many2one(groups="hr.group_hr_user,ems.group_teacher")
     activity_type_icon = fields.Char(groups="hr.group_hr_user,ems.group_teacher")
 
+    # groups=: mandatory on every field that lives on hr.employee and not on
+    # hr.employee.public, per the rule in Odoo's own hr.employee docstring - without it the
+    # ORM prefetches the field for a user who only reaches the employee through
+    # hr.employee.public (no hr.group_hr_user, e.g. a secretary) and hr.employee.fetch()
+    # raises AccessError over it, anywhere in the codebase an employee field happens to be
+    # read (issue #492). Same trio as employee_type above: base.group_system carries its own
+    # read ACL on hr.employee (hr/security/ir.model.access.csv), so it never reaches the
+    # public profile, and listing it keeps the form's own elements - which are shown to it -
+    # consistent with the fields they depend on.
     schedule_import_code = fields.Char(
         string="Schedule import code", copy=False,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="Raw placeholder code (e.g. 'X1') from a working-schedule import, kept only "
              "while the teacher's real identity is still unknown.")
     pending_identification = fields.Boolean(
         string="Pending identification", compute="_compute_pending_identification", store=True,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="A schedule was imported for this teacher before their real identity was known.")
 
     # Feeds the shared 'ems_archived_reason_ribbon' field widget (form + kanban, same widget
@@ -687,7 +698,8 @@ class ems_employee(models.AbstractModel):
     # issue #405 was originally built for. Not stored, same reasoning as the group's own field -
     # cheap to compute, and pending conflicts are rare/short-lived by design.
     pending_classroom_conflict_count = fields.Integer(
-        string="Pending classroom conflicts", compute="_compute_pending_classroom_conflict_count")
+        string="Pending classroom conflicts", compute="_compute_pending_classroom_conflict_count",
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher")
 
     @api.depends("schedule_import_code")
     def _compute_pending_identification(self):

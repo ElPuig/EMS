@@ -5,7 +5,10 @@ from dateutil.relativedelta import relativedelta
 
 from odoo.tests import tagged, HttpCase
 
-from .common import create_role_user, force_user_language_to_english, next_student_id
+from .common import (
+    create_level_study_group, create_role_employee, create_role_user, force_user_language_to_english,
+    next_student_id,
+)
 
 
 @tagged('post_install', '-at_install')
@@ -85,3 +88,24 @@ class TestStudentGoogleWorkspaceTour(HttpCase):
         documents = self.env['ems.student.document'].search([('partner_id', '=', student.id)])
         self.assertEqual(sorted(documents.mapped('status')), ['approved', 'cancelled'])
 
+    def test_student_google_password_reset_tutor_tour(self):
+        # Issue #490: the tutor is now the least-privileged role allowed to reset, and the one
+        # the button's per-record can_reset_google_password actually gates.
+        self.env.company.write({
+            'google_ws_enabled': True, 'google_ws_dry_run': True, 'google_ws_domain': 'elpuig.xeill.net',
+        })
+        tutor_user = create_role_user(self, 'tutor', 'test_tutor_gw_reset_tour', name='Tutor Reset Tour')
+        tutor = create_role_employee(self, tutor_user)
+        __, __, group = create_level_study_group(self, 'GWT', group={'tutor_id': tutor.id})
+        student = self._seed_student(
+            'GW Student Reset Tutor', student_email='gw.reset.tutor@elpuig.xeill.net',
+            main_group_id=group.id)
+        self.env['ems.student.document'].create({
+            'partner_id': student.id, 'doc_type': 'google_credentials', 'status': 'approved',
+        })
+        with patch.object(type(self.env['ir.actions.report']), '_render_qweb_pdf',
+                          return_value=(b'%PDF-1.4 x', 'pdf')):
+            self.start_tour(f"/odoo/res.partner/{student.id}",
+                            "ems_student_google_password_reset_tutor", login=tutor_user.login)
+        documents = self.env['ems.student.document'].search([('partner_id', '=', student.id)])
+        self.assertEqual(sorted(documents.mapped('status')), ['approved', 'cancelled'])

@@ -2,11 +2,11 @@
 
 ---
 
-# Consultar les credencials de Google del teu alumnat
+# Credencials de Google del teu alumnat
 
-Pots consultar i descarregar el PDF amb les credencials del compte de Google Workspace dels alumnes que tutoritzes.
+Pots consultar i descarregar el PDF amb les credencials del compte de Google Workspace dels alumnes que tutoritzes, i restablir-los la contrasenya.
 
-**Rol necessari:** Tutor (només lectura). El teu cap de seminari, el teu cap de departament i el teu cap d'estudis també veuen les credencials del teu alumnat, i la direcció les de tots els tutors, amb els mateixos passos.
+**Rol necessari:** Tutor. El teu cap de seminari, el teu cap de departament i el teu cap d'estudis també poden fer-ho amb el teu alumnat, i la direcció amb el de tots els tutors, amb els mateixos passos.
 
 ---
 
@@ -20,6 +20,21 @@ Pots consultar i descarregar el PDF amb les credencials del compte de Google Wor
 Si la llista és buida, l'alumne encara no té compte de Google creat: demana-ho a secretaria.
 
 A la pestanya **Documentació** només hi veus les credencials de Google dels alumnes que tutoritzes. La resta de documents (DNI, IBAN, targeta sanitària…) els gestiona secretaria.
+
+---
+
+## Restablir la contrasenya de Google d'un alumne
+
+1. Obre la fitxa de l'alumne.
+2. A la capçalera, clica **Restablir la contrasenya de Google**.
+
+![Botó Restablir la contrasenya de Google a la capçalera de la fitxa](../../assets/tutors/credencials-google-03-restablir.png)
+
+3. Confirma el missatge que apareix.
+
+L'alumne rep la contrasenya nova al seu correu personal i es desa un PDF de credencials nou a la pestanya **Documentació**. La contrasenya anterior deixa de funcionar i el seu PDF queda marcat com a **Cancel·lat**. El primer cop que entri a Google, l'alumne haurà de canviar la contrasenya.
+
+El botó només surt si l'alumne té un compte de Google actiu. Si no el veus, l'alumne encara no en té: demana-ho a secretaria.
 
 ---
 

@@ -2,47 +2,54 @@
 
 import { registry } from "@web/core/registry";
 
-// Smoke tour of the Quality app's reading screens: the embedded process map and the three
-// configuration lists (processes, procedures, documents). Structural selectors wherever possible
-// (the .o_data_row of a list, the iframe) instead of label text, so the tour does not depend on the
-// session's language - see CLAUDE.md's "Tour tests and language". The seeded structure is what
-// it asserts on, so nothing has to be created before the tour starts.
+// Smoke tour of the Quality app's reading screens: the process map (the form of the document
+// marked as such) and the three configuration screens. It checks the read-only default and the
+// 'Edit' button of those forms. Structural selectors wherever possible instead of label text, so
+// the tour does not depend on the session's language - see CLAUDE.md's "Tour tests and language".
 registry.category("web_tour.tours").add("ems_quality_registry", {
     test: true,
-    url: "/odoo/action-ems.action_quality_process_map",
+    url: "/odoo/action-ems.action_quality_process_map_open",
     steps: () => [
         {
-            trigger: ".o_quality_process_map iframe.o_quality_process_map_frame[src*='pub?embedded=true']",
-            content: "The process map embeds the published document configured in the settings",
+            trigger: ".o_form_view iframe.o_quality_document_preview[src$='/preview']",
+            content: "The process map shows the document from the preview address derived from its link",
         },
         {
-            trigger: ".o_quality_process_map a[target='_blank']",
+            trigger: ".o_form_view .o_form_statusbar button[name='action_open_document']",
             content: "And offers to open it in a new tab",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='name']:not(:has(input))",
+            content: "The form opens read-only",
+        },
+        {
+            trigger: ".o_form_view .o_quality_edit_button",
+            content: "Edit",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='url'] input",
+            content: "Editing unlocks the fields, the link among them",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='name'] input",
+            content: "Change something",
+            run: "edit Tour change",
+        },
+        {
+            trigger: ".o_form_button_cancel",
+            content: "Discard",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_quality_edit_button",
+            content: "Discarding goes back to read-only",
         },
         {
             trigger: "body",
             content: "Go to the documents",
             run: () => { window.location.href = "/odoo/action-ems.action_quality_document"; },
             expectUnloadPage: true,
-        },
-        {
-            trigger: ".o_list_view .o_group_header",
-            content: "Documents open grouped by process",
-            run: "click",
-        },
-        {
-            trigger: ".o_list_view .o_data_row .o_data_cell[name='name']",
-            content: "Edit a document in place, the list is editable",
-            run: "click",
-        },
-        {
-            trigger: ".o_list_view .o_selected_row .o_field_widget[name='url'] input",
-            content: "Its link is editable right there",
-        },
-        {
-            trigger: ".o_list_button_discard",
-            content: "Leave it untouched",
-            run: "click",
         },
         {
             trigger: ".o_control_panel button.o_quality_load_links",
@@ -54,12 +61,26 @@ registry.category("web_tour.tours").add("ems_quality_registry", {
             content: "The link loader opens",
         },
         {
-            trigger: ".modal .o_form_button_cancel, .modal footer .btn-secondary",
+            trigger: ".modal footer .btn-secondary",
             content: "Close it",
             run: "click",
         },
         {
-            trigger: "body:not(:has(.modal))",
+            trigger: "body:not(:has(.modal)) .o_list_view .o_group_header",
+            content: "Documents open grouped by process",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row .o_data_cell[name='name']",
+            content: "Open a document",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_quality_edit_button",
+            content: "Its form opens read-only too, with 'Edit' in the header",
+        },
+        {
+            trigger: "body",
             content: "Go to the procedures",
             run: () => { window.location.href = "/odoo/action-ems.action_quality_procedure"; },
             expectUnloadPage: true,
@@ -75,6 +96,10 @@ registry.category("web_tour.tours").add("ems_quality_registry", {
             run: "click",
         },
         {
+            trigger: ".o_form_view .o_quality_edit_button",
+            content: "Read-only, with 'Edit'",
+        },
+        {
             trigger: ".o_form_view .o_field_widget[name='document_ids']",
             content: "The procedure form lists its documents",
         },
@@ -85,9 +110,13 @@ registry.category("web_tour.tours").add("ems_quality_registry", {
             expectUnloadPage: true,
         },
         {
-            trigger: ".o_list_view .o_data_row:first-child .o_data_cell[name='code']",
+            trigger: ".o_list_view .o_data_row .o_data_cell[name='code']",
             content: "Open a process",
             run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_quality_edit_button",
+            content: "Read-only, with 'Edit'",
         },
         {
             trigger: ".o_form_view .o_field_widget[name='procedure_ids']",

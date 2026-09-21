@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="ems.QualityEditModeButton">
+        <button type="button" class="btn btn-secondary o_quality_edit_button" t-on-click="onClick">
+            <i class="fa fa-pencil me-1"/>Edit
+        </button>
+    </t>
+
+    <t t-name="ems.QualityDocumentPreview">
+        <iframe t-if="url" class="o_quality_document_preview w-100 border-0" style="min-height: 75vh;" t-att-src="url"/>
+        <div t-else="" class="o_quality_document_no_preview text-muted">
+            This link cannot be shown inside EMS. Use Open to see the document.
+        </div>
+    </t>
+</templates>

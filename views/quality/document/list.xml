@@ -5,17 +5,16 @@
             <field name="name">ems.quality.document.list</field>
             <field name="model">ems.quality.document</field>
             <field name="arch" type="xml">
-                <!-- Editable in place: the only thing kept here is where each document sits and its
-                     link, so a form would add a click without adding anything to edit. -->
-                <list editable="bottom">
+                <list>
                     <header>
-                        <button name="%(ems.action_quality_document_link_import)d" string="Load links" type="action" display="always" class="o_quality_load_links"/>
+                        <button name="%(ems.action_quality_document_link_import)d" string="Load links" type="action"
+                                display="always" class="o_quality_load_links"/>
                     </header>
                     <field name="code"/>
                     <field name="name"/>
                     <field name="procedure_id"/>
                     <field name="process_id"/>
-                    <field name="url" widget="url"/>
+                    <field name="url" widget="url" optional="show"/>
                 </list>
             </field>
         </record>

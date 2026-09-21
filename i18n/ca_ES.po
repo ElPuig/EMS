@@ -17625,3 +17625,12 @@ msgstr ""
 #: code:addons/ems/models/quality/document_link_import.py:0
 msgid "The file could not be read as UTF-8 text: %s"
 msgstr "No s'ha pogut llegir el fitxer com a text UTF-8: %s"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_type__template_document_id
+msgid ""
+"The controlled document this type is written against. Its code is quoted in "
+"the PDF."
+msgstr ""
+"El document controlat segons el qual es redacta aquest tipus. El seu codi es"
+" cita al PDF."

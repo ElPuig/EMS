@@ -1,0 +1,2 @@
+id,name,description,res_model,default,internal,hidden
+ems.mt_enrollment_payment,Payment received,A payment of an enrollment installment has been registered.,sale.order,False,False,False

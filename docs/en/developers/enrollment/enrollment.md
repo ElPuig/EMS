@@ -325,6 +325,53 @@ invoice:
   `plans/student_document_iban_renewal_allow_out_payment.md` for the full
   investigation).
 
+### Payment status in the portal (issue #491)
+
+Until this issue, the portal told a family **what** they had to pay and never
+**whether it had been paid**: `payment_state` lives on the invoice, which no
+portal page ever looks at. Two pieces close that gap, both driven by the same
+enrollment invoice and neither of them exposing the invoice itself to the portal.
+
+**Per-installment status on the enrollment page.**
+`_ems_portal_installments()` returns one plain dict per `payment_term` line of
+the posted enrollment invoice (number, due date, amount, residual, paid), read
+under `sudo()` because a portal user cannot read `account.move`. A line counts as
+paid when it is fully reconciled, so a deferred plan correctly reads "first
+installment paid, second pending" while the invoice as a whole is still
+`partial`. The confirmed-enrollment template renders those rows in its
+**Payment** block; with no posted invoice yet, it falls back to the payment
+plan's own description exactly as before.
+
+**A portal-visible message when an installment is settled.**
+`account.move.line._reconcile_pre_hook()`/`_reconcile_post_hook()` are extended
+to notice which installments of an enrollment invoice went from open to fully
+reconciled during that reconciliation, and `account.move._ems_notify_enrollment_payment()`
+posts one message per settled installment **on the enrollment's own chatter**
+(`sale.order`), in the student's language. Posting on the order, rather than
+widening any portal domain to `account.move`, is what makes the message show up
+in both places that list communications, with no other invoice data reachable
+from either.
+
+The snapshot taken in the pre-hook is deliberately what keeps this from
+announcing history: only lines that were open *at the start of that specific
+reconciliation* can be announced, so an installation upgrading with years of
+already-paid invoices never posts anything retroactively, and no backfill or
+"already notified" flag is needed.
+
+The messages carry their own subtype, `ems.mt_enrollment_payment`, with
+`default=False` on purpose: no follower is ever subscribed to it, so the message
+is stored and visible in the portal **without sending any email**. Switching it
+to `mail.mt_comment` would email every follower of the enrollment on each
+payment, which is a different decision from making the status visible.
+
+| Where | What it reads | Filter |
+|---|---|---|
+| Payment block, `/my/gestion-matriculas` | `_ems_portal_installments()` | Posted `out_invoice` of that enrollment |
+| Communications block, `/my/gestion-matriculas` | `sale.order` chatter | `mail.mt_comment` **or** `ems.mt_enrollment_payment` |
+| Communications page, `/my/comunicaciones` | `sale.order` chatter | Any non-note message (already covered, no change) |
+
+---
+
 `action_ems_reapply_benefits()` is the explicit re-entry point for a
 confirmed order whose benefit status changed after confirmation (confirmed
 orders freeze their fee lines against later bonification/exemption changes):

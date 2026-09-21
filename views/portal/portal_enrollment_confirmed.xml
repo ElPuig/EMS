@@ -107,7 +107,7 @@
                             </t>
                             </t>
 
-                            <div class="card shadow-sm mb-4">
+                            <div class="card shadow-sm mb-4" id="portal_enrollment_payment">
                                 <div class="card-header bg-light">
                                     <h4 class="mb-0">3. Payment</h4>
                                 </div>
@@ -120,25 +120,57 @@
                                                 <t t-esc="enrollment.payment_term_id.name"/>
                                             </span>
                                         </div>
-                                        <t t-if="enrollment.payment_term_id.ems_requires_fees">
-                                            <div class="mb-3 p-3 bg-light rounded">
-                                                <p class="mb-2 fw-bold small"><i class="fa fa-info-circle me-1 text-ems-primary"/>Payment schedule:</p>
-                                                <table class="table table-sm mb-0">
+                                    </t>
+                                    <!-- Issue #491: with the invoice already issued, each
+                                         installment shows its own due date and whether it
+                                         has been paid (sale.order._ems_portal_installments).
+                                         Until then, the plan's own breakdown is all there
+                                         is to show. -->
+                                    <t t-if="installments">
+                                        <div class="mb-3 p-3 bg-light rounded">
+                                            <p class="mb-2 fw-bold small"><i class="fa fa-info-circle me-1 text-ems-primary"/>Payment schedule:</p>
+                                            <table class="table table-sm mb-0 ems-payment-schedule">
+                                                <t t-foreach="installments" t-as="installment">
                                                     <tr>
-                                                        <td class="small">Payment 1 — 100% enrollment items + 50% fees</td>
+                                                        <td class="small">
+                                                            <t t-esc="installment['label']"/>
+                                                        </td>
                                                         <td class="text-end fw-bold small">
-                                                            <t t-esc="'%.2f €' % enrollment.ems_first_installment"/>
+                                                            <t t-esc="installment['amount']"
+                                                               t-options='{"widget": "monetary", "display_currency": installment["currency"]}'/>
+                                                        </td>
+                                                        <td class="text-end small"
+                                                            t-att-data-installment-state="'paid' if installment['paid'] else 'pending'">
+                                                            <t t-if="installment['paid']">
+                                                                <span class="badge rounded-pill bg-success">Paid</span>
+                                                            </t>
+                                                            <t t-else="">
+                                                                <span class="badge rounded-pill bg-warning text-dark">Pending</span>
+                                                            </t>
                                                         </td>
                                                     </tr>
-                                                    <tr>
-                                                        <td class="small">Payment 2 — 50% fees</td>
-                                                        <td class="text-end fw-bold small">
-                                                            <t t-esc="'%.2f €' % enrollment.ems_second_installment"/>
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            </div>
-                                        </t>
+                                                </t>
+                                            </table>
+                                        </div>
+                                    </t>
+                                    <t t-elif="enrollment.payment_term_id.ems_requires_fees">
+                                        <div class="mb-3 p-3 bg-light rounded">
+                                            <p class="mb-2 fw-bold small"><i class="fa fa-info-circle me-1 text-ems-primary"/>Payment schedule:</p>
+                                            <table class="table table-sm mb-0">
+                                                <tr>
+                                                    <td class="small">Payment 1 — 100% enrollment items + 50% fees</td>
+                                                    <td class="text-end fw-bold small">
+                                                        <t t-esc="'%.2f €' % enrollment.ems_first_installment"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="small">Payment 2 — 50% fees</td>
+                                                    <td class="text-end fw-bold small">
+                                                        <t t-esc="'%.2f €' % enrollment.ems_second_installment"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
                                     </t>
                                     <t t-if="enrollment.ems_payment_method == 'transfer'">
                                         <div class="p-3 bg-light rounded">
@@ -161,7 +193,10 @@
                                             </t>
                                         </div>
                                     </t>
-                                    <t t-else="">
+                                    <!-- Only when there is nothing else to show: an enrollment
+                                         confirmed from the backend carries no payment method, but
+                                         its invoice (and therefore its schedule above) is real. -->
+                                    <t t-elif="not installments">
                                         <div class="text-center py-4">
                                             <i class="fa fa-credit-card fa-3x text-muted mb-3"/>
                                             <p class="text-muted">Payment information not yet specified.</p>
@@ -172,7 +207,7 @@
 
                             <!-- Bloque 3: Communications -->
                             <t t-if="enrollment_messages">
-                                <div class="card shadow-sm mt-4">
+                                <div class="card shadow-sm mt-4" id="portal_enrollment_messages">
                                     <div class="card-header bg-light">
                                         <h4 class="mb-0">4. Communications</h4>
                                     </div>

@@ -87,6 +87,7 @@ from . import test_planning
 from . import test_portal_access_wizard
 from . import test_portal_access_wizard_tour
 from . import test_portal_enrollment
+from . import test_portal_payment_status
 from . import test_data_custom_import_prefix
 from . import test_data_main_cat_prefix
 from . import test_security_group_references

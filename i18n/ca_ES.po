@@ -14426,3 +14426,55 @@ msgstr "Usuaris que actuen com a tutor"
 #: code:addons/ems/models/employees/employee.py:0
 msgid "Unsupported search on tutor_scope_user_ids"
 msgstr "Cerca no admesa sobre tutor_scope_user_ids"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "%(period)s (due %(due_date)s)"
+msgstr "%(period)s (venciment %(due_date)s)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
+msgid "<span class=\"badge rounded-pill bg-success\">Paid</span>"
+msgstr "<span class=\"badge rounded-pill bg-success\">Pagat</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
+msgid "<span class=\"badge rounded-pill bg-warning text-dark\">Pending</span>"
+msgstr "<span class=\"badge rounded-pill bg-warning text-dark\">Pendent</span>"
+
+#. module: ems
+#: model:mail.message.subtype,description:ems.mt_enrollment_payment
+msgid "A payment of an enrollment installment has been registered."
+msgstr "S'ha registrat el pagament d'un termini de la matrícula."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Payment %(number)s of %(count)s"
+msgstr "Pagament %(number)s de %(count)s"
+
+#. module: ems
+#: model:mail.message.subtype,name:ems.mt_enrollment_payment
+msgid "Payment received"
+msgstr "Pagament rebut"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/invoice.py:0
+msgid "Payment received for enrollment %(enrollment)s: %(amount)s."
+msgstr "Pagament rebut de la matrícula %(enrollment)s: %(amount)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/invoice.py:0
+msgid ""
+"Payment received for installment %(number)s of %(count)s of enrollment "
+"%(enrollment)s: %(amount)s (due %(due_date)s)."
+msgstr "Pagament rebut del termini %(number)s de %(count)s de la matrícula %(enrollment)s: %(amount)s (venciment %(due_date)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid "Single payment"
+msgstr "Pagament únic"

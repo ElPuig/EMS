@@ -1802,6 +1802,7 @@ msgstr "Marco horario predeterminado"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 code:addons/ems/static/src/xml/backend/schedule_grid_readonly_field.xml:0 model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
+#: code:addons/ems/static/src/xml/backend/quality_document_fields.xml:0
 msgid "Edit"
 msgstr "Editar"
 
@@ -2492,6 +2493,10 @@ msgstr "Puede cancelarse"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session__can_edit
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document__can_edit
+#: model:ir.model.fields,field_description:ems.field_ems_quality_edit_mode__can_edit
+#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__can_edit
+#: model:ir.model.fields,field_description:ems.field_ems_quality_process__can_edit
 msgid "Can edit"
 msgstr "Puede editar"
 
@@ -6099,6 +6104,7 @@ msgid "NUSS"
 msgstr ""
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__name model:ir.model.fields,field_description:ems.field_ems_content__name model:ir.model.fields,field_description:ems.field_ems_course__name model:ir.model.fields,field_description:ems.field_ems_criteria__name model:ir.model.fields,field_description:ems.field_ems_csv_column__name model:ir.model.fields,field_description:ems.field_ems_group__name model:ir.model.fields,field_description:ems.field_ems_level__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__name model:ir.model.fields,field_description:ems.field_ems_outcome__name model:ir.model.fields,field_description:ems.field_ems_planning__name model:ir.model.fields,field_description:ems.field_ems_role__name model:ir.model.fields,field_description:ems.field_ems_space__name model:ir.model.fields,field_description:ems.field_ems_space_type__name model:ir.model.fields,field_description:ems.field_ems_strike_reason__name model:ir.model.fields,field_description:ems.field_ems_student_document__name model:ir.model.fields,field_description:ems.field_ems_study__name model:ir.model.fields,field_description:ems.field_ems_subject__name model:ir.model.fields,field_description:ems.field_ems_workgroup__name model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__name model:ir.model.fields,field_description:ems.field_ems_attendance_status__name model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__name
 #: code:addons/ems/models/employees/google_workspace_integration.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_status__name
@@ -16278,55 +16284,13 @@ msgid ""
 msgstr "Procedimiento de calidad: cómo se lleva a cabo una parte de un proceso (PE3.01, PE3.04...)."
 
 #. module: ems
-#: model:ir.actions.client,name:ems.action_quality_process_map
+#. odoo-python
 #: model:ir.ui.menu,name:ems.menu_quality_process_map
-#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+#: code:addons/ems/models/quality/document.py:0
+#: model:ir.actions.server,name:ems.action_quality_process_map_open
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document__is_process_map
 msgid "Process map"
 msgstr "Mapa de procesos"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/xml/backend/quality_process_map.xml:0
-msgid "Open in a new tab"
-msgstr "Abrir en una pestaña nueva"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/xml/backend/quality_process_map.xml:0
-msgid "The process map has not been configured yet."
-msgstr "El mapa de procesos aún no se ha configurado."
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/xml/backend/quality_process_map.xml:0
-msgid ""
-"Publish the process map document to the web from Google Docs and paste its "
-"embed address in Settings > EMS Management > Quality Settings."
-msgstr ""
-"Publicad en la Web el documento del mapa de procesos desde Google Docs y "
-"pegad su dirección para insertar en Ajustes > Gestión del EMS > "
-"Configuración de calidad."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_company__quality_process_map_url
-#: model:ir.model.fields,field_description:ems.field_res_config_settings__quality_process_map_url
-msgid "Quality Process Map Url"
-msgstr "URL del mapa de procesos"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
-msgid "Quality Settings"
-msgstr "Configuración de calidad"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
-msgid ""
-"Embed address of the process map document. In Google Docs: File > Share > "
-"Publish to the web > Embed, and paste the address inside src=\"...\"."
-msgstr ""
-"Dirección para insertar el documento del mapa de procesos. En Google Docs: "
-"Archivo > Compartir > Publicar en la Web > Insertar, y pegad la dirección "
-"que hay dentro de src=\"...\"."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_quality_document
@@ -16345,11 +16309,6 @@ msgid ""
 msgstr ""
 "Como en la documentación del centro: PE3.01.15. Vacío mientras el documento "
 "no tenga código."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_quality_document__url
-msgid "Where the document lives, normally in the centre's Drive."
-msgstr "Dónde está el documento, normalmente en el Drive del centro."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_quality_document__process_id
@@ -16431,3 +16390,93 @@ msgstr ""
 #: code:addons/ems/models/quality/document_link_import.py:0
 msgid "The file could not be read as UTF-8 text: %s"
 msgstr "No se ha podido leer el fichero como texto UTF-8: %s"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_document__embed_url
+msgid ""
+"Built from the link for Google Docs, Sheets, Slides and Drive files. Empty "
+"for any other address."
+msgstr ""
+"Se construye a partir del enlace para Google Docs, Hojas de cálculo, "
+"Presentaciones y ficheros del Drive. Vacío para cualquier otra dirección."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document__edit_mode
+#: model:ir.model.fields,field_description:ems.field_ems_quality_edit_mode__edit_mode
+#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__edit_mode
+#: model:ir.model.fields,field_description:ems.field_ems_quality_process__edit_mode
+msgid "Editing"
+msgstr "En edición"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/document.py:0
+msgid ""
+"No document is marked as the process map yet. Mark one in Quality > "
+"Configuration > Documents."
+msgstr ""
+"Aún no hay ningún documento marcado como mapa de procesos. Marcad uno en "
+"Calidad > Configuración > Documentos."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/document.py:0
+msgid "Only one document can be marked as the process map."
+msgstr "Solo un documento puede estar marcado como mapa de procesos."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_form
+msgid "Open document"
+msgstr "Abrir el documento"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document__embed_url
+msgid "Preview address"
+msgstr "Dirección de la vista previa"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_quality_edit_mode
+msgid "Quality edit mode: forms that open read-only until 'Edit' is pressed."
+msgstr ""
+"Modo de edición de calidad: formularios que se abren solo en lectura hasta "
+"que se pulsa 'Editar'."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_document__is_process_map
+msgid ""
+"The document shown in Quality > Process map. Only one document can be "
+"marked."
+msgstr ""
+"El documento que se muestra en Calidad > Mapa de procesos. Solo se puede "
+"marcar uno."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_document__url
+msgid ""
+"The document's ordinary address, as copied from the browser. It is what "
+"'Open document' opens."
+msgstr ""
+"La dirección normal del documento, tal como se copia del navegador. Es la "
+"que abre 'Abrir el documento'."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/document.py:0
+msgid "This document has no link yet."
+msgstr "Este documento aún no tiene enlace."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/quality_document_fields.xml:0
+msgid "This link cannot be shown inside EMS. Use Open document to see it."
+msgstr ""
+"Este enlace no se puede mostrar dentro de EMS. Usad Abrir el documento para "
+"verlo."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_document__can_edit
+#: model:ir.model.fields,help:ems.field_ems_quality_edit_mode__can_edit
+#: model:ir.model.fields,help:ems.field_ems_quality_procedure__can_edit
+#: model:ir.model.fields,help:ems.field_ems_quality_process__can_edit
+msgid "Whether the current user may write this record."
+msgstr "Si el usuario actual puede modificar este registro."

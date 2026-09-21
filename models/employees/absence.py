@@ -202,12 +202,35 @@ class EmsAbsenceLeave(models.Model):
         help="I declare, under my own responsibility, that the details and the reason given for "
              "this absence are true.")
     ems_direction_state = fields.Selection(
-        string="Direction check",
-        selection=[('not_done', 'Not done'), ('missing_doc', 'Missing document'), ('done', 'Done')],
+        string="Direction status",
+        selection=[('not_done', 'Pending'), ('missing_doc', 'Missing document'), ('done', 'Done'),
+                   ('refused', 'Refused')],
         default='not_done', required=True, copy=False, tracking=True,
-        help="Direction's own check of the supporting document and, for ATRI absences, of the "
-             "request having really been filed on the portal. Independent of the approval: a "
-             "request can be approved and still be waiting for its document.")
+        help="Direction's own approval: the check of the supporting document and, for ATRI "
+             "absences, of the request having really been filed on the portal. Independent of "
+             "the Head's approval and possible in either order; refusing it refuses the whole "
+             "request.")
+    ems_head_state = fields.Selection(
+        string="Head status",
+        selection=[('pending', 'Pending'), ('approved', 'Approved'), ('refused', 'Refused')],
+        compute="_compute_ems_head_state", store=True, copy=False,
+        help="The decision of the Area Manager who approves this employee's absences - what "
+             "Odoo's own approval records, with Direction's refusal told apart from it.")
+    ems_status = fields.Selection(
+        string="Overall status",
+        selection=[
+            ('pending', 'Pending'),
+            ('pending_head', 'Pending Head'),
+            ('pending_direction', 'Pending Direction'),
+            ('pending_document', 'Pending Document'),
+            ('approved', 'Approved'),
+            ('refused', 'Refused'),
+            ('cancel', 'Cancelled'),
+        ],
+        compute="_compute_ems_status", store=True, copy=False,
+        help="Where the request stands between its two approvals, the Head's and Direction's, "
+             "which can happen in either order. The absence takes effect (calendar, hour "
+             "balance, guard duty board) as soon as the Head approves it.")
     ems_health_hours_used = fields.Float(
         string="Health hours used", compute="_compute_ems_health_allowance",
         help="Hours this employee has already used from their health allowance this course, "
@@ -236,6 +259,35 @@ class EmsAbsenceLeave(models.Model):
         help="This absence's hours when it consumes the health allowance, zero otherwise. A "
              "column of its own so a report grouped by employee can total it - which is the "
              "figure that has to stay under the yearly allowance.")
+
+    @api.depends('state')
+    def _compute_ems_head_state(self):
+        """Odoo's own state is the Head's decision - with two exceptions it cannot tell apart on
+        its own, where the column keeps whatever the Head had decided before: a refusal that was
+        Direction's ('ems_direction_state' is already 'refused' by the time the state changes,
+        see action_ems_direction_refuse), and the employee cancelling their own request.
+
+        Deliberately not depending on 'ems_direction_state': the Head's column must not move
+        when only Direction acts."""
+        for leave in self:
+            if leave.state in ('validate', 'validate1'):
+                leave.ems_head_state = 'approved'
+            elif leave.state == 'refuse' and leave.ems_direction_state != 'refused':
+                leave.ems_head_state = 'refused'
+            elif leave.state == 'confirm' or not leave.ems_head_state:
+                leave.ems_head_state = 'pending'
+
+    @api.depends('state', 'ems_head_state', 'ems_direction_state')
+    def _compute_ems_status(self):
+        for leave in self:
+            if leave.state in ('refuse', 'cancel'):
+                leave.ems_status = 'refused' if leave.state == 'refuse' else 'cancel'
+            elif leave.ems_head_state == 'approved':
+                leave.ems_status = {
+                    'done': 'approved', 'missing_doc': 'pending_document',
+                }.get(leave.ems_direction_state, 'pending_direction')
+            else:
+                leave.ems_status = 'pending_head' if leave.ems_direction_state == 'done' else 'pending'
 
     @api.depends('request_date_from')
     def _compute_ems_course_id(self):
@@ -308,6 +360,22 @@ class EmsAbsenceLeave(models.Model):
         for leave in self:
             leave.is_absence_manager = is_officer or leave.employee_id.leave_manager_id == self.env.user
             leave.is_absence_direction = is_direction
+
+    def _compute_can_approve(self):
+        """Direction does not approve on the Head's behalf.
+
+        Direction holds the officer group through Head of Studies, so Odoo would offer it the
+        Approve and Refuse buttons on every request - right beside the Head's column, where
+        clicking them decides for the Head instead of recording Direction's own review, which
+        has its own buttons. They stay only where Direction really is the approver: an Area
+        Manager's own absence (see _compute_leave_manager). The server-side rights are left
+        alone; this is what the screens offer."""
+        super()._compute_can_approve()
+        if self.env.su or not self.env.user.has_group('ems.group_director'):
+            return
+        for leave in self:
+            if leave.employee_id.leave_manager_id != self.env.user:
+                leave.can_approve = False
 
     @api.model
     def default_get(self, fields_list):
@@ -520,9 +588,22 @@ class EmsAbsenceLeave(models.Model):
                 partners |= chief.user_id.partner_id or chief.work_contact_id
         return partners
 
-    def _ems_inform_department_chief(self):
+    def _ems_direction_partners(self):
+        """Direction, told of every approval: its own review of the supporting document starts
+        there. Not when Direction is the absent employee or is itself approving."""
+        partners = self.env['res.partner']
+        for leave in self:
+            director = leave.employee_id.company_id.director_id or self.env.company.director_id
+            if not director or director == leave.employee_id or director.user_id == self.env.user:
+                continue
+            partners |= director.user_id.partner_id or director.work_contact_id
+        return partners
+
+    def _ems_inform_department_chief(self, with_direction=False):
         for leave in self:
             partners = leave._ems_notify_partners()
+            if with_direction:
+                partners |= leave._ems_direction_partners()
             if partners:
                 # Subscribed just before the state change, so the summary below is the first
                 # thing they receive - they are told the outcome, not every draft.
@@ -555,7 +636,7 @@ class EmsAbsenceLeave(models.Model):
                 _("Dates: %(when)s", when=when),
                 _("Duration: %(hours).2f h", hours=leave.number_of_hours),
                 _("Status: %(state)s", state=dict(
-                    leave._fields['state']._description_selection(leave.env))[leave.state]),
+                    leave._fields['ems_status']._description_selection(leave.env))[leave.ems_status]),
             ])
             leave.message_post(
                 body=Markup("<p>%s</p>%s") % (
@@ -611,7 +692,7 @@ class EmsAbsenceLeave(models.Model):
         return result
 
     def action_approve(self, check_state=True):
-        self._ems_inform_department_chief()
+        self._ems_inform_department_chief(with_direction=True)
         result = super().action_approve(check_state=check_state)
         self._ems_post_outcome()
         return result
@@ -621,6 +702,29 @@ class EmsAbsenceLeave(models.Model):
         result = super().action_refuse()
         self._ems_post_outcome()
         return result
+
+    # --- Direction's own approval -----------------------------------------------------------
+    # Plain writes: hr.leave.write() is what keeps them Direction's alone, for these buttons and
+    # for any other way in.
+
+    def _ems_set_direction_state(self, value):
+        self.write({'ems_direction_state': value})
+        return True
+
+    def action_ems_direction_done(self):
+        return self._ems_set_direction_state('done')
+
+    def action_ems_direction_missing_doc(self):
+        return self._ems_set_direction_state('missing_doc')
+
+    def action_ems_direction_reset(self):
+        return self._ems_set_direction_state('not_done')
+
+    def action_ems_direction_refuse(self):
+        """Refuses the whole request, as final as the Head's refusal. Direction's column is set
+        first, so _compute_ems_head_state knows the refusal about to happen is not the Head's."""
+        self._ems_set_direction_state('refused')
+        return self.action_refuse()
 
     @api.constrains('ems_submitted', 'ems_responsible_declaration')
     def _check_ems_submitted(self):

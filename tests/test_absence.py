@@ -8,9 +8,10 @@ from lxml import etree
 from odoo import Command
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
+from odoo.tools.safe_eval import safe_eval
 
 from ..models.employees.absence import TIME_OFF_GROUP_XMLIDS
-from .common import mock_outgoing_email
+from .common import create_role_employee, create_role_user, mock_outgoing_email
 
 # The nine absence types seeded by data/cat/hr.leave.type.csv, with the native flags each one
 # needs: (xmlid, requires a supporting document).
@@ -608,6 +609,193 @@ class TestAbsenceRequest(TransactionCase):
         })
 
         self.assertEqual(sneaked.sudo().ems_direction_state, 'not_done')
+
+    # --- The two approvals: the Head's and Direction's -----------------------------------------
+
+    def _direction(self):
+        """A Director who is not the approver of self.employee (who has no department, so no
+        approver at all), set as the company's Director so notifications can find them."""
+        user = create_role_user(self, 'director', 'absence_direction@absence.test',
+                                email='absence_direction@example.com')
+        self.env.company.director_id = create_role_employee(self, user).id
+        return user
+
+    def test_a_new_request_is_pending_for_both(self):
+        leave = self._create_leave(self.type_justified, self._monday())
+
+        self.assertEqual(leave.ems_head_state, 'pending')
+        self.assertEqual(leave.ems_direction_state, 'not_done')
+        self.assertEqual(leave.ems_status, 'pending')
+
+    def test_the_overall_status_combines_both_approvals(self):
+        """Either order is allowed, so every combination has its own name."""
+        cases = (
+            # (Head approves?, Direction check, expected overall status)
+            (False, 'missing_doc', 'pending'),
+            (False, 'done', 'pending_head'),
+            (True, 'not_done', 'pending_direction'),
+            (True, 'missing_doc', 'pending_document'),
+            (True, 'done', 'approved'),
+        )
+        for offset, (approved, direction, expected) in enumerate(cases):
+            with self.subTest(approved=approved, direction=direction):
+                leave = self._create_leave(
+                    self.type_justified, self._monday() + timedelta(days=7 * offset), ems_full_day=True)
+                leave.ems_direction_state = direction
+                if approved:
+                    leave.action_approve()
+
+                self.assertEqual(leave.ems_status, expected)
+
+    def test_a_head_refusal_refuses_the_request(self):
+        leave = self._create_leave(self.type_justified, self._monday())
+
+        leave.action_refuse()
+
+        self.assertEqual(leave.ems_head_state, 'refused')
+        self.assertEqual(leave.ems_direction_state, 'not_done')
+        self.assertEqual(leave.ems_status, 'refused')
+
+    def test_a_direction_refusal_refuses_the_whole_request(self):
+        """Direction refusing is final, like the Head's - but it is Direction's refusal, not
+        the Head's, and each column says who decided what."""
+        for approved_first in (False, True):
+            with self.subTest(approved_first=approved_first):
+                leave = self._create_leave(
+                    self.type_justified, self._monday() + timedelta(days=7 * approved_first),
+                    ems_full_day=True)
+                if approved_first:
+                    leave.action_approve()
+
+                leave.action_ems_direction_refuse()
+
+                self.assertEqual(leave.state, 'refuse')
+                self.assertEqual(leave.ems_direction_state, 'refused')
+                self.assertEqual(leave.ems_head_state, 'approved' if approved_first else 'pending')
+                self.assertEqual(leave.ems_status, 'refused')
+
+    def test_direction_marks_its_check_from_buttons(self):
+        leave = self._create_leave(self.type_justified, self._monday())
+
+        leave.action_ems_direction_missing_doc()
+        self.assertEqual(leave.ems_direction_state, 'missing_doc')
+        leave.action_ems_direction_done()
+        self.assertEqual(leave.ems_direction_state, 'done')
+        leave.action_ems_direction_reset()
+        self.assertEqual(leave.ems_direction_state, 'not_done')
+
+    def test_only_direction_uses_the_direction_buttons(self):
+        head = create_role_user(self, 'head_of_studies', 'absence_hos_buttons@absence.test')
+        leave = self._create_leave(self.type_justified, self._monday())
+
+        for action in ('action_ems_direction_done', 'action_ems_direction_missing_doc',
+                       'action_ems_direction_reset', 'action_ems_direction_refuse'):
+            with self.subTest(action=action), self.assertRaises(AccessError):
+                getattr(leave.with_user(head), action)()
+        self.assertEqual(leave.state, 'confirm')
+
+    def test_direction_does_not_approve_on_the_heads_behalf(self):
+        """Direction holds the officer group through Head of Studies, so Odoo would let it
+        approve every request - and the Approve button beside the Head's column is not
+        Direction's review. It only gets to approve where it really is the approver."""
+        direction = self._direction()
+        leave = self._create_leave(self.type_justified, self._monday())
+
+        self.assertFalse(leave.with_user(direction).can_approve)
+
+        self.employee.leave_manager_id = direction.id
+        leave.invalidate_recordset(['can_approve'])
+        self.assertTrue(leave.with_user(direction).can_approve,
+                        "an Area Manager's own absence is Direction's to approve")
+
+    def test_a_head_of_studies_still_approves(self):
+        head = create_role_user(self, 'head_of_studies', 'absence_hos_approves@absence.test')
+        leave = self._create_leave(self.type_justified, self._monday())
+
+        self.assertTrue(leave.with_user(head).can_approve)
+
+    def test_direction_is_told_when_the_head_approves(self):
+        direction = self._direction()
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+
+        leave.action_approve()
+
+        self.assertIn(direction.partner_id, leave.message_partner_ids)
+        self.assertIn('Pending Direction', leave.message_ids.sorted('id')[-1].body,
+                      'the summary says what is still missing')
+
+    def test_direction_is_not_told_of_a_refusal(self):
+        direction = self._direction()
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+
+        leave.action_refuse()
+
+        self.assertNotIn(direction.partner_id, leave.message_partner_ids)
+
+    def test_direction_is_not_told_of_its_own_approval(self):
+        """As the approver it already follows the request - hr_holidays subscribes whoever
+        approves - so there is nobody extra to tell."""
+        direction = self._direction()
+        self.employee.leave_manager_id = direction.id
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+
+        self.assertFalse(leave.with_user(direction)._ems_direction_partners())
+
+    def test_direction_is_not_told_of_its_own_absence(self):
+        self._direction()
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True,
+                                   employee_id=self.env.company.director_id.id)
+
+        leave.action_approve()
+
+        self.assertFalse(leave._ems_direction_partners())
+
+    def test_waiting_for_direction_lists_what_direction_still_owes(self):
+        """Every live request Direction has not approved yet, whether or not the Head has -
+        either can go first - plus whatever Direction approves as the Head."""
+        direction = self._direction()
+        day = self._monday()
+        reviewed = self._create_leave(self.type_justified, day, ems_full_day=True)
+        reviewed.action_approve()
+        reviewed.ems_direction_state = 'done'
+        unreviewed = self._create_leave(self.type_justified, day + timedelta(days=7), ems_full_day=True)
+        unreviewed.action_approve()
+        missing = self._create_leave(self.type_justified, day + timedelta(days=14), ems_full_day=True)
+        missing.action_approve()
+        missing.ems_direction_state = 'missing_doc'
+        heads_pending = self._create_leave(self.type_justified, day + timedelta(days=21), ems_full_day=True)
+        refused = self._create_leave(self.type_justified, day + timedelta(days=35), ems_full_day=True)
+        refused.action_refuse()
+        direction_first = self._create_leave(self.type_justified, day + timedelta(days=42), ems_full_day=True)
+        direction_first.ems_direction_state = 'done'
+        own_approver = self.env['hr.employee'].create({
+            'name': 'Test Area Manager (Direction approves)', 'employee_type': 'teacher'})
+        own_approver.leave_manager_id = direction.id
+        directions_pending = self._create_leave(
+            self.type_justified, day + timedelta(days=28), ems_full_day=True,
+            employee_id=own_approver.id)
+
+        search = etree.fromstring(self.env['hr.leave'].with_user(direction).get_view(
+            self.env.ref('hr_holidays.hr_leave_view_search_manager').id, 'search')['arch'])
+        [waiting] = search.xpath("//filter[@name='ems_waiting_for_direction']")
+        domain = safe_eval(waiting.get('domain'), {'uid': direction.id})
+        found = self.env['hr.leave'].search(domain)
+
+        self.assertIn(unreviewed, found)
+        self.assertIn(missing, found)
+        self.assertIn(directions_pending, found)
+        self.assertIn(heads_pending, found, 'pending for both is pending for Direction too')
+        self.assertNotIn(reviewed, found)
+        self.assertNotIn(refused, found)
+        self.assertNotIn(direction_first, found, 'Direction already approved it; the Head has not')
+        self.assertFalse(search.xpath("//filter[@name='waiting_for_me_manager']"),
+                         "the Head of Studies' own filter would list the Head's pending work")
+
+    def test_direction_lands_on_its_own_filter(self):
+        context = safe_eval(self.env.ref('hr_holidays.hr_leave_action_action_approve_department').context,
+                            {'uid': self.env.uid, 'allowed_company_ids': []})
+
+        self.assertTrue(context.get('search_default_ems_waiting_for_direction'))
 
     # --- The supporting document ------------------------------------------------------------
 

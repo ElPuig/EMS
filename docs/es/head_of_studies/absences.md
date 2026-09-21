@@ -13,7 +13,7 @@
 1. [Quién aprueba cada área](#quién-aprueba-cada-área)
 2. [Aprobar o rechazar](#aprobar-o-rechazar)
 3. [Ajustar el cómputo de una ausencia](#ajustar-el-cómputo-de-una-ausencia)
-4. [Verificación de dirección](#verificación-de-dirección)
+4. [Aprobación de Dirección](#aprobación-de-dirección)
 5. [Informe por empleado](#informe-por-empleado)
 6. [Informe mensual](#informe-mensual)
 
@@ -37,13 +37,23 @@ Nadie aprueba su propia ausencia: la de un responsable de área la resuelve Dire
 
 **Asistencia del personal > Ausencias > Administración > Ausencias**.
 
-Ahí tienes las solicitudes de tu área. Las que esperan decisión están en estado **Pendiente**, y las puedes resolver desde el listado o abriéndolas.
+Ahí tienes las solicitudes de tu área. Cada ausencia necesita dos aprobaciones, la tuya y la de Dirección, en cualquier orden, y el listado tiene una columna para cada una:
+
+| Columna | Muestra |
+|---|---|
+| **Estado** | En qué punto está la solicitud entre las dos aprobaciones |
+| **Estado Jefatura** | Tu decisión: Pendiente, Aprobado o Rechazado |
+| **Estado Dirección** | La de Dirección: Pendiente, Falta documento, Hecho o Rechazado |
+
+Para decidir, usa los dos iconos junto a **Estado Jefatura**: el pulgar aprueba y la cruz rechaza. También puedes abrir la solicitud y usar **Aprobar** o **Rechazar** arriba: una vez decidido, vuelves al listado.
+
+La ausencia tiene efecto (calendario de ausencias, saldo de horas, cuadrante de guardias) en cuanto la apruebas, aunque Dirección no la haya revisado.
 
 ![Listado de ausencias, con las acciones Aprobar/Rechazar sobre una solicitud pendiente](../../assets/head_of_studies/hos-absences-list.png)
 
 Tú ves el **motivo escrito** y el **justificante**; el resto del personal, no.
 
-**Rechazar es definitivo.** Nadie del centro puede devolver una solicitud rechazada a *Pendiente*: para concederla finalmente, la persona tiene que hacer una nueva. Como el botón Rechazar está al lado de Aprobar, y en el listado es solo una cruz al final de la fila, siempre pide confirmación antes - lee el mensaje antes de aceptarlo.
+**Rechazar es definitivo.** Nadie del centro puede devolver una solicitud rechazada a *Pendiente*: para concederla finalmente, la persona tiene que hacer una nueva. Como el botón Rechazar está al lado de Aprobar, y en el listado es solo una cruz a su lado, siempre pide confirmación antes - lee el mensaje antes de aceptarlo.
 
 Puedes adjuntar un **justificante** a cualquier solicitud, de cualquier tipo y en cualquier momento: un certificado entregado cuando la ausencia ya estaba aprobada se adjunta a esa misma solicitud, y eso es lo que resuelve un *Falta documento*.
 
@@ -64,19 +74,38 @@ Si la ausencia es de día entero o de unas horas concretas lo controla la casill
 
 ---
 
-## Verificación de dirección
+## Aprobación de Dirección
 
-Campo independiente de la aprobación: una ausencia puede estar aprobada y pendiente de justificante a la vez.
+**Solo Dirección.** Dirección revisa el justificante de cada ausencia y, en las ausencias de **ATRI**, comprueba que la solicitud se ha tramitado de verdad en el portal de la Generalitat.
 
-| Valor | Color |
+**Asistencia del personal > Ausencias > Administración > Ausencias** se abre con **Esperándome**: todas las ausencias que todavía no has aprobado, las haya aprobado o no su jefe, y las ausencias de los propios jefes de área, que apruebas tú como su jefe.
+
+Revísalas desde el listado con los iconos junto a **Estado Dirección**, o abre una y usa los botones de arriba, que te devuelven al listado al terminar:
+
+| Icono | Botón | El Estado Dirección pasa a |
+|---|---|---|
+| Casilla marcada | **Dirección: hecho** | Hecho |
+| Hoja | **Falta documento** | Falta documento |
+| Flecha atrás | **Dirección: pendiente** | Pendiente |
+| Cruz | **Rechazar** | Rechazado. Rechaza toda la solicitud, pide confirmación antes y es definitivo |
+
+Puedes revisar una solicitud antes de que decida su jefe. El Aprobar/Rechazar del **Estado Jefatura** solo lo tienes en las ausencias de los jefes de área.
+
+Cuando un jefe aprueba una ausencia, recibes su resumen como seguidor.
+
+El **Estado** combina las dos aprobaciones:
+
+| Estado | Significa |
 |---|---|
-| No hecho | gris |
-| Falta documento | rojo |
-| Hecho | verde |
+| Pendiente | Todavía no la ha aprobado nadie |
+| Pendiente Jefatura | Dirección sí, el jefe todavía no |
+| Pendiente Dirección | El jefe sí, Dirección todavía no |
+| Pendiente Documento | El jefe sí, y Dirección espera el justificante |
+| Aprobado | Los dos |
+| Rechazado | Uno de los dos la ha rechazado |
+| Cancelado | La persona la ha retirado |
 
-En las ausencias de **ATRI**, márcalo como `Hecho` cuando hayas comprobado que la solicitud se ha tramitado en el portal de la Generalitat.
-
-Se ve en todos los listados, pero **solo Dirección lo puede modificar**.
+El panel de búsqueda de la izquierda filtra por **Estado**.
 
 ---
 

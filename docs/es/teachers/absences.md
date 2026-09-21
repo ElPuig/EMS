@@ -50,7 +50,7 @@ Al elegir el tipo **ATRI**, el formulario te muestra los enlaces al portal. La s
 - [Mis solicitudes - permisos y ausencias](https://atriportal.gencat.cat/ATRI-ng/#/meves-sollicituds/permisos-absencies)
 - [Manual de permisos y ausencias de ATRI (PDF)](https://atriportal.gencat.cat/ATRI-web/gestor-continguts/2011.pdf)
 
-Dirección comprueba que la hayas tramitado en el portal antes de marcar la verificación como `Hecho`.
+Dirección comprueba que la hayas tramitado en el portal antes de aprobarla por su parte (**Estado Dirección** `Hecho`).
 
 Cada opción muestra el texto completo del permiso. Léelo antes de elegir: al marcarlo, declaras que te encuentras en esa situación.
 
@@ -85,7 +85,7 @@ Para pedir más de un día, márcala y cambia la fecha de fin. Si es un solo dí
 
 En el caso de consulta médica, el justificante debe hacer constar expresamente el nombre y apellidos del o de la paciente y la hora de entrada y salida del centro o consulta médica.
 
-**Un justificante que llega más tarde se adjunta a la misma solicitud.** Abre la ausencia, aunque ya esté aprobada, adjunta el archivo y guarda. Eso es lo que resuelve una **Comprobación de dirección** en estado *Falta documento*: no hay que volver a solicitar la ausencia.
+**Un justificante que llega más tarde se adjunta a la misma solicitud.** Abre la ausencia, aunque ya esté aprobada, adjunta el archivo y guarda. Eso es lo que resuelve un **Estado Dirección** en *Falta documento*: no hay que volver a solicitar la ausencia.
 
 Para borrar uno, haz clic en la cruz del archivo y confirma.
 
@@ -107,24 +107,23 @@ Si sales del formulario sin enviarlo, EMS te avisa y te deja descartarlo.
 
 ## Consultar el estado
 
-En **Ausencias** tienes tu lista, con dos columnas:
+En **Ausencias** tienes tu lista. Tu ausencia se aprueba dos veces, por tu jefe (jefe de estudios adjunto, jefe de estudios o secretario/a) y por Dirección, en cualquier orden.
 
 **Estado**
 
 | Valor | Significa |
 |---|---|
 | Pendiente | Todavía no se ha resuelto |
-| Aprobada | Concedida |
-| Rechazada | Denegada. Es definitivo: si quieres insistir, hay que hacer una solicitud nueva |
-| Cancelada | Anulada |
+| Pendiente Jefatura | Dirección la ha aprobado, tu jefe todavía no |
+| Pendiente Dirección | Tu jefe la ha aprobado, Dirección todavía no la ha revisado |
+| Pendiente Documento | Dirección espera el justificante: adjúntalo a la misma solicitud, aunque ya esté aprobada |
+| Aprobado | Concedida por los dos |
+| Rechazado | Denegada. Es definitivo: si quieres insistir, hay que hacer una solicitud nueva |
+| Cancelado | Anulada |
 
-**Verificación de dirección** — si dirección ya ha comprobado el justificante:
+Las columnas **Estado Jefatura** y **Estado Dirección** muestran la decisión de cada uno por separado.
 
-| Valor | Color | Qué tienes que hacer |
-|---|---|---|
-| No hecho | gris | Nada, todavía no se ha revisado |
-| Falta documento | rojo | Adjuntar el justificante a la misma solicitud, aunque ya esté aprobada |
-| Hecho | verde | Nada |
+En cuanto la aprueba tu jefe, la ausencia ya cuenta en el calendario de ausencias y en el cuadrante de guardias.
 
 ---
 

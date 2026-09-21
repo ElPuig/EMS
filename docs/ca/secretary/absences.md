@@ -26,7 +26,7 @@ Tens accés al motiu escrit i al justificant de la teva gent, i pots ajustar els
 
 **Rebutjar és definitiu**, i demana confirmació abans: ningú pot tornar una sol·licitud rebutjada a *Pendent*, i la persona hauria de fer-ne una de nova. El justificant, en canvi, es pot adjuntar en qualsevol moment, també en una sol·licitud ja aprovada.
 
-La **verificació de direcció** la veus però no la pots modificar: la marca Direcció.
+Aprovar és la teva meitat: Direcció també aprova cada absència, a la columna **Estat Direcció**, que veus però no pots modificar. La columna **Estat** combina totes dues.
 
 El detall d'aquests camps i dels dos informes és al manual de [Cap d'Estudis](../head_of_studies/absences.md), i s'aplica igual a la teva àrea.
 

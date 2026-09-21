@@ -49,28 +49,22 @@ registry.category("web_tour.tours").add("ems_absence_request", {
             content: "So does the monthly-report flag, visible to the approver",
         },
         {
+            trigger: ".o_form_view .o_field_widget[name='ems_head_state']",
+            content: "The Head's own column shows on the form",
+        },
+        {
             trigger: ".o_form_view .o_field_widget[name='ems_direction_state']",
-            content: "And Direction's own check, which is independent of the approval state",
+            content: "And Direction's, which does not depend on it: either can come first",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='ems_direction_state'] select",
-            content: "Mark the document as received. A Selection is a real <select>, so it is "
-                + "picked by label - its option values are JSON-stringified by Odoo",
-            run: "selectByLabel Done",
-        },
-        {
-            trigger: ".o_form_button_save",
-            content: "Save the request",
+            trigger: ".o_form_view .o_form_statusbar button[name='action_ems_direction_done']",
+            content: "Direction approves from the header, before the Head has decided",
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_form_saved",
-            content: "Saved without a validation error",
-        },
-        {
-            trigger: ".breadcrumb-item:not(.active):first",
-            content: "Back to the list",
-            run: "click",
+            trigger: ".o_list_view .o_data_row:contains('Tour Absent Teacher') td[name='ems_status']:contains('Pending Head')",
+            content: "Taking a decision goes back to the list, where only the Head's approval "
+                + "is now missing",
         },
         {
             // Checked in the list, not via input[value=...]: OWL does not sync the HTML
@@ -206,7 +200,7 @@ registry.category("web_tour.tours").add("ems_absence_refuse_confirm", {
             run: "click",
         },
         {
-            trigger: ".o_list_view .o_data_row:contains('Tour Absent Teacher') .o_field_widget[name='state']:contains('Pending')",
+            trigger: ".o_list_view .o_data_row:contains('Tour Absent Teacher') .o_field_widget[name='ems_status']:contains('Pending')",
             content: "The request is still pending - cancelling really cancels",
         },
         {
@@ -232,9 +226,8 @@ registry.category("web_tour.tours").add("ems_absence_refuse_confirm", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_arrow_button_current:contains('Refused'), "
-                + ".o_form_view .o_statusbar_status button:contains('Refused')",
-            content: "Refused",
+            trigger: ".o_list_view .o_data_row:contains('Tour Absent Teacher') td[name='ems_status']:contains('Refused')",
+            content: "Refused, and back on the list",
         },
     ],
 });
@@ -372,6 +365,97 @@ registry.category("web_tour.tours").add("ems_absence_monthly_report", {
         {
             trigger: ".o_control_panel:not(:has(.o_list_button_add))",
             content: "And no way to file an absence from a report",
+        },
+    ],
+});
+
+// Direction's side of the double approval. It lands on its own "Waiting For Me" - what the Head
+// has approved and Direction has not reviewed yet - and reviews it from the row, without opening
+// anything, with its own buttons beside its own column. The Head's Approve is not on offer: on
+// somebody else's request it would decide for the Head instead of recording Direction's review.
+registry.category("web_tour.tours").add("ems_absence_direction_review", {
+    test: true,
+    url: "/odoo/action-hr_holidays.hr_leave_action_action_approve_department",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Reviewed Teacher')",
+            content: "The request the Head approved is waiting for Direction",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Absent Teacher')",
+            content: "So is the one nobody has decided yet: either approval can come first",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Reviewed Teacher'):not(:has(button[name='action_approve'])):not(:has(button[name='action_refuse']))",
+            content: "And Direction is not offered the Head's buttons on it",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Reviewed Teacher') button[name='action_ems_direction_missing_doc']",
+            content: "The document has not arrived: say so from the row",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Reviewed Teacher') td[name='ems_status']:contains('Pending Document')",
+            content: "It stays on Direction's list, now waiting for the document",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Reviewed Teacher') td[name='ems_type_short_name']",
+            content: "Open it",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_form_statusbar button[name='action_ems_direction_done']",
+            content: "The document is in: Direction approves from the header",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view:not(:has(.o_data_row:contains('Tour Reviewed Teacher')))",
+            content: "Back on the list, which it has left: approved by both, nothing left for "
+                + "Direction",
+        },
+        {
+            trigger: ".o_switch_view.o_kanban",
+            content: "The kanban of the same action renders too",
+            run: "click",
+        },
+        {
+            trigger: ".o_kanban_view",
+            content: "Kanban loaded",
+        },
+    ],
+});
+
+// The Head's side: Approve/Refuse beside the Head's column, none of Direction's buttons, and an
+// approval that leaves the request waiting for Direction.
+registry.category("web_tour.tours").add("ems_absence_head_approval", {
+    test: true,
+    url: "/odoo/action-hr_holidays.hr_leave_action_holiday_allocation_id",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Absent Teacher'):not(:has(button[name='action_ems_direction_done']))",
+            content: "Direction's buttons are Direction's alone",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Absent Teacher') button[name='action_approve']",
+            content: "The Head approves from the row",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Absent Teacher') td[name='ems_head_state']:contains('Approved')",
+            content: "The Head's column says so",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Absent Teacher') td[name='ems_status']:contains('Pending Direction')",
+            content: "And the request now waits for Direction",
+        },
+        {
+            trigger: ".o_switch_view.o_kanban",
+            content: "The kanban of the same action renders too",
+            run: "click",
+        },
+        {
+            trigger: ".o_kanban_view",
+            content: "Kanban loaded",
         },
     ],
 });

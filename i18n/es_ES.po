@@ -1734,11 +1734,14 @@ msgstr "Aplicando cambios…"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form model_terms:ir.ui.view,arch_db:ems.view_student_document_list
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
 msgid "Approve"
 msgstr "Aprobar"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_document__status__approved model_terms:ir.ui.view,arch_db:ems.view_student_document_search
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_head_state__approved
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__approved
 msgid "Approved"
 msgstr "Aprobado"
 
@@ -2319,6 +2322,7 @@ msgstr "Cancelar"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_document__status__cancelled model_terms:ir.ui.view,arch_db:ems.view_student_document_search
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__cancel
 msgid "Cancelled"
 msgstr "Cancelado"
 
@@ -5580,6 +5584,9 @@ msgstr "Plan de pago"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__pending model:ir.model.fields.selection,name:ems.selection__ems_attendance_correction__state__pending model:ir.model.fields.selection,name:ems.selection__ems_authorization__status__pending model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__pending model:ir.model.fields.selection,name:ems.selection__ems_notice_line__display_status__pending model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__state__confirm
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__not_done
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_head_state__pending
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__pending
 msgid "Pending"
 msgstr "Pendiente"
 
@@ -6794,6 +6801,8 @@ msgstr "Estado / Provincia"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__status model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__status_id model:ir.model.fields,field_description:ems.field_ems_authorization__status model:ir.model.fields,field_description:ems.field_ems_notice_line__display_status model:ir.model.fields,field_description:ems.field_ems_student_document__status model_terms:ir.ui.view,arch_db:ems.attendance_report_session model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search model_terms:ir.ui.view,arch_db:ems.view_student_document_search
+#: model:ir.model.fields,field_description:ems.field_hr_leave__state
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
 msgid "Status"
 msgstr "Estado"
 
@@ -12854,11 +12863,6 @@ msgid "Adds the hours to the monthly report"
 msgstr "Suma las horas al informe mensual"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_direction_state
-msgid "Direction check"
-msgstr "Verificación de dirección"
-
-#. module: ems
 #: model:ir.model.fields,help:ems.field_hr_leave__ems_direction_state
 msgid ""
 "Direction's own check of the supporting document and, for ATRI absences, of "
@@ -12919,13 +12923,10 @@ msgstr "Declaro, bajo mi responsabilidad, que los datos y el motivo de esta ause
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__missing_doc
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
 msgid "Missing document"
 msgstr "Falta documento"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__not_done
-msgid "Not done"
-msgstr "No hecho"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
@@ -13353,6 +13354,7 @@ msgstr "Rechazar esta solicitud de ausencia"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_kanban_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
 msgid "Refuse"
 msgstr "Rechazar"
 
@@ -14417,3 +14419,77 @@ msgstr "Usuarios que actúan como tutor"
 #: code:addons/ems/models/employees/employee.py:0
 msgid "Unsupported search on tutor_scope_user_ids"
 msgstr "Búsqueda no admitida sobre tutor_scope_user_ids"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_direction_state
+msgid "Direction status"
+msgstr "Estado Dirección"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_head_state
+msgid "Head status"
+msgstr "Estado Jefatura"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_status
+msgid "Overall status"
+msgstr "Estado global"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__pending_head
+msgid "Pending Head"
+msgstr "Pendiente Jefatura"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__pending_direction
+msgid "Pending Direction"
+msgstr "Pendiente Dirección"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__pending_document
+msgid "Pending Document"
+msgstr "Pendiente Documento"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+msgid "Direction: done"
+msgstr "Dirección: hecho"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+msgid "Direction: pending"
+msgstr "Dirección: pendiente"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+msgid "Validate"
+msgstr "Validar"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__refused
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_head_state__refused
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__refused
+msgid "Refused"
+msgstr "Rechazado"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_holidays_filter_ems
+msgid "Waiting For Me"
+msgstr "Esperándome"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_direction_state
+msgid "Direction's own approval: the check of the supporting document and, for ATRI absences, of the request having really been filed on the portal. Independent of the Head's approval and possible in either order; refusing it refuses the whole request."
+msgstr "La aprobación propia de Dirección: la comprobación del justificante y, en las ausencias ATRI, de que la solicitud se ha presentado de verdad en el portal. Independiente de la aprobación de la jefatura y posible en cualquier orden; rechazarla rechaza toda la solicitud."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_head_state
+msgid "The decision of the Area Manager who approves this employee's absences - what Odoo's own approval records, with Direction's refusal told apart from it."
+msgstr "La decisión del jefe de área que aprueba las ausencias de este trabajador, con el rechazo de Dirección distinguido de ella."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_status
+msgid "Where the request stands between its two approvals, the Head's and Direction's, which can happen in either order. The absence takes effect (calendar, hour balance, guard duty board) as soon as the Head approves it."
+msgstr "En qué punto está la solicitud entre sus dos aprobaciones, la de la jefatura y la de Dirección, que pueden llegar en cualquier orden. La ausencia tiene efecto (calendario, saldo de horas, cuadrante de guardias) en cuanto la aprueba la jefatura."

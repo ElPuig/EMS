@@ -144,6 +144,37 @@ registry.category("web_tour.tours").add("ems_quality_registry", {
             trigger: ".o_form_view .o_field_widget[name='procedure_ids']",
             content: "The process form lists its procedures",
         },
+        {
+            trigger: ".o_form_view .o_field_widget[name='procedure_ids'] .o_list_record_open_form_view button",
+            content: "Each procedure opens in its own form from the process",
+            run: "click",
+        },
+        {
+            trigger: ".breadcrumb-item:nth-child(2), .o_breadcrumb .breadcrumb-item + .breadcrumb-item",
+            content: "The procedure opened on top of the process, which stays in the breadcrumbs",
+        },
+        {
+            trigger: ".o_form_view iframe.o_quality_document_preview[src$='/preview']",
+            content: "The procedure opens on its own sheet",
+        },
+        {
+            trigger: ".o_form_view .o_notebook .nav-link[name='documents']",
+            content: "Look at its documents",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='document_ids']",
+            content: "Its documents tab is open",
+        },
+        {
+            trigger: ".o_pager_next",
+            content: "Go to the next procedure of the process",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_notebook .nav-link.active[name='document']",
+            content: "It opens on its own sheet again, not on the tab left open on the previous one",
+        },
     ],
 });
 

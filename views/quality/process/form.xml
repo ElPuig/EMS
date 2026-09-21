@@ -6,7 +6,7 @@
             <field name="name">ems.quality.process.form</field>
             <field name="model">ems.quality.process</field>
             <field name="arch" type="xml">
-                <form class="o_quality_wide_form">
+                <form class="o_quality_wide_form" js_class="ems_quality_form">
                     <header>
                         <field name="edit_mode" widget="ems_quality_edit_mode" invisible="edit_mode or not can_edit"/>
                         <button name="action_open_document" type="object" string="Open document" icon="fa-external-link"
@@ -34,7 +34,7 @@
                             </page>
                             <page string="Procedures" name="procedures">
                                 <field name="procedure_ids" readonly="not edit_mode">
-                                    <list editable="bottom">
+                                    <list editable="bottom" open_form_view="True">
                                         <field name="code"/>
                                         <field name="name"/>
                                     </list>
@@ -42,7 +42,7 @@
                             </page>
                             <page string="Documents" name="documents">
                                 <field name="document_ids" readonly="not edit_mode">
-                                    <list editable="bottom">
+                                    <list editable="bottom" open_form_view="True">
                                         <field name="code"/>
                                         <field name="name"/>
                                         <field name="procedure_id"/>

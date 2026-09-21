@@ -156,10 +156,14 @@ Only the documentary structure and the links (see "One owner per piece of inform
   Seeded from the centre's process map (eight processes).
 - **`ems.quality.procedure`** — `code`, `name`, `process_id`, `document_ids`, `active`.
 - **`ems.quality.document`** — `code` (nullable), `name`, `procedure_id`, `process_id` (from the
-  procedure, editable when there is none), `url` (its Drive link), `active` (archived when no longer in
-  force). No version, state, dates, owner or distribution flags: those live in the document, in Drive.
-- **Process map** — the centre's process map is a Google document; `Quality > Process map` embeds its
-  published copy (`res.company.quality_process_map_url`), so the picture is never redrawn in EMS.
+  procedure, editable when there is none), `url` (its ordinary Drive link), `is_process_map`, `active`
+  (archived when no longer in force). No version, state, dates, owner or distribution flags: those live
+  in the document, in Drive. The form shows the document itself through Google's `/preview` address,
+  derived from `url`, and opens it for editing in a new tab: one link per document.
+- **Process map** — the centre's process map is a Google document, registered as one more document with
+  `is_process_map`; `Quality > Process map` opens its form, so the picture is never redrawn in EMS.
+- The three forms open **read-only** and unlock their fields with an *Edit* button, for whoever may
+  write.
 
 ### 3.2. Actions and agreements
 
@@ -396,7 +400,7 @@ Quality                                      [seq 9 · quality coordination, man
 ├── Records               → nonconformities, improvements, observations, change plans, risks: one model
 ├── Complaints                               [restricted]
 ├── Audits                → findings inside the audit
-├── Process map           → the published process map document, embedded (first entry)
+├── Process map           → the process map document, previewed (first entry)
 ├── Management review
 └── Configuration         → Processes · Procedures · Documents (structure + Drive links)
 ```
@@ -643,9 +647,9 @@ graph LR
 ```
 
 - **F1 — Process map, documentary structure, actions** *(small)*. The code base every other phase
-  cites. Ships with the centre's real structure loaded. Delivers the embedded process map as the first
-  screen of *Quality*, and the processes → procedures → documents structure with each document's Drive
-  link, under *Configuration*. Deliberately nothing else about a document (see the top of this file).
+  cites. Ships with the centre's real structure loaded. Delivers the process map as the first screen of
+  *Quality*, and the processes → procedures → documents structure with each document's Drive link and
+  an in-app preview, under *Configuration*, read-only until *Edit*. Deliberately nothing else about a document (see the top of this file).
 - **F2 — Minutes and evidence records** *(large; the biggest return)*. Types, sections, presets, PDF,
   Drive upload, agreement carry-over, signature and approval. Suggested internal order: generic and
   department minutes with agreements and PDF; teaching team and staff meeting with attendee preloading;
@@ -717,7 +721,9 @@ implementation:
 | A | Agreement and improvement action are the same model |
 | A | Section catalogue rather than a boolean per section |
 | D | **One owner per piece of information:** document version, state and dates stay in Drive; EMS keeps only the structure and the links (2026-09-21) |
-| D | `Quality > Process map` embeds the published process map document, as the app's first entry |
+| D | `Quality > Process map` shows the process map document, as the app's first entry; the map is one more document of the structure |
+| D | One link per document: the preview is derived from the ordinary link (Google's `/preview`), no "Publish to the web" copy |
+| D | The structure's forms open read-only; an *Edit* button unlocks them for whoever may write |
 | A | Structure and links in EMS, file in Drive; no wiki, no document migration |
 | A | Approved PDFs immutable; corrections produce a new version |
 | A | Flat, predictable Drive tree; `drive_file_id` stored |

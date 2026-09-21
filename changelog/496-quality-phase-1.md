@@ -6,13 +6,17 @@ The centre's ISO 9001 quality management system starts moving inside EMS. This f
 
 A new **Quality** menu, visible only to quality coordination, management, the head of studies and the secretariat. The staff-facing application arrives with the minutes in the next phase, so nobody sees a half-built app in the meantime.
 
-## Process map, embedded:
+## Process map:
 
-**Quality > Process map**, the first entry of the app, shows the centre's process map document through its "Publish to the web" copy, so the map is drawn and edited only in Google Docs. Its address is a new setting under *Settings > EMS Management > Quality Settings*.
+**Quality > Process map**, the first entry of the app, shows the centre's process map document inside EMS, with a button to open it in Google Docs in a new tab. The map is one more document of the structure, marked as the process map, so its link is changed like any other.
 
 ## Documentary structure and links:
 
-Under **Quality > Configuration**, the eight processes, their 48 procedures and 64 documents, each document with its Drive link. The list of documents is edited in place and has a *Load links* button to fill many links at once from a `code,url` file. Seeded in Catalan from `data/custom/`, then kept from the interface.
+Under **Quality > Configuration**, the eight processes, their 48 procedures and 64 documents, each document with its Drive link. A document's form shows the document itself inside EMS (Google Docs, Sheets, Slides and Drive files), built from its ordinary link, and opens it for editing in a new tab: one link per document, no "Publish to the web" copy. The list has a *Load links* button to fill many links at once from a `code,url` file. Seeded in Catalan from `data/custom/`, then kept from the interface.
+
+## Read-only until "Edit":
+
+Process, procedure and document forms open read-only, even for users who may change them. An *Edit* button in the header, shown only to them, unlocks the fields; saving or discarding locks them again.
 
 Deliberately nothing else about a document: version, state, approval and review dates stay in the document itself, in Drive, so nothing has to be updated twice. A first version of this phase kept all of that in EMS as well and was reduced for that reason.
 

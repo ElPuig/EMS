@@ -12,34 +12,48 @@ version and approval) are kept in Drive.
 
 ---
 
+## Consulting and editing
+
+Every process, procedure and document opens **read-only**. To change it:
+
+1. Click **Edit** in the header. The fields become editable.
+2. Make the changes and save (cloud icon), or discard them (cross icon).
+
+Saving or discarding brings the record back to read-only.
+
 ## Processes
 
 **Quality → Configuration → Processes.** Each process has its code (`PE1`, `PC2`, `PS1`...), its name and
 its kind (strategic, key or support). Drag the rows to change the order.
 
-Open a process to see and add, in its tabs, its **Procedures** and its **Documents**.
+Open a process to see, in its tabs, its **Procedures** and its **Documents**. With **Edit** you can add or
+change them from there.
 
 ## Procedures
 
 **Quality → Configuration → Procedures**, grouped by process. Each procedure has its code (`PE3.01`), its
-name and its process. Open it to see and add its documents in the **Documents** tab.
+name and its process. Open it to see its documents in the **Documents** tab.
 
 ## Documents
 
-**Quality → Configuration → Documents**, grouped by process. The list is edited in place: click a row,
-change it and save.
+**Quality → Configuration → Documents**, grouped by process. Click a document to open it: the document
+itself is shown inside the screen, and **Open document** opens it in Google in a new tab, to edit it there.
 
-| Column | What to fill in |
+| Field | What to fill in |
 |---|---|
 | **Code** | The document's code (`PE3.01.15`). Leave it empty if the document has none |
 | **Name** | The document's name |
 | **Procedure** | The procedure it belongs to. The process fills itself |
 | **Process** | Only for documents that hang straight off a process, with no procedure |
-| **Link** | The document's address in Drive. Click it to open the document |
+| **Link** | The document's address as copied from the browser |
+| **Process map** | Only for the document shown in **Quality → Process map** |
 
-- **Add a document:** **New**, fill in the row and save.
-- **Retire a document that is no longer in force:** select it, **Actions → Archive**. To see archived ones,
-  use the **Archived** facet.
+The document is shown inside EMS for Google Docs, Sheets, Slides and files in Drive. For any other kind
+of link, use **Open document**.
+
+- **Add a document:** **New**, fill in the fields and save.
+- **Retire a document that is no longer in force:** select it in the list, **Actions → Archive**. To see
+  archived ones, use the **Archived** facet.
 - **Find what is missing:** the **No link** and **Not coded yet** facets.
 
 ## Loading many links at once

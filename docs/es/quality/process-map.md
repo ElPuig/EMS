@@ -8,26 +8,25 @@
 dibujada la estructura de la documentación de calidad.
 
 **Quién tiene acceso:** todo el que tiene el menú Calidad (coordinación de calidad, dirección, jefatura de
-estudios y secretaría).
+estudios y secretaría). Solo la coordinación de calidad y la dirección lo pueden cambiar.
 
 ---
 
 ## Consultar el mapa
 
-1. Id a **Calidad → Mapa de procesos**.
-2. Para verlo a pantalla completa, haced clic en **Abrir en una pestaña nueva**.
+1. Id a **Calidad → Mapa de procesos**. El documento se muestra dentro de la pantalla.
+2. Para trabajar en él en Google Docs, haced clic en **Abrir el documento**: se abre en una pestaña nueva.
 
-El mapa se edita en su documento de Google. EMS muestra la copia publicada, que Google actualiza solo unos
-minutos después de cada cambio.
+El mapa se edita en Google Docs. EMS muestra el mismo documento, así que cualquier cambio se ve enseguida.
 
-## Configurar el mapa (una sola vez)
+## Elegir qué documento es el mapa
 
-Hace falta acceso a los ajustes de Odoo.
+El mapa es un documento más de **Calidad → Configuración → Documentos**, marcado como mapa de procesos.
 
-1. Abrid el documento del mapa de procesos en Google Docs.
-2. **Archivo → Compartir → Publicar en la Web**, pestaña **Insertar**, y haced clic en **Publicar**.
-3. Copiad la dirección que hay dentro de `src="..."` en el código que aparece. Acaba en
-   `pub?embedded=true`.
-4. En EMS, id a **Ajustes → Gestión del EMS → Configuración de calidad** y pegadla en **Mapa de
-   procesos**.
-5. Guardad.
+1. Abrid el documento **Mapa de processos** (o el que tenga que ser el mapa).
+2. Haced clic en **Editar**.
+3. En **Enlace**, pegad la dirección del documento tal como la copiáis del navegador
+   (`https://docs.google.com/document/d/.../edit`).
+4. Marcad **Mapa de procesos** y guardad.
+
+Solo un documento puede ser el mapa de procesos. Para usar otro, desmarcad antes el actual.

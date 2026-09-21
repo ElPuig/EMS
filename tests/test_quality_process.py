@@ -39,19 +39,19 @@ class TestQualityProcess(TransactionCase):
         user = create_role_user(self, 'teacher', 'quality.process.teacher@example.com')
         with self.assertRaises(AccessError):
             self.process.with_user(user).read(['name'])
-        with self.assertRaises(AccessError):
-            self.env['ems.quality.process'].with_user(user).get_process_map_url()
 
     def test_quality_coordination_can_write(self):
         user = create_role_user(self, 'quality_admin', 'quality.process.coord@example.com')
         self.process.with_user(user).write({'name': 'Renamed process'})
         self.assertEqual(self.process.name, 'Renamed process')
 
-    def test_process_map_url_comes_from_the_company(self):
-        """Readable by a quality role that has no access to the company settings."""
-        url = "https://docs.google.com/document/d/e/2PACX-test/pub?embedded=true"
-        self.env.company.quality_process_map_url = url
-        user = create_role_user(self, 'quality', 'quality.process.reader@example.com')
-        self.assertEqual(self.env['ems.quality.process'].with_user(user).get_process_map_url(), url)
-        self.env.company.quality_process_map_url = False
-        self.assertFalse(self.env['ems.quality.process'].with_user(user).get_process_map_url())
+    def test_forms_open_read_only_and_edit_follows_write_access(self):
+        """'edit_mode' always loads False, and 'Edit' is only offered to whoever may write."""
+        coordinator = create_role_user(self, 'quality_admin', 'quality.process.editor@example.com')
+        reader = create_role_user(self, 'quality', 'quality.process.reader@example.com')
+        as_coordinator = self.process.with_user(coordinator)
+        self.assertFalse(as_coordinator.edit_mode)
+        self.assertTrue(as_coordinator.can_edit)
+        self.assertFalse(self.process.with_user(reader).can_edit)
+        self.assertTrue(self.env['ems.quality.process'].new({'code': 'ZZ9'}).edit_mode,
+                        "a record being created has nothing to consult: it starts in edit mode")

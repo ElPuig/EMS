@@ -1,66 +1,67 @@
-id,code,name,procedure_id/id,active
-__import__.quality_doc_pe3_01_17,PE3.01.17,Model d'acta i de registre d'evidències,__import__.quality_procedure_pe3_01,1
-__import__.quality_doc_pe1_09_01,PE1.09.01,Model de Revisió per la Direcció,__import__.quality_procedure_pe1_09,1
-__import__.quality_doc_pe1_09_02,PE1.09.02,Model de Revisió per la Direcció (gener),__import__.quality_procedure_pe1_09,1
-__import__.quality_doc_pe1_09_03,PE1.09.03,Model de Revisió per la Direcció (full de càlcul),__import__.quality_procedure_pe1_09,1
-__import__.quality_doc_pe3_01_02,PE3.01.02,Acta de reunió genèrica (plantilla),__import__.quality_procedure_pe3_01,0
-__import__.quality_doc_pe3_01_03,PE3.01.03,Manual de redacció d'actes,__import__.quality_procedure_pe3_01,1
-__import__.quality_doc_pe3_01_04,PE3.01.04,Manual del document d'anàlisis i seguiment,__import__.quality_procedure_pe3_01,1
-__import__.quality_doc_pe3_01_05,PE3.01.05,Guia bàsica per a la documentació del docent,__import__.quality_procedure_pe3_01,1
-__import__.quality_doc_pe3_01_06,PE3.01.06,Guia bàsica per a la documentació del tutor,__import__.quality_procedure_pe3_01,1
-__import__.quality_doc_pe3_01_07,PE3.01.07,Manual de control de canvis i versions amb Google Drive,__import__.quality_procedure_pe3_01,1
-__import__.quality_doc_pe3_01_08,PE3.01.08,Manual de recollida d'indicadors,__import__.quality_procedure_pe3_01,1
-__import__.quality_doc_pe3_01_09,PE3.01.09,EPIQ Manual de l'usuari,__import__.quality_procedure_pe3_01,1
-__import__.quality_doc_pe3_01_10,PE3.01.10,Programació del Mòdul Professional (plantilla abans 2024-2025),__import__.quality_procedure_pe3_01,0
-__import__.quality_doc_pe3_01_11,PE3.01.11,Manual de preparació de la RxD,__import__.quality_procedure_pe3_01,1
-__import__.quality_doc_pe3_01_12,PE3.01.12,Guia programacio LOE (juny 2024 - v1),__import__.quality_procedure_pe3_01,1
-__import__.quality_doc_pe3_01_13,PE3.01.13,Programació del Mòdul Professional (a partir del 2024-2025),__import__.quality_procedure_pe3_01,1
-__import__.quality_doc_pe3_01_14,PE3.01.14,Acta de reunió de departament (plantilla ESO/BTX),__import__.quality_procedure_pe3_01,0
-__import__.quality_doc_pe3_01_15,PE3.01.15,Acta de reunió de departament (plantilla CCFF),__import__.quality_procedure_pe3_01,0
-__import__.quality_doc_pe3_01_16,PE3.01.16,Logotip del Departament d'Educació i Formació Professional,__import__.quality_procedure_pe3_01,1
-__import__.quality_doc_pe3_02_02,PE3.02.02,Acta de constitució equip de millora (plantilla),__import__.quality_procedure_pe3_02,0
-__import__.quality_doc_ps23_2_1,PS23.2.1,Model d'acta,__import__.quality_procedure_pe3_01,0
-__import__.quality_doc_pe3_03_01,PE3.03.01,Informes i plans d'auditoria,__import__.quality_procedure_pe3_03,1
-__import__.quality_doc_pe3_03_02,PE3.03.02,Model de pla d'auditoria interna (ISO 9001:2015),__import__.quality_procedure_pe3_03,1
-__import__.quality_doc_pe3_03_03,PE3.03.03,Model de pla de preauditoria (ISO 9001:2015),__import__.quality_procedure_pe3_03,1
-__import__.quality_doc_pe3_03_04,PE3.03.04,Checklist (ISO 9001:2015),__import__.quality_procedure_pe3_03,1
-__import__.quality_doc_pe3_03_05,PE3.03.05,Exemples auditoria,__import__.quality_procedure_pe3_03,1
-__import__.quality_doc_pe3_03_06,PE3.03.06,Declaració jurada per a auditors,__import__.quality_procedure_pe3_03,1
-__import__.quality_doc_pe3_03_07,PE3.03.07,Plantilla pel Pla d'Auditoria Interna,__import__.quality_procedure_pe3_03,1
-__import__.quality_doc_pe3_03_08,PE3.03.08,Programa d'Auditories,__import__.quality_procedure_pe3_03,1
-__import__.quality_doc_pe3_03_09,PE3.03.09,Model d'informe per a una auditoria interna,__import__.quality_procedure_pe3_03,1
-__import__.quality_doc_pe3_03_10,PE3.03.10,Interpretació de la norma ISO 9001:2015 per a centres educatius,__import__.quality_procedure_pe3_03,1
-__import__.quality_doc_pe3_03_11,PE3.03.11,Codi deontològic de l'auditor,__import__.quality_procedure_pe3_03,1
-__import__.quality_doc_pe3_03_12,PE3.03.12,Perfil de l'auditor,__import__.quality_procedure_pe3_03,1
-__import__.quality_doc_pe3_04_01,PE3.04.01,Informes d'auditoria,__import__.quality_procedure_pe3_04,1
-__import__.quality_doc_pe3_04_02,PE3.04.02,Document d'anàlisis i seguiment de no conformitats,__import__.quality_procedure_pe3_04,1
-__import__.quality_doc_pe3_04_03,PE3.04.03,Pla d'accions per a les no conformitats (plantilla),__import__.quality_procedure_pe3_04,1
-__import__.quality_doc_pe3_04_04,PE3.04.04,Document d'anàlisis i seguiment de les oportunitats de millora,__import__.quality_procedure_pe3_04,1
-__import__.quality_doc_strategic_pec,,Projecte educatiu de centre (PEC),__import__.quality_procedure_pe1_04,1
-__import__.quality_doc_strategic_nofc,,Normes d'organització i funcionament de centre (NOFC),__import__.quality_procedure_pe1_05,1
-__import__.quality_doc_strategic_plc,,Projecte lingüístic de centre (PLC),__import__.quality_procedure_pe1_06,1
-__import__.quality_doc_strategic_pat,,Pla d'acció tutorial (PAT),__import__.quality_procedure_pc2_07,1
-__import__.quality_doc_strategic_pad,,Pla d'atenció a la diversitat (PAD),__import__.quality_procedure_pe2_01,1
-__import__.quality_doc_strategic_convivencia,,Pla de convivència,__import__.quality_procedure_pe2_01,1
-__import__.quality_doc_strategic_emergencia,,"Pla d'emergència, evacuació i contingència",__import__.quality_procedure_pe2_06,1
-__import__.quality_doc_strategic_pccfp,,Projecte curricular dels cicles formatius (PCC-FP),__import__.quality_procedure_pe1_10,1
-__import__.quality_doc_strategic_participacio,,Pla de participació,__import__.quality_procedure_pe2_01,1
-__import__.quality_doc_strategic_tac,,Pla TAC,__import__.quality_procedure_pe2_01,1
-__import__.quality_doc_strategic_biblioteca,,Projecte de biblioteca,__import__.quality_procedure_pe2_07,1
-__import__.quality_doc_strategic_orientacio,,Pla d'orientació acadèmica i professional,__import__.quality_procedure_pc2_03,1
-__import__.quality_doc_strategic_acollida,,Pla d'acollida,__import__.quality_procedure_ps1_01,1
-__import__.quality_doc_strategic_enquestes,,Pla d'enquestes,__import__.quality_procedure_pe3_05,1
-__import__.quality_doc_strategic_comunicacio,,Pla de comunicació,__import__.quality_procedure_pe2_01,1
-__import__.quality_doc_strategic_manteniment,,Pla de manteniment,__import__.quality_procedure_ps2_05,1
-__import__.quality_doc_strategic_manteniment_tic,,Pla de manteniment informàtic,__import__.quality_procedure_ps2_04,1
-__import__.quality_doc_strategic_formacio,,Pla de formació,__import__.quality_procedure_ps1_04,1
-__import__.quality_doc_strategic_dossier,,Dossier del professorat i tutors,__import__.quality_procedure_pe3_01,1
-__import__.quality_doc_strategic_projecte_direccio,,Projecte de direcció 2024-2028,__import__.quality_procedure_pe1_01,1
-__import__.quality_doc_strategic_pga,,Programació general anual (PGA),__import__.quality_procedure_pe1_02,1
-__import__.quality_doc_strategic_memoria,,Memòria anual,__import__.quality_procedure_pe1_02,1
-__import__.quality_doc_strategic_memoria_mandat,,Memòria de mandat,__import__.quality_procedure_pe1_01,1
-__import__.quality_doc_strategic_carta_compromis,,Carta de compromís educatiu,__import__.quality_procedure_pe2_01,1
-__import__.quality_doc_strategic_carta_serveis_eso,,Carta de serveis d'ESO,__import__.quality_procedure_pe2_01,1
-__import__.quality_doc_strategic_carta_serveis_btx,,Carta de serveis de batxillerat,__import__.quality_procedure_pe2_01,1
-__import__.quality_doc_strategic_carta_serveis_ccff,,Carta de serveis de cicles formatius,__import__.quality_procedure_pe2_01,1
-__import__.quality_doc_strategic_politica_qualitat,,Política de qualitat,__import__.quality_procedure_pe3_01,1
+id,code,name,procedure_id/id,is_process_map,active
+__import__.quality_doc_process_map,,Mapa de processos,,1,1
+__import__.quality_doc_pe3_01_17,PE3.01.17,Model d'acta i de registre d'evidències,__import__.quality_procedure_pe3_01,0,1
+__import__.quality_doc_pe1_09_01,PE1.09.01,Model de Revisió per la Direcció,__import__.quality_procedure_pe1_09,0,1
+__import__.quality_doc_pe1_09_02,PE1.09.02,Model de Revisió per la Direcció (gener),__import__.quality_procedure_pe1_09,0,1
+__import__.quality_doc_pe1_09_03,PE1.09.03,Model de Revisió per la Direcció (full de càlcul),__import__.quality_procedure_pe1_09,0,1
+__import__.quality_doc_pe3_01_02,PE3.01.02,Acta de reunió genèrica (plantilla),__import__.quality_procedure_pe3_01,0,0
+__import__.quality_doc_pe3_01_03,PE3.01.03,Manual de redacció d'actes,__import__.quality_procedure_pe3_01,0,1
+__import__.quality_doc_pe3_01_04,PE3.01.04,Manual del document d'anàlisis i seguiment,__import__.quality_procedure_pe3_01,0,1
+__import__.quality_doc_pe3_01_05,PE3.01.05,Guia bàsica per a la documentació del docent,__import__.quality_procedure_pe3_01,0,1
+__import__.quality_doc_pe3_01_06,PE3.01.06,Guia bàsica per a la documentació del tutor,__import__.quality_procedure_pe3_01,0,1
+__import__.quality_doc_pe3_01_07,PE3.01.07,Manual de control de canvis i versions amb Google Drive,__import__.quality_procedure_pe3_01,0,1
+__import__.quality_doc_pe3_01_08,PE3.01.08,Manual de recollida d'indicadors,__import__.quality_procedure_pe3_01,0,1
+__import__.quality_doc_pe3_01_09,PE3.01.09,EPIQ Manual de l'usuari,__import__.quality_procedure_pe3_01,0,1
+__import__.quality_doc_pe3_01_10,PE3.01.10,Programació del Mòdul Professional (plantilla abans 2024-2025),__import__.quality_procedure_pe3_01,0,0
+__import__.quality_doc_pe3_01_11,PE3.01.11,Manual de preparació de la RxD,__import__.quality_procedure_pe3_01,0,1
+__import__.quality_doc_pe3_01_12,PE3.01.12,Guia programacio LOE (juny 2024 - v1),__import__.quality_procedure_pe3_01,0,1
+__import__.quality_doc_pe3_01_13,PE3.01.13,Programació del Mòdul Professional (a partir del 2024-2025),__import__.quality_procedure_pe3_01,0,1
+__import__.quality_doc_pe3_01_14,PE3.01.14,Acta de reunió de departament (plantilla ESO/BTX),__import__.quality_procedure_pe3_01,0,0
+__import__.quality_doc_pe3_01_15,PE3.01.15,Acta de reunió de departament (plantilla CCFF),__import__.quality_procedure_pe3_01,0,0
+__import__.quality_doc_pe3_01_16,PE3.01.16,Logotip del Departament d'Educació i Formació Professional,__import__.quality_procedure_pe3_01,0,1
+__import__.quality_doc_pe3_02_02,PE3.02.02,Acta de constitució equip de millora (plantilla),__import__.quality_procedure_pe3_02,0,0
+__import__.quality_doc_ps23_2_1,PS23.2.1,Model d'acta,__import__.quality_procedure_pe3_01,0,0
+__import__.quality_doc_pe3_03_01,PE3.03.01,Informes i plans d'auditoria,__import__.quality_procedure_pe3_03,0,1
+__import__.quality_doc_pe3_03_02,PE3.03.02,Model de pla d'auditoria interna (ISO 9001:2015),__import__.quality_procedure_pe3_03,0,1
+__import__.quality_doc_pe3_03_03,PE3.03.03,Model de pla de preauditoria (ISO 9001:2015),__import__.quality_procedure_pe3_03,0,1
+__import__.quality_doc_pe3_03_04,PE3.03.04,Checklist (ISO 9001:2015),__import__.quality_procedure_pe3_03,0,1
+__import__.quality_doc_pe3_03_05,PE3.03.05,Exemples auditoria,__import__.quality_procedure_pe3_03,0,1
+__import__.quality_doc_pe3_03_06,PE3.03.06,Declaració jurada per a auditors,__import__.quality_procedure_pe3_03,0,1
+__import__.quality_doc_pe3_03_07,PE3.03.07,Plantilla pel Pla d'Auditoria Interna,__import__.quality_procedure_pe3_03,0,1
+__import__.quality_doc_pe3_03_08,PE3.03.08,Programa d'Auditories,__import__.quality_procedure_pe3_03,0,1
+__import__.quality_doc_pe3_03_09,PE3.03.09,Model d'informe per a una auditoria interna,__import__.quality_procedure_pe3_03,0,1
+__import__.quality_doc_pe3_03_10,PE3.03.10,Interpretació de la norma ISO 9001:2015 per a centres educatius,__import__.quality_procedure_pe3_03,0,1
+__import__.quality_doc_pe3_03_11,PE3.03.11,Codi deontològic de l'auditor,__import__.quality_procedure_pe3_03,0,1
+__import__.quality_doc_pe3_03_12,PE3.03.12,Perfil de l'auditor,__import__.quality_procedure_pe3_03,0,1
+__import__.quality_doc_pe3_04_01,PE3.04.01,Informes d'auditoria,__import__.quality_procedure_pe3_04,0,1
+__import__.quality_doc_pe3_04_02,PE3.04.02,Document d'anàlisis i seguiment de no conformitats,__import__.quality_procedure_pe3_04,0,1
+__import__.quality_doc_pe3_04_03,PE3.04.03,Pla d'accions per a les no conformitats (plantilla),__import__.quality_procedure_pe3_04,0,1
+__import__.quality_doc_pe3_04_04,PE3.04.04,Document d'anàlisis i seguiment de les oportunitats de millora,__import__.quality_procedure_pe3_04,0,1
+__import__.quality_doc_strategic_pec,,Projecte educatiu de centre (PEC),__import__.quality_procedure_pe1_04,0,1
+__import__.quality_doc_strategic_nofc,,Normes d'organització i funcionament de centre (NOFC),__import__.quality_procedure_pe1_05,0,1
+__import__.quality_doc_strategic_plc,,Projecte lingüístic de centre (PLC),__import__.quality_procedure_pe1_06,0,1
+__import__.quality_doc_strategic_pat,,Pla d'acció tutorial (PAT),__import__.quality_procedure_pc2_07,0,1
+__import__.quality_doc_strategic_pad,,Pla d'atenció a la diversitat (PAD),__import__.quality_procedure_pe2_01,0,1
+__import__.quality_doc_strategic_convivencia,,Pla de convivència,__import__.quality_procedure_pe2_01,0,1
+__import__.quality_doc_strategic_emergencia,,"Pla d'emergència, evacuació i contingència",__import__.quality_procedure_pe2_06,0,1
+__import__.quality_doc_strategic_pccfp,,Projecte curricular dels cicles formatius (PCC-FP),__import__.quality_procedure_pe1_10,0,1
+__import__.quality_doc_strategic_participacio,,Pla de participació,__import__.quality_procedure_pe2_01,0,1
+__import__.quality_doc_strategic_tac,,Pla TAC,__import__.quality_procedure_pe2_01,0,1
+__import__.quality_doc_strategic_biblioteca,,Projecte de biblioteca,__import__.quality_procedure_pe2_07,0,1
+__import__.quality_doc_strategic_orientacio,,Pla d'orientació acadèmica i professional,__import__.quality_procedure_pc2_03,0,1
+__import__.quality_doc_strategic_acollida,,Pla d'acollida,__import__.quality_procedure_ps1_01,0,1
+__import__.quality_doc_strategic_enquestes,,Pla d'enquestes,__import__.quality_procedure_pe3_05,0,1
+__import__.quality_doc_strategic_comunicacio,,Pla de comunicació,__import__.quality_procedure_pe2_01,0,1
+__import__.quality_doc_strategic_manteniment,,Pla de manteniment,__import__.quality_procedure_ps2_05,0,1
+__import__.quality_doc_strategic_manteniment_tic,,Pla de manteniment informàtic,__import__.quality_procedure_ps2_04,0,1
+__import__.quality_doc_strategic_formacio,,Pla de formació,__import__.quality_procedure_ps1_04,0,1
+__import__.quality_doc_strategic_dossier,,Dossier del professorat i tutors,__import__.quality_procedure_pe3_01,0,1
+__import__.quality_doc_strategic_projecte_direccio,,Projecte de direcció 2024-2028,__import__.quality_procedure_pe1_01,0,1
+__import__.quality_doc_strategic_pga,,Programació general anual (PGA),__import__.quality_procedure_pe1_02,0,1
+__import__.quality_doc_strategic_memoria,,Memòria anual,__import__.quality_procedure_pe1_02,0,1
+__import__.quality_doc_strategic_memoria_mandat,,Memòria de mandat,__import__.quality_procedure_pe1_01,0,1
+__import__.quality_doc_strategic_carta_compromis,,Carta de compromís educatiu,__import__.quality_procedure_pe2_01,0,1
+__import__.quality_doc_strategic_carta_serveis_eso,,Carta de serveis d'ESO,__import__.quality_procedure_pe2_01,0,1
+__import__.quality_doc_strategic_carta_serveis_btx,,Carta de serveis de batxillerat,__import__.quality_procedure_pe2_01,0,1
+__import__.quality_doc_strategic_carta_serveis_ccff,,Carta de serveis de cicles formatius,__import__.quality_procedure_pe2_01,0,1
+__import__.quality_doc_strategic_politica_qualitat,,Política de qualitat,__import__.quality_procedure_pe3_01,0,1

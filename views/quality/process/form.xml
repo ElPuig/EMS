@@ -1,24 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
+        <!-- Read-only until 'Edit' is pressed: see ems.quality.edit.mode. -->
         <record model="ir.ui.view" id="view_quality_process_form">
             <field name="name">ems.quality.process.form</field>
             <field name="model">ems.quality.process</field>
             <field name="arch" type="xml">
                 <form>
+                    <header>
+                        <field name="edit_mode" widget="ems_quality_edit_mode" invisible="edit_mode or not can_edit"/>
+                        <field name="can_edit" invisible="1"/>
+                    </header>
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                         <div class="oe_title">
-                            <h1><field name="code" placeholder="PE1"/></h1>
-                            <h2><field name="name" placeholder="Process name"/></h2>
+                            <h1><field name="code" placeholder="PE1" readonly="not edit_mode"/></h1>
+                            <h2><field name="name" placeholder="Process name" readonly="not edit_mode"/></h2>
                         </div>
                         <group>
-                            <field name="kind"/>
+                            <field name="kind" readonly="not edit_mode"/>
                             <field name="active" invisible="1"/>
                         </group>
                         <notebook>
                             <page string="Procedures" name="procedures">
-                                <field name="procedure_ids">
+                                <field name="procedure_ids" readonly="not edit_mode">
                                     <list editable="bottom">
                                         <field name="code"/>
                                         <field name="name"/>
@@ -26,7 +31,7 @@
                                 </field>
                             </page>
                             <page string="Documents" name="documents">
-                                <field name="document_ids">
+                                <field name="document_ids" readonly="not edit_mode">
                                     <list editable="bottom">
                                         <field name="code"/>
                                         <field name="name"/>

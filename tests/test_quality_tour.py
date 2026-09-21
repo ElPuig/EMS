@@ -28,9 +28,12 @@ class TestQualityTour(HttpCase):
             process = cls.env['ems.quality.process'].create({'code': 'ZT1', 'name': 'Tour process', 'kind': 'support'})
             procedure = cls.env['ems.quality.procedure'].create({'code': 'ZT1.01', 'name': 'Tour procedure', 'process_id': process.id})
             cls.env['ems.quality.document'].create({'code': 'ZT1.01.01', 'name': 'Tour document', 'procedure_id': procedure.id})
-        # A fictitious published address: the tour only checks that the screen embeds whatever
-        # the setting holds, and a test must never depend on reaching the real document.
-        cls.env.company.quality_process_map_url = "https://docs.google.com/document/d/e/2PACX-tour/pub?embedded=true"
+        # The process map is the document marked as such; a fictitious link, since the tour only
+        # checks that the preview is built from it and must never depend on reaching a real file.
+        Document = cls.env['ems.quality.document']
+        process_map = Document.search([('is_process_map', '=', True)], limit=1) \
+            or Document.create({'name': 'Tour process map', 'is_process_map': True})
+        process_map.url = "https://docs.google.com/document/d/1TourProcessMapDocument00/edit?usp=sharing"
 
     def test_document_registry_tour(self):
         self.start_tour("/odoo", "ems_quality_registry", login="quality.tour@example.com")

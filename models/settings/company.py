@@ -18,9 +18,6 @@ class ems_company(models.Model):
     attendance_issue_status_delay = fields.Integer(default=15)
     attendance_issue_tutor_default = fields.Float(default=21.0)
     strike_escalation_threshold = fields.Integer(default=3)
-    # The process map is kept as a Google document; this is its "Publish to the web" embed
-    # address, shown as it is in Quality > Process map so the map is never redrawn in EMS.
-    quality_process_map_url = fields.Char()
     # NOTE: defaults to 'all' so an installation upgrading into this version keeps today's
     # always-notify-the-family behaviour unchanged. A brand-new installation starts on the
     # stricter 'kicked_out' instead, set by post_init_hook (see __init__.py).

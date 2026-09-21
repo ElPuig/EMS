@@ -6,6 +6,7 @@ from odoo import api, fields, models
 class EmsQualityProcess(models.Model):
     _name = "ems.quality.process"
     _description = "Quality process: one process of the centre's process map (PE1..PS2)."
+    _inherit = ['ems.quality.edit.mode']
     _order = "sequence, code"
     _sql_constraints = [
         ('unique_code', 'unique (code)', "Another process already uses this code."),
@@ -36,12 +37,3 @@ class EmsQualityProcess(models.Model):
     def _compute_display_name(self):
         for process in self:
             process.display_name = f"{process.code} {process.name}" if process.code else process.name
-
-    @api.model
-    def get_process_map_url(self):
-        """The embeddable address of the process map, for the 'Process map' screen.
-
-        Read through the model rather than straight from the company so the screen only needs the
-        access every quality role already has on the processes."""
-        self.check_access('read')
-        return self.env.company.sudo().quality_process_map_url or False

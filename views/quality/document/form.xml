@@ -1,24 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <!-- Reached from the other screens that point at a document (a minute's annexes, a process). -->
+        <!-- Opens read-only (see ems.quality.edit.mode): 'Edit' in the header unlocks the fields
+             for whoever may write, and the document itself is shown below from its own link. -->
         <record model="ir.ui.view" id="view_quality_document_form">
             <field name="name">ems.quality.document.form</field>
             <field name="model">ems.quality.document</field>
             <field name="arch" type="xml">
                 <form>
+                    <header>
+                        <field name="edit_mode" widget="ems_quality_edit_mode" invisible="edit_mode or not can_edit"/>
+                        <button name="action_open_document" type="object" string="Open" icon="fa-external-link"
+                                class="btn-primary" invisible="not url"/>
+                        <field name="can_edit" invisible="1"/>
+                    </header>
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                         <div class="oe_title">
-                            <h1><field name="code" placeholder="PE3.01.15"/></h1>
-                            <h2><field name="name" placeholder="Document name"/></h2>
+                            <h1><field name="code" placeholder="PE3.01.15" readonly="not edit_mode"/></h1>
+                            <h2><field name="name" placeholder="Document name" readonly="not edit_mode"/></h2>
                         </div>
                         <group>
-                            <field name="procedure_id"/>
-                            <field name="process_id"/>
-                            <field name="url" widget="url"/>
-                            <field name="active" invisible="1"/>
+                            <group>
+                                <field name="procedure_id" readonly="not edit_mode"/>
+                                <field name="process_id" readonly="not edit_mode"/>
+                            </group>
+                            <group>
+                                <field name="url" widget="url" readonly="not edit_mode" invisible="not edit_mode"/>
+                                <field name="is_process_map" readonly="not edit_mode" invisible="not edit_mode and not is_process_map"/>
+                                <field name="active" invisible="1"/>
+                            </group>
                         </group>
+                        <field name="embed_url" widget="ems_quality_document_preview" nolabel="1" invisible="not url or edit_mode"/>
                     </sheet>
                 </form>
             </field>

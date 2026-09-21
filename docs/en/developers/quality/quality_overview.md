@@ -47,21 +47,6 @@ Three ideas carry the whole area and are worth stating before the field tables:
 
 ---
 
-## Process map
-
-`Quality > Process map` is the first entry of the app. It embeds, in an `<iframe>`, the published copy of
-the centre's process map, which is a Google document: the map is drawn and edited there, and Google keeps
-the published copy up to date by itself. Nothing is redrawn in EMS.
-
-- Client action `ems.action_quality_process_map` (tag `ems_quality_process_map`,
-  `static/src/js/backend/quality_process_map.js`).
-- The address is `res.company.quality_process_map_url`, set in *Settings > EMS Management > Quality
-  Settings*. Use the address from Google Docs' *File > Share > Publish to the web > Embed*
-  (`.../pub?embedded=true`): the ordinary `/edit` address refuses to be framed.
-- The screen reads it through `ems.quality.process.get_process_map_url()`, which checks read access on the
-  processes, so every role with the Quality menu can see the map without access to the company settings.
-- With no address set, the screen explains where to configure it.
-
 ## Documentary structure
 
 Three models, under `Quality > Configuration`, that hold **only the structure and the links**:
@@ -70,12 +55,41 @@ Three models, under `Quality > Configuration`, that hold **only the structure an
 |-------|--------|
 | `ems.quality.process` | `code` (unique, `PE1`…`PS2`), `name`, `kind` (`strategic` / `key` / `support`), `sequence`, `active`, `procedure_ids`, `document_ids` |
 | `ems.quality.procedure` | `code` (unique, `PE3.01`), `name`, `process_id` (required), `document_ids`, `active` |
-| `ems.quality.document` | `code` (unique when set, nullable: some documents have no code yet), `name`, `procedure_id`, `process_id` (computed from the procedure, editable when there is none), `url`, `active` |
+| `ems.quality.document` | `code` (unique when set, nullable: some documents have no code yet), `name`, `procedure_id`, `process_id` (computed from the procedure, editable when there is none), `url`, `embed_url` (computed), `is_process_map`, `active` |
 
 There is deliberately **no version, state, date, owner or distribution field**: the document itself, in
 Drive, is the only place those are kept. A document no longer in force is archived (`active = False`).
-The document list is editable in place; its *Load links* button opens
-`ems.quality.document.link.import`, which fills `url` from a `code,url` file in one go.
+
+### One link per document, previewed inside EMS
+
+`url` is the ordinary address people copy from the browser; **Open document**
+(`action_open_document`) opens it in a new tab, where Google Docs edits it. `embed_url` is derived from it
+(`_EMBEDDABLE_LINKS` in `models/quality/document.py`): Google's own `/preview` address for Docs, Sheets,
+Slides, Drawings and Drive files, which the form shows in an `<iframe>` (field widget
+`ems_quality_document_preview`, `static/src/js/backend/quality_document_fields.js`). No second link, no
+"Publish to the web" copy and no extra module: the frame is served by Google and follows the file's own
+sharing, so the viewer's browser must be signed in to a Google account that can open the file. Any other
+address gets no preview, only the button.
+
+### Process map
+
+`Quality > Process map`, the first entry of the app, is a server action
+(`ems.action_quality_process_map_open` → `ems.quality.document.action_open_process_map()`) that opens the
+form of the document with `is_process_map` set, so the map is an ordinary document of the structure: its
+link is changed from its own form. A constraint keeps a single one marked. Seeded as
+`__import__.quality_doc_process_map` ("Mapa de processos", the Drive title), without its link.
+
+### Read-only until "Edit"
+
+The three models inherit `ems.quality.edit.mode` (`models/quality/edit_mode.py`): a non-stored
+`edit_mode` that always loads False (True for a record being created) and `can_edit`
+(`has_access('write')`). Every field of their forms is `readonly="not edit_mode"`, and the header shows
+an **Edit** button (field widget `ems_quality_edit_mode`) only when `can_edit`. Pressing it sets
+`edit_mode` on the client; saving or discarding reloads the record, so it comes back read-only. Record
+access is unchanged: this is only about not presenting every field as editable by default.
+
+The document list is not editable in place, so every change goes through the form. Its *Load links*
+button opens `ems.quality.document.link.import`, which fills `url` from a `code,url` file in one go.
 
 ### Why the links are not in the data files
 

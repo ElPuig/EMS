@@ -8,25 +8,26 @@
 dibuixada l'estructura de la documentació de qualitat.
 
 **Qui hi té accés:** tothom qui té el menú Qualitat (coordinació de qualitat, direcció, cap d'estudis i
-secretaria).
+secretaria). Només la coordinació de qualitat i la direcció el poden canviar.
 
 ---
 
 ## Consultar el mapa
 
-1. Aneu a **Qualitat → Mapa de processos**.
-2. Per veure'l a pantalla completa, feu clic a **Obre en una pestanya nova**.
+1. Aneu a **Qualitat → Mapa de processos**. El document es mostra dins de la pantalla.
+2. Per treballar-hi a Google Docs, feu clic a **Obre el document**: s'obre en una pestanya nova.
 
-El mapa s'edita al seu document de Google. L'EMS en mostra la còpia publicada, que Google actualitza tot
-sol uns minuts després de cada canvi.
+El mapa s'edita a Google Docs. L'EMS mostra el mateix document, de manera que qualsevol canvi es veu de
+seguida.
 
-## Configurar el mapa (un sol cop)
+## Triar quin document és el mapa
 
-Cal tenir accés als ajustos d'Odoo.
+El mapa és un document més de **Qualitat → Configuració → Documents**, marcat com a mapa de processos.
 
-1. Obriu el document del mapa de processos a Google Docs.
-2. **Fitxer → Comparteix → Publica al web**, pestanya **Insereix**, i feu clic a **Publica**.
-3. Copieu l'adreça que hi ha dins de `src="..."` al codi que apareix. Acaba en `pub?embedded=true`.
-4. A l'EMS, aneu a **Ajustos → Gestió de l'EMS → Configuració de qualitat** i enganxeu-la a **Mapa de
-   processos**.
-5. Deseu.
+1. Obriu el document **Mapa de processos** (o el que hagi de ser el mapa).
+2. Feu clic a **Edita**.
+3. A **Enllaç**, enganxeu l'adreça del document tal com la copieu del navegador
+   (`https://docs.google.com/document/d/.../edit`).
+4. Marqueu **Mapa de processos** i deseu.
+
+Només un document pot ser el mapa de processos. Per fer-ne servir un altre, desmarqueu primer l'actual.

@@ -35,6 +35,10 @@ Abrid un proceso para ver, en sus pestañas:
 - **Procedimientos** y **Documentos** — lo que depende del proceso. Con **Editar** los podéis añadir o
   cambiar desde ahí mismo.
 
+Para ir a uno de sus procedimientos o documentos, haced clic en la flecha del final de la fila: se abre
+en su propia ficha, y las migas de pan os devuelven al proceso. Cada proceso, procedimiento y documento
+se abre en la pestaña **Documento**.
+
 El enlace de la ficha del proceso se pone con **Editar**, en el campo **Enlace**.
 
 ## Procedimientos

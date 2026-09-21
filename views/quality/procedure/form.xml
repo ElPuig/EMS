@@ -33,8 +33,8 @@
                                 </div>
                             </page>
                             <page string="Documents" name="documents">
-                                <field name="document_ids" readonly="not edit_mode">
-                                    <list editable="bottom" open_form_view="True">
+                                <field name="document_ids" widget="ems_quality_linked_rows" readonly="not edit_mode">
+                                    <list editable="bottom">
                                         <field name="code"/>
                                         <field name="name"/>
                                         <field name="url" widget="url"/>

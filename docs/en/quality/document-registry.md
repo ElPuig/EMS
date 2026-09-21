@@ -35,8 +35,7 @@ Open a process to see, in its tabs:
 - **Procedures** and **Documents** — what hangs off the process. With **Edit** you can add or change them
   from there.
 
-To go to one of its procedures or documents, click the arrow at the end of its row: it opens in its own
-form, and the breadcrumbs take you back to the process. Every process, procedure and document opens on
+To go to one of its procedures or documents, click its row: it opens in its own form, and the breadcrumbs take you back to the process. Every process, procedure and document opens on
 its **Document** tab.
 
 The process sheet's link is set with **Edit**, in the **Link** field.

@@ -145,8 +145,8 @@ registry.category("web_tour.tours").add("ems_quality_registry", {
             content: "The process form lists its procedures",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='procedure_ids'] .o_list_record_open_form_view button",
-            content: "Each procedure opens in its own form from the process",
+            trigger: ".o_form_view .o_field_widget[name='procedure_ids'] .o_data_row .o_data_cell[name='name']",
+            content: "Clicking a procedure's row opens it in its own form",
             run: "click",
         },
         {

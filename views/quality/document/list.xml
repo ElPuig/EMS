@@ -8,7 +8,8 @@
                 <list>
                     <header>
                         <button name="%(ems.action_quality_document_link_import)d" string="Load links" type="action"
-                                display="always" class="o_quality_load_links"/>
+                                display="always" class="o_quality_load_links"
+                                groups="ems.group_quality_admin,ems.group_director"/>
                     </header>
                     <field name="code"/>
                     <field name="name"/>

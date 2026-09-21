@@ -7,7 +7,9 @@
         <menuitem name="Quality" sequence="9" id="menu_quality"
                   groups="ems.group_quality,ems.group_quality_admin,ems.group_head_of_studies,ems.group_secretary,ems.group_director"/>
 
-        <menuitem name="Configuration" sequence="90" id="menu_quality_config" parent="menu_quality"
-                  groups="ems.group_quality_admin,ems.group_director"/>
+        <!-- First entry, so clicking Quality lands on its first item, the process map. Everything
+             in it opens read-only; whoever may change it does so with 'Edit' on the record itself,
+             which is why there is no separate configuration menu. -->
+        <menuitem name="Documentation" sequence="1" id="menu_quality_documentation" parent="menu_quality"/>
     </data>
 </odoo>

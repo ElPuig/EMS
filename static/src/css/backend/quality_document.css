@@ -1,12 +1,9 @@
-/* A document previewed inside its form (ems_quality_document_preview) needs the whole window to be
-   readable: the preview field takes the full row, and the form it sits in drops the sheet's usual
-   maximum width. Scoped with :has() to the forms actually showing a preview, so every other form -
-   and this one while it is being edited, when the preview is hidden - keeps Odoo's own layout. */
-.o_form_renderer:has(.o_field_ems_quality_document_preview) {
-    max-width: none;
-}
-
-.o_form_sheet_bg:has(.o_field_ems_quality_document_preview) > .o_form_sheet {
+/* The forms of the quality structure (processes, procedures, documents) show a Drive file inside
+   them (ems_quality_document_preview), which needs the whole window to be readable: those forms,
+   marked class="o_quality_wide_form", drop the sheet's usual maximum width, and the preview takes
+   the full row. Every other form keeps Odoo's own layout. */
+.o_form_renderer.o_quality_wide_form,
+.o_form_renderer.o_quality_wide_form .o_form_sheet_bg > .o_form_sheet {
     max-width: none;
 }
 

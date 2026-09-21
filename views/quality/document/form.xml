@@ -7,7 +7,7 @@
             <field name="name">ems.quality.document.form</field>
             <field name="model">ems.quality.document</field>
             <field name="arch" type="xml">
-                <form>
+                <form class="o_quality_wide_form">
                     <header>
                         <field name="edit_mode" widget="ems_quality_edit_mode" invisible="edit_mode or not can_edit"/>
                         <button name="action_open_document" type="object" string="Open document" icon="fa-external-link"

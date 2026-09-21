@@ -8,7 +8,7 @@ The record is a **frozen copy** of the grades subsystem output — never recalcu
 
 This model replaces the legacy, unused `ems.grade_outcome` (removed in this same issue).
 
-**Module files:** `models/grades/year_record.py`, `models/contacts/contact.py` (O2m + history tab), `models/contacts/graduation_wizard.py` (withdrawal wizard generates the record), `views/planning_grading/grading/year_record/{form,list,search,menu}.xml`, `views/community/contact/form.xml`, `security/rules/grading.xml`, `security/ir.model.access.csv`, `tests/test_year_record.py`
+**Module files:** `models/grades/year_record.py`, `models/grades/grade_review_wizard.py`, `models/contacts/contact.py` (O2m + history tab), `models/contacts/graduation_wizard.py` (withdrawal wizard generates the record), `views/planning_grading/grading/year_record/{form,list,search,menu,grade_review_wizard}.xml`, `views/community/contact/form.xml`, `security/rules/grading.xml`, `security/ir.model.access.csv`, `tests/test_year_record.py`, `tests/test_grade_review.py`, `tests/test_grade_review_tour.py`
 
 ## Hierarchy and relations
 
@@ -66,14 +66,50 @@ flowchart LR
   - no confirmed enrollment: study `uses_enrollment_flow` → `repeating` (suspicious, listed in the transition preview); no flow → empty (filled by the September re-import if applicable)
 - **`title_obtained`** is per record (= per study·course): `has_graduated` alone is global and does not say which study/course; the record's `exit_course_id` match provides that dimension.
 
+## Grade reviews (post-closure corrections)
+
+A **grade review** is a formal resolution signed once the academic file of a course is already closed. By then the frozen history is the only surviving trace of that year — the transition wizard deleted the `ems.grade_subject_line` / `ems.grade_outcome_line` records it was copied from — so there is nowhere else to apply it. `ems.grade_review_wizard` is the single write path into a closed file; every other field of the history stays read-only in the UI.
+
+Three operations, all of them stamped and logged:
+
+| Operation | Effect |
+|-----------|--------|
+| `correct` | Rewrites `final_score` / `final_is_scored` of the subject's outcomes, then recomputes the subject |
+| `add` | Creates a subject record the history is missing, with its outcomes seeded from the `ems.planning` of the record's study |
+| `remove` | Unlinks a subject record |
+
+### Recomputation reuses the grading formulas, never a copy of them
+
+```mermaid
+flowchart TD
+    W["ems.grade_review_wizard<br/>(outcome grid)"] --> V
+    YRO["…year_record.outcome<br/>final_score / weight"] --> V
+    V["…year_record.subject<br/>_values_from_outcomes()"] --> IFO & FFP
+    IFO["ems.grade_subject_line<br/>_internal_from_outcomes()"] --> R
+    FFP["ems.grade_subject_line<br/>_final_from_parts()"] --> R
+    R["internal_grade · state · final_grade · has_final"]
+```
+
+`_internal_from_outcomes()` was extracted out of `ems.grade_subject_line._compute_internal_score` for this, alongside the already shared `_final_from_parts()`: the live grades and the frozen history run the very same weighted-average rule (renormalized over the scored outcomes, capped at 4 when any of them is below 5). `_values_from_outcomes()` sits on top of both and is what the wizard's **live preview** is computed from too, so what the operator sees before applying and what gets written cannot diverge.
+
+`_recompute_from_outcomes()` also clears `is_overridden`: after a grade review the internal grade is the one its outcomes yield, no longer a teacher's manual override of them. A subject whose work placement (EM) has not been graded yet becomes `passed` with its final still pending, exactly as the freeze would have left it.
+
+### The course result is proposed, never silently rewritten
+
+`ems.student.year_record.grade_based_result()` returns `full` when every subject is passed and `partial` otherwise. `withdrawn` and `repeating` are returned untouched: they come from the exit and from the destination enrollment (see `_academic_result` above), not from the grades, so a grade review on a subject cannot resolve them. The wizard shows the proposal next to the current result with a pre-checked "Update the course result" box; `title_obtained` is never derived — it stays a manual decision.
+
+### Traceability
+
+`review_date`, `review_user_id` and `review_note` on `ems.student.year_record.subject` keep the **last** grade review applied to that subject. The full sequence is auditable in the student's chatter: `_log_review()` posts one note per review (through `_message_log`, so it needs no email address on whoever signed it) listing every outcome changed with its before → after, the resulting subject state and, when it changed, the course result.
+
 ## CRUD flow
 
 | Operation | Who | How |
 |-----------|-----|-----|
 | Create | Generator only (withdrawal wizard, transition wizard) | `generate_for_students()`; no manual create UI |
 | Read | Tab "Academic history" on the contact form (student/alumni/withdrawal); standalone list under Planning and Grading | — |
-| Update | Admin/secretary may adjust `academic_result` / header metadata; content refresh via re-generation | Idempotent replace of copied children |
-| Delete | Admin only (correction of a wrongly generated record) | — |
+| Update | Secretariat, admin, Head of Studies / Director: `academic_result` / `title_obtained` directly on the record, everything else through the grade review wizard | Idempotent replace of copied children on re-generation |
+| Delete | Record: admin only (a wrongly generated record). Subject line: through the grade review wizard | — |
 
 ### The generator elevates its arguments, not only the model
 
@@ -84,9 +120,9 @@ Every caller reaches the generator as `self.env['ems.student.year_record'].sudo(
 | Group | Read | Write | Create | Unlink | Record rule |
 |-------|------|-------|--------|--------|-------------|
 | `group_academic_admin` | ✔ | ✔ | ✔ | ✔ | all data |
-| `group_secretary` | ✔ | ✔ | ✔ | ✘ | all data — needs its own rule: a secretary who is also a teacher would otherwise be restricted by the tutor rule |
-| `group_head_of_studies` (and Director) | ✔ | ✘ | ✘ | ✘ | all data (read) |
-| `group_teacher` (tutors) | students of tutored groups only | ✘ | ✘ | ✘ | `student_id.main_group_id.tutor_id.user_id = user` |
+| `group_secretary` | ✔ | ✔ | ✔ | subject/outcome lines only | all data — needs its own rule: a secretary who is also a teacher would otherwise be restricted by the teacher rule |
+| `group_head_of_studies` (and Director, which implies it) | ✔ | ✔ | ✔ | subject/outcome lines only | all data |
+| `group_teacher` (every teacher, not only tutors) | ✔ | ✘ | ✘ | ✘ | all students centre-wide (issue #393) |
 | Portal / families | ✘ | ✘ | ✘ | ✘ | — |
 
-The three models share the same matrix (children are always reached through the header).
+The three models share the same matrix (children are always reached through the header), except for `unlink`: only the admin may delete a whole year record, while the subject and outcome lines are deletable by every role that signs a grade review. `ems.grade_review_wizard` itself is reachable by those same four roles, and `_check_can_review()` re-checks it in Python behind the view's own `groups=`.

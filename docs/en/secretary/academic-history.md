@@ -14,7 +14,8 @@ This guide explains the **academic history**: a permanent, per-course summary of
 2. [When records are created](#when-records-are-created)
 3. [Consulting the history](#consulting-the-history)
 4. [Adjusting the academic result](#adjusting-the-academic-result)
-5. [Finals pending the work placement](#finals-pending-the-work-placement)
+5. [Applying a grade review](#applying-a-grade-review)
+6. [Finals pending the work placement](#finals-pending-the-work-placement)
 
 ---
 
@@ -44,9 +45,31 @@ Two entry points:
 - **Per student:** open the student's form — the **Academic history** tab lists their records, ordered by study and course. The tab stays visible for **former students** (alumni and withdrawals): it is their permanent record.
 - **Cohort queries:** **Planning and Grading → Grades → Academic history** lists every record. Filter or group by course, study, group or academic result — e.g. "all the students of study X in course Y", or every record with the **Title obtained** mark.
 
+![A course record of the academic history, with its subjects tab and their grades](../../assets/secretary/academic-history-record.png)
+
 ## Adjusting the academic result
 
 The **academic result** (*Fully passed*, *Partially passed*, *Repeating*, *Withdrawn*) is proposed automatically from the grades and the destination enrollment, but it is a plain field: secretariat and administrators can **adjust it by hand** on the record when the automatic proposal does not match reality (e.g. a study without enrollment flow resolved in September).
+
+## Applying a grade review
+
+A grade review corrects the academic history of a course already closed. Secretariat, administration, Head of Studies and Director may apply one.
+
+1. Open **Planning and Grading → Grades → Academic history** and open the student's record for the course to correct.
+2. Click **Grade review**.
+3. Choose what the review does:
+   - **Correct a subject:** pick the subject and set the **Resolved grade** of every learning outcome the review resolves.
+   - **Add a missing subject:** pick the subject. Its weights and learning outcomes are proposed from the teaching plan of the study; fill in their grades.
+   - **Remove a subject:** pick the subject to delete from the record.
+4. Read **Result of the review**: the internal grade, the state and the final grade the correction yields.
+5. Read **Course result**: the proposed result is written on the record while **Update the course result** is ticked. Untick it to keep the current one.
+6. Write the **Resolution** and click **Apply review**.
+
+A subject is passed when every learning outcome is resolved at 5 or above. A subject whose work placement (EM) is not graded yet becomes passed with its final grade pending; grade the placement from the work placement screen. *Repeating* and *Withdrawn* are not proposed by a grade review: adjust them by hand on the record.
+
+The subject keeps the date, the author and the text of the last review applied to it, and the **Corrected by a grade review** filter of the history list shows the records with at least one. The detail of every change is recorded in the student's log.
+
+![The grade review wizard, with the learning-outcome grid and the result it yields](../../assets/secretary/academic-history-grade-review.png)
 
 ## Finals pending the work placement
 

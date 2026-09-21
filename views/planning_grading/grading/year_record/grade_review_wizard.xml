@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_grade_review_wizard_form">
+            <field name="name">ems.grade_review_wizard.form</field>
+            <field name="model">ems.grade_review_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Grade review" class="o_ems_wrap_list_headers">
+                    <sheet>
+                        <div class="alert alert-info" role="alert">
+                            A grade review corrects the academic history of a course already closed.
+                            A subject is corrected through its learning outcomes (RA): set the
+                            resolved grade of the ones the review resolves and the internal
+                            grade, the state and the final grade of the subject are recomputed
+                            with the weights frozen that course. Everything applied here is
+                            recorded on the subject and posted in the student's chatter.
+                        </div>
+                        <group>
+                            <group>
+                                <field name="record_id" invisible="1"/>
+                                <field name="available_subject_ids" invisible="1"/>
+                                <field name="student_id" readonly="1"/>
+                                <field name="course_id" readonly="1"/>
+                                <field name="study_name" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="operation" widget="radio"/>
+                                <field name="review_date"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="subject_record_id" options="{'no_create': True}"
+                                   domain="[('record_id', '=', record_id)]"
+                                   invisible="operation == 'add'"
+                                   required="operation != 'add'"/>
+                            <field name="subject_id" options="{'no_create': True}"
+                                   domain="[('id', 'in', available_subject_ids)]"
+                                   invisible="operation != 'add'"
+                                   required="operation == 'add'"/>
+                            <field name="internal_weight" invisible="operation != 'add'"/>
+                            <field name="external_weight" invisible="operation != 'add'"/>
+                        </group>
+                        <field name="line_ids" invisible="operation == 'remove'" nolabel="1">
+                            <list editable="bottom" create="0" delete="0">
+                                <field name="outcome_record_id" column_invisible="1"/>
+                                <field name="outcome_id" column_invisible="1"/>
+                                <field name="outcome_name" readonly="1"/>
+                                <field name="weight" readonly="parent.operation != 'add'"/>
+                                <!-- The frozen values are muted and the grade being resolved is
+                                     emphasised: Odoo only marks a read-only cell once its row is
+                                     in edit mode, so up to the first click every column of an
+                                     editable list looks equally editable. -->
+                                <field name="previous_score" readonly="1" class="text-muted"
+                                       column_invisible="parent.operation == 'add'"/>
+                                <field name="previous_is_scored" readonly="1" class="text-muted"
+                                       optional="hide"
+                                       column_invisible="parent.operation == 'add'"/>
+                                <field name="score" class="fw-bold"/>
+                                <field name="is_scored"/>
+                            </list>
+                        </field>
+                        <group string="Result of the review" invisible="operation == 'remove'">
+                            <group>
+                                <field name="preview_internal_grade"/>
+                                <field name="preview_state" widget="badge"
+                                       decoration-success="preview_state == 'passed'"
+                                       decoration-danger="preview_state == 'failed'"/>
+                            </group>
+                            <group>
+                                <field name="preview_final_grade"/>
+                                <field name="preview_has_final"/>
+                            </group>
+                        </group>
+                        <group string="Course result">
+                            <field name="current_result" readonly="1"/>
+                            <field name="proposed_result" readonly="1"/>
+                            <field name="update_result"/>
+                        </group>
+                        <group string="Resolution">
+                            <field name="resolution" nolabel="1"
+                                   placeholder="What the review resolves, as signed."/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_apply" type="object" string="Apply review"
+                                class="btn-primary" data-hotkey="q"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"
+                                data-hotkey="x"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_grade_review_wizard">
+            <field name="name">Grade review</field>
+            <field name="res_model">ems.grade_review_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <!-- The default dialog width squeezes the outcome grid's numeric columns until
+                 their own headers no longer fit (Odoo truncates a column header rather than
+                 widening or wrapping it). -->
+            <field name="context">{'dialog_size': 'extra-large'}</field>
+        </record>
+    </data>
+</odoo>

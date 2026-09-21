@@ -14,7 +14,8 @@ Aquesta guia explica l'**històric acadèmic**: un resum permanent per curs de c
 2. [Quan es creen els registres](#quan-es-creen-els-registres)
 3. [Consultar l'històric](#consultar-lhistòric)
 4. [Ajustar el resultat acadèmic](#ajustar-el-resultat-acadèmic)
-5. [Finals pendents de l'estada](#finals-pendents-de-lestada)
+5. [Aplicar una revisió de qualificacions](#aplicar-una-revisió-de-qualificacions)
+6. [Finals pendents de l'estada](#finals-pendents-de-lestada)
 
 ---
 
@@ -44,9 +45,31 @@ Dos punts d'entrada:
 - **Per alumne/a:** obriu la fitxa de l'alumne/a — la pestanya **Històric acadèmic** llista els seus registres, ordenats per estudi i curs. La pestanya es manté visible per a l'**antic alumnat** (graduats/des i baixes): és el seu registre permanent.
 - **Consultes de cohort:** **Planificació i avaluació → Notes → Històric acadèmic** llista tots els registres. Filtreu o agrupeu per curs, estudi, grup o resultat acadèmic — p. ex. "tot l'alumnat de l'estudi X al curs Y", o tots els registres amb la marca **Títol obtingut**.
 
+![Registre d'un curs de l'històric acadèmic, amb la pestanya de mòduls i les seves notes](../../assets/secretary/academic-history-record.png)
+
 ## Ajustar el resultat acadèmic
 
 El **resultat acadèmic** (*Superat íntegrament*, *Superat parcialment*, *Repeteix curs*, *Baixa*) es proposa automàticament a partir de les notes i de la matrícula de destinació, però és un camp normal: secretaria i administradors poden **ajustar-lo a mà** al registre quan la proposta automàtica no coincideix amb la realitat (p. ex. un estudi sense flux de matrícula resolt al setembre).
+
+## Aplicar una revisió de qualificacions
+
+Una revisió de qualificacions corregeix l'històric acadèmic d'un curs ja tancat. La poden aplicar secretaria, administració, cap d'estudis i direcció.
+
+1. Obriu **Planificació i avaluació → Notes → Històric acadèmic** i obriu el registre de l'alumne/a del curs que s'ha de corregir.
+2. Feu clic a **Revisió de qualificacions**.
+3. Trieu què fa la revisió:
+   - **Corregir un mòdul:** trieu el mòdul i poseu la **Nota resolta** de cada resultat d'aprenentatge que resol la revisió.
+   - **Afegir un mòdul que falta:** trieu el mòdul. Les ponderacions i els resultats d'aprenentatge es proposen a partir de la programació de l'estudi; poseu-hi les notes.
+   - **Eliminar un mòdul:** trieu el mòdul que s'ha de treure del registre.
+4. Llegiu **Resultat de la revisió**: la nota interna, l'estat i la nota final que dona la correcció.
+5. Llegiu **Resultat del curs**: el resultat proposat s'escriu al registre mentre **Actualitza el resultat del curs** estigui marcat. Desmarqueu-lo per conservar l'actual.
+6. Escriviu la **Resolució** i feu clic a **Aplica la revisió**.
+
+Un mòdul queda superat quan tots els resultats d'aprenentatge es resolen amb 5 o més. Un mòdul amb l'estada (EM) encara sense qualificar queda superat amb la nota final pendent; qualifiqueu l'estada des de la pantalla d'estada. *Repeteix curs* i *Baixa* no els proposa una revisió de qualificacions: ajusteu-los a mà al registre.
+
+El mòdul conserva la data, l'autor/a i el text de l'última revisió que s'hi ha aplicat, i el filtre **Corregit per una revisió de qualificacions** de la llista de l'històric mostra els registres que en tenen alguna. El detall de cada canvi queda registrat al registre de l'alumne/a.
+
+![Assistent de revisió de qualificacions, amb la graella de resultats d'aprenentatge i el resultat que en surt](../../assets/secretary/academic-history-grade-review.png)
 
 ## Finals pendents de l'estada
 

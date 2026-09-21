@@ -1381,9 +1381,6 @@ msgstr "Acció"
 #: model:ir.model.fields,field_description:ems.field_ems_notice__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__message_needaction
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__message_needaction
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__message_needaction
-#: model:ir.model.fields,field_description:ems.field_ems_quality_process__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_space__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_needaction
@@ -1899,7 +1896,6 @@ msgstr "Aprovar"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_document__status__approved model_terms:ir.ui.view,arch_db:ems.view_student_document_search
-#: model:ir.model.fields.selection,name:ems.selection__ems_quality_document__state__approved
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 msgid "Approved"
 msgstr "Aprovat"
@@ -2025,9 +2021,6 @@ msgstr "Adjunt"
 #: model:ir.model.fields,field_description:ems.field_ems_notice__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__message_attachment_count
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__message_attachment_count
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__message_attachment_count
-#: model:ir.model.fields,field_description:ems.field_ems_quality_process__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_space__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_attachment_count
@@ -3035,7 +3028,6 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_quality_document__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_quality_followup__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__create_uid
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure_phase__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_quality_process__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_role__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_space__create_uid
@@ -3129,7 +3121,6 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_quality_document__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_quality_followup__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__create_date
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure_phase__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_quality_process__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_role__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_space__create_date
@@ -3489,7 +3480,6 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_quality_document__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_quality_followup__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__display_name
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure_phase__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_quality_process__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_role__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_space__display_name
@@ -3594,8 +3584,6 @@ msgstr "Tipus de document"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing model_terms:ir.ui.view,arch_db:ems.view_contact_form
-#: model:ir.actions.act_window,name:ems.action_quality_document
-#: model:ir.ui.menu,name:ems.menu_quality_documents
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Documentation"
@@ -3654,7 +3642,6 @@ msgstr "Descarregant enquestes"
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__draft model:ir.model.fields.selection,name:ems.selection__ems_notice__state__draft model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard__state__draft
 #: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard__state__draft
 #: model:ir.model.fields.selection,name:ems.selection__ems_notice__state__draft
-#: model:ir.model.fields.selection,name:ems.selection__ems_quality_document__state__draft
 msgid "Draft"
 msgstr "Esborrany"
 
@@ -4272,9 +4259,6 @@ msgstr "Seguiment"
 #: model:ir.model.fields,field_description:ems.field_ems_notice__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__message_follower_ids
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__message_follower_ids
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__message_follower_ids
-#: model:ir.model.fields,field_description:ems.field_ems_quality_process__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_space__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_follower_ids
@@ -4302,9 +4286,6 @@ msgstr "Seguidors"
 #: model:ir.model.fields,field_description:ems.field_ems_notice__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__message_partner_ids
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__message_partner_ids
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__message_partner_ids
-#: model:ir.model.fields,field_description:ems.field_ems_quality_process__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_space__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_partner_ids
@@ -4720,9 +4701,6 @@ msgstr "Té taxes"
 #: model:ir.model.fields,field_description:ems.field_ems_notice__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__has_message
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__has_message
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__has_message
-#: model:ir.model.fields,field_description:ems.field_ems_quality_process__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_space__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_strike__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__has_message
@@ -4886,7 +4864,6 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_quality_document__id
 #: model:ir.model.fields,field_description:ems.field_ems_quality_followup__id
 #: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__id
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure_phase__id
 #: model:ir.model.fields,field_description:ems.field_ems_quality_process__id
 #: model:ir.model.fields,field_description:ems.field_ems_role__id
 #: model:ir.model.fields,field_description:ems.field_ems_space__id
@@ -5006,9 +4983,6 @@ msgstr "Si l'IBAN està mapejat i una fila té valor, tots els comptes bancaris 
 #: model:ir.model.fields,help:ems.field_ems_notice__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_notice_line__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_quality_action__message_needaction
-#: model:ir.model.fields,help:ems.field_ems_quality_document__message_needaction
-#: model:ir.model.fields,help:ems.field_ems_quality_procedure__message_needaction
-#: model:ir.model.fields,help:ems.field_ems_quality_process__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_space__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_strike__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_student_document__message_needaction
@@ -5055,12 +5029,6 @@ msgstr "Si està marcat, nous missatges que requereixen de la vostra atenció. "
 #: model:ir.model.fields,help:ems.field_ems_notice_line__message_has_sms_error
 #: model:ir.model.fields,help:ems.field_ems_quality_action__message_has_error
 #: model:ir.model.fields,help:ems.field_ems_quality_action__message_has_sms_error
-#: model:ir.model.fields,help:ems.field_ems_quality_document__message_has_error
-#: model:ir.model.fields,help:ems.field_ems_quality_document__message_has_sms_error
-#: model:ir.model.fields,help:ems.field_ems_quality_procedure__message_has_error
-#: model:ir.model.fields,help:ems.field_ems_quality_procedure__message_has_sms_error
-#: model:ir.model.fields,help:ems.field_ems_quality_process__message_has_error
-#: model:ir.model.fields,help:ems.field_ems_quality_process__message_has_sms_error
 #: model:ir.model.fields,help:ems.field_ems_space__message_has_error
 #: model:ir.model.fields,help:ems.field_ems_space__message_has_sms_error
 #: model:ir.model.fields,help:ems.field_ems_strike__message_has_error
@@ -5341,9 +5309,6 @@ msgstr "És taxa de matrícula"
 #: model:ir.model.fields,field_description:ems.field_ems_notice__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__message_is_follower
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__message_is_follower
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__message_is_follower
-#: model:ir.model.fields,field_description:ems.field_ems_quality_process__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_space__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_is_follower
@@ -5520,7 +5485,6 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_quality_document__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_quality_followup__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__write_uid
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure_phase__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_quality_process__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_role__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_space__write_uid
@@ -5614,7 +5578,6 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_quality_document__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_quality_followup__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__write_date
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure_phase__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_quality_process__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_role__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_space__write_date
@@ -5934,7 +5897,6 @@ msgstr "Obligatori respondre"
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__mode__manual model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__manual
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_recipient__state__manual
-#: model:ir.model.fields.selection,name:ems.selection__ems_quality_document__kind__manual
 msgid "Manual"
 msgstr "Manual"
 
@@ -5998,9 +5960,6 @@ msgstr "Missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_notice__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__message_has_error
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__message_has_error
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__message_has_error
-#: model:ir.model.fields,field_description:ems.field_ems_quality_process__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_space__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_has_error
@@ -6028,9 +5987,6 @@ msgstr "Error de lliurament del missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_notice__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__message_ids
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__message_ids
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__message_ids
-#: model:ir.model.fields,field_description:ems.field_ems_quality_process__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_space__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_ids
@@ -6484,9 +6440,6 @@ msgstr "Número"
 #: model:ir.model.fields,field_description:ems.field_ems_notice__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__message_needaction_counter
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__message_needaction_counter
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__message_needaction_counter
-#: model:ir.model.fields,field_description:ems.field_ems_quality_process__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_space__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_needaction_counter
@@ -6514,9 +6467,6 @@ msgstr "Quantitat d'accions"
 #: model:ir.model.fields,field_description:ems.field_ems_notice__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__message_has_error_counter
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__message_has_error_counter
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__message_has_error_counter
-#: model:ir.model.fields,field_description:ems.field_ems_quality_process__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_space__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_has_error_counter
@@ -6544,9 +6494,6 @@ msgstr "Quantitat d'errors"
 #: model:ir.model.fields,help:ems.field_ems_notice__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_notice_line__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_quality_action__message_needaction_counter
-#: model:ir.model.fields,help:ems.field_ems_quality_document__message_needaction_counter
-#: model:ir.model.fields,help:ems.field_ems_quality_procedure__message_needaction_counter
-#: model:ir.model.fields,help:ems.field_ems_quality_process__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_space__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_strike__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_student_document__message_needaction_counter
@@ -6574,9 +6521,6 @@ msgstr "Quantitat de missatges que requereixen d'una acció"
 #: model:ir.model.fields,help:ems.field_ems_notice__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_notice_line__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_quality_action__message_has_error_counter
-#: model:ir.model.fields,help:ems.field_ems_quality_document__message_has_error_counter
-#: model:ir.model.fields,help:ems.field_ems_quality_procedure__message_has_error_counter
-#: model:ir.model.fields,help:ems.field_ems_quality_process__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_space__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_strike__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_student_document__message_has_error_counter
@@ -7220,9 +7164,6 @@ msgstr "Plantilla de pressupost"
 #: model:ir.model.fields,field_description:ems.field_ems_notice__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__rating_ids
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__rating_ids
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__rating_ids
-#: model:ir.model.fields,field_description:ems.field_ems_quality_process__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_space__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_strike__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__rating_ids
@@ -7687,9 +7628,6 @@ msgstr "En execució"
 #: model:ir.model.fields,field_description:ems.field_ems_notice__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__message_has_sms_error
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__message_has_sms_error
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__message_has_sms_error
-#: model:ir.model.fields,field_description:ems.field_ems_quality_process__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_space__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_strike__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__message_has_sms_error
@@ -7971,7 +7909,6 @@ msgstr "Enviat el"
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_field__sequence model:ir.model.fields,field_description:ems.field_ems_csv_column__sequence model:ir.model.fields,field_description:ems.field_ems_strike_reason__sequence model:ir.model.fields,field_description:ems.field_ems_attendance_status__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_status__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_csv_column__sequence
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure_phase__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_quality_process__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_strike_reason__sequence
 msgid "Sequence"
@@ -8202,12 +8139,10 @@ msgstr "Iniciant procés en segon pla; rebràs una notificació en finalitzar (p
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__state
 #: model:ir.model.fields,field_description:ems.field_ems_notice__state
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__state
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__state
 #: model:ir.model.fields,field_description:ems.field_ems_quality_followup__state
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__state
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__state
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
 msgid "State"
 msgstr "Estat"
 
@@ -8678,7 +8613,6 @@ msgstr "Ensenyament: relació ternària entre professor-grup-assignatura."
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__attendance_template_id model:ir.model.fields,field_description:ems.field_ems_authorization__template_id model:ir.model.fields,field_description:ems.field_ems_authorization_field__template_id model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
 #: model:ir.model.fields,field_description:ems.field_ems_authorization__template_id
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_field__template_id
-#: model:ir.model.fields.selection,name:ems.selection__ems_quality_document__kind__template
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
 msgid "Template"
 msgstr "Plantilla"
@@ -8700,7 +8634,6 @@ msgstr "Docents de la plantilla"
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_template
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
 msgid "Templates"
 msgstr "Plantilles"
 
@@ -9466,9 +9399,6 @@ msgstr "Estem treballant en aquesta secció per oferir-te la millor experiència
 #: model:ir.model.fields,field_description:ems.field_ems_notice__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__website_message_ids
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__website_message_ids
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__website_message_ids
-#: model:ir.model.fields,field_description:ems.field_ems_quality_process__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_space__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_strike__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__website_message_ids
@@ -9496,9 +9426,6 @@ msgstr "Missatges del lloc web"
 #: model:ir.model.fields,help:ems.field_ems_notice__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_notice_line__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_quality_action__website_message_ids
-#: model:ir.model.fields,help:ems.field_ems_quality_document__website_message_ids
-#: model:ir.model.fields,help:ems.field_ems_quality_procedure__website_message_ids
-#: model:ir.model.fields,help:ems.field_ems_quality_process__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_space__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_strike__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_student_document__website_message_ids
@@ -10320,7 +10247,6 @@ msgstr "Eliminar aquesta sessió? Aquesta acció no es pot desfer."
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_passlist model:ir.actions.client,name:ems.action_attendance_passlist
 #: model:ir.actions.client,name:ems.action_attendance_passlist
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
 msgid "Current"
 msgstr "Actual"
 
@@ -10950,9 +10876,7 @@ msgstr "Això expulsa immediatament els estudiants seleccionats. Vols continuar?
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__exit_kind
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__kind
 #: model:ir.model.fields,field_description:ems.field_ems_quality_process__kind
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
 msgid "Kind"
 msgstr "Tipus"
 
@@ -16006,16 +15930,6 @@ msgid "Another process already uses this code."
 msgstr "Ja hi ha un altre procés amb aquest codi."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__approval_date
-msgid "Approved on"
-msgstr "Aprovat el"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_quality_document__needs_review
-msgid "Approved, with a next review date already in the past."
-msgstr "Aprovat i amb la data de propera revisió ja passada."
-
-#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_quality_procedure__code
 msgid "As in the centre's documentation: PE3.01, PC1.02..."
 msgstr "Com a la documentació del centre: PE3.01, PC1.02..."
@@ -16052,13 +15966,6 @@ msgid "Closure"
 msgstr "Tancament"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__is_legacy_code
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_form
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
-msgid "Code out of the current map"
-msgstr "Codi fora del mapa actual"
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__type__corrective
 msgid "Corrective action"
 msgstr "Acció correctiva"
@@ -16067,11 +15974,6 @@ msgstr "Acció correctiva"
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
 msgid "Corrective and preventive"
 msgstr "Correctives i preventives"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_process__responsible_employee_ids
-msgid "Currently held by"
-msgstr "Ocupat actualment per"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__deadline_date
@@ -16090,45 +15992,14 @@ msgid "Derived from the latest follow-up entry: to move it forward, add one."
 msgstr "Es deriva de la darrera entrada de seguiment: per fer-la avançar, afegiu-ne una."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__published_mail
-msgid "Distributed by e-mail"
-msgstr "Distribuït per correu"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_form
-msgid "Distribution"
-msgstr "Distribució"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_document_form
 msgid "Document name"
 msgstr "Nom del document"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__document_ids
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form
-msgid "Documents and records"
-msgstr "Documents i registres"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__drive_file_id
-msgid "Drive file id"
-msgstr "Identificador del fitxer al Drive"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__due_date
-msgid "Due on"
-msgstr "Venciment en"
-
-#. module: ems
 #: model:ir.module.category,description:ems.category_quality
 msgid "Educational Management System - Quality"
 msgstr "Educational Management System - Qualitat"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_quality_document__kind__form
-msgid "Form"
-msgstr "Formulari"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__efficacy_criteria
@@ -16163,24 +16034,9 @@ msgid "Key"
 msgstr "Clau"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__published_date
-msgid "Last distributed on"
-msgstr "Distribuït per última vegada el"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__revision_date
-msgid "Last revised on"
-msgstr "Revisat per última vegada el"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
 msgid "Meeting agreements"
 msgstr "Acords de reunió"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__is_minute_template
-msgid "Minute template"
-msgstr "Plantilla d'acta"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__state__new
@@ -16216,11 +16072,6 @@ msgid "Next Activity Calendar Event"
 msgstr "Proper esdeveniment del calendari"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__next_review_date
-msgid "Next review"
-msgstr "Propera revisió"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
 msgid "No link"
 msgstr "Sense enllaç"
@@ -16236,22 +16087,11 @@ msgid "Number of procedures"
 msgstr "Nombre de procediments"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_quality_document__state__obsolete
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
-msgid "Obsolete"
-msgstr "Obsolet"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__is_late
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
 msgid "Overdue"
 msgstr "Fora de termini"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_form
-msgid "Ownership"
-msgstr "Responsabilitat"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_process_form
@@ -16269,30 +16109,12 @@ msgid "PE3.01.15"
 msgstr "PE3.01.15"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
-msgid "Pending review or approval"
-msgstr "Pendent de revisió o aprovació"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure_phase__name
-msgid "Phase"
-msgstr "Fase"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__phase_ids
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form
-msgid "Phases"
-msgstr "Fases"
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__type__preventive
 msgid "Preventive action"
 msgstr "Acció preventiva"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_document__procedure_id
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure_phase__procedure_id
-#: model:ir.model.fields.selection,name:ems.selection__ems_quality_document__kind__procedure
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
 msgid "Procedure"
 msgstr "Procediment"
@@ -16330,30 +16152,10 @@ msgid "Processes"
 msgstr "Processos"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__published_moodle
-msgid "Published on Moodle"
-msgstr "Publicat al Moodle"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__published_web
-msgid "Published on the website"
-msgstr "Publicat al web"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form
-msgid "Purpose"
-msgstr "Finalitat"
-
-#. module: ems
 #: model:ir.module.category,name:ems.category_quality
 #: model:ir.ui.menu,name:ems.menu_quality
 msgid "Quality"
 msgstr "Qualitat"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_process__is_quality_process
-msgid "Quality process"
-msgstr "Procés de qualitat"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_quality_process
@@ -16361,29 +16163,9 @@ msgid "Quality process: one process of the centre's process map (PE1..PS2)."
 msgstr "Procés de qualitat: un procés del mapa de processos del centre (PE1..PS2)."
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_quality_document__kind__record
-msgid "Record"
-msgstr "Registre "
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__type__repair
 msgid "Repair action"
 msgstr "Acció reparadora"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_form
-msgid "Request"
-msgstr "Sol·licitud"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__requested_by_role_id
-msgid "Requested by"
-msgstr "Sol·licitat per"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__request_date
-msgid "Requested on"
-msgstr "Sol·licitat el"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__resources
@@ -16402,12 +16184,7 @@ msgstr "Persones responsables"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__responsible_role_id
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__responsible_role_id
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__responsible_role_id
-#: model:ir.model.fields,field_description:ems.field_ems_quality_process__responsible_role_id
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_search
 msgid "Responsible post"
 msgstr "Càrrec responsable"
 
@@ -16416,17 +16193,6 @@ msgstr "Càrrec responsable"
 #: model:ir.model.fields.selection,name:ems.selection__ems_quality_followup__state__review
 msgid "Review (measuring efficacy)"
 msgstr "Revisió (mesura de l'eficàcia)"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__needs_review
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
-msgid "Review due"
-msgstr "Revisió vençuda"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_process__swot_review_date
-msgid "SWOT last reviewed"
-msgstr "DAFO revisat per última vegada"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__scope_name
@@ -16441,55 +16207,9 @@ msgid "Strategic"
 msgstr "Estratègic"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_quality_document__kind__strategic
-msgid "Strategic document"
-msgstr "Document estratègic"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
-msgid "Strategic documents"
-msgstr "Documents estratègics"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__superseded_by_id
-msgid "Superseded by"
-msgstr "Substituït per"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__supersedes_ids
-msgid "Supersedes"
-msgstr "Substitueix"
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_quality_process__kind__support
 msgid "Support"
 msgstr "Suport"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure_phase__tools
-msgid "Tools"
-msgstr "Eines"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_quality_document__state__review
-msgid "Under review"
-msgstr "En revisió"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_document__version
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_form
-msgid "Version"
-msgstr "Versió"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__what
-msgid "What"
-msgstr "Què"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__what_for
-msgid "What for"
-msgstr "Per a què"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_followup__description
@@ -16500,26 +16220,6 @@ msgstr "Què ha passat"
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
 msgid "What has to be done, and why"
 msgstr "Què s'ha de fer i per què"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form
-msgid "What it establishes"
-msgstr "Què estableix"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form
-msgid "What it is for"
-msgstr "Per a què serveix"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_quality_document__next_review_date
-msgid "What the management review asks for: which documents need updating."
-msgstr "El que demana la revisió per la direcció: quins documents cal actualitzar."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_quality_procedure_phase__tools
-msgid "What the phase is carried out with, as the procedure sheet states it."
-msgstr "Amb què es duu a terme la fase, tal com ho indica la fitxa del procediment."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
@@ -16538,28 +16238,6 @@ msgid "When will it be finished"
 msgstr "Quan estarà finalitzada"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_quality_document__url
-msgid "Where the file actually lives, normally in the centre's Drive."
-msgstr "On es troba realment el fitxer, normalment al Drive del centre."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_form
-msgid "Where the file lives"
-msgstr "On es troba el fitxer"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_quality_document__responsible_role_id
-#: model:ir.model.fields,help:ems.field_ems_quality_procedure__responsible_role_id
-msgid "Who drafts and maintains it."
-msgstr "Qui l'elabora i el manté."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__for_whom
-#: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form
-msgid "Who it applies to"
-msgstr "A qui s'aplica"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_followup__author_employee_id
 msgid "Written by"
 msgstr "Escrit per"
@@ -16570,27 +16248,6 @@ msgstr "Escrit per"
 msgid ""
 "Access rights for the Quality coordinator. Currently identical to Manager."
 msgstr "Permisos d'accés per al coordinador o coordinadora de qualitat. Ara mateix idèntics als de Gestor."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_quality_process__is_quality_process
-msgid ""
-"Answers the management review's question about which processes are quality "
-"processes."
-msgstr "Respon a la pregunta de la revisió per la direcció sobre quins processos són processos de qualitat."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_quality_document__code
-msgid ""
-"As in the centre's documentation: PE3.01.15. Empty while the document has "
-"not been coded yet."
-msgstr "Com a la documentació del centre: PE3.01.15. Buit mentre el document encara no tingui codi."
-
-#. module: ems
-#: model:ir.model,name:ems.model_ems_quality_document
-msgid ""
-"Controlled document: what it is, who owns it, which version it is at and "
-"where it lives."
-msgstr "Document controlat: què és, qui se'n fa càrrec, en quina versió està i on es troba."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_quality_followup
@@ -16606,13 +16263,6 @@ msgid ""
 msgstr "Per als acords d'un claustre o de la revisió per la direcció, que no depenen de cap departament."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_quality_document__is_minute_template
-msgid ""
-"Marks the controlled template that minutes and evidence records are "
-"generated from."
-msgstr "Marca la plantilla controlada a partir de la qual es generen les actes i els registres."
-
-#. module: ems
 #: model:ir.model,name:ems.model_ems_quality_action
 msgid ""
 "Quality action: a meeting agreement or an improvement action, which are the "
@@ -16620,37 +16270,11 @@ msgid ""
 msgstr "Acció de qualitat: un acord de reunió o una acció de millora, que són el mateix."
 
 #. module: ems
-#: model:ir.model,name:ems.model_ems_quality_procedure_phase
-msgid ""
-"Quality procedure phase: one step of a procedure, with the tools it uses."
-msgstr "Fase de procediment: un pas d'un procediment, amb les eines que fa servir."
-
-#. module: ems
 #: model:ir.model,name:ems.model_ems_quality_procedure
 msgid ""
 "Quality procedure: how one part of a process is carried out (PE3.01, "
 "PE3.04...)."
 msgstr "Procediment de qualitat: com es duu a terme una part d'un procés (PE3.01, PE3.04...)."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_quality_document__drive_file_id
-msgid ""
-"Stored alongside the link so it survives the file being moved or renamed."
-msgstr "Es guarda al costat de l'enllaç perquè sobrevisqui si el fitxer es mou o es reanomena."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_quality_document__is_legacy_code
-msgid ""
-"The code does not start with any process code of the current map: a leftover"
-" from a superseded coding scheme."
-msgstr "El codi no comença per cap codi de procés del mapa actual: és una resta d'un esquema de codificació superat."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_quality_process__responsible_employee_ids
-msgid ""
-"The employees holding the responsible post right now. Not stored: it follows"
-" the post."
-msgstr "Les persones que ocupen el càrrec responsable ara mateix. No s'emmagatzema: segueix el càrrec."
 
 #. module: ems
 #: model:ir.actions.client,name:ems.action_quality_process_map

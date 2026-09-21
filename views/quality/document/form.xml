@@ -17,13 +17,13 @@
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                         <div class="oe_title">
-                            <h1><field name="code" placeholder="PE3.01.15" readonly="not edit_mode"/></h1>
+                            <h1 invisible="not code and not edit_mode"><field name="code" placeholder="PE3.01.15" readonly="not edit_mode"/></h1>
                             <h2><field name="name" placeholder="Document name" readonly="not edit_mode"/></h2>
                         </div>
                         <group>
                             <group>
-                                <field name="procedure_id" readonly="not edit_mode"/>
-                                <field name="process_id" readonly="not edit_mode"/>
+                                <field name="procedure_id" readonly="not edit_mode" invisible="not procedure_id and not edit_mode"/>
+                                <field name="process_id" readonly="not edit_mode" invisible="not process_id and not edit_mode"/>
                             </group>
                             <group>
                                 <field name="url" widget="url" readonly="not edit_mode" invisible="not edit_mode"/>

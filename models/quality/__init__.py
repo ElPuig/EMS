@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from . import edit_mode
 from . import process
 from . import procedure
 from . import document

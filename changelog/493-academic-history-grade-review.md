@@ -20,9 +20,9 @@ Real case behind it: a student's *MP 0156 Anglès professional* of 2025-2026 was
 
 # Changes
 
-## Head of Studies and Director may now write on the academic history:
+## Head of Studies and Director sign grade reviews without any direct write access:
 
-They were read-only on `ems.student.year_record` and its children. Both `ir.model.access` rows and the record rules now grant them write and create, so they can sign a grade review like the secretariat and the academic administration. The secretariat and Head of Studies also gained `unlink` on the subject and outcome lines (needed by the "remove a subject" operation); deleting a whole year record is still admin-only. Teachers stay read-only.
+They stay read-only on `ems.student.year_record` and its children, like teachers, and the secretariat gains no delete rights either. The wizard applies every write with elevated rights through `_history()`, and only after checking who is applying the review, so a closed history cannot be edited over RPC or any other way around it. The stamp and the chatter note still name the real signer.
 
 # Fixes
 

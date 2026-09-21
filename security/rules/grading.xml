@@ -109,8 +109,9 @@
          the whole teaching community (issue #393). Head of Studies / Director and Secretary
          keep their own all-data read rules: they are redundant with the teacher one for
          anyone who is also a teacher, but they are what covers a non-teaching holder of
-         those posts. Writing is limited to the roles that sign a grade review (issue #493):
-         the admin, the secretariat and Head of Studies / Director. Teachers stay read-only.
+         those posts. Head of Studies / Director and teachers stay read-only: a closed history is
+         corrected only through the grade review wizard (issue #493), which writes with elevated
+         rights once it has checked who is applying it, so nothing reaches these models by RPC.
 
          The three rule XML IDs still end in '_tutor' for historical reasons: renaming an
          XML ID that already exists in production needs a migration script, and this branch
@@ -128,13 +129,13 @@
     </record>
 
     <record id="rule_year_record_head_of_studies" model="ir.rule">
-        <field name="name">Year record: all data (head of studies)</field>
+        <field name="name">Year record: all data (read)</field>
         <field name="model_id" ref="ems.model_ems_student_year_record"/>
         <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
-        <field name="perm_write" eval="True"/>
-        <field name="perm_create" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
         <field name="perm_unlink" eval="False"/>
     </record>
 
@@ -161,14 +162,14 @@
     </record>
 
     <record id="rule_year_record_subject_head_of_studies" model="ir.rule">
-        <field name="name">Year record subject: all data (head of studies)</field>
+        <field name="name">Year record subject: all data (read)</field>
         <field name="model_id" ref="ems.model_ems_student_year_record_subject"/>
         <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
-        <field name="perm_write" eval="True"/>
-        <field name="perm_create" eval="True"/>
-        <field name="perm_unlink" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
     </record>
 
     <record id="rule_year_record_subject_tutor" model="ir.rule">
@@ -194,14 +195,14 @@
     </record>
 
     <record id="rule_year_record_outcome_head_of_studies" model="ir.rule">
-        <field name="name">Year record outcome: all data (head of studies)</field>
+        <field name="name">Year record outcome: all data (read)</field>
         <field name="model_id" ref="ems.model_ems_student_year_record_outcome"/>
         <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
-        <field name="perm_write" eval="True"/>
-        <field name="perm_create" eval="True"/>
-        <field name="perm_unlink" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
     </record>
 
     <record id="rule_year_record_outcome_tutor" model="ir.rule">
@@ -234,7 +235,7 @@
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>
-        <field name="perm_unlink" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
     </record>
 
     <record id="rule_year_record_outcome_secretary" model="ir.rule">
@@ -245,6 +246,6 @@
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>
-        <field name="perm_unlink" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
     </record>
 </odoo>

@@ -108,8 +108,12 @@ flowchart TD
 |-----------|-----|-----|
 | Create | Generator only (withdrawal wizard, transition wizard) | `generate_for_students()`; no manual create UI |
 | Read | Tab "Academic history" on the contact form (student/alumni/withdrawal); standalone list under Planning and Grading | — |
-| Update | Secretariat, admin, Head of Studies / Director: `academic_result` / `title_obtained` directly on the record, everything else through the grade review wizard | Idempotent replace of copied children on re-generation |
+| Update | Admin (and the secretariat, pre-existing) directly on the record; Head of Studies / Director and teachers are read-only. Grade corrections of every role go through the grade review wizard | Idempotent replace of copied children on re-generation |
 | Delete | Record: admin only (a wrongly generated record). Subject line: through the grade review wizard | — |
+
+### The grade review wizard is the only door to a closed history
+
+Head of Studies / Director have no write access on `ems.student.year_record` and its subject/outcome children (neither the ACL nor the record rules grant it), and the secretariat cannot delete subject or outcome lines. Nobody can therefore correct a closed history over RPC or any other way around the wizard. `ems.grade_review_wizard` performs every write through `_history()`, which applies `.sudo()` to the records it touches, and only after `_check_can_review()` has confirmed the caller is secretariat, admin, Head of Studies or Director. Only the records are elevated, never the wizard itself, so `self.env.user` keeps naming the person who signs the review (stamp and chatter note).
 
 ### The generator elevates its arguments, not only the model
 

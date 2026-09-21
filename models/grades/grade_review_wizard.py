@@ -188,25 +188,36 @@ class EmsGradeReviewWizard(models.TransientModel):
         # from, and reading it afterwards would only raise on a record that no longer exists.
         previous_result = self.record_id.academic_result
         proposed_result = self.proposed_result
+        # Everything below writes through _history(): see its docstring.
         changes = getattr(self, f'_apply_{self.operation}')()
         if self.update_result and proposed_result != previous_result:
             changes.append(_("Course result: %(previous)s → %(new)s",
                              previous=self._result_label(previous_result),
                              new=self._result_label(proposed_result)))
-            self.record_id.academic_result = proposed_result
+            self._history(self.record_id).academic_result = proposed_result
         self._log_review(changes)
         return {'type': 'ir.actions.act_window_close'}
 
     def _check_can_review(self):
-        """Secretariat, academic administration, Head of Studies and Director sign grade reviews;
-        the ACL and the record rules grant them the write access this needs. The check is the
-        defensive one: the button is already restricted to the same groups in the view."""
+        """Secretariat, academic administration, Head of Studies and Director sign grade reviews.
+        Besides restricting the button in the view, this is what gates the elevated writes of
+        _history(): the wizard is the only door to a closed history."""
         self.ensure_one()
         ems_base = self.env['ems.base']
         if not (ems_base.get_user_is_secretary() or ems_base.get_user_is_admin()
                 or ems_base.get_user_is_head_of_studies()):
             raise UserError(_("Only the secretariat, the academic administration, the Head of "
                               "Studies and the Director may apply a grade review."))
+
+    def _history(self, records):
+        """`records` (year record, subject or outcome) with elevated rights.
+
+        A closed academic history is read-only for every role, Head of Studies included: the
+        ACL and the record rules grant no write access on it, so it cannot be edited over RPC
+        or any other way around this wizard. The wizard writes with sudo, and only after
+        _check_can_review. self stays un-elevated, so self.env.user is still the person who
+        signs the review."""
+        return records.sudo()
 
     def _apply_correct(self):
         self.ensure_one()
@@ -220,12 +231,12 @@ class EmsGradeReviewWizard(models.TransientModel):
                              outcome=line.outcome_name,
                              previous=self._score_label(line.previous_score, line.previous_is_scored),
                              new=self._score_label(line.score, line.is_scored)))
-            line.outcome_record_id.write({'final_score': line.score,
-                                          'final_is_scored': line.is_scored})
+            self._history(line.outcome_record_id).write({'final_score': line.score,
+                                                         'final_is_scored': line.is_scored})
         if not changes:
             raise UserError(_("The review does not change any learning outcome grade."))
         previous_state = self.subject_record_id.state
-        self.subject_record_id._recompute_from_outcomes()
+        self._history(self.subject_record_id)._recompute_from_outcomes()
         changes.append(_("%(subject)s: %(previous)s → %(new)s (grade %(grade)s)",
                          subject=self.subject_record_id.subject_name,
                          previous=self._state_label(previous_state),
@@ -238,7 +249,7 @@ class EmsGradeReviewWizard(models.TransientModel):
         self.ensure_one()
         if not self.subject_id:
             raise UserError(_("Pick the subject the review adds."))
-        subject_record = self.env['ems.student.year_record.subject'].create({
+        subject_record = self._history(self.env['ems.student.year_record.subject']).create({
             'record_id': self.record_id.id,
             'subject_id': self.subject_id.id,
             'subject_name': self.subject_id.display_name,
@@ -268,11 +279,11 @@ class EmsGradeReviewWizard(models.TransientModel):
         # Dropped from the wizard first: any later read of the wizard recomputes the preview,
         # and a preview pointing at an already deleted line would raise instead.
         self.subject_record_id = False
-        subject_record.unlink()
+        self._history(subject_record).unlink()
         return changes
 
     def _stamp(self, subject_record):
-        subject_record.write({
+        self._history(subject_record).write({
             'review_date': self.review_date,
             'review_user_id': self.env.user.id,
             'review_note': self.resolution,

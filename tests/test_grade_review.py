@@ -326,6 +326,38 @@ class TestGradeReview(TransactionCase):
                 'resolution': 'x'}).action_apply()
         self.assertEqual(self._failed_subject(record).state, 'failed')
 
+    def test_the_head_of_studies_cannot_edit_the_history_outside_the_wizard(self):
+        """The wizard is the only door to a closed history: no role but the admin (and the
+        secretariat's own pre-existing access to the record) can write, create or delete
+        subjects and outcomes directly, over RPC or otherwise."""
+        record = self._record()
+        subject_record = self._failed_subject(record)
+        outcome_record = subject_record.outcome_record_ids[:1]
+        as_hos = self.head_of_studies
+        with self.assertRaises(AccessError):
+            record.with_user(as_hos).write({'study_name': 'nope'})
+        with self.assertRaises(AccessError):
+            subject_record.with_user(as_hos).write({'internal_grade': 10})
+        with self.assertRaises(AccessError):
+            outcome_record.with_user(as_hos).write({'final_score': 10})
+        with self.assertRaises(AccessError):
+            subject_record.with_user(as_hos).unlink()
+
+    def test_the_secretariat_cannot_delete_history_outside_the_wizard(self):
+        subject_record = self._failed_subject(self._record())
+        with self.assertRaises(AccessError):
+            subject_record.with_user(self.secretary).unlink()
+
+    def test_the_review_is_stamped_with_the_person_who_signs_it(self):
+        """The wizard writes with elevated rights, but the stamp and the chatter must still
+        name the real user, not the superuser."""
+        record = self._record()
+        form = self._form(record, user=self.head_of_studies)
+        form.subject_record_id = self._failed_subject(record)
+        self._pass_failing_outcomes(form)
+        form.save().action_apply()
+        self.assertEqual(self._failed_subject(record).review_user_id, self.head_of_studies)
+
     # --- the subject picker --------------------------------------------------
 
     def test_the_subject_picker_lists_names_not_ids(self):

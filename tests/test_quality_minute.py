@@ -102,19 +102,16 @@ class TestQualityMinute(TransactionCase):
         with self.assertRaises(UserError):
             minute.action_approve()  # the 'development' section is required by this type
 
-    def test_approval_freezes_the_template_version_and_renders_the_pdf(self):
-        self.type.template_document_id.version = '2'
+    def test_approval_renders_the_pdf(self):
         minute = self._minute()
+        self.assertEqual(minute.template_document_id, self.type.template_document_id,
+                         "the minute takes its controlled template from the type, for the PDF footer")
         minute.section_value_ids.filtered(lambda value: value.required).content = "<p>Discussed.</p>"
         minute.action_submit()
         minute.action_approve()
         self.assertEqual(minute.state, 'approved')
-        self.assertEqual(minute.template_version, '2',
-                         "the version is frozen at approval, so the PDF can always be traced back")
         self.assertTrue(minute.pdf_attachment_id, "approving renders the PDF")
         self.assertTrue(minute.approval_date)
-        self.type.template_document_id.version = '3'
-        self.assertEqual(minute.template_version, '2', "a later template change does not rewrite history")
 
     def test_an_approved_minute_cannot_go_back_to_draft(self):
         minute = self._minute()

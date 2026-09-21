@@ -168,7 +168,6 @@
                             <p class="text-muted small mt-4" t-if="doc.template_document_id">
                                 <span t-out="doc.template_document_id.code or ''"/>
                                 <span t-out="doc.template_document_id.name"/>
-                                <span t-if="doc.template_version"> · version <span t-out="doc.template_version"/></span>
                             </p>
                         </div>
                     </t>

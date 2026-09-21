@@ -168,7 +168,7 @@
                                     <list>
                                         <field name="code"/>
                                         <field name="name"/>
-                                        <field name="version"/>
+                                        <field name="url" widget="url"/>
                                     </list>
                                 </field>
                             </page>
@@ -182,7 +182,6 @@
                                 <field name="approver_role_id"/>
                                 <field name="approver_employee_id" readonly="1" invisible="state != 'approved'"/>
                                 <field name="approval_date" readonly="1" invisible="state != 'approved'"/>
-                                <field name="template_version" readonly="1" invisible="state != 'approved'"/>
                                 <field name="pdf_attachment_id" readonly="1" invisible="state != 'approved'"/>
                             </group>
                         </group>

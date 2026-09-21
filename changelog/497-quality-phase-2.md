@@ -12,15 +12,13 @@ Eight types ship ready to use — generic, department for vocational studies and
 
 ## One controlled template instead of five:
 
-The per-variant minute templates are replaced by a single controlled document with optional sections. The five it replaces are marked obsolete and point at it, so an older minute quoting an older code still resolves to something — which is what an audit asks for.
-
-Each minute stores **which template version it was generated with**, frozen at approval, so a later change to the template never rewrites what an old minute says it was written against.
+The per-variant minute templates are replaced by a single controlled document with optional sections. The five it replaces are archived in the document structure, and still resolve for any older minute quoting their code.
 
 ## Approval and PDF:
 
-A minute goes draft → to approve → approved. Approving records who approved it and when, freezes the template version and renders the PDF, which is kept as an attachment on the record. An approved minute cannot be edited or sent back to draft: a correction is a new version, not an edit.
+A minute goes draft → to approve → approved. Approving records who approved it and when, and renders the PDF, which is kept as an attachment on the record. An approved minute cannot be edited or sent back to draft: a correction is a new version, not an edit.
 
-The PDF quotes the controlled template's code and version in its footer, and prints the members' identification number only for the minute types that need it.
+The PDF quotes the controlled template's code in its footer, and prints the members' identification number only for the minute types that need it.
 
 # Changes
 
@@ -31,6 +29,24 @@ The same agreements and actions screen now appears in the staff menu with "mine"
 ## Minutes are restricted to the scopes each role belongs to:
 
 Record rules replace what was previously unrestricted write access: the teaching staff sees the minutes of its own departments, workgroups, groups and staff meetings, plus any it attended or has to approve, and writes only what is not approved yet. The secretariat, head of studies, management and quality coordination see them all.
+
+## The seeded quality data is in Catalan, not English:
+
+The process map, the procedures, the controlled-document registry, the minute types and the minute
+sections were seeded in English, on the assumption that the Catalan version would be added later as a
+translation. It cannot be: those records belong to the centre, not to the module (`__import__.` prefix),
+and Odoo's translation exporter only looks at records owned by the module being exported, so a `.po`
+entry can never reach them - the value in the CSV is what every reader sees, whatever language they
+work in. Phase 1 papered over this with a manual step in the production guide: open 120 records one by
+one and translate the name from the interface, on every environment.
+
+All six CSV files now carry the Catalan name directly, taken from the centre's own documents (the
+process map, each procedure sheet, the five minute templates), so both environments show the same
+wording the quality documentation uses, and the manual translation step is gone from the phase 1 and
+phase 2 production guides. Three titles keep the orthographic slips their source documents carry, on
+purpose: the registry has to say what an auditor reads in Drive. Module strings - labels, menus,
+buttons, the printed minute's headings - are unaffected and keep being translated through the `.po`
+files as usual.
 
 # Internal changes
 

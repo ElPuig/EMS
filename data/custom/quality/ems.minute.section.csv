@@ -1,18 +1,18 @@
 id,code,name,kind,help_text
-__import__.minute_section_previous,PREV,Approval of the previous minute,previous_approval,
-__import__.minute_section_agreement_followup,SEGAC,Follow-up of earlier agreements,agreement_followup,Review here the agreements that were still open; the list is preloaded from the previous minute.
-__import__.minute_section_agenda,ODJ,Agenda,agenda,
-__import__.minute_section_development,DESEN,Development of the session,text,What was discussed on each item of the agenda.
-__import__.minute_section_requests,PRECS,Requests and questions,text,
-__import__.minute_section_agreements,ACORDS,Agreements,agreements,
-__import__.minute_section_pending,PEND,Pending topics,pending_topics,Anything left unticked is carried into the next minute of the same scope.
-__import__.minute_section_annexes,ANNEX,Annexes,annexes,
-__import__.minute_section_signature,SIGN,Signatures,signature,
-__import__.minute_section_harmonisation,HARM,Harmonisation,harmonisation,
-__import__.minute_section_clil,GEP,CLIL (GEP),clil,
-__import__.minute_section_constitution,CONST,Team constitution,team_constitution,
-__import__.minute_section_objectives,OBJ,Objectives and indicators,objectives,An indicator has to measure a single objective fact; acceptance is the minimum that counts as achieved and the target is what is aimed for.
-__import__.minute_section_calendar,CAL,Meeting calendar,meeting_calendar,
-__import__.minute_section_summary,RESUM,Summary of the previous year,text,
-__import__.minute_section_method,METOD,Working method,text,
-__import__.minute_section_record_data,DADES,Record details,text,What is being put on record.
+__import__.minute_section_previous,PREV,Aprovació de l'acta anterior,previous_approval,
+__import__.minute_section_agreement_followup,SEGAC,Seguiment dels acords,agreement_followup,Reviseu aquí els acords que havien quedat oberts; la llista es precarrega de l'acta anterior.
+__import__.minute_section_agenda,ODJ,Ordre del dia,agenda,
+__import__.minute_section_development,DESEN,Desenvolupament de la sessió,text,Què es va tractar a cada punt de l'ordre del dia.
+__import__.minute_section_requests,PRECS,Precs i preguntes,text,
+__import__.minute_section_agreements,ACORDS,Acords,agreements,
+__import__.minute_section_pending,PEND,Temes pendents,pending_topics,Tot el que quedi sense marcar es trasllada a l'acta següent del mateix àmbit.
+__import__.minute_section_annexes,ANNEX,Documents annexos,annexes,
+__import__.minute_section_signature,SIGN,Redacció i vistiplau,signature,
+__import__.minute_section_harmonisation,HARM,Harmonització dels diferents grups,harmonisation,
+__import__.minute_section_clil,GEP,GEP (metodologia AICLE),clil,
+__import__.minute_section_constitution,CONST,Constitució de l'equip,team_constitution,
+__import__.minute_section_objectives,OBJ,Objectius i indicadors,objectives,Un indicador ha de mesurar una sola dada objectiva; l'acceptació és el valor mínim que es considera assolit i la meta és el valor al qual s'aspira.
+__import__.minute_section_calendar,CAL,Calendari de reunions previst,meeting_calendar,
+__import__.minute_section_summary,RESUM,Resum del curs anterior,text,
+__import__.minute_section_method,METOD,Metodologia de treball,text,
+__import__.minute_section_record_data,DADES,Dades del registre,text,Allò de què es vol deixar constància.

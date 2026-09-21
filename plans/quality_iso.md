@@ -226,7 +226,7 @@ flag and a default derived from the scope, `previous_minute_id`, `agenda_ids`, `
 `agreement_ids` (actions of type `agreement`), `followed_agreement_ids` (still-open agreements from
 earlier minutes, **preloaded**), `pending_topic_ids`, `annex_document_ids`, `redactor_employee_id`,
 `approver_role_id` / `approver_employee_id` / `approval_date`, `state` (draft → to approve → approved),
-`template_document_id` + `template_version`, `drive_file_id`, `pdf_attachment_id`.
+`template_document_id`, `drive_file_id`, `pdf_attachment_id`.
 
 **Optional sections through a catalogue, not booleans.** `ems.minute.section` holds the catalogue, each
 with a `kind` that drives rendering: `text`, `agenda`, `previous_approval`, `agreement_followup`,
@@ -261,7 +261,7 @@ Whether a record also **writes its fact where it belongs** is decided per type: 
 document), a key handover marks the assignment on the space or the employee, a cash count writes nothing.
 
 **`ems.signed.record`** — abstract mixin with `code`, `date`, `state`, `signatory_ids`,
-`template_document_id` + `template_version`, `pdf_attachment_id`, `drive_file_id` and the PDF
+`template_document_id`, `pdf_attachment_id`, `drive_file_id` and the PDF
 generation/upload methods, inherited by `ems.minute`, `ems.quality.audit` (its report) and
 `ems.quality.review`.
 
@@ -438,8 +438,9 @@ main workgroup action stays under *Educational Community*.
 
 PDF for minutes, evidence records, audit reports and the management review; PDF plus optionally `.xlsx`
 for work plans and reports; **no file at all** for the registries — EMS is the registry, exported on
-demand. QWeb for the PDF, with the institutional header and a footer carrying the controlled document's
-code and version, which are exactly the two things that go stale when copied by hand.
+demand. QWeb for the PDF, with the institutional header and a footer carrying the controlled template's
+code, which is what goes stale when a template is copied by hand. Its version is not quoted: the document
+registry no longer keeps versions (see the top of this file).
 
 ### 6.2. File names and folders
 
@@ -515,7 +516,7 @@ Notes:
 - The catalogue is administered by quality coordination **and** management. Because two hands maintain
   it: tracking and chatter on types and sections, and **archive, never delete**, so older minutes never
   point at nothing. Minutes already approved are unaffected by later catalogue changes, since their PDF
-  is immutable and they store the template version they were generated with.
+  is immutable.
 - The DNI printed on improvement-team minutes is deliberate (see 9, D15) and is read from
   `hr.employee.identification_id` with a **narrow `sudo()`**: that native field carries
   `groups="hr.group_hr_user"`, which neither teaching staff nor quality coordination nor the secretariat

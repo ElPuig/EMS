@@ -27,11 +27,8 @@ class EmsSignedRecord(models.AbstractModel):
         default='draft',
         tracking=True,
     )
-    # Which controlled template this was written against, and the version it carried at the time.
-    # The version is frozen on approval: that is what answers "which model was this written with?"
-    # years later, without anybody having to remember.
+    # Which controlled template this was written against: its code is quoted in the PDF footer.
     template_document_id = fields.Many2one(string="Template", comodel_name="ems.quality.document", ondelete='restrict')
-    template_version = fields.Char(string="Template version", readonly=True, copy=False)
     pdf_attachment_id = fields.Many2one(string="PDF", comodel_name="ir.attachment", readonly=True, copy=False)
     drive_file_id = fields.Char(string="Drive file id", readonly=True, copy=False)
     drive_url = fields.Char(string="Drive link", readonly=True, copy=False)
@@ -49,7 +46,7 @@ class EmsSignedRecord(models.AbstractModel):
             record.state = 'draft'
 
     def action_approve(self):
-        """Approve, freeze the template version and render the PDF.
+        """Approve and render the PDF.
 
         The PDF is deliberately generated here and not on demand: once approved it must not change,
         and rendering it later would silently follow any edit to the template."""
@@ -58,7 +55,6 @@ class EmsSignedRecord(models.AbstractModel):
                 raise UserError(_("This record is already approved."))
             record._ems_check_can_approve()
             record.state = 'approved'
-            record.template_version = record.template_document_id.version or ''
             record._ems_render_pdf()
             record._ems_upload_to_drive()
 

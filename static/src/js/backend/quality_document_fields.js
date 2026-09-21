@@ -1,8 +1,10 @@
 /** @odoo-module **/
 
-import { Component } from "@odoo/owl";
+import { Component, xml } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
+import { FormRenderer } from "@web/views/form/form_renderer";
+import { formView } from "@web/views/form/form_view";
 
 // The 'Edit' button of the quality structure's forms (processes, procedures, documents): those
 // forms open read-only, and pressing it turns the record's non-stored 'edit_mode' on, which is
@@ -38,4 +40,23 @@ export class QualityDocumentPreview extends Component {
 registry.category("fields").add("ems_quality_document_preview", {
     component: QualityDocumentPreview,
     supportedTypes: ["char"],
+});
+
+// Forms of the quality structure (js_class="ems_quality_form"): they always open on their first tab,
+// the record's own document, whatever tab was open on the previous record. Odoo remembers the last
+// tab per form (activeNotebookPages) and keeps the notebook mounted while paging, so the renderer is
+// given no remembered tab and is remounted for every record.
+export class QualityFormRenderer extends Component {
+    static template = xml`<FormRenderer t-props="rendererProps" t-key="props.record.resId"/>`;
+    static components = { FormRenderer };
+    static props = ["*"];
+
+    get rendererProps() {
+        return { ...this.props, activeNotebookPages: {} };
+    }
+}
+
+registry.category("views").add("ems_quality_form", {
+    ...formView,
+    Renderer: QualityFormRenderer,
 });

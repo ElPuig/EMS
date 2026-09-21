@@ -38,7 +38,7 @@ L'alumne ja no pot entrar al compte, que passa a la unitat organitzativa de baix
 
 La contrasenya anterior deixa de funcionar a l'instant, i l'alumne haurà de canviar la nova la primera vegada que entri. A la pestanya **Documentació** apareix un PDF nou de **Credencials de Google Workspace** i l'anterior queda com a **Cancel·lat**. Si l'alumne té correu personal, també les rep per correu.
 
-Només administració i coordinació TAC poden restablir contrasenyes.
+Poden restablir contrasenyes administració, coordinació TAC i el tutor o tutora de l'alumne (i els caps per sobre d'aquest tutor: cap de seminari, cap de departament, cap d'estudis i direcció).
 
 ---
 

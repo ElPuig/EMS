@@ -326,3 +326,11 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             wait_for=".o_form_statusbar button[name='action_reset_google_password']",
             max_height=200,
         )
+        # The same header seen by the group's tutor: the reset button and nothing else (#490).
+        self._capture(
+            '/odoo/action-%d/%d' % (self.student_list_action.id, self.students[0].id),
+            '.o_form_view', 'credencials-google-03-restablir.png',
+            login='doc_shot_tutor',
+            wait_for=".o_form_statusbar button[name='action_reset_google_password']",
+            max_height=200,
+        )

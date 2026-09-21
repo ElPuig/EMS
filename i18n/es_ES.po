@@ -14386,8 +14386,18 @@ msgstr "Google no ha permitido restablecer la contraseña de %(email)s. Comproba
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0
-msgid "Only administrators and the TAC team can reset a Google password."
-msgstr "Solo los administradores y el equipo TAC pueden restablecer una contraseña de Google."
+msgid "Only administrators, the TAC team and the student's own tutor can reset a Google password."
+msgstr "Solo los administradores, el equipo TAC y el tutor o tutora del alumno pueden restablecer una contraseña de Google."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_reset_google_password model:ir.model.fields,field_description:ems.field_res_users__can_reset_google_password
+msgid "Can reset the Google password"
+msgstr "Puede restablecer la contraseña de Google"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__can_reset_google_password model:ir.model.fields,help:ems.field_res_users__can_reset_google_password
+msgid "Whether the user looking at this student may reset their Google password: the academic admin, the TAC team, or the student's own tutor scope."
+msgstr "Indica si el usuario que consulta a este alumno puede restablecerle la contraseña de Google: la administración académica, el equipo TAC o el ámbito de tutoría del alumno."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form

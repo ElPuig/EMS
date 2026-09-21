@@ -75,6 +75,10 @@ flowchart LR
 | Update | Admin/secretary may adjust `academic_result` / header metadata; content refresh via re-generation | Idempotent replace of copied children |
 | Delete | Admin only (correction of a wrongly generated record) | — |
 
+### The generator elevates its arguments, not only the model
+
+Every caller reaches the generator as `self.env['ems.student.year_record'].sudo()`: the operator triggering it is typically a secretary, who has no rights over grades, attendance or employees. `.sudo()` only elevates `self`, so `_generate_one()` re-applies it to the `student` and `group` it receives - they arrive bound to the caller's own environment, and the header metadata dereferences them (`group.tutor_id.name` reads an `hr.employee`). Without that, generation fails halfway through a withdrawal for exactly the users it is meant to serve (issue #492, see [employee.md](../employees/employee.md#every-field-ems-adds-to-hremployee-must-declare-groups)).
+
 ## Access control
 
 | Group | Read | Write | Create | Unlink | Record rule |

@@ -70,7 +70,7 @@ registry.category("web_tour.tours").add("ems_quality_registry", {
             run: "click",
         },
         {
-            trigger: ".o_list_view .o_data_row:first-child .o_data_cell",
+            trigger: ".o_list_view .o_data_row .o_data_cell[name='code']",
             content: "Open a procedure",
             run: "click",
         },

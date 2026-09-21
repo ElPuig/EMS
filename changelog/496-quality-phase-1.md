@@ -2,19 +2,19 @@
 
 ## Quality management system: process map, controlled documents and actions:
 
-The centre's ISO 9001 quality management system starts moving inside EMS. This first phase brings in the foundation the rest builds on: the process map, the controlled-document registry and a single model for meeting agreements and improvement actions.
+The centre's ISO 9001 quality management system starts moving inside EMS. This first phase brings in the foundation the rest builds on: the embedded process map, the documentary structure with its links to Drive, and a single model for meeting agreements and improvement actions.
 
 A new **Quality** menu, visible only to quality coordination, management, the head of studies and the secretariat. The staff-facing application arrives with the minutes in the next phase, so nobody sees a half-built app in the meantime.
 
-## The centre's process map, loaded as real data:
+## Process map, embedded:
 
-The eight processes (strategic, key and support), their 48 procedures and 64 controlled documents are loaded from `data/custom/`, with every responsibility expressed as a **post** rather than a person, so the map stays correct when somebody changes job in September.
+**Quality > Process map**, the first entry of the app, shows the centre's process map document through its "Publish to the web" copy, so the map is drawn and edited only in Google Docs. Its address is a new setting under *Settings > EMS Management > Quality Settings*.
 
-## Controlled document registry:
+## Documentary structure and links:
 
-Every controlled document now has a record with its code, kind, owner post, version, approval and next review dates, state and supersession. The file itself stays in the centre's Drive: this is the card and the link, not a copy.
+Under **Quality > Configuration**, the eight processes, their 48 procedures and 64 documents, each document with its Drive link. The list of documents is edited in place and has a *Load links* button to fill many links at once from a `code,url` file. Seeded in Catalan from `data/custom/`, then kept from the interface.
 
-Filters answer the questions that used to need a spreadsheet: what is in force, what is pending approval, what is due for review this year, what has no code yet, and which documents still carry a code from a superseded process scheme.
+Deliberately nothing else about a document: version, state, approval and review dates stay in the document itself, in Drive, so nothing has to be updated twice. A first version of this phase kept all of that in EMS as well and was reduced for that reason.
 
 ## Agreements and improvement actions are one thing:
 
@@ -26,11 +26,11 @@ Codes are issued by sequence, per scope and course (`ACORD-INF-2026-27-003`), so
 
 # Internal changes
 
-## Document links are loaded separately, never from a data file:
+## Document links are never in a data file:
 
-A document's Drive link changes whenever the file is replaced, which makes it live application state: the repository's own conventions keep such fields out of synced CSV columns, which would revert them on the next upgrade. A small wizard loads them from a `code,url` file kept outside the repository, resolving the Drive file id so links survive the file being moved or renamed.
+The links point into the centre's Drive, and this repository is public, so they are not a CSV column: they are filled in from the interface or loaded with the wizard from a file kept outside the repository.
 
-The registry as a whole is seeded once and then frozen, reusing the mechanism already in place for groups.
+Processes, procedures and documents are seeded once and then frozen, reusing the mechanism already in place for groups, so edits made from the interface survive upgrades.
 
 ## Course short code:
 

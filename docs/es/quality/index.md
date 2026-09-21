@@ -11,6 +11,6 @@ gestión del sistema de calidad (ISO 9001) dentro de EMS.
 
 ## Manuales disponibles
 
-- [Mapa de procesos y procedimientos](process-map.md) — Consultar y mantener los procesos del centro, sus procedimientos y quién se hace cargo.
-- [Registro documental](document-registry.md) — Los documentos controlados: código, versión, aprobación, próxima revisión y dónde está el fichero.
+- [Mapa de procesos](process-map.md) — Consultar el mapa de procesos del centro y configurar su documento publicado.
+- [Procesos, procedimientos y documentos](document-registry.md) — La estructura de la documentación de calidad y los enlaces a sus documentos en el Drive.
 - [Acciones y acuerdos](actions.md) — Acuerdos de reunión y acciones de mejora: responsables, plazos y seguimiento.

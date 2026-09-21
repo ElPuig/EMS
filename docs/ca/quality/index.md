@@ -11,6 +11,6 @@ gestió del sistema de qualitat (ISO 9001) dins l'EMS.
 
 ## Manuals disponibles
 
-- [Mapa de processos i procediments](process-map.md) — Consultar i mantenir els processos del centre, els seus procediments i qui se'n fa càrrec.
-- [Registre documental](document-registry.md) — Els documents controlats: codi, versió, aprovació, propera revisió i on es troba el fitxer.
+- [Mapa de processos](process-map.md) — Consultar el mapa de processos del centre i configurar-ne el document publicat.
+- [Processos, procediments i documents](document-registry.md) — L'estructura de la documentació de qualitat i els enllaços als seus documents al Drive.
 - [Accions i acords](actions.md) — Acords de reunió i accions de millora: responsables, terminis i seguiment.

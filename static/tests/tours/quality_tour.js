@@ -2,44 +2,96 @@
 
 import { registry } from "@web/core/registry";
 
-// Smoke tour of the two screens phase 1 delivers: the controlled-document registry and the
-// actions/agreements list. Structural selectors wherever possible (the .o_data_row of a list,
-// the breadcrumb) instead of label text, so the tour does not depend on the session's language —
-// see CLAUDE.md's "Tour tests and language". The seeded document registry is what the first half
-// asserts on, so nothing has to be created before the tour starts.
+// Smoke tour of the Quality app's reading screens: the embedded process map and the three
+// configuration lists (processes, procedures, documents). Structural selectors wherever possible
+// (the .o_data_row of a list, the iframe) instead of label text, so the tour does not depend on the
+// session's language - see CLAUDE.md's "Tour tests and language". The seeded structure is what
+// it asserts on, so nothing has to be created before the tour starts.
 registry.category("web_tour.tours").add("ems_quality_registry", {
     test: true,
-    url: "/odoo/action-ems.action_quality_document",
+    url: "/odoo/action-ems.action_quality_process_map",
     steps: () => [
         {
-            trigger: ".o_list_view .o_data_row",
-            content: "The document registry opens with its default 'Current' facet applied",
+            trigger: ".o_quality_process_map iframe.o_quality_process_map_frame[src*='pub?embedded=true']",
+            content: "The process map embeds the published document configured in the settings",
         },
         {
-            trigger: ".o_searchview .o_facet_values",
-            content: "The default facet is visible, so it can be removed with one click",
+            trigger: ".o_quality_process_map a[target='_blank']",
+            content: "And offers to open it in a new tab",
+        },
+        {
+            trigger: "body",
+            content: "Go to the documents",
+            run: () => { window.location.href = "/odoo/action-ems.action_quality_document"; },
+            expectUnloadPage: true,
+        },
+        {
+            trigger: ".o_list_view .o_group_header",
+            content: "Documents open grouped by process",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row .o_data_cell[name='name']",
+            content: "Edit a document in place, the list is editable",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_selected_row .o_field_widget[name='url'] input",
+            content: "Its link is editable right there",
+        },
+        {
+            trigger: ".o_list_button_discard",
+            content: "Leave it untouched",
+            run: "click",
+        },
+        {
+            trigger: ".o_control_panel .o_list_buttons button:not(.o_list_button_add):not(.o_list_button_save):not(.o_list_button_discard)",
+            content: "Open the wizard that loads links in one go",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_form_view .o_field_widget[name='file_data']",
+            content: "The link loader opens",
+        },
+        {
+            trigger: ".modal .o_form_button_cancel, .modal footer .btn-secondary",
+            content: "Close it",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal))",
+            content: "Go to the procedures",
+            run: () => { window.location.href = "/odoo/action-ems.action_quality_procedure"; },
+            expectUnloadPage: true,
+        },
+        {
+            trigger: ".o_list_view .o_group_header",
+            content: "Procedures grouped by process",
+            run: "click",
         },
         {
             trigger: ".o_list_view .o_data_row:first-child .o_data_cell",
-            content: "Open the first controlled document",
+            content: "Open a procedure",
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_form_sheet",
-            content: "The document form renders",
+            trigger: ".o_form_view .o_field_widget[name='document_ids']",
+            content: "The procedure form lists its documents",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='version']",
-            content: "The version field is on the form: this is what the footer of a generated document quotes",
+            trigger: "body",
+            content: "Go to the processes",
+            run: () => { window.location.href = "/odoo/action-ems.action_quality_process"; },
+            expectUnloadPage: true,
         },
         {
-            trigger: ".breadcrumb-item:first-child, .o_breadcrumb .o_back_button",
-            content: "Back to the registry",
+            trigger: ".o_list_view .o_data_row:first-child .o_data_cell[name='code']",
+            content: "Open a process",
             run: "click",
         },
         {
-            trigger: ".o_list_view",
-            content: "Registry again",
+            trigger: ".o_form_view .o_field_widget[name='procedure_ids']",
+            content: "The process form lists its procedures",
         },
     ],
 });

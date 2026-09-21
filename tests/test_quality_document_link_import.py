@@ -8,7 +8,7 @@ from odoo.tests.common import TransactionCase
 
 class TestQualityDocumentLinkImport(TransactionCase):
     """The links are not a data-file column (they are live application state), so this wizard is
-    the only way they get into an environment. Worth covering: it is run once per deployment and
+    the way they get into an environment in one go. Worth covering: it is run once per deployment and
     a silent mismatch would leave the registry pointing nowhere."""
 
     @classmethod
@@ -18,7 +18,6 @@ class TestQualityDocumentLinkImport(TransactionCase):
         cls.document = cls.env['ems.quality.document'].create({
             'code': 'ZL1.01.01',
             'name': 'Link test document',
-            'kind': 'record',
             'process_id': cls.process.id,
         })
 
@@ -29,21 +28,17 @@ class TestQualityDocumentLinkImport(TransactionCase):
         wizard.action_import()
         return wizard
 
-    def test_link_and_drive_id_are_filled(self):
+    def test_link_is_filled(self):
         url = "https://docs.google.com/document/d/1AbCdEfGhIjKlMnOpQrStUv/edit"
         wizard = self._run(f"code,url\nZL1.01.01,{url}\n")
         self.assertEqual(self.document.url, url)
-        self.assertEqual(self.document.drive_file_id, "1AbCdEfGhIjKlMnOpQrStUv")
         self.assertIn("1 links loaded", wizard.result)
-
-    def test_viewer_style_address(self):
-        self._run("code,url\nZL1.01.01,https://drive.google.com/open?id=1ZyXwVuTsRqPoNmLkJiHgF\n")
-        self.assertEqual(self.document.drive_file_id, "1ZyXwVuTsRqPoNmLkJiHgF")
 
     def test_semicolon_separated_file(self):
         """A spreadsheet exported from a Catalan or Spanish locale uses semicolons."""
-        self._run("code;url\nZL1.01.01;https://docs.google.com/document/d/1SemiColonSeparated9/edit\n")
-        self.assertEqual(self.document.drive_file_id, "1SemiColonSeparated9")
+        url = "https://docs.google.com/document/d/1SemiColonSeparated9/edit"
+        self._run(f"code;url\nZL1.01.01;{url}\n")
+        self.assertEqual(self.document.url, url)
 
     def test_unknown_codes_are_reported_not_silently_dropped(self):
         wizard = self._run("code,url\nZL1.01.01,https://docs.google.com/document/d/1Known0000000000/edit\nZZ9.99.99,https://docs.google.com/document/d/1Unknown000000000/edit\n")
@@ -58,4 +53,3 @@ class TestQualityDocumentLinkImport(TransactionCase):
         """Not every controlled document lives in Drive; the link is what matters."""
         self._run("code,url\nZL1.01.01,https://elpuig.xeill.net/quality\n")
         self.assertEqual(self.document.url, "https://elpuig.xeill.net/quality")
-        self.assertFalse(self.document.drive_file_id)

@@ -2,44 +2,31 @@
 
 ---
 
-# Mapa de processos i procediments
+# Mapa de processos
 
-El mapa de processos del centre viu a **Qualitat → Configuració → Processos**. Cada procés porta el seu
-codi (`PE1`, `PC2`, `PS1`...), el seu tipus (estratègic, clau o de suport) i el **càrrec** que se'n fa
-responsable.
+**Qualitat → Mapa de processos** mostra el mapa de processos del centre, el document de Google on hi ha
+dibuixada l'estructura de la documentació de qualitat.
 
-**Per què un càrrec i no una persona:** el mapa diu "Director/a" o "Coordinador/a de qualitat", no un nom
-propi. Quan al setembre canvia qui ocupa el càrrec, el mapa continua sent correcte sense tocar res, i la
-fitxa us ensenya al costat qui l'ocupa ara mateix.
-
-**Qui hi té accés:** la coordinació de qualitat i la direcció el poden modificar; la resta de càrrecs el
-poden consultar.
+**Qui hi té accés:** tothom qui té el menú Qualitat (coordinació de qualitat, direcció, cap d'estudis i
+secretaria).
 
 ---
 
-## La fitxa d'un procés
+## Consultar el mapa
 
-Conté el codi, el nom, el tipus, el càrrec responsable, si és un **procés de qualitat** (la pregunta que
-fa la revisió per la direcció) i la data en què se'n va revisar el DAFO per última vegada.
+1. Aneu a **Qualitat → Mapa de processos**.
+2. Per veure'l a pantalla completa, feu clic a **Obre en una pestanya nova**.
 
-A sota hi ha dues pestanyes:
+El mapa s'edita al seu document de Google. L'EMS en mostra la còpia publicada, que Google actualitza tot
+sol uns minuts després de cada canvi.
 
-- **Procediments** — els procediments que pengen del procés. Es poden afegir des d'aquí mateix.
-- **Documents** — tots els documents controlats del procés, amb la seva versió i el seu estat.
+## Configurar el mapa (un sol cop)
 
-## La fitxa d'un procediment
+Cal tenir accés als ajustos d'Odoo.
 
-A **Qualitat → Configuració → Procediments**, o obrint-lo des del seu procés. Recull el que la fitxa de
-procediment del centre ja diu:
-
-- **Què**, **Per a què** i **A qui s'aplica** — els tres blocs d'encapçalament.
-- **Fases** — els passos del procediment i amb quines eines es duen a terme. Es poden reordenar
-  arrossegant-los.
-- **Documents i registres** — el que el procediment genera i el que fa servir.
-
-## Comprovacions que val la pena fer un cop l'any
-
-- Que cada procés tingui el seu **càrrec responsable** informat i que el càrrec estigui ocupat.
-- Que la **data de revisió del DAFO** no sigui de fa dos cursos.
-- Al registre documental, el filtre **Codi fora del mapa actual**: si hi apareix algun document, cita un
-  procés que ja no existeix al mapa.
+1. Obriu el document del mapa de processos a Google Docs.
+2. **Fitxer → Comparteix → Publica al web**, pestanya **Insereix**, i feu clic a **Publica**.
+3. Copieu l'adreça que hi ha dins de `src="..."` al codi que apareix. Acaba en `pub?embedded=true`.
+4. A l'EMS, aneu a **Ajustos → Gestió de l'EMS → Configuració de qualitat** i enganxeu-la a **Mapa de
+   processos**.
+5. Deseu.

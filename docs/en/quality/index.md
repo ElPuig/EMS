@@ -11,6 +11,6 @@ running the quality management system (ISO 9001) inside EMS.
 
 ## Available manuals
 
-- [Process map and procedures](process-map.md) — Browse and maintain the centre's processes, their procedures and who owns them.
-- [Document registry](document-registry.md) — Controlled documents: code, version, approval, next review and where the file lives.
+- [Process map](process-map.md) — View the centre's process map and set up its published document.
+- [Processes, procedures and documents](document-registry.md) — The structure of the quality documentation and the links to its documents in Drive.
 - [Actions and agreements](actions.md) — Meeting agreements and improvement actions: owners, deadlines and follow-up.

@@ -1,6 +1,7 @@
 # ISO 9001 quality management inside EMS
 
-**Status: design, current as of 2026-09-20. Nothing implemented yet.** Every open design question was
+**Status: design, current as of 2026-09-21. Phase 1 and phase 2 implemented on their branches, not yet
+merged; phase 1's scope was reduced on 2026-09-21 (see "One owner per piece of information" below).** Every open design question was
 closed with the developer between 2026-09-19 and 2026-09-20; this file is the design of record for the
 work and should be kept current as each phase lands, then deleted once the last one ships (its contents
 folded into `docs/en/developers/quality/` and the role manuals).
@@ -10,8 +11,49 @@ lives outside EMS: the registries in spreadsheets, the minutes and reports in do
 manage it inside EMS and keep generating the documents into the centre's Drive, with one stated priority:
 **reduce the documentary load on the teaching staff**.
 
+**One owner per piece of information (2026-09-21).** Phase 1 first shipped a full controlled-document
+registry (version, state, approval and review dates, owner, distribution flags). In practice that
+duplicated what each document already states in Drive: every change had to be made twice, and the import
+could not bring every document or every detail across. The rule is now: **a phase only ships if, the day
+it is deployed, something stops being done by hand elsewhere.** Controlled documents stay owned by Drive,
+and EMS keeps only the documentary structure (processes → procedures → documents) with each document's
+link, plus the embedded process map. EMS owns what it generates itself: minutes, agreements and, later,
+records - and a registry that moves into EMS (nonconformities, improvements) only does so when it can be
+imported complete and the spreadsheets become read-only the same day.
+
 A fuller working document (including the as-is audit of the current setup, which is deliberately not
 published here) is kept by the developer outside the repository.
+
+---
+
+## 0. Language: the centre's documentation is, and stays, in Catalan
+
+**Catalan is the centre's working language, and its entire documentary system is written in Catalan: the
+process map, every procedure sheet, every controlled document, every minute, every register, every form a
+family or a teacher fills in.** That is not changed by moving the system into EMS. Anything EMS stores as
+the centre's content, or generates on the centre's behalf, is in Catalan - the seeded catalogues, the
+minutes and their sections, the generated PDFs, their file names, the document titles in the registry.
+Nothing here is seeded in English "to be translated later", and no phase ships a step that asks someone to
+translate the centre's own content from the interface.
+
+The line to hold is between **the centre's content** and **the application's vocabulary**:
+
+| | Language | How |
+|---|---|---|
+| The centre's content: names of processes, procedures, controlled documents, minute types and sections, anything copied from a document of the quality system | **Catalan only**, verbatim from the source document | written directly in the `data/custom/quality/*.csv` value |
+| The application's vocabulary: field labels, menus, buttons, selection values, report headings, error messages | English in the source, shown in Catalan and Spanish | `_()` / `_t()` + `i18n/ca_ES.po`, `i18n/es_ES.po` |
+| Role manuals | Catalan, Spanish, English | `docs/{ca,es,en}/<role>/` |
+
+For the centre's content this is not a preference, it is the only thing that works: a `__import__.`-owned
+record can never be translated through a `.po` file, so whatever the CSV says is what every reader sees, in
+every language. The mechanism, and the consequences of getting it wrong, are in 8.1.1 - read it before
+writing any new `data/custom/` row.
+
+This was got wrong once already: phases 1 and 2 seeded all 120 names in English and left "translate them
+from the interface" as a deployment step, which was corrected on 2026-09-20 by reading the wording back out
+of the centre's own documents. Any phase from 3 onwards - the historical import of nonconformities and
+improvement opportunities above all, since its source spreadsheets are entirely in Catalan - keeps the
+source wording as it is rather than translating it into English on the way in.
 
 ---
 
@@ -108,20 +150,16 @@ single screen answering "what do I owe and by when", instead of spreading it acr
 
 ### 3.1. Processes, procedures, controlled documents
 
-- **`ems.quality.process`** — `code`, `name`, `kind` (strategic/key/support), `responsible_role_id`
-  (a **post**, `ems.role`, not a person; the employee is computed from it), `is_quality_process`,
-  `swot_review_date`. Seeded from the centre's process map (eight processes).
-- **`ems.quality.procedure`** — `code`, `name`, `process_id`, `what` / `what_for` / `for_whom`,
-  `responsible_role_id`, `phase_ids` (sequence, name, tools), `document_ids`.
-- **`ems.quality.document`** — the controlled-document registry. The file itself stays in Drive; this is
-  what it is, who owns it, which version it is at and where it lives: `code`, `name`, `kind`
-  (procedure/record/template/strategic/form/manual), `process_id`, `procedure_id`,
-  `responsible_role_id`, `version`, `approval_date`, `revision_date`, `next_review_date`, `state`
-  (draft → review → approved → obsolete), `requested_by_role_id`, `request_date`, `due_date`,
-  `drive_file_id`, `url`, `superseded_by_id`, `is_minute_template`, and per-channel publication flags.
+Only the documentary structure and the links (see "One owner per piece of information" at the top):
 
-  This replaces spreadsheet-based tracking of what needs reviewing or approving, and becomes the single
-  source for the published document lists (see 6.3).
+- **`ems.quality.process`** — `code`, `name`, `kind` (strategic/key/support), `sequence`, `active`.
+  Seeded from the centre's process map (eight processes).
+- **`ems.quality.procedure`** — `code`, `name`, `process_id`, `document_ids`, `active`.
+- **`ems.quality.document`** — `code` (nullable), `name`, `procedure_id`, `process_id` (from the
+  procedure, editable when there is none), `url` (its Drive link), `active` (archived when no longer in
+  force). No version, state, dates, owner or distribution flags: those live in the document, in Drive.
+- **Process map** — the centre's process map is a Google document; `Quality > Process map` embeds its
+  published copy (`res.company.quality_process_map_url`), so the picture is never redrawn in EMS.
 
 ### 3.2. Actions and agreements
 
@@ -358,9 +396,9 @@ Quality                                      [seq 9 · quality coordination, man
 ├── Records               → nonconformities, improvements, observations, change plans, risks: one model
 ├── Complaints                               [restricted]
 ├── Audits                → findings inside the audit
+├── Process map           → the published process map document, embedded (first entry)
 ├── Management review
-├── Documentation         → controlled-document registry
-└── Configuration
+└── Configuration         → Processes · Procedures · Documents (structure + Drive links)
 ```
 
 Two details that decide whether the default screen is useful or empty: default facets **inside the same
@@ -369,8 +407,8 @@ my approval)* **and** *(current year)*); and a facet must be **inert for users i
 nobody lands on an empty list.
 
 Per-screen facets: minutes default to meeting minutes, mine, awaiting my approval, current year;
-agreements to mine and open; records to open and current year, with a facet per type; documents to
-current versions; work plans to my department and current year.
+agreements to mine and open; records to open and current year, with a facet per type; documents grouped
+by process; work plans to my department and current year.
 
 The work plan sits in the staff application on purpose: its audience is the whole staff, and putting it
 only under *Quality* would mean granting that application to everyone for a single screen.
@@ -432,11 +470,10 @@ through `queue_job`, so a Google outage cannot block approving a minute.
 
 ### 6.4. Distribution
 
-Controlled documents are distributed today through three separately maintained link lists (a Moodle
-course, the centre's website, e-mail). The registry becomes the single source and **publishes a portal
-page with the current documents**, which those channels link to instead — one link to maintain instead of
-dozens. Same pattern as the public per-group timetables (issue #453). The `Documentation` menu inside
-EMS is the internal registry; it is not a link to Moodle.
+**Out of scope for now (2026-09-21).** A portal page publishing the current documents was planned, fed by
+the registry's state and distribution flags. With the registry reduced to structure and links (see the
+top of this file) EMS no longer knows which version is current, so the distribution channels keep
+linking to Drive as they do today. Revisit only if it can be done without keeping document state twice.
 
 ---
 
@@ -459,7 +496,7 @@ most of the system's documentation) and **`ems.group_quality_committee`**.
 | Open a nonconformity | — | — | C | C | C | C | C | C |
 | Risks | — | — | — | R | R | R+W | R+W | R+W |
 | Analyse, plan and close records | — | — | R+W own process | R+W | R+W | R+W all | R+W | R+W |
-| Document registry | R current | R current | R+W theirs | R | R | **R+W all** | R | R+W |
+| Documentary structure and links | R | R | R+W | R | R | **R+W all** | R | R+W |
 | Objectives and indicators | R their dept. | R | R+W their dept. | R+W | R | R+W | R+W | R+W |
 | Work plan and report | R their dept. | R | **R+W theirs** | R+W all | R | R | R | R+W |
 | Audits | — | — | R those affecting them | R | R | R+W | R | R+W |
@@ -523,20 +560,44 @@ Per the repository's `data/` conventions:
 | Content | Where |
 |---|---|
 | Catalogues (origins, sections, minute types, action types) | `data/custom/` CSV, `__import__.` prefix, `noupdate=False` |
-| Processes and procedures (codes, names, responsible posts) | same — this is centre configuration, the same category as departments or planning weightings |
-| Document registry **minus its links** | `data/custom/` CSV, then frozen (see below) |
-| `drive_file_id` and `url` of each document | **not in any CSV**: live application state, loaded separately (see 8.2) |
+| Processes, procedures and documents (codes, names, where each sits) | `data/custom/` CSV, then frozen (see below) |
+| `url` of each document | **not in any CSV**: points into the centre's Drive, loaded separately (see 8.2) |
 | Records, minutes, agreements, indicator values | live data, imported once by the wizard, never data files |
 
-The **document registry is living data** — versions and states change from the application — so it is
-seeded once and then frozen with the `res.company._ems_freeze_living_custom_data()` mechanism already used
-for `ems.group`; left as a plain synced CSV, the first upgrade would revert every version change.
+The **documentary structure is living data** — the quality coordination keeps it from `Quality >
+Configuration` — so processes, procedures and documents are seeded once and then frozen with the `res.company._ems_freeze_living_custom_data()` mechanism already used
+for `ems.group`; left as a plain synced CSV, the first upgrade would revert every edit made from the interface.
 
 Its `drive_file_id` and `url` are deliberately **left out of the CSV entirely**, following the same
 field-level carve-out the conventions already apply to `ems.course.is_current` and
 `ir.sequence.number_next_actual`: a field the running application mutates on its own must not be a synced
 column. It also keeps the centre's Drive link map out of a public repository, which is a welcome side
 effect rather than the reason.
+
+### 8.1.1. Language of the seeded data: Catalan, verbatim
+
+Every name in these CSVs is stored **in Catalan**, exactly as the centre's own controlled document
+writes it, and not in English with translations added on top. This is not a style preference, it is
+the only thing that works: a `__import__.`-owned record is invisible to the `.po` pipeline, because
+`TranslationModuleReader._export_translatable_records` selects `ir_model_data` rows whose `module`
+is one of the modules being exported, and `__import__` never is. So the value the CSV writes (which
+lands as the `en_US` key of the jsonb field) is the value every reader sees, in every language, and
+there is no second place to put a Catalan version of it.
+
+Since Catalan is the centre's working language and these names are the identity of documents cited in
+an ISO 9001 audit, the CSV carries the Catalan title of each process, procedure, controlled document,
+minute type and minute section. Same convention as `data/cat/ems.study.csv`, `ems.subject.csv` or
+`ems.authorization.template.csv`, which have always held the centre's real Catalan content directly.
+
+Two consequences worth stating:
+
+- Titles are reproduced **verbatim**, including the few orthographic slips the source documents carry
+  (`Revisar i actualizar el PEC`, `Elaborar i actualitzar al PAT`, `Determinar i revisar de perfils
+  professionals`): the registry has to match what an auditor reads in Drive. Correcting them means
+  correcting the Drive document first, then the CSV.
+- Module strings — field labels, menus, buttons, report headings, selection values — stay English in
+  the source and are translated through `i18n/ca_ES.po` / `i18n/es_ES.po` as the repository's coding
+  standards require. Only *data* is Catalan-only.
 
 ### 8.2. Per-phase production data deliverable
 
@@ -551,7 +612,7 @@ effect rather than the reason.
 3. Whatever cannot travel in a CSV: for F1 that is the document links, roughly sixty of them, loaded from
    a `code,url` file through a small import step rather than pasted by hand.
 4. A verification checklist to run immediately after the deploy. This matters most for anything seeded
-   once and then frozen: if the document registry lands wrong in production, correcting it afterwards
+   once and then frozen: if the documentary structure lands wrong in production, correcting it afterwards
    needs a migration, not an edited CSV.
 5. A rehearsal on the development database first. The deploy applies the CSVs by itself, so the rehearsal
    is what turns "it loaded" into "it loaded correctly".
@@ -580,10 +641,10 @@ graph LR
     F4 --> F7
 ```
 
-- **F1 — Processes, document registry, actions** *(small)*. The code base every other phase cites. Ships
-  with the centre's real data loaded. Delivers, on its own, a list of current documents with version,
-  owner and next review date, plus the portal page the distribution channels can link to, and flags
-  documents still carrying codes from a superseded process map.
+- **F1 — Process map, documentary structure, actions** *(small)*. The code base every other phase
+  cites. Ships with the centre's real structure loaded. Delivers the embedded process map as the first
+  screen of *Quality*, and the processes → procedures → documents structure with each document's Drive
+  link, under *Configuration*. Deliberately nothing else about a document (see the top of this file).
 - **F2 — Minutes and evidence records** *(large; the biggest return)*. Types, sections, presets, PDF,
   Drive upload, agreement carry-over, signature and approval. Suggested internal order: generic and
   department minutes with agreements and PDF; teaching team and staff meeting with attendee preloading;
@@ -600,6 +661,9 @@ graph LR
 
 Execution notes, all phases:
 
+- **The centre's content is seeded in Catalan, verbatim** (see 0 and 8.1.1): catalogues, document titles,
+  minute sections, imported registry text, generated file names. Only the application's own vocabulary is
+  English-in-source plus `.po`. A phase that seeds anything of the centre's in English is not finished.
 - Migrations for every new field or renamed XML ID, plus the equivalent in `post_init_hook` for fresh
   installs. Manifest version is not bumped without asking.
 - **The phase is not finished without its production data deliverable** (see 8.2): the `data/custom/`
@@ -651,19 +715,21 @@ implementation:
 | A | State always computed from the latest follow-up; no editable state field |
 | A | Agreement and improvement action are the same model |
 | A | Section catalogue rather than a boolean per section |
-| A | Registry in EMS, file in Drive; no wiki, no document migration |
+| D | **One owner per piece of information:** document version, state and dates stay in Drive; EMS keeps only the structure and the links (2026-09-21) |
+| D | `Quality > Process map` embeds the published process map document, as the app's first entry |
+| A | Structure and links in EMS, file in Drive; no wiki, no document migration |
 | A | Approved PDFs immutable; corrections produce a new version |
 | A | Flat, predictable Drive tree; `drive_file_id` stored |
 | A | Inside the `ems` module (`models/quality/`, `views/quality/`), not a separate module |
 | A | Drive upload through `queue_job` |
 | A | Import from the exported `.xlsx`, not the live sheets |
 | A | Phase order F1 → F7; minutes before records, despite records being what an auditor looks at |
-| A | The document registry is living data, seeded once then frozen |
+| A | The documentary structure is living data, seeded once then frozen |
 | A | Any teacher may open an improvement; nonconformities start at department head |
 | A | The management review reuses `ems.minute` for its own minute |
 | A | Two root menus, few entries, default facets for everything else |
 | A | The work plan lives in the staff application, not under *Quality*, and is not duplicated |
-| A | Current documents are published as a portal page; no extra backend menu for staff |
+| A | ~~Current documents are published as a portal page~~ - dropped with the registry's state (2026-09-21) |
 | A | Indicator values are three fields plus a required reason for overrides |
 | A | Complaint indicators are stored as closed values per course, never recomputed live |
 | A | DNI printed only by flagged minute types, read with a narrow `sudo()` |

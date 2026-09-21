@@ -675,6 +675,34 @@ are suspected of the same gap (audit pending developer review, not yet fixed).
 
 **Deciding `noupdate=True` vs `False` for `data/main/`/`data/cat/` (EMS's own data, not `data/custom/`'s centre config): default to `False` — EMS owns its data and should keep improving it. `noupdate=True` is the exception, earned per record, not a default courtesy** — and being Odoo-native vs EMS-authored has no bearing on the decision either way (Odoo's own official docs leave this entirely to each module's judgment, and Odoo core itself is inconsistent about it). The actual test, and worked examples (`ems.schedule_framework_default.xml` genuinely earns `noupdate=True`; `ems.mail_activity_type.xml`/`res.partner.category.xml` don't): see `docs/en/developers/shared/data_loading.md`'s "Deciding `noupdate=True` vs `False`" section.
 
+**Language of the data itself: Catalan, verbatim - `.po` translation can never reach a `data/custom/`
+record (2026-09-20).** The "English is the source language" rule in "Coding standards" is about *module
+strings* (`_()`, `_t()`, view `string=`), not about the content of `data/` records. A record owned by
+`__import__` is invisible to the translation pipeline: `TranslationModuleReader._export_translatable_records`
+(`odoo/tools/translate.py`) selects `ir_model_data` rows with `module = ANY(<modules being exported>)`, and
+`__import__` is never in that set, so such a record is neither exported to nor matched from `i18n/*.po`. The
+value a CSV writes lands as the `en_US` key of the jsonb field and is therefore what **every** reader sees,
+in every language, with no second place to put a translation. Since the centre's working language is
+Catalan, a `data/custom/` CSV carries the centre's own Catalan wording directly, copied verbatim from
+whatever document is the real source of truth (a controlled quality document, the curriculum decree, the
+authorization text) - typos included, when the registry has to match what an auditor or a family reads in
+the original. This is what `data/cat/ems.study.csv`, `ems.subject.csv`, `ems.outcome.csv` and
+`data/custom/ems.authorization.template.csv` have always done. **How to apply:** never seed
+institutional content in English "to be translated later", and never write a production step that says
+"translate these N names from the interface" - that step is unversioned, has to be repeated on every
+environment, and is exactly the gap found on 2026-09-20 in the quality module's phase 1 and 2 seeds (120
+names in English, with a manual translation step in the deployment guide). `hr.department.csv` is the one
+pre-existing exception, translated from the UI ([[project_department_names_ui_translation]]); it is a
+leftover, not a pattern to copy.
+
+**Careful when *changing* the text of an already-seeded record of a frozen model:** a model listed in
+`res.company._EMS_LIVING_CUSTOM_DATA_MODELS` has `ir_model_data.noupdate = True` on every existing row, so
+editing its CSV changes nothing on upgrade. Clear the flag for those rows first
+(`UPDATE ir_model_data SET noupdate = FALSE WHERE module = '__import__' AND model = '<model>'`), run
+`./upgrade.sh`, and the server's own `_register_hook()` re-freezes them on the restart it does anyway -
+verify both the new text and `noupdate` afterwards. Say so in the production guide too: a deploy that
+merely loads the new CSV will not pick the change up either.
+
 **Load order:** within `data/custom/`, always list files so that referenced records are declared before the files that reference them (e.g. `ems.subject.csv` before `ems.study.csv`).
 
 ## Migrations

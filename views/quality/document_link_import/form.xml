@@ -28,8 +28,5 @@
             <field name="view_mode">form</field>
             <field name="target">new</field>
         </record>
-
-        <menuitem name="Load document links" sequence="5" id="menu_quality_document_link_import"
-                  parent="menu_quality_config" action="action_quality_document_link_import"/>
     </data>
 </odoo>

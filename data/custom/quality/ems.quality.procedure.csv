@@ -1,49 +1,49 @@
-id,code,name,process_id/id,responsible_role_id/id
-__import__.quality_procedure_pe1_01,PE1.01,Draw up the management project,__import__.quality_process_pe1,ems.role_director
-__import__.quality_procedure_pe1_02,PE1.02,Draw up the annual general plan (PGA),__import__.quality_process_pe1,ems.role_director
-__import__.quality_procedure_pe1_03,PE1.03,Draw up the quality report (MAC),__import__.quality_process_pe1,ems.role_quality
-__import__.quality_procedure_pe1_04,PE1.04,Review and update the educational project (PEC),__import__.quality_process_pe1,ems.role_director
-__import__.quality_procedure_pe1_05,PE1.05,Review and update the organisation and functioning rules (NOFC),__import__.quality_process_pe1,ems.role_director
-__import__.quality_procedure_pe1_06,PE1.06,Review and update the language project (PLC),__import__.quality_process_pe1,ems.role_director
-__import__.quality_procedure_pe1_07,PE1.07,Draw up the budget,__import__.quality_process_pe1,ems.role_secretary
-__import__.quality_procedure_pe1_08,PE1.08,Draw up the timetables,__import__.quality_process_pe1,ems.role_hos
-__import__.quality_procedure_pe1_09,PE1.09,Carry out the management review (RxD),__import__.quality_process_pe1,ems.role_quality
-__import__.quality_procedure_pe1_10,PE1.10,Draw up and update the vocational curriculum project (PCC),__import__.quality_process_pe1,ems.role_dhos
-__import__.quality_procedure_pe2_01,PE2.01,Draw up and update the centre's strategic and support documentation,__import__.quality_process_pe2,ems.role_director
-__import__.quality_procedure_pe2_04,PE2.04,Manage the website and the corporate intranet,__import__.quality_process_pe2,ems.role_tac
-__import__.quality_procedure_pe2_05,PE2.05,Manage events and ceremonies,__import__.quality_process_pe2,ems.role_director
-__import__.quality_procedure_pe2_06,PE2.06,Draw up and update the emergency and contingency plan,__import__.quality_process_pe2,ems.role_secretary
-__import__.quality_procedure_pe2_07,PE2.07,Draw up and update the library plan,__import__.quality_process_pe2,ems.role_director
-__import__.quality_procedure_pe2_08,PE2.08,Inform and manage knowledge,__import__.quality_process_pe2,ems.role_director
-__import__.quality_procedure_pe3_01,PE3.01,Document management of the quality system,__import__.quality_process_pe3,ems.role_quality
-__import__.quality_procedure_pe3_02,PE3.02,Continuous improvement teams,__import__.quality_process_pe3,ems.role_quality
-__import__.quality_procedure_pe3_03,PE3.03,Internal and external audits,__import__.quality_process_pe3,ems.role_quality
-__import__.quality_procedure_pe3_04,PE3.04,Manage nonconformities and improvement opportunities,__import__.quality_process_pe3,ems.role_quality
-__import__.quality_procedure_pe3_05,PE3.05,Manage satisfaction surveys,__import__.quality_process_pe3,ems.role_quality
-__import__.quality_procedure_pe3_06,PE3.06,Manage complaints and suggestions,__import__.quality_process_pe3,ems.role_quality
-__import__.quality_procedure_pc1_01,PC1.01,Pre-enrolment of new vocational students,__import__.quality_process_pc1,ems.role_secretary
-__import__.quality_procedure_pc1_02,PC1.02,Enrolment of new vocational students,__import__.quality_process_pc1,ems.role_secretary
-__import__.quality_procedure_pc1_03,PC1.03,Continuing enrolment of vocational students,__import__.quality_process_pc1,ems.role_secretary
-__import__.quality_procedure_pc2_01,PC2.01,Welcome vocational students,__import__.quality_process_pc2,ems.role_dhos
-__import__.quality_procedure_pc2_02,PC2.02,Develop the vocational syllabuses and classroom activities,__import__.quality_process_pc2,ems.role_dhos
-__import__.quality_procedure_pc2_03,PC2.03,Manage the student guidance service,__import__.quality_process_pc2,ems.role_orientation
-__import__.quality_procedure_pc2_04,PC2.04,Manage student assessment and grading,__import__.quality_process_pc2,ems.role_dhos
-__import__.quality_procedure_pc2_05,PC2.05,Run the work placements (FCT),__import__.quality_process_pc2,ems.role_vetcoord
-__import__.quality_procedure_pc2_06,PC2.06,Manage Erasmus+,__import__.quality_process_pc2,ems.role_erasmus
-__import__.quality_procedure_pc2_07,PC2.07,Draw up and update the tutorial action plan (PAT),__import__.quality_process_pc2,ems.role_dhos
-__import__.quality_procedure_pc3_01,PC3.01,Manage withdrawals,__import__.quality_process_pc3,ems.role_secretary
-__import__.quality_procedure_pc3_02,PC3.02,Manage certificates,__import__.quality_process_pc3,ems.role_secretary
-__import__.quality_procedure_pc3_03,PC3.03,Manage diplomas,__import__.quality_process_pc3,ems.role_secretary
-__import__.quality_procedure_pc3_04,PC3.04,Manage the archive,__import__.quality_process_pc3,ems.role_secretary
-__import__.quality_procedure_pc3_05,PC3.05,Manage grades,__import__.quality_process_pc3,ems.role_secretary
-__import__.quality_procedure_pc3_06,PC3.06,Manage exemptions and recognitions,__import__.quality_process_pc3,ems.role_secretary
-__import__.quality_procedure_pc3_07,PC3.07,Manage personal data protection,__import__.quality_process_pc3,ems.role_secretary
-__import__.quality_procedure_ps1_01,PS1.01,Welcome the human team,__import__.quality_process_ps1,ems.role_director
-__import__.quality_procedure_ps1_02,PS1.02,Monitor the attendance of the human team,__import__.quality_process_ps1,ems.role_hos
-__import__.quality_procedure_ps1_03,PS1.03,Define and review professional profiles,__import__.quality_process_ps1,ems.role_director
-__import__.quality_procedure_ps1_04,PS1.04,Manage the training of the centre's staff,__import__.quality_process_ps1,ems.role_director
-__import__.quality_procedure_ps2_01,PS2.01,Manage purchases,__import__.quality_process_ps2,ems.role_secretary
-__import__.quality_procedure_ps2_02,PS2.02,Manage suppliers,__import__.quality_process_ps2,ems.role_secretary
-__import__.quality_procedure_ps2_03,PS2.03,Manage financial resources,__import__.quality_process_ps2,ems.role_secretary
-__import__.quality_procedure_ps2_04,PS2.04,Manage IT maintenance,__import__.quality_process_ps2,ems.role_tac
-__import__.quality_procedure_ps2_05,PS2.05,Manage facility maintenance,__import__.quality_process_ps2,ems.role_secretary
+id,code,name,process_id/id
+__import__.quality_procedure_pe1_01,PE1.01,Elaborar el projecte de direcció,__import__.quality_process_pe1
+__import__.quality_procedure_pe1_02,PE1.02,Elaborar la PGA,__import__.quality_process_pe1
+__import__.quality_procedure_pe1_03,PE1.03,Elaborar la MAC,__import__.quality_process_pe1
+__import__.quality_procedure_pe1_04,PE1.04,Revisar i actualizar el PEC,__import__.quality_process_pe1
+__import__.quality_procedure_pe1_05,PE1.05,Revisar i actualitzar les NOFC,__import__.quality_process_pe1
+__import__.quality_procedure_pe1_06,PE1.06,Revisar i actualizar el PLC,__import__.quality_process_pe1
+__import__.quality_procedure_pe1_07,PE1.07,Elaborar el pressupost,__import__.quality_process_pe1
+__import__.quality_procedure_pe1_08,PE1.08,Elaborar els horaris,__import__.quality_process_pe1
+__import__.quality_procedure_pe1_09,PE1.09,Elaborar la RxD,__import__.quality_process_pe1
+__import__.quality_procedure_pe1_10,PE1.10,Elaborar i actualizar el PCC de CCFF,__import__.quality_process_pe1
+__import__.quality_procedure_pe2_01,PE2.01,Elaborar i actualitzar la documentació estratègica i de suport del centre,__import__.quality_process_pe2
+__import__.quality_procedure_pe2_04,PE2.04,Gestió de la web i intranet corporativa,__import__.quality_process_pe2
+__import__.quality_procedure_pe2_05,PE2.05,Gestió d'actes i esdeveniments,__import__.quality_process_pe2
+__import__.quality_procedure_pe2_06,PE2.06,Elaborar i actualitzar el pla d'emergència i contingència,__import__.quality_process_pe2
+__import__.quality_procedure_pe2_07,PE2.07,Elaborar i actualitzar el pla de biblioteca,__import__.quality_process_pe2
+__import__.quality_procedure_pe2_08,PE2.08,Informar i gestionar el coneixement,__import__.quality_process_pe2
+__import__.quality_procedure_pe3_01,PE3.01,Gestió documental i del SGQiMC,__import__.quality_process_pe3
+__import__.quality_procedure_pe3_02,PE3.02,Equips de millora contínua,__import__.quality_process_pe3
+__import__.quality_procedure_pe3_03,PE3.03,Auditories internes i externes,__import__.quality_process_pe3
+__import__.quality_procedure_pe3_04,PE3.04,Gestió de no conformitats i oportunitats de millora,__import__.quality_process_pe3
+__import__.quality_procedure_pe3_05,PE3.05,Gestió d'enquestes de satisfacció,__import__.quality_process_pe3
+__import__.quality_procedure_pe3_06,PE3.06,Gestió de queixes i suggeriments,__import__.quality_process_pe3
+__import__.quality_procedure_pc1_01,PC1.01,Preinscripció nou alumnat de CCFF,__import__.quality_process_pc1
+__import__.quality_procedure_pc1_02,PC1.02,Matrícula del nou alumnat de CCFF,__import__.quality_process_pc1
+__import__.quality_procedure_pc1_03,PC1.03,Matrícula de l'alumnat de CCFF per continuïtat,__import__.quality_process_pc1
+__import__.quality_procedure_pc2_01,PC2.01,Acollir l'alumnat d'FP,__import__.quality_process_pc2
+__import__.quality_procedure_pc2_02,PC2.02,Desenvolupar les programacions d'FP i les activitats d'aula,__import__.quality_process_pc2
+__import__.quality_procedure_pc2_03,PC2.03,Gestionar el servei d'orientació de l'alumnat,__import__.quality_process_pc2
+__import__.quality_procedure_pc2_04,PC2.04,Gestionar el servei d'avaluació i qualificació de l'alumnat,__import__.quality_process_pc2
+__import__.quality_procedure_pc2_05,PC2.05,Desenvolupar l'FCT,__import__.quality_process_pc2
+__import__.quality_procedure_pc2_06,PC2.06,Gestionar l'Erasmus+,__import__.quality_process_pc2
+__import__.quality_procedure_pc2_07,PC2.07,Elaborar i actualitzar al PAT,__import__.quality_process_pc2
+__import__.quality_procedure_pc3_01,PC3.01,Gestionar les baixes,__import__.quality_process_pc3
+__import__.quality_procedure_pc3_02,PC3.02,Gestionar els certificats,__import__.quality_process_pc3
+__import__.quality_procedure_pc3_03,PC3.03,Gestionar els títols,__import__.quality_process_pc3
+__import__.quality_procedure_pc3_04,PC3.04,Gestionar l'arxiu,__import__.quality_process_pc3
+__import__.quality_procedure_pc3_05,PC3.05,Gestionar les notes,__import__.quality_process_pc3
+__import__.quality_procedure_pc3_06,PC3.06,Gestionar les exempcions i convalidacions,__import__.quality_process_pc3
+__import__.quality_procedure_pc3_07,PC3.07,Gestionar la protecció de dades personals,__import__.quality_process_pc3
+__import__.quality_procedure_ps1_01,PS1.01,Acollida de l'equip humà,__import__.quality_process_ps1
+__import__.quality_procedure_ps1_02,PS1.02,Controlar l'assistència de l'equip humà,__import__.quality_process_ps1
+__import__.quality_procedure_ps1_03,PS1.03,Determinar i revisar de perfils professionals,__import__.quality_process_ps1
+__import__.quality_procedure_ps1_04,PS1.04,Gestionar la formació de les persones del centre,__import__.quality_process_ps1
+__import__.quality_procedure_ps2_01,PS2.01,Gestionar les compres,__import__.quality_process_ps2
+__import__.quality_procedure_ps2_02,PS2.02,Gestionar els proveïdors,__import__.quality_process_ps2
+__import__.quality_procedure_ps2_03,PS2.03,Gestionar els recursos econòmics,__import__.quality_process_ps2
+__import__.quality_procedure_ps2_04,PS2.04,Gestionar el manteniment informàtic,__import__.quality_process_ps2
+__import__.quality_procedure_ps2_05,PS2.05,Gestionar el manteniment de les instal·lacions,__import__.quality_process_ps2

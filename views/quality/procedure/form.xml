@@ -6,9 +6,11 @@
             <field name="name">ems.quality.procedure.form</field>
             <field name="model">ems.quality.procedure</field>
             <field name="arch" type="xml">
-                <form>
+                <form class="o_quality_wide_form">
                     <header>
                         <field name="edit_mode" widget="ems_quality_edit_mode" invisible="edit_mode or not can_edit"/>
+                        <button name="action_open_document" type="object" string="Open document" icon="fa-external-link"
+                                class="btn-primary" invisible="not url"/>
                         <field name="can_edit" invisible="1"/>
                     </header>
                     <sheet>
@@ -19,9 +21,17 @@
                         </div>
                         <group>
                             <field name="process_id" readonly="not edit_mode"/>
+                            <field name="url" widget="url" readonly="not edit_mode" invisible="not edit_mode"/>
                             <field name="active" invisible="1"/>
                         </group>
                         <notebook>
+                            <page string="Document" name="document">
+                                <field name="embed_url" widget="ems_quality_document_preview" nolabel="1" class="w-100"
+                                       invisible="not url"/>
+                                <div class="text-muted" invisible="url">
+                                    This record has no document to show yet. Add its link with Edit.
+                                </div>
+                            </page>
                             <page string="Documents" name="documents">
                                 <field name="document_ids" readonly="not edit_mode">
                                     <list editable="bottom">

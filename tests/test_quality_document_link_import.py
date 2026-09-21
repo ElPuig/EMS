@@ -53,3 +53,16 @@ class TestQualityDocumentLinkImport(TransactionCase):
         """Not every controlled document lives in Drive; the link is what matters."""
         self._run("code,url\nZL1.01.01,https://elpuig.xeill.net/quality\n")
         self.assertEqual(self.document.url, "https://elpuig.xeill.net/quality")
+
+    def test_processes_and_procedures_are_loaded_from_the_same_file(self):
+        procedure = self.env['ems.quality.procedure'].create({'code': 'ZL1.01', 'name': 'Link test procedure', 'process_id': self.process.id})
+        wizard = self._run(
+            "code,url\n"
+            "ZL1,https://docs.google.com/document/d/1ProcessSheet000000/edit\n"
+            "ZL1.01,https://docs.google.com/document/d/1ProcedureSheet0000/edit\n"
+            "ZL1.01.01,https://docs.google.com/document/d/1DocumentFile00000/edit\n"
+        )
+        self.assertEqual(self.process.url, "https://docs.google.com/document/d/1ProcessSheet000000/edit")
+        self.assertEqual(procedure.url, "https://docs.google.com/document/d/1ProcedureSheet0000/edit")
+        self.assertEqual(self.document.url, "https://docs.google.com/document/d/1DocumentFile00000/edit")
+        self.assertIn("3 links loaded", wizard.result)

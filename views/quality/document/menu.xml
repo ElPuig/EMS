@@ -9,7 +9,7 @@
             <field name="context">{'search_default_group_by_process': 1}</field>
         </record>
 
-        <menuitem name="Documents" sequence="3" id="menu_quality_documents"
-                  parent="menu_quality_config" action="action_quality_document"/>
+        <menuitem name="Documents" sequence="4" id="menu_quality_documents"
+                  parent="menu_quality_documentation" action="action_quality_document"/>
     </data>
 </odoo>

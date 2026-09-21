@@ -55,3 +55,19 @@ class TestQualityProcess(TransactionCase):
         self.assertFalse(self.process.with_user(reader).can_edit)
         self.assertTrue(self.env['ems.quality.process'].new({'code': 'ZZ9'}).edit_mode,
                         "a record being created has nothing to consult: it starts in edit mode")
+
+    def test_process_sheet_is_previewed_from_its_link(self):
+        """A process (and a procedure) carries its own sheet, shown in its form like a document."""
+        doc_id = "1_cG64QU70c0i_Oslo76eZbn9RrOLMRJCDpz0Yzqigdc"
+        self.process.url = f"https://docs.google.com/document/d/{doc_id}/edit?usp=sharing"
+        self.assertEqual(self.process.embed_url, f"https://docs.google.com/document/d/{doc_id}/preview")
+        action = self.process.action_open_document()
+        self.assertEqual((action['url'], action['target']), (self.process.url, 'new'))
+        procedure = self.env['ems.quality.procedure'].create({
+            'code': 'ZZ1.02',
+            'name': 'Previewed procedure',
+            'process_id': self.process.id,
+            # The centre's own map links some sheets through the '/u/0/' form of the address.
+            'url': f"https://docs.google.com/document/u/0/d/{doc_id}/edit",
+        })
+        self.assertEqual(procedure.embed_url, f"https://docs.google.com/document/d/{doc_id}/preview")

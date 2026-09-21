@@ -3,7 +3,7 @@
     <data>
         <!-- Opens the form of whichever document is marked as the process map, so the map is an
              ordinary document of the structure: its link is edited there like any other. First
-             entry of the Quality app. -->
+             entry of Quality > Documentation, and so what clicking Quality opens. -->
         <record id="action_quality_process_map_open" model="ir.actions.server">
             <field name="name">Process map</field>
             <field name="model_id" ref="ems.model_ems_quality_document"/>
@@ -12,6 +12,6 @@
         </record>
 
         <menuitem name="Process map" sequence="1" id="menu_quality_process_map"
-                  parent="menu_quality" action="action_quality_process_map_open"/>
+                  parent="menu_quality_documentation" action="action_quality_process_map_open"/>
     </data>
 </odoo>

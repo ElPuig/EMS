@@ -8,17 +8,22 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 
+# Every model of the quality structure that carries a link, looked up in this order. Their codes
+# never collide (PE3, PE3.01, PE3.01.15), so one file can carry processes, procedures and documents.
+_LINKED_MODELS = ('ems.quality.document', 'ems.quality.procedure', 'ems.quality.process')
+
+
 class EmsQualityDocumentLinkImport(models.TransientModel):
     _name = "ems.quality.document.link.import"
-    _description = "Load the Drive links of the controlled documents from a code,url file."
+    _description = "Load the Drive links of the quality structure from a code,url file."
 
-    file_data = fields.Binary(string="File", required=True, help="A CSV with two columns: the document code and its link.")
+    file_data = fields.Binary(string="File", required=True, help="A CSV with two columns: the code of a process, procedure or document, and its link.")
     file_name = fields.Char(string="File name")
     has_header = fields.Boolean(string="First line is a header", default=True)
     result = fields.Text(string="Result", readonly=True)
 
     def action_import(self):
-        """Fill the link of the documents whose code appears in the file.
+        """Fill the link of the processes, procedures and documents whose code appears in the file.
 
         The links are not a data-file column on purpose (they are live application state, see
         docs/en/developers/quality/quality_overview.md), so this is how they get in: one file,
@@ -26,17 +31,16 @@ class EmsQualityDocumentLinkImport(models.TransientModel):
         moves."""
         self.ensure_one()
         rows = self._parse()
-        documents = self.env['ems.quality.document'].with_context(active_test=False)
         updated, unknown, empty = [], [], 0
         for code, url in rows:
             if not code or not url:
                 empty += 1
                 continue
-            document = documents.search([('code', '=', code)], limit=1)
-            if not document:
+            record = self._find(code)
+            if not record:
                 unknown.append(code)
                 continue
-            document.url = url
+            record.url = url
             updated.append(code)
         self.result = self._summary(updated, unknown, empty)
         return {
@@ -46,6 +50,13 @@ class EmsQualityDocumentLinkImport(models.TransientModel):
             'view_mode': 'form',
             'target': 'new',
         }
+
+    def _find(self, code):
+        for model in _LINKED_MODELS:
+            record = self.env[model].with_context(active_test=False).search([('code', '=', code)], limit=1)
+            if record:
+                return record
+        return False
 
     def _parse(self):
         self.ensure_one()
@@ -77,6 +88,7 @@ class EmsQualityDocumentLinkImport(models.TransientModel):
                            count=len(unknown), codes=", ".join(sorted(unknown))))
         if empty:
             lines.append(_("%s lines were skipped for having no code or no link.", empty))
-        missing = self.env['ems.quality.document'].with_context(active_test=False).search_count([('url', '=', False)])
-        lines.append(_("%s documents in the registry still have no link.", missing))
+        missing = sum(self.env[model].with_context(active_test=False).search_count([('url', '=', False)])
+                      for model in _LINKED_MODELS)
+        lines.append(_("%s processes, procedures and documents still have no link.", missing))
         return "\n".join(lines)

@@ -6,7 +6,7 @@ from odoo import api, fields, models
 class EmsQualityProcedure(models.Model):
     _name = "ems.quality.procedure"
     _description = "Quality procedure: how one part of a process is carried out (PE3.01, PE3.04...)."
-    _inherit = ['ems.quality.edit.mode']
+    _inherit = ['ems.quality.edit.mode', 'ems.quality.link']
     _order = "code"
     _sql_constraints = [
         ('unique_code', 'unique (code)', "Another procedure already uses this code."),

@@ -119,6 +119,19 @@ registry.category("web_tour.tours").add("ems_quality_registry", {
             content: "Read-only, with 'Edit'",
         },
         {
+            trigger: ".o_form_view .o_notebook .nav-link.active[name='document'], .o_form_view .o_notebook .nav-item:first-child .nav-link.active",
+            content: "The first tab is the process's own document",
+        },
+        {
+            trigger: ".o_form_view iframe.o_quality_document_preview[src$='/preview']",
+            content: "Shown from its link, like the process map",
+        },
+        {
+            trigger: ".o_form_view .o_notebook .nav-link[name='procedures']",
+            content: "Its procedures are one tab further",
+            run: "click",
+        },
+        {
             trigger: ".o_form_view .o_field_widget[name='procedure_ids']",
             content: "The process form lists its procedures",
         },

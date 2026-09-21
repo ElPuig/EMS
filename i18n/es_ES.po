@@ -1811,6 +1811,7 @@ msgstr "Editar"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_link_import_form
 msgid "Load"
 msgstr "Cargar"
 
@@ -1905,6 +1906,10 @@ msgstr "Aprobado"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search model_terms:ir.ui.view,arch_db:ems.view_notice_search model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_search
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_form
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_process_form
 msgid "Archived"
 msgstr "Archivado"
 
@@ -2657,6 +2662,7 @@ msgstr "Aula de referencia:"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/communications/limesurvey.py:0 model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_status_exception_popup model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_error_popup model_terms:ir.ui.view,arch_db:ems.view_notice_line_exception_popup model_terms:ir.ui.view,arch_db:ems.view_student_import_wizard_form model_terms:ir.ui.view,arch_db:ems.view_student_update_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_link_import_form
 msgid "Close"
 msgstr "Cerrar"
 
@@ -3058,6 +3064,7 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -3151,6 +3158,7 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3510,6 +3518,7 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -3597,6 +3606,10 @@ msgstr "Documentación"
 #: model:ir.model.fields,field_description:ems.field_ems_quality_process__document_ids
 #: model:ir.model.fields,field_description:ems.field_res_users__document_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_process_form
+#: model:ir.actions.act_window,name:ems.action_quality_document
+#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__document_ids
+#: model:ir.ui.menu,name:ems.menu_quality_documents
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form
 msgid "Documents"
 msgstr "Documentos"
 
@@ -4175,6 +4188,7 @@ msgstr "Campo para almacenar el color que se utilizará en la vista de calendari
 #. odoo-javascript
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_file model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__file_data
 #, python-format
 msgid "File"
 msgstr "Archivo"
@@ -4901,6 +4915,7 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__id
 msgid "ID"
 msgstr "ID"
 
@@ -5534,6 +5549,7 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -5627,6 +5643,7 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -13050,6 +13067,7 @@ msgstr "Previsualizar"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__result_html
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__result
 msgid "Result"
 msgstr "Resultado"
 
@@ -16634,3 +16652,158 @@ msgid ""
 "The employees holding the responsible post right now. Not stored: it follows"
 " the post."
 msgstr "Las personas que ocupan el cargo responsable ahora mismo. No se almacena: sigue al cargo."
+
+#. module: ems
+#: model:ir.actions.client,name:ems.action_quality_process_map
+#: model:ir.ui.menu,name:ems.menu_quality_process_map
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Process map"
+msgstr "Mapa de procesos"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/quality_process_map.xml:0
+msgid "Open in a new tab"
+msgstr "Abrir en una pestaña nueva"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/quality_process_map.xml:0
+msgid "The process map has not been configured yet."
+msgstr "El mapa de procesos aún no se ha configurado."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/quality_process_map.xml:0
+msgid ""
+"Publish the process map document to the web from Google Docs and paste its "
+"embed address in Settings > EMS Management > Quality Settings."
+msgstr ""
+"Publicad en la Web el documento del mapa de procesos desde Google Docs y "
+"pegad su dirección para insertar en Ajustes > Gestión del EMS > "
+"Configuración de calidad."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__quality_process_map_url
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__quality_process_map_url
+msgid "Quality Process Map Url"
+msgstr "URL del mapa de procesos"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Quality Settings"
+msgstr "Configuración de calidad"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Embed address of the process map document. In Google Docs: File > Share > "
+"Publish to the web > Embed, and paste the address inside src=\"...\"."
+msgstr ""
+"Dirección para insertar el documento del mapa de procesos. En Google Docs: "
+"Archivo > Compartir > Publicar en la Web > Insertar, y pegad la dirección "
+"que hay dentro de src=\"...\"."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_quality_document
+msgid ""
+"Controlled document: where it sits in the documentary structure and its link"
+" in Drive."
+msgstr ""
+"Documento controlado: dónde se sitúa en la estructura documental y su enlace"
+" en el Drive."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_document__code
+msgid ""
+"As in the centre's documentation: PE3.01.15. Empty while the document has no"
+" code."
+msgstr ""
+"Como en la documentación del centro: PE3.01.15. Vacío mientras el documento "
+"no tenga código."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_document__url
+msgid "Where the document lives, normally in the centre's Drive."
+msgstr "Dónde está el documento, normalmente en el Drive del centro."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_document__process_id
+msgid ""
+"Taken from the procedure when there is one, and editable for documents that "
+"hang straight off a process."
+msgstr ""
+"Se toma del procedimiento cuando lo hay, y es editable para los documentos "
+"que dependen directamente de un proceso."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_document_link_import__file_data
+msgid "A CSV with two columns: the document code and its link."
+msgstr "Un CSV con dos columnas: el código del documento y su enlace."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__file_name
+msgid "File name"
+msgstr "Nombre del fichero"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__has_header
+msgid "First line is a header"
+msgstr "La primera línea es una cabecera"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_quality_document_link_import
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_link_import_form
+msgid "Load document links"
+msgstr "Cargar los enlaces de los documentos"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_list
+msgid "Load links"
+msgstr "Cargar enlaces"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_quality_document_link_import
+msgid "Load the Drive links of the controlled documents from a code,url file."
+msgstr ""
+"Carga los enlaces al Drive de los documentos controlados desde un fichero "
+"código,url."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/document_link_import.py:0
+msgid "%(count)s codes are not in the registry: %(codes)s"
+msgstr "%(count)s códigos no existen: %(codes)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/document_link_import.py:0
+msgid "%s documents in the registry still have no link."
+msgstr "%s documentos aún no tienen enlace."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/document_link_import.py:0
+msgid "%s lines were skipped for having no code or no link."
+msgstr "Se han omitido %s líneas por no tener código o enlace."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/document_link_import.py:0
+msgid "%s links loaded."
+msgstr "%s enlaces cargados."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/document_link_import.py:0
+msgid ""
+"Every line needs two columns, the code and the link. Offending line: %s"
+msgstr ""
+"Cada línea necesita dos columnas, el código y el enlace. Línea incorrecta: "
+"%s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/document_link_import.py:0
+msgid "The file could not be read as UTF-8 text: %s"
+msgstr "No se ha podido leer el fichero como texto UTF-8: %s"

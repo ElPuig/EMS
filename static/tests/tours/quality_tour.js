@@ -100,6 +100,15 @@ registry.category("web_tour.tours").add("ems_quality_registry", {
             content: "Read-only, with 'Edit'",
         },
         {
+            trigger: ".o_form_view iframe.o_quality_document_preview[src$='/preview']",
+            content: "The procedure's first tab is its own sheet",
+        },
+        {
+            trigger: ".o_form_view .o_notebook .nav-link[name='documents']",
+            content: "Its documents are one tab further",
+            run: "click",
+        },
+        {
             trigger: ".o_form_view .o_field_widget[name='document_ids']",
             content: "The procedure form lists its documents",
         },

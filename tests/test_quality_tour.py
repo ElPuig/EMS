@@ -34,8 +34,9 @@ class TestQualityTour(HttpCase):
         process_map = Document.search([('is_process_map', '=', True)], limit=1) \
             or Document.create({'name': 'Tour process map', 'is_process_map': True})
         process_map.url = "https://docs.google.com/document/d/1TourProcessMapDocument00/edit?usp=sharing"
-        for index, process in enumerate(cls.env['ems.quality.process'].search([('url', '=', False)])):
-            process.url = f"https://docs.google.com/document/d/1TourProcessSheet{index:08d}/edit"
+        for model in ('ems.quality.process', 'ems.quality.procedure'):
+            for index, record in enumerate(cls.env[model].search([('url', '=', False)])):
+                record.url = f"https://docs.google.com/document/d/1TourSheet{index:08d}{model[-4:]}/edit"
 
     def test_document_registry_tour(self):
         self.start_tour("/odoo", "ems_quality_registry", login="quality.tour@example.com")

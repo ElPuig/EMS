@@ -46,7 +46,7 @@ class EmsQualityDocument(models.Model):
     # Not a data/custom/ CSV column on purpose: the links point into the centre's Drive, which
     # this public repository does not publish. Filled in from the app, or loaded in one go with
     # the code,url wizard.
-    url = fields.Char(string="Link", help="The document's ordinary address, as copied from the browser. It is what 'Open' uses.")
+    url = fields.Char(string="Link", help="The document's ordinary address, as copied from the browser. It is what 'Open document' opens.")
     embed_url = fields.Char(
         string="Preview address",
         compute="_compute_embed_url",

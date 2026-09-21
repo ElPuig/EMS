@@ -9,7 +9,7 @@
     <t t-name="ems.QualityDocumentPreview">
         <iframe t-if="url" class="o_quality_document_preview w-100 border-0" style="min-height: 75vh;" t-att-src="url"/>
         <div t-else="" class="o_quality_document_no_preview text-muted">
-            This link cannot be shown inside EMS. Use Open to see the document.
+            This link cannot be shown inside EMS. Use Open document to see it.
         </div>
     </t>
 </templates>

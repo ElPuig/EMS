@@ -31,7 +31,7 @@
                                 <field name="active" invisible="1"/>
                             </group>
                         </group>
-                        <field name="embed_url" widget="ems_quality_document_preview" nolabel="1" invisible="not url or edit_mode"/>
+                        <field name="embed_url" widget="ems_quality_document_preview" nolabel="1" class="w-100" invisible="not url or edit_mode"/>
                     </sheet>
                 </form>
             </field>

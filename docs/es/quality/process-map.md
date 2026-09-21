@@ -4,7 +4,7 @@
 
 # Mapa de procesos
 
-**Calidad → Mapa de procesos** muestra el mapa de procesos del centro, el documento de Google donde está
+**Calidad → Documentación → Mapa de procesos** muestra el mapa de procesos del centro, el documento de Google donde está
 dibujada la estructura de la documentación de calidad.
 
 **Quién tiene acceso:** todo el que tiene el menú Calidad (coordinación de calidad, dirección, jefatura de
@@ -14,14 +14,15 @@ estudios y secretaría). Solo la coordinación de calidad y la dirección lo pue
 
 ## Consultar el mapa
 
-1. Id a **Calidad → Mapa de procesos**. El documento se muestra dentro de la pantalla.
+1. Haced clic en **Calidad**: el mapa de procesos es la primera pantalla que se abre. El documento se
+   muestra dentro de la pantalla.
 2. Para trabajar en él en Google Docs, haced clic en **Abrir el documento**: se abre en una pestaña nueva.
 
 El mapa se edita en Google Docs. EMS muestra el mismo documento, así que cualquier cambio se ve enseguida.
 
 ## Elegir qué documento es el mapa
 
-El mapa es un documento más de **Calidad → Configuración → Documentos**, marcado como mapa de procesos.
+El mapa es un documento más de **Calidad → Documentación → Documentos**, marcado como mapa de procesos.
 
 1. Abrid el documento **Mapa de processos** (o el que tenga que ser el mapa).
 2. Haced clic en **Editar**.

@@ -49,23 +49,29 @@ Three ideas carry the whole area and are worth stating before the field tables:
 
 ## Documentary structure
 
-Three models, under `Quality > Configuration`, that hold **only the structure and the links**:
+Three models, under `Quality > Documentation` (with the process map first, so it is what clicking
+*Quality* opens), that hold **only the structure and the links**:
 
 | Model | Fields |
 |-------|--------|
-| `ems.quality.process` | `code` (unique, `PE1`…`PS2`), `name`, `kind` (`strategic` / `key` / `support`), `sequence`, `active`, `procedure_ids`, `document_ids` |
-| `ems.quality.procedure` | `code` (unique, `PE3.01`), `name`, `process_id` (required), `document_ids`, `active` |
-| `ems.quality.document` | `code` (unique when set, nullable: some documents have no code yet), `name`, `procedure_id`, `process_id` (computed from the procedure, editable when there is none), `url`, `embed_url` (computed), `is_process_map`, `active` |
+| `ems.quality.process` | `code` (unique, `PE1`…`PS2`), `name`, `kind` (`strategic` / `key` / `support`), `sequence`, `active`, `procedure_ids`, `document_ids`, `url`, `embed_url` |
+| `ems.quality.procedure` | `code` (unique, `PE3.01`), `name`, `process_id` (required), `document_ids`, `active`, `url`, `embed_url` |
+| `ems.quality.document` | `code` (unique when set, nullable: some documents have no code yet), `name`, `procedure_id`, `process_id` (computed from the procedure, editable when there is none), `url`, `embed_url`, `is_process_map`, `active` |
+
+A process and a procedure each have their own sheet in Drive (the one the process map links to), so
+all three carry a link, through the shared abstract model `ems.quality.link` (`models/quality/link.py`).
+The process and procedure forms show it in a first **Document** tab.
 
 There is deliberately **no version, state, date, owner or distribution field**: the document itself, in
 Drive, is the only place those are kept. A document no longer in force is archived (`active = False`).
 
-### One link per document, previewed inside EMS
+### One link per record, previewed inside EMS
 
-`url` is the ordinary address people copy from the browser; **Open document**
+`url` (from `ems.quality.link`) is the ordinary address people copy from the browser; **Open document**
 (`action_open_document`) opens it in a new tab, where Google Docs edits it. `embed_url` is derived from it
-(`_EMBEDDABLE_LINKS` in `models/quality/document.py`): Google's own `/preview` address for Docs, Sheets,
-Slides, Drawings and Drive files, which the form shows in an `<iframe>` (field widget
+(`_EMBEDDABLE_LINKS` in `models/quality/link.py`, which also accepts the `/u/<n>/` form some links carry): Google's own `/preview` address for Docs, Sheets,
+Slides, Drawings and Drive files, which the forms show in an `<iframe>` across the full width of the window (the three forms carry
+`class="o_quality_wide_form"`, `static/src/css/backend/quality_document.css`) (field widget
 `ems_quality_document_preview`, `static/src/js/backend/quality_document_fields.js`). No second link, no
 "Publish to the web" copy and no extra module: the frame is served by Google and follows the file's own
 sharing, so the viewer's browser must be signed in to a Google account that can open the file. Any other
@@ -88,8 +94,11 @@ an **Edit** button (field widget `ems_quality_edit_mode`) only when `can_edit`. 
 `edit_mode` on the client; saving or discarding reloads the record, so it comes back read-only. Record
 access is unchanged: this is only about not presenting every field as editable by default.
 
-The document list is not editable in place, so every change goes through the form. Its *Load links*
-button opens `ems.quality.document.link.import`, which fills `url` from a `code,url` file in one go.
+There is no configuration menu: everyone with the *Quality* menu consults the structure under
+*Documentation*, and whoever may write changes it with *Edit* on the record itself. The document list is
+not editable in place, so every change goes through the form. Its *Load links* button (quality
+coordination and management) opens `ems.quality.document.link.import`, which fills `url` from a
+`code,url` file in one go, matching each code against documents, procedures and processes.
 
 ### Why the links are not in the data files
 

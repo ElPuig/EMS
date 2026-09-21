@@ -2815,7 +2815,6 @@ msgstr "Ajustes de configuración"
 #: model:ir.ui.menu,name:ems.menu_community_config
 #: model:ir.ui.menu,name:ems.menu_ems_authorization_config
 #: model:ir.ui.menu,name:ems.menu_ems_configuration
-#: model:ir.ui.menu,name:ems.menu_quality_config
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_form
 #: model:ir.ui.menu,name:ems.menu_minutes_config
 msgid "Configuration"
@@ -3590,6 +3589,8 @@ msgstr "Nombre del archivo"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization__signed_document model:ir.model.fields,field_description:ems.field_ems_student_benefit__document model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_process_form
 msgid "Document"
 msgstr "Documento"
 
@@ -3652,6 +3653,7 @@ msgstr "Tipo de documento"
 #: model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model:ir.ui.menu,name:ems.menu_quality_documentation
 msgid "Documentation"
 msgstr "Documentación"
 
@@ -5938,6 +5940,9 @@ msgstr "Usuario de LimeSurvey"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 #: model:ir.model.fields,field_description:ems.field_ems_quality_document__url
+#: model:ir.model.fields,field_description:ems.field_ems_quality_link__url
+#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__url
+#: model:ir.model.fields,field_description:ems.field_ems_quality_process__url
 msgid "Link"
 msgstr "Enlace"
 
@@ -17136,11 +17141,6 @@ msgstr ""
 "que dependen directamente de un proceso."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_quality_document_link_import__file_data
-msgid "A CSV with two columns: the document code and its link."
-msgstr "Un CSV con dos columnas: el código del documento y su enlace."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__file_name
 msgid "File name"
 msgstr "Nombre del fichero"
@@ -17162,23 +17162,10 @@ msgid "Load links"
 msgstr "Cargar enlaces"
 
 #. module: ems
-#: model:ir.model,name:ems.model_ems_quality_document_link_import
-msgid "Load the Drive links of the controlled documents from a code,url file."
-msgstr ""
-"Carga los enlaces al Drive de los documentos controlados desde un fichero "
-"código,url."
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/quality/document_link_import.py:0
 msgid "%(count)s codes are not in the registry: %(codes)s"
 msgstr "%(count)s códigos no existen: %(codes)s"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/quality/document_link_import.py:0
-msgid "%s documents in the registry still have no link."
-msgstr "%s documentos aún no tienen enlace."
 
 #. module: ems
 #. odoo-python
@@ -17218,6 +17205,9 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_quality_document__embed_url
+#: model:ir.model.fields,help:ems.field_ems_quality_link__embed_url
+#: model:ir.model.fields,help:ems.field_ems_quality_procedure__embed_url
+#: model:ir.model.fields,help:ems.field_ems_quality_process__embed_url
 msgid ""
 "Built from the link for Google Docs, Sheets, Slides and Drive files. Empty "
 "for any other address."
@@ -17251,11 +17241,16 @@ msgstr "Solo un documento puede estar marcado como mapa de procesos."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_document_form
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_process_form
 msgid "Open document"
 msgstr "Abrir el documento"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_document__embed_url
+#: model:ir.model.fields,field_description:ems.field_ems_quality_link__embed_url
+#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__embed_url
+#: model:ir.model.fields,field_description:ems.field_ems_quality_process__embed_url
 msgid "Preview address"
 msgstr "Dirección de la vista previa"
 
@@ -17277,6 +17272,9 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_quality_document__url
+#: model:ir.model.fields,help:ems.field_ems_quality_link__url
+#: model:ir.model.fields,help:ems.field_ems_quality_procedure__url
+#: model:ir.model.fields,help:ems.field_ems_quality_process__url
 msgid ""
 "The document's ordinary address, as copied from the browser. It is what "
 "'Open document' opens."
@@ -17286,7 +17284,7 @@ msgstr ""
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/quality/document.py:0
+#: code:addons/ems/models/quality/link.py:0
 msgid "This document has no link yet."
 msgstr "Este documento aún no tiene enlace."
 
@@ -17305,3 +17303,42 @@ msgstr ""
 #: model:ir.model.fields,help:ems.field_ems_quality_process__can_edit
 msgid "Whether the current user may write this record."
 msgstr "Si el usuario actual puede modificar este registro."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/document_link_import.py:0
+msgid "%s processes, procedures and documents still have no link."
+msgstr "%s procesos, procedimientos y documentos aún no tienen enlace."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_document_link_import__file_data
+msgid ""
+"A CSV with two columns: the code of a process, procedure or document, and "
+"its link."
+msgstr ""
+"Un CSV con dos columnas: el código de un proceso, procedimiento o documento,"
+" y su enlace."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_quality_document_link_import
+msgid "Load the Drive links of the quality structure from a code,url file."
+msgstr ""
+"Carga los enlaces al Drive de la estructura de calidad desde un fichero "
+"código,url."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_quality_link
+msgid ""
+"Quality link: a record whose content is a file in Drive, previewed in its "
+"form."
+msgstr ""
+"Enlace de calidad: un registro cuyo contenido es un fichero del Drive, que "
+"se muestra en su formulario."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_process_form
+msgid "This record has no document to show yet. Add its link with Edit."
+msgstr ""
+"Este registro aún no tiene ningún documento que mostrar. Añadid su enlace "
+"con Editar."

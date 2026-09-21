@@ -9,7 +9,7 @@
                      link, so a form would add a click without adding anything to edit. -->
                 <list editable="bottom">
                     <header>
-                        <button name="%(ems.action_quality_document_link_import)d" string="Load links" type="action" display="always"/>
+                        <button name="%(ems.action_quality_document_link_import)d" string="Load links" type="action" display="always" class="o_quality_load_links"/>
                     </header>
                     <field name="code"/>
                     <field name="name"/>

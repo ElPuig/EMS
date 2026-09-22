@@ -36,7 +36,7 @@ En la pantalla de **Informes de asistencia**, haz clic en el icono **⚙ (engran
 **Informe de asistencia (por alumno):**
 1. Selecciona un **Alumno** — el desplegable solo muestra alumnos matriculados en una asignatura que **realmente impartes**; si te falta algún alumno, comprueba que estás asignado/a a su asignatura en tu horario docente.
 2. El **Tutor/a** y las fechas **Desde**/**Hasta** se rellenan automáticamente a partir del alumno y su rango de sesiones.
-3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo.
+3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo. Solo incluye **las sesiones que tú has impartido** a ese alumno. Si eres su tutor/a, incluye todas sus asignaturas (consulta el manual de tutores).
 
 **Informe de asistencia (por asignatura):**
 1. Selecciona una **Asignatura** — el desplegable solo muestra asignaturas que **realmente impartes**.
@@ -50,6 +50,8 @@ En la pantalla de **Informes de asistencia**, haz clic en el icono **⚙ (engran
   añade más y aparece un aviso de que el informe puede volverse lento de generar o fallar para selecciones
   grandes.
 - **Incluir los strikes** (activado por defecto) — añade tablas de los strikes disciplinarios del periodo.
+
+El PDF descargado lleva el nombre del informe y del alumno, grupo o asignatura seleccionados (p. ej. `Informe de asistencia_ por estudiante_Nombre_Apellido.pdf`), para poder distinguir varias descargas.
 
 ---
 

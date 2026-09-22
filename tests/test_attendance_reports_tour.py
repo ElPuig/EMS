@@ -2,7 +2,9 @@ from datetime import date
 
 from odoo.tests import tagged, HttpCase
 
-from .common import create_level_study, force_user_language_to_english, next_student_id
+from .common import (
+    create_level_study, create_role_employee, create_role_user, force_user_language_to_english, next_student_id,
+)
 
 
 @tagged('post_install', '-at_install')
@@ -78,3 +80,59 @@ class TestAttendanceReportsTour(HttpCase):
         # matched (same class of flake as TestWithdrawalTour, see that test file).
         self.start_tour("/odoo", "ems_attendance_report_wizard", login="admin", step_delay=300)
         self.start_tour("/odoo", "ems_attendance_report_analysis", login="admin", step_delay=300)
+
+    def _seed_student_scope(self):
+        """Issue #500: a student with sessions from two teachers, plus a tutor who teaches neither
+        subject. Returns (plain teacher user, tutor user)."""
+        level, study = create_level_study(self, 'TARS', level={'name': 'Student Scope Tour Level'}, study={
+            'name': 'Student Scope Tour Study',
+        })
+        space = self.env['ems.space'].create({
+            'code': 'TARS-A', 'name': 'Student Scope Tour Space',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        tutor_user = create_role_user(self, 'tutor', 'student_scope_tour_tutor', name='Student Scope Tour Tutor')
+        tutor = create_role_employee(self, tutor_user)
+        group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TARS', 'level_id': level.id, 'study_id': study.id,
+            'name': 'Student Scope Tour Group', 'tutor_id': tutor.id,
+        })
+        student = self.env['res.partner'].create({
+            'name': 'Student Scope Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': group.id,
+        })
+        teacher_users = []
+        for index in (1, 2):
+            user = create_role_user(self, 'teacher', f'student_scope_tour_teacher{index}', name=f'Student Scope Tour Teacher {index}')
+            teacher = create_role_employee(self, user)
+            subject = self.env['ems.subject'].create({
+                'code': f'TARS00{index}', 'acronym': f'TARS{index}', 'name': f'Student Scope Tour Subject {index}',
+                'study_ids': [(6, 0, [study.id])],
+            })
+            self.env['ems.teaching'].create({'teacher_id': teacher.id, 'group_id': group.id, 'subject_id': subject.id})
+            self.env['ems.enrollment'].create({'student_id': student.id, 'group_id': group.id, 'subject_id': subject.id})
+            template = self.env['ems.attendance_template'].create({
+                'teacher_ids': [(6, 0, [teacher.id])], 'study_ids': [(6, 0, [study.id])],
+                'subject_id': subject.id, 'group_ids': [(6, 0, [group.id])],
+                'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
+            })
+            schedule = self.env['ems.attendance_schedule'].create({
+                'attendance_template_id': template.id, 'weekday': str(date.today().weekday()),
+                'start_time': float(index), 'end_time': float(index + 1), 'space_id': space.id,
+            })
+            session = self.env['ems.attendance_session_header'].create({
+                'attendance_schedule_id': schedule.id, 'date': date.today(),
+                'mode': 'manual', 'session_teacher_id': teacher.id,
+            })
+            self.env['ems.attendance_session_line'].create({
+                'attendance_session_id': session.id, 'student_id': student.id,
+            })
+            teacher_users.append(user)
+        return teacher_users[0], tutor_user
+
+    def test_attendance_report_student_scope_tour(self):
+        teacher_user, tutor_user = self._seed_student_scope()
+        for user in (teacher_user, tutor_user):
+            with self.subTest(login=user.login):
+                self.start_tour("/odoo", "ems_attendance_report_student_scope", login=user.login, step_delay=300)

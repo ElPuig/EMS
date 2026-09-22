@@ -65,6 +65,8 @@ to your choice.
   add more and a warning appears that the report may become slow to generate or fail for large selections.
 - **Include strikes** (on by default) — adds tables of the disciplinary strikes recorded during the period.
 
+The downloaded PDF is named after the report and the selected student, group or subject (e.g. `Attendance report_ by student_Name_Surname.pdf`), so several downloads can be told apart.
+
 ---
 
 [← Back to Secretariat manuals](index.md)

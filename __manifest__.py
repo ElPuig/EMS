@@ -80,7 +80,6 @@
             'views/minutes_agreements/minute/form.xml',
             'views/minutes_agreements/minute/menu.xml',
             'views/minutes_agreements/minute_type/menu.xml',
-            'views/minutes_agreements/agreement/menu.xml',
             'views/quality/process/list.xml',
             'views/quality/process/form.xml',
             'views/quality/process/menu.xml',
@@ -97,6 +96,8 @@
             'views/quality/action/form.xml',
             'views/quality/action/search.xml',
             'views/quality/action/menu.xml',
+            # After views/quality/action/: its action uses view_quality_action_search.
+            'views/minutes_agreements/agreement/menu.xml',
             'views/quality/process_map/menu.xml',
 
         # Before form.xml: the settings button references this action by XML ID.

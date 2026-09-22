@@ -175,7 +175,6 @@ from . import test_attendance_template_tour
 from . import test_attendance_archived_filter_tour
 from . import test_attendance_issue
 from . import test_strike_reason
-from . import test_minute
 from . import test_notice
 from . import test_notice_tour
 from . import test_limesurvey_api

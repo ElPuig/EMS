@@ -45,6 +45,8 @@ The **Guard duty** column on the right lists every teacher on guard duty in that
 
 A row whose time block is a break period for some level — with no class scheduled in it for anyone — gets a small **"Break"** label next to its time, plus a thin brown accent on the left edge of that same cell, so an otherwise empty-looking row doesn't read as a gap in the schedule.
 
+![Guard duty schedule for one time block: a group's class, a plain guard, a Guard (WC), a Break row with its own guard, and a teacher marked absent in bold red](../../assets/teachers/guard-duty-01-horari.png)
+
 ---
 
 ## Filtering by Level
@@ -66,6 +68,8 @@ Each row is a time block of the shift on screen:
 - **Guard duty** — the teachers on guard duty in that time block, the same ones the timetable shows.
 
 A time block where nobody is missing has an empty Absences column.
+
+![Absences table for the same time block: the absent teacher and what needs covering, against who is on guard duty](../../assets/teachers/guard-duty-02-absencies.png)
 
 ---
 

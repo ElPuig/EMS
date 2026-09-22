@@ -45,6 +45,8 @@ La columna **Guardia**, a la derecha, lista todos los docentes de guardia en esa
 
 Una fila cuya franja horaria coincide con el patio de algún nivel — sin ninguna clase programada en ella para nadie — muestra una pequeña etiqueta **"Patio"** junto a la hora, además de un borde marrón en el lado izquierdo de esa misma celda, para que una franja que parece vacía no se lea como un hueco en el horario.
 
+![Horario de guardias de una franja horaria: la clase de un grupo, una guardia normal, una guardia de WC, una fila de Patio con su propia guardia, y un docente marcado como ausente en rojo y negrita](../../assets/teachers/guard-duty-01-horari.png)
+
 ---
 
 ## Filtrar por nivel
@@ -66,6 +68,8 @@ Cada fila es una franja horaria del turno que tienes en pantalla:
 - **Guardia** — los docentes de guardia en esa franja, los mismos que muestra el horario.
 
 Una franja donde no falta nadie tiene la columna de ausencias vacía.
+
+![Tabla de ausencias de la misma franja horaria: el docente ausente y qué hay que cubrir, frente a quién está de guardia](../../assets/teachers/guard-duty-02-absencies.png)
 
 ---
 

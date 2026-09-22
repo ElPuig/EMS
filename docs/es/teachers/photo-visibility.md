@@ -35,8 +35,11 @@ Desde tu perfil puedes activar o desactivar la opción **Desactivar la foto de p
 ## Cómo cambiarlo
 
 1. Haz clic en tu avatar, en la esquina superior derecha del EMS, y elige **Mi perfil**.
-2. En **Foto**, activa o desactiva **Desactivar la foto de perfil**.
-3. Cierra la ventana — el cambio se guarda automáticamente.
+2. Abre la pestaña **Preferencias**.
+3. En **Foto**, activa o desactiva **Desactivar la foto de perfil**.
+4. Cierra la ventana — el cambio se guarda automáticamente.
+
+![La pestaña Preferencias: Idioma y el grupo Foto con la opción "Desactivar la foto de perfil"](../../assets/teachers/foto-01-preferencies.png)
 
 > **Nota:** mientras esté activada, no se puede subir ninguna foto para ti desde
 > ningún sitio — ni tu perfil, ni tu ficha de empleado — hasta que vuelvas a

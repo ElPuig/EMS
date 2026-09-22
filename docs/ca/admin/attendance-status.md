@@ -12,6 +12,8 @@
 
 Cada botó que un professor pot clicar per a un alumne a la vista de passar llista (Assistit, Retard lleu, Retard greu, Falta, Falta justificada...) prové d'una llista configurable a **Assistència → Configuració → Sessions → Estats**, en lloc d'estar fixada al codi de l'aplicació. Pots afegir-ne un de nou, reordenar-los o retirar-ne un que el centre ja no faci servir.
 
+![Llistat d'estats d'assistència, amb categoria, notificació a la família i color de cada estat](../../assets/admin/admin-attendance-status-list.png)
+
 ---
 
 ## Gestionar els estats

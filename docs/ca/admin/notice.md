@@ -38,6 +38,10 @@ troba a **Comunicacions → Comunicats**.
    alumne no té cap adreça que coincideixi amb la vostra selecció de **Correu del destinatari**
    (p. ex. heu triat "Corporatiu" però encara no té compte institucional creat), apareix un avís
    amb els seus noms perquè sapigueu que han quedat exclosos.
+
+   > **Des de la 18.0.0.26.0:** el correu d'una fila de destinatari ha de tenir un format vàlid
+   > (`nom@domini`) — EMS no deixa desar un valor que no ho sigui, com ara un número de telèfon
+   > escrit per error.
 8. Feu una de les dues opcions:
    - Cliqueu **Enviar** per posar els correus a la cua immediatament, o
    - Marqueu **Programar l'enviament** i trieu una data/hora, i cliqueu **Enviar** — el
@@ -46,6 +50,8 @@ troba a **Comunicacions → Comunicats**.
    **Fallit** si l'enviament ha fallat per a tots els destinataris). Cada fila de destinatari
    mostra el seu propi estat d'enviament, amb el detall de l'error disponible a les files
    fallides.
+
+![Un comunicat en esborrany, amb la llista de destinataris generada automàticament a partir del grup seleccionat](../../assets/admin/admin-notice-create-form.png)
 
 Un comunicat **programat** (encara no enviat) es pot **cancel·lar**, tornant-lo a Esborrany
 perquè el pugueu editar i tornar a enviar.

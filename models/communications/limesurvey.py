@@ -3,7 +3,8 @@
 import requests, json, html, re, base64, time, traceback, io, csv
 from datetime import datetime
 from odoo import models, fields, api, Command, _
-from odoo.exceptions import UserError, RedirectWarning
+from odoo.exceptions import UserError, RedirectWarning, ValidationError
+from odoo.tools import email_normalize
 
 # TO CLEAN THE BBDD DURING TESTING
 # delete from ems_limesurvey_recipient;
@@ -1118,6 +1119,12 @@ class EmsLimesurveyRecipient(models.Model):
     # This field is used to compute the enrollments and allow modification by an authorized user (independent of 'real' enrollments, which should be modified only by secretarial staff).
     limesurvey_enrollment_ids = fields.One2many(string="Enrollments", comodel_name="ems.limesurvey_enrollment", inverse_name="limesurvey_recipient_id")
     wpi_enrolled = fields.Boolean(string="WPI enrolled")
+
+    @api.constrains('email')
+    def _check_email_format(self):
+        for recipient in self:
+            if recipient.email and not email_normalize(recipient.email):
+                raise ValidationError(_("%(email)s is not a valid email address.", email=recipient.email))
 
     # region MAIN ACTIONS
     def action_restore(self):

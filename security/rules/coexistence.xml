@@ -15,15 +15,36 @@
 
         <record id="rule_strike_coexistence" model="ir.rule">
             <!-- Coexistence is transversal to the teacher/tutor/HoS hierarchy: any coordinator
-                 can read every strike centre-wide (see security/groups.xml category_coexistence). -->
-            <field name="name">Strike: coexistence (all data, read only)</field>
+                 can read every strike centre-wide (see security/groups.xml category_coexistence).
+                 Issue #464: coordinators can also delete any strike centre-wide - same reasoning
+                 as rule_strike_head_of_studies below, they are trusted with the full disciplinary
+                 record regardless of which branch issued it. -->
+            <field name="name">Strike: coexistence (all data, read + delete)</field>
             <field name="model_id" ref="ems.model_ems_strike"/>
             <field name="groups" eval="[(4, ref('ems.group_coexistence'))]"/>
             <field name="domain_force">[]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
-            <field name="perm_unlink" eval="False"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record id="rule_strike_head_of_studies" model="ir.rule">
+            <!-- Issue #464: Head of Studies / Deputy Head of Studies / Director (group_director
+                 and group_academic_admin both imply group_head_of_studies, so this reaches the
+                 whole "HoS and above" chain automatically) can delete any strike centre-wide, not
+                 just their own tutees' - the read-only centre-wide visibility already comes from
+                 group_student_data_reader (security/rules/student_data_reader.xml), this rule
+                 only adds the delete permission on top, same pattern as rule_contact_head_of_studies
+                 (security/rules/contacts.xml). -->
+            <field name="name">Strike: head of studies (all data, delete)</field>
+            <field name="model_id" ref="ems.model_ems_strike"/>
+            <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="True"/>
         </record>
 
         <record id="rule_strike_secretary" model="ir.rule">
@@ -57,7 +78,7 @@
             <field name="name">Strike: tutees</field>
             <field name="model_id" ref="ems.model_ems_strike"/>
             <field name="groups" eval="[(4, ref('ems.group_tutor'))]"/>
-            <field name="domain_force">[('student_id.tutor_id.user_id', '=', user.id)]</field>
+            <field name="domain_force">[('student_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>

@@ -15,6 +15,7 @@ Aquesta guia explica com revisar els documents que envien alumnes i famílies �
 3. [Què fa aprovar un IBAN](#què-fa-aprovar-un-iban)
 4. [Què fa aprovar un document de benefici](#què-fa-aprovar-un-document-de-benefici)
 5. [Notificacions](#notificacions)
+6. [Descarregar les credencials de Google](#descarregar-les-credencials-de-google)
 
 ---
 
@@ -42,6 +43,10 @@ Aprovar un document de bonificació/exempció crea l'entrada corresponent als be
 ## Notificacions
 
 L'alumne rep un correu quan el seu document s'aprova o es rebutja. Els revisors (configurats a *Gestió acadèmica > Configuració > Assignació de tasques*) reben una tasca pendent en lloc d'un correu per cada nova tramitació pendent — consulta les teves Activitats per veure "Review document: ...".
+
+## Descarregar les credencials de Google
+
+Per descarregar de cop el PDF de credencials de Google de diversos alumnes: a **Comunitat Educativa → Estudiants**, en vista de llista, marca els alumnes, obre **Accions** i clica **Descarregar credencials de Google**. Es descarrega un ZIP amb un PDF per alumne.
 
 ---
 

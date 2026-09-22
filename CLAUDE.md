@@ -334,6 +334,32 @@ screenshot (`/tmp/odoo_tests/ems/screenshots/`) is what actually revealed it, no
   (button labels, status/selection names) that gets translated out from under a hardcoded
   English selector.
 
+**Time-relative fixtures compared against a local-calendar-day cutoff:** this codebase
+deliberately builds test fixtures relative to real `datetime.now(timezone.utc)` rather than
+using a time-freezing library (no `freezegun` dependency — see `tests/test_attendance_correction.py`'s
+own `cls.today`/`cls.weekday` comment), specifically so fixtures "stay correct regardless of when
+the suite actually runs." That holds for picking a weekday/hour-of-day, but **not** when the
+fixture is also compared against a value scoped to a single **local calendar day** — e.g. a
+`resource.calendar.attendance` slot's `hour_to`, read via `hr.attendance._get_last_working_hour()`
+(`ems.attendance_correction.is_check_out_requestable`, `_auto_close_attendance()`). A `check_in`
+built as `now - 2h` and a slot ending near local midnight (`hour_to=23.9`, "spans almost the whole
+day") looks maximally safe, but isn't: if the *later* re-read of "now" (during the actual
+compute, or partway through a tour's browser interaction) lands in the roughly two-hour window
+after local midnight while `check_in` itself is still "yesterday" locally, the code correctly
+judges yesterday's schedule as already over — failing a test that expected it to still be open.
+Found 2026-09-16 (three tests around issue #479 all failed together when the suite happened to
+run just after local midnight, Europe/Madrid). Widening the margin doesn't fix this — it only
+narrows the flaky window, it can't remove it, since any local-day-scoped end time is eventually in
+the past relative to *some* later real-time read. **How to apply:** when a fixture's correctness
+depends on "now" staying before/after a local-calendar-day-scoped cutoff, freeze the reference
+moment instead: `unittest.mock.patch.object(fields.Datetime, 'now', return_value=frozen_now)`
+(stdlib `unittest.mock`, not `freezegun` — the "no freezegun" stance is about that specific
+package, not about mocking `now()` at all) wrapping the compute/`create()`/`start_tour()` call,
+with `check_in` derived from that same `frozen_now` rather than a second independent real-time
+read. See `tests/test_attendance_correction.py`/`tests/test_attendance_correction_request_tour.py`
+for the pattern. Fixtures that only pick a weekday/hour-of-day (not compared against a local-day
+cutoff) don't need this — real "now" is still the right choice there, per the existing convention.
+
 **Per-role smoke tours (`tests/test_role_smoke_<role>_tour.py`, added 2026-09-11, issue #434
 follow-up):** in addition to feature-specific tours, EMS has one generic "crawler" tour per role
 that logs in as that role, fetches the exact menu tree the real webclient would (`ir.ui.menu`
@@ -381,12 +407,15 @@ Key rules applied in this project:
 - Model attribute order: private attrs (`_name`, `_description`, `_order`, `_sql_constraints`) → fields → compute/inverse/search methods → constraints/onchange → CRUD overrides → action methods → business methods.
 - Loop variable named after the model, not `rec` (`for level in self:`).
 - **No shadowed builtins** (`list`, `type`, `hash`, `bytes`, `id`, `date`, ...) as local variable or parameter names — this bug class was found by hand several times during the DTON rollout (`LimesurveyApi.count_participants`'s `list`, `ems.base.notify`'s `type` parameter, `datetime_utils`' `datetime` parameters). Check for it with `pylint --disable=all --enable=redefined-builtin models/` (installed via `apt install pylint`) — not wired into a blocking hook, run it by hand after any pass touching several files.
+- **Every EMS-added action bound to a model (`binding_model_id` on an `ir.actions.server`/`ir.actions.act_window`) must declare `binding_view_types` as `list,form`** (Odoo's own default — don't restrict it to `list` by hand), so it is reachable from both the model's list and its form, not just one. Native Odoo actions (or a third-party/OCA module's own actions) are left exactly as that module defines them — this rule is only about actions EMS itself adds. Found 2026-09-17 (issue #482): three `res.partner`-bound server actions (`action_portal_access_bulk`, `action_authorization_send_bulk`, `action_google_credentials_download_bulk`) had `binding_view_types` hand-restricted to `list`, so a student's own form was missing "Portal access (students/families)", "Send authorizations" and "Download Google credentials" from its cog ⚙ menu even though the list view had them — the underlying Python methods already worked fine on a single-record `self`, since Odoo sends `active_ids` (a one-element list) from a form-bound action the same way it does from a list selection. The only legitimate reason to restrict a *new* EMS action to one view type is a genuine functional one (e.g. an action that only makes sense on a multi-record selection) — document it in a comment next to the field when that's the case, the same way `views/community/contact/native_action_bindings.xml` documents its own deliberate exclusions.
 - XML `<record>`: `id` attribute before `model`.
 - f-strings instead of `%s` formatting.
 - **No em dash (—) as a decorative separator in user-facing/translatable text** (`_("...")` in Python, `_t("...")` in JS/OWL, view `string=` labels) — e.g. `"%(teacher)s — %(subject)s"`. Developer feedback (2026-08-10, working_schedules_import_wizard's grouped-conflict labels): use a plain hyphen (`-`) instead. An em dash used as genuine English grammar (setting off a parenthetical/interruptive clause, not just joining two short fields) is fine to keep - the rule is specifically about the decorative "A — B" join pattern, not em dashes in general prose.
+- **Never interpolate a raw Datetime field into a user-facing message without converting it to the reader's own timezone first.** Odoo `Datetime` fields are stored/read as naive datetimes **in UTC**. The backend's list/form views convert UTC → the viewing user's own tz automatically on render, but that conversion is a web-client behavior — it does **not** apply to a plain-text message body built in Python (`message_post()`, `activity_schedule()`'s `note=`, a `mail.template` field populated by code, a `UserError`/`ValidationError` string), because those are just strings by the time they reach the reader. Interpolating `self.some_datetime_field` directly via `%s`/an f-string/`.strftime()` with no prior tz conversion silently shows server/UTC time labeled as if it were the reader's own — wrong by whatever the offset happens to be (2h for Europe/Madrid in CEST). Found 2026-09-17: `_auto_close_attendance()`'s fallback notification (`models/employees/employee_autocheckout.py`) showed check-in/check-out times 2h behind what the same `hr.attendance` record's own backend view showed the same reader. **How to apply:** convert before interpolating — prefer Odoo's own `fields.Datetime.context_timestamp(record, dt)` (already used correctly in `models/contacts/student_import_wizard.py`) when the acting user's/company's context tz is the right target; when the message is addressed to a *specific different* person (an employee, not the acting user — e.g. a notification about someone else's record), resolve *their* tz explicitly instead (`pytz.timezone(employee._get_tz())` + `pytz.utc.localize(dt).astimezone(...)`, the pattern already used by `_get_last_working_hour()`/`_format_local_for_employee()` in the same file) — `ems.datetime_utils.current_tz()` resolves the acting user's/company's tz, which is the wrong target for a message addressed to someone else. A `fields.Date` value has no tz ambiguity and doesn't need this. A value only ever written to a CSV/log (never shown to a human as "this happened at X" in a message/email/activity) is also unaffected.
 - **DRY, both server (Python) and client (JS):** never duplicate code. Reuse existing methods, extend them, or extract a new shared method/RPC call instead of copy-pasting logic.
 - **"Odoo way" first:** don't build a custom solution unless strictly necessary. Always check the official Odoo v18 documentation and existing Odoo/EMS patterns for a built-in mechanism before writing bespoke code.
 - **Full-scenario exploration before implementing — never assume, ask when ambiguous.** Before writing or relaxing any validation/constraint/guard, grep and read *every* real write path for the field(s) it touches (every wizard, compute/onchange method, direct ORM call, view `required`/`readonly` attribute) — not just the one test or scenario currently in front of you. Don't guess whether a state that conflicts with a new check is a "legitimate real case" or merely a test fixture bypassing what the real UI/ORM would otherwise enforce — verify it by tracing the actual code paths, every one of them, before deciding which side (the new check, or the conflicting test/code) is wrong. If, after that exploration, genuine ambiguity remains — however small — ask the developer rather than picking a side. Found the hard way (2026-07-30): a new `sale.order` constraint broke an existing test, and the first fix relaxed the constraint on the unverified assumption that the test reflected a real production scenario; only the developer's follow-up question ("¿tiene sentido que esto ocurra? ¿se me escapa algo?") prompted the full write-path audit that should have happened *before* proposing that fix — which then showed the assumption was wrong (no real path can produce that state) and the test's fixture needed fixing instead, not the constraint. A relaxed-on-assumption constraint can silently end up less protective than intended, which is exactly the class of mistake this rule exists to prevent.
+- **Permission/approval escalation must follow the real management hierarchy, not blanket role membership.** When a lower-level role can do something, whoever is above that *specific* person in the org chart should be able to do it too — but scoped to their own branch of the hierarchy, not every holder of the higher role centre-wide. Concretely (2026-09-17, issue #480 follow-up): if a Tutor can act on something of theirs, their own Department Chief/Seminar Chief (peers at the same rung — both map to `ems.group_department_chief`, either one having it is enough), their own Head of Studies/Deputy Head of Studies (found by walking `hr.employee.parent_id` up from that specific Tutor — both roles map to the same `ems.group_head_of_studies`, exactly like Department Chief/Seminar Chief), and Director should be able to act on it too — but a *different* Department Chief (someone else's department) or any other holder of `group_head_of_studies` who isn't actually this Tutor's resolved approver in the chain must **not** automatically get it just by holding that role. **For tutor-scoped rights this is already implemented (issue #483):** `hr.employee.tutor_scope_user_ids` (the tutor plus every chief above them through `parent_id`, plus the Director; non-stored, searchable) and `ems.base.user_acts_as_tutor(tutor)` — every tutor-scoped `ir.rule` and Python check matches on those, so any new one must too, never on `tutor_id.user_id` (see "Tutor scope" in `docs/en/developers/employees/role_hierarchy.md`). `hr.employee.find_head_of_studies()` (`models/employees/employee.py`) is the older, narrower precedent — it walks the same `parent_id` chain for approval routing. The gap: most `ir.rule`s in this codebase instead grant access via flat group membership plus `domain_force=[]` (e.g. `rule_attendance_correction_hos`, `security/rules/attendance.xml` — any Head of Studies/Deputy can act on *any* employee's request, not just their own chain), which is a shortcut, not a hierarchy resolution. **How to apply:** when designing a *new* permission/approval-routing rule, resolve the actual hierarchical relationship (reusing `tutor_scope_user_ids` or its non-stored + searchable pattern, generalizing `find_head_of_studies()`'s pattern, or a stored+computed field on `hr.employee` analogous to the existing `attendance_manager_id`/`leave_manager_id`) rather than reaching for a flat role-based `ir.rule` with `domain_force=[]` out of convenience — even though several existing rules currently do exactly that. Retrofitting those existing flat rules is tracked separately as future work (`plans/permission_hierarchy_escalation.md` + memory) — auditing and fixing all of them is not something every unrelated change needs to do opportunistically; some may turn out to be intentionally global (e.g. per this file's own "Full-scenario exploration" rule above, verify rather than assume either way, and ask the developer when genuinely ambiguous).
 - Resulting code must be clean, simple, non-redundant, and well-refactored.
 - **All literals must be translatable:** wrap every user-facing string for translation (`_("...")` in Python, `_t("...")` in JS/OWL) so it can be picked up by the i18n files, with English as the default/source language. Wrapping is only step one — it makes a string *translatable*, it does not translate it. Every new feature must also add the actual Catalan/Spanish entries to `i18n/ca_ES.po` and `i18n/es_ES.po` before it's considered done (see the "Close" step of the Development workflow below). To find what's missing: export current terms with `odoo -d ems --i18n-export=<path>.po -l ca_ES --modules=ems --stop-after-init` (repeat for `es_ES`), diff msgids against the checked-in `.po` files, and append translated blocks for the new ones only (don't regenerate/replace the whole file — order doesn't matter to gettext, and the files may already carry unrelated pre-existing gaps that aren't your task's responsibility). Run as the `odoo` user with a path it can write to (not a sandboxed/restricted directory). Do not insert decorative section-header comments between po entries — a comment block with no following `msgid` breaks Odoo's po parser on load.
 
@@ -436,7 +465,52 @@ illustrate. Before saving any screenshot into `docs/assets/`:
   (read the image back before treating the task as done), or tell the developer exactly which file
   and region needs redaction and let them decide, rather than publishing it as-is.
 This applies regardless of source: a tour-driven capture, a manual `Read` of a screenshot file, or
-anything the developer hands you directly.
+anything the developer hands you directly. **When in doubt whether a screenshot still shows some
+personal data — a crop or blur that might not fully cover it, a background element you're not
+sure about — don't guess either way (neither "probably fine" nor discarding it yourself without
+saying anything): ask the developer to look and decide.** This is the same rule as the bullet
+above, stated again because it is the one most likely to get skipped under time pressure.
+
+**How to actually take a screenshot (2026-09-16) — reuse the project's own mechanism, never a
+fresh Playwright install or a hand-minted session.** Both a permanent doc screenshot (this
+section) and a throwaway self-verification screenshot during development (see "Self-verify UI
+before asking user" pattern) use the exact same mechanism: `tests/test_docs_screenshots.py`'s
+`ChromeBrowser` (from `odoo.tests.common`) + its `_capture` helper — a `HttpCase`-based test that
+authenticates as a fixture user, navigates to a URL, waits for a CSS selector, and clips a
+screenshot of just that element to a PNG. This already exists and is proven safe; do not install
+Playwright/chromium-cli, download a browser, or mint an Odoo session cookie by hand via `odoo
+shell` — a session spent real effort re-inventing this on 2026-09-16 before the developer pointed
+out the existing mechanism. It is also the *only* form a screenshot may take here: never attempt
+anything that could capture the developer's own real desktop/screen — this container has no view
+onto it, the developer is doing other things concurrently, and a past incident captured real
+private conversations that way. `ChromeBrowser` never goes near that risk in the first place: it
+only ever drives its own headless Chrome against the local Odoo test server, with fixtures created
+inside a rolled-back test transaction (which is also what keeps a *doc* screenshot from showing
+real data in the first place — see the personal-data rule above; fabricated names off a
+`create_role_user`/`create_role_employee` (`tests/common.py`) fixture, never real production rows).
+- **Permanent doc screenshot:** add a new `_capture(...)` call to `test_docs_screenshots.py`
+  itself (or a new `TestDocsScreenshots`-style class if the fixtures are unrelated), following its
+  own fixture-building conventions. Output lands in `/tmp/ems_doc_screenshots` (override via
+  `EMS_SCREENSHOT_DIR`); copy the PNG into `docs/assets/` by hand afterward (the test runs as the
+  `odoo` user, which has no write access to the repo).
+- **Throwaway self-verification during dev:** write a temporary `tests/test_<topic>_verify_tmp.py`
+  copying the same `ChromeBrowser`/`_capture` pattern, run it, `Read` the resulting PNG to actually
+  look at it, then delete both the file and its screenshots once you're done — it never becomes a
+  doc asset and was never meant to.
+- **Either way, add `from . import <file>` to `tests/__init__.py`** or Odoo's test loader never
+  discovers the class — it fails silently ("0 tests", no error), which is easy to mistake for a
+  passing run.
+- **Gotcha:** a class tagged `-standard` (as `test_docs_screenshots.py` is) can't be run via the
+  plain `./test.sh ClassName` shorthand — Odoo's tag selector implicitly requires the `standard`
+  tag for a bare class-name selector, so a `-standard` class silently matches "0 tests" that way
+  (confirmed 2026-09-16; `test_docs_screenshots.py`'s own docstring instruction to run it as
+  `./test.sh '/ems:TestDocsScreenshots'` does not actually work in this Odoo build). For a
+  throwaway verification file, simplest fix is to just not tag it `-standard` (plain
+  `@tagged('post_install', '-at_install')`, like the tour test classes). If `-standard` must stay,
+  the raw `--test-tags='*/ems:ClassName'` invocation is needed instead (the `*` bypasses the
+  implicit `standard` requirement) — that can't go through `test.sh`'s bare-classname shorthand, so
+  call `odoo -d ems -u ems --test-enable --test-tags='*/ems:ClassName' --stop-after-init -c
+  /etc/odoo/odoo.conf` directly, mirroring what `test.sh` itself runs.
 
 **Documentation describes current behavior, not history (2026-09-15).** Both technical
 (`docs/en/developers/`) and user (`docs/{en,ca,es}/<role>/`) documentation must describe the
@@ -859,13 +933,25 @@ CI pieces work together:
 
 ## Staff newsletter email
 
-Whenever the developer asks directly for a "correo"/"boletín de novedades", **or right after the
-PR changelog text has been prepared/delivered**, send a formatted HTML newsletter email to
-**ems@elpuig.xeill.net** summarizing the same changes for a general staff audience — Catalan, no
-tecnicismes, condensed and friendly, not a translation of the English PR body. Distinct from the
-PR changelog file: that stays English/technical for GitHub; this email is Catalan/audience-facing,
-for the developer to review and forward to staff themselves — this mechanism never broadcasts
-directly to students/families/staff itself.
+Whenever the developer asks directly for a "correo"/"boletín de novedades", send a formatted HTML
+newsletter email to **ems@elpuig.xeill.net** summarizing the same changes for a general staff
+audience — Catalan, no tecnicismes, condensed and friendly, not a translation of the English PR
+body. Distinct from the PR changelog file: that stays English/technical for GitHub; this email is
+Catalan/audience-facing, for the developer to review and forward to staff themselves — this
+mechanism never broadcasts directly to students/families/staff itself.
+
+**Corrected 2026-09-15 — offer, don't auto-send, right after the PR changelog text.** This used to
+say to send the email automatically as soon as the PR changelog text was prepared/delivered. Real
+incident (PR #462, branch `v18.0.0.25.0`): the changelog text was delivered and the newsletter
+offer never came — the developer had to point it out afterward ("Como no te lo he pedido, deberías
+haberme ofrecido enviar el correo con las novedades... es importante"). Sending a real email (even
+to this fixed, developer-controlled address) is an externally-visible action — it should be
+offered and confirmed, not fired automatically, matching this project's general standing caution
+around actions with real-world effects (see "Executing actions with care" in the surrounding
+agent instructions). **How to apply:** right after delivering PR changelog text (see "PR
+changelog" below), if the newsletter hasn't already been sent for that PR, **offer** to send it —
+a short question, not silence and not an automatic send. A direct request for the "correo"/
+"boletín" at any point is already a request — send it right away without needing to offer first.
 
 **Recipient is always the fixed address above, never one read from the database** — same
 principle as this file's "Email safety in tests": an address must be explicit and
@@ -883,10 +969,15 @@ becomes an `ir.mail_server`-relayed `mail.mail`'s `body_html`):
   accent border (`background:#eef4fb; border-left:4px solid #4a86e8`), not a plain bold sentence.
 - Manual links as a descriptive title, never a raw URL: `📘 Manual: <what the reader will find>`,
   hyperlinked. **Every link must point at a doc file confirmed to exist under `docs/ca/` first**
-  (`ls`/`find` it — never construct a URL from a guessed filename pattern); if a feature's
-  Close-step user doc is still pending, link nothing for that item rather than a guessed path.
-- Closing with a link to the full docs index (`https://docs.ems.elpuig.xeill.net/ca/`) when the
-  content spans more than one role's manuals.
+  (`ls`/`find` it); if a feature's Close-step user doc is still pending, link nothing for that item
+  rather than a guessed path. **The confirmed URL pattern** (verified live 2026-09-16, after a
+  first send guessed a mkdocs-style trailing slash and got it wrong — caught by the developer, not
+  by anything in this file): a repo doc file `docs/ca/<path>.md` is published at
+  `https://docs.ems.elpuig.xeill.net/ca/<path>.html` — **`.html`, not a trailing slash**. The docs
+  *index* is the one exception (see below) — it serves its directory's `index.html` implicitly and
+  needs no filename at all.
+- Closing with a link to the full docs index (`https://docs.ems.elpuig.xeill.net/ca/` — no filename,
+  unlike an individual page) when the content spans more than one role's manuals.
 - Friendly, informal closing ("Si trobeu res que no funcioni com esperàveu, digueu-nos-ho i ho
   mirem.") and sign-off ("Una salutació, Equip EMS - Institut Puig Castellar").
 - Do **not** add the centre's logo to the body — what appears next to the sender name in a

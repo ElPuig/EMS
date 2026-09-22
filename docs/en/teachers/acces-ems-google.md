@@ -30,6 +30,9 @@ If you have not activated your corporate account yet, do that first: sign in at 
 
 1. Open the EMS address in your browser (the same link included in your welcome email).
 2. On the login page, click the **Sign in with Google** button — do **not** fill in the email/password fields.
+
+   ![The "Sign in with Google" button on the login screen](../../assets/teachers/acces-google-boto.png)
+
 3. Choose (or enter) your corporate account `@elpuig.xeill.net`.
 
 That's it: you will land on the EMS home page with your teacher permissions.

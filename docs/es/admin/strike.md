@@ -12,6 +12,8 @@
 
 Los motivos entre los que eligen los profesores al poner un strike se configuran en **Convivencia → Configuración → Strikes → Motivos**.
 
+![Listado de motivos de strike](../../assets/admin/admin-strike-reasons-list.png)
+
 - Cada motivo tiene un **Nombre** (traducible) y una **Secuencia** (arrastra para reordenar — el primero de la lista es el que se usa como motivo preseleccionado por defecto en el diálogo de pasar lista).
 - Usa la acción estándar **Archivar** (menú ⚙ del formulario, o selecciona filas en la lista y usa el mismo menú) para retirar un motivo sin borrarlo — los strikes existentes lo siguen referenciando correctamente. Los motivos archivados quedan ocultos por defecto; usa **Filtros → Archivado** en la lista para volver a verlos, o para desarchivar uno.
 - El motivo inicial "Other / General" (`ems.strike_reason_other`) es el valor por defecto del sistema — mantenlo activo (no archivado), ya que es el que preselecciona el diálogo de pasar lista.

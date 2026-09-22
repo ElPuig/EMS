@@ -5,7 +5,10 @@ from dateutil.relativedelta import relativedelta
 
 from odoo.tests import tagged, HttpCase
 
-from .common import force_user_language_to_english, next_student_id
+from .common import (
+    create_level_study_group, create_role_employee, create_role_user, force_user_language_to_english,
+    next_student_id,
+)
 
 
 @tagged('post_install', '-at_install')
@@ -65,3 +68,44 @@ class TestStudentGoogleWorkspaceTour(HttpCase):
         #                   login="admin", watch=True)
         self.start_tour(
             "/odoo", "ems_student_google_workspace_lifecycle", login="admin")
+
+    def test_student_google_password_reset_tour(self):
+        # Issue #478: logged in as the TAC team, the least-privileged role allowed to reset.
+        self.env.company.write({
+            'google_ws_enabled': True, 'google_ws_dry_run': True, 'google_ws_domain': 'elpuig.xeill.net',
+        })
+        tac = create_role_user(self, 'tac', 'test_tac_gw_reset_tour', name='TAC Reset Tour')
+        student = self._seed_student('GW Student Reset', student_email='gw.reset@elpuig.xeill.net')
+        self.env['ems.student.document'].create({
+            'partner_id': student.id, 'doc_type': 'google_credentials', 'status': 'approved',
+        })
+        # The real delivery runs (new document + welcome email, whose transport is mocked above);
+        # only the PDF rendering is skipped.
+        with patch.object(type(self.env['ir.actions.report']), '_render_qweb_pdf',
+                          return_value=(b'%PDF-1.4 x', 'pdf')):
+            self.start_tour(f"/odoo/res.partner/{student.id}", "ems_student_google_password_reset",
+                            login=tac.login)
+        documents = self.env['ems.student.document'].search([('partner_id', '=', student.id)])
+        self.assertEqual(sorted(documents.mapped('status')), ['approved', 'cancelled'])
+
+    def test_student_google_password_reset_tutor_tour(self):
+        # Issue #490: the tutor is now the least-privileged role allowed to reset, and the one
+        # the button's per-record can_reset_google_password actually gates.
+        self.env.company.write({
+            'google_ws_enabled': True, 'google_ws_dry_run': True, 'google_ws_domain': 'elpuig.xeill.net',
+        })
+        tutor_user = create_role_user(self, 'tutor', 'test_tutor_gw_reset_tour', name='Tutor Reset Tour')
+        tutor = create_role_employee(self, tutor_user)
+        __, __, group = create_level_study_group(self, 'GWT', group={'tutor_id': tutor.id})
+        student = self._seed_student(
+            'GW Student Reset Tutor', student_email='gw.reset.tutor@elpuig.xeill.net',
+            main_group_id=group.id)
+        self.env['ems.student.document'].create({
+            'partner_id': student.id, 'doc_type': 'google_credentials', 'status': 'approved',
+        })
+        with patch.object(type(self.env['ir.actions.report']), '_render_qweb_pdf',
+                          return_value=(b'%PDF-1.4 x', 'pdf')):
+            self.start_tour(f"/odoo/res.partner/{student.id}",
+                            "ems_student_google_password_reset_tutor", login=tutor_user.login)
+        documents = self.env['ems.student.document'].search([('partner_id', '=', student.id)])
+        self.assertEqual(sorted(documents.mapped('status')), ['approved', 'cancelled'])

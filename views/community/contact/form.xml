@@ -47,16 +47,29 @@
                 <xpath expr="//sheet" position="before">
                     <header>
                         <field name="google_ws_state" invisible="1"/>
+                        <field name="can_reset_google_password" invisible="1"/>
                         <button name="action_create_google_account" type="object"
                                 string="Create Google account"
                                 class="btn-secondary"
                                 invisible="google_ws_state != 'none'"
-                                groups="ems.group_secretary,ems.group_academic_admin"/>
+                                groups="ems.group_secretary,ems.group_academic_admin,ems.group_tac"/>
                         <button name="action_suspend_google_account" type="object"
                                 string="Suspend Google account"
                                 class="btn-secondary"
                                 invisible="google_ws_state != 'active'"
-                                groups="ems.group_secretary,ems.group_academic_admin"/>
+                                groups="ems.group_secretary,ems.group_academic_admin,ems.group_tac"/>
+                        <!-- Not the secretary: they only create accounts, as part of enrolling
+                             a student (issue #478). Tutors reset their own students' password
+                             (issue #490); group_tutor is what the chiefs above them imply, but
+                             group membership alone does not say *whose* tutor the user is - hence
+                             can_reset_google_password, which action_reset_google_password()
+                             re-checks server-side. -->
+                        <button name="action_reset_google_password" type="object"
+                                string="Reset Google password"
+                                class="btn-secondary"
+                                invisible="google_ws_state != 'active' or not can_reset_google_password"
+                                confirm="This gives the student's Google account a new password: the current one stops working and new credentials are generated. Continue?"
+                                groups="ems.group_academic_admin,ems.group_tac,ems.group_tutor"/>
                         <button name="action_reactivate_google_account" type="object"
                                 string="Reactivate Google account"
                                 class="btn-secondary"
@@ -195,7 +208,10 @@
                             <field name="other_partner_phone" readonly="True"/>
                             <field name="other_partner_mobile" readonly="True"/>
                             <field name="other_partner_email" readonly="True"/>
+                            <!-- The context makes the relation's unlink() also remove the family
+                                 contact once it is left without any student (issue #470). -->
                             <button name="unlink" type="object" icon="fa-trash" title="Delete relation"
+                                    context="{'ems_remove_orphan_family': True}"
                                     confirm="Are you sure you want to delete this relation? This action cannot be undone."/>
                         </list>
                     </field>
@@ -243,15 +259,16 @@
                                 </div>
                                 <!-- Special educational needs (NEE): benefits-like display.
                                      Editable dropdown for tutor/secretary/admin (of this
-                                     student); read-only badge otherwise. Restricted to
-                                     tutor/secretary/admin, off the portal. -->
-                                <span class="o_form_label" groups="ems.group_tutor,ems.group_secretary,ems.group_academic_admin">Special educational needs</span>
-                                <div class="o_row" groups="ems.group_tutor,ems.group_secretary,ems.group_academic_admin">
+                                     student) and guidance (any student, issue #465); read-only badge
+                                     otherwise. Restricted to those four, off the portal. -->
+                                <span class="o_form_label" groups="ems.group_tutor,ems.group_secretary,ems.group_academic_admin,ems.group_orientation">Special educational needs</span>
+                                <div class="o_row" groups="ems.group_tutor,ems.group_secretary,ems.group_academic_admin,ems.group_orientation">
+                                    <field name="special_needs_readonly" invisible="1"/>
                                     <field name="special_needs" nolabel="1" placeholder="None"
-                                           invisible="read_only_user"/>
-                                    <span class="badge text-bg-danger" invisible="special_needs != 'nee_a' or not read_only_user">NEE-A</span>
-                                    <span class="badge text-bg-warning" invisible="special_needs != 'nee_b' or not read_only_user">NEE-B</span>
-                                    <span class="badge text-bg-secondary" invisible="special_needs or not read_only_user">None</span>
+                                           invisible="special_needs_readonly"/>
+                                    <span class="badge text-bg-danger" invisible="special_needs != 'nee_a' or not special_needs_readonly">NEE-A</span>
+                                    <span class="badge text-bg-warning" invisible="special_needs != 'nee_b' or not special_needs_readonly">NEE-B</span>
+                                    <span class="badge text-bg-secondary" invisible="special_needs or not special_needs_readonly">None</span>
                                 </div>
                             </group>
 
@@ -394,7 +411,7 @@
                         </group>
                     </page>
                     <page name="documentation" string="Documentation" invisible="contact_type != 'student'"
-                          groups="ems.group_academic_admin,ems.group_secretary">
+                          groups="ems.group_academic_admin,ems.group_secretary,ems.group_tutor,ems.group_tac">
                         <field name="document_ids" nolabel="1"
                                context="{'default_partner_id': id}">
                             <list create="0" delete="0"
@@ -428,7 +445,7 @@
                                 <field name="student_id" required="contact_type == 'applicant'"/>
                                 <!-- Plain field so it matches its neighbours; ORM groups keep
                                      it staff-only and off the portal. -->
-                                <field name="special_needs" readonly="read_only_user or is_tutor_readonly"/>
+                                <field name="special_needs" readonly="special_needs_readonly or is_tutor_readonly"/>
                             </group>
                             <group string="Personal data">
                                 <field name="email" widget="email" required="contact_type == 'applicant'"/>

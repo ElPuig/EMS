@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Regenerates the screenshots used by the user manuals.
+"""Regenerates the screenshots used by the Administrator/tutor/family/secretary user manuals.
 
-Not part of the test suite: tagged '-standard', so `./test.sh` never runs it. Run it by hand
-when a documented screen changes its look:
+Tagged '-standard' on purpose (see the NOTE below the imports) so `./test.sh` (no args) and the
+CI shards never run it. Run it by hand when a documented screen changes its look:
 
-    ./test.sh '/ems:TestDocsScreenshots'
+    sudo -u odoo bash -c "odoo -d ems -u ems --test-enable --test-tags='*/ems:TestDocsScreenshots' --stop-after-init -c /etc/odoo/odoo.conf"
 
 It writes PNGs to /tmp/ems_doc_screenshots (override with EMS_SCREENSHOT_DIR) and they are
 then copied into docs/assets/ by hand - the test process runs as the `odoo` user, which has
@@ -16,24 +16,41 @@ its fixtures live in a transaction that is rolled back, so the screenshots show 
 people and nothing from this box's real data - which is what makes them publishable at all
 (see CLAUDE.md, "Screenshots must never expose real personal data"). Each shot is clipped to
 one element for the same reason, plus it is what makes the image readable in a manual.
+
+The actual `_capture()`/`_trim()`/`_appear_code()` machinery lives in
+`tests.common.DocsScreenshotMixin` - shared with the other per-role screenshot files (e.g.
+`test_docs_screenshots_head_of_studies.py`) once a second one needed the exact same methods.
 """
 import base64
-import json
-import os
-from datetime import date
+from datetime import date, datetime
 
-import werkzeug.urls
 from dateutil.relativedelta import relativedelta
 
-from odoo.tests.common import ChromeBrowser, HttpCase, tagged
+from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group, create_role_employee, create_role_user, next_student_id
+from .common import (
+    DocsScreenshotMixin, create_level_study_group, create_role_employee, create_role_user,
+    mock_outgoing_email, next_student_id,
+)
 
-OUTPUT_DIR = os.environ.get('EMS_SCREENSHOT_DIR', '/tmp/ems_doc_screenshots')
 
-
+# NOTE: '-standard' is required, not just historical - it is the ONLY thing keeping this class
+# out of the full, unscoped './test.sh' run. The "fast" shard's own --test-tags expression
+# (scripts/testing/compute_test_shards.py) is built as '/ems,-/ems:TourClassA,...' - a bare
+# '/ems' selector with no explicit tag component implicitly requires the 'standard' tag (Odoo's
+# own TagsSelector, odoo/tests/tag_selector.py: "including /module:class.method implicitly
+# requires 'standard'"), and this file isn't a '*_tour.py' file so the tour-class exclusion list
+# never catches it either. Confirmed empirically 2026-09-16: dropping '-standard' here to make
+# the plain './test.sh ClassName' shorthand work (which needs that SAME 'standard' tag) would
+# silently pull real-browser screenshot regeneration into every normal full-suite run instead -
+# the opposite of what this file needs. Keep '-standard', and use the explicit
+# '*/ems:ClassName' raw invocation above instead (see feedback_screenshot_self_verify_use_
+# chromebrowser_pattern in project memory for the general gotcha).
 @tagged('-standard', 'ems_screenshots', 'post_install', '-at_install')
-class TestDocsScreenshots(HttpCase):
+class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
+    # The invented school day the tutors' justification manual is shot on.
+    JUSTIFIED_DAY = date(2026, 3, 2)
+
     # A tour preparing a shot ends on a filled-in, unsaved form on purpose - that is the state
     # being photographed. Odoo's own switch for it (ChromeBrowser._handle_console skips its
     # end-of-tour dirty-form check when the test case sets this).
@@ -42,7 +59,6 @@ class TestDocsScreenshots(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        os.makedirs(OUTPUT_DIR, exist_ok=True)
         # Catalan: the manuals are read at this centre in Catalan first, so every screen is shot in
         # it - users in ca_ES, and the invented data written in Catalan too.
         cls.secretary = create_role_user(cls, 'secretary', 'doc_shot_secretary', lang='ca_ES',
@@ -141,11 +157,82 @@ class TestDocsScreenshots(HttpCase):
             },
         })
 
+        cls._setup_justifications()
+        cls._setup_google_credentials()
+
+    @classmethod
+    def _setup_justifications(cls):
+        """Two classes of the invented group on JUSTIFIED_DAY - one taught by the tutor, one by a
+        colleague - with every student absent, and a justification already saved for Pau."""
+        # Marking a line as a miss queues family notifications.
+        mock_outgoing_email(cls)
+        colleague = cls.env['hr.employee'].create({'name': 'Laia Docent', 'employee_type': 'teacher'})
+        space = cls.env['ems.space'].create({
+            'code': 'DOC-A', 'name': 'Aula 21',
+            'space_type_id': cls.env.ref('ems.space_type_classroom').id,
+            'work_location_id': cls.env.ref('ems.work_location_main').id,
+        })
+        miss = cls.env.ref('ems.attendance_status_miss')
+        for teacher, start_time in ((cls.group.tutor_id, 9.0), (colleague, 11.0)):
+            template = cls.env['ems.attendance_template'].create({
+                'teacher_ids': [(6, 0, teacher.ids)], 'study_ids': [(6, 0, cls.study.ids)],
+                'subject_id': cls.subject.id, 'group_ids': [(6, 0, cls.group.ids)],
+                'start_date': date(2020, 1, 1), 'end_date': date(2099, 12, 31),
+            })
+            schedule = cls.env['ems.attendance_schedule'].create({
+                'attendance_template_id': template.id, 'weekday': str(cls.JUSTIFIED_DAY.weekday()),
+                'start_time': start_time, 'end_time': start_time + 1, 'space_id': space.id,
+                'student_ids': [(6, 0, cls.students.ids)],
+            })
+            session = cls.env['ems.attendance_session_header'].create({
+                'attendance_schedule_id': schedule.id, 'date': cls.JUSTIFIED_DAY,
+                'mode': 'scheduled', 'session_teacher_id': teacher.id,
+            })
+            for line in session.attendance_session_line_ids:
+                line.status_id = miss
+
+        pau = cls.students[1]
+        cls.justification = cls.env['ems.attendance_justification'].create({
+            'teacher_id': cls.group.tutor_id.id, 'student_id': pau.id,
+            'start_date': datetime(2026, 3, 2, 7, 0), 'end_date': datetime(2026, 3, 2, 13, 0),
+            'attendance_session_line_ids': [(6, 0, cls.env['ems.attendance_session_line'].search([
+                ('student_id', '=', pau.id), ('date', '=', cls.JUSTIFIED_DAY)]).ids)],
+            'notes': 'Visita mèdica',
+        })
+        cls.justification.attachment_ids = cls.env['ir.attachment'].create({
+            'name': 'Justificant_metge.pdf', 'datas': base64.b64encode(b'%PDF-1.4 x'),
+            'res_model': 'ems.attendance_justification', 'res_id': cls.justification.id,
+        })
+        cls.justification_action = cls.env['ir.actions.act_window'].create({
+            'name': 'Justificants', 'res_model': 'ems.attendance_justification',
+            'view_mode': 'list,form', 'domain': [('student_id', 'in', cls.students.ids)],
+        })
+
+    @classmethod
+    def _setup_google_credentials(cls):
+        """A credentials PDF for every invented student (plus a DNI the tutor must not see), and a
+        students list scoped to them, for the tutors' Google credentials manual."""
+        cls.env['ems.student.document'].create([{
+            'partner_id': student.id, 'doc_type': 'google_credentials', 'status': 'approved',
+            'doc_file': base64.b64encode(b'%PDF-1.4 x'),
+            'doc_file_name': f'Credencials_Google_{student.student_id}.pdf',
+        } for student in cls.students] + [{
+            'partner_id': cls.students[0].id, 'doc_type': 'dni', 'status': 'approved',
+        }])
+        # An active Google account, so the TAC team gets the reset button on Marina's form.
+        cls.students[0].student_email = 'marina.exemple@example.com'
+        cls.tac = create_role_user(cls, 'tac', 'doc_shot_tac', lang='ca_ES',
+                                   name='Coordinació TAC', email='tac@example.com')
+        cls.student_list_action = cls.env['ir.actions.act_window'].create({
+            'name': 'Estudiants', 'res_model': 'res.partner', 'view_mode': 'list,form',
+            'domain': [('id', 'in', cls.students.ids)],
+        })
+
     @classmethod
     def _student(cls, name):
         student = cls.env['res.partner'].create({
-            'name': name, 'contact_type': 'student', 'main_group_id': cls.group.id,
-            'student_id': next_student_id(),
+            'name': name, 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': cls.group.id,
             'email': '%s@example.com' % name.split()[0].lower(),
             'birth_date': date.today() - relativedelta(years=19),
         })
@@ -156,111 +243,6 @@ class TestDocsScreenshots(HttpCase):
         })
         order.action_confirm()
         return student
-
-    @staticmethod
-    def _trim(path, margin=6):
-        """Crop the uniform background off the edges - an element's bounding box routinely
-        includes a large empty area (an unfilled list, the rest of a form sheet) that only
-        makes the image smaller in the manual."""
-        from PIL import Image, ImageChops
-        image = Image.open(path).convert('RGB')
-        background = Image.new('RGB', image.size, image.getpixel((image.width - 1, image.height - 1)))
-        box = ImageChops.difference(image, background).getbbox()
-        if not box:
-            return
-        left, top, right, bottom = box
-        image.crop((
-            max(left - margin, 0), max(top - margin, 0),
-            min(right + margin, image.width), min(bottom + margin, image.height),
-        )).save(path)
-
-    @staticmethod
-    def _appear_code(selector):
-        """JS that signals success once `selector` is on the page (plus a beat for the
-        rendering to settle), and fails loudly rather than hanging if it never shows up."""
-        quoted = json.dumps(selector)
-        return """
-            (function () {
-                var attempts = 0;
-                var timer = setInterval(function () {
-                    attempts++;
-                    if (document.querySelector(%s)) {
-                        clearInterval(timer);
-                        setTimeout(function () { console.log('screenshot ready'); }, 700);
-                    } else if (attempts > 100) {
-                        clearInterval(timer);
-                        console.error('never appeared: ' + %s);
-                    }
-                }, 200);
-            })();
-        """ % (quoted, quoted)
-
-    def _capture(self, url_path, selector, filename, login, wait_for=None, padding=8,
-                 click=None, wait_after=None, tour=None):
-        """Load url_path as `login`, wait for `wait_for` (defaults to `selector`), optionally
-        click `click` and wait for `wait_after`, then write a PNG clipped to `selector` into
-        OUTPUT_DIR.
-
-        The click exists for the send assistant: its recipient preview is built by an onchange,
-        which opening the form with defaults does not fire on its own.
-        """
-        # A tour reports success with Odoo's own signal ('tour succeeded', the one start_tour()
-        # waits for); the plain wait for a selector uses ours.
-        browser = ChromeBrowser(self, headless=True,
-                                success_signal='tour succeeded' if tour else 'screenshot ready')
-        try:
-            self.authenticate(login, login, browser=browser)
-            self.cr.flush()
-            self.cr.clear()
-            # A taller viewport than the default 1366x768, set BEFORE navigating so the page
-            # lays out against it: anything below the fold renders as a grey band otherwise,
-            # even with captureBeyondViewport.
-            browser._websocket_request('Emulation.setDeviceMetricsOverride', params={
-                'width': 1400, 'height': 1600, 'deviceScaleFactor': 1, 'mobile': False,
-            })
-            url = werkzeug.urls.url_join(self.base_url(), url_path)
-            browser.navigate_to(url, wait_stop=True)
-            if tour:
-                browser._wait_ready('odoo.isTourReady(%s)' % json.dumps(tour))
-                browser._wait_code_ok(
-                    'odoo.startTour(%s, {stepDelay: 0, keepWatchBrowser: false, debug: false, '
-                    'startUrl: %s, delayToCheckUndeterminisms: 0})'
-                    % (json.dumps(tour), json.dumps(url_path)), timeout=120)
-            else:
-                browser._wait_code_ok(self._appear_code(wait_for or selector), timeout=60)
-            if click:
-                browser._websocket_request('Runtime.evaluate', params={
-                    'expression': 'document.querySelector(%s).click()' % json.dumps(click),
-                })
-                browser._wait_code_ok(self._appear_code(wait_after or selector), timeout=60)
-            rect = browser._websocket_request('Runtime.evaluate', params={
-                'expression': """JSON.stringify((function () {
-                    var el = document.querySelector(%s);
-                    var r = el.getBoundingClientRect();
-                    return {x: r.x, y: r.y, width: r.width, height: r.height};
-                })())""" % json.dumps(selector),
-                'returnByValue': True,
-            })['result']['value']
-            box = json.loads(rect)
-            clip = {
-                'x': max(box['x'] - padding, 0),
-                'y': max(box['y'] - padding, 0),
-                'width': box['width'] + padding * 2,
-                'height': box['height'] + padding * 2,
-                'scale': 1,
-            }
-            png = browser._websocket_request('Page.captureScreenshot', params={
-                'clip': clip, 'captureBeyondViewport': True,
-            }, timeout=30.0)['data']
-            path = os.path.join(OUTPUT_DIR, filename)
-            with open(path, 'wb') as handle:
-                handle.write(base64.b64decode(png))
-            self._trim(path)
-            self.assertGreater(os.path.getsize(path), 2000, "%s looks empty" % filename)
-            self._logger.info("Wrote %s", path)
-        finally:
-            browser.stop()
-            self._wait_remaining_requests()
 
     def test_capture_manual_screenshots(self):
         self._capture(
@@ -294,6 +276,63 @@ class TestDocsScreenshots(HttpCase):
             'authorizations-portal.png',
             login='doc_shot_portal',
             wait_for='#portal_authorizations .ems-auth-answer',
+        )
+
+    def test_capture_tutor_justification_screenshots(self):
+        self._capture(
+            '/odoo/action-%d' % self.justification_action.id,
+            '.o_content', 'justificants-01-llista.png',
+            login='doc_shot_tutor',
+            wait_for='.o_list_renderer .o_data_row',
+        )
+        self._capture(
+            '/odoo/action-%d/new' % self.justification_action.id,
+            '.o_form_sheet', 'justificants-02-nou.png',
+            login='doc_shot_tutor',
+            tour='ems_doc_shot_tutor_justification',
+        )
+        # Third tab of the notebook: Affected sessions, Affected teachers, Attached files, Notes.
+        self._capture(
+            '/odoo/action-%d/%d' % (self.justification_action.id, self.justification.id),
+            '.o_form_sheet', 'justificants-03-adjunts.png',
+            login='doc_shot_tutor',
+            wait_for='.o_form_sheet .o_notebook',
+            click='.o_notebook .nav-item:nth-child(3) .nav-link',
+            wait_after=".o_field_widget[name='attachment_ids'] .o_data_row",
+        )
+
+    def test_capture_tutor_google_credentials_screenshots(self):
+        self._capture(
+            '/odoo/action-%d/%d' % (self.student_list_action.id, self.students[0].id),
+            '.o_notebook', 'credencials-google-01-documentacio.png',
+            login='doc_shot_tutor',
+            wait_for=".o_notebook .nav-link[name='documentation']",
+            click=".o_notebook .nav-link[name='documentation']",
+            wait_after=".o_field_widget[name='document_ids'] .o_data_row a",
+        )
+        # The Actions dropdown is an overlay outside the list's own container, hence the body.
+        self._capture(
+            '/odoo/action-%d' % self.student_list_action.id,
+            'body', 'credencials-google-02-accions.png',
+            login='doc_shot_tutor',
+            tour='ems_doc_shot_tutor_google_credentials',
+            max_height=380,
+        )
+        # Written to the same folder; this one goes to docs/assets/admin/.
+        self._capture(
+            '/odoo/action-%d/%d' % (self.student_list_action.id, self.students[0].id),
+            '.o_form_view', 'compte-google-alumne-capcalera.png',
+            login='doc_shot_tac',
+            wait_for=".o_form_statusbar button[name='action_reset_google_password']",
+            max_height=200,
+        )
+        # The same header seen by the group's tutor: the reset button and nothing else (#490).
+        self._capture(
+            '/odoo/action-%d/%d' % (self.student_list_action.id, self.students[0].id),
+            '.o_form_view', 'credencials-google-03-restablir.png',
+            login='doc_shot_tutor',
+            wait_for=".o_form_statusbar button[name='action_reset_google_password']",
+            max_height=200,
         )
 
     def test_capture_convalidation_screenshots(self):

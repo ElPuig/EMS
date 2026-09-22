@@ -2,6 +2,7 @@
 
 from unittest.mock import MagicMock, patch
 
+from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
 from .common import create_level_study_group, make_synchronous_run_in_thread, next_student_id
@@ -74,6 +75,19 @@ class TestLimesurveyRecipient(TransactionCase):
     def test_action_restore_returns_false_without_student(self):
         recipient = self._recipient()
         self.assertFalse(recipient.action_restore())
+
+    # -- _check_email_format -----------------------------------------------------
+
+    def test_email_invalid_format_raises(self):
+        # Regression (issue reported 2026-09-16): this field is explicitly meant to be
+        # editable by hand ("used to manually add recipients") - an Amazon SES suspected-spam
+        # alert traced back to a phone number stored here instead of an actual address.
+        with self.assertRaises(ValidationError):
+            self._recipient(email='612345678')
+
+    def test_email_empty_does_not_raise(self):
+        recipient = self._recipient(email=False)
+        self.assertFalse(recipient.email)
 
     # -- create() manual-state autofill -----------------------------------------
 

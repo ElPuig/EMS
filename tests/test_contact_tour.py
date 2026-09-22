@@ -1,6 +1,9 @@
 from odoo.tests import tagged, HttpCase
 
-from .common import create_level_study_group, create_role_user, force_user_language_to_english, next_student_id
+from .common import (
+    create_level_study_group, create_role_employee, create_role_user, force_user_language_to_english,
+    next_student_id,
+)
 
 
 @tagged('post_install', '-at_install')
@@ -57,3 +60,25 @@ class TestContactTour(HttpCase):
         # the least-privileged role that registers students.
         secretary = create_role_user(self, 'secretary', 'test_secretary_student_id_tour', name='Secretary IDALU Tour')
         self.start_tour("/odoo", "ems_contact_new_student_requires_student_id", login=secretary.login)
+
+    def test_contact_tutor_deletes_family_contact_tour(self):
+        # Issue #470: a tutor hit an AccessError deleting a family contact of their own student
+        # from the Contacts & Addresses tab. Logged in as that tutor - the only role the bug
+        # affected (secretary and Head of Studies already held the Contact Creation group).
+        tutor_user = create_role_user(self, 'tutor', 'test_tutor_contact_tour', name='Tutor Contact Tour')
+        tutor = create_role_employee(self, tutor_user)
+        __, __, group = create_level_study_group(self, 'TCNF', group={'tutor_id': tutor.id})
+        student = self.env['res.partner'].create({
+            'name': '0000 Tutor Contact Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': group.id,
+        })
+        family = self.env['res.partner'].create({'name': 'Tutor Tour Mother', 'contact_type': 'family'})
+        self.env['res.partner.relation'].create({
+            'left_partner_id': family.id, 'type_id': self.env.ref('ems.relation_type_father').id,
+            'right_partner_id': student.id,
+        })
+
+        self.start_tour(f"/odoo/res.partner/{student.id}", "ems_contact_tutor_deletes_family_contact",
+                        login=tutor_user.login)
+
+        self.assertFalse(family.exists(), "the family contact was left orphaned, so it is removed too")

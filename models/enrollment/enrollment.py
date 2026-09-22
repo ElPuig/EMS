@@ -5,6 +5,7 @@ from psycopg2 import IntegrityError
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools import format_date
 from odoo.addons.mail.tools.discuss import Store
 
 class SaleOrder(models.Model):
@@ -980,3 +981,68 @@ class SaleOrder(models.Model):
         inv.write(vals)
         inv.action_post()
         return inv
+
+    # ------------------------------------------------------------------
+    # Portal: payment status (issue #491)
+    # ------------------------------------------------------------------
+    def _ems_enrollment_invoice(self):
+        """The enrollment's live posted invoice, read as superuser.
+
+        A portal user cannot read account.move at all, so every portal-facing reader of the
+        invoice goes through here and hands out plain values instead of the record itself.
+        """
+        self.ensure_one()
+        return self.sudo().invoice_ids.filtered(
+            lambda move: move.move_type == 'out_invoice' and move.state == 'posted')[:1]
+
+    def _ems_portal_installments(self):
+        """One plain dict per installment of the enrollment invoice, for the portal.
+
+        An installment counts as paid once its receivable line is fully reconciled, so a
+        deferred plan correctly reads "first paid, second pending" while the invoice as a
+        whole is still 'partial'. Returns [] when there is no posted invoice yet, which is
+        what makes the portal fall back to the payment plan's own description.
+        """
+        self.ensure_one()
+        invoice = self._ems_enrollment_invoice()
+        if not invoice:
+            return []
+        lines = invoice._ems_installment_lines()
+        return [{
+            'number': number,
+            'count': len(lines),
+            'due_date': line.date_maturity,
+            # Built here rather than in the template: a label assembled out of QWeb text nodes
+            # is exported as separate word fragments ("Payment", "of", "(due"), which cannot be
+            # translated properly.
+            'label': self._ems_installment_label(number, len(lines), line.date_maturity),
+            'amount': abs(line.amount_currency),
+            'residual': abs(line.amount_residual_currency),
+            'paid': line.reconciled or invoice.currency_id.is_zero(line.amount_residual),
+            'currency': invoice.currency_id,
+        } for number, line in enumerate(lines, start=1)]
+
+    def _ems_installment_label(self, number, count, due_date):
+        """'Payment 1 of 2 (due 15/07/2026)', in the reader's own language."""
+        period = _("Payment %(number)s of %(count)s", number=number, count=count) if count > 1 \
+            else _("Single payment")
+        if not due_date:
+            return period
+        return _("%(period)s (due %(due_date)s)",
+                 period=period, due_date=format_date(self.env, due_date))
+
+    def _ems_portal_message_domain(self):
+        """The messages the enrollment page shows in its own communications block.
+
+        Deliberately narrower than /my/comunicaciones (which takes any non-note message on the
+        student's enrollments): the conversation with the secretary's office, plus the payment
+        notifications posted by account.move._ems_notify_enrollment_payment().
+        """
+        self.ensure_one()
+        subtypes = self.env.ref('mail.mt_comment') | self.env.ref('ems.mt_enrollment_payment')
+        return [
+            ('model', '=', 'sale.order'),
+            ('res_id', '=', self.id),
+            ('message_type', '=', 'comment'),
+            ('subtype_id', 'in', subtypes.ids),
+        ]

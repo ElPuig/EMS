@@ -57,6 +57,15 @@ class TestStudentDataReaderTour(HttpCase):
         self.start_tour(f"/odoo/res.partner/{self.student.id}", "ems_guidance_student_file",
                         login="tour_guidance")
 
+    def test_guidance_edits_special_needs_tour(self):
+        """Issue #465: guidance sets the special educational needs of a student it does not tutor."""
+        self.assertFalse(self.student.special_needs)
+
+        self.start_tour(f"/odoo/res.partner/{self.student.id}", "ems_guidance_special_needs",
+                        login="tour_guidance")
+
+        self.assertEqual(self.student.special_needs, 'nee_a')
+
     def test_teacher_academic_history_tour(self):
         """The widened scope: a plain teacher reaches the Academic history menu and its records."""
         self.assertFalse(

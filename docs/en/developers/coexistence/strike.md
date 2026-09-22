@@ -62,7 +62,8 @@ flowchart TD
 - **Notification** (`_notify`): `_collect_recipients_by_kind()` reuses the exact minor/`auth_share` authorization rule already used by `ems.attendance_issue_status`/`ems.notice`, but keeps the three recipient kinds separate instead of flattening them — student email always; family emails from `student.relation_all_ids` filtered to `contact_type == 'family'`, only if `not student.is_adult or student.auth_share` **and** `strike_family_notification_mode` allows it (`'all'`, or `'kicked_out'` with this strike's `kicked_out = True`); the group tutor's email (`student.tutor_id.email`, via the existing `res.partner.tutor_id` related field) — student and tutor are never gated by `strike_family_notification_mode`. Each kind gets its own `mail.template` (`ems.mail_strike_notification_student` / `_family` / `_tutor`, all three defined in `mails/coexistence/strike_notification.xml`) so the wording matches who's actually reading it (e.g. the student's own copy skips the redundant "Student:" row, the tutor's copy points to the Convivencia list instead of "reply to the teacher"). All three always render a "Kicked out of class: Yes/No" line (`object.kicked_out`), regardless of the value, so the recipient knows either way. One `send_mail(force_send=True, email_values={'email_to': ...})` call per recipient address, in that recipient's own language — same pattern as `ems_attendance_issue_status.send_notification()`.
 - **Escalation** (`_check_escalation`): fires every time `strike_count % strike_escalation_threshold == 0` (repeating, not one-time — e.g. at 3, 6, 9... strikes with the default threshold). Matching coordinators are resolved by walking `ems.role_coexistence.employee_ids` (bridged from `hr.employee.public` to `hr.employee`) and comparing each coordinator's `find_head_of_studies()` result to the issuing teacher's — only coordinators in the same HoS/DHoS branch are notified.
 - **Read**: see Access Control below.
-- **Update/Delete**: only Administrators (`ems.group_academic_admin`).
+- **Update**: only Administrators (`ems.group_academic_admin`).
+- **Delete** (issue #464): Administrators, Head of Studies / Deputy Head of Studies / Director, and Coexistence coordinators can each delete any strike centre-wide — see Access Control below.
 
 ---
 
@@ -71,11 +72,14 @@ flowchart TD
 | Role | Create | Read | Write | Delete | Group/Rule |
 |------|:------:|:----:|:-----:|:------:|-------------|
 | Administrator | ✓ | ✓ (all) | ✓ | ✓ | `ems.group_academic_admin` |
-| Coexistence Manager/Administrator | — | ✓ (all, centre-wide) | — | — | `ems.group_coexistence` / `ems.group_coexistence_admin` |
+| Head of Studies / Deputy Head of Studies / Director | ✓ (own issued + tutees, via the teacher/tutor chain) | ✓ (all, centre-wide) | — | ✓ (all, centre-wide) | `ems.group_head_of_studies` (`group_director`/`group_academic_admin` both imply it) |
+| Coexistence Manager/Administrator | — | ✓ (all, centre-wide) | — | ✓ (all, centre-wide) | `ems.group_coexistence` / `ems.group_coexistence_admin` |
 | Tutor | ✓ | ✓ (own issued + tutees) | — | — | `ems.group_tutor` (implies `group_teacher`) |
 | Teacher | ✓ | ✓ (own issued only) | — | — | `ems.group_teacher` |
 
-Record rules: `security/rules/coexistence.xml`. `ems.group_coexistence` is a **new, independent security group family** (its own `ir.module.category`, `category_coexistence`), not nested under the teacher/tutor/HoS hierarchy — coexistence coordinators can read every strike centre-wide regardless of branch (the HoS/DHoS branch matching logic is only used to route the *escalation email*, not to gate read access). `ems.role_coexistence.group_id` is wired to `ems.group_coexistence`, and `ems.role_coexistence.unipersonal` is `false` — multiple coexistence coordinators (one per HoS/DHoS branch) are expected.
+Record rules: `security/rules/coexistence.xml`. `ems.group_coexistence` is a **new, independent security group family** (its own `ir.module.category`, `category_coexistence`), not nested under the teacher/tutor/HoS hierarchy — coexistence coordinators can read and delete every strike centre-wide regardless of branch (the HoS/DHoS branch matching logic is only used to route the *escalation email*, not to gate read/delete access). `ems.role_coexistence.group_id` is wired to `ems.group_coexistence`, and `ems.role_coexistence.unipersonal` is `false` — multiple coexistence coordinators (one per HoS/DHoS branch) are expected.
+
+Head of Studies' centre-wide **read** actually comes from `group_student_data_reader` (implied by `group_head_of_studies`, see `security/rules/student_data_reader.xml`'s `rule_ems_strike_student_data_reader`), not from a strike-specific rule — the same technical group that gives HoS/DHoS/Director centre-wide read access to every student's data in general (issue #448). `rule_strike_head_of_studies` (`security/rules/coexistence.xml`) only adds the **delete** permission on top, mirroring `rule_contact_head_of_studies` (`security/rules/contacts.xml`).
 
 ---
 

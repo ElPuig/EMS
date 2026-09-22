@@ -8,7 +8,7 @@ from odoo import Command
 from odoo.tests import tagged
 from odoo.tests.common import HttpCase
 
-from .common import mock_outgoing_email
+from .common import create_role_user, mock_outgoing_email
 
 
 @tagged('post_install', '-at_install')
@@ -23,6 +23,13 @@ class TestAbsenceTour(HttpCase):
         # stopped being found. Pin the language for the run rather than hardcoding a translated
         # label, which would break again the next time a translation is touched.
         cls.env.ref('base.user_admin').lang = 'en_US'
+        # The two approvers, each logging in as themselves: 'admin' holds the Director group on
+        # this centre's database, and Direction no longer gets the Head's Approve/Refuse buttons
+        # on somebody else's request (hr.leave._compute_can_approve).
+        # An e-mail each, because approving posts the outcome to the chatter as them.
+        create_role_user(cls, 'head_of_studies', 'absence_tour_hos', email='absence_tour_hos@example.com')
+        create_role_user(cls, 'director', 'absence_tour_direction',
+                         email='absence_tour_direction@example.com')
         employee = cls.env['hr.employee'].create({
             'name': 'Tour Absent Teacher', 'employee_type': 'teacher',
         })
@@ -70,8 +77,28 @@ class TestAbsenceTour(HttpCase):
         }).id)]
         documented.action_approve()
 
+        # Approved by the Head and waiting for Direction - what Direction's own filter lists.
+        reviewable = cls.env['hr.leave'].create({
+            'employee_id': cls.env['hr.employee'].create({
+                'name': 'Tour Reviewed Teacher', 'employee_type': 'teacher',
+            }).id,
+            'holiday_status_id': cls.env.ref('ems.leave_type_justified').id,
+            'request_date_from': day + timedelta(days=7),
+            'request_date_to': day + timedelta(days=7),
+            'ems_full_day': True,
+            'ems_submitted': True,
+            'ems_responsible_declaration': True,
+        })
+        reviewable.action_approve()
+
     def test_absence_request_tour(self):
-        self.start_tour("/odoo", "ems_absence_request", login="admin")
+        self.start_tour("/odoo", "ems_absence_request", login="absence_tour_direction")
+
+    def test_absence_direction_review_tour(self):
+        self.start_tour("/odoo", "ems_absence_direction_review", login="absence_tour_direction")
+
+    def test_absence_head_approval_tour(self):
+        self.start_tour("/odoo", "ems_absence_head_approval", login="absence_tour_hos")
 
     def test_absence_dashboard_tour(self):
         self.start_tour("/odoo", "ems_absence_dashboard", login="admin")
@@ -89,4 +116,4 @@ class TestAbsenceTour(HttpCase):
         self.start_tour("/odoo", "ems_absence_justification", login="admin")
 
     def test_absence_refuse_confirm_tour(self):
-        self.start_tour("/odoo", "ems_absence_refuse_confirm", login="admin")
+        self.start_tour("/odoo", "ems_absence_refuse_confirm", login="absence_tour_hos")

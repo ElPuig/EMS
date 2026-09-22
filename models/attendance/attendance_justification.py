@@ -71,16 +71,15 @@ class EmsAttendanceJustification(models.Model):
 
     @api.onchange("teacher_id")
     def _onchange_allowed_student_ids(self):
+        # The students of every group the justifying teacher acts as tutor of: their own, or those
+        # of the tutors below them (hr.employee.tutor_scope_user_ids, issue #483).
+        is_admin = self.env.user.has_group('ems.group_academic_admin')
         for justification in self:
-            allowed = []
-            where = [('contact_type', '=', 'student')]
-
-            students = self.env["res.partner"].search(where)
-            for student in students:
-                if self.env.user.has_group('ems.group_academic_admin') or student.main_group_id in justification.teacher_id.tutorship_ids:
-                    allowed.append(student.id)
-
-            justification.allowed_student_ids = [(6, 0, allowed)]
+            domain = [('contact_type', '=', 'student')]
+            if not is_admin:
+                domain.append(('main_group_id.tutor_id.tutor_scope_user_ids', '=',
+                               justification.teacher_id.user_id.id))
+            justification.allowed_student_ids = self.env["res.partner"].search(domain)
 
     # NOTE: only fired when adding from the form (so wont be fire), so won't be fired twice when
     # using the regular attendance form.
@@ -90,7 +89,13 @@ class EmsAttendanceJustification(models.Model):
             if justification.student_id.id != False and justification.start_date != False and justification.end_date != False:
                 # NOTE: Because changing dates is allowed, already justified abscences must be included
                 # 		(already justified will fail due overlapping check).
-                statuses = self.env["ems.attendance_session_line"].search([
+                # NOTE: sudo() for the student's tutor (or an admin): most sessions within the period are
+                #       taught by other teachers, whose headers the teacher record rules hide - the search
+                #       below filters on them, so it silently skipped those absences (issue #469).
+                lines = self.env["ems.attendance_session_line"]
+                if justification._check_permissions():
+                    lines = lines.sudo()
+                statuses = lines.search([
                     '|',
                     ("status_id", "=", self.env.ref("ems.attendance_status_miss").id),
                     ("status_id", "=", self.env.ref("ems.attendance_status_justified").id),
@@ -111,7 +116,7 @@ class EmsAttendanceJustification(models.Model):
                             status_ids.append(status.id)
                             # NOTE: shoudl be done with write, direct attribute assignation does not work if the current
                             #		item is beeing created (the ID will be something like NEW_xxxx).
-                            status.write({
+                            status.sudo(False).write({
                                 "attendance_justification_id" : [(4, justification.id)]
                             })
 

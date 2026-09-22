@@ -35,6 +35,15 @@ GEDAC's assigned-study code arrives as `'CFPM    IC10'` (fixed-width preinscript
 
 Numeric xlsx cells round-trip through openpyxl as floats (`'8028047.0'`) — this strips a trailing `.0` for anything that's an integer-valued float, used for RALC, center codes, phone numbers and course numbers alike so the same value compares equal regardless of whether it arrived from xlsx or csv.
 
+## Fixed 2026-09-16 (issue #467): per-row savepoint + email format validation
+
+Same fix, same reasoning as [`ems.student_import_wizard`](student_import_wizard.md#import-flow):
+each row's `_process_row` call is now wrapped in `with self.env.cr.savepoint():` before the
+existing try/except, so a row that fails partway through (most commonly `res.partner`'s own
+`_check_email_format` constraint rejecting a malformed `Correu electrònic` value) is actually
+rolled back instead of leaving a half-created applicant behind despite being reported as an
+error. Covered by `tests/test_applicant_import_wizard.py::test_invalid_email_fails_only_that_row`.
+
 ## Fixed in this pass (2026-07-28)
 
 - **HTML-injection/escaping bug**, the same class already found and fixed in `student_import_wizard.py`/`student_update_wizard.py`: `_build_result_html` interpolated `stats['errors']` (raw exception text) and student/study names directly into HTML with **zero** escaping. Fixed with `markupsafe.Markup(...).format(...)` (auto-escapes plain-`str` args) + `Markup('').join(...)` for the multi-item lists (a plain `''.join()` on `Markup` fragments silently downgrades them back to `str`, causing the *outer* `.format()` call to double-escape — see the other two docs for the same gotcha spelled out in full).

@@ -446,3 +446,47 @@ class TestStudentDataReader(TransactionCase):
     def test_head_of_studies_cannot_write_a_year_record(self):
         with self.assertRaises(AccessError):
             self.year_record.with_user(self.hos_user).write({'study_name': 'nope'})
+
+    # ------------------------------------------------ special educational needs (issue #465)
+
+    def test_orientation_reads_special_needs_of_a_student_it_does_not_tutor(self):
+        self.student.special_needs = 'nee_a'
+        values = self.student.with_user(self.orientation_user).read(['special_needs'])
+        self.assertEqual(values[0]['special_needs'], 'nee_a')
+
+    def test_orientation_edits_special_needs_of_a_student_it_does_not_tutor(self):
+        self.student.with_user(self.orientation_user).write({'special_needs': 'nee_b'})
+        self.assertEqual(self.student.special_needs, 'nee_b')
+
+    def test_orientation_cannot_edit_any_other_student_field(self):
+        with self.assertRaises(AccessError):
+            self.student.with_user(self.orientation_user).write({'phone': '600000000'})
+
+    def test_orientation_cannot_edit_other_fields_along_with_special_needs(self):
+        with self.assertRaises(AccessError):
+            self.student.with_user(self.orientation_user).write({
+                'special_needs': 'nee_b', 'phone': '600000000',
+            })
+
+    def test_orientation_cannot_edit_a_contact_that_is_not_a_student(self):
+        company = self.env['res.partner'].create({'name': 'Test Company (Reader)', 'is_company': True})
+        with self.assertRaises(AccessError):
+            company.with_user(self.orientation_user).write({'special_needs': 'nee_a'})
+
+    def test_orientation_sees_special_needs_editable_on_the_form(self):
+        # special_needs_readonly is a default()-only field, evaluated when the form loads - so,
+        # like the read_only_user tests above, check the method that computes it.
+        self.assertFalse(self.student.with_user(self.orientation_user)._get_special_needs_readonly())
+        self.assertTrue(self.student.with_user(self.plain_teacher_user)._get_special_needs_readonly())
+
+    def test_coexistence_still_cannot_read_special_needs(self):
+        with self.assertRaises(AccessError):
+            self.student.with_user(self.coexistence_user).read(['special_needs'])
+
+    def test_plain_teacher_still_cannot_read_special_needs(self):
+        with self.assertRaises(AccessError):
+            self.student.with_user(self.plain_teacher_user).read(['special_needs'])
+
+    def test_tutor_still_edits_other_fields_of_its_tutees(self):
+        self.student.with_user(self.tutor_user).write({'phone': '600000001'})
+        self.assertEqual(self.student.phone, '600000001')

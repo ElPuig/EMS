@@ -74,6 +74,34 @@ registry.category("web_tour.tours").add("ems_guidance_student_file", {
     ],
 });
 
+// Issue #465: the special educational needs typology is the guidance team's own subject, so on a
+// student it does not tutor the Student data tab offers the editable dropdown, not the read-only
+// badge every other teacher gets. Opened by URL, like ems_guidance_student_file.
+registry.category("web_tour.tours").add("ems_guidance_special_needs", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_notebook .nav-link:contains('Student data')",
+            content: "Open the Student data tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_notebook .tab-pane.active .o_field_widget[name='special_needs'] select",
+            content: "Set NEE-A",
+            run: "selectByLabel NEE-A",
+        },
+        {
+            trigger: ".o_form_button_save",
+            content: "Save",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_button_save:not(:visible)",
+            content: "Saved without an access error",
+        },
+    ],
+});
+
 // The widened scope of the same issue: the academic history is necessary information for the
 // whole teaching community, so a plain teacher who tutors nobody reaches both the menu and the
 // records behind it.

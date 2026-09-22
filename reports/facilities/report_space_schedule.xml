@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="action_report_space_schedule" model="ir.actions.report">
+            <field name="name">Classroom Schedule</field>
+            <field name="model">ems.space</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_space_schedule</field>
+            <field name="report_file">ems.report_space_schedule</field>
+            <field name="print_report_name">'Classroom Schedule - %s - %s' % (object.name, object.env.company.current_course_id.name)</field>
+            <field name="binding_model_id" ref="model_ems_space"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="report_space_schedule">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="space">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <style>
+                                .gs-group-title { font-size: 22px; margin-bottom: 2px; }
+                                .gs-tutor-title { font-size: 14px; font-weight: 500; color: #444; margin: 0 0 14px 0; }
+                            </style>
+
+                            <h1 class="gs-group-title"><span t-field="space.name"/> (<span t-field="space.env.company.current_course_id.name"/>)</h1>
+                            <h2 t-if="space.work_location_id" class="gs-tutor-title">Location: <span t-field="space.work_location_id.name"/></h2>
+
+                            <t t-set="lines" t-value="space.get_schedule_report_lines()"/>
+                            <t t-if="lines">
+                                <t t-call="ems.schedule_report_grid">
+                                    <t t-set="summary" t-value="space.get_subject_teachers_summary()"/>
+                                </t>
+                            </t>
+                            <p t-else="">No schedule available for this classroom.</p>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

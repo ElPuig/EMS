@@ -5,7 +5,14 @@ identically across dozens of test files)."""
 
 import base64
 import itertools
+import json
+import os
+import time
 from unittest.mock import patch
+
+import werkzeug.urls
+
+from odoo.tests.common import ChromeBrowser
 
 
 _test_student_id_sequence = itertools.count(1)
@@ -155,6 +162,26 @@ def create_role_employee(cls, user, employee_type='teacher', **overrides):
     return cls.env['hr.employee'].create(vals)
 
 
+def create_head_of_studies_branch(cls, prefix, tutor_employee):
+    """Hangs `tutor_employee` below a Department Chief who hangs below a new Head of Studies
+    (parent_id set directly, as the department cascade would), plus the people who must stay
+    out of that tutor's scope: another Department Chief under the same Head of Studies and a
+    second Head of Studies with nothing below them (issue #483). Sets cls.head_of_studies,
+    cls.department_chief, cls.other_department_chief and cls.other_head_of_studies (res.users)."""
+    key = prefix.lower()
+    cls.head_of_studies = create_role_user(cls, 'head_of_studies', f'test_hos_{key}', name=f'{prefix} Head of Studies')
+    head = create_role_employee(cls, cls.head_of_studies)
+    cls.department_chief = create_role_user(
+        cls, 'department_chief', f'test_chief_{key}', name=f'{prefix} Department Chief')
+    tutor_employee.parent_id = create_role_employee(cls, cls.department_chief, parent_id=head.id)
+    cls.other_department_chief = create_role_user(
+        cls, 'department_chief', f'test_other_chief_{key}', name=f'{prefix} Other Department Chief')
+    create_role_employee(cls, cls.other_department_chief, parent_id=head.id)
+    cls.other_head_of_studies = create_role_user(
+        cls, 'head_of_studies', f'test_other_hos_{key}', name=f'{prefix} Other Head of Studies')
+    create_role_employee(cls, cls.other_head_of_studies)
+
+
 def create_student_academic_file(cls, prefix, group, course=None, student=None):
     """Seeds the data the student form's Secretary and Academic history tabs render.
 
@@ -208,3 +235,177 @@ def create_student_academic_file(cls, prefix, group, course=None, student=None):
     })
     return {'student': student, 'course': course, 'order': order, 'auth_template': template,
             'authorization': authorization, 'benefit': benefit, 'year_record': year_record}
+
+
+class DocsScreenshotMixin:
+    """Shared `_capture()` machinery for regenerating user-manual screenshots - extracted from
+    `tests/test_docs_screenshots.py`'s original, private version once a second, per-role file
+    needed the exact same method (see docs/en/developers/shared/testing.md). Mix into an
+    `odoo.tests.common.HttpCase` subclass (needs `self.authenticate`, `self.cr`, `self.base_url()`,
+    `self._wait_remaining_requests()`, `self._logger` - all HttpCase-provided).
+
+    Writes PNGs to /tmp/ems_doc_screenshots (override with EMS_SCREENSHOT_DIR) - copy them into
+    docs/assets/<role>/ by hand afterwards (the test runs as the `odoo` user, which has no write
+    access to the repository). Every screenshot must use fixture data created in the test's own
+    (rolled-back) transaction, never real data from this box - see CLAUDE.md's "Screenshots must
+    never expose real personal data"."""
+
+    OUTPUT_DIR = os.environ.get('EMS_SCREENSHOT_DIR', '/tmp/ems_doc_screenshots')
+
+    @staticmethod
+    def _trim(path, margin=6):
+        """Crop the uniform background off the edges - an element's bounding box routinely
+        includes a large empty area (an unfilled list, the rest of a form sheet) that only
+        makes the image smaller in the manual."""
+        from PIL import Image, ImageChops
+        image = Image.open(path).convert('RGB')
+        background = Image.new('RGB', image.size, image.getpixel((image.width - 1, image.height - 1)))
+        box = ImageChops.difference(image, background).getbbox()
+        if not box:
+            return
+        left, top, right, bottom = box
+        image.crop((
+            max(left - margin, 0), max(top - margin, 0),
+            min(right + margin, image.width), min(bottom + margin, image.height),
+        )).save(path)
+
+    @staticmethod
+    def _appear_code(selector):
+        """JS that signals success once `selector` is on the page (plus a beat for the
+        rendering to settle), and fails loudly rather than hanging if it never shows up."""
+        quoted = json.dumps(selector)
+        return """
+            (function () {
+                var attempts = 0;
+                var timer = setInterval(function () {
+                    attempts++;
+                    if (document.querySelector(%s)) {
+                        clearInterval(timer);
+                        setTimeout(function () { console.log('screenshot ready'); }, 700);
+                    } else if (attempts > 100) {
+                        clearInterval(timer);
+                        console.error('never appeared: ' + %s);
+                    }
+                }, 200);
+            })();
+        """ % (quoted, quoted)
+
+    @staticmethod
+    def _poll_for(browser, selector, timeout=20, interval=0.2, settle=0.7):
+        """Python-side equivalent of `_appear_code`, for a wait that happens after the first
+        one in the same browser instance - see the comment at its call site for why the
+        browser's own success-future can't be reused for this."""
+        deadline = time.time() + timeout
+        quoted = json.dumps(selector)
+        while time.time() < deadline:
+            found = browser._websocket_request('Runtime.evaluate', params={
+                'expression': 'document.querySelector(%s) !== null' % quoted,
+                'returnByValue': True,
+            })['result']['value']
+            if found:
+                time.sleep(settle)
+                return
+            time.sleep(interval)
+        raise TimeoutError("never appeared: %s" % selector)
+
+    def _capture(self, url_path, selector, filename, login=None, wait_for=None, padding=8,
+                 click=None, run=None, wait_after=None, tour=None, max_height=None):
+        """Load url_path as `login`, wait for `wait_for` (defaults to `selector`), optionally
+        click `click` (or run arbitrary JS via `run`) and wait for `wait_after`, then write a
+        PNG clipped to `selector` into OUTPUT_DIR.
+
+        The click exists for a send/confirm assistant whose preview is built by an onchange,
+        which opening the form with defaults does not fire on its own. max_height cuts the shot
+        short, for a selector as big as the page whose empty lower part _trim() can't tell apart.
+        login=None skips authentication entirely, for a page shown before signing in (e.g. the
+        login screen itself) - there is no session to set up. `run` is a raw JS expression (or
+        list of them, paired with `wait_after` the same way `click` is) for an interaction a
+        plain `.click()` can't express - e.g. setting a <select>'s value and dispatching its own
+        change event, needed for an OWL component that reacts to 'change' rather than a click.
+        """
+        os.makedirs(self.OUTPUT_DIR, exist_ok=True)
+        # A tour reports success with Odoo's own signal ('tour succeeded', the one start_tour()
+        # waits for); the plain wait for a selector uses ours.
+        browser = ChromeBrowser(self, headless=True,
+                                success_signal='tour succeeded' if tour else 'screenshot ready')
+        try:
+            if login:
+                self.authenticate(login, login, browser=browser)
+            else:
+                # No session means no res.users.lang to render against - every other capture
+                # gets Catalan from its fixture user's own lang, this is the one path that needs
+                # it forced onto the request itself (the login page honours Accept-Language, not
+                # the ?lang= query param - confirmed empirically).
+                browser._websocket_request('Network.enable')
+                browser._websocket_request('Network.setExtraHTTPHeaders',
+                                           params={'headers': {'Accept-Language': 'ca'}})
+            self.cr.flush()
+            self.cr.clear()
+            # A taller viewport than the default 1366x768, set BEFORE navigating so the page
+            # lays out against it: anything below the fold renders as a grey band otherwise,
+            # even with captureBeyondViewport.
+            browser._websocket_request('Emulation.setDeviceMetricsOverride', params={
+                'width': 1400, 'height': 1600, 'deviceScaleFactor': 1, 'mobile': False,
+            })
+            url = werkzeug.urls.url_join(self.base_url(), url_path)
+            browser.navigate_to(url, wait_stop=True)
+            if tour:
+                browser._wait_ready('odoo.isTourReady(%s)' % json.dumps(tour))
+                browser._wait_code_ok(
+                    'odoo.startTour(%s, {stepDelay: 0, keepWatchBrowser: false, debug: false, '
+                    'startUrl: %s, delayToCheckUndeterminisms: 0})'
+                    % (json.dumps(tour), json.dumps(url_path)), timeout=120)
+            else:
+                browser._wait_code_ok(self._appear_code(wait_for or selector), timeout=60)
+            if click or run:
+                # click/run/wait_after each accept either one item or a list, for a sequence of
+                # steps that each need their own settle before the next one fires (e.g. a pivot's
+                # "Expand all" clicked twice, once per row level - found 2026-09-17 capturing the
+                # attendance-reports pivot). click and run are mutually exclusive per call (pick
+                # whichever fits the interaction), not mixed within the same list.
+                steps = run if run else click
+                steps = steps if isinstance(steps, (list, tuple)) else [steps]
+                wait_afters = wait_after if isinstance(wait_after, (list, tuple)) else [wait_after] * len(steps)
+                for step, step_wait in zip(steps, wait_afters):
+                    expression = step if run else 'document.querySelector(%s).click()' % json.dumps(step)
+                    browser._websocket_request('Runtime.evaluate', params={'expression': expression})
+                    # Not a second browser._wait_code_ok(): ChromeBrowser's own success future
+                    # (self._result) is single-use, set once in __init__ and never reset - a SECOND
+                    # call just re-reads the FIRST wait's already-resolved value instead of actually
+                    # waiting again, so it returns near-instantly regardless of whether wait_after's
+                    # own condition is true yet. Harmless for a click whose effect is a synchronous
+                    # DOM update (already rendered by the time this line runs), but silently wrong
+                    # for one that needs a server round-trip (e.g. opening a dialog whose defaults
+                    # come from an onchange) - found 2026-09-17 capturing the "Request Correction"
+                    # wizard, where the rect grab right after used to fail with a null selector
+                    # because the dialog hadn't mounted yet. Poll from Python instead, which has no
+                    # such single-use limitation.
+                    self._poll_for(browser, step_wait or selector)
+            rect = browser._websocket_request('Runtime.evaluate', params={
+                'expression': """JSON.stringify((function () {
+                    var el = document.querySelector(%s);
+                    var r = el.getBoundingClientRect();
+                    return {x: r.x, y: r.y, width: r.width, height: r.height};
+                })())""" % json.dumps(selector),
+                'returnByValue': True,
+            })['result']['value']
+            box = json.loads(rect)
+            clip = {
+                'x': max(box['x'] - padding, 0),
+                'y': max(box['y'] - padding, 0),
+                'width': box['width'] + padding * 2,
+                'height': min(box['height'] + padding * 2, max_height or float('inf')),
+                'scale': 1,
+            }
+            png = browser._websocket_request('Page.captureScreenshot', params={
+                'clip': clip, 'captureBeyondViewport': True,
+            }, timeout=30.0)['data']
+            path = os.path.join(self.OUTPUT_DIR, filename)
+            with open(path, 'wb') as handle:
+                handle.write(base64.b64decode(png))
+            self._trim(path)
+            self.assertGreater(os.path.getsize(path), 2000, "%s looks empty" % filename)
+            self._logger.info("Wrote %s", path)
+        finally:
+            browser.stop()
+            self._wait_remaining_requests()

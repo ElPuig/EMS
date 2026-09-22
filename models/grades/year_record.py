@@ -120,7 +120,14 @@ class EmsStudentYearRecord(models.Model):
 
     @api.model
     def _generate_one(self, student, course, group=None):
-        group = group or student.main_group_id
+        # sudo() the arguments too, not just the model: every caller already reaches this
+        # generator through .sudo() (the operator registering an exit is a secretary, who has
+        # no rights over grades or attendance), but that only elevates self - a student passed
+        # in still carries the caller's own environment, and dereferencing it (group.tutor_id,
+        # an hr.employee the secretary cannot read) fails halfway through the withdrawal.
+        # Issue #492.
+        student = student.sudo()
+        group = (group or student.main_group_id).sudo()
         # A record already frozen is never rewritten from an empty group. Once the
         # transition has run, the student has no main_group_id (step 4b detached it) and
         # its live grade lines are gone (step 8 deleted them, precisely because this
@@ -285,10 +292,31 @@ class EmsStudentYearRecord(models.Model):
             ('ems_course_id', '=', destination_course.id),
             ('state', '=', 'sale')], limit=1)
 
+    # --- grade reviews (issue #493) ---
+
+    def grade_based_result(self):
+        """The academic result the frozen subjects yield: 'full' when every subject is passed,
+        'partial' otherwise. Used by the review wizard to propose the new result after a
+        correction, never to write it silently.
+
+        'withdrawn' and 'repeating' are returned untouched: they do not come from the grades but
+        from the exit and from the destination enrollment (see _academic_result), so a grade review
+        on a subject cannot resolve them. An empty record keeps its current result too — there
+        is nothing to derive it from."""
+        self.ensure_one()
+        if self.academic_result in ('withdrawn', 'repeating') or not self.subject_record_ids:
+            return self.academic_result
+        return 'full' if all(subject_record.state == 'passed'
+                             for subject_record in self.subject_record_ids) else 'partial'
+
 
 class EmsStudentYearRecordSubject(models.Model):
     _name = 'ems.student.year_record.subject'
     _description = 'Student academic year record: one subject taken that course.'
+    # Without a _rec_name, name_search and every auto-generated view fall back to 'id'
+    # (see ir.ui.view._get_default_list_view / models._rec_name_fallback), which is what the
+    # "Search more..." dialog of the grade review wizard's subject picker was showing.
+    _rec_name = 'subject_name'
     _order = 'subject_name asc'
 
     record_id = fields.Many2one(string="Year record", comodel_name='ems.student.year_record',
@@ -321,6 +349,14 @@ class EmsStudentYearRecordSubject(models.Model):
     # Copied from the live grade line, and kept in sync afterwards for a convalidation resolved
     # once the year is already frozen (see _ems_set_convalidated).
     is_convalidated = fields.Boolean(string="Convalidated", default=False)
+    # Trace of the last grade review applied to this subject (issue #493). A grade review is a
+    # formal, signed resolution taken once the academic file is already closed, so the
+    # record keeps who applied it, when and what it resolved; the detail of every change
+    # is posted in the student's chatter.
+    review_date = fields.Date(string="Review date")
+    review_user_id = fields.Many2one(string="Review applied by", comodel_name='res.users',
+                                     ondelete='set null')
+    review_note = fields.Text(string="Review resolution")
     outcome_record_ids = fields.One2many(string="Outcomes",
                                          comodel_name='ems.student.year_record.outcome',
                                          inverse_name='subject_record_id')
@@ -366,6 +402,50 @@ class EmsStudentYearRecordSubject(models.Model):
                 'has_final': has_final,
             })
 
+    def _recompute_from_outcomes(self):
+        """Recompute the internal grade, the state and the final grade of an archived subject
+        from its own frozen outcomes (RAs) — what a grade review corrects (issue #493).
+
+        The formulas are the grades model's own, never a rewrite: the internal grade comes from
+        ems.grade_subject_line._internal_from_outcomes and the final one from _final_from_parts,
+        with the weights frozen in the record. The state follows the same rule the freeze
+        applies (ems.student.year_record._outcome_vals_and_state): passed only when every RA is
+        resolved at 5 or above. is_overridden is cleared: after a grade review the internal grade
+        is the one its RAs yield, no longer a teacher's manual override of them."""
+        for subject_record in self:
+            outcomes = subject_record.outcome_record_ids
+            subject_record.write(self._values_from_outcomes(
+                [(outcome.final_score, outcome.weight)
+                 for outcome in outcomes.filtered('final_is_scored')],
+                len(outcomes),
+                subject_record.external_grade, subject_record.external_is_scored,
+                subject_record.internal_weight, subject_record.external_weight))
+
+    @api.model
+    def _values_from_outcomes(self, scored_outcomes, outcome_count,
+                              external_grade, external_is_scored,
+                              internal_weight, external_weight):
+        """Internal grade, state and final grade of a subject from the (score, weight) pairs
+        of its SCORED outcomes (`outcome_count` being how many it has in total).
+
+        Shared by _recompute_from_outcomes and by the review wizard, which previews the
+        result of a correction before applying it — the preview and what gets written must
+        come from the very same code."""
+        GradeSubjectLine = self.env['ems.grade_subject_line']
+        internal_grade = GradeSubjectLine._internal_from_outcomes(scored_outcomes)
+        state = 'passed' if outcome_count and len(scored_outcomes) == outcome_count \
+            and all(score >= 5 for score, _weight in scored_outcomes) else 'failed'
+        final_grade, has_final = GradeSubjectLine._final_from_parts(
+            internal_grade, bool(scored_outcomes), external_grade, external_is_scored,
+            internal_weight, external_weight)
+        return {
+            'internal_grade': internal_grade,
+            'is_overridden': False,
+            'state': state,
+            'final_grade': final_grade,
+            'has_final': has_final,
+        }
+
     def apply_external_grade(self, score):
         """Write the work placement (EM) grade on an archived subject (called by the EM
         grading wizard), completing its final grade with the weights frozen in the record.
@@ -391,6 +471,8 @@ class EmsStudentYearRecordSubject(models.Model):
 class EmsStudentYearRecordOutcome(models.Model):
     _name = 'ems.student.year_record.outcome'
     _description = 'Student academic year record: one learning outcome (RA) of a subject.'
+    # Same reason as its parent's _rec_name just above.
+    _rec_name = 'outcome_name'
     _order = 'outcome_name asc'
 
     subject_record_id = fields.Many2one(string="Subject record",

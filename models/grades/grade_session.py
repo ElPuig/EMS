@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
+from ..shared import base
 from psycopg2 import IntegrityError
 
 grade_round_selection = [("1", "1a"), ("2", "2a"), ("3", "3a"), ("4", "4a")]
@@ -59,7 +60,7 @@ class EmsGradeSession(models.Model):
             elif session.state == "open":
                 session.can_edit = True
             elif session.state == "board":
-                session.can_edit = session.group_id.tutor_id.user_id == self.env.user
+                session.can_edit = base.EmsBase.user_acts_as_tutor(self, session.group_id.tutor_id)
             else:
                 session.can_edit = False
 

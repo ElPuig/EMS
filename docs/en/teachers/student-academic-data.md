@@ -31,7 +31,19 @@ Holding the **Guidance coordinator** or **Coexistence coordinator** role, you co
 - **Strikes** — Coexistence.
 - **Student file** — Educational Community → Students, including the **Secretary** tab (bonifications, exemptions and enrolment authorizations).
 
-All of it is read-only, and it does not include invoices or payments.
+All of it is read-only, except the special educational needs for Guidance (see the next section), and it does not include invoices or payments.
+
+---
+
+## Set a Student's Special Educational Needs (Guidance)
+
+Holding the **Guidance coordinator** role, you set the special educational needs (NEE) typology of any student or applicant in the centre:
+
+1. Educational Community → Students → *[open the student]*.
+2. In the **Student data** tab, in the **Special educational needs** field, pick **NEE-A** or **NEE-B**, or leave it empty if the student has none.
+3. Click **Save**.
+
+For an applicant, the field is in the **Applicant data** tab. The rest of the file stays read-only.
 
 ---
 

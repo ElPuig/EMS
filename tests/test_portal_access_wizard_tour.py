@@ -42,3 +42,9 @@ class TestPortalAccessWizardTour(HttpCase):
         self.start_tour("/odoo", "ems_portal_access_wizard_revoke", login="admin")
 
         self.assertFalse(self.portal_user.active)
+
+    def test_portal_access_wizard_form_action_tour(self):
+        # Issue #482: the same action must also be offered from the student's own form.
+        force_user_language_to_english(self, self.env.ref('base.user_admin'))
+        self.start_tour(f"/odoo/res.partner/{self.student.id}",
+                        "ems_portal_access_wizard_form", login="admin")

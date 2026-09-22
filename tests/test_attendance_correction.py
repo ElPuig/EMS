@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
+from unittest.mock import patch
 
 from odoo import fields
 from odoo.exceptions import AccessError, UserError
@@ -14,6 +15,7 @@ class TestAttendanceCorrection(TransactionCase):
         super().setUpClass()
         cls.group_teacher = cls.env.ref('ems.group_teacher')
         cls.group_head_of_studies = cls.env.ref('ems.group_head_of_studies')
+        cls.group_director = cls.env.ref('ems.group_director')
         cls.group_academic_admin = cls.env.ref('ems.group_academic_admin')
 
         cls.admin_user = cls.env['res.users'].with_context(no_reset_password=True).create({
@@ -33,6 +35,16 @@ class TestAttendanceCorrection(TransactionCase):
             'name': 'Test HOS Employee (Attendance Correction)',
             'employee_type': 'teacher',
             'user_id': cls.hos_user.id,
+        })
+
+        cls.director_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Director (Attendance Correction)',
+            'login': 'test_director_attendance_correction',
+            'email': 'test_director_attendance_correction@example.com',
+            # group_director implies group_head_of_studies (security/groups.xml) - never
+            # added explicitly, so this fixture actually proves the implication carries the
+            # fix through, rather than assuming it from reading groups.xml alone.
+            'groups_id': [(4, cls.group_director.id), (4, cls.env.ref('base.group_user').id)],
         })
 
         cls.manager_user = cls.env['res.users'].with_context(no_reset_password=True).create({
@@ -77,6 +89,26 @@ class TestAttendanceCorrection(TransactionCase):
             'employee_id': cls.teacher_employee.id,
             'check_in': datetime(2026, 1, 5, 8, 0),
             'check_out': datetime(2026, 1, 5, 16, 0),
+        })
+
+        # NOTE: relative to real execution time (no freezegun in this codebase) - same
+        # pattern as tests/test_employee_autocheckout.py, so these fixtures stay correct
+        # regardless of when the suite actually runs.
+        cls.today = datetime.now(timezone.utc).date()
+        cls.weekday = str(cls.today.weekday())
+
+    def _add_slot(self, employee, hour_from, hour_to, dayofweek=None):
+        # NOTE: a freshly created teacher's personal calendar starts with zero
+        # attendance_ids (seed_from_framework() wipes the Mon-Fri lines copied from the
+        # company calendar at create() time - see models/employees/working_schedule.py),
+        # so adding a slot here never collides with a pre-existing one.
+        return self.env['resource.calendar.attendance'].create({
+            'calendar_id': employee.resource_calendar_id.id,
+            'name': 'Test Slot (Attendance Correction)',
+            'dayofweek': dayofweek or self.weekday,
+            'hour_from': hour_from,
+            'hour_to': hour_to,
+            'day_period': 'morning',
         })
 
     def _create_correction(self, user, **values):
@@ -125,6 +157,26 @@ class TestAttendanceCorrection(TransactionCase):
         with self.assertRaises(AccessError):
             correction.with_user(self.teacher_user).unlink()
 
+    def test_hos_can_create_correction_for_other_employee(self):
+        # Issue #480: a Head of Studies/Deputy Head of Studies (both map to the same
+        # group_head_of_studies - see docs/en/developers/attendance/attendance_correction.md)
+        # must be able to request a correction on behalf of any employee, not only their own,
+        # matching the unrestricted read/write access they already have on this model.
+        correction = self._create_correction(self.hos_user)
+        self.assertEqual(correction.state, 'pending')
+        self.assertEqual(correction.employee_id, self.teacher_employee)
+
+    def test_teacher_cannot_create_correction_for_other_employee(self):
+        with self.assertRaises(AccessError):
+            self._create_correction(self.other_teacher_user)
+
+    def test_director_can_create_correction_for_other_employee(self):
+        # Issue #480 follow-up: group_director implies group_head_of_studies, so the same
+        # fix must carry through to Director without any Director-specific rule.
+        correction = self._create_correction(self.director_user)
+        self.assertEqual(correction.state, 'pending')
+        self.assertEqual(correction.employee_id, self.teacher_employee)
+
     def test_approver_resolution_immediate_manager(self):
         # manager_employee's direct manager (hos_employee) is in group_head_of_studies.
         approver = self.manager_employee.find_head_of_studies()
@@ -171,6 +223,84 @@ class TestAttendanceCorrection(TransactionCase):
             default_attendance_id=open_attendance.id
         ).with_user(self.teacher_user).new({})
         self.assertEqual(correction.requested_check_out, 15.0)
+
+    def test_is_check_out_requestable_true_when_attendance_closed(self):
+        # self.attendance already has both check_in and check_out set - closed, so the
+        # schedule check never even applies, regardless of the employee's calendar.
+        correction = self._create_correction(self.teacher_user)
+        self.assertTrue(correction.is_check_out_requestable)
+
+    def test_is_check_out_requestable_false_when_open_and_within_schedule(self):
+        # A fixed reference moment, not real "now": using the actual wall clock made this
+        # flaky whenever the test suite happened to run close to local midnight (Europe/Madrid)
+        # - check_in was computed at fixture-setup time, but _is_check_out_requestable_for()
+        # reads fields.Datetime.now() again later, and if the schedule's own hour_to (still
+        # local-day-scoped) fell in between those two reads, "now" had already rolled past it.
+        # Confirmed in practice 2026-09-16 (test run just after local midnight). Freezing both
+        # to the same 2026-01-12 (Monday) reference removes the wall-clock dependency entirely.
+        frozen_now = datetime(2026, 1, 12, 10, 0)
+        check_in = frozen_now - timedelta(hours=2)
+        # Slot spans almost the whole day, so the frozen "now" is always still before hour_to.
+        self._add_slot(self.teacher_employee, 0.0, 23.9, dayofweek=str(check_in.weekday()))
+        open_attendance = self.env['hr.attendance'].create({
+            'employee_id': self.teacher_employee.id,
+            'check_in': check_in,
+        })
+        with patch.object(fields.Datetime, 'now', return_value=frozen_now):
+            correction = self.env['ems.attendance_correction'].with_context(
+                default_attendance_id=open_attendance.id
+            ).with_user(self.teacher_user).new({})
+            self.assertFalse(correction.is_check_out_requestable)
+            self.assertFalse(correction.requested_check_out)
+
+    def test_is_check_out_requestable_true_when_open_and_schedule_already_ended(self):
+        # Same fixed-reference reasoning as the sibling test above.
+        frozen_now = datetime(2026, 1, 12, 10, 0)
+        check_in = frozen_now - timedelta(hours=2)
+        # ~1 minute after local midnight - always in the past relative to the frozen "now".
+        self._add_slot(self.teacher_employee, 0.0, 0.02, dayofweek=str(check_in.weekday()))
+        open_attendance = self.env['hr.attendance'].create({
+            'employee_id': self.teacher_employee.id,
+            'check_in': check_in,
+        })
+        with patch.object(fields.Datetime, 'now', return_value=frozen_now):
+            correction = self.env['ems.attendance_correction'].with_context(
+                default_attendance_id=open_attendance.id
+            ).with_user(self.teacher_user).new({})
+            self.assertTrue(correction.is_check_out_requestable)
+            self.assertEqual(correction.requested_check_out, 0.02)
+
+    def test_is_check_out_requestable_true_when_open_and_no_schedule_that_day(self):
+        # No slot added at all - the teacher's personal calendar has zero attendance_ids.
+        open_attendance = self.env['hr.attendance'].create({
+            'employee_id': self.teacher_employee.id,
+            'check_in': datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=2),
+        })
+        correction = self.env['ems.attendance_correction'].with_context(
+            default_attendance_id=open_attendance.id
+        ).with_user(self.teacher_user).new({})
+        self.assertTrue(correction.is_check_out_requestable)
+
+    def test_create_strips_requested_check_out_when_not_requestable(self):
+        # Fixed reference moment - see test_is_check_out_requestable_false_when_open_and_within_schedule.
+        frozen_now = datetime(2026, 1, 12, 10, 0)
+        check_in = frozen_now - timedelta(hours=2)
+        self._add_slot(self.teacher_employee, 0.0, 23.9, dayofweek=str(check_in.weekday()))
+        open_attendance = self.env['hr.attendance'].create({
+            'employee_id': self.teacher_employee.id,
+            'check_in': check_in,
+        })
+        # A stale/tampered client still sends a requested_check_out - create() must not
+        # trust it once the server-side check says it isn't requestable.
+        with patch.object(fields.Datetime, 'now', return_value=frozen_now):
+            correction = self.env['ems.attendance_correction'].with_context(
+                default_attendance_id=open_attendance.id
+            ).with_user(self.teacher_user).create({
+                'reason': 'Forgot to check in on time.',
+                'requested_check_in': 8.5,
+                'requested_check_out': 16.0,
+            })
+        self.assertFalse(correction.requested_check_out)
 
     def test_accept_applies_correction(self):
         original_check_in = self.attendance.check_in

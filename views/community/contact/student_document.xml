@@ -20,10 +20,10 @@
                     <field name="status"/>
                     <field name="review_uid" optional="hide"/>
                     <field name="rejection_reason" optional="hide"/>
-                    <button name="action_approve" type="object" string="Approve"
+                    <button name="action_approve" type="object" string="Approve" groups="ems.group_academic_admin,ems.group_secretary"
                             icon="fa-check" class="text-success"
                             invisible="status != 'pending'"/>
-                    <button name="action_reject" type="object" string="Reject"
+                    <button name="action_reject" type="object" string="Reject" groups="ems.group_academic_admin,ems.group_secretary"
                             icon="fa-times" class="text-danger"
                             invisible="status != 'pending'"/>
                 </list>
@@ -36,11 +36,11 @@
             <field name="arch" type="xml">
                 <form string="Student document">
                     <header>
-                        <button name="action_approve" type="object" string="Approve"
+                        <button name="action_approve" type="object" string="Approve" groups="ems.group_academic_admin,ems.group_secretary"
                                 class="btn-success" invisible="status != 'pending'"/>
-                        <button name="action_reject" type="object" string="Reject"
+                        <button name="action_reject" type="object" string="Reject" groups="ems.group_academic_admin,ems.group_secretary"
                                 class="btn-danger" invisible="status != 'pending'"/>
-                        <button name="action_reset_to_pending" type="object" string="Reset to pending"
+                        <button name="action_reset_to_pending" type="object" string="Reset to pending" groups="ems.group_academic_admin,ems.group_secretary"
                                 invisible="status == 'pending'"/>
                         <field name="status" widget="statusbar" readonly="1"
                                statusbar_visible="pending,approved,rejected,cancelled"/>

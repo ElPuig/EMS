@@ -25,10 +25,13 @@
 | `approver_id` | `Many2one → res.users` | No | Yes | Stamped on decision |
 | `decision_date` | `Datetime` | No | Yes | Stamped on decision |
 | `decision_note` | `Text` | No | Yes | Optional note left by the approver |
+| `is_check_out_requestable` | `Boolean` (computed) | — | No | `False` while the attendance is still open (no `check_out` yet) *and* the employee is still within their expected working hours for that day; drives whether `requested_check_out` is shown in the form |
 
 At least one of `requested_check_in` / `requested_check_out` is enforced both at the Python level (`@api.constrains`) and at the DB level (`_sql_constraints`).
 
 **Time-only correction:** a teacher can only request a different *time of day*, not a different date — the date is always taken from the original `hr.attendance` record. `_combine_date_and_time()` converts the original `check_in`/`check_out` (UTC) to the company's local timezone via `ems.datetime_utils.utc_datetime_to_local()`, keeps its `.date()`, and combines it with the requested float time via `time_float_to_utc_datetime()` (same mixin, reused rather than re-implemented — see the `ems.attendance_template`/`attendance_schedule` cron code for the other consumer of this helper). If `check_out` isn't set yet (still clocked in) and a check-out time is requested, `check_in`'s date is used instead since there is no original check-out to anchor to.
+
+**Check-out hidden while still clocked in and still on schedule:** `is_check_out_requestable` (`_is_check_out_requestable_for()`) hides `requested_check_out` from the form (`invisible="not is_check_out_requestable"`) whenever the attendance has a `check_in` but no `check_out` yet *and* "now" is still before the end of the employee's last expected working interval for that day, resolved via `hr.attendance._get_last_working_hour()` (`models/employees/employee_autocheckout.py` — the same helper the auto-checkout cron uses, which already subtracts approved absences and handles split shifts). No expected schedule at all for that day (a holiday, a non-working weekday, an absence covering the whole day) is treated the same as "the day has already ended" — the check-out becomes requestable again, since there's nothing left to be "still within". `_default_requested_time()` never pre-fills a value for a hidden field, and `create()` strips a `requested_check_out` sent anyway by a stale/tampered client once the same check says it isn't requestable — defense-in-depth on top of the view hiding it.
 
 ### State Machine
 
@@ -72,7 +75,9 @@ Since `group_head_of_studies` implies `group_tutor` which implies `group_teacher
 
 ### Create
 
-A teacher opens one of their own `hr.attendance` records and clicks **Request Correction** in the header, which opens `ems.attendance_correction` in a dialog with `attendance_id` pre-filled. `requested_check_in`/`requested_check_out` default (`_default_requested_time()`) to the original time of that attendance, so the requester only has to tweak the value that's wrong. If the original `check_out` isn't set yet (employee still clocked in), `_schedule_time_for()` falls back to the requester's `resource.calendar` (working schedule) for that weekday — earliest `hour_from` for check-in, latest `hour_to` for check-out — instead of leaving the field blank. On `create()`, the resolved approver(s) get a `mail.activity` to-do (activity type `ems.mail_activity_attendance_correction`) and the record's chatter logs the request.
+A teacher opens one of their own `hr.attendance` records and clicks **Request Correction** in the header, which opens `ems.attendance_correction` in a dialog with `attendance_id` pre-filled. `requested_check_in`/`requested_check_out` default (`_default_requested_time()`) to the original time of that attendance, so the requester only has to tweak the value that's wrong. If the original `check_out` isn't set yet (employee still clocked in) and the check-out is requestable (see below), `_schedule_time_for()` falls back to the requester's `resource.calendar` (working schedule) for that weekday — earliest `hour_from` for check-in, latest `hour_to` for check-out — instead of leaving the field blank. On `create()`, the resolved approver(s) get a `mail.activity` to-do (activity type `ems.mail_activity_attendance_correction`) and the record's chatter logs the request.
+
+A Head of Studies, Deputy Head of Studies, Director or Academic Admin can do the exact same thing on behalf of **any** employee (issue #480): the "Request Correction" button is on the native `hr.attendance` form itself, so opening any employee's attendance record (already possible for these roles, see the read access note below) and clicking it works identically, `create()` included, regardless of whose attendance it is.
 
 ### Read
 
@@ -96,11 +101,11 @@ Only Academic Admin can delete correction requests (audit trail is otherwise kep
 
 | Role | Create | Read | Write | Delete | Group XML ID |
 |------|:------:|:----:|:-----:|:------:|--------------|
-| Administrator | ✓ | ✓ | ✓ | ✓ | `ems.group_academic_admin` |
-| Head of Studies / Deputy / Director | — | ✓ | ✓ | — | `ems.group_head_of_studies` |
-| Teacher | ✓ | ✓ | — | — | `ems.group_teacher` |
+| Administrator | ✓ (any employee) | ✓ | ✓ | ✓ | `ems.group_academic_admin` |
+| Head of Studies / Deputy / Director | ✓ (any employee) | ✓ | ✓ | — | `ems.group_head_of_studies` |
+| Teacher | ✓ (own only) | ✓ | — | — | `ems.group_teacher` |
 
-Record rules (`security/rules/attendance.xml`): Admin unrestricted; Head of Studies unrestricted (global group, see limitation above); Teacher restricted to `employee_id.user_id = user.id`.
+Record rules (`security/rules/attendance.xml`): Admin unrestricted; Head of Studies unrestricted, including create (global group, see limitation above); Teacher restricted to `employee_id.user_id = user.id`, including on create — a plain Teacher cannot request a correction on another employee's behalf.
 
 ---
 

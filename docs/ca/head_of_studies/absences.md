@@ -13,7 +13,7 @@
 1. [Qui aprova cada àrea](#qui-aprova-cada-àrea)
 2. [Aprovar o rebutjar](#aprovar-o-rebutjar)
 3. [Ajustar el còmput d'una absència](#ajustar-el-còmput-duna-absència)
-4. [Verificació de direcció](#verificació-de-direcció)
+4. [Aprovació de Direcció](#aprovació-de-direcció)
 5. [Informe per empleat](#informe-per-empleat)
 6. [Informe mensual](#informe-mensual)
 
@@ -37,11 +37,23 @@ Ningú aprova la seva pròpia absència: la d'un responsable d'àrea la resol Di
 
 **Assistència del personal > Absències > Administració > Absències**.
 
-Hi tens les sol·licituds de la teva àrea. Les que esperen decisió estan en estat **Pendent**, i les pots resoldre des del llistat o obrint-les.
+Hi tens les sol·licituds de la teva àrea. Cada absència necessita dues aprovacions, la teva i la de Direcció, en qualsevol ordre, i el llistat en té una columna per a cadascuna:
+
+| Columna | Mostra |
+|---|---|
+| **Estat** | En quin punt és la sol·licitud entre les dues aprovacions |
+| **Estat Cap** | La teva decisió: Pendent, Aprovat o Rebutjat |
+| **Estat Direcció** | La de Direcció: Pendent, Falta document, Fet o Rebutjat |
+
+Per decidir, fes servir les dues icones del costat d'**Estat Cap**: el polze aprova i la creu rebutja. També pots obrir la sol·licitud i fer servir **Aprova** o **Rebutja** a dalt: un cop decidit, tornes al llistat.
+
+L'absència té efecte (calendari d'absències, saldo d'hores, quadrant de guàrdies) tan bon punt l'aproves, encara que Direcció no l'hagi revisada.
+
+![Llistat d'absències, amb les accions Aprova/Rebutja sobre una sol·licitud pendent](../../assets/head_of_studies/hos-absences-list.png)
 
 Tu hi veus el **motiu escrit** i el **justificant**; la resta del personal, no.
 
-**Rebutjar és definitiu.** Ningú del centre pot tornar una sol·licitud rebutjada a *Pendent*: per concedir-la finalment, la persona ha de fer-ne una de nova. Com que el botó Rebutja és al costat d'Aprova, i al llistat és només una creu al final de la fila, sempre demana confirmació abans - llegeix el missatge abans d'acceptar-lo.
+**Rebutjar és definitiu.** Ningú del centre pot tornar una sol·licitud rebutjada a *Pendent*: per concedir-la finalment, la persona ha de fer-ne una de nova. Com que el botó Rebutja és al costat d'Aprova, i al llistat és només una creu al seu costat, sempre demana confirmació abans - llegeix el missatge abans d'acceptar-lo.
 
 Pots adjuntar un **justificant** a qualsevol sol·licitud, de qualsevol tipus i en qualsevol moment: un certificat lliurat quan l'absència ja estava aprovada s'adjunta a la mateixa sol·licitud, i això és el que resol un *Falta document*.
 
@@ -62,19 +74,38 @@ Si l'absència és de dia sencer o d'unes hores concretes ho controla la casella
 
 ---
 
-## Verificació de direcció
+## Aprovació de Direcció
 
-Camp independent de l'aprovació: una absència pot estar aprovada i pendent de justificant alhora.
+**Només Direcció.** Direcció revisa el justificant de cada absència i, en les absències d'**ATRI**, comprova que la sol·licitud s'ha tramitat de debò al portal de la Generalitat.
 
-| Valor | Color |
+**Assistència del personal > Absències > Administració > Absències** s'obre amb **Pendent de mi**: totes les absències que encara no has aprovat, les hagi aprovat o no el seu cap, i les absències dels mateixos caps d'àrea, que aproves tu com a cap seu.
+
+Revisa-les des del llistat amb les icones del costat d'**Estat Direcció**, o obre'n una i fes servir els botons de dalt, que et tornen al llistat en acabar:
+
+| Icona | Botó | L'Estat Direcció passa a |
+|---|---|---|
+| Casella marcada | **Direcció: fet** | Fet |
+| Full | **Falta document** | Falta document |
+| Fletxa enrere | **Direcció: pendent** | Pendent |
+| Creu | **Rebutja** | Rebutjat. Rebutja tota la sol·licitud, demana confirmació abans i és definitiu |
+
+Pots revisar una sol·licitud abans que en decideixi el cap. L'Aprova/Rebutja de l'**Estat Cap** només el tens a les absències dels caps d'àrea.
+
+Quan un cap aprova una absència, en reps el resum com a seguidor.
+
+L'**Estat** combina les dues aprovacions:
+
+| Estat | Significa |
 |---|---|
-| No fet | gris |
-| Falta document | vermell |
-| Fet | verd |
+| Pendent | Encara no l'ha aprovada ningú |
+| Pendent Cap | Direcció sí, el cap encara no |
+| Pendent Direcció | El cap sí, Direcció encara no |
+| Pendent Document | El cap sí, i Direcció espera el justificant |
+| Aprovat | Tots dos |
+| Rebutjat | Un dels dos l'ha rebutjada |
+| Cancel·lat | La persona l'ha retirada |
 
-En les absències d'**ATRI**, marca'l com a `Fet` quan hagis comprovat que la sol·licitud s'ha tramitat al portal de la Generalitat.
-
-Es veu a tots els llistats, però **només Direcció el pot modificar**.
+El panell de cerca de l'esquerra filtra per **Estat**.
 
 ---
 

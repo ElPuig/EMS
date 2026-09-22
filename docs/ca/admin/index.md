@@ -18,6 +18,7 @@ Aquesta secció conté els manuals per a **administradors**.
 - [Espais i tipus d'espai](facilities.md) — Aules físiques i els seus tipus, usats en sessions/grups/actes/horaris.
 - [Rols de professorat i nivells de permisos](teacher-roles.md) — Com assignar rols (Tutor, Cap de departament, Cap d'estudis, Director...) per concedir nivells de permisos.
 - [Alta d'un professor i creació del compte de correu corporatiu (Google Workspace)](alta-professor-compte-google.md) — Com donar d'alta un professor o membre del PAS i com es genera el seu compte corporatiu.
+- [Gestionar el compte de Google d'un alumne](student-google-account.md) — Crear, suspendre o restablir la contrasenya del compte de Google d'un alumne i descarregar-ne les credencials (administració i coordinació TAC).
 - [Strikes: gestionar motius i llindar d'escalat](strike.md) — Configurar la llista de motius de strike i el llindar d'escalat de convivència.
 - [Estats d'assistència: gestionar les opcions del passar llista](attendance-status.md) — Afegir, reordenar o retirar els estats que els professors poden triar a la vista de passar llista.
 - [Horaris dels docents i marcs horaris](working-schedules.md) — Configurar les plantilles d'horari, el marc predeterminat, i editar/importar l'horari setmanal d'un docent.
@@ -25,6 +26,7 @@ Aquesta secció conté els manuals per a **administradors**.
 - [Grups](groups.md) — Crear i gestionar grups Principals/de Reforç, tutors, delegats i canvi de tipus de grup.
 - [L'horari setmanal d'un grup](group-schedule.md) — Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF.
 - [L'horari setmanal d'un alumne](student-schedule.md) — Consultar l'horari propi d'un alumne (assignatures, docents, aules, patis), incloent-hi classes solapades, i exportar-lo a PDF.
+- [L'horari d'ocupació d'una aula](space-schedule.md) — Consultar quines classes acull una aula cada setmana (assignatures, docents) i exportar-lo a PDF.
 - [Preparar el curs següent](course-transition.md) — Tancar el curs: arxivar l'historial acadèmic, graduar i arxivar els exalumnes, col·locar tothom al grup nou i canviar el curs actual.
 - [Importar les notes des d'Esfera](grade-import.md) — Carregar a l'EMS les notes oficials de cada avaluació i, opcionalment, crear les matrícules que faltin.
 - [Configurar les absències del personal](absences.md) — Els dos paràmetres, el catàleg de tipus d'absència i d'on surt qui aprova.

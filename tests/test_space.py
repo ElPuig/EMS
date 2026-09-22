@@ -45,14 +45,21 @@ class TestSpace(TransactionCase):
     def test_create_missing_space_type(self):
         with self.assertRaises(Exception):
             self.env['ems.space'].create({
-                'code': 'TST-SPACE-03', 'name': 'No Type', 'work_location_id': self.work_location.id,
+                'code': 'TST-SPACE-03', 'name': 'No Type', 'space_type_id': False,
+                'work_location_id': self.work_location.id,
             })
 
     def test_create_missing_work_location(self):
         with self.assertRaises(Exception):
             self.env['ems.space'].create({
                 'code': 'TST-SPACE-04', 'name': 'No Location', 'space_type_id': self.space_type.id,
+                'work_location_id': False,
             })
+
+    def test_new_space_defaults_to_main_building_classroom(self):
+        space = self.env['ems.space'].new({})
+        self.assertEqual(space.work_location_id, self.env.ref('ems.work_location_main'))
+        self.assertEqual(space.space_type_id, self.env.ref('ems.space_type_classroom'))
 
     def test_code_must_be_unique_per_work_location(self):
         with self.assertRaises(Exception):

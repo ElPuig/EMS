@@ -75,6 +75,8 @@ Guardar.
 - Usa el desplegable de **ordenación** (arriba a la derecha) para reordenar la lista por apellido o
   nombre, ascendente o descendente.
 
+![Sesión actual con los botones de estado, una nota y un alumno con ausencia justificada (escudo)](../../assets/teachers/passlist-01-assistencia-actual.png)
+
 ---
 
 ## Añadir notas
@@ -103,6 +105,8 @@ sustitución). Muestra, solo para el día de hoy:
   **Actual**/**Manual**).
 - Franjas del horario de otros docentes que aún no se han convertido en sesión — elige una y haz
   clic en **Iniciar sesión**, igual que en modo normal.
+
+![Modo Guardia, mostrando una franja de una compañera aún no iniciada](../../assets/teachers/passlist-02-mode-guarida.png)
 
 Marcar estados, añadir notas y poner strikes funciona exactamente igual que en tus propias
 sesiones. El botón **Eliminar sesión** no está disponible en modo Guardia — solo el docente titular

@@ -42,6 +42,10 @@ Abre la ficha del alumno y, en la pestaña **Contactos y direcciones**, haz clic
 
 La misma relación también aparece en la ficha del familiar, indicando con qué alumno(s) está relacionado.
 
+> **Desde la 18.0.0.26.0:** cualquier dirección de correo introducida en un contacto (personal o del alumno/corporativa) debe tener un formato válido (`nombre@dominio`) — EMS no permite guardar un valor que no lo sea, como un número de teléfono escrito por error en el campo equivocado.
+
+**Para quitar un familiar**, pulsa el icono de la papelera de su fila y confirma con **Aceptar**. El familiar deja de estar vinculado al alumno. Si no queda relacionado con ningún otro alumno y no tiene usuario (acceso al portal), también se borra su contacto; si no, se conserva.
+
 ## Matricular a un alumno en asignaturas
 
 El grupo principal de un alumno (pestaña **Estudios**) no lo matricula por sí solo en ninguna asignatura — es un paso independiente, justo debajo, en la misma pestaña: añade una línea por asignatura, eligiendo la asignatura y el grupo en el que se imparte (normalmente el grupo principal del alumno, pero uno distinto si cursa la asignatura en otro grupo, por ejemplo un grupo de refuerzo). Una vez añadida una asignatura aquí, el alumno empieza a aparecer en las hojas de asistencia y en las sesiones de evaluación de esa asignatura. Una asignatura ya añadida no se puede volver a elegir — desaparece automáticamente de la lista de selección.
@@ -74,7 +78,7 @@ Cambiar la pantalla de Alumnado de vista Kanban a vista de Lista muestra, por de
 
 ## Campos que solo ven admin/secretaría/Jefatura de Estudios/tutores
 
-Los datos personales (documentos, información médica, necesidades educativas especiales, autorizaciones…) quedan ocultos para cualquier persona que no sea admin, secretaría, Jefatura de Estudios/Jefatura de Estudios Adjunta/Dirección, ni el tutor propio del alumno. Jefatura de Estudios/Jefatura de Estudios Adjunta/Dirección tienen el mismo acceso completo que secretaría aquí, para **cualquier** alumno de todo el centro, no solo sus propios tutorizados. Un tutor también puede editar la ficha de un alumno que tutoriza y la de sus familiares, pero ve un conjunto de campos editables más reducido que secretaría/admin/Jefatura de Estudios.
+Los datos personales (documentos, información médica, necesidades educativas especiales, autorizaciones…) quedan ocultos para cualquier persona que no sea admin, secretaría, Jefatura de Estudios/Jefatura de Estudios Adjunta/Dirección, ni el tutor propio del alumno. Jefatura de Estudios/Jefatura de Estudios Adjunta/Dirección tienen el mismo acceso completo que secretaría aquí, para **cualquier** alumno de todo el centro, no solo sus propios tutorizados. Un tutor también puede editar la ficha de un alumno que tutoriza y la de sus familiares, pero ve un conjunto de campos editables más reducido que secretaría/admin/Jefatura de Estudios. También puede añadir y quitar los contactos familiares de los alumnos que tutoriza. Orientación ve y edita las necesidades educativas especiales de cualquier alumno.
 
 ---
 

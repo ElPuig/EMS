@@ -112,6 +112,18 @@ class TestApplicantImportWizard(TransactionCase):
         self.assertIn('Comerç', applicant.comment)          # 1st-choice study
         self.assertIn('High-level athlete', applicant.comment)
 
+    def test_invalid_email_fails_only_that_row(self):
+        # Regression (issue #467): same guarantee as student_import_wizard's own test -
+        # res.partner._check_email_format rejects a malformed email, and the per-row
+        # savepoint (added alongside the constraint) ensures the applicant isn't left
+        # half-created with the rest of the row's data despite the failure.
+        wizard = self._run([
+            self._base_row(**{'Ident. RALC': 1234567891, 'Correu electrònic': '612345678'}),
+        ])
+        self.assertFalse(self._applicant(1234567891))
+        self.assertIn('Errors (1):', wizard.result_html)
+        self.assertIn('is not a valid email address', wizard.result_html)
+
     def test_multiword_firstname_split(self):
         # "Nom" can be multi-word: it must all land in firstname, and the two
         # surnames in lastname — not re-split on the first space by partner_firstname.

@@ -185,6 +185,7 @@
 
             'views/planning_grading/menu.xml',
             'views/planning_grading/planning/list.xml',
+            'views/planning_grading/planning/search.xml',
             'views/planning_grading/planning/form.xml',
             'views/planning_grading/planning/menu.xml',
             'views/planning_grading/grading/list.xml',

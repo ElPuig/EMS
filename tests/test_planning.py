@@ -1,7 +1,7 @@
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, create_level_study_group
+from .common import create_level_study, create_level_study_group, create_role_user
 
 
 class TestPlanningAccess(TransactionCase):
@@ -31,6 +31,22 @@ class TestPlanningAccess(TransactionCase):
         # The teacher only teaches subject_taught.
         cls.env['ems.teaching'].create({
             'teacher_id': cls.teacher_employee.id, 'group_id': cls.group.id, 'subject_id': cls.subject_taught.id,
+        })
+
+        # A Head of Studies teaches nothing at all here - any visibility they get over
+        # planning_other must come from their role, not from ems.teaching (issue #503).
+        cls.hos_user = create_role_user(cls, 'head_of_studies', 'test_hos_for_planning')
+
+        # A second HOS who DOES teach subject_taught - needed to exercise is_own_subject's
+        # True/False split: rule_planning_teacher_own_subjects already hides planning_other
+        # from a plain teacher entirely, so only a role that can read BOTH plannings (HOS, via
+        # rule_planning_hos_all) can tell "mine" apart from "not mine, but still visible".
+        cls.hos_teaching_user = create_role_user(cls, 'head_of_studies', 'test_hos_teaching_for_planning')
+        hos_teaching_employee = cls.env['hr.employee'].create({
+            'name': 'Test HOS Teaching (Planning) Employee', 'user_id': cls.hos_teaching_user.id, 'employee_type': 'teacher',
+        })
+        cls.env['ems.teaching'].create({
+            'teacher_id': hos_teaching_employee.id, 'group_id': cls.group.id, 'subject_id': cls.subject_taught.id,
         })
 
     @classmethod
@@ -71,6 +87,39 @@ class TestPlanningAccess(TransactionCase):
     def test_admin_can_write_planning(self):
         self.planning_taught.write({'internal_ponderation': 80.0, 'external_ponderation': 20.0})
         self.assertEqual(self.planning_taught.internal_ponderation, 80.0)
+
+    def test_hos_sees_every_planning_not_just_taught(self):
+        # Issue #503: Head of Studies/Deputy must see ALL plannings, not only the ones tied
+        # to subjects they personally teach via ems.teaching (this HOS teaches nothing here).
+        visible = self.env['ems.planning'].with_user(self.hos_user).search([
+            ('id', 'in', [self.planning_taught.id, self.planning_other.id]),
+        ])
+        self.assertIn(self.planning_taught, visible)
+        self.assertIn(self.planning_other, visible)
+
+    def test_hos_can_write_any_planning(self):
+        self.planning_other.with_user(self.hos_user).write({
+            'internal_ponderation': 70.0, 'external_ponderation': 30.0,
+        })
+        self.assertEqual(self.planning_other.internal_ponderation, 70.0)
+
+    def test_hos_cannot_unlink_planning(self):
+        with self.assertRaises(AccessError):
+            self.planning_other.with_user(self.hos_user).unlink()
+
+    def test_is_own_subject_computed_per_teaching(self):
+        # hos_teaching_user can read BOTH plannings (rule_planning_hos_all) but only teaches
+        # subject_taught, so is_own_subject must tell them apart even though access alone does not.
+        plannings = (self.planning_taught | self.planning_other).with_user(self.hos_teaching_user)
+        self.assertTrue(plannings.browse(self.planning_taught.id).is_own_subject)
+        self.assertFalse(plannings.browse(self.planning_other.id).is_own_subject)
+
+    def test_only_mine_filter_searches_own_subject(self):
+        found = self.env['ems.planning'].with_user(self.teacher_user).search([
+            ('id', 'in', [self.planning_taught.id, self.planning_other.id]),
+            ('is_own_subject', '=', True),
+        ])
+        self.assertEqual(found, self.planning_taught)
 
 
 class TestPlanningLogic(TransactionCase):

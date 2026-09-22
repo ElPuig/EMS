@@ -53,7 +53,7 @@ The absence takes effect (absence calendar, hour balance, guard duty board) as s
 
 You see the **written reason** and the **supporting document**; the rest of the staff do not.
 
-**Refusing is final.** Nobody at the centre can put a refused request back to *Pending*: to grant it after all, the employee has to file a new one. Because the Refuse button sits next to Approve, and in the list is a bare cross beside it, it always asks for confirmation first - read the dialog before accepting it.
+**Refusing is final.** Once you refuse a request, neither you nor the employee can put it back to *Pending*: to grant it after all, the employee has to file a new one. Because the Refuse button sits next to Approve, and in the list is a bare cross beside it, it always asks for confirmation first - read the dialog before accepting it.
 
 You can attach a **supporting document** to any request, of any type, and at any point in its life: a certificate handed in after the absence was already approved goes on that same request, which is what clears a *Missing document*.
 

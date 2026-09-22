@@ -13375,11 +13375,13 @@ msgstr "Estat: %(state)s"
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_kanban_ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
 msgid ""
-"A refused absence request cannot be reopened: the employee has to file a new"
-" one. Refuse it?"
+"A refused absence request cannot be reopened by you or the employee: only a"
+" Time Off Administrator can reset it, and the employee normally has to file"
+" a new one instead. Refuse it?"
 msgstr ""
-"Una sol·licitud d'absència rebutjada no es pot reobrir: la persona haurà de "
-"fer-ne una de nova. Vols rebutjar-la?"
+"Una sol·licitud d'absència rebutjada no la pots reobrir tu ni la persona: "
+"només un administrador de gestió d'absències la pot restablir, i normalment"
+" la persona haurà de fer-ne una de nova. Vols rebutjar-la?"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems

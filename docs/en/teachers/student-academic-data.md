@@ -16,6 +16,8 @@ The academic history is the frozen, per-course record of a student's progress: c
 
 **From its own menu:** Planning and Grading → Grades → **Academic history**. The list opens grouped by course: click a course to expand it, or type the student's name in the search box.
 
+![The Academic history tab on a student's own file, one row per course](../../assets/teachers/historial-01-academic.png)
+
 It is read-only. To correct a record, contact the Secretary or the Administrator.
 
 ---

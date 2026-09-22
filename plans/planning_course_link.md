@@ -172,24 +172,103 @@ the phase-2 refinements above — depends only on `course_id` existing)
   `grade_session._compute_planning_id` picks the CURRENT course's one when both exist for the
   same study+subject.
 
-## Phase 4 — manual final score override, Esfera-style (already designed, fully independent of
-`ems.course`/phases 2-3)
+## Phase 4 — force "Nota del centre" in the grade review wizard, Esfera-style (REDESIGNED
+2026-09-23 — the paragraph below replaces an earlier, wrong design that touched
+`ems.grade_subject_line`/the live grade matrix widget instead; that screen is untouched by this
+phase, confirmed with the developer via a screenshot)
 
-- `ems.grade_subject_line`: new `is_final_overridden` boolean; `final_score` gets its own
-  `_compute_final_score` (`compute=..., store=True, readonly=False`), mirroring the existing
-  `internal_score`/`is_overridden` pattern exactly — skip the compute when overridden.
-  `_compute_has_final` must treat an override the same way it already treats
-  `internal_is_scored`/`internal_is_complete` when `is_overridden` is set (an incomplete
-  evaluation with a manually-forced final score must still count as "has final").
-- Widget (`static/src/js/backend/grade_matrix_field.js` + its `.xml`): replicate the existing
-  `internal_score` override UI (checkbox + editable cell) for the final-score column - today it's
-  a read-only computed column with no edit affordance at all, despite the view's own alert text
-  (`views/planning_grading/grading/form.xml:13-16`) already promising "you can still... set the
-  final grade manually," which isn't actually possible yet - this phase fixes a real, already
-  user-visible broken promise, not just an enhancement.
-- Tests + tour extension (`grade_matrix_tour.js`/`test_grade_matrix_tour.py`): set the override,
-  confirm it survives an outcome score changing; confirm unsetting it recomputes from
-  `computed_score`.
+**What it's actually for:** `ems.grade_review_wizard` (post-closure correction of a
+`ems.student.year_record.subject`, NOT the live in-course grading screen) shows a "Result of the
+review" group with `preview_internal_grade` ("Nota del centre" in Catalan — confirmed via
+`i18n/ca_ES.po`'s `field_ems_grade_review_wizard__preview_internal_grade` block) and
+`preview_final_grade` ("Nota final"), both purely computed from the RA outcome grid above. Esfera
+(the official external system) can carry a slightly different number for the same subject due to
+its own rounding — the developer needs to type Esfera's number directly instead of
+reverse-engineering fake RA scores that happen to average out to it. **Only "Nota del centre" gets
+forced — "Nota final" and "Estat" are explicitly NOT touched by this phase**, confirmed 2026-09-23.
+
+**Safeguard (explicit developer requirement, screenshot-confirmed):** forcing the grade must
+NEVER be able to flip whether the subject is actually passed. If any RA is below 5 (state would
+compute `'failed'`), the forced value must stay below 5; if every RA is at 5+ (state `'passed'`),
+the forced value must stay at 5+. Only the exact number within that side can be corrected, never
+the side itself.
+
+**Model changes (`models/grades/grade_review_wizard.py`):**
+- New field `override_internal_grade = fields.Boolean(string="Force internal grade")`.
+- `preview_internal_grade` gains `readonly=False` on its declaration (stays
+  `compute='_compute_preview'`).
+- `_compute_preview()`: add `'override_internal_grade'` to its `@api.depends`. When
+  `override_internal_grade` is set, skip overwriting `preview_internal_grade` (the reviewer's
+  typed value survives). `preview_state` keeps coming from `values['state']` exactly as today,
+  UNCHANGED by the override — this is what the safeguard below cross-checks against.
+  `preview_final_grade`/`preview_has_final` must stop trusting `values['final_grade']` (computed
+  from the UN-overridden internal grade) and instead always be (re)derived from whatever
+  `preview_internal_grade` ends up being — forced or computed — via
+  `self.env['ems.grade_subject_line']._final_from_parts(wizard.preview_internal_grade, True,
+  external_grade, external_is_scored, internal_weight, external_weight)` (the same helper
+  `_subject_values()` already uses internally, so the formula never forks in two places).
+- New `@api.constrains('override_internal_grade', 'preview_internal_grade')`
+  (`_check_override_internal_grade`): when the override is active, raise a `ValidationError` if
+  the value is outside `[0, 10]`, or if `(preview_internal_grade >= 5) != (preview_state ==
+  'passed')` — the safeguard, phrased as two distinct messages (below 5 required vs. 5-or-above
+  required) so the reviewer understands which RA-driven side they're not allowed to cross.
+
+**Application changes, same file — the part that makes the override actually persist:**
+Today, `_apply_correct()`/`_apply_add()` write the RA line changes and then unconditionally call
+`_recompute_from_outcomes()`, which re-derives `internal_grade`/`state`/`final_grade`/`has_final`
+straight from the outcomes and resets `is_overridden` to `False` — the wizard's own preview is
+**never actually what gets saved** today, so adding the field alone would not be enough.
+- New shared helper `_apply_internal_grade_override(self, subject_record)`: no-op (`return
+  None`) when `override_internal_grade` is off. Otherwise, captures
+  `subject_record.internal_grade` (the natural, just-recomputed value) for the audit message,
+  then `subject_record.write({'internal_grade': self.preview_internal_grade, 'is_overridden':
+  True, 'final_grade': <recomputed via _final_from_parts>, 'has_final': <same>})` — reusing
+  `ems.student.year_record.subject.is_overridden` (already exists, currently only ever set from
+  the live `ems.grade_subject_line.is_overridden` at freeze time and cleared by
+  `_recompute_from_outcomes()`; same "this grade isn't purely outcome-derived" meaning, no new
+  field needed). `state` is deliberately never touched here — the constraint above already
+  guarantees it's consistent with the forced value by the time this runs. Returns an audit
+  message (`_("Internal grade forced manually: %(forced)s (RA average would give
+  %(natural)s)", ...)`) or `None`.
+- Call it from `_apply_correct()` right after `self._history(self.subject_record_id)
+  ._recompute_from_outcomes()`, and from `_apply_add()` right after `subject_record
+  ._recompute_from_outcomes()`, in both cases BEFORE building the existing "subject: state →
+  state (grade X)" chatter message (so it reports the final, possibly-forced grade), appending
+  the override's own audit line to `changes`/the returned list when not `None`.
+- `_apply_correct()`'s existing guard `if not changes: raise UserError(...)` (today: "the review
+  does not change any learning outcome grade") must become `if not changes and not
+  self.override_internal_grade: raise UserError(...)` — forcing the internal grade with zero RA
+  line edits is a legitimate, standalone correction (the exact scenario the developer described:
+  every RA score is already right, only the weighted-average rounding disagrees with Esfera).
+
+**View (`views/planning_grading/grading/year_record/grade_review_wizard.xml`, "Result of the
+review" group):** add the `override_internal_grade` checkbox next to `preview_internal_grade`,
+and make the latter's `readonly` conditional on it (`readonly="not override_internal_grade"`) so
+it's visually locked until the reviewer opts in — exact placement/labeling to be self-verified
+with a screenshot before considering this phase done (per the project's own "self-verify UI"
+standing habit), not nailed down further in this design doc.
+
+**Shared for both `correct` and `add` operations** — the mechanism is generic and both already
+go through the same `_compute_preview()`/`_recompute_from_outcomes()` path, so there's no extra
+cost to supporting both; the developer's own example was `correct` specifically. If it turns out
+`add` shouldn't offer this, restricting the checkbox to `invisible="operation != 'correct'"` in
+the view is a one-line follow-up, not a redesign.
+
+**Tests (`tests/test_grade_review.py`):**
+- Forcing a value on the same side as the computed state applies cleanly, is reflected in
+  `preview_final_grade` automatically, and ends up written on `ems.student.year_record.subject`
+  (`internal_grade`, `is_overridden=True`, `final_grade` recomputed) after `action_apply()`.
+  `preview_state`/the record's own `state` stay whatever the RAs say, untouched.
+  - Forcing a value on the WRONG side of 5 relative to the computed state raises
+  `ValidationError`, for both directions (trying to force ≥5 when a RA fails; trying to force <5
+  when every RA passes).
+- Forcing with zero RA line edits (no `changes` otherwise) still applies, instead of hitting the
+  old "no changes" `UserError`.
+- No tour needed: this is a backend wizard field with no new client-side widget, standard Odoo
+  list/form rendering handles the readonly toggle already (see `feedback_ui_view_changes_need_
+  tour_coverage` — this genuinely is the narrow case that doesn't apply, since nothing here is a
+  custom OWL component; a plain `TransactionCase` on `action_apply()` already proves the write
+  path end to end).
 
 ## Implementation order
 

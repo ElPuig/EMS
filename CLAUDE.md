@@ -924,12 +924,16 @@ CI pieces work together:
 - `.github/workflows/changelog-clean.yml`: comment `/changelog-clean` on the PR (same
   Integrators-team authorization as `/deploy-check`) to remove `changelog/` via an automated
   commit pushed to the PR's own branch, right before merging.
-- `.github/workflows/ci-unit-testing.yml`: detects when a push only touched `changelog/` (the
-  cleanup commit above) and skips its own expensive install/test steps for that run, so the
-  cleanup doesn't trigger a full ~6-minute re-run — while still actually running (fast) and
-  reporting a real result, deliberately not using `[skip ci]` or a path-filtered trigger for
-  this, both of which risk GitHub leaving a required check stuck "pending" forever instead of
-  passing.
+- `.github/workflows/ci-unit-testing.yml`: detects when a push only touched paths that can
+  never affect runtime behaviour — `changelog/` (the cleanup commit above), `docs/` (technical
+  + trilingual user manuals and their `docs/assets/` images), `plans/`, or a root-level `.md`
+  file — and skips its own expensive install/test steps for that run, so a docs-only or
+  changelog-cleanup push doesn't trigger a full ~6-minute re-run — while still actually running
+  (fast) and reporting a real result, deliberately not using `[skip ci]` or a path-filtered
+  trigger for this, both of which risk GitHub leaving a required check stuck "pending" forever
+  instead of passing (generalized 2026-09-22 from an earlier version scoped to `changelog/`
+  alone). `i18n/*.po` is deliberately excluded from this list — a malformed `.po` file can break
+  the module's translation load, which only a real test run would catch.
 
 ## Staff newsletter email
 

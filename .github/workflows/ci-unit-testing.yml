@@ -7,19 +7,20 @@ on:
 
 jobs:
   # Computes two things once, shared by every shard below: whether this push only touched
-  # changelog/ (see the "Detect changelog-only push" step) and the dynamic test-shard matrix
-  # (scripts/testing/compute_test_shards.py - self-maintaining, discovers tests/*_tour.py at
-  # run time so a new tour file is picked up automatically, no workflow edit needed).
+  # non-code paths (see the "Detect non-code-only push" step) and the dynamic test-shard
+  # matrix (scripts/testing/compute_test_shards.py - self-maintaining, discovers
+  # tests/*_tour.py at run time so a new tour file is picked up automatically, no workflow
+  # edit needed).
   plan:
     name: Plan test shards
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.shards.outputs.matrix }}
-      changelog_only: ${{ steps.diff.outputs.changelog_only }}
+      skip_tests: ${{ steps.diff.outputs.skip_tests }}
     steps:
       # ref: pinned to the PR branch's own head commit - NOT the default for a pull_request
       # event, which is refs/pull/<pr>/merge (a synthetic 2-parent commit GitHub regenerates
-      # on every push, merging the PR branch into main). The "Detect changelog-only push" step
+      # on every push, merging the PR branch into main). The "Detect non-code-only push" step
       # below relies on HEAD~1 being the previous commit *on this branch*; against the merge
       # ref, HEAD~1 is main's own tip instead, so the diff silently covers the whole PR against
       # main rather than just the latest push - confirmed 2026-09-05 (issue #401's own
@@ -37,25 +38,29 @@ jobs:
       # GitHub's own path filtering), or it risks getting stuck "pending" forever and
       # blocking merges even when everything is fine - see require-changelog-clean.yml's own
       # comment for the same gotcha. So instead of filtering this workflow's trigger, detect
-      # here whether the push that triggered this specific run only touched changelog/
-      # (the working-draft PR notes folder - see CLAUDE.md's "PR changelog" section, cleaned
-      # up via the "/changelog-clean" comment command right before merging) and skip the
-      # expensive steps below for that one case, while still letting every job succeed.
-      - name: Detect changelog-only push
+      # here whether the push that triggered this specific run only touched paths that can
+      # never affect runtime behaviour: changelog/ (the working-draft PR notes folder - see
+      # CLAUDE.md's "PR changelog" section), docs/ (technical + trilingual user manuals and
+      # their docs/assets/ images), plans/ (design notes for not-yet-implemented work) and any
+      # root-level .md file (README.md, CLAUDE.md...). i18n/*.po is deliberately NOT included -
+      # a malformed .po file can break the module's translation load, which the real test run
+      # would actually catch. Skip the expensive steps below for that one case, while still
+      # letting every job succeed.
+      - name: Detect non-code-only push
         id: diff
         run: |
           if [ "${{ github.event_name }}" != "pull_request" ]; then
-            echo "changelog_only=false" >> "$GITHUB_OUTPUT"
+            echo "skip_tests=false" >> "$GITHUB_OUTPUT"
           elif git rev-parse HEAD~1 >/dev/null 2>&1; then
             CHANGED=$(git diff --name-only HEAD~1 HEAD)
-            if [ -n "$CHANGED" ] && ! echo "$CHANGED" | grep -qv '^changelog/'; then
-              echo "changelog_only=true" >> "$GITHUB_OUTPUT"
-              echo "This push only touches changelog/ - skipping the full test suite for this run."
+            if [ -n "$CHANGED" ] && ! echo "$CHANGED" | grep -qvE '^(changelog|docs|plans)/|^[^/]+\.md$'; then
+              echo "skip_tests=true" >> "$GITHUB_OUTPUT"
+              echo "This push only touches changelog/, docs/, plans/ or root-level .md files - skipping the full test suite for this run."
             else
-              echo "changelog_only=false" >> "$GITHUB_OUTPUT"
+              echo "skip_tests=false" >> "$GITHUB_OUTPUT"
             fi
           else
-            echo "changelog_only=false" >> "$GITHUB_OUTPUT"
+            echo "skip_tests=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Compute test shards
@@ -73,7 +78,7 @@ jobs:
   test:
     name: "Test (${{ matrix.name }})"
     needs: plan
-    if: needs.plan.outputs.changelog_only != 'true'
+    if: needs.plan.outputs.skip_tests != 'true'
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.plan.outputs.matrix) }}

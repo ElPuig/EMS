@@ -726,6 +726,23 @@ class EmsAbsenceLeave(models.Model):
         self._ems_set_direction_state('refused')
         return self.action_refuse()
 
+    def action_reset_confirm(self):
+        """Odoo's own reset only ever touches 'state' - left alone, a Direction refusal would
+        strand 'ems_direction_state' on 'refused' after the request is reopened, with nothing
+        left on screen to explain why the overall status still won't move. Direction's own
+        review has to be redone, exactly like the Head's already is by
+        '_compute_ems_head_state' reacting to 'state' alone.
+
+        'sudo()' on the write: reaching this method at all already requires the Time Off
+        Manager group (Odoo's own 'hr.leave._check_approval_update', called from 'write()' for
+        every non-superuser), a strictly wider right than '_ems_can_set_direction_state()' asks
+        for - so clearing a now-stale refusal as a side effect of that reset is not a fresh
+        Direction decision needing its own check."""
+        refused_by_direction = self.filtered(lambda leave: leave.ems_direction_state == 'refused')
+        result = super().action_reset_confirm()
+        refused_by_direction.sudo()._ems_set_direction_state('not_done')
+        return result
+
     @api.constrains('ems_submitted', 'ems_responsible_declaration')
     def _check_ems_submitted(self):
         """Two conditions, neither of which can live in the view alone.

@@ -425,14 +425,27 @@ appears at all, and that cancelling it really leaves the file alone. It runs on 
 is approved *and* of a type requiring no document, so it doubles as the browser-side proof that
 neither condition hides the field any more.
 
-## Refusing asks first too, because nobody can undo it
+## Refusing asks first too, because almost nobody can undo it
 
 `action_reset_confirm` puts a refused request back to `Pending`, but Odoo reserves that to its
-Time Off Administrator group: `_check_approval_update` raises *"Only a Time Off Manager can
-reset a refused leave"* for anybody else, an officer included. Nobody at the centre holds that
-group - `res.users._ems_sync_time_off_groups()` takes it back from everyone, deliberately, since
-it also grants read access to every colleague's absence reason and attachment. **A refused
-request is therefore final: the employee has to file a new one.**
+Time Off Manager group: `_check_approval_update` raises *"Only a Time Off Manager can reset a
+refused leave"* for anybody else, an officer included. `res.users._ems_sync_time_off_groups()`
+takes that group back from everyone, deliberately, since it also grants read access to every
+colleague's absence reason and attachment - with one explicit exception, `base.user_admin`
+itself, kept out of the revocation (`protected` in that method) because the account needs to
+stay a genuine Time Off Administrator. **In practice a refused request is final for the Head,
+for Direction and for the employee: only that one administrator account can reopen it, and the
+employee should normally expect to file a new request instead.** The confirmation dialogs say
+exactly that, rather than claiming the button doesn't exist at all - it does, for that one
+account, right there on the same screen (found 2026-09-22, issue #501).
+
+`EmsAbsenceLeave.action_reset_confirm()` overrides the native method so that reset actually
+leaves the request clean: on its own, Odoo's version only ever touches `state`, so a request
+Direction had refused (`ems_direction_state = 'refused'`) would come back as `Pending` overall
+while Direction's own column kept showing `Refused`, with `ems_status` stuck unable to reflect
+either. The override clears `ems_direction_state` back to `not_done` for exactly those leaves,
+via `sudo()` - reaching this method at all already required the wider Time Off Manager group, so
+clearing a now-stale refusal is not a fresh Direction decision needing its own check.
 
 The button that causes it sits next to Approve on three different screens, and on two of them it
 is a bare icon in a row. All three confirm first, through Odoo's own `confirm` attribute rather
@@ -453,8 +466,10 @@ Direction's own Refuse (`action_ems_direction_refuse`, see *Two approvals*) carr
 confirmation, in the list and in the form header.
 
 Covered by the `ems_absence_refuse_confirm` tour, which cancels the dialog from the list button
-and confirms it from the form one, and by
-`test_refusing_is_not_reversible_at_the_centre`, which asserts the rule the wording rests on.
+and confirms it from the form one, and by `test_refusing_is_not_reversible_at_the_centre`, which
+asserts the rule the wording rests on for a regular officer. `test_resetting_a_head_refusal_
+clears_it` and `test_resetting_a_direction_refusal_also_clears_the_direction_check` cover what
+the one account that *can* reach `action_reset_confirm` actually gets back.
 
 ## Allocations and accrual plans are hidden
 

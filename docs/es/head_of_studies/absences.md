@@ -53,7 +53,7 @@ La ausencia tiene efecto (calendario de ausencias, saldo de horas, cuadrante de 
 
 Tú ves el **motivo escrito** y el **justificante**; el resto del personal, no.
 
-**Rechazar es definitivo.** Nadie del centro puede devolver una solicitud rechazada a *Pendiente*: para concederla finalmente, la persona tiene que hacer una nueva. Como el botón Rechazar está al lado de Aprobar, y en el listado es solo una cruz a su lado, siempre pide confirmación antes - lee el mensaje antes de aceptarlo.
+**Rechazar es definitivo.** Una vez rechazas una solicitud, ni tú ni la persona podéis devolverla a *Pendiente*: para concederla finalmente, la persona tiene que hacer una nueva. Como el botón Rechazar está al lado de Aprobar, y en el listado es solo una cruz a su lado, siempre pide confirmación antes - lee el mensaje antes de aceptarlo.
 
 Puedes adjuntar un **justificante** a cualquier solicitud, de cualquier tipo y en cualquier momento: un certificado entregado cuando la ausencia ya estaba aprobada se adjunta a esa misma solicitud, y eso es lo que resuelve un *Falta documento*.
 

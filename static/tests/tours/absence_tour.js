@@ -174,11 +174,13 @@ registry.category("web_tour.tours").add("ems_absence_justification", {
     ],
 });
 
-// Refusing is the one absence decision nobody at the centre can undo: Odoo reserves resetting
-// a refused request to its Time Off Administrator group, which res.users
-// ._ems_sync_time_off_groups leaves nobody holding, so the employee has to file the whole
-// request again. Both buttons that cause it are one stray click away from the Approve button
-// beside them, so both are confirmed first - and only a browser can prove a dialog appears.
+// Refusing is final for whoever refuses (Head or Direction) and, ordinarily, for the employee
+// too: Odoo reserves resetting a refused request to its Time Off Manager group, which
+// res.users._ems_sync_time_off_groups leaves nobody at the centre holding except
+// 'base.user_admin' itself (deliberately protected, see EmsAbsenceLeave.action_reset_confirm),
+// so the employee normally has to file the whole request again. Both buttons that cause a
+// refusal are one stray click away from the Approve button beside them, so both are confirmed
+// first - and only a browser can prove a dialog appears.
 registry.category("web_tour.tours").add("ems_absence_refuse_confirm", {
     test: true,
     url: "/odoo/action-hr_holidays.hr_leave_action_holiday_allocation_id",

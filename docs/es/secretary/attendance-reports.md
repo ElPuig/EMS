@@ -47,6 +47,8 @@ En la pantalla de **Informes de asistencia**, haz clic en el icono **⚙ (engran
   para selecciones grandes.
 - **Incluir los strikes** (activado por defecto) — añade tablas de los strikes disciplinarios del periodo.
 
+El PDF descargado lleva el nombre del informe y del alumno, grupo o asignatura seleccionados (p. ej. `Informe de asistencia_ por estudiante_Nombre_Apellido.pdf`), para poder distinguir varias descargas.
+
 ---
 
 [← Volver a los manuales de Secretaría](index.md)

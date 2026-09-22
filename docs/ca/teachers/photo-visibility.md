@@ -35,8 +35,11 @@ Des del teu perfil pots activar o desactivar l'opció **Desactivar la foto de pe
 ## Com canviar-ho
 
 1. Fes clic al teu avatar, a la cantonada superior dreta de l'EMS, i tria **El meu perfil**.
-2. A **Foto**, activa o desactiva **Desactivar la foto de perfil**.
-3. Tanca la finestra — el canvi es desa automàticament.
+2. Obre la pestanya **Preferències**.
+3. A **Foto**, activa o desactiva **Desactivar la foto de perfil**.
+4. Tanca la finestra — el canvi es desa automàticament.
+
+![La pestanya Preferències: Idioma i el grup Foto amb l'opció "Desactivar la foto de perfil"](../../assets/teachers/foto-01-preferencies.png)
 
 > **Nota:** mentre estigui activada, no es pot pujar cap foto per a tu des d'enlloc
 > — ni el teu perfil, ni la teva fitxa d'empleat — fins que tornis a desactivar

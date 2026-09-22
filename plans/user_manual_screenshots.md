@@ -1,18 +1,26 @@
 # Plan: Add screenshots to every user manual missing one
 
-**Status as of 2026-09-17 (fifth session, branch 486-documentation-images-phase-1 - renamed/
-recreated from 476 between sessions by the developer):
-head_of_studies (7/7) DONE, admin batch 1/4 (4/17) DONE, teachers 4/10 DONE** — see "Status per
-role" below for all three. **The developer asked to prioritize `teachers` next, and to go
-through it one manual at a time (not in topical batches of 4-5 like `admin`)** - `tests/
-test_docs_screenshots_teachers.py` now exists, one test method per manual so far
+**Paused 2026-09-22 at the end of the sixth session (branch `487-documentation-images-phase-2`) -
+the developer will resume this work from a DIFFERENT branch next.** Whatever branch picks this
+back up should treat this file (and the actual `docs/`/`tests/` state) as the source of truth, not
+the branch name in this note - it will already be stale the moment a new branch is cut. The work
+described below (teachers role complete, its code/docs changes) is currently uncommitted on
+`487-documentation-images-phase-2`; how/whether that lands on the new branch (rebase, cherry-pick,
+merge, or redone from scratch) is the developer's call, not something to assume from this file.
+
+**Status as of the pause: head_of_studies (7/7) DONE, admin batch 1/4 (4/17) DONE, teachers
+(10/10) DONE - teachers role now fully complete.** See "Status per role" below for all three.
+`tests/test_docs_screenshots_teachers.py` now has 10 test methods, one per manual
 (`test_capture_acces_ems_google`, `test_capture_attendance_corrections`,
-`test_capture_attendance_reports`, `test_capture_attendance_session`). Continue the same way
-(one manual, one check-in, repeat)
-unless the developer says otherwise; `admin`'s remaining 3 batches are still planned out below
-for whenever that role is picked back up. This plan may go stale between sessions - re-check the
-current state of `docs/{en,ca,es}/<role>/` and `tests/test_docs_screenshots*.py` before resuming,
-don't assume this file is still accurate.
+`test_capture_attendance_reports`, `test_capture_attendance_session`,
+`test_capture_guard_duty_schedule`, `test_capture_photo_visibility`, `test_capture_strike`,
+`test_capture_student_academic_data`, `test_capture_student_list_my_groups`,
+`test_capture_working_schedules`). **Next up: pick a role to resume with the developer** -
+`admin`'s remaining 3 batches are already grouped out below, ready to resume directly;
+`secretary`/`tutors`/`families` haven't been started at all (23 manuals combined) and need their
+own research pass + batching-convention decision before starting. This plan may go stale between
+sessions - re-check the current state of `docs/{en,ca,es}/<role>/` and
+`tests/test_docs_screenshots*.py` before resuming, don't assume this file is still accurate.
 
 ## Batching convention (per developer request, 2026-09-16 third session)
 
@@ -35,8 +43,12 @@ test method in `tests/test_docs_screenshots_teachers.py`:
 2. ✅ DONE - attendance-corrections
 3. ✅ DONE - attendance-reports
 4. ✅ DONE - attendance-session
-5-10. NOT STARTED - guard-duty-schedule, photo-visibility, strike, student-academic-data,
-   student-list-my-groups, working-schedules
+5. ✅ DONE - guard-duty-schedule
+6. ✅ DONE - photo-visibility
+7. ✅ DONE - strike
+8. ✅ DONE - student-academic-data
+9. ✅ DONE - student-list-my-groups
+10. ✅ DONE - working-schedules
 
 secretary, tutors and families have not been started at all yet - decide batching vs. one-at-a-
 time with the developer when picked up (don't assume either convention carries over automatically).
@@ -417,8 +429,152 @@ different). Login: a single `doc_shot_teacher` fixture user (`ems.group_teacher`
   above for what this manual needed: the new `run=` param (a `<select>`'s `change` event, not a
   click), the `max_height` fix for the OWL component's own flex-stretch, the whole-day-schedule
   trick, and the justification-onchange gotcha.
-- **Remaining 6 (`guard-duty-schedule`, `photo-visibility`, `strike`, `student-academic-data`,
-  `student-list-my-groups`, `working-schedules`) - NOT STARTED.**
+- **`guard-duty-schedule.md` - ✅ DONE.** `test_capture_guard_duty_schedule` covers both tabs: the
+  timetable (a group's class, a plain guard, a Guard (WC), a Break/"Pati" row with its own guard,
+  and an absent teacher in bold red) and the Absences table for the same time block. 2 PNGs
+  (`guard-duty-01-horari.png`, `guard-duty-02-absencies.png`), visually verified with `Read`
+  (fake "0000 Berta/Martí/Clara/Roger..." fixtures only), copied into `docs/assets/teachers/`,
+  referenced in all 3 languages. **Real, serious gotcha found and fixed here, worth flagging for
+  any future capture of a centre-wide screen:** this board (`ems.action_guard_duty_board`) is a
+  plain `ir.actions.client`, not a domain-scoped view - its own RPC
+  (`ems.course.get_guard_duty_board_data`) is deliberately centre-wide by design
+  (`_get_guard_duty_board_attendance_ids()`'s own NOTE: "not actually course-filtered"), and the
+  Guard duty column stays centre-wide even when a level filter is applied (documented in
+  `get_guard_duty_board_lines()`'s own docstring - a guard is shown by time-period overlap alone,
+  regardless of level). The FIRST capture attempt, with no mitigation, rendered this dev DB's
+  real day's real timetable across every real group and every real guard on duty - real teacher
+  names, real group codes, real classrooms, not caught until the PNG was actually opened with
+  `Read` per CLAUDE.md's own "if you cannot verify a screenshot is clean... inspect it yourself"
+  rule. Since there is no domain param to scope a client action by (the "create our own
+  `ir.actions.act_window`" trick used everywhere else in this plan doesn't apply here), the fix
+  was to monkeypatch the aggregation method itself for the duration of the test only:
+  `unittest.mock.patch.object(type(self.env['ems.course']), '_get_guard_duty_board_attendance_ids', ...)`
+  wrapping the real method's result in `.filtered(lambda attendance: attendance.calendar_id.employee_id.id in fixture_employee_ids)`,
+  restored via `self.addCleanup` (NOT `addClassCleanup` - this is a real process-wide monkeypatch,
+  not a DB write that rolls back on its own, so it must not leak into any other test in the
+  class). This narrows every downstream computation (groups, periods, guards, absences) to
+  fixture data only, with no need for the level filter for privacy purposes at all. **Any future
+  capture of a client-action screen with no `domain` field (as opposed to a plain list/form view)
+  should check for this same class of leak before trusting the first screenshot** - the "does this
+  action have a domain, and if not, is it actually scoped by something else (access rules,
+  course, level...)" question from the existing "Mechanism" gotchas above isn't sufficient on its
+  own when the screen is a custom RPC rather than a view at all.
+- **`photo-visibility.md` - ✅ DONE.** `test_capture_photo_visibility` covers the Preferences tab
+  (Language + the Photo group's "Disable profile picture" toggle). 1 PNG
+  (`foto-01-preferencies.png`), visually verified with `Read` (no personal data - just generic
+  preference fields, no names), copied into `docs/assets/teachers/`, referenced in all 3
+  languages - the doc's own numbered steps were also updated to mention the Preferences tab
+  explicitly (missing since the #440 "My Profile" tab restructure, per CLAUDE.md's "Documentation
+  describes current behavior" rule). **Gotchas found here:**
+  - **"My Profile" (`hr.res_users_action_my`) has no stable action URL** - its `res_id` is
+    resolved dynamically per logged-in user only when reached through the real user-menu click
+    (`hr/models/res_users.py`'s `action_get()`); navigating straight to the action opens a blank
+    "New" form instead (already known from `static/tests/tours/user_profile_tour.js`'s own NOTE,
+    confirmed again here). Fixed with a `tour=` capture (`_capture(url_path='/odoo', ...,
+    tour='ems_doc_shot_photo_visibility')`) that does the whole "open the user menu, click My
+    Profile, click Preferences" walk itself, added to
+    `static/tests/tours/docs_screenshots_tour.js`.
+  - **The new tour's trigger text had to be in CATALAN, not English** - unlike
+    `user_profile_tour.js` (a real regression tour, forced to `en_US`), this docs-screenshot
+    capture logs in as the shared `doc_shot_teacher` fixture (`lang='ca_ES'`, the same fixture
+    every other capture in this file relies on for a Catalan screenshot "for free"). `.dropdown-
+    item:contains('My Profile')` never matched; fixed to `contains('El meu perfil')` (confirmed
+    via `hr/i18n/ca.po`) and `contains('Preferences')` to `contains('Preferències')`
+    (`web/i18n/ca.po`). Same underlying class of gotcha as CLAUDE.md's "Tour tests and language",
+    just the opposite fix - this account is deliberately non-`en_US`, so the trigger has to match
+    its *real* rendered text instead of being forced to English.
+  - **The form's header shows the res.users' own `name` field, NOT the linked hr.employee's
+    "0000 "-prefixed one.** First attempt at the "real record, not a blank new one" check used
+    `.o_form_view:contains('0000 Professor Exemple')` (copying the hr.employee fixture's own
+    sort-order-friendly name) and failed - the tour's own auto-saved failure screenshot
+    (`/tmp/odoo_tests/ems/screenshots/`) showed the real page correctly loaded, just titled
+    "Professor Exemple" (the `res.users.name` set by `create_role_user()`), not the "0000 "
+    variant. Fixed by matching the un-prefixed name instead. A reminder that "My Profile" mixes
+    fields from two different underlying records (`res.users` for identity/header, `hr.employee`
+    for HR data) - don't assume a name shown on this screen came from whichever fixture record
+    you're thinking of.
+- **`strike.md` - ✅ DONE.** `test_capture_strike` covers the strike dialog opened from the
+  passlist (student name, Attention notice/Kicked out toggle, Reason dropdown pre-filled with the
+  seeded `ems.strike_reason_other` default, optional Details textarea). 1 PNG
+  (`strike-01-dialeg.png`), visually verified with `Read` (only the fake "Nil Exemple" fixture
+  name), copied into `docs/assets/teachers/`, referenced in all 3 languages. Deliberately only
+  opens the dialog and never clicks Send, so no real `ems.strike` record is ever created - avoids
+  needing `mock_outgoing_email()` at all (`ems.strike.create()` triggers real notification emails
+  via its own `_notify()`/`_check_escalation()`, per `tests/test_strike_tour.py`'s own pattern -
+  simply never reaching `create()` sidesteps the whole concern for this capture). The dialog is a
+  native HTML `<dialog t-ref="strikeDialog" class="ems-av-strike-dialog">` (confirmed in
+  `static/src/xml/backend/attendance_session_view.xml`), opened via `.showModal()`, hence the
+  `[open]` attribute selector - `getBoundingClientRect()`/CDP screenshot work on it exactly like
+  any other element, no special-casing needed despite it being the first *native* `<dialog>`
+  (rather than a Bootstrap `.modal-content`) captured in this project.
+- **`student-academic-data.md` - ✅ DONE.** `test_capture_student_academic_data` covers the
+  "Academic history" tab on a student's own form (one row per course: study, group, result badge,
+  title obtained, attendance rate). 1 PNG (`historial-01-academic.png`), visually verified with
+  `Read` (only the fake "Roc Exemple"/"DAM1A"/"0000 Tutora Exemple" fixture), copied into
+  `docs/assets/teachers/`, referenced in all 3 languages. Reused `TestDocsScreenshotsHeadOfStudies`'
+  own `ems.student.year_record` fixture pattern (`study_name`/`group_name`/`tutor_name` are plain,
+  denormalized snapshot chars set directly, not computed from `study_id`/`group_id`/`tutor_id`).
+  Confirmed the tab itself needs no domain-scoping trick unlike a standalone list view - it's a
+  plain `year_record_ids` One2many keyed to `student_id`, so opening one student's own form
+  already only ever shows that student's own rows; only opening the form AT ALL still needed a
+  domain-scoped `res.partner` action (`[('id', '=', student.id)]`), same "actions of our own"
+  pattern used everywhere else in this plan. Only the "Consult a Student's Academic History"
+  section (the part every plain Teacher can actually use) was captured - the Guidance/Coexistence-
+  coordinator sections later in the same manual describe screens outside a plain teacher's own
+  access and were left uncaptured for this pass, consistent with keeping each capture scoped to
+  what the manual's primary named role can actually reach.
+- **`student-list-my-groups.md` - ✅ DONE.** `test_capture_student_list_my_groups` covers the
+  Students list with both default filters applied ("Students"/"My students"), built with TWO
+  fixture students - one in the teacher's own group (via a real `ems.teaching` link, matching
+  `res.partner._ems_my_students_domain()`'s own logic) and one in a completely unrelated group -
+  so the screenshot actually *demonstrates* the "My students" filter excluding the second one,
+  rather than just asserting it in prose. 1 PNG (`alumnat-01-els-meus-grups.png`), visually
+  verified with `Read` (only "Martina Exemple"/"DAM1A" fixture visible; "Iu Altregrup" correctly
+  absent), copied into `docs/assets/teachers/`, referenced in all 3 languages. **Two things worth
+  flagging:**
+  - **A real, pre-existing terminology drift found and fixed in the CA/ES manuals**: both called
+    the first filter chip "Alumnat"/"Alumnado" in their own bulleted description, but the actual
+    rendered UI label (confirmed both live in the screenshot and via `i18n/{ca_ES,es_ES}.po`'s
+    `msgid "Students"` block, which the search view's own `#:` reference is part of) is
+    "Estudiants"/"Estudiantes" - fixed both bullets to match what the screenshot right below them
+    actually shows, per CLAUDE.md's "Documentation describes current behavior" rule. The EN
+    manual's own "Students" label was already correct.
+  - **`.o_content` alone is NOT sufficient** to show a list's search-bar filter chips - confirmed by
+    reading `web/static/src/search/layout.xml`: `web.Layout` renders `ControlPanel` (breadcrumb +
+    searchbar + facets) as a SIBLING immediately BEFORE `.o_content`, not inside it. Every other
+    list capture in this project only ever needed the data rows, so this went unnoticed until a
+    manual whose whole point IS the search-bar filters needed them in frame. Fixed by clipping to
+    `.o_list_view` (the view's own root, wrapping ControlPanel + `.o_content` together) with
+    `max_height` to tame its usual flex-stretch. **Any future capture that needs to show applied
+    search-bar filters/facets, not just list rows, needs `.o_list_view` (or the view root class
+    for that view type), never `.o_content`.**
+  - Avoided the kanban student view entirely (`action_student_kanban`'s default `view_mode` is
+    `kanban,list,form`) by building a domain-scoped action with `view_mode: 'list,form'` only -
+    the kanban student view has a known, real, un-root-caused client-side stall (see
+    `project_role_smoke_student_kanban_hang` in memory), not worth risking for a screenshot.
+- **`working-schedules.md` - ✅ DONE. Teachers role now 10/10 — fully complete.**
+  `test_capture_working_schedules` covers the weekly schedule grid on "My Profile" (a teaching
+  block with subject/group/room, followed by a break block, plus the PDF export button and the
+  weekly-hours summary). 1 PNG (`horari-01-setmanal.png`), visually verified with `Read` (only
+  fictitious "DOCSCHED"/"Aula Exemple" fixture data), copied into `docs/assets/teachers/`,
+  referenced in all 3 languages. **Also fixed a stale access step in all 3 languages** - the
+  manual said "Employees → [your own record] → Schedule tab", but a plain teacher has no
+  "Employees" menu at all (same class of staleness already fixed on `photo-visibility.md`); the
+  real path is "My Profile" (Schedule is already the first/default tab there, confirmed by
+  `static/tests/tours/user_profile_tour.js`'s own `tabOrderSteps()` - no tab click needed in the
+  capture). The schedule grid widget (`schedule_grid_field.js`, `.o_schedule_grid` /
+  `.o_field_widget[name='schedule_attendance_ids']`) is the SAME editable-component class used for
+  an admin editing any employee's schedule - read-only-ness for a plain teacher comes purely from
+  hiding the Edit/Import buttons via `can_edit_schedule`, not from swapping in a different
+  `readonly_schedule_grid` widget (that one is for a *group's*/*space*'s own aggregate schedule
+  view instead, a different manual/model entirely). Reused `teacher_employee.resource_calendar_id`
+  directly (auto-created by `hr.employee.create()` for `employee_type='teacher'`) rather than
+  creating and reassigning a second calendar, since this IS the exact record "My Profile" reads
+  from. Co-teaching and reinforcement-group blocks were deliberately NOT fixtured for this
+  capture - both render as an entirely ordinary `.o_schedule_grid_entry` with no distinct visual
+  marker of their own on a single teacher's grid (confirmed via research), so there was nothing
+  extra a screenshot could actually demonstrate beyond what the plain teaching-block capture
+  already shows.
 
 ### admin - batch 1/4 (4/17) - ✅ DONE 2026-09-16, batches 2-4 NOT STARTED
 `tests/test_docs_screenshots_admin.py` exists and is registered in `tests/__init__.py`, one test

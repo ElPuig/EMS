@@ -674,6 +674,31 @@ class TestAbsenceRequest(TransactionCase):
                 self.assertEqual(leave.ems_head_state, 'approved' if approved_first else 'pending')
                 self.assertEqual(leave.ems_status, 'refused')
 
+    def test_resetting_a_head_refusal_clears_it(self):
+        leave = self._create_leave(self.type_justified, self._monday())
+        leave.action_refuse()
+
+        leave.action_reset_confirm()
+
+        self.assertEqual(leave.state, 'confirm')
+        self.assertEqual(leave.ems_head_state, 'pending')
+        self.assertEqual(leave.ems_direction_state, 'not_done')
+        self.assertEqual(leave.ems_status, 'pending')
+
+    def test_resetting_a_direction_refusal_also_clears_the_direction_check(self):
+        """Odoo's own reset only ever touches 'state' - without this override,
+        'ems_direction_state' would be stranded on 'refused' after the request is reopened,
+        even though nothing on screen still says why it can't be approved again."""
+        leave = self._create_leave(self.type_justified, self._monday())
+        leave.action_ems_direction_refuse()
+
+        leave.action_reset_confirm()
+
+        self.assertEqual(leave.state, 'confirm')
+        self.assertEqual(leave.ems_head_state, 'pending')
+        self.assertEqual(leave.ems_direction_state, 'not_done')
+        self.assertEqual(leave.ems_status, 'pending')
+
     def test_direction_marks_its_check_from_buttons(self):
         leave = self._create_leave(self.type_justified, self._monday())
 

@@ -12,7 +12,7 @@
 
 ## Explorar els informes d'assistència
 
-1. Vés a **Assistència → Informes**. S'obre directament amb una **taula dinàmica**, mostrant per defecte **només els teus propis grups i assignatures** (el mateix abast que els informes PDF de sota — ser tutor/a d'algú no amplia això per si sol, només impartir-hi realment una assignatura ho fa).
+1. Vés a **Assistència → Informes**. S'obre directament amb una **taula dinàmica**, mostrant per defecte **només els teus propis grups i assignatures** (el mateix abast que els informes PDF per grup i per assignatura de sota — ser tutor/a d'algú no amplia això per si sol, només impartir-hi realment una assignatura ho fa).
 2. La taula agrupa per **assignatura i després per alumne**. Fes clic a la icona **Expandeix-ho tot** (a dalt a la dreta, al costat de Capgirar eixos) dues vegades: un cop per desplegar les assignatures i un altre per desplegar els alumnes de cada assignatura. El número principal és el **% de faltes per alumne** — el **Compte** (nombre de sessions comptabilitzades) i el **Recompte de strikes** es mostren al costat, així pots saber si un 33% surt de 3 sessions o de 30, i si ve acompanyat de strikes disciplinaris.
 3. Fes servir la barra de cerca per filtrar més (per alumne, grup, assignatura o estat), i **Agrupa per** per canviar com es plega la taula.
 4. Fes servir la icona de **full de càlcul/descàrrega** de la capçalera per exportar la taula dinàmica actual a Excel.
@@ -30,9 +30,11 @@ A la pantalla d'**Informes d'assistència**, fes clic a la icona **⚙ (engranat
 3. Fes clic a **Imprimeix**. El PDF s'obre amb un resum global d'assistència/absència, un recompte per estat i les notes de sessió registrades durant el període.
 
 **Informe d'assistència (per alumne):**
-1. Selecciona un **Alumne** — el desplegable només mostra alumnes matriculats en una assignatura que **realment imparteixes**, no tots els teus tutoritzats: ser tutor/a d'algú no et dona accés per si sol si no li imparteixes cap assignatura.
+1. Selecciona un **Alumne** — el desplegable mostra els alumnes matriculats en una assignatura que **imparteixes** i **tots els teus tutoritzats**, encara que no els imparteixis cap assignatura.
 2. El **Tutor/a** i les dates **Des de**/**Fins a** es preomplen automàticament a partir de l'alumne i del seu rang de sessions.
-3. Fes clic a **Imprimeix**. El PDF s'obre amb un resum global d'assistència/absència, un recompte per estat i les notes de sessió registrades durant el període.
+3. Fes clic a **Imprimeix**. El PDF s'obre amb un resum global d'assistència/absència, un recompte per estat i les notes de sessió registrades durant el període. Per als teus tutoritzats inclou **totes les assignatures**, sigui qui sigui el docent de la sessió; per a la resta d'alumnes, només les sessions que has impartit tu.
+
+El Cap de departament o de seminari, el Cap d'estudis que tens per sobre i el Director obtenen el mateix informe complet per alumne dels teus tutoritzats.
 
 **Informe d'assistència (per assignatura):**
 1. Selecciona una **Assignatura** — el desplegable només mostra assignatures que **realment imparteixes**, no totes les que s'imparteixen en un grup que tutories.
@@ -46,6 +48,8 @@ A la pantalla d'**Informes d'assistència**, fes clic a la icona **⚙ (engranat
   raonable; afegeix-ne més i apareix un avís que l'informe pot tornar-se lent de generar o fallar per a
   seleccions grans.
 - **Inclou els strikes** (actiu per defecte) — afegeix taules dels strikes disciplinaris del període.
+
+El PDF descarregat porta el nom de l'informe i de l'alumne, grup o assignatura seleccionats (p. ex. `Informe d'assistència_ per estudiant_Nom_Cognom.pdf`), per poder distingir diverses descàrregues.
 
 > Per a una vista més àmplia, per curs, de l'assistència d'un tutorat al llarg de tot el seu historial, consulta [Historial acadèmic dels teus alumnes](academic-history.md).
 

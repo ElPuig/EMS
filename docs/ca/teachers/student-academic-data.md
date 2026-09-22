@@ -16,6 +16,8 @@ L'historial acadèmic és el registre congelat, curs a curs, de la trajectòria 
 
 **Des del seu propi menú:** Planificació i Qualificació → Notes → **Historial acadèmic**. La llista s'obre agrupada per curs: clica un curs per desplegar-lo, o escriu el nom de l'alumne al cercador.
 
+![La pestanya Historial acadèmic a la fitxa de l'alumne, una fila per curs](../../assets/teachers/historial-01-academic.png)
+
 És només de lectura. Per corregir un registre, contacta amb la Secretaria o amb l'Administrador.
 
 ---

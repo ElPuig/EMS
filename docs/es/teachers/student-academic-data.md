@@ -16,6 +16,8 @@ El historial académico es el registro congelado, curso a curso, de la trayector
 
 **Desde su propio menú:** Planificación y Calificación → Notas → **Historial académico**. La lista se abre agrupada por curso: haz clic en un curso para desplegarlo, o escribe el nombre del alumno en el buscador.
 
+![La pestaña Historial académico en la ficha del alumno, una fila por curso](../../assets/teachers/historial-01-academic.png)
+
 Es solo de lectura. Para corregir un registro, contacta con la Secretaría o con el Administrador.
 
 ---

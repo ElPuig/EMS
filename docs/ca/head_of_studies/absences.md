@@ -53,7 +53,7 @@ L'absència té efecte (calendari d'absències, saldo d'hores, quadrant de guàr
 
 Tu hi veus el **motiu escrit** i el **justificant**; la resta del personal, no.
 
-**Rebutjar és definitiu.** Ningú del centre pot tornar una sol·licitud rebutjada a *Pendent*: per concedir-la finalment, la persona ha de fer-ne una de nova. Com que el botó Rebutja és al costat d'Aprova, i al llistat és només una creu al seu costat, sempre demana confirmació abans - llegeix el missatge abans d'acceptar-lo.
+**Rebutjar és definitiu.** Un cop rebutges una sol·licitud, ni tu ni la persona la podeu tornar a *Pendent*: per concedir-la finalment, la persona ha de fer-ne una de nova. Com que el botó Rebutja és al costat d'Aprova, i al llistat és només una creu al seu costat, sempre demana confirmació abans - llegeix el missatge abans d'acceptar-lo.
 
 Pots adjuntar un **justificant** a qualsevol sol·licitud, de qualsevol tipus i en qualsevol moment: un certificat lliurat quan l'absència ja estava aprovada s'adjunta a la mateixa sol·licitud, i això és el que resol un *Falta document*.
 

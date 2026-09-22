@@ -36,7 +36,7 @@ A la pantalla d'**Informes d'assistència**, fes clic a la icona **⚙ (engranat
 **Informe d'assistència (per alumne):**
 1. Selecciona un **Alumne** — el desplegable només mostra alumnes matriculats en una assignatura que **realment imparteixes**; si et falta algun alumne, comprova que estàs assignat/da a la seva assignatura al teu horari docent.
 2. El **Tutor/a** i les dates **Des de**/**Fins a** es preomplen automàticament a partir de l'alumne i del seu rang de sessions.
-3. Fes clic a **Imprimeix**. El PDF s'obre amb un resum global d'assistència/absència, un recompte per estat i les notes de sessió registrades durant el període.
+3. Fes clic a **Imprimeix**. El PDF s'obre amb un resum global d'assistència/absència, un recompte per estat i les notes de sessió registrades durant el període. Només inclou **les sessions que tu has impartit** a aquest alumne. Si n'ets el tutor/a, inclou totes les seves assignatures (consulta el manual de tutors).
 
 **Informe d'assistència (per assignatura):**
 1. Selecciona una **Assignatura** — el desplegable només mostra assignatures que **realment imparteixes**.
@@ -49,6 +49,8 @@ A la pantalla d'**Informes d'assistència**, fes clic a la icona **⚙ (engranat
   d'absència (**Falta**, **Falta justificada**) perquè l'informe es mantingui d'una mida raonable; afegeix-ne
   més i apareix un avís que l'informe pot tornar-se lent de generar o fallar per a seleccions grans.
 - **Inclou els strikes** (actiu per defecte) — afegeix taules dels strikes disciplinaris del període.
+
+El PDF descarregat porta el nom de l'informe i de l'alumne, grup o assignatura seleccionats (p. ex. `Informe d'assistència_ per estudiant_Nom_Cognom.pdf`), per poder distingir diverses descàrregues.
 
 ---
 

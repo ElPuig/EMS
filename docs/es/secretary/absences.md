@@ -24,7 +24,7 @@ Ahí salen solo las solicitudes de tu área, en estado **Pendiente** mientras es
 
 Tienes acceso al motivo escrito y al justificante de tu gente, y puedes ajustar los campos **Suma las horas al informe mensual**, **Se tramita por ATRI** y **¿Día entero?**, además de corregir el tipo de ausencia.
 
-**Rechazar es definitivo**, y pide confirmación antes: nadie puede devolver una solicitud rechazada a *Pendiente*, y la persona tendría que hacer una nueva. El justificante, en cambio, se puede adjuntar en cualquier momento, también en una solicitud ya aprobada.
+**Rechazar es definitivo**, y pide confirmación antes: una vez rechazas una solicitud, ni tú ni la persona podéis devolverla a *Pendiente*, así que tendría que hacer una nueva. El justificante, en cambio, se puede adjuntar en cualquier momento, también en una solicitud ya aprobada.
 
 Aprobar es tu mitad: Dirección también aprueba cada ausencia, en la columna **Estado Dirección**, que ves pero no puedes modificar. La columna **Estado** combina las dos.
 

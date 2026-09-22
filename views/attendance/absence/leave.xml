@@ -180,17 +180,26 @@
                            decoration-danger="ems_direction_state == 'refused'"/>
                 </xpath>
 
-                <!-- Refusing is the one decision on this form that cannot be taken back.
-                     'action_reset_confirm' does exist, but Odoo reserves resetting a *refused*
-                     request to the Time Off Administrator group ("Only a Time Off Manager can
-                     reset a refused leave", hr.leave._check_approval_update), which nobody at
-                     the centre holds - deliberately, see res.users._ems_sync_time_off_groups.
-                     So the employee has to file the whole request again, and the approver was
-                     one stray click away from causing that, here and from the list and kanban
-                     buttons below. Odoo's own 'confirm' attribute, not a wizard: it is the
-                     mechanism for exactly this, and it needs no code at all. -->
+                <!-- Refusing is final for whoever is doing the refusing (Head or Direction) and,
+                     in the ordinary case, for the employee too: 'action_reset_confirm' exists,
+                     but Odoo reserves resetting a *refused* request to the Time Off Manager
+                     group ("Only a Time Off Manager can reset a refused leave",
+                     hr.leave._check_approval_update), which nobody at the centre holds - except
+                     'base.user_admin' itself, deliberately kept out of the revocation as the
+                     one account that has to stay a genuine Time Off Administrator (see
+                     res.users._ems_sync_time_off_groups's 'protected' set). So in practice the
+                     employee has to file the whole request again unless a Time Off
+                     Administrator steps in - and the approver was one stray click away from
+                     causing that, here and from the list and kanban buttons below. Odoo's own
+                     'confirm' attribute, not a wizard: it is the mechanism for exactly this, and
+                     it needs no code at all. The message says this precisely rather than
+                     claiming the button doesn't exist at all - found 2026-09-22 (issue #501):
+                     it does, right there on this same form, for that one account; see also
+                     EmsAbsenceLeave.action_reset_confirm, which also clears a stranded
+                     Direction refusal so a reset genuinely returns the request to a clean
+                     pending state. -->
                 <xpath expr="//header/button[@name='action_refuse']" position="attributes">
-                    <attribute name="confirm">A refused absence request cannot be reopened: the employee has to file a new one. Refuse it?</attribute>
+                    <attribute name="confirm">A refused absence request cannot be reopened by you or the employee: only a Time Off Administrator can reset it, and the employee normally has to file a new one instead. Refuse it?</attribute>
                     <attribute name="confirm-title">Refuse this absence request</attribute>
                     <attribute name="confirm-label">Refuse</attribute>
                 </xpath>
@@ -218,7 +227,7 @@
                             invisible="not id or not is_absence_direction or state in ('refuse', 'cancel') or ems_direction_state == 'not_done'"/>
                     <button string="Refuse" name="action_ems_direction_refuse" type="object"
                             invisible="not id or not is_absence_direction or can_approve or state in ('refuse', 'cancel')"
-                            confirm="A refused absence request cannot be reopened: the employee has to file a new one. Refuse it?"
+                            confirm="A refused absence request cannot be reopened by you or the employee: only a Time Off Administrator can reset it, and the employee normally has to file a new one instead. Refuse it?"
                             confirm-title="Refuse this absence request" confirm-label="Refuse"/>
                     <field name="ems_status" widget="statusbar"
                            statusbar_visible="pending,approved"/>
@@ -263,7 +272,7 @@
                      sitting between columns instead of at the end of the row, a labelled button
                      gets squeezed into the badge beside it. -->
                 <xpath expr="//button[@name='action_refuse']" position="attributes">
-                    <attribute name="confirm">A refused absence request cannot be reopened: the employee has to file a new one. Refuse it?</attribute>
+                    <attribute name="confirm">A refused absence request cannot be reopened by you or the employee: only a Time Off Administrator can reset it, and the employee normally has to file a new one instead. Refuse it?</attribute>
                     <attribute name="invisible">state not in ('confirm', 'validate1') or not can_approve</attribute>
                     <attribute name="string"/>
                     <attribute name="title">Refuse</attribute>
@@ -329,7 +338,7 @@
                     <button title="Refuse" name="action_ems_direction_refuse" type="object"
                             icon="fa-times" groups="ems.group_director"
                             invisible="state in ('refuse', 'cancel') or can_approve"
-                            confirm="A refused absence request cannot be reopened: the employee has to file a new one. Refuse it?"/>
+                            confirm="A refused absence request cannot be reopened by you or the employee: only a Time Off Administrator can reset it, and the employee normally has to file a new one instead. Refuse it?"/>
                 </xpath>
 
             </field>
@@ -366,7 +375,7 @@
             <field name="inherit_id" ref="hr_holidays.hr_leave_view_kanban"/>
             <field name="arch" type="xml">
                 <xpath expr="//button[@name='action_refuse']" position="attributes">
-                    <attribute name="confirm">A refused absence request cannot be reopened: the employee has to file a new one. Refuse it?</attribute>
+                    <attribute name="confirm">A refused absence request cannot be reopened by you or the employee: only a Time Off Administrator can reset it, and the employee normally has to file a new one instead. Refuse it?</attribute>
                     <attribute name="confirm-title">Refuse this absence request</attribute>
                     <attribute name="confirm-label">Refuse</attribute>
                     <attribute name="t-if">['confirm', 'validate1'].includes(record.state.raw_value) and record.can_approve.raw_value</attribute>

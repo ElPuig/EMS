@@ -24,7 +24,7 @@ Hi surten només les sol·licituds de la teva àrea, en estat **Pendent** mentre
 
 Tens accés al motiu escrit i al justificant de la teva gent, i pots ajustar els camps **Suma les hores a l'informe mensual**, **Es tramita per ATRI** i **Dia sencer?**, a més de corregir el tipus d'absència.
 
-**Rebutjar és definitiu**, i demana confirmació abans: ningú pot tornar una sol·licitud rebutjada a *Pendent*, i la persona hauria de fer-ne una de nova. El justificant, en canvi, es pot adjuntar en qualsevol moment, també en una sol·licitud ja aprovada.
+**Rebutjar és definitiu**, i demana confirmació abans: un cop rebutges una sol·licitud, ni tu ni la persona la podeu tornar a *Pendent*, així que hauria de fer-ne una de nova. El justificant, en canvi, es pot adjuntar en qualsevol moment, també en una sol·licitud ja aprovada.
 
 Aprovar és la teva meitat: Direcció també aprova cada absència, a la columna **Estat Direcció**, que veus però no pots modificar. La columna **Estat** combina totes dues.
 

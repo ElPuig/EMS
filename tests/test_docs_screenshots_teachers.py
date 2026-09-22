@@ -501,6 +501,157 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             click='.ems-av-strike-btn', wait_after='.ems-av-strike-dialog[open]',
         )
 
+    def test_capture_student_academic_data(self):
+        level, study, group = create_level_study_group(self, 'DOCACAD', level={
+            'name': 'Formació professional',
+        }, study={
+            'code': 'DOCACAD01', 'acronym': 'DAM', 'name': "Desenvolupament d'aplicacions multiplataforma",
+        }, group={'acronym': 'A', 'course': 1})
+        student = self._student(group, 'Roc Exemple')
+
+        # Distinctive, unlikely-to-collide start years (same trick as
+        # create_student_academic_file()'s own 2098/2099) - two rows so the tab shows real
+        # history, not just a single-row table.
+        course_prev = self.env['ems.course'].create({'start': 2094, 'end': 2095})
+        course_curr = self.env['ems.course'].create({'start': 2095, 'end': 2096})
+        # study_name/group_name/tutor_name are plain, denormalized snapshot chars (not computed
+        # from study_id/group_id/tutor_id - those stay unset here), same fixture pattern already
+        # used by TestDocsScreenshotsHeadOfStudies' own academic-history capture.
+        self.env['ems.student.year_record'].create([
+            {
+                'student_id': student.id, 'course_id': course_prev.id,
+                'study_name': study.name, 'group_name': group.name,
+                'tutor_name': '0000 Tutora Exemple', 'academic_result': 'repeating',
+                'attendance_rate': 82.5,
+            },
+            {
+                'student_id': student.id, 'course_id': course_curr.id,
+                'study_name': study.name, 'group_name': group.name,
+                'tutor_name': '0000 Tutora Exemple', 'academic_result': 'full',
+                'title_obtained': True, 'attendance_rate': 97.0,
+            },
+        ])
+
+        # A domain-scoped action of our own, restricted to this single fixture student - the
+        # "Academic history" tab itself needs no such scoping (year_record_ids is a plain
+        # One2many keyed to student_id, naturally showing only this record's own rows), but
+        # opening the student's form at all still needs SOME action to navigate through.
+        student_action = self.env['ir.actions.act_window'].create({
+            'name': 'Alumnes', 'res_model': 'res.partner',
+            'view_mode': 'form', 'domain': [('id', '=', student.id)],
+        })
+        self._capture(
+            '/odoo/action-%d/%d' % (student_action.id, student.id),
+            '.o_notebook', 'historial-01-academic.png',
+            login='doc_shot_teacher', wait_for='.o_notebook',
+            click=".o_notebook .nav-link[name='academic_history']",
+            wait_after=".o_field_widget[name='year_record_ids'] .o_data_row + .o_data_row",
+        )
+
+    def test_capture_student_list_my_groups(self):
+        # Own group: teacher_employee gets a real ems.teaching link to it, which is exactly what
+        # res.partner._ems_my_students_domain() / is_my_student key off (see
+        # hr.employee._get_own_groups() - teaching_ids.group_id | tutorship_ids).
+        level, study, group = create_level_study_group(self, 'DOCMYST', level={
+            'name': 'Formació professional',
+        }, study={
+            'code': 'DOCMYST01', 'acronym': 'DAM', 'name': "Desenvolupament d'aplicacions multiplataforma",
+        }, group={'acronym': 'A', 'course': 1})
+        subject = self.env['ems.subject'].create({
+            'code': 'DOCMYSTSUB', 'acronym': 'BD', 'name': 'Bases de dades',
+            'study_ids': [(6, 0, [study.id])],
+        })
+        self.env['ems.teaching'].create({
+            'teacher_id': self.teacher_employee.id, 'subject_id': subject.id, 'group_id': group.id,
+        })
+        student_own = self._student(group, 'Martina Exemple')
+
+        # A second, unrelated group/student - teacher_employee has no teaching link to it at all,
+        # so this one must NOT show once the "My students" filter applies, demonstrating the
+        # manual's own claim rather than just asserting it in prose.
+        _level2, _study2, group_other = create_level_study_group(self, 'DOCMYST2', level={
+            'name': 'Formació professional',
+        }, study={
+            'code': 'DOCMYST02', 'acronym': 'SMX', 'name': 'Altres estudis',
+        }, group={'acronym': 'A', 'course': 1})
+        student_other = self._student(group_other, 'Iu Altregrup')
+
+        # A domain-scoped action of our own (same "actions of our own" trick used throughout this
+        # plan) restricted to just these 2 fixture students - guarantees no real student can ever
+        # render here regardless of what teacher_employee's own real-world groups might otherwise
+        # be, on top of (not instead of) the "My students" filter's own restriction. Mirrors
+        # ems.action_student_kanban's own search view/context, but view_mode is 'list,form' only -
+        # never 'kanban,...' (the kanban student view has a known, real, un-root-caused client-side
+        # stall - see project_role_smoke_student_kanban_hang in memory - not worth risking here).
+        action = self.env['ir.actions.act_window'].create({
+            'name': 'Alumnat', 'res_model': 'res.partner', 'view_mode': 'list,form',
+            'search_view_id': self.env.ref('ems.view_student_search').id,
+            'domain': [('id', 'in', (student_own | student_other).ids)],
+            'context': {
+                'default_contact_type': 'student', 'search_default_students_only': 1,
+                'search_default_my_students': 1, 'active_test': False,
+            },
+        })
+        # '.o_list_view' (the whole view root, NOT '.o_content') is needed here, not the usual
+        # '.o_content'-only clip target used elsewhere in this project: web.Layout renders the
+        # ControlPanel (breadcrumb + searchbar + the two filter chips this manual is actually
+        # about) as a SIBLING before '.o_content', not inside it (confirmed by reading
+        # web/static/src/search/layout.xml) - '.o_content' alone would silently crop the filter
+        # chips out of the shot entirely. The view root flex-stretches to fill the remaining
+        # viewport height same as every other flex-stretch case in this plan, hence max_height.
+        self._capture(
+            '/odoo/action-%d' % action.id,
+            '.o_list_view', 'alumnat-01-els-meus-grups.png',
+            login='doc_shot_teacher', wait_for='.o_list_renderer .o_data_row',
+            max_height=220,
+        )
+
+    def test_capture_working_schedules(self):
+        level, study, group = create_level_study_group(self, 'DOCSCHED', level={
+            'name': 'Formació professional',
+        }, study={
+            'code': 'DOCSCHED01', 'acronym': 'DAM', 'name': "Desenvolupament d'aplicacions multiplataforma",
+        }, group={'acronym': 'A', 'course': 1})
+        subject = self.env['ems.subject'].create({
+            'code': 'DOCSCHEDSUB', 'acronym': 'BD', 'name': 'Bases de dades',
+            'study_ids': [(6, 0, [study.id])],
+        })
+        space = self.env['ems.space'].create({
+            'code': 'DOCSCHED-A', 'name': 'Aula Exemple',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+
+        # teacher_employee (employee_type='teacher') already got its own personal calendar
+        # auto-created on create() (hr.employee._ems_create_personal_calendar()) - reuse it
+        # directly rather than creating and reassigning a second one, since this IS the record
+        # "My Profile" actually reads from for the logged-in doc_shot_teacher.
+        calendar = self.teacher_employee.resource_calendar_id
+        calendar.apply_schedule_changes([
+            {
+                'dayofweek': '0', 'hour_from': 8, 'hour_to': 9, 'day_period': 'morning',
+                'subject_id': subject.id, 'group_ids': [group.id], 'space_id': space.id,
+                'name': 'DOCSCHED: BD',
+            },
+            # A break right after the teaching block - same non_teaching xmlid the widget uses to
+            # tell a break apart visually (brown stripe, per schedule_grid_field.js's own NOTE),
+            # set explicitly here rather than relying on the level's own bell-schedule framework
+            # auto-fill mechanism (get_derived_break_attendance_data()) - both render identically
+            # on the grid, and an explicit row is far simpler to fixture reliably.
+            {
+                'dayofweek': '0', 'hour_from': 9, 'hour_to': 9.25, 'day_period': 'morning',
+                'non_teaching': self.env.ref('ems.non_teaching_br').id, 'name': 'Pati',
+            },
+        ])
+
+        # Both blocks sit right at the top of the grid (08:00-09:25) so a modest max_height keeps
+        # the shot tight without needing to fight the grid's own full-day (08:00-19:00) height -
+        # same flex-stretch-style situation as every other big-widget capture in this plan.
+        self._capture(
+            '/odoo', ".o_field_widget[name='schedule_attendance_ids']", 'horari-01-setmanal.png',
+            login='doc_shot_teacher', tour='ems_doc_shot_working_schedule', max_height=260,
+        )
+
     def _student(self, group, name):
         return self.env['res.partner'].create({
             'name': name, 'contact_type': 'student', 'student_id': next_student_id(),

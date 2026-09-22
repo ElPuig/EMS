@@ -12,7 +12,8 @@ See your own weekly timetable — subjects, groups, classrooms, breaks and coord
 
 ## Access
 
-Navigate to: **Employees → [your own record] → Schedule** tab
+Click your avatar in the top-right corner of EMS and choose **My Profile**. **Schedule** is
+already the active tab when the page opens.
 
 ---
 
@@ -22,6 +23,8 @@ Each block on the weekly grid shows:
 - its exact start and end time (periods are not always aligned to the hour, e.g. `10:25–11:25`),
 - the subject and group(s) you're teaching — a single block can name more than one group when you're running an identical session for several groups at once (e.g. an optional subject combining two official groups in the same room) — or the reason if it's not a teaching period (a break, a coordination meeting...). If the subject is actually split into several distinct topics, each taught separately (e.g. a module split by language), its **topic** shows right after the subject (e.g. "MP 3161 - Castellà") — contact a Department Chief or above to set or correct it,
 - the classroom, when the group has one assigned.
+
+![The weekly schedule grid: a teaching block with its subject, group and room, followed by a break block](../../assets/teachers/horari-01-setmanal.png)
 
 A period that has no block yet is simply not assigned — contact an Administrator if you believe something is missing or incorrect on your schedule.
 

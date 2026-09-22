@@ -116,6 +116,35 @@ registry.category("web_tour.tours").add("ems_doc_shot_photo_visibility", {
     ],
 });
 
+// Teachers' "Your Weekly Schedule" manual: same "My Profile has no stable action URL" problem as
+// the photo-visibility tour above, and the same Catalan-text reasoning (doc_shot_teacher is
+// lang='ca_ES') - see that tour's own NOTE. Unlike Preferences, Schedule is the FIRST/default tab
+// (see static/tests/tours/user_profile_tour.js's own tabOrderSteps(), true for every account
+// regardless of role) - no tab click needed here at all.
+registry.category("web_tour.tours").add("ems_doc_shot_working_schedule", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_user_menu button",
+            content: "Open the user menu",
+            run: "click",
+        },
+        {
+            trigger: ".dropdown-item:contains('El meu perfil')",
+            content: "Open My Profile",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view:contains('Professor Exemple')",
+            content: "My Profile loaded for the real logged-in user, not a blank new record",
+        },
+        {
+            trigger: ".o_field_widget[name='schedule_attendance_ids'] .o_schedule_grid_entry",
+            content: "The teacher's own schedule grid, with at least one block on it",
+        },
+    ],
+});
+
 // Tutors' Google credentials manual: every student of the list selected and the Actions menu
 // open on "Download Google credentials". The capture opens the (fixture-only) list itself.
 registry.category("web_tour.tours").add("ems_doc_shot_tutor_google_credentials", {

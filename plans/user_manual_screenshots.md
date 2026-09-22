@@ -1,17 +1,26 @@
 # Plan: Add screenshots to every user manual missing one
 
-**Status as of 2026-09-22 (sixth session, branch 487-documentation-images-phase-2):
-head_of_studies (7/7) DONE, admin batch 1/4 (4/17) DONE, teachers 5/10 DONE** — see "Status per
-role" below for all three. **The developer asked to prioritize `teachers` next, and to go
-through it one manual at a time (not in topical batches of 4-5 like `admin`)** - `tests/
-test_docs_screenshots_teachers.py` now exists, one test method per manual so far
+**Paused 2026-09-22 at the end of the sixth session (branch `487-documentation-images-phase-2`) -
+the developer will resume this work from a DIFFERENT branch next.** Whatever branch picks this
+back up should treat this file (and the actual `docs/`/`tests/` state) as the source of truth, not
+the branch name in this note - it will already be stale the moment a new branch is cut. The work
+described below (teachers role complete, its code/docs changes) is currently uncommitted on
+`487-documentation-images-phase-2`; how/whether that lands on the new branch (rebase, cherry-pick,
+merge, or redone from scratch) is the developer's call, not something to assume from this file.
+
+**Status as of the pause: head_of_studies (7/7) DONE, admin batch 1/4 (4/17) DONE, teachers
+(10/10) DONE - teachers role now fully complete.** See "Status per role" below for all three.
+`tests/test_docs_screenshots_teachers.py` now has 10 test methods, one per manual
 (`test_capture_acces_ems_google`, `test_capture_attendance_corrections`,
 `test_capture_attendance_reports`, `test_capture_attendance_session`,
-`test_capture_guard_duty_schedule`). Continue the same way (one manual, one check-in, repeat)
-unless the developer says otherwise; `admin`'s remaining 3 batches are still planned out below
-for whenever that role is picked back up. This plan may go stale between sessions - re-check the
-current state of `docs/{en,ca,es}/<role>/` and `tests/test_docs_screenshots*.py` before resuming,
-don't assume this file is still accurate.
+`test_capture_guard_duty_schedule`, `test_capture_photo_visibility`, `test_capture_strike`,
+`test_capture_student_academic_data`, `test_capture_student_list_my_groups`,
+`test_capture_working_schedules`). **Next up: pick a role to resume with the developer** -
+`admin`'s remaining 3 batches are already grouped out below, ready to resume directly;
+`secretary`/`tutors`/`families` haven't been started at all (23 manuals combined) and need their
+own research pass + batching-convention decision before starting. This plan may go stale between
+sessions - re-check the current state of `docs/{en,ca,es}/<role>/` and
+`tests/test_docs_screenshots*.py` before resuming, don't assume this file is still accurate.
 
 ## Batching convention (per developer request, 2026-09-16 third session)
 
@@ -37,8 +46,9 @@ test method in `tests/test_docs_screenshots_teachers.py`:
 5. ✅ DONE - guard-duty-schedule
 6. ✅ DONE - photo-visibility
 7. ✅ DONE - strike
-8-10. NOT STARTED - student-academic-data,
-   student-list-my-groups, working-schedules
+8. ✅ DONE - student-academic-data
+9. ✅ DONE - student-list-my-groups
+10. ✅ DONE - working-schedules
 
 secretary, tutors and families have not been started at all yet - decide batching vs. one-at-a-
 time with the developer when picked up (don't assume either convention carries over automatically).
@@ -497,8 +507,74 @@ different). Login: a single `doc_shot_teacher` fixture user (`ems.group_teacher`
   `[open]` attribute selector - `getBoundingClientRect()`/CDP screenshot work on it exactly like
   any other element, no special-casing needed despite it being the first *native* `<dialog>`
   (rather than a Bootstrap `.modal-content`) captured in this project.
-- **Remaining 3 (`student-academic-data`,
-  `student-list-my-groups`, `working-schedules`) - NOT STARTED.**
+- **`student-academic-data.md` - ✅ DONE.** `test_capture_student_academic_data` covers the
+  "Academic history" tab on a student's own form (one row per course: study, group, result badge,
+  title obtained, attendance rate). 1 PNG (`historial-01-academic.png`), visually verified with
+  `Read` (only the fake "Roc Exemple"/"DAM1A"/"0000 Tutora Exemple" fixture), copied into
+  `docs/assets/teachers/`, referenced in all 3 languages. Reused `TestDocsScreenshotsHeadOfStudies`'
+  own `ems.student.year_record` fixture pattern (`study_name`/`group_name`/`tutor_name` are plain,
+  denormalized snapshot chars set directly, not computed from `study_id`/`group_id`/`tutor_id`).
+  Confirmed the tab itself needs no domain-scoping trick unlike a standalone list view - it's a
+  plain `year_record_ids` One2many keyed to `student_id`, so opening one student's own form
+  already only ever shows that student's own rows; only opening the form AT ALL still needed a
+  domain-scoped `res.partner` action (`[('id', '=', student.id)]`), same "actions of our own"
+  pattern used everywhere else in this plan. Only the "Consult a Student's Academic History"
+  section (the part every plain Teacher can actually use) was captured - the Guidance/Coexistence-
+  coordinator sections later in the same manual describe screens outside a plain teacher's own
+  access and were left uncaptured for this pass, consistent with keeping each capture scoped to
+  what the manual's primary named role can actually reach.
+- **`student-list-my-groups.md` - ✅ DONE.** `test_capture_student_list_my_groups` covers the
+  Students list with both default filters applied ("Students"/"My students"), built with TWO
+  fixture students - one in the teacher's own group (via a real `ems.teaching` link, matching
+  `res.partner._ems_my_students_domain()`'s own logic) and one in a completely unrelated group -
+  so the screenshot actually *demonstrates* the "My students" filter excluding the second one,
+  rather than just asserting it in prose. 1 PNG (`alumnat-01-els-meus-grups.png`), visually
+  verified with `Read` (only "Martina Exemple"/"DAM1A" fixture visible; "Iu Altregrup" correctly
+  absent), copied into `docs/assets/teachers/`, referenced in all 3 languages. **Two things worth
+  flagging:**
+  - **A real, pre-existing terminology drift found and fixed in the CA/ES manuals**: both called
+    the first filter chip "Alumnat"/"Alumnado" in their own bulleted description, but the actual
+    rendered UI label (confirmed both live in the screenshot and via `i18n/{ca_ES,es_ES}.po`'s
+    `msgid "Students"` block, which the search view's own `#:` reference is part of) is
+    "Estudiants"/"Estudiantes" - fixed both bullets to match what the screenshot right below them
+    actually shows, per CLAUDE.md's "Documentation describes current behavior" rule. The EN
+    manual's own "Students" label was already correct.
+  - **`.o_content` alone is NOT sufficient** to show a list's search-bar filter chips - confirmed by
+    reading `web/static/src/search/layout.xml`: `web.Layout` renders `ControlPanel` (breadcrumb +
+    searchbar + facets) as a SIBLING immediately BEFORE `.o_content`, not inside it. Every other
+    list capture in this project only ever needed the data rows, so this went unnoticed until a
+    manual whose whole point IS the search-bar filters needed them in frame. Fixed by clipping to
+    `.o_list_view` (the view's own root, wrapping ControlPanel + `.o_content` together) with
+    `max_height` to tame its usual flex-stretch. **Any future capture that needs to show applied
+    search-bar filters/facets, not just list rows, needs `.o_list_view` (or the view root class
+    for that view type), never `.o_content`.**
+  - Avoided the kanban student view entirely (`action_student_kanban`'s default `view_mode` is
+    `kanban,list,form`) by building a domain-scoped action with `view_mode: 'list,form'` only -
+    the kanban student view has a known, real, un-root-caused client-side stall (see
+    `project_role_smoke_student_kanban_hang` in memory), not worth risking for a screenshot.
+- **`working-schedules.md` - ✅ DONE. Teachers role now 10/10 — fully complete.**
+  `test_capture_working_schedules` covers the weekly schedule grid on "My Profile" (a teaching
+  block with subject/group/room, followed by a break block, plus the PDF export button and the
+  weekly-hours summary). 1 PNG (`horari-01-setmanal.png`), visually verified with `Read` (only
+  fictitious "DOCSCHED"/"Aula Exemple" fixture data), copied into `docs/assets/teachers/`,
+  referenced in all 3 languages. **Also fixed a stale access step in all 3 languages** - the
+  manual said "Employees → [your own record] → Schedule tab", but a plain teacher has no
+  "Employees" menu at all (same class of staleness already fixed on `photo-visibility.md`); the
+  real path is "My Profile" (Schedule is already the first/default tab there, confirmed by
+  `static/tests/tours/user_profile_tour.js`'s own `tabOrderSteps()` - no tab click needed in the
+  capture). The schedule grid widget (`schedule_grid_field.js`, `.o_schedule_grid` /
+  `.o_field_widget[name='schedule_attendance_ids']`) is the SAME editable-component class used for
+  an admin editing any employee's schedule - read-only-ness for a plain teacher comes purely from
+  hiding the Edit/Import buttons via `can_edit_schedule`, not from swapping in a different
+  `readonly_schedule_grid` widget (that one is for a *group's*/*space*'s own aggregate schedule
+  view instead, a different manual/model entirely). Reused `teacher_employee.resource_calendar_id`
+  directly (auto-created by `hr.employee.create()` for `employee_type='teacher'`) rather than
+  creating and reassigning a second calendar, since this IS the exact record "My Profile" reads
+  from. Co-teaching and reinforcement-group blocks were deliberately NOT fixtured for this
+  capture - both render as an entirely ordinary `.o_schedule_grid_entry` with no distinct visual
+  marker of their own on a single teacher's grid (confirmed via research), so there was nothing
+  extra a screenshot could actually demonstrate beyond what the plain teaching-block capture
+  already shows.
 
 ### admin - batch 1/4 (4/17) - ✅ DONE 2026-09-16, batches 2-4 NOT STARTED
 `tests/test_docs_screenshots_admin.py` exists and is registered in `tests/__init__.py`, one test

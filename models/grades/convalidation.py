@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from markupsafe import Markup
 
-from odoo import _, api, fields, models
+from odoo import SUPERUSER_ID, _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+
+_logger = logging.getLogger(__name__)
 
 # Grade a convalidated subject gets when nobody says otherwise. The Head of Studies (or the
 # secretariat afterwards) can replace it with the one the previous studies actually hold.
@@ -186,16 +190,42 @@ class EmsConvalidation(models.Model):
 
     # --- tasks ---------------------------------------------------------------
 
+    def _ems_task_recipients(self, xmlid):
+        """Who a convalidation task belongs to. Both are positions of the centre, not a
+        configurable list, so they stay out of Academic Management > Configuration > Task
+        Assignment on purpose - the same choice docs/en/developers/shared/task_assignment.md
+        makes for attendance corrections, whose recipient also comes from the organisation:
+
+        - the review is the Deputy Head of Studies' (ems.role_dhos), who handles vocational
+          training;
+        - the registration in Esfera is the whole secretariat's (ems.group_secretary). The EMS
+          administrator is left out: it implies every group, so a group alone would hand it
+          every task of every kind - the very reason Task Assignment stopped deriving its
+          recipients from groups.
+
+        Archived users and OdooBot never get one: nobody reads their inbox."""
+        users = self.env['res.users']
+        if xmlid == 'ems.mail_activity_convalidation_review':
+            role = self.env.ref('ems.role_dhos', raise_if_not_found=False)
+            if role:
+                users = self.env['hr.employee'].sudo().browse(role.sudo().employee_ids.ids).exists().user_id
+        elif xmlid == 'ems.mail_activity_convalidation_registration':
+            users = self.env.ref('ems.group_secretary').sudo().users
+            administrators = self.env.ref('ems.group_academic_admin', raise_if_not_found=False)
+            if administrators:
+                users -= administrators.sudo().users
+        users = users.filtered(lambda user: user.active and user.id != SUPERUSER_ID)
+        if not users:
+            _logger.warning("Nobody holds the position in charge of %s: no task will be scheduled.", xmlid)
+        return users
+
     def _ems_schedule_task(self, xmlid):
-        """Put the request in the to-do list of whoever is configured for `xmlid` in Academic
-        Management > Configuration > Task Assignment - the same mechanism student documents and
-        enrollment comments use, and for the same reason: who handles a request is a matter of
-        organisation, not of access rights.
+        """Put the request in the to-do list of whoever the task belongs to.
 
         ``mail_activity_quick_update`` suppresses Odoo's "X has assigned you the following
         activity" email: the task itself is the notice, and its author would otherwise be the
         family that filed the request from the portal."""
-        users = self.env['mail.activity.type']._ems_get_task_users(xmlid)
+        users = self._ems_task_recipients(xmlid)
         if not users:
             return
         for convalidation in self:
@@ -210,9 +240,11 @@ class EmsConvalidation(models.Model):
             convalidation.sudo().message_unsubscribe(partner_ids=users.mapped('partner_id').ids)
 
     def _ems_close_tasks(self):
-        """Drop every pending EMS task of these requests: the step that had to be done is done."""
-        self.sudo().activity_ids.filtered(
-            lambda activity: activity.activity_type_id.ems_task_assignment).unlink()
+        """Drop every pending convalidation task of these requests: the step that had to be
+        done is done."""
+        task_types = self.env.ref('ems.mail_activity_convalidation_review') \
+            | self.env.ref('ems.mail_activity_convalidation_registration')
+        self.sudo().activity_ids.filtered(lambda activity: activity.activity_type_id in task_types).unlink()
 
     # --- notices -------------------------------------------------------------
 

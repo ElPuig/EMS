@@ -14,7 +14,7 @@ Register in Esfera the convalidations the Head of Studies validated, and complet
 
 A request reaches the secretariat once the Head of Studies validates it: it moves to **In progress** and already carries, on each convalidated subject, the grade it was resolved with.
 
-If the **Register convalidation in Esfera** task is configured in **Academic management → Configuration → Task Assignment**, every validated request lands in your activity inbox.
+Every validated request lands in the activity inbox (🕒) of everyone in the secretariat. Once someone completes or rejects it, the task leaves everyone's inbox.
 
 ---
 

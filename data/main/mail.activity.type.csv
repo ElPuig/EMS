@@ -2,5 +2,5 @@ id,name,category,res_model,icon,ems_task_assignment
 ems.mail_activity_enrollment_comment,Review enrollment comment,default,sale.order,fa-comments-o,True
 ems.mail_activity_student_document_review,Review student document,default,ems.student.document,fa-file-text-o,True
 ems.mail_activity_attendance_correction,Review attendance correction request,default,ems.attendance_correction,fa-clock-o,False
-ems.mail_activity_convalidation_review,Review convalidation request,default,ems.convalidation,fa-exchange,True
-ems.mail_activity_convalidation_registration,Register convalidation in Esfera,default,ems.convalidation,fa-pencil-square-o,True
+ems.mail_activity_convalidation_review,Review convalidation request,default,ems.convalidation,fa-exchange,False
+ems.mail_activity_convalidation_registration,Register convalidation in Esfera,default,ems.convalidation,fa-pencil-square-o,False

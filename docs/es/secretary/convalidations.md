@@ -14,7 +14,7 @@ Registra en Esfera las convalidaciones que ha validado Jefatura de Estudios y co
 
 Una solicitud llega a secretaría cuando Jefatura de Estudios la ha validado: pasa al estado **En proceso** y ya lleva, en cada módulo convalidado, la nota que le corresponde.
 
-Si tienes configurada la tarea **Registrar convalidación en Esfera** en **Gestión académica → Configuración → Asignación de tareas**, cada solicitud validada aparece en tu bandeja de actividades.
+Cada solicitud validada aparece en la bandeja de actividades (🕒) de todo el personal de secretaría. Cuando alguien la completa o la rechaza, la tarea desaparece de la bandeja de todos.
 
 ---
 

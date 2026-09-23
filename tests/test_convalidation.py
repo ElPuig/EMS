@@ -399,11 +399,17 @@ class TestConvalidation(TransactionCase):
             ('res_model', '=', 'ems.convalidation'), ('res_id', '=', request.id),
             ('activity_type_id', '=', self.env.ref(xmlid).id)])
 
+    def _make_deputy_head_of_studies(self, user):
+        """Give `user`'s employee the Deputy Head of Studies position. The role is
+        hierarchy-managed (set from the top-level department's form); tests write it through
+        the sync's own context, as tests/test_absence.py does."""
+        self.env.ref('ems.role_dhos').sudo().with_context(ems_syncing_roles=True).write(
+            {'employee_ids': [(6, 0, user.employee_ids.ids)]})
+
     def test_tasks_follow_the_circuit(self):
-        review = self.env.ref('ems.mail_activity_convalidation_review')
-        registration = self.env.ref('ems.mail_activity_convalidation_registration')
-        review.sudo().ems_assignee_ids = [(6, 0, self.head_of_studies.ids)]
-        registration.sudo().ems_assignee_ids = [(6, 0, self.secretary.ids)]
+        """The review is the Deputy Head of Studies' and the registration the secretariat's,
+        straight from who holds each position: nothing to configure."""
+        self._make_deputy_head_of_studies(self.head_of_studies)
         request = self._request()
         self.assertEqual(self._tasks(request, 'ems.mail_activity_convalidation_review').user_id,
                          self.head_of_studies)
@@ -412,12 +418,26 @@ class TestConvalidation(TransactionCase):
         request.with_user(self.head_of_studies).action_validate()
         # The Head's task is done; the secretariat gets its own.
         self.assertFalse(self._tasks(request, 'ems.mail_activity_convalidation_review'))
-        self.assertEqual(self._tasks(request, 'ems.mail_activity_convalidation_registration').user_id,
-                         self.secretary)
+        registered = self._tasks(request, 'ems.mail_activity_convalidation_registration')
+        self.assertIn(self.secretary, registered.user_id)
+        # The EMS administrator holds every group, so it never collects the secretariat's tasks.
+        self.assertNotIn(self.env.ref('base.user_admin'), registered.user_id)
         request.with_user(self.secretary).action_complete()
         self.assertFalse(self._tasks(request, 'ems.mail_activity_convalidation_registration'))
         # Scheduling a task never subscribes its assignee to the student's own messages.
         self.assertFalse(request.message_partner_ids)
+
+    def test_rejection_closes_the_pending_task(self):
+        self._make_deputy_head_of_studies(self.head_of_studies)
+        request = self._request()
+        request.with_user(self.head_of_studies).action_reject()
+        self.assertFalse(request.activity_ids)
+
+    def test_tasks_are_not_in_task_assignment(self):
+        """Owned by positions, not by a configurable list: they stay out of that screen, like
+        attendance corrections (docs/en/developers/shared/task_assignment.md)."""
+        for xmlid in ('ems.mail_activity_convalidation_review', 'ems.mail_activity_convalidation_registration'):
+            self.assertFalse(self.env.ref(xmlid).ems_task_assignment)
 
     # --- the student's own background ----------------------------------------
 

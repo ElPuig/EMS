@@ -32,7 +32,7 @@ The list opens with the requests **Pending the Head of Studies** and **Pending t
 
 To see a student's requests, open their form and click the **Convalidations** button.
 
-If the **Review convalidation request** task is configured in **Academic management → Configuration → Task Assignment**, every new request also lands in your activity inbox.
+Every new request also lands in the activity inbox (🕒) of whoever holds the **Deputy Head of Studies** position.
 
 ---
 

@@ -32,7 +32,7 @@ La lista se abre con las solicitudes **Pendientes de jefatura de estudios** y **
 
 Para ver las solicitudes de un alumno, abre su ficha y haz clic en el botón **Convalidaciones**.
 
-Si tienes configurada la tarea **Revisar solicitud de convalidación** en **Gestión académica → Configuración → Asignación de tareas**, cada solicitud nueva aparece también en tu bandeja de actividades.
+Cada solicitud nueva aparece también en la bandeja de actividades (🕒) de quien ocupa el cargo de **Jefatura de Estudios Adjunta**.
 
 ---
 

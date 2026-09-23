@@ -14,7 +14,7 @@ Registra a l'Esfera les convalidacions que ha validat Cap d'Estudis i completa-l
 
 Una sol·licitud arriba a secretaria quan Cap d'Estudis l'ha validada: passa a l'estat **En procés** i ja porta, a cada mòdul convalidat, la nota que li correspon.
 
-Si tens configurada la tasca **Registrar convalidació a l'Esfera** a **Gestió acadèmica → Configuració → Assignació de tasques**, cada sol·licitud validada apareix a la teva safata d'activitats.
+Cada sol·licitud validada apareix a la safata d'activitats (🕒) de tot el personal de secretaria. Quan algú la completa o la rebutja, la tasca desapareix de la safata de tothom.
 
 ---
 

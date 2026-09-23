@@ -32,7 +32,7 @@ La llista s'obre amb les sol·licituds **Pendents del cap d'estudis** i **Penden
 
 Per veure les sol·licituds d'un alumne, obre la seva fitxa i fes clic al botó **Convalidacions**.
 
-Si tens configurada la tasca **Revisar sol·licitud de convalidació** a **Gestió acadèmica → Configuració → Assignació de tasques**, cada sol·licitud nova apareix també a la teva safata d'activitats.
+Cada sol·licitud nova apareix també a la safata d'activitats (🕒) de qui ocupa el càrrec de **Cap d'Estudis Adjunt/a**.
 
 ---
 

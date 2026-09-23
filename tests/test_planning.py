@@ -267,3 +267,17 @@ class TestPlanningLogic(TransactionCase):
         planning.subject_id = self.subject_no_outcomes
         planning._onchange_planning_outcome_ids()
         self.assertFalse(planning.planning_outcome_ids)
+
+    def test_custom_data_records_are_frozen_against_future_upgrades(self):
+        # data/custom/ccff/ems.planning*.csv seeds the centre's grading-ponderation template
+        # only once: a centre rebalancing its own weights through the app (e.g. after a new
+        # learning outcome is added to the shared curriculum catalog) is 'living' data, not
+        # config this repo's CSV should keep re-pushing on every upgrade (issue #503 follow-up,
+        # found the hard way - see plans/ems_planning_outcome_ponderation_over_100.md). Mirrors
+        # test_group.py's own test for the same mechanism.
+        for model in ('ems.planning', 'ems.planning_outcome'):
+            custom_data = self.env['ir.model.data'].sudo().search([
+                ('module', '=', '__import__'), ('model', '=', model),
+            ])
+            self.assertTrue(custom_data, "no __import__-owned %s found - fixture assumption broken" % model)
+            self.assertTrue(all(custom_data.mapped('noupdate')), "%s rows not frozen" % model)

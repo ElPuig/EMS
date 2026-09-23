@@ -62,10 +62,10 @@
                         <group string="Result of the review" invisible="operation == 'remove'">
                             <group>
                                 <label for="preview_internal_grade"/>
-                                <div class="o_row">
+                                <div class="d-flex align-items-center gap-1">
                                     <field name="preview_internal_grade" readonly="not override_internal_grade"/>
                                     <field name="override_internal_grade"/>
-                                    <label for="override_internal_grade" string="Force" class="oe_edit_only fw-normal ms-1"/>
+                                    <label for="override_internal_grade" string="Force" class="oe_edit_only fw-normal mb-0"/>
                                 </div>
                                 <field name="preview_state" widget="badge"
                                        decoration-success="preview_state == 'passed'"

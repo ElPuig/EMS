@@ -22,7 +22,8 @@ Esfera's official record differs slightly (typically a rounding difference) from
 outcome-based calculation gives. The final grade is still recalculated automatically from
 whichever value is in force, and the correction can never flip whether the subject is actually
 passed - only the exact number can be adjusted, never the pass/fail outcome the learning
-outcomes already determine.
+outcomes already determine. The override checkbox sits right next to the internal grade field
+itself, so it's clear at a glance which value it controls.
 
 # Fixes
 

@@ -14631,6 +14631,11 @@ msgid "Current grade"
 msgstr "Nota actual"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
+msgid "Force"
+msgstr "Forzar"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__previous_is_scored
 msgid "Graded before"
 msgstr "Ya calificada"

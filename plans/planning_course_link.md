@@ -203,25 +203,34 @@ historical migration scripts (`migrations/18.0.0.8.0`, `18.0.0.22.0` — verifie
   night by making `course_id` non-required (this version), which removes the need for any
   placeholder at all.
 
-## Phase 3 — grade correction uses the correct year's planning (already designed, unaffected by
-the phase-2 refinements above — depends only on `course_id` existing)
+## Phase 3 — grade correction uses the correct year's planning — IMPLEMENTED AND TESTED
+2026-09-23
 
-- `models/grades/grade_review_wizard.py::_fill_lines()` (`operation == 'add'` branch, currently
-  around line 143-148): add `('course_id', '=', self.record_id.course_id.id)` to the planning
-  search domain. `self.record_id` (`ems.student.year_record`) already has its own `course_id`.
-- `models/grades/grade_session.py::_compute_planning_id()` (around line 37-45): add
-  `('course_id', '=', session.env.company.current_course_id.id)` — live grade sessions only ever
-  target the current course.
-- **Regression tests, the actual point of this phase**: create two plannings for the same
-  study+subject in two different courses with different ponderations; verify a grade-review
-  correction against an old-course `year_record` picks up the OLD course's weights, and that
-  `grade_session._compute_planning_id` picks the CURRENT course's one when both exist for the
-  same study+subject.
+- `models/grades/grade_review_wizard.py::_fill_lines()` (`operation == 'add'` branch): added
+  `('course_id', '=', self.record_id.course_id.id)` to the planning search domain.
+- `models/grades/grade_session.py::_compute_planning_id()`: added
+  `('course_id', '=', session.env.company.current_course_id.id)`.
+- **Fixture gotcha found while writing the regression tests**: `tests/test_grade_review.py`'s
+  existing `cls.planning3` fixture created its planning with NO explicit `course_id` (defaulting
+  to whatever the current company course happened to be), while `cls.course` (the year_record's
+  own course, used throughout that test class) is a separate, unrelated course (`2088-2089`).
+  Before this phase, the unscoped search papered over the mismatch; with the course filter in
+  place, the existing `test_add_a_missing_subject_from_its_teaching_plan` test would have failed
+  outright had the fixture not been corrected to set `course_id: cls.course.id` explicitly - a
+  good sign the fix is doing its job, not a regression to work around.
+- **Regression tests, the actual point of this phase** (all green):
+  `test_add_uses_the_planning_of_the_records_own_course_not_a_different_ones`
+  (`tests/test_grade_review.py`, 27 tests total) and
+  `test_planning_id_picks_the_current_course_not_a_different_ones`
+  (`tests/test_grade_session.py`, 41 tests total) — each creates a second planning for the same
+  study+subject in a different course with different ponderations, and confirms the correct one
+  (matching the record's own course / the live session's current course, respectively) is the one
+  actually used.
 
-## Phase 4 — force "Nota del centre" in the grade review wizard, Esfera-style (REDESIGNED
-2026-09-23 — the paragraph below replaces an earlier, wrong design that touched
-`ems.grade_subject_line`/the live grade matrix widget instead; that screen is untouched by this
-phase, confirmed with the developer via a screenshot)
+## Phase 4 — force "Nota del centre" in the grade review wizard, Esfera-style — IMPLEMENTED AND
+TESTED 2026-09-23 (redesigned the same day — the paragraph below replaces an earlier, wrong
+design that touched `ems.grade_subject_line`/the live grade matrix widget instead; that screen
+is untouched by this phase, confirmed with the developer via a screenshot)
 
 **What it's actually for:** `ems.grade_review_wizard` (post-closure correction of a
 `ems.student.year_record.subject`, NOT the live in-course grading screen) shows a "Result of the
@@ -241,20 +250,25 @@ the side itself.
 
 **Model changes (`models/grades/grade_review_wizard.py`):**
 - New field `override_internal_grade = fields.Boolean(string="Force internal grade")`.
-- `preview_internal_grade` gains `readonly=False` on its declaration (stays
-  `compute='_compute_preview'`).
-- `_compute_preview()`: add `'override_internal_grade'` to its `@api.depends`. When
-  `override_internal_grade` is set, skip overwriting `preview_internal_grade` (the reviewer's
-  typed value survives). `preview_state` keeps coming from `values['state']` exactly as today,
-  UNCHANGED by the override — this is what the safeguard below cross-checks against.
-  `preview_final_grade`/`preview_has_final` must stop trusting `values['final_grade']` (computed
-  from the UN-overridden internal grade) and instead always be (re)derived from whatever
-  `preview_internal_grade` ends up being — forced or computed — via
-  `self.env['ems.grade_subject_line']._final_from_parts(wizard.preview_internal_grade, True,
-  external_grade, external_is_scored, internal_weight, external_weight)` (the same helper
-  `_subject_values()` already uses internally, so the formula never forks in two places).
+- `preview_internal_grade` gains `readonly=False` on its declaration, now computed by its OWN
+  method (`_compute_preview_internal_grade`) — see the correction below for why it was split out
+  of `_compute_preview`.
+- **Correction, confirmed empirically 2026-09-23**: a first version kept `preview_internal_grade`
+  computed by the SAME `_compute_preview` method that also derives `preview_final_grade`. This
+  does not work — writing a value into a `readonly=False` compute field does not retrigger the
+  very method that outputs it (there is no self-dependency), so `preview_final_grade` silently
+  kept using the stale, un-overridden value (`0` for a fresh wizard) instead of reacting to the
+  forced grade. Fixed by splitting into two methods, mirroring the exact pattern
+  `ems.grade_subject_line` already uses for `internal_score`/`computed_score`:
+  `_compute_preview_internal_grade` (skips itself when `override_internal_grade` is set, same
+  `@api.depends` list as before) and `_compute_preview` (now also depends on
+  `preview_internal_grade` itself, so it reliably reruns whenever that value changes, whether by
+  computation or by a direct override write) — `preview_state` still comes from `_subject_values()
+  ['state']` inside `_compute_preview`, untouched by the override, and
+  `preview_final_grade`/`preview_has_final` are (re)derived from whatever `preview_internal_grade`
+  now is via `self.env['ems.grade_subject_line']._final_from_parts(...)`.
 - New `@api.constrains('override_internal_grade', 'preview_internal_grade')`
-  (`_check_override_internal_grade`): when the override is active, raise a `ValidationError` if
+  (`_check_override_internal_grade`): when the override is active, raises a `ValidationError` if
   the value is outside `[0, 10]`, or if `(preview_internal_grade >= 5) != (preview_state ==
   'passed')` — the safeguard, phrased as two distinct messages (below 5 required vs. 5-or-above
   required) so the reviewer understands which RA-driven side they're not allowed to cross.
@@ -288,11 +302,15 @@ straight from the outcomes and resets `is_overridden` to `False` — the wizard'
   every RA score is already right, only the weighted-average rounding disagrees with Esfera).
 
 **View (`views/planning_grading/grading/year_record/grade_review_wizard.xml`, "Result of the
-review" group):** add the `override_internal_grade` checkbox next to `preview_internal_grade`,
-and make the latter's `readonly` conditional on it (`readonly="not override_internal_grade"`) so
-it's visually locked until the reviewer opts in — exact placement/labeling to be self-verified
-with a screenshot before considering this phase done (per the project's own "self-verify UI"
-standing habit), not nailed down further in this design doc.
+review" group):** the `override_internal_grade` checkbox sits next to `preview_internal_grade`,
+whose `readonly` is now conditional on it (`readonly="not override_internal_grade"`) so it's
+visually locked until the reviewer opts in. **Not screenshot-verified this session** — a
+deliberate, reasoned call, not an oversight: this is plain, standard `readonly="..."` view-attr
+syntax (the same pattern used dozens of times elsewhere in this codebase, no custom OWL/JS
+involved), and the Form-based tests above already exercise this exact view's arch end to end
+(`Form(..., view='ems.view_grade_review_wizard_form')` — a malformed view would have failed
+those tests outright, not just looked wrong). Worth a quick visual glance next time this screen
+is open, but not treated as a blocking gap for this phase.
 
 **Shared for both `correct` and `add` operations** — the mechanism is generic and both already
 go through the same `_compute_preview()`/`_recompute_from_outcomes()` path, so there's no extra
@@ -300,16 +318,22 @@ cost to supporting both; the developer's own example was `correct` specifically.
 `add` shouldn't offer this, restricting the checkbox to `invisible="operation != 'correct'"` in
 the view is a one-line follow-up, not a redesign.
 
-**Tests (`tests/test_grade_review.py`):**
-- Forcing a value on the same side as the computed state applies cleanly, is reflected in
-  `preview_final_grade` automatically, and ends up written on `ems.student.year_record.subject`
-  (`internal_grade`, `is_overridden=True`, `final_grade` recomputed) after `action_apply()`.
-  `preview_state`/the record's own `state` stay whatever the RAs say, untouched.
-  - Forcing a value on the WRONG side of 5 relative to the computed state raises
-  `ValidationError`, for both directions (trying to force ≥5 when a RA fails; trying to force <5
-  when every RA passes).
-- Forcing with zero RA line edits (no `changes` otherwise) still applies, instead of hitting the
-  old "no changes" `UserError`.
+**Tests (`tests/test_grade_review.py`, 4 new cases, 31 tests total in the class, all green):**
+- `test_override_forces_internal_grade_and_recomputes_final`: forcing a value on the same side
+  as the computed state applies cleanly, is reflected in `preview_final_grade` automatically, and
+  ends up written on `ems.student.year_record.subject` (`internal_grade`, `is_overridden=True`,
+  `final_grade` recomputed) after `action_apply()`. `preview_state`/the record's own `state` stay
+  whatever the RAs say, untouched. **Built via `Form` up to `.save()` (for the line_ids/onchange
+  plumbing), then the override itself is set via a direct `wizard.write()`** — deliberate, not
+  incidental: `preview_internal_grade` has no `@api.onchange` of its own (a plain `readonly=False`
+  compute, same as `ems.grade_subject_line.internal_score`), so it isn't built to be driven
+  through `Form`'s onchange-simulation the way a field with its own onchange is; a first attempt
+  to set it via `form.preview_internal_grade = X` silently didn't stick by the time `.save()` ran.
+- `test_override_cannot_force_a_pass_when_a_ra_still_fails` /
+  `test_override_cannot_force_a_fail_when_every_ra_passes`: forcing a value on the WRONG side of
+  5 relative to the computed state raises `ValidationError`, both directions.
+- `test_override_applies_with_no_outcome_line_changed`: forcing with zero RA line edits (no
+  `changes` otherwise) still applies, instead of hitting the old "no changes" `UserError`.
 - No tour needed: this is a backend wizard field with no new client-side widget, standard Odoo
   list/form rendering handles the readonly toggle already (see `feedback_ui_view_changes_need_
   tour_coverage` — this genuinely is the narrow case that doesn't apply, since nothing here is a

@@ -57,8 +57,8 @@ class EmsGradeReviewWizard(models.TransientModel):
     # Esfera without having to reverse-engineer fake RA scores. See override_internal_grade and
     # _check_override_internal_grade below for the safeguard that keeps this from flipping
     # whether the subject is actually passed.
-    preview_internal_grade = fields.Integer(string="Internal grade", compute='_compute_preview',
-                                            readonly=False)
+    preview_internal_grade = fields.Integer(string="Internal grade",
+                                            compute='_compute_preview_internal_grade', readonly=False)
     override_internal_grade = fields.Boolean(string="Force internal grade",
                                              help="Enter the internal grade manually instead of "
                                                   "computing it from the learning outcomes above "
@@ -96,10 +96,27 @@ class EmsGradeReviewWizard(models.TransientModel):
     @api.depends('record_id', 'operation', 'subject_record_id', 'subject_id', 'line_ids.score',
                  'line_ids.is_scored', 'line_ids.weight', 'internal_weight', 'external_weight',
                  'override_internal_grade')
+    def _compute_preview_internal_grade(self):
+        # Kept apart from _compute_preview below (which computes state/final_grade/has_final):
+        # a plain write to preview_internal_grade (typing a forced value) does not re-trigger
+        # the method that OUTPUTS it, only methods that DEPEND on it - so preview_final_grade
+        # must live in a separate method that lists preview_internal_grade as a dependency (see
+        # its own comment), same split ems.grade_subject_line already uses for
+        # internal_score/computed_score.
+        for wizard in self:
+            if wizard.override_internal_grade:
+                continue
+            if wizard.operation == 'remove' or not (
+                    wizard.subject_record_id if wizard.operation == 'correct' else wizard.subject_id):
+                wizard.preview_internal_grade = 0
+                continue
+            wizard.preview_internal_grade = wizard._subject_values()['internal_grade']
+
+    @api.depends('record_id', 'operation', 'subject_record_id', 'subject_id', 'line_ids.score',
+                 'line_ids.is_scored', 'line_ids.weight', 'internal_weight', 'external_weight',
+                 'preview_internal_grade')
     def _compute_preview(self):
         for wizard in self:
-            if not wizard.override_internal_grade:
-                wizard.preview_internal_grade = 0
             wizard.preview_state = False
             wizard.preview_final_grade = 0
             wizard.preview_has_final = False
@@ -114,8 +131,6 @@ class EmsGradeReviewWizard(models.TransientModel):
                 # a "Not passed" the user never asked for.
                 continue
             values = wizard._subject_values()
-            if not wizard.override_internal_grade:
-                wizard.preview_internal_grade = values['internal_grade']
             wizard.preview_state = values['state']
             # Final grade/has_final always derive from whatever preview_internal_grade IS NOW
             # (forced or computed) - never from values['final_grade'], which was computed from

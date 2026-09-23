@@ -61,7 +61,8 @@
                         </field>
                         <group string="Result of the review" invisible="operation == 'remove'">
                             <group>
-                                <field name="preview_internal_grade"/>
+                                <field name="preview_internal_grade" readonly="not override_internal_grade"/>
+                                <field name="override_internal_grade"/>
                                 <field name="preview_state" widget="badge"
                                        decoration-success="preview_state == 'passed'"
                                        decoration-danger="preview_state == 'failed'"/>

@@ -151,13 +151,70 @@ class TestPlanningLogic(TransactionCase):
         cls.outcome3 = cls.env['ems.outcome'].create({
             'code': 'TPLLSUB_03RA', 'acronym': 'RA3', 'name': 'Outcome 3', 'subject_id': cls.subject.id,
         })
+        cls.other_course = cls.env['ems.course'].create({'start': 2030, 'end': 2031})
 
     def test_compute_name(self):
         planning = self.env['ems.planning'].create({
             'study_id': self.study.id, 'subject_id': self.subject.id,
             'planning_outcome_ids': [(0, 0, {'outcome_id': self.outcome1.id, 'ponderation': 100.0})],
         })
+        expected_course = self.env.company.current_course_id
+        self.assertEqual(planning.name, "%s  %s (%s)" % (
+            self.study.acronym, self.subject.display_name, expected_course.name))
+
+    def test_compute_name_without_course(self):
+        # Transient state right after a fresh install's data-file create, before post_init_hook
+        # backfills course_id - _compute_name must not crash on an empty course_id.
+        planning = self.env['ems.planning'].with_context(install_mode=True).create({
+            'study_id': self.study.id, 'subject_id': self.subject.id, 'course_id': False,
+            'planning_outcome_ids': [(0, 0, {'outcome_id': self.outcome1.id, 'ponderation': 100.0})],
+        })
+        self.assertFalse(planning.course_id)
         self.assertEqual(planning.name, "%s  %s" % (self.study.acronym, self.subject.display_name))
+
+    def test_course_id_defaults_to_current_course(self):
+        planning = self.env['ems.planning'].create({
+            'study_id': self.study.id, 'subject_id': self.subject.id,
+            'planning_outcome_ids': [(0, 0, {'outcome_id': self.outcome1.id, 'ponderation': 100.0})],
+        })
+        self.assertEqual(planning.course_id, self.env.company.current_course_id)
+
+    def test_course_id_required_outside_install_mode(self):
+        with self.assertRaises(ValidationError):
+            self.env['ems.planning'].create({
+                'study_id': self.study.id, 'subject_id': self.subject.id, 'course_id': False,
+                'planning_outcome_ids': [(0, 0, {'outcome_id': self.outcome1.id, 'ponderation': 100.0})],
+            })
+
+    def test_course_id_not_required_under_install_mode(self):
+        # The escape hatch a fresh install's data-file load relies on (see check_course_id_required).
+        planning = self.env['ems.planning'].with_context(install_mode=True).create({
+            'study_id': self.study.id, 'subject_id': self.subject.id, 'course_id': False,
+            'planning_outcome_ids': [(0, 0, {'outcome_id': self.outcome1.id, 'ponderation': 100.0})],
+        })
+        self.assertFalse(planning.course_id)
+
+    def test_same_study_subject_different_course_allowed(self):
+        self.env['ems.planning'].create({
+            'study_id': self.study.id, 'subject_id': self.subject.id,
+            'planning_outcome_ids': [(0, 0, {'outcome_id': self.outcome1.id, 'ponderation': 100.0})],
+        })
+        other_course_planning = self.env['ems.planning'].create({
+            'study_id': self.study.id, 'subject_id': self.subject.id, 'course_id': self.other_course.id,
+            'planning_outcome_ids': [(0, 0, {'outcome_id': self.outcome1.id, 'ponderation': 100.0})],
+        })
+        self.assertEqual(other_course_planning.course_id, self.other_course)
+
+    def test_same_study_subject_same_course_blocked(self):
+        self.env['ems.planning'].create({
+            'study_id': self.study.id, 'subject_id': self.subject.id, 'course_id': self.other_course.id,
+            'planning_outcome_ids': [(0, 0, {'outcome_id': self.outcome1.id, 'ponderation': 100.0})],
+        })
+        with self.assertRaises(Exception):
+            self.env['ems.planning'].create({
+                'study_id': self.study.id, 'subject_id': self.subject.id, 'course_id': self.other_course.id,
+                'planning_outcome_ids': [(0, 0, {'outcome_id': self.outcome1.id, 'ponderation': 100.0})],
+            })
 
     def test_outcome_ponderation_must_sum_100(self):
         with self.assertRaises(ValidationError):

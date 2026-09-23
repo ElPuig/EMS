@@ -1,13 +1,15 @@
 # Issue #503 — link `ems.planning` to an academic course
 
-**Status: current, not started. Design closed 2026-09-22/23 across several sessions — ready to
-implement.** Nothing described here has been coded yet, except Phase 1 (see "Overall issue
-roadmap" below), which already landed. If the planning/course/grading code changes significantly
-before this is picked up, re-verify the details below before acting on them.
+**Status: Phase 2 IMPLEMENTED 2026-09-23, verified stable across two consecutive `./upgrade.sh`
+runs. Phases 3-4 designed, not yet implemented.** Phase 1 already landed (see "Overall issue
+roadmap" below). If the planning/course/grading code changes significantly before phases 3-4 are
+picked up, re-verify the details below before acting on them.
 
-**Hard dependency: [[plans/current_course_auto_seed]] (v2).** That plan's `ems.course_bootstrap`
-placeholder mechanism is what makes `ems.planning.course_id` safe to make required at all — read
-it first, this plan assumes it's already understood.
+**Soft dependency: [[plans/current_course_auto_seed]] (v3, also implemented 2026-09-23).** Read
+it first for why `res.company.current_course_id` needed fixing too — but note Phase 2's actual
+design below does NOT hard-depend on it the way an earlier, abandoned version of this plan
+assumed (see "Revision history" below): `ems.planning.course_id` no longer needs a real course to
+exist at data-load time at all.
 
 ## Overall issue roadmap (context)
 
@@ -37,45 +39,40 @@ the entire lifetime of the centre. `ems.study` is persistent (never recreated pe
 retroactively. This is what makes grade correction on an old course pick up TODAY's ponderations
 instead of the ones in force when that course actually ran (phase 3's bug).
 
-### Model changes (`models/planning/planning.py`)
+### Model changes (`models/planning/planning.py`) — implemented
 
-- New field: `course_id = fields.Many2one("ems.course", required=True, default=lambda self: self.env.company.current_course_id)`.
-  The default is safe for any UI-driven creation (by then `current_course_id` is always
-  meaningfully set, either by an admin or by
-  [[plans/current_course_auto_seed]]'s fresh-install seed) — it is NOT relied upon for
-  CSV-created rows, see below.
-- `_sql_constraints`: `unique(study_id, subject_id)` → `unique(study_id, subject_id, course_id)`.
-- `_compute_name`: include the course, so two years' plannings for the same study+subject are
-  distinguishable in list views (today's format is `"%s  %s" % (study.acronym, subject.name)`;
-  append the course's own `name`, e.g. `"CFGS DAM2  Programació (2025-2026)"`). Update
-  `TestPlanningLogic.test_compute_name` (`tests/test_planning.py`) accordingly - it currently
-  asserts the course-less format.
+- New field: `course_id = fields.Many2one("ems.course", default=lambda self: self.env.company.current_course_id)`
+  — **deliberately NOT `required=True`** at the field/DB level. Reasoning (found the hard way,
+  see "Revision history"): a data-file-created row (the centre's own
+  `data/custom/ccff/ems.planning-*.csv`) is created before `current_course_id` can be resolved on
+  a fresh install (`post_init_hook`, which backfills it, runs strictly after all data has
+  loaded) — a hard DB `NOT NULL` would break a clean install outright, and no placeholder record
+  can safely stand in for it (see below). Required at the *application* level instead, via a new
+  `check_course_id_required` `@api.constrains`, using the exact same `install_mode` escape hatch
+  `check_ponderation` on this same model already relies on for the identical reason.
+- `_sql_constraints`: `unique_study_subject` (`study_id, subject_id`) →
+  `unique_study_subject_course` (`study_id, subject_id, course_id`).
+- `_compute_name`: include the course when set, so two years' plannings for the same
+  study+subject are distinguishable in list views (`"CFGS DAM2  Programació (2025-2026)"`);
+  falls back to the course-less format while `course_id` is transiently empty right after a
+  fresh install's data-file create. `TestPlanningLogic.test_compute_name`
+  (`tests/test_planning.py`) needs updating for the course-inclusive format.
+- `post_init_hook` (`__init__.py`): right after `_ems_seed_current_course()`
+  ([[plans/current_course_auto_seed]]), backfill `course_id` onto any `ems.planning` still empty
+  (the centre's own CSV rows) with the freshly-resolved current course.
 
-### The centre's own seed data (`data/custom/ccff/ems.planning-*.csv`, 9 files, NOT the
-`_outcome` companion files)
+### The centre's own seed data (`data/custom/ccff/ems.planning-*.csv`, 9 files) — unchanged
 
-Add a `course_id/id` column, pointing at **`ems.course_bootstrap`**
-(see [[plans/current_course_auto_seed]]) — NOT at a real, hardcoded course. Two reasons, both
-already argued through with the developer:
+**No `course_id` column added.** An earlier version of this plan added one, pointing at a
+placeholder course — reverted the same night once it turned out to actively break a second
+consecutive upgrade (see [[plans/current_course_auto_seed]]'s "Revision history" and this file's
+own, below). These rows simply get created with `course_id` empty, exactly like any other
+`ems.planning` row would if the model's own `default=` can't resolve one yet, and `post_init_hook`
+backfills them on a fresh install (see above). No manifest changes needed for this file group.
 
-1. `data/custom/ems.course.csv` (the file that used to seed this centre's real, fixed
-   2025-2029 courses) is being **deleted** as part of this same body of work (see "Deleting
-   `data/custom/ems.course.csv`" below) — there would be no real course xmlid left to point at
-   on a fresh install anyway.
-2. Even if it still existed, a fixed historical anchor (e.g. always `2025-2026`) would be wrong
-   on principle: these ponderations have always been a single, timeless, ever-current
-   configuration (there was no course concept before this issue) - anchoring them to whatever
-   course [[plans/current_course_auto_seed]] resolves as "current" for the install is the more
-   honest choice, and it's exactly what that plan's placeholder mechanism already provides for
-   free (any row pointing at `ems.course_bootstrap` gets carried along automatically when the
-   post_init_hook step corrects or reassigns it).
+### Rollover at course transition (`models/settings/course_transition_wizard.py`) — implemented
 
-No manifest reordering needed: `data/main/ems.course.csv` (new, from the dependency plan) already
-sits well before `data/custom/ccff/ems.planning-*.csv` in `__manifest__.py`'s existing data list.
-
-### Rollover at course transition (`models/settings/course_transition_wizard.py`)
-
-New `_apply_planning_rollover()`, called from `action_apply()`, scoped to `self.study_ids` (same
+`_apply_planning_rollover()`, called from `action_apply()`, scoped to `self.study_ids` (same
 scoping every other `_apply_*` step in this wizard already uses, since studies transition at
 different times):
 
@@ -98,64 +95,113 @@ def _apply_planning_rollover(self):
         planning.copy({'course_id': self.target_course_id.id})
 ```
 
-`copy()` alone is enough to duplicate `planning_outcome_ids` too — neither that field nor
-`internal_ponderation`/`external_ponderation` set `copy=False`, so Odoo's default `copy()`
-already duplicates the outcome lines. `name` (computed, `store=True`, no explicit `copy=True`)
-is NOT copied and gets recomputed from `study_id`/`subject_id`/`course_id`, which are copied -
-no manual handling needed there.
+**Correction, confirmed empirically 2026-09-23:** `copy()` does NOT duplicate
+`planning_outcome_ids` on its own — a plain `one2many` field's `copy` attribute defaults to
+`False` in this Odoo version (verified directly: `fields.One2many(...).copy` is `False` unless
+explicitly set), the opposite of what an earlier version of this plan assumed. `_apply_planning_
+rollover()` therefore rebuilds the outcome lines explicitly in the `copy()` call's own `default`
+dict (`'planning_outcome_ids': [(0, 0, {...}) for outcome in planning.planning_outcome_ids]`),
+same as the migration below does. Found the hard way: the wrong assumption first shipped
+silently in the migration (masked by its own `install_mode=True` context, which also suppresses
+`check_ponderation` - so empty outcome lines never raised anything there), and only surfaced as a
+hard, loud failure in `course_transition_wizard`'s rollover (no such context), which is what
+caught it before anything shipped. `name` (computed, `store=True`, no explicit `copy=True`) is
+NOT copied and gets recomputed from `study_id`/`subject_id`/`course_id`, which ARE copied by
+default (plain Many2one fields default to `copy=True`) - no manual handling needed there.
 
 Idempotent by construction: relaunching a transition (or the same target course across two
 separate runs) skips any study+subject that already has a target-course planning.
 
-### Migration for THIS already-existing install (and any other pre-#503 install)
+### Migration for THIS already-existing install (`migrations/18.0.0.28.0/post-migrate.py`) —
+implemented
 
-A `post-migrate.py` in the same version bump as phase 2's model change (new column →
-post-migrate, not pre-migrate). **Independent of, and simpler than,
-[[plans/current_course_auto_seed]]'s own migration** — this one only needs to replicate history,
-not seed anything from scratch:
+Three steps, in this order (`migrate()`):
 
-```python
-def _replicate_plannings_across_history(env):
-    current = env.company.current_course_id
-    if not current:
-        return
-    courses = env['ems.course'].search([('start', '<=', current.start)], order='start asc')
-    if not courses:
-        return
-    for planning in env['ems.planning'].search([]):
-        planning.course_id = courses[0].id
-        for course in courses[1:]:
-            planning.copy({'course_id': course.id})
-```
+1. `_drop_old_planning_unique_constraint(cr)` — raw SQL `DROP CONSTRAINT IF EXISTS
+   ems_planning_unique_study_subject`. **Needed, confirmed empirically 2026-09-23**:
+   `Registry.finalize_constraints()` only swaps a model's `_sql_constraints` for real at the very
+   end of `load_modules()`, after every module's migrations have already run (same reasoning as
+   `migrations/18.0.0.25.0/post-migrate.py`'s `_merge_duplicate_student_ids`) — the OLD
+   `(study_id, subject_id)` constraint is still live throughout this whole script and blocks step
+   3 from creating more than one planning per study+subject otherwise.
+2. `_backfill_current_course_id(env)` — safety net shared in spirit with
+   [[plans/current_course_auto_seed]]'s own backfill; a no-op on this DB.
+3. `_replicate_plannings_across_history(env)`:
+   ```python
+   def _replicate_plannings_across_history(env):
+       current = env.company.current_course_id
+       if not current:
+           return
+       courses = env['ems.course'].search([('start', '<=', current.start)], order='start asc')
+       if not courses:
+           return
+       plannings = env['ems.planning'].search([])
+       for planning in plannings:
+           planning.course_id = courses[0].id
+           planning.flush_recordset(['course_id'])  # see note below - NOT optional
+           for course in courses[1:]:
+               planning.with_context(install_mode=True).copy({'course_id': course.id})
+   ```
+   Two non-obvious details, both confirmed empirically 2026-09-23 while implementing this:
+   - **`flush_recordset(['course_id'])` is required, not defensive belt-and-braces.** Odoo's ORM
+     batches a plain attribute write like `planning.course_id = courses[0].id` rather than
+     flushing it to the DB immediately. Without the explicit flush, the `copy()` calls right
+     after insert against the STILL-unflushed old `course_id` value, tripping the
+     `(study_id, subject_id, course_id)` unique constraint against this very same row (reliably
+     reproduced by removing the flush and re-running).
+   - **`install_mode=True` on the `copy()` calls.** 5 pre-existing plannings (all "MP 1665:
+     Digitalització aplicada als sectors productius", one per study: ASIX/DAM/DAW/AIF/AD) were
+     found to already have outcome ponderations summing to 106%, not 100% — silently, since
+     `check_ponderation` skips itself under `install_mode` (the context the original CSV load
+     used) and the constraint has never fired since (only fires on create/write, never on a plain
+     read). This migration's job is to replicate that already-live history unchanged, not to
+     silently "fix" a centre curriculum percentage on the way through an unrelated migration —
+     see [[plans/ems_planning_outcome_ponderation_over_100]] for the actual (still open) gap this
+     surfaced, which needs the developer's own decision, not a migration script's guess.
 
 On this dev DB (mirroring real production) this replicates every existing planning across
 2024-2025, 2025-2026 and 2026-2027 (the current course) — not the not-yet-run 2027-2028/2028-2029,
 which the rollover above will create for real once the centre actually transitions into them.
-Does not reference any xmlid — purely operates on whatever `ems.course` rows already exist,
-regardless of whether `data/custom/ems.course.csv` still exists by then (it won't, see below).
+Verified stable: re-running `./upgrade.sh` a second time afterward does not duplicate or revert
+anything (132 plannings × 3 courses = 396, unchanged across runs).
 
-### Deleting `data/custom/ems.course.csv`
+### Deleting `data/custom/ems.course.csv` — done
 
 Confirmed safe (developer request, 2026-09-22): the 4 courses it seeds
 (`__import__.ems_course_25_26` through `_28_29`) are `__import__`-owned. Per this project's own
 documented `_process_end` mechanism (CLAUDE.md, "Data folder conventions"), a `module='__import__'`
 record is never even a candidate for Odoo's data-file cleanup, regardless of whether the file that
 originally declared it still exists. Deleting the file (and its manifest line) leaves the 4
-already-created courses in this DB completely untouched, forever. Nothing else in the codebase
-references these 4 specific xmlids outside already-applied historical migration scripts
-(`migrations/18.0.0.8.0`, `18.0.0.22.0` — verified via grep, 2026-09-22). The file's removal
-requires no migration step of its own.
+already-created courses in this DB completely untouched, forever — verified via `./upgrade.sh`.
+Nothing else in the codebase references these 4 specific xmlids outside already-applied
+historical migration scripts (`migrations/18.0.0.8.0`, `18.0.0.22.0` — verified via grep).
 
-### Tests
+### Tests — written and green
 
-- `tests/test_planning.py` (`TestPlanningLogic`): the unique constraint now permits two
-  plannings for the same study+subject across different courses, and still blocks a duplicate
-  within the same course. Update `test_compute_name` for the course-inclusive name format.
-- `tests/test_course_transition.py`: new case asserting the target course gets one planning
-  (with matching ponderations/outcome lines) per source-course planning after `action_apply()`,
-  and that relaunching a transition never duplicates one.
+- `tests/test_planning.py` (`TestPlanningLogic`, 13 tests, all green): unique constraint permits
+  two plannings for the same study+subject across different courses, still blocks a duplicate
+  within the same course; `course_id` defaults to the current course; `check_course_id_required`
+  raises outside `install_mode`, silent inside it; `_compute_name` handles both the course-set and
+  transiently-course-less cases.
+- `tests/test_course_transition.py` (`TestCourseTransition`, 126 tests, all green, including 2
+  new ones): the target course gets one planning (matching ponderations AND outcome lines - this
+  is exactly the case that caught the `copy=False` bug above) per source-course planning after
+  `action_apply()`; relaunching the rollover directly is idempotent (no duplicate).
 - No new tour needed for phase 2 alone — no new view surface (see phase 3/4 for where a tour
   does apply).
+
+## Revision history (Phase 2 specifically)
+
+- **2026-09-22/23, abandoned same night:** `course_id` was `required=True` at the DB level, with
+  the centre's own `data/custom/ccff/ems.planning-*.csv` rows anchored to
+  `ems.course_bootstrap` ([[plans/current_course_auto_seed]] v2's placeholder). Implemented,
+  passed a first `./upgrade.sh`, then **failed on the second consecutive run**: the placeholder
+  got silently recreated by that same upgrade's data reload (see the dependency plan's own
+  revision history for the mechanism), and since these CSV rows synced `course_id` from the file
+  on every load, that second run reverted all 132 already-migrated plannings back to the
+  (newly-recreated) placeholder — undoing the whole migration. Root-caused and replaced the same
+  night by making `course_id` non-required (this version), which removes the need for any
+  placeholder at all.
 
 ## Phase 3 — grade correction uses the correct year's planning (already designed, unaffected by
 the phase-2 refinements above — depends only on `course_id` existing)

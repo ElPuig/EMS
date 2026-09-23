@@ -39,9 +39,13 @@ class EmsGradeSession(models.Model):
         for session in self:
             session.planning_id = False
             if session.group_id.study_id and session.subject_id:
+                # Live grade sessions only ever target the current course (issue #503) - once
+                # ems.planning is course-scoped, an unscoped search could pick up a different
+                # year's ponderations for the same study+subject.
                 session.planning_id = self.env["ems.planning"].search([
                     ("study_id", "=", session.group_id.study_id.id),
-                    ("subject_id", "=", session.subject_id.id)
+                    ("subject_id", "=", session.subject_id.id),
+                    ("course_id", "=", session.env.company.current_course_id.id),
                 ], limit=1) or False
 
     @api.depends("planning_id")

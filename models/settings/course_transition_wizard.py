@@ -839,6 +839,40 @@ class ems_course_transition_wizard(models.TransientModel):
         for teacher in teachers:
             self.env['ems.teaching'].sync_from_schedule(teacher, teacher._teaching_entries_from_calendar())
 
+    def _apply_planning_rollover(self):
+        """Step - copies every ems.planning (and its planning_outcome_ids) of the studies in
+        scope from the outgoing course to the incoming one, so grading configuration is never
+        missing when the new course starts (issue #503). Scoped to self.study_ids, same as
+        every other _apply_* step here, since studies transition at different times. Idempotent:
+        skips a study+subject that already has a target-course planning, so relaunching a
+        transition never duplicates one (also backstopped by the model's own
+        unique_study_subject_course SQL constraint)."""
+        source = self.env['ems.planning'].search([
+            ('study_id', 'in', self.study_ids.ids),
+            ('course_id', '=', self.source_course_id.id),
+        ])
+        existing_keys = {
+            (planning.study_id.id, planning.subject_id.id)
+            for planning in self.env['ems.planning'].search([
+                ('study_id', 'in', self.study_ids.ids),
+                ('course_id', '=', self.target_course_id.id),
+            ])
+        }
+        for planning in source:
+            if (planning.study_id.id, planning.subject_id.id) in existing_keys:
+                continue
+            # planning_outcome_ids is a plain one2many, copy=False by default (confirmed
+            # empirically 2026-09-23: Odoo does NOT duplicate a one2many's children unless the
+            # field is explicitly copy=True) - copy() alone silently drops them, so they must be
+            # rebuilt explicitly here.
+            planning.copy({
+                'course_id': self.target_course_id.id,
+                'planning_outcome_ids': [(0, 0, {
+                    'outcome_id': outcome.outcome_id.id,
+                    'ponderation': outcome.ponderation,
+                }) for outcome in planning.planning_outcome_ids],
+            })
+
     def _apply_attendance_records_archival(self):
         """Archives every ems.attendance_justification / ems.attendance_issue_status (+ its
         now-emptied ems.attendance_issue_student/ems.attendance_issue_tutor parents) whose
@@ -1084,6 +1118,7 @@ Called from `_apply_cleanup()` **last**, after `students._ems_clear_operational_
         pending = self._pending_graduates(order_index)
 
         self._apply_history(students)
+        self._apply_planning_rollover()
         issues = self._apply_graduates(graduates)
         self._apply_continuing_graduates(continuing)
         self._apply_pending_graduates(pending, order_index)

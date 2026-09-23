@@ -59,13 +59,19 @@ A grade review corrects the academic history of a course already closed. Secreta
 2. Click **Grade review**.
 3. Choose what the review does:
    - **Correct a subject:** pick the subject and set the **Resolved grade** of every learning outcome the review resolves.
-   - **Add a missing subject:** pick the subject. Its weights and learning outcomes are proposed from the teaching plan of the study; fill in their grades.
+   - **Add a missing subject:** pick the subject. Its weights and learning outcomes are proposed from the teaching plan of the study **for the same course being corrected** — not today's plan, so a correction on an old course always uses the weights that were actually in force then; fill in their grades.
    - **Remove a subject:** pick the subject to delete from the record.
-4. Read **Result of the review**: the internal grade, the state and the final grade the correction yields.
+4. Read **Result of the review**: the internal grade (grade of the centre), the state and the final grade the correction yields.
 5. Read **Course result**: the proposed result is written on the record while **Update the course result** is ticked. Untick it to keep the current one.
 6. Write the **Resolution** and click **Apply review**.
 
 A subject is passed when every learning outcome is resolved at 5 or above. A subject whose work placement (EM) is not graded yet becomes passed with its final grade pending; grade the placement from the work placement screen. *Repeating* and *Withdrawn* are not proposed by a grade review: adjust them by hand on the record.
+
+### Forcing the internal grade manually
+
+Esfera sometimes records a slightly different number than what the learning outcomes' own calculation yields (typically a rounding difference). Instead of having to make up outcome grades that happen to average out to that number, tick **Force internal grade**, next to the internal grade in **Result of the review**, and type the value Esfera has directly.
+
+The final grade recomputes automatically from that forced value (same as always, combined with the work placement grade when the subject has one). The state (passed/not passed) **never changes** because of the override — it keeps depending only on the learning outcomes. That's why the system won't let you force a grade of 5 or above when a learning outcome is failed, nor one below 5 when every learning outcome already passes — only the exact number within whichever side the outcomes already determine can be adjusted.
 
 The subject keeps the date, the author and the text of the last review applied to it, and the **Corrected by a grade review** filter of the history list shows the records with at least one. The detail of every change is recorded in the student's log.
 

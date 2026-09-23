@@ -117,3 +117,31 @@ either move — with new enrollments then landing on the wrong course.
 it was removed, and its initial value is seeded once by `ems.course._ems_seed_enrollment_default()`
 from `post_init_hook` (fresh installs) and the 18.0.0.22.0 post-migrate (existing ones). The
 helper only acts when no course carries the flag, so it can never override a deliberate move.
+
+### Seeding `current_course_id` itself on a fresh install (issue #503, 18.0.0.28.0)
+
+Until this version, `current_course_id` was never auto-seeded at all — a genuinely fresh install
+ran with no operational course configured until an admin picked one by hand
+(`res.company.get_current_course_or_raise()`'s own docstring already documented this gap).
+`__init__.py::_ems_seed_current_course`, called from `post_init_hook` **before**
+`_ems_seed_enrollment_default()` (that method's own "course after the operational one" logic
+depends on `is_current` already being meaningful):
+
+```python
+def _ems_seed_current_course(env):
+    year = datetime.now().year
+    course = env['ems.course'].search([('start', '=', year)], limit=1) \
+        or env['ems.course'].create({'start': year, 'end': year + 1})
+    env['res.company'].search([]).write({'current_course_id': course.id})
+```
+
+Deliberately a plain calendar year, no September/August academic-year cutover logic — decided
+against for now (not worth the complexity yet). Reuses an existing course for that year instead
+of creating a duplicate if a centre's own seed data already covers it (`unique_course_name` would
+block a real duplicate anyway). `migrations/18.0.0.28.0/post-migrate.py::_backfill_current_course_id`
+covers the equivalent for an already-existing install that somehow never configured one — a no-op
+for an install that already has (this box's own DB included).
+
+This is also what makes [`ems.planning.course_id`](../planning/planning.md) safe to leave
+non-required at the DB level: any real, UI-driven planning creation can always default to a
+properly-seeded `current_course_id`.

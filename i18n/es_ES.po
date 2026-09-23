@@ -1182,9 +1182,9 @@ msgid "A grade session already exists for this group, subject and round. Please 
 msgstr "Ya existe una sesión de evaluación para este grupo, asignatura y evaluación. Edite la existente."
 
 #. module: ems
-#: model:ir.model.constraint,message:ems.constraint_ems_planning_unique_study_subject
-msgid "A planning already exists for this study and subject!"
-msgstr ""
+#: model:ir.model.constraint,message:ems.constraint_ems_planning_unique_study_subject_course
+msgid "A planning already exists for this study, subject and course!"
+msgstr "Ya existe una planificación para este estudio, asignatura y curso!"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
@@ -2702,6 +2702,7 @@ msgstr "País"
 #: model:ir.model.fields,field_description:ems.field_ems_group__course model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__special_course_filter model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment model:ir.model.fields,field_description:ems.field_ems_student_year_record__course_id model_terms:ir.ui.view,arch_db:ems.view_applicant_search model_terms:ir.ui.view,arch_db:ems.view_year_record_search model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__course_name model:ir.model.fields,field_description:ems.field_resource_calendar__course_id model_terms:ir.ui.view,arch_db:ems.view_resource_calendar_search_ems model:ir.model.fields,field_description:ems.field_ems_guard_duty_board__course_id
 #: model:ir.model.fields,field_description:ems.field_hr_leave__ems_course_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__course_id
+#: model:ir.model.fields,field_description:ems.field_ems_planning__course_id
 msgid "Course"
 msgstr "Curso"
 
@@ -5473,6 +5474,11 @@ msgid "Overridden"
 msgstr "Sobrescrita"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__override_internal_grade
+msgid "Force internal grade"
+msgstr "Forzar nota del centro"
+
+#. module: ems
 #: model:ir.actions.act_window,name:ems.action_grade_session_tree model:ir.ui.menu,name:ems.menu_grade_sessions
 msgid "Evaluation by group and subject"
 msgstr "Evaluación por grupo y materia"
@@ -5773,6 +5779,12 @@ msgstr "Los valores de ponderación de los resultados de aprendizaje deben sumar
 #: code:addons/ems/models/planning/planning.py:0
 msgid "The main ponderation values must sum 100."
 msgstr "Los valores de ponderación principales deben sumar 100."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/planning/planning.py:0
+msgid "The course is required."
+msgstr "El curso es obligatorio."
 
 #. module: ems
 #. odoo-python
@@ -6647,6 +6659,7 @@ msgstr "Texto corto"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search model_terms:ir.ui.view,arch_db:ems.view_notice_search model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_search
+#: model_terms:ir.ui.view,arch_db:ems.view_planning_search
 msgid "Show only mine"
 msgstr "Mostrar solamente los míos"
 
@@ -7406,6 +7419,30 @@ msgstr "La nota interna debe estar en el rango [0, 10]."
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "The forced internal grade must be within the range [0, 10]."
+msgstr "La nota del centro forzada debe estar en el rango [0, 10]."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "At least one learning outcome is below 5, so the subject is not passed - the forced internal grade must also stay below 5."
+msgstr "Al menos un resultado de aprendizaje está por debajo de 5, por lo que la asignatura no está superada - la nota del centro forzada también debe quedar por debajo de 5."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "Every learning outcome is at 5 or above, so the subject is passed - the forced internal grade must also stay at 5 or above."
+msgstr "Todos los resultados de aprendizaje están en 5 o más, por lo que la asignatura está superada - la nota del centro forzada también debe quedar en 5 o más."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "Internal grade forced manually: %(forced)s (the learning outcomes would give %(natural)s)"
+msgstr "Nota del centro forzada manualmente: %(forced)s (los resultados de aprendizaje darían %(natural)s)"
+
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/enrollment/enrollment_line_extension.py:0
 msgid "The item '%(name)s' is already in the list. Please select a different one."
 msgstr "El elemento '%(name)s' ya está en la lista. Por favor, selecciona uno diferente."
@@ -8013,6 +8050,11 @@ msgstr "Día laborable"
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__is_overridden
 msgid "When set, the teacher's manual internal grade is kept; otherwise the internal grade is computed from the outcomes."
 msgstr "Cuando está marcado, se mantiene la nota del centro manual del profesor; en caso contrario, la nota del centro se calcula a partir de los RA."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_review_wizard__override_internal_grade
+msgid "Enter the internal grade manually instead of computing it from the learning outcomes above - e.g. to match a value already recorded in Esfera. It cannot change whether the subject is passed or not passed."
+msgstr "Introduzca la nota del centro manualmente en lugar de calcularla a partir de los resultados de aprendizaje de arriba - por ejemplo, para que coincida con un valor ya registrado en Esfera. No puede cambiar si la asignatura está superada o no."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__computed_is_scored
@@ -13847,6 +13889,7 @@ msgstr "Mi alumnado"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__is_my_student
 #: model:ir.model.fields,field_description:ems.field_res_users__is_my_student
+#: model:ir.model.fields,field_description:ems.field_ems_planning__is_own_subject
 msgid "Taught by me"
 msgstr "De mis grupos"
 

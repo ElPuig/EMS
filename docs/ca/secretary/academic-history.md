@@ -59,13 +59,19 @@ Una revisió de qualificacions corregeix l'històric acadèmic d'un curs ja tanc
 2. Feu clic a **Revisió de qualificacions**.
 3. Trieu què fa la revisió:
    - **Corregir un mòdul:** trieu el mòdul i poseu la **Nota resolta** de cada resultat d'aprenentatge que resol la revisió.
-   - **Afegir un mòdul que falta:** trieu el mòdul. Les ponderacions i els resultats d'aprenentatge es proposen a partir de la programació de l'estudi; poseu-hi les notes.
+   - **Afegir un mòdul que falta:** trieu el mòdul. Les ponderacions i els resultats d'aprenentatge es proposen a partir de la programació de l'estudi **del mateix curs que s'està corregint** — no de la programació actual, així que una correcció d'un curs antic sempre usa els pesos que hi eren vigents llavors; poseu-hi les notes.
    - **Eliminar un mòdul:** trieu el mòdul que s'ha de treure del registre.
-4. Llegiu **Resultat de la revisió**: la nota interna, l'estat i la nota final que dona la correcció.
+4. Llegiu **Resultat de la revisió**: la nota interna (nota del centre), l'estat i la nota final que dona la correcció.
 5. Llegiu **Resultat del curs**: el resultat proposat s'escriu al registre mentre **Actualitza el resultat del curs** estigui marcat. Desmarqueu-lo per conservar l'actual.
 6. Escriviu la **Resolució** i feu clic a **Aplica la revisió**.
 
 Un mòdul queda superat quan tots els resultats d'aprenentatge es resolen amb 5 o més. Un mòdul amb l'estada (EM) encara sense qualificar queda superat amb la nota final pendent; qualifiqueu l'estada des de la pantalla d'estada. *Repeteix curs* i *Baixa* no els proposa una revisió de qualificacions: ajusteu-los a mà al registre.
+
+### Forçar la nota del centre manualment
+
+De vegades Esfera registra un número lleugerament diferent del que dona el càlcul dels resultats d'aprenentatge (una diferència d'arrodoniment, típicament). En lloc d'haver d'inventar notes de RA que casualment donin aquest número, marqueu la casella **Força la nota del centre**, al costat de la nota interna a **Resultat de la revisió**, i escriviu directament el valor que consta a Esfera.
+
+La nota final es recalcula automàticament a partir d'aquest valor forçat (igual que sempre, combinant-lo amb la nota de l'estada si el mòdul en té). L'estat (superat/no superat) **mai no canvia** per forçar la nota: continua depenent només dels resultats d'aprenentatge. Per això el sistema no deixa forçar una nota de 5 o més si algun RA està suspès, ni una nota per sota de 5 si tots els RA estan aprovats — només es pot ajustar el número dins del costat que els RA ja determinen.
 
 El mòdul conserva la data, l'autor/a i el text de l'última revisió que s'hi ha aplicat, i el filtre **Corregit per una revisió de qualificacions** de la llista de l'històric mostra els registres que en tenen alguna. El detall de cada canvi queda registrat al registre de l'alumne/a.
 

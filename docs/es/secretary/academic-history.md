@@ -59,13 +59,19 @@ Una revisión de calificaciones corrige el histórico académico de un curso ya 
 2. Haced clic en **Revisión de calificaciones**.
 3. Elegid qué hace la revisión:
    - **Corregir un módulo:** elegid el módulo y poned la **Nota resuelta** de cada resultado de aprendizaje que resuelve la revisión.
-   - **Añadir un módulo que falta:** elegid el módulo. Las ponderaciones y los resultados de aprendizaje se proponen a partir de la programación del estudio; poned sus notas.
+   - **Añadir un módulo que falta:** elegid el módulo. Las ponderaciones y los resultados de aprendizaje se proponen a partir de la programación del estudio **del mismo curso que se está corrigiendo** — no de la programación actual, así que una corrección de un curso antiguo usa siempre los pesos que estaban vigentes entonces; poned sus notas.
    - **Eliminar un módulo:** elegid el módulo que hay que quitar del registro.
-4. Leed **Resultado de la revisión**: la nota interna, el estado y la nota final que da la corrección.
+4. Leed **Resultado de la revisión**: la nota interna (nota del centro), el estado y la nota final que da la corrección.
 5. Leed **Resultado del curso**: el resultado propuesto se escribe en el registro mientras **Actualizar el resultado del curso** esté marcado. Desmarcadlo para conservar el actual.
 6. Escribid la **Resolución** y haced clic en **Aplicar revisión**.
 
 Un módulo queda superado cuando todos los resultados de aprendizaje se resuelven con 5 o más. Un módulo con la estancia (EM) todavía sin calificar queda superado con la nota final pendiente; calificad la estancia desde la pantalla de estancia. *Repite curso* y *Baja* no los propone una revisión de calificaciones: ajustadlos a mano en el registro.
+
+### Forzar la nota del centro manualmente
+
+A veces Esfera registra un número ligeramente distinto al que da el cálculo de los resultados de aprendizaje (una diferencia de redondeo, típicamente). En vez de tener que inventar notas de RA que casualmente den ese número, marcad la casilla **Forzar nota del centro**, junto a la nota interna en **Resultado de la revisión**, y escribid directamente el valor que consta en Esfera.
+
+La nota final se recalcula automáticamente a partir de ese valor forzado (igual que siempre, combinándolo con la nota de la estancia si el módulo la tiene). El estado (superado/no superado) **nunca cambia** por forzar la nota: sigue dependiendo solo de los resultados de aprendizaje. Por eso el sistema no deja forzar una nota de 5 o más si algún RA está suspenso, ni una nota por debajo de 5 si todos los RA están aprobados — solo se puede ajustar el número dentro del lado que los RA ya determinan.
 
 El módulo conserva la fecha, el autor/a y el texto de la última revisión que se le ha aplicado, y el filtro **Corregido por una revisión de calificaciones** de la lista del histórico muestra los registros que tienen alguna. El detalle de cada cambio queda registrado en el registro del alumno/a.
 

@@ -63,8 +63,9 @@
                             <group>
                                 <label for="preview_internal_grade"/>
                                 <div class="d-flex align-items-center gap-1">
-                                    <field name="preview_internal_grade" readonly="not override_internal_grade"/>
-                                    <field name="override_internal_grade"/>
+                                    <field name="preview_internal_grade" readonly="not override_internal_grade"
+                                           class="w-auto"/>
+                                    <field name="override_internal_grade" class="w-auto"/>
                                     <label for="override_internal_grade" string="Force" class="oe_edit_only fw-normal mb-0"/>
                                 </div>
                                 <field name="preview_state" widget="badge"

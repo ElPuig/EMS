@@ -143,7 +143,7 @@ The administration changes the state. If the session is in the board stage or fi
 
 - **Internal grade:** weighted average of the **evaluated** outcomes according to their weights, on a 0-to-10 scale. If any outcome is still to be evaluated, it is computed only with the evaluated ones and is **provisional**. If any evaluated outcome is failed (below 5), the internal grade is **capped at 4** (the subject cannot be passed with a failed or pending outcome).
 - **Work-placement grade:** informed manually in the **External** column.
-- **Final grade:** combines the internal and external grades according to the planning percentages. To pass the subject **both parts must be passed**; if one part is failed, the final grade is capped at 4.
+- **Final grade:** combines the internal and external grades according to the [planning](planning.md) percentages. To pass the subject **both parts must be passed**; if one part is failed, the final grade is capped at 4.
 - **Overriding the internal grade:** if you tick the **Override Internal** checkbox, you can set the internal grade manually instead of letting it be computed from the outcomes.
 
 ---

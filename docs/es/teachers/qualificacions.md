@@ -143,7 +143,7 @@ El estado lo cambia la administración. Si la sesión está en junta o finalizad
 
 - **Nota del centro:** media ponderada de los RA **evaluados** según sus pesos, en escala del 0 al 10. Si falta algún RA por evaluar, se calcula solo con los evaluados y es **provisional**. Si algún RA evaluado está suspenso (inferior a 5), la nota del centro queda **limitada a 4** (no se puede aprobar el módulo con un RA suspenso o pendiente).
 - **Nota de prácticas en empresa:** se informa manualmente en la columna **Empresa**.
-- **Nota final:** combina la nota del centro y la de empresa según los porcentajes de la planificación. Para aprobar el módulo hay que **aprobar ambas partes**; si una parte está suspensa, la nota final queda limitada a 4.
+- **Nota final:** combina la nota del centro y la de empresa según los porcentajes de la [programación](planning.md). Para aprobar el módulo hay que **aprobar ambas partes**; si una parte está suspensa, la nota final queda limitada a 4.
 - **Sobrescribir la nota del centro:** si marcas la casilla **Sobrescribir centro**, puedes fijar manualmente la nota del centro en lugar de dejar que se calcule a partir de los RA.
 
 ---

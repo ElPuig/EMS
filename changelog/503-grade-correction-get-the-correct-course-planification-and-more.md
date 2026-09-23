@@ -1,12 +1,3 @@
-# Fixes
-
-## Head of Studies / Deputy could not see every planning:
-Head of Studies and Deputy Head of Studies only inherited the teacher-scoped `ir.rule` on
-`ems.planning`/`ems.planning_outcome`, so they only saw plannings for subjects they personally
-teach via `ems.teaching` - not every planning in the centre, as their role requires. Added a
-dedicated rule (and matching `ir.model.access.csv` rows) granting them read/write/create over
-every planning, with unlink still reserved to `academic_admin`.
-
 # What's new
 
 ## "Show only mine" filter on the Plannings list:
@@ -35,8 +26,28 @@ outcomes already determine.
 
 # Fixes
 
+## Head of Studies / Deputy could not see every planning:
+Head of Studies and Deputy Head of Studies only inherited the teacher-scoped `ir.rule` on
+`ems.planning`/`ems.planning_outcome`, so they only saw plannings for subjects they personally
+teach via `ems.teaching` - not every planning in the centre, as their role requires. Added a
+dedicated rule (and matching `ir.model.access.csv` rows) granting them read/write/create over
+every planning, with unlink still reserved to `academic_admin`.
+
 ## Grade correction could use the wrong year's ponderations:
 Correcting or completing a closed academic year's grades could silently pick up today's grading
 ponderations instead of the ones that were actually in force during that year, since
 ponderations were never tied to a specific course before (see above). Both the correction wizard
 and the live grading screen now use the ponderation of their own course.
+
+## A centre's own ponderation edits could be silently undone on the next update:
+Rebalancing a module's grading weights through the app (e.g. after a new learning outcome was
+added to the curriculum) could be silently reverted by the next update, since the centre's
+seeded ponderation data was being treated as configuration this repository keeps re-pushing
+rather than a one-time starting template. It's now protected the same way a group's classroom
+assignment already is, so an edit made through the app stays in place.
+
+## One module's grading ponderations summed to 106%, not 100%:
+Five plannings for the same module ("MP 1665: Digitalització aplicada als sectors productius")
+had grading weights across their learning outcomes that added up to 106% instead of 100%, dating
+back to an outcome added to the curriculum without its weight being reconciled against the
+others. Corrected to the intended split (15/20/15/20/15/15 across its six learning outcomes).

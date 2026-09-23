@@ -52,19 +52,31 @@ class EmsGradeReviewWizard(models.TransientModel):
     resolution = fields.Text(string="Resolution", required=True,
                              help="What the review resolves. Kept on the record and posted "
                                   "in the student's chatter.")
-    # readonly=False (issue #503): the reviewer can force this value instead of it always being
-    # computed from the outcome grid above, to correct a small rounding-type mismatch against
-    # Esfera without having to reverse-engineer fake RA scores. See override_internal_grade and
-    # _check_override_internal_grade below for the safeguard that keeps this from flipping
-    # whether the subject is actually passed.
-    preview_internal_grade = fields.Integer(string="Internal grade",
-                                            compute='_compute_preview_internal_grade', readonly=False)
-    override_internal_grade = fields.Boolean(string="Force internal grade",
-                                             help="Enter the internal grade manually instead of "
-                                                  "computing it from the learning outcomes above "
-                                                  "- e.g. to match a value already recorded in "
-                                                  "Esfera. It cannot change whether the subject "
-                                                  "is passed or not passed.")
+    # The same "calculated vs. applied" shape as line_ids' previous_score/score (issue #503):
+    # preview_internal_grade_calculated always shows what the outcome grid above yields, and
+    # preview_internal_grade - the value actually applied - starts equal to it but can be typed
+    # over by hand, e.g. to correct a small rounding-type mismatch against Esfera without having
+    # to reverse-engineer fake RA scores. There is no user-facing checkbox: "is this overridden"
+    # is simply "does the applied value currently differ from the calculated one" (see
+    # _check_override_internal_grade and _apply_internal_grade_override below), which needs no
+    # bookkeeping flag at all. preview_internal_grade_synced is the one flag that IS still
+    # needed, purely for _compute_preview_internal_grade's own "should I keep auto-following the
+    # calculated value" decision (see its comment - an @api.onchange cannot do this: Odoo's
+    # onchange dispatch re-fires an onchange registered on a field even when a *compute*, not the
+    # user, changed that field's value, so it cannot tell the two apart).
+    preview_internal_grade_calculated = fields.Integer(
+        string="Internal grade (calculated)", compute='_compute_preview_internal_grade_calculated',
+        help="The internal grade computed from the learning outcomes above.")
+    preview_internal_grade = fields.Integer(
+        string="Internal grade (applied)", compute='_compute_preview_internal_grade',
+        store=True, readonly=False,
+        help="The internal grade that will actually be applied to the subject. Starts equal to "
+             "the calculated value; type a different one to correct it by hand - e.g. to match "
+             "a value already recorded in Esfera. It cannot change whether the subject is "
+             "passed or not passed.")
+    # Technical/bookkeeping only, not shown in the view: the calculated value that was last
+    # auto-pushed into preview_internal_grade. See _compute_preview_internal_grade.
+    preview_internal_grade_synced = fields.Integer(string="Internal grade last synced")
     preview_state = fields.Selection(string="State", compute='_compute_preview', selection=[
         ('failed', 'Not passed'),
         ('passed', 'Passed'),
@@ -94,8 +106,16 @@ class EmsGradeReviewWizard(models.TransientModel):
             wizard.available_subject_ids = self.env['ems.subject'].search(domain)
 
     @api.depends('record_id', 'operation', 'subject_record_id', 'subject_id', 'line_ids.score',
-                 'line_ids.is_scored', 'line_ids.weight', 'internal_weight', 'external_weight',
-                 'override_internal_grade')
+                 'line_ids.is_scored', 'line_ids.weight', 'internal_weight', 'external_weight')
+    def _compute_preview_internal_grade_calculated(self):
+        for wizard in self:
+            if wizard.operation == 'remove' or not (
+                    wizard.subject_record_id if wizard.operation == 'correct' else wizard.subject_id):
+                wizard.preview_internal_grade_calculated = 0
+                continue
+            wizard.preview_internal_grade_calculated = wizard._subject_values()['internal_grade']
+
+    @api.depends('preview_internal_grade_calculated')
     def _compute_preview_internal_grade(self):
         # Kept apart from _compute_preview below (which computes state/final_grade/has_final):
         # a plain write to preview_internal_grade (typing a forced value) does not re-trigger
@@ -103,14 +123,21 @@ class EmsGradeReviewWizard(models.TransientModel):
         # must live in a separate method that lists preview_internal_grade as a dependency (see
         # its own comment), same split ems.grade_subject_line already uses for
         # internal_score/computed_score.
+        #
+        # "Should I keep auto-following the calculated value?" is answered by comparing the
+        # CURRENT applied value against preview_internal_grade_synced - the calculated value we
+        # last pushed here ourselves. Equal means nothing has touched it since (either it was
+        # never touched, or the user last typed exactly what we'd already pushed) - keep
+        # following. Different means the user typed something else after that last push - leave
+        # it alone. This cannot be a plain "does applied differ from calculated right now" check
+        # instead: on the very first pass after a fresh subject is picked, applied is still 0
+        # while calculated is already the real value, which would look like a "divergence" too
+        # and the initial seed would never happen.
         for wizard in self:
-            if wizard.override_internal_grade:
+            if wizard.preview_internal_grade != wizard.preview_internal_grade_synced:
                 continue
-            if wizard.operation == 'remove' or not (
-                    wizard.subject_record_id if wizard.operation == 'correct' else wizard.subject_id):
-                wizard.preview_internal_grade = 0
-                continue
-            wizard.preview_internal_grade = wizard._subject_values()['internal_grade']
+            wizard.preview_internal_grade = wizard.preview_internal_grade_calculated
+            wizard.preview_internal_grade_synced = wizard.preview_internal_grade_calculated
 
     @api.depends('record_id', 'operation', 'subject_record_id', 'subject_id', 'line_ids.score',
                  'line_ids.is_scored', 'line_ids.weight', 'internal_weight', 'external_weight',
@@ -143,13 +170,14 @@ class EmsGradeReviewWizard(models.TransientModel):
             others = wizard.record_id.subject_record_ids - wizard.subject_record_id
             wizard.proposed_result = wizard._result_after(others, values['state'])
 
-    @api.constrains('override_internal_grade', 'preview_internal_grade')
+    @api.constrains('preview_internal_grade', 'preview_internal_grade_calculated')
     def _check_override_internal_grade(self):
-        # The forced value can correct the exact number, but must never flip whether the
+        # The applied value can correct the exact number, but must never flip whether the
         # subject is actually passed - that stays whatever the learning outcomes (RA) say,
-        # untouched by the override (issue #503).
+        # untouched by the override (issue #503). Nothing to check when it matches the
+        # calculated value: nothing was actually forced.
         for wizard in self:
-            if not wizard.override_internal_grade:
+            if wizard.preview_internal_grade == wizard.preview_internal_grade_calculated:
                 continue
             if wizard.preview_internal_grade < 0 or wizard.preview_internal_grade > 10:
                 raise ValidationError(_("The forced internal grade must be within the range [0, 10]."))
@@ -187,6 +215,12 @@ class EmsGradeReviewWizard(models.TransientModel):
         outcomes of the subject being corrected, or the teaching plan of the subject being
         added."""
         self.ensure_one()
+        # A newly picked subject (or operation) starts fresh: resetting both to 0 makes the next
+        # _compute_preview_internal_grade pass see them as still in sync (0 == 0) and re-seed the
+        # applied grade from THIS subject's own calculated value, instead of carrying over
+        # whatever was typed for a previous subject.
+        self.preview_internal_grade = 0
+        self.preview_internal_grade_synced = 0
         if self.operation == 'correct' and self.subject_record_id:
             self.internal_weight = self.subject_record_id.internal_weight
             self.external_weight = self.subject_record_id.external_weight
@@ -281,19 +315,19 @@ class EmsGradeReviewWizard(models.TransientModel):
 
     def _apply_internal_grade_override(self, subject_record):
         """After _recompute_from_outcomes() has derived internal_grade/state/final_grade fresh
-        from the outcomes, overwrite the internal grade with the reviewer's forced value when
-        the 'Force internal grade' override is active (issue #503) - lets a small Esfera-vs-EMS
-        rounding mismatch be corrected without reverse-engineering fake RA scores. 'state' is
-        deliberately never touched here: _check_override_internal_grade already blocks saving a
+        from the outcomes, overwrite the internal grade with the reviewer's applied value when
+        it was typed differently from the calculated one (issue #503) - lets a small
+        Esfera-vs-EMS rounding mismatch be corrected without reverse-engineering fake RA scores.
+        'state' is deliberately never touched here: _check_override_internal_grade already blocks saving a
         forced value on the wrong side of 5 relative to what the RAs say, so it is guaranteed
         consistent with the forced value by the time this runs. Reuses is_overridden (already on
         this model, otherwise only ever copied from the live ems.grade_subject_line.is_overridden
         at freeze time and cleared by _recompute_from_outcomes) rather than inventing a new
         field - same "this internal grade isn't purely outcome-derived" meaning either way.
 
-        Returns an audit-trail message for the chatter, or None when the override is off."""
+        Returns an audit-trail message for the chatter, or None when nothing was forced."""
         self.ensure_one()
-        if not self.override_internal_grade:
+        if self.preview_internal_grade == self.preview_internal_grade_calculated:
             return None
         natural_grade = subject_record.internal_grade
         final_grade, has_final = self.env['ems.grade_subject_line']._final_from_parts(
@@ -323,7 +357,7 @@ class EmsGradeReviewWizard(models.TransientModel):
                              new=self._score_label(line.score, line.is_scored)))
             self._history(line.outcome_record_id).write({'final_score': line.score,
                                                          'final_is_scored': line.is_scored})
-        if not changes and not self.override_internal_grade:
+        if not changes and self.preview_internal_grade == self.preview_internal_grade_calculated:
             raise UserError(_("The review does not change any learning outcome grade."))
         previous_state = self.subject_record_id.state
         self._history(self.subject_record_id)._recompute_from_outcomes()

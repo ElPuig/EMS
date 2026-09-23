@@ -69,7 +69,7 @@ Un mòdul queda superat quan tots els resultats d'aprenentatge es resolen amb 5 
 
 ### Forçar la nota del centre manualment
 
-De vegades Esfera registra un número lleugerament diferent del que dona el càlcul dels resultats d'aprenentatge (una diferència d'arrodoniment, típicament). En lloc d'haver d'inventar notes de RA que casualment donin aquest número, marqueu la casella **Força la nota del centre**, al costat de la nota interna a **Resultat de la revisió**, i escriviu directament el valor que consta a Esfera.
+De vegades Esfera registra un número lleugerament diferent del que dona el càlcul dels resultats d'aprenentatge (una diferència d'arrodoniment, típicament). En lloc d'haver d'inventar notes de RA que casualment donin aquest número, **Resultat de la revisió** mostra la nota del centre en dos camps costat a costat: **Nota del centre (calculada)**, sempre de només lectura, i **Nota del centre (aplicada)**, sempre editable i que comença sent igual a la calculada — escriviu directament el valor que consta a Esfera al camp aplicada.
 
 La nota final es recalcula automàticament a partir d'aquest valor forçat (igual que sempre, combinant-lo amb la nota de l'estada si el mòdul en té). L'estat (superat/no superat) **mai no canvia** per forçar la nota: continua depenent només dels resultats d'aprenentatge. Per això el sistema no deixa forçar una nota de 5 o més si algun RA està suspès, ni una nota per sota de 5 si tots els RA estan aprovats — només es pot ajustar el número dins del costat que els RA ja determinen.
 

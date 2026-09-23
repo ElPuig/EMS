@@ -250,10 +250,10 @@ class TestGradeReview(TransactionCase):
     def test_override_forces_internal_grade_and_recomputes_final(self):
         # Esfera recorded a 7 for this module; the natural RA average would give 5 (see
         # test_correct_turns_a_failed_subject_into_a_passed_one) - both are on the "passed" side.
-        # Built via Form for the line_ids/onchange plumbing, then the override itself is set via
-        # a direct write() - preview_internal_grade has no @api.onchange of its own (it's a plain
-        # readonly=False compute, the same pattern ems.grade_subject_line.internal_score already
-        # uses), so driving it through Form's onchange simulation is not what it's built for.
+        # Built via Form for the line_ids/onchange plumbing, then the applied grade is set via a
+        # direct write() - this is the exact low-level contract typing it in the real UI produces
+        # (see test_typing_the_applied_grade_directly_forces_it below for that path): there is no
+        # separate "force" flag to set, "overridden" is simply "applied != calculated".
         record = self._record()
         subject_record = self._failed_subject(record)
         form = self._form(record)
@@ -261,7 +261,8 @@ class TestGradeReview(TransactionCase):
         self._pass_failing_outcomes(form)
         wizard = form.save()
         self.assertEqual(wizard.preview_state, 'passed')
-        wizard.write({'override_internal_grade': True, 'preview_internal_grade': 7})
+        wizard.write({'preview_internal_grade': 7})
+        self.assertEqual(wizard.preview_internal_grade_calculated, 5)  # untouched by the override
         self.assertEqual(wizard.preview_final_grade, 7)  # internal_weight=100, external_weight=0
         self.assertEqual(wizard.preview_state, 'passed')
         wizard.action_apply()
@@ -269,6 +270,36 @@ class TestGradeReview(TransactionCase):
         self.assertEqual(subject_record.final_grade, 7)
         self.assertTrue(subject_record.is_overridden)
         self.assertEqual(subject_record.state, 'passed')
+
+    def test_typing_the_applied_grade_directly_forces_it(self):
+        # The real UI path (issue #503 follow-up): there is no checkbox anymore, typing a
+        # different applied value directly is what forces it - no separate flag needed, "is this
+        # overridden" is simply "does the applied value differ from the calculated one".
+        record = self._record()
+        subject_record = self._failed_subject(record)
+        form = self._form(record)
+        form.subject_record_id = subject_record
+        self._pass_failing_outcomes(form)
+        self.assertEqual(form.preview_internal_grade, 5)  # calculated value, before typing
+        form.preview_internal_grade = 7
+        wizard = form.save()
+        self.assertEqual(wizard.preview_internal_grade, 7)
+        self.assertEqual(wizard.preview_internal_grade_calculated, 5)
+
+    def test_changing_the_subject_resets_the_override(self):
+        # Picking a different subject (or a different operation) is a fresh review: the applied
+        # grade must track ITS calculated value again, not carry over a stale override.
+        record = self._record()
+        subject_record = self._failed_subject(record)
+        form = self._form(record)
+        form.subject_record_id = subject_record
+        self._pass_failing_outcomes(form)
+        form.preview_internal_grade = 7
+        other_subject_record = record.subject_record_ids.filtered(
+            lambda subject_record: subject_record.subject_id == self.subject2)
+        form.subject_record_id = other_subject_record
+        wizard = form.save()
+        self.assertEqual(wizard.preview_internal_grade, wizard.preview_internal_grade_calculated)
 
     def test_override_cannot_force_a_pass_when_a_ra_still_fails(self):
         record = self._record()
@@ -281,7 +312,7 @@ class TestGradeReview(TransactionCase):
         wizard = form.save()
         self.assertEqual(wizard.preview_state, 'failed')
         with self.assertRaises(ValidationError):
-            wizard.write({'override_internal_grade': True, 'preview_internal_grade': 6})
+            wizard.write({'preview_internal_grade': 6})
 
     def test_override_cannot_force_a_fail_when_every_ra_passes(self):
         record = self._record()
@@ -291,7 +322,7 @@ class TestGradeReview(TransactionCase):
         self._pass_failing_outcomes(form)
         wizard = form.save()
         with self.assertRaises(ValidationError):
-            wizard.write({'override_internal_grade': True, 'preview_internal_grade': 3})
+            wizard.write({'preview_internal_grade': 3})
 
     def test_override_applies_with_no_outcome_line_changed(self):
         # The exact scenario the developer described: every RA is already correct, only the
@@ -302,7 +333,7 @@ class TestGradeReview(TransactionCase):
         form.subject_record_id = subject_record
         wizard = form.save()
         self.assertEqual(wizard.preview_state, 'failed')
-        wizard.write({'override_internal_grade': True, 'preview_internal_grade': 3})
+        wizard.write({'preview_internal_grade': 3})
         wizard.action_apply()  # must not raise "the review does not change any learning outcome"
         self.assertEqual(subject_record.internal_grade, 3)
         self.assertEqual(subject_record.state, 'failed')

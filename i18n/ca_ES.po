@@ -5474,11 +5474,6 @@ msgid "Overridden"
 msgstr "Sobreescrita"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__override_internal_grade
-msgid "Force internal grade"
-msgstr "Forçar nota del centre"
-
-#. module: ems
 #: model:ir.actions.act_window,name:ems.action_grade_session_tree model:ir.ui.menu,name:ems.menu_grade_sessions
 msgid "Evaluation by group and subject"
 msgstr "Avaluació per grup i matèria"
@@ -8050,11 +8045,6 @@ msgstr "Dia laborable"
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__is_overridden
 msgid "When set, the teacher's manual internal grade is kept; otherwise the internal grade is computed from the outcomes."
 msgstr "Quan està marcat, es manté la nota del centre manual del professor; altrament, la nota del centre es calcula a partir dels RA."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_grade_review_wizard__override_internal_grade
-msgid "Enter the internal grade manually instead of computing it from the learning outcomes above - e.g. to match a value already recorded in Esfera. It cannot change whether the subject is passed or not passed."
-msgstr "Introduïu la nota del centre manualment en lloc de calcular-la a partir dels resultats d'aprenentatge de dalt - per exemple, per fer-la coincidir amb un valor ja registrat a Esfera. No pot canviar si l'assignatura està superada o no."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__computed_is_scored
@@ -11043,9 +11033,33 @@ msgstr "Nom del grup"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__internal_grade model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__internal_grade
-#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__preview_internal_grade
 msgid "Internal grade"
 msgstr "Nota del centre"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__preview_internal_grade
+msgid "Internal grade (applied)"
+msgstr "Nota del centre (aplicada)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_review_wizard__preview_internal_grade
+msgid "The internal grade that will actually be applied to the subject. Starts equal to the calculated value; type a different one to correct it by hand - e.g. to match a value already recorded in Esfera. It cannot change whether the subject is passed or not passed."
+msgstr "La nota del centre que s'aplicarà realment al mòdul. Comença sent igual a la calculada; escriviu-ne una altra per corregir-la a mà - per exemple, per fer-la coincidir amb un valor ja registrat a Esfera. No pot canviar si l'assignatura està superada o no."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__preview_internal_grade_calculated
+msgid "Internal grade (calculated)"
+msgstr "Nota del centre (calculada)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_review_wizard__preview_internal_grade_calculated
+msgid "The internal grade computed from the learning outcomes above."
+msgstr "La nota del centre calculada a partir dels resultats d'aprenentatge de dalt."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__preview_internal_grade_synced
+msgid "Internal grade last synced"
+msgstr "Nota del centre sincronitzada per última vegada"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__internal_weight
@@ -14628,11 +14642,6 @@ msgstr "Resultat actual del curs"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__previous_score
 msgid "Current grade"
 msgstr "Nota actual"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
-msgid "Force"
-msgstr "Forçar"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__previous_is_scored

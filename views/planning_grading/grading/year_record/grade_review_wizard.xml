@@ -60,21 +60,27 @@
                             </list>
                         </field>
                         <group string="Result of the review" invisible="operation == 'remove'">
-                            <group>
-                                <label for="preview_internal_grade"/>
-                                <div class="d-flex align-items-center gap-1">
-                                    <field name="preview_internal_grade" readonly="not override_internal_grade"
-                                           class="w-auto"/>
-                                    <field name="override_internal_grade" class="w-auto"/>
-                                    <label for="override_internal_grade" string="Force" class="oe_edit_only fw-normal mb-0"/>
-                                </div>
-                                <field name="preview_state" widget="badge"
-                                       decoration-success="preview_state == 'passed'"
-                                       decoration-danger="preview_state == 'failed'"/>
+                            <field name="preview_internal_grade_synced" invisible="1"/>
+                            <group col="3">
+                                <group>
+                                    <field name="preview_internal_grade_calculated" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="preview_internal_grade"/>
+                                </group>
+                                <group>
+                                    <field name="preview_final_grade"/>
+                                </group>
                             </group>
-                            <group>
-                                <field name="preview_final_grade"/>
-                                <field name="preview_has_final"/>
+                            <group col="2">
+                                <group>
+                                    <field name="preview_state" widget="badge"
+                                           decoration-success="preview_state == 'passed'"
+                                           decoration-danger="preview_state == 'failed'"/>
+                                </group>
+                                <group>
+                                    <field name="preview_has_final"/>
+                                </group>
                             </group>
                         </group>
                         <group string="Course result">

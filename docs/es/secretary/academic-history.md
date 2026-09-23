@@ -69,7 +69,7 @@ Un módulo queda superado cuando todos los resultados de aprendizaje se resuelve
 
 ### Forzar la nota del centro manualmente
 
-A veces Esfera registra un número ligeramente distinto al que da el cálculo de los resultados de aprendizaje (una diferencia de redondeo, típicamente). En vez de tener que inventar notas de RA que casualmente den ese número, marcad la casilla **Forzar nota del centro**, junto a la nota interna en **Resultado de la revisión**, y escribid directamente el valor que consta en Esfera.
+A veces Esfera registra un número ligeramente distinto al que da el cálculo de los resultados de aprendizaje (una diferencia de redondeo, típicamente). En vez de tener que inventar notas de RA que casualmente den ese número, **Resultado de la revisión** muestra la nota del centro en dos campos uno junto al otro: **Nota del centro (calculada)**, siempre de solo lectura, y **Nota del centro (aplicada)**, siempre editable y que empieza siendo igual a la calculada — escribid directamente el valor que consta en Esfera en el campo aplicada.
 
 La nota final se recalcula automáticamente a partir de ese valor forzado (igual que siempre, combinándolo con la nota de la estancia si el módulo la tiene). El estado (superado/no superado) **nunca cambia** por forzar la nota: sigue dependiendo solo de los resultados de aprendizaje. Por eso el sistema no deja forzar una nota de 5 o más si algún RA está suspenso, ni una nota por debajo de 5 si todos los RA están aprobados — solo se puede ajustar el número dentro del lado que los RA ya determinan.
 

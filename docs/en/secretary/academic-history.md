@@ -69,7 +69,7 @@ A subject is passed when every learning outcome is resolved at 5 or above. A sub
 
 ### Forcing the internal grade manually
 
-Esfera sometimes records a slightly different number than what the learning outcomes' own calculation yields (typically a rounding difference). Instead of having to make up outcome grades that happen to average out to that number, tick **Force internal grade**, next to the internal grade in **Result of the review**, and type the value Esfera has directly.
+Esfera sometimes records a slightly different number than what the learning outcomes' own calculation yields (typically a rounding difference). Instead of having to make up outcome grades that happen to average out to that number, **Result of the review** shows the internal grade as two fields side by side: **Internal grade (calculated)**, always read-only, and **Internal grade (applied)**, always editable and starting equal to the calculated one — type the value Esfera has directly into the applied field.
 
 The final grade recomputes automatically from that forced value (same as always, combined with the work placement grade when the subject has one). The state (passed/not passed) **never changes** because of the override — it keeps depending only on the learning outcomes. That's why the system won't let you force a grade of 5 or above when a learning outcome is failed, nor one below 5 when every learning outcome already passes — only the exact number within whichever side the outcomes already determine can be adjusted.
 

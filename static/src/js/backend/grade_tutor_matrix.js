@@ -430,7 +430,8 @@ export class GradeTutorMatrix extends Component {
 
     finalScore(row) {
         if (row.model.is_convalidated) {
-            return _t("CV");
+            // The convalidation's own grade, marked as such: it is a resolution, not an evaluation.
+            return `${this.formatScore(row.model.final_score)} ${_t("CV")}`;
         }
         return row.model.has_final ? this.formatScore(row.model.final_score) + this.provisionalMark(row) : "";
     }

@@ -148,9 +148,11 @@ class EmsGradeSession(models.Model):
                 vals["is_scored"] = True
             outcome_cmds.append((0, 0, vals))
 
+        convalidation_grade = self.env["ems.convalidation.line"]._ems_convalidation_grade(student, self.subject_id)
         self.grade_subject_line_ids = [(0, 0, {
             "student_id": student.id,
-            "is_convalidated": self.env["ems.convalidation.line"]._ems_is_convalidated(student, self.subject_id),
+            "is_convalidated": convalidation_grade is not None,
+            "convalidation_grade": convalidation_grade or 0,
         })]
         self.grade_outcome_line_ids = outcome_cmds
 

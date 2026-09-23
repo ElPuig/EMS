@@ -350,6 +350,7 @@
         'mails/enrollment/enrollment_send.xml',
         'mails/enrollment/authorization_send.xml',
         'mails/grades/convalidation_resolved.xml',
+        'mails/grades/convalidation_info_request.xml',
 
         ### Reports templates ###
         'reports/attendance/templates/sumary_table.xml',

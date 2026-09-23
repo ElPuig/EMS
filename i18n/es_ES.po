@@ -2325,6 +2325,7 @@ msgstr "Puede editar"
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0 code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 code:addons/ems/static/src/xml/backend/schedule_grid_readonly_field.xml:0 model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_attendance_report_group_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_student_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_subject_wizard model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_session_state_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_session_wizard_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_add_student_popup model_terms:ir.ui.view,arch_db:ems.view_notice_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -2780,6 +2781,7 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -2789,6 +2791,7 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3050,6 +3053,7 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -4227,6 +4231,7 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__id
 msgid "ID"
 msgstr "ID"
 
@@ -4636,6 +4641,7 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -4645,6 +4651,7 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -5655,6 +5662,7 @@ msgstr "Plan de pago"
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__not_done
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_head_state__pending
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__pending
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__pending
 msgid "Pending"
 msgstr "Pendiente"
 
@@ -6069,6 +6077,7 @@ msgstr "Rechazar"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_correction__state__rejected model:ir.model.fields.selection,name:ems.selection__ems_authorization__status__no model:ir.model.fields.selection,name:ems.selection__ems_student_document__status__rejected model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_line__state__rejected
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__rejected
 msgid "Rejected"
 msgstr "Rechazado"
 
@@ -6930,6 +6939,7 @@ msgstr "Calle 2"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__student_id
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__student_id
 msgid "Student"
 msgstr "Alumno"
 
@@ -10396,6 +10406,7 @@ msgstr "Falta de material necesario"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0 model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_wizard_form
 msgid "Send"
 msgstr "Enviar"
 
@@ -14708,6 +14719,7 @@ msgstr "Observaciones"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__convalidation_id
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__convalidation_id
 msgid "Request"
 msgstr "Solicitud"
 
@@ -15320,3 +15332,421 @@ msgstr "La decisión del jefe de área que aprueba las ausencias de este trabaja
 #: model:ir.model.fields,help:ems.field_hr_leave__ems_status
 msgid "Where the request stands between its two approvals, the Head's and Direction's, which can happen in either order. The absence takes effect (calendar, hour balance, guard duty board) as soon as the Head approves it."
 msgstr "En qué punto está la solicitud entre sus dos aprobaciones, la de la jefatura y la de Dirección, que pueden llegar en cualquier orden. La ausencia tiene efecto (calendario, saldo de horas, cuadrante de guardias) en cuanto la aprueba la jefatura."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid ""
+"%s is convalidated: change the convalidation resolution instead of reviewing"
+" its learning outcomes."
+msgstr ""
+"%s está convalidado: cambia la resolución de la convalidación en lugar de "
+"revisar sus resultados de aprendizaje."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"<i class=\"fa fa-check-circle me-1\"/> Your answer has been added to the "
+"request."
+msgstr ""
+"<i class=\"fa fa-check-circle me-1\"/> La respuesta se ha añadido a la "
+"solicitud."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"<i class=\"fa fa-clock-o me-1\"/> The Head of Studies has approved your "
+"request. The secretariat is now registering it; the grades will be published"
+" once it is completed."
+msgstr ""
+"<i class=\"fa fa-clock-o me-1\"/> Jefatura de Estudios ha aprobado la "
+"solicitud. Ahora la registra secretaría; las notas se publicarán cuando esté"
+" completada."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> Write an answer or attach a "
+"document before sending."
+msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> Escribe una respuesta o "
+"adjunta un documento antes de enviarla."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid ""
+"<i class=\"fa fa-graduation-cap me-1\"/>Holds a title obtained at this "
+"centre"
+msgstr ""
+"<i class=\"fa fa-graduation-cap me-1\"/>Tiene una titulación obtenida en el "
+"centro"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_wizard_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>The applicant receives it by email and can answer,\n"
+"                        attaching the documents, from the portal. The request itself stays where it is."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>El solicitante lo recibe por correo y "
+"puede responder, adjuntando los documentos, desde el portal. La solicitud se"
+" queda donde estaba."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>The grade defaults to 5. Write the one the\n"
+"                                    previous studies hold when it is known; the secretariat can still correct it\n"
+"                                    against Esfera before completing the request."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>La nota por defecto es 5. Escribe la "
+"que consta en los estudios previos cuando la sepas; secretaría todavía puede"
+" corregirla contra Esfera antes de completar la solicitud."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "<i class=\"fa fa-paperclip me-1\"/>Send"
+msgstr "<i class=\"fa fa-paperclip me-1\"/>Enviar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "A convalidated subject's grade must be between %(min)s and 10."
+msgstr "La nota de un módulo convalidado debe estar entre %(min)s y 10."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "Answer or add documentation"
+msgstr "Responde o añade documentación"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_convalidation_info_wizard
+msgid "Ask the applicant of a convalidation request for more information."
+msgstr "Pedir más información al solicitante de una convalidación."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid "Complete"
+msgstr "Completar"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__completed
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+msgid "Completed"
+msgstr "Completada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid ""
+"Confirm the resolution is registered in Esfera: the grades reach the "
+"student."
+msgstr ""
+"Confirma que la resolución está registrada en Esfera: las notas llegan al "
+"alumno."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid ""
+"Convalidate or reject every subject of the request before validating it."
+msgstr ""
+"Convalida o rechaza todos los módulos de la solicitud antes de validarla."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__convalidation_grade
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__convalidation_grade
+msgid "Convalidation grade"
+msgstr "Nota de la convalidación"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Convalidation request validated"
+msgstr "Solicitud de convalidación validada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Convalidation request: %s"
+msgstr "Solicitud de convalidación: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Documentation added by the applicant"
+msgstr "Documentación añadida por el solicitante"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_convalidation_info_request
+msgid ""
+"Documentation needed for your convalidation request - {{ "
+"object.student_id.name }}"
+msgstr ""
+"Falta documentación para la solicitud de convalidación - {{ "
+"object.student_id.name }}"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation_info_wizard.py:0
+msgid "Documentation requested"
+msgstr "Documentación solicitada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_wizard_form
+msgid "Documents or clarifications the applicant must provide..."
+msgstr "Documentos o aclaraciones que debe aportar el solicitante..."
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_convalidation_info_request
+msgid "EMS: Convalidation, documentation requested"
+msgstr "EMS: Convalidación, documentación solicitada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__grade
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "Grade"
+msgstr "Nota"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_line__grade
+msgid ""
+"Grade the convalidated subject is recorded with. It only reaches the "
+"student's grades once the secretariat completes the request."
+msgstr ""
+"Nota con la que se registra el módulo convalidado. No llega a las "
+"calificaciones del alumno hasta que secretaría completa la solicitud."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_subject_line__convalidation_grade
+#: model:ir.model.fields,help:ems.field_ems_student_year_record_subject__convalidation_grade
+msgid ""
+"Grade the convalidation was resolved with. Only meaningful while "
+"'Convalidated' is set."
+msgstr ""
+"Nota con la que se resolvió la convalidación. Solo tiene sentido mientras "
+"está marcado «Convalidado»."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__has_centre_title
+msgid "Holds a title from this centre"
+msgstr "Tiene una titulación del centro"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"If anything else is needed, we will ask you for it and you can answer from "
+"this same page."
+msgstr ""
+"Si falta algo, os lo pediremos y podréis responder desde esta misma página."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation_info_wizard.py:0
+msgid "Information requested from %s."
+msgstr "Información solicitada a %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "New documentation attached."
+msgstr "Se ha adjuntado documentación nueva."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Only the Head of Studies can validate convalidations."
+msgstr "Solo Jefatura de Estudios puede validar convalidaciones."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Only the secretariat can complete a validated convalidation."
+msgstr "Solo secretaría puede completar una convalidación validada."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+msgid "Pending the Head of Studies"
+msgstr "Pendientes de Jefatura de Estudios"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+msgid "Pending the secretariat"
+msgstr "Pendientes de secretaría"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"Professional certificate or accreditation of competences: the certificate "
+"itself."
+msgstr ""
+"Certificado de profesionalidad o acreditación de competencias: el "
+"certificado mismo."
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_convalidation_registration
+msgid "Register convalidation in Esfera"
+msgstr "Registrar la convalidación en Esfera"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_wizard_form
+msgid "Request information"
+msgstr "Pedir información"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__request_state
+msgid "Request state"
+msgstr "Estado de la solicitud"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_convalidation_review
+msgid "Review convalidation request"
+msgstr "Revisar solicitud de convalidación"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid ""
+"Send the resolved request to the secretariat, which registers it in Esfera."
+msgstr "Envía la solicitud resuelta a secretaría, que la registra en Esfera."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_info_wizard__message
+msgid ""
+"Sent to the student (or the family of a minor) by email, and shown on the "
+"portal, where they can answer and attach the documents asked for."
+msgstr ""
+"Se envía por correo al alumno (o a la familia, si es menor) y se muestra en "
+"el portal, donde puede responder y adjuntar los documentos pedidos."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"Studies passed at another centre: the academic certificate or transcript of "
+"the studies passed."
+msgstr ""
+"Estudios superados en otro centro: el certificado académico o el expediente "
+"de los estudios superados."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"Studies passed at this centre: nothing to attach, we look your record up "
+"ourselves."
+msgstr ""
+"Estudios superados en este centro: no hace falta adjuntar nada, consultamos "
+"tu expediente."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "Supporting documents <span class=\"text-muted\">(optional)</span>"
+msgstr "Documentación justificativa <span class=\"text-muted\">(opcional)</span>"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid ""
+"The Head of Studies has validated the request. The secretariat will now "
+"register it, and the grades will be published once it is completed."
+msgstr ""
+"Jefatura de Estudios ha validado la solicitud. Ahora la registrará "
+"secretaría, y las notas se publicarán cuando esté completada."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid ""
+"The grades will be published to the student and the resolution emailed. "
+"Continue?"
+msgstr ""
+"Se publicarán las notas al alumno y se le enviará la resolución por correo. "
+"¿Continuar?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation_info_wizard.py:0
+msgid ""
+"The request for information could not be emailed: nobody to notify has an "
+"email address."
+msgstr ""
+"No se ha podido enviar la petición de información por correo: ningún "
+"destinatario tiene dirección electrónica."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation__has_centre_title
+msgid ""
+"The student's academic history records a title obtained here, so their "
+"previous grades can be looked up. Its absence proves nothing: only recent "
+"years are in EMS."
+msgstr ""
+"En el historial académico del alumno consta un título obtenido aquí, por lo "
+"que se pueden consultar sus notas anteriores. Que no conste no prueba nada: "
+"en EMS solo están los cursos recientes."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "The study of a request cannot change once it has been validated."
+msgstr "El estudio de una solicitud no se puede cambiar una vez validada."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid ""
+"The whole request will be rejected and the applicant notified. Continue?"
+msgstr ""
+"Se rechazará la solicitud entera y se informará al solicitante. ¿Continuar?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "This request cannot be processed in its current state (%s)."
+msgstr "Esta solicitud no se puede procesar en su estado actual (%s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation_info_wizard.py:0
+msgid ""
+"To resolve your convalidation request we need the following documentation:\n"
+"\n"
+msgstr ""
+"Para resolver la solicitud de convalidación necesitamos la siguiente documentación:\n"
+"\n"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"University studies or a Ministry resolution: attach the resolution if you "
+"already have it."
+msgstr ""
+"Estudios universitarios o resolución del Ministerio: adjuntad la resolución,"
+" si ya la tenéis."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__validated_by_id
+msgid "Validated by"
+msgstr "Validada por"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__validation_date
+msgid "Validation date"
+msgstr "Fecha de validación"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__message
+msgid "What is missing"
+msgstr "Qué falta"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_line__resolution_notes
+msgid ""
+"Where the resolution comes from, e.g. \"Granted by the Department, file no. "
+"1234\". Shown to the student with the resolution."
+msgstr ""
+"De dónde sale la resolución, por ejemplo «Aprobada por el Departamento de "
+"Educación con expediente n.º 1234». Se muestra al alumno con la resolución."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "Which documents to attach depends on where you passed the subjects:"
+msgstr ""
+"La documentación que hay que adjuntar depende de dónde superasteis los "
+"módulos:"

@@ -45,6 +45,7 @@ class EmsPortalConvalidationController(CustomerPortal):
             'line_state_labels': dict(line_states['state']['selection']),
             'error': kwargs.get('error'),
             'submitted': kwargs.get('submitted'),
+            'replied': kwargs.get('replied'),
             # ?new=1 opens the (folded by default) new-request form, as a direct link to it.
             'open_new': bool(kwargs.get('new')),
         })
@@ -71,9 +72,9 @@ class EmsPortalConvalidationController(CustomerPortal):
         if basis not in dict(Convalidation._fields['basis'].selection):
             return request.redirect(f'{self._redirect}?error=no_basis')
 
+        # Documents are optional: whether any is needed depends on the grounds (the form says
+        # so for each of them), and the Head of Studies can always ask for more afterwards.
         files = [upload for upload in request.httprequest.files.getlist('documents') if upload.filename]
-        if not files:
-            return request.redirect(f'{self._redirect}?error=no_documents')
 
         requester = request.env.user.partner_id
         convalidation = Convalidation.create({
@@ -84,14 +85,36 @@ class EmsPortalConvalidationController(CustomerPortal):
             'student_notes': (post.get('student_notes') or '').strip()[:2000] or False,
             'line_ids': [(0, 0, {'subject_id': subject.id}) for subject in subjects],
         })
-        attachments = request.env['ir.attachment'].sudo().create([{
+        attachments = self._ems_store_uploads(convalidation, files)
+        convalidation.attachment_ids = [(6, 0, attachments.ids)]
+        return request.redirect(f'{self._redirect}?submitted=1')
+
+    def _ems_store_uploads(self, convalidation, files):
+        """Uploaded files as attachments of the request itself, so they follow its access
+        rights and show up in its Supporting documents."""
+        return request.env['ir.attachment'].sudo().create([{
             'name': upload.filename,
             'datas': base64.b64encode(upload.read()),
             'res_model': convalidation._name,
             'res_id': convalidation.id,
         } for upload in files])
-        convalidation.attachment_ids = [(6, 0, attachments.ids)]
-        return request.redirect(f'{self._redirect}?submitted=1')
+
+    @http.route('/my/convalidaciones/reply/<int:convalidation_id>', type='http', auth='user',
+                methods=['POST'], website=True)
+    def portal_convalidation_reply(self, convalidation_id, **post):
+        """Answer a request for information: the files join the request's own documents and the
+        text is posted where the Head of Studies reads it. Only while the request is still open."""
+        student = self._ems_convalidation_student()
+        convalidation = request.env['ems.convalidation'].sudo().browse(convalidation_id)
+        if not (student and convalidation.exists() and convalidation.student_id == student
+                and convalidation.state in ('pending', 'in_progress')):
+            return request.redirect(self._redirect)
+        files = [upload for upload in request.httprequest.files.getlist('documents') if upload.filename]
+        message = (post.get('message') or '').strip()[:2000]
+        if not files and not message:
+            return request.redirect(f'{self._redirect}?error=no_reply')
+        convalidation._ems_portal_add_documents(self._ems_store_uploads(convalidation, files), message)
+        return request.redirect(f'{self._redirect}?replied=1')
 
     @http.route('/my/convalidaciones/cancel/<int:convalidation_id>', type='http', auth='user',
                 methods=['POST'], website=True)
@@ -99,6 +122,6 @@ class EmsPortalConvalidationController(CustomerPortal):
         student = self._ems_convalidation_student()
         convalidation = request.env['ems.convalidation'].sudo().browse(convalidation_id)
         if student and convalidation.exists() and convalidation.student_id == student \
-                and convalidation.state == 'submitted':
+                and convalidation.state == 'pending':
             convalidation.action_cancel()
         return request.redirect(self._redirect)

@@ -31,11 +31,14 @@ class EmsGradeSubjectLine(models.Model):
     final_score = fields.Integer(string="Final grade", compute="_compute_computed_score", store=True, help="Final subject grade (equal to the computed grade).")
     has_final = fields.Boolean(string="Has final", compute="_compute_has_final", store=True, help="Whether there is a final grade (the computed grade is available).")
     notes = fields.Char(string="Comments", help="Free per-student remark for this subject grade.")
-    # Mirrored from the student's granted convalidations (ems.convalidation.line._ems_sync_grades):
-    # a convalidated subject is passed and complete, with a final grade of CONVALIDATED_GRADE,
+    # Mirrored from the student's completed convalidations (ems.convalidation.line._ems_sync_grades):
+    # a convalidated subject is passed and complete, with the grade the resolution carries,
     # whatever its outcomes say.
     is_convalidated = fields.Boolean(string="Convalidated", default=False, readonly=True,
                                      help="The subject is convalidated for this student.")
+    convalidation_grade = fields.Integer(string="Convalidation grade", default=0, readonly=True,
+                                         help="Grade the convalidation was resolved with. Only meaningful "
+                                              "while 'Convalidated' is set.")
 
     # Used only for access-rule filtering.
     teacher_id = fields.Many2one(string="Teacher", related="grade_session_id.teacher_id", store=False)
@@ -143,11 +146,13 @@ class EmsGradeSubjectLine(models.Model):
         "grade_session_id.planning_id.internal_ponderation",
         "grade_session_id.planning_id.external_ponderation",
         "is_convalidated",
+        "convalidation_grade",
     )
     def _compute_computed_score(self):
         for subject_line in self:
             if subject_line.is_convalidated:
-                subject_line.computed_score = subject_line.final_score = CONVALIDATED_GRADE
+                subject_line.computed_score = subject_line.final_score = \
+                    subject_line.convalidation_grade or CONVALIDATED_GRADE
                 subject_line.computed_is_scored = True
                 continue
             planning = subject_line.grade_session_id.planning_id
@@ -183,7 +188,8 @@ class EmsGradeSubjectLine(models.Model):
             return super().write(vals)
         # Same for a convalidation: resolved by the Head of Studies whenever the Department answers,
         # whatever state the evaluation is in. Only the convalidation flag is let through.
-        if self.env.context.get('ems_convalidation_sync') and set(vals) <= {'is_convalidated'}:
+        if self.env.context.get('ems_convalidation_sync') and set(vals) <= {'is_convalidated',
+                                                                            'convalidation_grade'}:
             return super().write(vals)
         for subject_line in self:
             if not subject_line.grade_session_id.can_edit:

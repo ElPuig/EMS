@@ -2,11 +2,23 @@
 
 ---
 
-# Convalidacions: resoldre les sol·licituds
+# Convalidacions: validar les sol·licituds
 
-Resol les convalidacions de mòduls que l'alumnat de formació professional sol·licita des del portal, i registra les sol·licituds que arriben en paper a secretaria.
+Valida les convalidacions de mòduls que l'alumnat de formació professional sol·licita des del portal, i posa-hi la nota. Un cop validades, secretaria les registra a l'Esfera i les completa.
 
-**Rol necessari:** Cap d'Estudis, Cap d'Estudis Adjunt/a o Direcció per resoldre. Secretaria pot registrar i consultar les sol·licituds, però no resoldre-les.
+**Rol necessari:** Cap d'Estudis, Cap d'Estudis Adjunt/a o Direcció.
+
+---
+
+## El circuit
+
+| Estat | Qui hi actua |
+|-------|--------------|
+| **Pendent** | L'alumne ha fet la sol·licitud i l'has de revisar tu. |
+| **En procés** | L'has validat; és a mans de secretaria. |
+| **Completada** | Secretaria l'ha registrada a l'Esfera. L'alumne ja veu la nota. |
+| **Rebutjada** | La pots rebutjar tu, mentre està pendent, o secretaria, un cop validada. |
+| **Anul·lada** | L'alumne l'ha anul·lada des del portal. |
 
 ---
 
@@ -14,11 +26,13 @@ Resol les convalidacions de mòduls que l'alumnat de formació professional sol�
 
 Navega a: **Gestió acadèmica → Convalidacions**
 
-La llista s'obre amb el filtre **Per resoldre**: sol·licituds amb algun mòdul encara pendent o derivat al Departament. Treu el filtre per veure-les totes, o fes servir **Resolta**, **Cancel·lat** i **Derivades al Departament**.
+La llista s'obre amb les sol·licituds **Pendents del cap d'estudis** i **Pendents de secretaria**. Treu els filtres per veure-les totes, o fes servir **Completades**, **Rebutjades** i **Anul·lades**.
 
 ![Llista de sol·licituds de convalidació](../../assets/head_of_studies/convalidations-list.png)
 
 Per veure les sol·licituds d'un alumne, obre la seva fitxa i fes clic al botó **Convalidacions**.
+
+Si tens configurada la tasca **Revisar sol·licitud de convalidació** a **Gestió acadèmica → Configuració → Assignació de tasques**, cada sol·licitud nova apareix també a la teva safata d'activitats.
 
 ---
 
@@ -27,7 +41,8 @@ Per veure les sol·licituds d'un alumne, obre la seva fitxa i fes clic al botó 
 Obre la sol·licitud des de la llista. El formulari mostra:
 
 - **Estudi**, **Curs** i **Motiu** de la sol·licitud.
-- Pestanya **Assignatures**: una línia per cada mòdul sol·licitat, amb la resolució i les observacions.
+- Sota el nom de l'alumne, l'avís **Té una titulació obtinguda al centre** quan a l'històric acadèmic hi consta un títol obtingut aquí.
+- Pestanya **Assignatures**: una línia per cada mòdul sol·licitat, amb la resolució, la nota i les observacions.
 - Pestanya **Documentació justificativa**: els fitxers adjuntats per l'alumne.
 - Pestanya **Observacions del sol·licitant**: el que ha escrit l'alumne o la família.
 - Pestanya **Resolució**: observacions per a l'alumne, que s'envien amb la resolució.
@@ -36,7 +51,7 @@ Obre la sol·licitud des de la llista. El formulari mostra:
 
 ---
 
-## Resoldre els mòduls
+## Resoldre els mòduls i posar-hi la nota
 
 A cada línia de la pestanya **Assignatures**, fes servir els botons de la dreta:
 
@@ -44,30 +59,36 @@ A cada línia de la pestanya **Assignatures**, fes servir els botons de la dreta
 |------|----------|
 | ✔ (Convalida) | El mòdul queda convalidat. |
 | ✖ (Rebutjar) | El mòdul no es convalida. |
-| ↪ (Deriva al Departament) | L'ha de resoldre el Departament d'Educació. La sol·licitud continua oberta. |
 | ↺ (Torna a pendent) | Desfà la resolució de la línia. |
 
-Per convalidar d'un sol cop tots els mòduls que encara estan pendents, fes clic a **Convalida els mòduls pendents** a la part superior del formulari.
+Per convalidar d'un sol cop tots els mòduls que encara estan pendents, fes clic a **Convalida els mòduls pendents**.
 
-Escriu el motiu de cada mòdul a la columna **Observacions**, i qualsevol comentari general a la pestanya **Resolució**, abans de resoldre l'últim mòdul.
+A la columna **Nota** de cada mòdul convalidat hi ha un 5 per defecte: escriu-hi la nota que consta als estudis previs. Secretaria encara la pot corregir contra l'Esfera abans de completar la sol·licitud.
 
-Quan el Departament respongui un mòdul derivat, obre la sol·licitud i convalida o rebutja aquella línia.
-
----
-
-## Què passa quan es resol una sol·licitud
-
-Una sol·licitud queda **Resolta** quan tots els mòduls estan convalidats o rebutjats. En aquell moment:
-
-- L'alumne rep un correu amb la resolució de cada mòdul. Si és menor d'edat, el correu va a la família.
-- L'alumne veu la resolució al portal.
-- Cada mòdul convalidat mostra **CV** a les pantalles de qualificacions i compta com a aprovat amb un 5 a l'històric acadèmic.
-
-Si tornes a pendent un mòdul resolt i el tornes a resoldre, s'envia un correu nou.
+A la columna **Observacions** escriu d'on surt la resolució, per exemple *Aprovada pel Departament d'Educació amb expedient núm. 1234*. L'alumne la veu amb la resolució.
 
 ---
 
-## Registrar una sol·licitud en paper (secretaria)
+## Demanar documentació a l'alumne
+
+Fes clic a **Demana informació**, escriu què necessites i envia-ho. L'alumne (o la família, si és menor) rep un correu i pot respondre i adjuntar els documents des del portal, a la mateixa sol·licitud. La sol·licitud es queda on era.
+
+---
+
+## Validar o rebutjar la sol·licitud
+
+Quan tots els mòduls estiguin resolts, fes clic a **Valida**:
+
+- Si n'hi ha algun de convalidat, la sol·licitud passa a **En procés** i secretaria rep la tasca de registrar-la a l'Esfera.
+- Si els has rebutjat tots, la sol·licitud queda **Rebutjada** i l'alumne rep la resolució per correu.
+
+**Rebutja** tanca la sol·licitud sencera i n'informa l'alumne.
+
+La nota no arriba a les qualificacions de l'alumne fins que secretaria completa la sol·licitud. A partir d'aquell moment, cada mòdul convalidat mostra la nota amb la marca **CV** a les pantalles de qualificacions i a l'històric acadèmic.
+
+---
+
+## Registrar una sol·licitud en paper
 
 1. Fes clic a **Nou**.
 2. Tria l'**Estudiant**, l'**Estudi** i el **Motiu**.
@@ -75,14 +96,12 @@ Si tornes a pendent un mòdul resolt i el tornes a resoldre, s'envia un correu n
 4. A la pestanya **Documentació justificativa**, puja els documents.
 5. Fes clic a **Desa**.
 
-La sol·licitud apareix a la llista **Per resoldre** de Cap d'Estudis.
-
 ---
 
 ## Anul·lar i reobrir
 
-- **Anul·la la sol·licitud** està disponible mentre no s'hagi resolt ni derivat cap mòdul.
-- **Reobrir** torna una sol·licitud anul·lada a l'estat **Enviat**.
+- **Anul·la la sol·licitud** està disponible mentre la sol·licitud és **Pendent**.
+- **Reobrir** torna una sol·licitud anul·lada a **Pendent**.
 
 ---
 

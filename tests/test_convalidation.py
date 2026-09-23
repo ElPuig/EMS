@@ -52,8 +52,9 @@ def create_convalidation_fixtures(cls):
 
 
 class TestConvalidation(TransactionCase):
-    """Issue #276 - subject convalidation requests, their resolution by the Head of Studies and
-    their effect on grades. See docs/en/developers/grades/convalidation.md."""
+    """Issue #276 - subject convalidation requests and the two-step circuit that resolves them:
+    the Head of Studies validates (and grades), the secretariat registers the result in Esfera and
+    completes. See docs/en/developers/grades/convalidation.md."""
 
     @classmethod
     def setUpClass(cls):
@@ -78,6 +79,22 @@ class TestConvalidation(TransactionCase):
     def _line(self, request, subject=None):
         return request.line_ids.filtered(lambda line: line.subject_id == (subject or self.subject))
 
+    def _validated(self, subjects=None, grade=None, **kwargs):
+        """A request whose subjects are all granted and validated by the Head of Studies: the
+        state the secretariat picks it up in."""
+        request = self._request(subjects, **kwargs)
+        lines = request.line_ids.with_user(self.head_of_studies)
+        lines.action_grant()
+        if grade is not None:
+            lines.write({'grade': grade})
+        request.with_user(self.head_of_studies).action_validate()
+        return request
+
+    def _completed(self, subjects=None, grade=None, **kwargs):
+        request = self._validated(subjects, grade, **kwargs)
+        request.with_user(self.secretary).action_complete()
+        return request
+
     def _enroll_and_grade(self, subject=None, student=None, state='open'):
         subject = subject or self.subject
         student = student or self.student
@@ -95,9 +112,9 @@ class TestConvalidation(TransactionCase):
 
     # --- requests ------------------------------------------------------------
 
-    def test_new_request_is_submitted(self):
+    def test_new_request_is_pending(self):
         request = self._request(self.subject | self.other_subject)
-        self.assertEqual(request.state, 'submitted')
+        self.assertEqual(request.state, 'pending')
         self.assertEqual(request.pending_count, 2)
         self.assertEqual(set(request.line_ids.mapped('state')), {'pending'})
         self.assertEqual(request.line_ids.student_id, self.student)
@@ -129,54 +146,86 @@ class TestConvalidation(TransactionCase):
             with self.env.cr.savepoint():
                 request.line_ids = [(0, 0, {'subject_id': self.subject.id})]
 
-    def test_state_follows_the_lines(self):
-        request = self._request(self.subject | self.other_subject)
-        self._line(request).with_user(self.head_of_studies).action_forward()
-        self.assertEqual(request.state, 'in_progress')
-        # A forwarded subject keeps the request open until the Department answers.
-        self._line(request, self.other_subject).with_user(self.head_of_studies).action_grant()
-        self.assertEqual(request.state, 'in_progress')
-        self._line(request).with_user(self.head_of_studies).action_reject()
-        self.assertEqual(request.state, 'resolved')
-        self.assertEqual(request.granted_count, 1)
-        self.assertEqual(request.pending_count, 0)
+    # --- the circuit ---------------------------------------------------------
 
-    def test_grant_pending_resolves_every_pending_subject(self):
+    def test_full_circuit_pending_in_progress_completed(self):
         request = self._request(self.subject | self.other_subject)
-        self._line(request).with_user(self.head_of_studies).action_reject()
-        request.with_user(self.head_of_studies).action_grant_pending()
+        lines = request.line_ids.with_user(self.head_of_studies)
+        lines.action_grant()
+        # Deciding the subjects is not yet the validation: the request stays with the Head.
+        self.assertEqual(request.state, 'pending')
+        request.with_user(self.head_of_studies).action_validate()
+        self.assertEqual(request.state, 'in_progress')
+        self.assertEqual(request.validated_by_id, self.head_of_studies)
+        self.assertTrue(request.validation_date)
+        self.assertFalse(request.resolution_date)
+        request.with_user(self.secretary).action_complete()
+        self.assertEqual(request.state, 'completed')
+        self.assertEqual(request.resolved_by_id, self.secretary)
+        self.assertTrue(request.resolution_date)
+        self.assertEqual(request.granted_count, 2)
+
+    def test_validation_needs_every_subject_decided(self):
+        request = self._request(self.subject | self.other_subject)
+        self._line(request).with_user(self.head_of_studies).action_grant()
+        with self.assertRaises(UserError):
+            request.with_user(self.head_of_studies).action_validate()
+
+    def test_all_subjects_denied_is_rejected_without_the_secretariat(self):
+        request = self._request(self.subject | self.other_subject)
+        request.line_ids.with_user(self.head_of_studies).action_reject()
+        request.with_user(self.head_of_studies).action_validate()
+        self.assertEqual(request.state, 'rejected')
+        self.assertEqual(request.resolved_by_id, self.head_of_studies)
+        self.assertEqual(len(self._resolution_mails(request)), 1)
+
+    def test_partially_granted_request_goes_to_the_secretariat(self):
+        request = self._request(self.subject | self.other_subject)
+        self._line(request).with_user(self.head_of_studies).action_grant()
+        self._line(request, self.other_subject).with_user(self.head_of_studies).action_reject()
+        request.with_user(self.head_of_studies).action_validate()
+        self.assertEqual(request.state, 'in_progress')
+        self.assertEqual(request.granted_count, 1)
+
+    def test_head_of_studies_rejects_a_pending_request(self):
+        request = self._request()
+        request.with_user(self.head_of_studies).action_reject()
+        self.assertEqual(request.state, 'rejected')
         self.assertEqual(self._line(request).state, 'rejected')
-        self.assertEqual(self._line(request, self.other_subject).state, 'granted')
-        self.assertEqual(request.state, 'resolved')
+
+    def test_secretary_rejects_a_validated_request(self):
+        request = self._validated()
+        request.with_user(self.secretary).action_reject()
+        self.assertEqual(request.state, 'rejected')
 
     def test_cancel_and_reopen(self):
         request = self._request()
         request.with_user(self.secretary).action_cancel()
         self.assertEqual(request.state, 'cancelled')
         request.with_user(self.secretary).action_reopen()
-        self.assertEqual(request.state, 'submitted')
+        self.assertEqual(request.state, 'pending')
 
-    def test_cannot_cancel_once_a_subject_is_resolved(self):
-        request = self._request()
-        self._line(request).with_user(self.head_of_studies).action_forward()
+    def test_cannot_cancel_once_validated(self):
+        request = self._validated()
         with self.assertRaises(UserError):
             request.action_cancel()
 
+    def test_completed_request_is_closed(self):
+        request = self._completed()
+        with self.assertRaises(UserError):
+            request.with_user(self.head_of_studies).action_reject()
+        with self.assertRaises(UserError):
+            self._line(request).with_user(self.head_of_studies).action_reject()
+
     # --- access --------------------------------------------------------------
 
-    def test_head_of_studies_resolves(self):
-        request = self._request(user=self.head_of_studies)
-        self._line(request).with_user(self.head_of_studies).write({'state': 'granted', 'resolution_notes': 'OK'})
-        self.assertEqual(request.state, 'resolved')
-        self.assertEqual(request.resolved_by_id, self.head_of_studies)
-
-    def test_director_resolves(self):
-        director = create_role_user(self, 'director', 'test_convalidation_director')
+    def test_secretary_cannot_validate(self):
         request = self._request()
-        self._line(request).with_user(director).action_grant()
-        self.assertEqual(self._line(request).state, 'granted')
+        self._line(request).with_user(self.head_of_studies).action_grant()
+        with self.assertRaises(UserError):
+            request.with_user(self.secretary).action_validate()
 
-    def test_secretary_registers_but_cannot_resolve(self):
+    def test_secretary_cannot_decide_a_subject(self):
         request = self._request(user=self.secretary)
         request.with_user(self.secretary).write({'resolution_notes': 'Received on paper'})
         self._line(request).with_user(self.secretary).write({'resolution_notes': 'Certificate attached'})
@@ -185,6 +234,18 @@ class TestConvalidation(TransactionCase):
         with self.assertRaises(UserError):
             self.env['ems.convalidation.line'].with_user(self.secretary).create({
                 'convalidation_id': request.id, 'subject_id': self.other_subject.id, 'state': 'granted'})
+
+    def test_head_of_studies_cannot_complete(self):
+        request = self._validated()
+        with self.assertRaises(UserError):
+            request.with_user(self.head_of_studies).action_complete()
+
+    def test_director_can_validate(self):
+        director = create_role_user(self, 'director', 'test_convalidation_director')
+        request = self._request()
+        self._line(request).with_user(director).action_grant()
+        request.with_user(director).action_validate()
+        self.assertEqual(request.state, 'in_progress')
 
     def test_secretary_cannot_delete_requests(self):
         request = self._request()
@@ -201,36 +262,64 @@ class TestConvalidation(TransactionCase):
         student = self.student.with_user(self.teacher)
         self.assertEqual(student.convalidation_count, 1)
 
-    # --- resolution notice ---------------------------------------------------
+    # --- the grade -----------------------------------------------------------
+
+    def test_grade_defaults_to_five_and_is_set_by_the_head_of_studies(self):
+        request = self._request()
+        line = self._line(request).with_user(self.head_of_studies)
+        self.assertEqual(line.grade, 5)
+        line.write({'grade': 8})
+        self.assertEqual(line.grade, 8)
+
+    def test_secretary_corrects_the_grade_of_a_validated_request(self):
+        request = self._validated(grade=7)
+        self._line(request).with_user(self.secretary).write({'grade': 9})
+        self.assertEqual(self._line(request).grade, 9)
+
+    def test_secretary_cannot_touch_the_grade_of_a_pending_request(self):
+        request = self._request()
+        with self.assertRaises(UserError):
+            self._line(request).with_user(self.secretary).write({'grade': 9})
+
+    def test_grade_must_be_a_passing_one(self):
+        request = self._request()
+        line = self._line(request).with_user(self.head_of_studies)
+        with self.assertRaises(ValidationError):
+            line.write({'grade': 4})
+        with self.assertRaises(ValidationError):
+            line.write({'grade': 11})
+
+    def test_remarks_record_where_the_resolution_comes_from(self):
+        request = self._request()
+        line = self._line(request).with_user(self.head_of_studies)
+        line.write({'resolution_notes': "Granted by the Department, file no. 1234"})
+        self.assertEqual(line.resolution_notes, "Granted by the Department, file no. 1234")
+
+    # --- the student's notice ------------------------------------------------
 
     def _resolution_mails(self, request):
         return self.env['mail.mail'].sudo().search([
             ('model', '=', 'ems.convalidation'), ('res_id', '=', request.id)])
 
-    def test_resolution_is_emailed_once_to_an_adult_student(self):
+    def test_only_the_final_outcome_is_emailed(self):
         request = self._request(self.subject | self.other_subject)
-        self._line(request).with_user(self.head_of_studies).action_grant()
+        request.line_ids.with_user(self.head_of_studies).action_grant()
+        request.with_user(self.head_of_studies).action_validate()
+        # Validating is an internal step: the student sees it on the portal, without an email.
         self.assertFalse(self._resolution_mails(request))
-        self.assertFalse(request.resolution_date)
-        self._line(request, self.other_subject).with_user(self.head_of_studies).action_reject()
+        request.with_user(self.secretary).action_complete()
         mails = self._resolution_mails(request)
         self.assertEqual(len(mails), 1)
         self.assertEqual(mails.email_to, self.student.email)
-        self.assertTrue(request.resolution_date)
         self.assertTrue(request.message_ids.filtered(lambda message: self.student.email in (message.body or '')))
-        # Editing a resolved request does not notify again.
-        request.with_user(self.head_of_studies).resolution_notes = 'See you in September'
+        # Editing a completed request does not notify again.
+        request.with_user(self.secretary).resolution_notes = 'See you in September'
         self.assertEqual(len(self._resolution_mails(request)), 1)
 
-    def test_reopened_request_is_notified_again(self):
+    def test_rejection_is_emailed(self):
         request = self._request()
-        line = self._line(request).with_user(self.head_of_studies)
-        line.action_grant()
-        line.action_reset()
-        self.assertEqual(request.state, 'submitted')
-        self.assertFalse(request.resolution_date)
-        line.action_reject()
-        self.assertEqual(len(self._resolution_mails(request)), 2)
+        request.with_user(self.head_of_studies).action_reject()
+        self.assertEqual(len(self._resolution_mails(request)), 1)
 
     def test_minor_resolution_goes_to_the_family(self):
         minor = self.env['res.partner'].create({
@@ -243,9 +332,16 @@ class TestConvalidation(TransactionCase):
         self.env['res.partner.relation'].create({
             'left_partner_id': family.id, 'type_id': self.env.ref('ems.relation_type_father').id,
             'right_partner_id': minor.id})
-        request = self._request(student=minor)
-        self._line(request).with_user(self.head_of_studies).action_grant()
+        request = self._completed(student=minor)
         self.assertEqual(self._resolution_mails(request).mapped('email_to'), [family.email])
+
+    def test_resolution_without_any_email_is_logged(self):
+        student = self.env['res.partner'].create({
+            'name': 'Convalidation No Email', 'contact_type': 'student', 'student_id': next_student_id(),
+            'birth_date': '2000-01-01'})
+        request = self._completed(student=student)
+        self.assertFalse(self._resolution_mails(request))
+        self.assertTrue(request.message_ids.filtered(lambda message: 'could not be emailed' in (message.body or '')))
 
     def test_student_communications_are_comments_nobody_follows(self):
         request = self._request(user=self.head_of_studies)
@@ -255,16 +351,14 @@ class TestConvalidation(TransactionCase):
         self.assertIn(self.subject.display_name, submitted.body)
         self.assertFalse(request.message_partner_ids)
         self._line(request).with_user(self.head_of_studies).action_grant()
+        request.with_user(self.head_of_studies).action_validate()
+        request.with_user(self.secretary).action_complete()
         request.invalidate_recordset(['message_ids'])
-        # Rendered in the recipient's language, so only its shape is checked.
         resolved = request.message_ids.filtered(lambda message: message.subtype_id == comment) - submitted
-        self.assertEqual(len(resolved), 1)
-        self.assertIn(self.student.name, resolved.subject)
-        self.assertIn(self.subject.display_name, resolved.body)
-        # Posting emails nobody: the only email is the resolution itself.
+        # One comment for the validation, one for the resolution itself.
+        self.assertEqual(len(resolved), 2)
+        self.assertIn(self.student.name, resolved[0].subject)
         self.assertEqual(len(self._resolution_mails(request)), 1)
-        self.assertEqual(len(self.env['mail.mail'].sudo().search([
-            ('model', '=', 'ems.convalidation'), ('res_id', '=', request.id)])), 1)
 
     def test_cancel_and_reopen_are_communicated(self):
         request = self._request()
@@ -275,90 +369,143 @@ class TestConvalidation(TransactionCase):
             .mapped('subject'),
             ['Convalidation request reopened', 'Convalidation request cancelled', 'Convalidation request submitted'])
 
-    def test_resolution_without_any_email_is_logged(self):
-        student = self.env['res.partner'].create({
-            'name': 'Convalidation No Email', 'contact_type': 'student', 'student_id': next_student_id(),
-            'birth_date': '2000-01-01'})
-        request = self._request(student=student)
+    # --- asking the student for more documentation ---------------------------
+
+    def test_head_of_studies_asks_for_documentation(self):
+        request = self._request()
+        wizard = self.env['ems.convalidation.info_wizard'].with_user(self.head_of_studies).create({
+            'convalidation_id': request.id,
+            'message': "Please attach the academic certificate of your previous studies.",
+        })
+        wizard.action_send()
+        self.assertEqual(request.state, 'pending')
+        mails = self.env['mail.mail'].sudo().search([
+            ('model', '=', 'ems.convalidation'), ('res_id', '=', request.id)])
+        self.assertEqual(len(mails), 1)
+        self.assertEqual(mails.email_to, self.student.email)
+        self.assertTrue(request.message_ids.filtered(
+            lambda message: 'academic certificate' in (message.body or '')))
+
+    def test_information_cannot_be_asked_for_once_completed(self):
+        request = self._completed()
+        with self.assertRaises(UserError):
+            self.env['ems.convalidation.info_wizard'].with_user(self.head_of_studies).create({
+                'convalidation_id': request.id, 'message': "Too late"}).action_send()
+
+    # --- tasks ---------------------------------------------------------------
+
+    def _tasks(self, request, xmlid):
+        return self.env['mail.activity'].sudo().search([
+            ('res_model', '=', 'ems.convalidation'), ('res_id', '=', request.id),
+            ('activity_type_id', '=', self.env.ref(xmlid).id)])
+
+    def test_tasks_follow_the_circuit(self):
+        review = self.env.ref('ems.mail_activity_convalidation_review')
+        registration = self.env.ref('ems.mail_activity_convalidation_registration')
+        review.sudo().ems_assignee_ids = [(6, 0, self.head_of_studies.ids)]
+        registration.sudo().ems_assignee_ids = [(6, 0, self.secretary.ids)]
+        request = self._request()
+        self.assertEqual(self._tasks(request, 'ems.mail_activity_convalidation_review').user_id,
+                         self.head_of_studies)
+        self.assertFalse(self._tasks(request, 'ems.mail_activity_convalidation_registration'))
         self._line(request).with_user(self.head_of_studies).action_grant()
-        self.assertFalse(self._resolution_mails(request))
-        self.assertTrue(request.message_ids.filtered(lambda message: 'could not be emailed' in (message.body or '')))
+        request.with_user(self.head_of_studies).action_validate()
+        # The Head's task is done; the secretariat gets its own.
+        self.assertFalse(self._tasks(request, 'ems.mail_activity_convalidation_review'))
+        self.assertEqual(self._tasks(request, 'ems.mail_activity_convalidation_registration').user_id,
+                         self.secretary)
+        request.with_user(self.secretary).action_complete()
+        self.assertFalse(self._tasks(request, 'ems.mail_activity_convalidation_registration'))
+        # Scheduling a task never subscribes its assignee to the student's own messages.
+        self.assertFalse(request.message_partner_ids)
+
+    # --- the student's own background ----------------------------------------
+
+    def test_title_obtained_at_the_centre_is_flagged(self):
+        request = self._request()
+        self.assertFalse(request.has_centre_title)
+        self.env['ems.student.year_record'].sudo().create({
+            'student_id': self.student.id, 'course_id': self.course.id, 'title_obtained': True})
+        request.invalidate_recordset(['has_centre_title'])
+        self.assertTrue(request.has_centre_title)
 
     # --- grades --------------------------------------------------------------
 
-    def test_granted_subject_is_convalidated_in_grades(self):
+    def test_grades_only_change_once_the_secretariat_completes(self):
         grade_line = self._enroll_and_grade()
+        request = self._validated(grade=7)
         self.assertFalse(grade_line.is_convalidated)
         self.assertFalse(grade_line.has_final)
-        request = self._request()
-        self._line(request).with_user(self.head_of_studies).action_grant()
+        request.with_user(self.secretary).action_complete()
         self.assertTrue(grade_line.is_convalidated)
         self.assertTrue(grade_line.internal_is_complete)
         self.assertTrue(grade_line.has_final)
+        self.assertEqual(grade_line.final_score, 7)
+
+    def test_default_grade_reaches_the_grades(self):
+        grade_line = self._enroll_and_grade()
+        self._completed()
         self.assertEqual(grade_line.final_score, 5)
 
     def test_convalidation_reaches_a_finalised_session(self):
         grade_line = self._enroll_and_grade(state='final')
-        request = self._request()
-        self._line(request).with_user(self.head_of_studies).action_grant()
+        self._completed(grade=6)
         self.assertTrue(grade_line.is_convalidated)
+        self.assertEqual(grade_line.final_score, 6)
 
     def test_flag_cannot_be_written_by_hand_on_a_closed_session(self):
         grade_line = self._enroll_and_grade(state='final')
-        # Only the convalidation sync may touch the flag of a closed session.
         with self.assertRaises(Exception):
             grade_line.with_user(self.head_of_studies).write({'is_convalidated': True})
 
-    def test_revoked_convalidation_restores_the_grade(self):
+    def test_cancelled_request_restores_the_grade(self):
         grade_line = self._enroll_and_grade()
         request = self._request()
-        line = self._line(request).with_user(self.head_of_studies)
-        line.action_grant()
-        line.action_reject()
+        self._line(request).with_user(self.head_of_studies).action_grant()
+        request.with_user(self.head_of_studies).action_validate()
+        request.with_user(self.secretary).action_complete()
+        self.assertTrue(grade_line.is_convalidated)
+        request.sudo().write({'state': 'cancelled'})
         self.assertFalse(grade_line.is_convalidated)
         self.assertFalse(grade_line.has_final)
 
     def test_deleted_line_restores_the_grade(self):
         grade_line = self._enroll_and_grade()
-        request = self._request(self.subject | self.other_subject)
-        self._line(request).with_user(self.head_of_studies).action_grant()
-        self._line(request).unlink()
+        request = self._completed(self.subject | self.other_subject)
+        self._line(request).sudo().unlink()
         self.assertFalse(grade_line.is_convalidated)
-        request.unlink()
+        request.sudo().unlink()
         self.assertFalse(request.exists())
 
     def test_rejected_duplicate_does_not_undo_a_grant(self):
         grade_line = self._enroll_and_grade()
-        first = self._request()
-        self._line(first).with_user(self.head_of_studies).action_grant()
+        self._completed(grade=8)
         second = self._request()
-        self._line(second).with_user(self.head_of_studies).action_reject()
+        second.with_user(self.head_of_studies).action_reject()
         self.assertTrue(grade_line.is_convalidated)
+        self.assertEqual(grade_line.final_score, 8)
 
     def test_new_grade_lines_start_convalidated(self):
-        request = self._request()
-        self._line(request).with_user(self.head_of_studies).action_grant()
+        self._completed(grade=9)
         grade_line = self._enroll_and_grade()
         self.assertTrue(grade_line.is_convalidated)
-        self.assertEqual(grade_line.final_score, 5)
+        self.assertEqual(grade_line.final_score, 9)
 
     def test_em_wizard_skips_convalidated_subjects(self):
         grade_line = self._enroll_and_grade()
         wizard = self.env['ems.em_grading_wizard'].create({'group_id': self.group.id})
         self.assertIn(grade_line, wizard._live_subject_lines(self.student))
-        request = self._request()
-        self._line(request).with_user(self.head_of_studies).action_grant()
+        self._completed()
         self.assertNotIn(grade_line, wizard._live_subject_lines(self.student))
 
     def test_year_record_copies_the_convalidation(self):
         self._enroll_and_grade()
-        request = self._request()
-        self._line(request).with_user(self.head_of_studies).action_grant()
+        self._completed(grade=7)
         record = self.env['ems.student.year_record'].generate_for_students(self.student, self.course)
         subject_record = record.subject_record_ids.filtered(lambda line: line.subject_id == self.subject)
         self.assertTrue(subject_record.is_convalidated)
         self.assertEqual(subject_record.state, 'passed')
-        self.assertEqual(subject_record.final_grade, 5)
+        self.assertEqual(subject_record.final_grade, 7)
         self.assertFalse(subject_record.final_pending)
 
     def test_frozen_year_record_follows_a_late_resolution(self):
@@ -366,26 +513,36 @@ class TestConvalidation(TransactionCase):
         record = self.env['ems.student.year_record'].generate_for_students(self.student, self.course)
         subject_record = record.subject_record_ids.filtered(lambda line: line.subject_id == self.subject)
         self.assertEqual(subject_record.state, 'failed')
-        request = self._request()
-        line = self._line(request).with_user(self.head_of_studies)
-        line.action_forward()
+        request = self._validated(grade=6)
         self.assertFalse(subject_record.is_convalidated)
-        line.action_grant()
+        request.with_user(self.secretary).action_complete()
         self.assertTrue(subject_record.is_convalidated)
         self.assertEqual(subject_record.state, 'passed')
+        self.assertEqual(subject_record.final_grade, 6)
         self.assertTrue(subject_record.has_final)
-        line.action_reject()
+        request.sudo().write({'state': 'cancelled'})
         self.assertFalse(subject_record.is_convalidated)
         self.assertEqual(subject_record.state, 'failed')
         self.assertFalse(subject_record.has_final)
+
+    def test_grade_review_leaves_a_convalidated_subject_alone(self):
+        """Issue #493's grade review recomputes an archived subject from its own RAs; a
+        convalidated one has none of its own, so recomputing it would wipe the resolution."""
+        self._enroll_and_grade()
+        self._completed(grade=8)
+        record = self.env['ems.student.year_record'].generate_for_students(self.student, self.course)
+        subject_record = record.subject_record_ids.filtered(lambda line: line.subject_id == self.subject)
+        subject_record.sudo()._recompute_from_outcomes()
+        self.assertTrue(subject_record.is_convalidated)
+        self.assertEqual(subject_record.final_grade, 8)
+        self.assertEqual(subject_record.state, 'passed')
 
     def test_other_course_year_records_are_left_alone(self):
         self._enroll_and_grade()
         record = self.env['ems.student.year_record'].generate_for_students(self.student, self.course)
         subject_record = record.subject_record_ids.filtered(lambda line: line.subject_id == self.subject)
         later_course = self.env['ems.course'].create({'start': 2095, 'end': 2096})
-        request = self._request(course_id=later_course.id)
-        self._line(request).with_user(self.head_of_studies).action_grant()
+        self._completed(course_id=later_course.id)
         self.assertFalse(subject_record.is_convalidated)
 
     # --- portal helpers ------------------------------------------------------
@@ -413,6 +570,6 @@ class TestConvalidation(TransactionCase):
         self.assertEqual(Convalidation._ems_portal_requestable_subjects(self.student, self.study),
                          self.other_subject)
         # A rejected subject can be asked for again, with new documents.
-        self._line(request).with_user(self.head_of_studies).action_reject()
+        request.with_user(self.head_of_studies).action_reject()
         self.assertEqual(Convalidation._ems_portal_requestable_subjects(self.student, self.study),
                          self.subject | self.other_subject)

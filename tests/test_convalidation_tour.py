@@ -9,10 +9,11 @@ from .test_portal_convalidation import create_portal_convalidation_fixtures
 @tagged('post_install', '-at_install')
 class TestConvalidationTour(HttpCase):
     """Issue #276 - proves every screen convalidations reach renders in a browser, each one for
-    the least-privileged role that uses it: the request list/form and the student form's stat
-    button (Head of Studies), CV in both grade views (the teacher who is also the group's tutor)
-    and the portal page (a student). Logic is covered by test_convalidation.py and
-    test_portal_convalidation.py."""
+    the least-privileged role that uses it: the request list/form for the two steps of the
+    circuit (Head of Studies, then secretariat), the student form's stat button, CV in both
+    grade views (the teacher who is also the group's tutor) and the portal page, where the
+    student files a request and answers with more documentation. Logic is covered by
+    test_convalidation.py and test_portal_convalidation.py."""
 
     @classmethod
     def setUpClass(cls):
@@ -40,12 +41,22 @@ class TestConvalidationTour(HttpCase):
         session.teacher_id = teacher_employee
         session.fill_students()
         self.request.line_ids.sudo().action_grant()
+        self.request.sudo().action_validate()
+        self.request.sudo().action_complete()
         self.assertTrue(session.grade_subject_line_ids.is_convalidated)
         return session
 
     def test_head_of_studies_resolves(self):
         self.start_tour("/odoo", "ems_convalidation_resolve", login=self.head_of_studies.login)
-        self.assertEqual(self.request.state, 'resolved')
+        self.assertEqual(self.request.state, 'in_progress')
+        self.assertEqual(self.request.line_ids.state, 'granted')
+        self.assertEqual(self.request.line_ids.grade, 8)
+
+    def test_secretary_completes(self):
+        self.request.line_ids.sudo().action_grant()
+        self.request.sudo().action_validate()
+        self.start_tour("/odoo", "ems_convalidation_complete", login=self.secretary.login)
+        self.assertEqual(self.request.state, 'completed')
 
     def test_student_form_button(self):
         self.start_tour(f"/odoo/res.partner/{self.student.id}", "ems_convalidation_student_button",
@@ -64,7 +75,9 @@ class TestConvalidationTour(HttpCase):
         self.request.action_cancel()
         self.start_tour("/my/convalidaciones", "ems_portal_convalidation_submit", login=self.student_user.login)
         submitted = self.env['ems.convalidation'].search([
-            ('student_id', '=', self.student.id), ('state', '=', 'submitted')])
+            ('student_id', '=', self.student.id), ('state', '=', 'pending')])
         self.assertEqual(len(submitted), 1)
         self.assertEqual(submitted.basis, 'certificate')
-        self.assertEqual(submitted.attachment_ids.mapped('name'), ['certificate.pdf'])
+        # The certificate filed with the request, plus the one answered with afterwards.
+        self.assertEqual(sorted(submitted.attachment_ids.mapped('name')),
+                         ['certificate.pdf', 'reply.pdf'])

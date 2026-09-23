@@ -82,7 +82,7 @@ class TestPortalConvalidation(HttpCase):
 
     def test_form_opens_after_a_validation_error(self):
         self._login(self.student_user)
-        page = self.url_open('/my/convalidaciones?error=no_documents').text
+        page = self.url_open('/my/convalidaciones?error=no_subjects').text
         self.assertIn('id="convalidation_new_body" class="collapse show"', page)
 
     def test_form_opens_on_request(self):
@@ -120,11 +120,15 @@ class TestPortalConvalidation(HttpCase):
         self.assertIn('error=no_subjects', response.url)
         self.assertFalse(self._requests(self.student))
 
-    def test_nothing_is_created_without_documents(self):
+    def test_documents_are_optional(self):
+        """A student of this centre has nothing to attach: their record is looked up here. The
+        Head of Studies asks for documents afterwards when they are actually needed."""
         self._login(self.student_user)
         response = self._submit(self.subject, with_file=False)
-        self.assertIn('error=no_documents', response.url)
-        self.assertFalse(self._requests(self.student))
+        self.assertIn('submitted=1', response.url)
+        request = self._requests(self.student)
+        self.assertEqual(request.line_ids.subject_id, self.subject)
+        self.assertFalse(request.attachment_ids)
 
     def test_nothing_is_created_with_an_unknown_basis(self):
         self._login(self.student_user)
@@ -164,28 +168,83 @@ class TestPortalConvalidation(HttpCase):
         })
         self._login(self.other_user)
         self.url_open(f'/my/convalidaciones/cancel/{request.id}', data={'csrf_token': Request.csrf_token(self)})
-        self.assertEqual(request.state, 'submitted')
+        self.assertEqual(request.state, 'pending')
 
     def test_communications_page_records_the_request_and_its_resolution(self):
         self._login(self.student_user)
         self._submit(self.subject)
-        self._requests(self.student).line_ids.sudo().action_reject()
+        self._requests(self.student).sudo().action_reject()
         page = self.url_open('/my/comunicaciones').text
         self.assertIn('Convalidation request submitted', page)
         self.assertIn('Convalidation request resolved', page)
         self.assertIn(self.subject.name, page)
 
-    def test_resolved_requests_show_their_resolution(self):
+    def _resolved_request(self, grade=7):
         request = self.env['ems.convalidation'].create({
             'student_id': self.student.id, 'study_id': self.study.id, 'course_id': self.course.id,
             'resolution_notes': 'Bring the original certificate',
-            'line_ids': [(0, 0, {'subject_id': self.subject.id, 'state': 'granted',
+            'line_ids': [(0, 0, {'subject_id': self.subject.id, 'state': 'granted', 'grade': grade,
                                  'resolution_notes': 'Same module in SMX'})],
         })
-        self.assertEqual(request.state, 'resolved')
+        request.sudo().action_validate()
+        return request
+
+    def test_validated_request_hides_the_grade_until_the_secretariat_completes(self):
+        request = self._resolved_request()
+        self.assertEqual(request.state, 'in_progress')
+        self._login(self.student_user)
+        page = self.url_open('/my/convalidaciones').text
+        self.assertIn('The Head of Studies has approved your request', page)
+        self.assertNotIn('<th>Grade</th>', page)
+        self.assertNotIn(f'/my/convalidaciones/cancel/{request.id}', page)
+
+    def test_completed_requests_show_their_resolution_and_grade(self):
+        request = self._resolved_request()
+        request.sudo().action_complete()
         self._login(self.student_user)
         page = self.url_open('/my/convalidaciones').text
         self.assertIn('Same module in SMX', page)
         self.assertIn('Bring the original certificate', page)
         self.assertIn('Convalidated', page)
+        self.assertIn('<th>Grade</th>', page)
+        self.assertIn('<strong>7</strong>', page)
         self.assertNotIn(f'/my/convalidaciones/cancel/{request.id}', page)
+
+    def test_student_answers_a_request_for_information(self):
+        self._login(self.student_user)
+        self._submit(self.subject, with_file=False)
+        request = self._requests(self.student)
+        response = self.url_open(f'/my/convalidaciones/reply/{request.id}', data={
+            'csrf_token': Request.csrf_token(self), 'message': 'Here is the certificate',
+        }, files=[('documents', ('smx.pdf', PDF, 'application/pdf'))])
+        self.assertIn('replied=1', response.url)
+        self.assertEqual(request.attachment_ids.mapped('name'), ['smx.pdf'])
+        self.assertEqual(request.attachment_ids.res_id, request.id)
+        self.assertTrue(request.message_ids.filtered(
+            lambda message: 'Here is the certificate' in (message.body or '')))
+        # It reaches the student's own Communications page, like every other message.
+        self.assertIn('Documentation added by the applicant', self.url_open('/my/comunicaciones').text)
+
+    def test_empty_answers_and_closed_requests_are_refused(self):
+        self._login(self.student_user)
+        self._submit(self.subject, with_file=False)
+        request = self._requests(self.student)
+        response = self.url_open(f'/my/convalidaciones/reply/{request.id}',
+                                 data={'csrf_token': Request.csrf_token(self), 'message': '  '})
+        self.assertIn('error=no_reply', response.url)
+        request.sudo().action_reject()
+        self.url_open(f'/my/convalidaciones/reply/{request.id}', data={
+            'csrf_token': Request.csrf_token(self), 'message': 'Too late',
+        }, files=[('documents', ('late.pdf', PDF, 'application/pdf'))])
+        self.assertFalse(request.attachment_ids)
+
+    def test_nobody_answers_someone_elses_request(self):
+        request = self.env['ems.convalidation'].create({
+            'student_id': self.student.id, 'study_id': self.study.id, 'course_id': self.course.id,
+            'line_ids': [(0, 0, {'subject_id': self.subject.id})],
+        })
+        self._login(self.other_user)
+        self.url_open(f'/my/convalidaciones/reply/{request.id}', data={
+            'csrf_token': Request.csrf_token(self), 'message': 'Not mine',
+        }, files=[('documents', ('other.pdf', PDF, 'application/pdf'))])
+        self.assertFalse(request.attachment_ids)

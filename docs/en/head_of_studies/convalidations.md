@@ -2,33 +2,48 @@
 
 ---
 
-# Convalidations: Resolving Requests
+# Convalidations: validating the requests
 
-Resolve the subject convalidations that vocational training students request from the portal, and register the requests that reach the secretariat on paper.
+Validate the subject convalidations vocational training students request from the portal, and grade them. Once validated, the secretariat registers them in Esfera and completes them.
 
-**Required role:** Head of Studies, Deputy Head of Studies or Director to resolve. The secretariat can register and consult requests, but cannot resolve them.
+**Role required:** Head of Studies, Deputy Head of Studies or Director.
+
+---
+
+## The circuit
+
+| State | Who acts |
+|-------|----------|
+| **Pending** | The student has filed the request and it is yours to review. |
+| **In progress** | You validated it; it is now the secretariat's. |
+| **Completed** | The secretariat registered it in Esfera. The student sees the grade. |
+| **Rejected** | You can reject it while it is pending, or the secretariat once it is validated. |
+| **Cancelled** | The student cancelled it from the portal. |
 
 ---
 
 ## Access
 
-Navigate to: **Academic management → Convalidations**
+Go to: **Academic management → Convalidations**
 
-The list opens filtered by **To resolve**: requests with some subject still pending or forwarded to the Department. Remove the filter to see every request, or use **Resolved**, **Cancelled** and **Forwarded to the Department**.
+The list opens with the requests **Pending the Head of Studies** and **Pending the secretariat**. Remove the filters to see them all, or use **Completed**, **Rejected** and **Cancelled**.
 
-![Convalidation requests list](../../assets/head_of_studies/convalidations-list.png)
+![Convalidation request list](../../assets/head_of_studies/convalidations-list.png)
 
-To see one student's requests, open the student's form and click the **Convalidations** button.
+To see a student's requests, open their form and click the **Convalidations** button.
+
+If the **Review convalidation request** task is configured in **Academic management → Configuration → Task Assignment**, every new request also lands in your activity inbox.
 
 ---
 
-## Reviewing a Request
+## Reviewing a request
 
 Open the request from the list. The form shows:
 
 - **Study**, **Course** and **Grounds** of the request.
-- **Subjects** tab: one line per requested subject, with its resolution and remarks.
-- **Supporting documents** tab: the files attached by the student.
+- Under the student's name, the note **Holds a title obtained at this centre** when the academic history records one.
+- **Subjects** tab: one line per requested subject, with its resolution, grade and remarks.
+- **Supporting documents** tab: the files the student attached.
 - **Applicant's comments** tab: what the student or the family wrote.
 - **Resolution** tab: comments for the student, sent with the resolution.
 
@@ -36,7 +51,7 @@ Open the request from the list. The form shows:
 
 ---
 
-## Resolving the Subjects
+## Resolving the subjects and grading them
 
 On each line of the **Subjects** tab, use the buttons on the right:
 
@@ -44,51 +59,55 @@ On each line of the **Subjects** tab, use the buttons on the right:
 |--------|--------|
 | ✔ (Convalidate) | The subject is convalidated. |
 | ✖ (Reject) | The subject is not convalidated. |
-| ↪ (Forward to the Department) | The Departament d'Educació has to resolve it. The request stays open. |
-| ↺ (Back to pending) | Undoes the resolution of the line. |
+| ↺ (Back to pending) | Undoes the line's resolution. |
 
-To convalidate every subject that is still pending in one step, click **Convalidate pending subjects** at the top of the form.
+To convalidate every subject still undecided at once, click **Convalidate pending subjects**.
 
-Write the reason for a subject in the **Remarks** column, and any general comment in the **Resolution** tab, before resolving the last subject.
+The **Grade** column of each convalidated subject holds a 5 by default: write the grade the previous studies hold. The secretariat can still correct it against Esfera before completing the request.
 
-When the Department answers a forwarded subject, open the request and convalidate or reject that line.
-
----
-
-## What Happens When a Request Is Resolved
-
-A request is **Resolved** when every subject is convalidated or rejected. At that moment:
-
-- The student receives an email with the resolution of each subject. For minors, the email goes to the family.
-- The student sees the resolution on the portal.
-- Each convalidated subject shows **CV** in the grade views and counts as passed with a 5 in the academic history.
-
-If you send a resolved subject back to pending and resolve it again, a new email is sent.
+In the **Remarks** column write where the resolution comes from, e.g. *Granted by the Department of Education, file no. 1234*. The student reads it with the resolution.
 
 ---
 
-## Registering a Paper Request (Secretariat)
+## Asking the student for documentation
+
+Click **Request information**, write what you need and send it. The student (or the family of a minor) gets an email and can answer, attaching the documents, from the portal on that same request. The request stays where it was.
+
+---
+
+## Validating or rejecting the request
+
+Once every subject is resolved, click **Validate**:
+
+- If any subject was convalidated, the request moves to **In progress** and the secretariat gets the task of registering it in Esfera.
+- If you rejected them all, the request is **Rejected** and the student gets the resolution by email.
+
+**Reject** closes the whole request and notifies the student.
+
+The grade does not reach the student's grades until the secretariat completes the request. From then on, each convalidated subject shows its grade with the **CV** mark in the grade screens and in the academic history.
+
+---
+
+## Registering a request received on paper
 
 1. Click **New**.
-2. Choose the **Student**, the **Study** and the **Grounds**.
-3. In the **Subjects** tab, click **Add a line** and choose each subject.
-4. In the **Supporting documents** tab, upload the documents.
+2. Pick the **Student**, the **Study** and the **Grounds**.
+3. On the **Subjects** tab, click **Add a line** and pick each subject.
+4. On the **Supporting documents** tab, upload the documents.
 5. Click **Save**.
 
-The request appears in the Head of Studies' **To resolve** list.
+---
+
+## Cancelling and reopening
+
+- **Cancel request** is available while the request is **Pending**.
+- **Reopen** returns a cancelled request to **Pending**.
 
 ---
 
-## Cancelling and Reopening
+## Studies that allow convalidations
 
-- **Cancel request** is available while no subject has been resolved or forwarded.
-- **Reopen** returns a cancelled request to **Submitted**.
-
----
-
-## Studies That Accept Convalidations
-
-Only the studies of levels with **Allows convalidations** ticked can receive requests (by default, CFGM and CFGS). See [Levels](../admin/curriculum-levels.md).
+Only studies whose level has **Allows convalidations** set (CFGM and CFGS by default) can receive requests. See [Levels](../admin/curriculum-levels.md).
 
 ---
 

@@ -336,7 +336,8 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
         )
 
     def test_capture_convalidation_screenshots(self):
-        """Issue #276 - the Head of Studies' request form and list, and the portal page."""
+        """Issue #276 - the Head of Studies' request form and list (a request resolved and ready
+        to be validated), and the portal page."""
         self.level.allows_convalidation = True
         subjects = self.subject | self.env['ems.subject'].create([{
             'code': code, 'acronym': acronym, 'name': name, 'study_ids': [(6, 0, self.study.ids)],
@@ -356,8 +357,10 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             'attachment_ids': [(0, 0, {'name': 'Certificat_academic_SMX.pdf',
                                        'datas': base64.b64encode(b'%PDF-1.4 x')})],
         })
-        request.line_ids[0].sudo().write({'state': 'granted', 'resolution_notes': 'Mòdul equivalent a SMX'})
-        request.line_ids[1].sudo().action_forward()
+        request.line_ids[0].sudo().write({'state': 'granted', 'grade': 8,
+                                          'resolution_notes': 'Mòdul equivalent a SMX'})
+        request.line_ids[1].sudo().write({'state': 'rejected',
+                                          'resolution_notes': "No acreditat a l'expedient"})
         list_action = self.env['ir.actions.act_window'].create({
             'name': 'Convalidacions',
             'res_model': 'ems.convalidation',

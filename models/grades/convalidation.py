@@ -5,13 +5,12 @@ from markupsafe import Markup
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
-# Grade a convalidated subject counts with in the grades subsystem: it is passed, and a
-# vocational training cycle's final grade averages a convalidated module as a 5.
+# Grade a convalidated subject gets when nobody says otherwise. The Head of Studies (or the
+# secretariat afterwards) can replace it with the one the previous studies actually hold.
 CONVALIDATED_GRADE = 5
 
-# Line states that close a subject's request for good. A forwarded line is still waiting for
-# the Departament d'Educació, so it keeps the request open.
-RESOLVED_LINE_STATES = ('granted', 'rejected')
+# States a request can no longer move on from.
+CLOSED_STATES = ('completed', 'rejected', 'cancelled')
 
 
 class EmsConvalidation(models.Model):
@@ -45,20 +44,29 @@ class EmsConvalidation(models.Model):
                                inverse_name='convalidation_id', copy=True)
     allowed_subject_ids = fields.Many2many(string="Allowed subjects", comodel_name='ems.subject',
                                            compute='_compute_allowed_subject_ids')
-    is_cancelled = fields.Boolean(string="Cancelled", default=False, copy=False, tracking=True)
-    state = fields.Selection(string="State", compute='_compute_state', store=True, index=True, tracking=True,
-                             selection=[
-                                 ('submitted', 'Submitted'),
+    # The circuit is linear: the student files it, the Head of Studies validates it (and grades
+    # it), and the secretariat registers the result in Esfera and completes it. Only then does
+    # the grade reach the student's own grades.
+    state = fields.Selection(string="State", default='pending', required=True, index=True,
+                             copy=False, readonly=True, tracking=True, selection=[
+                                 ('pending', 'Pending'),
                                  ('in_progress', 'In progress'),
-                                 ('resolved', 'Resolved'),
+                                 ('completed', 'Completed'),
+                                 ('rejected', 'Rejected'),
                                  ('cancelled', 'Cancelled'),
                              ])
     resolution_notes = fields.Text(string="Resolution comments",
                                    help="Shown to the student in the portal and in the resolution email.")
+    validation_date = fields.Date(string="Validation date", readonly=True, copy=False)
+    validated_by_id = fields.Many2one(string="Validated by", comodel_name='res.users', readonly=True, copy=False)
     resolution_date = fields.Date(string="Resolution date", readonly=True, copy=False)
     resolved_by_id = fields.Many2one(string="Resolved by", comodel_name='res.users', readonly=True, copy=False)
     granted_count = fields.Integer(string="Convalidated", compute='_compute_line_counts')
     pending_count = fields.Integer(string="To resolve", compute='_compute_line_counts')
+    has_centre_title = fields.Boolean(string="Holds a title from this centre", compute='_compute_has_centre_title',
+                                      help="The student's academic history records a title obtained here, so "
+                                           "their previous grades can be looked up. Its absence proves nothing: "
+                                           "only recent years are in EMS.")
 
     @api.model
     def _default_course_id(self):
@@ -74,25 +82,20 @@ class EmsConvalidation(models.Model):
         for convalidation in self:
             convalidation.allowed_subject_ids = convalidation.study_id._ems_convalidable_subjects()
 
-    @api.depends('is_cancelled', 'line_ids.state')
-    def _compute_state(self):
-        for convalidation in self:
-            states = set(convalidation.line_ids.mapped('state'))
-            if convalidation.is_cancelled:
-                convalidation.state = 'cancelled'
-            elif states and states <= set(RESOLVED_LINE_STATES):
-                convalidation.state = 'resolved'
-            elif states - {'pending'}:
-                convalidation.state = 'in_progress'
-            else:
-                convalidation.state = 'submitted'
-
     @api.depends('line_ids.state')
     def _compute_line_counts(self):
         for convalidation in self:
             convalidation.granted_count = len(convalidation.line_ids.filtered(lambda line: line.state == 'granted'))
-            convalidation.pending_count = len(convalidation.line_ids.filtered(
-                lambda line: line.state not in RESOLVED_LINE_STATES))
+            convalidation.pending_count = len(convalidation.line_ids.filtered(lambda line: line.state == 'pending'))
+
+    @api.depends('student_id')
+    def _compute_has_centre_title(self):
+        # sudo: the academic history is not readable by everyone who resolves convalidations.
+        records = self.env['ems.student.year_record'].sudo().search([
+            ('student_id', 'in', self.student_id.ids), ('title_obtained', '=', True)])
+        with_title = set(records.mapped('student_id').ids)
+        for convalidation in self:
+            convalidation.has_centre_title = convalidation.student_id.id in with_title
 
     @api.depends('student_id', 'course_id')
     def _compute_display_name(self):
@@ -128,17 +131,17 @@ class EmsConvalidation(models.Model):
                 Markup("<p>{}</p>{}").format(
                     _("Subjects requested:"),
                     self.env['ems.base'].build_html_list(convalidation.line_ids.subject_id.mapped('display_name'))))
+        convalidations._ems_schedule_task('ems.mail_activity_convalidation_review')
         return convalidations
 
     def write(self, vals):
-        if 'study_id' in vals and self.line_ids.filtered(lambda line: line.state != 'pending'):
-            raise UserError(_("The study of a request cannot change once a subject has been resolved."))
+        if 'study_id' in vals and self.filtered(lambda convalidation: convalidation.state != 'pending'):
+            raise UserError(_("The study of a request cannot change once it has been validated."))
         res = super().write(vals)
         if 'attachment_ids' in vals:
             self._ems_link_attachments()
-        if 'is_cancelled' in vals:
+        if 'state' in vals:
             self.line_ids._ems_sync_grades()
-        self._ems_on_resolved()
         return res
 
     def unlink(self):
@@ -155,23 +158,69 @@ class EmsConvalidation(models.Model):
                 'res_model': self._name, 'res_id': convalidation.id,
             })
 
-    def _ems_on_resolved(self):
-        """Stamp and notify the requests that have just become resolved. Called after every
-        change that can resolve one: a write on the request itself or on one of its lines, so
-        it is idempotent - the stamp is what tells a request already notified. A request
-        reopened after its resolution loses the stamp, so resolving it again notifies the new
-        outcome."""
-        reopened = self.filtered(lambda convalidation: convalidation.state != 'resolved'
-                                 and convalidation.resolution_date)
-        if reopened:
-            reopened.sudo().write({'resolution_date': False, 'resolved_by_id': False})
-        for convalidation in self.filtered(lambda convalidation: convalidation.state == 'resolved'
-                                           and not convalidation.resolution_date):
-            convalidation.sudo().write({
-                'resolution_date': fields.Date.context_today(convalidation),
-                'resolved_by_id': self.env.user.id,
-            })
-            convalidation._ems_send_resolution()
+    # --- who may do what -----------------------------------------------------
+
+    def _ems_is_head_of_studies(self):
+        """The Head of Studies (Director included, it implies the group) validates and grades."""
+        return self.env.su or self.env.user.has_group('ems.group_head_of_studies') \
+            or self.env.user.has_group('ems.group_academic_admin')
+
+    def _ems_is_secretary(self):
+        """The secretariat registers the resolution in Esfera and completes the request."""
+        return self.env.su or self.env.user.has_group('ems.group_secretary') \
+            or self.env.user.has_group('ems.group_academic_admin')
+
+    def _ems_check_head_of_studies(self):
+        if not self._ems_is_head_of_studies():
+            raise UserError(_("Only the Head of Studies can validate convalidations."))
+
+    def _ems_check_secretary(self):
+        if not self._ems_is_secretary():
+            raise UserError(_("Only the secretariat can complete a validated convalidation."))
+
+    def _ems_check_state(self, expected):
+        for convalidation in self:
+            if convalidation.state not in expected:
+                raise UserError(_("This request cannot be processed in its current state (%s).")
+                                % dict(self._fields['state']._description_selection(self.env))[convalidation.state])
+
+    # --- tasks ---------------------------------------------------------------
+
+    def _ems_schedule_task(self, xmlid):
+        """Put the request in the to-do list of whoever is configured for `xmlid` in Academic
+        Management > Configuration > Task Assignment - the same mechanism student documents and
+        enrollment comments use, and for the same reason: who handles a request is a matter of
+        organisation, not of access rights.
+
+        ``mail_activity_quick_update`` suppresses Odoo's "X has assigned you the following
+        activity" email: the task itself is the notice, and its author would otherwise be the
+        family that filed the request from the portal."""
+        users = self.env['mail.activity.type']._ems_get_task_users(xmlid)
+        if not users:
+            return
+        for convalidation in self:
+            for user in users:
+                convalidation.sudo().with_context(mail_activity_quick_update=True).activity_schedule(
+                    act_type_xmlid=xmlid,
+                    summary=_("Convalidation request: %s") % convalidation.student_id.display_name,
+                    user_id=user.id,
+                )
+            # The to-do is their notice; a follower would also get every message meant for the
+            # student's Communications page.
+            convalidation.sudo().message_unsubscribe(partner_ids=users.mapped('partner_id').ids)
+
+    def _ems_close_tasks(self):
+        """Drop every pending EMS task of these requests: the step that had to be done is done."""
+        self.sudo().activity_ids.filtered(
+            lambda activity: activity.activity_type_id.ems_task_assignment).unlink()
+
+    # --- notices -------------------------------------------------------------
+
+    def _ems_stamp_resolution(self):
+        self.sudo().write({
+            'resolution_date': fields.Date.context_today(self),
+            'resolved_by_id': self.env.user.id,
+        })
 
     def _ems_send_resolution(self):
         """Email the resolution to whoever speaks for the student: the student when adult, the
@@ -207,29 +256,105 @@ class EmsConvalidation(models.Model):
         self.sudo().message_post(subject=subject, body=body, message_type='comment',
                                  subtype_xmlid='mail.mt_comment')
 
-    # --- actions ---
+    # --- actions -------------------------------------------------------------
 
     def action_cancel(self):
-        for convalidation in self:
-            if convalidation.line_ids.filtered(lambda line: line.state != 'pending'):
-                raise UserError(_("A request cannot be cancelled once a subject has been resolved or forwarded."))
-        self.write({'is_cancelled': True})
+        self._ems_check_state(('pending',))
+        self.sudo().write({'state': 'cancelled'})
+        self._ems_close_tasks()
         for convalidation in self:
             convalidation._ems_post_communication(
                 _("Convalidation request cancelled"),
                 _("The request has been cancelled by %s.") % self.env.user.name)
 
     def action_reopen(self):
-        self.write({'is_cancelled': False})
+        self._ems_check_state(('cancelled',))
+        self.sudo().write({'state': 'pending'})
         for convalidation in self:
             convalidation._ems_post_communication(
                 _("Convalidation request reopened"),
                 _("The request has been reopened by %s.") % self.env.user.name)
+        self._ems_schedule_task('ems.mail_activity_convalidation_review')
 
     def action_grant_pending(self):
+        """Convalidate every subject still undecided, with the default grade: the usual case,
+        where the whole request is accepted as filed."""
         self.line_ids.filtered(lambda line: line.state == 'pending').action_grant()
 
-    # --- portal helpers ---
+    def action_validate(self):
+        """The Head of Studies' step: every subject is decided, so the request moves on to the
+        secretariat - unless nothing was granted, in which case there is nothing to register in
+        Esfera and the request is already resolved."""
+        self._ems_check_head_of_studies()
+        self._ems_check_state(('pending',))
+        for convalidation in self:
+            if convalidation.pending_count:
+                raise UserError(_("Convalidate or reject every subject of the request before validating it."))
+        self._ems_close_tasks()
+        rejected = self.filtered(lambda convalidation: not convalidation.granted_count)
+        validated = self - rejected
+        if validated:
+            validated.sudo().write({
+                'state': 'in_progress',
+                'validation_date': fields.Date.context_today(self),
+                'validated_by_id': self.env.user.id,
+            })
+            for convalidation in validated:
+                convalidation._ems_post_communication(
+                    _("Convalidation request validated"),
+                    _("The Head of Studies has validated the request. The secretariat will now "
+                      "register it, and the grades will be published once it is completed."))
+            validated._ems_schedule_task('ems.mail_activity_convalidation_registration')
+        rejected._ems_reject()
+
+    def action_complete(self):
+        """The secretariat's step: the resolution is registered in Esfera, so the grades can be
+        published and the student notified."""
+        self._ems_check_secretary()
+        self._ems_check_state(('in_progress',))
+        self.sudo().write({'state': 'completed'})
+        self._ems_stamp_resolution()
+        self._ems_close_tasks()
+        for convalidation in self:
+            convalidation._ems_send_resolution()
+
+    def action_reject(self):
+        """Reject the whole request: the Head of Studies while it is pending, the secretariat
+        once it has been validated."""
+        for convalidation in self:
+            if convalidation.state == 'pending':
+                convalidation._ems_check_head_of_studies()
+            elif convalidation.state == 'in_progress':
+                convalidation._ems_check_secretary()
+            else:
+                convalidation._ems_check_state(('pending', 'in_progress'))
+        self.line_ids.filtered(lambda line: line.state != 'rejected').sudo().write({'state': 'rejected'})
+        self._ems_reject()
+
+    def _ems_reject(self):
+        """Close the requests as rejected and notify their outcome."""
+        if not self:
+            return
+        self.sudo().write({'state': 'rejected'})
+        self._ems_stamp_resolution()
+        self._ems_close_tasks()
+        for convalidation in self:
+            convalidation._ems_send_resolution()
+
+    def action_request_info(self):
+        """Ask the student (or the family) for more documentation, by email and on the portal."""
+        self.ensure_one()
+        self._ems_check_state(('pending', 'in_progress'))
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Request information"),
+            'res_model': 'ems.convalidation.info_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_convalidation_id': self.id},
+        }
+
+    # --- portal helpers ------------------------------------------------------
 
     @api.model
     def _ems_portal_study(self, student):
@@ -254,10 +379,21 @@ class EmsConvalidation(models.Model):
         taken = self.env['ems.convalidation.line'].sudo().search([
             ('student_id', '=', student.id),
             ('subject_id', 'in', study._ems_convalidable_subjects().ids),
-            ('convalidation_id.is_cancelled', '=', False),
+            ('convalidation_id.state', '!=', 'cancelled'),
             ('state', '!=', 'rejected'),
         ]).mapped('subject_id')
         return study._ems_convalidable_subjects() - taken
+
+    def _ems_portal_add_documents(self, attachments, message):
+        """A reply from the portal: the files land in the request's own documents, and the text
+        in the chatter, where the Head of Studies reads it."""
+        self.ensure_one()
+        if attachments:
+            self.sudo().attachment_ids = [(4, attachment.id) for attachment in attachments]
+        body = Markup("<p>{}</p>{}").format(
+            message or _("New documentation attached."),
+            self.env['ems.base'].build_html_list(attachments.mapped('name')) if attachments else Markup(""))
+        self._ems_post_communication(_("Documentation added by the applicant"), body)
 
 
 class EmsConvalidationLine(models.Model):
@@ -273,14 +409,19 @@ class EmsConvalidationLine(models.Model):
                                        ondelete='cascade', index=True)
     student_id = fields.Many2one(string="Student", related='convalidation_id.student_id', store=True, index=True)
     course_id = fields.Many2one(string="Course", related='convalidation_id.course_id', store=True)
+    request_state = fields.Selection(related='convalidation_id.state', string="Request state")
     subject_id = fields.Many2one(string="Subject", comodel_name='ems.subject', required=True, ondelete='restrict')
     state = fields.Selection(string="Resolution", required=True, default='pending', selection=[
         ('pending', 'Pending'),
-        ('forwarded', 'Forwarded to the Department of Education'),
         ('granted', 'Convalidated'),
         ('rejected', 'Rejected'),
     ])
-    resolution_notes = fields.Char(string="Remarks")
+    grade = fields.Integer(string="Grade", default=CONVALIDATED_GRADE,
+                           help="Grade the convalidated subject is recorded with. It only reaches the "
+                                "student's grades once the secretariat completes the request.")
+    resolution_notes = fields.Char(string="Remarks",
+                                   help="Where the resolution comes from, e.g. \"Granted by the Department, "
+                                        "file no. 1234\". Shown to the student with the resolution.")
 
     @api.depends('subject_id')
     def _compute_display_name(self):
@@ -296,45 +437,75 @@ class EmsConvalidationLine(models.Model):
                     'study': line.convalidation_id.study_id.display_name,
                 })
 
+    @api.constrains('grade')
+    def _check_grade(self):
+        for line in self:
+            if not CONVALIDATED_GRADE <= line.grade <= 10:
+                raise ValidationError(_("A convalidated subject's grade must be between %(min)s and 10.")
+                                      % {'min': CONVALIDATED_GRADE})
+
     @api.model_create_multi
     def create(self, vals_list):
-        if any(vals.get('state', 'pending') != 'pending' for vals in vals_list):
-            self._ems_check_can_resolve()
+        decided = [vals for vals in vals_list if vals.get('state', 'pending') != 'pending']
+        if decided:
+            self._ems_check_can_decide()
+            self.env['ems.convalidation'].browse(
+                [vals['convalidation_id'] for vals in decided if vals.get('convalidation_id')]
+            )._ems_check_state(('pending',))
         lines = super().create(vals_list)
         lines._ems_sync_grades()
-        lines.convalidation_id._ems_on_resolved()
         return lines
 
     def write(self, vals):
-        if 'state' not in vals and 'subject_id' not in vals:
+        if 'state' in vals or 'subject_id' in vals:
+            self._ems_check_can_decide()
+        elif 'grade' in vals:
+            self._ems_check_can_grade()
+        else:
             return super().write(vals)
-        self._ems_check_can_resolve()
         # A changed subject leaves its previous one to be re-evaluated too.
         previous_pairs, courses = self._ems_grade_keys()
         res = super().write(vals)
         self._ems_sync_grades(previous_pairs, courses)
-        self.convalidation_id._ems_on_resolved()
         return res
 
     def unlink(self):
         if self.filtered(lambda line: line.state != 'pending'):
-            self._ems_check_can_resolve()
+            self._ems_check_can_decide()
         pairs, courses = self._ems_grade_keys()
-        convalidations = self.convalidation_id
         res = super().unlink()
         self.browse()._ems_sync_grades(pairs, courses)
-        convalidations.exists()._ems_on_resolved()
         return res
 
-    def _ems_check_can_resolve(self):
-        """Resolving is the Head of Studies' call (Director included, it implies the group);
-        the secretariat registers requests but never decides them."""
-        user = self.env.user
-        if not self.env.su and not (user.has_group('ems.group_head_of_studies')
-                                    or user.has_group('ems.group_academic_admin')):
-            raise UserError(_("Only the Head of Studies can resolve convalidations."))
+    def _ems_check_can_decide(self):
+        """Convalidating or rejecting a subject is the Head of Studies' call, and only while the
+        request is still theirs: once validated, the resolution is what the secretariat is
+        registering in Esfera.
 
-    # --- actions ---
+        sudo bypasses both checks: the request's own actions write the lines that way, after
+        checking who is acting on the request as a whole. The group check runs on an empty
+        recordset too (a line created already resolved has no record to read yet)."""
+        if self.env.su:
+            return
+        self.env['ems.convalidation']._ems_check_head_of_studies()
+        for line in self:
+            line.convalidation_id._ems_check_state(('pending',))
+
+    def _ems_check_can_grade(self):
+        """The Head of Studies grades while resolving; the secretariat can still correct the
+        grade against Esfera before completing the request."""
+        if self.env.su:
+            return
+        for line in self:
+            convalidation = line.convalidation_id
+            if convalidation.state == 'pending':
+                convalidation._ems_check_head_of_studies()
+            elif convalidation.state == 'in_progress':
+                convalidation._ems_check_secretary()
+            else:
+                convalidation._ems_check_state(('pending', 'in_progress'))
+
+    # --- actions -------------------------------------------------------------
 
     def action_grant(self):
         self.write({'state': 'granted'})
@@ -342,25 +513,29 @@ class EmsConvalidationLine(models.Model):
     def action_reject(self):
         self.write({'state': 'rejected'})
 
-    def action_forward(self):
-        self.write({'state': 'forwarded'})
-
     def action_reset(self):
         self.write({'state': 'pending'})
 
-    # --- grades sync ---
+    # --- grades sync ---------------------------------------------------------
 
     @api.model
-    def _ems_is_convalidated(self, student, subject):
-        """Whether 'subject' is convalidated for 'student': some granted line of a request that
-        is still in force. sudo: grade lines are created by teachers too, who cannot read
-        convalidations."""
-        return bool(self.sudo().search_count([
+    def _ems_convalidation_grade(self, student, subject):
+        """The grade 'subject' is convalidated with for 'student', or None when it is not: only
+        a granted subject of a completed request counts, since the resolution is not official
+        until the secretariat has registered it. sudo: grade lines are created by teachers too,
+        who cannot read convalidations."""
+        line = self.sudo().search([
             ('student_id', '=', student.id),
             ('subject_id', '=', subject.id),
             ('state', '=', 'granted'),
-            ('convalidation_id.is_cancelled', '=', False),
-        ], limit=1))
+            ('convalidation_id.state', '=', 'completed'),
+        ], limit=1)
+        return line.grade if line else None
+
+    @api.model
+    def _ems_is_convalidated(self, student, subject):
+        """Whether 'subject' is convalidated for 'student'."""
+        return self._ems_convalidation_grade(student, subject) is not None
 
     def _ems_grade_keys(self):
         """The (student, subject) pairs and the courses these lines touch, read before a change
@@ -370,22 +545,25 @@ class EmsConvalidationLine(models.Model):
     def _ems_sync_grades(self, extra_pairs=(), extra_courses=None):
         """Mirror each affected (student, subject)'s convalidation onto its grades: every live
         grade line, and the subject in the year record of the request's course when that
-        history has already been frozen (the Department can take months to answer)."""
+        history has already been frozen (a resolution can arrive after the year is closed)."""
         pairs, courses = self._ems_grade_keys()
         pairs |= set(extra_pairs)
         courses |= extra_courses or self.env['ems.course']
         GradeLine = self.env['ems.grade_subject_line'].sudo().with_context(ems_convalidation_sync=True)
         SubjectRecord = self.env['ems.student.year_record.subject'].sudo()
         for student, subject in pairs:
-            convalidated = self._ems_is_convalidated(student, subject)
+            grade = self._ems_convalidation_grade(student, subject)
+            convalidated = grade is not None
             GradeLine.search([
                 ('student_id', '=', student.id),
                 ('grade_session_id.subject_id', '=', subject.id),
-                ('is_convalidated', '!=', convalidated),
-            ]).write({'is_convalidated': convalidated})
+                '|', ('is_convalidated', '!=', convalidated),
+                ('convalidation_grade', '!=', grade or 0),
+            ]).write({'is_convalidated': convalidated, 'convalidation_grade': grade or 0})
             SubjectRecord.search([
                 ('record_id.student_id', '=', student.id),
                 ('record_id.course_id', 'in', courses.ids),
                 ('subject_id', '=', subject.id),
-                ('is_convalidated', '!=', convalidated),
-            ])._ems_set_convalidated(convalidated)
+                '|', ('is_convalidated', '!=', convalidated),
+                ('convalidation_grade', '!=', grade or 0),
+            ])._ems_set_convalidated(convalidated, grade or CONVALIDATED_GRADE)

@@ -6,19 +6,20 @@ import { registry } from "@web/core/registry";
 // tests/test_convalidation_tour.py and uses structural selectors (button names, CSS classes),
 // so the logged-in user's language does not matter.
 
-// The Head of Studies resolves a request from Academic management > Convalidations.
+// The Head of Studies resolves a request from Academic management > Convalidations: grants the
+// subject, grades it and hands the request over to the secretariat.
 registry.category("web_tour.tours").add("ems_convalidation_resolve", {
     test: true,
     url: "/odoo/action-ems.action_convalidation",
     steps: () => [
         {
             trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Convalidation Student')",
-            content: "The pending request is listed under the default To resolve filter",
+            content: "The pending request is listed under the default filters",
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_statusbar_status button[data-value='submitted'].o_arrow_button_current",
-            content: "The request opens as submitted",
+            trigger: ".o_form_view .o_statusbar_status button[data-value='pending'].o_arrow_button_current",
+            content: "The request opens as pending",
         },
         {
             trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row button[name='action_grant']",
@@ -26,12 +27,23 @@ registry.category("web_tour.tours").add("ems_convalidation_resolve", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_statusbar_status button[data-value='resolved'].o_arrow_button_current",
-            content: "Every subject is resolved, so the request is resolved",
+            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row td[name='grade']",
+            content: "Write the grade the previous studies hold",
+            run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row button[name='action_reset']",
-            content: "The resolved line now offers to go back to pending",
+            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row td[name='grade'] input",
+            content: "Replace the default 5",
+            run: "edit 8",
+        },
+        {
+            trigger: ".o_form_view button[name='action_validate']",
+            content: "Hand the request over to the secretariat",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_statusbar_status button[data-value='in_progress'].o_arrow_button_current",
+            content: "The request is now the secretariat's",
         },
         {
             trigger: ".o_notebook .nav-link[name='documents']",
@@ -41,6 +53,37 @@ registry.category("web_tour.tours").add("ems_convalidation_resolve", {
         {
             trigger: ".o_field_widget[name='attachment_ids'] .o_attachment",
             content: "The uploaded certificate is listed",
+        },
+    ],
+});
+
+// The secretariat registers the resolution in Esfera and completes the request.
+registry.category("web_tour.tours").add("ems_convalidation_complete", {
+    test: true,
+    url: "/odoo/action-ems.action_convalidation",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Convalidation Student')",
+            content: "The validated request is listed for the secretariat too",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_statusbar_status button[data-value='in_progress'].o_arrow_button_current",
+            content: "It is waiting for the secretariat",
+        },
+        {
+            trigger: ".o_form_view button[name='action_complete']",
+            content: "Complete it",
+            run: "click",
+        },
+        {
+            trigger: ".modal footer button.btn-primary",
+            content: "Confirm publishing the grades",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_statusbar_status button[data-value='completed'].o_arrow_button_current",
+            content: "The request is completed",
         },
     ],
 });
@@ -132,6 +175,30 @@ registry.category("web_tour.tours").add("ems_portal_convalidation_submit", {
         {
             trigger: ".o_ems_convalidation_request form[action^='/my/convalidaciones/cancel/']",
             content: "The new request is listed and can still be cancelled",
+        },
+        {
+            trigger: ".o_ems_convalidation_reply textarea[name='message']",
+            content: "Answer the request with more documentation",
+            run: "edit Here is the certificate",
+        },
+        {
+            trigger: ".o_ems_convalidation_reply input[name='documents']",
+            content: "Attach it",
+            run() {
+                const transfer = new DataTransfer();
+                transfer.items.add(new File(["%PDF-1.4 reply"], "reply.pdf", { type: "application/pdf" }));
+                this.anchor.files = transfer.files;
+            },
+        },
+        {
+            trigger: ".o_ems_convalidation_reply button[type='submit']",
+            content: "Send the answer",
+            run: "click",
+            expectUnloadPage: true,
+        },
+        {
+            trigger: ".o_ems_convalidation_replied",
+            content: "The answer is confirmed",
         },
     ],
 });

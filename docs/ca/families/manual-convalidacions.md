@@ -20,15 +20,24 @@ Si sou una família amb més d'un fill al centre, primer tria el fill a la barra
 
 ## Fer una sol·licitud
 
-Abans de començar, tingues a punt en PDF o en imatge el certificat acadèmic o l'expedient dels estudis que has superat.
-
 1. Fes clic a **Nova sol·licitud de convalidació** per obrir el formulari, i marca els mòduls que vols convalidar.
 2. Tria el **Motiu**.
-3. A **Documentació justificativa**, adjunta el certificat i qualsevol altre document que acrediti els estudis. Pots seleccionar diversos fitxers alhora.
+3. A **Documentació justificativa**, adjunta els documents que calguin. Pots seleccionar diversos fitxers alhora.
 4. Si vols, escriu-hi observacions.
 5. Fes clic a **Envia la sol·licitud**.
 
 ![Formulari de nova sol·licitud de convalidació](../../assets/families/convalidations-portal-new.png)
+
+### Quina documentació cal adjuntar
+
+| Cas | Documentació |
+|-----|--------------|
+| Estudis superats en aquest centre | Cap: el centre consulta el teu expedient. |
+| Estudis superats en un altre centre | El certificat acadèmic o l'expedient dels estudis superats. |
+| Certificat de professionalitat o acreditació de competències | El certificat mateix. |
+| Estudis universitaris o resolució del Ministeri | La resolució, si ja la tens. |
+
+Si falta alguna cosa, el centre t'ho demanarà i ho podràs adjuntar des d'aquesta mateixa pàgina.
 
 Un missatge confirma que la sol·licitud s'ha enviat. Els mòduls ja sol·licitats deixen d'aparèixer al formulari, llevat que s'hagin rebutjat.
 
@@ -40,22 +49,29 @@ Cada sol·licitud apareix sota el formulari, amb la data, l'estudi i l'estat:
 
 | Estat | Significat |
 |-------|------------|
-| **Enviat** | El centre encara no l'ha començat a resoldre. |
-| **En procés** | Hi ha mòduls resolts o derivats al Departament d'Educació. |
-| **Resolta** | Tots els mòduls tenen resolució. |
-| **Cancel·lat** | La sol·licitud s'ha anul·lat. |
+| **Pendent** | El centre encara no l'ha resolt. |
+| **En procés** | El Cap d'Estudis l'ha aprovada i secretaria l'està registrant. |
+| **Completada** | Ja està registrada. Hi veus la nota de cada mòdul convalidat. |
+| **Rebutjada** | No s'ha concedit la convalidació. |
+| **Anul·lada** | La sol·licitud s'ha anul·lat. |
 
-La taula mostra la resolució de cada mòdul (**Pendent**, **Derivat al Departament d'Educació**, **Convalidat** o **Rebutjat**) i les observacions del centre.
+La taula mostra la resolució de cada mòdul (**Pendent**, **Convalidat** o **Rebutjat**) i les observacions del centre. Quan la sol·licitud està **Completada**, hi apareix també la columna **Nota**.
 
 ![Una sol·licitud al portal](../../assets/families/convalidations-portal-request.png)
 
-Quan tots els mòduls estan resolts, rebràs un correu amb la resolució. La sol·licitud, la seva anul·lació i la resolució també queden registrades a la pàgina **Comunicacions**.
+Quan la sol·licitud es completa o es rebutja, rebràs un correu amb la resolució. La sol·licitud, la seva anul·lació i la resolució també queden registrades a la pàgina **Comunicacions**.
+
+---
+
+## Respondre o afegir documentació
+
+Mentre la sol·licitud està **Pendent** o **En procés**, al seu requadre hi ha **Respon o afegeix documentació**: escriu-hi la resposta, adjunta els fitxers que et demanin i fes clic a **Envia**. Els documents s'afegeixen a la sol·licitud.
 
 ---
 
 ## Anul·lar una sol·licitud
 
-Mentre una sol·licitud està **Enviat**, fes clic a **Anul·la la sol·licitud** al seu requadre.
+Mentre una sol·licitud està **Pendent**, fes clic a **Anul·la la sol·licitud** al seu requadre.
 
 ---
 

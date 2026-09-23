@@ -2,9 +2,9 @@
 
 ---
 
-# Requesting Convalidations from the Portal
+# Requesting convalidations from the portal
 
-Ask for the convalidation of vocational training modules you already passed in other studies, and follow the resolution, from the student portal.
+Ask for the vocational training subjects you already passed elsewhere to be convalidated, and follow their resolution, from the student portal.
 
 Convalidations can only be requested for vocational training cycles (CFGM and CFGS).
 
@@ -14,49 +14,65 @@ Convalidations can only be requested for vocational training cycles (CFGM and CF
 
 On the portal's home page, click the **Convalidations** card, or **Convalidations** in the top bar.
 
-If you are a family with more than one child at the school, first choose the child in the portal's top bar: the request is always made for the selected child.
+If you are a family with more than one child at the centre, pick the child in the portal's top bar first: the request is always filed for the selected child.
 
 ---
 
-## Making a Request
+## Filing a request
 
-Before you start, have the academic certificate or transcript of the studies you passed ready as a PDF or an image.
-
-1. Click **New convalidation request** to open the form, and tick the modules you want to convalidate.
-2. Choose the **Grounds**.
-3. In **Supporting documents**, attach the certificate and any other document that proves the studies. You can select several files at once.
-4. Optionally, write a comment.
+1. Click **New convalidation request** to open the form, and mark the subjects you want convalidated.
+2. Pick the **Grounds**.
+3. Under **Supporting documents**, attach the documents needed. You can select several files at once.
+4. Add any comments you want.
 5. Click **Submit request**.
 
 ![New convalidation request form](../../assets/families/convalidations-portal-new.png)
 
-A message confirms the request has been submitted. Modules already requested no longer appear in the form, unless they were rejected.
+### Which documents to attach
+
+| Case | Documents |
+|------|-----------|
+| Studies passed at this centre | None: the centre looks your record up. |
+| Studies passed at another centre | The academic certificate or transcript of the studies passed. |
+| Professional certificate or accreditation of competences | The certificate itself. |
+| University studies or a Ministry resolution | The resolution, if you already have it. |
+
+If anything else is needed, the centre will ask you for it and you can attach it from this same page.
+
+A message confirms the request was submitted. The subjects already requested stop showing in the form, unless they were rejected.
 
 ---
 
-## Following the Request
+## Following the request
 
-Each request appears below the form, with the date, the study and its state:
+Every request shows under the form, with its date, study and state:
 
 | State | Meaning |
 |-------|---------|
-| **Submitted** | The school has not started resolving it yet. |
-| **In progress** | Some modules are resolved or have been forwarded to the Departament d'Educació. |
-| **Resolved** | Every module has a resolution. |
+| **Pending** | The centre has not resolved it yet. |
+| **In progress** | The Head of Studies approved it and the secretariat is registering it. |
+| **Completed** | It is registered. You can see the grade of each convalidated subject. |
+| **Rejected** | The convalidation was not granted. |
 | **Cancelled** | The request was cancelled. |
 
-The table shows the resolution of each module (**Pending**, **Forwarded to the Department of Education**, **Convalidated** or **Rejected**) and the school's remarks.
+The table shows each subject's resolution (**Pending**, **Convalidated** or **Rejected**) and the centre's remarks. Once the request is **Completed**, the **Grade** column shows up too.
 
 ![A request on the portal](../../assets/families/convalidations-portal-request.png)
 
-When every module is resolved, you receive an email with the resolution. The request, its cancellation and the resolution are also recorded on the **Communications** page.
+When the request is completed or rejected you get an email with the resolution. The request, its cancellation and the resolution are also recorded on the **Communications** page.
 
 ---
 
-## Cancelling a Request
+## Answering or adding documentation
 
-While a request is **Submitted**, click **Cancel request** in its box.
+While the request is **Pending** or **In progress**, its card offers **Answer or add documentation**: write your answer, attach the files you were asked for and click **Send**. The documents are added to the request.
 
 ---
 
-[← Back to main index](index.md)
+## Cancelling a request
+
+While a request is **Pending**, click **Cancel request** on its card.
+
+---
+
+[← Back to the index](index.md)

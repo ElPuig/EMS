@@ -11,7 +11,7 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 ## Manuales disponibles
 
 - [Histórico académico: consultas de cohorte](academic-history.md)
-- [Convalidaciones: resolver las solicitudes](convalidations.md)
+- [Convalidaciones: validar las solicitudes](convalidations.md)
 - [Gestión de contactos de alumnos y familias](../secretary/student-contacts.md) — tienes el mismo acceso completo de lectura/escritura que secretaría aquí, para cualquier alumno de todo el centro.
 - [Credenciales de Google del alumnado](../tutors/google-credentials.md) — consultarlas y restablecer la contraseña, los mismos pasos que los tutores, para el alumnado de los tutores de tu área.
 - [Decidir sobre solicitudes de corrección de fichajes](attendance-corrections.md)

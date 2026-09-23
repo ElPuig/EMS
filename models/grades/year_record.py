@@ -213,6 +213,7 @@ class EmsStudentYearRecord(models.Model):
                 'final_grade': last.final_score,
                 'has_final': last.has_final,
                 'is_convalidated': last.is_convalidated,
+                'convalidation_grade': last.convalidation_grade,
                 'state': state,
                 'notes': last.notes,
                 'attendance_rate': subject_rates.get(subject, 0.0),
@@ -349,6 +350,9 @@ class EmsStudentYearRecordSubject(models.Model):
     # Copied from the live grade line, and kept in sync afterwards for a convalidation resolved
     # once the year is already frozen (see _ems_set_convalidated).
     is_convalidated = fields.Boolean(string="Convalidated", default=False)
+    convalidation_grade = fields.Integer(string="Convalidation grade", default=0,
+                                         help="Grade the convalidation was resolved with. Only meaningful "
+                                              "while 'Convalidated' is set.")
     # Trace of the last grade review applied to this subject (issue #493). A grade review is a
     # formal, signed resolution taken once the academic file is already closed, so the
     # record keeps who applied it, when and what it resolved; the detail of every change
@@ -374,17 +378,18 @@ class EmsStudentYearRecordSubject(models.Model):
         for subject_record in self:
             subject_record.display_name = subject_record.subject_name or ""
 
-    def _ems_set_convalidated(self, convalidated):
-        """Apply a convalidation resolved after this subject was frozen. Granting it passes the
-        subject with CONVALIDATED_GRADE; revoking it rebuilds state and final from what the
-        record itself holds (its RAs, internal and external grades), exactly as the generator
-        and apply_external_grade() derive them."""
+    def _ems_set_convalidated(self, convalidated, grade=CONVALIDATED_GRADE):
+        """Apply a convalidation completed after this subject was frozen. Granting it passes the
+        subject with the grade the resolution carries; revoking it rebuilds state and final from
+        what the record itself holds (its RAs, internal and external grades), exactly as the
+        generator and apply_external_grade() derive them."""
         for subject_record in self:
             if convalidated:
                 subject_record.write({
                     'is_convalidated': True,
+                    'convalidation_grade': grade,
                     'state': 'passed',
-                    'final_grade': CONVALIDATED_GRADE,
+                    'final_grade': grade,
                     'has_final': True,
                 })
                 continue
@@ -397,6 +402,7 @@ class EmsStudentYearRecordSubject(models.Model):
                 subject_record.internal_weight, subject_record.external_weight)
             subject_record.write({
                 'is_convalidated': False,
+                'convalidation_grade': 0,
                 'state': 'passed' if passed else 'failed',
                 'final_grade': final_grade,
                 'has_final': has_final,
@@ -411,8 +417,12 @@ class EmsStudentYearRecordSubject(models.Model):
         with the weights frozen in the record. The state follows the same rule the freeze
         applies (ems.student.year_record._outcome_vals_and_state): passed only when every RA is
         resolved at 5 or above. is_overridden is cleared: after a grade review the internal grade
-        is the one its RAs yield, no longer a teacher's manual override of them."""
-        for subject_record in self:
+        is the one its RAs yield, no longer a teacher's manual override of them.
+
+        A convalidated subject is left alone (issue #276): its grade comes from a convalidation
+        resolution, not from the RAs of a course the student never took here, so recomputing it
+        would silently wipe the resolution."""
+        for subject_record in self.filtered(lambda record: not record.is_convalidated):
             outcomes = subject_record.outcome_record_ids
             subject_record.write(self._values_from_outcomes(
                 [(outcome.final_score, outcome.weight)

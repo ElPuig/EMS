@@ -378,7 +378,8 @@ export class GradeMatrixField extends Component {
 
     finalScore(row) {
         if (row.subject && row.subject.data.is_convalidated) {
-            return _t("CV");
+            // The convalidation's own grade, marked as such: it is a resolution, not an evaluation.
+            return `${this.formatScore(row.subject.data.final_score)} ${_t("CV")}`;
         }
         return this.hasFinal(row) ? this.formatScore(row.subject.data.final_score) + this.provisionalMark(row) : "";
     }

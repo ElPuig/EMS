@@ -14,21 +14,30 @@ Solo se pueden solicitar convalidaciones en los ciclos formativos (CFGM y CFGS).
 
 En la página de inicio del portal, haz clic en la tarjeta **Convalidaciones**, o en **Convalidaciones** en la barra superior.
 
-Si sois una familia con más de un hijo en el centro, primero elige el hijo en la barra superior del portal: la solicitud siempre se hace para el hijo seleccionado.
+Si sois una familia con más de un hijo en el centro, elige primero el hijo en la barra superior del portal: la solicitud siempre se hace para el hijo seleccionado.
 
 ---
 
 ## Hacer una solicitud
 
-Antes de empezar, ten preparado en PDF o en imagen el certificado académico o el expediente de los estudios que has superado.
-
 1. Haz clic en **Nueva solicitud de convalidación** para abrir el formulario, y marca los módulos que quieres convalidar.
 2. Elige el **Motivo**.
-3. En **Documentación justificativa**, adjunta el certificado y cualquier otro documento que acredite los estudios. Puedes seleccionar varios ficheros a la vez.
+3. En **Documentación justificativa**, adjunta los documentos que hagan falta. Puedes seleccionar varios archivos a la vez.
 4. Si quieres, escribe observaciones.
 5. Haz clic en **Enviar la solicitud**.
 
 ![Formulario de nueva solicitud de convalidación](../../assets/families/convalidations-portal-new.png)
+
+### Qué documentación hay que adjuntar
+
+| Caso | Documentación |
+|------|---------------|
+| Estudios superados en este centro | Ninguna: el centro consulta tu expediente. |
+| Estudios superados en otro centro | El certificado académico o el expediente de los estudios superados. |
+| Certificado de profesionalidad o acreditación de competencias | El certificado mismo. |
+| Estudios universitarios o resolución del Ministerio | La resolución, si ya la tienes. |
+
+Si falta algo, el centro te lo pedirá y lo podrás adjuntar desde esta misma página.
 
 Un mensaje confirma que la solicitud se ha enviado. Los módulos ya solicitados dejan de aparecer en el formulario, salvo que se hayan rechazado.
 
@@ -36,26 +45,33 @@ Un mensaje confirma que la solicitud se ha enviado. Los módulos ya solicitados 
 
 ## Seguir la solicitud
 
-Cada solicitud aparece debajo del formulario, con la fecha, el estudio y su estado:
+Cada solicitud aparece bajo el formulario, con la fecha, el estudio y el estado:
 
 | Estado | Significado |
 |--------|-------------|
-| **Enviado** | El centro todavía no ha empezado a resolverla. |
-| **En proceso** | Hay módulos resueltos o derivados al Departament d'Educació. |
-| **Resuelta** | Todos los módulos tienen resolución. |
-| **Cancelado** | La solicitud se ha anulado. |
+| **Pendiente** | El centro todavía no la ha resuelto. |
+| **En proceso** | Jefatura de Estudios la ha aprobado y secretaría la está registrando. |
+| **Completada** | Ya está registrada. Ves la nota de cada módulo convalidado. |
+| **Rechazada** | No se ha concedido la convalidación. |
+| **Anulada** | La solicitud se ha anulado. |
 
-La tabla muestra la resolución de cada módulo (**Pendiente**, **Derivado al Departament d'Educació**, **Convalidado** o **Rechazado**) y las observaciones del centro.
+La tabla muestra la resolución de cada módulo (**Pendiente**, **Convalidado** o **Rechazado**) y las observaciones del centro. Cuando la solicitud está **Completada**, aparece también la columna **Nota**.
 
 ![Una solicitud en el portal](../../assets/families/convalidations-portal-request.png)
 
-Cuando todos los módulos están resueltos, recibirás un correo con la resolución. La solicitud, su anulación y la resolución también quedan registradas en la página **Comunicaciones**.
+Cuando la solicitud se completa o se rechaza, recibirás un correo con la resolución. La solicitud, su anulación y la resolución también quedan registradas en la página **Comunicaciones**.
+
+---
+
+## Responder o añadir documentación
+
+Mientras la solicitud está **Pendiente** o **En proceso**, en su recuadro hay **Responde o añade documentación**: escribe la respuesta, adjunta los archivos que te pidan y haz clic en **Enviar**. Los documentos se añaden a la solicitud.
 
 ---
 
 ## Anular una solicitud
 
-Mientras una solicitud está **Enviado**, haz clic en **Anular la solicitud** en su recuadro.
+Mientras una solicitud está **Pendiente**, haz clic en **Anular la solicitud** en su recuadro.
 
 ---
 

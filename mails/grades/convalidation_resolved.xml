@@ -27,7 +27,8 @@
                             <li t-foreach="object.line_ids" t-as="line">
                                 <t t-out="line.subject_id.display_name"/>:
                                 <strong t-if="line.state == 'granted'">convalidated</strong>
-                                <strong t-else="">rejected</strong>
+                                <t t-if="line.state == 'granted'"> (grade <t t-out="line.grade"/>)</t>
+                                <strong t-if="line.state != 'granted'">rejected</strong>
                                 <t t-if="line.resolution_notes"> (<t t-out="line.resolution_notes"/>)</t>
                             </li>
                         </ul>
@@ -62,7 +63,8 @@
                             <li t-foreach="object.line_ids" t-as="line">
                                 <t t-out="line.subject_id.display_name"/>:
                                 <strong t-if="line.state == 'granted'">convalidat</strong>
-                                <strong t-else="">denegat</strong>
+                                <t t-if="line.state == 'granted'"> (nota <t t-out="line.grade"/>)</t>
+                                <strong t-if="line.state != 'granted'">denegat</strong>
                                 <t t-if="line.resolution_notes"> (<t t-out="line.resolution_notes"/>)</t>
                             </li>
                         </ul>
@@ -97,7 +99,8 @@
                             <li t-foreach="object.line_ids" t-as="line">
                                 <t t-out="line.subject_id.display_name"/>:
                                 <strong t-if="line.state == 'granted'">convalidado</strong>
-                                <strong t-else="">denegado</strong>
+                                <t t-if="line.state == 'granted'"> (nota <t t-out="line.grade"/>)</t>
+                                <strong t-if="line.state != 'granted'">denegado</strong>
                                 <t t-if="line.resolution_notes"> (<t t-out="line.resolution_notes"/>)</t>
                             </li>
                         </ul>

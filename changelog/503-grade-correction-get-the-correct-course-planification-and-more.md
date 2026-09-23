@@ -19,11 +19,13 @@ automatically as part of the course transition.
 When correcting a closed academic year's grades, the internal grade ("Nota del centre") can now
 be typed in directly instead of always being calculated from the learning outcomes - useful when
 Esfera's official record differs slightly (typically a rounding difference) from what the
-outcome-based calculation gives. The final grade is still recalculated automatically from
-whichever value is in force, and the correction can never flip whether the subject is actually
-passed - only the exact number can be adjusted, never the pass/fail outcome the learning
-outcomes already determine. The override checkbox sits right next to the internal grade field
-itself, so it's clear at a glance which value it controls.
+outcome-based calculation gives. The review screen shows the calculated grade, the grade that
+will actually be applied, and the final grade side by side on one row - the same
+calculated/applied shape already used for each learning outcome's own grade - so typing a
+different value into the applied field is all it takes, no separate checkbox involved. The final
+grade is still recalculated automatically from whichever value is in force, and the correction
+can never flip whether the subject is actually passed - only the exact number can be adjusted,
+never the pass/fail outcome the learning outcomes already determine.
 
 # Fixes
 

@@ -20,7 +20,7 @@ Every validated request lands in the activity inbox (🕒) of everyone in the se
 
 ## Access
 
-Go to: **Academic management → Convalidations** and apply the **Pending the secretariat** filter.
+Go to: **Academic management → Convalidations** and apply the **Pending the secretariat** filter. You can also search a request by its **registration number** (e.g. CONV-2026-27-0001).
 
 To see a student's requests, open their form and click the **Convalidations** button.
 
@@ -36,7 +36,9 @@ To see a student's requests, open their form and click the **Convalidations** bu
 Once completed:
 
 - The student (or the family of a minor) gets an email with the resolution and the grade of each subject.
-- The grade shows in the student's grades and in the academic history, with the **CV** mark.
+- The student stops taking each convalidated subject: their enrollment in it is deleted, so they leave its attendance lists and the open grade session, even if the teacher had already graded them.
+- The subject's teachers and the group's tutor get a **Convalidated subject** activity in their inbox (🕒).
+- The academic history records the subject as passed, with its grade, the **CV** mark and the registration number.
 - The request is **Completed** and can no longer be changed.
 
 ---

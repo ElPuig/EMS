@@ -40,6 +40,7 @@ Cada solicitud nueva aparece también en la bandeja de actividades (🕒) de qui
 
 Abre la solicitud desde la lista. El formulario muestra:
 
+- El **número de registro** de la solicitud (por ejemplo CONV-2026-27-0001), encima del nombre del alumno. Se puede buscar en la lista.
 - **Estudio**, **Curso** y **Motivo** de la solicitud.
 - Bajo el nombre del alumno, el aviso **Tiene una titulación obtenida en el centro** cuando en el historial académico consta un título obtenido aquí.
 - Pestaña **Asignaturas**: una línea por cada módulo solicitado, con la resolución, la nota y las observaciones.
@@ -84,7 +85,7 @@ Cuando todos los módulos estén resueltos, haz clic en **Validar**:
 
 **Rechazar** cierra la solicitud entera e informa al alumno.
 
-La nota no llega a las calificaciones del alumno hasta que secretaría completa la solicitud. A partir de ese momento, cada módulo convalidado muestra la nota con la marca **CV** en las pantallas de calificaciones y en el historial académico.
+La nota no llega a las calificaciones del alumno hasta que secretaría completa la solicitud. En ese momento el alumno deja de cursar cada módulo convalidado, el profesorado del módulo y el tutor reciben el aviso, y el historial académico lo recoge como aprobado con la nota, la marca **CV** y el número de registro.
 
 ---
 

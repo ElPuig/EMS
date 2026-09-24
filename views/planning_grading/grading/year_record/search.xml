@@ -11,6 +11,11 @@
                     <field name="group_id"/>
                     <field name="study_name"/>
                     <field name="group_name"/>
+                    <filter name="current_course" string="Current course"
+                            domain="[('is_provisional', '=', True)]"/>
+                    <filter name="closed_courses" string="Closed courses"
+                            domain="[('is_provisional', '=', False)]"/>
+                    <separator/>
                     <filter name="title_obtained" string="Title obtained"
                             domain="[('title_obtained', '=', True)]"/>
                     <filter name="final_pending" string="Finals pending placement"

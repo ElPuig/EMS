@@ -45,13 +45,13 @@ Un missatge confirma que la sol·licitud s'ha enviat. Els mòduls ja sol·licita
 
 ## Seguir la sol·licitud
 
-Cada sol·licitud apareix sota el formulari, amb la data, l'estudi i l'estat:
+Cada sol·licitud apareix sota el formulari, amb el seu número de registre (per exemple CONV-2026-27-0001), la data, l'estudi i l'estat:
 
 | Estat | Significat |
 |-------|------------|
 | **Pendent** | El centre encara no l'ha resolt. |
 | **En procés** | El Cap d'Estudis l'ha aprovada i secretaria l'està registrant. |
-| **Completada** | Ja està registrada. Hi veus la nota de cada mòdul convalidat. |
+| **Completada** | Ja està registrada. Hi veus la nota de cada mòdul convalidat, i ja no has d'assistir a aquests mòduls. |
 | **Rebutjada** | No s'ha concedit la convalidació. |
 | **Anul·lada** | La sol·licitud s'ha anul·lat. |
 

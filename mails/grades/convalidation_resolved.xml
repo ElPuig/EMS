@@ -20,7 +20,7 @@
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Hello,</p>
                         <p>
-                            The convalidation request of <strong t-out="object.student_id.name"/>
+                            The convalidation request <strong t-out="object.name"/> of <strong t-out="object.student_id.name"/>
                             for <strong t-out="object.study_id.name"/> has been resolved:
                         </p>
                         <ul>
@@ -56,7 +56,7 @@
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Hola,</p>
                         <p>
-                            S'ha resolt la sol·licitud de convalidació de <strong t-out="object.student_id.name"/>
+                            S'ha resolt la sol·licitud de convalidació <strong t-out="object.name"/> de <strong t-out="object.student_id.name"/>
                             per a <strong t-out="object.study_id.name"/>:
                         </p>
                         <ul>
@@ -92,7 +92,7 @@
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Hola:</p>
                         <p>
-                            Se ha resuelto la solicitud de convalidación de <strong t-out="object.student_id.name"/>
+                            Se ha resuelto la solicitud de convalidación <strong t-out="object.name"/> de <strong t-out="object.student_id.name"/>
                             para <strong t-out="object.study_id.name"/>:
                         </p>
                         <ul>

@@ -27,7 +27,9 @@ registry.category("web_tour.tours").add("ems_convalidation_resolve", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row td[name='grade']",
+            // The grade only shows on a granted line: waiting for the default 5 means the grant
+            // has been saved and the row re-rendered, so the click below is not lost to it.
+            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row td[name='grade']:contains('5')",
             content: "Write the grade the previous studies hold",
             run: "click",
         },
@@ -199,6 +201,28 @@ registry.category("web_tour.tours").add("ems_portal_convalidation_submit", {
         {
             trigger: ".o_ems_convalidation_replied",
             content: "The answer is confirmed",
+        },
+    ],
+});
+
+// A teacher finds a subject convalidated during the running course in the academic history:
+// the course's record is open already, marked as the current one.
+// Opened straight from its URL: the history list starts grouped by course (the list itself is
+// covered by year_record_tour.js).
+registry.category("web_tour.tours").add("ems_convalidation_history_current_course", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .ribbon",
+            content: "It is marked as the current course",
+        },
+        {
+            trigger: ".o_form_view .alert-info",
+            content: "and explains the rest of the subjects come when the course closes",
+        },
+        {
+            trigger: ".o_form_view .o_data_row td[name='convalidation_number']:contains('CONV-')",
+            content: "The convalidated subject carries its registration number",
         },
     ],
 });

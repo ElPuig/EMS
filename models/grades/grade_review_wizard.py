@@ -184,6 +184,11 @@ class EmsGradeReviewWizard(models.TransientModel):
         chatter."""
         self.ensure_one()
         self._check_can_review()
+        # A course still running is corrected in its grade sessions, not here (see the module
+        # header): its record only holds the subjects convalidated so far (issue #276).
+        if self.record_id.is_provisional:
+            raise UserError(_("This course is still running: correct its grades in the grade "
+                              "sessions. A grade review only applies to closed courses."))
         # Read while the record is still whole: 'remove' deletes what the preview is computed
         # from, and reading it afterwards would only raise on a record that no longer exists.
         previous_result = self.record_id.academic_result

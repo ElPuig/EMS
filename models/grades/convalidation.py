@@ -23,6 +23,9 @@ class EmsConvalidation(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'submission_date desc, id desc'
 
+    name = fields.Char(string="Registration number", readonly=True, copy=False, index=True,
+                       help="Registry entry of the request, e.g. CONV-2026-27-0001: the course it applies "
+                            "to and a number that starts again every course. Assigned on submission.")
     student_id = fields.Many2one(string="Student", comodel_name='res.partner', required=True,
                                  ondelete='restrict', index=True, tracking=True,
                                  domain="[('contact_type', 'in', ('student', 'applicant'))]")
@@ -101,11 +104,11 @@ class EmsConvalidation(models.Model):
         for convalidation in self:
             convalidation.has_centre_title = convalidation.student_id.id in with_title
 
-    @api.depends('student_id', 'course_id')
+    @api.depends('name', 'student_id', 'course_id')
     def _compute_display_name(self):
         for convalidation in self:
-            convalidation.display_name = \
-                f"{convalidation.student_id.display_name or ''} ({convalidation.course_id.name or ''})"
+            label = f"{convalidation.student_id.display_name or ''} ({convalidation.course_id.name or ''})"
+            convalidation.display_name = f"{convalidation.name} - {label}" if convalidation.name else label
 
     @api.constrains('study_id')
     def _check_study_allows_convalidation(self):
@@ -124,6 +127,10 @@ class EmsConvalidation(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        for vals in vals_list:
+            if not vals.get('name'):
+                course = self.env['ems.course'].browse(vals.get('course_id')) or self._default_course_id()
+                vals['name'] = self._ems_next_registration_number(course)
         # Nobody follows a request on creation: the portal creates it on the student's behalf,
         # and a follower would get an email for every message posted to the student's
         # Communications page (see _ems_post_communication) on top of the resolution email.
@@ -161,6 +168,26 @@ class EmsConvalidation(models.Model):
             convalidation.attachment_ids.filtered(lambda attachment: not attachment.res_id).sudo().write({
                 'res_model': self._name, 'res_id': convalidation.id,
             })
+
+    @api.model
+    def _ems_next_registration_number(self, course):
+        """Next registry entry for `course`: CONV-<start>-<end, two digits>-<4-digit counter>,
+        the counter starting again every course. One ir.sequence per course, created the first
+        time that course gets a request, so nothing has to be prepared before a new year opens.
+        sudo: the request is usually filed from the portal."""
+        if not course:
+            return False
+        Sequence = self.env['ir.sequence'].sudo()
+        code = f'ems.convalidation.course.{course.id}'
+        if not Sequence.search_count([('code', '=', code)]):
+            Sequence.create({
+                'name': f"Convalidations {course.name}",
+                'code': code,
+                'prefix': f"CONV-{course.start}-{str(course.end)[-2:]}-",
+                'padding': 4,
+                'company_id': False,
+            })
+        return Sequence.next_by_code(code)
 
     # --- who may do what -----------------------------------------------------
 
@@ -349,6 +376,54 @@ class EmsConvalidation(models.Model):
         self._ems_close_tasks()
         for convalidation in self:
             convalidation._ems_send_resolution()
+        self._ems_withdraw_convalidated_subjects()
+
+    def _ems_withdraw_convalidated_subjects(self):
+        """The student stops taking every subject the request convalidated: their subject
+        enrollment is deleted - grades already written included, the convalidation replaces them
+        - which drops them from the attendance lists and from the open grade sessions, the same
+        cascade as any other deleted enrollment. The history keeps the subject all the same
+        (ems.student.year_record adds it from the convalidation), and whoever teaches it, plus
+        the group's tutor, is told with an activity on the student.
+
+        Resolved before deleting: the enrollment is what says which group the subject was taught
+        in. A request completed before the student is placed has nothing to delete yet; the
+        placement itself skips convalidated subjects (sale.order._ems_apply_destination_placement)."""
+        Enrollment = self.env['ems.enrollment'].sudo().with_context(ems_bypass_grade_guard=True)
+        for line in self.line_ids.filtered(lambda line: line.state == 'granted'):
+            student = line.student_id.sudo()
+            enrollments = Enrollment.search([('student_id', '=', student.id), ('subject_id', '=', line.subject_id.id)])
+            groups = enrollments.group_id or student.main_group_id
+            teachings = self.env['ems.teaching'].sudo().search([
+                ('group_id', 'in', groups.ids), ('subject_id', '=', line.subject_id.id), ('active', '=', True)])
+            staff = (teachings.teacher_id | groups.tutor_id).user_id
+            enrollments.unlink()
+            line.convalidation_id._ems_notify_teaching_staff(line, staff)
+
+    def _ems_notify_teaching_staff(self, line, users):
+        """A to-do on the student for each teacher of the convalidated subject and the group's
+        tutor, the only notice they get: teachers cannot open convalidation requests, but they
+        can open the student. Nobody is left following the student because of it."""
+        self.ensure_one()
+        users = users.filtered(lambda user: user.active and user.id != SUPERUSER_ID)
+        if not users:
+            return
+        student = line.student_id.sudo().with_context(mail_activity_quick_update=True)
+        followers = student.message_partner_ids
+        note = Markup("<p>{}</p>").format(
+            _("%(student)s no longer takes %(subject)s: it has been convalidated with a %(grade)s "
+              "(registration %(number)s). They are no longer in its attendance lists or grades.") % {
+                'student': student.name, 'subject': line.subject_id.display_name,
+                'grade': line.grade, 'number': self.name,
+            })
+        for user in users:
+            student.activity_schedule(
+                act_type_xmlid='ems.mail_activity_convalidation_notice',
+                summary=_("Convalidated: %s") % line.subject_id.display_name,
+                note=note, user_id=user.id)
+        newcomers = users.partner_id - followers
+        if newcomers:
+            student.message_unsubscribe(partner_ids=newcomers.ids)
 
     def action_reject(self):
         """Reject the whole request: the Head of Studies while it is pending, the secretariat
@@ -551,17 +626,22 @@ class EmsConvalidationLine(models.Model):
     # --- grades sync ---------------------------------------------------------
 
     @api.model
-    def _ems_convalidation_grade(self, student, subject):
-        """The grade 'subject' is convalidated with for 'student', or None when it is not: only
+    def _ems_convalidation_line(self, student, subject):
+        """The line 'subject' is convalidated through for 'student', or an empty recordset: only
         a granted subject of a completed request counts, since the resolution is not official
         until the secretariat has registered it. sudo: grade lines are created by teachers too,
         who cannot read convalidations."""
-        line = self.sudo().search([
+        return self.sudo().search([
             ('student_id', '=', student.id),
             ('subject_id', '=', subject.id),
             ('state', '=', 'granted'),
             ('convalidation_id.state', '=', 'completed'),
         ], limit=1)
+
+    @api.model
+    def _ems_convalidation_grade(self, student, subject):
+        """The grade 'subject' is convalidated with for 'student', or None when it is not."""
+        line = self._ems_convalidation_line(student, subject)
         return line.grade if line else None
 
     @api.model
@@ -583,8 +663,10 @@ class EmsConvalidationLine(models.Model):
         courses |= extra_courses or self.env['ems.course']
         GradeLine = self.env['ems.grade_subject_line'].sudo().with_context(ems_convalidation_sync=True)
         SubjectRecord = self.env['ems.student.year_record.subject'].sudo()
+        YearRecord = self.env['ems.student.year_record'].sudo()
         for student, subject in pairs:
-            grade = self._ems_convalidation_grade(student, subject)
+            line = self._ems_convalidation_line(student, subject)
+            grade = line.grade if line else None
             convalidated = grade is not None
             GradeLine.search([
                 ('student_id', '=', student.id),
@@ -592,10 +674,31 @@ class EmsConvalidationLine(models.Model):
                 '|', ('is_convalidated', '!=', convalidated),
                 ('convalidation_grade', '!=', grade or 0),
             ]).write({'is_convalidated': convalidated, 'convalidation_grade': grade or 0})
-            SubjectRecord.search([
+            changed = SubjectRecord.search([
                 ('record_id.student_id', '=', student.id),
                 ('record_id.course_id', 'in', courses.ids),
                 ('subject_id', '=', subject.id),
                 '|', ('is_convalidated', '!=', convalidated),
                 ('convalidation_grade', '!=', grade or 0),
-            ])._ems_set_convalidated(convalidated, grade or CONVALIDATED_GRADE)
+            ])
+            # Revoked on a course still running: the subject was only there because of the
+            # convalidation, so it goes (and the record with it once nothing is left).
+            dropped = changed.filtered(lambda record: record.record_id.is_provisional and not convalidated)
+            if dropped:
+                records = dropped.record_id
+                dropped.unlink()
+                records.filtered(lambda record: not record.subject_record_ids).unlink()
+            (changed - dropped)._ems_set_convalidated(
+                convalidated, grade or CONVALIDATED_GRADE, line.convalidation_id)
+            # The convalidation's own course records the subject, whether its history is frozen
+            # already (the student was withdrawn before any round was graded) or not generated
+            # yet: then a provisional record is opened, so the grade shows in the history - the
+            # one place teachers look it up - from the day the request is completed.
+            if convalidated:
+                year_records = YearRecord.search([('student_id', '=', student.id),
+                                                  ('course_id', '=', line.course_id.id)]) \
+                    or YearRecord._ems_provisional_record(student, line.course_id, line.convalidation_id.study_id)
+                for year_record in year_records:
+                    if subject not in year_record.subject_record_ids.subject_id:
+                        year_record.subject_record_ids = [
+                            (0, 0, SubjectRecord._convalidated_vals(line, year_record.study_id))]

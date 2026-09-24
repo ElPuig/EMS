@@ -40,6 +40,7 @@ Every new request also lands in the activity inbox (🕒) of whoever holds the *
 
 Open the request from the list. The form shows:
 
+- The request's **registration number** (e.g. CONV-2026-27-0001), above the student's name. You can search the list by it.
 - **Study**, **Course** and **Grounds** of the request.
 - Under the student's name, the note **Holds a title obtained at this centre** when the academic history records one.
 - **Subjects** tab: one line per requested subject, with its resolution, grade and remarks.
@@ -84,7 +85,7 @@ Once every subject is resolved, click **Validate**:
 
 **Reject** closes the whole request and notifies the student.
 
-The grade does not reach the student's grades until the secretariat completes the request. From then on, each convalidated subject shows its grade with the **CV** mark in the grade screens and in the academic history.
+The grade does not reach the student's grades until the secretariat completes the request. At that point the student stops taking each convalidated subject, its teachers and the tutor are notified, and the academic history records it as passed with its grade, the **CV** mark and the registration number.
 
 ---
 

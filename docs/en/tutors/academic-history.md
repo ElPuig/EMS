@@ -23,6 +23,7 @@ The records are ordered **by study and course**, so you can read each study from
 - **Frozen weights:** the grading weights (internal/EM and per-RA) are the ones in force that course, stored with the record — the history stays valid even if the teaching plan changes later.
 
 > The history is **read-only**: it is a frozen copy of what the grades subsystem computed during the course. If something needs correcting, contact the secretariat or the administrator.
+- **Current course:** a record with this mark belongs to the running course. It only holds the subjects convalidated during the course (with the grade, the **CV** mark and the convalidation file number); the rest of the subjects and the result are added when the course closes.
 
 ## Marking a student as graduating
 

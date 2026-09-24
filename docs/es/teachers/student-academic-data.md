@@ -18,6 +18,8 @@ El historial académico es el registro congelado, curso a curso, de la trayector
 
 Es solo de lectura. Para corregir un registro, contacta con la Secretaría o con el Administrador.
 
+Si un alumno tiene alguna asignatura convalidada durante el curso actual, el historial ya muestra un registro marcado como **Curso actual** con la nota de la convalidación y la marca **CV**. El resto del curso se añade cuando se cierra.
+
 ---
 
 ## Consultar los datos de cualquier alumno (Orientación y Convivencia)

@@ -9,6 +9,7 @@
                 <list string="Convalidations"
                       decoration-muted="state == 'cancelled'"
                       decoration-success="state == 'completed'">
+                    <field name="name"/>
                     <field name="student_id"/>
                     <field name="study_id"/>
                     <field name="course_id" optional="show"/>
@@ -67,6 +68,7 @@
                         <widget name="web_ribbon" title="Rejected" bg_color="text-bg-danger"
                                 invisible="state != 'rejected'"/>
                         <div class="oe_title">
+                            <div class="text-muted" invisible="not name"><field name="name"/></div>
                             <h1><field name="student_id" placeholder="Student" options="{'no_create': True}"/></h1>
                             <field name="has_centre_title" invisible="1"/>
                             <div class="text-muted" invisible="not has_centre_title">
@@ -151,6 +153,7 @@
             <field name="model">ems.convalidation</field>
             <field name="arch" type="xml">
                 <search string="Convalidations">
+                    <field name="name"/>
                     <field name="student_id"/>
                     <field name="study_id"/>
                     <field name="course_id"/>

@@ -60,6 +60,15 @@ class EmsStudentYearRecord(models.Model):
     # study/course granted the title. Independent of academic_result: a student can
     # pass everything and still have requirements pending.
     title_obtained = fields.Boolean(string="Title obtained", default=False)
+    # A record opened before its course ends, so a subject convalidated during the course is
+    # visible in the history straight away (issue #276). It holds only those subjects and no
+    # result yet: the generator rewrites it whole when the course is closed (transition,
+    # graduation or withdrawal), which is what clears the flag. Until then it does not count
+    # as a frozen year - see freeze_on_leaving().
+    is_provisional = fields.Boolean(string="Current course", default=False, readonly=True, index=True,
+                                    help="The course is still running: the record only holds the subjects "
+                                         "convalidated so far, and gets the rest, and its result, when the "
+                                         "course is closed.")
     subject_record_ids = fields.One2many(string="Subjects",
                                          comodel_name='ems.student.year_record.subject',
                                          inverse_name='record_id')
@@ -114,7 +123,10 @@ class EmsStudentYearRecord(models.Model):
         if not course or not origin_group \
                 or origin_group.study_id.transition_state == 'transitioned':
             return self.browse()
-        if self.search_count([('student_id', '=', student.id), ('course_id', '=', course.id)]):
+        # A provisional record (subjects convalidated during the course) is no frozen year: the
+        # history of that course still has to be generated here, or it would keep only those.
+        if self.search_count([('student_id', '=', student.id), ('course_id', '=', course.id),
+                              ('is_provisional', '=', False)]):
             return self.browse()
         return self._generate_one(student, course, group=origin_group)
 
@@ -140,6 +152,8 @@ class EmsStudentYearRecord(models.Model):
             return existing
         attendance_rate, subject_rates = self._attendance_rates(student)
         subject_vals = self._subject_vals(student, subject_rates)
+        subject_vals += self._convalidated_subject_vals(
+            student, course, group.study_id, {vals['subject_id'] for vals in subject_vals})
         all_passed = all(vals['state'] == 'passed' for vals in subject_vals)
         academic_result, title_obtained = self._academic_result(student, course, all_passed)
         exited_this_course = student.exit_course_id == course
@@ -162,6 +176,7 @@ class EmsStudentYearRecord(models.Model):
             'exit_date': student.exit_date if exited_this_course else False,
             'academic_result': academic_result,
             'title_obtained': title_obtained,
+            'is_provisional': False,
             'subject_record_ids': [(0, 0, vals) for vals in subject_vals],
         }
         record = existing
@@ -189,6 +204,45 @@ class EmsStudentYearRecord(models.Model):
                              for subject, subject_lines in by_subject.items()}
 
     @api.model
+    def _ems_provisional_record(self, student, course, study):
+        """Open the record of a course that is still running, to hold the subjects convalidated
+        during it: the history is the one place teachers look a student's grades up, and it
+        does not exist until the course is closed. No result, no title, no subjects yet - the
+        caller adds the convalidated ones. The group is the student's current one only when it
+        belongs to that study (a request completed in summer applies to the next course)."""
+        student = student.sudo()
+        group = student.main_group_id if student.main_group_id.study_id == study else self.env['ems.group']
+        return self.sudo().create({
+            'student_id': student.id,
+            'course_id': course.id,
+            'study_id': study.id,
+            'study_name': study.display_name,
+            'level_id': study.level_id.id,
+            'level_name': study.level_id.display_name,
+            'group_id': group.id,
+            'group_name': group.name,
+            'tutor_id': group.tutor_id.id,
+            'tutor_name': group.tutor_id.name,
+            'shift': group.shift,
+            'is_provisional': True,
+        })
+
+    @api.model
+    def _convalidated_subject_vals(self, student, course, study, taken_subject_ids):
+        """One dict per subject convalidated for `course` that no grade line accounts for.
+        Completing a convalidation deletes the student's enrollment in the subject (issue #276),
+        and with it its open grade lines, so the subject would otherwise vanish from the year
+        it was convalidated in."""
+        lines = self.env['ems.convalidation.line'].sudo().search([
+            ('student_id', '=', student.id),
+            ('course_id', '=', course.id),
+            ('state', '=', 'granted'),
+            ('convalidation_id.state', '=', 'completed'),
+            ('subject_id', 'not in', list(taken_subject_ids)),
+        ])
+        return [self.env['ems.student.year_record.subject']._convalidated_vals(line, study) for line in lines]
+
+    @api.model
     def _subject_vals(self, student, subject_rates):
         """One dict per subject with a grade line, copied from the LAST round's
         ems.grade_subject_line, freezing the planning weights in force."""
@@ -199,8 +253,11 @@ class EmsStudentYearRecord(models.Model):
             # round is a single-digit selection, so a string comparison is enough.
             last = max(subject_lines, key=lambda line: line.grade_session_id.round)
             outcome_vals, state = self._outcome_vals_and_state(student, subject)
+            convalidation = self.env['ems.convalidation']
             if last.is_convalidated:
                 state = 'passed'
+                convalidation = self.env['ems.convalidation.line']._ems_convalidation_line(
+                    student, subject).convalidation_id
             vals_list.append({
                 'subject_id': subject.id,
                 'subject_name': subject.display_name,
@@ -214,6 +271,7 @@ class EmsStudentYearRecord(models.Model):
                 'has_final': last.has_final,
                 'is_convalidated': last.is_convalidated,
                 'convalidation_grade': last.convalidation_grade,
+                'convalidation_number': convalidation.name or False,
                 'state': state,
                 'notes': last.notes,
                 'attendance_rate': subject_rates.get(subject, 0.0),
@@ -353,6 +411,11 @@ class EmsStudentYearRecordSubject(models.Model):
     convalidation_grade = fields.Integer(string="Convalidation grade", default=0,
                                          help="Grade the convalidation was resolved with. Only meaningful "
                                               "while 'Convalidated' is set.")
+    # Frozen as text, like the rest of the history (subject_name, tutor_name...): the record must
+    # read the same for everyone, and most of its readers (teachers) cannot open a request.
+    convalidation_number = fields.Char(string="Convalidation file", readonly=True,
+                                       help="Registration number of the convalidation request the subject "
+                                            "was passed through, e.g. CONV-2026-27-0001.")
     # Trace of the last grade review applied to this subject (issue #493). A grade review is a
     # formal, signed resolution taken once the academic file is already closed, so the
     # record keeps who applied it, when and what it resolved; the detail of every change
@@ -378,7 +441,27 @@ class EmsStudentYearRecordSubject(models.Model):
         for subject_record in self:
             subject_record.display_name = subject_record.subject_name or ""
 
-    def _ems_set_convalidated(self, convalidated, grade=CONVALIDATED_GRADE):
+    @api.model
+    def _convalidated_vals(self, line, study):
+        """An archived subject passed through a convalidation line: no learning outcomes of its
+        own, the grade the convalidation was resolved with, and the weights of the study's
+        teaching plan so the record reads like any other."""
+        planning = self.env['ems.planning'].sudo().search([
+            ('study_id', '=', study.id), ('subject_id', '=', line.subject_id.id)], limit=1)
+        return {
+            'subject_id': line.subject_id.id,
+            'subject_name': line.subject_id.display_name,
+            'internal_weight': planning.internal_ponderation if planning else 100.0,
+            'external_weight': planning.external_ponderation if planning else 0.0,
+            'is_convalidated': True,
+            'convalidation_grade': line.grade,
+            'convalidation_number': line.convalidation_id.name or False,
+            'state': 'passed',
+            'final_grade': line.grade,
+            'has_final': True,
+        }
+
+    def _ems_set_convalidated(self, convalidated, grade=CONVALIDATED_GRADE, convalidation=None):
         """Apply a convalidation completed after this subject was frozen. Granting it passes the
         subject with the grade the resolution carries; revoking it rebuilds state and final from
         what the record itself holds (its RAs, internal and external grades), exactly as the
@@ -388,6 +471,7 @@ class EmsStudentYearRecordSubject(models.Model):
                 subject_record.write({
                     'is_convalidated': True,
                     'convalidation_grade': grade,
+                    'convalidation_number': convalidation.name if convalidation else False,
                     'state': 'passed',
                     'final_grade': grade,
                     'has_final': True,
@@ -403,6 +487,7 @@ class EmsStudentYearRecordSubject(models.Model):
             subject_record.write({
                 'is_convalidated': False,
                 'convalidation_grade': 0,
+                'convalidation_number': False,
                 'state': 'passed' if passed else 'failed',
                 'final_grade': final_grade,
                 'has_final': has_final,

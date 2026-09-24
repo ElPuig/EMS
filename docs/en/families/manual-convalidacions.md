@@ -45,13 +45,13 @@ A message confirms the request was submitted. The subjects already requested sto
 
 ## Following the request
 
-Every request shows under the form, with its date, study and state:
+Every request shows under the form, with its registration number (e.g. CONV-2026-27-0001), date, study and state:
 
 | State | Meaning |
 |-------|---------|
 | **Pending** | The centre has not resolved it yet. |
 | **In progress** | The Head of Studies approved it and the secretariat is registering it. |
-| **Completed** | It is registered. You can see the grade of each convalidated subject. |
+| **Completed** | It is registered. You can see the grade of each convalidated subject, and you no longer attend those subjects. |
 | **Rejected** | The convalidation was not granted. |
 | **Cancelled** | The request was cancelled. |
 

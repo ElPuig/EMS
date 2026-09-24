@@ -121,6 +121,7 @@
                                 <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
                                     <span>
                                         <i class="fa fa-file-text-o me-2"/>
+                                        <strong t-if="convalidation.name" class="me-1" t-esc="convalidation.name"/>
                                         <t t-esc="convalidation.submission_date" t-options='{"widget": "date"}'/>
                                         - <t t-esc="convalidation.study_id.name"/>
                                     </span>

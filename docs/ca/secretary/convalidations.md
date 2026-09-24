@@ -20,7 +20,7 @@ Cada sol·licitud validada apareix a la safata d'activitats (🕒) de tot el per
 
 ## Accés
 
-Navega a: **Gestió acadèmica → Convalidacions** i aplica el filtre **Pendents de secretaria**.
+Navega a: **Gestió acadèmica → Convalidacions** i aplica el filtre **Pendents de secretaria**. També pots cercar una sol·licitud pel seu **número de registre** (per exemple CONV-2026-27-0001).
 
 Per veure les sol·licituds d'un alumne, obre la seva fitxa i fes clic al botó **Convalidacions**.
 
@@ -36,7 +36,9 @@ Per veure les sol·licituds d'un alumne, obre la seva fitxa i fes clic al botó 
 En completar-la:
 
 - L'alumne (o la família, si és menor) rep un correu amb la resolució i la nota de cada mòdul.
-- La nota apareix a les qualificacions de l'alumne i a l'històric acadèmic, amb la marca **CV**.
+- L'alumne deixa de cursar cada mòdul convalidat: se li esborra la matrícula del mòdul, de manera que surt de les llistes d'assistència i de la sessió de notes oberta, encara que el professor ja li hagués posat alguna nota.
+- El professorat del mòdul i el tutor del grup reben una activitat **Assignatura convalidada** a la safata (🕒).
+- L'històric acadèmic recull el mòdul com a aprovat, amb la nota, la marca **CV** i el número de registre.
 - La sol·licitud queda **Completada** i ja no es pot modificar.
 
 ---

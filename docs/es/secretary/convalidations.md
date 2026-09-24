@@ -20,7 +20,7 @@ Cada solicitud validada aparece en la bandeja de actividades (🕒) de todo el p
 
 ## Acceso
 
-Navega a: **Gestión académica → Convalidaciones** y aplica el filtro **Pendientes de secretaría**.
+Navega a: **Gestión académica → Convalidaciones** y aplica el filtro **Pendientes de secretaría**. También puedes buscar una solicitud por su **número de registro** (por ejemplo CONV-2026-27-0001).
 
 Para ver las solicitudes de un alumno, abre su ficha y haz clic en el botón **Convalidaciones**.
 
@@ -36,7 +36,9 @@ Para ver las solicitudes de un alumno, abre su ficha y haz clic en el botón **C
 Al completarla:
 
 - El alumno (o la familia, si es menor) recibe un correo con la resolución y la nota de cada módulo.
-- La nota aparece en las calificaciones del alumno y en el historial académico, con la marca **CV**.
+- El alumno deja de cursar cada módulo convalidado: se le borra la matrícula del módulo, de modo que sale de las listas de asistencia y de la sesión de notas abierta, aunque el profesor ya le hubiera puesto alguna nota.
+- El profesorado del módulo y el tutor del grupo reciben una actividad **Asignatura convalidada** en la bandeja (🕒).
+- El historial académico recoge el módulo como aprobado, con la nota, la marca **CV** y el número de registro.
 - La solicitud queda **Completada** y ya no se puede modificar.
 
 ---

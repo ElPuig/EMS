@@ -452,7 +452,8 @@ class TestConvalidation(TransactionCase):
     # --- grades --------------------------------------------------------------
 
     def test_grades_only_change_once_the_secretariat_completes(self):
-        grade_line = self._enroll_and_grade()
+        """A round already closed keeps the student's line, now reading the convalidation."""
+        grade_line = self._enroll_and_grade(state='final')
         request = self._validated(grade=7)
         self.assertFalse(grade_line.is_convalidated)
         self.assertFalse(grade_line.has_final)
@@ -463,9 +464,79 @@ class TestConvalidation(TransactionCase):
         self.assertEqual(grade_line.final_score, 7)
 
     def test_default_grade_reaches_the_grades(self):
-        grade_line = self._enroll_and_grade()
+        grade_line = self._enroll_and_grade(state='final')
         self._completed()
         self.assertEqual(grade_line.final_score, 5)
+
+    # --- the student stops taking the subject --------------------------------
+
+    def test_completion_withdraws_the_student_from_the_subject(self):
+        """Even with grades already written: the convalidation replaces them."""
+        grade_line = self._enroll_and_grade()
+        session = grade_line.grade_session_id
+        session.grade_outcome_line_ids.filtered(lambda line: line.student_id == self.student).write(
+            {'score': 6, 'is_scored': True})
+        self._completed()
+        self.assertFalse(self.env['ems.enrollment'].search([
+            ('student_id', '=', self.student.id), ('subject_id', '=', self.subject.id)]))
+        self.assertFalse(grade_line.exists())
+        self.assertNotIn(self.student, session.grade_outcome_line_ids.student_id)
+
+    def test_only_granted_subjects_are_withdrawn(self):
+        self._enroll_and_grade()
+        self._enroll_and_grade(self.other_subject)
+        request = self._request(self.subject | self.other_subject)
+        self._line(request).with_user(self.head_of_studies).action_grant()
+        self._line(request, self.other_subject).with_user(self.head_of_studies).action_reject()
+        request.with_user(self.head_of_studies).action_validate()
+        request.with_user(self.secretary).action_complete()
+        enrolled = self.env['ems.enrollment'].search([('student_id', '=', self.student.id)]).subject_id
+        self.assertEqual(enrolled, self.other_subject)
+
+    def test_validation_alone_does_not_withdraw(self):
+        self._enroll_and_grade()
+        self._validated()
+        self.assertTrue(self.env['ems.enrollment'].search([
+            ('student_id', '=', self.student.id), ('subject_id', '=', self.subject.id)]))
+
+    def test_placement_does_not_enrol_a_convalidated_subject(self):
+        self._completed()
+        order = self.env['sale.order'].create({
+            'partner_id': self.student.id, 'ems_study_id': self.study.id,
+            'ems_course_id': self.course.id, 'ems_group_id': self.group.id, 'shift': 'morning',
+        })
+        order.order_line = [(0, 0, {'product_id': subject.product_id.id})
+                            for subject in (self.subject | self.other_subject)]
+        order._ems_apply_destination_placement()
+        enrolled = self.env['ems.enrollment'].search([('student_id', '=', self.student.id)]).subject_id
+        self.assertEqual(enrolled, self.other_subject)
+
+    def test_teaching_staff_get_a_notice_on_the_student(self):
+        teacher_employee = self.teacher.employee_ids[:1]
+        tutor = create_role_user(self, 'teacher', 'test_convalidation_tutor', name='Convalidation Tutor')
+        self.group.tutor_id = create_role_employee(self, tutor)
+        self.env['ems.teaching'].create({
+            'teacher_id': teacher_employee.id, 'group_id': self.group.id, 'subject_id': self.subject.id})
+        self._enroll_and_grade()
+        request = self._completed(grade=8)
+        notices = self.env['mail.activity'].sudo().search([
+            ('res_model', '=', 'res.partner'), ('res_id', '=', self.student.id),
+            ('activity_type_id', '=', self.env.ref('ems.mail_activity_convalidation_notice').id)])
+        self.assertEqual(notices.user_id, self.teacher | tutor)
+        self.assertIn(request.name, notices[0].note)
+        self.assertIn(self.subject.display_name, notices[0].summary)
+        # The notice is their to-do, not a subscription to the student's messages.
+        self.assertFalse((self.teacher | tutor).partner_id & self.student.message_partner_ids)
+
+    # --- registration number -------------------------------------------------
+
+    def test_requests_are_numbered_per_course(self):
+        first, second = self._request(), self._request(self.other_subject)
+        self.assertEqual(first.name, 'CONV-2094-95-0001')
+        self.assertEqual(second.name, 'CONV-2094-95-0002')
+        self.assertTrue(first.display_name.startswith('CONV-2094-95-0001'))
+        later_course = self.env['ems.course'].create({'start': 2095, 'end': 2096})
+        self.assertEqual(self._request(course_id=later_course.id).name, 'CONV-2095-96-0001')
 
     def test_convalidation_reaches_a_finalised_session(self):
         grade_line = self._enroll_and_grade(state='final')
@@ -479,7 +550,7 @@ class TestConvalidation(TransactionCase):
             grade_line.with_user(self.head_of_studies).write({'is_convalidated': True})
 
     def test_cancelled_request_restores_the_grade(self):
-        grade_line = self._enroll_and_grade()
+        grade_line = self._enroll_and_grade(state='final')
         request = self._request()
         self._line(request).with_user(self.head_of_studies).action_grant()
         request.with_user(self.head_of_studies).action_validate()
@@ -490,7 +561,7 @@ class TestConvalidation(TransactionCase):
         self.assertFalse(grade_line.has_final)
 
     def test_deleted_line_restores_the_grade(self):
-        grade_line = self._enroll_and_grade()
+        grade_line = self._enroll_and_grade(state='final')
         request = self._completed(self.subject | self.other_subject)
         self._line(request).sudo().unlink()
         self.assertFalse(grade_line.is_convalidated)
@@ -498,7 +569,7 @@ class TestConvalidation(TransactionCase):
         self.assertFalse(request.exists())
 
     def test_rejected_duplicate_does_not_undo_a_grant(self):
-        grade_line = self._enroll_and_grade()
+        grade_line = self._enroll_and_grade(state='final')
         self._completed(grade=8)
         second = self._request()
         second.with_user(self.head_of_studies).action_reject()
@@ -518,15 +589,105 @@ class TestConvalidation(TransactionCase):
         self._completed()
         self.assertNotIn(grade_line, wizard._live_subject_lines(self.student))
 
-    def test_year_record_copies_the_convalidation(self):
+    # --- the history of a course still running --------------------------------
+
+    def _history(self, course=None):
+        return self.env['ems.student.year_record'].search([
+            ('student_id', '=', self.student.id), ('course_id', '=', (course or self.course).id)])
+
+    def test_completion_opens_a_provisional_history(self):
+        """The history is where teachers look grades up, and the running course has none until
+        it closes: completing opens it, marked as the current course, with only the subject."""
         self._enroll_and_grade()
+        request = self._completed(grade=8)
+        record = self._history()
+        self.assertTrue(record.is_provisional)
+        self.assertFalse(record.academic_result)
+        self.assertFalse(record.title_obtained)
+        self.assertEqual(record.study_id, self.study)
+        self.assertEqual(record.group_id, self.group)
+        self.assertEqual(record.subject_record_ids.subject_id, self.subject)
+        self.assertEqual(record.subject_record_ids.final_grade, 8)
+        self.assertEqual(record.subject_record_ids.convalidation_number, request.name)
+        # Readable by every teacher, like the rest of the history (issue #393).
+        self.assertEqual(record.with_user(self.teacher).subject_record_ids.final_grade, 8)
+
+    def test_later_convalidations_join_the_same_record(self):
+        self._completed()
+        self._completed(self.other_subject, grade=6)
+        record = self._history()
+        self.assertEqual(len(record), 1)
+        self.assertEqual(record.subject_record_ids.subject_id, self.subject | self.other_subject)
+
+    def test_closing_the_course_completes_the_provisional_record(self):
+        self._enroll_and_grade(self.other_subject)
         self._completed(grade=7)
+        record = self._history()
+        self.env['ems.student.year_record'].generate_for_students(self.student, self.course)
+        self.assertEqual(self._history(), record)
+        self.assertFalse(record.is_provisional)
+        self.assertEqual(record.subject_record_ids.subject_id, self.subject | self.other_subject)
+        convalidated = record.subject_record_ids.filtered('is_convalidated')
+        self.assertEqual((convalidated.subject_id, convalidated.final_grade), (self.subject, 7))
+
+    def test_leaving_the_group_freezes_despite_a_provisional_record(self):
+        """freeze_on_leaving() skips a year already frozen; a provisional record is not one."""
+        self._enroll_and_grade(self.other_subject)
+        self._completed()
+        record = self.env['ems.student.year_record'].freeze_on_leaving(self.student, self.group)
+        self.assertEqual(record, self._history())
+        self.assertFalse(record.is_provisional)
+        self.assertEqual(record.subject_record_ids.subject_id, self.subject | self.other_subject)
+
+    def test_revoked_on_a_running_course_leaves_no_trace(self):
+        request = self._completed()
+        self.assertTrue(self._history())
+        request.sudo().write({'state': 'cancelled'})
+        self.assertFalse(self._history())
+
+    def test_grade_review_refuses_a_running_course(self):
+        self._completed()
+        record = self._history()
+        wizard = self.env['ems.grade_review_wizard'].with_user(self.head_of_studies).create({
+            'record_id': record.id, 'operation': 'remove',
+            'subject_record_id': record.subject_record_ids.id, 'resolution': 'Test'})
+        with self.assertRaises(UserError):
+            wizard.action_apply()
+
+    def test_year_record_keeps_the_withdrawn_subject(self):
+        """Completing deleted the enrollment and its open grade line, yet the year the subject
+        was convalidated in still records it as passed, with its file number."""
+        self._enroll_and_grade()
+        request = self._completed(grade=7)
         record = self.env['ems.student.year_record'].generate_for_students(self.student, self.course)
         subject_record = record.subject_record_ids.filtered(lambda line: line.subject_id == self.subject)
         self.assertTrue(subject_record.is_convalidated)
         self.assertEqual(subject_record.state, 'passed')
         self.assertEqual(subject_record.final_grade, 7)
+        self.assertEqual(subject_record.convalidation_number, request.name)
         self.assertFalse(subject_record.final_pending)
+        self.assertFalse(subject_record.outcome_record_ids)
+        self.assertFalse(record.is_provisional)
+
+    def test_year_record_of_a_closed_round_carries_the_file(self):
+        self._enroll_and_grade(state='final')
+        request = self._completed(grade=6)
+        record = self.env['ems.student.year_record'].generate_for_students(self.student, self.course)
+        subject_record = record.subject_record_ids.filtered(lambda line: line.subject_id == self.subject)
+        self.assertEqual(subject_record.final_grade, 6)
+        self.assertEqual(subject_record.convalidation_number, request.name)
+
+    def test_frozen_year_record_gains_a_missing_subject(self):
+        """A history frozen before the subject ever had a grade line gets it added when the
+        convalidation of that same course is completed."""
+        self._enroll_and_grade(self.other_subject)
+        record = self.env['ems.student.year_record'].generate_for_students(self.student, self.course)
+        self.assertNotIn(self.subject, record.subject_record_ids.subject_id)
+        request = self._completed(grade=9)
+        subject_record = record.subject_record_ids.filtered(lambda line: line.subject_id == self.subject)
+        self.assertTrue(subject_record.is_convalidated)
+        self.assertEqual(subject_record.final_grade, 9)
+        self.assertEqual(subject_record.convalidation_number, request.name)
 
     def test_frozen_year_record_follows_a_late_resolution(self):
         self._enroll_and_grade()

@@ -2852,6 +2852,9 @@ msgstr "Acceso actual"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form model:ir.model.fields.selection,name:ems.selection__ems_em_grading_wizard_line__source__live
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__is_provisional
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_form
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
 msgid "Current course"
 msgstr "Curso actual"
 
@@ -6078,6 +6081,8 @@ msgstr "Rechazar"
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_correction__state__rejected model:ir.model.fields.selection,name:ems.selection__ems_authorization__status__no model:ir.model.fields.selection,name:ems.selection__ems_student_document__status__rejected model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_line__state__rejected
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__rejected
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 msgid "Rejected"
 msgstr "Rechazado"
 
@@ -15303,6 +15308,7 @@ msgstr "Dirección: pendiente"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 msgid "Validate"
 msgstr "Validar"
 
@@ -15750,3 +15756,91 @@ msgid "Which documents to attach depends on where you passed the subjects:"
 msgstr ""
 "La documentación que hay que adjuntar depende de dónde superasteis los "
 "módulos:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid ""
+"%(student)s no longer takes %(subject)s: it has been convalidated with a "
+"%(grade)s (registration %(number)s). They are no longer in its attendance "
+"lists or grades."
+msgstr ""
+"%(student)s ya no cursa %(subject)s: se ha convalidado con un %(grade)s "
+"(registro %(number)s). Ya no aparece en sus listas de asistencia ni en las "
+"notas."
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_convalidation_notice
+msgid "Convalidated subject"
+msgstr "Asignatura convalidada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Convalidated: %s"
+msgstr "Convalidada: %s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__convalidation_number
+msgid "Convalidation file"
+msgstr "Expediente de convalidación"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__name
+msgid "Registration number"
+msgstr "Número de registro"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_year_record_subject__convalidation_number
+msgid ""
+"Registration number of the convalidation request the subject was passed "
+"through, e.g. CONV-2026-27-0001."
+msgstr ""
+"Número de registro de la solicitud de convalidación por la que se aprobó la "
+"asignatura, por ejemplo CONV-2026-27-0001."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation__name
+msgid ""
+"Registry entry of the request, e.g. CONV-2026-27-0001: the course it applies"
+" to and a number that starts again every course. Assigned on submission."
+msgstr ""
+"Registro de entrada de la solicitud, por ejemplo CONV-2026-27-0001: el curso"
+" al que se aplica y un número que vuelve a empezar cada curso. Se asigna al "
+"presentarla."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Closed courses"
+msgstr "Cursos cerrados"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_year_record__is_provisional
+msgid ""
+"The course is still running: the record only holds the subjects convalidated"
+" so far, and gets the rest, and its result, when the course is closed."
+msgstr ""
+"El curso todavía está en marcha: el registro solo contiene las asignaturas "
+"convalidadas hasta ahora, y recibirá el resto, y el resultado, cuando se "
+"cierre el curso."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_form
+msgid ""
+"The course is still running: this record only holds the subjects\n"
+"                            convalidated so far. The rest of the subjects, and the course result,\n"
+"                            are added when the course is closed."
+msgstr ""
+"El curso todavía está en marcha: este registro solo contiene las asignaturas"
+" convalidadas hasta ahora. El resto de asignaturas, y el resultado del "
+"curso, se añaden cuando se cierra el curso."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid ""
+"This course is still running: correct its grades in the grade sessions. A "
+"grade review only applies to closed courses."
+msgstr ""
+"Este curso todavía está en marcha: corrige sus notas en las sesiones de "
+"evaluación. La revisión de calificaciones solo se aplica a cursos cerrados."

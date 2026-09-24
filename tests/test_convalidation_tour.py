@@ -30,7 +30,7 @@ class TestConvalidationTour(HttpCase):
 
     def _convalidated_session(self):
         """The fixture teacher tutors the group and teaches the subject; the student's subject
-        grade is convalidated."""
+        grade, in a closed round, is convalidated."""
         teacher_employee = self.teacher.employee_ids[:1]
         self.group.tutor_id = teacher_employee
         self.env['ems.enrollment'].create({
@@ -40,6 +40,10 @@ class TestConvalidationTour(HttpCase):
             or self.env['ems.grade_session'].create({'group_id': self.group.id, 'subject_id': self.subject.id})
         session.teacher_id = teacher_employee
         session.fill_students()
+        # A round at its evaluation board: completing the convalidation withdraws the student
+        # from the subject, which deletes their line in any OPEN session only. The board round
+        # keeps it - and it is the one the tutor's view still lists (it skips final rounds).
+        session.state = 'board'
         self.request.line_ids.sudo().action_grant()
         self.request.sudo().action_validate()
         self.request.sudo().action_complete()
@@ -57,6 +61,16 @@ class TestConvalidationTour(HttpCase):
         self.request.sudo().action_validate()
         self.start_tour("/odoo", "ems_convalidation_complete", login=self.secretary.login)
         self.assertEqual(self.request.state, 'completed')
+
+    def test_teacher_reads_the_current_course_history(self):
+        self.request.line_ids.sudo().action_grant()
+        self.request.sudo().action_validate()
+        self.request.sudo().action_complete()
+        record = self.env['ems.student.year_record'].search([
+            ('student_id', '=', self.student.id), ('course_id', '=', self.course.id)])
+        self.assertTrue(record.is_provisional)
+        self.start_tour(f"/odoo/action-ems.action_year_record_list/{record.id}",
+                        "ems_convalidation_history_current_course", login=self.teacher.login)
 
     def test_student_form_button(self):
         self.start_tour(f"/odoo/res.partner/{self.student.id}", "ems_convalidation_student_button",

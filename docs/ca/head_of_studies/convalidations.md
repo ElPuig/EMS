@@ -40,6 +40,7 @@ Cada sol·licitud nova apareix també a la safata d'activitats (🕒) de qui ocu
 
 Obre la sol·licitud des de la llista. El formulari mostra:
 
+- El **número de registre** de la sol·licitud (per exemple CONV-2026-27-0001), a sobre del nom de l'alumne. Es pot cercar a la llista.
 - **Estudi**, **Curs** i **Motiu** de la sol·licitud.
 - Sota el nom de l'alumne, l'avís **Té una titulació obtinguda al centre** quan a l'històric acadèmic hi consta un títol obtingut aquí.
 - Pestanya **Assignatures**: una línia per cada mòdul sol·licitat, amb la resolució, la nota i les observacions.
@@ -84,7 +85,7 @@ Quan tots els mòduls estiguin resolts, fes clic a **Valida**:
 
 **Rebutja** tanca la sol·licitud sencera i n'informa l'alumne.
 
-La nota no arriba a les qualificacions de l'alumne fins que secretaria completa la sol·licitud. A partir d'aquell moment, cada mòdul convalidat mostra la nota amb la marca **CV** a les pantalles de qualificacions i a l'històric acadèmic.
+La nota no arriba a les qualificacions de l'alumne fins que secretaria completa la sol·licitud. En aquell moment l'alumne deixa de cursar cada mòdul convalidat, el professorat del mòdul i el tutor en reben l'avís, i l'històric acadèmic el recull com a aprovat amb la nota, la marca **CV** i el número de registre.
 
 ---
 

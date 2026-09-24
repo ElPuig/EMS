@@ -45,13 +45,13 @@ Un mensaje confirma que la solicitud se ha enviado. Los módulos ya solicitados 
 
 ## Seguir la solicitud
 
-Cada solicitud aparece bajo el formulario, con la fecha, el estudio y el estado:
+Cada solicitud aparece bajo el formulario, con su número de registro (por ejemplo CONV-2026-27-0001), la fecha, el estudio y el estado:
 
 | Estado | Significado |
 |--------|-------------|
 | **Pendiente** | El centro todavía no la ha resuelto. |
 | **En proceso** | Jefatura de Estudios la ha aprobado y secretaría la está registrando. |
-| **Completada** | Ya está registrada. Ves la nota de cada módulo convalidado. |
+| **Completada** | Ya está registrada. Ves la nota de cada módulo convalidado, y ya no tienes que asistir a esos módulos. |
 | **Rechazada** | No se ha concedido la convalidación. |
 | **Anulada** | La solicitud se ha anulado. |
 

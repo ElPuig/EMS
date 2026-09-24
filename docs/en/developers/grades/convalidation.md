@@ -33,6 +33,7 @@ erDiagram
 
 | Field | Type | Notes |
 |-------|------|-------|
+| `name` | Char | Registration number, `CONV-<start>-<end, two digits>-<4-digit counter>` (e.g. `CONV-2026-27-0001`), assigned on creation by `_ems_next_registration_number(course)`. The counter starts again every course: one `ir.sequence` per course (code `ems.convalidation.course.<id>`, the prefix baked in), created the first time that course gets a request, so nothing has to be prepared before a year opens. Leads `display_name`. |
 | `student_id` | M2o `res.partner` | Required. Student or applicant (an applicant enrolling into a cycle is the typical requester). |
 | `requester_id` | M2o `res.partner` | The portal user who submitted it: the student or a family contact. |
 | `course_id` | M2o `ems.course` | Required. Defaults to the enrollment course (`is_enrollment_default`), else the current one: requests are made while enrolling. |
@@ -75,7 +76,7 @@ stateDiagram-v2
 ```
 
 - **`action_validate`** (Head of Studies): requires every line decided (`pending_count == 0`). With at least one granted line the request moves to `in_progress`, stamps the validation and schedules the secretariat's task. With none, there is nothing to register in Esfera, so it is rejected straight away.
-- **`action_complete`** (secretariat): the only door to `completed`, and therefore to the student's grades.
+- **`action_complete`** (secretariat): the only door to `completed`, and therefore to the student's grades. It also withdraws the student from every granted subject (`_ems_withdraw_convalidated_subjects`, see below).
 - **`action_reject`**: the Head of Studies while `pending`, the secretariat while `in_progress`. Every line still standing is rejected too, so the student never reads "convalidated" on a rejected request.
 - **`action_request_info`** opens `ems.convalidation.info_wizard`, which emails the applicant and posts the text on the portal without moving the request.
 - **`action_cancel` / `action_reopen`**: the student's own, from the portal, while the request is `pending`.
@@ -88,9 +89,17 @@ stateDiagram-v2
 
 **Communications page.** The portal's Communications page (`controllers/portal_comms.py`) lists the comments posted on the student's requests, never their internal notes. `_ems_post_communication()` posts one comment each time the request is created, validated, cancelled, reopened, answered from the portal, or resolved. Requests are created with `mail_create_nosubscribe`, so they have no followers and these comments email nobody; the only emails are the resolution and the request for information.
 
+## Withdrawal from the subject
+
+Completing a request means the student no longer takes the subjects it convalidated. `_ems_withdraw_convalidated_subjects()` deletes their `ems.enrollment` for each granted subject, with `ems_bypass_grade_guard` — grades already written included, the convalidation replaces them. That runs the enrollment's own cascade: the student leaves the subject's attendance schedules and loses their lines in its **open** grade sessions. Rounds already at the board or finalised keep their line, which the sync below turns into the convalidation's grade.
+
+- **Who is told:** before deleting, the enrollment's groups give the subject's teachers (active `ems.teaching` for group + subject) and the groups' tutors. Each gets an `ems.mail_activity_convalidation_notice` activity **on the student** (`res.partner`), not on the request: teachers cannot read convalidations, but they can open the student. The summary names the subject; the note, the grade and the registration number. Assignees that were not already following the student are unsubscribed again, so the activity is their only notice.
+- **Placements afterwards:** `sale.order._ems_apply_destination_placement()` skips any subject `_ems_is_convalidated()` for the student, so a request completed before the student is placed (the usual case during summer enrollment) never gets the subject enrolled back.
+- **Validation alone withdraws nothing:** the resolution is not official until the secretariat registers it.
+
 ## Grades integration
 
-`ems.grade_subject_line` and `ems.student.year_record.subject` carry `is_convalidated` + `convalidation_grade` as **mirrors** kept in sync by `ems.convalidation.line._ems_sync_grades()`. The source of truth is `_ems_convalidation_grade(student, subject)`: the grade of a granted line **of a completed request**, or `None`.
+`ems.grade_subject_line` and `ems.student.year_record.subject` carry `is_convalidated` + `convalidation_grade` as **mirrors** kept in sync by `ems.convalidation.line._ems_sync_grades()`. The source of truth is `_ems_convalidation_line(student, subject)`: a granted line **of a completed request** (`_ems_convalidation_grade` returns its grade, or `None`). The history subject also stores the request's registration number as `convalidation_number` — frozen text, like the rest of the history, since most of its readers (teachers) cannot open a request.
 
 ```mermaid
 flowchart LR
@@ -102,7 +111,7 @@ flowchart LR
 ```
 
 - **Live grade line:** a convalidated line has `internal_is_complete = True`, `computed_score = final_score = convalidation_grade` (falling back to `CONVALIDATED_GRADE`), `computed_is_scored = True` and therefore `has_final = True`, whatever its outcomes hold. The mirror is written with the `ems_convalidation_sync` context, which `grade_subject_line.write()` lets through (only for those two fields) regardless of the session state: a resolution can arrive after the rounds are closed. New lines (`_ems_add_student_lines`) start with the current value.
-- **Year record:** `_subject_vals()` copies both fields and forces `state = 'passed'`. A record already frozen is updated by `_ems_set_convalidated(convalidated, grade)`, but only for the request's own course. Granting sets `passed` / that grade. Revoking rebuilds `state`, `final_grade` and `has_final` from the record's own RAs and grades, using `_final_from_parts()`.
+- **Year record:** `_subject_vals()` copies both fields (plus the registration number) and forces `state = 'passed'`. Since completing deletes the open grade line, `_generate_one()` also adds, through `_convalidated_subject_vals(student, course, study, taken)`, every subject convalidated for that course that no grade line accounts for: passed, with the convalidation's grade and number, the teaching plan's weights and no learning outcomes of its own (`ems.student.year_record.subject._convalidated_vals`). A record already frozen is updated by `_ems_set_convalidated(convalidated, grade, convalidation)`, but only for the request's own course, and gains the subject if it never had it. When the course has **no record yet** (the usual case: a request completed mid-course), `_ems_sync_grades` opens a provisional one (`is_provisional`, *Current course*) with just the convalidated subjects, so teachers see the grade in the history from the day it is completed; closing the course rewrites it with everything else — see [`year_record.md`](year_record.md). Granting sets `passed` / that grade. Revoking rebuilds `state`, `final_grade` and `has_final` from the record's own RAs and grades, using `_final_from_parts()`.
 - **Grade review (issue #493):** a convalidated subject is out of its reach. `_apply_correct()` refuses it with a `UserError` and `_recompute_from_outcomes()` skips it: its grade is a resolution, not an evaluation of learning outcomes the student never took here. Correcting it means resolving the convalidation again.
 - **Consumers:** the transition wizard's incomplete-evaluation check passes (via `has_final` / `internal_is_complete`). The EM grading wizard skips convalidated lines (`_live_subject_lines`), and `final_pending` is never set for them. Both grade widgets show the grade followed by **CV** in the Final column.
 - **Not done:** a textual `CV` in an Esfera import is not turned into the flag. The request is the only source, so a later sync can never silently undo an imported value.

@@ -111,7 +111,7 @@ Els canvis es guarden en un **esborrany local** i no es desen fins que prems **A
 - **Nota del centre:** mitjana ponderada dels RA **avaluats** segons els seus pesos (0–10). Si en falta algun, és **provisional**; si algun RA avaluat està suspès, queda **limitada a 4**.
 - **Nota de pràctiques en empresa:** s'informa a la columna **Empresa**.
 - **Nota final:** combina la nota del centre i la d'empresa segons els percentatges de la planificació. Per aprovar cal **aprovar totes dues parts**; si una està suspesa, la final queda limitada a 4.
-- **CV:** el mòdul està convalidat per a l'alumne. Compta com a aprovat amb un 5 i no necessita notes.
+- **CV** (després de la nota): el mòdul està convalidat per a l'alumne. Compta com a aprovat amb la nota de la convalidació i no necessita notes. Quan es completa una convalidació, reps una activitat **Assignatura convalidada** a la safata (🕒) i l'alumne deixa de cursar el mòdul.
 - **Sobreescriure la nota del centre:** marcant la casella **Sobr.** pots fixar manualment la nota del centre en lloc de deixar que es calculi a partir dels RA.
 
 ---

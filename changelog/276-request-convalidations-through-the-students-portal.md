@@ -27,6 +27,12 @@
 - The student sees the grade of each convalidated subject on the portal only once the request is completed, and both grade screens now show that grade next to the CV mark instead of a plain CV.
 - A grade review (issue #493) refuses to correct a convalidated subject: its grade comes from a convalidation resolution, not from learning outcomes taken at this centre, so it is changed by resolving the convalidation again.
 
+## Convalidations get a registration number and take the student out of the subject (issue #276):
+- Every request gets a registration number when it is filed, CONV-<course>-<counter> (e.g. CONV-2026-27-0001), the counter starting again every course. It shows on the request list and form, on the student's portal card and in the resolution email, and can be searched.
+- Completing a convalidation now withdraws the student from each convalidated subject: their enrollment in it is deleted, even if the teacher had already graded them, so they leave its attendance lists and open grade sessions; rounds already closed keep the line, showing the convalidation's grade and CV. A student placed in a group afterwards is never enrolled back into a convalidated subject.
+- The subject's teachers and the group's tutor get an informative activity on the student ("Convalidated subject") with the grade and the registration number, so the teaching staff learns about it without having access to the requests.
+- The academic history records every convalidated subject as passed with its grade and registration number, even once the student no longer has a grade line for it. Since the history of a running course did not exist until the course closed, completing a convalidation now opens that course's record straight away, marked "Current course", holding just the convalidated subjects (no result yet), so teachers can see the grade from day one; closing the course completes the same record with the rest of the subjects and removes the mark. Current-course records can be filtered apart from closed ones, cannot receive a grade review, and never stop a student's year from being frozen when they change group. A history already frozen for that course gains the subject when the convalidation is completed later. The teachers' and tutors' grade manuals no longer describe CV as a fixed 5.
+
 # Internal changes:
 
 ## Convalidation tests, tours and docs (issue #276):

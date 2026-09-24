@@ -18,6 +18,8 @@ L'historial acadèmic és el registre congelat, curs a curs, de la trajectòria 
 
 És només de lectura. Per corregir un registre, contacta amb la Secretaria o amb l'Administrador.
 
+Si un alumne té alguna assignatura convalidada durant el curs actual, l'historial ja mostra un registre marcat com a **Curs actual** amb la nota de la convalidació i la marca **CV**. La resta del curs s'hi afegeix quan es tanca.
+
 ---
 
 ## Consultar les dades de qualsevol alumne (Orientació i Convivència)

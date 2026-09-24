@@ -15,6 +15,11 @@ registry.category("web_tour.tours").add("ems_planning_crud", {
         { trigger: ".o_list_view", content: "Plannings list loaded" },
         { trigger: ".o_list_button_add", content: "Create a new planning", run: "click" },
         {
+            trigger: ".o_form_view .o_field_widget[name='course_id'].o_readonly_modifier",
+            content: "The course is shown read-only (defaulted to the current course)",
+        },
+        { trigger: ".o_form_view .o-mail-Chatter", content: "The chatter is rendered" },
+        {
             trigger: ".o_form_view .o_field_widget[name='study_id'] input",
             content: "Search for the seeded study",
             run: "edit Test Study (Planning Tour)",

@@ -5,6 +5,7 @@ from odoo.exceptions import ValidationError
 
 class EmsPlanning(models.Model):
     _name = "ems.planning"
+    _inherit = ["mail.thread", "mail.activity.mixin"]
     _description = "Planning: Curriculum deployment in the classroom (in development: just for grading ponderation at the moment)."
     _sql_constraints = [
         ('unique_study_subject_course', 'unique (study_id, subject_id, course_id)', 'A planning already exists for this study, subject and course!')
@@ -15,8 +16,8 @@ class EmsPlanning(models.Model):
     #       Needed a review and approval system (like minutes will do).
     # teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", required=True, domain="[('employee_type', '=', 'teacher')]")
     name = fields.Char(string="Name", compute="_compute_name", store=True)
-    study_id = fields.Many2one(string="Study", comodel_name="ems.study", required=True)
-    subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", required=True)
+    study_id = fields.Many2one(string="Study", comodel_name="ems.study", required=True, tracking=True)
+    subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", required=True, tracking=True)
     # A planning's ponderations are only valid for one academic year, not forever (issue #503).
     # NOT required=True at the field level: a data-file-created row (the centre's own
     # data/custom/ccff/ems.planning-*.csv) is created before current_course_id can be resolved
@@ -25,12 +26,12 @@ class EmsPlanning(models.Model):
     # NULL would break a clean install outright. Required at the application level instead, via
     # _check_course_id_required below, using the exact same install_mode escape hatch
     # check_ponderation already relies on for the same reason.
-    course_id = fields.Many2one(string="Course", comodel_name="ems.course",
+    course_id = fields.Many2one(string="Course", comodel_name="ems.course", tracking=True,
                                 default=lambda self: self.env.company.current_course_id)
     allowed_subject_ids = fields.Many2many(related="study_id.subject_ids", store=False)
     planning_outcome_ids = fields.One2many(string="Outcome ponderation", comodel_name="ems.planning_outcome", inverse_name="planning_id")
-    internal_ponderation = fields.Float(string="Internal grading ponderation (%)", default=90.0, required=True)
-    external_ponderation = fields.Float(string="External grading ponderation (%)", default=10.0, required=True)
+    internal_ponderation = fields.Float(string="Internal grading ponderation (%)", default=90.0, required=True, tracking=True)
+    external_ponderation = fields.Float(string="External grading ponderation (%)", default=10.0, required=True, tracking=True)
     # Feeds the "Show only mine" search filter (issue #503): now that Head of Studies/Deputy see
     # every planning (rule_planning_hos_all), the list defaults to their own taught subjects,
     # same as a plain teacher already sees, with an easy way to widen it back to everything.

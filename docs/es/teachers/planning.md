@@ -34,7 +34,8 @@ cada módulo.
 
 Una programación pertenece a un curso concreto — los pesos del año pasado no son necesariamente
 los de este año, y una corrección de un curso antiguo ya cerrado siempre usa los pesos que
-estaban vigentes *entonces*.
+estaban vigentes *entonces*. El curso al que pertenece una programación se muestra (solo
+lectura) como primer campo de su formulario.
 
 ## Qué puedes ver
 
@@ -46,7 +47,8 @@ propio acceso.
 
 Al abrir una programación ves el reparto entre nota del centro y estancia, y, en la pestaña
 **Ponderación de los RA**, el peso propio de cada resultado de aprendizaje dentro de la parte
-interna.
+interna. El historial en el lateral del formulario registra cada cambio hecho en la programación
+(quién cambió qué, y cuándo).
 
 ## Pedir un cambio
 

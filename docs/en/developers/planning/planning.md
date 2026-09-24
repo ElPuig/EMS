@@ -33,6 +33,12 @@ combination able to have different ponderations across different years at all.
 | | `planning_outcome_ids` | One row per outcome of `subject_id`, each carrying that outcome's share of the internal 100%. |
 | `ems.planning_outcome` | `ponderation` | This outcome's share of the *internal* 100% (not of the overall subject grade — that's `internal_ponderation` × this value). |
 
+`ems.planning` inherits `mail.thread`/`mail.activity.mixin`: the form shows a chatter, and
+`study_id`, `subject_id`, `course_id`, `internal_ponderation` and `external_ponderation` are
+tracked, so every change to a planning's ponderations leaves an audit trail. `course_id` is shown
+read-only on the form (first field of "Main data"): it's set from the current course on creation
+and by the course-transition rollover, never edited by hand.
+
 `_sql_constraints`: `UNIQUE(study_id, subject_id, course_id)` on `ems.planning` — one planning
 per study/subject/course triple, so the same study+subject can have a different planning each
 year.

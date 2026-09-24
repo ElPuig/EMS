@@ -33,7 +33,8 @@ nota) per calcular la nota del centre i la nota final de cada mòdul.
 
 Una programació pertany a un curs concret — els pesos que hi havia l'any passat no són
 necessàriament els d'aquest any, i una correcció d'un curs antic ja tancat sempre fa servir els
-pesos que hi eren vigents *llavors*.
+pesos que hi eren vigents *llavors*. El curs al qual pertany una programació es mostra (només
+lectura) com a primer camp del seu formulari.
 
 ## Què pots veure
 
@@ -43,7 +44,9 @@ la faceta de la barra de cerca no veuràs res de nou: aquesta pantalla només mo
 imparteixes, independentment del filtre, perquè és a això que està limitat el teu propi accés.
 
 En obrir una programació hi veus el repartiment entre nota del centre i estada, i, a la pestanya
-**Ponderació dels RA**, el pes propi de cada resultat d'aprenentatge dins de la part interna.
+**Ponderació dels RA**, el pes propi de cada resultat d'aprenentatge dins de la part interna. El
+historial al lateral del formulari registra cada canvi fet a la programació (qui ha canviat què, i
+quan).
 
 ## Demanar un canvi
 

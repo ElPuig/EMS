@@ -32,7 +32,8 @@ computed) uses to compute the internal grade and the final grade of each module.
 
 A planning belongs to a specific course — the weights that applied last year are not
 necessarily the ones in force this year, and a correction to an old, already-closed course
-always uses the weights that were actually in force *then*.
+always uses the weights that were actually in force *then*. The course a planning belongs to is
+shown (read-only) as the first field of its form.
 
 ## What you can see
 
@@ -42,7 +43,8 @@ search bar and you'll see... nothing new: this screen only ever shows the subjec
 regardless of the filter, since that's what your own access is scoped to.
 
 Opening a planning shows its internal/external split and, in the **Outcome ponderation** tab,
-each learning outcome's own share of the internal part.
+each learning outcome's own share of the internal part. The history panel at the side of the form
+records every change made to the planning (who changed what, and when).
 
 ## Requesting a change
 

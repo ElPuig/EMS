@@ -13,7 +13,9 @@ now belong to a specific course, so a change made this year no longer silently r
 grades were computed in previous years. Existing configuration was automatically replicated
 across every course up to and including the current one, so nothing already recorded changes
 meaning. Moving to a new academic year now also copies the previous year's ponderations forward
-automatically as part of the course transition.
+automatically as part of the course transition. The planning form shows its course (read-only,
+first field) and now has a chatter that tracks every change to the study, subject, course and
+internal/external ponderations.
 
 ## Force the internal grade manually to match Esfera:
 When correcting a closed academic year's grades, the internal grade ("Nota del centre") can now

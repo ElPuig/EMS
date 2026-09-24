@@ -101,6 +101,17 @@ expression, or a list of them, each paired with its own `wait_after`), then save
 `login=None` renders a page before signing in (it forces `Accept-Language: ca`, which is what the
 login page follows). `tour` runs a registered tour instead of the plain wait.
 
+- **`marks=[(selector, label[, anchor]), ...]`** draws the numbered callouts a manual's text refers
+  to ("click (1), then (2)") next to each element. `anchor`: `left` (default), `right`, `top`,
+  `center`, or `text-right` (right after the element's own text rather than its box - for a table
+  cell or group header that spans the whole row). A selector that matches nothing fails the test
+  naming it.
+- **`click='mouse:<selector>'`** clicks with a real (trusted) mouse event through CDP instead of
+  `.click()`, for a control that ignores synthetic clicks (the apps menu dropdown).
+- **`_union_clip_js([sel1, sel2, ...])`** (use it in `run`, then clip to `#ems-clip`) lays an
+  invisible box over several blocks that share no container, so one shot can span, say, a payment
+  plan and the bank-account notice below it.
+
 ### Practical rules
 
 - **Scope what is shown to the fixtures.** Most native actions have no domain (record rules or
@@ -141,6 +152,23 @@ login page follows). `tour` runs a registered tour instead of the plain wait.
   on the fixture instead (e.g. `line.attendance_justification_id`).
 - **Anything "current"** (a roll call, a schedule block) is made current regardless of the clock
   with a slot spanning the whole day (`start_time=0.0, end_time=23.0`).
+- **Native screens with their real menus but only fixture rows:** inside the (rolled-back) test,
+  overwrite the native action's `domain` (and `context` for a default filter) to the fixture ids,
+  e.g. `self.env.ref('ems.action_ems_applicants').domain = str([('id', 'in', ids)])`; for a server
+  action, overwrite its `code`. The navbar, breadcrumbs and filters then are the real ones. Likewise
+  replace any real people a screen lists by configuration (task assignees, the company e-mail a
+  development box rewrote) with fixtures before capturing.
+- **Navbar section dropdowns** do not open in headless Chrome (neither synthetic nor CDP clicks);
+  mark the section itself (`[data-menu-xmlid='<menu xmlid>']`) and let the manual's text give the
+  full path. Dropdown entries carry no xmlid: to mark one, give it an id first with a small `run`
+  script that finds it by its label.
+- **Portal / pre-login pages:** a signup link needs `partner.signup_prepare(signup_type='signup')`
+  and `signup_force_type_in_url='signup'`, or it falls back to the plain login page. An e-mail can
+  be captured by rendering its template (`_render_field('body_html', ...)`) and writing it into a
+  blank page with `run`.
+- **Stored text built by a compute in the acting user's language** (e.g. the enrollment fee line
+  name): `flush_all()` right after creating the fixture in a Catalan environment, or the pending
+  compute runs later in another context.
 - **Check every image for English text in a Catalan screen.** Capturing is the best moment to spot
   a label that never goes through the translation layer (a raw `_fields[f].selection` read, a
   string without `_()`, a `.po` block missing a view's or field's `#:` reference), and fixing it

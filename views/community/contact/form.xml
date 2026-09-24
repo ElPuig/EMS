@@ -433,7 +433,7 @@
                     <page name="applicant" string="Applicant data"
                           invisible="contact_type != 'applicant'">
                         <group cols="2">
-                            <group string="Pre-enrollment">
+                            <group string="Preinscription">
                                 <field name="study_id" required="contact_type == 'applicant'"/>
                                 <field name="preinscription_shift" required="contact_type == 'applicant'"/>
                                 <field name="preinscription_course"/>

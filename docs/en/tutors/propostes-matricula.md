@@ -29,7 +29,7 @@ This guide explains how, after the 3rd evaluation meeting, the tutor can generat
 
 In the left panel **(1)**, select the group of students you want to work with (for example, SMX1A).
 
-In the list, check the checkbox for all students who have passed the course and for whom you want to propose enrollment in the next course. Students who already have an active enrollment appear with the enrollment number in the **Current Enrollment** column.
+In the list, check the checkbox for all students who have passed the course and for whom you want to propose enrollment in the next course. Students who already have an active enrollment appear with the enrollment number in the **Enrollment** column.
 
 Once you have made your selection, click the **Enrollment Proposals** button in the top bar **(2)**.
 

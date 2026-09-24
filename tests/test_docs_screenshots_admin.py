@@ -332,3 +332,45 @@ class TestDocsScreenshotsAdmin(HttpCase, DocsScreenshotMixin):
             login='doc_shot_admin', wait_for=".o_field_widget[name='title']", max_height=460,
         )
 
+    def test_capture_teacher_onboarding(self):
+        # Step 1: the Teachers menu and the New button. Clipped just below the control panel, so
+        # neither the real teachers' cards nor the per-department counts can show.
+        self._capture(
+            '/odoo/action-ems.action_employee_kanban', '.o_web_client', 'alta-professor-01-menu-nou.png',
+            login='doc_shot_admin', wait_for='.o_control_panel .o-kanban-button-new', max_height=100,
+            marks=[(".o_main_navbar a[data-menu-xmlid='ems.menu_teachers']", '1', 'right'),
+                   ('.o_control_panel .o-kanban-button-new', '2', 'right')],
+        )
+        # Steps 2-3: the empty onboarding form - name, department, suggested Google username,
+        # and the private email (required) under Manager on the main screen.
+        new_url = '/odoo/action-ems.action_employee_kanban/new'
+        self._capture(
+            new_url, '.o_action_manager', 'alta-professor-02-dades-formulari.png',
+            login='doc_shot_admin', wait_for="div[name='google_ws_login']", max_height=560,
+            marks=[("div[name='name'] input", '1', 'center'),
+                   ("div[name='department_id'] input", '2', 'center'),
+                   ("div[name='google_ws_login'] input", '3', 'center')],
+        )
+        self._capture(
+            new_url, '.o_action_manager', 'alta-professor-03-correu-privat.png',
+            login='doc_shot_admin', wait_for="div[name='private_email'] input", max_height=560,
+            marks=[("div[name='private_email'] input", '1', 'center')],
+        )
+
+    def test_capture_task_assignment(self):
+        # Made-up assignees in place of whoever this box has on the list (rolled back).
+        assignees = self.env['res.users'].browse([create_role_user(
+            self, 'secretary', login, lang='ca_ES', name=name).id for login, name in (
+            ('doc_shot_task_1', 'Secretaria Exemple'), ('doc_shot_task_2', 'Marta Soler Vila'))])
+        self.env['mail.activity.type'].search([('ems_task_assignment', '=', True)]).write(
+            {'ems_assignee_ids': [(6, 0, assignees.ids)]})
+        self.admin_user.write({'groups_id': [(4, self.env.ref('ems.group_secretary_admin').id)]})
+        self._capture(
+            '/odoo/action-ems.action_task_assignment', '.o_web_client', 'Asignacio-de-tasques-01.png',
+            login='doc_shot_admin', wait_for=".o_data_row td[name='ems_assignee_ids'] .badge",
+            max_height=280,
+            marks=[(".o_main_navbar [data-menu-xmlid='ems.menu_ems_configuration']", '1', 'right'),
+                   (".o_data_row td[name='name']", '2', 'text-right'),
+                   (".o_data_row td[name='ems_assignee_ids']", '3', 'text-right')],
+        )
+

@@ -13,6 +13,8 @@ family-contacts part of student-contacts, reuse existing captures of the same sc
 Studies, teachers, tutors), so they have no method here.
 """
 import base64
+import io
+import json
 from datetime import date
 
 from dateutil.relativedelta import relativedelta
@@ -170,3 +172,200 @@ class TestDocsScreenshotsSecretary(DocsScreenshotMixin, HttpCase):
             '.modal-content', 'actualitzacio-csv-01-columnes.png', login='doc_shot_secretary',
             wait_for=".modal-content .o_field_widget[name='col_student_id']",
         )
+
+    @staticmethod
+    def _tag(selector, text, element_id):
+        """JS that gives the first `selector` element whose text contains `text` an id, so a
+        mark (or a click) can target a dropdown entry that has no stable attribute of its own."""
+        return ("(function () { var el = Array.from(document.querySelectorAll(%s)).find("
+                "function (e) { return e.textContent.indexOf(%s) !== -1; }); if (el) { el.id = %s; } })();"
+                % (json.dumps(selector), json.dumps(text), json.dumps(element_id)))
+
+    @staticmethod
+    def _js_click(selector):
+        return "document.querySelector(%s).click();" % json.dumps(selector)
+
+    def _gedac_xlsx(self, rows):
+        import openpyxl
+        headers = ['Nom', 'Primer cognom', 'Segon cognom', 'Ident. RALC', 'Telèfon',
+                   'Correu electrònic', 'Curs', 'Centre assignat', 'Codi ensenyament assignat',
+                   'Nom ensenyament assignat', 'Torn assignat']
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        sheet.append(headers)
+        for row in rows:
+            sheet.append([row.get(header) for header in headers])
+        buffer = io.BytesIO()
+        workbook.save(buffer)
+        return base64.b64encode(buffer.getvalue())
+
+    def test_capture_preinscription(self):
+        # --- Fixtures: a made-up study GEDAC can resolve ('CFPM    DOCSMX' -> tail DOCSMX) ---
+        self.env.company.center_code = '8028047'
+        level, study, group = create_level_study_group(self, 'DOCPRE', level={
+            'name': 'Cicles formatius (proves)',
+        }, study={
+            'code': 'CFGM_DOCSMX', 'acronym': 'SMXP', 'name': 'Sistemes microinformàtics i xarxes (proves)',
+        }, group={'acronym': 'A', 'course': 1})
+        subjects = self.env['ems.subject'].create([{
+            'code': code, 'acronym': acronym, 'name': name, 'study_ids': [(6, 0, [study.id])],
+        } for code, acronym, name in (('DOCPRE1', 'MME', "Muntatge i manteniment d'equips"),
+                                      ('DOCPRE2', 'XL', 'Xarxes locals'))])
+        template = self.env['sale.order.template'].create({
+            'name': 'SMXP-1', 'ems_study_id': study.id, 'study_year': 1,
+            'sale_order_template_line_ids': [(0, 0, {'product_id': subject.product_id.id}) for subject in subjects],
+        })
+
+        # --- GEDAC import, run as the secretary (a transient record is only readable by its
+        # creator) so its result screen can be opened afterwards ---
+        people = [('Laia', 'Puig', 'Roca', 'Matí', 1), ('Marc', 'Vidal', 'Soler', 'Matí', 1),
+                  ('Aina', 'Ferrer', 'Mas', 'Matí', 1), ('Pol', 'Serra', 'Font', 'Tarda', 1),
+                  ('Júlia', 'Casas', 'Riera', 'Matí', 2)]
+        rows = [{'Nom': first, 'Primer cognom': last1, 'Segon cognom': last2,
+                 'Ident. RALC': 9900000001 + index, 'Correu electrònic': '%s@example.com' % first.lower(),
+                 'Curs': course, 'Centre assignat': 8028047, 'Codi ensenyament assignat': 'CFPM    DOCSMX',
+                 'Nom ensenyament assignat': study.name, 'Torn assignat': shift}
+                for index, (first, last1, last2, shift, course) in enumerate(people)]
+        import_wizard = self.env['ems.applicant_import_wizard'].with_user(self.secretary_user).create({
+            'file': self._gedac_xlsx(rows), 'file_name': 'gedac_assignats.xlsx',
+        })
+        import_wizard.action_import()
+        applicants = self.env['res.partner'].search([('student_id', 'in', [str(r['Ident. RALC']) for r in rows])])
+        # Two current students GEDAC assigned a destination to (the internal continuers).
+        continuers = self.env['res.partner'].browse([self._student(name, group).id for name in
+                                                     ('Nil Exemple Serra', 'Aina Mostra Puig')])
+        continuers.write({'preinscription_study_id': study.id, 'preinscription_shift': 'morning',
+                          'preinscription_course': '2'})
+
+        # The native screens, scoped to these fixtures for the rest of this (rolled-back) test:
+        # the menus, filters and buttons are the real ones, the rows are only made-up people.
+        self.env.ref('ems.action_ems_applicants').domain = str([('id', 'in', applicants.ids)])
+        login = 'doc_shot_secretary'
+        applicants_url = '/odoo/action-ems.action_ems_applicants'
+
+        # 01: the gear menu with Import from GEDAC.
+        self._capture(
+            applicants_url, '.o_action_manager', 'preinscrpcio-Secretaria-01.png', login=login,
+            wait_for='.o_group_header', max_height=330,
+            run=[self._js_click('.o_control_panel .o_cp_action_menus button:has(.fa-cog)'),
+                 self._tag('.o-dropdown--menu .dropdown-item', 'GEDAC', 'ems-mark-gedac')],
+            wait_after=['.o-dropdown--menu .dropdown-item', '#ems-mark-gedac'],
+            marks=[('#ems-mark-gedac', '1', 'right')],
+        )
+        # 02: the import window.
+        self._capture(
+            '/odoo/action-ems.action_applicant_import_wizard', '.modal-content', 'preinscrpcio-Secretaria-02.png',
+            login=login, wait_for=".modal-content button[name='action_import']",
+            marks=[('.modal-content .o_select_file_button', '1', 'right'),
+                   (".modal-content button[name='action_import']", '2', 'top')],
+        )
+        # 03: its result.
+        self._capture(
+            self._wizard_url('ems.applicant_import_wizard', 'Importar des de GEDAC', res_id=import_wizard.id),
+            '.modal-content', 'preinscrpcio-Secretaria-03.png', login=login,
+            wait_for=".modal-content .o_field_widget[name='result_html']",
+        )
+        # 04: the study panel (1), grouped by shift (2) and, within it, by course (3).
+        self._capture(
+            applicants_url, '.o_action_manager', 'preinscrpcio-Secretaria-04.png', login=login,
+            wait_for='.o_group_header', max_height=360,
+            click='.o_group_header', wait_after='.o_group_header.o_group_open + .o_group_header',
+            marks=[('.o_search_panel .o_search_panel_category_value:last-child .o_search_panel_label_title', '1', 'right'),
+                   ('.o_group_header.o_group_open .o_group_name', '2', 'text-right'),
+                   ('.o_group_header.o_group_open + .o_group_header .o_group_name', '3', 'text-right')],
+        )
+        # 05: applicants selected and the Enrollment proposal button.
+        self._capture(
+            applicants_url, '.o_action_manager', 'preinscrpcio-Secretaria-05.png', login=login,
+            wait_for='.o_group_header', max_height=360,
+            click=['.o_group_header', '.o_group_header.o_group_open + .o_group_header',
+                   '.o_data_row .o_list_record_selector input',
+                   '.o_data_row + .o_data_row .o_list_record_selector input'],
+            wait_after=['.o_group_header.o_group_open + .o_group_header', '.o_data_row',
+                        '.o_data_row.o_data_row_selected', "button[name='action_enrollment_proposal']"],
+            marks=[("button[name='action_enrollment_proposal']", '1', 'top')],
+        )
+        # 04b: the internal continuers, in Enrollment proposals with the GEDAC filter.
+        self.env.ref('ems.action_student_group_enrollment').code = (
+            "action = env.ref('ems.act_window_student_group_enrollment').sudo().read()[0]\n"
+            "action['domain'] = [('id', 'in', %s)]\n"
+            "action['context'] = {'search_default_gedac_assignment': 1}" % continuers.ids)
+        self._capture(
+            '/odoo/action-ems.action_student_group_enrollment', '.o_action_manager',
+            'preinscrpcio-Secretaria-04b.png', login=login, wait_for='.o_data_row', max_height=300,
+            marks=[('.o_searchview_facet', '1', 'right')],
+        )
+        # 06: the proposal window for the morning first-year applicants.
+        morning_first = applicants.filtered(lambda a: a.preinscription_shift == 'morning'
+                                            and a.preinscription_course == '1')
+        proposal_action = self.env['ir.actions.act_window'].create({
+            'name': 'Proposta de matrícula', 'res_model': 'ems.enrollment_proposal_wizard',
+            'view_mode': 'form', 'target': 'new',
+            'context': {'active_ids': morning_first.ids, 'default_template_id': template.id},
+        })
+        self._capture(
+            '/odoo/action-%d' % proposal_action.id, '.modal-content', 'preinscrpcio-Secretaria-06.png',
+            login=login, wait_for=".modal-content .o_field_widget[name='student_ids'] .o_data_row",
+            marks=[("button[name='action_create_enrollments']", '1', 'top')],
+        )
+        # 07: the Actions menu with Portal access, applicants selected.
+        self._capture(
+            applicants_url, '.o_action_manager', 'preinscrpcio-Secretaria-07.png', login=login,
+            wait_for='.o_group_header', max_height=420,
+            run=[self._js_click('.o_group_header'),
+                 self._js_click('.o_group_header.o_group_open + .o_group_header'),
+                 self._js_click('.o_data_row .o_list_record_selector input'),
+                 self._js_click('.o_control_panel .o_cp_action_menus button:has(.fa-cog)'),
+                 self._tag('.o-dropdown--menu .dropdown-item', 'portal', 'ems-mark-portal')],
+            wait_after=['.o_group_header.o_group_open + .o_group_header', '.o_data_row',
+                        '.o_data_row.o_data_row_selected', '.o-dropdown--menu .dropdown-item',
+                        '#ems-mark-portal'],
+            marks=[('#ems-mark-portal', '1', 'right')],
+        )
+
+        # The draft enrollments that proposal creates, and one already confirmed.
+        self.env['ems.enrollment_proposal_wizard'].with_context(active_ids=morning_first.ids).create({
+            'template_id': template.id}).action_create_enrollments()
+        drafts = self.env['sale.order'].search([('partner_id', 'in', morning_first.ids)])
+        confirmed_student = self._student('Pere Exemple Soler', group)
+        confirmed = self.env['sale.order'].create({
+            'partner_id': confirmed_student.id, 'ems_study_id': study.id,
+            'ems_course_id': drafts[:1].ems_course_id.id,
+            'order_line': [(0, 0, {'product_id': subjects[0].product_id.id})],
+        })
+        confirmed.action_confirm()
+        enrollments = self.env.ref('ems.action_ems_enrollments')
+        enrollments.domain = str([('id', 'in', (drafts | confirmed).ids)])
+        enrollments.context = str({'ems_enrollment': 1, 'search_default_sense_enviar': 1})
+        enrollments_url = '/odoo/action-ems.action_ems_enrollments'
+
+        # 08: Enrollment > Enrollments (1) with the Not sent filter (2).
+        self._capture(
+            enrollments_url, '.o_web_client', 'preinscrpcio-Secretaria-08.png', login=login,
+            wait_for='.o_data_row + .o_data_row', max_height=340,
+            marks=[(".o_main_navbar [data-menu-xmlid='ems.menu_ems_enrollment']", '1', 'right'),
+                   ('.o_searchview_facet', '2', 'right')],
+        )
+        # 09: enrollments ticked (1) and Send enrollment (2).
+        self._capture(
+            enrollments_url, '.o_action_manager', 'preinscrpcio-Secretaria-09.png', login=login,
+            wait_for='.o_data_row + .o_data_row', max_height=300,
+            click=['.o_data_row .o_list_record_selector input',
+                   '.o_data_row + .o_data_row .o_list_record_selector input'],
+            wait_after=['.o_data_row.o_data_row_selected', "button[name='action_send_enrollment_proposal']"],
+            marks=[('.o_data_row .o_list_record_selector', '1'),
+                   ("button[name='action_send_enrollment_proposal']", '2', 'top')],
+        )
+        # 10-11: Re-apply Benefits on a confirmed enrollment, and its confirmation.
+        confirmed_url = '%s/%d' % (enrollments_url, confirmed.id)
+        self._capture(
+            confirmed_url, '.o_action_manager', 'preinscrpcio-Secretaria-10.png', login=login,
+            wait_for="button[name='action_ems_reapply_benefits']", max_height=260,
+            marks=[("button[name='action_ems_reapply_benefits']", '1', 'top')],
+        )
+        self._capture(
+            confirmed_url, '.modal-content', 'preinscrpcio-Secretaria-11.png', login=login,
+            wait_for="button[name='action_ems_reapply_benefits']",
+            click="button[name='action_ems_reapply_benefits']", wait_after='.modal-content',
+        )
+

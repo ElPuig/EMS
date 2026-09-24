@@ -309,8 +309,9 @@ have been asked live, not optional. State plainly which mode-scoped tasks got fi
 now')`-style trigger, an `[title='...']` selector matching a translatable label, a status/
 selection name typed nowhere by the tour itself) only works if the account driving it actually
 renders in English — never assume that's true. `login="admin"` logs in as this box's real,
-pre-existing `admin` account, whose language is whatever this dev box happens to have (this
-box's is `es_ES`) — **not** guaranteed `en_US`, regardless of environment. A freshly created
+pre-existing `admin` account, whose language is whatever this dev box happens to have (it has
+changed over time on this box: `es_ES`, then `ca_ES` as of 2026-09-24) — **not** guaranteed
+`en_US`, regardless of environment. A freshly created
 `res.users` record is not automatically safe either: without an explicit `'lang'` key, it does
 not reliably default to `en_US` on every box (confirmed on this one: it defaults to `ca_ES`).
 Found twice already from the exact same root cause (`TestAttendanceStatusTour`,

@@ -150,6 +150,12 @@ A second, independent attempt (`enrollment.py`'s invoicing-time fallback, force-
 
 ---
 
+## `benefit_type`
+
+A `Selection` whose choices come from `ems.student.benefit.benefit_type` (`_selection_benefit_type()`, translated labels) - the same keys, since an approved benefit document becomes an `ems.student.benefit` (`_apply_benefit`). Stored as varchar like any selection, so the keys already in the database stay valid. It used to be a plain `Char`, which made the review list and form show the internal key (`large_family_gen`).
+
+The review list's Approve/Reject buttons are icon-only (label as tooltip): with the text as well, the two buttons don't fit their column.
+
 ## Portal page (`/my/documentacion`)
 
 `portal_documentation()` passes the type, status and benefit-category labels to the template as dicts built from `fields_get()` (`doc_type_labels`, `doc_status_labels`, `benefit_category_labels`, next to the existing `benefit_types`). `fields_get()` returns selection labels translated into the visitor's language; reading `record._fields[...].selection` directly in QWeb returns the English source instead, which is how the page used to show "Pending review"/"Passport" to a Catalan family. The upload modals take their titles from `doc_type_labels` too. Covered by `TestPortalActions.test_documentation_page_translates_selection_labels`.

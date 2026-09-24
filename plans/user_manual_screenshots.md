@@ -5,13 +5,12 @@ teachers-role work from the previous branch is already in `main` (v18.0.0.27.1).
 current state of `docs/{en,ca,es}/<role>/` and `tests/test_docs_screenshots*.py` before resuming
 (refresh command in "The remaining manuals" below) - don't assume this file is still accurate.
 
-**Status: head_of_studies (7/7), teachers (10/10), families and tutors DONE; admin batch 1/4
-done.** 20 manuals left: secretary 7, admin 13.
+**Status: head_of_studies (7/7), teachers (10/10), families, tutors and secretary DONE; admin
+batch 1/4 done.** 13 manuals left, all admin (batches 2-4).
 
 **Priority order set by the developer (2026-09-24):** families first (done), then the staff roles
-("docentes y trabajadores": tutors - done - and secretary), and admin last - "los admins pueden
-esperar". secretary still needs its own research pass + a batching vs. one-at-a-time decision with
-the developer before starting.
+("docentes y trabajadores": tutors and secretary - both done), and admin last - "los admins
+pueden esperar". Only admin is left; its batches 2-4 are already defined below.
 
 ## Batching convention (per developer request, 2026-09-16 third session)
 
@@ -41,7 +40,7 @@ test method in `tests/test_docs_screenshots_teachers.py`:
 9. ✅ DONE - student-list-my-groups
 10. ✅ DONE - working-schedules
 
-families and tutors are done (one method per manual). secretary has not been started at all yet - decide batching vs. one-at-a-
+families, tutors and secretary are done (one method per manual). Only admin is left at all yet - decide batching vs. one-at-a-
 time with the developer when picked up (don't assume either convention carries over automatically).
 
 ## Why
@@ -59,21 +58,13 @@ conversation:
 
 Detection: no `![...](...)` or `<img` anywhere in the file. Identical set across `en/`, `ca/` and
 `es/` (screenshots are shared assets referenced the same way in each language version), so the
-list below only needs stating once. 64 manuals total, 20 left.
+list below only needs stating once. 64 manuals total, 13 left.
 
 | Role | Missing |
 |---|---|
-| secretary | 7 |
 | admin | 13 |
 
 ```
-secretary/absences.md
-secretary/attendance-reports.md
-secretary/graduation-withdrawal.md
-secretary/student-contacts.md
-secretary/student-documents.md
-secretary/student-import-esfera.md
-secretary/student-update-csv.md
 admin/course-settings.md
 admin/course-transition.md
 admin/curriculum-levels.md
@@ -610,13 +601,21 @@ Gotchas:
 - Found and fixed 3 untranslated texts on these screens (group-change warning, "New student
   contact" dialog title, report wizard Print/Cancel stale .po refs).
 
-### secretary - NOT STARTED
-No test file exists yet for this role (`teachers` now has its own section above). Each
-will need its own research pass (grep the
-relevant `views/`/`models/` for action ids, model fields, native action domains that might leak
-real data) before writing captures, and its own topical batch breakdown (see "Batching
-convention" above) - see the "Mechanism" section below and `test_docs_screenshots_admin.py` /
-`test_docs_screenshots_head_of_studies.py` as worked examples.
+### secretary - ✅ DONE 2026-09-24 (piloto automático)
+`tests/test_docs_screenshots_secretary.py`, one method per manual that needed new captures
+(graduation-withdrawal, student-contacts, student-documents, student-import-esfera,
+student-update-csv). absences reuses `head_of_studies/hos-absences-list.png`, attendance-reports
+reuses the teachers' pivot + print wizard, and student-contacts reuses the tutors' family-contacts
+shots.
+
+Gotchas:
+- **Opening a wizard record created in the fixture**: create it `with_user(<login user>)` - a
+  transient record is only readable by its creator, so one created as superuser fails to open.
+- **Wizards driven by `active_ids`** (graduation/withdrawal): an own `ir.actions.act_window` with
+  `target='new'` and `context={'active_ids': [...]}` opens them with the fixture students.
+- Found and fixed: untranslated labels on the exit wizards, `NUSS` empty msgstr, the document
+  `benefit_type` shown as an internal key (Char -> Selection) and the cut-off Approve/Reject list
+  buttons (icon-only now).
 
 ## Reminder: this is a big, multi-session effort
 

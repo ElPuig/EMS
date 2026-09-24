@@ -36,9 +36,13 @@ A student record that already existed with no Student ID keeps working normally 
 
 Open the student's record and, in the **Contacts & Addresses** tab, click **Add contact**:
 
+![Contacts & Addresses tab with the Add contact button and the family members, each with its trash icon](../../assets/tutors/contactes-familia-01-pestanya.png)
+
 - Choose the **relation** (Father, Mother, Legal guardian, Sibling…).
 - Either pick an **existing** contact already in EMS, or fill in the details for a **new** one — a new contact needs at least a first or last name, one identification document (DNI/NIE or passport) and one way to reach them (phone, mobile or email).
 - Save. The new relation appears immediately in the student's contact list, together with the student's own address prefilled on it (editable if the family member lives elsewhere).
+
+![New student contact window, choosing the relation](../../assets/tutors/contactes-familia-02-afegir.png)
 
 The same relation shows up on the family member's own record too, listing which student(s) they are related to.
 
@@ -65,6 +69,8 @@ A student's fee **benefits** (bonifications, which discount part of the enrollme
 - Add a line per benefit, choosing its **type** (large family, single-parent family, ministry scholarship, disability, other) and attaching the **supporting document**.
 - The **renewal/review date** is pre-filled automatically (9 months for a scholarship, 2 years for the rest) but can be adjusted.
 - A student's overall **Benefits** badge (shown on the form) reflects the highest-priority benefit registered: an exemption always outranks a bonification.
+
+![Secretary tab with two registered benefits, their category, document and renewal date](../../assets/secretary/contactes-01-bonificacions.png)
 
 Whether a benefit actually changes the enrollment fee depends on the state of the corresponding enrollment: a benefit registered **before** the enrollment is confirmed applies to it immediately; one registered **after confirmation** does not retroactively change an already-confirmed order — re-applying it explicitly (from the enrollment) is needed instead. See the enrollment's own manual for that re-apply action.
 

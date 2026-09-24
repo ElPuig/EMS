@@ -31,8 +31,9 @@ class EmsStudentDocument(models.Model):
     doc_value  = fields.Char(string='IBAN')
     doc_value2 = fields.Char(string='Account holder')
 
-    # Benefit type — only meaningful for doc_type == 'benefit'
-    benefit_type = fields.Char(string='Benefit type')
+    # Benefit type — only meaningful for doc_type == 'benefit'. Same choices as
+    # ems.student.benefit, which the approved document becomes (see _apply_benefit).
+    benefit_type = fields.Selection(selection='_selection_benefit_type', string='Benefit type')
 
     expiry_date = fields.Date(string='Expiry date')
 
@@ -53,6 +54,10 @@ class EmsStudentDocument(models.Model):
     review_uid       = fields.Many2one('res.users', string='Reviewed by', readonly=True)
     rejection_reason = fields.Char(string='Rejection reason')
 
+    @api.model
+    def _selection_benefit_type(self):
+        return self.env['ems.student.benefit']._fields['benefit_type']._description_selection(self.env)
+
     def _doc_label(self):
         """Human-readable label for this document's doc_type, in the current language."""
         self.ensure_one()
@@ -65,8 +70,7 @@ class EmsStudentDocument(models.Model):
         for document in self:
             doc_label = document._doc_label()
             if document.doc_type == 'benefit' and document.benefit_type:
-                benefit_labels = dict(self.env['ems.student.benefit']._fields['benefit_type']
-                                      ._description_selection(self.env))
+                benefit_labels = dict(self._selection_benefit_type())
                 benefit_label = benefit_labels.get(document.benefit_type, document.benefit_type)
                 doc_label = f'{doc_label} - {benefit_label}'
             student = document.partner_id.name or ''

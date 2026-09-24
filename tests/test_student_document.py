@@ -279,6 +279,15 @@ class TestStudentDocument(TransactionCase):
         self.assertIn('Discapacitat', catalan)
         self.assertIn('Disability (>33%)', document.with_context(lang='en_US').name)
 
+    def test_benefit_type_shows_translated_label(self):
+        """benefit_type offers the same (translated) choices as ems.student.benefit, so lists
+        and forms show the label instead of the internal key."""
+        self._translate_selection('ems.selection__ems_student_benefit__benefit_type__large_family_gen',
+                                  'Família nombrosa (prova)')
+        field = self.env['ems.student.document']._fields['benefit_type']
+        catalan = dict(field._description_selection(self.env(context={'lang': 'ca_ES'})))
+        self.assertEqual(catalan['large_family_gen'], 'Família nombrosa (prova)')
+
     def test_name_search_finds_document_by_student(self):
         document = self._create(doc_type='dni')
         found = self.env['ems.student.document'].name_search(self.student.name)

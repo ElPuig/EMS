@@ -22,6 +22,8 @@ Pertenecer a secretaría no da ese permiso: el resto del equipo pide sus ausenci
 
 Ahí salen solo las solicitudes de tu área, en estado **Pendiente** mientras esperan decisión.
 
+![Lista de ausencias, con las acciones Aprobar/Rechazar en una solicitud pendiente](../../assets/head_of_studies/hos-absences-list.png)
+
 Tienes acceso al motivo escrito y al justificante de tu gente, y puedes ajustar los campos **Suma las horas al informe mensual**, **Se tramita por ATRI** y **¿Día entero?**, además de corregir el tipo de ausencia.
 
 **Rechazar es definitivo**, y pide confirmación antes: una vez rechazas una solicitud, ni tú ni la persona podéis devolverla a *Pendiente*, así que tendría que hacer una nueva. El justificante, en cambio, se puede adjuntar en cualquier momento, también en una solicitud ya aprobada.

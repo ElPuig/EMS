@@ -23,12 +23,16 @@ Esta guía explica cómo revisar los documentos que envían alumnos y familias �
 
 Ve a **Gestión académica > Documentos del alumnado**. La lista se abre mostrando solo las tramitaciones **Pendientes** por defecto (quita el filtro para verlas todas). Esta es la única pantalla con acciones de Aprobar/Rechazar — la lista de solo lectura que también ves en la ficha del alumno (pestaña **Documentación**) es solo de referencia.
 
+![Lista de documentos del alumnado filtrada por Pendiente, con los iconos de aprobar (✓) y rechazar (✗) en cada fila](../../assets/secretary/documents-01-pendents.png)
+
 ## Aprobar, rechazar, cancelar
 
 - **Aprobar** (✓ desde la lista, o el botón de cabecera en la ficha): marca el documento como revisado y aplica sus efectos (ver más abajo). Si ya había otro documento del mismo tipo aprobado para ese alumno, se elimina automáticamente — solo se conserva el último aprobado.
 - **Rechazar** (✗ desde la lista, o el botón de cabecera): escribe primero el motivo (en el campo **Motivo de rechazo**) — un solo clic en Rechazar cierra inmediatamente la tramitación, no hay ningún paso de confirmación aparte.
 - **Cancelar**: disponible desde la ficha cuando hay que retirar una tramitación sin marcarla como rechazada (por ejemplo, se subió por error).
 - **Reabrir para revisión**: disponible en un documento aprobado o rechazado, por si hay que revisar una decisión — reabre la revisión (se asigna una nueva tarea a los revisores).
+
+![Un documento de IBAN pendiente, con los botones Aprobar y Rechazar y el campo Motivo de rechazo](../../assets/secretary/documents-02-revisio.png)
 
 ## Qué hace aprobar un IBAN
 

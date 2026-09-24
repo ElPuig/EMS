@@ -344,7 +344,11 @@ class EMSPortalController(CustomerPortal):
         submissions = request.env['ems.student.document'].sudo().search([
             ('partner_id', '=', student.id)
         ])
-        benefit_type_selection = request.env['ems.student.benefit'].fields_get(['benefit_type'])['benefit_type']['selection']
+        # fields_get() returns the selection labels translated into the visitor's language,
+        # unlike reading _fields[...].selection directly in the template (English source).
+        benefit_fields = request.env['ems.student.benefit'].fields_get(['benefit_type', 'category'])
+        document_fields = request.env['ems.student.document'].fields_get(['doc_type', 'status'])
+        benefit_type_selection = benefit_fields['benefit_type']['selection']
         student_benefits = request.env['ems.student.benefit'].sudo().search([
             ('student_id', '=', student.id)
         ])
@@ -358,6 +362,9 @@ class EMSPortalController(CustomerPortal):
             'submissions': submissions,
             'current_bank': bank,
             'benefit_types': benefit_type_selection,
+            'benefit_category_labels': dict(benefit_fields['category']['selection']),
+            'doc_type_labels': dict(document_fields['doc_type']['selection']),
+            'doc_status_labels': dict(document_fields['status']['selection']),
             'student_benefits': student_benefits,
             'page_name': 'documentation',
             'error': kwargs.get('error'),

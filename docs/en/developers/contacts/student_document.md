@@ -72,7 +72,7 @@ A non-stored `Html` field building a download link (`/web/content/<attachment_id
 
 ## `_doc_label()`
 
-Small shared helper (`dict(self._fields['doc_type'].selection).get(self.doc_type, ...)`) — the human-readable, current-language label for a document's type. Used by `_compute_name`, every chatter message, and `_schedule_review_activities`'s task summary, so the six near-identical message bodies across `create()`/`action_approve()`/`action_reject()`/`action_cancel()`/`action_reset_to_pending()` don't each re-derive it.
+Small shared helper (`dict(self._fields['doc_type'].selection).get(self.doc_type, ...)`) — the human-readable label for a document's type. It reads the field's raw selection, so it always returns the English source label, whatever the language of the acting user (see `plans/student_document_label_translation.md`). Used by `_compute_name`, every chatter message, and `_schedule_review_activities`'s task summary, so the six near-identical message bodies across `create()`/`action_approve()`/`action_reject()`/`action_cancel()`/`action_reset_to_pending()` don't each re-derive it.
 
 ---
 
@@ -147,6 +147,10 @@ A second, independent attempt (`enrollment.py`'s invoicing-time fallback, force-
 3. `enrollment.py`'s invoicing-time fallback no longer attempts to silently self-grant trust — it now raises a clear `ValidationError` if the bank isn't approved yet, since points 1-2 mean this should no longer be reachable through normal use; if it is, the actual approval step was skipped and that should be surfaced, not papered over. See the "Billing" section of `enrollment.md`.
 
 ---
+
+## Portal page (`/my/documentacion`)
+
+`portal_documentation()` passes the type, status and benefit-category labels to the template as dicts built from `fields_get()` (`doc_type_labels`, `doc_status_labels`, `benefit_category_labels`, next to the existing `benefit_types`). `fields_get()` returns selection labels translated into the visitor's language; reading `record._fields[...].selection` directly in QWeb returns the English source instead, which is how the page used to show "Pending review"/"Passport" to a Catalan family. The upload modals take their titles from `doc_type_labels` too. Covered by `TestPortalActions.test_documentation_page_translates_selection_labels`.
 
 ## Views
 

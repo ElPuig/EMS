@@ -1,26 +1,17 @@
 # Plan: Add screenshots to every user manual missing one
 
-**Paused 2026-09-22 at the end of the sixth session (branch `487-documentation-images-phase-2`) -
-the developer will resume this work from a DIFFERENT branch next.** Whatever branch picks this
-back up should treat this file (and the actual `docs/`/`tests/` state) as the source of truth, not
-the branch name in this note - it will already be stale the moment a new branch is cut. The work
-described below (teachers role complete, its code/docs changes) is currently uncommitted on
-`487-documentation-images-phase-2`; how/whether that lands on the new branch (rebase, cherry-pick,
-merge, or redone from scratch) is the developer's call, not something to assume from this file.
+**Current as of 2026-09-24 (seventh session, branch `488-documentation-images-phase-3`).** The
+teachers-role work from the previous branch is already in `main` (v18.0.0.27.1). Re-check the
+current state of `docs/{en,ca,es}/<role>/` and `tests/test_docs_screenshots*.py` before resuming
+(refresh command in "The remaining manuals" below) - don't assume this file is still accurate.
 
-**Status as of the pause: head_of_studies (7/7) DONE, admin batch 1/4 (4/17) DONE, teachers
-(10/10) DONE - teachers role now fully complete.** See "Status per role" below for all three.
-`tests/test_docs_screenshots_teachers.py` now has 10 test methods, one per manual
-(`test_capture_acces_ems_google`, `test_capture_attendance_corrections`,
-`test_capture_attendance_reports`, `test_capture_attendance_session`,
-`test_capture_guard_duty_schedule`, `test_capture_photo_visibility`, `test_capture_strike`,
-`test_capture_student_academic_data`, `test_capture_student_list_my_groups`,
-`test_capture_working_schedules`). **Next up: pick a role to resume with the developer** -
-`admin`'s remaining 3 batches are already grouped out below, ready to resume directly;
-`secretary`/`tutors`/`families` haven't been started at all (23 manuals combined) and need their
-own research pass + batching-convention decision before starting. This plan may go stale between
-sessions - re-check the current state of `docs/{en,ca,es}/<role>/` and
-`tests/test_docs_screenshots*.py` before resuming, don't assume this file is still accurate.
+**Status: head_of_studies (7/7), teachers (10/10) and families (all 5 manuals) DONE; admin batch
+1/4 done.** 25 manuals left: tutors 5, secretary 7, admin 13.
+
+**Priority order set by the developer (2026-09-24):** families first (done), then the staff roles
+("docentes y trabajadores": tutors and secretary), and admin last - "los admins pueden esperar".
+tutors and secretary still need their own research pass + a batching vs. one-at-a-time decision
+with the developer before starting.
 
 ## Batching convention (per developer request, 2026-09-16 third session)
 
@@ -50,7 +41,7 @@ test method in `tests/test_docs_screenshots_teachers.py`:
 9. ✅ DONE - student-list-my-groups
 10. ✅ DONE - working-schedules
 
-secretary, tutors and families have not been started at all yet - decide batching vs. one-at-a-
+families is done (one method per manual). secretary and tutors have not been started at all yet - decide batching vs. one-at-a-
 time with the developer when picked up (don't assume either convention carries over automatically).
 
 ## Why
@@ -64,27 +55,31 @@ conversation:
 - Work **by role, one batch at a time, with a check-in after each batch** (developer's own
   choice when asked) - not all 47 in one uninterrupted sweep.
 
-## The remaining 36 manuals with no screenshot (found 2026-09-16, head_of_studies + admin batch 1 done since)
+## The remaining manuals with no screenshot (refreshed 2026-09-24)
 
 Detection: no `![...](...)` or `<img` anywhere in the file. Identical set across `en/`, `ca/` and
 `es/` (screenshots are shared assets referenced the same way in each language version), so the
-list below only needs stating once. 64 manuals total, 17 already had screenshots before this
-plan, 11 more (head_of_studies + admin batch 1) done by this plan - 36 left.
+list below only needs stating once. 64 manuals total, 25 left.
 
-**Refreshed 2026-09-17 (fourth session)** - teachers' 2 done manuals removed below; also found
-`tutors/family-contacts.md` now missing a screenshot too (5th tutors manual, not in the
-2026-09-16 count of 4 - either a new manual added since, or one that lost its screenshot; not
-investigated, just re-counted here).
-
-| Role | Missing / total |
+| Role | Missing |
 |---|---|
-| admin | 13 / 21 |
-| teachers | 8 / 12 |
-| secretary | 8 / 10 |
-| tutors | 5 / 9 |
-| families | 1 / 5 |
+| tutors | 5 |
+| secretary | 7 |
+| admin | 13 |
 
 ```
+tutors/academic-history.md
+tutors/attendance-reports.md
+tutors/change-student-group.md
+tutors/family-contacts.md
+tutors/strike.md
+secretary/absences.md
+secretary/attendance-reports.md
+secretary/graduation-withdrawal.md
+secretary/student-contacts.md
+secretary/student-documents.md
+secretary/student-import-esfera.md
+secretary/student-update-csv.md
 admin/course-settings.md
 admin/course-transition.md
 admin/curriculum-levels.md
@@ -98,28 +93,6 @@ admin/student-schedule.md
 admin/survey.md
 admin/teacher-roles.md
 admin/workgroups.md
-secretary/absences.md
-secretary/academic-history.md
-secretary/attendance-reports.md
-secretary/graduation-withdrawal.md
-secretary/student-contacts.md
-secretary/student-documents.md
-secretary/student-import-esfera.md
-secretary/student-update-csv.md
-teachers/attendance-reports.md
-teachers/attendance-session.md
-teachers/guard-duty-schedule.md
-teachers/photo-visibility.md
-teachers/strike.md
-teachers/student-academic-data.md
-teachers/student-list-my-groups.md
-teachers/working-schedules.md
-tutors/academic-history.md
-tutors/attendance-reports.md
-tutors/change-student-group.md
-tutors/family-contacts.md
-tutors/strike.md
-families/manual-documentacio.md
 ```
 
 Re-run this to refresh the list before resuming (paths relative to `docs/`):
@@ -605,8 +578,30 @@ already existed - not noticed at the time. Replaced with the shared helper and r
 `create_level_study_group(cls, prefix, level={...}, study={...}, group={...})` (not a per-file
 local copy) for every future batch that needs a level+study+group fixture.
 
-### secretary, tutors, families - NOT STARTED
-No test file exists yet for any of these 3 roles (`teachers` now has its own section above). Each
+### families - ✅ DONE 2026-09-24
+Only `manual-documentacio.md` was missing screenshots (the other 4 families manuals already had
+them). `tests/test_docs_screenshots_families.py`, one method per manual
+(`test_capture_manual_documentacio`), 7 PNGs `documentacio-0N-*.png` in `docs/assets/families/`.
+Fixture: a portal family contact (father, `lang='ca_ES'`) with two children, so the header's
+student selector renders; one document in every status.
+
+Gotchas:
+- **Portal pages are QWeb, not OWL: a selection label read as `record._fields[f].selection` in the
+  template is the English source, never translated.** Found `/my/documentacion` showing "Pending
+  review"/"Passport" to a Catalan family; fixed in this branch by passing `fields_get()` labels from
+  the controller. The same raw-selection pattern still lives in
+  `ems.student.document._doc_label()` (backend/chatter) - see
+  `plans/student_document_label_translation.md`. Worth grepping any other portal template before
+  capturing it.
+- **A header dropdown overflows its own element**, so clipping to `.ems-custom-navbar` would cut it
+  off: clip to `#wrapwrap` with `max_height` instead.
+- **Bootstrap modals**: `click='button[data-bs-target="#modal-x"]'` + `wait_after='#modal-x.show'`,
+  clip to `#modal-x .modal-content`. The native file input ("Choose File") and date input
+  ("mm/dd/yyyy") render in headless Chrome's own locale (English) - browser chrome, not EMS text;
+  a real family sees their own browser's language there.
+
+### secretary, tutors - NOT STARTED
+No test file exists yet for either of these 2 roles (`teachers` now has its own section above). Each
 will need its own research pass (grep the
 relevant `views/`/`models/` for action ids, model fields, native action domains that might leak
 real data) before writing captures, and its own topical batch breakdown (see "Batching

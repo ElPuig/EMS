@@ -2,15 +2,15 @@ from odoo.http import Request
 from odoo.tests.common import HttpCase, tagged
 
 from .common import mock_outgoing_email, next_student_id
-from .test_convalidation import create_convalidation_fixtures
+from .test_convalidation import close_convalidation_period, create_convalidation_fixtures
 
 PDF = b'%PDF-1.4 test certificate'
 
 
 def create_portal_convalidation_fixtures(cls):
-    """create_convalidation_fixtures() plus a minor student sharing a family contact with the adult
-    one, a student of a study that does not allow convalidations, and portal users for the adult
-    student, the family and that other student (login doubles as password)."""
+    """create_convalidation_fixtures() plus a minor student with a family contact, an adult student
+    of a study that does not allow convalidations, and portal users for the adult student, the
+    family, that other student and the minor himself (login doubles as password)."""
     create_convalidation_fixtures(cls)
     cls.minor, cls.family = cls.env['res.partner'].create([
         {'name': 'Convalidation Portal Minor', 'contact_type': 'student', 'student_id': next_student_id(),
@@ -30,9 +30,9 @@ def create_portal_convalidation_fixtures(cls):
     group = cls.env['ems.group'].create({'course': 1, 'acronym': 'TCVE', 'level_id': level.id, 'study_id': study.id})
     cls.other_student = cls.env['res.partner'].create({
         'name': 'Convalidation Portal Other', 'contact_type': 'student', 'student_id': next_student_id(),
-        'main_group_id': group.id,
+        'main_group_id': group.id, 'birth_date': '2000-01-01',
     })
-    cls.student_user, cls.family_user, cls.other_user = cls.env['res.users'].with_context(
+    cls.student_user, cls.family_user, cls.other_user, cls.minor_user = cls.env['res.users'].with_context(
         no_reset_password=True).create([{
             'name': partner.name, 'login': login, 'password': login, 'partner_id': partner.id,
             'lang': 'en_US', 'groups_id': [(6, 0, [cls.env.ref('base.group_portal').id])],
@@ -40,6 +40,7 @@ def create_portal_convalidation_fixtures(cls):
             (cls.student, 'test_portal_convalidation_student'),
             (cls.family, 'test_portal_convalidation_family'),
             (cls.other_student, 'test_portal_convalidation_other'),
+            (cls.minor, 'test_portal_convalidation_minor'),
         )])
 
 
@@ -248,3 +249,73 @@ class TestPortalConvalidation(HttpCase):
             'csrf_token': Request.csrf_token(self), 'message': 'Not mine',
         }, files=[('documents', ('other.pdf', PDF, 'application/pdf'))])
         self.assertFalse(request.attachment_ids)
+
+    # --- Request period (the fixtures leave it open all year long) ---
+
+    def _backend_request(self, student):
+        return self.env['ems.convalidation'].create({
+            'student_id': student.id, 'study_id': self.study.id, 'course_id': self.course.id,
+            'line_ids': [(0, 0, {'subject_id': self.subject.id})],
+        })
+
+    def test_open_period_shows_when_it_closes(self):
+        self._login(self.student_user)
+        page = self.url_open('/my/convalidaciones').text
+        self.assertIn('o_ems_convalidation_deadline', page)
+        self.assertNotIn('o_ems_convalidation_closed', page)
+
+    def test_closed_period_hides_the_form(self):
+        close_convalidation_period(self.env)
+        self._login(self.student_user)
+        page = self.url_open('/my/convalidaciones').text
+        self.assertIn('o_ems_convalidation_closed', page)
+        self.assertNotIn('convalidation_new_body', page)
+
+    def test_closed_period_refuses_submissions(self):
+        close_convalidation_period(self.env)
+        self._login(self.student_user)
+        response = self._submit(self.subject)
+        self.assertIn('error=closed', response.url)
+        self.assertFalse(self._requests(self.student))
+
+    def test_closed_period_still_allows_answering_and_cancelling(self):
+        answered, cancelled = self._backend_request(self.student), self._backend_request(self.student)
+        close_convalidation_period(self.env)
+        self._login(self.student_user)
+        page = self.url_open('/my/convalidaciones').text
+        self.assertIn(f'/my/convalidaciones/reply/{answered.id}', page)
+        response = self.url_open(f'/my/convalidaciones/reply/{answered.id}', data={
+            'csrf_token': Request.csrf_token(self), 'message': 'Here is the certificate',
+        }, files=[('documents', ('smx.pdf', PDF, 'application/pdf'))])
+        self.assertIn('replied=1', response.url)
+        self.assertEqual(answered.attachment_ids.mapped('name'), ['smx.pdf'])
+        self.url_open(f'/my/convalidaciones/cancel/{cancelled.id}', data={'csrf_token': Request.csrf_token(self)})
+        self.assertEqual(cancelled.state, 'cancelled')
+
+    # --- Who acts on the portal: the adult student, or the family of a minor one ---
+
+    def _assert_cannot_act(self, user, student):
+        request = self._backend_request(student)
+        self._login(user)
+        page = self.url_open('/my/convalidaciones').text
+        self.assertIn('o_ems_convalidation_age_blocked', page)
+        self.assertNotIn('convalidation_new_body', page)
+        self.assertNotIn(f'/my/convalidaciones/cancel/{request.id}', page)
+        self._submit(self.other_subject)
+        self.assertEqual(self._requests(student), request)
+        self.url_open(f'/my/convalidaciones/reply/{request.id}', data={
+            'csrf_token': Request.csrf_token(self), 'message': 'Not allowed',
+        }, files=[('documents', ('other.pdf', PDF, 'application/pdf'))])
+        self.assertFalse(request.attachment_ids)
+        self.url_open(f'/my/convalidaciones/cancel/{request.id}', data={'csrf_token': Request.csrf_token(self)})
+        self.assertEqual(request.state, 'pending')
+        return page
+
+    def test_a_minor_cannot_act_from_his_own_account(self):
+        page = self._assert_cannot_act(self.minor_user, self.minor)
+        self.assertIn('requested by their family', page)
+
+    def test_the_family_of_an_adult_student_cannot_act(self):
+        self.minor.birth_date = '2000-01-01'
+        page = self._assert_cannot_act(self.family_user, self.minor)
+        self.assertIn('from their own account', page)

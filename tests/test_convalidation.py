@@ -1,3 +1,4 @@
+from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
@@ -5,10 +6,35 @@ from .common import (create_level_study, create_role_employee, create_role_user,
                      next_student_id)
 
 
+def set_convalidation_period(env, start, end):
+    """The portal request period, as (day, month, time) tuples for its opening and its closing."""
+    (start_day, start_month, start_time), (end_day, end_month, end_time) = start, end
+    env.company.write({
+        'convalidation_start_day': start_day, 'convalidation_start_month': str(start_month),
+        'convalidation_start_time': start_time,
+        'convalidation_end_day': end_day, 'convalidation_end_month': str(end_month),
+        'convalidation_end_time': end_time,
+    })
+
+
+def open_convalidation_period(env):
+    """A period covering the whole year, so the portal accepts requests whenever the suite runs."""
+    set_convalidation_period(env, (1, 1, 0.0), (31, 12, 23 + 59 / 60))
+
+
+def close_convalidation_period(env):
+    """A two-day period six months away from today, so the portal refuses requests whenever the
+    suite runs."""
+    month = (fields.Date.today().month + 5) % 12 + 1
+    set_convalidation_period(env, (1, month, 0.0), (2, month, 0.0))
+
+
 def create_convalidation_fixtures(cls):
     """A vocational training study (its level allows convalidations) with two graded subjects and a
     tutorship, a group, the running course, and one user per role involved (Head of Studies,
-    secretary, teacher). Shared with the portal and tour tests."""
+    secretary, teacher). Shared with the portal and tour tests. The portal request period is open
+    all year long."""
+    open_convalidation_period(cls.env)
     Course = cls.env['ems.course']
     cls.course = Course.create({'start': 2094, 'end': 2095})
     cls.env.company.current_course_id = cls.course

@@ -8,21 +8,35 @@ from odoo.addons.portal.controllers.portal import CustomerPortal
 
 
 class EmsPortalConvalidationController(CustomerPortal):
-    """Issue #276 - students (and the families of minors) request subject convalidations from
-    the portal. Always about the student resolved by get_portal_student(): no student id travels
-    in a form, so nobody can file or cancel a request for someone else. sudo because portal users
-    have no ACL on ems.convalidation - see docs/en/developers/grades/convalidation.md."""
+    """Issue #276 - adult students, and the families of minor ones, request subject
+    convalidations from the portal. Always about the student resolved by get_portal_student(): no
+    student id travels in a form, so nobody can file or cancel a request for someone else. New
+    requests only during the yearly request period set in the EMS settings; answering and
+    cancelling are always possible. sudo because portal users have no ACL on ems.convalidation -
+    see docs/en/developers/grades/convalidation.md."""
 
     _redirect = '/my/convalidaciones'
 
-    def _ems_convalidation_student(self):
+    def _ems_convalidation_portal_student(self):
+        """The student the portal user is looking at, whether or not they may act for him."""
         student = request.env.user.partner_id.get_portal_student()
         return student if student.contact_type in ('student', 'applicant') else student.browse()
+
+    def _ems_convalidation_student(self):
+        """The student the portal user acts for (see res.partner._ems_portal_can_act_for), or an
+        empty recordset."""
+        student = self._ems_convalidation_portal_student()
+        return student if request.env.user.partner_id._ems_portal_can_act_for(student) else student.browse()
+
+    def _ems_convalidation_company(self):
+        return request.env.company.sudo()
 
     @http.route('/my/convalidaciones', type='http', auth='user', website=True)
     def portal_convalidations(self, **kwargs):
         partner = request.env.user.partner_id
+        portal_student = self._ems_convalidation_portal_student()
         student = self._ems_convalidation_student()
+        company = self._ems_convalidation_company()
         Convalidation = request.env['ems.convalidation'].sudo()
         study = Convalidation._ems_portal_study(student) if student else request.env['ems.study']
         convalidations = Convalidation.search([('student_id', '=', student.id)]) \
@@ -35,7 +49,11 @@ class EmsPortalConvalidationController(CustomerPortal):
             'page_name': 'convalidations',
             'student': student,
             'students': partner.get_portal_students(),
-            'viewing_as_family': student != partner,
+            'viewing_as_family': portal_student != partner,
+            # A minor on his own account, or the family of an adult student: a notice instead.
+            'age_blocked_student': portal_student if portal_student and not student else portal_student.browse(),
+            'period_open': company._ems_convalidation_period_open(),
+            'period_next_change': company._ems_convalidation_period_next_change(),
             'study': study,
             'requestable_subjects': Convalidation._ems_portal_requestable_subjects(student, study)
             if study else request.env['ems.subject'],
@@ -54,8 +72,12 @@ class EmsPortalConvalidationController(CustomerPortal):
     @http.route('/my/convalidaciones/submit', type='http', auth='user', methods=['POST'], website=True)
     def portal_convalidation_submit(self, **post):
         student = self._ems_convalidation_student()
+        if not student:
+            return request.redirect(self._redirect)
+        if not self._ems_convalidation_company()._ems_convalidation_period_open():
+            return request.redirect(f'{self._redirect}?error=closed')
         Convalidation = request.env['ems.convalidation'].sudo()
-        study = Convalidation._ems_portal_study(student) if student else request.env['ems.study']
+        study = Convalidation._ems_portal_study(student)
         if not study:
             return request.redirect(f'{self._redirect}?error=no_study')
 

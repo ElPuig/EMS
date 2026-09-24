@@ -349,6 +349,7 @@ class TestConvalidation(TransactionCase):
         submitted = request.message_ids.filtered(lambda message: message.subtype_id == comment)
         self.assertEqual(submitted.mapped('subject'), ['Convalidation request submitted'])
         self.assertIn(self.subject.display_name, submitted.body)
+        request.invalidate_recordset(['message_follower_ids', 'message_partner_ids'])
         self.assertFalse(request.message_partner_ids)
         self._line(request).with_user(self.head_of_studies).action_grant()
         request.with_user(self.head_of_studies).action_validate()
@@ -359,6 +360,25 @@ class TestConvalidation(TransactionCase):
         self.assertEqual(len(resolved), 2)
         self.assertIn(self.student.name, resolved[0].subject)
         self.assertEqual(len(self._resolution_mails(request)), 1)
+
+    def test_nobody_ends_up_following_a_request(self):
+        """Posting a comment subscribes its author unless told not to: the Head of Studies
+        asking for documents and validating, and the secretary completing, all post. Followers
+        would be emailed every later message - the resolution included."""
+        request = self._request()
+        self.env['ems.convalidation.info_wizard'].with_user(self.head_of_studies).create({
+            'convalidation_id': request.id, 'message': "Attach the certificate"}).action_send()
+        request._ems_portal_add_documents(self.env['ir.attachment'], "Here it is")
+        self._line(request).with_user(self.head_of_studies).action_grant()
+        request.with_user(self.head_of_studies).action_validate()
+        request.with_user(self.secretary).action_complete()
+        request.invalidate_recordset(['message_follower_ids', 'message_partner_ids'])
+        self.assertFalse(request.message_follower_ids)
+        # So the request emails nobody but the student: the information request and the
+        # resolution, no follower copy of either.
+        mails = self._resolution_mails(request)
+        self.assertEqual(len(mails), 2)
+        self.assertEqual(set(mails.mapped('email_to')), {self.student.email})
 
     def test_cancel_and_reopen_are_communicated(self):
         request = self._request()
@@ -425,6 +445,7 @@ class TestConvalidation(TransactionCase):
         request.with_user(self.secretary).action_complete()
         self.assertFalse(self._tasks(request, 'ems.mail_activity_convalidation_registration'))
         # Scheduling a task never subscribes its assignee to the student's own messages.
+        request.invalidate_recordset(['message_follower_ids', 'message_partner_ids'])
         self.assertFalse(request.message_partner_ids)
 
     def test_rejection_closes_the_pending_task(self):
@@ -526,6 +547,7 @@ class TestConvalidation(TransactionCase):
         self.assertIn(request.name, notices[0].note)
         self.assertIn(self.subject.display_name, notices[0].summary)
         # The notice is their to-do, not a subscription to the student's messages.
+        self.student.invalidate_recordset(['message_follower_ids', 'message_partner_ids'])
         self.assertFalse((self.teacher | tutor).partner_id & self.student.message_partner_ids)
 
     # --- registration number -------------------------------------------------

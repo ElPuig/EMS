@@ -304,16 +304,28 @@ class EmsConvalidation(models.Model):
             body = _("Resolution sent to %s.") % ", ".join(addressable.mapped('email'))
         else:
             body = _("The resolution could not be emailed: nobody to notify has an email address.")
-        self.sudo().message_post(body=body, message_type='comment', subtype_xmlid='mail.mt_note')
+        self._ems_post_note(body)
+
+    def _ems_poster(self):
+        """The request, ready to post on. Nobody follows a request (see create), and posting
+        must keep it that way: message_post() subscribes whoever posts a comment unless told
+        not to, which turned the Head of Studies and the secretary who validated or completed
+        a request into followers - emailed every later message, the resolution included."""
+        return self.sudo().with_context(mail_create_nosubscribe=True)
 
     def _ems_post_communication(self, subject, body):
         """Record a message the student (or the family) has to see on the portal's
         Communications page, which lists the requests' comments but never their internal
-        notes. Nobody follows a request (see create), so posting notifies nobody: the emails
-        are sent on their own terms (_ems_send_resolution)."""
+        notes. Nobody follows a request, so posting notifies nobody: the emails are sent on
+        their own terms (_ems_send_resolution, the information request)."""
         self.ensure_one()
-        self.sudo().message_post(subject=subject, body=body, message_type='comment',
-                                 subtype_xmlid='mail.mt_comment')
+        self._ems_poster().message_post(subject=subject, body=body, message_type='comment',
+                                        subtype_xmlid='mail.mt_comment')
+
+    def _ems_post_note(self, body):
+        """An internal note for the staff, never shown on the portal."""
+        self.ensure_one()
+        self._ems_poster().message_post(body=body, message_type='comment', subtype_xmlid='mail.mt_note')
 
     # --- actions -------------------------------------------------------------
 

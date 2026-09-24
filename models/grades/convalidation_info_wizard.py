@@ -42,5 +42,5 @@ class EmsConvalidationInfoWizard(models.TransientModel):
             note = _("Information requested from %s.") % ", ".join(recipients.mapped('email'))
         else:
             note = _("The request for information could not be emailed: nobody to notify has an email address.")
-        convalidation.sudo().message_post(body=note, message_type='comment', subtype_xmlid='mail.mt_note')
+        convalidation._ems_post_note(note)
         return {'type': 'ir.actions.act_window_close'}

@@ -14,6 +14,10 @@ class EmsLevel(models.Model):
 	acronym = fields.Char(string="Acronym", required=True)
 	name = fields.Char(string="Name", required=True)
 	study_ids = fields.One2many(string="Studies", comodel_name="ems.study", inverse_name="level_id")
+	# Whether students of this level's studies can ask for subject convalidations
+	# (ems.convalidation), from the portal or through the secretariat.
+	allows_convalidation = fields.Boolean(string="Allows convalidations", default=False,
+		help="Students of this level's studies can request subject convalidations.")
 
 	notes = fields.Text(string="Notes")
 

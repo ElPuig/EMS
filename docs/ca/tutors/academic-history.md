@@ -23,6 +23,7 @@ Els registres estan ordenats **per estudi i curs**, de manera que podeu llegir c
 - **Ponderacions congelades:** les ponderacions (interna/EM i per RA) són les vigents aquell curs, desades amb el registre — l'històric continua sent vàlid encara que la programació canviï més endavant.
 
 > L'històric és **només de lectura**: és una còpia congelada del que el subsistema de notes va calcular durant el curs. Si cal corregir alguna cosa, contacteu amb secretaria o amb l'administrador.
+- **Curs actual:** un registre amb aquesta marca és del curs en marxa. Només conté les assignatures convalidades durant el curs (amb la nota, la marca **CV** i el número d'expedient de convalidació); la resta d'assignatures i el resultat s'hi afegeixen en tancar el curs.
 
 ## Marcar un alumne com a graduat
 

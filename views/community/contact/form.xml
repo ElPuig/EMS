@@ -37,6 +37,11 @@
                             invisible="contact_type != 'student' or strike_count == 0">
                         <field name="strike_count" widget="statinfo" string="Strikes"/>
                     </button>
+                    <button name="action_view_convalidations" type="object" class="oe_stat_button" icon="fa-exchange"
+                            invisible="contact_type not in ('student', 'applicant') or convalidation_count == 0"
+                            groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies">
+                        <field name="convalidation_count" widget="statinfo" string="Convalidations"/>
+                    </button>
                 </xpath>
 
                 <xpath expr="//sheet" position="before">
@@ -479,8 +484,10 @@
                     <page name="academic_history" string="Academic history"
                           invisible="contact_type not in ['student', 'alumni', 'withdrawal', 'expelled']">
                         <field name="year_record_ids" readonly="1">
-                            <list default_order="study_name asc, course_id asc">
+                            <list default_order="study_name asc, course_id asc"
+                                  decoration-info="is_provisional">
                                 <field name="course_id"/>
+                                <field name="is_provisional"/>
                                 <field name="study_name"/>
                                 <field name="group_name"/>
                                 <field name="tutor_name" optional="hide"/>

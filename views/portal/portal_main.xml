@@ -33,11 +33,11 @@
                     </t>
 
                     <t t-call="portal.portal_docs_entry">
-                        <t t-set="icon" t-value="'/ems/static/src/img/comunicaciones.svg'"/>
-                        <t t-set="title">Communications</t>
-                        <t t-set="url" t-value="'/my/comunicaciones'"/>
-                        <t t-set="text">Messages, circulars, and notices from the center</t>
-                        <t t-set="config_card" t-value="True"/> 
+                        <t t-set="icon" t-value="'/ems/static/src/img/convalidaciones.svg'"/>
+                        <t t-set="title">Convalidations</t>
+                        <t t-set="url" t-value="'/my/convalidaciones'"/>
+                        <t t-set="text">Request the convalidation of subjects you already passed</t>
+                        <t t-set="config_card" t-value="True"/>
                     </t>
 
                     <t t-call="portal.portal_docs_entry">
@@ -45,6 +45,14 @@
                         <t t-set="title">Documentation</t>
                         <t t-set="url" t-value="'/my/documentacion'"/>
                         <t t-set="text">Manage your official documents</t>
+                        <t t-set="config_card" t-value="True"/> 
+                    </t>
+
+                    <t t-call="portal.portal_docs_entry">
+                        <t t-set="icon" t-value="'/ems/static/src/img/comunicaciones.svg'"/>
+                        <t t-set="title">Communications</t>
+                        <t t-set="url" t-value="'/my/comunicaciones'"/>
+                        <t t-set="text">Messages, circulars, and notices from the center</t>
                         <t t-set="config_card" t-value="True"/> 
                     </t>
 

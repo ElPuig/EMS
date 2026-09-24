@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import calendar
 import logging
+from datetime import date
+
+from pytz import UTC
 
 from odoo.tools import config, email_normalize
 from odoo import _, api, fields, models
@@ -8,6 +12,12 @@ from odoo.exceptions import ValidationError
 from cryptography.fernet import Fernet
 
 _logger = logging.getLogger(__name__)
+
+MONTHS = [
+    ('1', 'January'), ('2', 'February'), ('3', 'March'), ('4', 'April'), ('5', 'May'), ('6', 'June'),
+    ('7', 'July'), ('8', 'August'), ('9', 'September'), ('10', 'October'), ('11', 'November'),
+    ('12', 'December'),
+]
 
 class ems_company(models.Model):
     _inherit = 'res.company'
@@ -55,6 +65,16 @@ class ems_company(models.Model):
 
     schedule_import_first_entry_time = fields.Float(default=8.0)
     schedule_import_last_entry_time  = fields.Float(default=21.0)
+
+    # Issue #276 - yearly period (no year: it repeats every year) during which students and
+    # families can file convalidation requests from the portal, in the centre's local time. Staff
+    # handle requests at any time. See docs/en/developers/grades/convalidation.md.
+    convalidation_start_day = fields.Integer(default=1)
+    convalidation_start_month = fields.Selection(selection=MONTHS, default='10', required=True)
+    convalidation_start_time = fields.Float(default=8.0)
+    convalidation_end_day = fields.Integer(default=31)
+    convalidation_end_month = fields.Selection(selection=MONTHS, default='3', required=True)
+    convalidation_end_time = fields.Float(default=23 + 59 / 60)
 
     current_course_id = fields.Many2one(comodel_name="ems.course")
     enrollment_course_id = fields.Many2one(
@@ -112,6 +132,25 @@ class ems_company(models.Model):
             if company.secretariat_email and not email_normalize(company.secretariat_email):
                 raise ValidationError(_(
                     "%(email)s is not a valid email address.", email=company.secretariat_email))
+
+    @api.constrains('convalidation_start_day', 'convalidation_start_month', 'convalidation_start_time',
+                    'convalidation_end_day', 'convalidation_end_month', 'convalidation_end_time')
+    def _check_convalidation_period(self):
+        month_names = dict(self._fields['convalidation_start_month']._description_selection(self.env))
+        for company in self:
+            start, end = company._ems_convalidation_period_keys()
+            for month, day, minute in (start, end):
+                # A non-leap year: the period has to be the same every year, so no 29 February.
+                if not 1 <= day <= calendar.monthrange(2001, month)[1]:
+                    raise ValidationError(_(
+                        "The convalidation request period uses a day that does not exist: "
+                        "%(day)s %(month)s.", day=day, month=month_names[str(month)]))
+                if not 0 <= minute < 24 * 60:
+                    raise ValidationError(_(
+                        "The convalidation request period's times must be between 00:00 and 23:59."))
+            if start == end:
+                raise ValidationError(_(
+                    "The convalidation request period must open and close at different moments."))
 
     def get_current_course_or_raise(self):
         """The configured "Current course" (current_course_id), or a friendly ValidationError
@@ -237,6 +276,46 @@ class ems_company(models.Model):
             ('model', 'in', self._EMS_LIVING_CUSTOM_DATA_MODELS),
             ('noupdate', '=', False),
         ]).write({'noupdate': True})
+
+    def _ems_convalidation_period_keys(self):
+        """(month, day, minute of the day) of the convalidation request period's opening and
+        closing: tuples in calendar order, whatever the year."""
+        self.ensure_one()
+        return tuple((int(month), day, round(time * 60)) for day, month, time in (
+            (self.convalidation_start_day, self.convalidation_start_month, self.convalidation_start_time),
+            (self.convalidation_end_day, self.convalidation_end_month, self.convalidation_end_time),
+        ))
+
+    def _ems_convalidation_datetime_utils(self):
+        """ems.datetime_utils in the centre's own time zone, whoever is asking."""
+        return self.env['ems.datetime_utils'].with_context(tz=self.partner_id.tz)
+
+    def _ems_convalidation_now_key(self, now):
+        local = self._ems_convalidation_datetime_utils().utc_datetime_to_local(
+            (now or fields.Datetime.now()).replace(tzinfo=UTC))
+        return local.year, (local.month, local.day, local.hour * 60 + local.minute)
+
+    def _ems_convalidation_period_open(self, now=None):
+        """Whether students and families can file convalidation requests from the portal at `now`
+        (naive UTC, defaults to the current moment). The closing minute is still inside; a
+        period whose opening comes after its closing in the calendar spans the new year."""
+        self.ensure_one()
+        start, end = self._ems_convalidation_period_keys()
+        now_key = self._ems_convalidation_now_key(now)[1]
+        if start < end:
+            return start <= now_key <= end
+        return now_key >= start or now_key <= end
+
+    def _ems_convalidation_period_next_change(self, now=None):
+        """The next time the period opens (while closed) or closes (while open), as naive UTC."""
+        self.ensure_one()
+        start, end = self._ems_convalidation_period_keys()
+        year, now_key = self._ems_convalidation_now_key(now)
+        month, day, minute = end if self._ems_convalidation_period_open(now) else start
+        if (month, day, minute) < now_key:
+            year += 1
+        utils = self._ems_convalidation_datetime_utils()
+        return utils.datetime_to_odoo(utils.time_float_to_utc_datetime(date(year, month, day), minute / 60))
 
     @api.model
     def _get_fernet_key(self):

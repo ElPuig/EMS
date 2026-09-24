@@ -113,6 +113,19 @@ class ems_contact_portal(models.Model):
             return family
         return self
 
+    def _ems_portal_can_act_for(self, student):
+        """Whether this portal partner may act on the student's behalf: the student himself once
+        he is an adult, or his family while he is a minor. A student with no birth date counts as
+        a minor. Portal access is granted along the same line (_ems_notification_recipients), but
+        not kept in step with it: a family keeps its account when the student turns 18, and a
+        minor applicant with no family on file gets his own."""
+        self.ensure_one()
+        if not student:
+            return False
+        if student == self:
+            return student.is_adult
+        return not student.is_adult and student in self.get_portal_students()
+
     def get_portal_student(self, student_id=None):
         """Returns the student partner for this partner.
 

@@ -824,6 +824,11 @@ class SaleOrder(models.Model):
         Enrollment = self.env['ems.enrollment'].sudo()
         subjects = self.env['ems.subject'].sudo().search([
             ('product_id', 'in', self.order_line.product_id.ids)])
+        # A convalidated subject is never taken again (issue #276): completing the convalidation
+        # already withdrew the student from it, and a placement confirmed afterwards must not
+        # enrol them back.
+        ConvalidationLine = self.env['ems.convalidation.line']
+        subjects = subjects.filtered(lambda subject: not ConvalidationLine._ems_is_convalidated(student, subject))
         for subject in subjects:
             # A subject the student is retaking from an earlier course (a repeater's
             # pending module, mixed into the same order as the current course's own

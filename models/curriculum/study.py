@@ -77,6 +77,11 @@ class EmsStudy(models.Model):
         courses = self.env['ems.group'].search([('study_id', '=', self.id)]).mapped('course')
         return max(courses) if courses else 0
 
+    def _ems_convalidable_subjects(self):
+        """Subjects of this study a student can ask to convalidate: all of them but the
+        tutorship, which is not an evaluated subject. Tolerates an empty recordset."""
+        return self.subject_ids.filtered(lambda subject: not subject.is_tutorship)
+
     def _subjects_common_to_all(self):
         """Subjects taught in EVERY study in 'self' - the intersection (an empty recordset if
         'self' itself is empty, or once any one study in it teaches nothing at all). Shared by

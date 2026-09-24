@@ -54,6 +54,7 @@
                                 <field name="is_overridden"/>
                                 <field name="final_score"/>
                                 <field name="has_final"/>
+                                <field name="is_convalidated"/>
                                 <field name="notes"/>
                             </list>
                         </field>

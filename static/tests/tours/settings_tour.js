@@ -45,6 +45,21 @@ registry.category("web_tour.tours").add("ems_settings_edit", {
             run: "edit https://tour.limesurvey.example.com",
         },
         {
+            trigger: ".app_settings_block[data-key='ems'] .o_field_widget[name='convalidation_start_day'] input",
+            content: "Edit the day the convalidation request period opens",
+            run: "edit 15",
+        },
+        {
+            trigger: ".app_settings_block[data-key='ems'] .o_field_widget[name='convalidation_end_month'] select",
+            content: "Edit the month the convalidation request period closes",
+            run: "selectByLabel April",
+        },
+        {
+            trigger: ".app_settings_block[data-key='ems'] .o_field_widget[name='convalidation_end_time'] input",
+            content: "Edit the time the convalidation request period closes",
+            run: "edit 20:30",
+        },
+        {
             trigger: ".app_settings_block[data-key='ems'] .o_field_widget[name='google_ws_enabled'] input[type='checkbox']",
             content: "Toggle Google Workspace enabled",
             run: "click",

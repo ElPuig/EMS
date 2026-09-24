@@ -111,6 +111,7 @@ The changes are stored in a **local draft** and are not saved until you press **
 - **Internal grade:** weighted average of the **evaluated** outcomes according to their weights (0–10). If any is missing, it is **provisional**; if any evaluated outcome is failed, it is **capped at 4**.
 - **Work-placement grade:** informed in the **External** column.
 - **Final grade:** combines the internal and external grades according to the planning percentages. To pass, **both parts must be passed**; if one is failed, the final grade is capped at 4.
+- **CV** (after the grade): the subject is convalidated for the student. It counts as passed with the convalidation's grade and needs no grades. When a convalidation is completed, you get a **Convalidated subject** activity in your inbox (🕒) and the student stops taking the subject.
 - **Overriding the internal grade:** ticking the **Ovr.** checkbox lets you set the internal grade manually instead of letting it be computed from the outcomes.
 
 ---

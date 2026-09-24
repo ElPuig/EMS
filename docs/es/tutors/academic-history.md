@@ -23,6 +23,7 @@ Los registros están ordenados **por estudio y curso**, de modo que puede leer c
 - **Ponderaciones congeladas:** las ponderaciones (interna/EM y por RA) son las vigentes ese curso, guardadas con el registro — el histórico sigue siendo válido aunque la programación cambie más adelante.
 
 > El histórico es **solo de lectura**: es una copia congelada de lo que el subsistema de notas calculó durante el curso. Si hay que corregir algo, contacte con secretaría o con el administrador.
+- **Curso actual:** un registro con esta marca es del curso en marcha. Solo contiene las asignaturas convalidadas durante el curso (con la nota, la marca **CV** y el número de expediente de convalidación); el resto de asignaturas y el resultado se añaden al cerrar el curso.
 
 ## Marcar a un alumno como graduado
 

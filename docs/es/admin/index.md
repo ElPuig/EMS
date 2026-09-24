@@ -14,6 +14,7 @@ Esta sección contiene los manuales para **administradores**.
 - [Estudios](curriculum-studies.md) — Configuración curricular: programas de estudio, sus asignaturas y documentos curriculares.
 - [Asignaturas](curriculum-subjects.md) — Configuración curricular: asignaturas, sus resultados de aprendizaje/contenidos, y la sincronización automática del producto de facturación.
 - [Curso Actual](course-settings.md) — Cambiar el año académico utilizado para las operaciones del día a día.
+- [Configuración de convalidaciones](convalidation-settings.md) — El periodo anual en que el alumnado y las familias pueden solicitar convalidaciones desde el portal.
 - [Grupos de trabajo](workgroups.md) — Agrupaciones libres de empleados (equipos de proyecto, comisiones).
 - [Espacios y tipos de espacio](facilities.md) — Aulas físicas y sus tipos, usados en sesiones/grupos/actas/horarios.
 - [Roles de profesorado y niveles de permisos](teacher-roles.md) — Cómo asignar roles (Tutor, Jefe de departamento, Jefe de estudios, Director...) para conceder niveles de permisos.

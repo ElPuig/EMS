@@ -28,8 +28,9 @@ Al abrir el menú se muestra una lista de todos los niveles ordenada alfabética
 2. Rellena los campos obligatorios:
    - **Acrónimo** *(obligatorio)*: Código corto que se utiliza en todo el sistema (p. ej., `BTX`, `CFGM`).
    - **Nombre** *(obligatorio)*: Nombre descriptivo completo (p. ej., `Batxillerat`, `Cicles Formatius Grau Mitjà`).
-3. Opcionalmente, añade notas libres en la pestaña **Notas**.
-4. Haz clic en **Guardar** (o usa las migas de pan para navegar — Odoo guarda automáticamente).
+3. Marca **Admite convalidaciones** si el alumnado de los estudios de este nivel puede solicitar convalidaciones de módulos (véase [Convalidaciones](../head_of_studies/convalidations.md)).
+4. Opcionalmente, añade notas libres en la pestaña **Notas**.
+5. Haz clic en **Guardar** (o usa las migas de pan para navegar — Odoo guarda automáticamente).
 
 > La pestaña **Estudios** muestra todos los estudios vinculados a este nivel. Los estudios se gestionan desde su propio menú (**Configuración → Currículum → Estudios**) y no se pueden añadir directamente desde el formulario del nivel.
 

@@ -15,6 +15,10 @@ from . import test_exit_management
 from . import test_level
 from . import test_level_tour
 from . import test_student_document
+from . import test_convalidation
+from . import test_convalidation_period
+from . import test_portal_convalidation
+from . import test_convalidation_tour
 from . import test_tutor_scope
 from . import test_student_document_tour
 from . import test_student_google_workspace

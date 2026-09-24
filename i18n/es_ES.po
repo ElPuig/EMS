@@ -3629,7 +3629,7 @@ msgstr "Nota prácticas empresa informada"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute__nature__extraordinary
 msgid "Extraordinary"
-msgstr "Extraordinario"
+msgstr "Extraordinaria"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_notice__state__failed model:ir.model.fields.selection,name:ems.selection__ems_notice_line__display_status__failed
@@ -5414,7 +5414,7 @@ msgstr "Abriendo encuestas"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute__nature__ordinary
 msgid "Ordinary"
-msgstr "Común"
+msgstr "Ordinaria"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -14840,3 +14840,9 @@ msgstr "La decisión del jefe de área que aprueba las ausencias de este trabaja
 #: model:ir.model.fields,help:ems.field_hr_leave__ems_status
 msgid "Where the request stands between its two approvals, the Head's and Direction's, which can happen in either order. The absence takes effect (calendar, hour balance, guard duty board) as soon as the Head approves it."
 msgstr "En qué punto está la solicitud entre sus dos aprobaciones, la de la jefatura y la de Dirección, que pueden llegar en cualquier orden. La ausencia tiene efecto (calendario, saldo de horas, cuadrante de guardias) en cuanto la aprueba la jefatura."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_document.py:0
+msgid "Document Submission: %(document)s - %(student)s"
+msgstr "Tramitación de documento: %(document)s - %(student)s"

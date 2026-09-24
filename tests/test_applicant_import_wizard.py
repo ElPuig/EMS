@@ -245,6 +245,20 @@ class TestApplicantImportWizard(TransactionCase):
         self.assertIn('7000001', csv_text)
         self.assertIn(self.study.display_name, csv_text)
 
+    def test_active_students_csv_shift_follows_language(self):
+        self.env['res.partner'].create({
+            'name': 'Old Name', 'contact_type': 'student', 'student_id': '7000003',
+            'main_group_id': self.group.id,
+        })
+        # Set on purpose rather than relying on i18n/ca_ES.po (see test_minute.py).
+        self.env['res.lang']._activate_lang('ca_ES')
+        self.env.ref('ems.selection__res_partner__preinscription_shift__afternoon').with_context(
+            lang='ca_ES').name = 'Torn de tarda'
+        self.env = self.env(context=dict(self.env.context, lang='ca_ES'))
+        wizard = self._run([self._base_row(**{'Ident. RALC': 7000003, 'Torn assignat': 'Tarda'})])
+        csv_text = base64.b64decode(wizard.students_file).decode('utf-8-sig')
+        self.assertIn('Torn de tarda', csv_text)
+
     def test_alumni_becomes_applicant(self):
         alumni = self.env['res.partner'].create({
             'name': 'Return Student', 'contact_type': 'alumni', 'student_id': '7000002',

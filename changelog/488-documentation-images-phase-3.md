@@ -18,3 +18,28 @@
 - The controller now passes those labels built from `fields_get()` (translated into the visitor's
   language, the same way `benefit_types` already was), and the upload windows take their titles
   from them. Regression test: `TestPortalActions.test_documentation_page_translates_selection_labels`.
+
+## Student documents: type labels and record name in English in the backend and in e-mails:
+- `ems.student.document._doc_label()` read the type's raw selection, so the chatter messages
+  (approved/rejected/cancelled are e-mailed to the family, e.g. "Document approved: Passport"),
+  the secretary's review task and the record name were always in English. It now uses the
+  translated selection labels, in the language of the user performing the action.
+- The record name ("Document Submission: ...", also the notification e-mail subject) was stored in
+  English with an untranslatable prefix; it is now computed on the fly in the reader's own
+  language (`depends_context('lang')`, no longer stored), translatable, with name search kept by
+  student. No migration needed; the old `name` column is simply no longer used.
+- Tests in `TestStudentDocument` set the Catalan selection labels explicitly, so they don't depend
+  on the `.po` files being loaded.
+
+## Other labels shown in English regardless of the user's language:
+- Minutes: the record name ("Department meeting: ... (Ordinary)") and the "Members" column
+  ("Department: ..."/"Workgroup: ...") now use the translated type/nature labels and the group
+  field's own translated label, computed per reader language.
+- Applicant import (GEDAC): the assigned shift in the active-students CSV is now in the user's
+  language ("Tarda" instead of "Afternoon").
+- Group/teacher classroom change wizard: the weekday in each conflict line's label is translated.
+- All three read the field's raw selection (English source); they now use
+  `_description_selection()`. Each has a test that sets the Catalan label explicitly.
+- Minute nature labels corrected: Spanish "Común" -> "Ordinaria" (and "Extraordinaria"), Catalan
+  now feminine ("Ordinària"/"Extraordinària"), agreeing with "reunió"/"reunión" and
+  "natura"/"naturaleza".

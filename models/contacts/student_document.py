@@ -9,11 +9,12 @@ class EmsStudentDocument(models.Model):
     _description = 'Student document submission'
     _order = 'upload_date desc'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+    # name is computed in the reader's language, so it is not stored: search by student instead.
+    _rec_names_search = ['partner_id']
 
     name = fields.Char(
         string='Name',
         compute='_compute_name',
-        store=True,
     )
     partner_id = fields.Many2one('res.partner', required=True, ondelete='cascade', index=True)
     doc_type = fields.Selection([
@@ -55,18 +56,22 @@ class EmsStudentDocument(models.Model):
     def _doc_label(self):
         """Human-readable label for this document's doc_type, in the current language."""
         self.ensure_one()
-        return dict(self._fields['doc_type'].selection).get(self.doc_type, self.doc_type or '')
+        labels = dict(self._fields['doc_type']._description_selection(self.env))
+        return labels.get(self.doc_type, self.doc_type or '')
 
     @api.depends('doc_type', 'partner_id', 'benefit_type')
+    @api.depends_context('lang')
     def _compute_name(self):
         for document in self:
             doc_label = document._doc_label()
             if document.doc_type == 'benefit' and document.benefit_type:
-                benefit_labels = dict(self.env['ems.student.benefit']._fields['benefit_type'].selection)
+                benefit_labels = dict(self.env['ems.student.benefit']._fields['benefit_type']
+                                      ._description_selection(self.env))
                 benefit_label = benefit_labels.get(document.benefit_type, document.benefit_type)
-                doc_label = f'{doc_label} – {benefit_label}'
+                doc_label = f'{doc_label} - {benefit_label}'
             student = document.partner_id.name or ''
-            document.name = f'Document Submission: {doc_label} – {student}'
+            document.name = _('Document Submission: %(document)s - %(student)s',
+                              document=doc_label, student=student)
 
     @api.depends('doc_file', 'doc_file_name')
     def _compute_doc_file_link(self):

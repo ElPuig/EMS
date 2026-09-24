@@ -68,6 +68,17 @@ class TestGroupClassroomChange(TransactionCase):
         })
         return block, schedule
 
+    def test_block_label_weekday_follows_language(self):
+        block, _schedule = self._create_synced_block(self.teacher, self.group, self.old_space, weekday='0')
+        # Set on purpose rather than relying on the .po files, so a database loaded without the
+        # Catalan translations still proves the label goes through the translation layer.
+        self.env['res.lang']._activate_lang('ca_ES')
+        self.env.ref('resource.selection__resource_calendar_attendance__dayofweek__0').with_context(
+            lang='ca_ES').name = 'Dilluns (prova)'
+        Wizard = self.env['ems.group_classroom_change_wizard']
+        self.assertIn('Dilluns (prova)', Wizard.with_context(lang='ca_ES')._block_label(block))
+        self.assertIn('Monday', Wizard.with_context(lang='en_US')._block_label(block))
+
     def test_write_without_affected_blocks_is_noop(self):
         self.group.write({'space_id': self.new_space.id})
         self.assertEqual(self.group.space_id, self.new_space)

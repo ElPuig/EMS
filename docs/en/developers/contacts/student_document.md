@@ -72,7 +72,9 @@ A non-stored `Html` field building a download link (`/web/content/<attachment_id
 
 ## `_doc_label()`
 
-Small shared helper (`dict(self._fields['doc_type'].selection).get(self.doc_type, ...)`) — the human-readable label for a document's type. It reads the field's raw selection, so it always returns the English source label, whatever the language of the acting user (see `plans/student_document_label_translation.md`). Used by `_compute_name`, every chatter message, and `_schedule_review_activities`'s task summary, so the six near-identical message bodies across `create()`/`action_approve()`/`action_reject()`/`action_cancel()`/`action_reset_to_pending()` don't each re-derive it.
+Small shared helper — the human-readable label for a document's type, in the current language (`self._fields['doc_type']._description_selection(self.env)`, the same translated labels `fields_get()` returns; reading `_fields[...].selection` directly would give the English source). A chatter message or review task built from it is stored as text, so it stays in the language of the user who triggered it (usually the secretary approving/rejecting), as is standard in Odoo.
+
+`name` (the display name: breadcrumb, form title, notification e-mail subject) is computed on the fly, not stored, with `@api.depends_context('lang')`, so every reader sees it in their own language. `_rec_names_search = ['partner_id']` keeps name search working (by student). Used by `_compute_name`, every chatter message, and `_schedule_review_activities`'s task summary, so the six near-identical message bodies across `create()`/`action_approve()`/`action_reject()`/`action_cancel()`/`action_reset_to_pending()` don't each re-derive it.
 
 ---
 

@@ -330,7 +330,8 @@ class EmsApplicantImportWizard(models.TransientModel):
         """
         gedac_name = ' '.join(filter(None, [
             get('Nom'), get('Primer cognom'), get('Segon cognom')]))
-        shift_label = dict(self.env['res.partner']._fields['preinscription_shift'].selection).get(shift, '')
+        shift_label = dict(self.env['res.partner']._fields['preinscription_shift']
+                           ._description_selection(self.env)).get(shift, '')
         student.write({
             'preinscription_study_id': study.id,
             'preinscription_shift': shift,

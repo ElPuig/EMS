@@ -589,10 +589,8 @@ Gotchas:
 - **Portal pages are QWeb, not OWL: a selection label read as `record._fields[f].selection` in the
   template is the English source, never translated.** Found `/my/documentacion` showing "Pending
   review"/"Passport" to a Catalan family; fixed in this branch by passing `fields_get()` labels from
-  the controller. The same raw-selection pattern still lives in
-  `ems.student.document._doc_label()` (backend/chatter) - see
-  `plans/student_document_label_translation.md`. Worth grepping any other portal template before
-  capturing it.
+  the controller (and the same pattern in `ems.student.document._doc_label()`, backend/chatter, fixed
+  right after). Worth grepping any other portal template before capturing it.
 - **A header dropdown overflows its own element**, so clipping to `.ems-custom-navbar` would cut it
   off: clip to `#wrapwrap` with `max_height` instead.
 - **Bootstrap modals**: `click='button[data-bs-target="#modal-x"]'` + `wait_after='#modal-x.show'`,

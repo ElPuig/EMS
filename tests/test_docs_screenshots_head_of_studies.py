@@ -144,6 +144,26 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
             'domain': [('id', 'in', cls.report_lines.ids)],
         })
 
+        # --- Plannings (Planning and Grading > Plannings) ---
+        outcomes = cls.env['ems.outcome'].create([
+            {'code': f'DHOS01_0{n}RA', 'acronym': f'RA{n}', 'name': f'Resultat d\'aprenentatge {n}',
+             'subject_id': cls.subject.id}
+            for n in (1, 2, 3)
+        ])
+        cls.planning = cls.env['ems.planning'].create({
+            'study_id': cls.study.id, 'subject_id': cls.subject.id,
+            'internal_ponderation': 90.0, 'external_ponderation': 10.0,
+            'planning_outcome_ids': [(0, 0, {'outcome_id': outcome.id, 'ponderation': weight})
+                                     for outcome, weight in zip(outcomes, (30.0, 40.0, 30.0))],
+        })
+        # Scoped to the fixture: the real action would list every real planning of the centre.
+        cls.planning_action = cls.env['ir.actions.act_window'].create({
+            'name': 'Planificacions',
+            'res_model': 'ems.planning',
+            'view_mode': 'list,form',
+            'domain': [('id', '=', cls.planning.id)],
+        })
+
         # --- Notices ---
         cls.notice_a = cls.env['ems.notice'].with_user(cls.hos_user).create({
             'subject': 'Reunió de nivell', 'message': '<p>Recordatori de la reunió de nivell.</p>',
@@ -245,4 +265,14 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
             '/odoo/action-ems.action_strike_list/%d' % self.strike.id,
             '.o_form_sheet', 'hos-strike-kicked-out.png',
             login='doc_shot_hos', wait_for=".o_form_sheet div[name='kicked_out']",
+        )
+        self._capture(
+            '/odoo/action-%d' % self.planning_action.id,
+            '.o_list_table', 'hos-planning-list.png',
+            login='doc_shot_hos', wait_for='.o_list_renderer .o_data_row',
+        )
+        self._capture(
+            '/odoo/action-%d/%d' % (self.planning_action.id, self.planning.id),
+            '.o_form_sheet', 'hos-planning-form.png',
+            login='doc_shot_hos', wait_for=".o_form_sheet div[name='planning_outcome_ids'] .o_data_row",
         )

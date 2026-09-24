@@ -57,3 +57,30 @@ Five plannings for the same module ("MP 1665: Digitalització aplicada als secto
 had grading weights across their learning outcomes that added up to 106% instead of 100%, dating
 back to an outcome added to the curriculum without its weight being reconciled against the
 others. Corrected to the intended split (15/20/15/20/15/15 across its six learning outcomes).
+
+# Internal changes
+
+## Upgrade migration fixes found during the release close review:
+- The step that copies every existing planning into the past academic years never copied
+  anything on a real upgrade: Odoo stamps the new course column of every existing planning with
+  the current course, but the step looked for plannings in the oldest course. It now copies from
+  the current course into every earlier one (never into future ones), with a regression test.
+- The "MP 1665" ponderation fix deleted and recreated the centre's own seeded outcome lines, so
+  the next update would have seeded them again next to the new ones (twelve lines, 200%). It now
+  corrects each line in place and only removes duplicates, with a regression test.
+- Both fixes verified against a real production backup (18.0.0.27.1) upgraded to this version:
+  every planning copied into the two past courses (132 per course), every planning summing
+  exactly 100%, and a second update leaving subject 1665 untouched.
+
+## Head of Studies plannings manual and translation fixes (close review):
+- New Head of Studies manual (ca/es/en) for creating and editing plannings, with screenshots
+  generated from made-up data, linked from the role's index.
+- Translation fixes: the plannings' chatter fields, a planning search error message, the Spanish
+  "Followers" label (was misspelt on every screen with a chatter) and the Spanish learning-outcome
+  ponderation tab title.
+
+## Head of Studies can remove a planning's outcome lines:
+- Head of Studies/Deputy could adjust and add learning-outcome weights on a planning but got an
+  access error when removing a line (an outcome dropped from the curriculum, or changing a saved
+  planning's subject). They can now remove lines; deleting a whole planning is still reserved to
+  the academic administration.

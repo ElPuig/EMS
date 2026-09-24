@@ -63,14 +63,17 @@
     </record>
 
     <record id="rule_planning_outcome_hos_all" model="ir.rule">
-        <!-- Same as rule_planning_hos_all, for the outcome ponderation lines. -->
-        <field name="name">Planning outcome: all data (Head of Studies, no unlink)</field>
+        <!-- Same as rule_planning_hos_all, for the outcome ponderation lines - except that
+             unlink IS allowed here: removing a line is part of rebalancing a planning (an
+             outcome dropped from the curriculum, or the subject changed, which empties the
+             lines). Only deleting a whole planning stays reserved to academic_admin. -->
+        <field name="name">Planning outcome: all data (Head of Studies)</field>
         <field name="model_id" ref="ems.model_ems_planning_outcome"/>
         <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>
-        <field name="perm_unlink" eval="False"/>
+        <field name="perm_unlink" eval="True"/>
     </record>
 </odoo>

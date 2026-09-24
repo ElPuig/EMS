@@ -65,8 +65,8 @@ def _ems_seed_current_course(env):
     academic-year cutover logic - not worth it yet, per the developer) and sets it as current, so
     a fresh install starts in a sane state. See plans/current_course_auto_seed.md.
 
-    Reuses an existing course for that year if one already exists (e.g. a centre's own
-    data/custom/ems.course.csv-style seed data already covers it) instead of creating a
+    Reuses an existing course for that year if one already exists (e.g. an existing
+    installation's __import__-owned courses already cover it) instead of creating a
     duplicate - ems.course's own unique_course_name constraint would block that anyway."""
     year = datetime.now().year
     course = env['ems.course'].search([('start', '=', year)], limit=1) \

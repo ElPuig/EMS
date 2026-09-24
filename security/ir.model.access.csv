@@ -182,7 +182,7 @@ ems.access_ems_planning_teacher,ems.access_ems_planning_teacher,ems.model_ems_pl
 ems.access_ems_planning_secretary,ems.access_ems_planning_secretary,ems.model_ems_planning,ems.group_secretary,1,0,0,0
 
 ems.access_ems_planning_outcome_admin,ems.access_ems_planning_outcome_admin,ems.model_ems_planning_outcome,ems.group_academic_admin,1,1,1,1
-ems.access_ems_planning_outcome_head_of_studies,ems.access_ems_planning_outcome_head_of_studies,ems.model_ems_planning_outcome,ems.group_head_of_studies,1,1,1,0
+ems.access_ems_planning_outcome_head_of_studies,ems.access_ems_planning_outcome_head_of_studies,ems.model_ems_planning_outcome,ems.group_head_of_studies,1,1,1,1
 ems.access_ems_planning_outcome_teacher,ems.access_ems_planning_outcome_teacher,ems.model_ems_planning_outcome,ems.group_teacher,1,0,0,0
 ems.access_ems_planning_outcome_secretary,ems.access_ems_planning_outcome_secretary,ems.model_ems_planning_outcome,ems.group_secretary,1,0,0,0
 

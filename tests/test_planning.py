@@ -1,3 +1,6 @@
+import importlib.util
+import os
+
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
@@ -106,6 +109,22 @@ class TestPlanningAccess(TransactionCase):
     def test_hos_cannot_unlink_planning(self):
         with self.assertRaises(AccessError):
             self.planning_other.with_user(self.hos_user).unlink()
+
+    def test_hos_can_remove_an_outcome_line(self):
+        # Rebalancing a planning (e.g. a learning outcome dropped from the curriculum) removes a
+        # line - only deleting the whole planning stays reserved to the academic administration.
+        second_outcome = self.env['ems.outcome'].create({
+            'code': 'TPLSB2_02RA', 'acronym': 'RA2', 'name': 'Outcome 2', 'subject_id': self.subject_other.id,
+        })
+        self.planning_other.write({'planning_outcome_ids': [
+            (1, self.planning_other.planning_outcome_ids.id, {'ponderation': 60.0}),
+            (0, 0, {'outcome_id': second_outcome.id, 'ponderation': 40.0}),
+        ]})
+        kept, removed = self.planning_other.planning_outcome_ids.sorted('ponderation', reverse=True)
+        self.planning_other.with_user(self.hos_user).write({'planning_outcome_ids': [
+            (1, kept.id, {'ponderation': 100.0}), (2, removed.id),
+        ]})
+        self.assertEqual(self.planning_other.planning_outcome_ids, kept)
 
     def test_is_own_subject_computed_per_teaching(self):
         # hos_teaching_user can read BOTH plannings (rule_planning_hos_all) but only teaches
@@ -281,3 +300,68 @@ class TestPlanningLogic(TransactionCase):
             ])
             self.assertTrue(custom_data, "no __import__-owned %s found - fixture assumption broken" % model)
             self.assertTrue(all(custom_data.mapped('noupdate')), "%s rows not frozen" % model)
+
+    # --- migration: replicate plannings across past courses (18.0.0.28.0) ---
+
+    @classmethod
+    def _load_post_migrate_module(cls):
+        path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)),
+            'migrations', '18.0.0.28.0', 'post-migrate.py')
+        spec = importlib.util.spec_from_file_location('ems_post_migrate_18_0_0_28_0', path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_migration_replicates_plannings_into_past_courses(self):
+        # On upgrade, Odoo's _init_column() stamps every pre-existing planning with the field's
+        # default (the current course) when the course_id column is created, so the migration
+        # starts from plannings that all sit on the current course, never on the oldest one.
+        current = self.env.company.current_course_id
+        past = self.env['ems.course'].create({'start': current.start - 20, 'end': current.start - 19})
+        self.env['ems.planning'].create({
+            'study_id': self.study.id, 'subject_id': self.subject.id, 'course_id': current.id,
+            'planning_outcome_ids': [
+                (0, 0, {'outcome_id': self.outcome1.id, 'ponderation': 60.0}),
+                (0, 0, {'outcome_id': self.outcome2.id, 'ponderation': 40.0}),
+            ],
+        })
+        migration = self._load_post_migrate_module()
+        for _run in range(2):  # the second run proves it idempotent
+            migration._replicate_plannings_across_history(self.env)
+            copies = self.env['ems.planning'].search([
+                ('study_id', '=', self.study.id), ('subject_id', '=', self.subject.id),
+            ])
+            history = self.env['ems.course'].search([('start', '<=', current.start)])
+            self.assertIn(past, history)
+            self.assertEqual(copies.course_id, history)  # never a future course
+            self.assertEqual(len(copies), len(history))
+        past_copy = copies.filtered(lambda planning: planning.course_id == past)
+        self.assertEqual(
+            {(line.outcome_id, line.ponderation) for line in past_copy.planning_outcome_ids},
+            {(self.outcome1, 60.0), (self.outcome2, 40.0)})
+
+    def test_migration_fixes_subject_1665_keeping_the_csv_lines(self):
+        # The rebuild must correct the weights in place, keeping each CSV-owned line (and its
+        # xmlid): deleting and recreating them lets the CSV recreate its own lines on the next
+        # upgrade, doubling every planning's weights to 200%.
+        csv_lines = self.env['ir.model.data'].search([
+            ('module', '=', '__import__'), ('model', '=', 'ems.planning_outcome'),
+            ('name', '=like', 'planning_%_1665_outcome_%'),
+        ])
+        self.assertTrue(csv_lines, "no CSV-owned 'MP 1665' outcome lines - fixture assumption broken")
+        planning = self.env['ems.planning_outcome'].browse(csv_lines[0].res_id).planning_id
+        planning_csv_line_ids = set(csv_lines.mapped('res_id')) & set(planning.planning_outcome_ids.ids)
+        # A stray duplicate, like the manual 6th line the fix exists for.
+        planning.with_context(install_mode=True).write({'planning_outcome_ids': [(0, 0, {
+            'outcome_id': planning.planning_outcome_ids[0].outcome_id.id, 'ponderation': 6.0,
+        })]})
+        migration = self._load_post_migrate_module()
+        for _run in range(2):  # the second run proves it idempotent
+            migration._fix_subject_1665_outcome_ponderation(self.env)
+            planning.invalidate_recordset()
+            self.assertEqual(
+                sorted(planning.planning_outcome_ids.mapped('ponderation')),
+                [15.0, 15.0, 15.0, 15.0, 20.0, 20.0])
+            self.assertLessEqual(planning_csv_line_ids, set(planning.planning_outcome_ids.ids),
+                                 "a CSV-owned line was deleted: the CSV would recreate it next upgrade")

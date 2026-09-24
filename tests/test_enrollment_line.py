@@ -150,3 +150,19 @@ class TestEnrollmentLine(TransactionCase):
         order = self._order()
         order.order_line = [(0, 0, {'product_id': tutoria_subject.product_id.id})]
         self.assertTrue(order.order_line.ems_is_tutoria)
+
+    # --- enrollment PDF ---------------------------------------------------------------
+
+    def test_enrollment_report_renders_a_discounted_line(self):
+        # Odoo's XML loader turns '%%' into '%' in a template (tools/convert.py::_process), so a
+        # '-%d%%' format written in the template reached the database as '-%d%' and crashed the
+        # PDF of every enrollment with a bonification ("incomplete format").
+        order = self._order()
+        order.order_line = [
+            (0, 0, {'product_id': self.subject1.product_id.id}),
+            (0, 0, {'product_id': self.fee_product.product_variant_id.id}),
+        ]
+        self._fee_line(order).discount = 50.0
+        html, _content_type = self.env['ir.actions.report']._render_qweb_html(
+            'ems.report_enrollment', order.ids)
+        self.assertIn('-50%', html.decode())

@@ -48,8 +48,8 @@ class EmsCourse(models.Model):
 		"""Mark an enrollment default when no course carries one, and only then.
 
 		'is_enrollment_default' is live application state, not configuration: the centre
-		moves it when it opens the following year's campaign. That is why it is NOT a
-		column of data/custom/ems.course.csv - a synced column would silently revert that
+		moves it when it opens the following year's campaign. That is why it must never be
+		a column of a course data file - a synced column would silently revert that
 		move on the next upgrade, and new enrollments would start landing on the wrong
 		course (see CLAUDE.md, "fields that are live application state").
 

@@ -110,7 +110,7 @@ class TestCourse(TransactionCase):
             self.test_course.with_user(self.secretary_user).unlink()
 
     # --- seeding the enrollment default -------------------------------------
-    # is_enrollment_default is not a column of data/custom/ems.course.csv (it is live
+    # is_enrollment_default is never a column of a course data file (it is live
     # state the centre moves when it opens the next campaign, and a synced column would
     # revert that move on every upgrade), so post_init_hook and the 18.0.0.22.0
     # post-migrate seed it through this helper instead.

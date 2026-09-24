@@ -230,6 +230,14 @@ the other 5 (CSV-declared) outcome lines back to their original file values, lea
 106% — silently, since the constraint only fires on a real create/write, never on a CSV resync
 under `install_mode`. Both models added to `_EMS_LIVING_CUSTOM_DATA_MODELS`.
 
+**A migration must correct a `data/custom/` record in place, never delete and recreate it.**
+Deleting an `__import__`-owned record deletes its `ir.model.data` row too, so on the next upgrade
+the CSV no longer finds its xmlid and creates the record again — alongside whatever the migration
+put in its place. The 18.0.0.28.0 fix of subject 1665's ponderations first did exactly that
+(unlink every outcome line, recreate six without xmlids), which would have left each of those
+plannings with twelve lines summing 200% one upgrade later; it now updates the CSV-owned line of
+each outcome and only removes duplicates (`_fix_subject_1665_outcome_ponderation`).
+
 **Not yet audited:** whether other `data/custom/` models have the same "living, not master"
 shape is an open question, tracked as a separate follow-up rather than assumed — see
 [[project_data_custom_living_vs_master_audit]] in memory. `hr.employee.csv` (phone/email/address

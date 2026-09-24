@@ -42,6 +42,10 @@ def _replicate_plannings_across_history(env):
     across every course up to and including the current one, not just backfill the current
     course onto the existing row.
 
+    The source is the current course's plannings: when Odoo creates the new course_id column it
+    fills every existing row with the field's default (models.py::_init_column), i.e. the current
+    course - so by the time this runs, that is where every pre-existing planning sits.
+
     Idempotent (checks existing_keys before copying, same pattern as course_transition_wizard.
     _apply_planning_rollover): safe to re-run this migration after a later fix is added to this
     same not-yet-released version, without needing to unwind the database by hand first."""
@@ -51,7 +55,7 @@ def _replicate_plannings_across_history(env):
     courses = env['ems.course'].search([('start', '<=', current.start)], order='start asc')
     if not courses:
         return
-    plannings = env['ems.planning'].search([('course_id', '=', courses[0].id)])
+    plannings = env['ems.planning'].search([('course_id', '=', current.id)])
     if not plannings:
         return
     existing_keys = {
@@ -60,7 +64,7 @@ def _replicate_plannings_across_history(env):
     }
     created = 0
     for planning in plannings:
-        for course in courses[1:]:
+        for course in courses - current:
             if (planning.study_id.id, planning.subject_id.id, course.id) in existing_keys:
                 continue
             # install_mode=True: check_ponderation/check_course_id_required (models/planning/
@@ -96,12 +100,12 @@ def _fix_subject_1665_outcome_ponderation(env):
     for the full investigation. Developer-confirmed weights (2026-09-23): RA1=15, RA2=20,
     RA3=15, RA4=20, RA5=15, RA6=15.
 
-    Rebuilds planning_outcome_ids from scratch for every ems.planning of this subject, across
-    every course _replicate_plannings_across_history has created by the time this runs -
-    sidesteps having to tell apart a CSV-tracked line from a stray/duplicate one (a copy()'d
-    planning's outcome lines never carry an xmlid regardless of which of the two the source line
-    was), and is naturally idempotent: re-running this always rebuilds to the same 6 correct
-    lines."""
+    Corrects planning_outcome_ids in place for every ems.planning of this subject, across every
+    course _replicate_plannings_across_history has created by the time this runs: one line per
+    outcome with its confirmed weight, any duplicate or unexpected line removed. Each CSV-owned
+    line is kept (and its xmlid with it) rather than deleted and recreated - otherwise the CSV,
+    no longer finding its own xmlids, recreates its lines on the next upgrade and every planning
+    ends up at 200%. Idempotent: re-running it always leaves the same 6 correct lines."""
     weights = {'1665_01RA': 15, '1665_02RA': 20, '1665_03RA': 15,
                '1665_04RA': 20, '1665_05RA': 15, '1665_06RA': 15}
     outcomes_by_code = {
@@ -113,18 +117,29 @@ def _fix_subject_1665_outcome_ponderation(env):
             "Migration 18.0.0.28.0: expected 6 outcomes for subject 1665, found %s - skipping "
             "the ponderation fix, check ems.outcome data manually.", len(outcomes_by_code))
         return
-    plannings = env['ems.planning'].search([('subject_id.code', '=', '1665')])
+    plannings = env['ems.planning'].with_context(install_mode=True).search([('subject_id.code', '=', '1665')])
     if not plannings:
         return
-    plannings.mapped('planning_outcome_ids').unlink()
+    csv_line_ids = set(env['ir.model.data'].search([
+        ('model', '=', 'ems.planning_outcome'),
+        ('res_id', 'in', plannings.planning_outcome_ids.ids),
+    ]).mapped('res_id'))
     for planning in plannings:
-        planning.with_context(install_mode=True).write({
-            'planning_outcome_ids': [(0, 0, {
-                'outcome_id': outcomes_by_code[code].id, 'ponderation': weight,
-            }) for code, weight in weights.items()],
-        })
+        commands = []
+        for code, weight in weights.items():
+            lines = planning.planning_outcome_ids.filtered(
+                lambda line: line.outcome_id == outcomes_by_code[code]
+            ).sorted(lambda line: (line.id not in csv_line_ids, line.id))
+            if lines:
+                commands.append((1, lines[0].id, {'ponderation': weight}))
+                commands += [(2, line.id) for line in lines[1:]]
+            else:
+                commands.append((0, 0, {'outcome_id': outcomes_by_code[code].id, 'ponderation': weight}))
+        commands += [(2, line.id) for line in planning.planning_outcome_ids
+                     if line.outcome_id.code not in weights]
+        planning.write({'planning_outcome_ids': commands})
     _logger.info(
-        "Migration 18.0.0.28.0: rebuilt outcome ponderation for %s 'MP 1665' planning(s) "
+        "Migration 18.0.0.28.0: corrected outcome ponderation for %s 'MP 1665' planning(s) "
         "(RA1=15, RA2=20, RA3=15, RA4=20, RA5=15, RA6=15).", len(plannings))
 
 

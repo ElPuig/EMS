@@ -32,6 +32,17 @@ memory for the incident this rule comes from, and a second, broader one from 202
 where dev-DB findings were repeatedly mislabeled "production" across an entire session
 before being caught.
 
+**Check a dump's integrity before attempting any restore (2026-09-24).** A dump handed over
+by the developer can be truncated (e.g. an interrupted copy), and `pg_restore -l` is not
+proof otherwise: it only reads the table of contents at the start of the file, so a truncated
+custom-format dump still lists every table. Before `createdb`/`pg_restore`, read the whole
+archive once: `sudo -u odoo pg_restore -f /dev/null <file>` for custom format (must exit 0
+with no "could not read from input file" error), `gzip -t`/`unzip -t` for compressed ones, and
+confirm the file size is stable and in line with previous dumps. If the check fails, stop and
+tell the developer: don't restore a partial copy. A truncated restore can look usable (some
+tables present) while missing others entirely, as happened that day: a dump ~35% smaller than
+its predecessors restored `ems_planning` but left `ir_module_module` empty.
+
 ## Development vs. production environment declaration (2026-08-10)
 
 Any EMS installation — this box included — declares whether it's a development/testing

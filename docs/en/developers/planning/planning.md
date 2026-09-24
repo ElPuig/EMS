@@ -10,7 +10,7 @@ and description ("Curriculum deployment in the classroom"), it is not yet the br
 curriculum-planning feature that name implies — the code's own `TODO` comments say so
 explicitly (a redactor-teacher field, a review/approval workflow) — it exists today solely to
 feed [`ems.grade_session`](../grades/grade_session.md)'s `_final_from_parts()` formula and the
-[grade review wizard](../grades/grade_review_wizard.md)'s "add a missing subject" flow.
+[grade review wizard](../grades/year_record.md#grade-reviews-post-closure-corrections)'s "add a missing subject" flow.
 
 A planning belongs to one specific academic year (`course_id`, issue #503) — ponderations can
 change from one year to the next, so a grade correction on an old course must use the
@@ -60,10 +60,9 @@ loaded — see [`current_course_auto_seed`](../settings/company.md) for that mec
 
 ## Access: Head of Studies/Deputy see and edit every planning (issue #503)
 
-Before this, HOS/DHOS (`ems.group_head_of_studies`, which implies `ems.group_teacher`) only
-inherited the teacher-scoped rule below — they saw only the plannings of subjects they
-personally teach via `ems.teaching`, same as a plain teacher, despite their role needing
-centre-wide visibility.
+HOS/DHOS (`ems.group_head_of_studies`, which implies `ems.group_teacher`) need centre-wide
+access: the teacher-scoped rule alone would limit them to the subjects they personally teach
+via `ems.teaching`.
 
 | Rule | Group | Scope |
 |------|-------|-------|
@@ -71,8 +70,12 @@ centre-wide visibility.
 | `rule_planning_hos_all` | `group_head_of_studies` | All (read/write/create, **not** unlink) |
 | `rule_planning_teacher_own_subjects` | `group_teacher` | Only subjects taught via `ems.teaching` (read-only) |
 
-Both `ems.planning` and `ems.planning_outcome` carry the matching pair of rules
-(`security/rules/planning.xml`). `ir.rule`s across different groups on the same model combine
+Both `ems.planning` and `ems.planning_outcome` carry the matching set of rules
+(`security/rules/planning.xml`), with one difference: HOS/DHOS **can** unlink an
+`ems.planning_outcome` line (`rule_planning_outcome_hos_all` and its ACL row), since removing a
+line is part of rebalancing a planning — an outcome dropped from the curriculum, or a subject
+change, whose onchange empties the lines. Deleting a whole `ems.planning` stays reserved to
+`group_academic_admin`. `ir.rule`s across different groups on the same model combine
 with OR, so a HOS user (who also holds `group_teacher` by implication) effectively gets
 `rule_planning_hos_all`'s unrestricted domain.
 
@@ -112,11 +115,13 @@ the `18.0.0.28.0` migration's own history-replication step rebuild
 
 ## Migrating an already-existing install's history
 
-`migrations/18.0.0.28.0/post-migrate.py::_replicate_plannings_across_history` replicates every
-pre-existing (course-less) planning across every course up to and including the current one, not
-just onto the current course — so a grade correction against an old course's frozen record still
-finds a planning, with the same ponderations that were live before this migration (a single
-timeless row is treated as having applied to every year up to now).
+When Odoo creates the new `course_id` column on upgrade it fills every existing row with the
+field's default (`models.py::_init_column`), so every pre-existing planning lands on the current
+course. `migrations/18.0.0.28.0/post-migrate.py::_replicate_plannings_across_history` then copies
+each of them into every earlier course (future courses are left alone) — so a grade correction
+against an old course's frozen record still finds a planning, with the same ponderations that
+were live before this migration (a single timeless row is treated as having applied to every year
+up to now). Idempotent: a study+subject that already has a planning in a course is skipped.
 
 ## `check_ponderation`: two independent sum-to-100 rules
 

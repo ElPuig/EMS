@@ -26,10 +26,7 @@ This section contains the manuals for **teachers**.
 | [A Student's Weekly Schedule](../admin/student-schedule.md) | View a student's own timetable (subjects, teachers, classrooms, breaks), including overlapping classes, and export it to PDF |
 | [Consulting a Student's Academic Data](student-academic-data.md) | Where to consult any student's academic history, and the student data the Guidance and Coexistence roles can read |
 | [Requesting an absence](absences.md) | Request an absence: choosing its type, a whole day or a few hours, the responsible declaration, the supporting document and sending it |
-
-## Planned Topics
-
-- Planning: session and content programming
+| [Plannings: checking your subjects' grading ponderations](planning.md) | Check where the internal/work-placement split and the per-learning-outcome weighting of the subjects you teach comes from |
 
 ---
 

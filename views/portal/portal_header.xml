@@ -22,10 +22,13 @@
                         <a href="/my/gestion-matriculas" class="nav-link">Enrollment and authorizations</a>
                     </li>
                     <li class="nav-item">
-                        <a href="/my/comunicaciones" class="nav-link">Communications</a>
+                        <a href="/my/convalidaciones" class="nav-link">Convalidations</a>
                     </li>
                     <li class="nav-item">
                         <a href="/my/documentacion" class="nav-link">Documentation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/my/comunicaciones" class="nav-link">Communications</a>
                     </li>
                     <li class="nav-item">
                         <a href="/my/account" class="nav-link">Profile</a>

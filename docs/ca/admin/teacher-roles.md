@@ -66,6 +66,8 @@ La insígnia mostra automàticament el color triat amb un text llegible, sigui q
 2. Al camp **Rols**, afegiu el rol que correspongui al nivell de permisos a concedir (p. ex. **Cap de departament**).
 3. Feu clic a **Desar** (o navegueu fora de la fitxa — l'Odoo desa automàticament).
 
+![Camp Rols a la fitxa d'un docent, amb dos rols assignats en forma d'etiquetes de colors](../../assets/admin/admin-teacher-roles-employee.png)
+
 El compte d'usuari del professor s'actualitza immediatament: es concedeix el grup de seguretat vinculat al rol, juntament amb tot allò que implica (p. ex. assignar **Cap de departament** també concedeix l'accés de Tutor i de Professor).
 
 > Els rols **Tutor**, **Cap de departament**, **Cap de seminari**, **Cap d'estudis**, **Cap d'estudis adjunt**, **Secretari/ària** i **Director** no es poden afegir ni treure manualment — ni des d'aquí, ni des de la llista **Assignat a** del propi rol (**Comunitat Educativa → Configuració → Professorat/PAS → Rols**), ni per importació o edició massiva. Intentar-ho mostra un missatge que indica exactament on s'ha de fer el canvi en realitat. El Tutor es gestiona automàticament segons si el professor és tutor d'algun Grup; els cinc següents es gestionen automàticament des del formulari d'un departament; el Director es gestiona automàticament des d'Ajustes (vegeu més avall).
@@ -89,6 +91,8 @@ A diferència dels altres rols, **Cap de departament** i **Cap de seminari** no 
 1. Navegueu a **Empleats → Departaments** i obriu el departament.
 2. Establiu el **Cap de departament** (el camp `Manager` del departament) i, opcionalment, el **Cap de seminari**. Aquest camp només mostra docents i personal PAS — un compte tècnic o del sistema mai és una opció vàlida.
 3. Feu clic a **Desar**.
+
+![Fitxa d'un departament amb el seu Cap de departament i Cap de seminari](../../assets/admin/admin-teacher-roles-department.png)
 
 Això té un efecte immediat i automàtic sobre tots els professors d'aquell departament:
 

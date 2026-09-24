@@ -4,9 +4,10 @@
             <field name="name">ems.student.year_record.list</field>
             <field name="model">ems.student.year_record</field>
             <field name="arch" type="xml">
-                <list create="0" default_order="course_id desc, study_name asc, group_name asc">
+                <list create="0" default_order="course_id desc, study_name asc, group_name asc" decoration-info="is_provisional">
                     <field name="student_id"/>
                     <field name="course_id"/>
+                    <field name="is_provisional"/>
                     <field name="study_name"/>
                     <field name="level_name" optional="hide"/>
                     <field name="group_name"/>

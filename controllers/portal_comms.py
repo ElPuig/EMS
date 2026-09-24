@@ -25,14 +25,20 @@ class EMSPortalCommsController(CustomerPortal):
             ('partner_id', '=', partner.id)
         ]).ids
 
-        # Dominio combinado: mensajes dirigidos al partner, del chatter de matrícula o de documentos
-        # Excluimos notas internas (mail.mt_note) para que no sean visibles en el portal
+        # IDs de las solicitudes de convalidación del alumno (issue #276)
+        convalidation_ids = request.env['ems.convalidation'].sudo().search([
+            ('student_id', '=', partner.id)
+        ]).ids
+
+        # Dominio combinado: mensajes dirigidos al partner, del chatter de matrícula, de documentos
+        # o de convalidaciones. Excluimos notas internas (mail.mt_note) para que no sean visibles en el portal
         note_subtype = request.env.ref('mail.mt_note')
         domain = [
-            '|', '|',
+            '|', '|', '|',
                 ('partner_ids', 'in', [partner.id]),
                 '&', ('model', '=', 'sale.order'), ('res_id', 'in', sale_order_ids),
                 '&', ('model', '=', 'ems.student.document'), ('res_id', 'in', document_ids),
+                '&', ('model', '=', 'ems.convalidation'), ('res_id', 'in', convalidation_ids),
             ('message_type', 'in', ['email', 'comment', 'notification']),
             ('subtype_id', '!=', note_subtype.id),
         ]

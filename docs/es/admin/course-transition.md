@@ -54,6 +54,8 @@ Abre el asistente, revisa el curso entrante y los estudios, y pulsa **Previsuali
 
 Obtendrás un recuadro rojo si algo bloquea la ejecución, uno azul con todo lo que conviene saber, un panel de contadores y la **lista de alumnos uno por uno** con la acción que recibirá cada uno:
 
+![Previsualización de la transición de curso: el recuadro de avisos, los contadores de lo que pasará y la lista de alumnos con la acción que recibirá cada uno](../../assets/admin/admin-course-transition-preview.png)
+
 | Acción | Qué significa |
 |---|---|
 | **Se gradúa y se va** | Marcado como graduado y sin ninguna matrícula: pasa a exalumno y se archiva |

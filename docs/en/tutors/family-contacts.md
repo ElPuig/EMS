@@ -13,8 +13,12 @@ You can add and remove the family members (father, mother, legal guardian…) of
 ## Adding a family member
 
 1. Open the student's record and go to the **Contacts & Addresses** tab.
+
+   ![Contacts & Addresses tab with the Add contact button and the family members, each with its trash icon](../../assets/tutors/contactes-familia-01-pestanya.png)
 2. Click **Add contact**.
 3. Pick the **relation** (Father, Mother, Legal guardian…).
+
+   ![New student contact window, choosing the relation](../../assets/tutors/contactes-familia-02-afegir.png)
 4. Pick an **existing** contact or fill in a **new** one: at least a first or last name, an identity document (DNI/NIE or passport) and a phone, mobile or email.
 5. Save. The family member appears in the student's contact list.
 

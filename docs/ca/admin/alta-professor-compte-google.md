@@ -51,9 +51,9 @@ Al formulari d'alta:
 
 ## Pas 3 — Omplir el correu electrònic privat
 
-Aneu a la pestanya **Informació privada** i ompliu el camp **Correu electrònic privat (1).** Aquest correu electrònic personal serà on s'enviarà la contrasenya del nou correu electrònic del centre.
+Ompliu el camp **Correu electrònic privat (1)**, a la columna dreta de la pantalla principal, sota **Gestor** (el mateix camp també és a la pestanya **Informació privada**). Aquest correu electrònic personal serà on s'enviarà la contrasenya del nou correu electrònic del centre.
 
-![Pestanya Informació privada amb el camp de correu electrònic privat](../../assets/admin/alta-professor-03-correu-privat.png)
+![Formulari d'alta amb el camp de correu electrònic privat sota Gestor](../../assets/admin/alta-professor-03-correu-privat.png)
 
 > **Important:** aquest camp de **Correu electrònic privat** és **obligatori** perquè es creï el compte de Google — el formulari no permet desar una fitxa **nova** de professor/PAS sense ell. A les fitxes creades abans d'aquesta regla pot faltar encara: en aquest cas no es crea cap compte automàticament i queda constància del motiu a l'historial de missatges de la fitxa.
 

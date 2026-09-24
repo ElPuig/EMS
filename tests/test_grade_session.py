@@ -366,6 +366,20 @@ class TestGradeSession(TransactionCase):
         self.assertFalse(session.has_planning)
         session.fill_students()  # must not raise
 
+    def test_planning_id_picks_the_current_course_not_a_different_ones(self):
+        # Issue #503 regression: a different course's planning for the SAME study+subject, with
+        # different ponderations, must never be picked up by a live grade session (which only
+        # ever targets the current course).
+        other_course = self.env['ems.course'].create({'start': 2090, 'end': 2091})
+        self.env['ems.planning'].create({
+            'study_id': self.study.id, 'subject_id': self.subject.id, 'course_id': other_course.id,
+            'internal_ponderation': 50.0, 'external_ponderation': 50.0,
+            'planning_outcome_ids': [(0, 0, {'outcome_id': self.outcome1.id, 'ponderation': 100.0})],
+        })
+        session = self._new_session()
+        self.assertEqual(session.planning_id, self.planning)
+        self.assertEqual(session.planning_id.internal_ponderation, 90.0)
+
     def test_ondelete_cascade(self):
         session = self._new_session()
         session.fill_students()

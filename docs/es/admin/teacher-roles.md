@@ -66,6 +66,8 @@ La insignia muestra automáticamente el color elegido con un texto legible, sea 
 2. En el campo **Roles**, añadir el rol que corresponda al nivel de permisos a conceder (p. ej. **Jefe de departamento**).
 3. Hacer clic en **Guardar** (o navegar fuera de la ficha — Odoo guarda automáticamente).
 
+![Campo Roles en la ficha de un docente, con dos roles asignados en forma de etiquetas de colores](../../assets/admin/admin-teacher-roles-employee.png)
+
 La cuenta de usuario del profesor se actualiza de inmediato: se concede el grupo de seguridad vinculado al rol, junto con todo lo que implica (p. ej. asignar **Jefe de departamento** también concede el acceso de Tutor y de Profesor).
 
 > Los roles **Tutor**, **Jefe de departamento**, **Jefe de seminario**, **Jefe de estudios**, **Jefe de estudios adjunto**, **Secretario/a** y **Director** no se pueden añadir ni quitar manualmente — ni desde aquí, ni desde la lista **Asignado a** del propio rol (**Comunidad Educativa → Configuración → Profesorado/PAS → Roles**), ni mediante importación o edición masiva. Intentarlo muestra un mensaje que indica exactamente dónde hay que hacer el cambio en realidad. El Tutor se gestiona automáticamente según si el profesor es tutor de algún Grupo; los cinco siguientes se gestionan automáticamente desde el formulario de un departamento; el Director se gestiona automáticamente desde Ajustes (ver más abajo).
@@ -89,6 +91,8 @@ A diferencia de los demás roles, **Jefe de departamento** y **Jefe de seminario
 1. Navegar a **Empleados → Departamentos** y abrir el departamento.
 2. Establecer el **Jefe de departamento** (el campo `Manager` del departamento) y, opcionalmente, el **Jefe de seminario**. Este campo solo muestra docentes y personal PAS — una cuenta técnica o del sistema nunca es una opción válida.
 3. Hacer clic en **Guardar**.
+
+![Ficha de un departamento con su Jefe de departamento y Jefe de seminario](../../assets/admin/admin-teacher-roles-department.png)
 
 Esto tiene un efecto inmediato y automático sobre todos los profesores de ese departamento:
 

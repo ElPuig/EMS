@@ -31,6 +31,8 @@ For a smaller, ad-hoc update from any other CSV file (not the official Esfera fo
 
 From the **Students** list, open the actions menu (the gear icon ⚙️ next to the list) and choose **Import from Esfera**. Select the `.xlsx` file exported from Esfera/SAGA and click **Import students**.
 
+![Import from Esfera window, with the file upload and the overwrite option](../../assets/secretary/esfera-01-assistent.png)
+
 ## What gets created or updated
 
 - **Students** are matched by their **RALC** identifier (the student's official Catalan ID). An existing match is updated in place; if it belonged to a former student (alumni/withdrawal), it is **reactivated** as an active student rather than creating a duplicate.

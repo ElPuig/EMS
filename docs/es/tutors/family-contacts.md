@@ -13,8 +13,12 @@ Puedes añadir y quitar los familiares (padre, madre, tutor legal…) de los alu
 ## Añadir un familiar
 
 1. Abre la ficha del alumno y ve a la pestaña **Contactos y direcciones**.
+
+   ![Pestaña Contactos y direcciones con el botón Añadir contacto y los familiares, cada uno con su papelera](../../assets/tutors/contactes-familia-01-pestanya.png)
 2. Pulsa **Añadir contacto**.
 3. Elige la **relación** (Padre, Madre, Tutor legal…).
+
+   ![Ventana Nuevo contacto de alumno/a, eligiendo la relación](../../assets/tutors/contactes-familia-02-afegir.png)
 4. Elige un contacto **ya existente** o rellena los datos de uno **nuevo**: como mínimo un nombre o apellido, un documento de identidad (DNI/NIE o pasaporte) y un teléfono, móvil o correo.
 5. Guarda. El familiar aparece en la lista de contactos del alumno.
 

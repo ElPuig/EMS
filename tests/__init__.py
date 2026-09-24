@@ -15,6 +15,10 @@ from . import test_exit_management
 from . import test_level
 from . import test_level_tour
 from . import test_student_document
+from . import test_convalidation
+from . import test_convalidation_period
+from . import test_portal_convalidation
+from . import test_convalidation_tour
 from . import test_tutor_scope
 from . import test_student_document_tour
 from . import test_student_google_workspace
@@ -144,6 +148,9 @@ from . import test_docs_screenshots
 from . import test_docs_screenshots_head_of_studies
 from . import test_docs_screenshots_admin
 from . import test_docs_screenshots_teachers
+from . import test_docs_screenshots_families
+from . import test_docs_screenshots_tutors
+from . import test_docs_screenshots_secretary
 from . import test_authorization
 from . import test_authorization_template_tour
 from . import test_attendance_notification_tour

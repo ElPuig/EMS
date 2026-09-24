@@ -12,6 +12,10 @@ Cada alumno/a conserva un **histórico académico** permanente: un registro por 
 
 Abra la ficha del alumno/a y vaya a la pestaña **Histórico académico**. Cada línea es un curso; ábrala para ver los módulos y, dentro de cada módulo, las notas de cada resultado de aprendizaje (RA) por convocatoria.
 
+![Pestaña Histórico académico de la ficha de un alumno, una línea por curso](../../assets/teachers/historial-01-academic.png)
+
+![Un registro de curso del histórico académico, con las asignaturas y sus notas](../../assets/secretary/academic-history-record.png)
+
 Los registros están ordenados **por estudio y curso**, de modo que puede leer cada estudio de principio a fin. Un curso repetido aparece de forma natural como dos registros consecutivos del mismo estudio y nivel.
 
 ## Cómo leer un registro
@@ -23,6 +27,7 @@ Los registros están ordenados **por estudio y curso**, de modo que puede leer c
 - **Ponderaciones congeladas:** las ponderaciones (interna/EM y por RA) son las vigentes ese curso, guardadas con el registro — el histórico sigue siendo válido aunque la programación cambie más adelante.
 
 > El histórico es **solo de lectura**: es una copia congelada de lo que el subsistema de notas calculó durante el curso. Si hay que corregir algo, contacte con secretaría o con el administrador.
+- **Curso actual:** un registro con esta marca es del curso en marcha. Solo contiene las asignaturas convalidadas durante el curso (con la nota, la marca **CV** y el número de expediente de convalidación); el resto de asignaturas y el resultado se añaden al cerrar el curso.
 
 ## Marcar a un alumno como graduado
 

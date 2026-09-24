@@ -152,23 +152,23 @@ class SaleOrder(models.Model):
             order.ems_first_installment = order.ems_non_fee_amount + order.ems_fee_amount * 0.5
             order.ems_second_installment = order.ems_fee_amount * 0.5
 
-    ems_enrollment_status_label = fields.Char(
+    # The order's own state, relabelled in enrollment terms. A selection rather than a text
+    # field so the labels are translated (through ir.model.fields.selection) like any other.
+    ems_enrollment_status_label = fields.Selection(
+        selection=[
+            ('draft', 'Pre-enrollment'),
+            ('sent', 'Enrollment sent'),
+            ('sale', 'Enrollment confirmed'),
+            ('cancel', 'Enrollment cancelled'),
+        ],
         string='Enrollment Status',
         compute='_compute_enrollment_status_label',
-        store=False,
-    )    
+    )
 
     @api.depends('state')
     def _compute_enrollment_status_label(self):
-        labels = {
-            'draft': 'Pre-enrollment',
-            'sent': 'Sent to student',
-            'sale': 'Confirmed',
-            'cancel': 'Cancelled',
-            'done': 'Locked',
-        }
         for order in self:
-            order.ems_enrollment_status_label = labels.get(order.state, order.state)
+            order.ems_enrollment_status_label = order.state
 
     def _get_dynamic_enrollment_name(self):
         """Build the enrollment code dynamically using acronyms and shortening the year."""
@@ -824,6 +824,11 @@ class SaleOrder(models.Model):
         Enrollment = self.env['ems.enrollment'].sudo()
         subjects = self.env['ems.subject'].sudo().search([
             ('product_id', 'in', self.order_line.product_id.ids)])
+        # A convalidated subject is never taken again (issue #276): completing the convalidation
+        # already withdrew the student from it, and a placement confirmed afterwards must not
+        # enrol them back.
+        ConvalidationLine = self.env['ems.convalidation.line']
+        subjects = subjects.filtered(lambda subject: not ConvalidationLine._ems_is_convalidated(student, subject))
         for subject in subjects:
             # A subject the student is retaking from an earlier course (a repeater's
             # pending module, mixed into the same order as the current course's own

@@ -36,9 +36,13 @@ Una ficha de alumno que ya existía sin ID de estudiante sigue funcionando con n
 
 Abre la ficha del alumno y, en la pestaña **Contactos y direcciones**, haz clic en **Añadir contacto**:
 
+![Pestaña Contactos y direcciones con el botón Añadir contacto y los familiares, cada uno con su papelera](../../assets/tutors/contactes-familia-01-pestanya.png)
+
 - Elige la **relación** (Padre, Madre, Tutor legal, Hermano/a…).
 - Puedes elegir un contacto **ya existente** en EMS, o rellenar los datos de uno **nuevo** — un contacto nuevo necesita como mínimo un nombre o apellido, un documento de identificación (DNI/NIE o pasaporte) y una vía de contacto (teléfono, móvil o correo).
 - Guarda. La nueva relación aparece inmediatamente en la lista de contactos del alumno, con la dirección del alumno precargada (editable si el familiar vive en otro lugar).
+
+![Ventana Nuevo contacto de alumno/a, eligiendo la relación](../../assets/tutors/contactes-familia-02-afegir.png)
 
 La misma relación también aparece en la ficha del familiar, indicando con qué alumno(s) está relacionado.
 
@@ -65,6 +69,8 @@ Los **beneficios** de cuota de un alumno (bonificaciones, que descuentan parte d
 - Añade una línea por beneficio, eligiendo su **tipo** (familia numerosa, familia monoparental, beca del ministerio, discapacidad, otros) y adjuntando el **documento justificativo**.
 - La **fecha de renovación/revisión** se precarga automáticamente (9 meses para una beca, 2 años para el resto) pero se puede ajustar.
 - El distintivo de **Beneficios** del alumno (visible en la ficha) refleja el beneficio de mayor prioridad registrado: una exención siempre tiene preferencia sobre una bonificación.
+
+![Pestaña Secretaría con dos beneficios registrados, su categoría, documento y fecha de renovación](../../assets/secretary/contactes-01-bonificacions.png)
 
 Que un beneficio cambie realmente la cuota de matrícula depende del estado de la matrícula correspondiente: un beneficio registrado **antes** de que la matrícula se confirme se aplica a ella inmediatamente; uno registrado **después de confirmarla** no modifica retroactivamente su importe — hay que volver a aplicarlo explícitamente (desde la matrícula). Consulta el manual de la matrícula para esa acción.
 

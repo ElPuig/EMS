@@ -11,6 +11,8 @@ Aquesta secció conté els manuals per a **Cap d'Estudis, Cap d'Estudis Adjunt/a
 ## Manuals disponibles
 
 - [Històric acadèmic: consultes de cohort](academic-history.md)
+- [Convalidacions: validar les sol·licituds](convalidations.md)
+- [Programacions docents: definir les ponderacions de la qualificació](planning.md)
 - [Gestió de contactes d'alumnes i famílies](../secretary/student-contacts.md) — tens el mateix accés complet de lectura/escriptura que secretaria aquí, per a qualsevol alumne de tot el centre.
 - [Credencials de Google de l'alumnat](../tutors/google-credentials.md) — consultar-les i restablir la contrasenya, els mateixos passos que els tutors, per a l'alumnat dels tutors de la teva àrea.
 - [Decidir sobre sol·licituds de correcció de fitxatges](attendance-corrections.md)

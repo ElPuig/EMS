@@ -64,7 +64,7 @@ Al terminar, el asistente muestra un **resumen de la importación**: cuántos as
 Los aspirantes nuevos aparecen en la vista **Preinscripción**. Para revisarlos cómodamente:
 
 * Usad el **panel de estudios** de la izquierda **(1)** para filtrar el alumnado por estudio (SMX, ASIX, GA...). Junto a cada estudio aparece el número de aspirantes.
-* La lista viene **agrupada automáticamente por turno** (*Afternoon* / *Morning*) **(2)** y, dentro de cada turno, **por curso** (1º, 2º) **(3)**. Esta agrupación permite aplicar la **plantilla de matrícula** de forma más sencilla: cada combinación de **estudio, turno y curso** tiene asignada una plantilla y un grupo destino por defecto.
+* La lista viene **agrupada automáticamente por turno** (*Tarde* / *Mañana*) **(2)** y, dentro de cada turno, **por curso** (1º, 2º) **(3)**. Esta agrupación permite aplicar la **plantilla de matrícula** de forma más sencilla: cada combinación de **estudio, turno y curso** tiene asignada una plantilla y un grupo destino por defecto.
 
 ![Vista de Preinscripción con el panel de estudios y la agrupación por turno y curso](../../assets/secretary/preinscrpcio-Secretaria-04.png)
 

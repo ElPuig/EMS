@@ -114,7 +114,7 @@ class EmsGroupClassroomChangeWizard(models.TransientModel):
 		return commands
 
 	def _block_label(self, block):
-		weekday_label = dict(block._fields['dayofweek'].selection).get(block.dayofweek)
+		weekday_label = dict(block._fields['dayofweek']._description_selection(self.env)).get(block.dayofweek)
 		return "%s - %s - %s (%s %s)" % (
 			block.employee_id.display_name, block.subject_id.display_name,
 			", ".join(block.group_ids.mapped('display_name')), weekday_label, self._format_hour_range(block))

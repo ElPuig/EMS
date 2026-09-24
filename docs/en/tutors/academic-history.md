@@ -12,6 +12,10 @@ Every student keeps a permanent **academic history**: one record per course with
 
 Open the student's form and go to the **Academic history** tab. Each line is one course; open it to see the subjects and, inside each subject, the grades of every learning outcome (RA) per round.
 
+![The Academic history tab of a student's form, one line per course](../../assets/teachers/historial-01-academic.png)
+
+![A course record of the academic history, with its subjects and their grades](../../assets/secretary/academic-history-record.png)
+
 The records are ordered **by study and course**, so you can read each study from start to end. A repeated course appears naturally as two consecutive records of the same study and level.
 
 ## How to read a record
@@ -23,6 +27,7 @@ The records are ordered **by study and course**, so you can read each study from
 - **Frozen weights:** the grading weights (internal/EM and per-RA) are the ones in force that course, stored with the record — the history stays valid even if the teaching plan changes later.
 
 > The history is **read-only**: it is a frozen copy of what the grades subsystem computed during the course. If something needs correcting, contact the secretariat or the administrator.
+- **Current course:** a record with this mark belongs to the running course. It only holds the subjects convalidated during the course (with the grade, the **CV** mark and the convalidation file number); the rest of the subjects and the result are added when the course closes.
 
 ## Marking a student as graduating
 

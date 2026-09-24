@@ -35,6 +35,7 @@ L'estat d'un mòdul depèn **només dels RA**: un alumne amb tots els RA aprovat
 
 - **En una baixa:** l'[assistent de baixa](graduation-withdrawal.md) congela l'històric de l'alumne/a **en aquell moment**, abans de desvincular-lo del seu grup. Qui deixa el centre a mig curs conserva el registre de tot el que va fer fins aquell dia (mòduls, notes, assistència), amb el resultat **Baixa**. Un cop congelat l'històric, la baixa **treu l'alumne/a de tot allò operatiu**: les seves inscripcions a mòduls, les línies de notes de les sessions vives, les línies i plantilles d'assistència, i el delegat del grup si ho era. A partir d'aquell moment ja no surt al grup, ni a la matriu d'avaluació, ni a les sessions d'assistència, ni a la qualificació de l'estada — només al seu històric acadèmic.
 - **En la transició de curs:** l'assistent de transició (executat per l'administrador al final del curs) genera els registres de tot l'alumnat actiu abans de netejar les dades operatives.
+- **En completar una convalidació:** si el curs de la convalidació encara no té registre, se n'obre un marcat com a **Curs actual**, amb només les assignatures convalidades (nota, marca **CV** i número de registre CONV). Així el professorat veu la nota des del primer dia. En tancar el curs (transició, baixa o graduació) el registre es completa amb la resta d'assignatures i el resultat, i perd la marca. Sobre un registre del curs actual no es pot aplicar una revisió de qualificacions: les notes del curs en marxa es corregeixen a les sessions d'avaluació.
 
 Tornar a executar la generació mai no duplica un registre: el que ja existeix s'actualitza.
 
@@ -59,13 +60,19 @@ Una revisió de qualificacions corregeix l'històric acadèmic d'un curs ja tanc
 2. Feu clic a **Revisió de qualificacions**.
 3. Trieu què fa la revisió:
    - **Corregir un mòdul:** trieu el mòdul i poseu la **Nota resolta** de cada resultat d'aprenentatge que resol la revisió.
-   - **Afegir un mòdul que falta:** trieu el mòdul. Les ponderacions i els resultats d'aprenentatge es proposen a partir de la programació de l'estudi; poseu-hi les notes.
+   - **Afegir un mòdul que falta:** trieu el mòdul. Les ponderacions i els resultats d'aprenentatge es proposen a partir de la programació de l'estudi **del mateix curs que s'està corregint** — no de la programació actual, així que una correcció d'un curs antic sempre usa els pesos que hi eren vigents llavors; poseu-hi les notes.
    - **Eliminar un mòdul:** trieu el mòdul que s'ha de treure del registre.
-4. Llegiu **Resultat de la revisió**: la nota interna, l'estat i la nota final que dona la correcció.
+4. Llegiu **Resultat de la revisió**: la nota interna (nota del centre), l'estat i la nota final que dona la correcció.
 5. Llegiu **Resultat del curs**: el resultat proposat s'escriu al registre mentre **Actualitza el resultat del curs** estigui marcat. Desmarqueu-lo per conservar l'actual.
 6. Escriviu la **Resolució** i feu clic a **Aplica la revisió**.
 
 Un mòdul queda superat quan tots els resultats d'aprenentatge es resolen amb 5 o més. Un mòdul amb l'estada (EM) encara sense qualificar queda superat amb la nota final pendent; qualifiqueu l'estada des de la pantalla d'estada. *Repeteix curs* i *Baixa* no els proposa una revisió de qualificacions: ajusteu-los a mà al registre.
+
+### Forçar la nota del centre manualment
+
+De vegades Esfera registra un número lleugerament diferent del que dona el càlcul dels resultats d'aprenentatge (una diferència d'arrodoniment, típicament). En lloc d'haver d'inventar notes de RA que casualment donin aquest número, **Resultat de la revisió** mostra la nota del centre en dos camps costat a costat: **Nota del centre (calculada)**, sempre de només lectura, i **Nota del centre (aplicada)**, sempre editable i que comença sent igual a la calculada — escriviu directament el valor que consta a Esfera al camp aplicada.
+
+La nota final es recalcula automàticament a partir d'aquest valor forçat (igual que sempre, combinant-lo amb la nota de l'estada si el mòdul en té). L'estat (superat/no superat) **mai no canvia** per forçar la nota: continua depenent només dels resultats d'aprenentatge. Per això el sistema no deixa forçar una nota de 5 o més si algun RA està suspès, ni una nota per sota de 5 si tots els RA estan aprovats — només es pot ajustar el número dins del costat que els RA ja determinen.
 
 El mòdul conserva la data, l'autor/a i el text de l'última revisió que s'hi ha aplicat, i el filtre **Corregit per una revisió de qualificacions** de la llista de l'històric mostra els registres que en tenen alguna. El detall de cada canvi queda registrat al registre de l'alumne/a.
 

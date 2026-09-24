@@ -60,16 +60,16 @@ class SaleOrderLine(models.Model):
                 # Never exceed the product's own list price, however many subjects.
                 line.price_unit = min(count * unit_cost, max_fee)
                 
-                base_name = f"{line.product_template_id.name} ({count} Subjects)"
-                benefit_suffix = ""
+                # Shown to families (portal, invoice): translated, in the language of whoever
+                # builds the enrollment.
+                name = _("%(product)s (%(count)s Subjects)",
+                         product=line.product_template_id.name, count=count)
                 partner = line.order_id.partner_id
-                if partner and partner.benefit_status:
-                    if partner.benefit_status == 'bonification':
-                        benefit_suffix = " - Bonification 50%"
-                    elif partner.benefit_status == 'exemption':
-                        benefit_suffix = " - Exemption 100%"
-                
-                line.name = f"{base_name}{benefit_suffix}"
+                if partner and partner.benefit_status == 'bonification':
+                    name = f"{name} - {_('Bonification 50%')}"
+                elif partner and partner.benefit_status == 'exemption':
+                    name = f"{name} - {_('Exemption 100%')}"
+                line.name = name
 
     @api.depends('product_id', 'order_id.partner_id.benefit_status')
     def _compute_discount(self):

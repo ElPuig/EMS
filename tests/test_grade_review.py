@@ -2,7 +2,7 @@
 
 from datetime import date
 
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import Form, TransactionCase
 
 from .common import create_level_study, create_role_user, next_student_id
@@ -36,8 +36,11 @@ class TestGradeReview(TransactionCase):
             'code': 'GRVSUB3_02RA', 'acronym': 'RA2', 'name': 'Outcome 3B',
             'subject_id': cls.subject3.id})
         # The teaching plan of subject 3 is what an "add a missing subject" grade review reads.
+        # course_id must match cls.course (the record's own course, not necessarily the
+        # company's current one) - issue #503's whole point is that this search is now scoped
+        # by course, so a mismatch here would make the fixture silently find no planning at all.
         cls.planning3 = cls.env['ems.planning'].create({
-            'study_id': cls.study.id, 'subject_id': cls.subject3.id,
+            'study_id': cls.study.id, 'subject_id': cls.subject3.id, 'course_id': cls.course.id,
             'internal_ponderation': 90.0, 'external_ponderation': 10.0,
             'planning_outcome_ids': [
                 (0, 0, {'outcome_id': cls.outcome3a.id, 'ponderation': 50.0}),
@@ -242,6 +245,99 @@ class TestGradeReview(TransactionCase):
         form.save().action_apply()
         self.assertEqual(subject_record.state, 'failed')
 
+    # --- forcing "Nota del centre" (issue #503) -------------------------------
+
+    def test_override_forces_internal_grade_and_recomputes_final(self):
+        # Esfera recorded a 7 for this module; the natural RA average would give 5 (see
+        # test_correct_turns_a_failed_subject_into_a_passed_one) - both are on the "passed" side.
+        # Built via Form for the line_ids/onchange plumbing, then the applied grade is set via a
+        # direct write() - this is the exact low-level contract typing it in the real UI produces
+        # (see test_typing_the_applied_grade_directly_forces_it below for that path): there is no
+        # separate "force" flag to set, "overridden" is simply "applied != calculated".
+        record = self._record()
+        subject_record = self._failed_subject(record)
+        form = self._form(record)
+        form.subject_record_id = subject_record
+        self._pass_failing_outcomes(form)
+        wizard = form.save()
+        self.assertEqual(wizard.preview_state, 'passed')
+        wizard.write({'preview_internal_grade': 7})
+        self.assertEqual(wizard.preview_internal_grade_calculated, 5)  # untouched by the override
+        self.assertEqual(wizard.preview_final_grade, 7)  # internal_weight=100, external_weight=0
+        self.assertEqual(wizard.preview_state, 'passed')
+        wizard.action_apply()
+        self.assertEqual(subject_record.internal_grade, 7)
+        self.assertEqual(subject_record.final_grade, 7)
+        self.assertTrue(subject_record.is_overridden)
+        self.assertEqual(subject_record.state, 'passed')
+
+    def test_typing_the_applied_grade_directly_forces_it(self):
+        # The real UI path (issue #503 follow-up): there is no checkbox anymore, typing a
+        # different applied value directly is what forces it - no separate flag needed, "is this
+        # overridden" is simply "does the applied value differ from the calculated one".
+        record = self._record()
+        subject_record = self._failed_subject(record)
+        form = self._form(record)
+        form.subject_record_id = subject_record
+        self._pass_failing_outcomes(form)
+        self.assertEqual(form.preview_internal_grade, 5)  # calculated value, before typing
+        form.preview_internal_grade = 7
+        wizard = form.save()
+        self.assertEqual(wizard.preview_internal_grade, 7)
+        self.assertEqual(wizard.preview_internal_grade_calculated, 5)
+
+    def test_changing_the_subject_resets_the_override(self):
+        # Picking a different subject (or a different operation) is a fresh review: the applied
+        # grade must track ITS calculated value again, not carry over a stale override.
+        record = self._record()
+        subject_record = self._failed_subject(record)
+        form = self._form(record)
+        form.subject_record_id = subject_record
+        self._pass_failing_outcomes(form)
+        form.preview_internal_grade = 7
+        other_subject_record = record.subject_record_ids.filtered(
+            lambda subject_record: subject_record.subject_id == self.subject2)
+        form.subject_record_id = other_subject_record
+        wizard = form.save()
+        self.assertEqual(wizard.preview_internal_grade, wizard.preview_internal_grade_calculated)
+
+    def test_override_cannot_force_a_pass_when_a_ra_still_fails(self):
+        record = self._record()
+        subject_record = self._failed_subject(record)
+        form = self._form(record)
+        form.subject_record_id = subject_record
+        # Only one of the three failing outcomes is corrected - the subject still fails overall.
+        with form.line_ids.edit(1) as line:
+            line.score = 5
+        wizard = form.save()
+        self.assertEqual(wizard.preview_state, 'failed')
+        with self.assertRaises(ValidationError):
+            wizard.write({'preview_internal_grade': 6})
+
+    def test_override_cannot_force_a_fail_when_every_ra_passes(self):
+        record = self._record()
+        subject_record = self._failed_subject(record)
+        form = self._form(record)
+        form.subject_record_id = subject_record
+        self._pass_failing_outcomes(form)
+        wizard = form.save()
+        with self.assertRaises(ValidationError):
+            wizard.write({'preview_internal_grade': 3})
+
+    def test_override_applies_with_no_outcome_line_changed(self):
+        # The exact scenario the developer described: every RA is already correct, only the
+        # weighted average disagrees with Esfera - no line edit at all, only the override.
+        record = self._record()
+        subject_record = self._failed_subject(record)
+        form = self._form(record)
+        form.subject_record_id = subject_record
+        wizard = form.save()
+        self.assertEqual(wizard.preview_state, 'failed')
+        wizard.write({'preview_internal_grade': 3})
+        wizard.action_apply()  # must not raise "the review does not change any learning outcome"
+        self.assertEqual(subject_record.internal_grade, 3)
+        self.assertEqual(subject_record.state, 'failed')
+
     # --- adding a missing subject --------------------------------------------
 
     def test_add_a_missing_subject_from_its_teaching_plan(self):
@@ -262,6 +358,22 @@ class TestGradeReview(TransactionCase):
         self.assertEqual(added.internal_grade, 7)
         self.assertEqual(added.outcome_record_ids.mapped('weight'), [50.0, 50.0])
         self.assertEqual(added.review_note, 'Reviewed and resolved as passed.')
+
+    def test_add_uses_the_planning_of_the_records_own_course_not_a_different_ones(self):
+        # Issue #503 regression: a different course's planning for the SAME study+subject, with
+        # DIFFERENT ponderations, must never leak into a correction of cls.course's own record.
+        other_course = self.env['ems.course'].create({'start': 2090, 'end': 2091})
+        self.env['ems.planning'].create({
+            'study_id': self.study.id, 'subject_id': self.subject3.id, 'course_id': other_course.id,
+            'internal_ponderation': 50.0, 'external_ponderation': 50.0,
+            'planning_outcome_ids': [(0, 0, {'outcome_id': self.outcome3a.id, 'ponderation': 100.0})],
+        })
+        record = self._record()
+        form = self._form(record, operation='add')
+        form.subject_id = self.subject3
+        self.assertEqual(form.internal_weight, 90.0)
+        self.assertEqual(form.external_weight, 10.0)
+        self.assertEqual(len(form.line_ids), 2)
 
     def test_add_only_offers_subjects_the_record_does_not_have(self):
         record = self._record()

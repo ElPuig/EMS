@@ -83,6 +83,20 @@ class TestEnrollmentHeader(TransactionCase):
             'groups_id': [(4, cls.env.ref('base.group_user').id), (4, cls.env.ref('ems.group_secretary').id)],
         })
 
+    def test_enrollment_status_label_follows_language(self):
+        """The enrollment status shown in the list is a selection whose labels go through the
+        translation layer (it used to be a Char filled with hard-coded English)."""
+        # Set on purpose rather than relying on i18n/ca_ES.po, so a database loaded without
+        # the Catalan translations still proves the label is translatable.
+        self.env['res.lang']._activate_lang('ca_ES')
+        self.env.ref('ems.selection__sale_order__ems_enrollment_status_label__draft').with_context(
+            lang='ca_ES').name = 'Prematrícula (prova)'
+        order = self._order()
+        self.assertEqual(order.ems_enrollment_status_label, 'draft')
+        labels = dict(order._fields['ems_enrollment_status_label']._description_selection(
+            self.env(context={'lang': 'ca_ES'})))
+        self.assertEqual(labels['draft'], 'Prematrícula (prova)')
+
     def _order(self, partner=None, **vals):
         base = {
             'partner_id': (partner or self.student).id,

@@ -2,7 +2,7 @@
 
 ## Overview
 
-`ems.level` is a configuration model at the top of the EMS curriculum hierarchy. It represents a study level (e.g., Secondary Education, VET, Baccalaureate) and groups related studies under a common classification. It has no custom business logic beyond a computed `display_name`.
+`ems.level` is a configuration model at the top of the EMS curriculum hierarchy. It represents a study level (e.g., Secondary Education, VET, Baccalaureate) and groups related studies under a common classification. Besides a computed `display_name`, its only behaviour flag is `allows_convalidation`, which opens its studies to [convalidation requests](../grades/convalidation.md).
 
 **Module file:** `models/curriculum/level.py`
 
@@ -17,6 +17,7 @@
 | `acronym` | `Char` | Yes | Yes | Short code (e.g., `BTX`, `CFGM`) |
 | `name` | `Char` | Yes | Yes | Full descriptive name |
 | `study_ids` | `One2many → ems.study` | No | No | Studies at this level (inverse of `study.level_id`) |
+| `allows_convalidation` | `Boolean` | No | Yes | Students of this level's studies can request subject convalidations. Set for `CFGM`/`CFGS` in `data/cat/ems.level.csv` |
 | `notes` | `Text` | No | Yes | Free-form administrative notes |
 | `display_name` | `Char` (computed) | — | No | Format: `ACRONYM: Name` |
 

@@ -90,8 +90,8 @@ developer has reviewed/corrected this list:
   `parent_id`/`is_top_level`/`top_level_area` look more structural — may need a field-level
   split the current per-record freeze can't express); `res.company.csv` (rare edits, but easy to
   lose silently precisely because it's a single low-traffic record nobody's watching).
-- **Judged master, no action needed:** `ems.course.csv` (new rows are added by editing the file
-  each year by design — no runtime code path creates `ems.course` records), `resource.calendar*
+- **Judged master, no action needed:** `ems.course.csv` (moot since 18.0.0.28.0: the file was
+  deleted, courses are now created from the UI and the first one by `post_init_hook`), `resource.calendar*
   .csv` (structural bell-schedule framework), `ems.authorization.template.csv` (legal text,
   centrally authored/versioned), `crm.team.csv`, `ir.sequence-enrollment_number.csv`, root
   `res.partner.csv` (`tz` only), and the `btx/`/`eso/`/`ccff` curriculum subfolders (already

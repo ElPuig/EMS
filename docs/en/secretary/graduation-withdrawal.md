@@ -28,6 +28,8 @@ Select one or more students (from the list or a single student's form) and use *
 
 Only students in the **last course of their study** can be marked (e.g. 2nd of CFGM/CFGS/Batxillerat, 4th of ESO) — the wizard shows why a student can't be marked yet if that's not the case (not in the last course, or already enrolled for next course, which is treated as incompatible with graduating). Tutors can mark their own tutorands; secretary and admin can mark anyone.
 
+![Graduation wizard: one student can be marked, the other shows why not (not in the last course)](../../assets/secretary/graduacio-01-assistent.png)
+
 Marked a student by mistake? **Unmark** reverses it — except the internal "has graduated at least once" record, which is permanent and is what decides alumni-vs-withdrawal if that student ever leaves later on. Unmarking never undoes that.
 
 ## Registering a withdrawal (or an expulsion)
@@ -35,6 +37,8 @@ Marked a student by mistake? **Unmark** reverses it — except the internal "has
 Only secretary and admin can register one. You'll be asked to choose between **Withdrawal** and
 **Expulsion**, the **exit date** and, optionally, a **reason** — then confirm. This cannot be
 undone from the wizard itself once applied.
+
+![Withdrawal wizard with the kind (Withdrawal/Expulsion), exit date, reason and the pending enrolment it will cancel](../../assets/secretary/baixa-01-assistent.png)
 
 - **Withdrawal** covers the student leaving on their own, whether that's their own decision or
   the school's administrative decision ("de oficio") — there's no separate option for that

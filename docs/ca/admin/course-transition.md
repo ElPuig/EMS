@@ -54,6 +54,8 @@ Obre l'auxiliar, revisa el curs entrant i els estudis, i fes clic a **Previsuali
 
 Obtindràs un quadre vermell si alguna cosa bloqueja l'execució, un quadre blau amb tot allò que val la pena saber, un panell de comptadors i la **llista d'alumnes un per un** amb l'acció que rebrà cadascun:
 
+![Previsualització de la transició de curs: el requadre d'avisos, els comptadors del que passarà i la llista d'alumnes amb l'acció que rebrà cadascun](../../assets/admin/admin-course-transition-preview.png)
+
 | Acció | Què significa |
 |---|---|
 | **Es gradua i marxa** | Marcat com a graduat i sense cap matrícula: passa a exalumne i s'arxiva |

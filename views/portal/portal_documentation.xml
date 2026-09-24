@@ -234,18 +234,18 @@
                         </div>
 
                         <!-- Upload modals -->
-                        <t t-foreach="[('dni','DNI / NIE'), ('passport','Passport'), ('medical','Medical card (TIS)')]" t-as="doc">
-                            <div t-attf-id="modal-upload-#{doc[0]}" class="modal fade" tabindex="-1">
+                        <t t-foreach="['dni', 'passport', 'medical']" t-as="doc">
+                            <div t-attf-id="modal-upload-#{doc}" class="modal fade" tabindex="-1">
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title"><i class="fa fa-upload me-2"/>Upload: <t t-esc="doc[1]"/></h5>
+                                            <h5 class="modal-title"><i class="fa fa-upload me-2"/>Upload: <t t-esc="doc_type_labels[doc]"/></h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"/>
                                         </div>
                                         <form action="/my/documentacion/submit" method="post" enctype="multipart/form-data">
                                             <div class="modal-body">
                                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                                                <input type="hidden" name="doc_type" t-att-value="doc[0]"/>
+                                                <input type="hidden" name="doc_type" t-att-value="doc"/>
                                                     <p class="text-muted small">Upload a scan or photo (PDF, JPG, PNG).</p>
                                                 <input type="file" name="doc_file" class="form-control mb-3"
                                                        accept=".pdf,.jpg,.jpeg,.png" required="required"/>
@@ -284,7 +284,7 @@
                                             <t t-foreach="student_benefits" t-as="ben">
                                                 <tr t-attf-class="#{'table-info' if ben.category == 'bonification' else 'table-success'}">
                                                     <td><t t-esc="dict(benefit_types).get(ben.benefit_type, ben.benefit_type)"/></td>
-                                                    <td><t t-esc="dict(ben._fields['category'].selection).get(ben.category, ben.category)"/></td>
+                                                    <td><t t-esc="benefit_category_labels.get(ben.category, ben.category)"/></td>
                                                     <td>
                                                         <t t-if="ben.renewal_date">
                                                             <t t-esc="ben.renewal_date" t-options='{"widget": "date"}'/>
@@ -383,7 +383,7 @@
                                         <tbody>
                                             <t t-foreach="submissions" t-as="sub">
                                                 <tr>
-                                                    <td class="ps-3 align-middle"><t t-esc="dict(sub._fields['doc_type'].selection).get(sub.doc_type, sub.doc_type)"/></td>
+                                                    <td class="ps-3 align-middle"><t t-esc="doc_type_labels.get(sub.doc_type, sub.doc_type)"/></td>
                                                     <td class="align-middle">
                                                         <t t-esc="sub.upload_date" t-options='{"widget": "datetime"}'/>
                                                     </td>
@@ -399,7 +399,7 @@
                                                             'bg-success' if sub.status == 'approved' else
                                                             'bg-secondary' if sub.status == 'cancelled' else 'bg-danger'
                                                         }">
-                                                            <t t-esc="dict(sub._fields['status'].selection).get(sub.status, sub.status)"/>
+                                                            <t t-esc="doc_status_labels.get(sub.status, sub.status)"/>
                                                         </span>
                                                     </td>
                                                     <td class="align-middle">

@@ -8,6 +8,8 @@ Ask for the vocational training subjects you already passed elsewhere to be conv
 
 Convalidations can only be requested for vocational training cycles (CFGM and CFGS).
 
+**Who can request them:** the student, from their own account, if they are of age; the family, from its account, if the student is a minor. A minor student who logs in with their own account, or the family of a student who has turned 18, sees a notice instead of the requests.
+
 ---
 
 ## Access
@@ -15,6 +17,18 @@ Convalidations can only be requested for vocational training cycles (CFGM and CF
 On the portal's home page, click the **Convalidations** card, or **Convalidations** in the top bar.
 
 If you are a family with more than one child at the centre, pick the child in the portal's top bar first: the request is always filed for the selected child.
+
+---
+
+## Request period
+
+New requests can only be submitted during the request period the centre sets every year (normally from 1 October at 08:00 to 31 March at 23:59). While it is open, the form shows until when requests can be submitted.
+
+Outside that period the form is replaced by a notice saying when it will open again:
+
+![Request period closed](../../assets/families/convalidations-portal-closed.png)
+
+Requests already submitted are not affected: you can still check them, answer the centre and cancel them at any time.
 
 ---
 

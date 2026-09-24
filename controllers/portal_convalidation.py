@@ -54,6 +54,8 @@ class EmsPortalConvalidationController(CustomerPortal):
             'age_blocked_student': portal_student if portal_student and not student else portal_student.browse(),
             'period_open': company._ems_convalidation_period_open(),
             'period_next_change': company._ems_convalidation_period_next_change(),
+            # The period is the centre's local time: shown in it whatever the visitor's own tz.
+            'period_tz': company.partner_id.tz,
             'study': study,
             'requestable_subjects': Convalidation._ems_portal_requestable_subjects(student, study)
             if study else request.env['ems.subject'],

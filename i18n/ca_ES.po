@@ -15843,3 +15843,219 @@ msgid ""
 msgstr ""
 "Aquest curs encara està en marxa: corregeix-ne les notes a les sessions "
 "d'avaluació. La revisió de qualificacions només s'aplica a cursos tancats."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "<i class=\"fa fa-calendar me-1\"/> Requests can be submitted until"
+msgstr ""
+"<i class=\"fa fa-calendar me-1\"/> Es poden presentar sol·licituds fins al"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"<i class=\"fa fa-calendar-times-o me-1\"/> The period to request "
+"convalidations is closed. It will open on"
+msgstr ""
+"<i class=\"fa fa-calendar-times-o me-1\"/> El període per sol·licitar "
+"convalidacions està tancat. S'obrirà el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> The period to request "
+"convalidations is closed: your request has not been submitted."
+msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> El període per sol·licitar "
+"convalidacions està tancat: la sol·licitud no s'ha presentat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "<span class=\"o_form_label\" style=\"width: 8ch;\">Closes</span>"
+msgstr "<span class=\"o_form_label\" style=\"width: 8ch;\">Tancament</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "<span class=\"o_form_label\" style=\"width: 8ch;\">Opens</span>"
+msgstr "<span class=\"o_form_label\" style=\"width: 8ch;\">Obertura</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "<span>at</span>"
+msgstr "<span>a les</span>"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_end_month__4
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_start_month__4
+msgid "April"
+msgstr "Abril"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_end_month__8
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_start_month__8
+msgid "August"
+msgstr "Agost"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__convalidation_end_day
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__convalidation_end_day
+msgid "Convalidation End Day"
+msgstr "Dia de tancament de les convalidacions"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__convalidation_end_month
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__convalidation_end_month
+msgid "Convalidation End Month"
+msgstr "Mes de tancament de les convalidacions"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__convalidation_end_time
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__convalidation_end_time
+msgid "Convalidation End Time"
+msgstr "Hora de tancament de les convalidacions"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__convalidation_start_day
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__convalidation_start_day
+msgid "Convalidation Start Day"
+msgstr "Dia d'obertura de les convalidacions"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__convalidation_start_month
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__convalidation_start_month
+msgid "Convalidation Start Month"
+msgstr "Mes d'obertura de les convalidacions"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__convalidation_start_time
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__convalidation_start_time
+msgid "Convalidation Start Time"
+msgstr "Hora d'obertura de les convalidacions"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Convalidations Settings"
+msgstr "Configuració de convalidacions"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"Convalidations of a student under age are requested by their family, from "
+"their own account."
+msgstr ""
+"Les convalidacions d'un alumne menor d'edat les sol·licita la seva família, "
+"des del seu propi compte."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_end_month__12
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_start_month__12
+msgid "December"
+msgstr "Desembre"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Every year, students (and the families of minors) can request convalidations"
+" from the portal only between these two moments, in the centre's local time."
+" Outside it the portal accepts no new requests; the ones already submitted "
+"are still handled as usual, and staff can register and process requests at "
+"any time."
+msgstr ""
+"Cada any, l'alumnat (i les famílies dels menors d'edat) només pot "
+"sol·licitar convalidacions des del portal entre aquests dos moments, en hora"
+" local del centre. Fora d'aquest període el portal no accepta sol·licituds "
+"noves; les ja presentades es continuen tramitant amb normalitat, i el "
+"personal pot registrar i tramitar sol·licituds en qualsevol moment."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_end_month__2
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_start_month__2
+msgid "February"
+msgstr "Febrer"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_end_month__1
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_start_month__1
+msgid "January"
+msgstr "Gener"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_end_month__7
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_start_month__7
+msgid "July"
+msgstr "Juliol"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_end_month__6
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_start_month__6
+msgid "June"
+msgstr "Juny"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_end_month__3
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_start_month__3
+msgid "March"
+msgstr "Març"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_end_month__5
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_start_month__5
+msgid "May"
+msgstr "Maig"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_end_month__11
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_start_month__11
+msgid "November"
+msgstr "Novembre"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_end_month__10
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_start_month__10
+msgid "October"
+msgstr "Octubre"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Request period"
+msgstr "Període de sol·licitud"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_end_month__9
+#: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_start_month__9
+msgid "September"
+msgstr "Setembre"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid ""
+"The convalidation request period must open and close at different moments."
+msgstr ""
+"El període de sol·licitud de convalidacions s'ha d'obrir i tancar en moments"
+" diferents."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid ""
+"The convalidation request period uses a day that does not exist: %(day)s "
+"%(month)s."
+msgstr ""
+"El període de sol·licitud de convalidacions fa servir un dia que no "
+"existeix: %(day)s %(month)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid ""
+"The convalidation request period's times must be between 00:00 and 23:59."
+msgstr ""
+"Les hores del període de sol·licitud de convalidacions han de ser entre les "
+"00:00 i les 23:59."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "is of age: convalidations have to be managed from their own account."
+msgstr ""
+"és major d'edat: les convalidacions s'han de gestionar des del seu propi "
+"compte."

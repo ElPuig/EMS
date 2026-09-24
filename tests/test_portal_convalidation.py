@@ -259,9 +259,14 @@ class TestPortalConvalidation(HttpCase):
         })
 
     def test_open_period_shows_when_it_closes(self):
+        """In the centre's local time, whatever the visitor's own time zone (none here)."""
+        self.env.company.partner_id.tz = 'Europe/Madrid'
+        self.student_user.tz = False
         self._login(self.student_user)
         page = self.url_open('/my/convalidaciones').text
         self.assertIn('o_ems_convalidation_deadline', page)
+        self.assertIn('31 December', page)
+        self.assertIn('23:59', page)
         self.assertNotIn('o_ems_convalidation_closed', page)
 
     def test_closed_period_hides_the_form(self):

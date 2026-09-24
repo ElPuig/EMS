@@ -65,6 +65,8 @@ Haz clic en **Pedir información**, escribe qué necesitas y envíalo. El alumno
 
 La solicitud queda **Pendiente**, a la espera de que la valide Jefatura de Estudios.
 
+Puedes registrar una solicitud, y tramitar cualquiera, en cualquier momento: el periodo de solicitud del portal (ver [Configuración de convalidaciones](../admin/convalidation-settings.md)) solo limita las solicitudes nuevas del alumnado y las familias.
+
 ---
 
 [← Volver al índice de Secretaría](index.md)

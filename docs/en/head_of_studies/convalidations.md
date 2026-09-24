@@ -97,6 +97,8 @@ The grade does not reach the student's grades until the secretariat completes th
 4. On the **Supporting documents** tab, upload the documents.
 5. Click **Save**.
 
+You can register a request, and handle any request, at any time: the portal's request period (see [Convalidations settings](../admin/convalidation-settings.md)) only limits new requests from students and families.
+
 ---
 
 ## Cancelling and reopening

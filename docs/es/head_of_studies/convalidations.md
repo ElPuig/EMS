@@ -97,6 +97,8 @@ La nota no llega a las calificaciones del alumno hasta que secretaría completa 
 4. En la pestaña **Documentación justificativa**, sube los documentos.
 5. Haz clic en **Guardar**.
 
+Puedes registrar una solicitud, y tramitar cualquiera, en cualquier momento: el periodo de solicitud del portal (ver [Configuración de convalidaciones](../admin/convalidation-settings.md)) solo limita las solicitudes nuevas del alumnado y las familias.
+
 ---
 
 ## Anular y reabrir

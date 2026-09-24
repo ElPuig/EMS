@@ -97,6 +97,8 @@ La nota no arriba a les qualificacions de l'alumne fins que secretaria completa 
 4. A la pestanya **Documentació justificativa**, puja els documents.
 5. Fes clic a **Desa**.
 
+Pots registrar una sol·licitud, i tramitar-ne qualsevol, en qualsevol moment: el període de sol·licitud del portal (vegeu [Configuració de convalidacions](../admin/convalidation-settings.md)) només limita les sol·licituds noves de l'alumnat i les famílies.
+
 ---
 
 ## Anul·lar i reobrir

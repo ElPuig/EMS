@@ -8,6 +8,8 @@ Demana la convalidació dels mòduls de formació professional que ja has supera
 
 Només es poden sol·licitar convalidacions als cicles formatius (CFGM i CFGS).
 
+**Qui les pot sol·licitar:** l'alumne, des del seu propi compte, si és major d'edat; la família, des del seu compte, si l'alumne és menor d'edat. Un alumne menor d'edat que entri amb el seu propi compte, o la família d'un alumne que ha fet 18 anys, veu un avís en lloc de les sol·licituds.
+
 ---
 
 ## Accés
@@ -15,6 +17,18 @@ Només es poden sol·licitar convalidacions als cicles formatius (CFGM i CFGS).
 A la pàgina d'inici del portal, fes clic a la targeta **Convalidacions**, o a **Convalidacions** a la barra superior.
 
 Si sou una família amb més d'un fill al centre, primer tria el fill a la barra superior del portal: la sol·licitud sempre es fa per al fill seleccionat.
+
+---
+
+## Període de sol·licitud
+
+Només es poden presentar sol·licituds noves durant el període de sol·licitud que el centre fixa cada any (normalment de l'1 d'octubre a les 08:00 al 31 de març a les 23:59). Mentre està obert, el formulari indica fins quan es poden presentar.
+
+Fora d'aquest període el formulari es substitueix per un avís que diu quan s'obrirà de nou:
+
+![Període de sol·licitud tancat](../../assets/families/convalidations-portal-closed.png)
+
+Les sol·licituds ja presentades no es veuen afectades: les pots continuar consultant, respondre al centre i cancel·lar-les en qualsevol moment.
 
 ---
 

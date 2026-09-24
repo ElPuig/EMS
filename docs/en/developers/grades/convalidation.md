@@ -2,13 +2,13 @@
 
 ## Overview
 
-A **convalidation request** is a student asking for some subjects (vocational training modules) of their study to be recognised because they already passed them elsewhere. The student, or the family of a minor, files the request from the portal (or the secretariat registers one received on paper).
+A **convalidation request** is a student asking for some subjects (vocational training modules) of their study to be recognised because they already passed them elsewhere. An adult student, or the family of a minor one, files the request from the portal during the yearly **request period** set in the EMS settings (or the secretariat registers one received on paper, at any time).
 
 Resolving it is a **linear, two-step circuit**, mirroring what the centre actually does: the **Head of Studies** decides subject by subject and writes the grade the previous studies hold, then the **secretariat** registers the resolution in Esfera (the Departament d'Educació's own system, outside EMS) and completes the request. Only a completed request reaches the student's grades — until then the resolution is not official.
 
 Only studies whose **level** has `allows_convalidation` set can receive requests. `data/cat/ems.level.csv` sets it for `CFGM` and `CFGS`, the cycles the centre's secretariat publishes convalidation forms for.
 
-**Module files:** `models/grades/convalidation.py`, `models/grades/convalidation_info_wizard.py`, `models/curriculum/level.py` (`allows_convalidation`), `models/curriculum/study.py` (`_ems_convalidable_subjects`), `models/grades/grade_subject_line.py`, `models/grades/grade_session.py`, `models/grades/year_record.py`, `models/grades/grade_review_wizard.py`, `models/grades/em_grading_wizard.py`, `models/contacts/contact.py` (stat button), `controllers/portal_convalidation.py`, `views/academic_management/convalidations/{views,menu}.xml`, `views/portal/portal_convalidations.xml`, `mails/grades/convalidation_resolved.xml`, `mails/grades/convalidation_info_request.xml`, `data/main/mail.activity.type.csv`, `static/src/js/backend/grade_matrix_field.js`, `static/src/js/backend/grade_tutor_matrix.js`, `tests/test_convalidation.py`, `tests/test_portal_convalidation.py`, `tests/test_convalidation_tour.py`, `static/tests/tours/convalidation_tour.js`
+**Module files:** `models/grades/convalidation.py`, `models/grades/convalidation_info_wizard.py`, `models/curriculum/level.py` (`allows_convalidation`), `models/curriculum/study.py` (`_ems_convalidable_subjects`), `models/grades/grade_subject_line.py`, `models/grades/grade_session.py`, `models/grades/year_record.py`, `models/grades/grade_review_wizard.py`, `models/grades/em_grading_wizard.py`, `models/contacts/contact.py` (stat button), `models/settings/company.py` (request period), `models/settings/settings.py`, `views/settings/form.xml`, `models/contacts/portal.py` (`_ems_portal_can_act_for`), `controllers/portal_convalidation.py`, `views/academic_management/convalidations/{views,menu}.xml`, `views/portal/portal_convalidations.xml`, `mails/grades/convalidation_resolved.xml`, `mails/grades/convalidation_info_request.xml`, `data/main/mail.activity.type.csv`, `static/src/js/backend/grade_matrix_field.js`, `static/src/js/backend/grade_tutor_matrix.js`, `tests/test_convalidation.py`, `tests/test_convalidation_period.py`, `tests/test_portal_convalidation.py`, `tests/test_convalidation_tour.py`, `static/tests/tours/convalidation_tour.js`
 
 **See also:** [`grade_session.md`](grade_session.md), [`year_record.md`](year_record.md), [`em_grading_wizard.md`](em_grading_wizard.md).
 
@@ -120,12 +120,29 @@ flowchart LR
 
 `controllers/portal_convalidation.py` (`/my/convalidaciones`) always acts on `get_portal_student()`: the student, or the child a family has selected. It uses `sudo()` because portal users have no ACL on these models.
 
+**Who acts.** `res.partner._ems_portal_can_act_for(student)` (`models/contacts/portal.py`): the student themselves once they are of age (`is_adult`), or their family while they are a minor. A student with no birth date counts as a minor. Every route goes through it (`_ems_convalidation_student()` returns an empty recordset otherwise), so a minor on their own account, or a family whose child has turned 18, gets a notice (`o_ems_convalidation_age_blocked`) instead of the requests and the form, and their POSTs do nothing. Portal accounts are granted along the same line (`_ems_notification_recipients`), but nothing keeps them in step: a family keeps its account when the child turns 18, and a minor applicant with no family on file gets their own.
+
 | Route | Behaviour |
 |-------|-----------|
-| `GET /my/convalidaciones` | Requests of the student, plus the new-request form when `_ems_portal_study()` finds a study. The form is a Bootstrap collapse, folded by default; it opens with `?new=1` or when the page comes back with a validation `?error=`. |
-| `POST /my/convalidaciones/submit` | Checks that at least one subject in `_ems_portal_requestable_subjects()` and a valid `basis` are sent, then creates the request and its attachments. Documents are optional: the form says per case which ones are needed, and the Head of Studies can ask for more. |
-| `POST /my/convalidaciones/reply/<id>` | The applicant's answer: files and/or text, while the request is `pending` or `in_progress`. The files join `attachment_ids` and the text is posted as a comment (`_ems_portal_add_documents`). |
-| `POST /my/convalidaciones/cancel/<id>` | Only the student's own request, only while `pending`. |
+| `GET /my/convalidaciones` | Requests of the student, plus the new-request form when `_ems_portal_study()` finds a study **and the request period is open**. The form is a Bootstrap collapse, folded by default; it opens with `?new=1` or when the page comes back with a validation `?error=`. It says when the period closes. While closed, a notice with the next opening replaces the form. |
+| `POST /my/convalidaciones/submit` | Refused with `?error=closed` outside the request period. Then checks that at least one subject in `_ems_portal_requestable_subjects()` and a valid `basis` are sent, and creates the request and its attachments. Documents are optional: the form says per case which ones are needed, and the Head of Studies can ask for more. |
+| `POST /my/convalidaciones/reply/<id>` | The applicant's answer: files and/or text, while the request is `pending` or `in_progress`, whatever the date. The files join `attachment_ids` and the text is posted as a comment (`_ems_portal_add_documents`). |
+| `POST /my/convalidaciones/cancel/<id>` | Only the student's own request, only while `pending`, whatever the date. |
+
+### Request period
+
+A yearly window, with no year, stored on `res.company` and edited in Settings → EMS Management → Convalidations Settings (the settings form, so only `base.group_system`):
+
+| Field | Default | Notes |
+|-------|---------|-------|
+| `convalidation_start_day`, `convalidation_start_month`, `convalidation_start_time` | 1, October, 08:00 | Opening. `month` is a Selection `'1'`..`'12'`; `time` a float hour (`float_time`). |
+| `convalidation_end_day`, `convalidation_end_month`, `convalidation_end_time` | 31, March, 23:59 | Closing. The closing minute is still inside the period. |
+
+- **Local time:** compared in the company partner's time zone (`_ems_convalidation_datetime_utils()`), whoever is asking.
+- **Across the new year:** `_ems_convalidation_period_keys()` turns both ends into `(month, day, minute)` tuples. When the opening comes before the closing in the calendar the period is that stretch; otherwise it runs from the opening to the end of the year and from 1 January to the closing, as the default does.
+- **`_ems_convalidation_period_open(now=None)`** decides; **`_ems_convalidation_period_next_change(now=None)`** returns the next opening (while closed) or the coming closing (while open) as naive UTC, which the portal renders in the reader's time zone. Both take `now` as naive UTC, so tests can fix it.
+- **`_check_convalidation_period`:** each day must exist in its month in a non-leap year (no 29 February, so the period is the same every year), times must be within 00:00-23:59, and the two ends must differ.
+- **Staff are not limited:** nothing in `ems.convalidation` itself checks the period. The secretariat can register, and every role can process, requests at any time.
 
 - `_ems_portal_study(student)`: the study of the student's non-cancelled `sale.order` for the enrollment course, else `main_group_id.study_id`. The result is kept only if its level allows convalidations.
 - `_ems_portal_requestable_subjects(student, study)`: the convalidable subjects minus those already in a non-cancelled, non-rejected line. A rejected subject can be asked for again with new documents.
@@ -139,7 +156,8 @@ flowchart LR
 | Head of Studies / Director | CRU | CRUD | Yes | No |
 | Secretary | CRU | CRUD (grade while `in_progress`) | No | Yes |
 | Teacher / tutor | none | none | No | No |
-| Portal (student / family) | through the controller only | through the controller only | No | No |
+| Portal (adult student / family of a minor) | through the controller only; new requests only during the request period | through the controller only | No | No |
+| Settings administrator | Configures the request period | - | - | - |
 
 - **Student form:** the **Convalidations** stat button is limited to the three groups above. Its count is computed with `sudo`, so the form still opens for roles without access.
 - **Menu:** Academic management → Convalidations (`menu_ems_convalidations`).

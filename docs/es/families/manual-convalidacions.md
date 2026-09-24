@@ -8,6 +8,8 @@ Pide la convalidación de los módulos de formación profesional que ya has supe
 
 Solo se pueden solicitar convalidaciones en los ciclos formativos (CFGM y CFGS).
 
+**Quién puede solicitarlas:** el alumno, desde su propia cuenta, si es mayor de edad; la familia, desde su cuenta, si el alumno es menor de edad. Un alumno menor de edad que entre con su propia cuenta, o la familia de un alumno que ha cumplido 18 años, ve un aviso en lugar de las solicitudes.
+
 ---
 
 ## Acceso
@@ -15,6 +17,18 @@ Solo se pueden solicitar convalidaciones en los ciclos formativos (CFGM y CFGS).
 En la página de inicio del portal, haz clic en la tarjeta **Convalidaciones**, o en **Convalidaciones** en la barra superior.
 
 Si sois una familia con más de un hijo en el centro, elige primero el hijo en la barra superior del portal: la solicitud siempre se hace para el hijo seleccionado.
+
+---
+
+## Periodo de solicitud
+
+Solo se pueden presentar solicitudes nuevas durante el periodo de solicitud que el centro fija cada año (normalmente del 1 de octubre a las 08:00 al 31 de marzo a las 23:59). Mientras está abierto, el formulario indica hasta cuándo se pueden presentar.
+
+Fuera de ese periodo el formulario se sustituye por un aviso que dice cuándo se abrirá de nuevo:
+
+![Periodo de solicitud cerrado](../../assets/families/convalidations-portal-closed.png)
+
+Las solicitudes ya presentadas no se ven afectadas: puedes seguir consultándolas, responder al centro y cancelarlas en cualquier momento.
 
 ---
 

@@ -28,6 +28,8 @@ from dateutil.relativedelta import relativedelta
 
 from odoo.tests.common import HttpCase, tagged
 
+from .test_convalidation import (close_convalidation_period, open_convalidation_period,
+                                 set_convalidation_period)
 from .common import (
     DocsScreenshotMixin, create_level_study_group, create_role_employee, create_role_user,
     mock_outgoing_email, next_student_id,
@@ -379,6 +381,9 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             login='doc_shot_hos',
             wait_for='.o_list_renderer .o_data_row',
         )
+        # The request period, open while the form is captured (the default one may well be
+        # closed the day this runs), then closed for the notice that replaces it.
+        open_convalidation_period(self.env)
         self._capture(
             '/my/convalidaciones?new=1', '.o_ems_convalidation_new',
             'convalidations-portal-new.png',
@@ -389,4 +394,19 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             '/my/convalidaciones', '.o_ems_convalidation_request',
             'convalidations-portal-request.png',
             login='doc_shot_portal',
+        )
+        close_convalidation_period(self.env)
+        self._capture(
+            '/my/convalidaciones', '.o_ems_convalidation_closed',
+            'convalidations-portal-closed.png',
+            login='doc_shot_portal',
+        )
+        # The period itself, in Settings (goes to docs/assets/admin/).
+        create_role_user(self, 'settings_admin', 'doc_shot_settings_admin', lang='ca_ES',
+                         name='Administrador')
+        set_convalidation_period(self.env, (1, 10, 8.0), (31, 3, 23 + 59 / 60))
+        self._capture(
+            '/odoo/action-ems.action_settings', '#convalidation_period',
+            'convalidations-settings.png',
+            login='doc_shot_settings_admin',
         )

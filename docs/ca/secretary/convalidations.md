@@ -65,6 +65,8 @@ Fes clic a **Demana informació**, escriu què necessites i envia-ho. L'alumne r
 
 La sol·licitud queda **Pendent**, a l'espera que la validi Cap d'Estudis.
 
+Pots registrar una sol·licitud, i tramitar-ne qualsevol, en qualsevol moment: el període de sol·licitud del portal (vegeu [Configuració de convalidacions](../admin/convalidation-settings.md)) només limita les sol·licituds noves de l'alumnat i les famílies.
+
 ---
 
 [← Tornar a l'índex de Secretaria](index.md)

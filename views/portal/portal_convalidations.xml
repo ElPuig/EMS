@@ -59,7 +59,7 @@
                         <!-- Outside the yearly request period: no new requests, the rest of the page still works. -->
                         <div t-elif="study and not period_open" class="alert alert-warning mb-4 o_ems_convalidation_closed">
                             <i class="fa fa-calendar-times-o me-1"/> The period to request convalidations is closed. It will open on
-                            <strong t-out="period_next_change" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm'}"/>.
+                            <strong t-out="period_next_change" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': period_tz}"/>.
                         </div>
                         <div t-elif="study" class="card shadow-sm mb-4 o_ems_convalidation_new">
                             <button type="button"
@@ -73,7 +73,7 @@
                                 <div class="card-body">
                                     <p class="small text-muted mb-3 o_ems_convalidation_deadline">
                                         <i class="fa fa-calendar me-1"/> Requests can be submitted until
-                                        <strong t-out="period_next_change" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm'}"/>.
+                                        <strong t-out="period_next_change" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': period_tz}"/>.
                                     </p>
                                     <t t-if="requestable_subjects">
                                         <form action="/my/convalidaciones/submit" method="post"

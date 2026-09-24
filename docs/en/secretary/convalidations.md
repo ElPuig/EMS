@@ -65,6 +65,8 @@ Click **Request information**, write what you need and send it. The student gets
 
 The request stays **Pending**, waiting for the Head of Studies to validate it.
 
+You can register a request, and handle any request, at any time: the portal's request period (see [Convalidations settings](../admin/convalidation-settings.md)) only limits new requests from students and families.
+
 ---
 
 [← Back to the Secretariat index](index.md)

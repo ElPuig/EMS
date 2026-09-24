@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from . import (contact, contact_relation, group, group_schedule, group_classroom_change_wizard, enrollment, student_schedule, portal, student_import_wizard, student_update_wizard, student_document, enrollment_proposal_wizard, google_workspace_integration, portal_access_wizard, graduation_wizard, applicant_import_wizard, partner_merge_wizard)
+from . import (contact, family_contact, contact_relation, group, group_schedule, group_classroom_change_wizard, enrollment, student_schedule, portal, student_import_wizard, student_update_wizard, student_document, enrollment_proposal_wizard, google_workspace_integration, portal_access_wizard, graduation_wizard, applicant_import_wizard, partner_merge_wizard, contact_data_request, contact_data_request_send_wizard)

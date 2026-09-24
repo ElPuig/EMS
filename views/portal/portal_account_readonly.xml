@@ -73,8 +73,13 @@
                         </div>
                     </div>
                     <div class="clearfix col-lg-8 mb-5">
+                        <!-- Issue #507: contact details are reviewed on their own page; the
+                             mailto: stays for the official data (name, birth date). -->
+                        <a href="/my/dades-contacte" class="btn btn-primary float-end ms-2">
+                            <i class="fa fa-address-card me-1"/>Update contact details
+                        </a>
                         <a t-if="ems_profile_change_mailto" t-att-href="ems_profile_change_mailto"
-                           class="btn btn-primary float-end">
+                           class="btn btn-secondary float-end">
                             <i class="fa fa-envelope me-1"/>Request a data change
                         </a>
                     </div>

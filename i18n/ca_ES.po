@@ -1286,6 +1286,10 @@ msgstr "Estudis acadèmics"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization__course_id model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__course_id model:ir.model.fields,field_description:ems.field_sale_order__ems_course_id model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__course_id
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__course_id
+#: model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__course_id
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
 msgid "Academic Year"
 msgstr "Any acadèmic"
 
@@ -1357,6 +1361,7 @@ msgstr "Acrònim"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__mode
 #: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__action
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__action
 msgid "Action"
 msgstr "Acció"
 
@@ -1582,6 +1587,7 @@ msgstr "Horari d'assistència permès"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__allowed_group_ids model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__allowed_group_ids
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__allowed_group_ids
 msgid "Allowed Group"
 msgstr "Grup permès"
 
@@ -1735,6 +1741,8 @@ msgstr "Aplicant els canvis…"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form model_terms:ir.ui.view,arch_db:ems.view_student_document_list
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_list
 msgid "Approve"
 msgstr "Aprovar"
 
@@ -2318,6 +2326,8 @@ msgstr "Pot editar"
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0 code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 code:addons/ems/static/src/xml/backend/schedule_grid_readonly_field.xml:0 model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_attendance_report_group_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_student_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_subject_wizard model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_session_state_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_session_wizard_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_add_student_popup model_terms:ir.ui.view,arch_db:ems.view_notice_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_reject_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -2435,6 +2445,8 @@ msgstr "Ciutadania"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__city model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_city model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data_family_fields
 msgid "City"
 msgstr "Ciutat"
 
@@ -2627,6 +2639,7 @@ msgstr "Connectat"
 #. odoo-python
 #: code:addons/ems/models/contacts/contact.py:0
 #: model:ir.model,name:ems.model_res_partner model:ir.model.fields,field_description:ems.field_ems_notice_line__partner_id model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__partner_id
 msgid "Contact"
 msgstr "Contacte"
 
@@ -2764,6 +2777,11 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_justification__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_template__create_uid model:ir.model.fields,field_description:ems.field_ems_authorization__create_uid model:ir.model.fields,field_description:ems.field_ems_authorization_field__create_uid model:ir.model.fields,field_description:ems.field_ems_authorization_response__create_uid model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__create_uid model:ir.model.fields,field_description:ems.field_ems_authorization_template__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_content__create_uid model:ir.model.fields,field_description:ems.field_ems_course__create_uid model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__create_uid model:ir.model.fields,field_description:ems.field_ems_criteria__create_uid model:ir.model.fields,field_description:ems.field_ems_csv_column__create_uid model:ir.model.fields,field_description:ems.field_ems_enrollment__create_uid model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_enrollment_view__create_uid model:ir.model.fields,field_description:ems.field_ems_grade_outcome__create_uid model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__create_uid model:ir.model.fields,field_description:ems.field_ems_grade_session__create_uid model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__create_uid model:ir.model.fields,field_description:ems.field_ems_group__create_uid model:ir.model.fields,field_description:ems.field_ems_level__create_uid model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__create_uid model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__create_uid model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__create_uid model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__create_uid model:ir.model.fields,field_description:ems.field_ems_minute__create_uid model:ir.model.fields,field_description:ems.field_ems_notice__create_uid model:ir.model.fields,field_description:ems.field_ems_notice_line__create_uid model:ir.model.fields,field_description:ems.field_ems_outcome__create_uid model:ir.model.fields,field_description:ems.field_ems_planning__create_uid model:ir.model.fields,field_description:ems.field_ems_planning_outcome__create_uid model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__create_uid model:ir.model.fields,field_description:ems.field_ems_role__create_uid model:ir.model.fields,field_description:ems.field_ems_space__create_uid model:ir.model.fields,field_description:ems.field_ems_space_type__create_uid model:ir.model.fields,field_description:ems.field_ems_student_benefit__create_uid model:ir.model.fields,field_description:ems.field_ems_student_document__create_uid model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_study__create_uid model:ir.model.fields,field_description:ems.field_ems_subject__create_uid model:ir.model.fields,field_description:ems.field_ems_teaching__create_uid model:ir.model.fields,field_description:ems.field_ems_tracking__create_uid model:ir.model.fields,field_description:ems.field_ems_workgroup__create_uid model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -2771,6 +2789,11 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_justification__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_template__create_date model:ir.model.fields,field_description:ems.field_ems_authorization__create_date model:ir.model.fields,field_description:ems.field_ems_authorization_field__create_date model:ir.model.fields,field_description:ems.field_ems_authorization_response__create_date model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__create_date model:ir.model.fields,field_description:ems.field_ems_authorization_template__create_date model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_content__create_date model:ir.model.fields,field_description:ems.field_ems_course__create_date model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__create_date model:ir.model.fields,field_description:ems.field_ems_criteria__create_date model:ir.model.fields,field_description:ems.field_ems_csv_column__create_date model:ir.model.fields,field_description:ems.field_ems_enrollment__create_date model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_enrollment_view__create_date model:ir.model.fields,field_description:ems.field_ems_grade_outcome__create_date model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__create_date model:ir.model.fields,field_description:ems.field_ems_grade_session__create_date model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__create_date model:ir.model.fields,field_description:ems.field_ems_group__create_date model:ir.model.fields,field_description:ems.field_ems_level__create_date model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__create_date model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__create_date model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__create_date model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__create_date model:ir.model.fields,field_description:ems.field_ems_minute__create_date model:ir.model.fields,field_description:ems.field_ems_notice__create_date model:ir.model.fields,field_description:ems.field_ems_notice_line__create_date model:ir.model.fields,field_description:ems.field_ems_outcome__create_date model:ir.model.fields,field_description:ems.field_ems_planning__create_date model:ir.model.fields,field_description:ems.field_ems_planning_outcome__create_date model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__create_date model:ir.model.fields,field_description:ems.field_ems_role__create_date model:ir.model.fields,field_description:ems.field_ems_space__create_date model:ir.model.fields,field_description:ems.field_ems_space_type__create_date model:ir.model.fields,field_description:ems.field_ems_student_benefit__create_date model:ir.model.fields,field_description:ems.field_ems_student_document__create_date model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_study__create_date model:ir.model.fields,field_description:ems.field_ems_subject__create_date model:ir.model.fields,field_description:ems.field_ems_teaching__create_date model:ir.model.fields,field_description:ems.field_ems_tracking__create_date model:ir.model.fields,field_description:ems.field_ems_workgroup__create_date model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3030,6 +3053,11 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_justification__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_template__display_name model:ir.model.fields,field_description:ems.field_ems_authorization__display_name model:ir.model.fields,field_description:ems.field_ems_authorization_field__display_name model:ir.model.fields,field_description:ems.field_ems_authorization_response__display_name model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__display_name model:ir.model.fields,field_description:ems.field_ems_authorization_template__display_name model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_content__display_name model:ir.model.fields,field_description:ems.field_ems_course__display_name model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__display_name model:ir.model.fields,field_description:ems.field_ems_criteria__display_name model:ir.model.fields,field_description:ems.field_ems_csv_column__display_name model:ir.model.fields,field_description:ems.field_ems_enrollment__display_name model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_enrollment_view__display_name model:ir.model.fields,field_description:ems.field_ems_grade_outcome__display_name model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__display_name model:ir.model.fields,field_description:ems.field_ems_grade_session__display_name model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__display_name model:ir.model.fields,field_description:ems.field_ems_group__display_name model:ir.model.fields,field_description:ems.field_ems_level__display_name model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__display_name model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__display_name model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__display_name model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__display_name model:ir.model.fields,field_description:ems.field_ems_minute__display_name model:ir.model.fields,field_description:ems.field_ems_notice__display_name model:ir.model.fields,field_description:ems.field_ems_notice_line__display_name model:ir.model.fields,field_description:ems.field_ems_outcome__display_name model:ir.model.fields,field_description:ems.field_ems_planning__display_name model:ir.model.fields,field_description:ems.field_ems_planning_outcome__display_name model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__display_name model:ir.model.fields,field_description:ems.field_ems_role__display_name model:ir.model.fields,field_description:ems.field_ems_space__display_name model:ir.model.fields,field_description:ems.field_ems_space_type__display_name model:ir.model.fields,field_description:ems.field_ems_student_benefit__display_name model:ir.model.fields,field_description:ems.field_ems_student_document__display_name model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_study__display_name model:ir.model.fields,field_description:ems.field_ems_subject__display_name model:ir.model.fields,field_description:ems.field_ems_teaching__display_name model:ir.model.fields,field_description:ems.field_ems_tracking__display_name model:ir.model.fields,field_description:ems.field_ems_workgroup__display_name model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -3116,6 +3144,8 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard__state__done
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__done
+#: model:ir.model.fields.selection,name:ems.selection__ems_contact_data_request__state__done
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
 msgid "Done"
 msgstr "Fet"
 
@@ -3264,6 +3294,7 @@ msgstr "Sistema de gestió educativa"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__email model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__email model:ir.model.fields,field_description:ems.field_ems_notice_line__email model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__recipient_email model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_email model:ir.model.fields,field_description:ems.field_res_partner_relation_all__other_partner_email model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data_family_fields
 msgid "Email"
 msgstr "Correu electrònic"
 
@@ -3643,6 +3674,7 @@ msgstr "Famílies"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_notice_line__recipient_type__family model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__family model:res.partner.category,name:ems.partner_category_family
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
 msgid "Family"
 msgstr "Familia"
 
@@ -3663,6 +3695,7 @@ msgstr "Import de les taxes"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_response__field_id model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__field_label
 msgid "Field"
 msgstr "Camp"
 
@@ -3739,6 +3772,7 @@ msgstr "Primer pagament"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0 model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__firstname model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__student_firstname code:addons/ems/static/src/js/backend/em_matrix_field.js:0
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data_family_fields
 msgid "First name"
 msgstr "Nom"
 
@@ -4026,11 +4060,14 @@ msgstr "Atorgar accés"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__group_id model:ir.model.fields,field_description:ems.field_ems_authorization__group_id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__group_id model:ir.model.fields,field_description:ems.field_ems_enrollment__group_id model:ir.model.fields,field_description:ems.field_ems_enrollment_view__group_id model:ir.model.fields,field_description:ems.field_ems_grade_session__group_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__group_id model:ir.model.fields,field_description:ems.field_ems_student_year_record__group_id model:ir.model.fields,field_description:ems.field_ems_teaching__group_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__group_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__group_id model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search model_terms:ir.ui.view,arch_db:ems.view_grade_session_search model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_group_list model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__group_id
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
 msgid "Group"
 msgstr "Grup"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search model_terms:ir.ui.view,arch_db:ems.view_enrollment_search model_terms:ir.ui.view,arch_db:ems.view_sale_order_template_search_inherit_ems model_terms:ir.ui.view,arch_db:ems.view_space_search model_terms:ir.ui.view,arch_db:ems.view_subject_search model_terms:ir.ui.view,arch_db:ems.view_teaching_search
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
 msgid "Group By"
 msgstr "Agrupar per"
 
@@ -4056,6 +4093,8 @@ msgstr "Grup:"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_template__group_ids model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__group_ids model:ir.model.fields,field_description:ems.field_ems_notice__group_ids model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__group_ids model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__group_ids model:ir.ui.menu,name:ems.menu_groups
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__group_ids
+#: model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__group_ids
 msgid "Groups"
 msgstr "Grups"
 
@@ -4200,6 +4239,11 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__id model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__id model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__id model:ir.model.fields,field_description:ems.field_ems_attendance_justification__id model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__id model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__id model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__id model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__id model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__id model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__id model:ir.model.fields,field_description:ems.field_ems_attendance_template__id model:ir.model.fields,field_description:ems.field_ems_authorization__id model:ir.model.fields,field_description:ems.field_ems_authorization_field__id model:ir.model.fields,field_description:ems.field_ems_authorization_response__id model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__id model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__id model:ir.model.fields,field_description:ems.field_ems_authorization_template__id model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__id model:ir.model.fields,field_description:ems.field_ems_content__id model:ir.model.fields,field_description:ems.field_ems_course__id model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__id model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__id model:ir.model.fields,field_description:ems.field_ems_criteria__id model:ir.model.fields,field_description:ems.field_ems_csv_column__id model:ir.model.fields,field_description:ems.field_ems_enrollment__id model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__id model:ir.model.fields,field_description:ems.field_ems_enrollment_view__id model:ir.model.fields,field_description:ems.field_ems_grade_outcome__id model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__id model:ir.model.fields,field_description:ems.field_ems_grade_session__id model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__id model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__id model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__id model:ir.model.fields,field_description:ems.field_ems_group__id model:ir.model.fields,field_description:ems.field_ems_level__id model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__id model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__id model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__id model:ir.model.fields,field_description:ems.field_ems_minute__id model:ir.model.fields,field_description:ems.field_ems_notice__id model:ir.model.fields,field_description:ems.field_ems_notice_line__id model:ir.model.fields,field_description:ems.field_ems_outcome__id model:ir.model.fields,field_description:ems.field_ems_planning__id model:ir.model.fields,field_description:ems.field_ems_planning_outcome__id model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__id model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__id model:ir.model.fields,field_description:ems.field_ems_role__id model:ir.model.fields,field_description:ems.field_ems_space__id model:ir.model.fields,field_description:ems.field_ems_space_type__id model:ir.model.fields,field_description:ems.field_ems_student_benefit__id model:ir.model.fields,field_description:ems.field_ems_student_document__id model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__id model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__id model:ir.model.fields,field_description:ems.field_ems_study__id model:ir.model.fields,field_description:ems.field_ems_subject__id model:ir.model.fields,field_description:ems.field_ems_teaching__id model:ir.model.fields,field_description:ems.field_ems_tracking__id model:ir.model.fields,field_description:ems.field_ems_workgroup__id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__id
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__id
 msgid "ID"
 msgstr "ID"
 
@@ -4600,6 +4644,11 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_justification__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_template__write_uid model:ir.model.fields,field_description:ems.field_ems_authorization__write_uid model:ir.model.fields,field_description:ems.field_ems_authorization_field__write_uid model:ir.model.fields,field_description:ems.field_ems_authorization_response__write_uid model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__write_uid model:ir.model.fields,field_description:ems.field_ems_authorization_template__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_content__write_uid model:ir.model.fields,field_description:ems.field_ems_course__write_uid model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__write_uid model:ir.model.fields,field_description:ems.field_ems_criteria__write_uid model:ir.model.fields,field_description:ems.field_ems_csv_column__write_uid model:ir.model.fields,field_description:ems.field_ems_enrollment__write_uid model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_enrollment_view__write_uid model:ir.model.fields,field_description:ems.field_ems_grade_outcome__write_uid model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__write_uid model:ir.model.fields,field_description:ems.field_ems_grade_session__write_uid model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__write_uid model:ir.model.fields,field_description:ems.field_ems_group__write_uid model:ir.model.fields,field_description:ems.field_ems_level__write_uid model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__write_uid model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__write_uid model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__write_uid model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__write_uid model:ir.model.fields,field_description:ems.field_ems_minute__write_uid model:ir.model.fields,field_description:ems.field_ems_notice__write_uid model:ir.model.fields,field_description:ems.field_ems_notice_line__write_uid model:ir.model.fields,field_description:ems.field_ems_outcome__write_uid model:ir.model.fields,field_description:ems.field_ems_planning__write_uid model:ir.model.fields,field_description:ems.field_ems_planning_outcome__write_uid model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__write_uid model:ir.model.fields,field_description:ems.field_ems_role__write_uid model:ir.model.fields,field_description:ems.field_ems_space__write_uid model:ir.model.fields,field_description:ems.field_ems_space_type__write_uid model:ir.model.fields,field_description:ems.field_ems_student_benefit__write_uid model:ir.model.fields,field_description:ems.field_ems_student_document__write_uid model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_study__write_uid model:ir.model.fields,field_description:ems.field_ems_subject__write_uid model:ir.model.fields,field_description:ems.field_ems_teaching__write_uid model:ir.model.fields,field_description:ems.field_ems_tracking__write_uid model:ir.model.fields,field_description:ems.field_ems_workgroup__write_uid model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -4607,12 +4656,18 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_justification__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_report_subject_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_template__write_date model:ir.model.fields,field_description:ems.field_ems_authorization__write_date model:ir.model.fields,field_description:ems.field_ems_authorization_field__write_date model:ir.model.fields,field_description:ems.field_ems_authorization_response__write_date model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__write_date model:ir.model.fields,field_description:ems.field_ems_authorization_template__write_date model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_content__write_date model:ir.model.fields,field_description:ems.field_ems_course__write_date model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__write_date model:ir.model.fields,field_description:ems.field_ems_criteria__write_date model:ir.model.fields,field_description:ems.field_ems_csv_column__write_date model:ir.model.fields,field_description:ems.field_ems_enrollment__write_date model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_enrollment_view__write_date model:ir.model.fields,field_description:ems.field_ems_grade_outcome__write_date model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__write_date model:ir.model.fields,field_description:ems.field_ems_grade_session__write_date model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__write_date model:ir.model.fields,field_description:ems.field_ems_group__write_date model:ir.model.fields,field_description:ems.field_ems_level__write_date model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__write_date model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__write_date model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__write_date model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__write_date model:ir.model.fields,field_description:ems.field_ems_minute__write_date model:ir.model.fields,field_description:ems.field_ems_notice__write_date model:ir.model.fields,field_description:ems.field_ems_notice_line__write_date model:ir.model.fields,field_description:ems.field_ems_outcome__write_date model:ir.model.fields,field_description:ems.field_ems_planning__write_date model:ir.model.fields,field_description:ems.field_ems_planning_outcome__write_date model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__write_date model:ir.model.fields,field_description:ems.field_ems_role__write_date model:ir.model.fields,field_description:ems.field_ems_space__write_date model:ir.model.fields,field_description:ems.field_ems_space_type__write_date model:ir.model.fields,field_description:ems.field_ems_student_benefit__write_date model:ir.model.fields,field_description:ems.field_ems_student_document__write_date model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_study__write_date model:ir.model.fields,field_description:ems.field_ems_subject__write_date model:ir.model.fields,field_description:ems.field_ems_teaching__write_date model:ir.model.fields,field_description:ems.field_ems_tracking__write_date model:ir.model.fields,field_description:ems.field_ems_workgroup__write_date model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0 model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__lastname model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__student_lastname model:ir.model.fields,field_description:partner_firstname.field_res_partner__lastname model:ir.model.fields,field_description:partner_firstname.field_res_users__lastname code:addons/ems/static/src/js/backend/em_matrix_field.js:0
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data_family_fields
 msgid "Last name"
 msgstr "Cognoms"
 
@@ -4654,6 +4709,8 @@ msgstr "Nivell"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.level_action model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__ems_level_ids model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__level_ids model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__level_ids model:ir.ui.menu,name:ems.level_menu model_terms:ir.ui.view,arch_db:ems.view_study_search
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__ems_level_ids
+#: model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__ems_level_ids
 msgid "Levels"
 msgstr "Nivells"
 
@@ -4979,6 +5036,8 @@ msgstr "Falta"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__mobile model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_mobile model:ir.model.fields,field_description:ems.field_res_partner_relation_all__other_partner_mobile model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data_family_fields
 msgid "Mobile"
 msgstr "Mòbil"
 
@@ -5176,6 +5235,7 @@ msgstr "No encolat"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__note model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__note model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__note
 msgid "Note"
 msgstr "Nota"
 
@@ -5550,6 +5610,8 @@ msgstr "Contacte"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__passport_id model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_passport_id model:ir.model.fields,field_description:ems.field_res_partner__passport_id model:ir.model.fields.selection,name:ems.selection__ems_student_document__doc_type__passport model_terms:ir.ui.view,arch_db:ems.portal_documentation
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data_family_fields
 msgid "Passport"
 msgstr "Passaport"
 
@@ -5642,6 +5704,7 @@ msgstr "Modificació de dades personals de l'alumne %s"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0 model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
 msgid "Personal email"
 msgstr "Correu personal"
 
@@ -5949,11 +6012,13 @@ msgstr "Destinatari sense correu electrònic"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__line_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__limesurvey_recipient_ids model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__line_ids model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form model_terms:ir.ui.view,arch_db:ems.view_notice_form
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__line_ids
 msgid "Recipients"
 msgstr "Destinataris"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
 msgid "Recipients (preview)"
 msgstr "Destinataris (previsualització)"
 
@@ -6025,6 +6090,7 @@ msgstr "Motiu de rebuig"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__type_selection_id model:ir.model.fields,field_description:ems.field_res_partner_relation_all__other_partner_relation model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__relation_type_id
 msgid "Relation"
 msgstr "Relació"
 
@@ -6237,6 +6303,7 @@ msgstr "Revisar document d'alumne"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__review_uid
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__review_uid
 msgid "Reviewed by"
 msgstr "Revisat per"
 
@@ -6505,6 +6572,8 @@ msgstr "Alumne seleccionat (portal)"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_authorization_send_wizard__target__students model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_contact_data_request_send_wizard__target__students
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_scope_mixin__target__students
 msgid "Selected students"
 msgstr "Alumnes seleccionats"
 
@@ -6525,7 +6594,11 @@ msgid "Send now"
 msgstr "Enviar ara"
 
 #. module: ems
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_list
 msgid "Send reminder"
 msgstr "Enviar recordatori"
 
@@ -6536,6 +6609,8 @@ msgstr "Enviar recordatoris"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__send_to model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__target model:ir.model.fields,field_description:ems.field_ems_notice__recipient_type
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__target
+#: model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__target
 msgid "Send to"
 msgstr "Enviar a"
 
@@ -6581,6 +6656,7 @@ msgstr "Enviat per"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_notice__sent_date
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__sent_date
 msgid "Sent on"
 msgstr "Enviat el"
 
@@ -6821,6 +6897,8 @@ msgstr "Estat / Província"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__status model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__status_id model:ir.model.fields,field_description:ems.field_ems_authorization__status model:ir.model.fields,field_description:ems.field_ems_notice_line__display_status model:ir.model.fields,field_description:ems.field_ems_student_document__status model_terms:ir.ui.view,arch_db:ems.attendance_report_session model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 #: model:ir.model.fields,field_description:ems.field_hr_leave__state
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__state
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
 msgid "Status"
 msgstr "Estat"
 
@@ -6855,6 +6933,8 @@ msgstr "Queda't"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__street model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_street model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data_family_fields
 msgid "Street"
 msgstr "Carrer"
 
@@ -6866,6 +6946,8 @@ msgstr "Carrer 2"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__student_id model:ir.model.fields,field_description:ems.field_ems_attendance_justification__student_id model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__student_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__student_id model:ir.model.fields,field_description:ems.field_ems_authorization__partner_id model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__student_id model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__student_id model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__student_id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__student_id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__student_id model:ir.model.fields,field_description:ems.field_ems_enrollment__student_id model:ir.model.fields,field_description:ems.field_ems_enrollment_view__student_id model:ir.model.fields,field_description:ems.field_ems_grade_outcome__student_id model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__student_id model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__student_id model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__student_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__student_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__student_id model:ir.model.fields,field_description:ems.field_ems_notice_line__student_id model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__student_id model:ir.model.fields,field_description:ems.field_ems_strike__student_id model:ir.model.fields,field_description:ems.field_ems_student_benefit__student_id model:ir.model.fields,field_description:ems.field_ems_student_year_record__student_id model:ir.model.fields,field_description:ems.field_ems_tracking__student_id model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__student_id model:ir.model.fields.selection,name:ems.selection__ems_notice_line__recipient_type__student model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__student model:res.partner.category,name:ems.partner_category_student model:res.partner.relation.type,name_inverse:ems.relation_type_tutor model_terms:ir.ui.view,arch_db:ems.attendance_report_session model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate model_terms:ir.ui.view,arch_db:ems.report_google_credentials model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search model_terms:ir.ui.view,arch_db:ems.view_enrollment_collection_list model_terms:ir.ui.view,arch_db:ems.view_enrollment_search model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment model_terms:ir.ui.view,arch_db:ems.view_order_tree_inherit_ems_enrollment model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment model_terms:ir.ui.view,arch_db:ems.view_student_document_list model_terms:ir.ui.view,arch_db:ems.view_student_document_search model_terms:ir.ui.view,arch_db:ems.view_student_list_no_destination model_terms:ir.ui.view,arch_db:ems.view_student_search model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__student_id
 msgid "Student"
 msgstr "Estudiant"
 
@@ -6977,6 +7059,9 @@ msgstr "Alumne/a:"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_student_form model:ir.actions.act_window,name:ems.action_student_kanban model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__attendance_issue_student_ids model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__student_ids model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__student_line_ids model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_group__main_student_ids model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__student_ids model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__target__students model:ir.model.fields.selection,name:ems.selection__ems_notice__recipient_type__students model:ir.ui.menu,name:ems.menu_community_config_students model:ir.ui.menu,name:ems.menu_students model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_tutor_form model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_student_search
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__student_ids
+#: model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__student_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
 msgid "Students"
 msgstr "Estudiants"
 
@@ -6999,6 +7084,8 @@ msgstr "Alumnes - Vista tutor/a"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_study_tree model:ir.model.fields,field_description:ems.field_ems_attendance_template__study_ids model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__ems_study_ids model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__study_ids model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__study_ids model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__study_ids model:ir.model.fields,field_description:ems.field_ems_level__study_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__study_ids model:ir.model.fields,field_description:ems.field_ems_subject__study_ids model:ir.model.fields,field_description:ems.field_res_partner__study_id model:ir.model.fields,field_description:ems.field_res_users__study_id model:ir.ui.menu,name:ems.menu_studies model_terms:ir.ui.view,arch_db:ems.level_view_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_study_form model_terms:ir.ui.view,arch_db:ems.view_subject_form model_terms:ir.ui.view,arch_db:ems.view_subject_search
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__ems_study_ids
+#: model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__ems_study_ids
 msgid "Studies"
 msgstr "Estudis"
 
@@ -7309,6 +7396,7 @@ msgstr "L'API de LimeSurvey no permet crear grups d'enquestes i, per tal d'opera
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/contact.py:0
+#: code:addons/ems/models/contacts/contact_data_request.py:0
 msgid "The NUSS must be exactly 12 numeric digits."
 msgstr "El NUSS ha de tenir exactament 12 dígits numèrics."
 
@@ -7667,6 +7755,7 @@ msgstr "Dimarts"
 
 #. module: ems
 #: model:ems.role,name:ems.role_tutor model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__tutor_id model:ir.model.fields,field_description:ems.field_ems_attendance_justification__tutor_id model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__tutor_id model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__tutor_id model:ir.model.fields,field_description:ems.field_ems_group__tutor_id model:ir.model.fields,field_description:ems.field_res_partner__tutor_id model:ir.model.fields,field_description:ems.field_res_users__tutor_id model:res.groups,name:ems.group_tutor model:res.partner.relation.type,name:ems.relation_type_tutor model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor model:ir.model.fields,field_description:ems.field_ems_student_year_record__tutor_id
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__tutor_id
 msgid "Tutor"
 msgstr "Tutor/a"
 
@@ -8047,6 +8136,7 @@ msgstr "Indica si hi ha nota final (la nota calculada està disponible)."
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_csv_column__wizard_id model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__wizard_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__wizard_id
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__wizard_id
 msgid "Wizard"
 msgstr "Assistent"
 
@@ -8519,6 +8609,8 @@ msgstr "La teva sol·licitud ha estat revisada per secretaria."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__zip
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data_family_fields
 msgid "ZIP"
 msgstr "Codi postal"
 
@@ -8919,6 +9011,7 @@ msgstr "Sortida original"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__reason model:ir.model.fields,field_description:ems.field_ems_strike__reason_id model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__reason
 msgid "Reason"
 msgstr "Motiu"
 
@@ -10315,6 +10408,8 @@ msgstr "Manca de material necessari"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0 model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
 msgid "Send"
 msgstr "Enviar"
 
@@ -13944,6 +14039,7 @@ msgstr "%s autoritzacions enviades"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
+#: code:addons/ems/models/contacts/contact_data_request_send_wizard.py:0
 msgid "%s email(s) queued"
 msgstr "%s correus encuats"
 
@@ -13988,6 +14084,7 @@ msgstr "Totes les autoritzacions"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
+#: code:addons/ems/models/contacts/contact_data_request_send_wizard.py:0
 msgid "Already requested"
 msgstr "Ja sol·licitada"
 
@@ -14030,6 +14127,7 @@ msgstr "Gestió interna"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
 msgid "Current academic year"
 msgstr "Curs acadèmic actual"
 
@@ -14051,6 +14149,8 @@ msgstr "D'una matrícula"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_authorization_send_wizard__target__scope
+#: model:ir.model.fields.selection,name:ems.selection__ems_contact_data_request_send_wizard__target__scope
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_scope_mixin__target__scope
 msgid "Groups / studies / levels"
 msgstr "Grups / estudis / nivells"
 
@@ -14074,12 +14174,14 @@ msgstr "Encara no s'ha sol·licitat cap autorització."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
+#: code:addons/ems/models/contacts/contact_data_request_send_wizard.py:0
 msgid "No student matches the selection."
 msgstr "Cap alumne coincideix amb la selecció."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__recipient_emails
 #: model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__recipient_emails
 msgid "Notified at"
 msgstr "Notificat a"
 
@@ -14147,6 +14249,7 @@ msgstr "Enviar a l'alumnat"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
 msgid "Send to every enrolled student in"
 msgstr "Enviar a tot l'alumnat matriculat a"
 
@@ -14203,11 +14306,13 @@ msgstr "%s alumnes fora de l'àmbit d'aquestes autoritzacions"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__allowed_level_ids
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__allowed_level_ids
 msgid "Allowed Level"
 msgstr "Nivell permès"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__allowed_study_ids
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__allowed_study_ids
 msgid "Allowed Study"
 msgstr "Estudi permès"
 
@@ -14282,6 +14387,7 @@ msgstr "Només secretaria, l'administració acadèmica, la direcció d'estudis i
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
+#: code:addons/ems/models/contacts/contact_data_request_send_wizard.py:0
 msgid "Not one of your students"
 msgstr "No és un dels vostres alumnes"
 
@@ -14839,3 +14945,723 @@ msgstr "La decisió del cap d'àrea que aprova les absències d'aquest treballad
 #: model:ir.model.fields,help:ems.field_hr_leave__ems_status
 msgid "Where the request stands between its two approvals, the Head's and Direction's, which can happen in either order. The absence takes effect (calendar, hour balance, guard duty board) as soon as the Head approves it."
 msgstr "En quin punt és la sol·licitud entre les seves dues aprovacions, la del cap i la de Direcció, que poden arribar en qualsevol ordre. L'absència té efecte (calendari, saldo d'hores, quadrant de guàrdies) tan bon punt l'aprova el cap."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid ""
+"%(student)s: tutor '%(tutor)s' has neither a document number nor a phone - a"
+" new family contact may have been created even if one already exists."
+msgstr ""
+"%(student)s: el tutor/a '%(tutor)s' no té ni número de document ni telèfon -"
+" potser s'ha creat un contacte familiar nou encara que ja n'hi hagués un."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_import_wizard.py:0
+msgid ""
+"%(student)s: tutor '%(tutor)s' shares a phone number with the family contact"
+" '%(other)s' - created as a new contact, check whether it is the same "
+"person."
+msgstr ""
+"%(student)s: el tutor/a '%(tutor)s' comparteix telèfon amb el contacte "
+"familiar '%(other)s' - s'ha creat com a contacte nou, comproveu si és la "
+"mateixa persona."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid ""
+"%(who)s and %(other)s cannot share an email: each one needs their own portal"
+" login."
+msgstr ""
+"%(who)s i %(other)s no poden compartir el correu: cadascú necessita el seu "
+"propi accés al portal."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request_send_wizard.py:0
+msgid "%s already requested"
+msgstr "%s ja sol·licitades"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "%s is missing."
+msgstr "Falta: %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "%s is not a valid DNI/NIE."
+msgstr "%s no és un DNI/NIE vàlid."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "%s is not a valid email address."
+msgstr "%s no és una adreça de correu vàlida."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "%s is not a valid phone number."
+msgstr "%s no és un número de telèfon vàlid."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request_send_wizard.py:0
+msgid "%s portal invitation(s) sent"
+msgstr "%s invitacions al portal enviades"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "%s reminder email(s) queued."
+msgstr "%s correus de recordatori encuats."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request_send_wizard.py:0
+msgid "%s request(s) sent"
+msgstr "%s sol·licituds enviades"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request_send_wizard.py:0
+msgid "%s student(s) with complete data skipped"
+msgstr "%s alumnes amb les dades completes omesos"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "<i class=\"fa fa-plus me-1\"/>Add a family contact"
+msgstr "<i class=\"fa fa-plus me-1\"/>Afegeix un familiar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data_relation_select
+msgid "<option value=\"\">-</option>"
+msgstr "<option value=\"\">-</option>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_partner_form_contact_data_request
+msgid "<span class=\"o_stat_text\">Contact data</span>"
+msgstr "<span class=\"o_stat_text\">Dades de contacte</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "<span class=\"text-muted\">Birth date: </span>"
+msgstr "<span class=\"text-muted\">Data de naixement: </span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "<span class=\"text-muted\">Name: </span>"
+msgstr "<span class=\"text-muted\">Nom: </span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "<strong>New family contact</strong>"
+msgstr "<strong>Familiar nou</strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "<strong>Student</strong>"
+msgstr "<strong>Alumne/a</strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "<strong>The school has returned your changes:</strong>"
+msgstr "<strong>El centre us ha retornat els canvis:</strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form
+msgid ""
+"A new family contact shares a mobile number with another contact under a\n"
+"                            different name: approving creates a new contact. Check whether it is the same\n"
+"                            person before approving."
+msgstr ""
+"Un familiar nou comparteix el mòbil amb un altre contacte amb un nom "
+"diferent: en aprovar-ho es crea un contacte nou. Comproveu si és la mateixa "
+"persona abans d'aprovar."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_contact_data_request_student_course_unique
+msgid "A student can only have one contact data request per academic year."
+msgstr ""
+"Un alumne només pot tenir una sol·licitud de dades de contacte per curs."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__matched_partner_id
+msgid "Already on file as"
+msgstr "Ja consta com a"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "An adult student needs a personal email: it is their portal login."
+msgstr ""
+"Un alumne major d'edat necessita un correu personal: és el seu accés al "
+"portal."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "An identity document (DNI/NIE or passport) is missing."
+msgstr "Falta un document d'identitat (DNI/NIE o passaport)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_contact_data_request_line__possible_duplicate_id
+msgid ""
+"Another family contact has the same mobile under a different name: a new "
+"contact will be created. Check whether it is the same person."
+msgstr ""
+"Un altre familiar té el mateix mòbil amb un nom diferent: es crearà un "
+"contacte nou. Comproveu si és la mateixa persona."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__submitted_uid
+msgid "Answered by"
+msgstr "Respost per"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__submitted_date
+msgid "Answered on"
+msgstr "Respost el"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "At least one family contact needs an email: it is their portal login."
+msgstr "Almenys un familiar ha de tenir correu: és el seu accés al portal."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "At least one legal tutor is needed."
+msgstr "Cal almenys un tutor/a legal."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid ""
+"At least one legal tutor, and at least one of them with an email: it is "
+"their portal login. Each tutor needs their own email."
+msgstr ""
+"Almenys un tutor/a legal, i almenys un amb correu: és el seu accés al "
+"portal. Cada tutor/a necessita el seu propi correu."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__line_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form
+msgid "Changes"
+msgstr "Canvis"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request_send_wizard.py:0
+msgid "Choose at least one group, study or level."
+msgstr "Trieu almenys un grup, estudi o nivell."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__contact_data_request_state
+#: model:ir.model.fields,field_description:ems.field_res_users__contact_data_request_state
+msgid "Contact data"
+msgstr "Dades de contacte"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form
+msgid "Contact data request"
+msgstr "Sol·licitud de dades de contacte"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_contact_data_request_send_wizard_line
+msgid "Contact data request recipient (preview)"
+msgstr "Destinatari de la sol·licitud de dades de contacte (previsualització)"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_ems_contact_data_request
+#: model:ir.model.fields,field_description:ems.field_res_partner__contact_data_request_ids
+#: model:ir.model.fields,field_description:ems.field_res_users__contact_data_request_ids
+#: model:ir.ui.menu,name:ems.menu_contact_data_requests
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_list
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
+msgid "Contact data requests"
+msgstr "Sol·licituds de dades de contacte"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_contact_data_request
+msgid "Contact data update request"
+msgstr "Sol·licitud d'actualització de dades de contacte"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_contact_data_request_line
+msgid "Contact data update request change"
+msgstr "Canvi de la sol·licitud d'actualització de dades de contacte"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "Contact data updated from the portal request, reviewed by %s."
+msgstr ""
+"Dades de contacte actualitzades des de la sol·licitud del portal, revisades "
+"per %s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+msgid "Contact details"
+msgstr "Dades de contacte"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data_family_fields
+msgid "DNI/NIE"
+msgstr "DNI/NIE"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request_send_wizard.py:0
+msgid "Data complete"
+msgstr "Dades completes"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_list
+msgid "Duplicate?"
+msgstr "Duplicat?"
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_contact_data_request
+msgid "EMS: Contact data update request"
+msgstr "EMS: Sol·licitud d'actualització de dades de contacte"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
+msgid ""
+"Each student - or, for a minor, the family - gets an email with a link to the\n"
+"                        portal, where they review and complete their contact details. Their answer waits\n"
+"                        in \"Contact data requests\" until it is approved."
+msgstr ""
+"Cada alumne - o, si és menor, la família - rep un correu amb un enllaç al "
+"portal, on revisa i completa les dades de contacte. La resposta queda a "
+"\"Sol·licituds de dades de contacte\" fins que s'aprova."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__field_name
+msgid "Field Name"
+msgstr "Nom del camp"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "Fill in the DNI/NIE or, if there is none, the passport."
+msgstr "Ompliu el DNI/NIE o, si no en teniu, el passaport."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__grant_portal
+msgid "Grant portal access to whoever lacks it"
+msgstr "Dona accés al portal a qui no en tingui"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "Health card (TIS)"
+msgstr "Targeta sanitària (TIS)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "Landline"
+msgstr "Telèfon fix"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__last_reminder_date
+msgid "Last reminder"
+msgstr "Últim recordatori"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__missing_fields
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__missing
+msgid "Missing"
+msgstr "Falta"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form
+msgid "Missing when sent"
+msgstr "Faltava en enviar-la"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_contact_data_request_line__action__create
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "New family contact"
+msgstr "Familiar nou"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_ems_contact_data_request
+msgid "No contact data request yet"
+msgstr "Encara no hi ha cap sol·licitud de dades de contacte"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_contact_data_request_line__action__remove
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "No longer a contact"
+msgstr "Ja no és contacte"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "Nobody reachable - contact them by phone:"
+msgstr "Ningú localitzable - contacteu-hi per telèfon:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request_send_wizard.py:0
+msgid "Nobody reachable by email - contact them by phone:"
+msgstr "Ningú localitzable per correu - contacteu-hi per telèfon:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request_send_wizard.py:0
+msgid "Nobody reachable by email: contact them by phone"
+msgstr "Ningú localitzable per correu: contacteu-hi per telèfon"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__old_value
+msgid "On file"
+msgstr "Consta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__only_incomplete
+msgid "Only students with incomplete data"
+msgstr "Només alumnes amb dades incompletes"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request_send_wizard.py:0
+msgid ""
+"Only the secretary's office, the academic administration, the head of "
+"studies and tutors can request contact data."
+msgstr ""
+"Només la secretaria, l'administració acadèmica, la direcció d'estudis i els "
+"tutors poden sol·licitar dades de contacte."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "Optional for an adult student."
+msgstr "Opcional per a un alumne major d'edat."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_contact_data_request__state__pending
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
+msgid "Pending answer"
+msgstr "Pendent de resposta"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
+msgid "Pending for more than a week"
+msgstr "Pendents fa més d'una setmana"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__person_name
+msgid "Person"
+msgstr "Persona"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__person_key
+msgid "Person Key"
+msgstr "Clau de la persona"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "Please select at least one student or applicant."
+msgstr "Seleccioneu almenys un alumne o sol·licitant."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__has_possible_duplicate
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
+msgid "Possible duplicate"
+msgstr "Possible duplicat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__possible_duplicate_id
+msgid "Possible duplicate of"
+msgstr "Possible duplicat de"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__new_value
+msgid "Proposed"
+msgstr "Proposat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__rejection_reason
+msgid "Reason for returning it"
+msgstr "Motiu de la devolució"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data_relation_select
+msgid "Relation<span class=\"text-danger\"> *</span>"
+msgstr "Relació<span class=\"text-danger\"> *</span>"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__reminder_count
+msgid "Reminders"
+msgstr "Recordatoris"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__request_id
+msgid "Request"
+msgstr "Sol·licitud"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+#: code:addons/ems/models/contacts/contact_data_request_send_wizard.py:0
+#: model:ir.actions.act_window,name:ems.action_contact_data_request_group
+#: model:ir.actions.act_window,name:ems.action_ems_contact_data_request_send
+#: model:ir.actions.server,name:ems.action_contact_data_request_bulk
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_list
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
+msgid "Request contact data"
+msgstr "Sol·licita dades de contacte"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_contact_data_request_send_wizard
+msgid "Request contact data update"
+msgstr "Sol·licita l'actualització de dades de contacte"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__request_ids
+msgid "Requests"
+msgstr "Sol·licituds"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_reject_wizard_form
+msgid "Return"
+msgstr "Retorna"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_contact_data_request_reject_wizard
+msgid "Return a contact data request to the family"
+msgstr "Retornar una sol·licitud de dades de contacte a la família"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_reject_wizard_form
+msgid "Return to the family"
+msgstr "Retorna a la família"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form
+msgid "Returned to the family"
+msgstr "Retornada a la família"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__review_date
+msgid "Reviewed on"
+msgstr "Revisat el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data_family_fields
+msgid "Same address as the student"
+msgstr "Mateixa adreça que l'alumne"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_contact_data_request_reject_wizard__reason
+msgid "Sent to the family by email: say what they have to correct."
+msgstr "S'envia a la família per correu: indiqueu què han de corregir."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_contact_data_request_send_wizard__only_incomplete
+msgid "Skip the students whose contact data already has everything required."
+msgstr ""
+"Omet els alumnes que ja tenen totes les dades de contacte obligatòries."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "Social Security number (NUSS)"
+msgstr "Número de la Seguretat Social (NUSS)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "Some details are missing or not valid. Check the fields marked in red."
+msgstr "Falten dades o no són vàlides. Reviseu els camps marcats en vermell."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_student_scope_mixin
+msgid "Students picked by hand or by group, study and level"
+msgstr "Alumnes triats a mà o per grup, estudi i nivell"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid ""
+"Thank you: your changes have been sent. The school will review them and "
+"apply them."
+msgstr ""
+"Gràcies: s'han enviat els canvis. El centre els revisarà i els aplicarà."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "Thank you: your contact details are confirmed."
+msgstr "Gràcies: les dades de contacte queden confirmades."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_reject_wizard_form
+msgid ""
+"The family gets an email with this reason and can send their details again "
+"from the portal."
+msgstr ""
+"La família rep un correu amb aquest motiu i pot tornar a enviar les dades "
+"des del portal."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "The first name of %s is missing."
+msgstr "Falta el nom de %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "The last name of %s is missing."
+msgstr "Falten els cognoms de %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "The mobile of %s is missing."
+msgstr "Falta el mòbil de %s."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_contact_data_request_line__matched_partner_id
+msgid ""
+"The new family contact matches this contact, by document or by mobile and "
+"first name: approving links it instead of creating another one."
+msgstr ""
+"El familiar nou coincideix amb aquest contacte, pel document o pel mòbil i "
+"el nom: en aprovar-ho s'hi vincula en lloc de crear-ne un altre."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "The relation of %s is missing."
+msgstr "Falta la relació de %s."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_contact_data_request_send_wizard__grant_portal
+msgid ""
+"The request is answered from the portal: recipients with an email but no "
+"portal access get their portal invitation too."
+msgstr ""
+"La sol·licitud es respon des del portal: els destinataris amb correu però "
+"sense accés al portal també reben la invitació al portal."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid ""
+"The school uses these details only to contact the student and the family and to\n"
+"                            give access to the portal, as set out in the school's data protection notice."
+msgstr ""
+"El centre fa servir aquestes dades només per contactar amb l'alumne i la "
+"família i per donar accés al portal, tal com indica l'avís de protecció de "
+"dades del centre."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "There are no contact details to review for this account."
+msgstr "No hi ha dades de contacte per revisar en aquest compte."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "There is no pending request among the selected ones."
+msgstr "No hi ha cap sol·licitud pendent entre les seleccionades."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "There is nothing to approve: only answered requests can be approved."
+msgstr ""
+"No hi ha res per aprovar: només es poden aprovar les sol·licituds respostes."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "To correct the name or the birth date, contact the secretary's office."
+msgstr ""
+"Per corregir el nom o la data de naixement, contacteu amb la secretaria."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_contact_data_request__state__submitted
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
+msgid "To review"
+msgstr "Per revisar"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_contact_data_request_line__action__update
+msgid "Update"
+msgstr "Actualitza"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_ems_contact_data_request
+msgid ""
+"Use \"Request contact data\" to ask students and families to review their contact\n"
+"                    details from the portal."
+msgstr ""
+"Feu servir \"Sol·licita dades de contacte\" per demanar a l'alumnat i les "
+"famílies que revisin les dades de contacte des del portal."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "Viewing the details of:"
+msgstr "Dades de:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_reject_wizard_form
+msgid "What they have to correct"
+msgstr "Què han de corregir"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_contact_data_request__missing_fields
+msgid "What was missing when the request was last sent."
+msgstr "El que faltava l'últim cop que es va enviar la sol·licitud."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid ""
+"Your changes are waiting to be reviewed by the school. You can still correct"
+" them and send them again."
+msgstr ""
+"Els vostres canvis estan pendents de revisió pel centre. Encara els podeu "
+"corregir i tornar a enviar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "the new family contact"
+msgstr "el familiar nou"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_contact_data_request
+msgid ""
+"{{ 'Reminder: ' if ctx.get('is_reminder') else '' }}Please review the "
+"contact details of {{ object.name }}"
+msgstr ""
+"{{ 'Recordatori: ' if ctx.get('is_reminder') else '' }}Reviseu les dades de "
+"contacte de {{ object.name }}"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "<i class=\"fa fa-address-card me-1\"/>Update contact details"
+msgstr "<i class=\"fa fa-address-card me-1\"/>Actualitza les dades de contacte"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+msgid "Review"
+msgstr "Revisa"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+msgid "Review the contact details of the student and the family"
+msgstr "Reviseu les dades de contacte de l'alumne i de la família"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+msgid "The school asks you to review and complete the contact details of"
+msgstr "El centre us demana que reviseu i completeu les dades de contacte de"

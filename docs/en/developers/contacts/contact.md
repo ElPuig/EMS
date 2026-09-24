@@ -325,19 +325,21 @@ Archiving one or more **active students** does not flip `active` directly: it op
 
 `res.partner.relation.all` (from the third-party `partner_multi_relation` module) is extended (`ResPartnerRelationAll`) with read-only related columns (`other_partner_phone/mobile/email`, relation labels) purely for display in the student/family form's relation list — no new logic.
 
-`ems.contact.relation.wizard` (`action_open_relation_wizard`, opened from the student's "Contacts & Addresses" tab) either links an **existing** `family`-typed partner or creates a **new** one, then always creates one `res.partner.relation` between it and the student:
+`ems.contact.relation.wizard` (`action_open_relation_wizard`, opened from the student's "Contacts & Addresses" tab) either links an **existing** `family`-typed partner or creates a **new** one, then relates it to the student (`res.partner._ems_link_family()`, which skips a relation that already exists). A "new" contact that is already on file - same document, or same mobile under a compatible first name, as for a sibling - is linked instead of duplicated (`res.partner._ems_find_family()`, issue #507, see [contact data requests](contact_data_request.md#recognising-a-family-contact)):
 
 ```mermaid
 flowchart TD
     A["action_save()"] --> B{"type_selection_id set?"}
     B -- no --> X1["ValidationError"]
     B -- yes --> C{"partner_id (existing) set?"}
-    C -- yes --> F["res.partner.relation.create(left=partner_id, right=student_id)"]
+    C -- yes --> F["_ems_link_family(partner, relation type)"]
     C -- no --> D{"firstname or lastname?"}
     D -- no --> X2["ValidationError"]
-    D -- yes --> E{"document_id/passport_id AND\nphone/mobile/email present?"}
+    D -- yes --> E{"phone/mobile/email present?"}
     E -- no --> X3["ValidationError"]
-    E -- yes --> G["res.partner.create(contact_type='family', ...)"] --> F
+    E -- yes --> H{"_ems_find_family(document, mobile, firstname)<br/>finds it?"}
+    H -- yes --> F
+    H -- no --> G["_ems_create_family_contact(vals, relation type)<br/>(sudo: create + relation)"]
 ```
 
 The three roles `action_save()`'s own guard clears (`_get_read_only_user()`: academic admin, secretary, or a tutor of that student) must each hold create rights on the wizard model too — the guard runs *inside* the wizard, so a role missing from `ir.model.access.csv` fails earlier, on opening it. That mismatch was issue #423: secretary cleared the guard and saw the "Add contact" button, but the wizard granted access to academic admin and teacher only, so only the one secretary who also happens to be a teacher could use it.

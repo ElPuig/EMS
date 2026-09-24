@@ -19,6 +19,7 @@ Aquesta secció conté els manuals per al **personal de secretaria**.
 - [Informes d'assistència](attendance-reports.md) — Imprimir els 3 informes PDF d'assistència (per grup/alumne/assignatura) i explorar les dades amb la pantalla d'Anàlisi d'assistència.
 - [Gestió de contactes d'alumnat i família](student-contacts.md) — Tipus de contacte i com canvien, afegir un contacte familiar a un alumne, i registrar bonificacions i exempcions.
 - [Autoritzacions: crear-les, enviar-les i fer-ne el seguiment](authorizations.md) — Crear formularis d'autorització, enviar-los a l'alumnat durant el curs i fer el seguiment de les respostes.
+- [Sol·licituds de dades de contacte: demanar a les famílies que actualitzin les dades](../tutors/contact-data-requests.md) — Demanar a l'alumnat i a les famílies que revisin les dades de contacte des del portal, fer el seguiment de les respostes i aprovar els canvis (manual compartit amb els tutors).
 - [Revisar els documents dels alumnes](student-documents.md) — Aprovar, rebutjar o reobrir tramitacions de DNI/targeta sanitària/IBAN/beneficis, i què fa cada decisió per darrere.
 - [Marcar una graduació i tramitar una baixa](graduation-withdrawal.md) — La diferència entre la marca diferida de graduació i una baixa immediata, i tota la cascada de la baixa pas a pas.
 - [Importar alumnat des d'Esfera (SAGA)](student-import-esfera.md) — Actualitzar massivament les dades de l'alumnat ja matriculat (no confondre amb la importació de preinscripció GEDAC), què es fa coincidir/crea, i les limitacions conegudes de deduplicació.

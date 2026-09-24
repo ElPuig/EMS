@@ -20,6 +20,7 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 - [Gestionar las ausencias del personal](absences.md) — Aprobar las ausencias de tu área, ajustar su cómputo, la aprobación de Dirección y los dos informes.
 - [Crear y editar profesorado](staff-management.md)
 - [Autorizaciones: crearlas, enviarlas y hacer el seguimiento](../secretary/authorizations.md) — Crear formularios de autorización, enviarlos al alumnado durante el curso y hacer el seguimiento de las respuestas (manual compartido con secretaría).
+- [Solicitudes de datos de contacto: pedir a las familias que actualicen los datos](../tutors/contact-data-requests.md) — Pedir al alumnado y a las familias que revisen los datos de contacto desde el portal, hacer el seguimiento de las respuestas y aprobar los cambios (manual compartido con los tutores).
 - [Comunicados: enviar tus propios correos masivos](notice.md)
 - [Horario de guardias](../teachers/guard-duty-schedule.md) — Quién falta en cada franja horaria, y quién está de guardia para cubrirlo.
 

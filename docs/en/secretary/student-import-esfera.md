@@ -34,7 +34,7 @@ From the **Students** list, open the actions menu (the gear icon ⚙️ next to 
 ## What gets created or updated
 
 - **Students** are matched by their **RALC** identifier (the student's official Catalan ID). An existing match is updated in place; if it belonged to a former student (alumni/withdrawal), it is **reactivated** as an active student rather than creating a duplicate.
-- **Family contacts** (tutors/guardians) are matched by their document number (DNI/NIE/passport) — matched contacts are updated, unmatched ones are created. A tutor row with **no document number on file** always creates a new contact rather than being matched to an existing one; if the same undocumented tutor appears in a later import, expect a second contact rather than an update. Merge duplicates by hand from **Contacts → Families** if this happens.
+- **Family contacts** (tutors/guardians) are matched by their document number (DNI/NIE/passport) or, if the row has none, by their mobile number when a single family contact has it under the same first name. Matched contacts are updated, unmatched ones are created. When the mobile belongs to a family contact with a different name (for example, two parents sharing one phone), a new contact is created and the result lists it as a possible duplicate. Merge real duplicates by hand from **Contacts → Families**.
 - **Family relationship** (mother, father, grandparent, sibling, legal guardian…) is guessed from a free-text note in the file. When it can't be confidently guessed, the tutor is linked as a generic "Tutor" and a note is added to the **student's own record** quoting the original text — worth a quick check afterwards for anyone flagged this way.
 - A student whose **group code** in the file doesn't match any group in EMS is still imported (with no group assigned) — a note naming the unmatched code is added to their record so it can be corrected by hand.
 
@@ -45,7 +45,7 @@ After the import, the wizard shows how many students were **created**/**updated*
 ## Things to check afterwards
 
 - Any note left by the "unmatched group code" or "guessed relationship" cases above.
-- New family contacts created without a document number, in case the same person already existed under a slightly different prior import.
+- The possible duplicates and the tutors without a document or a phone listed in the result.
 
 ---
 

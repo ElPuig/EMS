@@ -352,4 +352,92 @@
         <field name="perm_unlink" eval="False"/>
     </record>
 
+
+    <!-- ems.contact.data.request (issue #507): the secretary's office, the academic administration
+         and the head of studies work with every request; a tutor with their own students' - their
+         own group's, or those of the tutors below them (tutor_scope_user_ids, issue #483). The
+         staff roles need an unrestricted rule of their own: all of them also hold group_tutor, and
+         a user's rules are OR-ed only across the rules of groups they belong to. The changes (lines)
+         are staging data a reviewer replaces when returning a request, hence unlink. -->
+    <record id="rule_contact_data_request_admin" model="ir.rule">
+        <field name="name">Contact data request: admin</field>
+        <field name="model_id" ref="ems.model_ems_contact_data_request"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    <record id="rule_contact_data_request_secretary" model="ir.rule">
+        <field name="name">Contact data request: secretary</field>
+        <field name="model_id" ref="ems.model_ems_contact_data_request"/>
+        <field name="groups" eval="[(4, ref('ems.group_secretary'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    <record id="rule_contact_data_request_head_of_studies" model="ir.rule">
+        <field name="name">Contact data request: head of studies</field>
+        <field name="model_id" ref="ems.model_ems_contact_data_request"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    <record id="rule_contact_data_request_tutor" model="ir.rule">
+        <field name="name">Contact data request: tutor (own students)</field>
+        <field name="model_id" ref="ems.model_ems_contact_data_request"/>
+        <field name="groups" eval="[(4, ref('ems.group_tutor'))]"/>
+        <field name="domain_force">[('student_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    <record id="rule_contact_data_request_line_admin" model="ir.rule">
+        <field name="name">Contact data request change: admin</field>
+        <field name="model_id" ref="ems.model_ems_contact_data_request_line"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    <record id="rule_contact_data_request_line_secretary" model="ir.rule">
+        <field name="name">Contact data request change: secretary</field>
+        <field name="model_id" ref="ems.model_ems_contact_data_request_line"/>
+        <field name="groups" eval="[(4, ref('ems.group_secretary'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    <record id="rule_contact_data_request_line_head_of_studies" model="ir.rule">
+        <field name="name">Contact data request change: head of studies</field>
+        <field name="model_id" ref="ems.model_ems_contact_data_request_line"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+    <record id="rule_contact_data_request_line_tutor" model="ir.rule">
+        <field name="name">Contact data request change: tutor (own students)</field>
+        <field name="model_id" ref="ems.model_ems_contact_data_request_line"/>
+        <field name="groups" eval="[(4, ref('ems.group_tutor'))]"/>
+        <field name="domain_force">[('request_id.student_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
 </odoo>

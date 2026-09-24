@@ -98,10 +98,20 @@ class EmsContactRelationWizard(models.TransientModel):
         if not self.partner_id and not (self.phone or self.mobile or self.email):
             raise ValidationError(_("Please provide at least one contact method (phone, mobile or email)."))
 
-        if self.partner_id:
-            partner = self.partner_id
+        partner = self.partner_id
+        if not partner:
+            # The person may already be on file as another student's family contact (siblings):
+            # link that contact instead of creating a duplicate - same lookup as the Esfera
+            # import and the contact-data update requests (issue #507).
+            partner, _possible_duplicate = self.env['res.partner']._ems_find_family(
+                document=self.document_id or self.passport_id,
+                mobile=self.mobile or self.phone,
+                firstname=self.firstname,
+            )
+        if partner:
+            self.student_id._ems_link_family(partner, self.type_selection_id)
         else:
-            partner = self.env['res.partner'].sudo().create({
+            self.student_id._ems_create_family_contact({
                 'firstname': self.firstname,
                 'lastname': self.lastname,
                 'phone': self.phone,
@@ -109,17 +119,10 @@ class EmsContactRelationWizard(models.TransientModel):
                 'email': self.email,
                 'document_id': self.document_id,
                 'passport_id': self.passport_id,
-                'contact_type': 'family',
                 'street': self.street,
                 'street2': self.street2,
                 'city': self.city,
                 'state_id': self.state_id.id,
                 'zip': self.zip,
                 'country_id': self.country_id.id,
-            })
-
-        self.env['res.partner.relation'].sudo().create({
-            'left_partner_id': partner.id,
-            'type_id': self.type_selection_id.id,
-            'right_partner_id': self.student_id.id,
-        })
+            }, self.type_selection_id)

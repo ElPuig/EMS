@@ -34,7 +34,7 @@ Des de la llista d'**Alumnat**, obriu el menú d'accions (la icona de l'engranat
 ## Què es crea o s'actualitza
 
 - L'**alumnat** es fa coincidir pel seu identificador **RALC** (l'identificador oficial català de l'alumne/a). Una coincidència existent s'actualitza; si pertanyia a un extitulat/baixa, es **reactiva** com a alumne actiu en lloc de crear-ne un duplicat.
-- Els **contactes familiars** (tutors/es) es fan coincidir pel seu número de document (DNI/NIE/passaport) — els que coincideixen s'actualitzen, els que no, es creen. Una fila de tutor **sense número de document** sempre crea un contacte nou en lloc de fer coincidir-lo amb un d'existent; si el mateix tutor sense document apareix en una importació posterior, espereu un segon contacte en lloc d'una actualització. Fusioneu els duplicats a mà des de **Contactes → Famílies** si passa això.
+- Els **contactes familiars** (tutors/es) es fan coincidir pel seu número de document (DNI/NIE/passaport) o, si la fila no en té, pel mòbil quan un sol contacte familiar el té amb el mateix nom. Els que coincideixen s'actualitzen, els que no, es creen. Quan el mòbil és d'un contacte familiar amb un altre nom (per exemple, dos progenitors que comparteixen telèfon), es crea un contacte nou i el resultat l'indica com a possible duplicat. Fusioneu els duplicats reals a mà des de **Contactes → Famílies**.
 - La **relació familiar** (mare, pare, avi/àvia, germà/na, tutor legal…) es dedueix d'una nota de text lliure del fitxer. Quan no es pot deduir amb confiança, el tutor es vincula com a "Tutor" genèric i s'afegeix una nota al **propi registre de l'alumne/a** citant el text original — val la pena revisar-ho ràpidament per a qualsevol cas marcat així.
 - Un alumne/a el **codi de grup** del qual al fitxer no coincideix amb cap grup d'EMS s'importa igualment (sense grup assignat) — s'afegeix al seu registre una nota amb el codi no coincident perquè es pugui corregir a mà.
 
@@ -45,7 +45,7 @@ Després de la importació, l'assistent mostra quants alumnes s'han **creat**/**
 ## Coses a comprovar després
 
 - Qualsevol nota deixada pels casos de "codi de grup no coincident" o "relació deduïda" anteriors.
-- Contactes familiars nous creats sense número de document, per si la mateixa persona ja existia sota una importació anterior lleugerament diferent.
+- Els possibles duplicats i els tutors sense document ni telèfon que indica el resultat.
 
 ---
 

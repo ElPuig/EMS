@@ -17,6 +17,7 @@ This section contains the manuals for **families and students**.
 | [Recovering the school email password](manual-recuperacio-contrasenya-correu.md) | How to recover the password of the `@elpuig.xeill.net` email account |
 | [Uploading official documents, IBAN and benefit requests](manual-documentacio.md) | How to submit ID/health card documents, register your IBAN and request a bonification or exemption |
 | [Checking the class schedule](manual-horari.md) | How to see the student's weekly schedule on the portal and download it as a PDF |
+| [Reviewing the contact details](manual-dades-contacte.md) | How to review and complete the contact details of the student and the family on the portal |
 
 ---
 

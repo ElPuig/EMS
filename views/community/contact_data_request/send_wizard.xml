@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <!-- Issue #507: ask students and families to review their contact data from the portal. -->
+        <record id="view_ems_contact_data_request_send_wizard_form" model="ir.ui.view">
+            <field name="name">ems.contact.data.request.send.wizard.form</field>
+            <field name="model">ems.contact.data.request.send.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Request contact data">
+                    <div class="alert alert-info" role="alert">
+                        Each student - or, for a minor, the family - gets an email with a link to the
+                        portal, where they review and complete their contact details. Their answer waits
+                        in "Contact data requests" until it is approved.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="course_id" options="{'no_create': True}"/>
+                            <field name="target" widget="radio"/>
+                        </group>
+                        <group>
+                            <field name="only_incomplete"/>
+                            <field name="grant_portal"/>
+                        </group>
+                    </group>
+                    <group invisible="target != 'students'" string="Students">
+                        <field name="student_ids" widget="many2many_tags" nolabel="1" colspan="2"
+                               options="{'no_create': True}"/>
+                    </group>
+                    <field name="allowed_group_ids" invisible="1"/>
+                    <field name="allowed_study_ids" invisible="1"/>
+                    <field name="allowed_level_ids" invisible="1"/>
+                    <group invisible="target != 'scope'" string="Send to every enrolled student in">
+                        <field name="group_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                        <!-- A tutor sends to their own groups only, as in the authorization send
+                             assistant: groups= strips the nodes on the server. -->
+                        <field name="ems_study_ids" widget="many2many_tags" options="{'no_create': True}"
+                               groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"/>
+                        <field name="ems_level_ids" widget="many2many_tags" options="{'no_create': True}"
+                               groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"/>
+                    </group>
+                    <separator string="Recipients (preview)"/>
+                    <field name="line_ids" readonly="1">
+                        <list create="false" delete="false" edit="false">
+                            <field name="student_id"/>
+                            <field name="missing"/>
+                            <field name="recipient_emails"/>
+                            <field name="note" decoration-warning="note != False"/>
+                        </list>
+                    </field>
+                    <footer>
+                        <button name="action_apply" type="object" string="Send" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_ems_contact_data_request_send" model="ir.actions.act_window">
+            <field name="name">Request contact data</field>
+            <field name="res_model">ems.contact.data.request.send.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{'default_target': 'scope'}</field>
+        </record>
+
+        <!-- Cog-wheel entry on the students list and a student's own form. -->
+        <record id="action_contact_data_request_bulk" model="ir.actions.server">
+            <field name="name">Request contact data</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="binding_model_id" ref="base.model_res_partner"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="groups_id" eval="[(4, ref('ems.group_academic_admin')), (4, ref('ems.group_secretary')), (4, ref('ems.group_head_of_studies')), (4, ref('ems.group_tutor'))]"/>
+            <field name="state">code</field>
+            <!-- A single call: safe_eval's context has no `_`, see action_authorization_send_bulk. -->
+            <field name="code">
+action = env['res.partner'].browse(env.context.get('active_ids', [])).action_contact_data_request_bulk()
+            </field>
+        </record>
+
+        <!-- Cog-wheel entry on the groups list and a group's own form: the whole group, preselected. -->
+        <record id="action_contact_data_request_group" model="ir.actions.act_window">
+            <field name="name">Request contact data</field>
+            <field name="res_model">ems.contact.data.request.send.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="binding_model_id" ref="ems.model_ems_group"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="groups_id" eval="[(4, ref('ems.group_academic_admin')), (4, ref('ems.group_secretary')), (4, ref('ems.group_head_of_studies')), (4, ref('ems.group_tutor'))]"/>
+            <field name="context">{'default_target': 'scope', 'default_group_ids': active_ids}</field>
+        </record>
+
+        <!-- Student form: status of the latest request. -->
+        <record id="view_partner_form_contact_data_request" model="ir.ui.view">
+            <field name="name">res.partner.form.contact.data.request</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button name="action_open_contact_data_requests" type="object" class="oe_stat_button"
+                            icon="fa-address-card"
+                            groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies,ems.group_tutor"
+                            invisible="contact_type not in ('student', 'applicant') or not contact_data_request_state">
+                        <div class="o_stat_info">
+                            <span class="o_stat_text">Contact data</span>
+                            <span class="o_stat_value"><field name="contact_data_request_state" readonly="1"/></span>
+                        </div>
+                    </button>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -30,6 +30,15 @@ class EmsBase(models.AbstractModel):
     def get_user_is_head_of_studies(self):
         return self.env.user.has_group('ems.group_head_of_studies')
 
+    # The current user works with every student (secretary's office, academic administration,
+    # Head of Studies/Deputy/Director); anyone else who reaches students - a tutor - only with the
+    # ones of the groups they tutor. Called unbound (base.EmsBase.get_user_sees_every_student(self))
+    # from models that don't inherit ems.base.
+    def get_user_sees_every_student(self):
+        user = self.env.user
+        return any(user.has_group(xmlid) for xmlid in (
+            'ems.group_academic_admin', 'ems.group_secretary', 'ems.group_head_of_studies'))
+
     # The current user acts as tutor of some group: its tutor, or a chief above the tutor (issue #483).
     def get_user_is_tutor(self):
         return bool(self.env['hr.employee'].sudo().search_count([

@@ -255,22 +255,32 @@ class TestStudentImportWizard(TransactionCase):
         self.assertEqual(family.phone, '612345678')
         self.assertEqual(family.email, 'family@example.com')
 
-    def test_get_or_create_family_without_document_always_creates_new(self):
-        # KNOWN LIMITATION, kept intentionally (see plans/student_import_wizard_data_quality_gaps.md,
-        # now resolved): a tutor with no document number can never be matched on
-        # re-import — a fuzzier name/phone fallback was rejected due to
-        # false-positive merge risk. Now surfaced via stats['warnings'] instead
-        # (test_process_tutor_without_document_adds_warning) rather than fixed
-        # here. This test locks in the matching behavior itself so a future
-        # change to it is deliberate, not an accidental change caught by surprise.
+    def test_get_or_create_family_without_document_matches_by_mobile(self):
+        # Issue #507: a tutor with no document number is recognised by mobile number, when a
+        # single family contact holds it and the first name matches (res.partner._ems_find_family).
         wizard = self._wizard()
         first, accio1 = wizard._get_or_create_family(
-            'Undocumented Tutor', None, '612345678', None, None, {})
+            'Undocumented Tutor', None, None, '+34 711 000 101', None, {}, firstname='Undocumented')
         second, accio2 = wizard._get_or_create_family(
-            'Undocumented Tutor', None, '612345678', None, None, {})
+            'Undocumented Tutor Surname', None, None, '711000101', None, {}, firstname='Undocumented')
         self.assertEqual(accio1, 'Creat')
-        self.assertEqual(accio2, 'Creat')
-        self.assertNotEqual(first, second)
+        self.assertEqual(accio2, 'Actualitzat')
+        self.assertEqual(first, second)
+
+    def test_get_or_create_family_shared_mobile_other_name_creates_new_with_warning(self):
+        # Parents sharing one phone: the same mobile under another first name is never merged.
+        student = self.env['res.partner'].create({
+            'name': 'Shared Phone Student', 'contact_type': 'student', 'student_id': next_student_id()})
+        wizard = self._wizard()
+        stats = self._stats()
+        mother, _accio = wizard._get_or_create_family(
+            'Maria Shared', None, None, '711000102', None, {}, firstname='Maria')
+        father, accio = wizard._get_or_create_family(
+            'Joan Shared', None, None, '711000102', None, {}, firstname='Joan', stats=stats, student=student)
+        self.assertEqual(accio, 'Creat')
+        self.assertNotEqual(mother, father)
+        self.assertEqual(len(stats['warnings']), 1)
+        self.assertIn('Maria Shared', stats['warnings'][0])
 
     def test_get_or_create_family_no_name_returns_false(self):
         wizard = self._wizard()
@@ -470,11 +480,9 @@ class TestStudentImportWizard(TransactionCase):
         self.assertEqual(stats['log'], [])
 
     def test_process_tutor_without_document_adds_warning(self):
-        # Gap 1 decision (see plans/student_import_wizard_data_quality_gaps.md, now
-        # resolved): keep the doc-number-only dedup as-is (no fuzzier name/phone
-        # fallback - false-positive merge risk), but surface it in stats['warnings']
-        # so it's visible in the result summary instead of only discoverable by
-        # noticing an extra family contact after the fact.
+        # A tutor with neither a document number nor a phone cannot be recognised
+        # (res.partner._ems_find_family): surfaced in stats['warnings'] so a possible
+        # duplicate is reviewed by hand.
         student = self.env['res.partner'].create({'name': 'Undocumented Tutor Student', 'contact_type': 'student', 'student_id': next_student_id()})
         row, col_map = self._row_and_col_map({
             'Tutor 1 - nom': 'Sense', 'Tutor 1 - 1r cognom ': 'Document',

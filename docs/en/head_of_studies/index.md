@@ -20,6 +20,7 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 - [Managing staff absences](absences.md)
 - [Creating and Editing Teachers](staff-management.md)
 - [Authorizations: creating, sending and following up](../secretary/authorizations.md) — Creating authorization forms, sending them to students during the course and following up the answers (shared manual with the secretariat).
+- [Contact data requests: asking families to update their details](../tutors/contact-data-requests.md) — Ask students and families to review their contact details from the portal, follow up the answers and approve the changes (shared manual with the tutors).
 - [Notices: Sending Your Own Bulk Emails](notice.md)
 - [Guard Duty Schedule](../teachers/guard-duty-schedule.md) — Who is missing each time block, and who is on guard duty to cover it.
 

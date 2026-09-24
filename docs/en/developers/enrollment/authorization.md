@@ -195,7 +195,10 @@ their own students and follows up the answers:
 - **Sending.** `ems.authorization._ems_sees_every_student()` separates the staff from a
   tutor, and the server is what enforces it: `_resolve_students()` drops every student who is
   not the tutor's, whatever reached the wizard, and `_allowed_scope()` only offers their own
-  groups. Studies and levels are hidden from tutors with `groups=` on the view nodes (a whole
+  groups - the ones they act as tutor of, which includes the groups of the tutors below a chief
+  (`tutor_scope_user_ids`, issue #483). The picking of students (by hand, or by groups, studies
+  and levels) lives in `ems.student.scope.mixin` (`models/shared/student_scope_mixin.py`), shared
+  with the contact data request wizard (issue #507, [contact data requests](../contacts/contact_data_request.md)). Studies and levels are hidden from tutors with `groups=` on the view nodes (a whole
   study or level would reach beyond their groups), so the server strips them rather than an
   `invisible` expression deciding it in the browser. The student picker keeps its plain domain;
   someone else's student picked by a tutor is listed in the preview as "Not one of your

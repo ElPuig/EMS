@@ -362,20 +362,16 @@ class EmsStudentImportWizard(models.TransientModel):
              'country_id': country.id if country else False,
              'state_id': state.id if state else False},
             notes='<br/>'.join(tutor_notes) if tutor_notes else False,
+            firstname=nom, stats=stats, student=student,
         )
         if not family:
             return
-        if not doc_num:
-            # KNOWN LIMITATION, kept intentionally (see
-            # plans/student_import_wizard_data_quality_gaps.md, now resolved):
-            # dedup only matches on document number, so a documentless tutor always
-            # creates a new family contact. A fuzzier name/phone fallback was
-            # rejected (false-positive merge risk) - surfaced as a warning instead,
-            # so it's visible in the result summary for manual review.
+        if not (doc_num or phone or mobile):
+            # Nothing to recognise the person by (see _get_or_create_family): surfaced in the
+            # result summary so a possible duplicate gets reviewed by hand.
             stats['warnings'].append(_(
-                "%(student)s: tutor '%(tutor)s' has no document number — dedup "
-                "skipped, a new family contact may have been created even if one "
-                "already exists.",
+                "%(student)s: tutor '%(tutor)s' has neither a document number nor a phone - "
+                "a new family contact may have been created even if one already exists.",
                 student=student.name, tutor=full_name,
             ))
         stats['log'].append({'tipus': 'Familiar', 'accio': accio, 'partner_id': family.id, 'ts': datetime.now()})
@@ -385,32 +381,36 @@ class EmsStudentImportWizard(models.TransientModel):
             note = f"[Import Esfera] Relació {prefix}: '{observacio}' (assignada com a Tutor per defecte)"
             student.comment = f"{student.comment}<br/>{note}".strip() if student.comment else note
 
-        self._link_family_to_student(family, student, relation_type)
+        student._ems_link_family(family, relation_type)
 
-    def _get_or_create_family(self, name, doc_num, phone, mobile, email, address_data, notes=None):
+    def _get_or_create_family(self, name, doc_num, phone, mobile, email, address_data, notes=None,
+                              firstname=None, stats=None, student=None):
         """Find or create the family contact for a tutor row.
 
         Values are filtered through _values_to_write, so a family contact follows
         exactly the same policy as the student: empty cells never blank anything,
         and EMS's data wins unless 'overwrite' is ticked.
 
-        KNOWN LIMITATION, kept intentionally (see student_import_wizard.md): dedup
-        only matches on doc_num (document_id/passport_id). A tutor row with no
-        document number always creates a new family partner — there is no
-        name/phone/email fallback match (rejected: false-positive merge risk is
-        worse than a duplicate contact). The caller (_process_tutor) surfaces this
-        in stats['warnings'] instead, so it's visible for manual review.
+        The contact is recognised by res.partner._ems_find_family() (issue #507): by
+        document number, or else by mobile number when a single family contact holds it
+        and the first name matches. A number held by someone else (parents sharing a
+        phone) creates a new contact and is reported in stats['warnings'] as a possible
+        duplicate, for manual review.
         """
         if not name:
             return False, None
 
-        domain = [('contact_type', '=', 'family')]
-        existing = False
-        if doc_num:
-            existing = (
-                self.env['res.partner'].search(domain + [('document_id', '=', doc_num)], limit=1)
-                or self.env['res.partner'].search(domain + [('passport_id', '=', doc_num)], limit=1)
-            )
+        existing, possible_duplicate = self.env['res.partner']._ems_find_family(
+            document=doc_num, mobile=mobile or phone, firstname=firstname or name)
+        # The lookup hands back sudo records; the import itself writes with the user's rights.
+        existing = existing.with_env(self.env)
+        if possible_duplicate and stats is not None:
+            stats['warnings'].append(_(
+                "%(student)s: tutor '%(tutor)s' shares a phone number with the family contact "
+                "'%(other)s' - created as a new contact, check whether it is the same person.",
+                student=student.name if student else '', tutor=name,
+                other=possible_duplicate.name,
+            ))
         family_vals = dict(address_data, **{
             'name': name,
             'contact_type': 'family',
@@ -430,18 +430,6 @@ class EmsStudentImportWizard(models.TransientModel):
         family = self.env['res.partner'].create(vals)
         self._prepend_import_notes(family, notes)
         return family, 'Creat'
-
-    def _link_family_to_student(self, family, student, relation_type):
-        existing = self.env['res.partner.relation'].search([
-            ('left_partner_id', '=', family.id),
-            ('right_partner_id', '=', student.id),
-        ], limit=1)
-        if not existing:
-            self.env['res.partner.relation'].create({
-                'left_partner_id': family.id,
-                'type_id': relation_type.id,
-                'right_partner_id': student.id,
-            })
 
     def _deduce_relation_type(self, text):
         t = (text or '').lower()

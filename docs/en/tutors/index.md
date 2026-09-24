@@ -18,6 +18,7 @@ This section contains the manuals for **group tutors**.
 | [Evaluation board: reviewing the grades per student](junta-avaluacio.md) | Review and adjust each group student's grades, subject by subject, for the evaluation board |
 | [How to generate enrollment proposals](propostes-matricula.md) | Propose the enrollment for the next course for approved students, including special enrollments |
 | [Authorizations: sending them to your students and following up](authorizations.md) | Send authorizations from the catalogue to your students or your groups, and follow up their answers |
+| [Contact data requests: asking families to update their details](contact-data-requests.md) | Ask students and families to review their contact details from the portal, follow up the answers and approve the changes |
 | [How to manage portal access](acces-portal.md) | Grant, revoke or resend portal access invitations for students and families |
 | [Strikes: Consulting Your Group's Records](strike.md) | Consult the strikes issued to your tutees and the ones you issued yourself |
 | [Managing Your Students' Family Contacts](family-contacts.md) | Add and remove the family members (father, mother, legal guardian…) of the students you tutor |

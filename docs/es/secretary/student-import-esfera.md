@@ -34,7 +34,7 @@ Desde la lista de **Alumnado**, abra el menú de acciones (el icono del engranaj
 ## Qué se crea o se actualiza
 
 - El **alumnado** se hace coincidir por su identificador **RALC** (el identificador oficial catalán del alumno/a). Una coincidencia existente se actualiza; si pertenecía a un antiguo alumno/a (extitulado/baja), se **reactiva** como alumno activo en lugar de crear un duplicado.
-- Los **contactos familiares** (tutores/as) se hacen coincidir por su número de documento (DNI/NIE/pasaporte) — los que coinciden se actualizan, los que no, se crean. Una fila de tutor **sin número de documento** siempre crea un contacto nuevo en lugar de hacerlo coincidir con uno existente; si el mismo tutor sin documento aparece en una importación posterior, espere un segundo contacto en lugar de una actualización. Fusione los duplicados a mano desde **Contactos → Familias** si ocurre esto.
+- Los **contactos familiares** (tutores/as) se hacen coincidir por su número de documento (DNI/NIE/pasaporte) o, si la fila no tiene, por el móvil cuando un solo contacto familiar lo tiene con el mismo nombre. Los que coinciden se actualizan, los que no, se crean. Cuando el móvil es de un contacto familiar con otro nombre (por ejemplo, dos progenitores que comparten teléfono), se crea un contacto nuevo y el resultado lo indica como posible duplicado. Fusione los duplicados reales a mano desde **Contactos → Familias**.
 - La **relación familiar** (madre, padre, abuelo/a, hermano/a, tutor legal…) se deduce de una nota de texto libre del archivo. Cuando no se puede deducir con confianza, el tutor se vincula como "Tutor" genérico y se añade una nota al **propio registro del alumno/a** citando el texto original — merece la pena revisarlo rápidamente en cualquier caso marcado así.
 - Un alumno/a cuyo **código de grupo** en el archivo no coincide con ningún grupo de EMS se importa igualmente (sin grupo asignado) — se añade a su registro una nota con el código no coincidente para que pueda corregirse a mano.
 
@@ -45,7 +45,7 @@ Tras la importación, el asistente muestra cuántos alumnos se han **creado**/**
 ## Cosas a comprobar después
 
 - Cualquier nota dejada por los casos de "código de grupo no coincidente" o "relación deducida" anteriores.
-- Contactos familiares nuevos creados sin número de documento, por si la misma persona ya existía bajo una importación anterior ligeramente distinta.
+- Los posibles duplicados y los tutores sin documento ni teléfono que indica el resultado.
 
 ---
 

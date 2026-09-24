@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Issue #507 - /my/dades-contacte (controllers/portal_contact_data.py). Input names follow
+    ems.contact.data.request._ems_contact_data_problems() keys, so each error lands under its own
+    input: s_<field> for the student, f<id>_<field> for a family contact on file, n<number>_<field>
+    for one added here. -->
+
+    <template id="portal_contact_data_input" name="Contact data input">
+        <div t-attf-class="mb-3 #{col_class or 'col-md-6'}">
+            <label class="form-label" t-att-for="input_name"><t t-out="label"/><span t-if="required" class="text-danger"> *</span></label>
+            <input t-att-type="input_type or 'text'" t-att-name="input_name" t-att-id="input_name"
+                   t-att-value="input_value"
+                   t-attf-class="form-control #{'is-invalid' if errors.get(input_name) else ''}"/>
+            <div t-if="errors.get(input_name)" class="invalid-feedback" t-out="errors.get(input_name)"/>
+        </div>
+    </template>
+
+    <template id="portal_contact_data_family_fields" name="Contact data family fields">
+        <div class="row">
+            <t t-call="ems.portal_contact_data_input">
+                <t t-set="label">First name</t><t t-set="required" t-value="True"/>
+                <t t-set="input_name" t-value="key + '_firstname'"/><t t-set="input_value" t-value="entry.get('firstname')"/>
+            </t>
+            <t t-call="ems.portal_contact_data_input">
+                <t t-set="label">Last name</t><t t-set="required" t-value="True"/>
+                <t t-set="input_name" t-value="key + '_lastname'"/><t t-set="input_value" t-value="entry.get('lastname')"/>
+            </t>
+            <t t-call="ems.portal_contact_data_input">
+                <t t-set="label">Mobile</t><t t-set="required" t-value="True"/><t t-set="input_type" t-value="'tel'"/>
+                <t t-set="input_name" t-value="key + '_mobile'"/><t t-set="input_value" t-value="entry.get('mobile')"/>
+            </t>
+            <t t-call="ems.portal_contact_data_input">
+                <t t-set="label">Email</t><t t-set="input_type" t-value="'email'"/>
+                <t t-set="input_name" t-value="key + '_email'"/><t t-set="input_value" t-value="entry.get('email')"/>
+            </t>
+            <t t-call="ems.portal_contact_data_input">
+                <t t-set="label">DNI/NIE</t>
+                <t t-set="input_name" t-value="key + '_document_id'"/><t t-set="input_value" t-value="entry.get('document_id')"/>
+            </t>
+            <t t-call="ems.portal_contact_data_input">
+                <t t-set="label">Passport</t>
+                <t t-set="input_name" t-value="key + '_passport_id'"/><t t-set="input_value" t-value="entry.get('passport_id')"/>
+            </t>
+        </div>
+        <div class="form-check mb-2">
+            <input type="checkbox" class="form-check-input o_ems_same_address" t-att-name="key + '_same_address'"
+                   t-att-id="key + '_same_address'" value="1" t-att-checked="entry.get('same_address') or None"/>
+            <label class="form-check-label" t-att-for="key + '_same_address'">Same address as the student</label>
+        </div>
+        <div t-attf-class="row o_ems_family_address #{'d-none' if entry.get('same_address') else ''}">
+            <t t-call="ems.portal_contact_data_input">
+                <t t-set="label">Street</t><t t-set="col_class" t-value="'col-md-6'"/>
+                <t t-set="input_name" t-value="key + '_street'"/><t t-set="input_value" t-value="entry.get('street')"/>
+            </t>
+            <t t-call="ems.portal_contact_data_input">
+                <t t-set="label">ZIP</t><t t-set="col_class" t-value="'col-md-2'"/>
+                <t t-set="input_name" t-value="key + '_zip'"/><t t-set="input_value" t-value="entry.get('zip')"/>
+            </t>
+            <t t-call="ems.portal_contact_data_input">
+                <t t-set="label">City</t><t t-set="col_class" t-value="'col-md-4'"/>
+                <t t-set="input_name" t-value="key + '_city'"/><t t-set="input_value" t-value="entry.get('city')"/>
+            </t>
+        </div>
+    </template>
+
+    <template id="portal_contact_data_relation_select" name="Contact data relation select">
+        <div class="mb-3 col-md-6">
+            <label class="form-label" t-att-for="key + '_relation_type_id'">Relation<span class="text-danger"> *</span></label>
+            <select t-att-name="key + '_relation_type_id'" t-att-id="key + '_relation_type_id'"
+                    t-attf-class="form-select #{'is-invalid' if errors.get(key + '_relation_type_id') else ''}">
+                <option value="">-</option>
+                <t t-foreach="relation_types" t-as="relation_type">
+                    <option t-att-value="relation_type.id" t-out="relation_type.name"
+                            t-att-selected="relation_type.id == entry.get('relation_type_id') or None"/>
+                </t>
+            </select>
+            <div t-if="errors.get(key + '_relation_type_id')" class="invalid-feedback" t-out="errors.get(key + '_relation_type_id')"/>
+        </div>
+    </template>
+
+    <template id="portal_contact_data" name="Contact details">
+        <t t-call="portal.portal_layout">
+            <div class="container mt-4 mb-5 o_ems_portal_contact_data">
+                <h3 class="mb-1">Contact details</h3>
+                <p t-if="student" class="text-muted">
+                    <t t-if="viewing_as_family">Viewing the details of: </t><strong t-out="student.name"/>
+                </p>
+
+                <div t-if="not student" class="alert alert-info">There are no contact details to review for this account.</div>
+                <t t-else="">
+                    <div t-if="sent and data_request and data_request.state == 'done'" class="alert alert-success o_ems_contact_data_confirmed">
+                        Thank you: your contact details are confirmed.
+                    </div>
+                    <div t-elif="sent" class="alert alert-success o_ems_contact_data_sent">
+                        Thank you: your changes have been sent. The school will review them and apply them.
+                    </div>
+                    <div t-elif="data_request and data_request.state == 'submitted'" class="alert alert-info o_ems_contact_data_pending_review">
+                        Your changes are waiting to be reviewed by the school. You can still correct them and send them again.
+                    </div>
+                    <div t-if="data_request and data_request.state == 'pending' and data_request.rejection_reason" class="alert alert-warning">
+                        <strong>The school has returned your changes:</strong>
+                        <div t-out="data_request.rejection_reason"/>
+                    </div>
+                    <div t-if="errors" class="alert alert-danger o_ems_contact_data_errors">
+                        Some details are missing or not valid. Check the fields marked in red.
+                        <div t-if="errors.get('family')" class="mt-1" t-out="errors.get('family')"/>
+                    </div>
+
+                    <form action="/my/dades-contacte" method="post" class="o_ems_contact_data_form">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                        <div class="card mb-4">
+                            <div class="card-header"><strong>Student</strong></div>
+                            <div class="card-body">
+                                <div class="row mb-2">
+                                    <div class="col-md-6"><span class="text-muted">Name: </span><t t-out="student.name"/></div>
+                                    <div class="col-md-6"><span class="text-muted">Birth date: </span><t t-out="student.birth_date" t-options="{'widget': 'date'}"/></div>
+                                    <div class="col-12 small text-muted">To correct the name or the birth date, contact the secretary's office.</div>
+                                </div>
+                                <t t-set="values" t-value="data['student']"/>
+                                <div class="row">
+                                    <t t-call="ems.portal_contact_data_input">
+                                        <t t-set="label">Mobile</t><t t-set="input_type" t-value="'tel'"/>
+                                        <t t-set="input_name" t-value="'s_mobile'"/><t t-set="input_value" t-value="values.get('mobile')"/>
+                                    </t>
+                                    <t t-call="ems.portal_contact_data_input">
+                                        <t t-set="label">Landline</t><t t-set="input_type" t-value="'tel'"/>
+                                        <t t-set="input_name" t-value="'s_phone'"/><t t-set="input_value" t-value="values.get('phone')"/>
+                                    </t>
+                                    <t t-call="ems.portal_contact_data_input">
+                                        <t t-set="label">Personal email</t><t t-set="input_type" t-value="'email'"/>
+                                        <t t-set="required" t-value="student.is_adult"/>
+                                        <t t-set="input_name" t-value="'s_email'"/><t t-set="input_value" t-value="values.get('email')"/>
+                                    </t>
+                                    <div class="col-md-6"/>
+                                    <t t-call="ems.portal_contact_data_input">
+                                        <t t-set="label">Street</t><t t-set="required" t-value="True"/>
+                                        <t t-set="input_name" t-value="'s_street'"/><t t-set="input_value" t-value="values.get('street')"/>
+                                    </t>
+                                    <t t-call="ems.portal_contact_data_input">
+                                        <t t-set="label">ZIP</t><t t-set="required" t-value="True"/><t t-set="col_class" t-value="'col-md-2'"/>
+                                        <t t-set="input_name" t-value="'s_zip'"/><t t-set="input_value" t-value="values.get('zip')"/>
+                                    </t>
+                                    <t t-call="ems.portal_contact_data_input">
+                                        <t t-set="label">City</t><t t-set="required" t-value="True"/><t t-set="col_class" t-value="'col-md-4'"/>
+                                        <t t-set="input_name" t-value="'s_city'"/><t t-set="input_value" t-value="values.get('city')"/>
+                                    </t>
+                                    <t t-call="ems.portal_contact_data_input">
+                                        <t t-set="label">DNI/NIE</t>
+                                        <t t-set="input_name" t-value="'s_document_id'"/><t t-set="input_value" t-value="values.get('document_id')"/>
+                                    </t>
+                                    <t t-call="ems.portal_contact_data_input">
+                                        <t t-set="label">Passport</t>
+                                        <t t-set="input_name" t-value="'s_passport_id'"/><t t-set="input_value" t-value="values.get('passport_id')"/>
+                                    </t>
+                                    <div class="col-12 small text-muted mb-3">Fill in the DNI/NIE or, if there is none, the passport.</div>
+                                    <t t-call="ems.portal_contact_data_input">
+                                        <t t-set="label">Health card (TIS)</t>
+                                        <t t-set="input_name" t-value="'s_medical_id'"/><t t-set="input_value" t-value="values.get('medical_id')"/>
+                                    </t>
+                                    <t t-call="ems.portal_contact_data_input">
+                                        <t t-set="label">Social Security number (NUSS)</t>
+                                        <t t-set="input_name" t-value="'s_nuss'"/><t t-set="input_value" t-value="values.get('nuss')"/>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4 class="mb-2">Family</h4>
+                        <p class="text-muted small">
+                            <t t-if="student.is_adult">Optional for an adult student.</t>
+                            <t t-else="">At least one legal tutor, and at least one of them with an email: it is their portal login. Each tutor needs their own email.</t>
+                        </p>
+
+                        <t t-foreach="data['family']" t-as="entry">
+                            <t t-set="key" t-value="entry['key']"/>
+                            <div t-attf-class="card mb-3 o_ems_family_entry #{'border-danger' if entry.get('remove') else ''}" t-att-data-key="key">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <strong>
+                                        <t t-if="entry.get('id')"><t t-out="entry.get('name')"/> <span class="text-muted fw-normal">(<t t-out="entry.get('relation')"/>)</span></t>
+                                        <t t-else="">New family contact</t>
+                                    </strong>
+                                    <div t-if="entry.get('id')" class="form-check mb-0">
+                                        <input type="checkbox" class="form-check-input" t-att-name="key + '_remove'"
+                                               t-att-id="key + '_remove'" value="1" t-att-checked="entry.get('remove') or None"/>
+                                        <label class="form-check-label" t-att-for="key + '_remove'">No longer a contact</label>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div t-if="not entry.get('id')" class="row">
+                                        <t t-call="ems.portal_contact_data_relation_select"/>
+                                    </div>
+                                    <t t-call="ems.portal_contact_data_family_fields"/>
+                                </div>
+                            </div>
+                        </t>
+
+                        <div class="o_ems_new_family_container"/>
+                        <button type="button" class="btn btn-secondary mb-4 o_ems_add_family"
+                                t-att-data-next-index="next_new_index">
+                            <i class="fa fa-plus me-1"/>Add a family contact
+                        </button>
+
+                        <template class="o_ems_new_family_template">
+                            <t t-set="key" t-value="'n__INDEX__'"/>
+                            <t t-set="entry" t-value="{'same_address': True}"/>
+                            <div class="card mb-3 o_ems_family_entry">
+                                <div class="card-header"><strong>New family contact</strong></div>
+                                <div class="card-body">
+                                    <div class="row"><t t-call="ems.portal_contact_data_relation_select"/></div>
+                                    <t t-call="ems.portal_contact_data_family_fields"/>
+                                </div>
+                            </div>
+                        </template>
+
+                        <p class="small text-muted">
+                            The school uses these details only to contact the student and the family and to
+                            give access to the portal, as set out in the school's data protection notice.
+                        </p>
+                        <button type="submit" class="btn btn-primary o_ems_contact_data_submit">Send</button>
+                    </form>
+
+                    <script type="text/javascript">
+                        //<![CDATA[
+                        (function () {
+                            var form = document.querySelector('.o_ems_contact_data_form');
+                            if (!form) { return; }
+                            function bindSameAddress(scope) {
+                                scope.querySelectorAll('.o_ems_same_address').forEach(function (box) {
+                                    box.addEventListener('change', function () {
+                                        var address = box.closest('.card-body').querySelector('.o_ems_family_address');
+                                        address.classList.toggle('d-none', box.checked);
+                                    });
+                                });
+                            }
+                            bindSameAddress(form);
+                            var addButton = form.querySelector('.o_ems_add_family');
+                            var template = form.querySelector('.o_ems_new_family_template');
+                            var container = form.querySelector('.o_ems_new_family_container');
+                            addButton.addEventListener('click', function () {
+                                var index = parseInt(addButton.dataset.nextIndex || '0', 10);
+                                addButton.dataset.nextIndex = index + 1;
+                                var wrapper = document.createElement('div');
+                                wrapper.innerHTML = template.innerHTML.replace(/__INDEX__/g, index);
+                                bindSameAddress(wrapper);
+                                container.appendChild(wrapper);
+                            });
+                        })();
+                        //]]>
+                    </script>
+                </t>
+            </div>
+        </t>
+    </template>
+</odoo>

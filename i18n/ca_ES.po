@@ -2316,7 +2316,7 @@ msgstr "Pot editar"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0 code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 code:addons/ems/static/src/xml/backend/schedule_grid_readonly_field.xml:0 model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_attendance_report_group_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_student_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_subject_wizard model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_session_state_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_session_wizard_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_add_student_popup model_terms:ir.ui.view,arch_db:ems.view_notice_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0 code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 code:addons/ems/static/src/xml/backend/schedule_grid_readonly_field.xml:0 model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_attendance_report_wizard model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_session_state_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_session_wizard_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_add_student_popup model_terms:ir.ui.view,arch_db:ems.view_notice_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
 msgid "Cancel"
 msgstr "Cancel·la"
@@ -5055,6 +5055,8 @@ msgid "New contact"
 msgstr "Nou contacte"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
 msgid "New student contact"
 msgstr "Nou contacte d'alumne/a"
@@ -5829,7 +5831,7 @@ msgid "Price"
 msgstr "Preu"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_group_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_student_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_subject_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_wizard
 msgid "Print"
 msgstr "Imprimeix"
 
@@ -14845,3 +14847,8 @@ msgstr "En quin punt és la sol·licitud entre les seves dues aprovacions, la de
 #: code:addons/ems/models/contacts/student_document.py:0
 msgid "Document Submission: %(document)s - %(student)s"
 msgstr "Tramitació de document: %(document)s - %(student)s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Saving will move every subject this student is enrolled in through the current group to the new group. Subjects already enrolled through a different group will stay unchanged."
+msgstr "Si deseu, totes les assignatures en què l'alumne/a està matriculat/da a través del grup actual passaran al grup nou. Les assignatures matriculades a través d'un altre grup no canviaran."

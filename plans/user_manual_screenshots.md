@@ -5,13 +5,13 @@ teachers-role work from the previous branch is already in `main` (v18.0.0.27.1).
 current state of `docs/{en,ca,es}/<role>/` and `tests/test_docs_screenshots*.py` before resuming
 (refresh command in "The remaining manuals" below) - don't assume this file is still accurate.
 
-**Status: head_of_studies (7/7), teachers (10/10) and families (all 5 manuals) DONE; admin batch
-1/4 done.** 25 manuals left: tutors 5, secretary 7, admin 13.
+**Status: head_of_studies (7/7), teachers (10/10), families and tutors DONE; admin batch 1/4
+done.** 20 manuals left: secretary 7, admin 13.
 
 **Priority order set by the developer (2026-09-24):** families first (done), then the staff roles
-("docentes y trabajadores": tutors and secretary), and admin last - "los admins pueden esperar".
-tutors and secretary still need their own research pass + a batching vs. one-at-a-time decision
-with the developer before starting.
+("docentes y trabajadores": tutors - done - and secretary), and admin last - "los admins pueden
+esperar". secretary still needs its own research pass + a batching vs. one-at-a-time decision with
+the developer before starting.
 
 ## Batching convention (per developer request, 2026-09-16 third session)
 
@@ -41,7 +41,7 @@ test method in `tests/test_docs_screenshots_teachers.py`:
 9. ✅ DONE - student-list-my-groups
 10. ✅ DONE - working-schedules
 
-families is done (one method per manual). secretary and tutors have not been started at all yet - decide batching vs. one-at-a-
+families and tutors are done (one method per manual). secretary has not been started at all yet - decide batching vs. one-at-a-
 time with the developer when picked up (don't assume either convention carries over automatically).
 
 ## Why
@@ -59,20 +59,14 @@ conversation:
 
 Detection: no `![...](...)` or `<img` anywhere in the file. Identical set across `en/`, `ca/` and
 `es/` (screenshots are shared assets referenced the same way in each language version), so the
-list below only needs stating once. 64 manuals total, 25 left.
+list below only needs stating once. 64 manuals total, 20 left.
 
 | Role | Missing |
 |---|---|
-| tutors | 5 |
 | secretary | 7 |
 | admin | 13 |
 
 ```
-tutors/academic-history.md
-tutors/attendance-reports.md
-tutors/change-student-group.md
-tutors/family-contacts.md
-tutors/strike.md
 secretary/absences.md
 secretary/attendance-reports.md
 secretary/graduation-withdrawal.md
@@ -598,8 +592,26 @@ Gotchas:
   ("mm/dd/yyyy") render in headless Chrome's own locale (English) - browser chrome, not EMS text;
   a real family sees their own browser's language there.
 
-### secretary, tutors - NOT STARTED
-No test file exists yet for either of these 2 roles (`teachers` now has its own section above). Each
+### tutors - ✅ DONE 2026-09-24 (piloto automático)
+`tests/test_docs_screenshots_tutors.py`, one method per manual except academic-history, which
+reuses `teachers/historial-01-academic.png` + `secretary/academic-history-record.png` (identical
+views); attendance-reports reuses `teachers/informes-01-taula-dinamica.png` and adds its own
+by-student wizard shot. Fixture: tutor user + employee, a colleague who teaches/issues strikes,
+groups A (tutored) and B (with its own tutor, or the Tutor field goes blank after the change).
+
+Gotchas:
+- **A form's stat buttons (`button_box`) render in the control panel in Odoo 18, not inside
+  `.o_form_sheet`/`.o_content`** - clip to `.o_action_manager` with `max_height` to show them.
+- **An empty many2one draws no border until hovered**, so a wizard shot shows bare labels
+  ("Contacte existent", "Triar relació") - same for admin, not a permission bug (checked). Type into
+  it via `run` so its (filtered, short) dropdown shows and stays inside the dialog.
+- **Typing into a many2one from `run`**: set `input.value`, dispatch `input` (bubbles), wait for
+  `.o-autocomplete--dropdown-item a`, then `.click()` it - used for the group-change warning.
+- Found and fixed 3 untranslated texts on these screens (group-change warning, "New student
+  contact" dialog title, report wizard Print/Cancel stale .po refs).
+
+### secretary - NOT STARTED
+No test file exists yet for this role (`teachers` now has its own section above). Each
 will need its own research pass (grep the
 relevant `views/`/`models/` for action ids, model fields, native action domains that might leak
 real data) before writing captures, and its own topical batch breakdown (see "Batching

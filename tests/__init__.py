@@ -145,6 +145,7 @@ from . import test_docs_screenshots_head_of_studies
 from . import test_docs_screenshots_admin
 from . import test_docs_screenshots_teachers
 from . import test_docs_screenshots_families
+from . import test_docs_screenshots_tutors
 from . import test_authorization
 from . import test_authorization_template_tour
 from . import test_attendance_notification_tour

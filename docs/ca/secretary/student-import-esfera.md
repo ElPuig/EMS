@@ -31,6 +31,8 @@ Per a una actualització més petita i puntual des de qualsevol altre fitxer CSV
 
 Des de la llista d'**Alumnat**, obriu el menú d'accions (la icona de l'engranatge ⚙️ al costat de la llista) i trieu **Importar des d'Esfera**. Seleccioneu el fitxer `.xlsx` exportat des d'Esfera/SAGA i feu clic a **Importar alumnes**.
 
+![Finestra Importar des d'Esfera, amb la pujada del fitxer i l'opció de sobreescriure](../../assets/secretary/esfera-01-assistent.png)
+
 ## Què es crea o s'actualitza
 
 - L'**alumnat** es fa coincidir pel seu identificador **RALC** (l'identificador oficial català de l'alumne/a). Una coincidència existent s'actualitza; si pertanyia a un extitulat/baixa, es **reactiva** com a alumne actiu en lloc de crear-ne un duplicat.

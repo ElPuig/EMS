@@ -17,6 +17,8 @@ A veces un alumno debe cambiar de grupo (por ejemplo, del grupo A al grupo B) de
 3. Cambia el campo **Grupo principal** por el grupo de destino. Solo se muestran grupos del mismo estudio/nivel — no puedes mover a un alumno a otro estudio de esta forma.
 4. Aparece un aviso amarillo en la parte superior de los datos de matrícula recordándote que, al guardar, se moverán las asignaturas del alumno al grupo nuevo. Guarda cuando estés listo.
 
+   ![Pestaña Estudios con el nuevo grupo principal elegido y el aviso amarillo sobre las asignaturas matriculadas](../../assets/tutors/canvi-grup-01-avis.png)
+
 ## Qué ocurre automáticamente
 
 Cualquier asignatura en la que el alumno estuviera matriculado a través del grupo **antiguo** pasa automáticamente al grupo **nuevo** — no hace falta volver a matricularlo asignatura por asignatura. Su horario de asistencia y cualquier evaluación abierta se actualizan en consecuencia.

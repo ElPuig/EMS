@@ -64,7 +64,7 @@ En acabar, l'auxiliar mostra un **resum de la importació**: quants aspirants s'
 Els aspirants nous apareixen a la vista **Pre-inscripció**. Per revisar-los còmodament:
 
 * Feu servir el **panell d'estudis** de l'esquerra **(1)** per filtrar l'alumnat per estudi (SMX, ASIX, GA...). Al costat de cada estudi hi ha el nombre d'aspirants.
-* La llista ve **agrupada automàticament per torn** (*Afternoon* / *Morning*) **(2)** i, dins de cada torn, **per curs** (1r, 2n) **(3)**. Aquesta agrupació permet aplicar la **plantilla de matrícula** de manera més senzilla: cada combinació d'**estudi, torn i curs** té assignada una plantilla i un grup destí per defecte.
+* La llista ve **agrupada automàticament per torn** (*Tarda* / *Matí*) **(2)** i, dins de cada torn, **per curs** (1r, 2n) **(3)**. Aquesta agrupació permet aplicar la **plantilla de matrícula** de manera més senzilla: cada combinació d'**estudi, torn i curs** té assignada una plantilla i un grup destí per defecte.
 
 ![Vista de Pre-inscripció amb el panell d'estudis i l'agrupació per torn i curs](../../assets/secretary/preinscrpcio-Secretaria-04.png)
 

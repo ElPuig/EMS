@@ -27,6 +27,11 @@ registry.category("web_tour.tours").add("ems_working_schedule_stale_breaks", {
             run: "click",
         },
         {
+            // Typing before the switch has settled loses the text: the control panel re-renders.
+            trigger: ".o_list_view .o_data_row",
+            content: "List view rendered",
+        },
+        {
             trigger: ".o_searchview_input",
             content: "Search for the two fixture teachers by their shared name prefix",
             run: "edit Stale Breaks Tour Teacher",
@@ -35,6 +40,10 @@ registry.category("web_tour.tours").add("ems_working_schedule_stale_breaks", {
             trigger: ".o_searchview_input",
             content: "Confirm the search",
             run: "press Enter",
+        },
+        {
+            trigger: ".o_searchview_facet",
+            content: "Search applied",
         },
         {
             trigger: ".o_list_view .o_data_row .o_data_cell:contains('Stale Breaks Tour Teacher A')",

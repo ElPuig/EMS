@@ -28,7 +28,7 @@ parallel feature. Confirmed with the developer and deleted in this same pass (20
 | `type` | `Selection` (department/workgroup/evaluation) | Determines which of `department_id`/`workgroup_id` the form shows (`invisible` toggles on `type`). |
 | `department_id`/`workgroup_id` | `Many2one` | Only one is relevant depending on `type` — neither is `required` at the model level (view-level guidance only). |
 | `assistant_ids`/`abstent_ids` | `Many2many → res.partner` | `domain="[('type','=','contact')]"` — this filters on `res.partner`'s **native** `type` field (address kind: contact/invoice/delivery/other/private), not EMS's own `contact_type` (student/family/teacher/...). In practice this barely restricts anything, since `'contact'` is the default address kind for nearly every partner in the system — worth a second look if the intent was actually "teachers/staff only," since the two same-named `type` fields on `res.partner` are an easy mix-up. Not changed in this pass (guessing the intended filter would be inventing business logic, not a normalization fix). |
-| `members` | computed | A one-line summary: `"Department: {name}"` or `"Workgroup: {name}"` depending on `type`. |
+| `members` | computed | A one-line summary: `"Department: {name}"` or `"Workgroup: {name}"` depending on `type`, using the group field's own label in the reader's language (`depends_context('lang')`). `display_name` likewise uses the translated `type`/`nature` labels (`_description_selection()`). |
 
 ---
 

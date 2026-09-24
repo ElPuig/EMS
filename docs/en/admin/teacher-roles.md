@@ -66,6 +66,8 @@ The badge automatically shows the color you picked with readable text, whatever 
 2. In the **Roles** field, add the role that matches the permission level to grant (e.g. **Department chieff**).
 3. Click **Save** (or navigate away — Odoo saves automatically).
 
+![Roles field on a teacher's record, with two roles assigned shown as colored badges](../../assets/admin/admin-teacher-roles-employee.png)
+
 The teacher's user account is updated immediately: the security group tied to the role is granted, together with everything it implies (e.g. assigning **Department chieff** also grants Tutor and Teacher access).
 
 > The **Tutor**, **Department chieff**, **Seminar leader**, **Head of studies**, **Deputy head of studies**, **Secretary** and **Director** roles cannot be added or removed manually — neither from here, nor from the role's own **Assigned to** list (**Educational Community → Configuration → Teachers/ASP → Roles**), nor through any bulk edit or import. Trying any of these shows a message naming exactly where the change actually has to be made instead. Tutor is managed automatically based on whether the teacher is set as the tutor of a Class Group; the next five are managed automatically from a department's own form; Director is managed automatically from Settings (see below).
@@ -89,6 +91,8 @@ Unlike the other roles above, **Department chieff** and **Seminar leader** are n
 1. Navigate to **Employees → Departments** and open the department.
 2. Set **Department Chief** (the department's `Manager` field) and, optionally, **Seminar Chief**. Only teachers and administrative/services staff appear in this field — a technical or system account is never a valid choice.
 3. Click **Save**.
+
+![A department's form with its Department Chief and Seminar Chief](../../assets/admin/admin-teacher-roles-department.png)
 
 This has an immediate, automatic effect on every teacher in that department:
 

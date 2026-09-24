@@ -20,21 +20,33 @@ Esta guía explica cómo enviar documentos oficiales (DNI/pasaporte, tarjeta san
 
 ## Dónde se suben los documentos
 
-Desde el panel principal del portal, abre **Documentación**. Si gestionas más de un alumno (varios hijos en el centro), asegúrate de tener seleccionado el correcto antes de enviar nada.
+Desde el panel principal del portal, abre **Documentación**. Si gestionas más de un alumno (varios hijos en el centro), asegúrate de tener seleccionado el correcto antes de enviar nada: el selector con el nombre del alumno, en la parte superior de la página, permite cambiar de uno a otro, y la página siempre indica de quién es la documentación que estás viendo.
+
+![Cabecera del portal con el selector de alumno abierto y el nombre del alumno cuya documentación se muestra](../../assets/families/documentacio-01-seleccio-alumne.png)
 
 ## Subir un DNI, pasaporte o tarjeta sanitaria
 
-Elige el tipo de documento, adjunta el archivo (basta con una foto o escaneo claros) y envíalo. Aparecerá inmediatamente con el estado **Pendiente de revisión**. Puedes cancelar tú mismo una tramitación mientras siga pendiente, por si elegiste el archivo equivocado — una vez revisada, solo el centro puede reabrirla.
+Junto al documento, haz clic en **Subir archivo**, adjunta el archivo (basta con una foto o escaneo claros) y envíalo. Aparecerá inmediatamente con el estado **Pendiente de revisión**. Puedes cancelar tú mismo una tramitación mientras siga pendiente, por si elegiste el archivo equivocado — una vez revisada, solo el centro puede reabrirla.
+
+![Tabla de documentos oficiales, uno de ellos pendiente de revisión](../../assets/families/documentacio-02-documents-oficials.png)
+
+![Ventana para subir un documento oficial](../../assets/families/documentacio-03-pujar-document.png)
 
 ## Registrar o renovar tu IBAN
 
 Introduce el número de cuenta (IBAN) y, opcionalmente, el nombre del titular si es distinto al del alumno. Si el centro ya tiene un IBAN activo registrado para el alumno, puedes renovarlo directamente desde la misma página — amplía la caducidad un año sin necesidad de volver a introducir el número, salvo que haya cambiado.
+
+![Sección de la cuenta bancaria: cuenta actual con el botón Renovar y el formulario para enviar un IBAN nuevo](../../assets/families/documentacio-04-iban.png)
 
 Solo puede haber **una** tramitación de IBAN pendiente de revisión a la vez — si necesitas corregir una que acabas de enviar, cancélala primero (mientras siga pendiente) antes de enviar una nueva.
 
 ## Solicitar una bonificación o exención
 
 Elige el tipo que corresponda (familia numerosa, familia monoparental, beca del ministerio, discapacidad, u otros) y adjunta el documento justificativo (el certificado oficial). Una vez aprobada, aparece entre los beneficios activos del alumno — consulta el estado de la solicitud en esta misma página.
+
+![Sección de bonificaciones y exenciones, con un beneficio aprobado y una solicitud pendiente de revisión](../../assets/families/documentacio-05-bonificacions.png)
+
+![Ventana para solicitar una bonificación o exención](../../assets/families/documentacio-06-sol-licitud-bonificacio.png)
 
 ## Consultar el estado de una tramitación
 
@@ -44,6 +56,8 @@ Cada tramitación muestra uno de estos cuatro estados:
 - **Aprobada** — aceptada; en el caso de un IBAN o un beneficio, ya ha entrado en vigor (ver más arriba).
 - **Rechazada** — no aceptada; se muestra el motivo indicado por el centro. Envía un documento corregido para volver a intentarlo.
 - **Cancelada** — retirada (por ti mismo, mientras seguía pendiente, o sustituida por una tramitación posterior aprobada del mismo tipo).
+
+![Historial de envíos con el estado de cada tramitación y el motivo de un rechazo](../../assets/families/documentacio-07-historial.png)
 
 Recibirás un correo cada vez que el centro apruebe o rechace una de tus tramitaciones.
 

@@ -12,6 +12,10 @@ Cada alumne/a conserva un **històric acadèmic** permanent: un registre per cur
 
 Obriu la fitxa de l'alumne/a i aneu a la pestanya **Històric acadèmic**. Cada línia és un curs; obriu-la per veure els mòduls i, dins de cada mòdul, les notes de cada resultat d'aprenentatge (RA) per convocatòria.
 
+![Pestanya Històric acadèmic de la fitxa d'un alumne, una línia per curs](../../assets/teachers/historial-01-academic.png)
+
+![Un registre de curs de l'històric acadèmic, amb les assignatures i les seves notes](../../assets/secretary/academic-history-record.png)
+
 Els registres estan ordenats **per estudi i curs**, de manera que podeu llegir cada estudi de principi a fi. Un curs repetit apareix de manera natural com dos registres consecutius del mateix estudi i nivell.
 
 ## Com llegir un registre

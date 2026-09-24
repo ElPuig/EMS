@@ -14,6 +14,8 @@
 
 1. Ve a **Asistencia → Informes**. Se abre directamente con una **tabla dinámica**, mostrando por defecto **solo tus propios grupos y asignaturas** (el mismo alcance que los informes PDF por grupo y por asignatura de abajo — ser tutor/a de alguien no amplía esto por sí solo, solo impartir realmente una asignatura lo hace).
 2. La tabla agrupa por **asignatura y luego por alumno**. Haz clic en el icono **Expandir todo** (arriba a la derecha, junto a Invertir ejes) dos veces: una para desplegar las asignaturas y otra para desplegar los alumnos de cada asignatura. El número principal es el **% de faltas por alumno** — el **Recuento** (número de sesiones contabilizadas) y el **Recuento de strikes** se muestran al lado, así puedes saber si un 33% sale de 3 sesiones o de 30, y si viene acompañado de strikes disciplinarios.
+
+   ![Tabla dinámica de los informes de asistencia, desplegada por asignatura y alumno](../../assets/teachers/informes-01-taula-dinamica.png)
 3. Usa la barra de búsqueda para filtrar más (por alumno, grupo, asignatura o estado), y **Agrupar por** para cambiar cómo se pliega la tabla.
 4. Usa el icono de **hoja de cálculo/descarga** de la cabecera para exportar la tabla dinámica actual a Excel.
 5. Cambia a la vista de **gráfico** (iconos arriba a la derecha) para ver un resumen visual — por defecto muestra el **% de absentismo por asignatura**, así puedes detectar de un vistazo qué asignaturas tienen más absentismo. El gráfico muestra una medida a la vez — usa el desplegable **Medidas** de su cabecera para cambiar a **Recuento de strikes** si quieres ver los strikes disciplinarios por asignatura.
@@ -33,6 +35,8 @@ En la pantalla de **Informes de asistencia**, haz clic en el icono **⚙ (engran
 1. Selecciona un **Alumno** — el desplegable muestra los alumnos matriculados en una asignatura que **impartes** y **todos tus tutorizados**, aunque no les impartas ninguna asignatura.
 2. El **Tutor/a** y las fechas **Desde**/**Hasta** se rellenan automáticamente a partir del alumno y su rango de sesiones.
 3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo. Para tus tutorizados incluye **todas las asignaturas**, sea quien sea el docente de la sesión; para el resto de alumnos, solo las sesiones que has impartido tú.
+
+   ![Formulario para imprimir el informe de asistencia por alumno, con un alumno tutorado seleccionado y el tutor y las fechas rellenados](../../assets/tutors/tutor-informes-01-per-estudiant.png)
 
 El Jefe de departamento o de seminario, el Jefe de estudios que tienes por encima y el Director obtienen el mismo informe completo por alumno de tus tutorizados.
 

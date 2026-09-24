@@ -14,6 +14,8 @@ L'ajust **Curs actual** controla quin any acadèmic (p. ex., `2025-2026`) s'util
 
 Navega a: **Configuració → Gestió EMS → Ajustos de gestió de cursos**
 
+![Configuració de la gestió de cursos: els selectors Curs actual i Curs de matriculació, amb l'enllaç Preparar el curs següent](../../assets/admin/admin-course-settings.png)
+
 ---
 
 ## Canviar el curs actual

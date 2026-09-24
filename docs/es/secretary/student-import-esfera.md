@@ -31,6 +31,8 @@ Para una actualización más pequeña y puntual desde cualquier otro archivo CSV
 
 Desde la lista de **Alumnado**, abra el menú de acciones (el icono del engranaje ⚙️ junto a la lista) y elija **Importar desde Esfera**. Seleccione el archivo `.xlsx` exportado desde Esfera/SAGA y haga clic en **Importar alumnos**.
 
+![Ventana Importar desde Esfera, con la subida del archivo y la opción de sobrescribir](../../assets/secretary/esfera-01-assistent.png)
+
 ## Qué se crea o se actualiza
 
 - El **alumnado** se hace coincidir por su identificador **RALC** (el identificador oficial catalán del alumno/a). Una coincidencia existente se actualiza; si pertenecía a un antiguo alumno/a (extitulado/baja), se **reactiva** como alumno activo en lugar de crear un duplicado.

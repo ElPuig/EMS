@@ -270,6 +270,94 @@ class DocsScreenshotMixin:
         )).save(path)
 
     @staticmethod
+    def _union_clip_js(selectors, element_id='ems-clip'):
+        """JS that lays an invisible box over the union of `selectors`, so one shot can cover
+        blocks that share no container of their own (clip to '#<element_id>' afterwards)."""
+        return ("(function () { var old = document.getElementById(%s); if (old) { old.remove(); }"
+                " var rects = %s.map(function (s) { return document.querySelector(s).getBoundingClientRect(); });"
+                " var left = Math.min.apply(null, rects.map(function (r) { return r.left; }));"
+                " var top = Math.min.apply(null, rects.map(function (r) { return r.top; }));"
+                " var right = Math.max.apply(null, rects.map(function (r) { return r.right; }));"
+                " var bottom = Math.max.apply(null, rects.map(function (r) { return r.bottom; }));"
+                " var box = document.createElement('div'); box.id = %s;"
+                " box.style.cssText = 'position:absolute;pointer-events:none;left:' + (left + scrollX) + 'px;top:'"
+                " + (top + scrollY) + 'px;width:' + (right - left) + 'px;height:' + (bottom - top) + 'px';"
+                " document.body.appendChild(box); })();"
+                % (json.dumps(element_id), json.dumps(list(selectors)), json.dumps(element_id)))
+
+    @staticmethod
+    def _mouse_click(browser, selector):
+        box = json.loads(browser._websocket_request('Runtime.evaluate', params={
+            'expression': """JSON.stringify((function () {
+                var r = document.querySelector(%s).getBoundingClientRect();
+                return {x: r.x + r.width / 2, y: r.y + r.height / 2};
+            })())""" % json.dumps(selector),
+            'returnByValue': True,
+        })['result']['value'])
+        for event in ('mouseMoved', 'mousePressed', 'mouseReleased'):
+            browser._websocket_request('Input.dispatchMouseEvent', params={
+                'type': event, 'x': box['x'], 'y': box['y'], 'button': 'left', 'clickCount': 1,
+            })
+
+    MARK_RADIUS = 13
+
+    def _draw_marks(self, browser, path, clip, marks):
+        """Draws a numbered circle next to each marked element, in the style the manuals
+        already used for their hand-made callouts. `anchor` places it relative to the element:
+        'left' (default, just outside its left edge), 'right', 'top' (above its centre),
+        'center', or 'text-right' (right after the element's text rather than its box - for a
+        cell or a row that spans far wider than what it says)."""
+        from PIL import Image, ImageDraw, ImageFont
+        image = Image.open(path).convert('RGB')
+        draw = ImageDraw.Draw(image)
+        font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 14)
+        radius = self.MARK_RADIUS
+        for mark in marks:
+            selector, label = mark[0], mark[1]
+            anchor = mark[2] if len(mark) > 2 else 'left'
+            rect = json.loads(browser._websocket_request('Runtime.evaluate', params={
+                'expression': """JSON.stringify((function () {
+                    var el = document.querySelector(%s);
+                    if (!el) { return null; }
+                    var r = el.getBoundingClientRect();
+                    if (%s) {
+                        // Union of the element's own text nodes only: a cell's box (or a child
+                        // stretched to fill it) spans far wider than what it says.
+                        var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), node,
+                            left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
+                        while ((node = walker.nextNode())) {
+                            if (!node.textContent.trim()) { continue; }
+                            var range = document.createRange();
+                            range.selectNodeContents(node);
+                            var t = range.getBoundingClientRect();
+                            left = Math.min(left, t.left); top = Math.min(top, t.top);
+                            right = Math.max(right, t.right); bottom = Math.max(bottom, t.bottom);
+                        }
+                        if (right > left) {
+                            r = {x: left, y: top, width: right - left, height: bottom - top};
+                        }
+                    }
+                    return {x: r.x, y: r.y, width: r.width, height: r.height};
+                })())""" % (json.dumps(selector), json.dumps(anchor.startswith('text-'))),
+                'returnByValue': True,
+            })['result']['value'])
+            self.assertTrue(rect, "mark selector matched nothing: %s" % selector)
+            x, y = rect['x'] - clip['x'], rect['y'] - clip['y']
+            centre = {
+                'left': (x - radius - 4, y + rect['height'] / 2),
+                'right': (x + rect['width'] + radius + 4, y + rect['height'] / 2),
+                'text-right': (x + rect['width'] + radius + 6, y + rect['height'] / 2),
+                'top': (x + rect['width'] / 2, y - radius - 2),
+                'center': (x + rect['width'] / 2, y + rect['height'] / 2),
+            }[anchor]
+            cx = min(max(centre[0], radius + 1), image.width - radius - 2)
+            cy = min(max(centre[1], radius + 1), image.height - radius - 2)
+            draw.ellipse([cx - radius, cy - radius, cx + radius, cy + radius],
+                         fill=(0, 229, 238), outline=(0, 0, 0), width=2)
+            draw.text((cx, cy), str(label), fill=(0, 0, 0), font=font, anchor='mm')
+        image.save(path)
+
+    @staticmethod
     def _appear_code(selector):
         """JS that signals success once `selector` is on the page (plus a beat for the
         rendering to settle), and fails loudly rather than hanging if it never shows up."""
@@ -309,7 +397,7 @@ class DocsScreenshotMixin:
         raise TimeoutError("never appeared: %s" % selector)
 
     def _capture(self, url_path, selector, filename, login=None, wait_for=None, padding=8,
-                 click=None, run=None, wait_after=None, tour=None, max_height=None):
+                 click=None, run=None, wait_after=None, tour=None, max_height=None, marks=None):
         """Load url_path as `login`, wait for `wait_for` (defaults to `selector`), optionally
         click `click` (or run arbitrary JS via `run`) and wait for `wait_after`, then write a
         PNG clipped to `selector` into OUTPUT_DIR.
@@ -322,6 +410,8 @@ class DocsScreenshotMixin:
         list of them, paired with `wait_after` the same way `click` is) for an interaction a
         plain `.click()` can't express - e.g. setting a <select>'s value and dispatching its own
         change event, needed for an OWL component that reacts to 'change' rather than a click.
+        `marks` draws numbered callouts that a manual's text refers to ("click (1), then (2)"):
+        a list of (selector, label) or (selector, label, anchor) - see _draw_marks().
         """
         os.makedirs(self.OUTPUT_DIR, exist_ok=True)
         # A tour reports success with Odoo's own signal ('tour succeeded', the one start_tour()
@@ -367,8 +457,13 @@ class DocsScreenshotMixin:
                 steps = steps if isinstance(steps, (list, tuple)) else [steps]
                 wait_afters = wait_after if isinstance(wait_after, (list, tuple)) else [wait_after] * len(steps)
                 for step, step_wait in zip(steps, wait_afters):
-                    expression = step if run else 'document.querySelector(%s).click()' % json.dumps(step)
-                    browser._websocket_request('Runtime.evaluate', params={'expression': expression})
+                    if not run and step.startswith('mouse:'):
+                        # A real (trusted) mouse click at the element's centre, for a control
+                        # that ignores a synthetic .click() - e.g. the navbar's section dropdowns.
+                        self._mouse_click(browser, step[len('mouse:'):])
+                    else:
+                        expression = step if run else 'document.querySelector(%s).click()' % json.dumps(step)
+                        browser._websocket_request('Runtime.evaluate', params={'expression': expression})
                     # Not a second browser._wait_code_ok(): ChromeBrowser's own success future
                     # (self._result) is single-use, set once in __init__ and never reset - a SECOND
                     # call just re-reads the FIRST wait's already-resolved value instead of actually
@@ -403,6 +498,8 @@ class DocsScreenshotMixin:
             path = os.path.join(self.OUTPUT_DIR, filename)
             with open(path, 'wb') as handle:
                 handle.write(base64.b64decode(png))
+            if marks:
+                self._draw_marks(browser, path, clip, marks)
             self._trim(path)
             self.assertGreater(os.path.getsize(path), 2000, "%s looks empty" % filename)
             self._logger.info("Wrote %s", path)

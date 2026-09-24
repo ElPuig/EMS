@@ -1520,7 +1520,7 @@ msgstr "Gestor/a"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__is_adult model:ir.model.fields,field_description:ems.field_res_users__is_adult
 msgid "Adult"
-msgstr "Adulto"
+msgstr "Major d'edat"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attendance_session_line_ids model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
@@ -2323,8 +2323,8 @@ msgstr "Pot editar"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0 code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 code:addons/ems/static/src/xml/backend/schedule_grid_readonly_field.xml:0 model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_attendance_report_group_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_student_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_subject_wizard model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_session_state_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_session_wizard_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_add_student_popup model_terms:ir.ui.view,arch_db:ems.view_notice_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
-#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0 code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 code:addons/ems/static/src/xml/backend/schedule_grid_readonly_field.xml:0 model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_attendance_report_wizard model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_session_state_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_session_wizard_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_add_student_popup model_terms:ir.ui.view,arch_db:ems.view_notice_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form model_terms:ir.ui.view,arch_db:ems.view_graduation_wizard_form model_terms:ir.ui.view,arch_db:ems.view_withdrawal_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_wizard_form
 msgid "Cancel"
 msgstr "Cancel·la"
@@ -2487,7 +2487,7 @@ msgstr "Aula de referència:"
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/communications/limesurvey.py:0 model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_status_exception_popup model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_error_popup model_terms:ir.ui.view,arch_db:ems.view_notice_line_exception_popup model_terms:ir.ui.view,arch_db:ems.view_student_import_wizard_form model_terms:ir.ui.view,arch_db:ems.view_student_update_wizard_form
+#: code:addons/ems/models/communications/limesurvey.py:0 model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_status_exception_popup model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_error_popup model_terms:ir.ui.view,arch_db:ems.view_notice_line_exception_popup model_terms:ir.ui.view,arch_db:ems.view_student_import_wizard_form model_terms:ir.ui.view,arch_db:ems.view_student_update_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_import_wizard_form model_terms:ir.ui.view,arch_db:ems.view_applicant_import_wizard_form
 msgid "Close"
 msgstr "Tancar"
 
@@ -3164,7 +3164,7 @@ msgid "Download data"
 msgstr "Descarregar dades"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_student_import_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_student_import_wizard_form model_terms:ir.ui.view,arch_db:ems.view_applicant_import_wizard_form
 msgid "Download import log (CSV)"
 msgstr "Descarregar log d'importació (CSV)"
 
@@ -3401,7 +3401,7 @@ msgid "Enrolled Products (Technical)"
 msgstr "Productes matriculats (Tècnic)"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_authorization__enrollment_id model:ir.model.fields,field_description:ems.field_ems_group__enrollment_view_ids model:ir.model.fields,field_description:ems.field_res_partner__enrollment_ids model:ir.model.fields,field_description:ems.field_res_users__enrollment_ids model:ir.ui.menu,name:ems.menu_ems_enrollment model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_authorization__enrollment_id model:ir.model.fields,field_description:ems.field_ems_group__enrollment_view_ids model:ir.model.fields,field_description:ems.field_res_partner__enrollment_ids model:ir.model.fields,field_description:ems.field_res_users__enrollment_ids model:ir.ui.menu,name:ems.menu_ems_enrollment model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor model_terms:ir.ui.view,arch_db:ems.view_applicant_list
 msgid "Enrollment"
 msgstr "Matrícula"
 
@@ -3541,7 +3541,7 @@ msgstr "Introdueix el text legal complet aquí..."
 #. module: ems
 #: model:ems.role,name:ems.role_erasmus
 msgid "Erasmus coordinator"
-msgstr "Coordinador/a d'FP"
+msgstr "Coordinador/a d'Erasmus"
 
 #. module: ems
 #. odoo-python
@@ -3555,7 +3555,7 @@ msgid "Esfera (SAGA) group code, e.g. 'ESO LOEM101'."
 msgstr "Codi de grup Esfera (SAGA), p.ex. 'ESO LOEM101'."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__file
+#: model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__file model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__file
 msgid "Esfera xlsx file"
 msgstr "Fitxer xlsx d'Esfera"
 
@@ -3657,7 +3657,7 @@ msgstr "Nota pràctiques empresa informada"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute__nature__extraordinary
 msgid "Extraordinary"
-msgstr "Extraordinari"
+msgstr "Extraordinària"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_notice__state__failed model:ir.model.fields.selection,name:ems.selection__ems_notice_line__display_status__failed
@@ -3765,6 +3765,7 @@ msgid "First Payment"
 msgstr "Primer pagament"
 
 #. module: ems
+#. odoo-javascript
 #. odoo-python
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0 model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__firstname model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__student_firstname code:addons/ems/static/src/js/backend/em_matrix_field.js:0
 msgid "First name"
@@ -4660,6 +4661,7 @@ msgid "Last Updated on"
 msgstr "Última actualització el"
 
 #. module: ems
+#. odoo-javascript
 #. odoo-python
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0 model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__lastname model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__student_lastname model:ir.model.fields,field_description:partner_firstname.field_res_partner__lastname model:ir.model.fields,field_description:partner_firstname.field_res_users__lastname code:addons/ems/static/src/js/backend/em_matrix_field.js:0
 msgid "Last name"
@@ -5080,7 +5082,7 @@ msgstr "Data límit de la meva activitat"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_nuss model:ir.model.fields,field_description:ems.field_res_partner__nuss model:ir.model.fields,field_description:ems.field_res_users__nuss
 msgid "NUSS"
-msgstr ""
+msgstr "NUSS"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__name model:ir.model.fields,field_description:ems.field_ems_content__name model:ir.model.fields,field_description:ems.field_ems_course__name model:ir.model.fields,field_description:ems.field_ems_criteria__name model:ir.model.fields,field_description:ems.field_ems_csv_column__name model:ir.model.fields,field_description:ems.field_ems_group__name model:ir.model.fields,field_description:ems.field_ems_level__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__name model:ir.model.fields,field_description:ems.field_ems_outcome__name model:ir.model.fields,field_description:ems.field_ems_planning__name model:ir.model.fields,field_description:ems.field_ems_role__name model:ir.model.fields,field_description:ems.field_ems_space__name model:ir.model.fields,field_description:ems.field_ems_space_type__name model:ir.model.fields,field_description:ems.field_ems_strike_reason__name model:ir.model.fields,field_description:ems.field_ems_student_document__name model:ir.model.fields,field_description:ems.field_ems_study__name model:ir.model.fields,field_description:ems.field_ems_subject__name model:ir.model.fields,field_description:ems.field_ems_workgroup__name model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__name model:ir.model.fields,field_description:ems.field_ems_attendance_status__name model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__name
@@ -5108,6 +5110,8 @@ msgid "New contact"
 msgstr "Nou contacte"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
 msgid "New student contact"
 msgstr "Nou contacte d'alumne/a"
@@ -5231,7 +5235,7 @@ msgid "Not queued"
 msgstr "No encolat"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__note model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__note model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
+#: model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__note model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__note model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__note
 msgid "Note"
 msgstr "Nota"
 
@@ -5474,7 +5478,7 @@ msgstr "Obrint enquestes"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute__nature__ordinary
 msgid "Ordinary"
-msgstr "Ordinari"
+msgstr "Ordinària"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -5898,7 +5902,7 @@ msgid "Price"
 msgstr "Preu"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_group_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_student_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_subject_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_wizard
 msgid "Print"
 msgstr "Imprimeix"
 
@@ -6532,7 +6536,7 @@ msgstr "Secretaria"
 #. module: ems
 #: model:ems.role,name:ems.role_schieff
 msgid "Secretary chieff"
-msgstr "Cap de conserjes"
+msgstr "Cap de secretaria"
 
 #. module: ems
 #: model:res.groups,comment:ems.group_secretary
@@ -7063,7 +7067,7 @@ msgid "Student:"
 msgstr "Alumne/a:"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_student_form model:ir.actions.act_window,name:ems.action_student_kanban model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__attendance_issue_student_ids model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__student_ids model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__student_line_ids model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_group__main_student_ids model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__student_ids model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__target__students model:ir.model.fields.selection,name:ems.selection__ems_notice__recipient_type__students model:ir.ui.menu,name:ems.menu_community_config_students model:ir.ui.menu,name:ems.menu_students model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_tutor_form model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_student_search
+#: model:ir.actions.act_window,name:ems.action_student_form model:ir.actions.act_window,name:ems.action_student_kanban model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__attendance_issue_student_ids model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__student_ids model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__student_line_ids model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_group__main_student_ids model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__student_ids model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__target__students model:ir.model.fields.selection,name:ems.selection__ems_notice__recipient_type__students model:ir.ui.menu,name:ems.menu_community_config_students model:ir.ui.menu,name:ems.menu_students model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_tutor_form model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_student_search model:ir.model.fields,field_description:ems.field_ems_graduation_wizard__line_ids model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__line_ids
 msgid "Students"
 msgstr "Estudiants"
 
@@ -8169,7 +8173,7 @@ msgstr "Indica si hi ha nota final (la nota calculada està disponible)."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_csv_column__wizard_id model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__wizard_id
-#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__wizard_id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__wizard_id model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__wizard_id
 msgid "Wizard"
 msgstr "Assistent"
 
@@ -9647,7 +9651,7 @@ msgid "Exit date"
 msgstr "Data de sortida"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_partner__exit_reason model:ir.model.fields,field_description:ems.field_res_users__exit_reason
+#: model:ir.model.fields,field_description:ems.field_res_partner__exit_reason model:ir.model.fields,field_description:ems.field_res_users__exit_reason model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__exit_reason
 msgid "Exit reason"
 msgstr "Motiu de sortida"
 
@@ -9884,14 +9888,14 @@ msgid "Applicant data"
 msgstr "Dades del sol·licitant"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_ems_applicants model:ir.ui.menu,name:ems.menu_ems_applicants model_terms:ir.ui.view,arch_db:ems.view_applicant_list
+#: model:ir.actions.act_window,name:ems.action_ems_applicants model:ir.ui.menu,name:ems.menu_ems_applicants model_terms:ir.ui.view,arch_db:ems.view_applicant_list model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Preinscription"
 msgstr "Pre-inscripció"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model:ir.model.fields.selection,name:ems.selection__sale_order__ems_enrollment_status_label__draft
 msgid "Pre-enrollment"
-msgstr "Preinscripció"
+msgstr "Prematrícula"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -11560,7 +11564,8 @@ msgid "%s placement(s) below 5: to be repeated (final still pending)."
 msgstr "Estades per sota de 5 (s'han de repetir; la nota final continua pendent): %s"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_em_grading_wizard model:ir.ui.menu,name:ems.menu_em_grading_wizard
+#. odoo-python
+#: code:addons/ems/models/grades/em_grading_wizard.py:0 model:ir.actions.act_window,name:ems.action_em_grading_wizard model:ir.ui.menu,name:ems.menu_em_grading_wizard
 msgid "Work placement evaluation (EM)"
 msgstr "Avaluació estada a l'empresa (EM)"
 
@@ -16123,3 +16128,57 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_planning_search
 msgid "Show only current course"
 msgstr "Mostrar tan sols el curs actual"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_document.py:0
+msgid "Document Submission: %(document)s - %(student)s"
+msgstr "Tramitació de document: %(document)s - %(student)s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Saving will move every subject this student is enrolled in through the current group to the new group. Subjects already enrolled through a different group will stay unchanged."
+msgstr "Si deseu, totes les assignatures en què l'alumne/a està matriculat/da a través del grup actual passaran al grup nou. Les assignatures matriculades a través d'un altre grup no canviaran."
+
+#. module: ems
+#: model:ems.role,name:ems.role_secretary_admin
+msgid "Secretary Administrator"
+msgstr "Administrador/a de secretaria"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "The course new enrollments are created for. During the year it points at the next one; after the course transition it stays on the year that has just started, because enrollments keep being processed in September. Move it on only when you open the following year's campaign."
+msgstr "El curs per al qual es creen les matrícules noves. Durant el curs apunta al següent; després de la transició de curs es manté en l'any que acaba de començar, perquè al setembre encara es tramiten matrícules. Avanceu-lo només quan obriu la campanya de l'any següent."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__sale_order__ems_enrollment_status_label__sent
+msgid "Enrollment sent"
+msgstr "Matrícula enviada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__sale_order__ems_enrollment_status_label__sale
+msgid "Enrollment confirmed"
+msgstr "Matrícula confirmada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__sale_order__ems_enrollment_status_label__cancel
+msgid "Enrollment cancelled"
+msgstr "Matrícula cancel·lada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment_line_extension.py:0
+msgid "%(product)s (%(count)s Subjects)"
+msgstr "%(product)s (%(count)s assignatures)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment_line_extension.py:0
+msgid "Bonification 50%"
+msgstr "Bonificació 50%"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment_line_extension.py:0
+msgid "Exemption 100%"
+msgstr "Exempció 100%"

@@ -20,6 +20,8 @@ Navigate to: **Educational Community → Configuration → Curriculum → Levels
 
 Opening the menu shows a list of all levels sorted alphabetically by acronym. Each row displays the acronym and the full name.
 
+![List of levels with their acronym and name](../../assets/admin/admin-levels-list.png)
+
 ---
 
 ## Create a Level

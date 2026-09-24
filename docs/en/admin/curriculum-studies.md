@@ -37,6 +37,8 @@ Opening the menu shows a list of all studies sorted by code. Each row shows the 
 5. Optionally, add free-form notes in the **Notes** tab.
 6. Click **Save** (or use the breadcrumb to navigate away — Odoo saves automatically).
 
+![A study's form, with its Subjects tab](../../assets/admin/admin-study-form.png)
+
 ---
 
 ## Edit a Study

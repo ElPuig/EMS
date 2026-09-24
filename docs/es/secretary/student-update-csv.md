@@ -30,6 +30,8 @@ Desde la lista de **Alumnado**, abra el menú de acciones (el icono del engranaj
 
 Una vez cargadas las columnas, primero elija cuál contiene el **identificador del alumno (IDALU/RALC)** — es obligatorio, es cómo se hace coincidir cada fila con un alumno. Después mapee tantos o tan pocos de los demás campos como tenga realmente su archivo (nombre, teléfono, correo, dirección, documentos…) — todo lo que quede sin mapear simplemente no se toca.
 
+![Actualizar alumnos desde CSV, con las columnas del archivo asignadas al ID de alumno, nombre, teléfono, correo y cuenta bancaria](../../assets/secretary/actualitzacio-csv-01-columnes.png)
+
 ## Actualizar la cuenta bancaria
 
 Si mapea una columna de **IBAN** y una fila tiene un valor, este pasa a ser la cuenta bancaria activa del alumno (cualquier otra cuenta que tuviera se desactiva). Deje el IBAN sin mapear, o deje la celda vacía para una fila concreta, y sus datos bancarios quedan intactos.

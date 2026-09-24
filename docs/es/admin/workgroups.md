@@ -24,6 +24,8 @@ Navega a: **Comunidad Educativa → Configuración → Profesorado → Grupos de
 4. Opcionalmente, añade notas libres en la pestaña **Notas**.
 5. Haz clic en **Guardar**.
 
+![Ficha de un grupo de trabajo, con sus miembros en la pestaña Asignado a](../../assets/admin/admin-workgroup-form.png)
+
 ---
 
 ## Editar o eliminar un grupo de trabajo

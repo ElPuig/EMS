@@ -12,6 +12,10 @@ Every student keeps a permanent **academic history**: one record per course with
 
 Open the student's form and go to the **Academic history** tab. Each line is one course; open it to see the subjects and, inside each subject, the grades of every learning outcome (RA) per round.
 
+![The Academic history tab of a student's form, one line per course](../../assets/teachers/historial-01-academic.png)
+
+![A course record of the academic history, with its subjects and their grades](../../assets/secretary/academic-history-record.png)
+
 The records are ordered **by study and course**, so you can read each study from start to end. A repeated course appears naturally as two consecutive records of the same study and level.
 
 ## How to read a record

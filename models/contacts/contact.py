@@ -1316,7 +1316,7 @@ class ResPartner(models.Model):
             'country_id': self.country_id.id,
         })
         return {
-            'name': 'New student contact',
+            'name': _('New student contact'),
             'type': 'ir.actions.act_window',
             'res_model': 'ems.contact.relation.wizard',
             'res_id': wizard.id,

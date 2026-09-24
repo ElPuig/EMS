@@ -1182,9 +1182,9 @@ msgid "A grade session already exists for this group, subject and round. Please 
 msgstr "Ya existe una sesión de evaluación para este grupo, asignatura y evaluación. Edite la existente."
 
 #. module: ems
-#: model:ir.model.constraint,message:ems.constraint_ems_planning_unique_study_subject
-msgid "A planning already exists for this study and subject!"
-msgstr ""
+#: model:ir.model.constraint,message:ems.constraint_ems_planning_unique_study_subject_course
+msgid "A planning already exists for this study, subject and course!"
+msgstr "Ya existe una planificación para este estudio, asignatura y curso!"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form
@@ -2717,6 +2717,7 @@ msgstr "País"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__course_id
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__course_id
+#: model:ir.model.fields,field_description:ems.field_ems_planning__course_id
 msgid "Course"
 msgstr "Curso"
 
@@ -5838,6 +5839,12 @@ msgstr "Los valores de ponderación principales deben sumar 100."
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/planning/planning.py:0
+msgid "The course is required."
+msgstr "El curso es obligatorio."
+
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/planning/planning_outcome.py:0
 msgid "The ponderation value must be within the range [0,100]."
 msgstr "El valor de ponderación debe estar dentro del rango [0,100]."
@@ -6718,6 +6725,7 @@ msgstr "Texto corto"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_search model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search model_terms:ir.ui.view,arch_db:ems.view_notice_search model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_search
+#: model_terms:ir.ui.view,arch_db:ems.view_planning_search
 msgid "Show only mine"
 msgstr "Mostrar solamente los míos"
 
@@ -7490,6 +7498,30 @@ msgstr "La nota final debe estar en el rango [0, 10]."
 #: code:addons/ems/models/grades/grade_subject_line.py:0
 msgid "The internal score must be within the range [0, 10]."
 msgstr "La nota interna debe estar en el rango [0, 10]."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "The forced internal grade must be within the range [0, 10]."
+msgstr "La nota del centro forzada debe estar en el rango [0, 10]."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "At least one learning outcome is below 5, so the subject is not passed - the forced internal grade must also stay below 5."
+msgstr "Al menos un resultado de aprendizaje está por debajo de 5, por lo que la asignatura no está superada - la nota del centro forzada también debe quedar por debajo de 5."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "Every learning outcome is at 5 or above, so the subject is passed - the forced internal grade must also stay at 5 or above."
+msgstr "Todos los resultados de aprendizaje están en 5 o más, por lo que la asignatura está superada - la nota del centro forzada también debe quedar en 5 o más."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "Internal grade forced manually: %(forced)s (the learning outcomes would give %(natural)s)"
+msgstr "Nota del centro forzada manualmente: %(forced)s (los resultados de aprendizaje darían %(natural)s)"
 
 #. module: ems
 #. odoo-python
@@ -11098,9 +11130,33 @@ msgstr "Nombre del grupo"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__internal_grade model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__internal_grade
-#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__preview_internal_grade
 msgid "Internal grade"
 msgstr "Nota del centro"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__preview_internal_grade
+msgid "Internal grade (applied)"
+msgstr "Nota del centro (aplicada)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_review_wizard__preview_internal_grade
+msgid "The internal grade that will actually be applied to the subject. Starts equal to the calculated value; type a different one to correct it by hand - e.g. to match a value already recorded in Esfera. It cannot change whether the subject is passed or not passed."
+msgstr "La nota del centro que se aplicará realmente a la asignatura. Empieza siendo igual a la calculada; escriba una distinta para corregirla a mano - por ejemplo, para que coincida con un valor ya registrado en Esfera. No puede cambiar si la asignatura está superada o no."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__preview_internal_grade_calculated
+msgid "Internal grade (calculated)"
+msgstr "Nota del centro (calculada)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_review_wizard__preview_internal_grade_calculated
+msgid "The internal grade computed from the learning outcomes above."
+msgstr "La nota del centro calculada a partir de los resultados de aprendizaje de arriba."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__preview_internal_grade_synced
+msgid "Internal grade last synced"
+msgstr "Nota del centro sincronizada por última vez"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__internal_weight
@@ -13946,6 +14002,7 @@ msgstr "Mi alumnado"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__is_my_student
 #: model:ir.model.fields,field_description:ems.field_res_users__is_my_student
+#: model:ir.model.fields,field_description:ems.field_ems_planning__is_own_subject
 msgid "Taught by me"
 msgstr "De mis grupos"
 
@@ -16062,3 +16119,8 @@ msgid "is of age: convalidations have to be managed from their own account."
 msgstr ""
 "es mayor de edad: las convalidaciones se tienen que gestionar desde su "
 "propia cuenta."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_planning_search
+msgid "Show only current course"
+msgstr "Mostrar solamente el curso actual"

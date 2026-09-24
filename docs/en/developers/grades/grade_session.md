@@ -47,10 +47,14 @@ flowchart TD
 `can_edit` (`store=False`, `@api.depends_context('uid')`) is the single source of truth both
 `grade_subject_line`'s and `grade_outcome_line`'s own `write()` overrides check — the state
 machine is enforced once here, not duplicated on each line model.
-`planning_id`/`has_planning` are derived from `(group_id.study_id, subject_id)` — a session
-with no matching [`ems.planning`](../planning/planning.md) still works (falls back to the
-subject's own `outcome_ids` and a 100%-internal/0%-external split), just without ponderations
-tailored per outcome.
+`planning_id`/`has_planning` are derived from `(group_id.study_id, subject_id, course_id)` —
+the `course_id` term (issue #503) is always `self.env.company.current_course_id`, since a live
+grade session only ever exists for the course currently in progress; without it, once the same
+study+subject has a planning for more than one course, the search could pick up a different
+year's ponderations instead of the current one. A session with no matching
+[`ems.planning`](../planning/planning.md) still works (falls back to the subject's own
+`outcome_ids` and a 100%-internal/0%-external split), just without ponderations tailored per
+outcome.
 
 ### `fill_students` / `_ems_add_student_lines`: cross-round carry-over
 

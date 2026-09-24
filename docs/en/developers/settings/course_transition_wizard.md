@@ -78,7 +78,8 @@ This mirrors the semantics already frozen in the academic history, where `ems.st
 flowchart TD
     S0["0 · Academic history<br/>generate_for_students(scope, source)"] --> GUARD{"Step 0 OK?"}
     GUARD -- no --> ABORT["Abort the whole wizard"]
-    GUARD -- yes --> S1["1 · Graduates → alumni<br/>_ems_convert_to_ex_student()"]
+    GUARD -- yes --> S0B["0b · Planning rollover<br/>_apply_planning_rollover()"]
+    S0B --> S1["1 · Graduates → alumni<br/>_ems_convert_to_ex_student()"]
     S1 --> S2["2 · Revoke portal<br/>_ems_revoke_student_portal()"]
     S2 --> S2B["2b · Archive the graduates<br/>active = False"]
     S2B --> S7["7 · Archive attendance templates"]
@@ -92,6 +93,17 @@ flowchart TD
 ```
 
 Steps 3 and 4 are a single bulk call to `sale.order._ems_apply_destination_placement()`, which is already idempotent and already ordered (group before subject enrollments). Every step is scoped to `study_ids` except the flip.
+
+### Step 0b: planning rollover (issue #503)
+
+`_apply_planning_rollover()` copies every [`ems.planning`](../planning/planning.md) of the
+studies in scope from `source_course_id` to `target_course_id`, including its
+`planning_outcome_ids` (which `copy()` does NOT duplicate on its own — a plain `one2many`
+defaults to `copy=False` in this Odoo version, confirmed empirically while implementing this).
+Idempotent: skips any study+subject that already has a target-course planning, so relaunching a
+transition never duplicates one. Scoped to `study_ids` like every other step here, since studies
+transition at different times — a study still pending never gets its planning rolled forward
+until its own run.
 
 ### Why the cleanup runs before the placement
 

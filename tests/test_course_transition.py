@@ -1673,3 +1673,33 @@ class TestCourseTransition(TransactionCase):
         self.assertEqual(record.group_id, self.group2)
         self.assertEqual(len(record.subject_record_ids), subjects)
         self.assertEqual(student.contact_type, 'withdrawal')
+
+    # --- planning rollover (issue #503) ---------------------------------------
+
+    def test_apply_rolls_over_plannings_to_target_course(self):
+        self._applied()
+        target_ext = self.env['ems.planning'].search([
+            ('study_id', '=', self.study.id), ('subject_id', '=', self.subject_ext.id),
+            ('course_id', '=', self.target_course.id),
+        ])
+        target_int = self.env['ems.planning'].search([
+            ('study_id', '=', self.study.id), ('subject_id', '=', self.subject_int.id),
+            ('course_id', '=', self.target_course.id),
+        ])
+        self.assertEqual(len(target_ext), 1)
+        self.assertEqual(target_ext.internal_ponderation, 90.0)
+        self.assertEqual(target_ext.external_ponderation, 10.0)
+        self.assertEqual(target_ext.planning_outcome_ids.outcome_id, self.outcome_ext)
+        self.assertEqual(len(target_int), 1)
+        self.assertEqual(target_int.internal_ponderation, 100.0)
+
+    def test_planning_rollover_is_idempotent(self):
+        wizard = self._wizard(backup_done=True)
+        wizard.action_preview()
+        wizard._apply_planning_rollover()
+        wizard._apply_planning_rollover()
+        target = self.env['ems.planning'].search([
+            ('study_id', '=', self.study.id), ('subject_id', '=', self.subject_ext.id),
+            ('course_id', '=', self.target_course.id),
+        ])
+        self.assertEqual(len(target), 1)

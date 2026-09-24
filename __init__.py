@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
+
 from psycopg2.extras import Json
 
 from . import controllers
@@ -26,6 +28,17 @@ def post_init_hook(env):
     """)
     _backfill_default_schedule_framework(env)
     _enable_unaccent_extension(env)
+    # Must run before _ems_seed_enrollment_default() below: that method's own "course after the
+    # operational one" logic already reads is_current to decide, and would otherwise always find
+    # it empty on a fresh install.
+    _ems_seed_current_course(env)
+    # ems.planning.course_id (issue #503) can't have a DB-level default resolved at the time the
+    # centre's own data/custom/ccff/*.csv rows are created (current_course_id isn't set until
+    # the line above runs, strictly after all data has loaded) - backfill any still-empty one
+    # now that it is.
+    current_course = env.company.current_course_id
+    if current_course:
+        env['ems.planning'].search([('course_id', '=', False)]).write({'course_id': current_course.id})
     # is_enrollment_default is not a CSV column (it is live state the centre moves when it
     # opens the next campaign), so a fresh install needs it seeded once.
     env['ems.course']._ems_seed_enrollment_default()
@@ -42,6 +55,23 @@ def post_init_hook(env):
     _default_strike_family_notification_kicked_out(env)
     _seed_notice_email_signature_default(env)
     _apply_icu_collation_to_sort_fields(env)
+
+
+def _ems_seed_current_course(env):
+    """res.company.current_course_id is never auto-seeded on a fresh install (the code itself
+    already documents this gap - see res.company.get_current_course_or_raise()) - nothing sets
+    it, so a freshly installed instance runs with no operational course at all until an admin
+    configures one by hand. Seeds a real course for the actual installation year (no Sept-Aug
+    academic-year cutover logic - not worth it yet, per the developer) and sets it as current, so
+    a fresh install starts in a sane state. See plans/current_course_auto_seed.md.
+
+    Reuses an existing course for that year if one already exists (e.g. a centre's own
+    data/custom/ems.course.csv-style seed data already covers it) instead of creating a
+    duplicate - ems.course's own unique_course_name constraint would block that anyway."""
+    year = datetime.now().year
+    course = env['ems.course'].search([('start', '=', year)], limit=1) \
+        or env['ems.course'].create({'start': year, 'end': year + 1})
+    env['res.company'].search([]).write({'current_course_id': course.id})
 
 
 def _backfill_default_schedule_framework(env):

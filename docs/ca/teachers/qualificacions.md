@@ -143,7 +143,7 @@ L'estat el canvia l'administració. Si la sessió està en junta o finalitzada i
 
 - **Nota del centre:** mitjana ponderada dels RA **avaluats** segons els seus pesos, en escala del 0 al 10. Si falta algun RA per avaluar, es calcula només amb els avaluats i és **provisional**. Si algun RA avaluat està suspès (inferior a 5), la nota del centre queda **limitada a 4** (no es pot aprovar el mòdul amb un RA suspès o pendent).
 - **Nota de pràctiques en empresa:** s'informa manualment a la columna **Empresa**.
-- **Nota final:** combina la nota del centre i la d'empresa segons els percentatges de la planificació. Per aprovar el mòdul cal **aprovar totes dues parts**; si una part està suspesa, la nota final queda limitada a 4.
+- **Nota final:** combina la nota del centre i la d'empresa segons els percentatges de la [programació](planning.md). Per aprovar el mòdul cal **aprovar totes dues parts**; si una part està suspesa, la nota final queda limitada a 4.
 - **Sobreescriure la nota del centre:** si marques la casella **Sobr.**, pots fixar manualment la nota del centre en lloc de deixar que es calculi a partir dels RA.
 
 ---

@@ -251,7 +251,17 @@ class ems_company(models.Model):
     # history - and must therefore never be pushed back to their file-seeded value once created.
     # Extend this tuple as more 'data/custom/' models are confirmed living (not master) data -
     # see docs/en/developers/shared/data_loading.md's "'data/custom/' living data" section.
-    _EMS_LIVING_CUSTOM_DATA_MODELS = ('ems.group',)
+    #
+    # ems.planning/ems.planning_outcome confirmed 2026-09-23 (issue #503 follow-up): these CSV
+    # rows are the centre's starting grading-ponderation template, not a config EMS itself keeps
+    # re-pushing - a centre rebalancing its own weights (e.g. after a new learning outcome is
+    # added to the shared curriculum catalog) is exactly the "admin edits through the app" case
+    # this mechanism exists for. Found the hard way: a real edit adding a 6th outcome's weight to
+    # 5 plannings survived exactly until the next upgrade resynced the other 5 rows back to the
+    # file's original values, leaving the total at 106% with no error ever raised again (the
+    # constraint only fires on create/write, never on a plain CSV resync under install_mode) -
+    # see plans/ems_planning_outcome_ponderation_over_100.md.
+    _EMS_LIVING_CUSTOM_DATA_MODELS = ('ems.group', 'ems.planning', 'ems.planning_outcome')
 
     def _ems_freeze_living_custom_data(self):
         """Freezes (ir.model.data.noupdate=True) every '__import__'-owned record of a model

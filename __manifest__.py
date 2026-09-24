@@ -185,6 +185,7 @@
 
             'views/planning_grading/menu.xml',
             'views/planning_grading/planning/list.xml',
+            'views/planning_grading/planning/search.xml',
             'views/planning_grading/planning/form.xml',
             'views/planning_grading/planning/menu.xml',
             'views/planning_grading/grading/list.xml',
@@ -451,7 +452,6 @@
         'data/custom/resource.calendar.attendance.csv',
         'data/custom/res.company.csv',
         'data/custom/res.partner.csv',
-        'data/custom/ems.course.csv',
         'data/custom/crm.team.csv',
         'data/custom/ems.authorization.template.csv',
         'data/custom/ir.sequence-enrollment_number.csv',

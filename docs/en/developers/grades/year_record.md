@@ -77,7 +77,7 @@ Three operations, all of them stamped and logged:
 | Operation | Effect |
 |-----------|--------|
 | `correct` | Rewrites `final_score` / `final_is_scored` of the subject's outcomes, then recomputes the subject |
-| `add` | Creates a subject record the history is missing, with its outcomes seeded from the `ems.planning` of the record's study |
+| `add` | Creates a subject record the history is missing, with its outcomes seeded from the `ems.planning` of the record's study **and course** (issue #503 — `ems.planning` is course-scoped, so a correction on an old course must use the ponderations that were actually in force then, not today's) |
 | `remove` | Unlinks a subject record |
 
 ### Recomputation reuses the grading formulas, never a copy of them
@@ -99,6 +99,80 @@ flowchart TD
 ### The course result is proposed, never silently rewritten
 
 `ems.student.year_record.grade_based_result()` returns `full` when every subject is passed and `partial` otherwise. `withdrawn` and `repeating` are returned untouched: they come from the exit and from the destination enrollment (see `_academic_result` above), not from the grades, so a grade review on a subject cannot resolve them. The wizard shows the proposal next to the current result with a pre-checked "Update the course result" box; `title_obtained` is never derived — it stays a manual decision.
+
+### Forcing "Nota del centre" (internal grade) manually — Esfera parity (issue #503)
+
+Esfera (the official external system) can carry a slightly different number for the same
+subject than what EMS's own outcome-based calculation yields (a rounding difference, typically).
+Rather than requiring the reviewer to reverse-engineer fake outcome scores that happen to
+average out to Esfera's number, the "Result of the review" section shows the internal grade as
+**two separate fields, side by side with "Nota final"** — the same "calculated vs. applied"
+shape `line_ids` already uses for each learning outcome (`previous_score`/`score`):
+`preview_internal_grade_calculated` ("Nota del centre (calculada)") is always read-only and
+always shows what the outcome grid above yields; `preview_internal_grade` ("Nota del centre
+(aplicada)") starts equal to it but is always editable — typing a different value there is what
+forces it. There is no checkbox: "is this overridden" is simply "does the applied value
+currently differ from the calculated one", checked fresh wherever it matters instead of tracked
+by a separate flag.
+
+```mermaid
+flowchart TD
+    A["reviewer types a different value\ninto preview_internal_grade"] --> C["_check_override_internal_grade (@api.constrains)"]
+    C -- "value on the WRONG side of 5\nvs. the RA-derived preview_state" --> X["ValidationError - blocked"]
+    C -- "same side" --> D["action_apply(): _recompute_from_outcomes()\nruns as normal, THEN\n_apply_internal_grade_override()\noverwrites internal_grade/final_grade\nwith the applied value, is_overridden=True"]
+```
+
+**Only the internal grade ("Nota del centre") can be forced — "Nota final" and "Estat" are NOT
+independently settable.** `preview_final_grade`/`preview_has_final` are always *derived* from
+whatever `preview_internal_grade` currently is (forced or computed) via `ems.grade_subject_line.
+_final_from_parts()` — the same formula used everywhere else, never a second implementation.
+`preview_state` (and the frozen record's own `state`) is deliberately **never** touched by the
+override — it stays exactly what the outcome grid says.
+
+**The safeguard is the whole point:** a forced value can correct which exact number the subject
+shows, but can never flip whether it's actually passed. If any outcome is below 5 (so `state`
+computes `'failed'`), the forced value must also stay below 5; if every outcome is at 5+
+(`'passed'`), the forced value must stay at 5+. `_check_override_internal_grade` enforces this
+with two distinct, direction-specific messages, firing only when `preview_internal_grade !=
+preview_internal_grade_calculated` — nothing to check when the applied value simply matches the
+calculated one.
+
+**Implementation subtlety #1 — a compute field cannot depend on itself.** `preview_internal_grade`
+and `preview_final_grade` used to be computed by the same method; a direct write to
+`preview_internal_grade` (the override) never re-triggered that method (no self-dependency), so
+`preview_final_grade` silently kept the stale, un-overridden value. Fixed by splitting into
+`_compute_preview_internal_grade` (skips itself when overridden) and `_compute_preview` (now
+also `@api.depends('preview_internal_grade', ...)`, so it reliably reruns on either path) — the
+same split `ems.grade_subject_line` already uses for `internal_score`/`computed_score`.
+
+**Implementation subtlety #2 — why "is this overridden" cannot be a plain `@api.onchange`.** An
+earlier iteration of this feature had a `override_internal_grade` boolean checkbox, set by an
+`@api.onchange('preview_internal_grade')` the moment the user typed into the field. That broke
+every OTHER test that merely resolved an outcome score or picked a subject: Odoo's `onchange()`
+dispatch re-fires an onchange registered on a field whenever that field's *value* changes during
+the same onchange evaluation, **regardless of whether a user edit or a compute recalculation
+caused the change** — so `_compute_preview_internal_grade` recomputing `preview_internal_grade`
+to follow a newly-picked subject's calculated value ALSO (wrongly) fired the "user typed this"
+onchange, permanently marking the review as overridden. The actual, working mechanism has no
+onchange at all: `preview_internal_grade_synced` (a plain, non-computed, view-invisible field)
+remembers the calculated value `_compute_preview_internal_grade` last pushed into
+`preview_internal_grade` on its own. On every recompute pass it compares the field's *current*
+value against that memory — equal means nothing has touched it since (keep following the
+calculated value); different means the user typed something else since that last push (leave it
+alone). `_fill_lines()` resets both `preview_internal_grade` and `preview_internal_grade_synced`
+to 0 whenever the subject/operation changes, so a freshly picked subject starts synced again
+instead of carrying over a stale override from a previous one.
+
+**Reuses `is_overridden`** (already on `ems.student.year_record.subject`, previously only ever
+copied from the live `ems.grade_subject_line.is_overridden` at freeze time, and cleared by
+`_recompute_from_outcomes()`) — same "this grade isn't purely outcome-derived" meaning, no new
+field needed. `_apply_internal_grade_override()` runs *after* `_recompute_from_outcomes()` in
+both `_apply_correct()` and `_apply_add()`, overwriting `internal_grade`/`is_overridden`/
+`final_grade`/`has_final` when the applied value differs from the calculated one - it is a no-op
+otherwise. The wizard's own "no changes" guard (`_apply_correct()`, "the review does not change
+any learning outcome grade") is relaxed to allow a save where the ONLY change is the forced
+grade, with zero outcome edits - the exact scenario this feature exists for (every outcome score
+is already right, only the weighted average disagrees with Esfera).
 
 ### Traceability
 

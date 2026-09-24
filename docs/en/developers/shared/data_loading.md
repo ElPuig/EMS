@@ -205,8 +205,8 @@ Neither format alone gets both properties at once here.
 **The fix — freeze `ir_model_data.noupdate` directly, every server start, not via a migration:**
 `res.company._register_hook()` (`models/settings/company.py`) calls
 `_ems_freeze_living_custom_data()`, which sets `noupdate=True` on every `__import__`-owned
-`ir.model.data` row for a model listed in `_EMS_LIVING_CUSTOM_DATA_MODELS` (currently just
-`ems.group`) that isn't frozen yet. `_register_hook()` runs once per server start, always after
+`ir.model.data` row for a model listed in `_EMS_LIVING_CUSTOM_DATA_MODELS` (`ems.group`,
+`ems.planning`, `ems.planning_outcome`) that isn't frozen yet. `_register_hook()` runs once per server start, always after
 that run's own module data has already (re)loaded — both on a clean install and on every
 upgrade — so this needs no per-version migration bookkeeping: a brand-new group added to the CSV
 in some future PR is still *created* normally the next time it upgrades (`noupdate` only blocks
@@ -222,6 +222,13 @@ just the ones an admin happened to change. For `ems.group` this is fine: `course
 genuinely are fixed identity for a given group record (the course-transition wizard reuses the
 same group across years rather than incrementing its `course`), so nothing legitimately needs
 `ems.group.csv` to keep resyncing an already-created row's fields at all.
+
+**Confirmed 2026-09-23: `ems.planning`/`ems.planning_outcome`** (issue #503 follow-up). Found via
+a real incident: 5 plannings' outcome ponderations were edited through the app to account for a
+6th learning outcome added to the shared curriculum catalog, but the next `./upgrade.sh` resynced
+the other 5 (CSV-declared) outcome lines back to their original file values, leaving the total at
+106% — silently, since the constraint only fires on a real create/write, never on a CSV resync
+under `install_mode`. Both models added to `_EMS_LIVING_CUSTOM_DATA_MODELS`.
 
 **Not yet audited:** whether other `data/custom/` models have the same "living, not master"
 shape is an open question, tracked as a separate follow-up rather than assumed — see

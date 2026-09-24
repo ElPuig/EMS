@@ -14895,3 +14895,8 @@ msgstr "La decisión del jefe de área que aprueba las ausencias de este trabaja
 #: model:ir.model.fields,help:ems.field_hr_leave__ems_status
 msgid "Where the request stands between its two approvals, the Head's and Direction's, which can happen in either order. The absence takes effect (calendar, hour balance, guard duty board) as soon as the Head approves it."
 msgstr "En qué punto está la solicitud entre sus dos aprobaciones, la de la jefatura y la de Dirección, que pueden llegar en cualquier orden. La ausencia tiene efecto (calendario, saldo de horas, cuadrante de guardias) en cuanto la aprueba la jefatura."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_planning_search
+msgid "Show only current course"
+msgstr "Mostrar solamente el curso actual"

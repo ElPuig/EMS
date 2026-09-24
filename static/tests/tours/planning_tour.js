@@ -91,3 +91,40 @@ registry.category("web_tour.tours").add("ems_planning_only_mine_filter", {
         },
     ],
 });
+
+// Same escape-hatch pattern as "Show only mine" above, for the academic year: the list defaults
+// to "Show only current course", removable to reach any past/future year's planning (a grade
+// correction on an old course uses that year's own ponderations). The fixture subject has one
+// planning in the current course and one in a past one (see test_planning_tour.py).
+registry.category("web_tour.tours").add("ems_planning_only_current_course_filter", {
+    test: true,
+    url: "/odoo/action-ems.action_planning_tree",
+    steps: () => [
+        {
+            trigger: ".o_searchview_facet:contains('Show only current course')",
+            content: "The 'Show only current course' filter is active by default",
+        },
+        {
+            trigger: ".o_searchview_input",
+            content: "Narrow the list down to the fixture subject",
+            run: "edit Current Course Filter Subject && press Enter",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Current Course Filter Subject')",
+            content: "The current course's planning is visible while the filter is active",
+        },
+        {
+            trigger: ".o_list_view:not(:has(.o_data_row:contains('2001-2002')))",
+            content: "The past course's planning is hidden while the filter is active",
+        },
+        {
+            trigger: ".o_searchview_facet:contains('Show only current course') .o_facet_remove",
+            content: "Clear the default 'Show only current course' facet",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('2001-2002')",
+            content: "REGRESSION CHECK: the past course's planning is reachable once the filter is removed",
+        },
+    ],
+});

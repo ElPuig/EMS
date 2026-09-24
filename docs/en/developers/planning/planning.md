@@ -84,6 +84,13 @@ with OR, so a HOS user (who also holds `group_teacher` by implication) effective
 `search_default_only_mine: 1`, so a HOS/DHOS's newly-widened access still defaults down to their
 own taught subjects, with the usual searchbar facet to remove it and see everything.
 
+## "Show only current course" search filter
+
+A second default filter (`search_default_only_current_course: 1`,
+domain `[('course_id.is_current', '=', True)]`), in its own `<separator/>` group so it combines
+with "Show only mine" by AND. Removing its facet reaches any other academic year's plannings (e.g.
+to check the ponderations a past course's grade correction uses).
+
 ---
 
 ## Rollover at course transition

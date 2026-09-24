@@ -14894,3 +14894,8 @@ msgstr "La decisió del cap d'àrea que aprova les absències d'aquest treballad
 #: model:ir.model.fields,help:ems.field_hr_leave__ems_status
 msgid "Where the request stands between its two approvals, the Head's and Direction's, which can happen in either order. The absence takes effect (calendar, hour balance, guard duty board) as soon as the Head approves it."
 msgstr "En quin punt és la sol·licitud entre les seves dues aprovacions, la del cap i la de Direcció, que poden arribar en qualsevol ordre. L'absència té efecte (calendari, saldo d'hores, quadrant de guàrdies) tan bon punt l'aprova el cap."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_planning_search
+msgid "Show only current course"
+msgstr "Mostrar tan sols el curs actual"

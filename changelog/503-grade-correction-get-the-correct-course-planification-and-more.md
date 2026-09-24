@@ -4,7 +4,8 @@
 Since Head of Studies/Deputy now see every planning centre-wide, the Plannings list defaults to
 "Show only mine" (the subjects the logged-in user personally teaches), with the usual
 searchbar facet to remove it and see everything - same pattern already used elsewhere (e.g.
-Communications).
+Communications). A second default filter, "Show only current course", limits it to the current
+academic year; removing its facet reaches every other year's plannings.
 
 ## Grading ponderations now belong to an academic year:
 Grading ponderations (internal/external split and per-outcome weighting) used to be a single,

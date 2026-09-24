@@ -40,10 +40,13 @@ lectura) como primer campo de su formulario.
 ## Qué puedes ver
 
 La lista se muestra por defecto con el filtro **Mostrar solamente los míos**, con las
-programaciones de los módulos que impartes tú — de cualquier curso, no solo el actual. Si le
-quitas la faceta de la barra de búsqueda no verás nada nuevo: esta pantalla solo muestra los
-módulos que impartes, independientemente del filtro, porque es a eso a lo que está limitado tu
-propio acceso.
+programaciones de los módulos que impartes tú. Si le quitas la faceta de la barra de búsqueda
+no verás nada nuevo: esta pantalla solo muestra los módulos que impartes, independientemente del
+filtro, porque es a eso a lo que está limitado tu propio acceso.
+
+También se muestra por defecto con el filtro **Mostrar solamente el curso actual**. Quítale la
+faceta para ver las programaciones de todos los cursos (por ejemplo, para consultar con qué pesos
+se calcularon las notas de un curso anterior).
 
 Al abrir una programación ves el reparto entre nota del centro y estancia, y, en la pestaña
 **Ponderación de los RA**, el peso propio de cada resultado de aprendizaje dentro de la parte

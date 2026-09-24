@@ -39,9 +39,13 @@ lectura) com a primer camp del seu formulari.
 ## Què pots veure
 
 La llista es mostra per defecte amb el filtre **Mostrar tan sols els meus**, amb les
-programacions dels mòduls que imparteixes tu — de qualsevol curs, no només l'actual. Si en treus
-la faceta de la barra de cerca no veuràs res de nou: aquesta pantalla només mostra els mòduls que
-imparteixes, independentment del filtre, perquè és a això que està limitat el teu propi accés.
+programacions dels mòduls que imparteixes tu. Si en treus la faceta de la barra de cerca no
+veuràs res de nou: aquesta pantalla només mostra els mòduls que imparteixes, independentment del
+filtre, perquè és a això que està limitat el teu propi accés.
+
+També es mostra per defecte amb el filtre **Mostrar tan sols el curs actual**. Treu-ne la faceta
+per veure les programacions de tots els cursos (per exemple, per consultar amb quins pesos es
+van calcular les notes d'un curs anterior).
 
 En obrir una programació hi veus el repartiment entre nota del centre i estada, i, a la pestanya
 **Ponderació dels RA**, el pes propi de cada resultat d'aprenentatge dins de la part interna. El

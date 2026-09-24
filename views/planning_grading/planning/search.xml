@@ -10,6 +10,8 @@
                     <field name="study_id"/>
                     <field name="subject_id"/>
                     <filter string="Show only mine" name="only_mine" domain="[('is_own_subject', '=', True)]"/>
+                    <separator/>
+                    <filter string="Show only current course" name="only_current_course" domain="[('course_id.is_current', '=', True)]"/>
                 </search>
             </field>
         </record>

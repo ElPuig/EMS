@@ -38,9 +38,13 @@ shown (read-only) as the first field of its form.
 ## What you can see
 
 The list defaults to **Show only mine**, showing the plannings of the subjects you personally
-teach — across every academic year, not only the current one. Remove the filter's facet from the
-search bar and you'll see... nothing new: this screen only ever shows the subjects you teach,
-regardless of the filter, since that's what your own access is scoped to.
+teach. Remove the filter's facet from the search bar and you'll see... nothing new: this screen
+only ever shows the subjects you teach, regardless of the filter, since that's what your own
+access is scoped to.
+
+It also defaults to **Show only current course**. Remove that facet to see the plannings of
+every academic year (for example, to check the weights a past course's grades were calculated
+with).
 
 Opening a planning shows its internal/external split and, in the **Outcome ponderation** tab,
 each learning outcome's own share of the internal part. The history panel at the side of the form

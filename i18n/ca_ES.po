@@ -14988,7 +14988,7 @@ msgstr "%s ja sol·licitades"
 #. odoo-python
 #: code:addons/ems/models/contacts/contact_data_request.py:0
 msgid "%s is missing."
-msgstr "Falta: %s."
+msgstr "Falta: %s"
 
 #. module: ems
 #. odoo-python

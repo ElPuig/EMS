@@ -6,7 +6,7 @@ hand when a documented screen changes its look:
 
     sudo -u odoo bash -c "odoo -d ems -u ems --test-enable --test-tags='*/ems:TestDocsScreenshotsSecretary' --stop-after-init -c /etc/odoo/odoo.conf"
 
-One test method per manual (see plans/user_manual_screenshots.md). Writes PNGs to
+One test method per manual (see docs/en/developers/shared/testing.md, "DocsScreenshotMixin"). Writes PNGs to
 /tmp/ems_doc_screenshots (override with EMS_SCREENSHOT_DIR); copy them into
 docs/assets/secretary/ by hand afterwards. The absences and attendance-reports manuals, and the
 family-contacts part of student-contacts, reuse existing captures of the same screens (Head of

@@ -6,7 +6,7 @@ hand when a documented screen changes its look:
 
     sudo -u odoo bash -c "odoo -d ems -u ems --test-enable --test-tags='*/ems:TestDocsScreenshotsTeachers' --stop-after-init -c /etc/odoo/odoo.conf"
 
-Batched one manual/test method at a time (see plans/user_manual_screenshots.md).
+Batched one manual/test method at a time (see docs/en/developers/shared/testing.md, "DocsScreenshotMixin").
 """
 from datetime import datetime
 from unittest.mock import patch

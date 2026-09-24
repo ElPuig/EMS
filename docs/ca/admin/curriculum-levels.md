@@ -20,6 +20,8 @@ Navega a: **Comunitat Educativa → Configuració → Currículum → Nivells**
 
 En obrir el menú es mostra una llista de tots els nivells ordenada alfabèticament per acrònim. Cada fila mostra l'acrònim i el nom complet.
 
+![Llista de nivells amb el seu acrònim i nom](../../assets/admin/admin-levels-list.png)
+
 ---
 
 ## Crear un nivell

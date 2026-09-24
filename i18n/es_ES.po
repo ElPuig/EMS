@@ -2475,7 +2475,7 @@ msgstr "Aula de referencia:"
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/communications/limesurvey.py:0 model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_status_exception_popup model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_error_popup model_terms:ir.ui.view,arch_db:ems.view_notice_line_exception_popup model_terms:ir.ui.view,arch_db:ems.view_student_import_wizard_form model_terms:ir.ui.view,arch_db:ems.view_student_update_wizard_form
+#: code:addons/ems/models/communications/limesurvey.py:0 model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_status_exception_popup model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_error_popup model_terms:ir.ui.view,arch_db:ems.view_notice_line_exception_popup model_terms:ir.ui.view,arch_db:ems.view_student_import_wizard_form model_terms:ir.ui.view,arch_db:ems.view_student_update_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_import_wizard_form
 msgid "Close"
 msgstr "Cerrar"
 
@@ -3513,7 +3513,7 @@ msgstr "Introduce el texto legal completo aquí..."
 #. module: ems
 #: model:ems.role,name:ems.role_erasmus
 msgid "Erasmus coordinator"
-msgstr "Coordinador/a de FP"
+msgstr "Coordinador/a de Erasmus"
 
 #. module: ems
 #. odoo-python
@@ -3527,7 +3527,7 @@ msgid "Esfera (SAGA) group code, e.g. 'ESO LOEM101'."
 msgstr "Código de grupo Esfera (SAGA), p.ej. 'ESO LOEM101'."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__file
+#: model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__file model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__file
 msgid "Esfera xlsx file"
 msgstr "Fichero xlsx de Esfera"
 
@@ -6456,7 +6456,7 @@ msgstr "Secretaría"
 #. module: ems
 #: model:ems.role,name:ems.role_schieff
 msgid "Secretary chieff"
-msgstr "Jefe de conserjes"
+msgstr "Jefe de secretaría"
 
 #. module: ems
 #: model:res.groups,comment:ems.group_secretary
@@ -14853,3 +14853,13 @@ msgstr "Tramitación de documento: %(document)s - %(student)s"
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Saving will move every subject this student is enrolled in through the current group to the new group. Subjects already enrolled through a different group will stay unchanged."
 msgstr "Al guardar, todas las asignaturas en las que el alumno/a está matriculado/a a través del grupo actual pasarán al grupo nuevo. Las asignaturas matriculadas a través de otro grupo no cambiarán."
+
+#. module: ems
+#: model:ems.role,name:ems.role_secretary_admin
+msgid "Secretary Administrator"
+msgstr "Administrador/a de secretaría"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "The course new enrollments are created for. During the year it points at the next one; after the course transition it stays on the year that has just started, because enrollments keep being processed in September. Move it on only when you open the following year's campaign."
+msgstr "El curso para el que se crean las matrículas nuevas. Durante el curso apunta al siguiente; después de la transición de curso se mantiene en el año que acaba de empezar, porque en septiembre todavía se tramitan matrículas. Avánzalo solo cuando abras la campaña del año siguiente."

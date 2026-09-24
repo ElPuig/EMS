@@ -20,6 +20,8 @@ Navega a: **Comunidad Educativa → Configuración → Currículum → Niveles**
 
 Al abrir el menú se muestra una lista de todos los niveles ordenada alfabéticamente por acrónimo. Cada fila muestra el acrónimo y el nombre completo.
 
+![Lista de niveles con su acrónimo y nombre](../../assets/admin/admin-levels-list.png)
+
 ---
 
 ## Crear un nivel

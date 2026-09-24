@@ -31,6 +31,8 @@ The import accepts both layouts Esfera produces (the flat `Notes Flat` sheet and
 3. Decide whether to tick **Create missing enrollments** (see below).
 4. Click **Import grades**.
 
+![Import grades window: evaluation, Esfera xlsx file and Create missing enrollments](../../assets/admin/admin-grade-import.png)
+
 When it finishes you get a summary of what was applied and a **CSV log** you can download, listing every grade one by one, along with any that could not be applied and why. Keep that log: it is the record of what the import changed.
 
 ---

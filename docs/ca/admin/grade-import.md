@@ -31,6 +31,8 @@ La importació accepta els dos formats que genera Esfera (el full pla `Notes Fla
 3. Decideix si marques **Crear les matrícules que faltin** (vegeu més avall).
 4. Fes clic a **Importar notes**.
 
+![Finestra Importar notes: avaluació, fitxer xlsx d'Esfera i Crear les matrícules que faltin](../../assets/admin/admin-grade-import.png)
+
 En acabar obtindràs un resum del que s'ha aplicat i un **registre CSV** que pots descarregar, amb totes les notes una a una i les que no s'han pogut aplicar amb el motiu. Guarda aquest registre: és la constància del que ha canviat la importació.
 
 ---

@@ -150,7 +150,7 @@ and applicant, not only their tutees'.
 | `special_needs`'s ORM `groups` | Gains `ems.group_orientation` next to tutor, secretary and admin. Without it the field is stripped from every view and any read raises `AccessError`. |
 | `rule_contact_orientation_special_needs` (`security/rules/contacts.xml`) | `perm_write` on contacts whose `contact_type` is `student` or `applicant`. An `ir.rule` cannot name fields, so on its own this would open the whole file. |
 | `res.partner._ems_check_orientation_write()` | The field-level half of that rule, same pattern as `hr.leave._ems_check_own_approved_write()`: a write touching anything other than `special_needs` raises `AccessError` on every student/applicant the user reaches **only** through the rule above - neither admin, secretary, Head of Studies nor tutor of the record. A guidance member who is also someone's tutor keeps full edit of their own tutees. |
-| `special_needs_readonly` (non-stored, form only) | `read_only_user` minus guidance: the Student data tab shows the editable dropdown instead of the read-only badge, and the Applicant data tab's field is editable. |
+| `special_needs_readonly` (non-stored, form only) | `read_only_user` minus guidance: the student data block (top of the form) shows the editable dropdown instead of the read-only badge, and the Applicant data tab's field is editable. |
 
 
 ### Models covered
@@ -178,7 +178,7 @@ distinction matters: in EMS an enrolment *is* a `sale.order`, and the student fo
 tab** resolves its authorizations through `res.partner._ems_enrollment_in_force()`, which walks
 `sale_order_ids`. Denying it does not merely hide a number - the walk yields nothing *silently*,
 so the tab renders empty and, worse, the `auth_image`/`auth_trip`/`auth_healt`/`auth_share`
-badges on the Student data tab all read **"No"** on a student whose family did sign. Read access
+badges on the Secretary tab all read **"No"** on a student whose family did sign. Read access
 here is what a tutor already has (`rule_sale_order_teacher`, ACL via `group_teacher`); these two
 posts get the same mechanism with an open domain instead of one narrowed to own tutees.
 

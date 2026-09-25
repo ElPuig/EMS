@@ -434,10 +434,35 @@ The **field-level** editing surface for tutors is narrower than the record rule 
 |------|------|-------|
 | List | `views/community/contact/list.xml` | `js_class="student_list"`; columns conditional on `default_contact_type` context |
 | Kanban | `views/community/contact/kanban.xml` | Default view for the Students menu |
-| Form | `views/community/contact/form.xml` | Inherits `base.view_partner_form`; `js_class="studentpopup_expand_button"`; conditional pages per `contact_type` (`student`, `applicant`, `former_student`, `academic_history`, base `contact_addresses`) |
+| Form | `views/community/contact/form.xml` | Inherits `base.view_partner_form`; `js_class="studentpopup_expand_button"`; conditional pages per `contact_type` - see "Student form pages" below |
 | Search | `views/community/contact/search.xml` | `view_student_search` carries the `students_only` default facet and the `my_students` one (issue #421, see above) |
 | Relation wizard | `views/community/contact/relation_wizard.xml` | `action_contact_relation_wizard` |
 | Menu | `views/community/contact/menu.xml` + `views/community/menu.xml` | `action_student_kanban` (top-level "Educational Community" entry), `action_family_list`, `action_provider_kanban` |
+
+### Student form pages
+
+A student's form has its own header instead of the native contact block (hidden for students), laid out to fit above the tabs:
+
+| Band | Contents | Notes |
+|------|----------|-------|
+| `student_emails` | Personal email (`email`) · Corporate email (`student_email`) | Full width: the addresses are long. Personal email hidden for `read_only_user`; corporate email editable except for the tutor |
+| `student_header` (3 columns) | **Contact** (address, phone, mobile, language) · **Identification** (DNI/NIE, passport, Student ID, medical ID, NUSS, car plate) · **Personal data** (birth date, adult Yes/No badge, birth country, citizenship, benefits badge, special educational needs) | Contact is hidden for `read_only_user`, like the native block; `class="justify-content-start"` because Odoo's `.o_group` spreads its columns (`space-between`), which would otherwise leave a gap in the middle for them |
+| `student_authorizations` (4 columns) | Yes/No summary of image rights, school trips, health data, sharing with family | Scoped to the academic year in force; the list itself is in the Secretary tab |
+
+The contact fields therefore appear twice in the combined arch (native block + header), which Odoo 18 supports. Each field keeps its own visibility: a teacher who is not the tutor (`read_only_user`) only sees the corporate email, Student ID, birth date, adult, benefits and the authorizations.
+
+Below it, six pages grouped by task so related data never needs a tab switch. A student's file opens on **Schedule**; `schedule` and `studies` are inserted before the native `contact_addresses` page, and since they are invisible for every other contact type, those keep their usual tab order:
+
+| Page (`name`) | Contents | Visible to |
+|---------------|----------|------------|
+| Schedule (`schedule`) | Read-only weekly timetable | Every teacher |
+| Studies (`studies`) | Group data and subject enrollments (active students only) + **Academic history** (`year_record_ids`) | Every teacher; also shown to alumni/withdrawals/expelled, with only the history section |
+| Contacts & Addresses (`contact_addresses`, native) | Family relations | Every teacher |
+| Secretary (`secretary`) | Authorizations list · Bonifications & Exemptions · **Documentation** (`document_ids`) · **Bank Accounts** (`bank_ids`) | Every teacher for the first two sections; each of the other two keeps the `groups=` its old tab had (documentation: admin, secretary, tutor, TAC; bank accounts: admin, secretary, accounting) |
+| Public notes (teachers) (`public_notes`) | `comment` | Every teacher |
+| Private notes (tutoring) (`private_notes`) | `private_notes` | Tutoring team only (see above) |
+
+Student data, Documentation, Academic history and the native Invoicing tab used to be separate pages. The native `accounting` page is still there for every other contact type; for a student it is hidden (`view_partner_billing_tab_cleanup`) because `bank_ids` is shown again inside Secretary - the same field twice in the combined arch, which Odoo 18 supports. The former-student page (`former_student`) now follows `secretary`.
 
 Other student-related popups — [portal access](portal_access_wizard.md), [documents](student_document.md), [graduation/withdrawal](exit_wizards.md) — live in the same `views/community/contact/` folder but are documented separately. The import wizards (`student_import`, `student_update`, `applicant_import`) are not yet DTON'd (see the roadmap). The Form's own `schedule` page (a student's read-only weekly timetable) is likewise documented separately — see [Student schedule](student_schedule.md).
 

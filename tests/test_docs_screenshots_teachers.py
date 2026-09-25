@@ -545,7 +545,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             '/odoo/action-%d/%d' % (student_action.id, student.id),
             '.o_notebook', 'historial-01-academic.png',
             login='doc_shot_teacher', wait_for='.o_notebook',
-            click=".o_notebook .nav-link[name='academic_history']",
+            click=".o_notebook .nav-link[name='studies']",
             wait_after=".o_field_widget[name='year_record_ids'] .o_data_row + .o_data_row",
         )
 

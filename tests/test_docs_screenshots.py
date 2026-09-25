@@ -308,8 +308,8 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             '/odoo/action-%d/%d' % (self.student_list_action.id, self.students[0].id),
             '.o_notebook', 'credencials-google-01-documentacio.png',
             login='doc_shot_tutor',
-            wait_for=".o_notebook .nav-link[name='documentation']",
-            click=".o_notebook .nav-link[name='documentation']",
+            wait_for=".o_notebook .nav-link[name='secretary']",
+            click=".o_notebook .nav-link[name='secretary']",
             wait_after=".o_field_widget[name='document_ids'] .o_data_row a",
         )
         # The Actions dropdown is an overlay outside the list's own container, hence the body.

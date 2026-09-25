@@ -55,7 +55,7 @@ class TestContactTour(HttpCase):
         self.start_tour("/odoo", "ems_contact_head_of_studies_full_access", login=hos_user.login, step_delay=300)
 
     def test_new_student_requires_student_id_tour(self):
-        # Issue #460: the Student data tab marks the Student ID (IDALU) required while the
+        # Issue #460: the student data block marks the Student ID (IDALU) required while the
         # student is new, and the student saves once it is filled in. Logged in as secretary,
         # the least-privileged role that registers students.
         secretary = create_role_user(self, 'secretary', 'test_secretary_student_id_tour', name='Secretary IDALU Tour')

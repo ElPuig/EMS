@@ -903,7 +903,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid ""
 "<span class=\"badge text-bg-success\" invisible=\"auth_healt == False\">Yes</span>\n"
-"                                    <span class=\"badge text-bg-secondary\" invisible=\"auth_healt == True\">No</span>"
+"                                <span class=\"badge text-bg-secondary\" invisible=\"auth_healt == True\">No</span>"
 msgstr ""
 "<span class=\"badge text-bg-success\" invisible=\"auth_healt == False\">Sí</span>\n"
 "                                     <span class=\"badge text-bg-secondary\" invisible=\"auth_healt == True\">No</span>"
@@ -912,7 +912,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid ""
 "<span class=\"badge text-bg-success\" invisible=\"auth_image == False\">Yes</span>\n"
-"                                    <span class=\"badge text-bg-secondary\" invisible=\"auth_image == True\">No</span>"
+"                                <span class=\"badge text-bg-secondary\" invisible=\"auth_image == True\">No</span>"
 msgstr ""
 "<span class=\"badge text-bg-success\" invisible=\"auth_image == False\">Sí</span>\n"
 "                                     <span class=\"badge text-bg-secondary\" invisible=\"auth_image == True\">No</span>"
@@ -921,7 +921,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid ""
 "<span class=\"badge text-bg-success\" invisible=\"auth_share == False\">Yes</span>\n"
-"                                    <span class=\"badge text-bg-secondary\" invisible=\"auth_share == True\">No</span>"
+"                                <span class=\"badge text-bg-secondary\" invisible=\"auth_share == True\">No</span>"
 msgstr ""
 "<span class=\"badge text-bg-success\" invisible=\"auth_share == False\">Sí</span>\n"
 "                                     <span class=\"badge text-bg-secondary\" invisible=\"auth_share == True\">No</span>"
@@ -930,7 +930,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid ""
 "<span class=\"badge text-bg-success\" invisible=\"auth_trip == False\">Yes</span>\n"
-"                                    <span class=\"badge text-bg-secondary\" invisible=\"auth_trip == True\">No</span>"
+"                                <span class=\"badge text-bg-secondary\" invisible=\"auth_trip == True\">No</span>"
 msgstr ""
 "<span class=\"badge text-bg-success\" invisible=\"auth_trip == False\">Sí</span>\n"
 "                                     <span class=\"badge text-bg-secondary\" invisible=\"auth_trip == True\">No</span>"
@@ -939,8 +939,8 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid ""
 "<span class=\"badge text-bg-success\" invisible=\"benefit_status != 'exemption'\">Exemption</span>\n"
-"                                    <span class=\"badge text-bg-info\" invisible=\"benefit_status != 'bonification'\">Bonification</span>\n"
-"                                    <span class=\"badge text-bg-secondary\" invisible=\"benefit_status != 'none'\">None</span>"
+"                                <span class=\"badge text-bg-info\" invisible=\"benefit_status != 'bonification'\">Bonification</span>\n"
+"                                <span class=\"badge text-bg-secondary\" invisible=\"benefit_status != 'none'\">None</span>"
 msgstr ""
 "<span class=\"badge text-bg-success\" invisible=\"benefit_status != 'exemption'\">Exempcíó</span>\n"
 "                                     <span class=\"badge text-bg-info\" invisible=\"benefit_status != 'bonification'\">Bonificació</span>\n"
@@ -1489,6 +1489,7 @@ msgstr "Afegir contacte familiar i relació"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Address"
 msgstr "Adreça"
 
@@ -2453,6 +2454,7 @@ msgstr "Ciutadania"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__city model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_city model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "City"
 msgstr "Ciutat"
 
@@ -2645,6 +2647,7 @@ msgstr "Connectat"
 #. odoo-python
 #: code:addons/ems/models/contacts/contact.py:0
 #: model:ir.model,name:ems.model_res_partner model:ir.model.fields,field_description:ems.field_ems_notice_line__partner_id model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Contact"
 msgstr "Contacte"
 
@@ -2713,6 +2716,7 @@ msgstr "No s'han pogut llegir les capçaleres de columnes del fitxer CSV."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__country_id model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Country"
 msgstr "País"
 
@@ -3412,19 +3416,9 @@ msgid "Enrollment"
 msgstr "Matrícula"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
-msgid "Enrollment / Year"
-msgstr "Matrícula / Any"
-
-#. module: ems
 #: model:ir.model,name:ems.model_ems_authorization
 msgid "Enrollment Authorization"
 msgstr "Autorització de matrícula"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
-msgid "Enrollment Authorizations"
-msgstr "Autoritzacions de matrícula"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -4921,11 +4915,6 @@ msgid "Long Text"
 msgstr "Text llarg"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
-msgid "Main Data"
-msgstr "Dades principals"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__main_group_id model:ir.model.fields,field_description:ems.field_res_users__main_group_id
 msgid "Main Group"
 msgstr "Grup principal"
@@ -5237,6 +5226,7 @@ msgstr "No lectiva"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__benefit_status__none
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "None"
 msgstr "Cap"
 
@@ -6916,6 +6906,7 @@ msgstr "Iniciant procés en segon pla; rebràs una notificació en finalitzar (p
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__state
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__preview_state
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "State"
 msgstr "Estat"
 
@@ -7019,7 +7010,7 @@ msgid "Student attendance notification: {{object.attendance_issue_student_id.stu
 msgstr "Notificació d'assistència de l'estudiant: {{object.attendance_issue_student_id.student_id.display_name}}"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
 msgid "Student data"
 msgstr "Dades de l'estudiant"
 
@@ -8674,6 +8665,7 @@ msgstr "La teva sol·licitud ha estat revisada per secretaria."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__zip
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "ZIP"
 msgstr "Codi postal"
 
@@ -9570,7 +9562,7 @@ msgstr "Graduats/des"
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/contacts/contact.py:0 code:addons/ems/models/contacts/graduation_wizard.py:0 model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__withdrawal model:ir.model.fields.selection,name:ems.selection__res_partner__exit_type__withdrawal model:ir.model.fields.selection,name:ems.selection__ems_withdrawal_wizard__exit_kind__withdrawal model:res.partner.category,name:ems.partner_category_withdrawal model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_withdrawal_wizard_form model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__exit_type__withdrawal model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
+#: code:addons/ems/models/contacts/contact.py:0 code:addons/ems/models/contacts/graduation_wizard.py:0 model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__withdrawal model:ir.model.fields.selection,name:ems.selection__res_partner__exit_type__withdrawal model:ir.model.fields.selection,name:ems.selection__ems_withdrawal_wizard__exit_kind__withdrawal model:res.partner.category,name:ems.partner_category_withdrawal model_terms:ir.ui.view,arch_db:ems.view_withdrawal_wizard_form model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__exit_type__withdrawal model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor
 msgid "Withdrawal"
 msgstr "Baixa"
 
@@ -10021,17 +10013,6 @@ msgstr "3r"
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__preinscription_course__4
 msgid "4t"
 msgstr "4t"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
-msgid ""
-"<span class=\"badge text-bg-danger\" invisible=\"special_needs != 'nee_a' or not (read_only_user or is_tutor_readonly)\">NEE-A</span>\n"
-"                                    <span class=\"badge text-bg-warning\" invisible=\"special_needs != 'nee_b' or not (read_only_user or is_tutor_readonly)\">NEE-B</span>\n"
-"                                    <span class=\"badge text-bg-secondary\" invisible=\"special_needs or not (read_only_user or is_tutor_readonly)\">None</span>"
-msgstr ""
-"<span class=\"badge text-bg-danger\" invisible=\"special_needs != 'nee_a' or not (read_only_user or is_tutor_readonly)\">NEE-A</span>\n"
-"                                    <span class=\"badge text-bg-warning\" invisible=\"special_needs != 'nee_b' or not (read_only_user or is_tutor_readonly)\">NEE-B</span>\n"
-"                                    <span class=\"badge text-bg-secondary\" invisible=\"special_needs or not (read_only_user or is_tutor_readonly)\">Cap</span>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_applicant_import_wizard_form
@@ -14723,6 +14704,7 @@ msgstr "Sol·licitud de convalidació: un alumne demana convalidar alguns mòdul
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_list
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Convalidations"
 msgstr "Convalidacions"
 
@@ -16278,3 +16260,49 @@ msgstr "Visibles per a tot el professorat. L'alumnat i les famílies no veuen ma
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Visible only to the student's tutor, the chiefs above them (department, head of studies, director), the guidance and coexistence teams and the academic administrators. Other teachers, students and families never see these notes."
 msgstr "Visibles només per al tutor/a de l'alumne/a, els càrrecs per sobre seu (departament, prefectura d'estudis, direcció), els equips d'orientació i de convivència i els administradors acadèmics. La resta del professorat, l'alumnat i les famílies no veuen mai aquestes notes."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Bank Accounts"
+msgstr "Comptes bancaris"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"<span class=\"badge text-bg-danger\" invisible=\"special_needs != 'nee_a' or not special_needs_readonly\">NEE-A</span>\n"
+"                                <span class=\"badge text-bg-warning\" invisible=\"special_needs != 'nee_b' or not special_needs_readonly\">NEE-B</span>\n"
+"                                <span class=\"badge text-bg-secondary\" invisible=\"special_needs or not special_needs_readonly\">None</span>"
+msgstr ""
+"<span class=\"badge text-bg-danger\" invisible=\"special_needs != 'nee_a' or not special_needs_readonly\">NEE-A</span>\n"
+"                                    <span class=\"badge text-bg-warning\" invisible=\"special_needs != 'nee_b' or not special_needs_readonly\">NEE-B</span>\n"
+"                                    <span class=\"badge text-bg-secondary\" invisible=\"special_needs or not special_needs_readonly\">Cap</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"<span class=\"badge text-bg-success\" invisible=\"not is_adult\">Yes</span>\n"
+"                                <span class=\"badge text-bg-secondary\" invisible=\"is_adult\">No</span>"
+msgstr ""
+"<span class=\"badge text-bg-success\" invisible=\"not is_adult\">Sí</span>\n"
+"                                <span class=\"badge text-bg-secondary\" invisible=\"is_adult\">No</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "<span class=\"o_form_label\">Adult</span>"
+msgstr "<span class=\"o_form_label\">Major d'edat</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Identification"
+msgstr "Identificació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Street..."
+msgstr "Carrer..."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Street 2..."
+msgstr "Carrer 2..."

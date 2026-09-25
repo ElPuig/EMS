@@ -95,8 +95,8 @@ registry.category("web_tour.tours").add("ems_student_document_embed_view", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_notebook .nav-link:contains('Documentation')",
-            content: "Open the Documentation tab",
+            trigger: ".o_form_view .o_notebook .nav-link[name='secretary']",
+            content: "Open the Secretary tab, home of the documentation section",
             run: "click",
         },
         {

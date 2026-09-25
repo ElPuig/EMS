@@ -49,7 +49,7 @@ registry.category("web_tour.tours").add("ems_guidance_student_file", {
             content: "The student form opened for a student this user does not tutor",
         },
         {
-            trigger: ".o_notebook .nav-link:contains('Secretary')",
+            trigger: ".o_notebook .nav-link[name='secretary']",
             content: "Open the Secretary tab",
             run: "click",
         },
@@ -63,8 +63,8 @@ registry.category("web_tour.tours").add("ems_guidance_student_file", {
             content: "The bonifications/exemptions list has rows too",
         },
         {
-            trigger: ".o_notebook .nav-link:contains('Academic history')",
-            content: "Open the Academic history tab",
+            trigger: ".o_notebook .nav-link[name='studies']",
+            content: "Open the Studies tab, home of the academic history section",
             run: "click",
         },
         {
@@ -75,18 +75,13 @@ registry.category("web_tour.tours").add("ems_guidance_student_file", {
 });
 
 // Issue #465: the special educational needs typology is the guidance team's own subject, so on a
-// student it does not tutor the Student data tab offers the editable dropdown, not the read-only
+// student it does not tutor the student data block offers the editable dropdown, not the read-only
 // badge every other teacher gets. Opened by URL, like ems_guidance_student_file.
 registry.category("web_tour.tours").add("ems_guidance_special_needs", {
     test: true,
     steps: () => [
         {
-            trigger: ".o_notebook .nav-link:contains('Student data')",
-            content: "Open the Student data tab",
-            run: "click",
-        },
-        {
-            trigger: ".o_notebook .tab-pane.active .o_field_widget[name='special_needs'] select",
+            trigger: ".o_form_view .o_field_widget[name='special_needs'] select",
             content: "Set NEE-A",
             run: "selectByLabel NEE-A",
         },

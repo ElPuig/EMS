@@ -140,29 +140,6 @@
                     <attribute name="invisible">contact_type != 'provider' or (((is_company and not parent_id) or company_name) and company_name != '')</attribute>
                 </field>
 
-                <!-- For a student, "Email" alone is ambiguous with the institutional address
-                     shown in the "Student data" tab (student_email). Hide the generic email
-                     row and show two clearly-labeled ones instead: an editable "Personal
-                     email" (the same underlying field, just relabeled) and a read-only
-                     "Corporate email" mirroring student_email. Other contact types (family,
-                     applicant, provider...) keep the plain "Email" field untouched. Developer
-                     feedback (2026-09-05). -->
-                <xpath expr="//label[@for='email']" position="attributes">
-                    <attribute name="invisible">contact_type == 'student'</attribute>
-                </xpath>
-
-                <xpath expr="//label[@for='email']/following-sibling::div[1]" position="attributes">
-                    <attribute name="invisible">contact_type == 'student'</attribute>
-                </xpath>
-
-                <xpath expr="//label[@for='email']/following-sibling::div[1]" position="after">
-                    <field name="email" string="Personal email" widget="email"
-                           context="{'gravatar_image': True}" required="user_ids"
-                           invisible="contact_type != 'student'"/>
-                    <field name="student_email" string="Corporate email" widget="email"
-                           readonly="1" invisible="contact_type != 'student'"/>
-                </xpath>
-
                 <field name="function" position="attributes">     
                      <attribute name="invisible">contact_type != 'provider'</attribute>
                 </field>
@@ -187,10 +164,11 @@
                     <attribute name="autofocus">contact_type != 'student</attribute>
                 </xpath>
 
-                <!-- Only admins and tutors are allowed to see personal data -->
-                <xpath expr="//form/sheet/group" position="attributes">                      
-                    <attribute name="invisible">read_only_user</attribute>
-                </xpath>   
+                <!-- Only admins and tutors are allowed to see personal data. A student gets its own
+                     header below instead (student_header), with the same contact fields. -->
+                <xpath expr="//form/sheet/group" position="attributes">
+                    <attribute name="invisible">read_only_user or contact_type == 'student'</attribute>
+                </xpath>
 
                 <xpath expr="//page[@name='contact_addresses']" position="inside">
                     <button name="action_open_relation_wizard" type="object"
@@ -231,85 +209,216 @@
                     </field>
                 </xpath>
         
-                <xpath expr="//page[@name='contact_addresses']" position="before">
-                    <page name="student" string="Student data" invisible="contact_type != 'student'" autofocus="contact_type == 'student">
-                        <group cols="2">
-                            <separator name="data" string="Main Data"/>
-                            <group>
-                                <field name="document_id" invisible="read_only_user" />
-                                <field name="passport_id" invisible="read_only_user" />
-                                <field name="student_id" readonly="read_only_user or is_tutor_readonly"
-                                       required="not id and contact_type == 'student'"/>
-                                <field name="medical_id" invisible="read_only_user" />
-                                <field name="nuss" invisible="read_only_user" />
-                                <field name="student_email" readonly="read_only_user or is_tutor_readonly" widget="email" />
-                                <field name="car_plate" invisible="read_only_user" />
-                            </group>
-                            <group>
-                                <field name="is_adult" readonly="True" />
-                                <field name="birth_date" readonly="read_only_user" />
-                                <field name="birth_country_id" invisible="read_only_user" />
-                                <field name="citizenship_id" invisible="read_only_user" />
-                                <span class="o_form_label">Benefits</span>
-                                <div class="o_row">
-                                    <field name="benefit_status" invisible="1"/>
-                                    <span class="badge text-bg-success" invisible="benefit_status != 'exemption'">Exemption</span>
-                                    <span class="badge text-bg-info" invisible="benefit_status != 'bonification'">Bonification</span>
-                                    <span class="badge text-bg-secondary" invisible="benefit_status != 'none'">None</span>
-                                </div>
-                                <!-- Special educational needs (NEE): benefits-like display.
-                                     Editable dropdown for tutor/secretary/admin (of this
-                                     student) and guidance (any student, issue #465); read-only badge
-                                     otherwise. Restricted to those four, off the portal. -->
-                                <span class="o_form_label" groups="ems.group_tutor,ems.group_secretary,ems.group_academic_admin,ems.group_orientation">Special educational needs</span>
-                                <div class="o_row" groups="ems.group_tutor,ems.group_secretary,ems.group_academic_admin,ems.group_orientation">
-                                    <field name="special_needs_readonly" invisible="1"/>
-                                    <field name="special_needs" nolabel="1" placeholder="None"
-                                           invisible="special_needs_readonly"/>
-                                    <span class="badge text-bg-danger" invisible="special_needs != 'nee_a' or not special_needs_readonly">NEE-A</span>
-                                    <span class="badge text-bg-warning" invisible="special_needs != 'nee_b' or not special_needs_readonly">NEE-B</span>
-                                    <span class="badge text-bg-secondary" invisible="special_needs or not special_needs_readonly">None</span>
-                                </div>
-                            </group>
-
-                            <separator name="data" string="Authorizations"/>
-                            <group>
-                                <span class="o_form_label">Image Rights</span>
-                                <div class="o_row">
-                                    <field name="auth_image" invisible="1"/>
-                                    <span class="badge text-bg-success" invisible="auth_image == False">Yes</span>
-                                    <span class="badge text-bg-secondary" invisible="auth_image == True">No</span>
-                                </div>     
-                                <span class="o_form_label">Scholar Trips</span>
-                                <div class="o_row">
-                                    <field name="auth_trip" invisible="1"/>
-                                    <span class="badge text-bg-success" invisible="auth_trip == False">Yes</span>
-                                    <span class="badge text-bg-secondary" invisible="auth_trip == True">No</span>
-                                </div>
-                            </group>    
-                            <group>
-                                <span class="o_form_label">Health Data</span>
-                                <div class="o_row">
-                                    <field name="auth_healt" invisible="1"/>
-                                    <span class="badge text-bg-success" invisible="auth_healt == False">Yes</span>
-                                    <span class="badge text-bg-secondary" invisible="auth_healt == True">No</span>
-                                </div>
-                                <span class="o_form_label" title="If marked, the student (even if adult) allows to share its educational information with its family.">Share with family</span>
-                                <div class="o_row">
-                                    <field name="auth_share" invisible="1"/>
-                                    <span class="badge text-bg-success" invisible="auth_share == False">Yes</span>
-                                    <span class="badge text-bg-secondary" invisible="auth_share == True">No</span>
-                                </div>
-                            </group>
-
-
-                        </group>                        
-                    </page>
+                <!-- A student's header (issue #511 follow-up): the contact data, the student's own
+                     data and the authorizations' Yes/No summary, in three columns right under the
+                     name, so the whole file fits above the tabs. justify-content-start: Odoo's
+                     .o_group spreads its columns (space-between), which would leave a gap in the
+                     middle for read_only_user, who doesn't see the Contact column. It replaces the native contact
+                     block for students (hidden above), repeating its fields - Odoo 18 allows a field
+                     more than once. Every field keeps the visibility it had: a teacher who is not the
+                     tutor (read_only_user) never sees the contact column nor the personal
+                     identifiers, only the Student ID, corporate email, age, birth date, benefits and
+                     authorizations. -->
+                <xpath expr="//form/sheet/group" position="after">
+                    <group name="student_emails" invisible="contact_type != 'student'">
+                        <field name="email" string="Personal email" widget="email"
+                               context="{'gravatar_image': True}" required="user_ids" invisible="read_only_user"/>
+                        <field name="student_email" string="Corporate email" widget="email"
+                               readonly="read_only_user or is_tutor_readonly"/>
+                    </group>
+                    <group name="student_header" col="3" class="justify-content-start" invisible="contact_type != 'student'">
+                        <group string="Contact" invisible="read_only_user">
+                            <label for="street" string="Address"/>
+                            <div class="o_address_format">
+                                <field name="street" placeholder="Street..." class="o_address_street"/>
+                                <field name="street2" placeholder="Street 2..." class="o_address_street"/>
+                                <field name="city" placeholder="City" class="o_address_city"/>
+                                <field name="state_id" class="o_address_state" placeholder="State"
+                                       options="{'no_open': True, 'no_quick_create': True}"
+                                       context="{'default_country_id': country_id}"/>
+                                <field name="zip" placeholder="ZIP" class="o_address_zip"/>
+                                <field name="country_id" placeholder="Country" class="o_address_country"
+                                       options="{'no_open': True, 'no_create': True}"/>
+                            </div>
+                            <field name="phone" widget="phone"/>
+                            <field name="mobile" widget="phone"/>
+                            <field name="lang" invisible="active_lang_count &lt;= 1"/>
+                        </group>
+                        <group string="Identification">
+                            <field name="document_id" invisible="read_only_user"/>
+                            <field name="passport_id" invisible="read_only_user"/>
+                            <field name="student_id" readonly="read_only_user or is_tutor_readonly"
+                                   required="not id and contact_type == 'student'"/>
+                            <field name="medical_id" invisible="read_only_user"/>
+                            <field name="nuss" invisible="read_only_user"/>
+                            <field name="car_plate" invisible="read_only_user"/>
+                        </group>
+                        <group string="Personal data">
+                            <field name="birth_date" readonly="read_only_user"/>
+                            <!-- Same Yes/No badge as the authorizations below: easier to read at a glance. -->
+                            <span class="o_form_label">Adult</span>
+                            <div class="o_row">
+                                <field name="is_adult" invisible="1"/>
+                                <span class="badge text-bg-success" invisible="not is_adult">Yes</span>
+                                <span class="badge text-bg-secondary" invisible="is_adult">No</span>
+                            </div>
+                            <field name="birth_country_id" invisible="read_only_user"/>
+                            <field name="citizenship_id" invisible="read_only_user"/>
+                            <span class="o_form_label">Benefits</span>
+                            <div class="o_row">
+                                <field name="benefit_status" invisible="1"/>
+                                <span class="badge text-bg-success" invisible="benefit_status != 'exemption'">Exemption</span>
+                                <span class="badge text-bg-info" invisible="benefit_status != 'bonification'">Bonification</span>
+                                <span class="badge text-bg-secondary" invisible="benefit_status != 'none'">None</span>
+                            </div>
+                            <!-- Special educational needs (NEE): benefits-like display.
+                                 Editable dropdown for tutor/secretary/admin (of this
+                                 student) and guidance (any student, issue #465); read-only badge
+                                 otherwise. Restricted to those four, off the portal. -->
+                            <span class="o_form_label" groups="ems.group_tutor,ems.group_secretary,ems.group_academic_admin,ems.group_orientation">Special educational needs</span>
+                            <div class="o_row" groups="ems.group_tutor,ems.group_secretary,ems.group_academic_admin,ems.group_orientation">
+                                <field name="special_needs_readonly" invisible="1"/>
+                                <field name="special_needs" nolabel="1" placeholder="None"
+                                       invisible="special_needs_readonly"/>
+                                <span class="badge text-bg-danger" invisible="special_needs != 'nee_a' or not special_needs_readonly">NEE-A</span>
+                                <span class="badge text-bg-warning" invisible="special_needs != 'nee_b' or not special_needs_readonly">NEE-B</span>
+                                <span class="badge text-bg-secondary" invisible="special_needs or not special_needs_readonly">None</span>
+                            </div>
+                        </group>
+                    </group>
+                    <!-- Summary only; the full list stays in the Secretary tab. Both are scoped to the
+                         academic year in force (res.partner._ems_course_in_force()), so the list can
+                         never look empty next to a green badge. -->
+                    <group name="student_authorizations" string="Authorizations" col="4"
+                           invisible="contact_type != 'student'">
+                        <group>
+                            <span class="o_form_label">Image Rights</span>
+                            <div class="o_row">
+                                <field name="auth_image" invisible="1"/>
+                                <span class="badge text-bg-success" invisible="auth_image == False">Yes</span>
+                                <span class="badge text-bg-secondary" invisible="auth_image == True">No</span>
+                            </div>
+                        </group>
+                        <group>
+                            <span class="o_form_label">Scholar Trips</span>
+                            <div class="o_row">
+                                <field name="auth_trip" invisible="1"/>
+                                <span class="badge text-bg-success" invisible="auth_trip == False">Yes</span>
+                                <span class="badge text-bg-secondary" invisible="auth_trip == True">No</span>
+                            </div>
+                        </group>
+                        <group>
+                            <span class="o_form_label">Health Data</span>
+                            <div class="o_row">
+                                <field name="auth_healt" invisible="1"/>
+                                <span class="badge text-bg-success" invisible="auth_healt == False">Yes</span>
+                                <span class="badge text-bg-secondary" invisible="auth_healt == True">No</span>
+                            </div>
+                        </group>
+                        <group>
+                            <span class="o_form_label" title="If marked, the student (even if adult) allows to share its educational information with its family.">Share with family</span>
+                            <div class="o_row">
+                                <field name="auth_share" invisible="1"/>
+                                <span class="badge text-bg-success" invisible="auth_share == False">Yes</span>
+                                <span class="badge text-bg-secondary" invisible="auth_share == True">No</span>
+                            </div>
+                        </group>
+                    </group>
                 </xpath>
 
                 <xpath expr="//page[@name='sales_purchases']" position="after">                                         
-                    <page name="studies" string="Studies" invisible="contact_type != 'student'">
-                        <group cols="2">
+                    <!-- Everything administrative about the student in one page (issue #511
+                         follow-up): the authorizations list (its Yes/No summary is at the top of the
+                         form), benefits, the documents the family uploaded and the bank accounts (duplicated from the
+                         native Invoicing page, hidden for students below). Each section keeps the
+                         groups its old page/tab had, so nobody sees more than before. -->
+                    <page name="secretary" string="Secretary" invisible="contact_type != 'student'">
+                        <group>
+                            <separator string="Authorizations" colspan="2"/>
+                            <field name="ems_authorization_ids" nolabel="1" colspan="2" readonly="1">
+                                <list create="0" delete="0" edit="0">
+                                    <field name="template_id" string="Authorization"/>
+                                    <field name="course_id" string="Academic Year"/>
+                                    <field name="enrollment_id" optional="hide"/>
+                                    <field name="status" 
+                                            decoration-danger="status == 'no'" 
+                                            decoration-success="status == 'yes'" 
+                                            decoration-warning="status == 'pending'"/>
+                                    <field name="response_date"/>
+                                    <field name="signed_document" filename="signed_document_name" widget="binary"/>
+                                    <field name="signed_document_name" column_invisible="1"/>
+                                </list>
+                            </field>
+                            <separator string="Bonifications &amp; Exemptions" colspan="2"/>
+                            <field name="benefit_ids" nolabel="1" colspan="2" readonly="read_only_user or is_tutor_readonly">
+                                <list editable="bottom" decoration-info="category == 'bonification'" decoration-success="category == 'exemption'">
+                                    <field name="benefit_type"/>
+                                    <field name="category" optional="show"/>
+                                    <field name="document" filename="document_name" widget="binary"/>
+                                    <field name="document_name" column_invisible="1"/>
+                                    <field name="renewal_date" widget="remaining_days"/>
+                                    <field name="notes" optional="hide"/>
+                                </list>
+                            </field>
+                        </group>
+                        <group groups="ems.group_academic_admin,ems.group_secretary,ems.group_tutor,ems.group_tac">
+                            <separator string="Documentation" colspan="2"/>
+                            <field name="document_ids" nolabel="1"
+                                   context="{'default_partner_id': id}">
+                                <list create="0" delete="0"
+                                      decoration-warning="status == 'pending'"
+                                      decoration-success="status == 'approved'"
+                                      decoration-danger="status == 'rejected'"
+                                      decoration-muted="status == 'cancelled'">
+                                    <field name="doc_type"/>
+                                    <field name="doc_file_link" string="File"/>
+                                    <field name="expiry_date" widget="remaining_days"/>
+                                    <field name="upload_date"/>
+                                    <field name="status"/>
+                                    <field name="review_uid" optional="hide"/>
+                                    <field name="rejection_reason" optional="hide"/>
+                                </list>
+                            </field>
+                        </group>
+                        <group groups="account.group_account_invoice,account.group_account_readonly,ems.group_academic_admin,ems.group_secretary">
+                            <separator string="Bank Accounts" colspan="2"/>
+                            <field name="bank_ids" nolabel="1" colspan="2" context="{'default_partner_id': id}" widget="auto_save_res_partner">
+                                <list>
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="acc_number"/>
+                                    <field name="acc_holder_name"/>
+                                </list>
+                            </field>
+                        </group>
+                    </page>
+                </xpath>
+
+                <!-- A student's file opens on the Schedule, followed by Studies, then the native
+                     contacts page. Both are invisible for every other contact type, whose tab order
+                     is unchanged. -->
+                <xpath expr="//page[@name='contact_addresses']" position="before">
+                    <page name="schedule" string="Schedule" invisible="contact_type != 'student'">
+                        <field name="shift" invisible="1"/>
+                        <field name="schedule_attendance_ids" widget="readonly_schedule_grid" nolabel="1">
+                            <list limit="200">
+                                <field name="dayofweek"/>
+                                <field name="hour_from"/>
+                                <field name="hour_to"/>
+                                <field name="day_period"/>
+                                <field name="subject_id"/>
+                                <field name="topic"/>
+                                <field name="non_teaching"/>
+                                <field name="non_teaching_is_break"/>
+                                <field name="employee_id"/>
+                                <field name="space_id"/>
+                            </list>
+                        </field>
+                    </page>
+                    <!-- Also the former students' page: their operational group/enrollment data
+                         hides, their frozen academic history (below) stays. -->
+                    <page name="studies" string="Studies"
+                          invisible="contact_type not in ['student', 'alumni', 'withdrawal', 'expelled']">
+                        <group cols="2" invisible="contact_type != 'student'">
                             <separator name="group" string="Group Data"/>
                             <group>
                                 <field name="level_id" readonly="read_only_user or is_tutor_readonly" />
@@ -359,73 +468,25 @@
                                 </list>
                             </field>
                         </group>
-                    </page>
-                    <page name="schedule" string="Schedule" invisible="contact_type != 'student'">
-                        <field name="shift" invisible="1"/>
-                        <field name="schedule_attendance_ids" widget="readonly_schedule_grid" nolabel="1">
-                            <list limit="200">
-                                <field name="dayofweek"/>
-                                <field name="hour_from"/>
-                                <field name="hour_to"/>
-                                <field name="day_period"/>
-                                <field name="subject_id"/>
-                                <field name="topic"/>
-                                <field name="non_teaching"/>
-                                <field name="non_teaching_is_break"/>
-                                <field name="employee_id"/>
-                                <field name="space_id"/>
-                            </list>
-                        </field>
-                    </page>
-                    <page name="secretary" string="Secretary" invisible="contact_type != 'student'">
-                        <group>
-                            <separator string="Bonifications &amp; Exemptions" colspan="2"/>
-                            <field name="benefit_ids" nolabel="1" colspan="2" readonly="read_only_user or is_tutor_readonly">
-                                <list editable="bottom" decoration-info="category == 'bonification'" decoration-success="category == 'exemption'">
-                                    <field name="benefit_type"/>
-                                    <field name="category" optional="show"/>
-                                    <field name="document" filename="document_name" widget="binary"/>
-                                    <field name="document_name" column_invisible="1"/>
-                                    <field name="renewal_date" widget="remaining_days"/>
-                                    <field name="notes" optional="hide"/>
-                                </list>
-                            </field>
-                            <!-- Scoped to the academic year in force, same as the badges
-                                 above (res.partner._ems_course_in_force()), so the list can
-                                 never look empty next to a green badge. -->
-                            <separator string="Authorizations" colspan="2"/>
-                            <field name="ems_authorization_ids" nolabel="1" colspan="2" readonly="1">
-                                <list create="0" delete="0" edit="0">
-                                    <field name="template_id" string="Authorization"/>
-                                    <field name="course_id" string="Academic Year"/>
-                                    <field name="enrollment_id" optional="hide"/>
-                                    <field name="status" 
-                                            decoration-danger="status == 'no'" 
-                                            decoration-success="status == 'yes'" 
-                                            decoration-warning="status == 'pending'"/>
-                                    <field name="response_date"/>
-                                    <field name="signed_document" filename="signed_document_name" widget="binary"/>
-                                    <field name="signed_document_name" column_invisible="1"/>
-                                </list>
-                            </field>
-                        </group>
-                    </page>
-                    <page name="documentation" string="Documentation" invisible="contact_type != 'student'"
-                          groups="ems.group_academic_admin,ems.group_secretary,ems.group_tutor,ems.group_tac">
-                        <field name="document_ids" nolabel="1"
-                               context="{'default_partner_id': id}">
-                            <list create="0" delete="0"
-                                  decoration-warning="status == 'pending'"
-                                  decoration-success="status == 'approved'"
-                                  decoration-danger="status == 'rejected'"
-                                  decoration-muted="status == 'cancelled'">
-                                <field name="doc_type"/>
-                                <field name="doc_file_link" string="File"/>
-                                <field name="expiry_date" widget="remaining_days"/>
-                                <field name="upload_date"/>
-                                <field name="status"/>
-                                <field name="review_uid" optional="hide"/>
-                                <field name="rejection_reason" optional="hide"/>
+                        <!-- Frozen per-course academic history (ems.student.year_record): unlike
+                             the section above, it stays visible for alumni/withdrawals/expelled -
+                             it is their permanent record. -->
+                        <separator string="Academic history"/>
+                        <field name="year_record_ids" readonly="1">
+                            <list default_order="study_name asc, course_id asc"
+                                  decoration-info="is_provisional">
+                                <field name="course_id"/>
+                                <field name="is_provisional"/>
+                                <field name="study_name"/>
+                                <field name="group_name"/>
+                                <field name="tutor_name" optional="hide"/>
+                                <field name="academic_result" widget="badge"
+                                       decoration-success="academic_result == 'full'"
+                                       decoration-warning="academic_result in ['partial', 'repeating']"
+                                       decoration-danger="academic_result == 'withdrawn'"/>
+                                <field name="title_obtained"/>
+                                <field name="subject_count"/>
+                                <field name="attendance_rate" optional="show"/>
                             </list>
                         </field>
                     </page>
@@ -434,7 +495,7 @@
                 <!-- Applicant data (pre-enrollment intake). Placed first so it is the
                      default open page for applicants; for students it is invisible and the
                      notebook falls through to "Student data". -->
-                <xpath expr="//page[@name='student']" position="before">
+                <xpath expr="//page[@name='contact_addresses']" position="before">
                     <page name="applicant" string="Applicant data"
                           invisible="contact_type != 'applicant'">
                         <group cols="2">
@@ -460,7 +521,7 @@
 
                 <!-- Former student data (alumni / withdrawals / expelled). The active-student
                      pages hide themselves via invisible="contact_type != 'student'". -->
-                <xpath expr="//page[@name='documentation']" position="after">
+                <xpath expr="//page[@name='secretary']" position="after">
                     <page name="former_student" string="Former student"
                           invisible="contact_type not in ['alumni', 'withdrawal', 'expelled']">
                         <group cols="2">
@@ -477,29 +538,6 @@
                             </group>
                             <field name="exit_reason"/>
                         </group>
-                    </page>
-                    <!-- Frozen per-course academic history (ems.student.year_record):
-                         unlike the operational pages above, it stays visible for
-                         alumni/withdrawals/expelled — it is their permanent record. -->
-                    <page name="academic_history" string="Academic history"
-                          invisible="contact_type not in ['student', 'alumni', 'withdrawal', 'expelled']">
-                        <field name="year_record_ids" readonly="1">
-                            <list default_order="study_name asc, course_id asc"
-                                  decoration-info="is_provisional">
-                                <field name="course_id"/>
-                                <field name="is_provisional"/>
-                                <field name="study_name"/>
-                                <field name="group_name"/>
-                                <field name="tutor_name" optional="hide"/>
-                                <field name="academic_result" widget="badge"
-                                       decoration-success="academic_result == 'full'"
-                                       decoration-warning="academic_result in ['partial', 'repeating']"
-                                       decoration-danger="academic_result == 'withdrawn'"/>
-                                <field name="title_obtained"/>
-                                <field name="subject_count"/>
-                                <field name="attendance_rate" optional="show"/>
-                            </list>
-                        </field>
                     </page>
                 </xpath>
 
@@ -624,7 +662,9 @@
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="account.view_partner_property_form"/>
             <field name="arch" type="xml">
+                <!-- A student's bank accounts are in the Secretary page instead (view_contact_form). -->
                 <xpath expr="//page[@name='accounting']" position="attributes">
+                    <attribute name="invisible">(not is_company and parent_id) or contact_type == 'student'</attribute>
                     <attribute name="groups">account.group_account_invoice,account.group_account_readonly,ems.group_academic_admin,ems.group_secretary</attribute>
                 </xpath>
                 <xpath expr="//group[@name='banks']" position="attributes">

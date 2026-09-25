@@ -8,5 +8,15 @@
 - Each notes tab shows a short, discreet line above the editor stating who can and cannot see those notes. To make that promise hold, the native public notes field (comment) is now restricted to internal users: a portal student or family could previously read their own partner's notes over RPC.
 - Backend tests, a tutor/teacher browser tour, a new trilingual manual (teachers, linked from the tutors and head of studies indexes) with a screenshot, and ca_ES/es_ES translations.
 
+# Changes
+
+## Student form redesigned (header in columns, 10 tabs down to 6):
+- The Student data tab is gone and the top of a student's form was redesigned to fit above the tabs: both emails on a full-width band, then three columns (Contact, Identification, Personal data) and a single row with the Yes/No summary of the four authorizations. "Adult" now shows a Yes/No badge. Each field keeps its own visibility, so a non-tutor teacher still sees only the corporate email, Student ID, birth date, adult, benefits and authorizations.
+- Tab order changed: a student's form opens on Schedule, followed by Studies and Contacts & Addresses.
+- Translation fix found on the way: several already-translated labels of the student form (authorization/benefit/special-needs badges) had their .po entries left behind when the view was re-indented, which a clean install would have shown in English (this database kept them only because Odoo preserves translations when a view is rewritten). All terms of the form now have a matching .po entry.
+- Academic history is now a section at the end of the Studies tab (still the only section former students see).
+- The Secretary tab now gathers the administrative lists: authorizations, bonifications and exemptions, the family's uploaded documentation (was its own tab) and the student's bank accounts (was the native Invoicing tab, now hidden for students only).
+- Each moved section keeps the exact access groups of its old tab, so nobody sees more than before. Tours clicking the removed tabs now open the tabs that hold those sections.
+
 # Related with
 - Closes #511

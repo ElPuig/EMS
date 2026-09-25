@@ -212,3 +212,4 @@ from . import test_role_smoke_coexistence_tour
 from . import test_role_smoke_secretary_tour
 from . import test_role_smoke_tac_tour
 from . import test_user_profile_tour
+from . import test_user_menu_documentation_tour

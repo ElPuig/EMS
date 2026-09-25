@@ -344,12 +344,45 @@ flowchart TD
 |---|---|
 | Google account creation | `firstname`, `lastname`, `student_id` (IDALU), `email` (personal, used for recovery + credential delivery) — `birth_date` deliberately **not** required, see above |
 
+## Personal email can never be a corporate one (#514)
+
+The personal email is where credentials are delivered and the account's recovery address, so
+a corporate address there is useless (the student can't read it before the account exists, and
+loses it when the account is suspended). Enforced by the ORM, not the view, so every write path
+is covered (form, portal wizard, merge, imports):
+
+```mermaid
+flowchart TD
+    W["write/create with email<br/>(res.partner) or private_email<br/>(hr.employee)"] --> T{"partner: contact_type in<br/>PERSONAL_EMAIL_CONTACT_TYPES?<br/>(employee: always)"}
+    T -- no --> OK[saved]
+    T -- yes --> C{"company._ems_is_corporate_email()"}
+    C -- "no domain configured /<br/>ems.environment_type = 'dev' /<br/>other domain" --> OK
+    C -- "domain or subdomain of<br/>google_ws_domain" --> E[ValidationError]
+```
+
+| Piece | Where | Notes |
+|---|---|---|
+| `_ems_is_corporate_email(email)` | `res.company` (`models/settings/company.py`) | Normalizes the address; matches `google_ws_domain` itself or any subdomain, case-insensitively. Always `False` without a domain, and on a **development** database (`ems.environment_type = 'dev'`): `devel.sh` rewrites every stored address onto that same domain. A database with no value declared (e.g. CI) **is** checked. |
+| `_ems_check_personal_email(email)` | `res.company` | Raises the `ValidationError`; shared by both constraints below. |
+| `_check_email_not_corporate` | `res.partner` (`models/contacts/contact.py`) | `@api.constrains('email')` only, for `PERSONAL_EMAIL_CONTACT_TYPES` (`student`, `family`, `applicant`, `alumni`, `withdrawal`, `expelled`). Staff work contacts (no `contact_type`) are excluded: their email *is* the corporate account. Deliberately not triggered by `contact_type`, so a legacy corporate value never blocks a type change (enrollment, graduation...). |
+| `_check_private_email_not_corporate` | `hr.employee` (`models/employees/employee.py`) | `@api.constrains('private_email')`, also reached from "My Profile" (`private_email` is self-writeable on `res.users`). `work_email` is untouched. |
+| `_ems_drop_corporate_email(email, name, warnings)` | `res.company` | Import helper: returns `False` and appends a warning instead of letting the constraint fail the whole row. Used by the Esfera import (student and tutor/family emails), the CSV update wizard (the `email` key is dropped, the current value kept) and the GEDAC applicant import, each rendering a "Warnings" block in its result. |
+
+Existing records aren't migrated: the check only runs when the field is written again.
+
 ## Tests
 
 `tests/test_portal_google_signin.py` (`TestPortalGoogleSignin`) covers the portal sign-in:
 the first sign-in links, later ones go through the link, password login still works, and
 every refusal (foreign domain, unverified email, other provider, no matching student,
 internal user, Google id taken), plus the unlink on a changed `student_email`.
+
+`tests/test_personal_email_not_corporate.py` covers the rule above (helper, both constraints,
+dev/undeclared environment, legacy value vs. type change, "My Profile"); the three import
+wizards' own test files cover the drop-with-warning path, and
+`TestContactTour.test_student_personal_email_not_corporate_tour` the validation dialog on the
+student form (secretary). Tests call `enforce_corporate_email_policy()` (`tests/common.py`),
+since this dev box is declared `'dev'`.
 
 `tests/test_student_google_workspace.py` (`TestStudentGoogleWorkspace`) — readiness,
 email-candidate strategy, creation (dry-run, both OUs, idempotence, missing-data

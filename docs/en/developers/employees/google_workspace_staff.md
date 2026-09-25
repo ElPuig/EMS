@@ -244,7 +244,7 @@ is granted explicitly.
 | Step | Required data |
 |---|---|
 | Plain employee creation | `name` (plus `private_email` at view level for **new** teacher/ASP records) |
-| Google account creation | `name`, `private_email` (recovery + credentials email); phone/NIF optional |
+| Google account creation | `name`, `private_email` (recovery + credentials email, never an address of the centre's own domain, see [Personal email can never be a corporate one](../contacts/google_workspace_student.md#personal-email-can-never-be-a-corporate-one-514)); phone/NIF optional |
 | EMS user creation | corporate `work_email` (produced by the previous step) |
 
 ## Interplay with pending-identification placeholders

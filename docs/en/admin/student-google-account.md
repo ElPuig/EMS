@@ -16,7 +16,7 @@ All the buttons are in the header of the student's form (**Educational Community
 
 ## Creating the account
 
-1. Check that the form has the first name, last names, IDALU and personal email.
+1. Check that the form has the first name, last names, IDALU and personal email. The personal email can't be the student's corporate address (EMS won't accept an address of the centre's own domain there).
 2. Click **Create Google account**.
 
 The account is created in the organizational unit for minors or adults, depending on the student's age. A **Google Workspace credentials** PDF appears in the **Documentation** tab, and if the student has a personal email, they also receive the credentials by email.

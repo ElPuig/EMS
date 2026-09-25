@@ -16,7 +16,7 @@ Tots els botons són a la capçalera de la fitxa de l'alumne (**Comunitat Educat
 
 ## Crear el compte
 
-1. Comprova que la fitxa té el nom, els cognoms, l'IDALU i el correu personal.
+1. Comprova que la fitxa té el nom, els cognoms, l'IDALU i el correu personal. El correu personal no pot ser l'adreça corporativa de l'alumne (EMS no hi accepta cap adreça del domini del centre).
 2. Clica **Crear compte de Google**.
 
 El compte es crea a la unitat organitzativa de menors o de majors d'edat, segons l'edat de l'alumne. A la pestanya **Documentació** apareix el PDF de **Credencials de Google Workspace**, i si l'alumne té correu personal, també les rep per correu.

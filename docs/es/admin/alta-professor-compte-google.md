@@ -51,7 +51,7 @@ En el formulario de alta:
 
 ## Paso 3 — Rellenar el correo electrónico privado
 
-Rellena el campo **Correo electrónico privado (1)**, en la columna derecha de la pantalla principal, debajo de **Gestor** (el mismo campo también está en la pestaña **Información privada**). Este correo electrónico personal será donde se enviará la contraseña del nuevo correo electrónico del centro.
+Rellena el campo **Correo electrónico privado (1)**, en la columna derecha de la pantalla principal, debajo de **Gestor** (el mismo campo también está en la pestaña **Información privada**). Este correo electrónico personal será donde se enviará la contraseña del nuevo correo electrónico del centro. Debe ser una dirección realmente personal: EMS no acepta ninguna del dominio del centro.
 
 ![Formulario de alta con el campo de correo electrónico privado debajo de Gestor](../../assets/admin/alta-professor-03-correu-privat.png)
 

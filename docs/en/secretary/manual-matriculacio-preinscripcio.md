@@ -55,6 +55,8 @@ To run the import:
 
 When it finishes, the wizard shows an **import summary**: how many applicants were created, how many were updated and how many rows were skipped. You can also **download the log (CSV)** and, if there are any, the `gedac_alumnes_actius_<date>.csv` file with the internal continuers.
 
+If an applicant's email in the file belongs to the centre's own domain (a corporate account), the applicant is still created or updated, but without that email, and the summary lists a warning for them.
+
 ![Import result summary](../../assets/secretary/preinscrpcio-Secretaria-03.png)
 
 ---

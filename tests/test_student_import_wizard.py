@@ -5,7 +5,7 @@ from datetime import date, datetime
 from odoo import fields as odoo_fields
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group, next_student_id
+from .common import CORPORATE_TEST_DOMAIN, create_level_study_group, enforce_corporate_email_policy, next_student_id
 
 
 class TestStudentImportWizard(TransactionCase):
@@ -124,6 +124,29 @@ class TestStudentImportWizard(TransactionCase):
         self.assertEqual(len(matches), 1)
 
     # --- _find_headers / _check_required_columns --------------------------------
+
+    def test_corporate_emails_are_ignored_with_a_warning(self):
+        # Issue #514: neither the student nor the tutor gets the corporate address as their
+        # personal email, but both are still imported.
+        enforce_corporate_email_policy(self)
+        wizard = self._wizard()
+        stats = self._stats()
+        ralc = next_student_id()
+        columns = [
+            wizard._STUDENT_ID_COLUMN, 'Nom', 'Primer Cognom', 'Correu electrònic',
+            'Tutor 1 - nom', 'Tutor 1 - 1r cognom', 'Contacte 1er tutor alumne - Valor',
+        ]
+        row = (ralc, 'Laia', 'Puig', f'laia@{CORPORATE_TEST_DOMAIN}',
+               'Marta', 'Roca', f'600111222 - marta@{CORPORATE_TEST_DOMAIN}')
+        wizard._process_row(row, {name: idx for idx, name in enumerate(columns)}, stats)
+
+        student = self.env['res.partner'].search([('student_id', '=', ralc)])
+        self.assertTrue(student)
+        self.assertFalse(student.email)
+        family = self.env['res.partner'].search([('contact_type', '=', 'family'), ('name', '=', 'Marta Roca')])
+        self.assertTrue(family)
+        self.assertFalse(family.email)
+        self.assertEqual(len([w for w in stats['warnings'] if CORPORATE_TEST_DOMAIN in w]), 2)
 
     def test_find_headers_locates_student_id_row(self):
         wizard = self._wizard()

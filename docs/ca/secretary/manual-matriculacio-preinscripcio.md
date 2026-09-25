@@ -55,6 +55,8 @@ Per fer la importació:
 
 En acabar, l'auxiliar mostra un **resum de la importació**: quants aspirants s'han creat, quants s'han actualitzat i quantes files s'han omès. També podeu **descarregar el registre (CSV)** i, si n'hi ha, el CSV `gedac_alumnes_actius_<data>.csv` amb els continuadors interns.
 
+Si el correu d'un aspirant al fitxer pertany al domini del centre (un compte corporatiu), l'aspirant es crea o s'actualitza igualment, però sense aquest correu, i el resum mostra un avís per a aquest aspirant.
+
 ![Resum del resultat de la importació](../../assets/secretary/preinscrpcio-Secretaria-03.png)
 
 ---

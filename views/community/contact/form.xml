@@ -161,7 +161,8 @@
                 <xpath expr="//label[@for='email']/following-sibling::div[1]" position="after">
                     <field name="email" string="Personal email" widget="email"
                            context="{'gravatar_image': True}" required="user_ids"
-                           invisible="contact_type != 'student'"/>
+                           invisible="contact_type != 'student'"
+                           help="The student's own personal address. It can't be the centre's corporate account, which EMS manages itself (Corporate email)."/>
                     <field name="student_email" string="Corporate email" widget="email"
                            readonly="1" invisible="contact_type != 'student'"/>
                 </xpath>
@@ -451,7 +452,8 @@
                                 <field name="special_needs" readonly="special_needs_readonly or is_tutor_readonly"/>
                             </group>
                             <group string="Personal data">
-                                <field name="email" widget="email" required="contact_type == 'applicant'"/>
+                                <field name="email" widget="email" required="contact_type == 'applicant'"
+                                       help="The student's own personal address. It can't be the centre's corporate account, which EMS manages itself (Corporate email)."/>
                                 <field name="document_id"/>
                                 <field name="birth_date"/>
                                 <field name="phone"/>

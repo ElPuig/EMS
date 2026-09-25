@@ -9408,7 +9408,9 @@ msgstr "Errors (%(count)s):"
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
 #: code:addons/ems/models/contacts/student_import_wizard.py:0
+#: code:addons/ems/models/contacts/student_update_wizard.py:0
 msgid "Warnings (%(count)s):"
 msgstr "Avisos (%(count)s):"
 
@@ -16235,3 +16237,26 @@ msgstr "Pot crear el compte de Google"
 #: model:ir.model.fields,help:ems.field_res_partner__can_create_google_account model:ir.model.fields,help:ems.field_res_users__can_create_google_account
 msgid "Whether the user looking at this student may create their Google account: the secretary, plus everyone who may reset the password."
 msgstr "Indica si l'usuari que consulta aquest alumne li pot crear el compte de Google: secretaria, a més de tothom qui li pot restablir la contrasenya."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "%(email)s can't be used as a personal email: it belongs to the centre's own domain (%(domain)s). Enter a personal address instead; the corporate account is managed by EMS itself."
+msgstr "%(email)s no es pot fer servir com a correu personal: pertany al domini del centre (%(domain)s). Introduïu una adreça personal; el compte corporatiu el gestiona el mateix EMS."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "%(name)s: personal email %(email)s ignored, it belongs to the centre's own domain (%(domain)s)."
+msgstr "%(name)s: s'ha ignorat el correu personal %(email)s perquè pertany al domini del centre (%(domain)s)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "The student's own personal address. It can't be the centre's corporate account, which EMS manages itself (Corporate email)."
+msgstr "Adreça personal de l'alumne. No pot ser el compte corporatiu del centre, que gestiona el mateix EMS (Correu corporatiu)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+#: model_terms:ir.ui.view,arch_db:ems.view_users_form_profile_ems_restrictions
+msgid "Personal address, also used as the Google account's recovery email. It can't be the centre's corporate account."
+msgstr "Adreça personal, que també s'utilitza com a correu de recuperació del compte de Google. No pot ser el compte corporatiu del centre."

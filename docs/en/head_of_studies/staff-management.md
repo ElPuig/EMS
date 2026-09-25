@@ -27,7 +27,7 @@ Saving also creates the teacher's own weekly schedule, prefilled from the centre
 
 ### Why the personal email is required
 
-It is the address the credentials of the new Google account are sent to. Without it the corporate account is simply not created: the record saves, but nothing else happens and a note is left in the record's message history explaining what is missing. Ask for a personal address before creating the record — it is not a formality, it is the only way the new teacher receives their password. The field appears twice on the record — on the main screen, so that nothing required is hidden behind a tab while you are creating it, and in its usual place inside the **Private Information** tab. They are the same field: filling in one fills in the other.
+It is the address the credentials of the new Google account are sent to. Without it the corporate account is simply not created: the record saves, but nothing else happens and a note is left in the record's message history explaining what is missing. Ask for a personal address before creating the record — it is not a formality, it is the only way the new teacher receives their password. The field appears twice on the record — on the main screen, so that nothing required is hidden behind a tab while you are creating it, and in its usual place inside the **Private Information** tab. They are the same field: filling in one fills in the other. It can't be an address of the centre's own domain either: EMS refuses to save it, because it is also the recovery address of the corporate account.
 
 ---
 

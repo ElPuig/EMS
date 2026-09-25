@@ -350,6 +350,45 @@ class ems_company(models.Model):
         except a zero here would flag every single request as over the allowance."""
         return self.ems_health_allowance_hours or self._fields['ems_health_allowance_hours'].default(self)
 
+    def _ems_is_corporate_email(self, email):
+        """True if `email` belongs to the centre's own Google Workspace domain (or a subdomain
+        of it), i.e. it is a corporate account and can't be stored as someone's personal email
+        (issue #514). Never true without a configured domain, nor on a development database
+        ('ems.environment_type' = 'dev'): devel.sh rewrites every stored address onto that very
+        same domain, so the check would reject the whole redirected dataset."""
+        self.ensure_one()
+        domain = (self.google_ws_domain or '').strip().lstrip('@').lower()
+        normalized = email_normalize(email or '')
+        if not domain or not normalized:
+            return False
+        if self.env['ir.config_parameter'].sudo().get_param('ems.environment_type') == 'dev':
+            return False
+        email_domain = normalized.rpartition('@')[2]
+        return email_domain == domain or email_domain.endswith(f'.{domain}')
+
+    def _ems_check_personal_email(self, email):
+        """Raise if `email` is a corporate address (see _ems_is_corporate_email)."""
+        if self._ems_is_corporate_email(email):
+            raise ValidationError(_(
+                "%(email)s can't be used as a personal email: it belongs to the centre's own "
+                "domain (%(domain)s). Enter a personal address instead; the corporate account "
+                "is managed by EMS itself.",
+                email=email, domain=self.google_ws_domain,
+            ))
+
+    def _ems_drop_corporate_email(self, email, name, warnings):
+        """Import helper: return `email` unchanged, or False (plus a line appended to
+        `warnings`) when it is a corporate address, so a bulk import keeps the rest of the
+        row instead of failing it whole on _ems_check_personal_email."""
+        if not self._ems_is_corporate_email(email):
+            return email
+        warnings.append(_(
+            "%(name)s: personal email %(email)s ignored, it belongs to the centre's own "
+            "domain (%(domain)s).",
+            name=name, email=email, domain=self.google_ws_domain,
+        ))
+        return False
+
     @api.depends('limesurvey_pwd_encrypted')
     def _compute_limesurvey_pwd(self):        
         key = self._get_fernet_key()

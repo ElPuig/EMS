@@ -739,6 +739,13 @@ class ems_employee(models.AbstractModel):
         for employee in self:
             employee.attendance_manager_id = employee.leave_manager_id
 
+    @api.constrains('private_email')
+    def _check_private_email_not_corporate(self):
+        # The personal email is the Google Workspace account's recovery address, so it can't be
+        # the corporate account itself (issue #514).
+        for employee in self:
+            employee.company_id._ems_check_personal_email(employee.private_email)
+
     @api.model_create_multi
     def create(self, vals_list):
         employees = super().create(vals_list)

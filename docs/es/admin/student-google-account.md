@@ -16,7 +16,7 @@ Todos los botones están en la cabecera de la ficha del alumno (**Comunidad educ
 
 ## Crear la cuenta
 
-1. Comprueba que la ficha tiene el nombre, los apellidos, el IDALU y el correo personal.
+1. Comprueba que la ficha tiene el nombre, los apellidos, el IDALU y el correo personal. El correo personal no puede ser la dirección corporativa del alumno (EMS no acepta ahí ninguna dirección del dominio del centro).
 2. Pulsa **Crear cuenta de Google**.
 
 La cuenta se crea en la unidad organizativa de menores o de mayores de edad, según la edad del alumno. En la pestaña **Documentación** aparece el PDF de **Credenciales de Google Workspace**, y si el alumno tiene correo personal, también las recibe por correo.

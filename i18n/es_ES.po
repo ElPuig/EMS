@@ -16213,3 +16213,19 @@ msgstr "Exención 100%"
 #: code:addons/ems/models/planning/planning.py:0
 msgid "Unsupported search on is_own_subject"
 msgstr "Búsqueda no soportada en is_own_subject"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Only the secretary's office, administrators, the TAC team and the student's own tutor can create a Google account."
+msgstr "Solo secretaría, los administradores, el equipo TAC y el tutor o tutora del alumno pueden crear una cuenta de Google."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_create_google_account model:ir.model.fields,field_description:ems.field_res_users__can_create_google_account
+msgid "Can create the Google account"
+msgstr "Puede crear la cuenta de Google"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__can_create_google_account model:ir.model.fields,help:ems.field_res_users__can_create_google_account
+msgid "Whether the user looking at this student may create their Google account: the secretary, plus everyone who may reset the password."
+msgstr "Indica si el usuario que consulta este alumno le puede crear la cuenta de Google: secretaría, además de todos los que le pueden restablecer la contraseña."

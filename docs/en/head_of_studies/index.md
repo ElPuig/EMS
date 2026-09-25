@@ -14,7 +14,7 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 - [Convalidations: validating the requests](convalidations.md)
 - [Plannings: setting the grading ponderations](planning.md)
 - [Managing student and family contacts](../secretary/student-contacts.md) — you have the same full read/write access as secretary here, for any student centre-wide.
-- [Students' Google credentials](../tutors/google-credentials.md) — viewing them and resetting the password, same steps as tutors, for the students of the tutors in your area.
+- [Students' Google credentials](../tutors/google-credentials.md) — viewing them, creating the account and resetting the password, same steps as tutors, for the students of the tutors in your area.
 - [Deciding on Attendance Correction Requests](attendance-corrections.md)
 - [Strikes: Convivencia Menu and Escalation Emails](strike.md)
 - [A Group's Weekly Schedule](../admin/group-schedule.md)

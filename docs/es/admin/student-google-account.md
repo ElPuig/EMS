@@ -21,6 +21,8 @@ Todos los botones están en la cabecera de la ficha del alumno (**Comunidad educ
 
 La cuenta se crea en la unidad organizativa de menores o de mayores de edad, según la edad del alumno. En la pestaña **Documentación** aparece el PDF de **Credenciales de Google Workspace**, y si el alumno tiene correo personal, también las recibe por correo.
 
+Pueden crear cuentas administración, coordinación TAC, secretaría y el tutor o tutora del alumno (y los jefes por encima de ese tutor: jefe de seminario, jefe de departamento, jefe de estudios y dirección).
+
 ---
 
 ## Suspender la cuenta

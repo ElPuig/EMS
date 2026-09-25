@@ -21,6 +21,8 @@ All the buttons are in the header of the student's form (**Educational Community
 
 The account is created in the organizational unit for minors or adults, depending on the student's age. A **Google Workspace credentials** PDF appears in the **Documentation** tab, and if the student has a personal email, they also receive the credentials by email.
 
+Accounts can be created by administration, TAC coordination, the secretary's office and the student's own tutor (plus the chiefs above that tutor: Seminar Chief, Department Chief, Head of Studies and Director).
+
 ---
 
 ## Suspending the account

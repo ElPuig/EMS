@@ -88,7 +88,7 @@ The **Recipients (preview)** table shows, for each student, who will receive the
 
 The system automatically decides the recipients based on the student's age:
 
-- **Adult student** → access is sent to the **student themselves** (to their main email).
+- **Adult student** → access is sent to the **student themselves** (to their main email). When a student turns 18, their family stops seeing them on the portal (unless the student authorizes sharing with the family, and then only to consult) and the student manages everything. If the student had no portal account of their own yet, grant it to them with this same action.
 - **Minor student** → access is sent to the **family members** associated with the student **and to the student themselves**. The family manages enrollment, authorizations, convalidations and documentation. The student's own account only shows their schedule, the communications addressed to them and their profile.
 - **Minor applicant with no family on file** (straight from the GEDAC preinscription) → access is sent to the applicant, who manages their own enrollment, since there is nobody else yet.
 

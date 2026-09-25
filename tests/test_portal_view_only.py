@@ -30,10 +30,17 @@ class TestPortalViewOnly(HttpCase):
             'email': 'view.only.adult@example.com',
             'birth_date': date.today() - relativedelta(years=20),
         }])
-        cls.env['res.partner.relation'].create({
-            'left_partner_id': cls.family.id, 'type_id': cls.env.ref('ems.relation_type_father').id,
-            'right_partner_id': cls.minor.id,
+        # A second child of the same family, already of age: the family only sees him if he
+        # authorized sharing with it (auth_share), and then only to consult.
+        cls.grown = cls.env['res.partner'].create({
+            'name': 'View Only Grown Child', 'contact_type': 'student', 'student_id': next_student_id(),
+            'email': 'view.only.grown@example.com',
+            'birth_date': date.today() - relativedelta(years=19),
         })
+        cls.env['res.partner.relation'].create([{
+            'left_partner_id': cls.family.id, 'type_id': cls.env.ref('ems.relation_type_father').id,
+            'right_partner_id': child.id,
+        } for child in (cls.minor, cls.grown)])
         cls.minor_user, cls.family_user, cls.adult_user = cls.env['res.users'].with_context(
             no_reset_password=True).create([{
                 'name': partner.name, 'login': login, 'password': login, 'partner_id': partner.id,
@@ -67,6 +74,68 @@ class TestPortalViewOnly(HttpCase):
         self.assertTrue(self.minor._ems_portal_is_view_only())
         self.assertFalse(self.family._ems_portal_is_view_only())
         self.assertFalse(self.adult._ems_portal_is_view_only())
+
+    def _share_with_family(self, student):
+        """auth_share is a stored compute read from the student's accepted 'share'
+        authorization for the course in force; set it directly, as tests/test_strike.py does."""
+        self.env.cr.execute("UPDATE res_partner SET auth_share = TRUE WHERE id = %s", (student.id,))
+        student.invalidate_recordset(['auth_share'])
+
+    def _select(self, family, student):
+        family.sudo().selected_student_id = student
+        family.invalidate_recordset(['selected_student_id'])
+
+    def test_family_loses_its_adult_child_who_does_not_share(self):
+        self.assertEqual(self.family.get_portal_students(), self.minor)
+        self.assertFalse(self.family._ems_portal_can_act_for(self.grown))
+        self._select(self.family, self.grown)
+        self.assertEqual(self.family.get_portal_student(), self.minor)
+        self.assertEqual(self.family.get_portal_student(student_id=self.grown.id), self.minor)
+        self.assertFalse(self.family._ems_portal_is_view_only())
+
+    def test_family_only_consults_its_adult_child_who_shares(self):
+        self._share_with_family(self.grown)
+        self.assertEqual(self.family.get_portal_students(), self.minor | self.grown)
+        self.assertFalse(self.family._ems_portal_can_act_for(self.grown))
+        self.assertTrue(self.family._ems_portal_can_act_for(self.minor))
+        self._select(self.family, self.grown)
+        self.assertTrue(self.family._ems_portal_is_view_only())
+        self._login(self.family_user)
+        page = self._lands_on('/my/home', '/my/home').text
+        self.assertIn('href="/my/asistencia"', page)
+        for url in ('/my/gestion-matriculas', '/my/documentacion', '/my/convalidaciones'):
+            self.assertNotIn(f'href="{url}"', page)
+            self._lands_on(url, '/my/home')
+        self._lands_on('/my/asistencia', '/my/asistencia')
+        self._lands_on('/my/comunicaciones', '/my/comunicaciones')
+        # Switching back to the minor gives the family its managing pages again, menu included
+        # (the cached header must not keep the trimmed one).
+        self._select(self.family, self.minor)
+        page = self._lands_on('/my/gestion-matriculas', '/my/gestion-matriculas').text
+        self.assertIn('href="/my/documentacion"', page)
+
+    def test_student_turning_18_takes_over_from_his_family(self):
+        self._login(self.minor_user)
+        self._lands_on('/my/gestion-matriculas', '/my/home')
+        self.minor.birth_date = date.today() - relativedelta(years=18)
+        self.assertFalse(self.minor._ems_portal_is_view_only())
+        self.assertTrue(self.minor._ems_portal_can_act_for(self.minor))
+        self.assertNotIn(self.minor, self.family.get_portal_students())
+        self._lands_on('/my/gestion-matriculas', '/my/gestion-matriculas')
+        self._lands_on('/my/documentacion', '/my/documentacion')
+
+    def test_family_with_no_child_left_to_see(self):
+        self.minor.birth_date = date.today() - relativedelta(years=18)
+        self.assertFalse(self.family.get_portal_students())
+        self.assertTrue(self.family._ems_portal_is_view_only())
+        self._login(self.family_user)
+        page = self._lands_on('/my/home', '/my/home').text
+        self.assertIn('ems-portal-no-students', page)
+        for url in ('/my/gestion-matriculas', '/my/documentacion', '/my/convalidaciones'):
+            self.assertNotIn(f'href="{url}"', page)
+            self._lands_on(url, '/my/home')
+        self._share_with_family(self.grown)
+        self.assertNotIn('ems-portal-no-students', self._lands_on('/my/home', '/my/home').text)
 
     def test_minor_is_sent_home_from_every_managing_page(self):
         self._login(self.minor_user)

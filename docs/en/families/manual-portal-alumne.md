@@ -18,6 +18,7 @@ This guide explains in detail the steps students (or their families) must follow
 6. [Step 5 — Answering an authorization](#step-5--answering-an-authorization)
 7. [Signing in afterwards: personal email or school account](#signing-in-afterwards-personal-email-or-school-account)
 8. [Students under 18](#students-under-18)
+9. [When the student turns 18](#when-the-student-turns-18)
 
 ---
 
@@ -132,6 +133,16 @@ While a student is under 18, their **family** manages everything from its own ac
 * **Profile**.
 
 **Enrollment and authorizations**, **Convalidations** and **Documentation** do not appear in the student's own account: the family handles them. When the student turns 18, all sections become available to them.
+
+---
+
+## When the student turns 18
+
+From the day the student turns 18, **they** manage everything from their own account: enrollment, authorizations, convalidations and documentation. If they did not have a portal account of their own yet, ask the tutor or the Secretariat for one.
+
+The family keeps its account but **no longer sees the student** on the portal, unless the student authorizes sharing their information with the family (the *share with the family* authorization). In that case the family can consult again the student's **Attendance**, **Grades**, the **Communications** addressed to them and the **Profile**, but it can no longer manage anything: enrollment, authorizations, convalidations and documentation stay with the student.
+
+A family that has no student left to see finds a notice on the portal home explaining it.
 
 ---
 

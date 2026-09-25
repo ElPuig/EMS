@@ -16143,13 +16143,6 @@ msgstr ""
 " las 00:00 y las 23:59."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
-msgid "is of age: convalidations have to be managed from their own account."
-msgstr ""
-"es mayor de edad: las convalidaciones se tienen que gestionar desde su "
-"propia cuenta."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_planning_search
 msgid "Show only current course"
 msgstr "Mostrar solamente el curso actual"
@@ -16219,3 +16212,11 @@ msgstr "Búsqueda no soportada en is_own_subject"
 #: code:addons/ems/controllers/portal_view_only.py:0
 msgid "Your family manages the enrollment from its own portal account."
 msgstr "Tu familia gestiona la matrícula desde su propia cuenta del portal."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+msgid ""
+"There is no student whose information you can consult. A student of legal "
+"age must authorize sharing his information with the family before you can "
+"consult it again."
+msgstr "No hay ningún alumno cuya información podáis consultar. Un alumno mayor de edad tiene que autorizar que se comparta su información con la familia para que la podáis volver a consultar."

@@ -18,16 +18,14 @@ class EmsPortalConvalidationController(CustomerPortal):
 
     _redirect = '/my/convalidaciones'
 
-    def _ems_convalidation_portal_student(self):
-        """The student the portal user is looking at, whether or not they may act for him."""
-        student = request.env.user.partner_id.get_portal_student()
-        return student if student.contact_type in ('student', 'applicant') else student.browse()
-
     def _ems_convalidation_student(self):
         """The student the portal user acts for (see res.partner._ems_portal_can_act_for), or an
-        empty recordset."""
-        student = self._ems_convalidation_portal_student()
-        return student if request.env.user.partner_id._ems_portal_can_act_for(student) else student.browse()
+        empty recordset. Whoever may only consult never gets this far (ems_portal_manage_required):
+        this is the last line of defence, not the one that tells them."""
+        partner = request.env.user.partner_id
+        student = partner.get_portal_student()
+        return student if student.contact_type in ('student', 'applicant') \
+            and partner._ems_portal_can_act_for(student) else student.browse()
 
     def _ems_convalidation_company(self):
         return request.env.company.sudo()
@@ -36,7 +34,6 @@ class EmsPortalConvalidationController(CustomerPortal):
     @ems_portal_manage_required
     def portal_convalidations(self, **kwargs):
         partner = request.env.user.partner_id
-        portal_student = self._ems_convalidation_portal_student()
         student = self._ems_convalidation_student()
         company = self._ems_convalidation_company()
         Convalidation = request.env['ems.convalidation'].sudo()
@@ -51,10 +48,7 @@ class EmsPortalConvalidationController(CustomerPortal):
             'page_name': 'convalidations',
             'student': student,
             'students': partner.get_portal_students(),
-            'viewing_as_family': portal_student != partner,
-            # The family of an adult student: a notice instead. A minor on his own account never
-            # gets here (ems_portal_manage_required).
-            'age_blocked_student': portal_student if portal_student and not student else portal_student.browse(),
+            'viewing_as_family': student != partner,
             'period_open': company._ems_convalidation_period_open(),
             'period_next_change': company._ems_convalidation_period_next_change(),
             # The period is the centre's local time: shown in it whatever the visitor's own tz.

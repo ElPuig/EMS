@@ -18,6 +18,7 @@ Aquesta guia explica de forma detallada els passos que han de seguir els alumnes
 6. [Pas 5 — Respondre una autorització](#pas-5--respondre-una-autorització)
 7. [Entrar més endavant: correu personal o compte del centre](#entrar-més-endavant-correu-personal-o-compte-del-centre)
 8. [Alumnes menors d'edat](#alumnes-menors-dedat)
+9. [Quan l'alumne fa 18 anys](#quan-lalumne-fa-18-anys)
 
 ---
 
@@ -132,6 +133,16 @@ Mentre l'alumne és menor d'edat, és la **família** qui ho gestiona tot des de
 * el **Perfil**.
 
 **Matrícula i autoritzacions**, **Convalidacions** i **Documentació** no apareixen al compte de l'alumne: se n'encarrega la família. Quan l'alumne compleix 18 anys, té accés a tots els apartats.
+
+---
+
+## Quan l'alumne fa 18 anys
+
+Des del dia que l'alumne fa 18 anys, és **ell mateix** qui ho gestiona tot des del seu propi compte: matrícula, autoritzacions, convalidacions i documentació. Si encara no tenia compte propi al portal, demaneu-lo al tutor o a Secretaria.
+
+La família conserva el seu compte però **deixa de veure l'alumne** al portal, llevat que l'alumne autoritzi compartir la seva informació amb la família (l'autorització de *compartir amb la família*). En aquest cas, la família torna a poder consultar l'**Assistència**, les **Qualificacions**, les **Comunicacions** que s'adrecen a l'alumne i el **Perfil**, però ja no pot gestionar res: la matrícula, les autoritzacions, les convalidacions i la documentació són cosa de l'alumne.
+
+Una família a qui no li queda cap alumne per veure troba un avís a l'inici del portal que ho explica.
 
 ---
 

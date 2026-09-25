@@ -18,6 +18,7 @@ Esta guía explica de forma detallada los pasos que deben seguir los alumnos (o 
 6. [Paso 5 — Responder una autorización](#paso-5--responder-una-autorización)
 7. [Entrar más adelante: correo personal o cuenta del centro](#entrar-más-adelante-correo-personal-o-cuenta-del-centro)
 8. [Alumnos menores de edad](#alumnos-menores-de-edad)
+9. [Cuando el alumno cumple 18 años](#cuando-el-alumno-cumple-18-años)
 
 ---
 
@@ -132,6 +133,16 @@ Mientras el alumno es menor de edad, es la **familia** quien lo gestiona todo de
 * el **Perfil**.
 
 **Matrícula y autorizaciones**, **Convalidaciones** y **Documentación** no aparecen en la cuenta del alumno: se encarga la familia. Cuando el alumno cumple 18 años, tiene acceso a todos los apartados.
+
+---
+
+## Cuando el alumno cumple 18 años
+
+Desde el día en que el alumno cumple 18 años, es **él mismo** quien lo gestiona todo desde su propia cuenta: matrícula, autorizaciones, convalidaciones y documentación. Si todavía no tenía cuenta propia en el portal, pedidla al tutor o a Secretaría.
+
+La familia conserva su cuenta pero **deja de ver al alumno** en el portal, salvo que el alumno autorice compartir su información con la familia (la autorización de *compartir con la familia*). En ese caso, la familia vuelve a poder consultar la **Asistencia**, las **Calificaciones**, las **Comunicaciones** dirigidas al alumno y el **Perfil**, pero ya no puede gestionar nada: la matrícula, las autorizaciones, las convalidaciones y la documentación son cosa del alumno.
+
+Una familia a la que no le queda ningún alumno por ver encuentra un aviso en el inicio del portal que lo explica.
 
 ---
 

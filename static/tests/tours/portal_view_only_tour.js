@@ -2,15 +2,15 @@
 
 import { registry } from "@web/core/registry";
 
-// A minor on his own portal account only consults (res.partner._ems_portal_is_view_only):
-// the home cards and the header menu leave out Enrollment, Convalidations and Documentation,
+// Whoever only consults (res.partner._ems_portal_is_view_only) - a minor on his own portal
+// account, or a family looking at its adult child who authorized sharing with it: the home cards and the header menu leave out Enrollment, Convalidations and Documentation,
 // and the consulting pages still open from them. Structural selectors only (hrefs, ids), so
 // the tour does not depend on the account's language.
 const MANAGING = ["/my/gestion-matriculas", "/my/convalidaciones", "/my/documentacion"]
     .map((href) => `a[href='${href}']`)
     .join(", ");
 
-registry.category("web_tour.tours").add("ems_portal_view_only_minor", {
+registry.category("web_tour.tours").add("ems_portal_view_only", {
     test: true,
     url: "/my/home",
     steps: () => [

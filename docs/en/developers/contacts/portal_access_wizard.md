@@ -44,18 +44,41 @@ family is still granted.
 
 ---
 
-## View-only accounts (a minor on his own account)
+## Who sees and who acts on the portal
 
-`res.partner._ems_portal_is_view_only()` is true for a `student`/`applicant` partner that is not
-among his own `_ems_notification_recipients()`: a minor with a family, or a minor student with
-none. It is false for adults, for families, and for the one minor who acts for himself (the
-GEDAC applicant with no family on file). `_ems_portal_can_act_for()` uses the same rule for a
-student acting for himself.
+**Who sees.** `res.partner.get_portal_students()` is the single point every portal page reads a
+family's students from. It leaves out an adult child who has not authorized sharing with the
+family (`auth_share`, the accepted *share* authorization for the course in force). Nothing is
+revoked: the family keeps its portal user, loses the child from the portal the day they turn 18
+(`is_adult` is computed from `birth_date` on every read, so no cron is involved), and sees them
+again, only to consult, as soon as `auth_share` is set. A family left with no child to see gets
+a notice on the home (`ems-portal-no-students`) and only the consulting entries.
 
-| Portal page | Family / adult / GEDAC minor | View-only minor |
+**Who acts.** `res.partner._ems_portal_can_act_for(student)`: whoever the centre contacts on the
+student's behalf (`_ems_notification_recipients()`). That is the student himself when adult (or
+the minor GEDAC applicant with no family on file), or his family while he is a minor. A family
+never acts for itself, which is what `get_portal_student()` returns when it has no child left.
+
+**View-only.** `res.partner._ems_portal_is_view_only()` is
+`not _ems_portal_can_act_for(get_portal_student())`, so it depends on the student currently
+selected, not only on the logged-in partner:
+
+| Logged-in partner | Looking at | View-only |
+|---|---|:---:|
+| Adult student, or minor GEDAC applicant with no family | himself | no |
+| Minor student (with or without family) | himself | yes |
+| Family | a minor child | no |
+| Family | an adult child with `auth_share` | yes |
+| Family | nobody (every child adult without `auth_share`) | yes |
+
+A student who turns 18 stops being view-only on the same day and gets every section, provided
+he already has his own portal user (granted to minors too, see above). One who has none gets it
+from this wizard; nothing grants it automatically.
+
+| Portal page | Acts for the student | View-only |
 |---|:---:|:---:|
 | Home, Attendance (schedule), Grades, Profile | ✓ | ✓ |
-| Communications | ✓ (all threads) | only messages addressed to him (`partner_ids`) |
+| Communications | ✓ (all threads) | only messages addressed to the student (`partner_ids`) |
 | Enrollment and authorizations, Convalidations, Documentation | ✓ | hidden, route redirects to `/my/home` |
 | Native `/my/quotes`, `/my/orders[/<id>...]`, `/my/invoices[/<id>]` | native rules | empty lists, documents refused |
 
@@ -67,8 +90,9 @@ Enforced server side in `controllers/portal_view_only.py`:
   enrollment, so the native portal rules would otherwise let him open, sign or decline it.
 - The header menu (`views/portal/portal_header.xml`) and the home cards
   (`views/portal/portal_main.xml`) hide the same entries. The header sits inside a `t-cache`
-  block, so its cache key includes `request.env.user.id`: a per-user menu must never be served
-  from another user's cache entry.
+  block, so its cache key includes `request.env.user.id`, the selected student, the visible
+  students and `_ems_portal_is_view_only()`: a per-user menu must never be served from another
+  user's cache entry, and it changes without any write when a child turns 18.
 
 ## Modes
 

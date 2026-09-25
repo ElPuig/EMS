@@ -88,7 +88,7 @@ La taula de **Destinataris (previsualització)** mostra, per a cada alumne, qui 
 
 El sistema decideix automàticament els destinataris segons l'edat de l'alumne:
 
-- **Alumne major d'edat** → l'accés s'envia al **mateix alumne** (al seu correu principal).
+- **Alumne major d'edat** → l'accés s'envia al **mateix alumne** (al seu correu principal). Quan un alumne fa 18 anys, la seva família deixa de veure'l al portal (llevat que l'alumne autoritzi compartir amb la família, i aleshores només per consultar) i l'alumne ho gestiona tot. Si l'alumne encara no tenia compte propi al portal, doneu-li accés amb aquesta mateixa acció.
 - **Alumne menor d'edat** → l'accés s'envia als **familiars** associats a l'alumne **i al mateix alumne**. La família gestiona la matrícula, les autoritzacions, les convalidacions i la documentació. El compte de l'alumne només mostra el seu horari, les comunicacions que li adrecen i el seu perfil.
 - **Aspirant menor d'edat sense cap familiar registrat** (acabat d'arribar de la preinscripció de GEDAC) → l'accés s'envia a l'aspirant, que gestiona la seva pròpia matrícula perquè encara no hi ha ningú més.
 

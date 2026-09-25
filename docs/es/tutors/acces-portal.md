@@ -88,7 +88,7 @@ La tabla de **Destinatarios (previsualización)** muestra, para cada alumno, qui
 
 El sistema decide automáticamente los destinatarios según la edad del alumno:
 
-- **Alumno mayor de edad** → el acceso se envía al **propio alumno** (a su correo principal).
+- **Alumno mayor de edad** → el acceso se envía al **propio alumno** (a su correo principal). Cuando un alumno cumple 18 años, su familia deja de verlo en el portal (salvo que el alumno autorice compartir con la familia, y entonces solo para consultar) y el alumno lo gestiona todo. Si el alumno todavía no tenía cuenta propia en el portal, dadle acceso con esta misma acción.
 - **Alumno menor de edad** → el acceso se envía a los **familiares** asociados al alumno **y al propio alumno**. La familia gestiona la matrícula, las autorizaciones, las convalidaciones y la documentación. La cuenta del alumno solo muestra su horario, las comunicaciones dirigidas a él y su perfil.
 - **Aspirante menor de edad sin ningún familiar registrado** (recién llegado de la preinscripción de GEDAC) → el acceso se envía al aspirante, que gestiona su propia matrícula porque todavía no hay nadie más.
 

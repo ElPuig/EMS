@@ -7,10 +7,14 @@ class ems_contact_portal(models.Model):
     _inherit = 'res.partner'
 
     def get_portal_students(self):
-        """Returns all student partners related to this family contact.
+        """Returns the student partners this family contact may see on the portal.
 
-        - If this partner is a family contact, returns all related students
-          via the partner_multi_relation system.
+        - If this partner is a family contact, returns its related students
+          via the partner_multi_relation system, except the adult ones that
+          have not authorized sharing with the family (auth_share). A family
+          loses its child from the portal the day he turns 18, and gets him
+          back, only to consult (_ems_portal_can_act_for), once he authorizes it.
+          This is the single point every portal page reads the students from.
         - Otherwise, returns self as a single-element recordset.
 
         Uses sudo() because portal users don't have direct access to
@@ -25,7 +29,8 @@ class ems_contact_portal(models.Model):
                 ('this_partner_id', '=', self.id),
                 ('other_partner_id.contact_type', '=', 'student'),
             ])
-            return relations.mapped('other_partner_id').sorted('id')
+            return relations.mapped('other_partner_id').filtered(
+                lambda student: not student.is_adult or student.auth_share).sorted('id')
         return self
 
     def _ems_revoke_student_portal(self):
@@ -122,27 +127,30 @@ class ems_contact_portal(models.Model):
         return self._ems_notification_recipients() | self
 
     def _ems_portal_is_view_only(self):
-        """Whether this portal partner is a student looking at his own account without being
-        the one who acts for himself: a minor with a family on file, or a minor student with
-        none at all. Enrollment, authorizations, convalidations and documentation are hidden
-        and refused to him. The one minor who does act for himself is the applicant straight
-        from a GEDAC preinscription with no family on file (_ems_notification_recipients)."""
+        """Whether this portal partner may only consult the student he is looking at
+        (get_portal_student) rather than act for him (_ems_portal_can_act_for): a minor on his
+        own account, a family looking at an adult child who authorized sharing with it, or a
+        family with no child left to see. Enrollment, authorizations, convalidations and
+        documentation are hidden and refused to him (controllers/portal_view_only.py)."""
         self.ensure_one()
-        return self.contact_type in ('student', 'applicant') \
-            and self not in self._ems_notification_recipients()
+        return not self._ems_portal_can_act_for(self.get_portal_student())
 
     def _ems_portal_can_act_for(self, student):
-        """Whether this portal partner may act on the student's behalf: the student himself when
-        nobody else does it for him (_ems_portal_is_view_only), or his family while he is a
-        minor. A student with no birth date counts as a minor. Portal access is granted along
-        the same line (_ems_portal_access_recipients), but not kept in step with it: a family
-        keeps its account when the student turns 18."""
+        """Whether this portal partner may act on the student's behalf: whoever the centre
+        contacts on his behalf (_ems_notification_recipients) - the student himself when adult,
+        or the minor applicant with no family on file; the family while he is a minor.
+        A student with no birth date counts as a minor. A family never acts for itself, which
+        is what get_portal_student() returns when it has no child left to see."""
         self.ensure_one()
         if not student:
             return False
         if student == self:
-            return not student._ems_portal_is_view_only()
-        return not student.is_adult and student in self.get_portal_students()
+            if self.contact_type == 'family':
+                return False
+            return self.contact_type not in ('student', 'applicant') \
+                or self in self._ems_notification_recipients()
+        return student in self.get_portal_students() \
+            and self in student._ems_notification_recipients()
 
     def get_portal_student(self, student_id=None):
         """Returns the student partner for this partner.

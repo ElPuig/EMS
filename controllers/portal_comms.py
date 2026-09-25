@@ -34,8 +34,9 @@ class EMSPortalCommsController(CustomerPortal):
         # Dominio combinado: mensajes dirigidos al partner, del chatter de matrícula, de documentos
         # o de convalidaciones. Excluimos notas internas (mail.mt_note) para que no sean visibles en el portal
         note_subtype = request.env.ref('mail.mt_note')
-        # A minor on his own account only sees what is addressed to him: the enrollment,
-        # document and convalidation threads are his family's conversation with the centre
+        # Whoever only consults (a minor on his own account, a family looking at its adult
+        # child) only sees what is addressed to the student: the enrollment, document and
+        # convalidation threads are the conversation of whoever acts for him with the centre
         # (res.partner._ems_portal_is_view_only).
         if ems_portal_is_view_only():
             origin = [('partner_ids', 'in', [partner.id])]

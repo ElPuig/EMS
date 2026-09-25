@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-"""A minor looking at his own portal account only consults: his schedule, his profile and the
-messages addressed to him. Enrollment, authorizations, convalidations and documentation stay
-with his family (res.partner._ems_portal_is_view_only). The menu and the home cards hide them,
-and every route behind them refuses him here too, since a hidden link protects nothing."""
+"""Whoever may only consult the student he is looking at - a minor on his own account, or a family
+looking at its adult child who authorized sharing with it - sees his schedule, grades, profile and
+the messages addressed to him. Enrollment, authorizations, convalidations and documentation stay
+with whoever acts for the student (res.partner._ems_portal_is_view_only). The menu and the home
+cards hide them, and every route behind them refuses him here too, since a hidden link protects
+nothing."""
 
 import functools
 
@@ -14,7 +16,7 @@ from odoo.addons.sale.controllers.portal import CustomerPortal as SaleCustomerPo
 
 
 def ems_portal_is_view_only():
-    """Whether the logged-in portal user is a student who may only consult his own account."""
+    """Whether the logged-in portal user may only consult the student he is looking at."""
     return request.env.user.partner_id._ems_portal_is_view_only()
 
 

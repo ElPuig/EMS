@@ -120,7 +120,7 @@ flowchart LR
 
 `controllers/portal_convalidation.py` (`/my/convalidaciones`) always acts on `get_portal_student()`: the student, or the child a family has selected. It uses `sudo()` because portal users have no ACL on these models.
 
-**Who acts.** `res.partner._ems_portal_can_act_for(student)` (`models/contacts/portal.py`): the student themselves once they are of age (`is_adult`), or their family while they are a minor. A student with no birth date counts as a minor. Every route goes through it (`_ems_convalidation_student()` returns an empty recordset otherwise), so a minor on their own account, or a family whose child has turned 18, gets a notice (`o_ems_convalidation_age_blocked`) instead of the requests and the form, and their POSTs do nothing. Portal accounts are granted along the same line (`_ems_notification_recipients`), but nothing keeps them in step: a family keeps its account when the child turns 18, and a minor applicant with no family on file gets their own.
+**Who acts.** `res.partner._ems_portal_can_act_for(student)` (`models/contacts/portal.py`): the student themselves once they are of age (`is_adult`), or their family while they are a minor; a student with no birth date counts as a minor. Whoever may only consult (a minor on their own account, a family looking at its adult child, see "Who sees and who acts on the portal" in `docs/en/developers/contacts/portal_access_wizard.md`) is sent back to `/my/home` by `@ems_portal_manage_required` on every route. `_ems_convalidation_student()` still checks `_ems_portal_can_act_for()` and returns an empty recordset otherwise, as a last line of defence.
 
 | Route | Behaviour |
 |-------|-----------|

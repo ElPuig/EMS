@@ -27,7 +27,7 @@ Al guardar también se crea el horario semanal propio del profesor o profesora, 
 
 ### Por qué el correo personal es obligatorio
 
-Es la dirección donde se envían las credenciales de la nueva cuenta de Google. Sin ella la cuenta corporativa simplemente no se crea: la ficha se guarda, pero no pasa nada más y queda una nota en el historial de mensajes explicando qué falta. Pedid una dirección personal antes de crear la ficha: no es una formalidad, es la única manera de que la persona reciba su contraseña. El campo sale dos veces en la ficha: en la pantalla principal, para que nada obligatorio quede escondido detrás de una pestaña mientras la creáis, y en su sitio habitual dentro de la pestaña **Información privada**. Es el mismo campo: si rellenáis uno, se rellena el otro.
+Es la dirección donde se envían las credenciales de la nueva cuenta de Google. Sin ella la cuenta corporativa simplemente no se crea: la ficha se guarda, pero no pasa nada más y queda una nota en el historial de mensajes explicando qué falta. Pedid una dirección personal antes de crear la ficha: no es una formalidad, es la única manera de que la persona reciba su contraseña. El campo sale dos veces en la ficha: en la pantalla principal, para que nada obligatorio quede escondido detrás de una pestaña mientras la creáis, y en su sitio habitual dentro de la pestaña **Información privada**. Es el mismo campo: si rellenáis uno, se rellena el otro. Tampoco puede ser una dirección del dominio del centro: EMS no permite guardarla, porque también es la dirección de recuperación de la cuenta corporativa.
 
 ---
 

@@ -39,6 +39,7 @@ Desde la lista de **Alumnado**, abra el menú de acciones (el icono del engranaj
 - Los **contactos familiares** (tutores/as) se hacen coincidir por su número de documento (DNI/NIE/pasaporte) — los que coinciden se actualizan, los que no, se crean. Una fila de tutor **sin número de documento** siempre crea un contacto nuevo en lugar de hacerlo coincidir con uno existente; si el mismo tutor sin documento aparece en una importación posterior, espere un segundo contacto en lugar de una actualización. Fusione los duplicados a mano desde **Contactos → Familias** si ocurre esto.
 - La **relación familiar** (madre, padre, abuelo/a, hermano/a, tutor legal…) se deduce de una nota de texto libre del archivo. Cuando no se puede deducir con confianza, el tutor se vincula como "Tutor" genérico y se añade una nota al **propio registro del alumno/a** citando el texto original — merece la pena revisarlo rápidamente en cualquier caso marcado así.
 - Un alumno/a cuyo **código de grupo** en el archivo no coincide con ningún grupo de EMS se importa igualmente (sin grupo asignado) — se añade a su registro una nota con el código no coincidente para que pueda corregirse a mano.
+- Un **correo personal** del fichero que pertenece al dominio del centro (una cuenta corporativa) se ignora: el alumno o el familiar se importa igualmente con el resto de datos, se mantiene el correo personal que ya tenía y el resultado muestra un aviso con su nombre.
 
 ## Leer el resultado y el registro
 

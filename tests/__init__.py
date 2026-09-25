@@ -88,6 +88,7 @@ from . import test_student_import_wizard_tour
 from . import test_student_update_wizard
 from . import test_student_update_wizard_tour
 from . import test_planning
+from . import test_personal_email_not_corporate
 from . import test_portal_access_wizard
 from . import test_portal_access_wizard_tour
 from . import test_portal_enrollment

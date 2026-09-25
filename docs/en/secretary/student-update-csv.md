@@ -40,6 +40,8 @@ If you map an **IBAN** column and a row has a value in it, that becomes the stud
 
 After clicking **Update students**, you'll see how many students were updated and how many IDs weren't found, plus any row-level errors (e.g. an unparseable date). A downloadable **result CSV** — your original file with an extra status column — shows exactly what happened to every row, useful for a large file.
 
+If the email column holds an address of the centre's own domain (a corporate account), that value is not written: the student keeps their current personal email, the rest of the row is still updated, and the result lists a warning for that student.
+
 ---
 
 [← Back to Secretariat index](index.md)

@@ -55,6 +55,8 @@ Para hacer la importación:
 
 Al terminar, el asistente muestra un **resumen de la importación**: cuántos aspirantes se han creado, cuántos se han actualizado y cuántas filas se han omitido. También podéis **descargar el registro (CSV)** y, si los hay, el CSV `gedac_alumnes_actius_<fecha>.csv` con los continuadores internos.
 
+Si el correo de un aspirante en el fichero pertenece al dominio del centro (una cuenta corporativa), el aspirante se crea o se actualiza igualmente, pero sin ese correo, y el resumen muestra un aviso para él.
+
 ![Resumen del resultado de la importación](../../assets/secretary/preinscrpcio-Secretaria-03.png)
 
 ---

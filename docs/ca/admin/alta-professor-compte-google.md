@@ -51,7 +51,7 @@ Al formulari d'alta:
 
 ## Pas 3 — Omplir el correu electrònic privat
 
-Ompliu el camp **Correu electrònic privat (1)**, a la columna dreta de la pantalla principal, sota **Gestor** (el mateix camp també és a la pestanya **Informació privada**). Aquest correu electrònic personal serà on s'enviarà la contrasenya del nou correu electrònic del centre.
+Ompliu el camp **Correu electrònic privat (1)**, a la columna dreta de la pantalla principal, sota **Gestor** (el mateix camp també és a la pestanya **Informació privada**). Aquest correu electrònic personal serà on s'enviarà la contrasenya del nou correu electrònic del centre. Ha de ser una adreça realment personal: EMS no n'accepta cap del domini del centre.
 
 ![Formulari d'alta amb el camp de correu electrònic privat sota Gestor](../../assets/admin/alta-professor-03-correu-privat.png)
 

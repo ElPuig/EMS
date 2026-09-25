@@ -119,6 +119,8 @@ Perquè les famílies puguin confirmar la matrícula més endavant, cal que ting
 ![Menú Accions amb l'opció d'accés al portal](../../assets/secretary/preinscrpcio-Secretaria-07.png)
 
 > Aquesta opció genera o activa l'accés al portal educatiu per a l'alumnat i les seves famílies, de manera que, quan rebin el correu de proposta, hi puguin entrar a respondre les autoritzacions i confirmar la matrícula. Els alumnes que ja són del centre solen tenir-lo actiu.
+>
+> Un alumne menor d'edat també rep el seu propi accés, a més del de la família, però només de consulta (horari, les seves comunicacions i perfil): és la família qui confirma la matrícula. Vegeu [Com gestionar l'accés al portal](../tutors/acces-portal.md#qui-rep-laccés-alumnes-i-famílies).
 
 ---
 

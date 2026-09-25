@@ -16212,3 +16212,9 @@ msgstr "Exempció 100%"
 #: code:addons/ems/models/planning/planning.py:0
 msgid "Unsupported search on is_own_subject"
 msgstr "Cerca no admesa en is_own_subject"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/controllers/portal_view_only.py:0
+msgid "Your family manages the enrollment from its own portal account."
+msgstr "La teva família gestiona la matrícula des del seu propi compte del portal."

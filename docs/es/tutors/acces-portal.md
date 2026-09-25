@@ -89,9 +89,12 @@ La tabla de **Destinatarios (previsualización)** muestra, para cada alumno, qui
 El sistema decide automáticamente los destinatarios según la edad del alumno:
 
 - **Alumno mayor de edad** → el acceso se envía al **propio alumno** (a su correo principal).
-- **Alumno menor de edad** → el acceso se envía a los **familiares** asociados al alumno.
+- **Alumno menor de edad** → el acceso se envía a los **familiares** asociados al alumno **y al propio alumno**. La familia gestiona la matrícula, las autorizaciones, las convalidaciones y la documentación. La cuenta del alumno solo muestra su horario, las comunicaciones dirigidas a él y su perfil.
+- **Aspirante menor de edad sin ningún familiar registrado** (recién llegado de la preinscripción de GEDAC) → el acceso se envía al aspirante, que gestiona su propia matrícula porque todavía no hay nadie más.
 
-Si un alumno menor no tiene ningún familiar asociado, o si a un destinatario le falta el correo electrónico, aparecerá el aviso correspondiente en la columna **Nota** y no se le enviará nada.
+Si a un destinatario le falta el correo electrónico, el aviso aparece en la columna **Nota** y no se le envía nada; el resto de destinatarios se procesan igualmente. Si un alumno menor no tiene ningún familiar asociado, el alumno recibe igualmente su acceso y la columna **Nota** avisa de que no se ha encontrado ningún familiar.
+
+El alumnado puede entrar con su correo principal y su contraseña, o con la cuenta del centro (`@elpuig.xeill.net`) mediante **Acceder con Google**. Es útil cuando un alumno ha perdido la contraseña del portal: la cuenta del centro abre el mismo portal.
 
 ---
 

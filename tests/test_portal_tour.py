@@ -16,7 +16,7 @@ class TestPortalTour(HttpCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.student = cls.env['res.partner'].create({
-            'name': 'Portal Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'name': 'Portal Tour Student', 'contact_type': 'student', 'student_id': next_student_id(), 'birth_date': '2000-01-01',
         })
         cls.portal_user = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Portal Tour Student', 'login': 'test_portal_tour_student',

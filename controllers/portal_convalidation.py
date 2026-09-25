@@ -5,6 +5,7 @@ import base64
 from odoo import http
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
+from .portal_view_only import ems_portal_manage_required
 
 
 class EmsPortalConvalidationController(CustomerPortal):
@@ -32,6 +33,7 @@ class EmsPortalConvalidationController(CustomerPortal):
         return request.env.company.sudo()
 
     @http.route('/my/convalidaciones', type='http', auth='user', website=True)
+    @ems_portal_manage_required
     def portal_convalidations(self, **kwargs):
         partner = request.env.user.partner_id
         portal_student = self._ems_convalidation_portal_student()
@@ -50,7 +52,8 @@ class EmsPortalConvalidationController(CustomerPortal):
             'student': student,
             'students': partner.get_portal_students(),
             'viewing_as_family': portal_student != partner,
-            # A minor on his own account, or the family of an adult student: a notice instead.
+            # The family of an adult student: a notice instead. A minor on his own account never
+            # gets here (ems_portal_manage_required).
             'age_blocked_student': portal_student if portal_student and not student else portal_student.browse(),
             'period_open': company._ems_convalidation_period_open(),
             'period_next_change': company._ems_convalidation_period_next_change(),
@@ -72,6 +75,7 @@ class EmsPortalConvalidationController(CustomerPortal):
         return request.render('ems.portal_convalidations', values)
 
     @http.route('/my/convalidaciones/submit', type='http', auth='user', methods=['POST'], website=True)
+    @ems_portal_manage_required
     def portal_convalidation_submit(self, **post):
         student = self._ems_convalidation_student()
         if not student:
@@ -125,6 +129,7 @@ class EmsPortalConvalidationController(CustomerPortal):
 
     @http.route('/my/convalidaciones/reply/<int:convalidation_id>', type='http', auth='user',
                 methods=['POST'], website=True)
+    @ems_portal_manage_required
     def portal_convalidation_reply(self, convalidation_id, **post):
         """Answer a request for information: the files join the request's own documents and the
         text is posted where the Head of Studies reads it. Only while the request is still open."""
@@ -142,6 +147,7 @@ class EmsPortalConvalidationController(CustomerPortal):
 
     @http.route('/my/convalidaciones/cancel/<int:convalidation_id>', type='http', auth='user',
                 methods=['POST'], website=True)
+    @ems_portal_manage_required
     def portal_convalidation_cancel(self, convalidation_id, **post):
         student = self._ems_convalidation_student()
         convalidation = request.env['ems.convalidation'].sudo().browse(convalidation_id)

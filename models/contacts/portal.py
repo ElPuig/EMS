@@ -113,17 +113,35 @@ class ems_contact_portal(models.Model):
             return family
         return self
 
+    def _ems_portal_access_recipients(self):
+        """Partners that get a portal account for this student: whoever acts on his behalf
+        (_ems_notification_recipients) plus the student himself. A minor gets an account of his
+        own too, to look at his schedule and the messages addressed to him, while his family
+        keeps managing everything else (_ems_portal_is_view_only)."""
+        self.ensure_one()
+        return self._ems_notification_recipients() | self
+
+    def _ems_portal_is_view_only(self):
+        """Whether this portal partner is a student looking at his own account without being
+        the one who acts for himself: a minor with a family on file, or a minor student with
+        none at all. Enrollment, authorizations, convalidations and documentation are hidden
+        and refused to him. The one minor who does act for himself is the applicant straight
+        from a GEDAC preinscription with no family on file (_ems_notification_recipients)."""
+        self.ensure_one()
+        return self.contact_type in ('student', 'applicant') \
+            and self not in self._ems_notification_recipients()
+
     def _ems_portal_can_act_for(self, student):
-        """Whether this portal partner may act on the student's behalf: the student himself once
-        he is an adult, or his family while he is a minor. A student with no birth date counts as
-        a minor. Portal access is granted along the same line (_ems_notification_recipients), but
-        not kept in step with it: a family keeps its account when the student turns 18, and a
-        minor applicant with no family on file gets his own."""
+        """Whether this portal partner may act on the student's behalf: the student himself when
+        nobody else does it for him (_ems_portal_is_view_only), or his family while he is a
+        minor. A student with no birth date counts as a minor. Portal access is granted along
+        the same line (_ems_portal_access_recipients), but not kept in step with it: a family
+        keeps its account when the student turns 18."""
         self.ensure_one()
         if not student:
             return False
         if student == self:
-            return student.is_adult
+            return not student._ems_portal_is_view_only()
         return not student.is_adult and student in self.get_portal_students()
 
     def get_portal_student(self, student_id=None):

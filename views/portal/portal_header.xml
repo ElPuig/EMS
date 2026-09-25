@@ -2,7 +2,7 @@
 <odoo>
     <template id="ems_portal_custom_header_menu" inherit_id="portal.frontend_layout">
         <xpath expr="//t[@t-cache='res_company']" position="attributes">
-            <attribute name="t-cache">res_company, request.env.user.partner_id.selected_student_id.id, request.httprequest.path</attribute>
+            <attribute name="t-cache">res_company, request.env.user.id, request.env.user.partner_id.selected_student_id.id, request.httprequest.path</attribute>
         </xpath>
         <xpath expr="//a[hasclass('navbar-brand')]" position="after">
 
@@ -18,15 +18,19 @@
                     <li class="nav-item">
                         <a href="/my/calificaciones" class="nav-link">Grades</a>
                     </li>
-                    <li class="nav-item">
-                        <a href="/my/gestion-matriculas" class="nav-link">Enrollment and authorizations</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/my/convalidaciones" class="nav-link">Convalidations</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/my/documentacion" class="nav-link">Documentation</a>
-                    </li>
+                    <!-- Hidden to a minor on his own account: his family manages these
+                         (res.partner._ems_portal_is_view_only, controllers/portal_view_only.py). -->
+                    <t t-if="not request.env.user.partner_id._ems_portal_is_view_only()">
+                        <li class="nav-item">
+                            <a href="/my/gestion-matriculas" class="nav-link">Enrollment and authorizations</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/my/convalidaciones" class="nav-link">Convalidations</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/my/documentacion" class="nav-link">Documentation</a>
+                        </li>
+                    </t>
                     <li class="nav-item">
                         <a href="/my/comunicaciones" class="nav-link">Communications</a>
                     </li>

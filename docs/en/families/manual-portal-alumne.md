@@ -16,6 +16,8 @@ This guide explains in detail the steps students (or their families) must follow
 4. [Step 3 — Confirmation email](#step-3--confirmation-email)
 5. [Step 4 — Portal access](#step-4--portal-access)
 6. [Step 5 — Answering an authorization](#step-5--answering-an-authorization)
+7. [Signing in afterwards: personal email or school account](#signing-in-afterwards-personal-email-or-school-account)
+8. [Students under 18](#students-under-18)
 
 ---
 
@@ -103,6 +105,33 @@ For each one:
 4. Click **Accept Authorization** or, if the authorization allows it, **Reject**.
 
 Once answered, the **Document** column holds a PDF certificate of your answer. Click it at any time to download or print it.
+
+---
+
+## Signing in afterwards: personal email or school account
+
+Students can open the portal in two ways, whichever is more convenient:
+
+* **Personal email and password:** the email address the invitation was sent to, and the password set in Step 2.
+* **School account (`@elpuig.xeill.net`):** on the sign-in page, click **Log in with Google** and choose the school account. No portal password is needed.
+
+!["Log in with Google" button on the sign-in page (the screenshot shows the interface in Catalan)](../../assets/teachers/acces-google-boto.png)
+
+Both ways open the same portal. If you have lost your portal password, the school account is usually the quickest way in. If you have also forgotten the school account's password, follow the [guide to recovering the school email password](manual-recuperacio-contrasenya-correu.md).
+
+> The school account only works once the student has one (it is created when they enroll) and has already been given portal access. Families always sign in with their own email and password.
+
+---
+
+## Students under 18
+
+While a student is under 18, their **family** manages everything from its own account. The student can have a portal account of their own too, to check:
+
+* **Attendance** (their schedule),
+* **Communications** addressed to them,
+* **Profile**.
+
+**Enrollment and authorizations**, **Convalidations** and **Documentation** do not appear in the student's own account: the family handles them. When the student turns 18, all sections become available to them.
 
 ---
 

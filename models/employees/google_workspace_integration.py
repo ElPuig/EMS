@@ -510,7 +510,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
         oauth_provider_id), and its signup fallback fails on an existing login,
         so a user whose OAuth fields were emptied gets a plain "Access Denied"
         with no way back through the UI. This resolves the Google id again and
-        hands it to the same _ems_link_google_signin() the creation paths use.
+        hands it to the same res.users._ems_link_google_signin() the creation paths use.
 
         Never overwrites an existing link (the button is hidden then) and never
         touches the Google Workspace account itself.
@@ -520,7 +520,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
             return False
         user = self.sudo().user_id
         google_id = self._gw_google_user_id(raise_on_error=True)
-        if not self._ems_link_google_signin(user, google_id):
+        if not user._ems_link_google_signin(google_id):
             provider = self.env.ref('auth_oauth.provider_google', raise_if_not_found=False)
             owner = self.env['res.users'].sudo().with_context(active_test=False).search([
                 ('oauth_provider_id', '=', provider.id),
@@ -598,28 +598,6 @@ class HrEmployeeGoogleWorkspace(models.Model):
             groups |= self.env.ref('ems.group_teacher')
         return groups
 
-    def _ems_link_google_signin(self, user, google_id):
-        """Pre-link "Sign in with Google" on the user (oauth_uid + provider).
-
-        Skipped when the id is unknown, or already taken by another user
-        (auth_oauth unique constraint). Returns True when the user ends up
-        linked to Google sign-in.
-        """
-        user = user.sudo()
-        if user.oauth_uid:
-            return True
-        provider = self.env.ref('auth_oauth.provider_google', raise_if_not_found=False)
-        if not google_id or not provider:
-            return False
-        taken = user.with_context(active_test=False).search_count([
-            ('oauth_provider_id', '=', provider.id),
-            ('oauth_uid', '=', str(google_id)),
-        ])
-        if taken:
-            return False
-        user.write({'oauth_provider_id': provider.id, 'oauth_uid': str(google_id)})
-        return True
-
     def _ems_create_user(self, google_id=False):
         """Create (or re-link) the employee's EMS user for the corporate account.
 
@@ -638,7 +616,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
 
         if emp.user_id:
             # Already linked: only backfill the Google sign-in if missing.
-            self._ems_link_google_signin(emp.user_id, google_id)
+            emp.user_id._ems_link_google_signin(google_id)
             return emp.user_id
 
         login = emp.work_email.lower()
@@ -684,7 +662,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
             })
             created = True
 
-        signin_linked = self._ems_link_google_signin(user, google_id)
+        signin_linked = user._ems_link_google_signin(google_id)
         emp.write({'user_id': user.id})
         # The write() trigger only syncs role/job groups on role_ids/job_id
         # changes, so apply them explicitly now that the user exists.

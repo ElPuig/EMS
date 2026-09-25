@@ -299,11 +299,12 @@ class TestPortalConvalidation(HttpCase):
 
     # --- Who acts on the portal: the adult student, or the family of a minor one ---
 
-    def _assert_cannot_act(self, user, student):
+    def _assert_cannot_act(self, user, student, notice=True):
         request = self._backend_request(student)
         self._login(user)
         page = self.url_open('/my/convalidaciones').text
-        self.assertIn('o_ems_convalidation_age_blocked', page)
+        if notice:
+            self.assertIn('o_ems_convalidation_age_blocked', page)
         self.assertNotIn('convalidation_new_body', page)
         self.assertNotIn(f'/my/convalidaciones/cancel/{request.id}', page)
         self._submit(self.other_subject)
@@ -317,8 +318,20 @@ class TestPortalConvalidation(HttpCase):
         return page
 
     def test_a_minor_cannot_act_from_his_own_account(self):
-        page = self._assert_cannot_act(self.minor_user, self.minor)
-        self.assertIn('requested by their family', page)
+        """His account is view-only (res.partner._ems_portal_is_view_only): the page itself sends
+        him back to the portal home, and so does every action behind it."""
+        self._assert_cannot_act(self.minor_user, self.minor, notice=False)
+        self.assertTrue(self.url_open('/my/convalidaciones').url.endswith('/my/home'))
+
+    def test_a_minor_applicant_without_family_acts_for_himself(self):
+        """The GEDAC preinscription exception: nobody else can act for him."""
+        applicant = self.env['res.partner'].create({
+            'name': 'Convalidation Portal GEDAC Minor', 'contact_type': 'applicant',
+            'student_id': next_student_id(), 'birth_date': '2020-01-01',
+        })
+        self.assertTrue(applicant._ems_portal_can_act_for(applicant))
+        self.assertTrue(self.minor._ems_portal_is_view_only())
+        self.assertFalse(applicant._ems_portal_is_view_only())
 
     def test_the_family_of_an_adult_student_cannot_act(self):
         self.minor.birth_date = '2000-01-01'

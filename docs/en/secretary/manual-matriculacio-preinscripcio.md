@@ -119,6 +119,8 @@ For the families to be able to confirm the enrollment later, they need **portal 
 ![Actions menu with the portal access option](../../assets/secretary/preinscrpcio-Secretaria-07.png)
 
 > This option generates or activates the educational portal access for the students and their families, so that when they receive the proposal email they can log in to answer the authorizations and confirm the enrollment. Students already belonging to the centre usually have it active.
+>
+> A minor student also receives their own access, next to the family's, but it is view-only (schedule, their communications and profile): the family is the one who confirms the enrollment. See [How to manage portal access](../tutors/acces-portal.md#who-receives-access-students-and-families).
 
 ---
 

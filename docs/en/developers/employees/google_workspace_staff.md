@@ -58,7 +58,8 @@ Idempotent; everything runs `sudo()` (callers are queue jobs or buttons limited 
    inherits res.partner, which uses OCA `partner_firstname`), `mobile`, `tz`,
    explicit `company_id`/`company_ids` and groups, all under
    `no_reset_password=True`.
-5. `_ems_link_google_signin(user, google_id)` sets `oauth_uid` + `oauth_provider_id`
+5. `user._ems_link_google_signin(google_id)` (`res.users`, `models/shared/google_signin.py`,
+   shared with the student portal sign-in) sets `oauth_uid` + `oauth_provider_id`
    when the id is known and not taken by another user (auth_oauth unique constraint).
 6. Link `employee.user_id`, call `_sync_security_groups()` so role/job-mapped
    groups apply immediately (the `write()` trigger only fires on
@@ -97,7 +98,7 @@ no e-mail-based fallback.
 
 The action resolves the numeric Google id through the Directory API
 (`_gw_google_user_id(raise_on_error=True)`) and hands it to the same
-`_ems_link_google_signin()` used by the creation paths, so there is one implementation
+`res.users._ems_link_google_signin()` used by the creation paths, so there is one implementation
 of the link itself. It never overwrites a link that is already there — the button is
 hidden in that case — and it never touches the Google account.
 

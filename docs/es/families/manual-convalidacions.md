@@ -8,7 +8,7 @@ Pide la convalidación de los módulos de formación profesional que ya has supe
 
 Solo se pueden solicitar convalidaciones en los ciclos formativos (CFGM y CFGS).
 
-**Quién puede solicitarlas:** el alumno, desde su propia cuenta, si es mayor de edad; la familia, desde su cuenta, si el alumno es menor de edad. Un alumno menor de edad que entre con su propia cuenta, o la familia de un alumno que ha cumplido 18 años, no ve este apartado.
+**Quién puede solicitarlas:** el alumno, desde su propia cuenta, si es mayor de edad; la familia, desde su cuenta, si el alumno es menor de edad. Un alumno menor de edad que entre con su propia cuenta, o la familia de un alumno que ha cumplido 18 años, no ve este apartado. Excepción: un aspirante menor de edad sin ninguna familia registrada en el centro (preinscripción) las solicita desde su propia cuenta.
 
 ---
 

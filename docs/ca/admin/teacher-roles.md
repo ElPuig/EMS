@@ -82,6 +82,8 @@ El compte d'usuari del professor s'actualitza immediatament: es concedeix el gru
 
 Es revoca el grup de seguretat corresponent (i qualsevol accés que només aquell rol justificava) del compte d'usuari del professor.
 
+> **Els permisos concedits directament al compte d'usuari es mantenen.** Si s'ha donat un permís a mà des d'**Ajustos → Usuaris** (per exemple, accés de Secretaria a un professor que no és el Responsable d'àrea de Secretaria), canviar els rols del professor o actualitzar l'EMS no el treu. L'única excepció: si més endavant el professor perd un rol que concedeix aquest mateix permís, se'n va amb el rol, perquè no hi ha manera de distingir els dos casos. Si passa, cal tornar-lo a concedir a mà.
+
 ---
 
 ## Assignar un Cap de departament / Cap de seminari

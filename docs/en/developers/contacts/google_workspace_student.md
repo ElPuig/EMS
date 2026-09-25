@@ -2,15 +2,18 @@
 
 Automates the corporate Google Workspace account every student needs, created through
 the Admin SDK Directory API; the resulting address is stored in `student_email`. Unlike
-the staff sibling (below), students never get a separate `res.users` — there is no EMS
-login/OAuth-linking step here, so this file is noticeably smaller.
+the staff sibling (below), creating the account never creates a `res.users`: a student's
+only EMS user is his portal user, granted separately
+([portal access wizard](portal_access_wizard.md)) and logged in with his personal email.
+The corporate account can open that same portal user through "Sign in with Google", linked
+lazily on the first sign-in (see [Portal sign-in with Google](#portal-sign-in-with-google)).
 
 Lives in `models/contacts/google_workspace_integration.py` (`ResPartnerGoogleWorkspace`,
 `_inherit = 'res.partner'`), with shared helpers in
 [`google.workspace.mixin`](../shared/google_workspace_mixin.md).
 See [Google Workspace staff integration](../employees/google_workspace_staff.md) for the
 teacher/ASP sibling — same shared mixin, same overall shape, different account population
-and no EMS-user step.
+and no EMS-user creation step.
 
 ## Flow
 
@@ -275,6 +278,46 @@ write path.
 | Grace-period banners, optional list columns, search filters | same as above |
 | `_gw_deliver_credentials`'s document/email creation | `sudo()` inside the flow (queue jobs run as the job's own user, not necessarily one with `ems.student.document`/mail rights) |
 
+## Portal sign-in with Google
+
+A student's portal user has his **personal** email as login: it exists before the corporate
+account does (applicants, first-year students). He can also open that same user with his
+corporate account through the login page's "Sign in with Google" button (the
+`auth_oauth.provider_google` provider staff already use). One user, two ways in: `auth_oauth`
+keeps password login working on a user that also has `oauth_uid` set.
+
+The link is made **lazily**, on the student's first Google sign-in, so there is no backfill,
+no Directory API call and nothing to do when a portal user is granted
+(`models/contacts/portal_google_signin.py`):
+
+```mermaid
+flowchart TD
+    A["Google sign-in\n(res.users._auth_oauth_signin)"] --> B{"oauth_uid already\nlinked to a user?"}
+    B -- yes --> OK["log in as that user\n(native auth_oauth)"]
+    B -- no --> C{"Google provider, email_verified,\nemail in company.google_ws_domain?"}
+    C -- no --> D["AccessDenied\n(no signup)"]
+    C -- yes --> E{"exactly one active portal user\n(share) whose partner.student_email\n= that email?"}
+    E -- no --> D
+    E -- yes --> F{"Google id free?\n(res.users._ems_link_google_signin)"}
+    F -- no --> D
+    F -- yes --> G["write oauth_provider_id, oauth_uid,\noauth_access_token"] --> OK2["log in; login stays\nthe personal email"]
+```
+
+- The email Google returns is trusted **only** when verified and inside the centre's own
+  Workspace domain (which the centre controls). Internal users are never matched: staff are
+  linked when their account is created (`hr.employee._ems_create_user`).
+- `res.users._ems_link_google_signin(google_id)` (`models/shared/google_signin.py`) is the
+  single linking helper shared with the staff flow.
+- **A changed `student_email` unlinks Google sign-in** from the student's portal users
+  (`res.partner.write()` in the same file): the stored `oauth_uid` points at the old Google
+  account. The next sign-in with the new address links again. A deleted account needs
+  nothing: Google never reuses an account id, and a suspended or deleted account cannot sign
+  in anyway, while the personal-email login keeps working.
+- A minor's own portal user signs in the same way. What he can do once inside is decided by
+  the portal itself (view-only, see [portal access wizard](portal_access_wizard.md)).
+- Prerequisite outside the code: the Google Cloud OAuth client must accept accounts from the
+  students' organizational units (an "Internal" consent screen on the same Workspace does).
+
 ## Required fields
 
 | Step | Required data |
@@ -282,6 +325,11 @@ write path.
 | Google account creation | `firstname`, `lastname`, `student_id` (IDALU), `email` (personal, used for recovery + credential delivery) — `birth_date` deliberately **not** required, see above |
 
 ## Tests
+
+`tests/test_portal_google_signin.py` (`TestPortalGoogleSignin`) covers the portal sign-in:
+the first sign-in links, later ones go through the link, password login still works, and
+every refusal (foreign domain, unverified email, other provider, no matching student,
+internal user, Google id taken), plus the unlink on a changed `student_email`.
 
 `tests/test_student_google_workspace.py` (`TestStudentGoogleWorkspace`) — readiness,
 email-candidate strategy, creation (dry-run, both OUs, idempotence, missing-data

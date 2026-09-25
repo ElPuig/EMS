@@ -12,23 +12,87 @@
 
 ## Recipient resolution — who gets the access
 
+Two rules, both in `models/contacts/portal.py`, deliberately kept apart:
+
+- `_ems_notification_recipients()`: who **acts** on the student's behalf. It is also used for
+  authorizations and convalidation notices, so it never includes a minor who has a family.
+- `_ems_portal_access_recipients()`: who gets a **portal account**, which is the above plus
+  the student himself. A minor gets his own, view-only account (see below) next to his
+  family's.
+
 ```mermaid
 flowchart TD
-    A["_resolve_recipients(student)"] --> B{"is_adult?"}
+    A["_ems_notification_recipients(student)"] --> B{"is_adult?"}
     B -- yes --> C["the student/applicant itself"]
-    B -- no --> D["_family_contacts(student)\n(res.partner.relation.all, sudo)"]
+    B -- no --> D["_ems_family_contacts()\n(res.partner.relation.all, sudo)"]
     D --> E{"any family contact?"}
     E -- yes --> F["the family contacts"]
     E -- no --> G{"contact_type == 'applicant'?"}
     G -- yes --> H["the applicant itself\n(GEDAC preinscription:\nfamily genuinely not known yet)"]
     G -- no --> I["nobody\n(reported as 'no family contact')"]
+    A --> P["_ems_portal_access_recipients(student)\n= the above | the student"]
 ```
 
 A minor's family contacts are found via `res.partner.relation.all` (`this_partner_id = student`, `other_partner_id.contact_type = 'family'`), run with `sudo()` since a tutor may lack read rights on the relation records of a family they don't otherwise manage.
 
+A minor student with no family on file therefore still gets his own (view-only) account; the
+missing family is reported as an issue and as the note on his preview line, but no longer
+stops the grant. A minor with no personal email is reported as "has no email" while his
+family is still granted.
+
 **Age comes before contact type.** An earlier version keyed the first branch on `applicant`, giving every applicant their own login whatever their age, on the grounds that "at preinscription the family contacts are not known yet". That stopped being true once a returning ex-student became an applicant (see below): their family relations survive a withdrawal, so a 15-year-old coming back would have been emailed their own credentials, the opposite of what a `student` of the same age gets. Testing for the family contacts themselves, rather than for the contact type, keeps a real GEDAC preinscription (which has none on file) behaving exactly as before.
 
 ---
+
+## Who sees and who acts on the portal
+
+**Who sees.** `res.partner.get_portal_students()` is the single point every portal page reads a
+family's students from. It leaves out an adult child who has not authorized sharing with the
+family (`auth_share`, the accepted *share* authorization for the course in force). Nothing is
+revoked: the family keeps its portal user, loses the child from the portal the day they turn 18
+(`is_adult` is computed from `birth_date` on every read, so no cron is involved), and sees them
+again, only to consult, as soon as `auth_share` is set. A family left with no child to see gets
+a notice on the home (`ems-portal-no-students`) and only the consulting entries.
+
+**Who acts.** `res.partner._ems_portal_can_act_for(student)`: whoever the centre contacts on the
+student's behalf (`_ems_notification_recipients()`). That is the student himself when adult (or
+the minor GEDAC applicant with no family on file), or his family while he is a minor. A family
+never acts for itself, which is what `get_portal_student()` returns when it has no child left.
+
+**View-only.** `res.partner._ems_portal_is_view_only()` is
+`not _ems_portal_can_act_for(get_portal_student())`, so it depends on the student currently
+selected, not only on the logged-in partner:
+
+| Logged-in partner | Looking at | View-only |
+|---|---|:---:|
+| Adult student, or minor GEDAC applicant with no family | himself | no |
+| Minor student (with or without family) | himself | yes |
+| Family | a minor child | no |
+| Family | an adult child with `auth_share` | yes |
+| Family | nobody (every child adult without `auth_share`) | yes |
+
+A student who turns 18 stops being view-only on the same day and gets every section, provided
+he already has his own portal user (granted to minors too, see above). One who has none gets it
+from this wizard; nothing grants it automatically.
+
+| Portal page | Acts for the student | View-only |
+|---|:---:|:---:|
+| Home, Attendance (schedule), Grades, Profile | ✓ | ✓ |
+| Communications | ✓ (all threads) | only messages addressed to the student (`partner_ids`) |
+| Enrollment and authorizations, Convalidations, Documentation | ✓ | hidden, route redirects to `/my/home` |
+| Native `/my/quotes`, `/my/orders[/<id>...]`, `/my/invoices[/<id>]` | native rules | empty lists, documents refused |
+
+Enforced server side in `controllers/portal_view_only.py`:
+- `@ems_portal_manage_required`, placed under `@http.route` on every enrollment,
+  authorization, convalidation and documentation route (GET and POST).
+- `_document_check_access()` refuses `sale.order`/`account.move`, and the quotation/order/
+  invoice list domains are emptied, because a minor is the customer (`partner_id`) of his own
+  enrollment, so the native portal rules would otherwise let him open, sign or decline it.
+- The header menu (`views/portal/portal_header.xml`) and the home cards
+  (`views/portal/portal_main.xml`) hide the same entries. The header sits inside a `t-cache`
+  block, so its cache key includes `request.env.user.id`, the selected student, the visible
+  students and `_ems_portal_is_view_only()`: a per-user menu must never be served from another
+  user's cache entry, and it changes without any write when a child turns 18.
 
 ## Modes
 
@@ -70,13 +134,13 @@ Revoking access archives the `res.users` record rather than deleting it, so it k
 
 ## `action_apply()` — the wizard's main entry
 
-Loops `student_ids`; per student: re-checks `_user_can_manage` (defense in depth — `student_ids` could in principle be tampered with client-side before submit), then the adult-without-email guard, then resolves recipients and applies per-recipient with a try/except around `_apply_one` so one failure doesn't abort the whole batch. Aggregates into a single `display_notification` (counts of granted/revoked/resent/skipped, plus a bulleted list of issues — `type: 'warning'` and `sticky: True` if there were any issues, `'success'` otherwise).
+Loops `student_ids`; per student: re-checks `_user_can_manage` (defense in depth — `student_ids` could in principle be tampered with client-side before submit), then the adult-without-email guard, reports a missing family, then applies per recipient of `_ems_portal_access_recipients()` with a try/except around `_apply_one` so one failure doesn't abort the whole batch. Aggregates into a single `display_notification` (counts of granted/revoked/resent/skipped, plus a bulleted list of issues — `type: 'warning'` and `sticky: True` if there were any issues, `'success'` otherwise).
 
 ---
 
 ## Preview (`line_ids`) — `default_get` / `_onchange_mode` / `_build_lines`
 
-The form shows a **read-only preview** of who will be affected before the user clicks Apply — `_build_lines` resolves recipients per selected student and computes `has_portal`/`connected` (from `recipient.user_ids[:1]`, `active_test=False` so an archived/revoked user is still found) and a `note` (`"No family contact found"` if `_resolve_recipients` came back empty, `"Recipient without email"` if the recipient has none). `default_get` builds the initial preview from `active_ids` (the selected `res.partner` records the wizard was opened from); `_onchange_mode` rebuilds it whenever the mode radio changes, additionally filtering to `has_portal and not connected` when switching to `resend` (only those recipients would actually be affected).
+The form shows a **read-only preview** of who will be affected before the user clicks Apply — `_build_lines` resolves recipients per selected student and computes `has_portal`/`connected` (from `recipient.user_ids[:1]`, `active_test=False` so an archived/revoked user is still found) and a `note` (`"Recipient without email"` if the recipient has none, otherwise `"No family contact found"` on the student's own line when `_ems_notification_recipients()` came back empty). `default_get` builds the initial preview from `active_ids` (the selected `res.partner` records the wizard was opened from); `_onchange_mode` rebuilds it whenever the mode radio changes, additionally filtering to `has_portal and not connected` when switching to `resend` (only those recipients would actually be affected).
 
 `default_get`/`_build_lines` are **not** re-triggered by a plain ORM `create()` from Python — that's an onchange, which only fires through the web client (or an explicit test call to `_onchange_mode()`); this is a common testing gotcha, not a wizard bug.
 

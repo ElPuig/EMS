@@ -177,6 +177,9 @@ from . import test_attendance_correction_request_tour
 from . import test_asp_tour
 from . import test_portal_tour
 from . import test_portal_actions
+from . import test_portal_google_signin
+from . import test_portal_view_only
+from . import test_portal_view_only_tour
 from . import test_enrollment_product_extension
 from . import test_enrollment_mail_activity
 from . import test_attendance_session

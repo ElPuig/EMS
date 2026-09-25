@@ -5,6 +5,7 @@ import base64
 from odoo import http
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
+from .portal_view_only import ems_portal_manage_required
 
 
 class EmsPortalConvalidationController(CustomerPortal):
@@ -17,24 +18,22 @@ class EmsPortalConvalidationController(CustomerPortal):
 
     _redirect = '/my/convalidaciones'
 
-    def _ems_convalidation_portal_student(self):
-        """The student the portal user is looking at, whether or not they may act for him."""
-        student = request.env.user.partner_id.get_portal_student()
-        return student if student.contact_type in ('student', 'applicant') else student.browse()
-
     def _ems_convalidation_student(self):
         """The student the portal user acts for (see res.partner._ems_portal_can_act_for), or an
-        empty recordset."""
-        student = self._ems_convalidation_portal_student()
-        return student if request.env.user.partner_id._ems_portal_can_act_for(student) else student.browse()
+        empty recordset. Whoever may only consult never gets this far (ems_portal_manage_required):
+        this is the last line of defence, not the one that tells them."""
+        partner = request.env.user.partner_id
+        student = partner.get_portal_student()
+        return student if student.contact_type in ('student', 'applicant') \
+            and partner._ems_portal_can_act_for(student) else student.browse()
 
     def _ems_convalidation_company(self):
         return request.env.company.sudo()
 
     @http.route('/my/convalidaciones', type='http', auth='user', website=True)
+    @ems_portal_manage_required
     def portal_convalidations(self, **kwargs):
         partner = request.env.user.partner_id
-        portal_student = self._ems_convalidation_portal_student()
         student = self._ems_convalidation_student()
         company = self._ems_convalidation_company()
         Convalidation = request.env['ems.convalidation'].sudo()
@@ -49,9 +48,7 @@ class EmsPortalConvalidationController(CustomerPortal):
             'page_name': 'convalidations',
             'student': student,
             'students': partner.get_portal_students(),
-            'viewing_as_family': portal_student != partner,
-            # A minor on his own account, or the family of an adult student: a notice instead.
-            'age_blocked_student': portal_student if portal_student and not student else portal_student.browse(),
+            'viewing_as_family': student != partner,
             'period_open': company._ems_convalidation_period_open(),
             'period_next_change': company._ems_convalidation_period_next_change(),
             # The period is the centre's local time: shown in it whatever the visitor's own tz.
@@ -72,6 +69,7 @@ class EmsPortalConvalidationController(CustomerPortal):
         return request.render('ems.portal_convalidations', values)
 
     @http.route('/my/convalidaciones/submit', type='http', auth='user', methods=['POST'], website=True)
+    @ems_portal_manage_required
     def portal_convalidation_submit(self, **post):
         student = self._ems_convalidation_student()
         if not student:
@@ -125,6 +123,7 @@ class EmsPortalConvalidationController(CustomerPortal):
 
     @http.route('/my/convalidaciones/reply/<int:convalidation_id>', type='http', auth='user',
                 methods=['POST'], website=True)
+    @ems_portal_manage_required
     def portal_convalidation_reply(self, convalidation_id, **post):
         """Answer a request for information: the files join the request's own documents and the
         text is posted where the Head of Studies reads it. Only while the request is still open."""
@@ -142,6 +141,7 @@ class EmsPortalConvalidationController(CustomerPortal):
 
     @http.route('/my/convalidaciones/cancel/<int:convalidation_id>', type='http', auth='user',
                 methods=['POST'], website=True)
+    @ems_portal_manage_required
     def portal_convalidation_cancel(self, convalidation_id, **post):
         student = self._ems_convalidation_student()
         convalidation = request.env['ems.convalidation'].sudo().browse(convalidation_id)

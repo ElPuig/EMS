@@ -8,7 +8,7 @@ Demana la convalidació dels mòduls de formació professional que ja has supera
 
 Només es poden sol·licitar convalidacions als cicles formatius (CFGM i CFGS).
 
-**Qui les pot sol·licitar:** l'alumne, des del seu propi compte, si és major d'edat; la família, des del seu compte, si l'alumne és menor d'edat. Un alumne menor d'edat que entri amb el seu propi compte, o la família d'un alumne que ha fet 18 anys, veu un avís en lloc de les sol·licituds.
+**Qui les pot sol·licitar:** l'alumne, des del seu propi compte, si és major d'edat; la família, des del seu compte, si l'alumne és menor d'edat. Un alumne menor d'edat que entri amb el seu propi compte, o la família d'un alumne que ha fet 18 anys, no veu aquest apartat.
 
 ---
 

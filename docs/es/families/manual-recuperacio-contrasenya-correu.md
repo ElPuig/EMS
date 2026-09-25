@@ -8,6 +8,8 @@ Esta guía explica paso a paso cómo recuperar la contraseña de la cuenta de co
 
 La cuenta de correo del instituto es una cuenta de **Google (Gmail)**, por lo que la recuperación se realiza a través del asistente oficial de Google.
 
+El alumnado también puede usar esta cuenta para entrar al portal del alumno, con el botón **Acceder con Google** de la pantalla de acceso del portal (ver la [Guía de acceso y activación del portal del alumno](manual-portal-alumne.md#entrar-más-adelante-correo-personal-o-cuenta-del-centro)).
+
 > **Importante:** para poder recuperar la contraseña es necesario tener un **número de teléfono de recuperación** asociado a la cuenta. Es el teléfono que facilitaste cuando se creó la cuenta. Si no tienes acceso a ese teléfono, contacta con la secretaría del instituto.
 
 ---

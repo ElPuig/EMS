@@ -672,9 +672,13 @@ renamed group or reassigned classroom, `space_id`, was silently reverted by the 
 code (`res.company._ems_freeze_living_custom_data()`, called from `_register_hook()`) — CSV can
 never carry `noupdate=True` via the file itself (see the capability table below). See
 `docs/en/developers/shared/data_loading.md`'s "`data/custom/` living data" section for the full
-mechanism and the test used to tell living data from master config, and
-[[project_data_custom_living_vs_master_audit]] in memory for which other `data/custom/` models
-are suspected of the same gap (audit pending developer review, not yet fixed).
+mechanism and the test used to tell living data from master config. Also frozen since:
+`ems.planning`/`ems.planning_outcome` (2026-09-23) and `ems.space` (2026-09-25, classrooms
+renamed through the app were reverted by every upgrade). A newly-listed model also needs a raw-SQL
+`pre-migrate` freezing its existing xmlids (see `migrations/18.0.0.29.0/pre-migrate.py`), or the
+first upgrade shipping it still reverts the data one last time. The audit of the remaining
+`data/custom/` models (always-sync vs. freeze-after-seed) is pending, planned in
+`plans/data_loading_rearchitecture.md`.
 
 **CSV cannot actually be marked `noupdate=True` in this Odoo version — that's exclusive to XML.** An earlier version of this note claimed the deprecated `init_xml` manifest key gives a CSV file `noupdate=True`; that was wrong and has been corrected after a live test (2026-07-30, `data/custom/res.partner.category-<probe>.csv` listed under `'init_xml': [...]`, ran `./upgrade.sh`) showed the file never even loaded — no "loading ems/..." log line, record never created. Root cause, confirmed by reading the actual installed `odoo/modules/loading.py::load_data._get_files_of_kind`: `keys = ['init_xml', 'update_xml', 'data']` is set inside an `elif kind == 'data':` branch, but the very next line, `if isinstance(kind, str): keys = [kind]`, is a **separate, unconditional `if`, not an `elif`** — since `kind` is always a plain string, this second `if` always fires and silently overwrites `keys` back down to just `['data']`, discarding the `init_xml`/`update_xml` merge entirely. Files listed under `init_xml`/`update_xml` are therefore never read at all during the normal 'data' load phase in this Odoo build, regardless of noupdate — apparent dead code, not a working (if deprecated) mechanism. The only manifest key that actually produces `noupdate=True` is `demo` — semantically wrong for real config (demo data is optional, skipped entirely with `--without-demo`, and conceptually sample data, not a centre's real configuration). **Practical conclusion: if a `data/custom/` (or any EMS) CSV record genuinely needs `noupdate=True` protection, there is no clean file-based way to get it — the only options are (a) keep it XML, or (b) set `ir_model_data.noupdate=True` directly via a migration script**, bypassing the file-loading mechanism's noupdate handling entirely (not something to reach for casually, since it also means the file's own content stops being an honest description of what the record actually does on upgrade).
 

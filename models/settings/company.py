@@ -261,7 +261,12 @@ class ems_company(models.Model):
     # file's original values, leaving the total at 106% with no error ever raised again (the
     # constraint only fires on create/write, never on a plain CSV resync under install_mode) -
     # see plans/ems_planning_outcome_ponderation_over_100.md.
-    _EMS_LIVING_CUSTOM_DATA_MODELS = ('ems.group', 'ems.planning', 'ems.planning_outcome')
+    #
+    # ems.space confirmed 2026-09-25 (issue #510): a classroom renamed/repurposed through the app
+    # was reverted to its data/custom/ems.space.csv values on every upgrade - same shape as
+    # ems.group. migrations/18.0.0.29.0/pre-migrate.py freezes the existing rows before that
+    # version's own data reload, so the first upgrade shipping this doesn't revert them one last time.
+    _EMS_LIVING_CUSTOM_DATA_MODELS = ('ems.group', 'ems.planning', 'ems.planning_outcome', 'ems.space')
 
     def _ems_freeze_living_custom_data(self):
         """Freezes (ir.model.data.noupdate=True) every '__import__'-owned record of a model

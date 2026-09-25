@@ -129,3 +129,15 @@ class TestSpace(TransactionCase):
     def test_secretary_cannot_unlink(self):
         with self.assertRaises(AccessError):
             self.test_space.with_user(self.secretary_user).unlink()
+
+    def test_custom_data_records_are_frozen_against_future_upgrades(self):
+        # 'data/custom/ems.space.csv' seeds the centre's classrooms only once: an admin renaming or
+        # repurposing one through the app is 'living' data, not config the CSV should keep
+        # re-pushing on every upgrade (see CLAUDE.md's "Data folder conventions").
+        # '_ems_freeze_living_custom_data' (models/settings/company.py) already ran as part of this
+        # test run's own module (re)load via '_register_hook()'.
+        custom_space_data = self.env['ir.model.data'].sudo().search([
+            ('module', '=', '__import__'), ('model', '=', 'ems.space'),
+        ])
+        self.assertTrue(custom_space_data)
+        self.assertTrue(all(custom_space_data.mapped('noupdate')))

@@ -8,3 +8,8 @@
 
 ## Departed teachers kept the Tutor group:
 - _sync_security_groups() looked employees up with a plain search(), skipping archived ones, so a teacher whose tutorship was cleared after being archived lost role_tutor but kept the Tutor group. Archived employees are now synced too, and a post-migrate script (18.0.0.29.0) revokes, for archived employees only, any role/job-managed group their roles/job neither grant nor imply.
+
+## Classroom names reverted to their CSV values on every EMS upgrade:
+- data/custom/ems.space.csv was resynced on every upgrade (noupdate=False), so a classroom renamed or repurposed through the app went back to its file values. ems.space is now "living" data like ems.group/ems.planning: the CSV only seeds it, and res.company._ems_freeze_living_custom_data() freezes it afterwards.
+- A 18.0.0.29.0 pre-migrate freezes the existing classroom xmlids before that upgrade's data reload, so the upgrade shipping this fix doesn't revert them one last time. Classrooms already reverted by earlier upgrades must be renamed again by hand.
+- The audit of the remaining data/custom models (always-sync vs. freeze-after-seed) is planned in plans/data_loading_rearchitecture.md.

@@ -12,6 +12,9 @@ from markupsafe import Markup
 # The only fields guidance (Orientació) may write on a student or applicant it could not edit
 # otherwise - see rule_contact_orientation_special_needs and _ems_check_orientation_write() (issue #465).
 ORIENTATION_WRITABLE_FIELDS = {'special_needs'}
+# Read and write every student's private notes (issue #511); the student's tutor and the chiefs
+# above them do too, through hr.employee.tutor_scope_user_ids - see _ems_can_access_private_notes().
+PRIVATE_NOTES_GROUPS = ('ems.group_academic_admin', 'ems.group_orientation', 'ems.group_coexistence')
 
 class EmsStudentBenefit(models.Model):
     _name = 'ems.student.benefit'
@@ -266,6 +269,21 @@ class ResPartner(models.Model):
     # on-screen, not-yet-saved edit of main_group_id, so it needs a real compute/depends,
     # not the default()-only idiom (which only ever evaluates once, at load time).
     main_group_pending_change = fields.Boolean(compute='_compute_main_group_pending_change', store=False)
+
+    # Public notes (teachers), issue #511: the native field, restricted to internal users - a
+    # portal student or family can read their own partner record, and the form's own note under
+    # the tab promises them these notes are never visible to them.
+    comment = fields.Html(groups='base.group_user')
+
+    # Private notes (tutoring), issue #511: stored in ems.student.private_note, which only the
+    # academic admin can reach directly. Unlike the public notes (comment, read by every teacher),
+    # this field is empty for anyone _ems_can_access_private_notes() rejects, and writing it is
+    # handled by create()/write() themselves (_ems_store_private_notes) - not an inverse - so
+    # guidance and coexistence can write it on students whose partner record they cannot write.
+    private_notes = fields.Html(
+        string='Private notes (tutoring)', compute='_compute_private_notes', readonly=False, store=False)
+    can_access_private_notes = fields.Boolean(
+        string='Can access private notes', compute='_compute_private_notes', store=False)
 
     def _ems_enrollment_in_force(self):
         """The student's enrollment that governs what may be done with them now.
@@ -770,6 +788,7 @@ class ResPartner(models.Model):
         # two remaining exclusions as write(): not self.env.su (system flows) and a
         # non-'student' contact_type (applicant_import_wizard). student_import_wizard stays
         # excluded too, since it never sets study_id in the first place.
+        private_notes = [entry.pop('private_notes', False) for entry in values]
         is_su = self.env.su
         study_refresh_flags = []
         for entry in values:
@@ -801,6 +820,9 @@ class ResPartner(models.Model):
 
         contact = super(ResPartner, self).create(values)
         contact._sync_category()
+        for record, notes in zip(contact, private_notes):
+            if notes:
+                record._ems_store_private_notes(notes)
 
         # zip() relies on api.model_create_multi's guaranteed order-preservation between the
         # input values and the returned recordset.
@@ -820,6 +842,13 @@ class ResPartner(models.Model):
     def write(self, values):
         # Fired when the model is updated (Source: https://www.cybrosys.com/blog/how-to-override-create-write-and-unlink-methods-in-odoo-17)
         # Note: values is a dict (method fired once per entry)
+        # Private notes first, and without going through super(): they are checked on their own
+        # (_ems_can_access_private_notes), so they must not need write access on the partner.
+        if 'private_notes' in values:
+            values = dict(values)
+            self._ems_store_private_notes(values.pop('private_notes'))
+            if not values:
+                return True
         self._ems_normalize_student_id(values)
         self._ems_check_student_id_on_write(values)
         self._ems_check_orientation_write(values)
@@ -1255,6 +1284,37 @@ class ResPartner(models.Model):
         is_secretary = base.EmsBase.get_user_is_secretary(self)
         is_head_of_studies = base.EmsBase.get_user_is_head_of_studies(self)
         return not (is_admin or is_secretary or is_head_of_studies or self._user_is_tutor_of_record())
+
+    @api.depends('tutor_id')
+    @api.depends_context('uid')
+    def _compute_private_notes(self):
+        notes = {note.partner_id.id: note.notes for note in self.env['ems.student.private_note'].sudo().search(
+            [('partner_id', 'in', self._origin.ids)])}
+        for partner in self:
+            partner.can_access_private_notes = partner._ems_can_access_private_notes()
+            partner.private_notes = partner.can_access_private_notes and notes.get(partner._origin.id, False)
+
+    def _ems_can_access_private_notes(self):
+        self.ensure_one()
+        user = self.env.user
+        return (self.env.su or any(user.has_group(group) for group in PRIVATE_NOTES_GROUPS)
+                or base.EmsBase.user_acts_as_tutor(self, self.tutor_id))
+
+    def _ems_store_private_notes(self, notes):
+        PrivateNote = self.env['ems.student.private_note'].sudo()
+        for partner in self:
+            if not partner._ems_can_access_private_notes():
+                raise AccessError(_(
+                    "Only the student's tutor, the chiefs above them, the guidance and coexistence teams "
+                    "and the academic administrators can change the private notes of %(name)s.",
+                    name=partner.display_name))
+            note = PrivateNote.search([('partner_id', '=', partner.id)])
+            if note:
+                note.notes = notes
+            elif notes:
+                PrivateNote.create({'partner_id': partner.id, 'notes': notes})
+        # Stored outside res.partner, so nothing else tells the ORM this compute is stale.
+        self.invalidate_recordset(['private_notes'])
 
     def _get_special_needs_readonly(self):
         return self._get_read_only_user() and not self.env.user.has_group('ems.group_orientation')

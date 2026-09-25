@@ -27,6 +27,7 @@ This section contains the manuals for **teachers**.
 | [Consulting a Student's Academic Data](student-academic-data.md) | Where to consult any student's academic history, and the student data the Guidance and Coexistence roles can read |
 | [Requesting an absence](absences.md) | Request an absence: choosing its type, a whole day or a few hours, the responsible declaration, the supporting document and sending it |
 | [Plannings: checking your subjects' grading ponderations](planning.md) | Check where the internal/work-placement split and the per-learning-outcome weighting of the subjects you teach comes from |
+| [A Student's Public and Private Notes](student-notes.md) | Where every teacher reads a student's public notes, and who can read and write the private tutoring ones |
 
 ---
 

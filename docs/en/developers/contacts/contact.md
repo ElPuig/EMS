@@ -59,6 +59,34 @@ This **must be a real compute, not a plain `related=`**, unlike `hr.employee`'s 
 
 ---
 
+## Student notes: public and private (issue #511)
+
+A student's form shows two notes tabs instead of the native "Internal Notes" one (which every other contact type keeps as is):
+
+| Tab | Field | Who reads it | Who writes it |
+|-----|-------|--------------|---------------|
+| Public notes (teachers) | `comment` (native `res.partner` field) | Every teacher (`rule_contact_teacher`) | Whoever may write the partner and is not `read_only_user` (academic admin, secretary, Head of Studies, the student's tutor scope) |
+| Private notes (tutoring) | `private_notes` (non-stored compute) | The student's tutor, every chief above them (`hr.employee.tutor_scope_user_ids`: Seminar/Department Chief, their Head of Studies, the Director), guidance (`group_orientation`), coexistence (`group_coexistence`), academic admin | The same people |
+
+```mermaid
+flowchart LR
+    Form["Student form<br/>private_notes"] -->|"read: _compute_private_notes"| Check{"_ems_can_access_private_notes()"}
+    Form -->|"create()/write() pop the value"| Store["_ems_store_private_notes()"]
+    Store --> Check
+    Check -->|"yes, as sudo"| Note[("ems.student.private_note<br/>one per student")]
+    Check -->|"no"| Empty["read: empty<br/>write: AccessError"]
+```
+
+- **Storage** is `ems.student.private_note` (`partner_id` unique, `ondelete='cascade'`; `notes` Html), not a column on `res.partner`: every teacher reads every student, so a plain partner field would leak to all of them. Only the academic admin has access rights on the model; everyone else reaches it only through `res.partner.private_notes`, read and written as superuser once `_ems_can_access_private_notes()` has accepted the current user for *that* student.
+- **`_ems_can_access_private_notes()`** is the single source of truth: `PRIVATE_NOTES_GROUPS` (`group_academic_admin`, `group_orientation`, `group_coexistence`) or `ems.base.user_acts_as_tutor(self, self.tutor_id)`, so the tutor side follows the real chain of command (see "Tutor scope" in [role_hierarchy.md](../employees/role_hierarchy.md)) — another Department Chief or Head of Studies outside the tutor's branch is rejected even though their group can write the partner. The scope follows the student's *current* tutor: when the group's tutor changes, the new tutor takes over and the old one loses access.
+- **Writes bypass `res.partner.write()`'s own access check on purpose**: `write()` pops `private_notes` first and stores it through `_ems_store_private_notes()`, calling `super()` only if other values remain. That is what lets guidance and coexistence write the private notes of a student whose partner record they cannot write (`rule_contact_tutor` only covers their own tutorands). `create()` does the same after the partner exists. Since the value lives outside `res.partner`, `_ems_store_private_notes()` invalidates the compute's cache itself.
+- **`comment` is restricted to internal users** (`groups='base.group_user'`, redefined on `res.partner`): a portal student or family can read their own partner record (native portal rule), so without it they could read their own public notes over RPC. Nothing on the portal renders it. Each tab carries a short muted line above the editor stating who can see those notes, which is what this restriction backs up.
+- `can_access_private_notes` (same compute) hides the tab for everyone else; the field is also empty for them, so neither `read()` nor an export exposes it. Neither field is tracked, so nothing reaches the chatter.
+
+Tests: `tests/test_student_private_note.py` (access matrix, create/write, direct model access denied, tutor change) and `tests/test_student_private_note_tour.py` (tutor edits the private tab; a plain teacher reads the public tab and never gets the private one).
+
+---
+
 ## Key computed/derived fields on `res.partner`
 
 | Field | Depends on | Notes |
@@ -382,6 +410,7 @@ restricts `unlink` on `res.partner`, so it would let every tutor delete any cont
 | `ems.student.benefit` | Academic admin | ✓ | ✓ | ✓ | ✓ |
 | `ems.student.benefit` | Secretary | ✓ | ✓ | ✓ | ✓ |
 | `ems.student.benefit` | Teacher | ✓ | — | — | — |
+| `ems.student.private_note` | Academic admin | ✓ | ✓ | ✓ | ✓ |
 | `ems.contact.relation.wizard` | Academic admin | ✓ | ✓ | ✓ | ✓ |
 | `ems.contact.relation.wizard` | Secretary | ✓ | ✓ | ✓ | ✓ |
 | `ems.contact.relation.wizard` | Teacher | ✓ | ✓ | ✓ | ✓ |

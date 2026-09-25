@@ -503,6 +503,34 @@
                     </page>
                 </xpath>
 
+                <!-- Notes (issue #511): a student gets two tabs instead of the native "Internal
+                     Notes" one, which other contact types keep untouched. The public notes are the
+                     same native comment field, read by every teacher; the private ones
+                     (res.partner.private_notes) only by the tutor, the chiefs above them, guidance,
+                     coexistence and the academic admin. -->
+                <xpath expr="//page[@name='internal_notes']" position="attributes">
+                    <attribute name="invisible">contact_type == 'student'</attribute>
+                </xpath>
+                <xpath expr="//page[@name='internal_notes']" position="after">
+                    <page name="public_notes" string="Public notes (teachers)" invisible="contact_type != 'student'">
+                        <div class="d-flex text-muted small mb-2">
+                            <i class="fa fa-eye me-2 mt-1" title="Who can see these notes"/>
+                            <div>Visible to all teaching staff. Students and families never see these notes.</div>
+                        </div>
+                        <field name="comment" placeholder="Notes every teacher can read..."
+                               readonly="read_only_user"/>
+                    </page>
+                    <page name="private_notes" string="Private notes (tutoring)"
+                          invisible="contact_type != 'student' or not can_access_private_notes">
+                        <field name="can_access_private_notes" invisible="1"/>
+                        <div class="d-flex text-muted small mb-2">
+                            <i class="fa fa-lock me-2 mt-1" title="Who can see these notes"/>
+                            <div>Visible only to the student's tutor, the chiefs above them (department, head of studies, director), the guidance and coexistence teams and the academic administrators. Other teachers, students and families never see these notes.</div>
+                        </div>
+                        <field name="private_notes" placeholder="Notes only the tutoring team can read..."/>
+                    </page>
+                </xpath>
+
                 <!-- Hiding or setting up fields when the "add contact" button is used (same form). -->
                 <xpath expr="//field[@name='child_ids']" position="attributes">
                     <attribute name="invisible">contact_type in ['student', 'family']</attribute>

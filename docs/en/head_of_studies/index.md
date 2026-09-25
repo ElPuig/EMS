@@ -24,6 +24,7 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 - [Authorizations: creating, sending and following up](../secretary/authorizations.md) — Creating authorization forms, sending them to students during the course and following up the answers (shared manual with the secretariat).
 - [Notices: Sending Your Own Bulk Emails](notice.md)
 - [Guard Duty Schedule](../teachers/guard-duty-schedule.md) — Who is missing each time block, and who is on guard duty to cover it.
+- [A Student's Public and Private Notes](../teachers/student-notes.md) — Where every teacher reads a student's public notes, and who can read and write the private tutoring ones.
 
 ---
 

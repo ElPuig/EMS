@@ -24,6 +24,7 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 - [Autorizaciones: crearlas, enviarlas y hacer el seguimiento](../secretary/authorizations.md) — Crear formularios de autorización, enviarlos al alumnado durante el curso y hacer el seguimiento de las respuestas (manual compartido con secretaría).
 - [Comunicados: enviar tus propios correos masivos](notice.md)
 - [Horario de guardias](../teachers/guard-duty-schedule.md) — Quién falta en cada franja horaria, y quién está de guardia para cubrirlo.
+- [Notas públicas y notas privadas del alumno](../teachers/student-notes.md) — Dónde todo el profesorado lee las notas públicas de un alumno, y quién puede leer y escribir las privadas de tutoría.
 
 ---
 

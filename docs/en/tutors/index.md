@@ -26,6 +26,7 @@ This section contains the manuals for **group tutors**.
 | [Attendance Reports](attendance-reports.md) | Print the 3 PDF attendance reports (by group/student/subject) and explore attendance data yourself with the Attendance analysis pivot/graph screen |
 | [A Group's Weekly Schedule](../admin/group-schedule.md) | View a group's aggregated timetable (subjects, teachers, classrooms, breaks) and export it to PDF |
 | [A Student's Weekly Schedule](../admin/student-schedule.md) | View one of your tutorands' own timetable (subjects, teachers, classrooms, breaks), including overlapping classes, and export it to PDF |
+| [A Student's Public and Private Notes](../teachers/student-notes.md) | Where every teacher reads a student's public notes, and who can read and write the private tutoring ones |
 
 ---
 

@@ -24,6 +24,7 @@ Aquesta secció conté els manuals per a **Cap d'Estudis, Cap d'Estudis Adjunt/a
 - [Autoritzacions: crear-les, enviar-les i fer-ne el seguiment](../secretary/authorizations.md) — Crear formularis d'autorització, enviar-los a l'alumnat durant el curs i fer el seguiment de les respostes (manual compartit amb secretaria).
 - [Comunicats: enviar els vostres propis correus massius](notice.md)
 - [Horari de guàrdies](../teachers/guard-duty-schedule.md) — Qui falta a cada franja horària, i qui està de guàrdia per cobrir-ho.
+- [Notes públiques i notes privades de l'alumne](../teachers/student-notes.md) — On tot el professorat llegeix les notes públiques d'un alumne, i qui pot llegir i escriure les privades de tutoria.
 
 ---
 

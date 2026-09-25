@@ -6979,6 +6979,7 @@ msgstr "Carrer 2"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_student_private_note__partner_id
 msgid "Student"
 msgstr "Estudiant"
 
@@ -16212,3 +16213,68 @@ msgstr "Exempció 100%"
 #: code:addons/ems/models/planning/planning.py:0
 msgid "Unsupported search on is_own_subject"
 msgstr "Cerca no admesa en is_own_subject"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__private_notes
+#: model:ir.model.fields,field_description:ems.field_res_users__private_notes
+#: model:ir.model.fields,field_description:ems.field_ems_student_private_note__notes
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Private notes (tutoring)"
+msgstr "Notes privades (tutoria)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Public notes (teachers)"
+msgstr "Notes públiques (professorat)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_access_private_notes
+#: model:ir.model.fields,field_description:ems.field_res_users__can_access_private_notes
+msgid "Can access private notes"
+msgstr "Pot accedir a les notes privades"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_student_private_note
+msgid "Student private notes"
+msgstr "Notes privades de l'alumne/a"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Notes every teacher can read..."
+msgstr "Notes que pot llegir tot el professorat..."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Notes only the tutoring team can read..."
+msgstr "Notes que només pot llegir l'equip de tutoria..."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_student_private_note_partner_unique
+msgid "A student can only have one private notes record."
+msgstr "Un alumne/a només pot tenir un registre de notes privades."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "Only the student's tutor, the chiefs above them, the guidance and coexistence teams and the academic administrators can change the private notes of %(name)s."
+msgstr "Només el tutor/a de l'alumne/a, els càrrecs per sobre seu, els equips d'orientació i de convivència i els administradors acadèmics poden canviar les notes privades de %(name)s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "<i class=\"fa fa-eye me-2 mt-1\" title=\"Who can see these notes\"/>"
+msgstr "<i class=\"fa fa-eye me-2 mt-1\" title=\"Qui pot veure aquestes notes\"/>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "<i class=\"fa fa-lock me-2 mt-1\" title=\"Who can see these notes\"/>"
+msgstr "<i class=\"fa fa-lock me-2 mt-1\" title=\"Qui pot veure aquestes notes\"/>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Visible to all teaching staff. Students and families never see these notes."
+msgstr "Visibles per a tot el professorat. L'alumnat i les famílies no veuen mai aquestes notes."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Visible only to the student's tutor, the chiefs above them (department, head of studies, director), the guidance and coexistence teams and the academic administrators. Other teachers, students and families never see these notes."
+msgstr "Visibles només per al tutor/a de l'alumne/a, els càrrecs per sobre seu (departament, prefectura d'estudis, direcció), els equips d'orientació i de convivència i els administradors acadèmics. La resta del professorat, l'alumnat i les famílies no veuen mai aquestes notes."

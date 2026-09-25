@@ -110,6 +110,20 @@ class TestDocsScreenshotsSecretary(DocsScreenshotMixin, HttpCase):
             click=".o_notebook .nav-link[name='secretary']",
             wait_after=".o_field_widget[name='benefit_ids'] .o_data_row + .o_data_row",
         )
+        # The top of the student's form (names, emails, the three data columns and the
+        # authorizations' summary), as the secretary's office sees it - fictitious data only.
+        student.write({
+            'street': 'C. Exemple, 1', 'zip': '08000', 'city': 'Ciutat Exemple',
+            'country_id': self.env.ref('base.es').id, 'mobile': '600 000 000',
+            'student_email': 'nil.exemple@example.com', 'document_id': '00000000T',
+            'medical_id': 'EXEM0000000000', 'nuss': '000000000000',
+            'birth_country_id': self.env.ref('base.es').id, 'citizenship_id': self.env.ref('base.es').id,
+        })
+        self._capture(
+            '/odoo/action-%d/%d' % (action.id, student.id),
+            '.o_form_sheet', 'fitxa-alumne-01-capcalera.png', login='doc_shot_secretary',
+            wait_for='.o_notebook', max_height=690,
+        )
 
     def test_capture_student_documents(self):
         first = self._student('Laia Exemple Soler')

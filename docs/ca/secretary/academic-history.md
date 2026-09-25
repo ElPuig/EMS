@@ -43,7 +43,7 @@ Tornar a executar la generació mai no duplica un registre: el que ja existeix s
 
 Dos punts d'entrada:
 
-- **Per alumne/a:** obriu la fitxa de l'alumne/a — la pestanya **Històric acadèmic** llista els seus registres, ordenats per estudi i curs. La pestanya es manté visible per a l'**antic alumnat** (graduats/des i baixes): és el seu registre permanent.
+- **Per alumne/a:** obriu la fitxa de l'alumne/a — la secció **Històric acadèmic**, al final de la pestanya **Estudis**, llista els seus registres, ordenats per estudi i curs. Per a l'**antic alumnat** (graduats/des i baixes) la pestanya Estudis continua visible, només amb aquesta secció: és el seu registre permanent.
 - **Consultes de cohort:** **Planificació i avaluació → Notes → Històric acadèmic** llista tots els registres. Filtreu o agrupeu per curs, estudi, grup o resultat acadèmic — p. ex. "tot l'alumnat de l'estudi X al curs Y", o tots els registres amb la marca **Títol obtingut**.
 
 ![Registre d'un curs de l'històric acadèmic, amb la pestanya de mòduls i les seves notes](../../assets/secretary/academic-history-record.png)

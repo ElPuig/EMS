@@ -12,11 +12,11 @@
 
 The academic history is the frozen, per-course record of a student's progress: course, study programme, group, tutor, academic result, title obtained and attendance rate. Any teacher can consult any student's history.
 
-**From the student's file:** Educational Community → Students → *[open the student]* → **Academic history** tab.
+**From the student's file:** Educational Community → Students → *[open the student]* → **Studies** tab, **Academic history** section (at the end).
 
 **From its own menu:** Planning and Grading → Grades → **Academic history**. The list opens grouped by course: click a course to expand it, or type the student's name in the search box.
 
-![The Academic history tab on a student's own file, one row per course](../../assets/teachers/historial-01-academic.png)
+![The Academic history section at the end of the Studies tab on a student's own file, one row per course](../../assets/teachers/historial-01-academic.png)
 
 It is read-only. To correct a record, contact the Secretary or the Administrator.
 
@@ -44,7 +44,7 @@ All of it is read-only, except the special educational needs for Guidance (see t
 Holding the **Guidance coordinator** role, you set the special educational needs (NEE) typology of any student or applicant in the centre:
 
 1. Educational Community → Students → *[open the student]*.
-2. In the **Student data** tab, in the **Special educational needs** field, pick **NEE-A** or **NEE-B**, or leave it empty if the student has none.
+2. At the top of the form, in the **Personal data** column, in the **Special educational needs** field, pick **NEE-A** or **NEE-B**, or leave it empty if the student has none.
 3. Click **Save**.
 
 For an applicant, the field is in the **Applicant data** tab. The rest of the file stays read-only.

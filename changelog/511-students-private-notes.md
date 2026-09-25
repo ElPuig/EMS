@@ -17,6 +17,7 @@
 - Academic history is now a section at the end of the Studies tab (still the only section former students see).
 - The Secretary tab now gathers the administrative lists: authorizations, bonifications and exemptions, the family's uploaded documentation (was its own tab) and the student's bank accounts (was the native Invoicing tab, now hidden for students only).
 - Each moved section keeps the exact access groups of its old tab, so nobody sees more than before. Tours clicking the removed tabs now open the tabs that hold those sections.
+- User manuals (ca/es/en) updated to the new layout: a new "student's form" section in the secretary's contacts manual with a screenshot of the header, the Documentation and Academic history references pointing to their new place, and every manual screenshot showing the student form regenerated.
 
 # Fixes
 

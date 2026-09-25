@@ -19,7 +19,7 @@ Tots els botons són a la capçalera de la fitxa de l'alumne (**Comunitat Educat
 1. Comprova que la fitxa té el nom, els cognoms, l'IDALU i el correu personal.
 2. Clica **Crear compte de Google**.
 
-El compte es crea a la unitat organitzativa de menors o de majors d'edat, segons l'edat de l'alumne. A la pestanya **Documentació** apareix el PDF de **Credencials de Google Workspace**, i si l'alumne té correu personal, també les rep per correu.
+El compte es crea a la unitat organitzativa de menors o de majors d'edat, segons l'edat de l'alumne. A la secció **Documentació** de la pestanya **Secretaria** apareix el PDF de **Credencials de Google Workspace**, i si l'alumne té correu personal, també les rep per correu.
 
 ---
 
@@ -36,7 +36,7 @@ L'alumne ja no pot entrar al compte, que passa a la unitat organitzativa de baix
 1. Clica **Restablir la contrasenya de Google**.
 2. Confirma el missatge.
 
-La contrasenya anterior deixa de funcionar a l'instant, i l'alumne haurà de canviar la nova la primera vegada que entri. A la pestanya **Documentació** apareix un PDF nou de **Credencials de Google Workspace** i l'anterior queda com a **Cancel·lat**. Si l'alumne té correu personal, també les rep per correu.
+La contrasenya anterior deixa de funcionar a l'instant, i l'alumne haurà de canviar la nova la primera vegada que entri. A la secció **Documentació** de la pestanya **Secretaria** apareix un PDF nou de **Credencials de Google Workspace** i l'anterior queda com a **Cancel·lat**. Si l'alumne té correu personal, també les rep per correu.
 
 Poden restablir contrasenyes administració, coordinació TAC i el tutor o tutora de l'alumne (i els caps per sobre d'aquest tutor: cap de seminari, cap de departament, cap d'estudis i direcció).
 
@@ -44,7 +44,7 @@ Poden restablir contrasenyes administració, coordinació TAC i el tutor o tutor
 
 ## Descarregar les credencials
 
-Clica el nom del fitxer a la pestanya **Documentació**. Per descarregar les de diversos alumnes alhora, a la llista d'**Estudiants** marca'ls i fes **Accions → Descarregar credencials de Google**.
+Clica el nom del fitxer a la secció **Documentació** de la pestanya **Secretaria**. Per descarregar les de diversos alumnes alhora, a la llista d'**Estudiants** marca'ls i fes **Accions → Descarregar credencials de Google**.
 
 El xat de la fitxa registra qui ha fet cada acció.
 

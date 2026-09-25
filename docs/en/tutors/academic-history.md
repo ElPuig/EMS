@@ -10,9 +10,9 @@ Every student keeps a permanent **academic history**: one record per course with
 
 ## Where to find it
 
-Open the student's form and go to the **Academic history** tab. Each line is one course; open it to see the subjects and, inside each subject, the grades of every learning outcome (RA) per round.
+Open the student's form and go to the **Studies** tab: the **Academic history** section is at the end. Each line is one course; open it to see the subjects and, inside each subject, the grades of every learning outcome (RA) per round.
 
-![The Academic history tab of a student's form, one line per course](../../assets/teachers/historial-01-academic.png)
+![The Academic history section at the end of a student's Studies tab, one line per course](../../assets/teachers/historial-01-academic.png)
 
 ![A course record of the academic history, with its subjects and their grades](../../assets/secretary/academic-history-record.png)
 

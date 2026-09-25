@@ -21,7 +21,7 @@ This guide explains how to review the documents students and families submit —
 
 ## Where to review documents
 
-Go to **Academic Management > Student Documents**. The list opens showing only **Pending** submissions by default (remove the filter to see everything). This is the only screen with Approve/Reject actions — the read-only list you also see on a student's own record (**Documentation** tab) is for reference only.
+Go to **Academic Management > Student Documents**. The list opens showing only **Pending** submissions by default (remove the filter to see everything). This is the only screen with Approve/Reject actions — the read-only list you also see on a student's own record (**Documentation** section of the **Secretary** tab) is for reference only.
 
 ![Student documents list filtered to Pending, with the approve (✓) and reject (✗) icons on each row](../../assets/secretary/documents-01-pendents.png)
 

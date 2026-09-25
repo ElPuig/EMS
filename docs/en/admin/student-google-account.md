@@ -19,7 +19,7 @@ All the buttons are in the header of the student's form (**Educational Community
 1. Check that the form has the first name, last names, IDALU and personal email.
 2. Click **Create Google account**.
 
-The account is created in the organizational unit for minors or adults, depending on the student's age. A **Google Workspace credentials** PDF appears in the **Documentation** tab, and if the student has a personal email, they also receive the credentials by email.
+The account is created in the organizational unit for minors or adults, depending on the student's age. A **Google Workspace credentials** PDF appears in the **Documentation** section of the **Secretary** tab, and if the student has a personal email, they also receive the credentials by email.
 
 ---
 
@@ -36,7 +36,7 @@ The student can no longer sign in, and the account moves to the organizational u
 1. Click **Reset Google password**.
 2. Confirm the message.
 
-The previous password stops working straight away, and the student must change the new one the first time they sign in. A new **Google Workspace credentials** PDF appears in the **Documentation** tab and the previous one becomes **Cancelled**. If the student has a personal email, they also receive the credentials by email.
+The previous password stops working straight away, and the student must change the new one the first time they sign in. A new **Google Workspace credentials** PDF appears in the **Documentation** section of the **Secretary** tab and the previous one becomes **Cancelled**. If the student has a personal email, they also receive the credentials by email.
 
 Passwords can be reset by administration, TAC coordination and the student's own tutor (plus the chiefs above that tutor: Seminar Chief, Department Chief, Head of Studies and Director).
 
@@ -44,7 +44,7 @@ Passwords can be reset by administration, TAC coordination and the student's own
 
 ## Downloading the credentials
 
-Click the file name in the **Documentation** tab. To download the credentials of several students at once, tick them in the **Students** list and use **Actions → Download Google credentials**.
+Click the file name in the **Documentation** section of the **Secretary** tab. To download the credentials of several students at once, tick them in the **Students** list and use **Actions → Download Google credentials**.
 
 The form's chatter records who performed each action.
 

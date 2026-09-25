@@ -11,12 +11,13 @@ Aquesta guia explica com gestionar els contactes de tipus **alumne, família, as
 ## Contingut
 
 1. [Tipus de contacte](#tipus-de-contacte)
-2. [Afegir un contacte familiar a un alumne](#afegir-un-contacte-familiar-a-un-alumne)
-3. [Matricular un alumne en assignatures](#matricular-un-alumne-en-assignatures)
-4. [Bonificacions i exempcions](#bonificacions-i-exempcions)
-5. [Filtres aplicats en obrir la llista d'alumnat](#filtres-aplicats-en-obrir-la-llista-dalumnat)
-6. [Columnes que es mostren a la vista de llista d'alumnat](#columnes-que-es-mostren-a-la-vista-de-llista-dalumnat)
-7. [Camps que només veuen admin/secretaria/Cap d'Estudis/tutors](#camps-que-només-veuen-adminsecretariacap-destudistutors)
+2. [La fitxa de l'alumne](#la-fitxa-de-lalumne)
+3. [Afegir un contacte familiar a un alumne](#afegir-un-contacte-familiar-a-un-alumne)
+4. [Matricular un alumne en assignatures](#matricular-un-alumne-en-assignatures)
+5. [Bonificacions i exempcions](#bonificacions-i-exempcions)
+6. [Filtres aplicats en obrir la llista d'alumnat](#filtres-aplicats-en-obrir-la-llista-dalumnat)
+7. [Columnes que es mostren a la vista de llista d'alumnat](#columnes-que-es-mostren-a-la-vista-de-llista-dalumnat)
+8. [Camps que només veuen admin/secretaria/Cap d'Estudis/tutors](#camps-que-només-veuen-adminsecretariacap-destudistutors)
 
 ---
 
@@ -24,13 +25,25 @@ Aquesta guia explica com gestionar els contactes de tipus **alumne, família, as
 
 Cada persona o entitat a EMS és un contacte amb un **tipus**: Alumne, Família, Aspirant, Extitulat, Baixa o Proveïdor. El tipus d'un contacte canvia automàticament a mesura que avança pel seu recorregut habitual — un aspirant esdevé alumne un cop admès, un alumne esdevé extitulat (si ha graduat) o baixa (si no ho ha fet) en marxar, i tots dos poden tornar a ser alumne en una nova matrícula. Afegir un contacte nou sota un alumne o proveïdor existent (des de la pestanya "Contactes i adreces") li assigna automàticament el tipus Família o Proveïdor — no cal triar-lo mai manualment allà.
 
-**Identificador d'estudiant (IDALU).** Ompliu el camp **Identificador d'estudiant** (pestanya **Dades de l'estudiant**) quan creeu un alumne: EMS no desa un alumne nou sense aquest camp. Cada IDALU pertany a un sol contacte de tot el centre, arxivats inclosos — si n'escriviu un que ja està en ús, EMS us indica quin contacte el té (per exemple, un antic alumne que torna): obriu aquesta fitxa en lloc de crear-ne una de nova. Un cop un alumne té Identificador d'estudiant, es pot corregir, però ja no es pot tornar a deixar buit.
+**Identificador d'estudiant (IDALU).** Ompliu el camp **Identificador d'estudiant** (a la part superior de la fitxa, columna **Identificació**) quan creeu un alumne: EMS no desa un alumne nou sense aquest camp. Cada IDALU pertany a un sol contacte de tot el centre, arxivats inclosos — si n'escriviu un que ja està en ús, EMS us indica quin contacte el té (per exemple, un antic alumne que torna): obriu aquesta fitxa en lloc de crear-ne una de nova. Un cop un alumne té Identificador d'estudiant, es pot corregir, però ja no es pot tornar a deixar buit.
 
 Una fitxa d'alumne que ja existia sense Identificador d'estudiant continua funcionant amb normalitat — edició, canvi de curs, baixa, graduació — no cal que l'ompliu a mà només perquè hi falta; EMS el desarà la propera vegada que en tingueu un de disponible per a aquest alumne.
 
 > **Des de la versió 18.0.0.25.0:** l'Identificador d'estudiant és obligatori per als alumnes nous i únic per a tots els contactes.
 
 > Com marcar una graduació o tramitar una baixa, i tot el que passa amb les dades d'un alumne quan ho feu, es documenta a [Marcar una graduació i tramitar una baixa](graduation-withdrawal.md).
+
+## La fitxa de l'alumne
+
+La part superior de la fitxa recull les dades de l'alumne sense haver de canviar de pestanya:
+
+- **Nom** i **Cognoms**, amb el **Correu personal** i el **Correu corporatiu** a sota.
+- Tres columnes: **Contacte** (adreça, telèfons i idioma), **Identificació** (DNI/NIE, passaport, identificador d'estudiant, identificació mèdica, NUSS i matrícula del vehicle) i **Dades personals** (data de naixement, si és major d'edat, país de naixement, ciutadania, beneficis i necessitats educatives especials).
+- **Autoritzacions**: el resum Sí/No dels drets d'imatge, les excursions escolars, les dades de salut i compartir amb la família.
+
+![Part superior de la fitxa d'un alumne: noms, correus, les columnes Contacte, Identificació i Dades personals, i el resum d'autoritzacions](../../assets/secretary/fitxa-alumne-01-capcalera.png)
+
+A sota hi ha les pestanyes: **Horari** (la que s'obre per defecte), **Estudis** (grup, matrícula per assignatures i històric acadèmic), **Contactes i adreces** (familiars), **Secretaria** (llista d'autoritzacions, bonificacions i exempcions, documentació i comptes bancaris) i les notes: vegeu [Notes públiques i notes privades de l'alumne](../teachers/student-notes.md).
 
 ## Afegir un contacte familiar a un alumne
 
@@ -70,6 +83,8 @@ Els **beneficis** de quota d'un alumne (bonificacions, que descompten part de la
 - La **data de renovació/revisió** es preomple automàticament (9 mesos per a una beca, 2 anys per a la resta) però es pot ajustar.
 - El distintiu de **Beneficis** de l'alumne (visible a la fitxa) reflecteix el benefici de prioritat més alta registrat: una exempció sempre té preferència sobre una bonificació.
 
+Les bonificacions i exempcions són dades econòmiques de la família: només les veuen administració, secretaria, la prefectura d'estudis, orientació, convivència i el tutor/a de l'alumne (amb els càrrecs per sobre seu). La resta del professorat no veu aquesta secció, només el distintiu **Beneficis** de la part superior de la fitxa.
+
 ![Pestanya Secretaria amb dos beneficis registrats, la seva categoria, document i data de renovació](../../assets/secretary/contactes-01-bonificacions.png)
 
 Que un benefici canviï realment la quota de matrícula depèn de l'estat de la matrícula corresponent: un benefici registrat **abans** que la matrícula es confirmi s'hi aplica immediatament; un de registrat **després de confirmar-la** no en modifica retroactivament l'import — cal tornar a aplicar-lo explícitament (des de la matrícula). Consulta el manual de la matrícula per a aquesta acció.
@@ -84,7 +99,7 @@ Canviar la pantalla d'Alumnat de vista Kanban a vista de Llista mostra, per defe
 
 ## Camps que només veuen admin/secretaria/Cap d'Estudis/tutors
 
-Les dades personals (documents, informació mèdica, necessitats educatives especials, autoritzacions…) queden ocultes per a qualsevol persona que no sigui admin, secretaria, Cap d'Estudis/Cap d'Estudis Adjunt/a/Direcció, ni el tutor propi de l'alumne. Cap d'Estudis/Cap d'Estudis Adjunt/a/Direcció tenen el mateix accés complet que secretaria aquí, per a **qualsevol** alumne de tot el centre, no només els seus propis tutoritzats. Un tutor també pot editar la fitxa d'un alumne que tutoritza i la dels seus familiars, però veu un conjunt de camps editables més reduït que secretaria/admin/Cap d'Estudis. També pot afegir i treure els contactes familiars dels alumnes que tutoritza. Orientació veu i edita les necessitats educatives especials de qualsevol alumne.
+Les dades personals (adreça i telèfons de l'alumne, documents, data de naixement, informació mèdica, necessitats educatives especials) queden ocultes per a qualsevol persona que no sigui admin, secretaria, Cap d'Estudis/Cap d'Estudis Adjunt/a/Direcció, ni el tutor propi de l'alumne. La resta del professorat veu, només de lectura, els dos correus, l'identificador d'estudiant, si és major d'edat, el distintiu de beneficis i el resum d'autoritzacions; per trucar a casa té els telèfons dels familiars a la pestanya **Contactes i adreces**. Cap d'Estudis/Cap d'Estudis Adjunt/a/Direcció tenen el mateix accés complet que secretaria aquí, per a **qualsevol** alumne de tot el centre, no només els seus propis tutoritzats. Un tutor també pot editar la fitxa d'un alumne que tutoritza i la dels seus familiars, però veu un conjunt de camps editables més reduït que secretaria/admin/Cap d'Estudis. També pot afegir i treure els contactes familiars dels alumnes que tutoritza. Orientació veu i edita les necessitats educatives especials de qualsevol alumne.
 
 ---
 

@@ -10,9 +10,9 @@ Cada alumne/a conserva un **històric acadèmic** permanent: un registre per cur
 
 ## On trobar-lo
 
-Obriu la fitxa de l'alumne/a i aneu a la pestanya **Històric acadèmic**. Cada línia és un curs; obriu-la per veure els mòduls i, dins de cada mòdul, les notes de cada resultat d'aprenentatge (RA) per convocatòria.
+Obriu la fitxa de l'alumne/a i aneu a la pestanya **Estudis**: la secció **Històric acadèmic** és al final. Cada línia és un curs; obriu-la per veure els mòduls i, dins de cada mòdul, les notes de cada resultat d'aprenentatge (RA) per convocatòria.
 
-![Pestanya Històric acadèmic de la fitxa d'un alumne, una línia per curs](../../assets/teachers/historial-01-academic.png)
+![Secció Històric acadèmic, al final de la pestanya Estudis de la fitxa d'un alumne, una línia per curs](../../assets/teachers/historial-01-academic.png)
 
 ![Un registre de curs de l'històric acadèmic, amb les assignatures i les seves notes](../../assets/secretary/academic-history-record.png)
 

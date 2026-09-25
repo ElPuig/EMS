@@ -12,11 +12,11 @@
 
 L'historial acadèmic és el registre congelat, curs a curs, de la trajectòria d'un alumne: curs, estudis, grup, tutor, resultat acadèmic, títol obtingut i percentatge d'assistència. Qualsevol professor pot consultar l'historial de qualsevol alumne.
 
-**Des de la fitxa de l'alumne:** Comunitat Educativa → Alumnes → *[obre l'alumne]* → pestanya **Historial acadèmic**.
+**Des de la fitxa de l'alumne:** Comunitat Educativa → Alumnes → *[obre l'alumne]* → pestanya **Estudis**, secció **Històric acadèmic** (al final).
 
 **Des del seu propi menú:** Planificació i Qualificació → Notes → **Historial acadèmic**. La llista s'obre agrupada per curs: clica un curs per desplegar-lo, o escriu el nom de l'alumne al cercador.
 
-![La pestanya Historial acadèmic a la fitxa de l'alumne, una fila per curs](../../assets/teachers/historial-01-academic.png)
+![La secció Històric acadèmic, al final de la pestanya Estudis de la fitxa de l'alumne, una fila per curs](../../assets/teachers/historial-01-academic.png)
 
 És només de lectura. Per corregir un registre, contacta amb la Secretaria o amb l'Administrador.
 
@@ -44,7 +44,7 @@ Tot és només de lectura, llevat de les necessitats educatives especials per a 
 Amb el rol de **Coordinador/a d'orientació**, indiques la tipologia de necessitats educatives especials (NEE) de qualsevol alumne o sol·licitant del centre:
 
 1. Comunitat Educativa → Alumnes → *[obre l'alumne]*.
-2. A la pestanya **Dades de l'estudiant**, al camp **Necessitats educatives especials**, tria **NEE-A** o **NEE-B**, o deixa'l buit si l'alumne no en té.
+2. A la part superior de la fitxa, a la columna **Dades personals**, al camp **Necessitats educatives especials**, tria **NEE-A** o **NEE-B**, o deixa'l buit si l'alumne no en té.
 3. Clica **Desar**.
 
 En un sol·licitant, el camp és a la pestanya **Dades del sol·licitant**. La resta de la fitxa continua sent només de lectura.

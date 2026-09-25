@@ -11,12 +11,13 @@ This guide explains how to manage **student, family, applicant and provider cont
 ## Contents
 
 1. [Contact types](#contact-types)
-2. [Adding a family contact to a student](#adding-a-family-contact-to-a-student)
-3. [Enrolling a student in subjects](#enrolling-a-student-in-subjects)
-4. [Bonifications and exemptions](#bonifications-and-exemptions)
-5. [Filters applied when you open the student list](#filters-applied-when-you-open-the-student-list)
-6. [Columns shown in the student list view](#columns-shown-in-the-student-list-view)
-7. [Fields only admin/secretary/Head of Studies/tutors can see](#fields-only-adminsecretaryhead-of-studiestutors-can-see)
+2. [The student's form](#the-students-form)
+3. [Adding a family contact to a student](#adding-a-family-contact-to-a-student)
+4. [Enrolling a student in subjects](#enrolling-a-student-in-subjects)
+5. [Bonifications and exemptions](#bonifications-and-exemptions)
+6. [Filters applied when you open the student list](#filters-applied-when-you-open-the-student-list)
+7. [Columns shown in the student list view](#columns-shown-in-the-student-list-view)
+8. [Fields only admin/secretary/Head of Studies/tutors can see](#fields-only-adminsecretaryhead-of-studiestutors-can-see)
 
 ---
 
@@ -24,13 +25,25 @@ This guide explains how to manage **student, family, applicant and provider cont
 
 Every person or organisation in EMS is a contact with a **type**: Student, Family, Applicant, Alumni, Withdrawal or Provider. A contact's type changes automatically as it moves through its normal path — an applicant becomes a student once admitted, a student becomes alumni (if they graduated) or withdrawal (if they didn't) once they leave, and either can become a student again on re-enrolment. Adding a new contact under an existing student or provider (from the "Contacts & Addresses" tab) sets its type to Family or Provider automatically — you never need to pick it manually there.
 
-**Student ID (IDALU).** Fill in the **Student ID** field (in the **Student data** tab) when you create a student: EMS doesn't save a new student without it. Each IDALU belongs to a single contact across the whole centre, archived contacts included — if you type one that is already in use, EMS tells you which contact has it (for example, a former student who is coming back): open that record instead of creating a new one. Once a student has a Student ID, it can be corrected but never left empty again.
+**Student ID (IDALU).** Fill in the **Student ID** field (at the top of the form, **Identification** column) when you create a student: EMS doesn't save a new student without it. Each IDALU belongs to a single contact across the whole centre, archived contacts included — if you type one that is already in use, EMS tells you which contact has it (for example, a former student who is coming back): open that record instead of creating a new one. Once a student has a Student ID, it can be corrected but never left empty again.
 
 A student record that already existed with no Student ID keeps working normally — editing, course transition, withdrawal, graduation — you don't need to fill one in by hand just because it's missing; EMS saves it the next time one becomes available for that student.
 
 > **Since 18.0.0.25.0:** the Student ID is required for new students and unique across every contact.
 
 > How to mark a graduation or register a withdrawal, and everything that happens to a student's data when they do, is covered in [Marking a graduation and registering a withdrawal](graduation-withdrawal.md).
+
+## The student's form
+
+The top of the form gathers the student's data without switching tabs:
+
+- **First name** and **Last name**, with the **Personal email** and the **Corporate email** below.
+- Three columns: **Contact** (address, phones and language), **Identification** (ID card/NIE, passport, Student ID, medical ID, NUSS and car plate) and **Personal data** (birth date, whether they are an adult, birth country, citizenship, benefits and special educational needs).
+- **Authorizations**: the Yes/No summary of image rights, school trips, health data and sharing with the family.
+
+![Top of a student's form: names, emails, the Contact, Identification and Personal data columns, and the authorizations summary](../../assets/secretary/fitxa-alumne-01-capcalera.png)
+
+The tabs are below: **Schedule** (the one that opens by default), **Studies** (group, subject enrollments and academic history), **Contacts & Addresses** (family members), **Secretary** (authorizations list, bonifications and exemptions, documentation and bank accounts) and the notes: see [A Student's Public and Private Notes](../teachers/student-notes.md).
 
 ## Adding a family contact to a student
 
@@ -70,6 +83,8 @@ A student's fee **benefits** (bonifications, which discount part of the enrollme
 - The **renewal/review date** is pre-filled automatically (9 months for a scholarship, 2 years for the rest) but can be adjusted.
 - A student's overall **Benefits** badge (shown on the form) reflects the highest-priority benefit registered: an exemption always outranks a bonification.
 
+Bonifications and exemptions are the family's economic data: only the administrators, the secretary's office, the Head of Studies, guidance, coexistence and the student's tutor (with the chiefs above them) see them. Other teachers don't see this section, only the **Benefits** badge at the top of the form.
+
 ![Secretary tab with two registered benefits, their category, document and renewal date](../../assets/secretary/contactes-01-bonificacions.png)
 
 Whether a benefit actually changes the enrollment fee depends on the state of the corresponding enrollment: a benefit registered **before** the enrollment is confirmed applies to it immediately; one registered **after confirmation** does not retroactively change an already-confirmed order — re-applying it explicitly (from the enrollment) is needed instead. See the enrollment's own manual for that re-apply action.
@@ -84,7 +99,7 @@ Switching the Students screen from Kanban to List view shows, by default, most o
 
 ## Fields only admin/secretary/Head of Studies/tutors can see
 
-Personal data (documents, medical information, special educational needs, authorizations…) is hidden from anyone who is neither admin, secretary, Head of Studies/Deputy Head of Studies/Director, nor the student's own tutor. Head of Studies/Deputy Head of Studies/Director have the same full access as secretary here, for **any** student centre-wide, not just their own tutees. A tutor can also edit the record of a student they tutor and that student's family contacts, but sees a narrower set of editable fields than secretary/admin/Head of Studies. They can also add and remove the family contacts of the students they tutor. Guidance sees and edits the special educational needs of any student.
+Personal data (the student's address and phones, documents, birth date, medical information, special educational needs) is hidden from anyone who is neither admin, secretary, Head of Studies/Deputy Head of Studies/Director, nor the student's own tutor. Other teachers see, read-only, both emails, the Student ID, whether the student is an adult, the benefits badge and the authorizations summary; to call home they have the family members' phones in the **Contacts & Addresses** tab. Head of Studies/Deputy Head of Studies/Director have the same full access as secretary here, for **any** student centre-wide, not just their own tutees. A tutor can also edit the record of a student they tutor and that student's family contacts, but sees a narrower set of editable fields than secretary/admin/Head of Studies. They can also add and remove the family contacts of the students they tutor. Guidance sees and edits the special educational needs of any student.
 
 ---
 

@@ -21,7 +21,7 @@ Esta guía explica cómo revisar los documentos que envían alumnos y familias �
 
 ## Dónde se revisan los documentos
 
-Ve a **Gestión académica > Documentos del alumnado**. La lista se abre mostrando solo las tramitaciones **Pendientes** por defecto (quita el filtro para verlas todas). Esta es la única pantalla con acciones de Aprobar/Rechazar — la lista de solo lectura que también ves en la ficha del alumno (pestaña **Documentación**) es solo de referencia.
+Ve a **Gestión académica > Documentos del alumnado**. La lista se abre mostrando solo las tramitaciones **Pendientes** por defecto (quita el filtro para verlas todas). Esta es la única pantalla con acciones de Aprobar/Rechazar — la lista de solo lectura que también ves en la ficha del alumno (sección **Documentación** de la pestaña **Secretaría**) es solo de referencia.
 
 ![Lista de documentos del alumnado filtrada por Pendiente, con los iconos de aprobar (✓) y rechazar (✗) en cada fila](../../assets/secretary/documents-01-pendents.png)
 

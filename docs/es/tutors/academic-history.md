@@ -10,9 +10,9 @@ Cada alumno/a conserva un **histórico académico** permanente: un registro por 
 
 ## Dónde encontrarlo
 
-Abra la ficha del alumno/a y vaya a la pestaña **Histórico académico**. Cada línea es un curso; ábrala para ver los módulos y, dentro de cada módulo, las notas de cada resultado de aprendizaje (RA) por convocatoria.
+Abra la ficha del alumno/a y vaya a la pestaña **Estudios**: la sección **Histórico académico** está al final. Cada línea es un curso; ábrala para ver los módulos y, dentro de cada módulo, las notas de cada resultado de aprendizaje (RA) por convocatoria.
 
-![Pestaña Histórico académico de la ficha de un alumno, una línea por curso](../../assets/teachers/historial-01-academic.png)
+![Sección Histórico académico, al final de la pestaña Estudios de la ficha de un alumno, una línea por curso](../../assets/teachers/historial-01-academic.png)
 
 ![Un registro de curso del histórico académico, con las asignaturas y sus notas](../../assets/secretary/academic-history-record.png)
 

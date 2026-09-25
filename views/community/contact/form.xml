@@ -48,11 +48,14 @@
                     <header>
                         <field name="google_ws_state" invisible="1"/>
                         <field name="can_reset_google_password" invisible="1"/>
+                        <field name="can_create_google_account" invisible="1"/>
+                        <!-- Tutors create their own students' account too (issue #513), with the
+                             same per-record rule as the password reset below. -->
                         <button name="action_create_google_account" type="object"
                                 string="Create Google account"
                                 class="btn-secondary"
-                                invisible="google_ws_state != 'none'"
-                                groups="ems.group_secretary,ems.group_academic_admin,ems.group_tac"/>
+                                invisible="google_ws_state != 'none' or not can_create_google_account"
+                                groups="ems.group_secretary,ems.group_academic_admin,ems.group_tac,ems.group_tutor"/>
                         <button name="action_suspend_google_account" type="object"
                                 string="Suspend Google account"
                                 class="btn-secondary"

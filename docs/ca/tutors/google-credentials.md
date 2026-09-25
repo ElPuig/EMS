@@ -4,7 +4,7 @@
 
 # Credencials de Google del teu alumnat
 
-Pots consultar i descarregar el PDF amb les credencials del compte de Google Workspace dels alumnes que tutoritzes, i restablir-los la contrasenya.
+Pots crear el compte de Google Workspace dels alumnes que tutoritzes, consultar i descarregar el PDF amb les seves credencials, i restablir-los la contrasenya.
 
 **Rol necessari:** Tutor. El teu cap de seminari, el teu cap de departament i el teu cap d'estudis també poden fer-ho amb el teu alumnat, i la direcció amb el de tots els tutors, amb els mateixos passos.
 
@@ -17,9 +17,24 @@ Pots consultar i descarregar el PDF amb les credencials del compte de Google Wor
 
 ![Pestanya Documentació amb les credencials de Google](../../assets/tutors/credencials-google-01-documentacio.png)
 
-Si la llista és buida, l'alumne encara no té compte de Google creat: demana-ho a secretaria.
+Si la llista és buida, l'alumne encara no té compte de Google creat: crea'l tal com s'explica més avall.
 
 A la pestanya **Documentació** només hi veus les credencials de Google dels alumnes que tutoritzes. La resta de documents (DNI, IBAN, targeta sanitària…) els gestiona secretaria.
+
+---
+
+## Crear el compte de Google d'un alumne
+
+Normalment el compte es crea automàticament quan es matricula l'alumne. Si algun dels teus alumnes encara no en té (sovint perquè en aquell moment hi faltava alguna dada), el pots crear tu mateix:
+
+1. Obre la fitxa de l'alumne.
+2. A la capçalera, clica **Crear compte de Google**.
+
+![Botó Crear compte de Google a la capçalera de la fitxa](../../assets/tutors/credencials-google-04-crear.png)
+
+L'alumne rep les credencials a la seva adreça de correu personal i el PDF amb les credencials es desa a la pestanya **Documentació**. La primera vegada que entri a Google, l'alumne haurà de canviar la contrasenya.
+
+El botó només surt mentre l'alumne no té compte de Google. Si a l'alumne li falta l'IDALU, el nom, els cognoms o el correu personal, un missatge t'indica quina dada falta i el compte no es crea: demana a secretaria que la completi.
 
 ---
 
@@ -34,7 +49,7 @@ A la pestanya **Documentació** només hi veus les credencials de Google dels al
 
 L'alumne rep la contrasenya nova al seu correu personal i es desa un PDF de credencials nou a la pestanya **Documentació**. La contrasenya anterior deixa de funcionar i el seu PDF queda marcat com a **Cancel·lat**. El primer cop que entri a Google, l'alumne haurà de canviar la contrasenya.
 
-El botó només surt si l'alumne té un compte de Google actiu. Si no el veus, l'alumne encara no en té: demana-ho a secretaria.
+El botó només surt si l'alumne té un compte de Google actiu. Si no el veus, l'alumne encara no en té: crea'l tal com s'explica més amunt.
 
 ---
 

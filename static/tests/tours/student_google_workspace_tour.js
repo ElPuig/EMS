@@ -157,3 +157,30 @@ registry.category("web_tour.tours").add("ems_student_google_password_reset_tutor
         },
     ],
 });
+
+// Issue #513: a tutor creates the Google account of one of their own students who has none yet,
+// and is then offered the password reset on the same form. Opened by URL on the seeded student
+// (see test_student_google_workspace_tour.py).
+registry.category("web_tour.tours").add("ems_student_google_account_create_tutor", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_form_statusbar:not(:has(button[name='action_reset_google_password']))",
+            content: "No account yet: nothing to reset",
+        },
+        {
+            trigger: ".o_form_view .o_form_statusbar button[name='action_create_google_account']",
+            content: "Click 'Create Google account'",
+            run: "click",
+        },
+        {
+            trigger: ".o-mail-Message:contains('account created')",
+            content: "The chatter records the new account",
+        },
+        {
+            trigger: ".o_form_view .o_form_statusbar:not(:has(button[name='action_create_google_account']))"
+                + " button[name='action_reset_google_password']",
+            content: "The account is active: the tutor can now reset its password",
+        },
+    ],
+});

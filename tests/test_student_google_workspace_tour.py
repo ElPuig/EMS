@@ -109,3 +109,22 @@ class TestStudentGoogleWorkspaceTour(HttpCase):
                             "ems_student_google_password_reset_tutor", login=tutor_user.login)
         documents = self.env['ems.student.document'].search([('partner_id', '=', student.id)])
         self.assertEqual(sorted(documents.mapped('status')), ['approved', 'cancelled'])
+
+    def test_student_google_account_create_tutor_tour(self):
+        # Issue #513: the tutor is the least-privileged role allowed to create the account, and the
+        # one the button's per-record can_create_google_account actually gates.
+        self.env.company.write({
+            'google_ws_enabled': True, 'google_ws_dry_run': True, 'google_ws_domain': 'elpuig.xeill.net',
+            'google_ws_ou_minor': '/alumnos', 'google_ws_ou_adult': '/alumnos/+18',
+        })
+        tutor_user = create_role_user(self, 'tutor', 'test_tutor_gw_create_tour', name='Tutor Create Tour')
+        tutor = create_role_employee(self, tutor_user)
+        __, __, group = create_level_study_group(self, 'GWC', group={'tutor_id': tutor.id})
+        student = self._seed_student(
+            'GW Student Create Tutor', firstname='GW Student', lastname='Create Tutor',
+            main_group_id=group.id, birth_date=date.today() - relativedelta(years=15))
+        with patch.object(type(self.env['ir.actions.report']), '_render_qweb_pdf',
+                          return_value=(b'%PDF-1.4 x', 'pdf')):
+            self.start_tour(f"/odoo/res.partner/{student.id}",
+                            "ems_student_google_account_create_tutor", login=tutor_user.login)
+        self.assertTrue(student.student_email)

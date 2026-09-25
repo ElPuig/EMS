@@ -16219,3 +16219,19 @@ msgid ""
 "age must authorize sharing his information with the family before you can "
 "consult it again."
 msgstr "No hi ha cap alumne la informació del qual pugueu consultar. Un alumne major d'edat ha d'autoritzar que es comparteixi la seva informació amb la família perquè la pugueu tornar a consultar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Only the secretary's office, administrators, the TAC team and the student's own tutor can create a Google account."
+msgstr "Només secretaria, els administradors, l'equip TAC i el tutor o tutora de l'alumne poden crear un compte de Google."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_create_google_account model:ir.model.fields,field_description:ems.field_res_users__can_create_google_account
+msgid "Can create the Google account"
+msgstr "Pot crear el compte de Google"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__can_create_google_account model:ir.model.fields,help:ems.field_res_users__can_create_google_account
+msgid "Whether the user looking at this student may create their Google account: the secretary, plus everyone who may reset the password."
+msgstr "Indica si l'usuari que consulta aquest alumne li pot crear el compte de Google: secretaria, a més de tothom qui li pot restablir la contrasenya."

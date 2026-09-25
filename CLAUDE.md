@@ -794,6 +794,46 @@ usually decline (they already know whether they closed their own work properly) 
 offer when the branch integrates a colleague's changes, since that's precisely the situation where
 the developer can't already know by memory alone.
 
+## "Prepara la release" — integrate every ready branch into the release branch (2026-09-25)
+
+A developer-invoked, end-to-end release-integration routine, triggered by *"prepara la
+release"*, *"integra la release"* or *"integra todos los cambios"* (synonyms, all equally valid).
+The name deliberately avoids "PR": **this is not the same thing as asking for the PR text**
+("dame el texto para la PR", see "PR changelog" below), which only delivers the changelog
+document, while this routine runs the whole sequence below, of which the PR text is just one
+step. "Integra todos los cambios" is the most generic of the three: only treat it as this routine
+when nothing narrower fits the context (e.g. not when a specific branch or a subagent's work was
+just being discussed); if a request's wording could mean something else, ask instead of guessing.
+
+Run it on the current release branch (e.g. `v18.0.0.29.0`), in this order:
+
+1. **Collect the issues** in the "📦 Ready to merge" column of the GitHub project board
+   (<https://github.com/orgs/ElPuig/projects/4>):
+   `gh project item-list 4 --owner ElPuig --format json --limit 1000`, keeping items whose
+   `status` contains "Ready to merge". The `gh` token needs the organization permission
+   **Projects: Read-only** (fine-grained PAT) or this fails with `Resource not accessible by
+   personal access token`.
+2. **Merge each issue's branch** (`origin/<issue_number>-<slug>`, after `git fetch origin`) into
+   the release branch, **one at a time, in ascending issue-number order**, resolving conflicts per
+   "Resolving merge conflicts" above and the multi-branch rule in "Migrations" (merge
+   same-version `pre/post-migrate.py` bodies into one file). Commit each merge before starting the
+   next one — this routine is an explicit exception to the developer managing commits themselves.
+   If a conflict is still ambiguous after reviewing both sides, stop and ask.
+3. **Run the "revisión del cierre"** (section above) over everything integrated, and **fix**
+   whatever it finds (docs, translations, tests), not just report it. Commit the fixes.
+4. **Prepare the PR text** exactly as "PR changelog" below describes (every `changelog/` file,
+   reassembled by section, condensed, `Related with` from merge history, delivered as a
+   scratchpad file).
+5. **Send the staff newsletter email** (see "Staff newsletter email" below). Since the developer
+   already asked for it by invoking this routine, send it directly without offering first; the
+   `ems.environment_type` check before sending still applies.
+
+**Hard limits, no exceptions:**
+- **Never push.** The developer pushes the branch themselves to trigger CI; the agent has no push
+  permission and must not ask for one.
+- **Never touch the `__manifest__.py` version** while doing this — the release branch already
+  carries the right version.
+
 ## PR changelog: persist silently, deliver only on request
 
 The developer keeps the chat in Spanish but writes their GitHub PR description in English,

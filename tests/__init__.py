@@ -214,3 +214,4 @@ from . import test_role_smoke_tac_tour
 from . import test_user_profile_tour
 from . import test_student_private_note
 from . import test_student_private_note_tour
+from . import test_student_benefit_access

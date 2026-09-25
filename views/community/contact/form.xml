@@ -212,20 +212,15 @@
                 <!-- A student's header (issue #511 follow-up): the contact data, the student's own
                      data and the authorizations' Yes/No summary, in three columns right under the
                      name, so the whole file fits above the tabs. justify-content-start: Odoo's
-                     .o_group spreads its columns (space-between), which would leave a gap in the
-                     middle for read_only_user, who doesn't see the Contact column. It replaces the native contact
+                     .o_group spreads its columns (space-between), which would leave gaps whenever a
+                     column is hidden. It replaces the native contact
                      block for students (hidden above), repeating its fields - Odoo 18 allows a field
                      more than once. Every field keeps the visibility it had: a teacher who is not the
-                     tutor (read_only_user) never sees the contact column nor the personal
-                     identifiers, only the Student ID, corporate email, age, birth date, benefits and
-                     authorizations. -->
+                     tutor (read_only_user) never sees the contact column (the family phones are in
+                     the Contacts tab), the personal identifiers nor the birth date (the Adult badge is
+                     enough), only the Student ID,
+                     both emails (read-only, in the name row), age, benefits and authorizations. -->
                 <xpath expr="//form/sheet/group" position="after">
-                    <group name="student_emails" invisible="contact_type != 'student'">
-                        <field name="email" string="Personal email" widget="email"
-                               context="{'gravatar_image': True}" required="user_ids" invisible="read_only_user"/>
-                        <field name="student_email" string="Corporate email" widget="email"
-                               readonly="read_only_user or is_tutor_readonly"/>
-                    </group>
                     <group name="student_header" col="3" class="justify-content-start" invisible="contact_type != 'student'">
                         <group string="Contact" invisible="read_only_user">
                             <label for="street" string="Address"/>
@@ -254,7 +249,7 @@
                             <field name="car_plate" invisible="read_only_user"/>
                         </group>
                         <group string="Personal data">
-                            <field name="birth_date" readonly="read_only_user"/>
+                            <field name="birth_date" invisible="read_only_user"/>
                             <!-- Same Yes/No badge as the authorizations below: easier to read at a glance. -->
                             <span class="o_form_label">Adult</span>
                             <div class="o_row">
@@ -349,6 +344,9 @@
                                     <field name="signed_document_name" column_invisible="1"/>
                                 </list>
                             </field>
+                        </group>
+                        <group invisible="not can_see_benefits">
+                            <field name="can_see_benefits" invisible="1"/>
                             <separator string="Bonifications &amp; Exemptions" colspan="2"/>
                             <field name="benefit_ids" nolabel="1" colspan="2" readonly="read_only_user or is_tutor_readonly">
                                 <list editable="bottom" decoration-info="category == 'bonification'" decoration-success="category == 'exemption'">
@@ -361,7 +359,9 @@
                                 </list>
                             </field>
                         </group>
-                        <group groups="ems.group_academic_admin,ems.group_secretary,ems.group_tutor,ems.group_tac">
+                        <group groups="ems.group_academic_admin,ems.group_secretary,ems.group_tutor,ems.group_tac"
+                               invisible="not can_see_documents">
+                            <field name="can_see_documents" invisible="1"/>
                             <separator string="Documentation" colspan="2"/>
                             <field name="document_ids" nolabel="1"
                                    context="{'default_partner_id': id}">
@@ -716,20 +716,60 @@
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="partner_firstname.view_partner_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='firstname']" position="attributes">
-                    <attribute name="readonly">read_only_user</attribute>
+                <!-- First name and last name on one row instead of one under the other, to keep the
+                     header short: moved into two side-by-side columns (an inner group always lays
+                     out one field per row, whatever its col). The first firstname in this view is
+                     the form's own, not the one inside the embedded child contact form; both
+                     lastname occurrences (one per partner_names_order, only one visible at a time)
+                     go to the second column. -->
+                <xpath expr="//field[@name='firstname']/.." position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+                <xpath expr="//field[@name='firstname']/.." position="after">
+                    <group name="ems_name_row" invisible="is_company">
+                        <group name="ems_name_first"/>
+                        <group name="ems_name_last"/>
+                    </group>
+                </xpath>
+                <xpath expr="//group[@name='ems_name_first']" position="inside">
+                    <xpath expr="//field[@name='firstname']" position="move"/>
+                </xpath>
+                <xpath expr="//group[@name='ems_name_last']" position="inside">
+                    <xpath expr="//field[@name='lastname']" position="move"/>
+                    <xpath expr="//field[@name='lastname']" position="move"/>
+                </xpath>
+                <!-- A student's emails go right under the names, in the same two columns, so both
+                     rows line up and stay clear of the avatar. The native <label for="email"> gets an
+                     explicit string: Odoo 18's form compiler binds a label to the first field
+                     compiled with that *name* (encounteredFields[fieldName], even when the field has
+                     its own id), which is this one, so every other contact's email row would
+                     otherwise read "Personal email". -->
+                <xpath expr="//label[@for='email']" position="attributes">
+                    <attribute name="string">Email</attribute>
+                </xpath>
+                <xpath expr="//group[@name='ems_name_first']" position="inside">
+                    <field name="email" string="Personal email" widget="email"
+                           context="{'gravatar_image': True}" required="user_ids"
+                           readonly="read_only_user" invisible="contact_type != 'student'"/>
+                </xpath>
+                <xpath expr="//group[@name='ems_name_last']" position="inside">
+                    <field name="student_email" string="Corporate email" widget="email"
+                           readonly="read_only_user or is_tutor_readonly"
+                           invisible="contact_type != 'student'"/>
                 </xpath>
 
-                <!-- partner_firstname.view_partner_form renders "lastname" twice (order
-                     depends on the partner_names_order system parameter, only one is
-                     visible at a time) - both occurrences need the attribute, since an
-                     xpath expr only ever matches the first node found. -->
-                <xpath expr="//field[@name='lastname'][1]" position="attributes">
-                    <attribute name="readonly">read_only_user</attribute>
+                <!-- Hidden, not just read-only, for whoever can't edit them (read_only_user): the
+                     full name is already the form's title. partner_firstname renders "lastname"
+                     twice (one per partner_names_order, only one visible at a time), so both keep
+                     their own condition. -->
+                <xpath expr="//group[@name='ems_name_first']/field[@name='firstname']" position="attributes">
+                    <attribute name="invisible">read_only_user</attribute>
                 </xpath>
-
-                <xpath expr="//field[@name='lastname'][2]" position="attributes">
-                    <attribute name="readonly">read_only_user</attribute>
+                <xpath expr="//group[@name='ems_name_last']/field[@name='lastname'][1]" position="attributes">
+                    <attribute name="invisible">not form_has_lastname_first or read_only_user</attribute>
+                </xpath>
+                <xpath expr="//group[@name='ems_name_last']/field[@name='lastname'][2]" position="attributes">
+                    <attribute name="invisible">form_has_lastname_first or read_only_user</attribute>
                 </xpath>
             </field>
         </record>

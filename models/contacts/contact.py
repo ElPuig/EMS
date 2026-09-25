@@ -220,6 +220,14 @@ class ResPartner(models.Model):
     wpi_enrolled = fields.Boolean(string="WPI enrolled")
 
     document_ids = fields.One2many('ems.student.document', 'partner_id', string='Documents')
+    # Shows the Secretary tab's Documentation section only to whoever the ems.student.document rules
+    # let read something of this student - admin/secretary (all), TAC (credentials), the student's
+    # tutor scope (credentials) - so nobody else gets an empty list that looks as if there were none.
+    can_see_documents = fields.Boolean(string='Can see documents', compute='_compute_can_see_documents')
+    # Same for the Bonifications & Exemptions section: mirrors the ems.student.benefit record rules
+    # (security/rules/contacts.xml) - admin, secretary, Head of Studies, guidance, coexistence, and
+    # the student's tutor scope.
+    can_see_benefits = fields.Boolean(string='Can see benefits', compute='_compute_can_see_benefits')
 
     selected_student_id = fields.Many2one(
         'res.partner',
@@ -1284,6 +1292,25 @@ class ResPartner(models.Model):
         is_secretary = base.EmsBase.get_user_is_secretary(self)
         is_head_of_studies = base.EmsBase.get_user_is_head_of_studies(self)
         return not (is_admin or is_secretary or is_head_of_studies or self._user_is_tutor_of_record())
+
+    @api.depends('tutor_id')
+    @api.depends_context('uid')
+    def _compute_can_see_benefits(self):
+        user = self.env.user
+        sees_all = any(user.has_group(group) for group in (
+            'ems.group_academic_admin', 'ems.group_secretary', 'ems.group_head_of_studies',
+            'ems.group_student_data_reader'))
+        for partner in self:
+            partner.can_see_benefits = sees_all or base.EmsBase.user_acts_as_tutor(partner, partner.tutor_id)
+
+    @api.depends('tutor_id')
+    @api.depends_context('uid')
+    def _compute_can_see_documents(self):
+        user = self.env.user
+        sees_all = any(user.has_group(group) for group in (
+            'ems.group_academic_admin', 'ems.group_secretary', 'ems.group_tac'))
+        for partner in self:
+            partner.can_see_documents = sees_all or base.EmsBase.user_acts_as_tutor(partner, partner.tutor_id)
 
     @api.depends('tutor_id')
     @api.depends_context('uid')

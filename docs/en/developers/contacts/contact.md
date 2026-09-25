@@ -409,7 +409,7 @@ restricts `unlink` on `res.partner`, so it would let every tutor delete any cont
 | `res.partner` | Teacher | — | ✓ | — | — |
 | `ems.student.benefit` | Academic admin | ✓ | ✓ | ✓ | ✓ |
 | `ems.student.benefit` | Secretary | ✓ | ✓ | ✓ | ✓ |
-| `ems.student.benefit` | Teacher | ✓ | — | — | — |
+| `ems.student.benefit` | Teacher | — | ✓ (narrowed by rules, see below) | — | — |
 | `ems.student.private_note` | Academic admin | ✓ | ✓ | ✓ | ✓ |
 | `ems.contact.relation.wizard` | Academic admin | ✓ | ✓ | ✓ | ✓ |
 | `ems.contact.relation.wizard` | Secretary | ✓ | ✓ | ✓ | ✓ |
@@ -423,6 +423,8 @@ restricts `unlink` on `res.partner`, so it would let every tutor delete any cont
 | `rule_contact_secretary` | Secretary | `[]` (unrestricted) | ✓ |
 | `rule_contact_teacher` | Teacher | `[]` (read-only, no write/create/unlink) | — |
 | `rule_contact_tutor` | Teacher (tutor subset) | Own tutorands **or** their family (`relation_all_ids.other_partner_id.tutor_id`) | ✓ (no create/unlink) |
+
+**`ems.student.benefit` record rules (issue #511 follow-up)** - bonifications and exemptions are family economic data: `rule_student_benefit_manager` (academic admin, secretary: every student, full), `rule_student_benefit_reader` (Head of Studies, `group_student_data_reader` - guidance and coexistence: every student, read) and `rule_student_benefit_tutor` (every teacher: only `student_id.tutor_id.tutor_scope_user_ids`, read). Any other teacher reads none; the benefits badge stays visible to them because `benefit_status` is stored. `res.partner.can_see_benefits` mirrors these rules to hide the Secretary tab's section, and `can_see_documents` does the same for the Documentation section (admin, secretary, TAC, the student's tutor scope), so nobody gets an empty list that looks as if there were none.
 
 The **field-level** editing surface for tutors is narrower than the record rule allows: `read_only_user`/`is_tutor_readonly` (computed on load, not stored) drive `readonly=`/`invisible=` attributes across the view, so a tutor's ORM write access to their own tutorands is real but the form only exposes a subset of fields as actually editable (`_get_read_only_user`/`_get_is_tutor_readonly`, `_user_is_tutor_of_record`). **`main_group_id` is the one exception (issue #395):** every other tutor-locked field on the "Studies"/"Secretary" pages stays behind `is_tutor_readonly`, but `main_group_id` deliberately excludes it — a tutor can move their own tutorand to another group of the same study (`study_id`'s own domain still scopes the choice, and `study_id` itself stays locked) — see `_migrate_enrollments_on_group_change` above for what happens to the student's subject enrollments when they do.
 
@@ -445,11 +447,11 @@ A student's form has its own header instead of the native contact block (hidden 
 
 | Band | Contents | Notes |
 |------|----------|-------|
-| `student_emails` | Personal email (`email`) · Corporate email (`student_email`) | Full width: the addresses are long. Personal email hidden for `read_only_user`; corporate email editable except for the tutor |
-| `student_header` (3 columns) | **Contact** (address, phone, mobile, language) · **Identification** (DNI/NIE, passport, Student ID, medical ID, NUSS, car plate) · **Personal data** (birth date, adult Yes/No badge, birth country, citizenship, benefits badge, special educational needs) | Contact is hidden for `read_only_user`, like the native block; `class="justify-content-start"` because Odoo's `.o_group` spreads its columns (`space-between`), which would otherwise leave a gap in the middle for them |
+| Name row (`ems_name_row`, `view_contact_form_firstname`) | First name + personal email · Last name + corporate email | Two columns inside the title area (left of the avatar), so the name and email rows line up. `partner_firstname`'s own group is hidden and its fields are moved (`position="move"`) into the columns, since an inner group always lays out one field per row whatever its `col`. First/last name are hidden for `read_only_user` (they can't edit them, and the full name is the form's title) - for every non-company contact. The emails only show for students: read-only for `read_only_user`, and the corporate one also for the tutor. The native `<label for="email">` gets an explicit `string`: Odoo 18's form compiler binds a label to the first field compiled with that name (even one with its own `id`), which is now the student's personal email, so every other contact's email row would otherwise read "Personal email" |
+| `student_header` (3 columns) | **Contact** (address, phone, mobile, language) · **Identification** (DNI/NIE, passport, Student ID, medical ID, NUSS, car plate) · **Personal data** (birth date, adult Yes/No badge, birth country, citizenship, benefits badge, special educational needs) | Contact is hidden for `read_only_user`, like the native block (the family phones are in the Contacts & Addresses tab); so are the personal identifiers and the birth date (the adult badge is enough); `class="justify-content-start"` because Odoo's `.o_group` spreads its columns (`space-between`), which would otherwise leave a gap in the middle for them |
 | `student_authorizations` (4 columns) | Yes/No summary of image rights, school trips, health data, sharing with family | Scoped to the academic year in force; the list itself is in the Secretary tab |
 
-The contact fields therefore appear twice in the combined arch (native block + header), which Odoo 18 supports. Each field keeps its own visibility: a teacher who is not the tutor (`read_only_user`) only sees the corporate email, Student ID, birth date, adult, benefits and the authorizations.
+The contact fields therefore appear twice in the combined arch (native block + header), which Odoo 18 supports. A teacher who is not the tutor (`read_only_user`) sees both emails, the Student ID, the adult and benefits badges and the authorizations, all read-only.
 
 Below it, six pages grouped by task so related data never needs a tab switch. A student's file opens on **Schedule**; `schedule` and `studies` are inserted before the native `contact_addresses` page, and since they are invisible for every other contact type, those keep their usual tab order:
 

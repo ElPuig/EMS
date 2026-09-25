@@ -352,4 +352,37 @@
         <field name="perm_unlink" eval="False"/>
     </record>
 
+    <!-- ems.student.benefit (issue #511 follow-up): family economic data. Every teacher has read
+         access rights (ems.access_ems_student_benefit_teacher), narrowed here to the student's own
+         tutor scope - the tutor and every chief above them (hr.employee.tutor_scope_user_ids).
+         res.partner._compute_can_see_benefits() mirrors these rules to hide the form section. -->
+    <record id="rule_student_benefit_manager" model="ir.rule">
+        <field name="name">Student benefits: admin and secretary, every student</field>
+        <field name="model_id" ref="ems.model_ems_student_benefit"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin')), (4, ref('ems.group_secretary'))]"/>
+        <field name="domain_force">[]</field>
+    </record>
+
+    <record id="rule_student_benefit_reader" model="ir.rule">
+        <field name="name">Student benefits: Head of Studies, guidance and coexistence read every student</field>
+        <field name="model_id" ref="ems.model_ems_student_benefit"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies')), (4, ref('ems.group_student_data_reader'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_student_benefit_tutor" model="ir.rule">
+        <field name="name">Student benefits: teachers read their own tutor scope's students</field>
+        <field name="model_id" ref="ems.model_ems_student_benefit"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('student_id.tutor_id.tutor_scope_user_ids', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
 </odoo>

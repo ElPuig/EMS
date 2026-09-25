@@ -418,6 +418,18 @@ class TestStudentDocumentTutorAccess(TransactionCase):
         admin = create_role_user(self, 'academic_admin', 'test_admin_student_document')
         self.assertEqual(len(self._documents_seen_by(admin)), 3)
 
+    def test_documentation_section_only_for_who_can_read_some_document(self):
+        # The student form's Documentation section hides itself instead of showing an empty list
+        # to someone the rules let read nothing of this student (issue #511 follow-up).
+        teacher = create_role_user(self, 'teacher', 'test_teacher_student_document')
+        secretary = create_role_user(self, 'secretary', 'test_secretary_student_document')
+        tac = create_role_user(self, 'tac', 'test_tac_section_student_document')
+        for user, student, expected in (
+                (self.tutor_user, self.student, True), (self.tutor_user, self.other_student, False),
+                (teacher, self.student, False), (secretary, self.other_student, True),
+                (tac, self.other_student, True)):
+            self.assertEqual(student.with_user(user).can_see_documents, expected, (user.login, student.name))
+
 
 class TestStudentDocumentTacAccess(TransactionCase):
     """Issue #478: the TAC team reads every student's Google credentials (they reset them), and

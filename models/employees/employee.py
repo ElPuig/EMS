@@ -338,7 +338,6 @@ class ems_employee_base(models.AbstractModel):
     @api.onchange('tutorship_ids')
     def _onchange_tutorship_ids(self):
         self.update_tutor_role()
-        self._sync_security_groups()
 
     @api.depends('department_id')
     def _compute_parent_id(self):
@@ -427,10 +426,6 @@ class ems_employee_base(models.AbstractModel):
                 employee.roles = "%s, %s" % (employee.roles, role.name)
             employee.roles = employee.roles.lstrip(", ")
     
-    @api.onchange('job_id')
-    def _onchange_job_id(self):
-        self._sync_security_groups()
-
     def _get_own_groups(self):
         """The groups this employee actually works with: the ones they teach plus the ones
         they tutor. Backs res.partner's 'is_my_student' (issue #421) - see
@@ -514,7 +509,6 @@ class ems_employee_base(models.AbstractModel):
                         'type': 'notification',
                     }
                 }
-        self._sync_security_groups()
 
     @api.constrains('role_ids')
     def check_role_hierarchy(self):
@@ -577,27 +571,34 @@ class ems_employee_base(models.AbstractModel):
             synced = employee.with_context(**{EMS_ROLE_SYNC_CONTEXT_KEY: True})
             synced.role_ids = [(4 if is_director else 3, role_director)]
 
-    def _sync_security_groups(self):
-        """Sync res.users.groups_id based on role_ids and job_id that have a linked security group."""
-        role_groups = self.env['ems.role'].sudo().search([('group_id', '!=', False)]).mapped('group_id')
-        job_groups = self.env['hr.job'].sudo().search([('group_id', '!=', False)]).mapped('group_id')
-        managed_groups = role_groups | job_groups
-        if not managed_groups:
-            return
-        for employee in self:
-            sudo_employee = self.env['hr.employee'].sudo().search([('id', '=', employee.id)], limit=1)
-            if not sudo_employee or not sudo_employee.user_id:
+    def _ems_role_job_groups(self):
+        """Security groups granted by this employee's current roles and job position."""
+        self.ensure_one()
+        return self.role_ids.group_id | self.job_id.group_id
+
+    def _sync_security_groups(self, previous_groups=None):
+        """Grant the security groups this employee's roles/job carry, and revoke only the ones a
+        role/job stopped granting in this change.
+
+        'previous_groups' maps employee id -> '_ems_role_job_groups()' before the change; a group
+        in there that no current role/job grants any longer is revoked. Without it nothing is
+        revoked. A group granted by hand (Settings > Users) is therefore kept by any sync that
+        doesn't take away a role/job which granted it - it used to be wiped on every sync of that
+        employee, including the one each EMS upgrade triggers by reloading
+        data/custom/hr.department.csv (issue #510). Archived employees are synced too: a departed
+        teacher's tutorship is usually cleared after archiving them."""
+        previous_groups = previous_groups or {}
+        for employee in self.sudo().with_context(active_test=False):
+            user = employee.user_id
+            if not user:
                 continue
-            should_have = employee.role_ids.mapped('group_id') | employee.job_id.group_id
-            commands = []
-            for g in managed_groups:
-                if g in should_have and g not in sudo_employee.user_id.groups_id:
-                    commands.append((4, g.id))
-                elif g not in should_have and g in sudo_employee.user_id.groups_id:
-                    commands.append((3, g.id))
+            should_have = employee._ems_role_job_groups()
+            lost = previous_groups.get(employee.id, self.env['res.groups']) - should_have
+            commands = [(4, group.id) for group in should_have - user.groups_id]
+            commands += [(3, group.id) for group in lost & user.groups_id]
             if commands:
-                sudo_employee.user_id.sudo().write({'groups_id': commands})
-            self._sync_secretary_home_action(sudo_employee, should_have)
+                user.write({'groups_id': commands})
+            self._sync_secretary_home_action(employee, should_have)
 
     def _sync_secretary_home_action(self, sudo_employee, should_have):
         """Secretary staff never have a session of their own to take (see
@@ -620,9 +621,11 @@ class ems_employee_base(models.AbstractModel):
             # NOTE: I don't know why, but unlink (3, ID) does not arrive when unlinked from '_onchange_role_ids' (I tried everything!!!), but a remove... (2, ID)
             for command in vals["tutorship_ids"]:
                 if command[0] == 2: command[0] = 3
+        sync_groups = {'role_ids', 'tutorship_ids', 'job_id'} & vals.keys()
+        previous_groups = {employee.id: employee._ems_role_job_groups() for employee in self} if sync_groups else {}
         res = super(ems_employee_base, self).write(vals)
-        if 'role_ids' in vals or 'tutorship_ids' in vals or 'job_id' in vals:
-            self._sync_security_groups()
+        if sync_groups:
+            self._sync_security_groups(previous_groups)
         return res
                         
     @api.constrains("role_ids")

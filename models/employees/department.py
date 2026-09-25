@@ -8,6 +8,12 @@ class ems_department(models.Model):
     _name = "hr.department"
     _inherit = ["hr.department", "ems.hex_color_mixin"]
 
+    # A change to any of these re-runs '_cascade_department_heads()' (see write()).
+    _EMS_HEAD_CASCADE_FIELDS = (
+        'manager_id', 'seminar_chief_id', 'parent_id', 'is_top_level', 'top_level_role',
+        'shares_manager_with_parent',
+    )
+
     custom_color = fields.Char(
         string="Color", default="#3A8DDE",
         help="Free-pick display color for this department (not Odoo's native, fixed-palette "
@@ -111,15 +117,17 @@ class ems_department(models.Model):
 
     def write(self, vals):
         self._sanitize_top_level_vals(vals)
+        # Only a real change re-runs the cascade: every EMS upgrade reloads
+        # data/custom/hr.department.csv, rewriting parent_id/is_top_level with the values they
+        # already have, and re-syncing every head's roles on each upgrade is pointless at best
+        # (issue #510).
+        cascade_fields = [field for field in self._EMS_HEAD_CASCADE_FIELDS if field in vals]
         old_heads = {department: (department.manager_id, department.seminar_chief_id) for department in self}
+        old_values = {department: [department[field] for field in cascade_fields] for department in self}
         res = super().write(vals)
-        if {
-            'manager_id', 'seminar_chief_id', 'parent_id', 'is_top_level', 'top_level_role',
-            'shares_manager_with_parent',
-        } & vals.keys():
-            for department in self:
-                old_manager, old_seminar_chief = old_heads[department]
-                department._cascade_department_heads(old_manager, old_seminar_chief)
+        for department in self:
+            if old_values[department] != [department[field] for field in cascade_fields]:
+                department._cascade_department_heads(*old_heads[department])
         return res
 
     def _sanitize_top_level_vals(self, vals):

@@ -84,6 +84,14 @@ Technical reference for developers working on the EMS module.
 
 ---
 
+## Meetings
+
+| Model | Description |
+|-------|-------------|
+| [ems.meeting.presence](meetings/meeting_presence.md) | Meeting attendance confirmed with the NFC tag at a public token-protected kiosk: convened list by scope, scan outcomes, closing, access control, and how it joins the quality work's minutes |
+
+---
+
 ## Enrollment
 
 | Model | Description |

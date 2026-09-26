@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="ems.MeetingPresenceKiosk">
+        <div class="o_ems_presence_kiosk">
+            <header class="o_ems_presence_header">
+                <h1 class="o_ems_presence_title">
+                    <span t-esc="props.name"/>
+                    <small class="o_ems_presence_window" t-esc="props.windowLabel"/>
+                </h1>
+            </header>
+
+            <div class="o_ems_presence_body">
+                <section class="o_ems_presence_list o_ems_presence_convened">
+                    <h2>
+                        <span t-esc="labels.convened_people"/>
+                        <span class="o_ems_presence_list_count" t-esc="state.pendingCount"/>
+                    </h2>
+                    <ul t-if="state.convened.length" class="o_ems_presence_names" t-ref="convenedNames">
+                        <li t-foreach="state.convened" t-as="person" t-key="person.id" t-esc="person.name"/>
+                    </ul>
+                    <p t-elif="state.presentCount" class="o_ems_presence_all_in" t-esc="labels.all_in"/>
+                </section>
+
+                <main class="o_ems_presence_stage">
+                    <div t-if="!isOpen" class="o_ems_presence_card o_ems_presence_card_muted">
+                        <div class="o_ems_presence_card_title" t-esc="closedLabel"/>
+                    </div>
+                    <div t-elif="state.card" t-attf-class="o_ems_presence_card o_ems_presence_card_{{ state.card.tone }}">
+                        <img t-if="state.card.avatar" class="o_ems_presence_avatar" t-att-src="state.card.avatar" alt=""/>
+                        <div class="o_ems_presence_card_title" t-esc="state.card.title"/>
+                        <div class="o_ems_presence_card_subtitle" t-esc="state.card.subtitle"/>
+                    </div>
+                    <div t-else="" class="o_ems_presence_prompt">
+                        <i class="fa fa-id-card-o fa-4x"/>
+                        <div class="o_ems_presence_prompt_title" t-esc="labels.prompt"/>
+                    </div>
+                </main>
+
+                <section class="o_ems_presence_list o_ems_presence_attendees">
+                    <h2>
+                        <span t-esc="labels.attendees"/>
+                        <span class="o_ems_presence_list_count" t-esc="state.presentCount"/>
+                    </h2>
+                    <ul t-if="state.attendees.length" class="o_ems_presence_names" t-ref="attendeeNames">
+                        <li t-foreach="state.attendees" t-as="person" t-key="person.id"
+                            t-att-class="person.not_convened ? 'o_ems_presence_not_convened' : ''">
+                            <span class="o_ems_presence_person" t-esc="person.name"/>
+                            <small t-if="person.not_convened" t-esc="labels.not_convened_note"/>
+                            <small class="o_ems_presence_time" t-esc="person.time"/>
+                        </li>
+                    </ul>
+                </section>
+            </div>
+
+            <!-- A testing aid, only outside production: the real thing has no box, as the clock-in kiosk. -->
+            <form t-if="isOpen and props.showCodeBox" class="o_ems_presence_form" t-on-submit="onSubmit">
+                <input type="text" class="o_ems_presence_input" t-ref="barcodeInput" autocomplete="off" autocapitalize="off"
+                       spellcheck="false" t-att-placeholder="labels.type_hint"/>
+            </form>
+        </div>
+    </t>
+
+</templates>

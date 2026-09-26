@@ -20,6 +20,7 @@ This section contains the manuals for **secretariat staff**.
 - [Managing student and family contacts](student-contacts.md) — Contact types and how they change, adding a family contact to a student, and registering bonifications and exemptions.
 - [Authorizations: creating, sending and following up](authorizations.md) — Creating authorization forms, sending them to students during the course and following up the answers.
 - [Convalidations: completing the validated requests](convalidations.md) — Registering in Esfera the convalidations the Head of Studies validated, adjusting their grade and completing them so the student sees them.
+- [Meeting attendance with the NFC tag](meeting-attendance.md) — Creating the session of a meeting (staff meeting, department, training), setting the kiosk at the door, marking who is present and printing the PDF.
 - [Reviewing student documents](student-documents.md) — Approving, rejecting or reopening ID/medical/IBAN/benefit submissions, and what each decision does behind the scenes.
 - [Marking a graduation and registering a withdrawal](graduation-withdrawal.md) — The difference between the deferred graduation mark and an immediate withdrawal, and the full withdrawal cascade step by step.
 - [Importing students from Esfera (SAGA)](student-import-esfera.md) — Bulk-refreshing already-enrolled students' data (not to be confused with the GEDAC preinscription import), what gets matched/created, and known dedup limitations.

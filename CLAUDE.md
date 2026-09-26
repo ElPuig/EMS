@@ -192,6 +192,8 @@ Both scripts must be run from the project root (`/root/myModules/ems/`).
 
 `upgrade.sh` and `test.sh` both stop the Odoo service, run their operation as the `odoo` system user, and restart the service. Output is filtered to show only relevant lines (errors, warnings, test results).
 
+`upgrade.sh` (and `deploy.sh`'s rollback, and `/deploy-check`) upgrade not just `ems` but every *installed* module found in a non-core `addons_path` folder (the OCA repos `update.sh` git-pulls), via `ems_modules_to_upgrade` in `scripts/odoo_modules.sh`. `odoo -u ems` alone never upgrades ems' own dependencies: on 2026-09-26 production's `queue_job` code got ahead of its schema that way and its runner paused itself ("schema is outdated, -u queue_job required"), leaving every notice email "Pending" for days. Don't hardcode `-u ems` in any new upgrade path; reuse that helper.
+
 After any change, run `upgrade.sh` and check for WARNING / ERROR / CRITICAL output.
 
 **The full test suite is slow — don't run it more than necessary.** `./test.sh` (no argument) runs every test class and takes several minutes; running it after every small change wastes time without adding useful signal. Prefer `./test.sh TestClassName`, scoped to whatever model(s) you're actually touching, as the normal gate during iterative work (Red/Green/Refactor cycles, DTON phases, bug fixes). Run the full, unscoped `./test.sh` only once — as the final check before considering a piece of work done — not after every intermediate step. If a change plausibly affects other models (e.g. a shared mixin, a migration, a widget used in several views), scope down to the smallest set of `TestClassName` runs that actually covers the blast radius instead of reaching for the full suite by default.

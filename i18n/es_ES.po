@@ -16261,3 +16261,8 @@ msgstr "Dirección personal del alumno. No puede ser la cuenta corporativa del c
 #: model_terms:ir.ui.view,arch_db:ems.view_users_form_profile_ems_restrictions
 msgid "Personal address, also used as the Google account's recovery email. It can't be the centre's corporate account."
 msgstr "Dirección personal, que también se usa como correo de recuperación de la cuenta de Google. No puede ser la cuenta corporativa del centro."
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_technical_queue_job
+msgid "Jobs"
+msgstr "Trabajos"

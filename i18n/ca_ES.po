@@ -16260,3 +16260,8 @@ msgstr "Adreça personal de l'alumne. No pot ser el compte corporatiu del centre
 #: model_terms:ir.ui.view,arch_db:ems.view_users_form_profile_ems_restrictions
 msgid "Personal address, also used as the Google account's recovery email. It can't be the centre's corporate account."
 msgstr "Adreça personal, que també s'utilitza com a correu de recuperació del compte de Google. No pot ser el compte corporatiu del centre."
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_technical_queue_job
+msgid "Jobs"
+msgstr "Tasques"

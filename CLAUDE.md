@@ -991,7 +991,9 @@ CI pieces work together:
   (fast) and reporting a real result, deliberately not using `[skip ci]` or a path-filtered
   trigger for this, both of which risk GitHub leaving a required check stuck "pending" forever
   instead of passing (generalized 2026-09-22 from an earlier version scoped to `changelog/`
-  alone). `i18n/*.po` is deliberately excluded from this list — a malformed `.po` file can break
+  alone). The skip compares the whole push against the previous head and only applies once that
+  previous head's own CI run has finished successfully (it waits if it's still running), since
+  GitHub shows the PR's checks for the newest head only (2026-09-26, PR #517). `i18n/*.po` is deliberately excluded from this list — a malformed `.po` file can break
   the module's translation load, which only a real test run would catch.
 
 ## Staff newsletter email

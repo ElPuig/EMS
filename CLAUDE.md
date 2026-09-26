@@ -817,14 +817,26 @@ Run it on the current release branch (e.g. `v18.0.0.29.0`), in this order:
    (<https://github.com/orgs/ElPuig/projects/4>):
    `gh project item-list 4 --owner ElPuig --format json --limit 1000`, keeping items whose
    `status` contains "Ready to merge". The `gh` token needs the organization permission
-   **Projects: Read-only** (fine-grained PAT) or this fails with `Resource not accessible by
-   personal access token`.
+   **Projects** (fine-grained PAT; Read and write, for the card moves in step 2) or this fails
+   with `Resource not accessible by personal access token`.
 2. **Merge each issue's branch** (`origin/<issue_number>-<slug>`, after `git fetch origin`) into
    the release branch, **one at a time, in ascending issue-number order**, resolving conflicts per
    "Resolving merge conflicts" above and the multi-branch rule in "Migrations" (merge
    same-version `pre/post-migrate.py` bodies into one file). Commit each merge before starting the
    next one — this routine is an explicit exception to the developer managing commits themselves.
    If a conflict is still ambiguous after reviewing both sides, stop and ask.
+
+   **Move each issue's card on the board as you go** (added 2026-09-26): right after committing
+   an issue's merge, move it from "📦 Ready to merge" to **"⚙️ Merge in progress"**; if its branch
+   genuinely can't be integrated (a conflict still ambiguous after asking, or the developer decides
+   to leave it out), move it to **"Merge rejected (needs attention)"** instead. Use
+   `gh project item-edit --id <item_id> --project-id <project_id> --field-id <status_field_id>
+   --single-select-option-id <option_id>` (ids from `gh project item-list`/`field-list 4 --owner
+   ElPuig --format json` and `gh project view 4 --owner ElPuig --format json`). This needs the org
+   permission **Projects: Read and write** on the `gh` token, which the developer granted **only for
+   these two moves**: never change any other field, any other column, any other project, or
+   anything else on GitHub — every other GitHub write still needs the developer's explicit go-ahead
+   first.
 3. **Run the "revisión del cierre"** (section above) over everything integrated, and **fix**
    whatever it finds (docs, translations, tests), not just report it. Commit the fixes.
 4. **Prepare the PR text** exactly as "PR changelog" below describes (every `changelog/` file,

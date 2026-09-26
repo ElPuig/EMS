@@ -148,7 +148,12 @@ jobs:
         id: dryrun
         run: |
           set -o pipefail
-          sudo -u odoo bash -c "odoo -d ems_pr_check -u ems --stop-after-init -c /tmp/odoo-deploy-check.conf" 2>&1 | tee /tmp/odoo-deploy-check.log
+          # Same module list deploy.sh/upgrade.sh use (ems + its installed OCA dependencies), so the
+          # dry-run exercises exactly what the real deploy will.
+          source "${{ github.workspace }}/pr-checkout/ems/scripts/odoo_modules.sh"
+          MODULES=$(ems_modules_to_upgrade /tmp/odoo-deploy-check.conf ems_pr_check)
+          echo "Upgrading modules: $MODULES"
+          sudo -u odoo bash -c "odoo -d ems_pr_check -u $MODULES --stop-after-init -c /tmp/odoo-deploy-check.conf" 2>&1 | tee /tmp/odoo-deploy-check.log
 
           # Odoo's own exit code is not a reliable pass/fail signal: a module that fails while
           # loading (missing attachment, dependency graph issue, ...) can end up silently marked

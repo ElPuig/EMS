@@ -16,6 +16,9 @@ Esta guía explica de forma detallada los pasos que deben seguir los alumnos (o 
 4. [Paso 3 — Email de confirmación](#paso-3--email-de-confirmación)
 5. [Paso 4 — Acceso al portal](#paso-4--acceso-al-portal)
 6. [Paso 5 — Responder una autorización](#paso-5--responder-una-autorización)
+7. [Entrar más adelante: correo personal o cuenta del centro](#entrar-más-adelante-correo-personal-o-cuenta-del-centro)
+8. [Alumnos menores de edad](#alumnos-menores-de-edad)
+9. [Cuando el alumno cumple 18 años](#cuando-el-alumno-cumple-18-años)
 
 ---
 
@@ -103,6 +106,43 @@ Para cada una:
 4. Haced clic en **Aceptar autorización** o, si la autorización lo permite, en **Rechazar**.
 
 Una vez respondidas, la columna **Documento** contiene un certificado PDF de vuestra respuesta. Podéis hacer clic en cualquier momento para descargarlo o imprimirlo.
+
+---
+
+## Entrar más adelante: correo personal o cuenta del centro
+
+El alumnado puede entrar al portal de dos maneras, la que le vaya mejor:
+
+* **Correo personal y contraseña:** la dirección a la que llegó la invitación y la contraseña que se definió en el Paso 2.
+* **Cuenta del centro (`@elpuig.xeill.net`):** en la pantalla de acceso, haced clic en **Acceder con Google** y elegid la cuenta del centro. No hace falta ninguna contraseña del portal.
+
+![Botón "Acceder con Google" en la pantalla de acceso (la captura muestra la interfaz en catalán)](../../assets/teachers/acces-google-boto.png)
+
+Las dos maneras abren el mismo portal. Si habéis perdido la contraseña del portal, la cuenta del centro suele ser la forma más rápida de entrar. Si tampoco recordáis la contraseña de la cuenta del centro, seguid la [guía para recuperar la contraseña del correo del centro](manual-recuperacio-contrasenya-correu.md).
+
+> La cuenta del centro solo funciona cuando el alumno ya tiene una (se crea al matricularse) y ya se le ha dado acceso al portal. Las familias entran siempre con su correo y su contraseña.
+
+---
+
+## Alumnos menores de edad
+
+Mientras el alumno es menor de edad, es la **familia** quien lo gestiona todo desde su propia cuenta. El alumno también puede tener una cuenta propia en el portal para consultar:
+
+* **Asistencia** (su horario),
+* las **Comunicaciones** dirigidas a él,
+* el **Perfil**.
+
+**Matrícula y autorizaciones**, **Convalidaciones** y **Documentación** no aparecen en la cuenta del alumno: se encarga la familia. Cuando el alumno cumple 18 años, tiene acceso a todos los apartados.
+
+---
+
+## Cuando el alumno cumple 18 años
+
+Desde el día en que el alumno cumple 18 años, es **él mismo** quien lo gestiona todo desde su propia cuenta: matrícula, autorizaciones, convalidaciones y documentación. Si todavía no tenía cuenta propia en el portal, pedidla al tutor o a Secretaría.
+
+La familia conserva su cuenta pero **deja de ver al alumno** en el portal, salvo que el alumno autorice compartir su información con la familia (la autorización de *compartir con la familia*). En ese caso, la familia vuelve a poder consultar la **Asistencia**, las **Calificaciones**, las **Comunicaciones** dirigidas al alumno y el **Perfil**, pero ya no puede gestionar nada: la matrícula, las autorizaciones, las convalidaciones y la documentación son cosa del alumno.
+
+Una familia a la que no le queda ningún alumno por ver encuentra un aviso en el inicio del portal que lo explica.
 
 ---
 

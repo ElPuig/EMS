@@ -336,6 +336,14 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             wait_for=".o_form_statusbar button[name='action_reset_google_password']",
             max_height=200,
         )
+        # Pau has no Google account yet: the tutor gets the create button instead (#513).
+        self._capture(
+            '/odoo/action-%d/%d' % (self.student_list_action.id, self.students[1].id),
+            '.o_form_view', 'credencials-google-04-crear.png',
+            login='doc_shot_tutor',
+            wait_for=".o_form_statusbar button[name='action_create_google_account']",
+            max_height=200,
+        )
 
     def test_capture_convalidation_screenshots(self):
         """Issue #276 - the Head of Studies' request form and list (a request resolved and ready

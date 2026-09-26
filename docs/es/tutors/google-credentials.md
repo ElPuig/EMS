@@ -4,7 +4,7 @@
 
 # Credenciales de Google de tu alumnado
 
-Puedes consultar y descargar el PDF con las credenciales de la cuenta de Google Workspace de los alumnos que tutorizas, y restablecerles la contraseña.
+Puedes crear la cuenta de Google Workspace de los alumnos que tutorizas, consultar y descargar el PDF con sus credenciales, y restablecerles la contraseña.
 
 **Rol necesario:** Tutor. Tu jefe de seminario, tu jefe de departamento y tu jefe de estudios también pueden hacerlo con tu alumnado, y la dirección con el de todos los tutores, con los mismos pasos.
 
@@ -17,9 +17,24 @@ Puedes consultar y descargar el PDF con las credenciales de la cuenta de Google 
 
 ![Pestaña Documentación con las credenciales de Google](../../assets/tutors/credencials-google-01-documentacio.png)
 
-Si la lista está vacía, el alumno aún no tiene cuenta de Google creada: pídelo a secretaría.
+Si la lista está vacía, el alumno aún no tiene cuenta de Google creada: créala como se explica más abajo.
 
 En la pestaña **Documentación** solo ves las credenciales de Google de los alumnos que tutorizas. El resto de documentos (DNI, IBAN, tarjeta sanitaria…) los gestiona secretaría.
+
+---
+
+## Crear la cuenta de Google de un alumno
+
+Normalmente la cuenta se crea automáticamente al matricular al alumno. Si alguno de tus alumnos aún no la tiene (a menudo porque en ese momento faltaba algún dato), puedes crearla tú mismo:
+
+1. Abre la ficha del alumno.
+2. En la cabecera, pulsa **Crear cuenta de Google**.
+
+![Botón Crear cuenta de Google en la cabecera de la ficha](../../assets/tutors/credencials-google-04-crear.png)
+
+El alumno recibe las credenciales en su dirección de correo personal y el PDF con las credenciales se guarda en la pestaña **Documentación**. La primera vez que entre en Google, el alumno tendrá que cambiar la contraseña.
+
+El botón solo aparece mientras el alumno no tiene cuenta de Google. Si al alumno le falta el IDALU, el nombre, los apellidos o el correo personal, un mensaje te indica qué dato falta y la cuenta no se crea: pide a secretaría que lo complete.
 
 ---
 
@@ -34,7 +49,7 @@ En la pestaña **Documentación** solo ves las credenciales de Google de los alu
 
 El alumno recibe la contraseña nueva en su correo personal y se guarda un PDF de credenciales nuevo en la pestaña **Documentación**. La contraseña anterior deja de funcionar y su PDF queda marcado como **Cancelado**. La primera vez que entre en Google, el alumno tendrá que cambiar la contraseña.
 
-El botón solo aparece si el alumno tiene una cuenta de Google activa. Si no lo ves, el alumno aún no la tiene: pídelo a secretaría.
+El botón solo aparece si el alumno tiene una cuenta de Google activa. Si no lo ves, el alumno aún no la tiene: créala como se explica más arriba.
 
 ---
 

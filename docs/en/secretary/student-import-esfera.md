@@ -39,6 +39,7 @@ From the **Students** list, open the actions menu (the gear icon ⚙️ next to 
 - **Family contacts** (tutors/guardians) are matched by their document number (DNI/NIE/passport) — matched contacts are updated, unmatched ones are created. A tutor row with **no document number on file** always creates a new contact rather than being matched to an existing one; if the same undocumented tutor appears in a later import, expect a second contact rather than an update. Merge duplicates by hand from **Contacts → Families** if this happens.
 - **Family relationship** (mother, father, grandparent, sibling, legal guardian…) is guessed from a free-text note in the file. When it can't be confidently guessed, the tutor is linked as a generic "Tutor" and a note is added to the **student's own record** quoting the original text — worth a quick check afterwards for anyone flagged this way.
 - A student whose **group code** in the file doesn't match any group in EMS is still imported (with no group assigned) — a note naming the unmatched code is added to their record so it can be corrected by hand.
+- A **personal email** in the file that belongs to the centre's own domain (a corporate account) is ignored: the student or family contact is still imported with the rest of its data, their current personal email is kept, and a warning naming them is listed in the result.
 
 ## Reading the result and the log
 

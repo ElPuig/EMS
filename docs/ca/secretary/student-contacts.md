@@ -48,6 +48,8 @@ La mateixa relació també apareix a la fitxa del familiar, indicant amb quin(s)
 
 > **Des de la 18.0.0.26.0:** qualsevol adreça de correu que s'introdueixi en un contacte (personal o de l'alumne/corporativa) ha de tenir un format vàlid (`nom@domini`) — EMS no deixa desar un valor que no ho sigui, com ara un número de telèfon escrit per error al camp equivocat.
 
+El **correu personal** d'un alumne, aspirant o familiar no pot ser una adreça del domini del centre (per exemple, `@elpuig.xeill.net`): aquest és el compte corporatiu, que EMS crea i gestiona tot sol (es mostra com a **Correu corporatiu**). EMS no el deixa desar i demana una adreça personal.
+
 **Per treure un familiar**, clica la icona de la paperera de la seva fila i confirma amb **Ok**. El familiar deixa d'estar vinculat a l'alumne. Si no queda relacionat amb cap altre alumne i no té usuari (accés al portal), també s'esborra el seu contacte; si no, es conserva.
 
 ## Matricular un alumne en assignatures

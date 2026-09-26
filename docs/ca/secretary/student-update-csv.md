@@ -40,6 +40,8 @@ Si mapegeu una columna d'**IBAN** i una fila té un valor, aquest esdevé el com
 
 Després de fer clic a **Actualitzar alumnat**, veureu quants alumnes s'han actualitzat i quants IDs no s'han trobat, més qualsevol error a nivell de fila (per exemple, una data que no s'ha pogut interpretar). Un **CSV de resultat** descarregable — el vostre fitxer original amb una columna d'estat addicional — mostra exactament què ha passat amb cada fila, útil per a un fitxer gran.
 
+Si la columna del correu conté una adreça del domini del centre (un compte corporatiu), aquest valor no s'escriu: l'alumne conserva el correu personal que tenia, la resta de la fila s'actualitza igualment i el resultat mostra un avís per a aquest alumne.
+
 ---
 
 [← Tornar a l'índex de Secretaria](index.md)

@@ -8,7 +8,7 @@ Ask for the vocational training subjects you already passed elsewhere to be conv
 
 Convalidations can only be requested for vocational training cycles (CFGM and CFGS).
 
-**Who can request them:** the student, from their own account, if they are of age; the family, from its account, if the student is a minor. A minor student who logs in with their own account, or the family of a student who has turned 18, sees a notice instead of the requests.
+**Who can request them:** the student, from their own account, if they are of age; the family, from its account, if the student is a minor. A minor student who logs in with their own account, or the family of a student who has turned 18, does not see this section. Exception: a minor applicant with no family on file at the centre (preinscription) requests them from their own account.
 
 ---
 

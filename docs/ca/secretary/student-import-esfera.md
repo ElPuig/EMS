@@ -39,6 +39,7 @@ Des de la llista d'**Alumnat**, obriu el menú d'accions (la icona de l'engranat
 - Els **contactes familiars** (tutors/es) es fan coincidir pel seu número de document (DNI/NIE/passaport) — els que coincideixen s'actualitzen, els que no, es creen. Una fila de tutor **sense número de document** sempre crea un contacte nou en lloc de fer coincidir-lo amb un d'existent; si el mateix tutor sense document apareix en una importació posterior, espereu un segon contacte en lloc d'una actualització. Fusioneu els duplicats a mà des de **Contactes → Famílies** si passa això.
 - La **relació familiar** (mare, pare, avi/àvia, germà/na, tutor legal…) es dedueix d'una nota de text lliure del fitxer. Quan no es pot deduir amb confiança, el tutor es vincula com a "Tutor" genèric i s'afegeix una nota al **propi registre de l'alumne/a** citant el text original — val la pena revisar-ho ràpidament per a qualsevol cas marcat així.
 - Un alumne/a el **codi de grup** del qual al fitxer no coincideix amb cap grup d'EMS s'importa igualment (sense grup assignat) — s'afegeix al seu registre una nota amb el codi no coincident perquè es pugui corregir a mà.
+- Un **correu personal** del fitxer que pertany al domini del centre (un compte corporatiu) s'ignora: l'alumne o el familiar s'importa igualment amb la resta de dades, es manté el correu personal que ja tenia i el resultat mostra un avís amb el seu nom.
 
 ## Llegir el resultat i el registre
 

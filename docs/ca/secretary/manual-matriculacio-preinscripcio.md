@@ -55,6 +55,8 @@ Per fer la importació:
 
 En acabar, l'auxiliar mostra un **resum de la importació**: quants aspirants s'han creat, quants s'han actualitzat i quantes files s'han omès. També podeu **descarregar el registre (CSV)** i, si n'hi ha, el CSV `gedac_alumnes_actius_<data>.csv` amb els continuadors interns.
 
+Si el correu d'un aspirant al fitxer pertany al domini del centre (un compte corporatiu), l'aspirant es crea o s'actualitza igualment, però sense aquest correu, i el resum mostra un avís per a aquest aspirant.
+
 ![Resum del resultat de la importació](../../assets/secretary/preinscrpcio-Secretaria-03.png)
 
 ---
@@ -119,6 +121,8 @@ Perquè les famílies puguin confirmar la matrícula més endavant, cal que ting
 ![Menú Accions amb l'opció d'accés al portal](../../assets/secretary/preinscrpcio-Secretaria-07.png)
 
 > Aquesta opció genera o activa l'accés al portal educatiu per a l'alumnat i les seves famílies, de manera que, quan rebin el correu de proposta, hi puguin entrar a respondre les autoritzacions i confirmar la matrícula. Els alumnes que ja són del centre solen tenir-lo actiu.
+>
+> Un alumne menor d'edat també rep el seu propi accés, a més del de la família, però només de consulta (horari, les seves comunicacions i perfil): és la família qui confirma la matrícula. Vegeu [Com gestionar l'accés al portal](../tutors/acces-portal.md#qui-rep-laccés-alumnes-i-famílies).
 
 ---
 

@@ -25,7 +25,7 @@ class TestPortalActions(HttpCase):
         cls.course = cls.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1) \
             or cls.env['ems.course'].create({'start': 2098, 'end': 2099, 'is_enrollment_default': True})
         cls.student = cls.env['res.partner'].create({
-            'name': 'Portal Action Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'name': 'Portal Action Tour Student', 'contact_type': 'student', 'student_id': next_student_id(), 'birth_date': '2000-01-01',
         })
         cls.portal_user = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Portal Action Tour Student', 'login': 'test_portal_action_student',

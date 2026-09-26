@@ -9408,7 +9408,9 @@ msgstr "Errores (%(count)s):"
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/contacts/applicant_import_wizard.py:0
 #: code:addons/ems/models/contacts/student_import_wizard.py:0
+#: code:addons/ems/models/contacts/student_update_wizard.py:0
 msgid "Warnings (%(count)s):"
 msgstr "Avisos (%(count)s):"
 
@@ -16143,13 +16145,6 @@ msgstr ""
 " las 00:00 y las 23:59."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
-msgid "is of age: convalidations have to be managed from their own account."
-msgstr ""
-"es mayor de edad: las convalidaciones se tienen que gestionar desde su "
-"propia cuenta."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_planning_search
 msgid "Show only current course"
 msgstr "Mostrar solamente el curso actual"
@@ -16213,3 +16208,61 @@ msgstr "Exención 100%"
 #: code:addons/ems/models/planning/planning.py:0
 msgid "Unsupported search on is_own_subject"
 msgstr "Búsqueda no soportada en is_own_subject"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/controllers/portal_view_only.py:0
+msgid "Your family manages the enrollment from its own portal account."
+msgstr "Tu familia gestiona la matrícula desde su propia cuenta del portal."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+msgid ""
+"There is no student whose information you can consult. A student of legal "
+"age must authorize sharing his information with the family before you can "
+"consult it again."
+msgstr "No hay ningún alumno cuya información podáis consultar. Un alumno mayor de edad tiene que autorizar que se comparta su información con la familia para que la podáis volver a consultar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Only the secretary's office, administrators, the TAC team and the student's own tutor can create a Google account."
+msgstr "Solo secretaría, los administradores, el equipo TAC y el tutor o tutora del alumno pueden crear una cuenta de Google."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_create_google_account model:ir.model.fields,field_description:ems.field_res_users__can_create_google_account
+msgid "Can create the Google account"
+msgstr "Puede crear la cuenta de Google"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__can_create_google_account model:ir.model.fields,help:ems.field_res_users__can_create_google_account
+msgid "Whether the user looking at this student may create their Google account: the secretary, plus everyone who may reset the password."
+msgstr "Indica si el usuario que consulta este alumno le puede crear la cuenta de Google: secretaría, además de todos los que le pueden restablecer la contraseña."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "%(email)s can't be used as a personal email: it belongs to the centre's own domain (%(domain)s). Enter a personal address instead; the corporate account is managed by EMS itself."
+msgstr "%(email)s no se puede usar como correo personal: pertenece al dominio del centro (%(domain)s). Introduzca una dirección personal; la cuenta corporativa la gestiona el propio EMS."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "%(name)s: personal email %(email)s ignored, it belongs to the centre's own domain (%(domain)s)."
+msgstr "%(name)s: se ha ignorado el correo personal %(email)s porque pertenece al dominio del centro (%(domain)s)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "The student's own personal address. It can't be the centre's corporate account, which EMS manages itself (Corporate email)."
+msgstr "Dirección personal del alumno. No puede ser la cuenta corporativa del centro, que gestiona el propio EMS (Correo corporativo)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+#: model_terms:ir.ui.view,arch_db:ems.view_users_form_profile_ems_restrictions
+msgid "Personal address, also used as the Google account's recovery email. It can't be the centre's corporate account."
+msgstr "Dirección personal, que también se usa como correo de recuperación de la cuenta de Google. No puede ser la cuenta corporativa del centro."
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_technical_queue_job
+msgid "Jobs"
+msgstr "Trabajos"

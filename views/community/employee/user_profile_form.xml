@@ -126,6 +126,7 @@
                 </field>
                 <field name="private_email" position="attributes">
                     <attribute name="readonly">0</attribute>
+                    <attribute name="help">Personal address, also used as the Google account's recovery email. It can't be the centre's corporate account.</attribute>
                 </field>
                 <field name="private_phone" position="attributes">
                     <attribute name="readonly">0</attribute>

@@ -40,6 +40,8 @@ Si mapea una columna de **IBAN** y una fila tiene un valor, este pasa a ser la c
 
 Tras hacer clic en **Actualizar alumnado**, verá cuántos alumnos se han actualizado y cuántos IDs no se han encontrado, además de cualquier error a nivel de fila (por ejemplo, una fecha que no se pudo interpretar). Un **CSV de resultado** descargable — su archivo original con una columna de estado adicional — muestra exactamente qué ha pasado con cada fila, útil para un archivo grande.
 
+Si la columna del correo contiene una dirección del dominio del centro (una cuenta corporativa), ese valor no se escribe: el alumno conserva el correo personal que tenía, el resto de la fila se actualiza igualmente y el resultado muestra un aviso para ese alumno.
+
 ---
 
 [← Volver al índice de Secretaría](index.md)

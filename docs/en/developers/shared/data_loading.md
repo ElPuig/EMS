@@ -206,7 +206,7 @@ Neither format alone gets both properties at once here.
 `res.company._register_hook()` (`models/settings/company.py`) calls
 `_ems_freeze_living_custom_data()`, which sets `noupdate=True` on every `__import__`-owned
 `ir.model.data` row for a model listed in `_EMS_LIVING_CUSTOM_DATA_MODELS` (`ems.group`,
-`ems.planning`, `ems.planning_outcome`) that isn't frozen yet. `_register_hook()` runs once per server start, always after
+`ems.planning`, `ems.planning_outcome`, `ems.space`) that isn't frozen yet. `_register_hook()` runs once per server start, always after
 that run's own module data has already (re)loaded — both on a clean install and on every
 upgrade — so this needs no per-version migration bookkeeping: a brand-new group added to the CSV
 in some future PR is still *created* normally the next time it upgrades (`noupdate` only blocks
@@ -230,6 +230,14 @@ the other 5 (CSV-declared) outcome lines back to their original file values, lea
 106% — silently, since the constraint only fires on a real create/write, never on a CSV resync
 under `install_mode`. Both models added to `_EMS_LIVING_CUSTOM_DATA_MODELS`.
 
+**Confirmed 2026-09-25: `ems.space`** (issue #510). Classrooms renamed or repurposed through the
+app were reverted to their `data/custom/ems.space.csv` values on every upgrade — the same shape
+as `ems.group`. Because `_register_hook()` only freezes *after* an upgrade's data files have
+reloaded, the first upgrade shipping a newly-listed model would still revert it one last time;
+`migrations/18.0.0.29.0/pre-migrate.py` avoids that by setting `noupdate=True` on the existing
+`ems.space` xmlids with raw SQL before the reload. Any model added to the list later on an
+installation with real data should ship the same `pre-migrate` step.
+
 **A migration must correct a `data/custom/` record in place, never delete and recreate it.**
 Deleting an `__import__`-owned record deletes its `ir.model.data` row too, so on the next upgrade
 the CSV no longer finds its xmlid and creates the record again — alongside whatever the migration
@@ -240,9 +248,8 @@ each outcome and only removes duplicates (`_fix_subject_1665_outcome_ponderation
 
 **Not yet audited:** whether other `data/custom/` models have the same "living, not master"
 shape is an open question, tracked as a separate follow-up rather than assumed — see
-[[project_data_custom_living_vs_master_audit]] in memory. `hr.employee.csv` (phone/email/address
-routinely edited by HR) and `ems.space.csv` (classrooms, renamed/repurposed the same way groups
-are) are the strongest candidates found so far, but adding a model to
+`plans/data_loading_rearchitecture.md`. `hr.employee.csv` (phone/email/address routinely edited
+by HR) is the strongest remaining candidate, but adding a model to
 `_EMS_LIVING_CUSTOM_DATA_MODELS` should follow the same explicit confirmation this file's
 `noupdate=True`-vs-`False` decision above already requires — not be assumed from a surface
 resemblance to `ems.group`.

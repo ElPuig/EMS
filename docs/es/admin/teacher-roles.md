@@ -82,6 +82,8 @@ La cuenta de usuario del profesor se actualiza de inmediato: se concede el grupo
 
 Se revoca el grupo de seguridad correspondiente (y cualquier acceso que solo ese rol justificaba) de la cuenta de usuario del profesor.
 
+> **Los permisos concedidos directamente en la cuenta de usuario se mantienen.** Si se ha dado un permiso a mano desde **Ajustes → Usuarios** (por ejemplo, acceso de Secretaría a un profesor que no es el Responsable de área de Secretaría), cambiar los roles del profesor o actualizar EMS no lo quita. La única excepción: si más adelante el profesor pierde un rol que concede ese mismo permiso, se va con el rol, porque no hay forma de distinguir los dos casos. Si pasa, hay que volver a concederlo a mano.
+
 ---
 
 ## Asignar un Jefe de departamento / Jefe de seminario

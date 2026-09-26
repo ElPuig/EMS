@@ -51,7 +51,7 @@ On the onboarding form:
 
 ## Step 3 — Fill in the Private Email
 
-Fill in the **Private Email** field (1), in the right-hand column of the main screen, under **Manager** (the same field is also in the **Private Information** tab). This personal email address is where the password for the new corporate email will be sent.
+Fill in the **Private Email** field (1), in the right-hand column of the main screen, under **Manager** (the same field is also in the **Private Information** tab). This personal email address is where the password for the new corporate email will be sent. It must be a genuinely personal address: EMS won't accept one of the centre's own domain.
 
 ![Onboarding form with the private email field under Manager](../../assets/admin/alta-professor-03-correu-privat.png)
 

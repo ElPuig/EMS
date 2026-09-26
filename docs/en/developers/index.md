@@ -112,6 +112,7 @@ Technical reference for developers working on the EMS module.
 | [`ems.multithreading`](shared/multithreading.md) | The `run_in_thread()` setup/compute/store/callback engine behind the LimeSurvey integration's long-running actions |
 | [`ems.schedule_report_mixin`](shared/schedule_report_mixin.md) | The shared weekly-schedule aggregation-to-report pipeline (report-line building, break derivation, colour/time-label helpers) behind both the group's and the student's own read-only Schedule tab |
 | [`google.workspace.mixin`](shared/google_workspace_mixin.md) | The Directory API client, password policy, and text/phone normalization shared by the staff and student Google Workspace integrations |
+| [User menu "Documentation" entry](shared/user_menu_documentation.md) | Points the avatar dropdown's native "Documentation" entry at EMS's own user manuals, in the user's language, instead of Odoo's developer docs |
 | [Shared test utilities](shared/testing.md) | `tests/common.py`: `create_level_study(_group)`, `mock_outgoing_email`, `make_synchronous_run_in_thread` — fixture/mock boilerplate extracted after it was found duplicated across dozens of test files |
 
 ---

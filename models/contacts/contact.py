@@ -13,6 +13,10 @@ from markupsafe import Markup
 # otherwise - see rule_contact_orientation_special_needs and _ems_check_orientation_write() (issue #465).
 ORIENTATION_WRITABLE_FIELDS = {'special_needs'}
 
+# Contact types whose 'email' is a personal address, so it can never be a corporate one (issue
+# #514). Staff work contacts (no contact_type) are left out: their email IS the corporate account.
+PERSONAL_EMAIL_CONTACT_TYPES = ('student', 'family', 'applicant', 'alumni', 'withdrawal', 'expelled')
+
 class EmsStudentBenefit(models.Model):
     _name = 'ems.student.benefit'
     _description = 'Student Benefits and Exemptions'
@@ -195,6 +199,13 @@ class ResPartner(models.Model):
                 raise ValidationError(_("%(email)s is not a valid email address.", email=partner.email))
             if partner.student_email and not email_normalize(partner.student_email):
                 raise ValidationError(_("%(email)s is not a valid student email address.", email=partner.student_email))
+
+    @api.constrains('email')
+    def _check_email_not_corporate(self):
+        # Only on 'email' itself, not 'contact_type': a legacy corporate address must not block
+        # a type change (applicant -> student, graduation...) that doesn't touch the email.
+        for partner in self.filtered(lambda p: p.contact_type in PERSONAL_EMAIL_CONTACT_TYPES):
+            (partner.company_id or self.env.company)._ems_check_personal_email(partner.email)
     student_id = fields.Char(string="Student ID", copy=False)
     medical_id = fields.Char(string="Medical ID")
     nuss = fields.Char(string="NUSS")

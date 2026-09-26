@@ -48,6 +48,8 @@ The same relation shows up on the family member's own record too, listing which 
 
 > **Since 18.0.0.26.0:** any email address entered on a contact (personal or student/corporate) must be well-formed (`name@domain`) — EMS refuses to save a value that isn't, such as a phone number typed in the wrong field by mistake.
 
+The **personal email** of a student, applicant or family member can't be an address of the centre's own domain (for example, `@elpuig.xeill.net`): that is the corporate account, which EMS creates and manages itself (shown as **Corporate email**). EMS refuses to save it and asks for a personal address instead.
+
 **To remove a family member**, click the trash icon on their row and confirm with **Ok**. The family member is no longer linked to the student. If they are left related to no other student and have no user (portal access), their contact is deleted too; otherwise it is kept.
 
 ## Enrolling a student in subjects

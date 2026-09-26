@@ -82,6 +82,8 @@ The teacher's user account is updated immediately: the security group tied to th
 
 The corresponding security group (and anything only that role justified) is revoked from the teacher's user account.
 
+> **Permissions granted directly on the user account are kept.** If a permission was given by hand in **Settings → Users** (for example, Secretary access for a teacher who isn't the Secretary's Area Manager), changing the teacher's roles or updating EMS does not remove it. The one exception: if the teacher later loses a role that grants that same permission, it goes with the role, since there is no way to tell the two apart. In that case, grant it again by hand.
+
 ---
 
 ## Assigning a Department Chief / Seminar Chief

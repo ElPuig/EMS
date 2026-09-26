@@ -261,7 +261,12 @@ class ems_company(models.Model):
     # file's original values, leaving the total at 106% with no error ever raised again (the
     # constraint only fires on create/write, never on a plain CSV resync under install_mode) -
     # see plans/ems_planning_outcome_ponderation_over_100.md.
-    _EMS_LIVING_CUSTOM_DATA_MODELS = ('ems.group', 'ems.planning', 'ems.planning_outcome')
+    #
+    # ems.space confirmed 2026-09-25 (issue #510): a classroom renamed/repurposed through the app
+    # was reverted to its data/custom/ems.space.csv values on every upgrade - same shape as
+    # ems.group. migrations/18.0.0.29.0/pre-migrate.py freezes the existing rows before that
+    # version's own data reload, so the first upgrade shipping this doesn't revert them one last time.
+    _EMS_LIVING_CUSTOM_DATA_MODELS = ('ems.group', 'ems.planning', 'ems.planning_outcome', 'ems.space')
 
     def _ems_freeze_living_custom_data(self):
         """Freezes (ir.model.data.noupdate=True) every '__import__'-owned record of a model
@@ -344,6 +349,45 @@ class ems_company(models.Model):
         """Yearly self-declared health absence allowance. Same fallback rationale as above,
         except a zero here would flag every single request as over the allowance."""
         return self.ems_health_allowance_hours or self._fields['ems_health_allowance_hours'].default(self)
+
+    def _ems_is_corporate_email(self, email):
+        """True if `email` belongs to the centre's own Google Workspace domain (or a subdomain
+        of it), i.e. it is a corporate account and can't be stored as someone's personal email
+        (issue #514). Never true without a configured domain, nor on a development database
+        ('ems.environment_type' = 'dev'): devel.sh rewrites every stored address onto that very
+        same domain, so the check would reject the whole redirected dataset."""
+        self.ensure_one()
+        domain = (self.google_ws_domain or '').strip().lstrip('@').lower()
+        normalized = email_normalize(email or '')
+        if not domain or not normalized:
+            return False
+        if self.env['ir.config_parameter'].sudo().get_param('ems.environment_type') == 'dev':
+            return False
+        email_domain = normalized.rpartition('@')[2]
+        return email_domain == domain or email_domain.endswith(f'.{domain}')
+
+    def _ems_check_personal_email(self, email):
+        """Raise if `email` is a corporate address (see _ems_is_corporate_email)."""
+        if self._ems_is_corporate_email(email):
+            raise ValidationError(_(
+                "%(email)s can't be used as a personal email: it belongs to the centre's own "
+                "domain (%(domain)s). Enter a personal address instead; the corporate account "
+                "is managed by EMS itself.",
+                email=email, domain=self.google_ws_domain,
+            ))
+
+    def _ems_drop_corporate_email(self, email, name, warnings):
+        """Import helper: return `email` unchanged, or False (plus a line appended to
+        `warnings`) when it is a corporate address, so a bulk import keeps the rest of the
+        row instead of failing it whole on _ems_check_personal_email."""
+        if not self._ems_is_corporate_email(email):
+            return email
+        warnings.append(_(
+            "%(name)s: personal email %(email)s ignored, it belongs to the centre's own "
+            "domain (%(domain)s).",
+            name=name, email=email, domain=self.google_ws_domain,
+        ))
+        return False
 
     @api.depends('limesurvey_pwd_encrypted')
     def _compute_limesurvey_pwd(self):        

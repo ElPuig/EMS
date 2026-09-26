@@ -119,6 +119,19 @@ ROLE_GROUP_XMLIDS = {
 }
 
 
+CORPORATE_TEST_DOMAIN = 'school.example.com'
+
+
+def enforce_corporate_email_policy(cls, domain=CORPORATE_TEST_DOMAIN):
+    """Makes res.company._ems_is_corporate_email() actually apply for the test class (issue
+    #514): sets a fictitious Google Workspace domain on the company and declares the database a
+    production one, since this dev box is 'ems.environment_type' = 'dev' (which skips the check)
+    and CI's clean database has no value at all. Call once from setUpClass; both writes are
+    rolled back with the class transaction."""
+    cls.env.company.google_ws_domain = domain
+    cls.env['ir.config_parameter'].sudo().set_param('ems.environment_type', 'production')
+
+
 def create_role_user(cls, role, login, **overrides):
     """Creates a res.users with `role`'s group (see ROLE_GROUP_XMLIDS) plus base.group_user.
 

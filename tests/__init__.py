@@ -88,6 +88,7 @@ from . import test_student_import_wizard_tour
 from . import test_student_update_wizard
 from . import test_student_update_wizard_tour
 from . import test_planning
+from . import test_personal_email_not_corporate
 from . import test_portal_access_wizard
 from . import test_portal_access_wizard_tour
 from . import test_portal_enrollment
@@ -177,6 +178,9 @@ from . import test_attendance_correction_request_tour
 from . import test_asp_tour
 from . import test_portal_tour
 from . import test_portal_actions
+from . import test_portal_google_signin
+from . import test_portal_view_only
+from . import test_portal_view_only_tour
 from . import test_enrollment_product_extension
 from . import test_enrollment_mail_activity
 from . import test_attendance_session
@@ -212,3 +216,4 @@ from . import test_role_smoke_coexistence_tour
 from . import test_role_smoke_secretary_tour
 from . import test_role_smoke_tac_tour
 from . import test_user_profile_tour
+from . import test_user_menu_documentation_tour

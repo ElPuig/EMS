@@ -51,6 +51,11 @@ class ResPartnerGoogleWorkspace(models.Model):
         compute_sudo=True, store=False,
         help="Whether the user looking at this student may reset their Google password: the "
              "academic admin, the TAC team, or the student's own tutor scope.")
+    can_create_google_account = fields.Boolean(
+        string="Can create the Google account", compute='_compute_can_reset_google_password',
+        compute_sudo=True, store=False,
+        help="Whether the user looking at this student may create their Google account: the "
+             "secretary, plus everyone who may reset the password.")
 
     # ------------------------------------------------------------------
     # Compute
@@ -65,18 +70,21 @@ class ResPartnerGoogleWorkspace(models.Model):
             else:
                 partner.google_ws_state = 'active'
 
-    # NOTE (issue #490): drives the "Reset Google password" button's own invisible, since a
-    # teacher reads every student (rule_contact_teacher) and the button's groups alone would
-    # offer it on students the user cannot reset. compute_sudo so a tutor can resolve the
-    # chain at all; sudo() keeps env.uid, so env.user is still the real reader.
+    # NOTE (issue #490, #513): drives the "Reset Google password" and "Create Google account"
+    # buttons' own invisible, since a teacher reads every student (rule_contact_teacher) and the
+    # buttons' groups alone would offer them on students the user cannot act on. compute_sudo so
+    # a tutor can resolve the chain at all; sudo() keeps env.uid, so env.user is still the real
+    # reader.
     @api.depends('tutor_id')
     @api.depends_context('uid')
     def _compute_can_reset_google_password(self):
         user = self.env.user
         privileged = user.has_group('ems.group_academic_admin') or user.has_group('ems.group_tac')
+        secretary = user.has_group('ems.group_secretary')
         for partner in self:
             partner.can_reset_google_password = privileged or base.EmsBase.user_acts_as_tutor(
                 partner, partner.tutor_id)
+            partner.can_create_google_account = secretary or partner.can_reset_google_password
 
     # ------------------------------------------------------------------
     # Helpers
@@ -192,7 +200,7 @@ class ResPartnerGoogleWorkspace(models.Model):
                 partner.with_delay(
                     identity_key='gw_create_account_%s' % partner.id,
                     description="Create Google Workspace account: %s" % partner.name,
-                ).action_create_google_account()
+                )._gw_create_account()
 
     def _gw_enqueue_relocate(self):
         """Enqueue an OU relocation for students that already have an account, used
@@ -321,10 +329,24 @@ class ResPartnerGoogleWorkspace(models.Model):
     # Main action (queue_job target / manual button)
     # ------------------------------------------------------------------
     def action_create_google_account(self):
+        """"Create Google account" header button: the secretary, academic admin, TAC and - since
+        issue #513 - the student's own tutor scope (the same rule as the password reset). The
+        button's invisible only hides it, so the same check is repeated here. The automatic paths
+        call _gw_create_account() directly: their queue jobs run as whoever triggered them, portal
+        families included."""
+        self.ensure_one()
+        if not self.can_create_google_account:
+            raise AccessError(_(
+                "Only the secretary's office, administrators, the TAC team and the student's own "
+                "tutor can create a Google account."))
+        self._gw_create_account()
+
+    def _gw_create_account(self):
         """Create the student's Google Workspace account and deliver credentials.
 
         Idempotent: does nothing if the student already has a corporate email. Chatter notes go
-        through sudo() because the TAC team, who may press the button, only reads students.
+        through sudo() because the TAC team and tutors, who may press the button, only read
+        students.
         """
         self.ensure_one()
         company = self.env.company
@@ -694,7 +716,7 @@ class ResPartnerGoogleWorkspace(models.Model):
                 'student_email': False, 'google_ws_suspended': False,
                 'google_ws_deleted': False, 'google_ws_deletion_date': False,
             })
-            self.action_create_google_account()
+            self._gw_create_account()
             return
 
         ou = company.google_ws_ou_adult if self.is_adult else company.google_ws_ou_minor
@@ -723,7 +745,7 @@ class ResPartnerGoogleWorkspace(models.Model):
                     'student_email': False, 'google_ws_suspended': False,
                     'google_ws_deletion_date': False,
                 })
-                self.action_create_google_account()
+                self._gw_create_account()
                 return
             _logger.exception("Could not reactivate Google account for %s", self.name)
             raise

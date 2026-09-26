@@ -5,7 +5,7 @@ import io
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group
+from .common import CORPORATE_TEST_DOMAIN, create_level_study_group, enforce_corporate_email_policy
 
 
 # Subset of the real GEDAC "ASSIGNATS" export header, limited to the columns the
@@ -123,6 +123,16 @@ class TestApplicantImportWizard(TransactionCase):
         self.assertFalse(self._applicant(1234567891))
         self.assertIn('Errors (1):', wizard.result_html)
         self.assertIn('is not a valid email address', wizard.result_html)
+
+    def test_corporate_email_is_ignored_with_a_warning(self):
+        # Issue #514: the applicant is still created, just without the corporate address.
+        enforce_corporate_email_policy(self)
+        wizard = self._run([self._base_row(**{
+            'Ident. RALC': 1234567892, 'Correu electrònic': f'laia@{CORPORATE_TEST_DOMAIN}'})])
+        applicant = self._applicant(1234567892)
+        self.assertTrue(applicant)
+        self.assertFalse(applicant.email)
+        self.assertIn('Warnings (1):', wizard.result_html)
 
     def test_multiword_firstname_split(self):
         # "Nom" can be multi-word: it must all land in firstname, and the two
@@ -329,7 +339,7 @@ class TestApplicantImportWizard(TransactionCase):
         wizard = self.env['ems.applicant_import_wizard'].new({})
         html = wizard._build_result_html({
             'created': 1, 'updated': 0, 'skipped': 0, 'students': 0,
-            'errors': ['<script>alert(1)</script>'], 'student_rows': [],
+            'errors': ['<script>alert(1)</script>'], 'warnings': [], 'student_rows': [],
         })
         self.assertIn('&lt;script&gt;', html)
         self.assertNotIn('<script>alert(1)</script>', html)
@@ -338,7 +348,7 @@ class TestApplicantImportWizard(TransactionCase):
         wizard = self.env['ems.applicant_import_wizard'].new({})
         html = wizard._build_result_html({
             'created': 0, 'updated': 0, 'skipped': 0,
-            'students': 1, 'errors': [],
+            'students': 1, 'errors': [], 'warnings': [],
             'student_rows': [{
                 'current_name': '<b>Injected</b>', 'assigned_study': 'Study',
                 'current_group': 'Group',

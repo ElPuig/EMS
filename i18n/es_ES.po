@@ -3310,8 +3310,8 @@ msgstr "Correo electrónico"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
-msgid "Email address used as the recipient for messages addressed to the center's secretariat (e.g. portal personal-data change requests)."
-msgstr "Dirección de correo utilizada como destinatario de los mensajes dirigidos a la secretaría del centro (p. ej. solicitudes de cambio de datos personales desde el portal)."
+msgid "Email address of the center's secretariat, for messages addressed to it. No feature uses it yet."
+msgstr "Dirección de correo de la secretaría del centro, para los mensajes dirigidos a ella. Ninguna funcionalidad la utiliza todavía."
 
 #. module: ems
 #: model:mail.template,name:ems.mail_notice
@@ -17030,3 +17030,53 @@ msgstr "A cada alumno, o a la familia de un menor, se le envía por correo el en
 #: code:addons/ems/static/src/js/backend/contact_data_request_send_form.js:0
 msgid "Whoever lacks portal access is invited to it."
 msgstr "Quien no tenga acceso al portal es invitado a él."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/controllers/portal_contact_data.py:0
+msgid "%(name)s, a contact of %(children)s, has the same identity document. Is it the same person?"
+msgstr "%(name)s, contacto de %(children)s, tiene el mismo documento de identidad. ¿Es la misma persona?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/controllers/portal_contact_data.py:0
+msgid "%(name)s, a contact of %(children)s, has the same mobile number. Is it the same person?"
+msgstr "%(name)s, contacto de %(children)s, tiene el mismo número de móvil. ¿Es la misma persona?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/controllers/portal_contact_data.py:0
+msgid "Yes, it is the same person: link them to %s"
+msgstr "Sí, es la misma persona: vincula este contacto a %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/controllers/portal_contact_data.py:0
+msgid "Say whether it is the same person."
+msgstr "Indicad si es la misma persona."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/controllers/portal_contact_data.py:0
+msgid "A document belongs to one person: if it is not the same person, correct the document number."
+msgstr "Un documento pertenece a una sola persona: si no es la misma persona, corregid el número del documento."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data_new_family_extras
+msgid "No, it is another person"
+msgstr "No, es otra persona"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data_new_family_extras
+msgid "Also a contact of:"
+msgstr "También es contacto de:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__also_student_ids
+msgid "Also linked to"
+msgstr "También vinculado a"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_contact_data_request_line__also_student_ids
+msgid "The family asked for this contact to be linked to these other children of theirs too."
+msgstr "La familia ha pedido que este contacto se vincule también a estos otros hijos suyos."

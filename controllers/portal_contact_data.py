@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 
-from odoo import http
+from odoo import _, http
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
 
@@ -16,13 +16,19 @@ class EmsPortalContactData(CustomerPortal):
     Always the student resolved by res.partner._ems_portal_contact_data_student(): no student id
     travels in the form, only whoever acts for the student gets here (a view-only account is sent
     home, like every other managing page), and only the family contacts already related to that
-    student can be edited or removed. Everything is read and staged with sudo, since portal users
-    have no rights on the relations nor on ems.contact.data.request; nothing is written to the
-    contacts themselves until a reviewer approves it (ems.contact.data.request.action_approve).
+    student can be edited or removed. A family contact it adds may also be linked to the account's
+    other children, chosen among those it answers for, and one that repeats a contact of those
+    children (same document or phone) is pointed out first. Everything is read and staged with
+    sudo, since portal users have no rights on the relations nor on ems.contact.data.request;
+    nothing is written to the contacts themselves until a reviewer approves it
+    (ems.contact.data.request.action_approve).
     """
 
     def _ems_contact_data_student(self):
         return request.env.user.partner_id._ems_portal_contact_data_student().sudo()
+
+    def _ems_contact_data_siblings(self, student):
+        return request.env.user.partner_id._ems_portal_siblings(student).sudo()
 
     def _ems_contact_data_request(self, student):
         course = request.env['res.partner'].sudo()._ems_running_course()
@@ -37,26 +43,66 @@ class EmsPortalContactData(CustomerPortal):
             return self._ems_render_contact_data(student, {'student': {}, 'family': []})
         data_request, course = self._ems_contact_data_request(student)
         current = student._ems_contact_data()
+        siblings = self._ems_contact_data_siblings(student)
         if request.httprequest.method != 'POST':
             data = data_request._ems_proposal() if data_request.state == 'submitted' else current
-            return self._ems_render_contact_data(student, data, data_request=data_request,
+            self._ems_annotate_matches(student, siblings, data)
+            return self._ems_render_contact_data(student, data, siblings, data_request=data_request,
                                                  sent=bool(post.get('sent')))
 
         Request = request.env['ems.contact.data.request'].sudo()
-        proposal = self._ems_parse_contact_data(post, current)
+        proposal = self._ems_parse_contact_data(post, current, siblings)
         problems = Request._ems_contact_data_problems(proposal, student.is_adult, current=current)
-        if problems:
+        match_issues = self._ems_annotate_matches(student, siblings, proposal)
+        if problems or match_issues:
             errors = {}
             for key, message in problems:
                 errors.setdefault(key, []).append(message)
-            return self._ems_render_contact_data(student, proposal, data_request=data_request, errors=errors)
+            for key, message in match_issues.items():
+                errors.setdefault(f'{key}_confirm', []).append(message)
+            return self._ems_render_contact_data(student, proposal, siblings, data_request=data_request,
+                                                 errors=errors)
         Request._ems_open_for(student, course)._ems_submit(proposal)
         return request.redirect('/my/dades-contacte?sent=1')
 
-    def _ems_parse_contact_data(self, post, current):
+    def _ems_annotate_matches(self, student, siblings, data):
+        """Points out, on each family contact the answer adds, the contact of a sibling it repeats
+        (entry['match']), and settles what the family answered about it (`confirm` yes/no, for the
+        very contact shown - `posted_match`). Returns {key: message} for what still blocks sending:
+        no answer yet, or "no" to a document, which identifies one person."""
+        partner = request.env.user.partner_id
+        issues = {}
+        for entry in data['family']:
+            if entry.get('id') or entry.get('remove'):
+                continue
+            match = partner._ems_sibling_contact_match(student, siblings, entry) if siblings else False
+            sent_match_id = entry.get('confirmed_match_id')  # only on an entry shown again from what was sent
+            entry['match'] = match
+            entry['confirmed_match_id'] = False
+            if not match:
+                continue
+            sentence = _("%(name)s, a contact of %(children)s, has the same identity document. Is it the same person?") \
+                if match['reason'] == 'document' else \
+                _("%(name)s, a contact of %(children)s, has the same mobile number. Is it the same person?")
+            match['message'] = sentence % {'name': match['name'], 'children': ', '.join(match['children'])}
+            match['yes_label'] = _("Yes, it is the same person: link them to %s", student.name)
+            if entry.get('confirm') is None:
+                entry['confirm'] = 'yes' if sent_match_id == match['id'] else ''
+                entry['posted_match'] = str(match['id'])
+            if entry['confirm'] not in ('yes', 'no') or entry.get('posted_match') != str(match['id']):
+                issues[entry['key']] = _("Say whether it is the same person.")
+            elif entry['confirm'] == 'yes':
+                entry['confirmed_match_id'] = match['id']
+            elif match['reason'] == 'document':
+                issues[entry['key']] = _(
+                    "A document belongs to one person: if it is not the same person, correct the document number.")
+        return issues
+
+    def _ems_parse_contact_data(self, post, current, siblings):
         """The posted form in the shape of res.partner._ems_contact_data(). Existing family contacts
         come from `current` - never from ids in the form - so only this student's own can be
-        touched; new ones are the n<number>_* inputs added in the browser."""
+        touched; new ones are the n<number>_* inputs added in the browser, and the other children
+        they are also linked to are picked among `siblings`, never from ids in the form."""
         valid_relation_ids = request.env['res.partner.relation.type'].sudo().search([]).ids
 
         def value(name):
@@ -80,12 +126,16 @@ class EmsPortalContactData(CustomerPortal):
         for key in new_keys:
             relation = value(f'{key}_relation_type_id')
             relation_id = int(relation) if relation.isdigit() and int(relation) in valid_relation_ids else False
-            entry = fill({'key': key, 'id': False, 'remove': False, 'relation_type_id': relation_id}, key)
+            entry = fill({
+                'key': key, 'id': False, 'remove': False, 'relation_type_id': relation_id,
+                'also_for': [child.id for child in siblings if post.get(f'{key}_also_{child.id}')],
+                'confirm': value(f'{key}_confirm'), 'posted_match': value(f'{key}_match'),
+            }, key)
             if relation_id or any(entry[field] for field in FAMILY_FIELDS if field not in ADDRESS_FIELDS):
                 family.append(entry)
         return {'student': student, 'family': family}
 
-    def _ems_render_contact_data(self, student, data, data_request=None, errors=None, sent=False):
+    def _ems_render_contact_data(self, student, data, siblings, data_request=None, errors=None, sent=False):
         values = self._prepare_portal_layout_values()
         for entry in data['family']:
             entry.setdefault('same_address', not any(entry.get(field) for field in ADDRESS_FIELDS) or all(
@@ -94,6 +144,7 @@ class EmsPortalContactData(CustomerPortal):
             'page_name': 'contact_data',
             'student': student,
             'data': data,
+            'siblings': [{'id': child.id, 'name': child.name} for child in siblings],
             'errors': {key: ' '.join(messages) for key, messages in (errors or {}).items()},
             'data_request': data_request,
             'sent': sent,

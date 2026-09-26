@@ -21,7 +21,7 @@
                 <div t-if="ems_profile_readonly" class="o_portal_details">
                     <div class="alert alert-info" role="alert">
                         <i class="fa fa-lock me-1"/>
-                        <span>Your personal data is read-only. To request a correction, please contact the secretariat.</span>
+                        <p class="d-inline mb-0">Your personal data is read-only. To request a correction, please contact the secretariat.</p>
                     </div>
                     <div class="row col-lg-8">
                         <div class="mb-3 col-xl-6">

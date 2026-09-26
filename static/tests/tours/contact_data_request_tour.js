@@ -182,3 +182,81 @@ registry.category("web_tour.tours").add("ems_contact_data_menu", {
         },
     ],
 });
+
+// A family with two children adds a contact whose mobile already belongs to a contact of the other
+// child: the form points it out, the family says it is the same person, and sends the answer.
+registry.category("web_tour.tours").add("ems_contact_data_portal_siblings", {
+    test: true,
+    url: "/my/dades-contacte",
+    steps: () => [
+        {
+            trigger: ".o_ems_contact_data_form input[name='s_street']",
+            run: "edit Tour Siblings Street 5",
+        },
+        {
+            trigger: ".o_ems_contact_data_form input[name='s_zip']",
+            run: "edit 08925",
+        },
+        {
+            trigger: ".o_ems_contact_data_form input[name='s_city']",
+            run: "edit Tour City",
+        },
+        {
+            trigger: ".o_ems_contact_data_form input[name='s_document_id']",
+            run: "edit 10000007K",
+        },
+        {
+            trigger: ".o_ems_family_entry input[name$='_lastname']",
+            run: "edit Tour",
+        },
+        {
+            trigger: ".o_ems_add_family",
+            content: "Add a family contact",
+            run: "click",
+        },
+        {
+            trigger: ".o_ems_new_family_container select[name='n0_relation_type_id']",
+            run: "selectByLabel Father",
+        },
+        {
+            trigger: ".o_ems_new_family_container input[name='n0_firstname']",
+            run: "edit Newfather",
+        },
+        {
+            trigger: ".o_ems_new_family_container input[name='n0_lastname']",
+            run: "edit Tour",
+        },
+        {
+            trigger: ".o_ems_new_family_container input[name='n0_mobile']",
+            content: "The mobile of a contact of the other child",
+            run: "edit 711300001",
+        },
+        {
+            trigger: ".o_ems_new_family_container input[name^='n0_also_']:checked",
+            content: "The new contact is also offered for the other child, ticked",
+        },
+        {
+            trigger: ".o_ems_contact_data_submit",
+            run: "click",
+        },
+        {
+            trigger: ".o_ems_contact_match",
+            content: "The form points out the contact that has the same mobile",
+        },
+        {
+            trigger: ".o_ems_contact_match input[name='n0_confirm'][value='yes']",
+            content: "It is the same person",
+            run: "click",
+        },
+        {
+            trigger: ".o_ems_contact_data_submit",
+            content: "Send it again",
+            run: "click",
+        },
+        {
+            trigger: ".o_ems_contact_data_sent",
+            content: "The details were sent",
+        },
+    ],
+});
+

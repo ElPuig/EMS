@@ -78,6 +78,39 @@
         </div>
     </template>
 
+    <!-- Issue #507: what a family contact the answer adds can also be, next to its own fields. A new
+    contact is offered for the account's other children (siblings, ticked by default), and one that
+    repeats a contact of those children (res.partner._ems_sibling_contact_match) is pointed
+    out and asked about, the same document or the same phone. -->
+    <template id="portal_contact_data_new_family_extras" name="Contact data new family extras">
+        <t t-set="match" t-value="entry.get('match')"/>
+        <t t-set="offered" t-value="[child for child in siblings if not match or child['id'] not in match['linked_ids']]"/>
+        <div t-if="match" class="alert alert-warning mt-3 mb-3 o_ems_contact_match" t-att-data-reason="match['reason']">
+            <p class="mb-2 fw-bold" t-out="match['message']"/>
+            <input type="hidden" t-att-name="key + '_match'" t-att-value="match['id']"/>
+            <div class="form-check">
+                <input type="radio" class="form-check-input" t-att-name="key + '_confirm'" t-att-id="key + '_confirm_yes'"
+                       value="yes" t-att-checked="entry.get('confirm') == 'yes' or None"/>
+                <label class="form-check-label" t-att-for="key + '_confirm_yes'" t-out="match['yes_label']"/>
+            </div>
+            <div class="form-check">
+                <input type="radio" class="form-check-input" t-att-name="key + '_confirm'" t-att-id="key + '_confirm_no'"
+                       value="no" t-att-checked="entry.get('confirm') == 'no' or None"/>
+                <label class="form-check-label" t-att-for="key + '_confirm_no'">No, it is another person</label>
+            </div>
+            <div t-if="errors.get(key + '_confirm')" class="text-danger small mt-1" t-out="errors.get(key + '_confirm')"/>
+        </div>
+        <div t-if="offered" class="mt-3 o_ems_also_for">
+            <div class="fw-bold mb-1">Also a contact of:</div>
+            <div t-foreach="offered" t-as="child" class="form-check form-check-inline">
+                <input type="checkbox" class="form-check-input" t-att-name="key + '_also_' + str(child['id'])"
+                       t-att-id="key + '_also_' + str(child['id'])" value="1"
+                       t-att-checked="child['id'] in (entry.get('also_for') or []) or None"/>
+                <label class="form-check-label" t-att-for="key + '_also_' + str(child['id'])" t-out="child['name']"/>
+            </div>
+        </div>
+    </template>
+
     <template id="portal_contact_data" name="Contact details">
         <t t-call="portal.portal_layout">
             <div class="container mt-4 mb-5 o_ems_portal_contact_data">
@@ -191,6 +224,7 @@
                                         <t t-call="ems.portal_contact_data_relation_select"/>
                                     </div>
                                     <t t-call="ems.portal_contact_data_family_fields"/>
+                                    <t t-if="not entry.get('id')"><t t-call="ems.portal_contact_data_new_family_extras"/></t>
                                 </div>
                             </div>
                         </t>
@@ -203,12 +237,13 @@
 
                         <template class="o_ems_new_family_template">
                             <t t-set="key" t-value="'n__INDEX__'"/>
-                            <t t-set="entry" t-value="{'same_address': True}"/>
+                            <t t-set="entry" t-value="{'same_address': True, 'also_for': [child['id'] for child in siblings]}"/>
                             <div class="card mb-3 o_ems_family_entry">
                                 <div class="card-header"><strong>New family contact</strong></div>
                                 <div class="card-body">
                                     <div class="row"><t t-call="ems.portal_contact_data_relation_select"/></div>
                                     <t t-call="ems.portal_contact_data_family_fields"/>
+                                    <t t-call="ems.portal_contact_data_new_family_extras"/>
                                 </div>
                             </div>
                         </template>

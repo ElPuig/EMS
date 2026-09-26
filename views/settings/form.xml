@@ -48,7 +48,7 @@
                             <setting string="Center code" help="Official Departament d'Educació center code, leading zero included (e.g. 08028047). Used by the GEDAC applicant import to keep only the applicants assigned to this center; the comparison ignores the leading zero the Excel drops." id="center_code">
                                 <field name="center_code" placeholder="08028047"/>
                             </setting>
-                            <setting string="Secretariat" help="Email address used as the recipient for messages addressed to the center's secretariat (e.g. portal personal-data change requests)." id="secretariat_email">
+                            <setting string="Secretariat" help="Email address of the center's secretariat, for messages addressed to it. No feature uses it yet." id="secretariat_email">
                                 <field name="secretariat_email" widget="email" placeholder="secretaria@example.com"/>
                             </setting>
                             <setting string="Notice email signature" help="Default sign-off appended to every Notice email. Copied onto each new notice as its own editable signature - editing it here only affects notices created afterward." id="notice_email_signature">

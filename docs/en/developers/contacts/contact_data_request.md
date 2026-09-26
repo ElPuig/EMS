@@ -16,7 +16,7 @@ levels), answered on `/my/dades-contacte`, and applied only once a reviewer appr
 | `models/shared/student_scope_mixin.py` | `ems.student.scope.mixin`, the student picking shared with the authorization send wizard |
 | `models/contacts/family_contact.py` | Recognising, creating and linking family contacts (`_ems_find_family()`, `_ems_create_family_contact()`, `_ems_link_family()`) |
 | `controllers/portal_contact_data.py` | `/my/dades-contacte` (GET shows, POST validates and stages); a view-only account is sent home (`ems_portal_manage_required`) |
-| `views/portal/portal_contact_data.xml` | The portal page; the home banner (only while a request is pending) is in `portal_main.xml`, the **Update contact details** button of the Profile tab in `portal_account_readonly.xml` |
+| `views/portal/portal_contact_data.xml` | The portal page (`portal_contact_data_new_family_extras`: the repeated-contact question and the other-children checkboxes); the home banner (only while a request is pending) is in `portal_main.xml`, the **Update contact details** button of the Profile tab in `portal_account_readonly.xml` |
 | `views/community/contact_data_request/` | Send wizard, bindings (students list/form, groups list/form), request list/form/search, return wizard, menu |
 | `mails/contacts/contact_data_request.xml` | `ems.email_template_contact_data_request` (first request, reminder, returned) |
 
@@ -105,6 +105,38 @@ The same lookup is used by the approval of a request, the relation wizard
 and the Esfera import (`ems.student_import_wizard._get_or_create_family`, which reports possible
 duplicates in its warnings).
 
+## Several children and repeated contacts
+
+A family answers for one child at a time (`get_portal_student()`), but a family contact it adds often
+belongs to its other children too, and is often already on file as a contact of one of them.
+
+- **Which children.** `res.partner._ems_portal_siblings(student)`: the other children the portal
+  partner *acts for* (`get_portal_students()` minus `student`, filtered by `_ems_portal_can_act_for()`;
+  a view-only child is never one). Each new contact card offers them as **Also a contact of**
+  (`n<k>_also_<child id>` checkboxes, ticked by default). The controller reads the ticks by iterating
+  those children, never ids from the form, so a crafted post cannot reach anyone else's child. The
+  choice is staged on every line of the person as `also_student_ids` (**Also linked to** in the review).
+- **Repeated contact.** `res.partner._ems_sibling_contact_match(student, siblings, entry)` looks, among
+  the family contacts of the siblings that are not `student`'s yet, for the same identity document
+  (`document_id`/`passport_id`, spaces and hyphens ignored) or the same phone (`_ems_phone_key()`, either
+  the mobile or the landline of the contact). It returns the contact, the reason and the children it is
+  linked to, or `False`. **Only these contacts are ever pointed out**: they are people the family can
+  already read on the sibling's own page, so the portal cannot be used to probe for documents or phones
+  of other families. Their match is still found at approval by `_ems_find_family()` and flagged for the
+  reviewer as before.
+- **The question.** The controller (`_ems_annotate_matches()`) stops the first post, shows the contact and
+  asks *is it the same person?* (`n<k>_confirm` yes/no, with the candidate's id in `n<k>_match` so an
+  answer about another contact than the one shown is not taken). Yes stages the line with
+  `matched_partner_id` = that contact (`entry['confirmed_match_id']`); no creates a new contact as
+  before. A document identifies one person, so *no* on a document match asks to correct the document.
+  Nothing is staged while a question is unanswered.
+- **Approval.** `_ems_apply()` links the contact stored in `matched_partner_id` (else the one
+  `_ems_find_family()` finds now) to the reviewed student and to each `also_student_ids` child, through
+  `_ems_link_family()` (idempotent, sudo). Updating an existing contact already reaches every child, as
+  it is one record; **No longer a contact** unlinks the reviewed student only.
+- An answer shown again while it waits for review (`_ems_proposal()`) carries the choices back
+  (`confirmed_match_id`, `also_for`), so the question is not asked twice.
+
 ## Flow
 
 ```mermaid
@@ -184,6 +216,11 @@ request is pending (`_ems_contact_data_requested()`), and the email links to the
 - `tests/test_portal_contact_data.py`: the portal page, validation, staging, foreign family contacts
   ignored, home banner, Profile button;
   `TestPortalContactDataRules`: a minor's own account and a family looking at an adult child cannot
-  review nor send, a corporate email is refused before it is staged.
+  review nor send, a corporate email is refused before it is staged; `TestPortalContactDataSiblings`:
+  a family with two children - the other child is offered, a contact of that child with the same
+  document or phone is asked about (yes links it, no creates another, a document cannot be another
+  person), nothing is said about another family's contacts, and only the account's own children can
+  be chosen.
 - `tests/test_contact_data_request_tour.py`: family answers from the portal, entering through the
-  Profile button; the group's tutor sends to their group and approves (list and form).
+  Profile button; a family with two children is pointed to a repeated contact and confirms it; the
+  group's tutor sends to their group and approves (list and form).

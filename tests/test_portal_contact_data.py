@@ -106,6 +106,12 @@ class TestPortalContactData(PortalContactDataHelpers, HttpCase):
         self.assertNotIn('/my/dades-contacte', response.text, "The review is reached from the profile")
         self.assertNotIn('Review the contact details of the student and the family', response.text)
 
+    def test_profile_notice_is_translated(self):
+        # The sentence must stay a term of its own: next to the lock icon in a plain <span> Odoo
+        # merges both into one term, which no .po entry matches, and the notice stays in English.
+        arch = self.env.ref('ems.portal_my_details_readonly').with_context(lang='ca_ES').arch_db
+        self.assertIn('Les teves dades personals són de només lectura', arch)
+
     def test_profile_links_to_the_review_and_no_longer_offers_a_mailto(self):
         self.env.company.secretariat_email = 'secretariat.tpcd@example.com'
         response = self.url_open('/my/account')
@@ -201,3 +207,154 @@ class TestPortalContactDataRules(PortalContactDataHelpers, HttpCase):
         response = self._post(**self._complete_form())
         self.assertIn('o_ems_contact_data_sent', response.text)
         self.assertEqual(self._request().state, 'submitted')
+
+
+@tagged('post_install', '-at_install')
+class TestPortalContactDataSiblings(PortalContactDataHelpers, HttpCase):
+    """A family with two children (issue #507): a family contact it adds can also be linked to the
+    other child, and one that repeats a contact of that other child - same document or same
+    phone - is pointed out and asked about, so the person is not entered twice. Nothing is said
+    about contacts of other families."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        mock_outgoing_email(cls)
+        create_portal_contact_data_fixtures(cls, 'TPCB')
+        Partner = cls.env['res.partner']
+        cls.father = cls.env.ref('ems.relation_type_father')
+
+        def student(name):
+            return Partner.create({
+                'name': name, 'contact_type': 'student', 'student_id': next_student_id(),
+                'birth_date': date.today() - relativedelta(years=13), 'main_group_id': cls.group.id})
+
+        def contact(firstname, mobile, document, *children):
+            partner = Partner.create({'firstname': firstname, 'lastname': 'TPCB', 'contact_type': 'family',
+                                      'mobile': mobile, 'document_id': document})
+            cls.env['res.partner.relation'].create([{
+                'left_partner_id': partner.id, 'type_id': cls.father.id, 'right_partner_id': child.id,
+            } for child in children])
+            return partner
+
+        # The account's other child, whose father is not a contact of the first child yet.
+        cls.sibling = student('Sibling Student (TPCB)')
+        cls.env['res.partner.relation'].create({
+            'left_partner_id': cls.family.id, 'type_id': cls.env.ref('ems.relation_type_mother').id,
+            'right_partner_id': cls.sibling.id})
+        cls.sibling_father = contact('Sibfather', '+34 711 300 001', valid_dni(10000201), cls.sibling)
+        # Somebody else's family.
+        cls.foreign_student = student('Foreign Student (TPCB)')
+        cls.stranger = contact('Stranger', '+34 711 300 002', valid_dni(10000202), cls.foreign_student)
+        cls.env.flush_all()
+
+    def setUp(self):
+        super().setUp()
+        self.authenticate(self.family_user.login, self.family_user.login)
+
+    def _new_contact(self, key='n0', **overrides):
+        values = {
+            f'{key}_relation_type_id': str(self.father.id), f'{key}_firstname': 'Newfather',
+            f'{key}_lastname': 'TPCB', f'{key}_mobile': '711300099', f'{key}_same_address': '1',
+        }
+        values.update({f'{key}_{name}': value for name, value in overrides.items()})
+        return values
+
+    def _relation(self, contact, student):
+        return self.env['res.partner.relation.all'].search_count([
+            ('this_partner_id', '=', contact.id), ('other_partner_id', '=', student.id)])
+
+    def _lines(self, key='n0'):
+        return self._request().line_ids.filtered(lambda line: line.person_key == key)
+
+    def _answer(self, **contact):
+        return self._post(**self._complete_form(**self._new_contact(**contact)))
+
+    def test_the_form_offers_the_other_child(self):
+        page = self.url_open('/my/dades-contacte').text
+        self.assertIn(f'n__INDEX___also_{self.sibling.id}', page)
+        self.assertIn(self.sibling.name, page)
+
+    def test_a_phone_of_a_siblings_contact_is_pointed_out_before_anything_is_staged(self):
+        response = self._answer(mobile=self.sibling_father.mobile, firstname='Someoneelse')
+        self.assertIn('o_ems_contact_match', response.text)
+        self.assertIn('has the same mobile number', response.text)
+        self.assertIn(self.sibling_father.name, response.text)
+        self.assertIn(self.sibling.name, response.text)
+        self.assertFalse(self._request(), "Nothing is staged until the family answers")
+
+    def test_yes_links_the_existing_contact_instead_of_creating_another(self):
+        response = self._answer(mobile=self.sibling_father.mobile, confirm='yes', match=str(self.sibling_father.id))
+        self.assertIn('o_ems_contact_data_sent', response.text)
+        line = self._lines()[0]
+        self.assertEqual(line.matched_partner_id, self.sibling_father)
+        self.assertFalse(line.possible_duplicate_id)
+        families = self.env['res.partner'].search_count([('contact_type', '=', 'family'), ('mobile', '=', self.sibling_father.mobile)])
+        self._request().action_approve()
+        self.assertEqual(self._relation(self.sibling_father, self.minor), 1)
+        self.assertEqual(self._relation(self.sibling_father, self.sibling), 1, "Still a contact of the sibling")
+        self.assertEqual(self.env['res.partner'].search_count([
+            ('contact_type', '=', 'family'), ('mobile', '=', self.sibling_father.mobile)]), families)
+
+    def test_no_creates_a_new_contact_and_flags_the_shared_phone(self):
+        self._answer(mobile=self.sibling_father.mobile, firstname='Someoneelse', confirm='no',
+                     match=str(self.sibling_father.id))
+        line = self._lines()[0]
+        self.assertFalse(line.matched_partner_id)
+        self.assertEqual(line.possible_duplicate_id, self.sibling_father)
+        self._request().action_approve()
+        self.assertEqual(self.env['res.partner'].search_count([
+            ('contact_type', '=', 'family'), ('mobile', '=', self.sibling_father.mobile)]), 2)
+
+    def test_the_same_document_is_asked_too_and_cannot_be_another_person(self):
+        document = dict(document_id=self.sibling_father.document_id, mobile='711300098')
+        first = self._answer(**document)
+        self.assertIn('has the same identity document', first.text)
+        self.assertFalse(self._request())
+        refused = self._answer(confirm='no', match=str(self.sibling_father.id), **document)
+        self.assertIn('correct the document number', refused.text)
+        self.assertFalse(self._request())
+        accepted = self._answer(confirm='yes', match=str(self.sibling_father.id), **document)
+        self.assertIn('o_ems_contact_data_sent', accepted.text)
+        self.assertEqual(self._lines()[0].matched_partner_id, self.sibling_father)
+
+    def test_an_answer_about_another_contact_than_the_one_shown_is_not_taken(self):
+        response = self._answer(mobile=self.sibling_father.mobile, confirm='yes', match=str(self.stranger.id))
+        self.assertIn('o_ems_contact_match', response.text)
+        self.assertFalse(self._request())
+
+    def test_a_contact_of_another_family_is_never_pointed_out(self):
+        for values in (dict(mobile=self.stranger.mobile), dict(document_id=self.stranger.document_id)):
+            response = self._answer(**values)
+            self.assertNotIn('o_ems_contact_match', response.text)
+            self.assertNotIn(self.stranger.name, response.text)
+            self.assertEqual(self._request().state, 'submitted')
+            self._request().unlink()
+
+    def test_a_new_contact_can_also_be_linked_to_the_other_child(self):
+        self._answer(**{f'also_{self.sibling.id}': '1'})
+        self.assertEqual(self._lines()[0].also_student_ids, self.sibling)
+        self._request().action_approve()
+        contact = self.env['res.partner'].search([('contact_type', '=', 'family'), ('mobile', 'like', '711300099')])
+        self.assertEqual(len(contact), 1)
+        self.assertEqual(self._relation(contact, self.minor), 1)
+        self.assertEqual(self._relation(contact, self.sibling), 1)
+
+    def test_not_ticking_the_other_child_links_only_the_one_reviewed(self):
+        self._answer()
+        self.assertFalse(self._lines()[0].also_student_ids)
+        self._request().action_approve()
+        contact = self.env['res.partner'].search([('contact_type', '=', 'family'), ('mobile', 'like', '711300099')])
+        self.assertEqual(self._relation(contact, self.minor), 1)
+        self.assertEqual(self._relation(contact, self.sibling), 0)
+
+    def test_only_the_accounts_own_children_can_be_chosen(self):
+        self._answer(**{f'also_{self.foreign_student.id}': '1', f'also_{self.sibling.id}': '1'})
+        self.assertEqual(self._lines()[0].also_student_ids, self.sibling)
+
+    def test_reopening_a_sent_answer_shows_the_choices_again(self):
+        self._answer(mobile=self.sibling_father.mobile, confirm='yes', match=str(self.sibling_father.id))
+        page = self.url_open('/my/dades-contacte').text
+        self.assertIn('o_ems_contact_data_pending_review', page)
+        self.assertRegex(page, r'value="yes"[^>]*checked')
+

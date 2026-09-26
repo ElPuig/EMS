@@ -14,12 +14,15 @@ by hand afterwards. The academic-history manual reuses existing captures of the 
 import json
 from datetime import date, datetime
 
+from dateutil.relativedelta import relativedelta
+
 from odoo.tests.common import HttpCase, tagged
 
 from .common import (
     DocsScreenshotMixin, create_level_study_group, create_role_employee, create_role_user,
     mock_outgoing_email, next_student_id,
 )
+from .test_contact_data_request import valid_dni
 
 
 @tagged('-standard', 'ems_screenshots', 'post_install', '-at_install')
@@ -432,3 +435,103 @@ class TestDocsScreenshotsTutors(DocsScreenshotMixin, HttpCase):
                    (".modal-content button[name='action_apply']", '2', 'top')],
         )
 
+    def test_capture_contact_data_requests(self):
+        """contact-data-requests (issue #507): the menu, the send assistant, the follow-up list and
+        an answer to review, as the group's tutor - all on three invented students."""
+        course = self.env['res.partner']._ems_running_course() \
+            or self.env['ems.course'].create({'start': 2096, 'end': 2097, 'is_current': True})
+        mother, father = self.env.ref('ems.relation_type_mother'), self.env.ref('ems.relation_type_father')
+        minor_age = date.today() - relativedelta(years=15)
+        bruna = self._student('Bruna Prova Vidal', email='bruna.prova@example.com',
+                              street="Carrer de l'Exemple 3", zip='08921', city='Santa Coloma de Gramenet',
+                              document_id=valid_dni(10000102))
+        pupils = self.student | self.classmate | bruna
+        pupils.write({'birth_date': minor_age})
+        # The assistant asks the students enrolled in the group's course.
+        self.env['sale.order'].create([{
+            'partner_id': pupil.id, 'ems_study_id': self.study.id, 'ems_course_id': course.id,
+        } for pupil in pupils])
+        mothers = []
+        for pupil, (firstname, lastname, mobile) in zip(pupils, (
+                ('Marta', 'Serra Puig', '+34 600 000 011'),
+                ('Núria', 'Puig Ribas', '+34 600 000 012'),
+                ('Anna', 'Vidal Soler', '+34 600 000 013'))):
+            contact = self.env['res.partner'].create({
+                'firstname': firstname, 'lastname': lastname, 'contact_type': 'family', 'mobile': mobile,
+                'email': '%s.%s@example.com' % (firstname.lower().replace('ú', 'u'), lastname.split()[0].lower()),
+            })
+            self.env['res.partner.relation'].create({
+                'left_partner_id': contact.id, 'type_id': mother.id, 'right_partner_id': pupil.id})
+            mothers.append(contact)
+        self.env.flush_all()
+        login = 'doc_shot_tutor'
+
+        # The assistant on the tutor's group, before anything is sent: what is missing and who is emailed.
+        wizard_action = self.env['ir.actions.act_window'].create({
+            'name': 'Sol·licita dades de contacte', 'res_model': 'ems.contact.data.request.send.wizard',
+            'view_mode': 'form', 'target': 'new',
+            'context': {'default_target': 'scope', 'default_group_ids': [(6, 0, self.group.ids)],
+                        'default_course_id': course.id, 'default_only_incomplete': False},
+        })
+        # Opening the form builds no preview: ticking "only incomplete" (its default) does.
+        only_incomplete = ".modal-content div[name='only_incomplete'] input"
+        self._capture(
+            '/odoo/action-%d' % wizard_action.id, '.modal-content', 'dades-contacte-02-assistent.png',
+            login=login, wait_for=only_incomplete, click=only_incomplete,
+            wait_after=".modal-content div[name='line_ids'] .o_data_row",
+        )
+
+        # One request of every state: still waiting, answered (a new address and document, a new
+        # mobile for the mother, and a father added) and confirmed as it was.
+        # Sent in Catalan, as this centre's tutor would: what was missing is stored in the sender's language.
+        Request = self.env['ems.contact.data.request'].with_context(lang='ca_ES')
+        now = datetime.now()
+        pending = Request._ems_open_for(self.student, course)
+        pending._ems_mark_sent()
+        answered = Request._ems_open_for(self.classmate, course)
+        answered._ems_mark_sent()
+        data = self.classmate._ems_contact_data()
+        data['student'].update(street="Carrer de l'Exemple 12", zip='08921', city='Santa Coloma de Gramenet',
+                               document_id=valid_dni(10000101))
+        data['family'][0]['mobile'] = '+34 600 000 112'
+        data['family'].append({
+            'key': 'n0', 'id': False, 'remove': False, 'relation_type_id': father.id, 'firstname': 'Jordi',
+            'lastname': 'Mostra Ribas', 'mobile': '+34 600 000 113', 'email': 'jordi.mostra@example.com'})
+        # The mother answered from her own portal account. Creating the user re-splits her name.
+        mother_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': mothers[1].name, 'login': 'doc_shot_mother_aina', 'password': 'doc_shot_mother_aina',
+            'lang': 'ca_ES', 'partner_id': mothers[1].id,
+            'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
+        })
+        mothers[1].write({'firstname': 'Núria', 'lastname': 'Puig Ribas'})
+        answered.with_user(mother_user).sudo()._ems_submit(data)
+        confirmed = Request._ems_open_for(bruna, course)
+        confirmed._ems_mark_sent()
+        confirmed._ems_submit(bruna._ems_contact_data())
+        # Spread over the last days, so the list and the form read like a real follow-up.
+        pending.write({'sent_date': now - relativedelta(days=8)})
+        answered.write({'sent_date': now - relativedelta(days=3), 'submitted_date': now - relativedelta(days=1)})
+        confirmed.write({'sent_date': now - relativedelta(days=5), 'submitted_date': now - relativedelta(days=4)})
+
+        # The real follow-up action, scoped to these students for this (rolled-back) test.
+        self.env.ref('ems.action_ems_contact_data_request').domain = str([('student_id', 'in', pupils.ids)])
+        action_url = '/odoo/action-ems.action_ems_contact_data_request'
+        students_section = ".o_menu_sections button[data-menu-xmlid='ems.menu_students_root']"
+        student_data = ".o-dropdown--menu .dropdown-item[data-menu-xmlid='ems.menu_contact_data_requests']"
+        self._capture(
+            # Opened once the list has loaded: the navbar redraws then, and would close the dropdown.
+            action_url, '.o_web_client', 'dades-contacte-01-menu.png', login=login,
+            wait_for='.o_list_renderer .o_data_row', max_height=230, beyond_viewport=False,
+            click='mouse:' + students_section, wait_after=student_data,
+            marks=[(students_section, '1', 'top'), (student_data, '2', 'text-right')],
+        )
+        self._capture(
+            action_url, '.o_action_manager', 'dades-contacte-03-seguiment.png', login=login,
+            wait_for='.o_list_renderer .o_data_row + .o_data_row + .o_data_row',
+        )
+        self._capture(
+            '%s/%d' % (action_url, answered.id), '.o_form_view', 'dades-contacte-04-revisio.png',
+            login=login, wait_for='.o_form_view .o_statusbar_status',
+            marks=[(".o_form_statusbar button[name='action_approve']", '1', 'top'),
+                   (".o_form_statusbar button[name='action_open_reject_wizard']", '2', 'top')],
+        )

@@ -89,6 +89,7 @@
                                 <field name="matched_partner_id" optional="show"/>
                                 <field name="possible_duplicate_id" optional="show"
                                        decoration-warning="possible_duplicate_id"/>
+                                <field name="also_student_ids" widget="many2many_tags" optional="show"/>
                             </list>
                         </field>
                     </sheet>

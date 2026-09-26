@@ -74,6 +74,46 @@ class ResPartner(models.Model):
             return student
         return self.browse()
 
+    def _ems_portal_siblings(self, student):
+        """The other children this portal partner answers for (_ems_portal_can_act_for), which a
+        family contact added for `student` may also be linked to."""
+        self.ensure_one()
+        return (self.get_portal_students() - student).filtered(lambda child: self._ems_portal_can_act_for(child))
+
+    @api.model
+    def _ems_document_key(self, value):
+        return re.sub(r'[\s-]', '', value or '').upper()
+
+    def _ems_sibling_contact_match(self, student, siblings, entry):
+        """A family contact of one of `siblings` that is not one of `student`'s yet and has the same
+        identity document or the same phone as `entry`, a family contact the answer adds:
+        {'id', 'name', 'reason' ('document' or 'phone'), 'children', 'linked_ids'}, or False.
+
+        Only contacts already related to the family's own children are looked at, so the portal
+        tells the family nothing it cannot already read on a sibling's own page - and never
+        anything about another family's contacts.
+        """
+        self.ensure_one()
+        candidates = self.env['res.partner'].sudo()
+        for sibling in siblings:
+            candidates |= sibling._ems_family_contacts()
+        candidates -= student._ems_family_contacts()
+        documents = {self._ems_document_key(entry.get(field)) for field in ('document_id', 'passport_id')} - {''}
+        phone = self._ems_phone_key(entry.get('mobile'))
+        for reason, matches in (
+                ('document', lambda partner: documents & {self._ems_document_key(partner.document_id),
+                                                          self._ems_document_key(partner.passport_id)}),
+                ('phone', lambda partner: phone and phone in (self._ems_phone_key(partner.mobile),
+                                                              self._ems_phone_key(partner.phone)))):
+            for candidate in candidates:
+                if matches(candidate):
+                    linked = self.env['res.partner.relation.all'].sudo().search([
+                        ('this_partner_id', '=', candidate.id), ('other_partner_id', 'in', siblings.ids),
+                    ]).other_partner_id
+                    return {'id': candidate.id, 'name': candidate.name, 'reason': reason,
+                            'children': linked.mapped('name'), 'linked_ids': linked.ids}
+        return False
+
     def _ems_contact_data_requested(self):
         """Whether this student has a contact data request still waiting for an answer this
         academic year - the portal home shows a banner for it. sudo: asked on behalf of a portal
@@ -346,6 +386,10 @@ class EmsContactDataRequest(models.Model):
             match, possible_duplicate = self.env['res.partner']._ems_find_family(
                 document=entry.get('document_id') or entry.get('passport_id'),
                 mobile=entry.get('mobile'), firstname=entry.get('firstname'))
+            if entry.get('confirmed_match_id'):
+                # The family said it is a contact of one of their other children.
+                match = self.env['res.partner'].sudo().browse(entry['confirmed_match_id'])
+                possible_duplicate = self.env['res.partner'].sudo()
             for field in FAMILY_FIELDS:
                 value = (entry.get(field) or '').strip()
                 if value:
@@ -355,6 +399,7 @@ class EmsContactDataRequest(models.Model):
                         'relation_type_id': int(entry['relation_type_id']),
                         'matched_partner_id': match.id,
                         'possible_duplicate_id': possible_duplicate.id,
+                        'also_student_ids': [(6, 0, entry.get('also_for') or [])],
                     })
         return lines
 
@@ -376,7 +421,9 @@ class EmsContactDataRequest(models.Model):
                 if not entry:
                     entry = family[line.person_key] = {
                         'key': line.person_key, 'id': False, 'remove': False,
-                        'relation_type_id': line.relation_type_id.id}
+                        'relation_type_id': line.relation_type_id.id,
+                        'confirmed_match_id': line.matched_partner_id.id,
+                        'also_for': line.also_student_ids.ids}
                     data['family'].append(entry)
                 entry[line.field_name] = line.new_value or ''
         return data
@@ -421,15 +468,19 @@ class EmsContactDataRequest(models.Model):
                 ]).with_context(ems_remove_orphan_family=True).unlink()
             else:
                 vals = {line.field_name: line.new_value for line in lines}
-                family, _possible_duplicate = self.env['res.partner']._ems_find_family(
+                # The contact the answer was matched to when it was sent (or confirmed by the
+                # family), else whoever is on file now; sudo, as the lookup itself is.
+                family = first.matched_partner_id.sudo() or self.env['res.partner']._ems_find_family(
                     document=vals.get('document_id') or vals.get('passport_id'),
-                    mobile=vals.get('mobile'), firstname=vals.get('firstname'))
+                    mobile=vals.get('mobile'), firstname=vals.get('firstname'))[0]
                 if family:
                     # Already on file (a sibling's family): only fill in what it lacks.
                     family.write({field: value for field, value in vals.items() if not family[field]})
                     student._ems_link_family(family, first.relation_type_id)
                 else:
-                    student._ems_create_family_contact(vals, first.relation_type_id)
+                    family = student._ems_create_family_contact(vals, first.relation_type_id)
+                for child in first.also_student_ids:
+                    child._ems_link_family(family, first.relation_type_id)
         student.message_post(body=_("Contact data updated from the portal request, reviewed by %s.",
                                     self.env.user.name))
 
@@ -555,6 +606,10 @@ class EmsContactDataRequestLine(models.Model):
         'res.partner', string='Already on file as', ondelete='set null',
         help="The new family contact matches this contact, by document or by mobile and first "
              "name: approving links it instead of creating another one.")
+    also_student_ids = fields.Many2many(
+        'res.partner', relation='ems_cdr_line_also_student_rel', column1='line_id', column2='student_id',
+        string='Also linked to', domain=[('contact_type', '=', 'student')],
+        help="The family asked for this contact to be linked to these other children of theirs too.")
     possible_duplicate_id = fields.Many2one(
         'res.partner', string='Possible duplicate of', ondelete='set null',
         help="Another family contact has the same mobile under a different name: a new contact "

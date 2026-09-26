@@ -22,7 +22,9 @@ Disponible para los tutores de grupo (para su alumnado), la secretaría y la jef
 
 ## Enviar una solicitud
 
-1. Id a **Comunidad educativa → Estudiantes → Datos Estudiantes** y haced clic en **Solicitar datos de contacto**. También podéis abrirlo desde el menú ⚙ de la lista de estudiantes, de la ficha de un estudiante, de la lista de grupos o de la ficha de un grupo.
+![Menú Comunidad educativa con la sección Estudiantes abierta: Estudiantes y Datos Estudiantes](../../assets/tutors/dades-contacte-01-menu.png)
+
+1. Id a **Comunidad educativa → Estudiantes (1) → Datos Estudiantes (2)** y haced clic en **Solicitar datos de contacto**. También podéis abrirlo desde el menú ⚙ de la lista de estudiantes, de la ficha de un estudiante, de la lista de grupos o de la ficha de un grupo.
 2. Elegid quién la recibe:
    - **Grupos / estudios / niveles**: elegid los grupos. Los tutores solo pueden elegir sus grupos.
    - **Alumnos seleccionados**: elegid los alumnos uno a uno.
@@ -31,9 +33,13 @@ Disponible para los tutores de grupo (para su alumnado), la secretaría y la jef
 5. Revisad los **Destinatarios (vista previa)**: qué falta y quién recibe el correo. Un alumno marcado con **Nadie localizable por correo** no tiene a nadie con correo: llamad a la familia.
 6. Haced clic en **Enviar** y esperad: el mensaje *Procesando las solicitudes…* se queda en pantalla hasta que se ha enviado todo. No cerréis la ventana.
 
+![Asistente de solicitud de datos de contacto con el grupo elegido y la vista previa de quién la recibe y qué falta](../../assets/tutors/dades-contacte-02-assistent.png)
+
 Cada alumno, o la familia de un menor, recibe un correo con un enlace al portal. La cuenta de portal de un menor solo sirve para consultar, así que la solicitud va a su familia, que es quien la responde.
 
 ## Hacer el seguimiento de las respuestas
+
+![Lista de seguimiento de las solicitudes, con los estados Pendiente de respuesta, Por revisar y Hecho](../../assets/tutors/dades-contacte-03-seguiment.png)
 
 En **Comunidad educativa → Estudiantes → Datos Estudiantes**:
 
@@ -45,15 +51,19 @@ Usad los filtros **Pendiente de respuesta**, **Por revisar**, **Pendientes desde
 
 ## Aprobar los cambios
 
+![Solicitud por revisar: los cambios propuestos por la familia, con los botones Aprobar y Devolver a la familia](../../assets/tutors/dades-contacte-04-revisio.png)
+
 1. Abrid una solicitud **Por revisar**. La lista de **Cambios** muestra, para cada persona, el valor que consta y el propuesto.
 2. Si la solicitud muestra el aviso de **posible duplicado**, comprobad en **Familias** si el familiar nuevo es la persona que indica **Posible duplicado de**.
-3. Haced clic en **Aprobar**.
+3. Haced clic en **Aprobar** (1).
+
+Si un cambio añade un familiar, la columna **También vinculado a** indica los otros hijos de la familia a los que también se vincula: al aprobarlo se hace.
 
 Para aprobar varias a la vez, seleccionadlas en la lista y haced clic en **Aprobar**.
 
 ## Devolver una respuesta a la familia
 
-1. Abrid la solicitud y haced clic en **Devolver a la familia**.
+1. Abrid la solicitud y haced clic en **Devolver a la familia** (2).
 2. Escribid qué deben corregir y haced clic en **Devolver**.
 
 La familia recibe un correo con el motivo y puede volver a enviar los datos desde el portal.

@@ -128,6 +128,71 @@ class TestDocsScreenshotsFamilies(DocsScreenshotMixin, HttpCase):
             url, '.card:has(.fa-history)', 'documentacio-07-historial.png', login=login,
         )
 
+    def test_capture_manual_dades_contacte(self):
+        """manual-dades-contacte (issue #507): the Profile tab's button, the student's card, the
+        family section and the form marked in red after sending it incomplete."""
+        # The family contact as the secretariat would have entered it. Creating the user
+        # rewrote the name split in this class's fixtures: set it explicitly.
+        self.family.write({'firstname': 'Marc', 'lastname': 'Exemple Vidal', 'mobile': '+34 600 000 003'})
+        login = 'doc_shot_family'
+
+        # The read-only profile, with the button that opens the review.
+        self._capture(
+            '/my/account', '.o_portal_details', 'dades-contacte-01-perfil.png', login=login,
+            wait_for=".o_portal_details a[href='/my/dades-contacte']",
+            marks=[(".o_portal_details a[href='/my/dades-contacte']", '1', 'left')],
+        )
+
+        url = '/my/dades-contacte'
+        wait = '.o_ems_contact_data_form'
+        self._capture(url, '.o_ems_contact_data_form .card:not(.o_ems_family_entry)',
+                      'dades-contacte-02-alumne.png', login=login, wait_for=wait)
+        self._capture(
+            url, '#ems-clip', 'dades-contacte-03-familia.png', login=login, wait_for=wait,
+            run=self._union_clip_js(['.o_ems_contact_data_form h4', '.o_ems_add_family']),
+            wait_after='#ems-clip',
+        )
+
+        # Sent as it is: the student's address is still to be filled in.
+        self._capture(
+            url, '#ems-clip', 'dades-contacte-04-errors.png', login=login, wait_for=wait,
+            run=["document.querySelector('.o_ems_contact_data_submit').click()",
+                 self._union_clip_js(['.o_ems_contact_data_errors',
+                                      '.o_ems_contact_data_form .card:not(.o_ems_family_entry)'])],
+            wait_after=['.o_ems_contact_data_errors', '#ems-clip'],
+        )
+
+        # A second child's contact: adding a family contact offers the other child, and one that
+        # repeats a contact of that child is pointed out.
+        mother = self.env['res.partner'].create({
+            'firstname': 'Núria', 'lastname': 'Exemple Vidal', 'contact_type': 'family',
+            'mobile': '+34 600 000 004', 'email': 'nuria.exemple@example.com'})
+        self.env['res.partner.relation'].create({
+            'left_partner_id': mother.id, 'type_id': self.env.ref('ems.relation_type_mother').id,
+            'right_partner_id': self.sibling.id})
+        self.env.flush_all()
+        add_contact = "document.querySelector('.o_ems_add_family').click()"
+        self._capture(
+            url, '.o_ems_new_family_container .o_ems_family_entry', 'dades-contacte-05-altres-fills.png',
+            login=login, wait_for=wait, run=add_contact,
+            wait_after='.o_ems_new_family_container .o_ems_family_entry',
+        )
+        fill_and_send = (
+            "(function () {"
+            " document.querySelector('.o_ems_add_family').click();"
+            " var card = document.querySelector('.o_ems_new_family_container .o_ems_family_entry');"
+            " var set = function (name, value) { card.querySelector('[name=\"' + name + '\"]').value = value; };"
+            " var select = card.querySelector('select[name=\"n0_relation_type_id\"]');"
+            " var mare = Array.from(select.options).find(function (o) { return o.text.trim() === 'Mare'; });"
+            " select.value = mare ? mare.value : select.options[1].value;"
+            " set('n0_firstname', 'Núria'); set('n0_lastname', 'Exemple Vidal'); set('n0_mobile', '+34 600 000 004');"
+            " document.querySelector('.o_ems_contact_data_submit').click();"
+            "})()")
+        self._capture(
+            url, ".o_ems_family_entry[data-key='n0']", 'dades-contacte-06-contacte-repetit.png',
+            login=login, wait_for=wait, run=fill_and_send, wait_after='.o_ems_contact_match',
+        )
+
     def test_capture_portal_onboarding(self):
         """manual-portal-alumne: the welcome e-mail, the password form it leads to, and the
         portal's home once signed in - for a made-up student granted access here."""

@@ -167,11 +167,12 @@ class EmsEmGradingWizard(models.TransientModel):
 
     def _live_subject_lines(self, student):
         """The student's grade lines of the LAST round of each module of the group with an
-        external weight — the round that carries the final grade of the course in progress."""
+        external weight — the round that carries the final grade of the course in progress.
+        A convalidated module has no work placement to grade."""
         lines = self.env['ems.grade_subject_line'].sudo().search([
             ('student_id', '=', student.id),
             ('grade_session_id.group_id', '=', self.group_id.id),
-        ]).filtered(lambda line: line.external_ponderation > 0)
+        ]).filtered(lambda line: line.external_ponderation > 0 and not line.is_convalidated)
         last_lines = self.env['ems.grade_subject_line'].sudo()
         for subject in lines.mapped('subject_id'):
             subject_lines = lines.filtered(lambda line: line.subject_id == subject)

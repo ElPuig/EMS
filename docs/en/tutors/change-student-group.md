@@ -17,6 +17,8 @@ Sometimes a student needs to move from one group to another (e.g. from group A t
 3. Change the **Main Group** field to the destination group. Only groups of the same study/level are offered — you cannot move a student to a different study this way.
 4. A yellow warning appears at the top of the enrollment data, reminding you that saving will move the student's subjects to the new group. Save when ready.
 
+   ![Studies tab with the new main group chosen and the yellow warning above the enrolled subjects](../../assets/tutors/canvi-grup-01-avis.png)
+
 ## What happens automatically
 
 Any subject the student was enrolled in through the **old** group moves automatically to the **new** group — you do not need to re-enroll them subject by subject. Their attendance schedule and any open evaluation round update accordingly.

@@ -55,6 +55,8 @@ Para hacer la importación:
 
 Al terminar, el asistente muestra un **resumen de la importación**: cuántos aspirantes se han creado, cuántos se han actualizado y cuántas filas se han omitido. También podéis **descargar el registro (CSV)** y, si los hay, el CSV `gedac_alumnes_actius_<fecha>.csv` con los continuadores internos.
 
+Si el correo de un aspirante en el fichero pertenece al dominio del centro (una cuenta corporativa), el aspirante se crea o se actualiza igualmente, pero sin ese correo, y el resumen muestra un aviso para él.
+
 ![Resumen del resultado de la importación](../../assets/secretary/preinscrpcio-Secretaria-03.png)
 
 ---
@@ -64,7 +66,7 @@ Al terminar, el asistente muestra un **resumen de la importación**: cuántos as
 Los aspirantes nuevos aparecen en la vista **Preinscripción**. Para revisarlos cómodamente:
 
 * Usad el **panel de estudios** de la izquierda **(1)** para filtrar el alumnado por estudio (SMX, ASIX, GA...). Junto a cada estudio aparece el número de aspirantes.
-* La lista viene **agrupada automáticamente por turno** (*Afternoon* / *Morning*) **(2)** y, dentro de cada turno, **por curso** (1º, 2º) **(3)**. Esta agrupación permite aplicar la **plantilla de matrícula** de forma más sencilla: cada combinación de **estudio, turno y curso** tiene asignada una plantilla y un grupo destino por defecto.
+* La lista viene **agrupada automáticamente por turno** (*Tarde* / *Mañana*) **(2)** y, dentro de cada turno, **por curso** (1º, 2º) **(3)**. Esta agrupación permite aplicar la **plantilla de matrícula** de forma más sencilla: cada combinación de **estudio, turno y curso** tiene asignada una plantilla y un grupo destino por defecto.
 
 ![Vista de Preinscripción con el panel de estudios y la agrupación por turno y curso](../../assets/secretary/preinscrpcio-Secretaria-04.png)
 
@@ -119,6 +121,8 @@ Para que las familias puedan confirmar la matrícula más adelante, hace falta q
 ![Menú Acciones con la opción de acceso al portal](../../assets/secretary/preinscrpcio-Secretaria-07.png)
 
 > Esta opción genera o activa el acceso al portal educativo para el alumnado y sus familias, de manera que, cuando reciban el correo de propuesta, puedan entrar a responder las autorizaciones y confirmar la matrícula. Los alumnos que ya son del centro suelen tenerlo activo.
+>
+> Un alumno menor de edad también recibe su propio acceso, además del de la familia, pero solo de consulta (horario, sus comunicaciones y perfil): es la familia quien confirma la matrícula. Ver [Cómo gestionar el acceso al portal](../tutors/acces-portal.md#quién-recibe-el-acceso-alumnos-y-familias).
 
 ---
 

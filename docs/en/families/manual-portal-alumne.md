@@ -16,6 +16,9 @@ This guide explains in detail the steps students (or their families) must follow
 4. [Step 3 — Confirmation email](#step-3--confirmation-email)
 5. [Step 4 — Portal access](#step-4--portal-access)
 6. [Step 5 — Answering an authorization](#step-5--answering-an-authorization)
+7. [Signing in afterwards: personal email or school account](#signing-in-afterwards-personal-email-or-school-account)
+8. [Students under 18](#students-under-18)
+9. [When the student turns 18](#when-the-student-turns-18)
 
 ---
 
@@ -24,11 +27,12 @@ This guide explains in detail the steps students (or their families) must follow
 The student portal is the centralized virtual space from which the student and their family can manage their academic and administrative life with the school in a simple, fast and fully online way.
 
 Currently, the portal allows the following tasks:
+* **Attendance:** Check the student's weekly class schedule and download it as a PDF.
 * **Enrollment and authorizations:** Manage the enrollment process, review payments or fees, and answer and sign the school authorizations digitally — both the ones that come with the enrollment and the ones the school sends during the course.
+* **Convalidations:** Request the convalidation of vocational training modules and follow the resolution. See [Requesting convalidations](manual-convalidacions.md).
 * **Documentation:** Upload, store and consult all the official documents requested by the school.
 * **Communications:** Receive messages, circulars and notices sent by the management team, tutors or the secretariat immediately.
 * **Profile:** Keep the personal, contact and account security data up to date.
-* **Attendance:** Check the student's weekly class schedule and download it as a PDF.
 
 **Features available soon.** We are developing new modules to improve the tool. The following area will be activated very soon:
 * **Grades:** Access the marks of the different evaluations directly.
@@ -79,7 +83,7 @@ Once registered, you will go directly to the main dashboard or home page of the 
 
 The web interface is optimized and designed to provide clean and intuitive navigation:
 * **Top menu:** You have permanent access to all the school's management areas.
-* **Centralized cards:** You have visual buttons to access each of the key services (**Attendance**, **Grades**, **Enrollment and authorizations**, **Communications**, **Documentation** and **Profile**).
+* **Centralized cards:** You have visual buttons to access each of the key services (**Attendance**, **Grades**, **Enrollment and authorizations**, **Convalidations**, **Documentation**, **Communications** and **Profile**).
 * **User profile:** On the right side you will always see the basic information of the active student profile along with their ID photo from the record.
 
 ![Main dashboard and service cards of the student portal](../../assets/families/manual-portal-alumne-02.png)
@@ -102,6 +106,43 @@ For each one:
 4. Click **Accept Authorization** or, if the authorization allows it, **Reject**.
 
 Once answered, the **Document** column holds a PDF certificate of your answer. Click it at any time to download or print it.
+
+---
+
+## Signing in afterwards: personal email or school account
+
+Students can open the portal in two ways, whichever is more convenient:
+
+* **Personal email and password:** the email address the invitation was sent to, and the password set in Step 2.
+* **School account (`@elpuig.xeill.net`):** on the sign-in page, click **Log in with Google** and choose the school account. No portal password is needed.
+
+!["Log in with Google" button on the sign-in page (the screenshot shows the interface in Catalan)](../../assets/teachers/acces-google-boto.png)
+
+Both ways open the same portal. If you have lost your portal password, the school account is usually the quickest way in. If you have also forgotten the school account's password, follow the [guide to recovering the school email password](manual-recuperacio-contrasenya-correu.md).
+
+> The school account only works once the student has one (it is created when they enroll) and has already been given portal access. Families always sign in with their own email and password.
+
+---
+
+## Students under 18
+
+While a student is under 18, their **family** manages everything from its own account. The student can have a portal account of their own too, to check:
+
+* **Attendance** (their schedule),
+* **Communications** addressed to them,
+* **Profile**.
+
+**Enrollment and authorizations**, **Convalidations** and **Documentation** do not appear in the student's own account: the family handles them. When the student turns 18, all sections become available to them.
+
+---
+
+## When the student turns 18
+
+From the day the student turns 18, **they** manage everything from their own account: enrollment, authorizations, convalidations and documentation. If they did not have a portal account of their own yet, ask the tutor or the Secretariat for one.
+
+The family keeps its account but **no longer sees the student** on the portal, unless the student authorizes sharing their information with the family (the *share with the family* authorization). In that case the family can consult again the student's **Attendance**, **Grades**, the **Communications** addressed to them and the **Profile**, but it can no longer manage anything: enrollment, authorizations, convalidations and documentation stay with the student.
+
+A family that has no student left to see finds a notice on the portal home explaining it.
 
 ---
 

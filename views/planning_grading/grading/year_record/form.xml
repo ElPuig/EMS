@@ -12,9 +12,18 @@
                         <button name="%(action_grade_review_wizard)d" type="action"
                                 string="Grade review" class="btn-primary o_ems_grade_review"
                                 context="{'default_record_id': id}"
+                                invisible="is_provisional"
                                 groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"/>
                     </header>
                     <sheet>
+                        <field name="is_provisional" invisible="1"/>
+                        <widget name="web_ribbon" title="Current course" bg_color="text-bg-info"
+                                invisible="not is_provisional"/>
+                        <div class="alert alert-info" role="alert" invisible="not is_provisional">
+                            The course is still running: this record only holds the subjects
+                            convalidated so far. The rest of the subjects, and the course result,
+                            are added when the course is closed.
+                        </div>
                         <group cols="2">
                             <group>
                                 <field name="student_id" readonly="1"/>
@@ -50,6 +59,8 @@
                                         <field name="external_grade" string="EM" optional="show"/>
                                         <field name="final_grade"/>
                                         <field name="final_pending" optional="show"/>
+                                        <field name="is_convalidated" optional="show"/>
+                                        <field name="convalidation_number" optional="show"/>
                                         <field name="internal_weight" optional="hide"/>
                                         <field name="external_weight" optional="hide"/>
                                         <field name="attendance_rate" optional="hide"/>
@@ -77,6 +88,8 @@
                                 <field name="subject_name" readonly="1"/>
                                 <field name="state" readonly="1"/>
                                 <field name="final_pending" readonly="1"/>
+                                <field name="is_convalidated" readonly="1"/>
+                                <field name="convalidation_number" readonly="1" invisible="not convalidation_number"/>
                                 <field name="attendance_rate" readonly="1"/>
                             </group>
                             <group>

@@ -2,15 +2,18 @@
 
 Automates the corporate Google Workspace account every student needs, created through
 the Admin SDK Directory API; the resulting address is stored in `student_email`. Unlike
-the staff sibling (below), students never get a separate `res.users` — there is no EMS
-login/OAuth-linking step here, so this file is noticeably smaller.
+the staff sibling (below), creating the account never creates a `res.users`: a student's
+only EMS user is his portal user, granted separately
+([portal access wizard](portal_access_wizard.md)) and logged in with his personal email.
+The corporate account can open that same portal user through "Sign in with Google", linked
+lazily on the first sign-in (see [Portal sign-in with Google](#portal-sign-in-with-google)).
 
 Lives in `models/contacts/google_workspace_integration.py` (`ResPartnerGoogleWorkspace`,
 `_inherit = 'res.partner'`), with shared helpers in
 [`google.workspace.mixin`](../shared/google_workspace_mixin.md).
 See [Google Workspace staff integration](../employees/google_workspace_staff.md) for the
 teacher/ASP sibling — same shared mixin, same overall shape, different account population
-and no EMS-user step.
+and no EMS-user creation step.
 
 ## Flow
 
@@ -27,7 +30,7 @@ sequenceDiagram
     alt missing IDALU / names / personal email
         Note over P: no chatter note posted (unlike staff) — GEDAC\nimport usually supplies this already
     else ready
-        P->>Q: with_delay(action_create_google_account)
+        P->>Q: with_delay(_gw_create_account)
         Q->>G: users().insert(primaryEmail=candidate, orgUnitPath=minor/adult OU)
         G-->>Q: 200 (409 → next candidate)
         Q->>P: student_email = chosen address
@@ -54,6 +57,24 @@ conflict (try the next candidate) rather than a pre-check `users().get()` — a 
 to the students OU gets `403`, not `404`, for a non-existent user, so `get()` cannot
 reliably tell "free" from "not authorized." `_gw_email_used_in_ems` additionally excludes
 any candidate already claimed by another student record in EMS itself.
+
+### Manual creation from the form header
+
+The header button **Create Google account** calls `action_create_google_account()`, the public
+entry point: it checks `can_create_google_account` (raising `AccessError` otherwise) and then runs
+`_gw_create_account()`, which holds the whole creation flow above. Every automatic path (the
+queue job enqueued by `_gw_enqueue_if_ready()`, and the re-creation of a deleted account inside
+`action_reactivate_google_account()`) calls `_gw_create_account()` directly, with no permission
+check: those jobs run as whoever triggered them, which includes portal users (families
+submitting an enrolment), so a check there would break them. Being private, `_gw_create_account()`
+cannot be called over RPC; only the checked entry point can.
+
+Who passes the check is the reset's audience (academic admin, TAC, the student's own tutor scope;
+see [Password reset](#password-reset)) plus the secretary, who creates accounts while enrolling.
+A tutor creates the account of one of their own students when the automatic creation did not
+happen (typically, data was missing at enrolment and got completed later by someone whose write
+does not re-trigger it, or the job failed), instead of having to ask the secretary's office
+(issue #513).
 
 ## Minor / adult OU placement
 
@@ -193,7 +214,7 @@ stateDiagram-v2
 
 | `google_ws_state` | Header button shown (`views/community/contact/form.xml`) | Meaning |
 |---|---|---|
-| `none` | Create Google account | Not a student, or no corporate email yet |
+| `none` | Create Google account (also needs `can_create_google_account`) | Not a student, or no corporate email yet |
 | `active` | Suspend Google account, Reset Google password (the latter also needs `can_reset_google_password`) | Fully set up |
 | `suspended` | Reactivate Google account | `google_ws_suspended = True` |
 
@@ -240,10 +261,11 @@ Since `rule_contact_teacher` lets any teacher read every student, the button's `
 would show it on students the user cannot actually reset. `res.partner.can_reset_google_password`
 (computed, `compute_sudo=True`, not stored) answers the same question the method enforces, and the
 button's `invisible` reads it; the method still repeats the check, since a view attribute only
-hides.
+hides. `can_create_google_account` is computed by the same method and does the same for the
+**Create Google account** button (issue #513).
 
-The secretary is deliberately left out: it takes part in account *creation* only as a step
-of enrolling a student. The TAC team reads students only (`rule_contact_teacher`), which is
+The secretary is deliberately left out of the reset: it takes part in account *creation* only
+as a step of enrolling a student. The TAC team reads students only (`rule_contact_teacher`), which is
 why every write in the flow goes through `sudo()`. The same applies to the create and suspend
 buttons, which the TAC team also has: their chatter notes are posted with `sudo()` (posting on a
 partner needs write access), still authored by the real user.
@@ -268,12 +290,53 @@ write path.
 
 | Action | Who |
 |---|---|
-| Header buttons create/suspend | `ems.group_secretary`, `ems.group_academic_admin`, `ems.group_tac` |
+| Create Google account (button, plus the same check inside `action_create_google_account()`) | `ems.group_secretary`, `ems.group_academic_admin`, `ems.group_tac`, and the student's own tutor scope (`can_create_google_account`, issue #513) |
+| Header button suspend | `ems.group_secretary`, `ems.group_academic_admin`, `ems.group_tac` |
 | Header buttons reactivate/delete/cancel | `ems.group_secretary`, `ems.group_academic_admin` |
 | Reset Google password (button, plus the same check inside the method) | `ems.group_academic_admin`, `ems.group_tac`, and the student's own tutor scope (`can_reset_google_password` / `user_acts_as_tutor`, issue #490) |
 | Reading the credentials PDFs (Documentation tab, bulk download) | see [student_document.md](student_document.md#access-control): tutors their own students' (every chief above a tutor, that tutor's students), TAC everyone's |
 | Grace-period banners, optional list columns, search filters | same as above |
 | `_gw_deliver_credentials`'s document/email creation | `sudo()` inside the flow (queue jobs run as the job's own user, not necessarily one with `ems.student.document`/mail rights) |
+
+## Portal sign-in with Google
+
+A student's portal user has his **personal** email as login: it exists before the corporate
+account does (applicants, first-year students). He can also open that same user with his
+corporate account through the login page's "Sign in with Google" button (the
+`auth_oauth.provider_google` provider staff already use). One user, two ways in: `auth_oauth`
+keeps password login working on a user that also has `oauth_uid` set.
+
+The link is made **lazily**, on the student's first Google sign-in, so there is no backfill,
+no Directory API call and nothing to do when a portal user is granted
+(`models/contacts/portal_google_signin.py`):
+
+```mermaid
+flowchart TD
+    A["Google sign-in\n(res.users._auth_oauth_signin)"] --> B{"oauth_uid already\nlinked to a user?"}
+    B -- yes --> OK["log in as that user\n(native auth_oauth)"]
+    B -- no --> C{"Google provider, email_verified,\nemail in company.google_ws_domain?"}
+    C -- no --> D["AccessDenied\n(no signup)"]
+    C -- yes --> E{"exactly one active portal user\n(share) whose partner.student_email\n= that email?"}
+    E -- no --> D
+    E -- yes --> F{"Google id free?\n(res.users._ems_link_google_signin)"}
+    F -- no --> D
+    F -- yes --> G["write oauth_provider_id, oauth_uid,\noauth_access_token"] --> OK2["log in; login stays\nthe personal email"]
+```
+
+- The email Google returns is trusted **only** when verified and inside the centre's own
+  Workspace domain (which the centre controls). Internal users are never matched: staff are
+  linked when their account is created (`hr.employee._ems_create_user`).
+- `res.users._ems_link_google_signin(google_id)` (`models/shared/google_signin.py`) is the
+  single linking helper shared with the staff flow.
+- **A changed `student_email` unlinks Google sign-in** from the student's portal users
+  (`res.partner.write()` in the same file): the stored `oauth_uid` points at the old Google
+  account. The next sign-in with the new address links again. A deleted account needs
+  nothing: Google never reuses an account id, and a suspended or deleted account cannot sign
+  in anyway, while the personal-email login keeps working.
+- A minor's own portal user signs in the same way. What he can do once inside is decided by
+  the portal itself (view-only, see [portal access wizard](portal_access_wizard.md)).
+- Prerequisite outside the code: the Google Cloud OAuth client must accept accounts from the
+  students' organizational units (an "Internal" consent screen on the same Workspace does).
 
 ## Required fields
 
@@ -281,7 +344,45 @@ write path.
 |---|---|
 | Google account creation | `firstname`, `lastname`, `student_id` (IDALU), `email` (personal, used for recovery + credential delivery) — `birth_date` deliberately **not** required, see above |
 
+## Personal email can never be a corporate one (#514)
+
+The personal email is where credentials are delivered and the account's recovery address, so
+a corporate address there is useless (the student can't read it before the account exists, and
+loses it when the account is suspended). Enforced by the ORM, not the view, so every write path
+is covered (form, portal wizard, merge, imports):
+
+```mermaid
+flowchart TD
+    W["write/create with email<br/>(res.partner) or private_email<br/>(hr.employee)"] --> T{"partner: contact_type in<br/>PERSONAL_EMAIL_CONTACT_TYPES?<br/>(employee: always)"}
+    T -- no --> OK[saved]
+    T -- yes --> C{"company._ems_is_corporate_email()"}
+    C -- "no domain configured /<br/>ems.environment_type = 'dev' /<br/>other domain" --> OK
+    C -- "domain or subdomain of<br/>google_ws_domain" --> E[ValidationError]
+```
+
+| Piece | Where | Notes |
+|---|---|---|
+| `_ems_is_corporate_email(email)` | `res.company` (`models/settings/company.py`) | Normalizes the address; matches `google_ws_domain` itself or any subdomain, case-insensitively. Always `False` without a domain, and on a **development** database (`ems.environment_type = 'dev'`): `devel.sh` rewrites every stored address onto that same domain. A database with no value declared (e.g. CI) **is** checked. |
+| `_ems_check_personal_email(email)` | `res.company` | Raises the `ValidationError`; shared by both constraints below. |
+| `_check_email_not_corporate` | `res.partner` (`models/contacts/contact.py`) | `@api.constrains('email')` only, for `PERSONAL_EMAIL_CONTACT_TYPES` (`student`, `family`, `applicant`, `alumni`, `withdrawal`, `expelled`). Staff work contacts (no `contact_type`) are excluded: their email *is* the corporate account. Deliberately not triggered by `contact_type`, so a legacy corporate value never blocks a type change (enrollment, graduation...). |
+| `_check_private_email_not_corporate` | `hr.employee` (`models/employees/employee.py`) | `@api.constrains('private_email')`, also reached from "My Profile" (`private_email` is self-writeable on `res.users`). `work_email` is untouched. |
+| `_ems_drop_corporate_email(email, name, warnings)` | `res.company` | Import helper: returns `False` and appends a warning instead of letting the constraint fail the whole row. Used by the Esfera import (student and tutor/family emails), the CSV update wizard (the `email` key is dropped, the current value kept) and the GEDAC applicant import, each rendering a "Warnings" block in its result. |
+
+Existing records aren't migrated: the check only runs when the field is written again.
+
 ## Tests
+
+`tests/test_portal_google_signin.py` (`TestPortalGoogleSignin`) covers the portal sign-in:
+the first sign-in links, later ones go through the link, password login still works, and
+every refusal (foreign domain, unverified email, other provider, no matching student,
+internal user, Google id taken), plus the unlink on a changed `student_email`.
+
+`tests/test_personal_email_not_corporate.py` covers the rule above (helper, both constraints,
+dev/undeclared environment, legacy value vs. type change, "My Profile"); the three import
+wizards' own test files cover the drop-with-warning path, and
+`TestContactTour.test_student_personal_email_not_corporate_tour` the validation dialog on the
+student form (secretary). Tests call `enforce_corporate_email_policy()` (`tests/common.py`),
+since this dev box is declared `'dev'`.
 
 `tests/test_student_google_workspace.py` (`TestStudentGoogleWorkspace`) — readiness,
 email-candidate strategy, creation (dry-run, both OUs, idempotence, missing-data

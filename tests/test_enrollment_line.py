@@ -85,6 +85,20 @@ class TestEnrollmentLine(TransactionCase):
         self.env.flush_all()
         self.assertIn('1 Subjects', self._fee_line(order).name)
 
+    def test_fee_line_name_follows_language(self):
+        """The fee line's name is shown to families (portal, invoice): its wording goes through
+        _(), so it comes out in the language of whoever builds the enrollment. Code
+        translations are read from the module's .po files, not the database."""
+        # The whole request runs in the builder's language, as in the app.
+        self.env = self.env(context=dict(self.env.context, lang='ca_ES'))
+        order = self._order()
+        order.order_line = [
+            (0, 0, {'product_id': self.subject1.product_id.id}),
+            (0, 0, {'product_id': self.fee_product.product_variant_id.id}),
+        ]
+        self.env.flush_all()
+        self.assertIn('1 assignatures', self._fee_line(order).name)
+
     def test_non_fee_line_price_untouched_by_fee_logic(self):
         self.subject1.product_id.product_tmpl_id.list_price = 99.0
         order = self._order()
@@ -136,3 +150,19 @@ class TestEnrollmentLine(TransactionCase):
         order = self._order()
         order.order_line = [(0, 0, {'product_id': tutoria_subject.product_id.id})]
         self.assertTrue(order.order_line.ems_is_tutoria)
+
+    # --- enrollment PDF ---------------------------------------------------------------
+
+    def test_enrollment_report_renders_a_discounted_line(self):
+        # Odoo's XML loader turns '%%' into '%' in a template (tools/convert.py::_process), so a
+        # '-%d%%' format written in the template reached the database as '-%d%' and crashed the
+        # PDF of every enrollment with a bonification ("incomplete format").
+        order = self._order()
+        order.order_line = [
+            (0, 0, {'product_id': self.subject1.product_id.id}),
+            (0, 0, {'product_id': self.fee_product.product_variant_id.id}),
+        ]
+        self._fee_line(order).discount = 50.0
+        html, _content_type = self.env['ir.actions.report']._render_qweb_html(
+            'ems.report_enrollment', order.ids)
+        self.assertIn('-50%', html.decode())

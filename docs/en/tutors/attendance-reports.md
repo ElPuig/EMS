@@ -21,6 +21,8 @@ yourself, plus 3 printable PDF reports (by group, by student, by subject) reacha
    is the **% of absences per student** — **Count** (number of sessions counted) and **Strike count** are
    shown alongside it, so you can tell whether a 33% comes from 3 sessions or from 30, and whether it comes
    with disciplinary strikes attached.
+
+   ![Attendance reports pivot table, expanded by subject and student](../../assets/teachers/informes-01-taula-dinamica.png)
 3. Use the search bar to filter further (by student, group, subject or status), and **Group By** to change
    how the table is folded.
 4. Use the **spreadsheet/download icon** in the header to export the current pivot to Excel.
@@ -54,6 +56,8 @@ to your choice.
 3. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, and any
    session notes recorded for the period. For your tutees it includes **every subject**, whoever taught
    the session; for any other student, only the sessions you taught.
+
+   ![Print attendance report form by student, with a tutee selected and the tutor and dates filled in](../../assets/tutors/tutor-informes-01-per-estudiant.png)
 
 The Department or Seminar Chief, the Head of Studies above you and the Director get the same full
 by-student report for your tutees.

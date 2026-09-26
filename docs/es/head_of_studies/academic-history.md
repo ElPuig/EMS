@@ -30,6 +30,8 @@ Además, en la ficha de cualquier alumno/a, la pestaña **Histórico académico*
 - El **estado del módulo** (Superado / No superado) lo deciden **solo los resultados de aprendizaje**: una estancia pendiente o suspendida nunca suspende un módulo, solo deja la nota final vacía hasta que se apruebe una nueva estancia.
 - Las **ponderaciones** guardadas (interna/EM y por RA) son las vigentes ese curso: el histórico es autocontenido y conserva su significado aunque una programación posterior cambie los pesos.
 - El **resultado académico** se propone automáticamente a partir de las notas y de la matrícula de destino; secretaría/administración puede haberlo ajustado a mano.
+- Un registro marcado como **Curso actual** es de un curso que todavía no se ha cerrado: solo contiene las asignaturas convalidadas hasta ahora, sin resultado académico. Los filtros **Curso actual** y **Cursos cerrados** los separan en las consultas.
+- Una asignatura **convalidada** lleva la nota de la convalidación, la marca **CV** y su **expediente de convalidación** (número CONV).
 
 ## Aplicar una revisión de calificaciones
 

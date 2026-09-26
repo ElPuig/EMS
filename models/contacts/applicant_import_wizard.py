@@ -77,7 +77,7 @@ class EmsApplicantImportWizard(models.TransientModel):
             ))
 
         stats = {'created': 0, 'updated': 0, 'skipped': 0, 'students': 0,
-                 'errors': [], 'log': [], 'student_rows': []}
+                 'errors': [], 'warnings': [], 'log': [], 'student_rows': []}
 
         for row in data_rows:
             if not any(row):
@@ -214,7 +214,8 @@ class EmsApplicantImportWizard(models.TransientModel):
 
         raw_phone = get('Telèfon')
         phone, mobile = self._split_phone_mobile(self._norm_code(raw_phone))
-        email = get('Correu electrònic')
+        email = self.env.company._ems_drop_corporate_email(
+            get('Correu electrònic'), name, stats['warnings'])
         shift = self._SHIFT_MAP.get((get('Torn assignat') or '').lower())
         special_needs = self._SEN_MAP.get((get('Tipus alumne') or '').lower())
         course = self._norm_code(get('Curs'))
@@ -330,7 +331,8 @@ class EmsApplicantImportWizard(models.TransientModel):
         """
         gedac_name = ' '.join(filter(None, [
             get('Nom'), get('Primer cognom'), get('Segon cognom')]))
-        shift_label = dict(self.env['res.partner']._fields['preinscription_shift'].selection).get(shift, '')
+        shift_label = dict(self.env['res.partner']._fields['preinscription_shift']
+                           ._description_selection(self.env)).get(shift, '')
         student.write({
             'preinscription_study_id': study.id,
             'preinscription_shift': shift,
@@ -454,6 +456,13 @@ class EmsApplicantImportWizard(models.TransientModel):
                 self.env['ems.base'].build_html_list(stats['errors']),
             )
 
+        warnings_html = ''
+        if stats['warnings']:
+            warnings_html = Markup('<p><strong>{}</strong></p>{}').format(
+                _("Warnings (%(count)s):", count=len(stats['warnings'])),
+                self.env['ems.base'].build_html_list(stats['warnings']),
+            )
+
         students_html = ''
         if stats['student_rows']:
             rows = [f"{r['current_name']} → {r['assigned_study']} ({r['current_group']})" for r in stats['student_rows']]
@@ -475,11 +484,12 @@ class EmsApplicantImportWizard(models.TransientModel):
             '<p>✅ <strong>{}</strong> {}</p>'
             '<p>🔄 <strong>{}</strong> {}</p>'
             '<p>⏭️ <strong>{}</strong> {}</p>'
-            '{}{}'
+            '{}{}{}'
         ).format(
             _("Applicants created:"), stats['created'],
             _("Applicants updated:"), stats['updated'],
             _("Rows skipped (not assigned to this center):"), stats['skipped'],
             students_html,
+            warnings_html,
             errors_html,
         )

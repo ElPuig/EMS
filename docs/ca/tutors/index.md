@@ -22,7 +22,7 @@ Aquesta secció conté els manuals per als **tutors de grup**.
 | [Com gestionar l'accés al portal](acces-portal.md) | Donar d'alta, donar de baixa o reenviar les invitacions d'accés al portal per a alumnes i famílies |
 | [Strikes: consultar els registres del teu grup](strike.md) | Consultar els strikes posats als teus alumnes tutoritzats i els que has posat tu mateix/a |
 | [Gestionar els contactes familiars del teu alumnat](family-contacts.md) | Afegir i treure els familiars (pare, mare, tutor legal…) dels alumnes que tutoritzes |
-| [Credencials de Google del teu alumnat](google-credentials.md) | Descarregar el PDF amb l'usuari i la contrasenya del compte de Google dels alumnes que tutoritzes, d'un en un o de diversos alumnes alhora en un ZIP, i restablir-los la contrasenya |
+| [Credencials de Google del teu alumnat](google-credentials.md) | Descarregar el PDF amb l'usuari i la contrasenya del compte de Google dels alumnes que tutoritzes, d'un en un o de diversos alumnes alhora en un ZIP, crear-los el compte si encara no en tenen, i restablir-los la contrasenya |
 | [Justificar les faltes del teu alumnat](attendance-justifications.md) | Registrar un justificant (per exemple, un informe mèdic) perquè les faltes d'un alumne tutoritzat passin a falta justificada, i adjuntar-hi el document |
 | [Informes d'assistència](attendance-reports.md) | Imprimir els 3 informes PDF d'assistència (per grup/alumne/assignatura) i explorar les dades tu mateix amb la pantalla d'Anàlisi d'assistència |
 | [L'horari setmanal d'un grup](../admin/group-schedule.md) | Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF |

@@ -31,12 +31,15 @@ Para una actualización más pequeña y puntual desde cualquier otro archivo CSV
 
 Desde la lista de **Alumnado**, abra el menú de acciones (el icono del engranaje ⚙️ junto a la lista) y elija **Importar desde Esfera**. Seleccione el archivo `.xlsx` exportado desde Esfera/SAGA y haga clic en **Importar alumnos**.
 
+![Ventana Importar desde Esfera, con la subida del archivo y la opción de sobrescribir](../../assets/secretary/esfera-01-assistent.png)
+
 ## Qué se crea o se actualiza
 
 - El **alumnado** se hace coincidir por su identificador **RALC** (el identificador oficial catalán del alumno/a). Una coincidencia existente se actualiza; si pertenecía a un antiguo alumno/a (extitulado/baja), se **reactiva** como alumno activo en lugar de crear un duplicado.
 - Los **contactos familiares** (tutores/as) se hacen coincidir por su número de documento (DNI/NIE/pasaporte) o, si la fila no tiene, por el móvil cuando un solo contacto familiar lo tiene con el mismo nombre. Los que coinciden se actualizan, los que no, se crean. Cuando el móvil es de un contacto familiar con otro nombre (por ejemplo, dos progenitores que comparten teléfono), se crea un contacto nuevo y el resultado lo indica como posible duplicado. Fusione los duplicados reales a mano desde **Contactos → Familias**.
 - La **relación familiar** (madre, padre, abuelo/a, hermano/a, tutor legal…) se deduce de una nota de texto libre del archivo. Cuando no se puede deducir con confianza, el tutor se vincula como "Tutor" genérico y se añade una nota al **propio registro del alumno/a** citando el texto original — merece la pena revisarlo rápidamente en cualquier caso marcado así.
 - Un alumno/a cuyo **código de grupo** en el archivo no coincide con ningún grupo de EMS se importa igualmente (sin grupo asignado) — se añade a su registro una nota con el código no coincidente para que pueda corregirse a mano.
+- Un **correo personal** del fichero que pertenece al dominio del centro (una cuenta corporativa) se ignora: el alumno o el familiar se importa igualmente con el resto de datos, se mantiene el correo personal que ya tenía y el resultado muestra un aviso con su nombre.
 
 ## Leer el resultado y el registro
 

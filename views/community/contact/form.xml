@@ -37,17 +37,25 @@
                             invisible="contact_type != 'student' or strike_count == 0">
                         <field name="strike_count" widget="statinfo" string="Strikes"/>
                     </button>
+                    <button name="action_view_convalidations" type="object" class="oe_stat_button" icon="fa-exchange"
+                            invisible="contact_type not in ('student', 'applicant') or convalidation_count == 0"
+                            groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies">
+                        <field name="convalidation_count" widget="statinfo" string="Convalidations"/>
+                    </button>
                 </xpath>
 
                 <xpath expr="//sheet" position="before">
                     <header>
                         <field name="google_ws_state" invisible="1"/>
                         <field name="can_reset_google_password" invisible="1"/>
+                        <field name="can_create_google_account" invisible="1"/>
+                        <!-- Tutors create their own students' account too (issue #513), with the
+                             same per-record rule as the password reset below. -->
                         <button name="action_create_google_account" type="object"
                                 string="Create Google account"
                                 class="btn-secondary"
-                                invisible="google_ws_state != 'none'"
-                                groups="ems.group_secretary,ems.group_academic_admin,ems.group_tac"/>
+                                invisible="google_ws_state != 'none' or not can_create_google_account"
+                                groups="ems.group_secretary,ems.group_academic_admin,ems.group_tac,ems.group_tutor"/>
                         <button name="action_suspend_google_account" type="object"
                                 string="Suspend Google account"
                                 class="btn-secondary"
@@ -153,7 +161,8 @@
                 <xpath expr="//label[@for='email']/following-sibling::div[1]" position="after">
                     <field name="email" string="Personal email" widget="email"
                            context="{'gravatar_image': True}" required="user_ids"
-                           invisible="contact_type != 'student'"/>
+                           invisible="contact_type != 'student'"
+                           help="The student's own personal address. It can't be the centre's corporate account, which EMS manages itself (Corporate email)."/>
                     <field name="student_email" string="Corporate email" widget="email"
                            readonly="1" invisible="contact_type != 'student'"/>
                 </xpath>
@@ -433,7 +442,7 @@
                     <page name="applicant" string="Applicant data"
                           invisible="contact_type != 'applicant'">
                         <group cols="2">
-                            <group string="Pre-enrollment">
+                            <group string="Preinscription">
                                 <field name="study_id" required="contact_type == 'applicant'"/>
                                 <field name="preinscription_shift" required="contact_type == 'applicant'"/>
                                 <field name="preinscription_course"/>
@@ -443,7 +452,8 @@
                                 <field name="special_needs" readonly="special_needs_readonly or is_tutor_readonly"/>
                             </group>
                             <group string="Personal data">
-                                <field name="email" widget="email" required="contact_type == 'applicant'"/>
+                                <field name="email" widget="email" required="contact_type == 'applicant'"
+                                       help="The student's own personal address. It can't be the centre's corporate account, which EMS manages itself (Corporate email)."/>
                                 <field name="document_id"/>
                                 <field name="birth_date"/>
                                 <field name="phone"/>
@@ -479,8 +489,10 @@
                     <page name="academic_history" string="Academic history"
                           invisible="contact_type not in ['student', 'alumni', 'withdrawal', 'expelled']">
                         <field name="year_record_ids" readonly="1">
-                            <list default_order="study_name asc, course_id asc">
+                            <list default_order="study_name asc, course_id asc"
+                                  decoration-info="is_provisional">
                                 <field name="course_id"/>
+                                <field name="is_provisional"/>
                                 <field name="study_name"/>
                                 <field name="group_name"/>
                                 <field name="tutor_name" optional="hide"/>

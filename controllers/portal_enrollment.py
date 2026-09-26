@@ -3,6 +3,7 @@ import base64
 from odoo import http
 from odoo.http import request, content_disposition
 from odoo.addons.portal.controllers.portal import CustomerPortal
+from .portal_view_only import ems_portal_manage_required
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 from markupsafe import Markup, escape
@@ -30,6 +31,7 @@ class EMSPortalController(CustomerPortal):
     # (Gestión de Matrículas - ÚNICA FUNCIÓN PARA ESTA RUTA)
     # -------------------------------------------------------------
     @http.route(['/my/gestion-matriculas'], type='http', auth="user", website=True)
+    @ems_portal_manage_required
     def portal_my_enrollment(self, **kw):
         """
         Muestra el proceso de matrícula (Autorizaciones + Items)
@@ -103,6 +105,7 @@ class EMSPortalController(CustomerPortal):
             return request.render("ems.portal_enrollment_process", values)        
 
     @http.route(['/my/gestion-matriculas/authorize/<int:auth_id>'], type='http', auth="user", methods=['POST'], website=True)
+    @ems_portal_manage_required
     def portal_enrollment_authorize(self, auth_id, **post):
         """ Procesa la aceptación o rechazo de una autorización """
         redirect_base = '/my/gestion-matriculas'
@@ -175,6 +178,7 @@ class EMSPortalController(CustomerPortal):
         return request.redirect(redirect_base)
 
     @http.route(['/my/gestion-matriculas/confirm'], type='http', auth="user", methods=['POST'], website=True)
+    @ems_portal_manage_required
     def portal_enrollment_confirm(self, **post):
         """ Procesa la confirmación de la matrícula """
         redirect_base = '/my/gestion-matriculas'
@@ -304,6 +308,7 @@ class EMSPortalController(CustomerPortal):
 
     @http.route(['/my/gestion-matriculas/authorization/<int:auth_id>/document'],
                 type='http', auth="user", website=True)
+    @ems_portal_manage_required
     def portal_authorization_document(self, auth_id, **kw):
         """ Sirve el documento firmado de una autorización """
         auth = request.env['ems.authorization'].sudo().browse(auth_id)
@@ -336,6 +341,7 @@ class EMSPortalController(CustomerPortal):
     # Documentació de l'alumne
     # -------------------------------------------------------------
     @http.route('/my/documentacion', type='http', auth='user', website=True)
+    @ems_portal_manage_required
     def portal_documentation(self, **kwargs):
         partner = request.env.user.partner_id
         students = partner.get_portal_students()
@@ -344,7 +350,11 @@ class EMSPortalController(CustomerPortal):
         submissions = request.env['ems.student.document'].sudo().search([
             ('partner_id', '=', student.id)
         ])
-        benefit_type_selection = request.env['ems.student.benefit'].fields_get(['benefit_type'])['benefit_type']['selection']
+        # fields_get() returns the selection labels translated into the visitor's language,
+        # unlike reading _fields[...].selection directly in the template (English source).
+        benefit_fields = request.env['ems.student.benefit'].fields_get(['benefit_type', 'category'])
+        document_fields = request.env['ems.student.document'].fields_get(['doc_type', 'status'])
+        benefit_type_selection = benefit_fields['benefit_type']['selection']
         student_benefits = request.env['ems.student.benefit'].sudo().search([
             ('student_id', '=', student.id)
         ])
@@ -358,6 +368,9 @@ class EMSPortalController(CustomerPortal):
             'submissions': submissions,
             'current_bank': bank,
             'benefit_types': benefit_type_selection,
+            'benefit_category_labels': dict(benefit_fields['category']['selection']),
+            'doc_type_labels': dict(document_fields['doc_type']['selection']),
+            'doc_status_labels': dict(document_fields['status']['selection']),
             'student_benefits': student_benefits,
             'page_name': 'documentation',
             'error': kwargs.get('error'),
@@ -365,6 +378,7 @@ class EMSPortalController(CustomerPortal):
         return request.render('ems.portal_documentation', values)
 
     @http.route('/my/documentacion/submit', type='http', auth='user', methods=['POST'], website=True)
+    @ems_portal_manage_required
     def portal_documentation_submit(self, **post):
         partner = request.env.user.partner_id
         student = partner.get_portal_student()
@@ -419,6 +433,7 @@ class EMSPortalController(CustomerPortal):
         return request.redirect(redirect_base)
 
     @http.route('/my/documentacion/renew-iban', type='http', auth='user', methods=['POST'], website=True)
+    @ems_portal_manage_required
     def portal_documentation_renew_iban(self, **post):
         partner = request.env.user.partner_id
         student = partner.get_portal_student()
@@ -467,6 +482,7 @@ class EMSPortalController(CustomerPortal):
         return request.redirect('/my/documentacion?renewed=1')
 
     @http.route('/my/documentacion/cancel/<int:doc_id>', type='http', auth='user', methods=['POST'], website=True)
+    @ems_portal_manage_required
     def portal_documentation_cancel(self, doc_id, **post):
         partner = request.env.user.partner_id
         student = partner.get_portal_student()
@@ -479,6 +495,7 @@ class EMSPortalController(CustomerPortal):
         return request.redirect('/my/documentacion')
 
     @http.route('/my/documentacion/download/<int:doc_id>', type='http', auth='user', website=True)
+    @ems_portal_manage_required
     def portal_documentation_download(self, doc_id, **kw):
         partner = request.env.user.partner_id
         students = partner.get_portal_students()

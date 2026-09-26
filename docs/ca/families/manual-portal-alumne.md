@@ -16,6 +16,9 @@ Aquesta guia explica de forma detallada els passos que han de seguir els alumnes
 4. [Pas 3 — Email de confirmació](#pas-3--email-de-confirmació)
 5. [Pas 4 — Accés al portal](#pas-4--accés-al-portal)
 6. [Pas 5 — Respondre una autorització](#pas-5--respondre-una-autorització)
+7. [Entrar més endavant: correu personal o compte del centre](#entrar-més-endavant-correu-personal-o-compte-del-centre)
+8. [Alumnes menors d'edat](#alumnes-menors-dedat)
+9. [Quan l'alumne fa 18 anys](#quan-lalumne-fa-18-anys)
 
 ---
 
@@ -24,11 +27,12 @@ Aquesta guia explica de forma detallada els passos que han de seguir els alumnes
 El portal de l'alumnat és l'espai virtual centralitzat des d'on l'estudiant i la seva família poden gestionar la seva vida acadèmica i administrativa amb el centre de manera senzilla, àgil i 100% en línia.
 
 Actualment, el portal permet realitzar les següents gestions:
+* **Assistència:** Consultar l'horari setmanal de classes de l'alumne i descarregar-lo en PDF.
 * **Matrícula i autoritzacions:** Gestionar el procés de matrícula, revisar els pagaments o quotes i respondre i signar les autoritzacions de centre de forma digital — tant les que arriben amb la matrícula com les que el centre envia durant el curs.
+* **Convalidacions:** Sol·licitar la convalidació de mòduls de formació professional i seguir-ne la resolució. Vegeu [Sol·licitar convalidacions](manual-convalidacions.md).
 * **Documentació:** Pujar, desar i consultar tots els documents oficials sol·licitats pel centre.
 * **Comunicacions:** Rebre de forma immediata els missatges, circulars i avisos enviats per l'equip directiu, tutors o secretaria.
 * **Perfil:** Mantenir actualitzades les dades personals, de contacte i de seguretat del compte d'accés.
-* **Assistència:** Consultar l'horari setmanal de classes de l'alumne i descarregar-lo en PDF.
 
 **Funcionalitats disponibles pròximament.** Estem treballant en el desenvolupament de nous mòduls per millorar l'eina. Molt aviat s'activarà l'entorn següent:
 * **Qualificacions:** Accedir de forma directa a les notes de les diferents avaluacions.
@@ -79,7 +83,7 @@ Un cop registrats, entrareu directament al tauler principal o pàgina d'inici (*
 
 La interfície web està optimitzada i dissenyada per facilitar una navegació neta i intuïtiva:
 * **Menú superior:** Teniu un accés permanent a totes les àrees de gestió del centre.
-* **Targetes centralitzades:** Disposeu de botons visuals per accedir a cadascun dels serveis clau (**Assistència**, **Qualificacions**, **Matrícula i autoritzacions**, **Comunicacions**, **Documentació** i **Perfil**).
+* **Targetes centralitzades:** Disposeu de botons visuals per accedir a cadascun dels serveis clau (**Assistència**, **Qualificacions**, **Matrícula i autoritzacions**, **Convalidacions**, **Documentació**, **Comunicacions** i **Perfil**).
 * **Perfil de l'usuari:** A la part dreta tindreu sempre visible la informació bàsica del perfil actiu de l'alumne juntament amb la seva fotografia identificativa de l'expedient.
 
 ![Panell principal i targetes de serveis del portal de l'alumne](../../assets/families/manual-portal-alumne-02.png)
@@ -102,6 +106,43 @@ Per a cadascuna:
 4. Feu clic a **Acceptar autorització** o, si l'autorització ho permet, a **Rebutjar**.
 
 Un cop respostes, la columna **Document** conté un certificat PDF de la vostra resposta. Hi podeu fer clic en qualsevol moment per descarregar-lo o imprimir-lo.
+
+---
+
+## Entrar més endavant: correu personal o compte del centre
+
+L'alumnat pot entrar al portal de dues maneres, la que li vagi millor:
+
+* **Correu personal i contrasenya:** l'adreça on va arribar la invitació i la contrasenya que es va definir al Pas 2.
+* **Compte del centre (`@elpuig.xeill.net`):** a la pantalla d'accés, feu clic a **Inicia sessió amb Google** i trieu el compte del centre. No cal cap contrasenya del portal.
+
+![Botó "Inicia sessió amb Google" a la pantalla d'accés](../../assets/teachers/acces-google-boto.png)
+
+Totes dues maneres obren el mateix portal. Si heu perdut la contrasenya del portal, el compte del centre sol ser la manera més ràpida d'entrar. Si tampoc recordeu la contrasenya del compte del centre, seguiu la [guia per recuperar la contrasenya del correu del centre](manual-recuperacio-contrasenya-correu.md).
+
+> El compte del centre només funciona quan l'alumne ja en té (es crea en matricular-se) i ja se li ha donat accés al portal. Les famílies entren sempre amb el seu correu i la seva contrasenya.
+
+---
+
+## Alumnes menors d'edat
+
+Mentre l'alumne és menor d'edat, és la **família** qui ho gestiona tot des del seu propi compte. L'alumne també pot tenir un compte propi al portal per consultar:
+
+* **Assistència** (el seu horari),
+* les **Comunicacions** que li adrecen,
+* el **Perfil**.
+
+**Matrícula i autoritzacions**, **Convalidacions** i **Documentació** no apareixen al compte de l'alumne: se n'encarrega la família. Quan l'alumne compleix 18 anys, té accés a tots els apartats.
+
+---
+
+## Quan l'alumne fa 18 anys
+
+Des del dia que l'alumne fa 18 anys, és **ell mateix** qui ho gestiona tot des del seu propi compte: matrícula, autoritzacions, convalidacions i documentació. Si encara no tenia compte propi al portal, demaneu-lo al tutor o a Secretaria.
+
+La família conserva el seu compte però **deixa de veure l'alumne** al portal, llevat que l'alumne autoritzi compartir la seva informació amb la família (l'autorització de *compartir amb la família*). En aquest cas, la família torna a poder consultar l'**Assistència**, les **Qualificacions**, les **Comunicacions** que s'adrecen a l'alumne i el **Perfil**, però ja no pot gestionar res: la matrícula, les autoritzacions, les convalidacions i la documentació són cosa de l'alumne.
+
+Una família a qui no li queda cap alumne per veure troba un avís a l'inici del portal que ho explica.
 
 ---
 

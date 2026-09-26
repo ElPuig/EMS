@@ -30,6 +30,8 @@ A més, a la fitxa de qualsevol alumne/a, la pestanya **Històric acadèmic** mo
 - L'**estat del mòdul** (Superat / No superat) el decideixen **només els resultats d'aprenentatge**: una estada pendent o suspesa mai no suspèn un mòdul, només deixa la nota final buida fins que s'aprovi una nova estada.
 - Les **ponderacions** desades (interna/EM i per RA) són les vigents aquell curs: l'històric és autocontingut i conserva el seu significat encara que una programació posterior canviï els pesos.
 - El **resultat acadèmic** es proposa automàticament a partir de les notes i de la matrícula de destinació; secretaria/administració pot haver-lo ajustat a mà.
+- Un registre marcat com a **Curs actual** és d'un curs que encara no s'ha tancat: només conté les assignatures convalidades fins ara, sense resultat acadèmic. Els filtres **Curs actual** i **Cursos tancats** els separen a les consultes.
+- Una assignatura **convalidada** porta la nota de la convalidació, la marca **CV** i el seu **expedient de convalidació** (número CONV).
 
 ## Aplicar una revisió de qualificacions
 

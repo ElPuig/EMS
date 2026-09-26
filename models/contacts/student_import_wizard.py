@@ -193,7 +193,9 @@ class EmsStudentImportWizard(models.TransientModel):
         birth_country = self._find_country(get('País naixement'))
         raw_phone = get('Telèfon') or get('Contacte alumne - Telèfon')
         student_phone, student_mobile = self._split_phone_mobile(raw_phone)
-        email = get('Correu electrònic') or get('Contacte alumne - Correu electrònic')
+        email = self.env.company._ems_drop_corporate_email(
+            get('Correu electrònic') or get('Contacte alumne - Correu electrònic'),
+            name, stats['warnings'])
 
         # Address
         street = self._build_street(
@@ -326,6 +328,7 @@ class EmsStudentImportWizard(models.TransientModel):
         tutor_num = '1er' if '1' in prefix else '2on'
         contact_raw = get(f'Contacte {tutor_num} tutor alumne - Valor')
         raw_phone, email = self._parse_contact_value(contact_raw)
+        email = self.env.company._ems_drop_corporate_email(email, full_name, stats['warnings'])
         phone, mobile = self._split_phone_mobile(raw_phone)
         observacio = get(f'Contacte {tutor_num} tutor alumne - Observacions')
 

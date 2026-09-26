@@ -19,6 +19,7 @@ Esta sección contiene los manuales para el **personal de secretaría**.
 - [Informes de asistencia](attendance-reports.md) — Imprimir los 3 informes PDF de asistencia (por grupo/alumno/asignatura) y explorar los datos con la pantalla de Análisis de asistencia.
 - [Gestión de contactos de alumnado y familia](student-contacts.md) — Tipos de contacto y cómo cambian, añadir un contacto familiar a un alumno, y registrar bonificaciones y exenciones.
 - [Autorizaciones: crearlas, enviarlas y hacer el seguimiento](authorizations.md) — Crear formularios de autorización, enviarlos al alumnado durante el curso y hacer el seguimiento de las respuestas.
+- [Convalidaciones: completar las solicitudes validadas](convalidations.md) — Registrar en Esfera las convalidaciones validadas por Jefatura de Estudios, ajustar su nota y completarlas para que el alumno las vea.
 - [Solicitudes de datos de contacto: pedir a las familias que actualicen los datos](../tutors/contact-data-requests.md) — Pedir al alumnado y a las familias que revisen los datos de contacto desde el portal, hacer el seguimiento de las respuestas y aprobar los cambios (manual compartido con los tutores).
 - [Revisar los documentos del alumnado](student-documents.md) — Aprobar, rechazar o reabrir tramitaciones de DNI/tarjeta sanitaria/IBAN/beneficios, y qué hace cada decisión por detrás.
 - [Marcar una graduación y tramitar una baja](graduation-withdrawal.md) — La diferencia entre la marca diferida de graduación y una baja inmediata, y toda la cascada de la baja paso a paso.

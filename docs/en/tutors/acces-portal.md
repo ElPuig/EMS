@@ -88,10 +88,13 @@ The **Recipients (preview)** table shows, for each student, who will receive the
 
 The system automatically decides the recipients based on the student's age:
 
-- **Adult student** → access is sent to the **student themselves** (to their main email).
-- **Minor student** → access is sent to the **family members** associated with the student.
+- **Adult student** → access is sent to the **student themselves** (to their main email). When a student turns 18, their family stops seeing them on the portal (unless the student authorizes sharing with the family, and then only to consult) and the student manages everything. If the student had no portal account of their own yet, grant it to them with this same action.
+- **Minor student** → access is sent to the **family members** associated with the student **and to the student themselves**. The family manages enrollment, authorizations, convalidations and documentation. The student's own account only shows their schedule, the communications addressed to them and their profile.
+- **Minor applicant with no family on file** (straight from the GEDAC preinscription) → access is sent to the applicant, who manages their own enrollment, since there is nobody else yet.
 
-If a minor student has no associated family member, or if a recipient is missing an email address, the corresponding warning will appear in the **Note** column and nothing will be sent to them.
+If a recipient is missing an email address, the warning appears in the **Note** column and nothing is sent to them; the rest of the recipients are still processed. If a minor student has no associated family member, the student still receives their own access and the **Note** column warns that no family member was found.
+
+Students can sign in with their main email and password, or with their school account (`@elpuig.xeill.net`) through **Log in with Google**. This is useful when a student has lost the portal password: the school account opens the same portal.
 
 ---
 

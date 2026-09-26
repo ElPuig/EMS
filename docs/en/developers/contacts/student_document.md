@@ -72,7 +72,9 @@ A non-stored `Html` field building a download link (`/web/content/<attachment_id
 
 ## `_doc_label()`
 
-Small shared helper (`dict(self._fields['doc_type'].selection).get(self.doc_type, ...)`) — the human-readable, current-language label for a document's type. Used by `_compute_name`, every chatter message, and `_schedule_review_activities`'s task summary, so the six near-identical message bodies across `create()`/`action_approve()`/`action_reject()`/`action_cancel()`/`action_reset_to_pending()` don't each re-derive it.
+Small shared helper — the human-readable label for a document's type, in the current language (`self._fields['doc_type']._description_selection(self.env)`, the same translated labels `fields_get()` returns; reading `_fields[...].selection` directly would give the English source). A chatter message or review task built from it is stored as text, so it stays in the language of the user who triggered it (usually the secretary approving/rejecting), as is standard in Odoo.
+
+`name` (the display name: breadcrumb, form title, notification e-mail subject) is computed on the fly, not stored, with `@api.depends_context('lang')`, so every reader sees it in their own language. `_rec_names_search = ['partner_id']` keeps name search working (by student). Used by `_compute_name`, every chatter message, and `_schedule_review_activities`'s task summary, so the six near-identical message bodies across `create()`/`action_approve()`/`action_reject()`/`action_cancel()`/`action_reset_to_pending()` don't each re-derive it.
 
 ---
 
@@ -147,6 +149,16 @@ A second, independent attempt (`enrollment.py`'s invoicing-time fallback, force-
 3. `enrollment.py`'s invoicing-time fallback no longer attempts to silently self-grant trust — it now raises a clear `ValidationError` if the bank isn't approved yet, since points 1-2 mean this should no longer be reachable through normal use; if it is, the actual approval step was skipped and that should be surfaced, not papered over. See the "Billing" section of `enrollment.md`.
 
 ---
+
+## `benefit_type`
+
+A `Selection` whose choices come from `ems.student.benefit.benefit_type` (`_selection_benefit_type()`, translated labels) - the same keys, since an approved benefit document becomes an `ems.student.benefit` (`_apply_benefit`). Stored as varchar like any selection, so the keys already in the database stay valid. It used to be a plain `Char`, which made the review list and form show the internal key (`large_family_gen`).
+
+The review list's Approve/Reject buttons are icon-only (label as tooltip): with the text as well, the two buttons don't fit their column.
+
+## Portal page (`/my/documentacion`)
+
+`portal_documentation()` passes the type, status and benefit-category labels to the template as dicts built from `fields_get()` (`doc_type_labels`, `doc_status_labels`, `benefit_category_labels`, next to the existing `benefit_types`). `fields_get()` returns selection labels translated into the visitor's language; reading `record._fields[...].selection` directly in QWeb returns the English source instead, which is how the page used to show "Pending review"/"Passport" to a Catalan family. The upload modals take their titles from `doc_type_labels` too. Covered by `TestPortalActions.test_documentation_page_translates_selection_labels`.
 
 ## Views
 

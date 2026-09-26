@@ -8,6 +8,8 @@ Aquesta guia explica pas a pas com recuperar la contrasenya del compte de correu
 
 El compte de correu de l'institut és un compte de **Google (Gmail)**, de manera que la recuperació es fa a través de l'assistent oficial de Google.
 
+L'alumnat també pot fer servir aquest compte per entrar al portal de l'alumne, amb el botó **Inicia sessió amb Google** de la pantalla d'accés del portal (vegeu la [Guia d'accés i activació del portal de l'alumne](manual-portal-alumne.md#entrar-més-endavant-correu-personal-o-compte-del-centre)).
+
 > **Important:** per poder recuperar la contrasenya cal tenir un **número de telèfon de recuperació** associat al compte. És el telèfon que vau facilitar quan es va crear el compte. Si no teniu accés a aquest telèfon, contacteu amb la secretaria de l'institut.
 
 ---

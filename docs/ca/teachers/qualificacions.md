@@ -96,7 +96,7 @@ A la dreta de les columnes de RA hi ha les columnes que resumeixen la nota del m
 | **Empresa** | Nota de pràctiques en empresa (part externa). S'informa manualment, com un RA més. |
 | **Sobreescriure centre** | Casella per **sobreescriure la nota del centre**. En marcar-la, pots fixar manualment la nota del centre en lloc de deixar que es calculi a partir dels RA. |
 | **Centre** | **Nota del centre**, calculada automàticament a partir dels RA segons els seus pesos. |
-| **Final** | **Nota final** del mòdul, que combina la nota del centre i la d'empresa segons els percentatges de la planificació. |
+| **Final** | **Nota final** del mòdul, que combina la nota del centre i la d'empresa segons els percentatges de la planificació. Si la nota va seguida de **CV**, el mòdul està convalidat per a aquest alumne: compta com a aprovat amb la nota de la convalidació. |
 | **Comentaris** | Observació lliure per alumne (opcional). |
 
 ![Columnes de nota del mòdul: Empresa, Sobreescriure centre, Centre, Final i Comentaris](../../assets/teachers/teachers-05-columnes-nota.png)
@@ -143,8 +143,14 @@ L'estat el canvia l'administració. Si la sessió està en junta o finalitzada i
 
 - **Nota del centre:** mitjana ponderada dels RA **avaluats** segons els seus pesos, en escala del 0 al 10. Si falta algun RA per avaluar, es calcula només amb els avaluats i és **provisional**. Si algun RA avaluat està suspès (inferior a 5), la nota del centre queda **limitada a 4** (no es pot aprovar el mòdul amb un RA suspès o pendent).
 - **Nota de pràctiques en empresa:** s'informa manualment a la columna **Empresa**.
-- **Nota final:** combina la nota del centre i la d'empresa segons els percentatges de la planificació. Per aprovar el mòdul cal **aprovar totes dues parts**; si una part està suspesa, la nota final queda limitada a 4.
+- **Nota final:** combina la nota del centre i la d'empresa segons els percentatges de la [programació](planning.md). Per aprovar el mòdul cal **aprovar totes dues parts**; si una part està suspesa, la nota final queda limitada a 4.
 - **Sobreescriure la nota del centre:** si marques la casella **Sobr.**, pots fixar manualment la nota del centre en lloc de deixar que es calculi a partir dels RA.
+
+---
+
+## Alumnes amb un mòdul convalidat
+
+Quan secretaria completa la convalidació d'un mòdul que imparteixes, reps una activitat **Assignatura convalidada** a la safata (🕒), sobre la fitxa de l'alumne, amb la nota i el número de registre de la convalidació. Des d'aquell moment l'alumne ja no cursa el mòdul: surt de les teves llistes d'assistència i de la sessió de notes oberta, encara que ja li haguessis posat alguna nota. A les rondes ja tancades es manté, amb la nota seguida de **CV**.
 
 ---
 

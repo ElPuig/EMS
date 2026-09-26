@@ -28,6 +28,8 @@ from dateutil.relativedelta import relativedelta
 
 from odoo.tests.common import HttpCase, tagged
 
+from .test_convalidation import (close_convalidation_period, open_convalidation_period,
+                                 set_convalidation_period)
 from .common import (
     DocsScreenshotMixin, create_level_study_group, create_role_employee, create_role_user,
     mock_outgoing_email, next_student_id,
@@ -333,4 +335,86 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             login='doc_shot_tutor',
             wait_for=".o_form_statusbar button[name='action_reset_google_password']",
             max_height=200,
+        )
+        # Pau has no Google account yet: the tutor gets the create button instead (#513).
+        self._capture(
+            '/odoo/action-%d/%d' % (self.student_list_action.id, self.students[1].id),
+            '.o_form_view', 'credencials-google-04-crear.png',
+            login='doc_shot_tutor',
+            wait_for=".o_form_statusbar button[name='action_create_google_account']",
+            max_height=200,
+        )
+
+    def test_capture_convalidation_screenshots(self):
+        """Issue #276 - the Head of Studies' request form and list (a request resolved and ready
+        to be validated), and the portal page."""
+        self.level.allows_convalidation = True
+        subjects = self.subject | self.env['ems.subject'].create([{
+            'code': code, 'acronym': acronym, 'name': name, 'study_ids': [(6, 0, self.study.ids)],
+        } for code, acronym, name in (
+            ('DOCSUB2', 'DSP', 'Programació'),
+            ('DOCSUB3', 'DSI', 'Sistemes informàtics'),
+            ('DOCSUB4', 'DFO', 'Formació i orientació laboral'),
+        )])
+        head_of_studies = create_role_user(self, 'head_of_studies', 'doc_shot_hos', lang='ca_ES',
+                                           name="Cap d'estudis", email='capestudis@example.com')
+        create_role_employee(self, head_of_studies, name="0000 Cap d'estudis")
+        request = self.env['ems.convalidation'].create({
+            'student_id': self.portal_student.id, 'requester_id': self.portal_student.id,
+            'study_id': self.study.id, 'course_id': self.course.id, 'basis': 'prior_studies',
+            'student_notes': "Vaig cursar el CFGM de Sistemes microinformàtics i xarxes.",
+            'line_ids': [(0, 0, {'subject_id': subject.id}) for subject in subjects[1:]],
+            'attachment_ids': [(0, 0, {'name': 'Certificat_academic_SMX.pdf',
+                                       'datas': base64.b64encode(b'%PDF-1.4 x')})],
+        })
+        request.line_ids[0].sudo().write({'state': 'granted', 'grade': 8,
+                                          'resolution_notes': 'Mòdul equivalent a SMX'})
+        request.line_ids[1].sudo().write({'state': 'rejected',
+                                          'resolution_notes': "No acreditat a l'expedient"})
+        list_action = self.env['ir.actions.act_window'].create({
+            'name': 'Convalidacions',
+            'res_model': 'ems.convalidation',
+            'view_mode': 'list,form',
+            'domain': [('id', '=', request.id)],
+        })
+        self._capture(
+            '/odoo/action-ems.action_convalidation/%d' % request.id,
+            '.o_form_sheet', 'convalidations-form.png',
+            login='doc_shot_hos',
+            wait_for=".o_form_sheet div[name='line_ids'] .o_data_row",
+        )
+        self._capture(
+            '/odoo/action-%d' % list_action.id,
+            '.o_content', 'convalidations-list.png',
+            login='doc_shot_hos',
+            wait_for='.o_list_renderer .o_data_row',
+        )
+        # The request period, open while the form is captured (the default one may well be
+        # closed the day this runs), then closed for the notice that replaces it.
+        open_convalidation_period(self.env)
+        self._capture(
+            '/my/convalidaciones?new=1', '.o_ems_convalidation_new',
+            'convalidations-portal-new.png',
+            login='doc_shot_portal',
+            wait_for='#convalidation_new_body.show',
+        )
+        self._capture(
+            '/my/convalidaciones', '.o_ems_convalidation_request',
+            'convalidations-portal-request.png',
+            login='doc_shot_portal',
+        )
+        close_convalidation_period(self.env)
+        self._capture(
+            '/my/convalidaciones', '.o_ems_convalidation_closed',
+            'convalidations-portal-closed.png',
+            login='doc_shot_portal',
+        )
+        # The period itself, in Settings (goes to docs/assets/admin/).
+        create_role_user(self, 'settings_admin', 'doc_shot_settings_admin', lang='ca_ES',
+                         name='Administrador')
+        set_convalidation_period(self.env, (1, 10, 8.0), (31, 3, 23 + 59 / 60))
+        self._capture(
+            '/odoo/action-ems.action_settings', '#convalidation_period',
+            'convalidations-settings.png',
+            login='doc_shot_settings_admin',
         )

@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.27.1',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.29.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -188,6 +188,7 @@
 
             'views/planning_grading/menu.xml',
             'views/planning_grading/planning/list.xml',
+            'views/planning_grading/planning/search.xml',
             'views/planning_grading/planning/form.xml',
             'views/planning_grading/planning/menu.xml',
             'views/planning_grading/grading/list.xml',
@@ -314,6 +315,8 @@
             'views/academic_management/authorizations/menu.xml',
             'views/academic_management/task_assignment/view.xml',
             'views/academic_management/task_assignment/menu.xml',
+            'views/academic_management/convalidations/views.xml',
+            'views/academic_management/convalidations/menu.xml',
 
         'views/sales/product_view.xml',
         'views/accounting/payment_term_views.xml',
@@ -331,6 +334,7 @@
             'views/portal/portal_schedule.xml',
             'views/portal/portal_contact_data.xml',
             'views/portal/portal_documentation.xml',
+            'views/portal/portal_convalidations.xml',
             'views/portal/portal_under_construction.xml',
 
         'views/documentation/menu.xml',       
@@ -350,6 +354,8 @@
         'mails/coexistence/strike_escalation.xml',
         'mails/enrollment/enrollment_send.xml',
         'mails/enrollment/authorization_send.xml',
+        'mails/grades/convalidation_resolved.xml',
+        'mails/grades/convalidation_info_request.xml',
         'mails/contacts/contact_data_request.xml',
 
         ### Reports templates ###
@@ -451,7 +457,6 @@
         'data/custom/resource.calendar.attendance.csv',
         'data/custom/res.company.csv',
         'data/custom/res.partner.csv',
-        'data/custom/ems.course.csv',
         'data/custom/crm.team.csv',
         'data/custom/ems.authorization.template.csv',
         'data/custom/ir.sequence-enrollment_number.csv',

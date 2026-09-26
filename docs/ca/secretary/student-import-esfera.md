@@ -31,12 +31,15 @@ Per a una actualització més petita i puntual des de qualsevol altre fitxer CSV
 
 Des de la llista d'**Alumnat**, obriu el menú d'accions (la icona de l'engranatge ⚙️ al costat de la llista) i trieu **Importar des d'Esfera**. Seleccioneu el fitxer `.xlsx` exportat des d'Esfera/SAGA i feu clic a **Importar alumnes**.
 
+![Finestra Importar des d'Esfera, amb la pujada del fitxer i l'opció de sobreescriure](../../assets/secretary/esfera-01-assistent.png)
+
 ## Què es crea o s'actualitza
 
 - L'**alumnat** es fa coincidir pel seu identificador **RALC** (l'identificador oficial català de l'alumne/a). Una coincidència existent s'actualitza; si pertanyia a un extitulat/baixa, es **reactiva** com a alumne actiu en lloc de crear-ne un duplicat.
 - Els **contactes familiars** (tutors/es) es fan coincidir pel seu número de document (DNI/NIE/passaport) o, si la fila no en té, pel mòbil quan un sol contacte familiar el té amb el mateix nom. Els que coincideixen s'actualitzen, els que no, es creen. Quan el mòbil és d'un contacte familiar amb un altre nom (per exemple, dos progenitors que comparteixen telèfon), es crea un contacte nou i el resultat l'indica com a possible duplicat. Fusioneu els duplicats reals a mà des de **Contactes → Famílies**.
 - La **relació familiar** (mare, pare, avi/àvia, germà/na, tutor legal…) es dedueix d'una nota de text lliure del fitxer. Quan no es pot deduir amb confiança, el tutor es vincula com a "Tutor" genèric i s'afegeix una nota al **propi registre de l'alumne/a** citant el text original — val la pena revisar-ho ràpidament per a qualsevol cas marcat així.
 - Un alumne/a el **codi de grup** del qual al fitxer no coincideix amb cap grup d'EMS s'importa igualment (sense grup assignat) — s'afegeix al seu registre una nota amb el codi no coincident perquè es pugui corregir a mà.
+- Un **correu personal** del fitxer que pertany al domini del centre (un compte corporatiu) s'ignora: l'alumne o el familiar s'importa igualment amb la resta de dades, es manté el correu personal que ja tenia i el resultat mostra un avís amb el seu nom.
 
 ## Llegir el resultat i el registre
 

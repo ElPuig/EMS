@@ -2,6 +2,7 @@
 from odoo import http
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
+from .portal_view_only import ems_portal_is_view_only
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -25,14 +26,29 @@ class EMSPortalCommsController(CustomerPortal):
             ('partner_id', '=', partner.id)
         ]).ids
 
-        # Dominio combinado: mensajes dirigidos al partner, del chatter de matrícula o de documentos
-        # Excluimos notas internas (mail.mt_note) para que no sean visibles en el portal
+        # IDs de las solicitudes de convalidación del alumno (issue #276)
+        convalidation_ids = request.env['ems.convalidation'].sudo().search([
+            ('student_id', '=', partner.id)
+        ]).ids
+
+        # Dominio combinado: mensajes dirigidos al partner, del chatter de matrícula, de documentos
+        # o de convalidaciones. Excluimos notas internas (mail.mt_note) para que no sean visibles en el portal
         note_subtype = request.env.ref('mail.mt_note')
-        domain = [
-            '|', '|',
-                ('partner_ids', 'in', [partner.id]),
-                '&', ('model', '=', 'sale.order'), ('res_id', 'in', sale_order_ids),
-                '&', ('model', '=', 'ems.student.document'), ('res_id', 'in', document_ids),
+        # Whoever only consults (a minor on his own account, a family looking at its adult
+        # child) only sees what is addressed to the student: the enrollment, document and
+        # convalidation threads are the conversation of whoever acts for him with the centre
+        # (res.partner._ems_portal_is_view_only).
+        if ems_portal_is_view_only():
+            origin = [('partner_ids', 'in', [partner.id])]
+        else:
+            origin = [
+                '|', '|', '|',
+                    ('partner_ids', 'in', [partner.id]),
+                    '&', ('model', '=', 'sale.order'), ('res_id', 'in', sale_order_ids),
+                    '&', ('model', '=', 'ems.student.document'), ('res_id', 'in', document_ids),
+                    '&', ('model', '=', 'ems.convalidation'), ('res_id', 'in', convalidation_ids),
+            ]
+        domain = origin + [
             ('message_type', 'in', ['email', 'comment', 'notification']),
             ('subtype_id', '!=', note_subtype.id),
         ]

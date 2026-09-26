@@ -4,6 +4,8 @@ from datetime import date
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
+from .common import CORPORATE_TEST_DOMAIN, enforce_corporate_email_policy
+
 
 class TestStudentUpdateWizard(TransactionCase):
     """ems.student_update_wizard: generic CSV bulk-UPDATE for already-enrolled
@@ -105,6 +107,24 @@ class TestStudentUpdateWizard(TransactionCase):
         self.assertEqual(self.student.name, 'Updated Name')
         self.assertEqual(self.student.phone, '611222333')
         self.assertIn('1', wizard.result_html)
+
+    def test_action_update_ignores_corporate_email_but_keeps_the_rest(self):
+        # Issue #514: a corporate address in the personal email column is dropped with a
+        # warning (keeping the current personal email) instead of failing the whole row.
+        enforce_corporate_email_policy(self)
+        self.student.email = 'personal@example.com'
+        wizard = self._wizard(
+            f'IDALU,Telefon,Email\n7000001,611999888,laia@{CORPORATE_TEST_DOMAIN}\n')
+        cols = self._load(wizard)
+        wizard.write({'col_student_id': cols['IDALU'].id, 'col_phone': cols['Telefon'].id,
+                      'col_email': cols['Email'].id})
+        wizard.action_update()
+
+        self.student.invalidate_recordset(['email', 'phone'])
+        self.assertEqual(self.student.phone, '611999888')
+        self.assertEqual(self.student.email, 'personal@example.com')
+        self.assertIn('Warnings (1):', wizard.result_html)
+        self.assertNotIn('Errors', wizard.result_html)
 
     def test_action_update_skips_blank_idalu_rows(self):
         wizard = self._wizard('IDALU,Nom\n,Should Be Skipped\n7000001,Real Row\n')

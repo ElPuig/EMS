@@ -2,7 +2,9 @@
 <odoo>
     <template id="ems_portal_custom_header_menu" inherit_id="portal.frontend_layout">
         <xpath expr="//t[@t-cache='res_company']" position="attributes">
-            <attribute name="t-cache">res_company, request.env.user.partner_id.selected_student_id.id, request.httprequest.path</attribute>
+            <!-- The menu depends on who the user may see and act for (get_portal_students,
+                 _ems_portal_is_view_only), which changes without any write when a child turns 18. -->
+            <attribute name="t-cache">res_company, request.env.user.id, request.env.user.partner_id.selected_student_id.id, request.httprequest.path, tuple(request.env.user.partner_id.get_portal_students().ids), request.env.user.partner_id._ems_portal_is_view_only()</attribute>
         </xpath>
         <xpath expr="//a[hasclass('navbar-brand')]" position="after">
 
@@ -18,14 +20,22 @@
                     <li class="nav-item">
                         <a href="/my/calificaciones" class="nav-link">Grades</a>
                     </li>
-                    <li class="nav-item">
-                        <a href="/my/gestion-matriculas" class="nav-link">Enrollment and authorizations</a>
-                    </li>
+                    <!-- Hidden to whoever may only consult: a minor on his own account, or a family
+                         looking at its adult child (res.partner._ems_portal_is_view_only,
+                         controllers/portal_view_only.py). -->
+                    <t t-if="not request.env.user.partner_id._ems_portal_is_view_only()">
+                        <li class="nav-item">
+                            <a href="/my/gestion-matriculas" class="nav-link">Enrollment and authorizations</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/my/convalidaciones" class="nav-link">Convalidations</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/my/documentacion" class="nav-link">Documentation</a>
+                        </li>
+                    </t>
                     <li class="nav-item">
                         <a href="/my/comunicaciones" class="nav-link">Communications</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/my/documentacion" class="nav-link">Documentation</a>
                     </li>
                     <li class="nav-item">
                         <a href="/my/account" class="nav-link">Profile</a>

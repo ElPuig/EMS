@@ -37,6 +37,8 @@ Al abrir el menú se muestra una lista de todos los estudios ordenada por códig
 5. Opcionalmente, añade notas libres en la pestaña **Notas**.
 6. Haz clic en **Guardar** (o usa las migas de pan para navegar — Odoo guarda automáticamente).
 
+![Ficha de un estudio, con la pestaña Asignaturas](../../assets/admin/admin-study-form.png)
+
 ---
 
 ## Editar un estudio

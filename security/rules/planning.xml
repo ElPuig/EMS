@@ -24,6 +24,21 @@
         <field name="perm_unlink" eval="False"/>
     </record>
 
+    <record id="rule_planning_hos_all" model="ir.rule">
+        <!-- Issue #503: Head of Studies/Deputy need to see and adjust every planning, not just
+             the ones tied to subjects they personally teach - group_head_of_studies also implies
+             group_teacher, so without this rule they'd only get rule_planning_teacher_own_subjects
+             above. Unlink stays out (see ir.model.access.csv, unlink=0 for this group). -->
+        <field name="name">Planning: all data (Head of Studies, no unlink)</field>
+        <field name="model_id" ref="ems.model_ems_planning"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
     <!-- ems.planning_outcome -->
     <record id="rule_planning_outcome_admin" model="ir.rule">
         <field name="name">Planning outcome: all data</field>
@@ -45,5 +60,20 @@
         <field name="perm_write" eval="False"/>
         <field name="perm_create" eval="False"/>
         <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_planning_outcome_hos_all" model="ir.rule">
+        <!-- Same as rule_planning_hos_all, for the outcome ponderation lines - except that
+             unlink IS allowed here: removing a line is part of rebalancing a planning (an
+             outcome dropped from the curriculum, or the subject changed, which empties the
+             lines). Only deleting a whole planning stays reserved to academic_admin. -->
+        <field name="name">Planning outcome: all data (Head of Studies)</field>
+        <field name="model_id" ref="ems.model_ems_planning_outcome"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
     </record>
 </odoo>

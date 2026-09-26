@@ -14,6 +14,7 @@ This section contains the manuals for **administrators**.
 - [Studies](curriculum-studies.md) — Curriculum configuration: study programmes, their subjects and curriculum documents.
 - [Subjects](curriculum-subjects.md) — Curriculum configuration: subjects, their learning outcomes/content, and the automatic billing product sync.
 - [Current Course](course-settings.md) — Switching the academic year used for day-to-day operations.
+- [Convalidations settings](convalidation-settings.md) — The yearly period during which students and families can request convalidations from the portal.
 - [Workgroups](workgroups.md) — Free-form employee groupings (project teams, committees).
 - [Spaces and Space Types](facilities.md) — Physical rooms and their types, used across sessions/groups/minutes/schedules.
 - [Teacher Roles and Permission Levels](teacher-roles.md) — How to assign roles (Tutor, Department Chief, Head of Studies, Director...) to grant permission levels.

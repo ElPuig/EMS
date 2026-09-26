@@ -51,9 +51,9 @@ En el formulario de alta:
 
 ## Paso 3 — Rellenar el correo electrónico privado
 
-Ve a la pestaña **Información privada** y rellena el campo **Correo electrónico privado (1)**. Este correo electrónico personal será donde se enviará la contraseña del nuevo correo electrónico del centro.
+Rellena el campo **Correo electrónico privado (1)**, en la columna derecha de la pantalla principal, debajo de **Gestor** (el mismo campo también está en la pestaña **Información privada**). Este correo electrónico personal será donde se enviará la contraseña del nuevo correo electrónico del centro. Debe ser una dirección realmente personal: EMS no acepta ninguna del dominio del centro.
 
-![Pestaña Información privada con el campo de correo electrónico privado](../../assets/admin/alta-professor-03-correu-privat.png)
+![Formulario de alta con el campo de correo electrónico privado debajo de Gestor](../../assets/admin/alta-professor-03-correu-privat.png)
 
 > **Importante:** este campo de **Correo electrónico privado** es **obligatorio** para que se cree la cuenta de Google — el formulario no permite guardar una ficha **nueva** de profesor/PAS sin él. En las fichas creadas antes de esta regla puede faltar todavía: en ese caso no se crea ninguna cuenta automáticamente y queda constancia del motivo en el historial de mensajes de la ficha.
 

@@ -24,6 +24,8 @@ Navigate to: **Educational Community → Configuration → Teachers → Workgrou
 4. Optionally, add free-form notes in the **Notes** tab.
 5. Click **Save**.
 
+![A workgroup's form, with its members in the Assigned to tab](../../assets/admin/admin-workgroup-form.png)
+
 ---
 
 ## Edit or Delete a Workgroup

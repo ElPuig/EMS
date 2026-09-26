@@ -20,6 +20,8 @@ Navigate to: **Educational Community → Configuration → Curriculum → Levels
 
 Opening the menu shows a list of all levels sorted alphabetically by acronym. Each row displays the acronym and the full name.
 
+![List of levels with their acronym and name](../../assets/admin/admin-levels-list.png)
+
 ---
 
 ## Create a Level
@@ -28,8 +30,9 @@ Opening the menu shows a list of all levels sorted alphabetically by acronym. Ea
 2. Fill in the required fields:
    - **Acronym** *(required)*: Short code used across the system (e.g., `BTX`, `CFGM`).
    - **Name** *(required)*: Full descriptive name (e.g., `Batxillerat`, `Cicles Formatius Grau Mitjà`).
-3. Optionally, add free-form notes in the **Notes** tab.
-4. Click **Save** (or use the breadcrumb to navigate away — Odoo saves automatically).
+3. Tick **Allows convalidations** if the students of this level's studies can request subject convalidations (see [Convalidations](../head_of_studies/convalidations.md)).
+4. Optionally, add free-form notes in the **Notes** tab.
+5. Click **Save** (or use the breadcrumb to navigate away — Odoo saves automatically).
 
 > The **Studies** tab shows all studies linked to this level. Studies are managed from their own menu (**Configuration → Curriculum → Studies**) and cannot be added directly from the level form.
 

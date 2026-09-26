@@ -55,6 +55,8 @@ Per fer la importació:
 
 En acabar, l'auxiliar mostra un **resum de la importació**: quants aspirants s'han creat, quants s'han actualitzat i quantes files s'han omès. També podeu **descarregar el registre (CSV)** i, si n'hi ha, el CSV `gedac_alumnes_actius_<data>.csv` amb els continuadors interns.
 
+Si el correu d'un aspirant al fitxer pertany al domini del centre (un compte corporatiu), l'aspirant es crea o s'actualitza igualment, però sense aquest correu, i el resum mostra un avís per a aquest aspirant.
+
 ![Resum del resultat de la importació](../../assets/secretary/preinscrpcio-Secretaria-03.png)
 
 ---
@@ -64,7 +66,7 @@ En acabar, l'auxiliar mostra un **resum de la importació**: quants aspirants s'
 Els aspirants nous apareixen a la vista **Pre-inscripció**. Per revisar-los còmodament:
 
 * Feu servir el **panell d'estudis** de l'esquerra **(1)** per filtrar l'alumnat per estudi (SMX, ASIX, GA...). Al costat de cada estudi hi ha el nombre d'aspirants.
-* La llista ve **agrupada automàticament per torn** (*Afternoon* / *Morning*) **(2)** i, dins de cada torn, **per curs** (1r, 2n) **(3)**. Aquesta agrupació permet aplicar la **plantilla de matrícula** de manera més senzilla: cada combinació d'**estudi, torn i curs** té assignada una plantilla i un grup destí per defecte.
+* La llista ve **agrupada automàticament per torn** (*Tarda* / *Matí*) **(2)** i, dins de cada torn, **per curs** (1r, 2n) **(3)**. Aquesta agrupació permet aplicar la **plantilla de matrícula** de manera més senzilla: cada combinació d'**estudi, torn i curs** té assignada una plantilla i un grup destí per defecte.
 
 ![Vista de Pre-inscripció amb el panell d'estudis i l'agrupació per torn i curs](../../assets/secretary/preinscrpcio-Secretaria-04.png)
 
@@ -119,6 +121,8 @@ Perquè les famílies puguin confirmar la matrícula més endavant, cal que ting
 ![Menú Accions amb l'opció d'accés al portal](../../assets/secretary/preinscrpcio-Secretaria-07.png)
 
 > Aquesta opció genera o activa l'accés al portal educatiu per a l'alumnat i les seves famílies, de manera que, quan rebin el correu de proposta, hi puguin entrar a respondre les autoritzacions i confirmar la matrícula. Els alumnes que ja són del centre solen tenir-lo actiu.
+>
+> Un alumne menor d'edat també rep el seu propi accés, a més del de la família, però només de consulta (horari, les seves comunicacions i perfil): és la família qui confirma la matrícula. Vegeu [Com gestionar l'accés al portal](../tutors/acces-portal.md#qui-rep-laccés-alumnes-i-famílies).
 
 ---
 

@@ -28,6 +28,8 @@ Selecciona uno o más alumnos (desde la lista o desde la ficha de un solo alumno
 
 Solo se puede marcar al alumnado que está en el **último curso de su estudio** (por ejemplo, 2º de CFGM/CFGS/Bachillerato, 4º de ESO) — el asistente muestra por qué un alumno todavía no se puede marcar si no es el caso (no está en el último curso, o ya tiene matrícula para el próximo curso, lo cual se considera incompatible con graduarse). Los tutores pueden marcar a sus propios tutorizados; secretaría y admin pueden marcar a cualquiera.
 
+![Asistente de graduación: un alumno se puede marcar y el otro muestra por qué no (no está en el último curso)](../../assets/secretary/graduacio-01-assistent.png)
+
 ¿Has marcado a un alumno por error? **Desmarcar** lo revierte — excepto el registro interno "se ha graduado al menos una vez", que es permanente y es lo que decide si será extitulado o baja si ese alumno deja el centro más adelante. Desmarcar nunca deshace eso.
 
 ## Tramitar una baja (o una expulsión)
@@ -35,6 +37,8 @@ Solo se puede marcar al alumnado que está en el **último curso de su estudio**
 Solo secretaría y admin pueden tramitarlo. Se te pedirá elegir entre **Baja** y **Expulsión**,
 la **fecha de salida** y, opcionalmente, un **motivo** — después confirmas. Una vez aplicado, no
 se puede deshacer desde el propio asistente.
+
+![Asistente de baja con el tipo (Baja/Expulsión), la fecha y el motivo de salida y la matrícula pendiente que cancelará](../../assets/secretary/baixa-01-assistent.png)
 
 - La **Baja** cubre que el alumno se vaya por su cuenta, tanto si es decisión propia como
   decisión administrativa del centro ("de oficio") — no hay una opción separada para esa

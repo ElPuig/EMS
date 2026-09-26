@@ -141,6 +141,7 @@
                      only enforced on new records: most legacy employees lack it. -->
                 <field name="private_email" position="attributes">
                     <attribute name="required">not id and employee_type in ('teacher', 'asp')</attribute>
+                    <attribute name="help">Personal address, also used as the Google account's recovery email. It can't be the centre's corporate account.</attribute>
                 </field>
 
                 <!-- Second occurrence of private_email, on the main screen, last in the right-hand
@@ -163,7 +164,8 @@
                      can see it. -->
                 <xpath expr="//field[@name='coach_id']" position="after">
                     <field name="private_email"
-                           required="not id and employee_type in ('teacher', 'asp')"/>
+                           required="not id and employee_type in ('teacher', 'asp')"
+                           help="Personal address, also used as the Google account's recovery email. It can't be the centre's corporate account."/>
                 </xpath>
 
                 <xpath expr="//page[@name='personal_information']/group/group[2]" position="attributes">

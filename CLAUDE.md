@@ -32,6 +32,17 @@ memory for the incident this rule comes from, and a second, broader one from 202
 where dev-DB findings were repeatedly mislabeled "production" across an entire session
 before being caught.
 
+**Check a dump's integrity before attempting any restore (2026-09-24).** A dump handed over
+by the developer can be truncated (e.g. an interrupted copy), and `pg_restore -l` is not
+proof otherwise: it only reads the table of contents at the start of the file, so a truncated
+custom-format dump still lists every table. Before `createdb`/`pg_restore`, read the whole
+archive once: `sudo -u odoo pg_restore -f /dev/null <file>` for custom format (must exit 0
+with no "could not read from input file" error), `gzip -t`/`unzip -t` for compressed ones, and
+confirm the file size is stable and in line with previous dumps. If the check fails, stop and
+tell the developer: don't restore a partial copy. A truncated restore can look usable (some
+tables present) while missing others entirely, as happened that day: a dump ~35% smaller than
+its predecessors restored `ems_planning` but left `ir_module_module` empty.
+
 ## Development vs. production environment declaration (2026-08-10)
 
 Any EMS installation — this box included — declares whether it's a development/testing
@@ -181,6 +192,8 @@ Both scripts must be run from the project root (`/root/myModules/ems/`).
 
 `upgrade.sh` and `test.sh` both stop the Odoo service, run their operation as the `odoo` system user, and restart the service. Output is filtered to show only relevant lines (errors, warnings, test results).
 
+`upgrade.sh` (and `deploy.sh`'s rollback, and `/deploy-check`) upgrade not just `ems` but every *installed* module found in a non-core `addons_path` folder (the OCA repos `update.sh` git-pulls), via `ems_modules_to_upgrade` in `scripts/odoo_modules.sh`. `odoo -u ems` alone never upgrades ems' own dependencies: on 2026-09-26 production's `queue_job` code got ahead of its schema that way and its runner paused itself ("schema is outdated, -u queue_job required"), leaving every notice email "Pending" for days. Don't hardcode `-u ems` in any new upgrade path; reuse that helper.
+
 After any change, run `upgrade.sh` and check for WARNING / ERROR / CRITICAL output.
 
 **The full test suite is slow — don't run it more than necessary.** `./test.sh` (no argument) runs every test class and takes several minutes; running it after every small change wastes time without adding useful signal. Prefer `./test.sh TestClassName`, scoped to whatever model(s) you're actually touching, as the normal gate during iterative work (Red/Green/Refactor cycles, DTON phases, bug fixes). Run the full, unscoped `./test.sh` only once — as the final check before considering a piece of work done — not after every intermediate step. If a change plausibly affects other models (e.g. a shared mixin, a migration, a widget used in several views), scope down to the smallest set of `TestClassName` runs that actually covers the blast radius instead of reaching for the full suite by default.
@@ -309,8 +322,9 @@ have been asked live, not optional. State plainly which mode-scoped tasks got fi
 now')`-style trigger, an `[title='...']` selector matching a translatable label, a status/
 selection name typed nowhere by the tour itself) only works if the account driving it actually
 renders in English — never assume that's true. `login="admin"` logs in as this box's real,
-pre-existing `admin` account, whose language is whatever this dev box happens to have (this
-box's is `es_ES`) — **not** guaranteed `en_US`, regardless of environment. A freshly created
+pre-existing `admin` account, whose language is whatever this dev box happens to have (it has
+changed over time on this box: `es_ES`, then `ca_ES` as of 2026-09-24) — **not** guaranteed
+`en_US`, regardless of environment. A freshly created
 `res.users` record is not automatically safe either: without an explicit `'lang'` key, it does
 not reliably default to `en_US` on every box (confirmed on this one: it defaults to `ca_ES`).
 Found twice already from the exact same root cause (`TestAttendanceStatusTour`,
@@ -660,9 +674,13 @@ renamed group or reassigned classroom, `space_id`, was silently reverted by the 
 code (`res.company._ems_freeze_living_custom_data()`, called from `_register_hook()`) — CSV can
 never carry `noupdate=True` via the file itself (see the capability table below). See
 `docs/en/developers/shared/data_loading.md`'s "`data/custom/` living data" section for the full
-mechanism and the test used to tell living data from master config, and
-[[project_data_custom_living_vs_master_audit]] in memory for which other `data/custom/` models
-are suspected of the same gap (audit pending developer review, not yet fixed).
+mechanism and the test used to tell living data from master config. Also frozen since:
+`ems.planning`/`ems.planning_outcome` (2026-09-23) and `ems.space` (2026-09-25, classrooms
+renamed through the app were reverted by every upgrade). A newly-listed model also needs a raw-SQL
+`pre-migrate` freezing its existing xmlids (see `migrations/18.0.0.29.0/pre-migrate.py`), or the
+first upgrade shipping it still reverts the data one last time. The audit of the remaining
+`data/custom/` models (always-sync vs. freeze-after-seed) is pending, planned in
+`plans/data_loading_rearchitecture.md`.
 
 **CSV cannot actually be marked `noupdate=True` in this Odoo version — that's exclusive to XML.** An earlier version of this note claimed the deprecated `init_xml` manifest key gives a CSV file `noupdate=True`; that was wrong and has been corrected after a live test (2026-07-30, `data/custom/res.partner.category-<probe>.csv` listed under `'init_xml': [...]`, ran `./upgrade.sh`) showed the file never even loaded — no "loading ems/..." log line, record never created. Root cause, confirmed by reading the actual installed `odoo/modules/loading.py::load_data._get_files_of_kind`: `keys = ['init_xml', 'update_xml', 'data']` is set inside an `elif kind == 'data':` branch, but the very next line, `if isinstance(kind, str): keys = [kind]`, is a **separate, unconditional `if`, not an `elif`** — since `kind` is always a plain string, this second `if` always fires and silently overwrites `keys` back down to just `['data']`, discarding the `init_xml`/`update_xml` merge entirely. Files listed under `init_xml`/`update_xml` are therefore never read at all during the normal 'data' load phase in this Odoo build, regardless of noupdate — apparent dead code, not a working (if deprecated) mechanism. The only manifest key that actually produces `noupdate=True` is `demo` — semantically wrong for real config (demo data is optional, skipped entirely with `--without-demo`, and conceptually sample data, not a centre's real configuration). **Practical conclusion: if a `data/custom/` (or any EMS) CSV record genuinely needs `noupdate=True` protection, there is no clean file-based way to get it — the only options are (a) keep it XML, or (b) set `ir_model_data.noupdate=True` directly via a migration script**, bypassing the file-loading mechanism's noupdate handling entirely (not something to reach for casually, since it also means the file's own content stops being an honest description of what the record actually does on upgrade).
 
@@ -781,6 +799,59 @@ assume it happened. If every change on the branch was made by the developer dire
 usually decline (they already know whether they closed their own work properly) — but always
 offer when the branch integrates a colleague's changes, since that's precisely the situation where
 the developer can't already know by memory alone.
+
+## "Prepara la release" — integrate every ready branch into the release branch (2026-09-25)
+
+A developer-invoked, end-to-end release-integration routine, triggered by *"prepara la
+release"*, *"integra la release"* or *"integra todos los cambios"* (synonyms, all equally valid).
+The name deliberately avoids "PR": **this is not the same thing as asking for the PR text**
+("dame el texto para la PR", see "PR changelog" below), which only delivers the changelog
+document, while this routine runs the whole sequence below, of which the PR text is just one
+step. "Integra todos los cambios" is the most generic of the three: only treat it as this routine
+when nothing narrower fits the context (e.g. not when a specific branch or a subagent's work was
+just being discussed); if a request's wording could mean something else, ask instead of guessing.
+
+Run it on the current release branch (e.g. `v18.0.0.29.0`), in this order:
+
+1. **Collect the issues** in the "📦 Ready to merge" column of the GitHub project board
+   (<https://github.com/orgs/ElPuig/projects/4>):
+   `gh project item-list 4 --owner ElPuig --format json --limit 1000`, keeping items whose
+   `status` contains "Ready to merge". The `gh` token needs the organization permission
+   **Projects** (fine-grained PAT; Read and write, for the card moves in step 2) or this fails
+   with `Resource not accessible by personal access token`.
+2. **Merge each issue's branch** (`origin/<issue_number>-<slug>`, after `git fetch origin`) into
+   the release branch, **one at a time, in ascending issue-number order**, resolving conflicts per
+   "Resolving merge conflicts" above and the multi-branch rule in "Migrations" (merge
+   same-version `pre/post-migrate.py` bodies into one file). Commit each merge before starting the
+   next one — this routine is an explicit exception to the developer managing commits themselves.
+   If a conflict is still ambiguous after reviewing both sides, stop and ask.
+
+   **Move each issue's card on the board as you go** (added 2026-09-26): right after committing
+   an issue's merge, move it from "📦 Ready to merge" to **"⚙️ Merge in progress"**; if its branch
+   genuinely can't be integrated (a conflict still ambiguous after asking, or the developer decides
+   to leave it out), move it to **"Merge rejected (needs attention)"** instead. Use
+   `gh project item-edit --id <item_id> --project-id <project_id> --field-id <status_field_id>
+   --single-select-option-id <option_id>` (ids from `gh project item-list`/`field-list 4 --owner
+   ElPuig --format json` and `gh project view 4 --owner ElPuig --format json`). This needs the org
+   permission **Projects: Read and write** on the `gh` token, which the developer granted **only for
+   these two moves**: never change any other field, any other column, any other project, or
+   anything else on GitHub — every other GitHub write still needs the developer's explicit go-ahead
+   first.
+3. **Run the "revisión del cierre"** (section above) over everything integrated, and **fix**
+   whatever it finds (docs, translations, tests), not just report it. Commit the fixes.
+4. **Prepare the PR text** exactly as "PR changelog" below describes (every `changelog/` file,
+   reassembled by section, condensed, `Related with` from merge history, delivered as a
+   scratchpad file).
+
+The routine ends there — it does **not** send the staff newsletter email (changed 2026-09-26): the
+newsletter now covers every release deployed since the previous one and is sent only when the
+developer asks for it (see "Staff newsletter email" below).
+
+**Hard limits, no exceptions:**
+- **Never push.** The developer pushes the branch themselves to trigger CI; the agent has no push
+  permission and must not ask for one.
+- **Never touch the `__manifest__.py` version** while doing this — the release branch already
+  carries the right version.
 
 ## PR changelog: persist silently, deliver only on request
 
@@ -932,30 +1003,38 @@ CI pieces work together:
   (fast) and reporting a real result, deliberately not using `[skip ci]` or a path-filtered
   trigger for this, both of which risk GitHub leaving a required check stuck "pending" forever
   instead of passing (generalized 2026-09-22 from an earlier version scoped to `changelog/`
-  alone). `i18n/*.po` is deliberately excluded from this list — a malformed `.po` file can break
+  alone). The skip compares the whole push against the previous head and only applies once that
+  previous head's own CI run has finished successfully (it waits if it's still running), since
+  GitHub shows the PR's checks for the newest head only (2026-09-26, PR #517). `i18n/*.po` is deliberately excluded from this list — a malformed `.po` file can break
   the module's translation load, which only a real test run would catch.
 
 ## Staff newsletter email
 
-Whenever the developer asks directly for a "correo"/"boletín de novedades", send a formatted HTML
-newsletter email to **ems@elpuig.xeill.net** summarizing the same changes for a general staff
-audience — Catalan, no tecnicismes, condensed and friendly, not a translation of the English PR
-body. Distinct from the PR changelog file: that stays English/technical for GitHub; this email is
-Catalan/audience-facing, for the developer to review and forward to staff themselves — this
-mechanism never broadcasts directly to students/families/staff itself.
+A formatted HTML newsletter email to **ems@elpuig.xeill.net** summarizing, for a general staff
+audience, everything deployed to production since the previous newsletter — Catalan, no
+tecnicismes, condensed and friendly, not a translation of the English PR bodies. Distinct from the
+PR changelog: that stays English/technical for GitHub; this email is Catalan/audience-facing, for
+the developer to review and forward to staff themselves — this mechanism never broadcasts directly
+to students/families/staff itself.
 
-**Corrected 2026-09-15 — offer, don't auto-send, right after the PR changelog text.** This used to
-say to send the email automatically as soon as the PR changelog text was prepared/delivered. Real
-incident (PR #462, branch `v18.0.0.25.0`): the changelog text was delivered and the newsletter
-offer never came — the developer had to point it out afterward ("Como no te lo he pedido, deberías
-haberme ofrecido enviar el correo con las novedades... es importante"). Sending a real email (even
-to this fixed, developer-controlled address) is an externally-visible action — it should be
-offered and confirmed, not fired automatically, matching this project's general standing caution
-around actions with real-world effects (see "Executing actions with care" in the surrounding
-agent instructions). **How to apply:** right after delivering PR changelog text (see "PR
-changelog" below), if the newsletter hasn't already been sent for that PR, **offer** to send it —
-a short question, not silence and not an automatic send. A direct request for the "correo"/
-"boletín" at any point is already a request — send it right away without needing to offer first.
+**On demand, covering every release since the last one (2026-09-26).** The developer sends it
+roughly weekly (mid-week preferred: not Friday, when staff won't touch EMS until Monday; not
+Monday, when it drowns among other scheduled mail), but deliberately on no fixed day/time and with
+no scheduled job — they decide when. Send it **only when the developer asks** ("envía el
+boletín", "prepara el boletín", "envía el correo de novedades" or similar); never offer it after
+PR text and never send it as part of "Prepara la release" (both were earlier versions of this rule,
+replaced because one email per release was too frequent for staff). When asked:
+1. Read the last-covered release tag from memory (`project_newsletter_last_version`; kept in the
+   sending machine's Claude memory, since sending happens from this box).
+2. `git fetch origin --tags`, then list the release tags (`v18.0.*`) reachable from `origin/main`
+   that are newer than that marker. A tag on `main` means the release is deployed, so the email
+   never announces something staff can't use yet. **No new tags → say so and send nothing.**
+3. For each of those releases, read its merged PR body on GitHub (`gh pr list --base main --state
+   merged --json number,title,body,mergeCommit`), which is where the changelog survives after
+   `changelog/` is deleted before merge. Write **one** email for the whole period, grouped by
+   topic rather than by version.
+4. Send it (mechanism below). Once the shell output confirms `state=sent`, update the memory marker
+   to the newest tag included, with the send date.
 
 **Recipient is always the fixed address above, never one read from the database** — same
 principle as this file's "Email safety in tests": an address must be explicit and

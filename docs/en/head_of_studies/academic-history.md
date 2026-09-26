@@ -30,6 +30,8 @@ Also, on any student's form, the **Academic history** tab shows that student's r
 - The **subject state** (Passed / Not passed) is decided **only by the learning outcomes**: a pending or failed work placement never fails a subject, it only leaves the final grade empty until a new placement is passed.
 - The stored **weights** (internal/EM and per RA) are the ones in force that course: the history is self-contained and keeps its meaning even if a later teaching plan changes the weights.
 - The **academic result** is proposed automatically from grades and the destination enrollment; secretariat/administrators may have adjusted it by hand.
+- A record marked **Current course** belongs to a course not closed yet: it only holds the subjects convalidated so far, with no academic result. The **Current course** and **Closed courses** filters tell them apart in queries.
+- A **convalidated** subject carries the convalidation's grade, the **CV** mark and its **convalidation file** (CONV number).
 
 ## Applying a grade review
 

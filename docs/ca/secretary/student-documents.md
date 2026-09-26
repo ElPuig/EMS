@@ -23,12 +23,16 @@ Aquesta guia explica com revisar els documents que envien alumnes i famílies �
 
 Vés a **Gestió acadèmica > Documents d'alumnes**. La llista s'obre mostrant només les tramitacions **Pendents** per defecte (treu el filtre per veure-les totes). Aquesta és l'única pantalla amb accions d'Aprovar/Rebutjar — la llista només de lectura que també veus a la fitxa de l'alumne (pestanya **Documentació**) és només de referència.
 
+![Llista de documents de l'alumnat filtrada per Pendent, amb les icones d'aprovar (✓) i rebutjar (✗) a cada fila](../../assets/secretary/documents-01-pendents.png)
+
 ## Aprovar, rebutjar, cancel·lar
 
 - **Aprovar** (✓ des de la llista, o el botó de capçalera a la fitxa): marca el document com a revisat i aplica els seus efectes (vegeu més avall). Si ja hi havia un altre document del mateix tipus aprovat per a aquest alumne, s'elimina automàticament — només es conserva l'últim aprovat.
 - **Rebutjar** (✗ des de la llista, o el botó de capçalera): escriu primer el motiu (al camp **Motiu de rebuig**) — un sol clic a Rebutjar tanca immediatament la tramitació, no hi ha cap pas de confirmació separat.
 - **Cancel·lar**: disponible des de la fitxa quan cal retirar una tramitació sense marcar-la com a rebutjada (per exemple, es va pujar per error).
 - **Reobrir per a revisió**: disponible en un document aprovat o rebutjat, per si cal revisar una decisió — reobre la revisió (s'assigna una nova tasca als revisors).
+
+![Un document d'IBAN pendent, amb els botons Aprovar i Rebutjar i el camp Motiu de rebuig](../../assets/secretary/documents-02-revisio.png)
 
 ## Què fa aprovar un IBAN
 

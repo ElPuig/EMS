@@ -25,7 +25,7 @@ class TestPortalActions(HttpCase):
         cls.course = cls.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1) \
             or cls.env['ems.course'].create({'start': 2098, 'end': 2099, 'is_enrollment_default': True})
         cls.student = cls.env['res.partner'].create({
-            'name': 'Portal Action Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'name': 'Portal Action Tour Student', 'contact_type': 'student', 'student_id': next_student_id(), 'birth_date': '2000-01-01',
         })
         cls.portal_user = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Portal Action Tour Student', 'login': 'test_portal_action_student',
@@ -186,3 +186,21 @@ class TestPortalActions(HttpCase):
         response = self.url_open(url='/my/documentacion/download/%d' % document.id)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, base64.b64decode(FAKE_PDF))
+
+    def test_documentation_page_translates_selection_labels(self):
+        """The history's type/status labels follow the visitor's language - the template used
+        to read the fields' selections raw, which always rendered the English source."""
+        self.env['res.lang']._activate_lang('ca_ES')
+        self.portal_user.lang = 'ca_ES'
+        # Set on purpose rather than relying on i18n/ca_ES.po, so a test database loaded without
+        # the Catalan translations still proves the label goes through the translation layer.
+        pending = self.env.ref('ems.selection__ems_student_document__status__pending')
+        pending.with_context(lang='ca_ES').name = 'Etiqueta traduïda pendent'
+        self.env['ems.student.document'].create({
+            'partner_id': self.student.id, 'doc_type': 'other',
+            'doc_file': FAKE_PDF, 'doc_file_name': 'other.pdf',
+        })
+        self._authenticate()
+        response = self.url_open(url='/my/documentacion')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Etiqueta traduïda pendent', response.text)

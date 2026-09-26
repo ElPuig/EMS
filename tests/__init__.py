@@ -15,6 +15,10 @@ from . import test_exit_management
 from . import test_level
 from . import test_level_tour
 from . import test_student_document
+from . import test_convalidation
+from . import test_convalidation_period
+from . import test_portal_convalidation
+from . import test_convalidation_tour
 from . import test_tutor_scope
 from . import test_student_document_tour
 from . import test_student_google_workspace
@@ -84,6 +88,7 @@ from . import test_student_import_wizard_tour
 from . import test_student_update_wizard
 from . import test_student_update_wizard_tour
 from . import test_planning
+from . import test_personal_email_not_corporate
 from . import test_portal_access_wizard
 from . import test_portal_access_wizard_tour
 from . import test_portal_enrollment
@@ -144,6 +149,9 @@ from . import test_docs_screenshots
 from . import test_docs_screenshots_head_of_studies
 from . import test_docs_screenshots_admin
 from . import test_docs_screenshots_teachers
+from . import test_docs_screenshots_families
+from . import test_docs_screenshots_tutors
+from . import test_docs_screenshots_secretary
 from . import test_authorization
 from . import test_authorization_template_tour
 from . import test_attendance_notification_tour
@@ -170,6 +178,9 @@ from . import test_attendance_correction_request_tour
 from . import test_asp_tour
 from . import test_portal_tour
 from . import test_portal_actions
+from . import test_portal_google_signin
+from . import test_portal_view_only
+from . import test_portal_view_only_tour
 from . import test_enrollment_product_extension
 from . import test_enrollment_mail_activity
 from . import test_attendance_session
@@ -205,6 +216,7 @@ from . import test_role_smoke_coexistence_tour
 from . import test_role_smoke_secretary_tour
 from . import test_role_smoke_tac_tour
 from . import test_user_profile_tour
+from . import test_user_menu_documentation_tour
 from . import test_contact_data_request
 from . import test_contact_data_request_send_wizard
 from . import test_portal_contact_data

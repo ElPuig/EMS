@@ -36,6 +36,8 @@ Una encuesta pasa por una secuencia fija de estados a medida que se trabaja en e
 6. **Descargar** — trae los datos de respuesta de vuelta a EMS como CSV, listos para el
    análisis (por ejemplo, en Metabase).
 
+![Una encuesta en borrador, con la barra de estados del ciclo de vida y el botón Calcular destinatarios](../../assets/admin/admin-survey-form.png)
+
 Puede devolver una encuesta subida/calculada a **Borrador** (recalculando los destinatarios
 desde cero) en cualquier momento antes de cerrarla.
 

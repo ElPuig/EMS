@@ -118,10 +118,11 @@ that originally scheduled it being archived - `test_action_archive_does_not_casc
 `test_action_archive_on_template_does_not_cascade_to_sessions`
 (`tests/test_attendance_template.py`) pin this down going forward. Sessions are never `unlink()`'d
 either (see `unlink()` below) - they're an independent historical record, managed on their own
-terms, not a dependent of either model. See
-[`plans/course_transition_teacher_schedule_archival.md`](../../../../plans/course_transition_teacher_schedule_archival.md)
-for the still-open question of how a teacher's session views should end up showing only the
-current course's sessions, if that's still wanted - not via this cascade.
+terms, not a dependent of either model. A teacher's session views are therefore not scoped to
+the current course: past courses' sessions stay listed, and archived ones are reached through the
+list's own "Archived" filter (see [`attendance_session.md`](attendance_session.md)'s "Search
+view" section). Scoping them to the current course, if ever wanted, must be a view filter, not
+this cascade.
 
 ---
 

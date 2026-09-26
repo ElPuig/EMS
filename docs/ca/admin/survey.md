@@ -35,6 +35,8 @@ Una enquesta passa per una seqüència fixa d'estats a mesura que hi treballeu:
 6. **Descarregar** — porta les dades de resposta de tornada a l'EMS com a CSV, llestes per a
    l'anàlisi (per exemple, a Metabase).
 
+![Una enquesta en esborrany, amb la barra d'estats del cicle de vida i el botó Calcular destinataris](../../assets/admin/admin-survey-form.png)
+
 Podeu tornar una enquesta pujada/calculada a **Esborrany** (recalculant els destinataris des de
 zero) en qualsevol moment abans de tancar-la.
 

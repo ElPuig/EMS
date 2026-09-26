@@ -6,8 +6,9 @@ hand when a documented screen changes its look:
 
     sudo -u odoo bash -c "odoo -d ems -u ems --test-enable --test-tags='*/ems:TestDocsScreenshotsTeachers' --stop-after-init -c /etc/odoo/odoo.conf"
 
-Batched one manual/test method at a time (see plans/user_manual_screenshots.md).
+Batched one manual/test method at a time (see docs/en/developers/shared/testing.md, "DocsScreenshotMixin").
 """
+import json
 from datetime import datetime
 from unittest.mock import patch
 
@@ -657,3 +658,110 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             'name': name, 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': group.id,
         })
+
+    def test_capture_grading(self):
+        level, study, group = create_level_study_group(self, 'DOCGRD', level={
+            'name': 'Formació professional',
+        }, study={
+            'code': 'DOCGRD01', 'acronym': 'DAM', 'name': "Desenvolupament d'aplicacions multiplataforma",
+        }, group={'acronym': 'A', 'course': 1})
+        other_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'B', 'level_id': level.id, 'study_id': study.id,
+        })
+        subject = self.env['ems.subject'].create({
+            'code': 'DOCGRDSUB', 'acronym': 'BD', 'name': 'Bases de dades',
+            'study_ids': [(6, 0, [study.id])],
+        })
+        outcomes = self.env['ems.outcome'].create([{
+            'code': '%s_0%dRA' % (subject.code, n), 'acronym': 'RA%d' % n,
+            'name': 'Resultat d\'aprenentatge %d' % n, 'subject_id': subject.id,
+        } for n in (1, 2, 3, 4)])
+        self.env['ems.planning'].create({
+            'study_id': study.id, 'subject_id': subject.id,
+            'internal_ponderation': 90.0, 'external_ponderation': 10.0,
+            'planning_outcome_ids': [(0, 0, {'outcome_id': outcome.id, 'ponderation': weight})
+                                     for outcome, weight in zip(outcomes, (35.0, 25.0, 25.0, 15.0))],
+        })
+        people = [('Laia', 'Casas Riera'), ('Marc', 'Exemple Vidal'), ('Aina', 'Ferrer Mas'),
+                  ('Pol', 'Mostra Font'), ('Júlia', 'Puig Roca'), ('Nil', 'Serra Soler')]
+        students = self.env['res.partner'].create([{
+            'name': '%s %s' % (first, last), 'firstname': first, 'lastname': last,
+            'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': group.id,
+        } for first, last in people])
+        self.env['ems.enrollment'].create([{
+            'student_id': student.id, 'group_id': group.id, 'subject_id': subject.id,
+        } for student in students])
+
+        Session = self.env['ems.grade_session']
+        def session(grade_group, grade_round):
+            new = Session.create({'group_id': grade_group.id, 'subject_id': subject.id,
+                                  'round': grade_round, 'teacher_id': self.teacher_employee.id})
+            new.fill_students()
+            return new
+        # Round 1: RA1 and RA2 graded - a pass there carries over to round 2 locked.
+        first_round = session(group, '1')
+        scores = {'RA1': (6, 4, 8, 7, 3, 5), 'RA2': (7, 5, 2, 8, 6, 7)}
+        for line in first_round.grade_outcome_line_ids:
+            row = scores.get(line.outcome_id.acronym)
+            if row:
+                line.write({'score': row[students.ids.index(line.student_id.id)], 'is_scored': True})
+        first_round.state = 'final'
+        # Round 2 (open): carries round 1 over; RA3 graded for some, RA4 still pending, so the
+        # internal grade is provisional.
+        second_round = session(group, '2')
+        for line in second_round.grade_outcome_line_ids.filtered(lambda l: l.outcome_id.acronym == 'RA3'):
+            index = students.ids.index(line.student_id.id)
+            if index < 4:
+                line.write({'score': (7, 4, 6, 8)[index], 'is_scored': True})
+        sessions = first_round | second_round | session(other_group, '1') | session(other_group, '2')
+
+        # The native list, scoped to these fixtures for this (rolled-back) test.
+        self.env.ref('ems.action_grade_session_tree').domain = str([('id', 'in', sessions.ids)])
+        url = '/odoo/action-ems.action_grade_session_tree'
+        click = "document.querySelector(%s).click();"
+        self._capture(
+            url, '.o_web_client', 'teachers-01-llista-sessions.png', login='doc_shot_teacher',
+            wait_for='.o_group_header', max_height=360,
+            click='.o_group_header', wait_after='.o_group_header.o_group_open + .o_group_header',
+            marks=[(".o_main_navbar [data-menu-xmlid='ems.menu_grades']", '1', 'right'),
+                   ('.o_group_header.o_group_open .o_group_name', '2', 'text-right'),
+                   ('.o_group_header.o_group_open + .o_group_header .o_group_name', '3', 'text-right')],
+        )
+        form_url = '%s/%d' % (url, second_round.id)
+        grid = '.o_grade_matrix tbody tr'
+        self._capture(form_url, '.o_grade_matrix', 'teachers-02-graella.png',
+                      login='doc_shot_teacher', wait_for=grid)
+        # Editing a cell: the floating input a double-click opens, with a grade being typed.
+        edit = ("(function () { var cell = document.querySelectorAll("
+                "'.o_grade_matrix tbody tr:nth-child(2) td.o_grade_matrix_cell')[2];"
+                " cell.dispatchEvent(new MouseEvent('dblclick', {bubbles: true})); })();")
+        type_grade = ("(function () { var input = document.querySelector('input.o_grade_matrix_input');"
+                      " input.focus(); input.value = '6'; input.dispatchEvent(new Event('input', {bubbles: true})); })();")
+        self._capture(form_url, '.o_grade_matrix', 'teachers-03-edicio-cel-la.png',
+                      login='doc_shot_teacher', wait_for=grid,
+                      run=[edit, type_grade], wait_after=['input.o_grade_matrix_input', 'input.o_grade_matrix_input'],
+                      max_height=260)
+        # A locked outcome: passed in round 1, padlocked in round 2.
+        self._capture(form_url, '.o_grade_matrix', 'teachers-04-ra-bloquejat.png',
+                      login='doc_shot_teacher', wait_for=grid, max_height=200)
+        self._capture(form_url, '.o_grade_matrix', 'teachers-05-columnes-nota.png',
+                      login='doc_shot_teacher', wait_for=grid)
+        # Pending changes: a cell edited and committed to the local draft, Apply enabled.
+        commit = "document.querySelector('input.o_grade_matrix_input').blur();"
+        self._capture(form_url, '.o_grade_matrix', 'teachers-06-aplicar-canvis.png',
+                      login='doc_shot_teacher', wait_for=grid, max_height=260,
+                      run=[edit, type_grade + commit],
+                      wait_after=['input.o_grade_matrix_input', '.o_grade_matrix_toolbar button:not(:disabled)'])
+        self._capture(form_url, '.o_form_statusbar .o_statusbar_status', 'teachers-07-estat.png',
+                      login='doc_shot_teacher', wait_for='.o_form_statusbar .o_statusbar_status')
+
+    def test_capture_absences_menu(self):
+        # The apps menu opened (a trusted mouse click: it ignores a synthetic one), with
+        # Employee Attendances - where absences live - marked.
+        self._capture(
+            '/odoo', '.o_web_client', 'teachers-06-menu-absencies.png', login='doc_shot_teacher',
+            wait_for='.o_navbar_apps_menu button', max_height=220,
+            click='mouse:.o_navbar_apps_menu button', wait_after='.o-dropdown--menu .dropdown-item',
+            marks=[('.o_navbar_apps_menu button', '1', 'right'),
+                   (".o-dropdown--menu [data-menu-xmlid='hr_attendance.menu_hr_attendance_root']", '2', 'text-right')],
+        )

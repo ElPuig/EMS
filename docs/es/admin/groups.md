@@ -34,6 +34,8 @@ Navega a: **Comunidad Educativa → Grupos**
    - **Turno**, **Aula de referencia**, **ID externo** (código Esfera/SAGA) según se necesite.
 4. Haz clic en **Guardar**.
 
+![Ficha de un grupo principal: nivel, estudio, curso, acrónimo, tutor y delegado, con sus alumnos](../../assets/admin/admin-groups-form.png)
+
 Los alumnos no se añaden desde aquí — consulta la pestaña **Alumnos** para revisar quién está asignado, pero es el propio registro del alumno (o el proceso de matrícula) el que realmente lo asigna a un grupo.
 
 **Cambiar el grupo de un alumno también mueve sus matrículas por asignatura.** Editar el campo **Grupo principal** del alumno (en su propia ficha, pestaña Estudios) — esto incluye al tutor/a del grupo, que ahora puede hacerlo directamente para sus propios alumnos tutorizados, ver [Cambiar el grupo de un alumno](../tutors/change-student-group.md) — mueve automáticamente cualquier matrícula que estuviera en el grupo antiguo al grupo nuevo; una asignatura ya matriculada a través de un grupo distinto (por ejemplo, un grupo de refuerzo) se mantiene igual. El cambio se rechaza si alguna asignatura del grupo antiguo ya tiene notas registradas para ese alumno.

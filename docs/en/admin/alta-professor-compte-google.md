@@ -51,9 +51,9 @@ On the onboarding form:
 
 ## Step 3 — Fill in the Private Email
 
-Go to the **Private Information** tab and fill in the **Private Email** field (1). This personal email address is where the password for the new corporate email will be sent.
+Fill in the **Private Email** field (1), in the right-hand column of the main screen, under **Manager** (the same field is also in the **Private Information** tab). This personal email address is where the password for the new corporate email will be sent. It must be a genuinely personal address: EMS won't accept one of the centre's own domain.
 
-![Private Information tab with the private email field](../../assets/admin/alta-professor-03-correu-privat.png)
+![Onboarding form with the private email field under Manager](../../assets/admin/alta-professor-03-correu-privat.png)
 
 > **Important:** this **Private Email** field is **required** for the Google account to be created — the form will not let you save a **new** teacher/ASP record without it. On records created before this rule, it may still be missing: in that case no account is created automatically and the reason is recorded in the record's message log (chatter).
 

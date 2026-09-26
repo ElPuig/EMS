@@ -38,6 +38,8 @@ Al abrir el menú se muestra una lista de todas las asignaturas ordenada por có
 6. Opcionalmente, añade notas libres en la pestaña **Notas**.
 7. Haz clic en **Guardar** (o usa las migas de pan para navegar — Odoo guarda automáticamente).
 
+![Ficha de una asignatura, con los resultados de aprendizaje en la pestaña Resultado de aprendizaje](../../assets/admin/admin-subject-outcomes.png)
+
 ### Añadir resultados de aprendizaje
 
 Los resultados de aprendizaje solo existen dentro de una asignatura — no hay un menú separado de "Resultados".

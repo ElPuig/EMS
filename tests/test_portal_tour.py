@@ -16,7 +16,7 @@ class TestPortalTour(HttpCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.student = cls.env['res.partner'].create({
-            'name': 'Portal Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'name': 'Portal Tour Student', 'contact_type': 'student', 'student_id': next_student_id(), 'birth_date': '2000-01-01',
         })
         cls.portal_user = cls.env['res.users'].with_context(no_reset_password=True).create({
             'name': 'Portal Tour Student', 'login': 'test_portal_tour_student',
@@ -66,6 +66,15 @@ class TestPortalTour(HttpCase):
     def test_portal_account_render_tour(self):
         self.start_tour("/my/account", "ems_portal_account_render",
                          login="test_portal_tour_student")
+
+    def test_portal_home_loads_without_console_error(self):
+        """The portal home replaces native portal's document list with EMS's own cards; native
+        PortalHomeCounters still runs there and removes '.o_portal_doc_spinner' once it has
+        counted - with the spinner gone too, that raised a TypeError on every visit.
+        browser_js fails the test on any console error."""
+        self.browser_js("/my", "console.log('test successful')",
+                        ready="!!document.querySelector('.o_portal_my_home')",
+                        login="test_portal_tour_student")
 
     def test_portal_under_construction_render_tour(self):
         self.start_tour("/my/calificaciones", "ems_portal_under_construction_render",

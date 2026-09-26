@@ -35,6 +35,7 @@ The state of a subject depends **only on the RAs**: a student with every RA pass
 
 - **On a withdrawal:** the [withdrawal wizard](graduation-withdrawal.md) freezes the student's history **at that moment**, before detaching them from their group. A student leaving mid-course keeps the record of everything done until that day (subjects, grades, attendance), with the result **Withdrawn**. Once the history is frozen, the withdrawal **removes the student from everything operational**: their subject enrollments, the grade lines of the live sessions, the attendance lines and templates, and the group's delegate if it was them. From that moment they no longer appear in the group, in the evaluation matrix, in the attendance sessions or in the work placement grading — only in their academic history.
 - **On the course transition:** the transition wizard (run by the administrator at the end of the course) generates the records of every active student before cleaning up the operational data.
+- **When a convalidation is completed:** if the convalidation's course has no record yet, one is opened marked as **Current course**, holding only the convalidated subjects (grade, **CV** mark and CONV registration number), so teachers see the grade from day one. When the course is closed (transition, withdrawal or graduation) the record is completed with the rest of the subjects and the result, and loses the mark. A grade review cannot be applied to a current-course record: grades of the running course are corrected in the grade sessions.
 
 Re-running the generation never duplicates a record: the existing one is refreshed.
 
@@ -59,13 +60,19 @@ A grade review corrects the academic history of a course already closed. Secreta
 2. Click **Grade review**.
 3. Choose what the review does:
    - **Correct a subject:** pick the subject and set the **Resolved grade** of every learning outcome the review resolves.
-   - **Add a missing subject:** pick the subject. Its weights and learning outcomes are proposed from the teaching plan of the study; fill in their grades.
+   - **Add a missing subject:** pick the subject. Its weights and learning outcomes are proposed from the teaching plan of the study **for the same course being corrected** — not today's plan, so a correction on an old course always uses the weights that were actually in force then; fill in their grades.
    - **Remove a subject:** pick the subject to delete from the record.
-4. Read **Result of the review**: the internal grade, the state and the final grade the correction yields.
+4. Read **Result of the review**: the internal grade (grade of the centre), the state and the final grade the correction yields.
 5. Read **Course result**: the proposed result is written on the record while **Update the course result** is ticked. Untick it to keep the current one.
 6. Write the **Resolution** and click **Apply review**.
 
 A subject is passed when every learning outcome is resolved at 5 or above. A subject whose work placement (EM) is not graded yet becomes passed with its final grade pending; grade the placement from the work placement screen. *Repeating* and *Withdrawn* are not proposed by a grade review: adjust them by hand on the record.
+
+### Forcing the internal grade manually
+
+Esfera sometimes records a slightly different number than what the learning outcomes' own calculation yields (typically a rounding difference). Instead of having to make up outcome grades that happen to average out to that number, **Result of the review** shows the internal grade as two fields side by side: **Internal grade (calculated)**, always read-only, and **Internal grade (applied)**, always editable and starting equal to the calculated one — type the value Esfera has directly into the applied field.
+
+The final grade recomputes automatically from that forced value (same as always, combined with the work placement grade when the subject has one). The state (passed/not passed) **never changes** because of the override — it keeps depending only on the learning outcomes. That's why the system won't let you force a grade of 5 or above when a learning outcome is failed, nor one below 5 when every learning outcome already passes — only the exact number within whichever side the outcomes already determine can be adjusted.
 
 The subject keeps the date, the author and the text of the last review applied to it, and the **Corrected by a grade review** filter of the history list shows the records with at least one. The detail of every change is recorded in the student's log.
 

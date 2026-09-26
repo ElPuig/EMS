@@ -36,13 +36,19 @@ Una fitxa d'alumne que ja existia sense Identificador d'estudiant continua funci
 
 Obre la fitxa de l'alumne i, a la pestanya **Contactes i adreces**, fes clic a **Afegir contacte**:
 
+![Pestanya Contactes i adreces amb el botó Afegir contacte i els familiars, cadascun amb la seva paperera](../../assets/tutors/contactes-familia-01-pestanya.png)
+
 - Tria la **relació** (Pare, Mare, Tutor legal, Germà/na…).
 - Pots triar un contacte **ja existent** a EMS, o omplir les dades d'un de **nou** — un contacte nou necessita com a mínim un nom o cognom, un document d'identificació (DNI/NIE o passaport) i una via de contacte (telèfon, mòbil o correu).
 - Desa. La nova relació apareix immediatament a la llista de contactes de l'alumne, amb l'adreça de l'alumne preomplerta (editable si el familiar viu en un altre lloc).
 
+![Finestra Nou contacte d'alumne/a, triant la relació](../../assets/tutors/contactes-familia-02-afegir.png)
+
 La mateixa relació també apareix a la fitxa del familiar, indicant amb quin(s) alumne(s) està relacionat.
 
 > **Des de la 18.0.0.26.0:** qualsevol adreça de correu que s'introdueixi en un contacte (personal o de l'alumne/corporativa) ha de tenir un format vàlid (`nom@domini`) — EMS no deixa desar un valor que no ho sigui, com ara un número de telèfon escrit per error al camp equivocat.
+
+El **correu personal** d'un alumne, aspirant o familiar no pot ser una adreça del domini del centre (per exemple, `@elpuig.xeill.net`): aquest és el compte corporatiu, que EMS crea i gestiona tot sol (es mostra com a **Correu corporatiu**). EMS no el deixa desar i demana una adreça personal.
 
 **Per treure un familiar**, clica la icona de la paperera de la seva fila i confirma amb **Ok**. El familiar deixa d'estar vinculat a l'alumne. Si no queda relacionat amb cap altre alumne i no té usuari (accés al portal), també s'esborra el seu contacte; si no, es conserva.
 
@@ -65,6 +71,8 @@ Els **beneficis** de quota d'un alumne (bonificacions, que descompten part de la
 - Afegeix una línia per benefici, triant-ne el **tipus** (família nombrosa, família monoparental, beca del ministeri, discapacitat, altres) i adjuntant-hi el **document justificatiu**.
 - La **data de renovació/revisió** es preomple automàticament (9 mesos per a una beca, 2 anys per a la resta) però es pot ajustar.
 - El distintiu de **Beneficis** de l'alumne (visible a la fitxa) reflecteix el benefici de prioritat més alta registrat: una exempció sempre té preferència sobre una bonificació.
+
+![Pestanya Secretaria amb dos beneficis registrats, la seva categoria, document i data de renovació](../../assets/secretary/contactes-01-bonificacions.png)
 
 Que un benefici canviï realment la quota de matrícula depèn de l'estat de la matrícula corresponent: un benefici registrat **abans** que la matrícula es confirmi s'hi aplica immediatament; un de registrat **després de confirmar-la** no en modifica retroactivament l'import — cal tornar a aplicar-lo explícitament (des de la matrícula). Consulta el manual de la matrícula per a aquesta acció.
 

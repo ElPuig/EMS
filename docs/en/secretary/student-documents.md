@@ -23,12 +23,16 @@ This guide explains how to review the documents students and families submit —
 
 Go to **Academic Management > Student Documents**. The list opens showing only **Pending** submissions by default (remove the filter to see everything). This is the only screen with Approve/Reject actions — the read-only list you also see on a student's own record (**Documentation** tab) is for reference only.
 
+![Student documents list filtered to Pending, with the approve (✓) and reject (✗) icons on each row](../../assets/secretary/documents-01-pendents.png)
+
 ## Approving, rejecting, cancelling
 
 - **Approve** (✓ from the list, or the header button on the form): marks the document as reviewed and applies its side effects (see below). If another document of the same type was already approved for this student, it is removed automatically — only the latest approved one is kept.
 - **Reject** (✗ from the list, or the header button): write the reason first (in the **Rejection reason** field) — a single click on Reject immediately closes the submission, there is no separate confirmation step.
 - **Cancel**: available from the form when you need to withdraw a submission without marking it rejected (e.g. it was uploaded by mistake).
 - **Reset to pending**: available on an approved/rejected document, in case a decision needs to be revisited — it reopens the review (a fresh task is assigned to the reviewers again).
+
+![A pending IBAN document, with the Approve and Reject buttons and the Rejection reason field](../../assets/secretary/documents-02-revisio.png)
 
 ## What approving an IBAN does
 

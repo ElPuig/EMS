@@ -22,20 +22,20 @@ Disponible para los tutores de grupo (para su alumnado), la secretaría y la jef
 
 ## Enviar una solicitud
 
-1. Id a **Comunidad educativa → Solicitudes de datos de contacto** y haced clic en **Solicitar datos de contacto**. También podéis abrirlo desde el menú ⚙ de la lista de estudiantes, de la ficha de un estudiante, de la lista de grupos o de la ficha de un grupo.
+1. Id a **Comunidad educativa → Estudiantes → Datos Estudiantes** y haced clic en **Solicitar datos de contacto**. También podéis abrirlo desde el menú ⚙ de la lista de estudiantes, de la ficha de un estudiante, de la lista de grupos o de la ficha de un grupo.
 2. Elegid quién la recibe:
    - **Grupos / estudios / niveles**: elegid los grupos. Los tutores solo pueden elegir sus grupos.
    - **Alumnos seleccionados**: elegid los alumnos uno a uno.
 3. Dejad marcado **Solo alumnos con datos incompletos** para omitir los alumnos que ya tienen todos los datos obligatorios.
 4. Dejad marcado **Dar acceso al portal a quien no lo tenga**: la solicitud se responde desde el portal.
 5. Revisad los **Destinatarios (vista previa)**: qué falta y quién recibe el correo. Un alumno marcado con **Nadie localizable por correo** no tiene a nadie con correo: llamad a la familia.
-6. Haced clic en **Enviar**.
+6. Haced clic en **Enviar** y esperad: el mensaje *Procesando las solicitudes…* se queda en pantalla hasta que se ha enviado todo. No cerréis la ventana.
 
-Cada alumno, o la familia de un menor, recibe un correo con un enlace al portal.
+Cada alumno, o la familia de un menor, recibe un correo con un enlace al portal. La cuenta de portal de un menor solo sirve para consultar, así que la solicitud va a su familia, que es quien la responde.
 
 ## Hacer el seguimiento de las respuestas
 
-En **Comunidad educativa → Solicitudes de datos de contacto**:
+En **Comunidad educativa → Estudiantes → Datos Estudiantes**:
 
 - **Pendiente de respuesta**: enviada, todavía sin respuesta.
 - **Por revisar**: la familia ha respondido.

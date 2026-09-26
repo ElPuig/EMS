@@ -7,7 +7,7 @@
             <field name="name">ems.contact.data.request.send.wizard.form</field>
             <field name="model">ems.contact.data.request.send.wizard</field>
             <field name="arch" type="xml">
-                <form string="Request contact data">
+                <form string="Request contact data" js_class="ems_contact_data_request_send_form">
                     <div class="alert alert-info" role="alert">
                         Each student - or, for a minor, the family - gets an email with a link to the
                         portal, where they review and complete their contact details. Their answer waits

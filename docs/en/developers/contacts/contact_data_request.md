@@ -12,12 +12,19 @@ levels), answered on `/my/dades-contacte`, and applied only once a reviewer appr
 |---|---|
 | `models/contacts/contact_data_request.py` | `ems.contact.data.request`, `ems.contact.data.request.line`, `ems.contact.data.request.reject.wizard`, and the `res.partner` side (`_ems_contact_data()`, `_ems_contact_data_missing()`, smart button, bulk action) |
 | `models/contacts/contact_data_request_send_wizard.py` | `ems.contact.data.request.send.wizard` (+ preview line) |
+| `static/src/js/backend/contact_data_request_send_form.js` | The wizard form's `js_class` (`ems_contact_data_request_send_form`): blocks the screen with a "Processing the requests…" overlay while **Send** runs (`blocking_action_form.js`) |
 | `models/shared/student_scope_mixin.py` | `ems.student.scope.mixin`, the student picking shared with the authorization send wizard |
 | `models/contacts/family_contact.py` | Recognising, creating and linking family contacts (`_ems_find_family()`, `_ems_create_family_contact()`, `_ems_link_family()`) |
-| `controllers/portal_contact_data.py` | `/my/dades-contacte` (GET shows, POST validates and stages) |
-| `views/portal/portal_contact_data.xml` | The portal page; the home banner and card are in `portal_main.xml`, the profile link in `portal_account_readonly.xml` |
+| `controllers/portal_contact_data.py` | `/my/dades-contacte` (GET shows, POST validates and stages); a view-only account is sent home (`ems_portal_manage_required`) |
+| `views/portal/portal_contact_data.xml` | The portal page; the home banner (only while a request is pending) is in `portal_main.xml`, the **Update contact details** button of the Profile tab in `portal_account_readonly.xml` |
 | `views/community/contact_data_request/` | Send wizard, bindings (students list/form, groups list/form), request list/form/search, return wizard, menu |
 | `mails/contacts/contact_data_request.xml` | `ems.email_template_contact_data_request` (first request, reminder, returned) |
+
+The menu is **Educational Community > Students > Student Data** (`menu_contact_data_requests`,
+groups: academic admin, secretary, head of studies, tutor). *Students* is a section
+(`menu_students_root`, no action) holding the Students list (`menu_students`, which keeps its action:
+the cog-menu scripts read it by xmlid) and this menu, so clicking Educational Community still opens the
+Students list.
 
 ## Model
 
@@ -46,8 +53,8 @@ erDiagram
 
 ## Mandatory fields
 
-Checked by one method, `ems.contact.data.request._ems_contact_data_problems(data, is_adult)`, on
-the shape returned by `res.partner._ems_contact_data()`. The portal form uses it with format checks
+Checked by one method, `ems.contact.data.request._ems_contact_data_problems(data, is_adult, formats, current)`,
+on the shape returned by `res.partner._ems_contact_data()`. The portal form uses it with format checks
 (so each problem lands under its input); `res.partner._ems_contact_data_missing()` uses it without
 them, for the send wizard's "only incomplete" filter, the preview and the email.
 
@@ -59,6 +66,16 @@ them, for the send wizard's "only incomplete" filter, the preview and the email.
 Formats: `email_normalize`, `phonenumbers.is_possible_number` (region ES), DNI/NIE check letter
 (`_ems_valid_dni_nie`), NUSS 12 digits (same rule as `res.partner._check_nuss`). Name and birth date
 are official data: read-only on the portal, corrected through the secretariat.
+
+**Personal emails are never corporate (issue #514).** With the format checks,
+`_ems_personal_email_problems(data, current)` refuses every email the answer changes to an address of
+the centre's own domain, before anything is staged, by asking `res.company._ems_check_personal_email()`
+(the same check, and message, as the `res.partner` constraint) for each person: the student, every
+family contact on file and every new one (not the ones marked as removed). An address already on
+file is left alone, as the constraint only fires when the email is written: that is what `current`
+(the data on file) is for. The constraint stays the last word, since approval writes the emails
+through the ORM. Like the constraint, the check is off on a `dev` database or without a configured
+domain.
 
 ## Recognising a family contact
 
@@ -118,6 +135,26 @@ sequenceDiagram
 - Emails use `res.partner._ems_notification_recipients()` (adult: the student; minor: the family),
   `force_send=False`, and list what is missing in the recipient's language. Students with nobody
   reachable by email are listed in the wizard preview and in the result notification, to be called.
+  Those are exactly the accounts that may answer (see "Who may answer on the portal"): a minor's own
+  portal account only consults, so it is never emailed, listed as a recipient or invited.
+- The reminder prefix of the subject is passed in the context (`subject_prefix`, translated in the
+  recipient's language by `_ems_send_request_email()`), not written inside the template's `{{ }}`:
+  a translator must not touch its expressions (`tests/test_mail_template_translations.py`).
+
+## Who may answer on the portal
+
+`res.partner._ems_portal_contact_data_student()` returns the student or applicant whose data a portal
+partner may review and send: the one it is looking at (`get_portal_student()`) when it acts for them
+(`_ems_portal_can_act_for()`), otherwise nobody. A **view-only** account (a minor on their own
+account, a family looking at an adult child who shares with it, a family with no child left to see)
+therefore has:
+
+- no banner on the portal home and no **Update contact details** button on the Profile tab;
+- `/my/dades-contacte` refused server side, GET and POST alike: `ems_portal_manage_required` sends it
+  back to `/my/home`, like every other managing page (`controllers/portal_view_only.py`).
+
+The single entry point of the review is that Profile button; the home only shows the banner while a
+request is pending (`_ems_contact_data_requested()`), and the email links to the page directly.
 
 ## Access
 
@@ -139,10 +176,14 @@ sequenceDiagram
 ## Tests
 
 - `tests/test_contact_data_request.py`: missing/mandatory rules and formats, `_ems_find_family`,
-  submit/approve/return/remind, portal login move on email change, tutor scope, teacher access.
+  submit/approve/return/remind (reminder subject in the recipient's language), portal login move on
+  email change, tutor scope, teacher access; `TestContactDataRequestCorporateEmail`: the corporate
+  domain refused for the student and every family contact, left alone when already on file.
 - `tests/test_contact_data_request_send_wizard.py`: scope, "only incomplete", reopen, unreachable,
-  portal grant, preview, tutor limits.
+  portal grant, preview, tutor limits, and that a minor's own account is never asked.
 - `tests/test_portal_contact_data.py`: the portal page, validation, staging, foreign family contacts
-  ignored, home banner.
-- `tests/test_contact_data_request_tour.py`: family answers from the portal; the group's tutor sends
-  to their group and approves (list and form).
+  ignored, home banner, Profile button;
+  `TestPortalContactDataRules`: a minor's own account and a family looking at an adult child cannot
+  review nor send, a corporate email is refused before it is staged.
+- `tests/test_contact_data_request_tour.py`: family answers from the portal, entering through the
+  Profile button; the group's tutor sends to their group and approves (list and form).

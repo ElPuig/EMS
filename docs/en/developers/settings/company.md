@@ -49,7 +49,7 @@ This doc is primarily a **map**: most of these fields already have their own det
 | Field | Type | Documented in |
 |-------|------|----------------|
 | `center_code` | `Char` | Not yet documented elsewhere — official Departament d'Educació centre code (e.g. `08028047`, leading zero included); the GEDAC applicant importer (`ems.applicant_import_wizard`) uses it to keep only rows assigned to this centre, ignoring the leading zero the source Excel drops |
-| `secretariat_email` | `Char` | Not yet documented elsewhere — recipient for messages addressed to the centre's secretariat (e.g. portal personal-data change requests). `@api.constrains('secretariat_email')` (`_check_secretariat_email_format`, issue #467) rejects a non-empty value that isn't a single well-formed address (`odoo.tools.mail.email_normalize()`), the same check applied to `res.partner.email`/`student_email` — see `docs/en/developers/contacts/contact.md` |
+| `secretariat_email` | `Char` | Not yet documented elsewhere — recipient for messages addressed to the centre's secretariat; no feature reads it at present. `@api.constrains('secretariat_email')` (`_check_secretariat_email_format`, issue #467) rejects a non-empty value that isn't a single well-formed address (`odoo.tools.mail.email_normalize()`), the same check applied to `res.partner.email`/`student_email` — see `docs/en/developers/contacts/contact.md` |
 
 ### Google Workspace
 

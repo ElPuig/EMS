@@ -2,7 +2,7 @@
 import re
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tools import email_normalize
 
 from ..shared import base
@@ -62,6 +62,17 @@ class ResPartner(models.Model):
         action['domain'] = [('student_id', '=', self.id)]
         action['context'] = {'create': False}
         return action
+
+    def _ems_portal_contact_data_student(self):
+        """The student or applicant whose contact data this portal partner may review and send:
+        the one it is looking at (get_portal_student) when it acts for them
+        (_ems_portal_can_act_for). Nobody for a view-only account - a minor on their own account,
+        a family looking at an adult child - nor for a family with no child left to see."""
+        self.ensure_one()
+        student = self.get_portal_student()
+        if student.contact_type in ('student', 'applicant') and self._ems_portal_can_act_for(student):
+            return student
+        return self.browse()
 
     def _ems_contact_data_requested(self):
         """Whether this student has a contact data request still waiting for an answer this
@@ -205,10 +216,33 @@ class EmsContactDataRequest(models.Model):
         return problems
 
     @api.model
-    def _ems_contact_data_problems(self, data, is_adult, formats=True):
+    def _ems_personal_email_problems(self, data, current):
+        """[(input key, message)] for every email `data` changes to an address of the centre's own
+        domain. res.partner refuses to store one (issue #514), so it is refused here, before the
+        request is sent, and not when a reviewer approves it. An address already on file is left
+        alone, as the partner constraint does."""
+        on_file = {'s': current['student'].get('email')}
+        on_file.update({entry['key']: entry.get('email') for entry in current['family']})
+        people = [('s', data['student'])] + [
+            (entry['key'], entry) for entry in data['family'] if not entry.get('remove')]
+        problems = []
+        for key, values in people:
+            email = (values.get('email') or '').strip()
+            if not email or email == (on_file.get(key) or '').strip():
+                continue
+            try:
+                self.env.company._ems_check_personal_email(email)
+            except ValidationError as error:
+                problems.append((f'{key}_email', error.args[0]))
+        return problems
+
+    @api.model
+    def _ems_contact_data_problems(self, data, is_adult, formats=True, current=None):
         """[(input key, message)] for everything wrong or missing in `data` (the shape of
         res.partner._ems_contact_data()). The required fields are the ones family communications
-        and portal access depend on - see the "Mandatory fields" table in the developer doc."""
+        and portal access depend on - see the "Mandatory fields" table in the developer doc.
+        `current` is the data on file: with `formats`, only the emails that differ from it are
+        checked against the centre's own domain (all of them when it is not given)."""
         problems = []
         student = data['student']
         labels = self.env['res.partner']._fields
@@ -249,6 +283,8 @@ class EmsContactDataRequest(models.Model):
                 emails[email] = who
             if formats:
                 problems += self._ems_format_problems(key, entry, FAMILY_FIELDS)
+        if formats:
+            problems += self._ems_personal_email_problems(data, current or {'student': {}, 'family': []})
         return problems
 
     # ------------------------------------------------------------------
@@ -462,7 +498,8 @@ class EmsContactDataRequest(models.Model):
     def _ems_send_request_email(self, reminder=False):
         """Email this request to the student - or, for a minor, to the family - with the link to
         the portal page. Same recipients as every other notice addressed to "the student"
-        (res.partner._ems_notification_recipients()). Returns (emails queued, issue or None)."""
+        (res.partner._ems_notification_recipients()): whoever acts for them on the portal, never a
+        view-only account such as a minor's own. Returns (emails queued, issue or None)."""
         self.ensure_one()
         student = self.student_id
         template = self.env.ref('ems.email_template_contact_data_request', raise_if_not_found=False)
@@ -477,7 +514,8 @@ class EmsContactDataRequest(models.Model):
             template.with_context(
                 lang=lang,
                 course_name=self.course_id.name,
-                is_reminder=reminder,
+                # Outside the template's {{ }}: a translator must not touch its expressions.
+                subject_prefix=self.with_context(lang=lang).env._("Reminder: ") if reminder else '',
                 rejection_reason=self.rejection_reason or '',
                 # In the recipient's language, not the sender's.
                 missing_fields=student.with_context(lang=lang)._ems_contact_data_missing(),

@@ -5,8 +5,8 @@
         <!--
             Make the portal profile read-only for portal users (students/families).
             The editable form is hidden and a read-only summary is shown instead,
-            together with a mailto: button to request data changes from the
-            secretariat. The actual write protection lives in the controller
+            with a button to review the contact details for whoever may answer for the
+            student (issue #507). The actual write protection lives in the controller
             (controllers/portal_account.py); this template is presentation only.
         -->
         <template id="portal_my_details_readonly" inherit_id="portal.portal_my_details" priority="99">
@@ -21,8 +21,7 @@
                 <div t-if="ems_profile_readonly" class="o_portal_details">
                     <div class="alert alert-info" role="alert">
                         <i class="fa fa-lock me-1"/>
-                        <span t-if="ems_profile_change_mailto">Your personal data is read-only. To request a correction, please contact the secretariat using the button below.</span>
-                        <span t-else="">Your personal data is read-only. To request a correction, please contact the secretariat.</span>
+                        <span>Your personal data is read-only. To request a correction, please contact the secretariat.</span>
                     </div>
                     <div class="row col-lg-8">
                         <div class="mb-3 col-xl-6">
@@ -72,15 +71,12 @@
                             <div t-esc="partner.country_id.name"/>
                         </div>
                     </div>
-                    <div class="clearfix col-lg-8 mb-5">
-                        <!-- Issue #507: contact details are reviewed on their own page; the
-                             mailto: stays for the official data (name, birth date). -->
-                        <a href="/my/dades-contacte" class="btn btn-primary float-end ms-2">
+                    <!-- Issue #507: the contact details are reviewed on their own page, for whoever
+                         may answer for the student (res.partner._ems_portal_contact_data_student). -->
+                    <div t-if="request.env.user.partner_id._ems_portal_contact_data_student()"
+                         class="clearfix col-lg-8 mb-5">
+                        <a href="/my/dades-contacte" class="btn btn-primary float-end">
                             <i class="fa fa-address-card me-1"/>Update contact details
-                        </a>
-                        <a t-if="ems_profile_change_mailto" t-att-href="ems_profile_change_mailto"
-                           class="btn btn-secondary float-end">
-                            <i class="fa fa-envelope me-1"/>Request a data change
                         </a>
                     </div>
                 </div>

@@ -2,9 +2,9 @@
 <odoo>
     <data>
 
-        <!-- Issue #507. Under Educational Community, next to Students and Families. -->
-        <menuitem name="Contact data requests" sequence="4" id="menu_contact_data_requests"
-                  parent="menu_community" action="action_ems_contact_data_request"
+        <!-- Issue #507. Under Educational Community > Students, after the Students list. -->
+        <menuitem name="Student Data" sequence="2" id="menu_contact_data_requests"
+                  parent="menu_students_root" action="action_ems_contact_data_request"
                   groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies,ems.group_tutor"/>
 
     </data>

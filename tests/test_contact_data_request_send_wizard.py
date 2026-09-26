@@ -41,6 +41,20 @@ class TestContactDataRequestSendWizard(TransactionCase):
         self.assertTrue(mail)
         self.assertIn('/my/dades-contacte', mail.body_html)
 
+    def test_only_whoever_acts_for_the_student_is_asked(self):
+        # A minor gets a portal account of their own that only consults (res.partner.
+        # _ems_portal_is_view_only): the request goes to the family, who can answer it, and never
+        # to them - neither by email, nor as a recipient in the preview, nor with a portal invitation.
+        self.minor.email = 'minor.tcsw@example.com'
+        wizard = self._wizard(grant_portal=True)
+        wizard._onchange_selection()
+        line = wizard.line_ids.filtered(lambda line: line.student_id == self.minor)
+        self.assertEqual(line.recipient_emails, self.family.email)
+        wizard.action_apply()
+        self.assertFalse(self.env['mail.mail'].search([('email_to', '=', self.minor.email)]))
+        self.assertTrue(self.env['mail.mail'].search([('email_to', '=', self.family.email)]))
+        self.assertFalse(self.minor.with_context(active_test=False).user_ids)
+
     def test_all_students_when_not_only_incomplete(self):
         self._wizard(only_incomplete=False).action_apply()
         self.assertEqual(self._requests().student_id, self.minor | self.adult)

@@ -6,9 +6,10 @@
             
             <xpath expr="//div[hasclass('o_portal_docs')]" position="replace">
 
-                <!-- Issue #507: a contact data request waiting for an answer. -->
-                <t t-set="_ems_student" t-value="request.env.user.partner_id.get_portal_student()"/>
-                <div t-if="_ems_student.contact_type in ('student', 'applicant') and _ems_student._ems_contact_data_requested()"
+                <!-- Issue #507: a contact data request waiting for an answer, only for whoever may
+                     answer it (res.partner._ems_portal_contact_data_student). -->
+                <t t-set="_ems_student" t-value="request.env.user.partner_id._ems_portal_contact_data_student()"/>
+                <div t-if="_ems_student and _ems_student._ems_contact_data_requested()"
                      class="alert alert-warning d-flex justify-content-between align-items-center mt-3 o_ems_contact_data_banner">
                     <span>The school asks you to review and complete the contact details of <strong t-out="_ems_student.name"/>.</span>
                     <a href="/my/dades-contacte" class="btn btn-primary btn-sm ms-3">Review</a>
@@ -75,14 +76,6 @@
                         <t t-set="url" t-value="'/my/comunicaciones'"/>
                         <t t-set="text">Messages, circulars, and notices from the center</t>
                         <t t-set="config_card" t-value="True"/> 
-                    </t>
-
-                    <t t-call="portal.portal_docs_entry">
-                        <t t-set="icon" t-value="'/ems/static/src/img/perfil.svg'"/>
-                        <t t-set="title">Contact details</t>
-                        <t t-set="url" t-value="'/my/dades-contacte'"/>
-                        <t t-set="text">Review the contact details of the student and the family</t>
-                        <t t-set="config_card" t-value="True"/>
                     </t>
 
                     <t t-call="portal.portal_docs_entry">

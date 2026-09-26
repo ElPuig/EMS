@@ -6,22 +6,23 @@ from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
 
 from ..models.contacts.contact_data_request import ADDRESS_FIELDS, FAMILY_FIELDS, STUDENT_FIELDS
+from .portal_view_only import ems_portal_manage_required
 
 
 class EmsPortalContactData(CustomerPortal):
     """Issue #507 - /my/dades-contacte: the student, or a family for their selected child, reviews
     and completes the contact details on file and sends them for review.
 
-    Always the student resolved by get_portal_student(): no student id travels in the form, and
-    only the family contacts already related to that student can be edited or removed. Everything
-    is read and staged with sudo, since portal users have no rights on the relations nor on
-    ems.contact.data.request; nothing is written to the contacts themselves until a reviewer
-    approves it (ems.contact.data.request.action_approve).
+    Always the student resolved by res.partner._ems_portal_contact_data_student(): no student id
+    travels in the form, only whoever acts for the student gets here (a view-only account is sent
+    home, like every other managing page), and only the family contacts already related to that
+    student can be edited or removed. Everything is read and staged with sudo, since portal users
+    have no rights on the relations nor on ems.contact.data.request; nothing is written to the
+    contacts themselves until a reviewer approves it (ems.contact.data.request.action_approve).
     """
 
     def _ems_contact_data_student(self):
-        student = request.env.user.partner_id.get_portal_student().sudo()
-        return student if student.contact_type in ('student', 'applicant') else student.browse()
+        return request.env.user.partner_id._ems_portal_contact_data_student().sudo()
 
     def _ems_contact_data_request(self, student):
         course = request.env['res.partner'].sudo()._ems_running_course()
@@ -29,20 +30,21 @@ class EmsPortalContactData(CustomerPortal):
             ('student_id', '=', student.id), ('course_id', '=', course.id)], limit=1), course
 
     @http.route('/my/dades-contacte', type='http', auth='user', methods=['GET', 'POST'], website=True)
+    @ems_portal_manage_required
     def portal_contact_data(self, **post):
         student = self._ems_contact_data_student()
         if not student:
             return self._ems_render_contact_data(student, {'student': {}, 'family': []})
         data_request, course = self._ems_contact_data_request(student)
+        current = student._ems_contact_data()
         if request.httprequest.method != 'POST':
-            data = data_request._ems_proposal() if data_request.state == 'submitted' \
-                else student._ems_contact_data()
+            data = data_request._ems_proposal() if data_request.state == 'submitted' else current
             return self._ems_render_contact_data(student, data, data_request=data_request,
                                                  sent=bool(post.get('sent')))
 
         Request = request.env['ems.contact.data.request'].sudo()
-        proposal = self._ems_parse_contact_data(post, student._ems_contact_data())
-        problems = Request._ems_contact_data_problems(proposal, student.is_adult)
+        proposal = self._ems_parse_contact_data(post, current)
+        problems = Request._ems_contact_data_problems(proposal, student.is_adult, current=current)
         if problems:
             errors = {}
             for key, message in problems:

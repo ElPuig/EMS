@@ -1,5 +1,9 @@
+import time
+from unittest.mock import patch
+
 from odoo.tests.common import HttpCase, tagged
 
+from ..models.contacts.contact_data_request_send_wizard import EmsContactDataRequestSendWizard
 from .common import mock_outgoing_email
 from .test_contact_data_request import valid_dni
 from .test_portal_contact_data import create_portal_contact_data_fixtures
@@ -18,7 +22,7 @@ class TestContactDataRequestTour(HttpCase):
         create_portal_contact_data_fixtures(cls, 'TCDT')
 
     def test_family_answers_from_the_portal_tour(self):
-        self.start_tour("/my/dades-contacte", "ems_contact_data_portal", login=self.family_user.login)
+        self.start_tour("/my/account", "ems_contact_data_portal", login=self.family_user.login)
         request = self.env['ems.contact.data.request'].search([('student_id', '=', self.minor.id)])
         self.assertEqual(request.state, 'submitted')
         self.assertIn('Tour Father', ' '.join(request.line_ids.mapped('person_name')))
@@ -29,7 +33,17 @@ class TestContactDataRequestTour(HttpCase):
         data['student'].update(street='Tour Street 1', zip='08924', city='Tour City', document_id=valid_dni(10000006))
         data['family'][0]['lastname'] = 'Tour'
         request._ems_submit(data)
-        self.start_tour("/odoo", "ems_contact_data_tutor", login=self.tutor.login)
+        original_apply = EmsContactDataRequestSendWizard.action_apply
+
+        def slow_apply(wizard):
+            time.sleep(1.5)  # long enough for the tour to see the "processing" overlay
+            return original_apply(wizard)
+
+        with patch.object(EmsContactDataRequestSendWizard, 'action_apply', slow_apply):
+            self.start_tour("/odoo", "ems_contact_data_tutor", login=self.tutor.login)
         self.assertEqual(request.state, 'done')
         self.assertEqual(self.minor.street, 'Tour Street 1')
         self.assertTrue(self.env['ems.contact.data.request'].search([('student_id', '=', self.adult.id)]))
+
+    def test_tutor_reaches_student_data_from_the_students_section_tour(self):
+        self.start_tour("/odoo", "ems_contact_data_menu", login=self.tutor.login)

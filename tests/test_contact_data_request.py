@@ -2,11 +2,11 @@ from datetime import date
 
 from dateutil.relativedelta import relativedelta
 
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import (create_level_study_group, create_role_employee, create_role_user,
-                     mock_outgoing_email, next_student_id)
+from .common import (CORPORATE_TEST_DOMAIN, create_level_study_group, create_role_employee, create_role_user,
+                     enforce_corporate_email_policy, mock_outgoing_email, next_student_id)
 
 DNI_LETTERS = 'TRWAGMYFPDXBNJZSQVHLCKE'
 
@@ -280,6 +280,16 @@ class TestContactDataRequest(TransactionCase):
         with self.assertRaises(UserError):
             request.action_send_reminder()
 
+    def test_only_the_reminder_subject_is_prefixed_in_the_recipients_language(self):
+        self.family.lang = 'ca_ES'
+        request = self._request()
+        request._ems_send_request_email()
+        request._ems_send_request_email(reminder=True)
+        subjects = self.env['mail.mail'].search([('email_to', '=', self.family.email)], order='id').mapped('subject')
+        self.assertEqual(len(subjects), 2)
+        self.assertTrue(subjects[0].startswith('Reviseu les dades de contacte de'), subjects[0])
+        self.assertTrue(subjects[1].startswith('Recordatori: Reviseu les dades de contacte de'), subjects[1])
+
     # --- access -----------------------------------------------------------------------------
 
     def test_other_tutor_cannot_approve(self):
@@ -298,3 +308,104 @@ class TestContactDataRequest(TransactionCase):
         self.minor.with_user(teacher).read(['name', 'contact_type', 'email'])
         with self.assertRaises(AccessError):
             self.env['ems.contact.data.request'].with_user(teacher).search([])
+
+
+class TestContactDataRequestCorporateEmail(TransactionCase):
+    """A personal email can never be an address of the centre's own domain (issue #514): the portal
+    form refuses it before the request is sent, and only when the answer changes the address."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        mock_outgoing_email(cls)
+        enforce_corporate_email_policy(cls)
+        create_contact_data_fixtures(cls, 'TCCE')
+        cls.Request = cls.env['ems.contact.data.request'].with_context(lang='en_US')
+        cls.corporate = f'laia.puig@{CORPORATE_TEST_DOMAIN}'
+
+    def _answer(self):
+        """The minor's data with everything required filled in, as the family would send it."""
+        data = self.minor._ems_contact_data()
+        data['student'].update(street='Test Street 2', zip='08922', city='Test City',
+                               document_id=valid_dni(10000003))
+        data['family'][0]['lastname'] = 'Surname'
+        return data
+
+    def _problems(self, data, **kwargs):
+        return self.Request._ems_contact_data_problems(data, is_adult=False, **kwargs)
+
+    def test_a_corporate_address_is_refused_for_the_student_and_for_every_family_contact(self):
+        current = self.minor._ems_contact_data()
+        data = self._answer()
+        data['student']['email'] = self.corporate
+        data['family'][0]['email'] = f'mother@alumnes.{CORPORATE_TEST_DOMAIN}'
+        data['family'].append({
+            'key': 'n0', 'id': False, 'remove': False, 'relation_type_id': self.env.ref('ems.relation_type_father').id,
+            'firstname': 'New', 'lastname': 'Father', 'mobile': '711200009', 'email': self.corporate.upper(),
+        })
+        problems = dict(self._problems(data, current=current))
+        self.assertEqual(set(problems), {'s_email', f'f{self.family.id}_email', 'n0_email'})
+        for message in problems.values():
+            self.assertIn("can't be used as a personal email", message)
+
+    def test_an_address_already_on_file_is_not_asked_to_change(self):
+        # Legacy data from before the rule: the partner constraint only fires on a write of the
+        # email, so an answer that keeps it must go through.
+        self.env.flush_all()
+        self.env.cr.execute("UPDATE res_partner SET email = %s WHERE id = %s", (self.corporate, self.family.id))
+        self.family.invalidate_recordset(['email'])
+        current = self.minor._ems_contact_data()
+        data = self._answer()
+        self.assertEqual(data['family'][0]['email'], self.corporate)
+        self.assertEqual(self._problems(data, current=current), [])
+        data['family'][0]['email'] = f'other.mother@{CORPORATE_TEST_DOMAIN}'
+        self.assertEqual([key for key, _message in self._problems(data, current=current)],
+                         [f'f{self.family.id}_email'])
+
+    def test_without_the_data_on_file_every_corporate_address_counts_as_new(self):
+        data = self._answer()
+        data['student']['email'] = self.corporate
+        self.assertEqual([key for key, _message in self._problems(data)], ['s_email'])
+
+    def test_a_family_contact_being_removed_is_not_checked(self):
+        data = self._answer()
+        data['family'][0].update(email=self.corporate, remove=True)
+        self.assertNotIn(f'f{self.family.id}_email',
+                         [key for key, _message in self._problems(data, current=self.minor._ems_contact_data())])
+
+    def test_what_is_missing_ignores_the_domain(self):
+        data = self._answer()
+        data['student']['email'] = self.corporate
+        self.assertEqual(self.Request._ems_contact_data_problems(data, is_adult=False, formats=False), [])
+
+    def test_the_partner_constraint_is_still_the_last_word(self):
+        # Approval writes the emails with the reviewer's rights: a corporate address staged by
+        # other means is refused by res.partner itself.
+        with self.assertRaisesRegex(ValidationError, "can't be used as a personal email"):
+            self.family.email = self.corporate
+
+
+class TestContactDataRequestMenu(TransactionCase):
+    """Student Data sits under Educational Community > Students (issue #507): Students is a section
+    holding the Students list and this menu."""
+
+    def test_students_is_a_section_with_the_students_list_and_student_data(self):
+        community = self.env.ref('ems.menu_community')
+        section = self.env.ref('ems.menu_students_root')
+        students = self.env.ref('ems.menu_students')
+        data = self.env.ref('ems.menu_contact_data_requests')
+        self.assertEqual(section.parent_id, community)
+        self.assertFalse(section.action, "The section only groups: clicking it must not open anything")
+        self.assertEqual(section.child_id.sorted(lambda menu: (menu.sequence, menu.id)), students | data)
+        self.assertEqual(data.action, self.env.ref('ems.action_ems_contact_data_request'))
+        # import_student_cog_menu.js and update_student_cog_menu.js read the Students action from it.
+        self.assertEqual(students.action, self.env.ref('ems.action_student_kanban'))
+
+    def test_menu_names_are_translated(self):
+        section = self.env.ref('ems.menu_students_root')
+        data = self.env.ref('ems.menu_contact_data_requests')
+        self.assertEqual(data.with_context(lang='en_US').name, 'Student Data')
+        self.assertEqual(data.with_context(lang='ca_ES').name, 'Dades Estudiants')
+        self.assertEqual(data.with_context(lang='es_ES').name, 'Datos Estudiantes')
+        self.assertEqual(section.with_context(lang='ca_ES').name, 'Estudiants')
+        self.assertEqual(section.with_context(lang='es_ES').name, 'Estudiantes')

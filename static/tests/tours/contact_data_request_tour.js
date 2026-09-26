@@ -2,12 +2,18 @@
 
 import { registry } from "@web/core/registry";
 
-// Issue #507: the family reviews and completes the contact details from the portal. Structural
-// selectors (input names) wherever possible, so the portal user's language barely matters.
+// Issue #507: the family reviews and completes the contact details from the portal, reaching the
+// page from the Profile tab's button. Structural selectors (input names, hrefs) wherever possible,
+// so the portal user's language barely matters.
 registry.category("web_tour.tours").add("ems_contact_data_portal", {
     test: true,
-    url: "/my/dades-contacte",
+    url: "/my/account",
     steps: () => [
+        {
+            trigger: ".o_portal_details a[href='/my/dades-contacte']",
+            content: "Open the contact details review from the profile",
+            run: "click",
+        },
         {
             trigger: ".o_ems_contact_data_form input[name='s_street']",
             content: "Fill in the student's street",
@@ -99,12 +105,21 @@ registry.category("web_tour.tours").add("ems_contact_data_tutor", {
         },
         {
             trigger: ".o_dialog button[name='action_apply']",
-            content: "Send",
-            run: "click",
+            content: "Send, and check the screen says what is happening while it runs",
+            // No step can target the overlay: the tour engine waits for `.o_blockUI` to go away
+            // before it looks for any trigger. The test slows the server down so it is still up.
+            run: async (helpers) => {
+                await helpers.click();
+                await new Promise((resolve) => setTimeout(resolve, 500));
+                const message = document.querySelector(".o_blockUI .o_message");
+                if (!message || !message.textContent.includes("Processing the requests")) {
+                    throw new Error("The processing overlay was not shown while sending");
+                }
+            },
         },
         {
             trigger: "body:not(:has(.o_dialog))",
-            content: "The assistant closed after sending",
+            content: "The assistant closed after sending, and the screen is free again",
         },
         {
             trigger: ".o_list_view .o_data_row:contains('Minor Student (TCDT)') .o_data_cell",
@@ -123,6 +138,47 @@ registry.category("web_tour.tours").add("ems_contact_data_tutor", {
         {
             trigger: ".o_form_view:not(:has(button[name='action_approve']))",
             content: "Approved: nothing left to approve",
+        },
+    ],
+});
+
+// Educational Community opens the Students list, and its Students section (a dropdown, since it now
+// holds two entries) leads to Student Data. Selectors are the menus' xmlids: the labels are translated.
+registry.category("web_tour.tours").add("ems_contact_data_menu", {
+    test: true,
+    url: "/odoo",
+    steps: () => [
+        {
+            trigger: ".o_navbar_apps_menu button[data-hotkey='h']",
+            content: "Open the apps menu",
+            run: "click",
+        },
+        {
+            trigger: ".o-dropdown--menu .o_app[data-menu-xmlid='ems.menu_community']",
+            content: "Open Educational Community",
+            run: "click",
+        },
+        {
+            trigger: ".o_action_manager .o_kanban_view",
+            content: "It opens the Students list by default",
+        },
+        {
+            trigger: ".o_menu_sections button[data-menu-xmlid='ems.menu_students_root']",
+            content: "Open the Students section",
+            run: "click",
+        },
+        {
+            trigger: ".o-dropdown--menu .dropdown-item[data-menu-xmlid='ems.menu_students']",
+            content: "The section offers the Students list",
+        },
+        {
+            trigger: ".o-dropdown--menu .dropdown-item[data-menu-xmlid='ems.menu_contact_data_requests']",
+            content: "and Student Data",
+            run: "click",
+        },
+        {
+            trigger: ".o_action_manager .o_list_view",
+            content: "Student Data lists the contact data requests",
         },
     ],
 });

@@ -10,13 +10,16 @@ Cómo revisar y completar los datos de contacto del alumno y de la familia desde
 
 ## Abrir los datos de contacto
 
-Abrid el portal y haced clic en **Datos de contacto** en la página de inicio, o en el botón **Revisar** del aviso de arriba del todo. También podéis llegar desde **Perfil → Actualizar los datos de contacto**, o desde el enlace del correo del centro.
+Abrid el portal, haced clic en **Perfil** y después en **Actualizar los datos de contacto**. Cuando el centro os los ha pedido, el aviso de arriba del todo de la página de inicio también tiene un botón **Revisar**, y el correo del centro lleva un enlace a la misma página.
+
+Solo ve el botón quien responde por el alumno: la familia de un alumno menor de 18 años, o un alumno mayor de edad desde su propia cuenta. Un alumno menor de 18 años que entra con su propia cuenta puede consultar el portal, pero no enviar los datos: lo hace su familia.
 
 Si tenéis más de un hijo o hija en el centro, elegid primero el alumno en el menú de arriba a la derecha.
 
 ## Rellenar los datos
 
 - **Alumno/a**: son obligatorios la calle, el código postal y la ciudad, y el DNI/NIE o, si no tiene, el pasaporte. Un alumno mayor de edad también necesita un correo personal: es su acceso al portal. El móvil, el teléfono fijo, la tarjeta sanitaria (TIS) y el número de la Seguridad Social (NUSS) son opcionales.
+- **Correos**: indicad direcciones personales. No se acepta una dirección del dominio del centro, como el correo escolar del alumno.
 - **Familia** (obligatoria para un alumno menor de 18 años): cada familiar necesita nombre, apellidos y móvil. Al menos uno debe tener correo, y cada uno el suyo.
 - **Misma dirección que el alumno**: desmarcadlo para indicar una dirección distinta para ese familiar.
 - **Añadir un familiar**: añade uno nuevo. Elegid la relación y rellenad sus datos.

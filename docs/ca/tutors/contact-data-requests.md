@@ -22,20 +22,20 @@ Disponible per als tutors de grup (per al seu alumnat), la secretaria i la direc
 
 ## Enviar una sol·licitud
 
-1. Aneu a **Comunitat Educativa → Sol·licituds de dades de contacte** i feu clic a **Sol·licita dades de contacte**. També el podeu obrir des del menú ⚙ de la llista d'estudiants, de la fitxa d'un estudiant, de la llista de grups o de la fitxa d'un grup.
+1. Aneu a **Comunitat Educativa → Estudiants → Dades Estudiants** i feu clic a **Sol·licita dades de contacte**. També el podeu obrir des del menú ⚙ de la llista d'estudiants, de la fitxa d'un estudiant, de la llista de grups o de la fitxa d'un grup.
 2. Trieu qui la rep:
    - **Grups / estudis / nivells**: trieu els grups. Els tutors només poden triar els seus grups.
    - **Alumnes seleccionats**: trieu els alumnes un per un.
 3. Deixeu marcat **Només alumnes amb dades incompletes** per ometre els alumnes que ja tenen totes les dades obligatòries.
 4. Deixeu marcat **Dona accés al portal a qui no en tingui**: la sol·licitud es respon des del portal.
 5. Reviseu els **Destinataris (previsualització)**: què falta i qui rep el correu. Un alumne marcat amb **Ningú localitzable per correu** no té ningú amb correu: truqueu a la família.
-6. Feu clic a **Enviar**.
+6. Feu clic a **Enviar** i espereu: el missatge *Processant les sol·licituds…* es queda a la pantalla fins que s'ha enviat tot. No tanqueu la finestra.
 
-Cada alumne, o la família d'un menor, rep un correu amb un enllaç al portal.
+Cada alumne, o la família d'un menor, rep un correu amb un enllaç al portal. El compte de portal d'un menor només serveix per consultar, així que la sol·licitud va a la seva família, que és qui la respon.
 
 ## Fer el seguiment de les respostes
 
-A **Comunitat Educativa → Sol·licituds de dades de contacte**:
+A **Comunitat Educativa → Estudiants → Dades Estudiants**:
 
 - **Pendent de resposta**: enviada, encara sense resposta.
 - **Per revisar**: la família ha respost.

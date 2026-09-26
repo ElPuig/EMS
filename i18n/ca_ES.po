@@ -682,11 +682,6 @@ msgid "<i class=\"fa fa-download me-1\"/>Download"
 msgstr "<i class=\"fa fa-download me-1\"/>Descarregar"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
-msgid "<i class=\"fa fa-envelope me-1\"/>Request a data change"
-msgstr "<i class=\"fa fa-envelope me-1\"/>Sol·licitar un canvi de dades"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed
 msgid "<i class=\"fa fa-exchange me-1 text-ems-primary\"/>Payment by bank transfer"
 msgstr "<i class=\"fa fa-exchange me-1 text-ems-primary\"/>Pagament per transferència bancària"
@@ -3855,22 +3850,6 @@ msgstr "Obtenir CSV"
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/controllers/portal_account.py:0
-msgid ""
-"Good morning,\r\n"
-"I would like to make a change to my personal data:\r\n"
-"\r\n"
-"\r\n"
-"Best regards"
-msgstr ""
-"Bon dia,\r\n"
-"M'agradaria fer un canvi en les meves dades personals:\r\n"
-"\r\n"
-"\r\n"
-"Cordialment"
-
-#. module: ems
-#. odoo-python
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0
 msgid "Google API libraries are not installed on the server (google-api-python-client, google-auth)."
 msgstr "Les biblioteques de l'API de Google no estan instal·lades al servidor (google-api-python-client, google-auth)."
@@ -5747,12 +5726,6 @@ msgstr "Correu electrònic personal"
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/controllers/portal_account.py:0
-msgid "Personal data modification for student %s"
-msgstr "Modificació de dades personals de l'alumne %s"
-
-#. module: ems
-#. odoo-python
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0 model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
 msgid "Personal email"
@@ -7129,6 +7102,7 @@ msgstr "Alumne/a:"
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_student_form model:ir.actions.act_window,name:ems.action_student_kanban model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__attendance_issue_student_ids model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__student_ids model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__student_line_ids model:ir.model.fields,field_description:ems.field_ems_enrollment_proposal_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_group__main_student_ids model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__student_ids model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__target__students model:ir.model.fields.selection,name:ems.selection__ems_notice__recipient_type__students model:ir.ui.menu,name:ems.menu_community_config_students model:ir.ui.menu,name:ems.menu_students model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_tutor_form model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_enrollment_proposal_wizard_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_student_search model:ir.model.fields,field_description:ems.field_ems_graduation_wizard__line_ids model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__line_ids
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__student_ids model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
+#: model:ir.ui.menu,name:ems.menu_students_root
 msgid "Students"
 msgstr "Estudiants"
 
@@ -8697,11 +8671,6 @@ msgstr "Has de respondre les autoritzacions abans de continuar amb el procés de
 #: model:mail.template,subject:ems.mail_template_google_welcome model:mail.template,subject:ems.mail_template_google_welcome_employee
 msgid "Your corporate account @{{ object.env.company.google_ws_domain }}"
 msgstr "El teu compte corporatiu @{{ object.env.company.google_ws_domain }}"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
-msgid "Your personal data is read-only. To request a correction, please contact the secretariat using the button below."
-msgstr "Les teves dades personals són de només lectura. Per sol·licitar una correcció, contacta amb la secretaria mitjançant el botó de sota."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
@@ -12952,6 +12921,7 @@ msgstr "S'estan important les notes…"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/blocking_action_form.js:0
+#: code:addons/ems/static/src/js/backend/contact_data_request_send_form.js:0
 msgid "This can take a while — do not close this window."
 msgstr "Això pot trigar una estona — no tanquis aquesta finestra."
 
@@ -16556,7 +16526,6 @@ msgstr "Destinatari de la sol·licitud de dades de contacte (previsualització)"
 #: model:ir.actions.act_window,name:ems.action_ems_contact_data_request
 #: model:ir.model.fields,field_description:ems.field_res_partner__contact_data_request_ids
 #: model:ir.model.fields,field_description:ems.field_res_users__contact_data_request_ids
-#: model:ir.ui.menu,name:ems.menu_contact_data_requests
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_list
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
 msgid "Contact data requests"
@@ -16582,7 +16551,6 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
-#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "Contact details"
 msgstr "Dades de contacte"
 
@@ -17011,11 +16979,11 @@ msgstr "el familiar nou"
 #. module: ems
 #: model:mail.template,subject:ems.email_template_contact_data_request
 msgid ""
-"{{ 'Reminder: ' if ctx.get('is_reminder') else '' }}Please review the "
-"contact details of {{ object.name }}"
+"{{ ctx.get('subject_prefix', '') }}Please review the contact details "
+"of {{ object.name }}"
 msgstr ""
-"{{ 'Recordatori: ' if ctx.get('is_reminder') else '' }}Reviseu les dades de "
-"contacte de {{ object.name }}"
+"{{ ctx.get('subject_prefix', '') }}Reviseu les dades de contacte de "
+"{{ object.name }}"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
@@ -17029,10 +16997,34 @@ msgstr "Revisa"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
-msgid "Review the contact details of the student and the family"
-msgstr "Reviseu les dades de contacte de l'alumne i de la família"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 msgid "The school asks you to review and complete the contact details of"
 msgstr "El centre us demana que reviseu i completeu les dades de contacte de"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "Reminder: "
+msgstr "Recordatori: "
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_contact_data_requests
+msgid "Student Data"
+msgstr "Dades Estudiants"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/contact_data_request_send_form.js:0
+msgid "Processing the requests…"
+msgstr "Processant les sol·licituds…"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/contact_data_request_send_form.js:0
+msgid "Each student, or the family of a minor, is emailed the link to the portal."
+msgstr "A cada alumne, o a la família d'un menor, se li envia per correu l'enllaç al portal."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/contact_data_request_send_form.js:0
+msgid "Whoever lacks portal access is invited to it."
+msgstr "Qui no tingui accés al portal hi és convidat."

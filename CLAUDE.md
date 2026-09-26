@@ -830,9 +830,10 @@ Run it on the current release branch (e.g. `v18.0.0.29.0`), in this order:
 4. **Prepare the PR text** exactly as "PR changelog" below describes (every `changelog/` file,
    reassembled by section, condensed, `Related with` from merge history, delivered as a
    scratchpad file).
-5. **Send the staff newsletter email** (see "Staff newsletter email" below). Since the developer
-   already asked for it by invoking this routine, send it directly without offering first; the
-   `ems.environment_type` check before sending still applies.
+
+The routine ends there — it does **not** send the staff newsletter email (changed 2026-09-26): the
+newsletter now covers every release deployed since the previous one and is sent only when the
+developer asks for it (see "Staff newsletter email" below).
 
 **Hard limits, no exceptions:**
 - **Never push.** The developer pushes the branch themselves to trigger CI; the agent has no push
@@ -995,25 +996,31 @@ CI pieces work together:
 
 ## Staff newsletter email
 
-Whenever the developer asks directly for a "correo"/"boletín de novedades", send a formatted HTML
-newsletter email to **ems@elpuig.xeill.net** summarizing the same changes for a general staff
-audience — Catalan, no tecnicismes, condensed and friendly, not a translation of the English PR
-body. Distinct from the PR changelog file: that stays English/technical for GitHub; this email is
-Catalan/audience-facing, for the developer to review and forward to staff themselves — this
-mechanism never broadcasts directly to students/families/staff itself.
+A formatted HTML newsletter email to **ems@elpuig.xeill.net** summarizing, for a general staff
+audience, everything deployed to production since the previous newsletter — Catalan, no
+tecnicismes, condensed and friendly, not a translation of the English PR bodies. Distinct from the
+PR changelog: that stays English/technical for GitHub; this email is Catalan/audience-facing, for
+the developer to review and forward to staff themselves — this mechanism never broadcasts directly
+to students/families/staff itself.
 
-**Corrected 2026-09-15 — offer, don't auto-send, right after the PR changelog text.** This used to
-say to send the email automatically as soon as the PR changelog text was prepared/delivered. Real
-incident (PR #462, branch `v18.0.0.25.0`): the changelog text was delivered and the newsletter
-offer never came — the developer had to point it out afterward ("Como no te lo he pedido, deberías
-haberme ofrecido enviar el correo con las novedades... es importante"). Sending a real email (even
-to this fixed, developer-controlled address) is an externally-visible action — it should be
-offered and confirmed, not fired automatically, matching this project's general standing caution
-around actions with real-world effects (see "Executing actions with care" in the surrounding
-agent instructions). **How to apply:** right after delivering PR changelog text (see "PR
-changelog" below), if the newsletter hasn't already been sent for that PR, **offer** to send it —
-a short question, not silence and not an automatic send. A direct request for the "correo"/
-"boletín" at any point is already a request — send it right away without needing to offer first.
+**On demand, covering every release since the last one (2026-09-26).** The developer sends it
+roughly weekly (mid-week preferred: not Friday, when staff won't touch EMS until Monday; not
+Monday, when it drowns among other scheduled mail), but deliberately on no fixed day/time and with
+no scheduled job — they decide when. Send it **only when the developer asks** ("envía el
+boletín", "prepara el boletín", "envía el correo de novedades" or similar); never offer it after
+PR text and never send it as part of "Prepara la release" (both were earlier versions of this rule,
+replaced because one email per release was too frequent for staff). When asked:
+1. Read the last-covered release tag from memory (`project_newsletter_last_version`; kept in the
+   sending machine's Claude memory, since sending happens from this box).
+2. `git fetch origin --tags`, then list the release tags (`v18.0.*`) reachable from `origin/main`
+   that are newer than that marker. A tag on `main` means the release is deployed, so the email
+   never announces something staff can't use yet. **No new tags → say so and send nothing.**
+3. For each of those releases, read its merged PR body on GitHub (`gh pr list --base main --state
+   merged --json number,title,body,mergeCommit`), which is where the changelog survives after
+   `changelog/` is deleted before merge. Write **one** email for the whole period, grouped by
+   topic rather than by version.
+4. Send it (mechanism below). Once the shell output confirms `state=sent`, update the memory marker
+   to the newest tag included, with the send date.
 
 **Recipient is always the fixed address above, never one read from the database** — same
 principle as this file's "Email safety in tests": an address must be explicit and

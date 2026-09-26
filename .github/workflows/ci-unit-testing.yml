@@ -21,11 +21,11 @@ jobs:
       # ref: pinned to the PR branch's own head commit - NOT the default for a pull_request
       # event, which is refs/pull/<pr>/merge (a synthetic 2-parent commit GitHub regenerates
       # on every push, merging the PR branch into main). The "Detect non-code-only push" step
-      # below relies on HEAD~1 being the previous commit *on this branch*; against the merge
-      # ref, HEAD~1 is main's own tip instead, so the diff silently covers the whole PR against
-      # main rather than just the latest push - confirmed 2026-09-05 (issue #401's own
-      # /changelog-clean commit), where this caused the full test matrix to run anyway despite
-      # the commit only touching changelog/. Empty-string-safe for workflow_dispatch (no
+      # below diffs this push's range against the branch's own head; against the merge ref the
+      # diff silently covers the whole PR against main rather than just the latest push -
+      # confirmed 2026-09-05 (issue #401's own /changelog-clean commit), where this caused the
+      # full test matrix to run anyway despite the commit only touching changelog/.
+      # Empty-string-safe for workflow_dispatch (no
       # github.event.pull_request context there): actions/checkout treats an empty `ref` as
       # "use the default", same as omitting it.
       - name: Checkout EMS
@@ -49,10 +49,17 @@ jobs:
       - name: Detect non-code-only push
         id: diff
         run: |
-          if [ "${{ github.event_name }}" != "pull_request" ]; then
+          # Diff the whole push (github.event.before..HEAD), never just HEAD~1: a push of several
+          # commits whose *last* one only touches docs used to skip the suite for all of them -
+          # confirmed 2026-09-26 on PR #517, a release integrating six code branches followed by
+          # a docs-only close-review commit. Only a "synchronize" event has a previous head to
+          # compare with; opening/reopening a PR, or a force-push whose old head can't be
+          # fetched any more, always runs the full suite.
+          BEFORE="${{ github.event.before }}"
+          if [ "${{ github.event_name }}" != "pull_request" ] || [ "${{ github.event.action }}" != "synchronize" ]; then
             echo "skip_tests=false" >> "$GITHUB_OUTPUT"
-          elif git rev-parse HEAD~1 >/dev/null 2>&1; then
-            CHANGED=$(git diff --name-only HEAD~1 HEAD)
+          elif [ -n "$BEFORE" ] && git fetch --no-tags --depth=1 origin "$BEFORE" >/dev/null 2>&1; then
+            CHANGED=$(git diff --name-only "$BEFORE" HEAD)
             if [ -n "$CHANGED" ] && ! echo "$CHANGED" | grep -qvE '^(changelog|docs|plans)/|^[^/]+\.md$'; then
               echo "skip_tests=true" >> "$GITHUB_OUTPUT"
               echo "This push only touches changelog/, docs/, plans/ or root-level .md files - skipping the full test suite for this run."

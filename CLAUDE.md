@@ -845,8 +845,22 @@ Run it on the current release branch (e.g. `v18.0.0.29.0`), in this order:
    PR" below).
 5. **Push and get CI green** (added 2026-09-27): push the release branch so CI runs, watch it,
    and fix and push again until it passes (see "Pushing during this routine" below).
+6. **`/changelog-clean`, then `/deploy-check`** (added 2026-09-27), once CI is green on the
+   newest head. Comment `/changelog-clean` on the PR first: it pushes its own commit removing
+   `changelog/`, which starts a new CI run (changelog-only, so it waits for and inherits the
+   previous one; watch it anyway). Then comment `/deploy-check` on that final head: it is required
+   to merge into `main`, and every new head resets it to pending, so it has to be the last thing
+   to run. A red deploy-check means fixing, pushing and starting over from step 5. Both actions
+   report through a commit status, not a comment: `changelog-clean-run` (on the new head it
+   pushed, or the original one if there was nothing to remove) and `deploy-check` (on the PR
+   head). Watch them with a background loop over
+   `gh api repos/ElPuig/EMS/commits/<sha>/statuses` until the context leaves `pending`, with a
+   timeout; `gh run watch` is awkward here since comment-triggered runs are listed under `main`,
+   not the PR branch. The deploy-check log is uploaded as the `deploy-check-log` artifact. Posting
+   the comments uses the developer's own `gh` token (both workflows only act for members of the
+   Integrators team), which is covered by this routine's grant, like the push.
 
-The routine ends once CI is green — it does **not** send the staff newsletter email (changed 2026-09-26): the
+The routine ends once CI and deploy-check are green — it does **not** send the staff newsletter email (changed 2026-09-26): the
 newsletter now covers every release deployed since the previous one and is sent only when the
 developer asks for it (see "Staff newsletter email" below).
 

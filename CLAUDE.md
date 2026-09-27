@@ -843,14 +843,41 @@ Run it on the current release branch (e.g. `v18.0.0.29.0`), in this order:
    reassembled by section, condensed, `Related with` from merge history, delivered as a
    scratchpad file) and **put it on the release PR itself** (see "Putting the text on the open
    PR" below).
+5. **Push and get CI green** (added 2026-09-27): push the release branch so CI runs, watch it,
+   and fix and push again until it passes (see "Pushing during this routine" below).
 
-The routine ends there — it does **not** send the staff newsletter email (changed 2026-09-26): the
+The routine ends once CI is green — it does **not** send the staff newsletter email (changed 2026-09-26): the
 newsletter now covers every release deployed since the previous one and is sent only when the
 developer asks for it (see "Staff newsletter email" below).
 
+**Pushing during this routine (2026-09-27, replaces the earlier "never push" rule).** The developer
+granted push permission for this routine only: *"Cuando te pida de preparar la release, podrás
+hacer push [...] Si fallan, lo repararás y volverás a subir los cambios. Esto se repite hasta que
+tengamos las pruebas en verde [...] No tendrás permiso para hacer push en ninguna otra
+circunstancia."* The loop:
+- Push only the current release branch, as a plain fast-forward:
+  `git -c credential.helper='!gh auth git-credential' push origin <release-branch>`. The helper
+  goes on that one command only; never configure git credentials globally (`gh auth setup-git`
+  once hijacked the developer's own VSCode push/pull). Needs the `gh` token's repository
+  permission **Contents: Read and write**.
+- Never `--force`, never push `main` or any other branch. If the push is rejected because the
+  remote branch has commits the local one lacks (e.g. the developer's), stop and ask instead of
+  merging or overwriting.
+- Watch the run with `gh run watch <run-id> --exit-status` as a background command (it notifies on
+  exit; no polling by hand). Green means every check except `changelog-clean`/`verify` (the
+  "Require changelog clean" workflow, red by design until `/changelog-clean`) and `deploy-check`
+  (manual).
+- On a failure: read the failed jobs' logs, fix, verify locally (a scoped `./test.sh`, or a clean
+  install on a throwaway database when the failure only shows on a clean install), commit, push
+  again. A CI-only failure is often one only a clean install exposes — see the "Local DB never
+  exercises post_init_hook" gotcha and view-inheritance order on clean installs.
+- Stop and ask instead of pushing another attempt when the fix is a judgment call rather than a
+  correction (changing a feature's behavior, relaxing a validation to make a test pass), when the
+  failure is outside the code (GitHub infrastructure, an external service), or after ~3 red cycles.
+- Outside this routine the agent never pushes, unless the developer explicitly grants it for that
+  specific case.
+
 **Hard limits, no exceptions:**
-- **Never push.** The developer pushes the branch themselves to trigger CI; the agent has no push
-  permission and must not ask for one.
 - **Never touch the `__manifest__.py` version** while doing this — the release branch already
   carries the right version.
 

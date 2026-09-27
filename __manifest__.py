@@ -108,6 +108,9 @@
             'views/community/contact/native_action_bindings.xml',
             'views/community/contact/exit_wizards.xml',
             'views/community/contact/student_document.xml',
+            'views/community/contact_data_request/send_wizard.xml',
+            'views/community/contact_data_request/request.xml',
+            'views/community/contact_data_request/menu.xml',
 
             'views/community/group/list.xml',
             'views/community/group/form.xml',
@@ -329,6 +332,7 @@
             'views/portal/portal_enrollment_confirmed.xml',
             'views/portal/portal_comms.xml',
             'views/portal/portal_schedule.xml',
+            'views/portal/portal_contact_data.xml',
             'views/portal/portal_documentation.xml',
             'views/portal/portal_convalidations.xml',
             'views/portal/portal_under_construction.xml',
@@ -352,6 +356,7 @@
         'mails/enrollment/authorization_send.xml',
         'mails/grades/convalidation_resolved.xml',
         'mails/grades/convalidation_info_request.xml',
+        'mails/contacts/contact_data_request.xml',
 
         ### Reports templates ###
         'reports/attendance/templates/sumary_table.xml',

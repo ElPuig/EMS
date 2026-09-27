@@ -3,13 +3,13 @@ import logging
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
-from ..shared import base
 
 _logger = logging.getLogger(__name__)
 
 
 class EmsAuthorizationSendWizard(models.TransientModel):
     _name = 'ems.authorization.send.wizard'
+    _inherit = 'ems.student.scope.mixin'
     _description = 'Send authorizations to students during the course'
 
     template_ids = fields.Many2many(
@@ -17,20 +17,6 @@ class EmsAuthorizationSendWizard(models.TransientModel):
         string='Authorizations to send',
         domain=[('sendable_during_course', '=', True)],
         help="Only the authorization forms marked as 'Can be sent during the course'.",
-    )
-    course_id = fields.Many2one(
-        'ems.course',
-        string='Academic Year',
-        required=True,
-        default=lambda self: self.env['res.partner']._ems_running_course(),
-    )
-    target = fields.Selection([
-        ('students', 'Selected students'),
-        ('scope', 'Groups / studies / levels'),
-    ], string='Send to', default='students', required=True)
-    student_ids = fields.Many2many(
-        'res.partner', string='Students',
-        domain=[('contact_type', 'in', ('student', 'applicant'))],
     )
     # What the sender may pick stays inside the scope of the forms being sent: a form limited
     # to vocational training never offers an ESO group. Plain fields filled by default_get() and
@@ -48,12 +34,6 @@ class EmsAuthorizationSendWizard(models.TransientModel):
     allowed_level_ids = fields.Many2many(
         'ems.level', relation='ems_auth_send_allowed_level_rel',
         column1='wizard_id', column2='level_id')
-    group_ids = fields.Many2many(
-        'ems.group', string='Groups', domain="[('id', 'in', allowed_group_ids)]")
-    ems_study_ids = fields.Many2many(
-        'ems.study', string='Studies', domain="[('id', 'in', allowed_study_ids)]")
-    ems_level_ids = fields.Many2many(
-        'ems.level', string='Levels', domain="[('id', 'in', allowed_level_ids)]")
     notify = fields.Boolean(
         string='Send notification email', default=True,
         help="One email per student listing every authorization sent in this batch. A "
@@ -70,9 +50,7 @@ class EmsAuthorizationSendWizard(models.TransientModel):
         and for a tutor only their own groups. No form chosen yet restricts nothing but that."""
         levels = self.env['ems.level'].search([])
         studies = self.env['ems.study'].search([])
-        groups = self.env['ems.group'].search([('group_type', '=', 'main')])
-        if not self.env['ems.authorization']._ems_sees_every_student():
-            groups = groups.filtered(lambda group: group.tutor_id.user_id == self.env.user)
+        groups = self._scope_allowed_groups()
         if not templates:
             return levels, studies, groups
         return (
@@ -96,9 +74,7 @@ class EmsAuthorizationSendWizard(models.TransientModel):
 
     @api.model
     def default_get(self, fields_list):
-        """Preload the students selected in a list. Only when the list really was a students
-        list: opened from an authorization form, active_ids carry that form's own id, which
-        read as a res.partner id failed with "record does not exist"."""
+        """Preload the students selected in a list (see _scope_students_from_context)."""
         res = super().default_get(fields_list)
         if {'allowed_group_ids', 'allowed_study_ids', 'allowed_level_ids'} & set(fields_list):
             levels, studies, groups = self._allowed_scope(self._templates_from_context())
@@ -107,10 +83,7 @@ class EmsAuthorizationSendWizard(models.TransientModel):
                 'allowed_study_ids': [(6, 0, studies.ids)],
                 'allowed_group_ids': [(6, 0, groups.ids)],
             })
-        if self.env.context.get('active_model') != 'res.partner':
-            return res
-        students = self.env['res.partner'].browse(self.env.context.get('active_ids') or []).filtered(
-            lambda p: p.contact_type in ('student', 'applicant'))
+        students = self._scope_students_from_context()
         if students:
             res.setdefault('target', 'students')
             res['student_ids'] = [(6, 0, students.ids)]
@@ -138,11 +111,8 @@ class EmsAuthorizationSendWizard(models.TransientModel):
                 self[field_name] = [(6, 0, kept.ids)]
         students = self._resolve_students()
         lines = self._build_lines(students)
-        if self.target == 'students':
-            # Someone else's student picked by a tutor: never sent to (see _resolve_students),
-            # and listed here so the tutor sees why rather than wondering where they went.
-            lines += [(0, 0, {'student_id': student.id, 'note': _("Not one of your students")})
-                      for student in self.student_ids._origin - students]
+        lines += [(0, 0, {'student_id': student.id, 'note': _("Not one of your students")})
+                  for student in self._scope_foreign_students(students)]
         self.line_ids = [(5, 0, 0)] + lines
 
     # ------------------------------------------------------------------
@@ -153,55 +123,10 @@ class EmsAuthorizationSendWizard(models.TransientModel):
         tutor to their own students (enforced in _resolve_students). A plain teacher may read
         them but never create them - the record rules say the same thing, this is the early,
         legible error."""
-        if not (self.env['ems.authorization']._ems_sees_every_student()
-                or self.env.user.has_group('ems.group_tutor')):
+        if not (self._scope_sees_every_student() or self.env.user.has_group('ems.group_tutor')):
             raise UserError(_(
                 "Only the secretary's office, the academic administration, the head of studies "
                 "and tutors can send authorizations."))
-
-    def _enrolled_students(self):
-        """Students holding a live (not cancelled) enrollment for the selected academic year.
-
-        The scope target starts here rather than from ems.group's own student list: a group
-        record still holds students who have since left, and asking an ex-student to sign
-        anything is exactly the mistake this avoids.
-        """
-        enrollments = self.env['sale.order'].search([
-            ('ems_course_id', '=', self.course_id._origin.id),
-            ('state', '!=', 'cancel'),
-        ])
-        return enrollments.mapped('partner_id')
-
-    def _students_from_scope(self):
-        """Enrolled students in any of the chosen groups, studies or levels. Nothing chosen
-        means nobody, never the whole centre."""
-        groups = self.group_ids._origin
-        studies = self.ems_study_ids._origin
-        levels = self.ems_level_ids._origin
-        if not (groups or studies or levels):
-            return self.env['res.partner']
-
-        def in_scope(student):
-            level, study = student._ems_level_study_in_force()
-            return student.main_group_id in groups or study in studies or level in levels
-
-        return self._enrolled_students().filtered(in_scope)
-
-    def _resolve_students(self):
-        """The students this wizard would act on, deduplicated.
-
-        For a tutor, only their own group's - whatever reached the wizard. The group picker only
-        offers their own groups, and what a tutor can read of the enrollments behind the scope
-        target is limited to them too, but this is the one place that decides, not the widgets.
-        """
-        self.ensure_one()
-        if self.target == 'students':
-            students = self.student_ids._origin
-        else:
-            students = self._students_from_scope()
-        if not self.env['ems.authorization']._ems_sees_every_student():
-            students = students.filtered(lambda student: base.EmsBase.user_acts_as_tutor(self, student.tutor_id))
-        return students
 
     # ------------------------------------------------------------------
     # Preview

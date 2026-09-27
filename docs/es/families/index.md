@@ -18,6 +18,7 @@ Esta sección contiene los manuales para **familias y alumnos**.
 | [Subir documentos oficiales, IBAN y solicitudes de beneficios](manual-documentacio.md) | Cómo enviar documentos de DNI/tarjeta sanitaria, registrar tu IBAN y solicitar una bonificación o exención |
 | [Consultar el horario de clases](manual-horari.md) | Cómo ver el horario semanal del alumno en el portal y descargarlo en PDF |
 | [Solicitar convalidaciones](manual-convalidacions.md) | Cómo pedir la convalidación de módulos de formación profesional y seguir su resolución |
+| [Revisar los datos de contacto](manual-dades-contacte.md) | Cómo revisar y completar los datos de contacto del alumno y de la familia en el portal |
 
 ---
 

@@ -18,6 +18,7 @@ Aquesta secció conté els manuals per a **famílies i alumnes**.
 | [Pujar documents oficials, IBAN i sol·licituds de beneficis](manual-documentacio.md) | Com enviar documents de DNI/targeta sanitària, registrar el teu IBAN i sol·licitar una bonificació o exempció |
 | [Consultar l'horari de classes](manual-horari.md) | Com veure l'horari setmanal de l'alumne al portal i descarregar-lo en PDF |
 | [Sol·licitar convalidacions](manual-convalidacions.md) | Com demanar la convalidació de mòduls de formació professional i seguir-ne la resolució |
+| [Revisar les dades de contacte](manual-dades-contacte.md) | Com revisar i completar les dades de contacte de l'alumne i de la família al portal |
 
 ---
 

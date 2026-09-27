@@ -18,6 +18,7 @@ Esta sección contiene los manuales para los **tutores de grupo**.
 | [Junta de evaluación: revisar las calificaciones por alumno](junta-avaluacio.md) | Revisar y ajustar las calificaciones de cada alumno del grupo, asignatura por asignatura, para la junta de evaluación |
 | [Cómo generar propuestas de matrícula](propostes-matricula.md) | Proponer la matrícula del curso siguiente para los alumnos aprobados, incluyendo matrículas especiales |
 | [Autorizaciones: enviarlas a vuestro alumnado y hacer el seguimiento](authorizations.md) | Enviar autorizaciones del catálogo a vuestro alumnado o a vuestros grupos y hacer el seguimiento de las respuestas |
+| [Solicitudes de datos de contacto: pedir a las familias que actualicen los datos](contact-data-requests.md) | Pedir al alumnado y a las familias que revisen los datos de contacto desde el portal, hacer el seguimiento de las respuestas y aprobar los cambios |
 | [Cómo gestionar el acceso al portal](acces-portal.md) | Dar de alta, dar de baja o reenviar las invitaciones de acceso al portal para alumnos y familias |
 | [Strikes: consultar los registros de tu grupo](strike.md) | Consultar los strikes puestos a tus alumnos tutorizados y los que has puesto tú mismo/a |
 | [Gestionar los contactos familiares de tu alumnado](family-contacts.md) | Añadir y quitar los familiares (padre, madre, tutor legal…) de los alumnos que tutorizas |

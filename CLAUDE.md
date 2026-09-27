@@ -265,7 +265,10 @@ want the agent to keep making real progress rather than stall on the first decis
 otherwise need a question asked. First used 2026-09-08/09 (bottom-up sync redesign session,
 overnight while the developer slept) and confirmed to work well.
 
-**Must be started and ended explicitly — never assumed, never left open-ended.** This is not a
+**Must be started and ended explicitly — never assumed, never left open-ended.** The same goes for
+any advance authorization of an action that normally needs the developer's confirmation (e.g.
+merging a PR): if it wasn't asked for explicitly, or the wording could be read more than one way,
+ask before acting (developer, 2026-09-27: *"No quiero sustos."*). This is not a
 standing default; it only applies for the exact stretch the developer scoped it to.
 - **Starting it:** the developer says so directly ("te dejo en piloto automático", "activo el
   piloto automático", or similar unambiguous wording) and should say what it's scoped to — e.g.
@@ -860,7 +863,27 @@ Run it on the current release branch (e.g. `v18.0.0.29.0`), in this order:
    the comments uses the developer's own `gh` token (both workflows only act for members of the
    Integrators team), which is covered by this routine's grant, like the push.
 
-The routine ends once CI and deploy-check are green — it does **not** send the staff newsletter email (changed 2026-09-26): the
+7. **Ask before merging, then merge and confirm the deploy** (added 2026-09-27). Once everything
+   is green, stop and ask the developer for confirmation (with a notification, trigger 3). Never
+   merge without it. The only exception is an explicit, advance authorization for this specific
+   routine (e.g. "fusiona tú si sale verde, que me voy a dormir"); if the wording is ambiguous or
+   open to interpretation, or before starting "piloto automático", ask. With the go-ahead:
+   - Mark the PR ready for review if it is a draft (GraphQL `markPullRequestReadyForReview` via
+     `gh api graphql`, not `gh pr ready`, which may hit the same Projects-classic error as
+     `gh pr edit`).
+   - Squash and merge through the API, never locally:
+     `gh api -X PUT repos/ElPuig/EMS/pulls/<n>/merge -f merge_method=squash -f commit_title=<release-branch> -F commit_message=@<file>`.
+     The title is exactly the branch name/version, without the `(#n)` GitHub adds by default; the
+     message is the PR's current body as is, ending with its "Related with" section (no
+     co-author lines). Read the resulting commit on `main` back to confirm both.
+   - Merging starts the release pipeline on its own: "Release on PR merge" publishes the release
+     from the PR body, which triggers "Deploy on Release" (production, self-hosted runner);
+     "Cleanup issue branches on PR merge" deletes the merged issue branches. Watch the release
+     workflow run and then the deploy run to completion, and report the result. A failed deploy
+     is urgent: tell the developer right away with the log's error, and never try to fix anything
+     in production on your own.
+
+The routine ends once the deploy is confirmed (or the developer decides not to merge) — it does **not** send the staff newsletter email (changed 2026-09-26): the
 newsletter now covers every release deployed since the previous one and is sent only when the
 developer asks for it (see "Staff newsletter email" below).
 
@@ -899,6 +922,12 @@ circunstancia."* The loop:
   specific case.
 
 **Hard limits, no exceptions:**
+- **`main` and the repository itself are read-only** (developer's rule, 2026-09-27: *"Nunca jamás
+  debes hacer nada que haga modificaciones en main"*). The single write allowed on `main` is the
+  squash-merge of the release PR through GitHub's merge API in step 7, and only with the
+  developer's authorization for that PR. Never push to `main`, never force-push anything, never
+  delete or rename a branch, tag or release, never change repository, branch-protection or ruleset
+  settings, never rewrite history.
 - **Never touch the `__manifest__.py` version** while doing this — the release branch already
   carries the right version.
 

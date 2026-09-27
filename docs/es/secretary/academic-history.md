@@ -43,7 +43,7 @@ Volver a ejecutar la generación nunca duplica un registro: el que ya existe se 
 
 Dos puntos de entrada:
 
-- **Por alumno/a:** abra la ficha del alumno/a — la pestaña **Histórico académico** lista sus registros, ordenados por estudio y curso. La pestaña sigue visible para el **antiguo alumnado** (graduados/as y bajas): es su registro permanente.
+- **Por alumno/a:** abra la ficha del alumno/a — la sección **Histórico académico**, al final de la pestaña **Estudios**, lista sus registros, ordenados por estudio y curso. Para el **antiguo alumnado** (graduados/as y bajas) la pestaña Estudios sigue visible, solo con esta sección: es su registro permanente.
 - **Consultas de cohorte:** **Planificación y evaluación → Notas → Histórico académico** lista todos los registros. Filtre o agrupe por curso, estudio, grupo o resultado académico — p. ej. "todo el alumnado del estudio X en el curso Y", o todos los registros con la marca **Título obtenido**.
 
 ![Registro de un curso del histórico académico, con la pestaña de módulos y sus notas](../../assets/secretary/academic-history-record.png)

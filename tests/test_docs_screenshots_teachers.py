@@ -545,7 +545,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             '/odoo/action-%d/%d' % (student_action.id, student.id),
             '.o_notebook', 'historial-01-academic.png',
             login='doc_shot_teacher', wait_for='.o_notebook',
-            click=".o_notebook .nav-link[name='academic_history']",
+            click=".o_notebook .nav-link[name='studies']",
             wait_after=".o_field_widget[name='year_record_ids'] .o_data_row + .o_data_row",
         )
 
@@ -651,6 +651,32 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         self._capture(
             '/odoo', ".o_field_widget[name='schedule_attendance_ids']", 'horari-01-setmanal.png',
             login='doc_shot_teacher', tour='ems_doc_shot_working_schedule', max_height=260,
+        )
+
+    def test_capture_student_notes(self):
+        # Shot as the group's tutor, the one role that sees both notes tabs (issue #511).
+        tutor_user = create_role_user(self, 'tutor', 'doc_shot_notes_tutor', lang='ca_ES', name='Tutora Exemple')
+        __, __, group = create_level_study_group(self, 'DOCNOTES', level={
+            'name': 'Formació professional',
+        }, study={
+            'code': 'DOCNOTES01', 'acronym': 'DAM', 'name': "Desenvolupament d'aplicacions multiplataforma",
+        }, group={'acronym': 'A', 'course': 1,
+                  'tutor_id': create_role_employee(self, tutor_user, name='0000 Tutora Exemple').id})
+        student = self._student(group, 'Roc Exemple')
+        student.write({
+            'comment': '<p>Treballa millor assegut a les primeres files.</p>',
+            'private_notes': '<p>Reunió amb la família el 12/10: seguiment setmanal acordat.</p>',
+        })
+        student_action = self.env['ir.actions.act_window'].create({
+            'name': 'Alumnes', 'res_model': 'res.partner',
+            'view_mode': 'form', 'domain': [('id', '=', student.id)],
+        })
+        self._capture(
+            '/odoo/action-%d/%d' % (student_action.id, student.id),
+            '.o_notebook', 'notes-01-privades.png',
+            login='doc_shot_notes_tutor', wait_for='.o_notebook',
+            click=".o_notebook .nav-link[name='private_notes']",
+            wait_after=".o_field_widget[name='private_notes'] .odoo-editor-editable p",
         )
 
     def _student(self, group, name):

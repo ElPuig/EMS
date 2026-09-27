@@ -25,6 +25,7 @@ Aquesta secció conté els manuals per a **Cap d'Estudis, Cap d'Estudis Adjunt/a
 - [Sol·licituds de dades de contacte: demanar a les famílies que actualitzin les dades](../tutors/contact-data-requests.md) — Demanar a l'alumnat i a les famílies que revisin les dades de contacte des del portal, fer el seguiment de les respostes i aprovar els canvis (manual compartit amb els tutors).
 - [Comunicats: enviar els vostres propis correus massius](notice.md)
 - [Horari de guàrdies](../teachers/guard-duty-schedule.md) — Qui falta a cada franja horària, i qui està de guàrdia per cobrir-ho.
+- [Notes públiques i notes privades de l'alumne](../teachers/student-notes.md) — On tot el professorat llegeix les notes públiques d'un alumne, i qui pot llegir i escriure les privades de tutoria.
 
 ---
 

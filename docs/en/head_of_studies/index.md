@@ -25,6 +25,7 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 - [Contact data requests: asking families to update their details](../tutors/contact-data-requests.md) — Ask students and families to review their contact details from the portal, follow up the answers and approve the changes (shared manual with the tutors).
 - [Notices: Sending Your Own Bulk Emails](notice.md)
 - [Guard Duty Schedule](../teachers/guard-duty-schedule.md) — Who is missing each time block, and who is on guard duty to cover it.
+- [A Student's Public and Private Notes](../teachers/student-notes.md) — Where every teacher reads a student's public notes, and who can read and write the private tutoring ones.
 
 ---
 

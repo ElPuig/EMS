@@ -25,6 +25,7 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 - [Solicitudes de datos de contacto: pedir a las familias que actualicen los datos](../tutors/contact-data-requests.md) — Pedir al alumnado y a las familias que revisen los datos de contacto desde el portal, hacer el seguimiento de las respuestas y aprobar los cambios (manual compartido con los tutores).
 - [Comunicados: enviar tus propios correos masivos](notice.md)
 - [Horario de guardias](../teachers/guard-duty-schedule.md) — Quién falta en cada franja horaria, y quién está de guardia para cubrirlo.
+- [Notas públicas y notas privadas del alumno](../teachers/student-notes.md) — Dónde todo el profesorado lee las notas públicas de un alumno, y quién puede leer y escribir las privadas de tutoría.
 
 ---
 

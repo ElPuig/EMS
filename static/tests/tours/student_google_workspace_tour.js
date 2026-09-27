@@ -110,8 +110,8 @@ registry.category("web_tour.tours").add("ems_student_google_password_reset", {
             content: "The chatter records the reset",
         },
         {
-            trigger: ".o_form_view .o_notebook .nav-link[name='documentation']",
-            content: "Open the Documentation tab",
+            trigger: ".o_form_view .o_notebook .nav-link[name='secretary']",
+            content: "Open the Secretary tab, home of the documentation section",
             run: "click",
         },
         {
@@ -147,8 +147,8 @@ registry.category("web_tour.tours").add("ems_student_google_password_reset_tutor
             content: "The chatter records the reset",
         },
         {
-            trigger: ".o_form_view .o_notebook .nav-link[name='documentation']",
-            content: "Open the Documentation tab",
+            trigger: ".o_form_view .o_notebook .nav-link[name='secretary']",
+            content: "Open the Secretary tab, home of the documentation section",
             run: "click",
         },
         {

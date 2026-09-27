@@ -43,7 +43,7 @@ Re-running the generation never duplicates a record: the existing one is refresh
 
 Two entry points:
 
-- **Per student:** open the student's form — the **Academic history** tab lists their records, ordered by study and course. The tab stays visible for **former students** (alumni and withdrawals): it is their permanent record.
+- **Per student:** open the student's form — the **Academic history** section, at the end of the **Studies** tab, lists their records, ordered by study and course. For **former students** (alumni and withdrawals) the Studies tab stays visible with just this section: it is their permanent record.
 - **Cohort queries:** **Planning and Grading → Grades → Academic history** lists every record. Filter or group by course, study, group or academic result — e.g. "all the students of study X in course Y", or every record with the **Title obtained** mark.
 
 ![A course record of the academic history, with its subjects tab and their grades](../../assets/secretary/academic-history-record.png)

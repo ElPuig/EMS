@@ -224,3 +224,6 @@ from . import test_contact_data_request_tour
 from . import test_student_private_note
 from . import test_student_private_note_tour
 from . import test_student_benefit_access
+from . import test_meeting_presence
+from . import test_meeting_presence_tour
+from . import test_docs_screenshots_meeting_presence

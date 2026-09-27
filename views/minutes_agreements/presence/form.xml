@@ -1,0 +1,84 @@
+<odoo>
+    <data>
+        <record id="view_meeting_presence_form" model="ir.ui.view">
+            <field name="name">ems.meeting.presence.form</field>
+            <field name="model">ems.meeting.presence</field>
+            <field name="arch" type="xml">
+                <form string="Meeting attendance">
+                    <header>
+                        <button name="action_open" string="Start attendance" type="object" class="btn-primary"
+                                invisible="state != 'draft'"/>
+                        <button name="action_open_kiosk" string="Open kiosk" type="object" class="btn-primary"
+                                invisible="state != 'open'"/>
+                        <button name="action_load_convened" string="Load convened people" type="object"
+                                invisible="state == 'closed' or scope == 'manual'"/>
+                        <button name="action_close" string="Close attendance" type="object"
+                                invisible="state != 'open'"
+                                confirm="Everyone who has not passed their tag will be marked as absent. Close the attendance?"/>
+                        <button name="action_reopen" string="Reopen" type="object" invisible="state != 'closed'"/>
+                        <button name="%(ems.action_report_meeting_presence)d" string="Print" type="action"
+                                invisible="state == 'draft'"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,open,closed"/>
+                    </header>
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <field name="active" invisible="1"/>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1><field name="name" placeholder="e.g. Staff meeting"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="date" readonly="state == 'closed'"/>
+                                <field name="duration" widget="float_time" readonly="state == 'closed'"/>
+                                <field name="date_end" readonly="state == 'closed'"/>
+                                <field name="space_id" readonly="state == 'closed'" options="{'no_create': True}"/>
+                                <field name="course_id" readonly="state == 'closed'" options="{'no_create': True}"/>
+                                <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+                            </group>
+                            <group>
+                                <field name="scope" readonly="state == 'closed'"/>
+                                <field name="department_id" invisible="scope != 'department'"
+                                       required="scope == 'department'" readonly="state == 'closed'"
+                                       options="{'no_create': True}"/>
+                                <field name="workgroup_id" invisible="scope != 'workgroup'"
+                                       required="scope == 'workgroup'" readonly="state == 'closed'"
+                                       options="{'no_create': True}"/>
+                                <field name="kiosk_lang" readonly="state == 'closed'"/>
+                            </group>
+                        </group>
+                        <group invisible="state == 'draft'">
+                            <group string="Kiosk">
+                                <field name="kiosk_url" widget="CopyClipboardURL" invisible="state != 'open'"/>
+                            </group>
+                            <group string="Summary">
+                                <field name="convened_count"/>
+                                <field name="present_count"/>
+                                <field name="pending_count"/>
+                                <field name="justified_count"/>
+                                <field name="absent_count"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="People" name="people">
+                                <field name="line_ids" readonly="state == 'closed'">
+                                    <list editable="bottom" decoration-success="state == 'present'"
+                                          decoration-info="state == 'justified'" decoration-danger="state == 'absent'"
+                                          decoration-muted="state == 'pending'" decoration-warning="not is_convened">
+                                        <field name="employee_id" options="{'no_create': True, 'no_open': True}"/>
+                                        <field name="state"/>
+                                        <field name="checkin_time"/>
+                                        <field name="method"/>
+                                        <field name="is_convened" readonly="1"/>
+                                        <field name="notes"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

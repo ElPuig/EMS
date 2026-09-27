@@ -1758,6 +1758,7 @@ msgstr "Aprobado"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search model_terms:ir.ui.view,arch_db:ems.view_notice_search model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_search
+#: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 msgid "Archived"
 msgstr "Archivado"
 
@@ -1863,6 +1864,7 @@ msgstr "Cantidad de adjuntos"
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_hr_attendance_group
 #: model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_student_form model_terms:ir.ui.view,arch_db:ems.view_employee_form
+#: model:ir.ui.menu,name:ems.menu_meeting_presence
 msgid "Attendance"
 msgstr "Asistencia"
 
@@ -2574,6 +2576,7 @@ msgstr "Compañías"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_provider_search
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__company_id
 msgid "Company"
 msgstr "Compañía"
 
@@ -2730,6 +2733,7 @@ msgstr "País"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__course_id
 #: model:ir.model.fields,field_description:ems.field_ems_planning__course_id
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__course_id model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 msgid "Course"
 msgstr "Curso"
 
@@ -2870,6 +2874,7 @@ msgstr "Acceso actual"
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__is_provisional
 #: model_terms:ir.ui.view,arch_db:ems.view_year_record_form
 #: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+#: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 msgid "Current course"
 msgstr "Curso actual"
 
@@ -2906,6 +2911,7 @@ msgstr "Datos descargados"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__date model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__issue_date model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__date model:ir.model.fields,field_description:ems.field_ems_minute__date model:ir.model.fields.selection,name:ems.selection__ems_authorization_field__field_type__date model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__date model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_monthly_list
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__date model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 msgid "Date"
 msgstr "Fecha"
 
@@ -2992,6 +2998,7 @@ msgstr "Borrando"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__department_id
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__department_id
 msgid "Department"
 msgstr "Departamento"
 
@@ -3196,6 +3203,7 @@ msgstr "Descargando encuestas"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__draft model:ir.model.fields.selection,name:ems.selection__ems_notice__state__draft model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard__state__draft
+#: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence__state__draft model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 msgid "Draft"
 msgstr "Borrador"
 
@@ -3350,6 +3358,7 @@ msgstr "Emergencia"
 
 #. module: ems
 #: model:ir.model,name:ems.model_hr_employee model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__employee_id
 msgid "Employee"
 msgstr "Empleado"
 
@@ -4063,6 +4072,7 @@ msgstr "Grupo"
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search model_terms:ir.ui.view,arch_db:ems.view_enrollment_search model_terms:ir.ui.view,arch_db:ems.view_sale_order_template_search_inherit_ems model_terms:ir.ui.view,arch_db:ems.view_space_search model_terms:ir.ui.view,arch_db:ems.view_subject_search model_terms:ir.ui.view,arch_db:ems.view_teaching_search
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
+#: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 msgid "Group By"
 msgstr "Agrupar por"
 
@@ -5093,6 +5103,7 @@ msgstr "NUSS"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__name model:ir.model.fields,field_description:ems.field_ems_content__name model:ir.model.fields,field_description:ems.field_ems_course__name model:ir.model.fields,field_description:ems.field_ems_criteria__name model:ir.model.fields,field_description:ems.field_ems_csv_column__name model:ir.model.fields,field_description:ems.field_ems_group__name model:ir.model.fields,field_description:ems.field_ems_level__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__name model:ir.model.fields,field_description:ems.field_ems_outcome__name model:ir.model.fields,field_description:ems.field_ems_planning__name model:ir.model.fields,field_description:ems.field_ems_role__name model:ir.model.fields,field_description:ems.field_ems_space__name model:ir.model.fields,field_description:ems.field_ems_space_type__name model:ir.model.fields,field_description:ems.field_ems_strike_reason__name model:ir.model.fields,field_description:ems.field_ems_student_document__name model:ir.model.fields,field_description:ems.field_ems_study__name model:ir.model.fields,field_description:ems.field_ems_subject__name model:ir.model.fields,field_description:ems.field_ems_workgroup__name model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__name model:ir.model.fields,field_description:ems.field_ems_attendance_status__name model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__name
+#: model_terms:ir.ui.view,arch_db:ems.report_meeting_presence_section
 msgid "Name"
 msgstr "Nombre"
 
@@ -5254,6 +5265,7 @@ msgstr "Nota"
 #. module: ems
 #. odoo-javascript
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__notes model:ir.model.fields,field_description:ems.field_ems_attendance_justification__notes model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__notes model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__notes model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__notes model:ir.model.fields,field_description:ems.field_ems_content__notes model:ir.model.fields,field_description:ems.field_ems_criteria__notes model:ir.model.fields,field_description:ems.field_ems_group__notes model:ir.model.fields,field_description:ems.field_ems_level__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__notes model:ir.model.fields,field_description:ems.field_ems_outcome__notes model:ir.model.fields,field_description:ems.field_ems_role__notes model:ir.model.fields,field_description:ems.field_ems_student_benefit__notes model:ir.model.fields,field_description:ems.field_ems_study__notes model:ir.model.fields,field_description:ems.field_ems_subject__notes model:ir.model.fields,field_description:ems.field_ems_tracking__notes model:ir.model.fields,field_description:ems.field_ems_workgroup__notes model:ir.model.fields,field_description:ems.field_hr_employee__notes model:ir.model.fields,field_description:ems.field_hr_employee_base__notes model:ir.model.fields,field_description:ems.field_hr_employee_public__notes model_terms:ir.ui.view,arch_db:ems.attendance_report_session model_terms:ir.ui.view,arch_db:ems.level_view_form model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form model_terms:ir.ui.view,arch_db:ems.view_content_form model_terms:ir.ui.view,arch_db:ems.view_criteria_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form model_terms:ir.ui.view,arch_db:ems.view_outcome_form model_terms:ir.ui.view,arch_db:ems.view_role_form model_terms:ir.ui.view,arch_db:ems.view_study_form model_terms:ir.ui.view,arch_db:ems.view_subject_form model_terms:ir.ui.view,arch_db:ems.view_workgroup_form model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__notes model_terms:ir.ui.view,arch_db:ems.report_meeting_presence_section
 msgid "Notes"
 msgstr "Notas"
 
@@ -5461,6 +5473,7 @@ msgstr "Solo los tutores pueden justificar las faltas de los alumnos."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/communications/limesurvey.py:0 model:ir.model.fields.selection,name:ems.selection__ems_grade_session__state__open model:ir.model.fields.selection,name:ems.selection__ems_grade_session_state_wizard__target_state__open model_terms:ir.ui.view,arch_db:ems.view_grade_session_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence__state__open model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 msgid "Open"
 msgstr "Abierta"
 
@@ -5686,6 +5699,7 @@ msgstr "Plan de pago"
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_head_state__pending
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__pending
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__pending
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__pending_count model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence_line__state__pending model_terms:ir.ui.view,arch_db:ems.report_meeting_presence
 msgid "Pending"
 msgstr "Pendiente"
 
@@ -5919,6 +5933,7 @@ msgstr "Precio"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form
 msgid "Print"
 msgstr "Imprimir"
 
@@ -6215,6 +6230,7 @@ msgstr "Fecha de renovación/revisión"
 #. odoo-python
 #: code:addons/ems/models/communications/limesurvey.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+#: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form
 msgid "Reopen"
 msgstr "Reabrir"
 
@@ -6922,6 +6938,7 @@ msgstr "Iniciando proceso en segundo plano; recibirás una notificación al fina
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__preview_state
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__state model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__state model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 msgid "State"
 msgstr "Estado"
 
@@ -7254,6 +7271,7 @@ msgstr "Nota de la asignatura sugerida aplicando las ponderaciones de la planifi
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+#: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form
 msgid "Summary"
 msgstr "Resumen"
 
@@ -8243,6 +8261,7 @@ msgstr "Formació en Centros de Trabajo (si matriculado)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__workgroup_id
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__workgroup_id
 msgid "Workgroup"
 msgstr "Grupo de trabajo"
 
@@ -17194,3 +17213,381 @@ msgstr "Puede ver los documentos"
 #: model:ir.model.fields,field_description:ems.field_res_users__can_see_benefits
 msgid "Can see benefits"
 msgstr "Puede ver las bonificaciones"
+
+#. module: ems
+#: model:ir.actions.report,print_report_name:ems.action_report_meeting_presence
+msgid "'Attendance - %s' % (object.name)"
+msgstr "'Asistencia - %s' % (object.name)"
+
+#. module: ems
+#. odoo-python
+#: model_terms:ir.ui.view,arch_db:ems.report_meeting_presence_section
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "(not convened)"
+msgstr "(no convocado)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_meeting_presence
+msgid "<strong>Absent</strong>"
+msgstr "<strong>Ausentes</strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_meeting_presence
+msgid "<strong>Convened</strong>"
+msgstr "<strong>Convocados</strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_meeting_presence
+msgid "<strong>Justified</strong>"
+msgstr "<strong>Justificados</strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_meeting_presence
+msgid "<strong>Present</strong>"
+msgstr "<strong>Presentes</strong>"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence__scope__department
+msgid "A department"
+msgstr "Un departamento"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence__scope__workgroup
+msgid "A workgroup"
+msgstr "Un grupo de trabajo"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__absent_count model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence_line__state__absent model_terms:ir.ui.view,arch_db:ems.report_meeting_presence
+msgid "Absent"
+msgstr "Ausente"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence__scope__all_staff
+msgid "All staff"
+msgstr "Todo el personal"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence__scope__all_teachers
+msgid "All teachers"
+msgstr "Todo el profesorado"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Already registered"
+msgstr "Ya registrado"
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_meeting_presence_unique_access_token
+msgid "Another meeting attendance already uses this token."
+msgstr "Otra asistencia a reunión ya utiliza este código."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Attendance has not started yet"
+msgstr "La asistencia todavía no ha empezado"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Attendance is closed"
+msgstr "La asistencia está cerrada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Attendance registered"
+msgstr "Asistencia registrada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence_line__method__manual
+msgid "By hand"
+msgstr "A mano"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Choose the department to convene."
+msgstr "Seleccione el departamento que se convoca."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Choose the workgroup to convene."
+msgstr "Seleccione el grupo de trabajo que se convoca."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence__scope__manual
+msgid "Chosen by hand"
+msgstr "Elegido a mano"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form
+msgid "Close attendance"
+msgstr "Cerrar la asistencia"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence__state__closed model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
+msgid "Closed"
+msgstr "Cerrada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__convened_count model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__is_convened
+msgid "Convened"
+msgstr "Convocados"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form
+msgid "Everyone who has not passed their tag will be marked as absent. Close the attendance?"
+msgstr "Todas las personas que no hayan pasado la tarjeta quedarán marcadas como ausentes. ¿Desea cerrar la asistencia?"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_meeting_presence_line__notes
+msgid "For example, why an absence is justified."
+msgstr "Por ejemplo, por qué una ausencia está justificada."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__method
+msgid "How"
+msgstr "Cómo"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__justified_count model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence_line__state__justified
+msgid "Justified"
+msgstr "Justificado"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_meeting_presence
+msgid "Justified absences"
+msgstr "Ausencias justificadas"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form
+msgid "Kiosk"
+msgstr "Quiosco"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__kiosk_lang
+msgid "Kiosk language"
+msgstr "Idioma del quiosco"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__kiosk_url
+msgid "Kiosk link"
+msgstr "Enlace del quiosco"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__access_token
+msgid "Kiosk token"
+msgstr "Código del quiosco"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form
+msgid "Load convened people"
+msgstr "Cargar las personas convocadas"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__name model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__presence_id
+msgid "Meeting"
+msgstr "Reunión"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_meeting_presence model:ir.actions.report,name:ems.action_report_meeting_presence model:ir.model,name:ems.model_ems_meeting_presence model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
+msgid "Meeting attendance"
+msgstr "Asistencia a reuniones"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_meeting_presence_line
+msgid "Meeting attendance line"
+msgstr "Línea de asistencia a reunión"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_minutes
+msgid "Meetings"
+msgstr "Reuniones"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence_line__method__nfc
+msgid "NFC tag"
+msgstr "Tarjeta NFC"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_meeting_presence_line__is_convened
+msgid "Not ticked for someone who passed the tag without being convened."
+msgstr "Sin marcar para quien ha pasado la tarjeta sin estar convocado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Only a closed meeting attendance can be reopened."
+msgstr "Solo se puede reabrir una asistencia a reunión cerrada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Only a draft meeting attendance can be deleted: archive the others."
+msgstr "Solo se puede eliminar una asistencia a reunión en borrador: archive las demás."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Only a draft meeting attendance can be opened."
+msgstr "Solo se puede abrir una asistencia a reunión en borrador."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Only an open meeting attendance can be closed."
+msgstr "Solo se puede cerrar una asistencia a reunión abierta."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form
+msgid "Open kiosk"
+msgstr "Abrir el quiosco"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Pass your tag"
+msgstr "Pase la tarjeta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__line_ids model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form
+msgid "People"
+msgstr "Personas"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__present_count model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence_line__state__present model_terms:ir.ui.view,arch_db:ems.report_meeting_presence
+msgid "Present"
+msgstr "Presente"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Registered, but not on the convened list"
+msgstr "Registrado, pero no está en la lista de convocados"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__space_id
+msgid "Room"
+msgstr "Sala"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence_line.py:0
+msgid "Someone marked as present cannot be removed: mark them as pending or absent first."
+msgstr "Una persona marcada como presente no se puede eliminar: márquela antes como pendiente o ausente."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form
+msgid "Start attendance"
+msgstr "Iniciar la asistencia"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_meeting_presence__kiosk_lang
+msgid "The language of the kiosk page. Whoever passes the tag is anonymous, so the page cannot follow their own language."
+msgstr "El idioma de la página del quiosco. Quien pasa la tarjeta es anónimo, así que la página no puede seguir su idioma."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_meeting_presence__access_token
+msgid "The only credential of the kiosk page: whoever has the link can register a scan while the meeting is open."
+msgstr "La única credencial de la página del quiosco: quien tenga el enlace puede registrar una lectura mientras la reunión esté abierta."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "The tag could not be registered, try again"
+msgstr "No se ha podido registrar la tarjeta, inténtelo de nuevo"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0 code:addons/ems/models/meetings/presence_line.py:0
+msgid "This meeting attendance is closed: reopen it to change it."
+msgstr "Esta asistencia a reunión está cerrada: reábrala para modificarla."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_meeting_presence_line_unique_employee
+msgid "This person is already in the list."
+msgstr "Esta persona ya está en la lista."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__checkin_time model_terms:ir.ui.view,arch_db:ems.report_meeting_presence_section
+msgid "Time"
+msgstr "Hora"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Unknown tag"
+msgstr "Tarjeta desconocida"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__scope
+msgid "Who is convened"
+msgstr "A quién se convoca"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_meeting_presence__scope
+msgid "Who is convened. It only decides who is loaded into the list: people can always be added or removed by hand."
+msgstr "A quién se convoca. Solo decide quién se carga en la lista: siempre se pueden añadir o quitar personas a mano."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form
+msgid "e.g. Staff meeting"
+msgstr "p. ej. Claustro"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "or type its code and press Enter"
+msgstr "o escriba su código y pulse Intro"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__duration
+msgid "Duration"
+msgstr "Duración"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__date_end
+msgid "Ends"
+msgstr "Finaliza"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_meeting_presence__duration
+msgid "In hours. The kiosk only takes tags between the start and the end."
+msgstr "En horas. El quiosco solo acepta tarjetas entre el inicio y el final."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_meeting_presence__date_end
+msgid "Set the end or the duration, whichever is easier: each one follows the other."
+msgstr "Indique el final o la duración, lo que le resulte más fácil: cada uno sigue al otro."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__date
+msgid "Starts"
+msgstr "Comienza"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "The meeting must end after it starts."
+msgstr "La reunión debe terminar después de empezar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Attendees"
+msgstr "Asistentes"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Convened people"
+msgstr "Personas convocadas"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Everyone has registered"
+msgstr "Todas las personas se han registrado"

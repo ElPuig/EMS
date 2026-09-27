@@ -12,6 +12,7 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 
 - [Academic history: cohort queries](academic-history.md)
 - [Convalidations: validating the requests](convalidations.md)
+- [Meeting attendance with the NFC tag](../secretary/meeting-attendance.md) — Confirming attendance to a staff meeting or any meeting with the NFC reader at the door (shared manual with the secretariat).
 - [Plannings: setting the grading ponderations](planning.md)
 - [Managing student and family contacts](../secretary/student-contacts.md) — you have the same full read/write access as secretary here, for any student centre-wide.
 - [Students' Google credentials](../tutors/google-credentials.md) — viewing them, creating the account and resetting the password, same steps as tutors, for the students of the tutors in your area.

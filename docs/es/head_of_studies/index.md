@@ -12,6 +12,7 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 
 - [Histórico académico: consultas de cohorte](academic-history.md)
 - [Convalidaciones: validar las solicitudes](convalidations.md)
+- [Asistencia a reuniones con la tarjeta NFC](../secretary/meeting-attendance.md) — Confirmar la asistencia a un claustro o a una reunión con el lector NFC de la entrada (manual compartido con secretaría).
 - [Programaciones docentes: definir las ponderaciones de la calificación](planning.md)
 - [Gestión de contactos de alumnos y familias](../secretary/student-contacts.md) — tienes el mismo acceso completo de lectura/escritura que secretaría aquí, para cualquier alumno de todo el centro.
 - [Credenciales de Google del alumnado](../tutors/google-credentials.md) — consultarlas, crear la cuenta y restablecer la contraseña, los mismos pasos que los tutores, para el alumnado de los tutores de tu área.

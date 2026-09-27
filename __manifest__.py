@@ -273,6 +273,15 @@
             'views/communications/notice/search.xml',
             'views/communications/notice/form.xml',
 
+        # Report first: the form's Print button references it.
+        'reports/meetings/report_meeting_presence.xml',
+        'views/minutes_agreements/menu.xml',
+            'views/minutes_agreements/presence/search.xml',
+            'views/minutes_agreements/presence/list.xml',
+            'views/minutes_agreements/presence/form.xml',
+            'views/minutes_agreements/presence/kiosk.xml',
+            'views/minutes_agreements/presence/menu.xml',
+
         'views/coexistence/strike/list.xml',
         'views/coexistence/strike/form.xml',
         'views/coexistence/strike/menu.xml',
@@ -520,6 +529,8 @@
         'web.assets_frontend': [
            'ems/static/src/css/frontend/**/*',
            'ems/static/src/scss/frontend/**/*',
+           'ems/static/src/js/frontend/**/*',
+           'ems/static/src/xml/frontend/**/*',
         ],
         'web.assets_common': [
             #'ems/static/src/css/**/*',

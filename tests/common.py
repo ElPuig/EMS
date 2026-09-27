@@ -264,6 +264,9 @@ class DocsScreenshotMixin:
     never expose real personal data"."""
 
     OUTPUT_DIR = os.environ.get('EMS_SCREENSHOT_DIR', '/tmp/ems_doc_screenshots')
+    # The web client shows a date and time in the browser's own timezone, and this headless
+    # Chrome is on UTC: a screenshot of a screen that shows a time sets its own (e.g. 'Europe/Madrid').
+    BROWSER_TIMEZONE = None
 
     @staticmethod
     def _trim(path, margin=6):
@@ -454,6 +457,10 @@ class DocsScreenshotMixin:
             browser._websocket_request('Emulation.setDeviceMetricsOverride', params={
                 'width': 1400, 'height': 1600, 'deviceScaleFactor': 1, 'mobile': False,
             })
+            if self.BROWSER_TIMEZONE:
+                browser._websocket_request('Emulation.setTimezoneOverride', params={
+                    'timezoneId': self.BROWSER_TIMEZONE,
+                })
             url = werkzeug.urls.url_join(self.base_url(), url_path)
             browser.navigate_to(url, wait_stop=True)
             if tour:

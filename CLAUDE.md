@@ -867,6 +867,13 @@ circunstancia."* The loop:
   exit; no polling by hand). Green means every check except `changelog-clean`/`verify` (the
   "Require changelog clean" workflow, red by design until `/changelog-clean`) and `deploy-check`
   (manual).
+- Only the run of the newest pushed head counts; stop watching any earlier one as soon as a new
+  push lands. Every push starts a new run of this workflow, a docs-only one included (never
+  skipped, so the required check can't hang on "pending"), and older runs are not cancelled (no
+  `concurrency` in the workflow) but no longer count: the PR only shows the newest head's checks.
+  A push touching only `changelog/`, `docs/`, `plans/` or root-level `.md` files makes its run wait
+  for the previous head's run and inherit it (skip the tests if it passed, run the full suite
+  otherwise), so a long wait there is expected, not a hang.
 - On a failure: read the failed jobs' logs, fix, verify locally (a scoped `./test.sh`, or a clean
   install on a throwaway database when the failure only shows on a clean install), commit, push
   again. A CI-only failure is often one only a clean install exposes — see the "Local DB never

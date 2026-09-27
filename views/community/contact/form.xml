@@ -742,12 +742,42 @@
                     <xpath expr="//field[@name='lastname']" position="move"/>
                     <xpath expr="//field[@name='lastname']" position="move"/>
                 </xpath>
-                <!-- A student's emails go right under the names, in the same two columns, so both
-                     rows line up and stay clear of the avatar. The native <label for="email"> gets an
-                     explicit string: Odoo 18's form compiler binds a label to the first field
-                     compiled with that *name* (encounteredFields[fieldName], even when the field has
-                     its own id), which is this one, so every other contact's email row would
-                     otherwise read "Personal email". -->
+                <!-- Hidden, not just read-only, for whoever can't edit them (read_only_user): the
+                     full name is already the form's title. partner_firstname renders "lastname"
+                     twice (one per partner_names_order, only one visible at a time), so both keep
+                     their own condition. -->
+                <xpath expr="//group[@name='ems_name_first']/field[@name='firstname']" position="attributes">
+                    <attribute name="invisible">read_only_user</attribute>
+                </xpath>
+                <xpath expr="//group[@name='ems_name_last']/field[@name='lastname'][1]" position="attributes">
+                    <attribute name="invisible">not form_has_lastname_first or read_only_user</attribute>
+                </xpath>
+                <xpath expr="//group[@name='ems_name_last']/field[@name='lastname'][2]" position="attributes">
+                    <attribute name="invisible">form_has_lastname_first or read_only_user</attribute>
+                </xpath>
+            </field>
+        </record>
+        <!-- A student's emails go right under the names (view_contact_form_firstname's name row), in
+             the same two columns, so both rows line up and stay clear of the avatar. A view of its
+             own, hanging from base.view_partner_form with a high priority, rather than from
+             partner_firstname's view: Odoo applies inheriting views depth-first, siblings ordered by
+             (priority, id), so a child of partner_firstname's view runs right after it - and on a
+             clean install partner_firstname gets a lower id than mail. There, mail's view had not yet
+             turned the native email into <label for="email"/> + field (so the label xpath failed),
+             and its later //field[@name='email'] replace would have hit this header field instead of
+             the native one. Priority 99 applies this after mail, partner_firstname and every EMS
+             view at the default 16, whatever the install order.
+
+             The native <label for="email"> gets an explicit string: Odoo 18's form compiler binds a
+             label to the first field compiled with that *name* (encounteredFields[fieldName], even
+             when the field has its own id), which is the one added here, so every other contact's
+             email row would otherwise read "Personal email". -->
+        <record id="view_contact_form_student_emails" model="ir.ui.view">
+            <field name="name">ems.contact.form.student.emails</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="priority">99</field>
+            <field name="arch" type="xml">
                 <xpath expr="//label[@for='email']" position="attributes">
                     <attribute name="string">Email</attribute>
                 </xpath>
@@ -761,20 +791,6 @@
                     <field name="student_email" string="Corporate email" widget="email"
                            readonly="read_only_user or is_tutor_readonly"
                            invisible="contact_type != 'student'"/>
-                </xpath>
-
-                <!-- Hidden, not just read-only, for whoever can't edit them (read_only_user): the
-                     full name is already the form's title. partner_firstname renders "lastname"
-                     twice (one per partner_names_order, only one visible at a time), so both keep
-                     their own condition. -->
-                <xpath expr="//group[@name='ems_name_first']/field[@name='firstname']" position="attributes">
-                    <attribute name="invisible">read_only_user</attribute>
-                </xpath>
-                <xpath expr="//group[@name='ems_name_last']/field[@name='lastname'][1]" position="attributes">
-                    <attribute name="invisible">not form_has_lastname_first or read_only_user</attribute>
-                </xpath>
-                <xpath expr="//group[@name='ems_name_last']/field[@name='lastname'][2]" position="attributes">
-                    <attribute name="invisible">form_has_lastname_first or read_only_user</attribute>
                 </xpath>
             </field>
         </record>

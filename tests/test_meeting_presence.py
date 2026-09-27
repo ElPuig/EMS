@@ -393,7 +393,15 @@ class TestMeetingPresence(MeetingPresenceFixtures, TransactionCase):
         self.assertFalse(session.line_ids.filtered(lambda line: line.state == 'present'))
 
     def test_scan_ignores_employees_of_another_company(self):
-        other_company = self.env['res.company'].create({'name': 'Test Presence Other Company'})
+        # A calendar of its own: without one, resource names the company's default calendar
+        # "Standard 40 hours/week", which EMS's unique calendar name already takes on a clean
+        # install (the main company's).
+        hours = self.env['resource.calendar'].create({
+            'name': 'Test Presence Other Company Hours', 'company_id': False,
+        })
+        other_company = self.env['res.company'].create({
+            'name': 'Test Presence Other Company', 'resource_calendar_id': hours.id,
+        })
         stranger = self.env['hr.employee'].create({
             'name': 'Presence Stranger', 'employee_type': 'teacher',
             'barcode': 'TESTPRES099', 'company_id': other_company.id,

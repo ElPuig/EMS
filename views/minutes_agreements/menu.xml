@@ -4,7 +4,7 @@
         <!-- The root menu of everything about meetings. Its XML ID and its views/ folder are the
              ones the quality work's minutes (issue #497, phase 2) use too, so when both land they
              hang off one menu instead of two. -->
-        <menuitem name="Meetings" sequence="4" id="menu_minutes"
+        <menuitem name="Meetings" sequence="9" id="menu_minutes"
                   groups="ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin"/>
     </data>
 </odoo>

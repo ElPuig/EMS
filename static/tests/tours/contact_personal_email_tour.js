@@ -17,10 +17,6 @@ registry.category("web_tour.tours").add("ems_contact_personal_email_not_corporat
             run: "edit Email Tour",
         },
         {
-            trigger: ".o_form_view .o_notebook .nav-link:contains('Student data')",
-            run: "click",
-        },
-        {
             trigger: ".o_form_view .o_field_widget[name='student_id'] input",
             run: "edit TOUR514001",
         },

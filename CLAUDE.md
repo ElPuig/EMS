@@ -162,7 +162,7 @@ corresponds to one root app menu as it actually appears in the running backend: 
 "Educational Community" (`menu_community`), `academic_management/` ↔ "Academic management"
 (`menu_ems_academic_management`), `planning_grading/` ↔ "Planning and Grading" (`menu_planning`),
 `attendance/` ↔ "Student's Attendances" (`menu_attendance`), `communications/` ↔ "Communications"
-(`menu_communications`), `coexistence/` ↔ "Coexistence" (`menu_coexistence`). A handful of
+(`menu_communications`), `coexistence/` ↔ "Coexistence" (`menu_coexistence`), `minutes_agreements/` ↔ "Meetings" (`menu_minutes`). A handful of
 folders don't map to one of EMS's own root app menus, for a different, legitimate reason each:
 `settings/` (inherits of the native Settings screens — `res.config.settings`, `base.view_users_form`
 — reached from Odoo's own Settings app, not any EMS menu), `portal/` (QWeb website/portal

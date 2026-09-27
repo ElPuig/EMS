@@ -20,6 +20,10 @@ The **Meetings** root menu, and its `views/` folder, are the ones the quality wo
 - The convened list is read through the public employee model and uses the same scope semantics as the minutes' attendee preloading, so #497 can derive a minute's attendees and absentees from a session; the steps are in `plans/meeting_presence_minute_integration.md`.
 - Browser tours for the manager screens (as a secretary) and for the anonymous kiosk, backend and controller tests, and a screenshot capture class for the manual.
 
+## devel.sh points report.url at the local Odoo port:
+
+- A production backup restored for development kept report.url at the production reverse proxy (http://127.0.0.1), so wkhtmltopdf could not load the stylesheets and logo and every PDF came out unstyled. devel.sh now sets it to this box's own Odoo port.
+
 # Related with
 
 - Closes #521

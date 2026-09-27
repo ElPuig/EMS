@@ -841,7 +841,8 @@ Run it on the current release branch (e.g. `v18.0.0.29.0`), in this order:
    whatever it finds (docs, translations, tests), not just report it. Commit the fixes.
 4. **Prepare the PR text** exactly as "PR changelog" below describes (every `changelog/` file,
    reassembled by section, condensed, `Related with` from merge history, delivered as a
-   scratchpad file).
+   scratchpad file) and **put it on the release PR itself** (see "Putting the text on the open
+   PR" below).
 
 The routine ends there — it does **not** send the staff newsletter email (changed 2026-09-26): the
 newsletter now covers every release deployed since the previous one and is sent only when the
@@ -977,6 +978,20 @@ developer would have to remember to delete before their next commit - confirmed 
 clickable in this client - don't bother with it, the plain-path-plus-Ctrl+O handoff is what
 actually works here. Generating the full combined text as a chat response is also simply slow to
 stream for a multi-thousand-word document - a second, independent reason to prefer the file.
+
+**Putting the text on the open PR (2026-09-27).** Besides the scratchpad file, the text goes
+on the GitHub PR itself, found without asking the developer for a URL: the open PR whose head
+is the current branch (for a release branch its title is also the version),
+`gh pr list --head "$(git branch --show-current)" --base main --state open --json number,title,url`.
+If none or more than one comes back, ask instead of guessing. Read its current body first and
+only replace it when it is the untouched template or an earlier version of this same generated
+text; anything else (notes added by hand) means asking before overwriting. Write it with
+`gh api -X PATCH repos/ElPuig/EMS/pulls/<n> -F body=@<file>` (**not** `gh pr edit`, which fails
+on this `gh` version with a GraphQL "Projects (classic) is being deprecated" error unrelated to
+permissions), then read it back and compare with the file, ignoring trailing newlines. This
+needs the repository permission **Pull requests: Read and write** on the `gh` token, granted for
+exactly this: editing the PR's description, never merging, closing, commenting on or reviewing
+it without asking.
 
 **One file per branch, not one shared file** — deliberate, not just tidiness: every developer's
 own Claude session does the same on their own branch, so `changelog/` ends up with multiple

@@ -43,6 +43,7 @@ Technical reference for developers working on the EMS module.
 | [ems.group](contacts/group.md) | The core class-group model — one of the most widely-referenced in EMS; `group_type` switching, the tutor-role sync bug fix, the side-effecting `enrollment_view_ids` compute |
 | [Group schedule (read-only aggregation)](contacts/group_schedule.md) | The group form's "Schedule" tab: aggregating teachers' `resource.calendar.attendance` rows by `group_ids`, deriving the break period from the level's schedule framework, the "Subject → Teacher(s)" co-teaching summary, and the PDF export |
 | [Student schedule (read-only aggregation)](contacts/student_schedule.md) | The student form's own "Schedule" tab: the same read-only mechanism as the group's, reused via the shared `readonly_schedule_grid` widget, but scoped per `(subject_id, group_id)` enrollment pair instead of a whole group — and the overlap-aware column-split layout that scoping makes necessary |
+| [ems.contact.data.request](contacts/contact_data_request.md) | Contact data update requests: sending them from the backend (individually or by group, study or level), the portal page students and families answer on, family-contact recognition and linking, and the review/approval flow that applies the staged changes |
 
 ---
 
@@ -81,6 +82,14 @@ Technical reference for developers working on the EMS module.
 | Model | Description |
 |-------|-------------|
 | [ems.strike](coexistence/strike.md) | Disciplinary notices issued from the roll-call view: recipient/authorization rules, HoS/DHoS-branch escalation matching, access control |
+
+---
+
+## Meetings
+
+| Model | Description |
+|-------|-------------|
+| [ems.meeting.presence](meetings/meeting_presence.md) | Meeting attendance confirmed with the NFC tag at a public token-protected kiosk: convened list by scope, scan outcomes, closing, access control, and how it joins the quality work's minutes |
 
 ---
 

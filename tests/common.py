@@ -264,6 +264,9 @@ class DocsScreenshotMixin:
     never expose real personal data"."""
 
     OUTPUT_DIR = os.environ.get('EMS_SCREENSHOT_DIR', '/tmp/ems_doc_screenshots')
+    # The web client shows a date and time in the browser's own timezone, and this headless
+    # Chrome is on UTC: a screenshot of a screen that shows a time sets its own (e.g. 'Europe/Madrid').
+    BROWSER_TIMEZONE = None
 
     @staticmethod
     def _trim(path, margin=6):
@@ -410,7 +413,8 @@ class DocsScreenshotMixin:
         raise TimeoutError("never appeared: %s" % selector)
 
     def _capture(self, url_path, selector, filename, login=None, wait_for=None, padding=8,
-                 click=None, run=None, wait_after=None, tour=None, max_height=None, marks=None):
+                 click=None, run=None, wait_after=None, tour=None, max_height=None, marks=None,
+                 beyond_viewport=True):
         """Load url_path as `login`, wait for `wait_for` (defaults to `selector`), optionally
         click `click` (or run arbitrary JS via `run`) and wait for `wait_after`, then write a
         PNG clipped to `selector` into OUTPUT_DIR.
@@ -425,6 +429,9 @@ class DocsScreenshotMixin:
         change event, needed for an OWL component that reacts to 'change' rather than a click.
         `marks` draws numbered callouts that a manual's text refers to ("click (1), then (2)"):
         a list of (selector, label) or (selector, label, anchor) - see _draw_marks().
+        beyond_viewport=False for a shot of an open navbar section dropdown: capturing beyond the
+        viewport makes Chrome resize the page, and Odoo closes that dropdown on the resize (the apps
+        menu survives it). The clip must then lie inside the viewport (max_height keeps it short).
         """
         os.makedirs(self.OUTPUT_DIR, exist_ok=True)
         # A tour reports success with Odoo's own signal ('tour succeeded', the one start_tour()
@@ -450,6 +457,10 @@ class DocsScreenshotMixin:
             browser._websocket_request('Emulation.setDeviceMetricsOverride', params={
                 'width': 1400, 'height': 1600, 'deviceScaleFactor': 1, 'mobile': False,
             })
+            if self.BROWSER_TIMEZONE:
+                browser._websocket_request('Emulation.setTimezoneOverride', params={
+                    'timezoneId': self.BROWSER_TIMEZONE,
+                })
             url = werkzeug.urls.url_join(self.base_url(), url_path)
             browser.navigate_to(url, wait_stop=True)
             if tour:
@@ -506,7 +517,7 @@ class DocsScreenshotMixin:
                 'scale': 1,
             }
             png = browser._websocket_request('Page.captureScreenshot', params={
-                'clip': clip, 'captureBeyondViewport': True,
+                'clip': clip, 'captureBeyondViewport': beyond_viewport,
             }, timeout=30.0)['data']
             path = os.path.join(self.OUTPUT_DIR, filename)
             with open(path, 'wb') as handle:

@@ -12,6 +12,7 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 
 - [Academic history: cohort queries](academic-history.md)
 - [Convalidations: validating the requests](convalidations.md)
+- [Meeting attendance with the NFC tag](../secretary/meeting-attendance.md) — Confirming attendance to a staff meeting or any meeting with the NFC reader at the door (shared manual with the secretariat).
 - [Plannings: setting the grading ponderations](planning.md)
 - [Managing student and family contacts](../secretary/student-contacts.md) — you have the same full read/write access as secretary here, for any student centre-wide.
 - [Students' Google credentials](../tutors/google-credentials.md) — viewing them, creating the account and resetting the password, same steps as tutors, for the students of the tutors in your area.
@@ -22,8 +23,10 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 - [Managing staff absences](absences.md)
 - [Creating and Editing Teachers](staff-management.md)
 - [Authorizations: creating, sending and following up](../secretary/authorizations.md) — Creating authorization forms, sending them to students during the course and following up the answers (shared manual with the secretariat).
+- [Contact data requests: asking families to update their details](../tutors/contact-data-requests.md) — Ask students and families to review their contact details from the portal, follow up the answers and approve the changes (shared manual with the tutors).
 - [Notices: Sending Your Own Bulk Emails](notice.md)
 - [Guard Duty Schedule](../teachers/guard-duty-schedule.md) — Who is missing each time block, and who is on guard duty to cover it.
+- [A Student's Public and Private Notes](../teachers/student-notes.md) — Where every teacher reads a student's public notes, and who can read and write the private tutoring ones.
 
 ---
 

@@ -108,6 +108,10 @@ login page follows). `tour` runs a registered tour instead of the plain wait.
   naming it.
 - **`click='mouse:<selector>'`** clicks with a real (trusted) mouse event through CDP instead of
   `.click()`, for a control that ignores synthetic clicks (the apps menu dropdown).
+- **`beyond_viewport=False`** for a shot of an open navbar *section* dropdown (Educational Community >
+  Students): the default capture makes Chrome resize the page and Odoo closes that dropdown (the apps
+  menu survives it). Open it once the view's data has loaded, since the navbar redraws then, and keep
+  the clip inside the viewport (`max_height`).
 - **`_union_clip_js([sel1, sel2, ...])`** (use it in `run`, then clip to `#ems-clip`) lays an
   invisible box over several blocks that share no container, so one shot can span, say, a payment
   plan and the bank-account notice below it.

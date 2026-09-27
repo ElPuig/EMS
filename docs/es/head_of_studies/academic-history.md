@@ -16,7 +16,7 @@ Como jefe/a de estudios o director/a tiene **acceso a todo el histórico**: cons
 
 ![Listado del histórico académico, agrupado por curso, con el resultado académico de cada registro](../../assets/head_of_studies/hos-academic-history-list.png)
 
-Además, en la ficha de cualquier alumno/a, la pestaña **Histórico académico** muestra sus registros — también para el **antiguo alumnado** (graduados/as y bajas), cuya pestaña se mantiene como registro permanente.
+Además, en la ficha de cualquier alumno/a, la sección **Histórico académico**, al final de la pestaña **Estudios**, muestra sus registros — también para el **antiguo alumnado** (graduados/as y bajas), para quienes la pestaña Estudios solo muestra esta sección, como registro permanente.
 
 ## Consultas útiles
 

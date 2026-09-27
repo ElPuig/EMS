@@ -104,7 +104,7 @@ and ask the developer whether `devel.sh` needs to run before continuing.
 
 `devel.sh` (interactive, or non-interactive via `./devel.sh <google_account> [domain]`) is the
 script that turns a freshly-restored real backup into a safe local dev environment: among other
-things (enabling the debugger, cancelling stuck queue jobs), it rewrites **every** stored email
+things (enabling the debugger, cancelling stuck queue jobs, pointing `report.url` - the address wkhtmltopdf loads a PDF's stylesheets and logo from - at this box's own Odoo port, since the restored production value, `http://127.0.0.1`, is the reverse proxy that only exists in production and left every PDF unstyled), it rewrites **every** stored email
 address (`res_partner.email`/`email_normalized`/`student_email`, plus the dependent
 `hr_employee.work_email`) to `<google_account>+<original_email, '@' encoded as '_at_'>@<domain>`
 — e.g. `kandilhamza@gmail.com` becomes `porrino.fernando+kandilhamza_at_gmail.com@elpuig.xeill.net`.
@@ -162,7 +162,7 @@ corresponds to one root app menu as it actually appears in the running backend: 
 "Educational Community" (`menu_community`), `academic_management/` ↔ "Academic management"
 (`menu_ems_academic_management`), `planning_grading/` ↔ "Planning and Grading" (`menu_planning`),
 `attendance/` ↔ "Student's Attendances" (`menu_attendance`), `communications/` ↔ "Communications"
-(`menu_communications`), `coexistence/` ↔ "Coexistence" (`menu_coexistence`). A handful of
+(`menu_communications`), `coexistence/` ↔ "Coexistence" (`menu_coexistence`), `minutes_agreements/` ↔ "Meetings" (`menu_minutes`). A handful of
 folders don't map to one of EMS's own root app menus, for a different, legitimate reason each:
 `settings/` (inherits of the native Settings screens — `res.config.settings`, `base.view_users_form`
 — reached from Odoo's own Settings app, not any EMS menu), `portal/` (QWeb website/portal
@@ -265,7 +265,10 @@ want the agent to keep making real progress rather than stall on the first decis
 otherwise need a question asked. First used 2026-09-08/09 (bottom-up sync redesign session,
 overnight while the developer slept) and confirmed to work well.
 
-**Must be started and ended explicitly — never assumed, never left open-ended.** This is not a
+**Must be started and ended explicitly — never assumed, never left open-ended.** The same goes for
+any advance authorization of an action that normally needs the developer's confirmation (e.g.
+merging a PR): if it wasn't asked for explicitly, or the wording could be read more than one way,
+ask before acting (developer, 2026-09-27: *"No quiero sustos."*). This is not a
 standing default; it only applies for the exact stretch the developer scoped it to.
 - **Starting it:** the developer says so directly ("te dejo en piloto automático", "activo el
   piloto automático", or similar unambiguous wording) and should say what it's scoped to — e.g.
@@ -841,15 +844,90 @@ Run it on the current release branch (e.g. `v18.0.0.29.0`), in this order:
    whatever it finds (docs, translations, tests), not just report it. Commit the fixes.
 4. **Prepare the PR text** exactly as "PR changelog" below describes (every `changelog/` file,
    reassembled by section, condensed, `Related with` from merge history, delivered as a
-   scratchpad file).
+   scratchpad file) and **put it on the release PR itself** (see "Putting the text on the open
+   PR" below).
+5. **Push and get CI green** (added 2026-09-27): push the release branch so CI runs, watch it,
+   and fix and push again until it passes (see "Pushing during this routine" below).
+6. **`/changelog-clean`, then `/deploy-check`** (added 2026-09-27), once CI is green on the
+   newest head. Comment `/changelog-clean` on the PR first: it pushes its own commit removing
+   `changelog/`, which starts a new CI run (changelog-only, so it waits for and inherits the
+   previous one; watch it anyway). Then comment `/deploy-check` on that final head: it is required
+   to merge into `main`, and every new head resets it to pending, so it has to be the last thing
+   to run. A red deploy-check means fixing, pushing and starting over from step 5. Both actions
+   report through a commit status, not a comment: `changelog-clean-run` (on the new head it
+   pushed, or the original one if there was nothing to remove) and `deploy-check` (on the PR
+   head). Watch them with a background loop over
+   `gh api repos/ElPuig/EMS/commits/<sha>/statuses` until the context leaves `pending`, with a
+   timeout; `gh run watch` is awkward here since comment-triggered runs are listed under `main`,
+   not the PR branch. The deploy-check log is uploaded as the `deploy-check-log` artifact. Posting
+   the comments uses the developer's own `gh` token (both workflows only act for members of the
+   Integrators team), which is covered by this routine's grant, like the push.
 
-The routine ends there — it does **not** send the staff newsletter email (changed 2026-09-26): the
+7. **Ask before merging, then merge and confirm the deploy** (added 2026-09-27). Once everything
+   is green, stop and ask the developer for confirmation (with a notification, trigger 3). Never
+   merge without it. The only exception is an explicit, advance authorization for this specific
+   routine (e.g. "fusiona tú si sale verde, que me voy a dormir"); if the wording is ambiguous or
+   open to interpretation, or before starting "piloto automático", ask. With the go-ahead:
+   - Mark the PR ready for review if it is a draft (GraphQL `markPullRequestReadyForReview` via
+     `gh api graphql`, not `gh pr ready`, which may hit the same Projects-classic error as
+     `gh pr edit`).
+   - Squash and merge through the API, never locally:
+     `gh api -X PUT repos/ElPuig/EMS/pulls/<n>/merge -f merge_method=squash -f commit_title=<release-branch> -F commit_message=@<file>`.
+     The title is exactly the branch name/version, without the `(#n)` GitHub adds by default; the
+     message is the PR's current body as is, ending with its "Related with" section (no
+     co-author lines). Read the resulting commit on `main` back to confirm both.
+   - Merging starts the release pipeline on its own: "Release on PR merge" publishes the release
+     from the PR body, which triggers "Deploy on Release" (production, self-hosted runner);
+     "Cleanup issue branches on PR merge" deletes the merged issue branches. Watch the release
+     workflow run and then the deploy run to completion, and report the result. A failed deploy
+     is urgent: tell the developer right away with the log's error, and never try to fix anything
+     in production on your own.
+
+The routine ends once the deploy is confirmed (or the developer decides not to merge) — it does **not** send the staff newsletter email (changed 2026-09-26): the
 newsletter now covers every release deployed since the previous one and is sent only when the
 developer asks for it (see "Staff newsletter email" below).
 
+**Pushing during this routine (2026-09-27, replaces the earlier "never push" rule).** The developer
+granted push permission for this routine only: *"Cuando te pida de preparar la release, podrás
+hacer push [...] Si fallan, lo repararás y volverás a subir los cambios. Esto se repite hasta que
+tengamos las pruebas en verde [...] No tendrás permiso para hacer push en ninguna otra
+circunstancia."* The loop:
+- Push only the current release branch, as a plain fast-forward:
+  `git -c credential.helper='!gh auth git-credential' push origin <release-branch>`. The helper
+  goes on that one command only; never configure git credentials globally (`gh auth setup-git`
+  once hijacked the developer's own VSCode push/pull). Needs the `gh` token's repository
+  permission **Contents: Read and write**.
+- Never `--force`, never push `main` or any other branch. If the push is rejected because the
+  remote branch has commits the local one lacks (e.g. the developer's), stop and ask instead of
+  merging or overwriting.
+- Watch the run with `gh run watch <run-id> --exit-status` as a background command (it notifies on
+  exit; no polling by hand). Green means every check except `changelog-clean`/`verify` (the
+  "Require changelog clean" workflow, red by design until `/changelog-clean`) and `deploy-check`
+  (manual).
+- Only the run of the newest pushed head counts; stop watching any earlier one as soon as a new
+  push lands. Every push starts a new run of this workflow, a docs-only one included (never
+  skipped, so the required check can't hang on "pending"), and older runs are not cancelled (no
+  `concurrency` in the workflow) but no longer count: the PR only shows the newest head's checks.
+  A push touching only `changelog/`, `docs/`, `plans/` or root-level `.md` files makes its run wait
+  for the previous head's run and inherit it (skip the tests if it passed, run the full suite
+  otherwise), so a long wait there is expected, not a hang.
+- On a failure: read the failed jobs' logs, fix, verify locally (a scoped `./test.sh`, or a clean
+  install on a throwaway database when the failure only shows on a clean install), commit, push
+  again. A CI-only failure is often one only a clean install exposes — see the "Local DB never
+  exercises post_init_hook" gotcha and view-inheritance order on clean installs.
+- Stop and ask instead of pushing another attempt when the fix is a judgment call rather than a
+  correction (changing a feature's behavior, relaxing a validation to make a test pass), when the
+  failure is outside the code (GitHub infrastructure, an external service), or after ~3 red cycles.
+- Outside this routine the agent never pushes, unless the developer explicitly grants it for that
+  specific case.
+
 **Hard limits, no exceptions:**
-- **Never push.** The developer pushes the branch themselves to trigger CI; the agent has no push
-  permission and must not ask for one.
+- **`main` and the repository itself are read-only** (developer's rule, 2026-09-27: *"Nunca jamás
+  debes hacer nada que haga modificaciones en main"*). The single write allowed on `main` is the
+  squash-merge of the release PR through GitHub's merge API in step 7, and only with the
+  developer's authorization for that PR. Never push to `main`, never force-push anything, never
+  delete or rename a branch, tag or release, never change repository, branch-protection or ruleset
+  settings, never rewrite history.
 - **Never touch the `__manifest__.py` version** while doing this — the release branch already
   carries the right version.
 
@@ -977,6 +1055,20 @@ developer would have to remember to delete before their next commit - confirmed 
 clickable in this client - don't bother with it, the plain-path-plus-Ctrl+O handoff is what
 actually works here. Generating the full combined text as a chat response is also simply slow to
 stream for a multi-thousand-word document - a second, independent reason to prefer the file.
+
+**Putting the text on the open PR (2026-09-27).** Besides the scratchpad file, the text goes
+on the GitHub PR itself, found without asking the developer for a URL: the open PR whose head
+is the current branch (for a release branch its title is also the version),
+`gh pr list --head "$(git branch --show-current)" --base main --state open --json number,title,url`.
+If none or more than one comes back, ask instead of guessing. Read its current body first and
+only replace it when it is the untouched template or an earlier version of this same generated
+text; anything else (notes added by hand) means asking before overwriting. Write it with
+`gh api -X PATCH repos/ElPuig/EMS/pulls/<n> -F body=@<file>` (**not** `gh pr edit`, which fails
+on this `gh` version with a GraphQL "Projects (classic) is being deprecated" error unrelated to
+permissions), then read it back and compare with the file, ignoring trailing newlines. This
+needs the repository permission **Pull requests: Read and write** on the `gh` token, granted for
+exactly this: editing the PR's description, never merging, closing, commenting on or reviewing
+it without asking.
 
 **One file per branch, not one shared file** — deliberate, not just tidiness: every developer's
 own Claude session does the same on their own branch, so `changelog/` ends up with multiple

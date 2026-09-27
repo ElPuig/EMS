@@ -12,11 +12,11 @@
 
 El historial académico es el registro congelado, curso a curso, de la trayectoria de un alumno: curso, estudios, grupo, tutor, resultado académico, título obtenido y porcentaje de asistencia. Cualquier profesor puede consultar el historial de cualquier alumno.
 
-**Desde la ficha del alumno:** Comunidad Educativa → Alumnos → *[abre el alumno]* → pestaña **Historial académico**.
+**Desde la ficha del alumno:** Comunidad Educativa → Alumnos → *[abre el alumno]* → pestaña **Estudios**, sección **Histórico académico** (al final).
 
 **Desde su propio menú:** Planificación y Calificación → Notas → **Historial académico**. La lista se abre agrupada por curso: haz clic en un curso para desplegarlo, o escribe el nombre del alumno en el buscador.
 
-![La pestaña Historial académico en la ficha del alumno, una fila por curso](../../assets/teachers/historial-01-academic.png)
+![La sección Histórico académico, al final de la pestaña Estudios de la ficha del alumno, una fila por curso](../../assets/teachers/historial-01-academic.png)
 
 Es solo de lectura. Para corregir un registro, contacta con la Secretaría o con el Administrador.
 
@@ -44,7 +44,7 @@ Todo es solo de lectura, salvo las necesidades educativas especiales para Orient
 Con el rol de **Coordinador/a de orientación**, indicas la tipología de necesidades educativas especiales (NEE) de cualquier alumno o solicitante del centro:
 
 1. Comunidad Educativa → Alumnos → *[abre el alumno]*.
-2. En la pestaña **Datos del estudiante**, en el campo **Necesidades educativas especiales**, elige **NEE-A** o **NEE-B**, o déjalo vacío si el alumno no tiene.
+2. En la parte superior de la ficha, en la columna **Datos personales**, en el campo **Necesidades educativas especiales**, elige **NEE-A** o **NEE-B**, o déjalo vacío si el alumno no tiene.
 3. Pulsa **Guardar**.
 
 En un solicitante, el campo está en la pestaña **Datos del solicitante**. El resto de la ficha sigue siendo de solo lectura.

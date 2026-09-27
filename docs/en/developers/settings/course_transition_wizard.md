@@ -635,9 +635,9 @@ The wizard writes through `sudo()` where the reused helpers already do (`_ems_ap
 `static/src/js/backend/blocking_action_form.js` exposes `blockingActionFormView(messages)`, a
 form-view factory that blocks the UI on the named buttons and unblocks in
 `afterExecuteActionButton` (which Odoo calls even when the action raised, so a failure cannot
-leave the screen stuck — proven by the import wizard's error-dialog tour). It backs four
-wizards: this one (`action_apply`), grade session creation, grade session state change and the
-Esfer@ grade import.
+leave the screen stuck — proven by the import wizard's error-dialog tour). It backs this wizard
+(`action_apply`), grade session creation, grade session state change, the Esfer@ grade import, the
+working schedules import and the contact data request assistant.
 
 No live counter anywhere, for the reason above: a single transaction publishes nothing until it
 commits.

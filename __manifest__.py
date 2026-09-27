@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.29.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.30.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -108,6 +108,9 @@
             'views/community/contact/native_action_bindings.xml',
             'views/community/contact/exit_wizards.xml',
             'views/community/contact/student_document.xml',
+            'views/community/contact_data_request/send_wizard.xml',
+            'views/community/contact_data_request/request.xml',
+            'views/community/contact_data_request/menu.xml',
 
             'views/community/group/list.xml',
             'views/community/group/form.xml',
@@ -270,6 +273,15 @@
             'views/communications/notice/search.xml',
             'views/communications/notice/form.xml',
 
+        # Report first: the form's Print button references it.
+        'reports/meetings/report_meeting_presence.xml',
+        'views/minutes_agreements/menu.xml',
+            'views/minutes_agreements/presence/search.xml',
+            'views/minutes_agreements/presence/list.xml',
+            'views/minutes_agreements/presence/form.xml',
+            'views/minutes_agreements/presence/kiosk.xml',
+            'views/minutes_agreements/presence/menu.xml',
+
         'views/coexistence/strike/list.xml',
         'views/coexistence/strike/form.xml',
         'views/coexistence/strike/menu.xml',
@@ -329,6 +341,7 @@
             'views/portal/portal_enrollment_confirmed.xml',
             'views/portal/portal_comms.xml',
             'views/portal/portal_schedule.xml',
+            'views/portal/portal_contact_data.xml',
             'views/portal/portal_documentation.xml',
             'views/portal/portal_convalidations.xml',
             'views/portal/portal_under_construction.xml',
@@ -352,6 +365,7 @@
         'mails/enrollment/authorization_send.xml',
         'mails/grades/convalidation_resolved.xml',
         'mails/grades/convalidation_info_request.xml',
+        'mails/contacts/contact_data_request.xml',
 
         ### Reports templates ###
         'reports/attendance/templates/sumary_table.xml',
@@ -515,6 +529,8 @@
         'web.assets_frontend': [
            'ems/static/src/css/frontend/**/*',
            'ems/static/src/scss/frontend/**/*',
+           'ems/static/src/js/frontend/**/*',
+           'ems/static/src/xml/frontend/**/*',
         ],
         'web.assets_common': [
             #'ems/static/src/css/**/*',

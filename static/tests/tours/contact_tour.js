@@ -51,20 +51,19 @@ registry.category("web_tour.tours").add("ems_contact_tabs_and_relation_wizard", 
         },
         {
             trigger: ".o_form_view label:contains('Corporate email')",
-            content: "The read-only 'Corporate email' row mirrors student_email",
+            content: "The 'Corporate email' row shows student_email (editable for admin, as the old Student data tab was)",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='student_email']:contains('contact.tour.student@example.com')",
+            trigger: ".o_form_view .o_field_widget[name='student_email'] input:value(contact.tour.student@example.com)",
             content: "...and shows the same address stored on the student",
         },
         {
-            trigger: ".o_form_view .o_notebook .nav-link:contains('Student data')",
-            content: "Open the Student data tab",
-            run: "click",
+            trigger: ".o_form_view .o_field_widget[name='student_id']",
+            content: "The student data block (no longer a tab) renders above the notebook",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='is_adult']",
-            content: "Student data tab rendered without crashing",
+            trigger: ".o_form_view .o_notebook:not(:has(.nav-link[name='student']))",
+            content: "No separate Student data tab",
         },
         {
             trigger: ".o_form_view .o_notebook .nav-link:contains('Studies')",
@@ -111,6 +110,18 @@ registry.category("web_tour.tours").add("ems_contact_tabs_and_relation_wizard", 
         {
             trigger: ".o_form_view .o_field_widget[name='benefit_ids']",
             content: "Secretary tab (benefit_ids) rendered without crashing",
+        },
+        {
+            trigger: ".o_form_view .tab-pane.active .o_field_widget[name='document_ids']",
+            content: "The Secretary tab also holds the documentation section (was its own tab)",
+        },
+        {
+            trigger: ".o_form_view .tab-pane.active .o_field_widget[name='bank_ids']",
+            content: "The Secretary tab also holds the student's bank accounts (was the native Invoicing tab)",
+        },
+        {
+            trigger: ".o_form_view .o_notebook:not(:has(.nav-link[name='accounting']))",
+            content: "No separate Invoicing tab for a student",
         },
         {
             trigger: ".o_form_view .o_notebook .nav-link:contains('Contacts & Addresses')",

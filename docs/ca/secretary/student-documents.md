@@ -21,7 +21,7 @@ Aquesta guia explica com revisar els documents que envien alumnes i famílies �
 
 ## On es revisen els documents
 
-Vés a **Gestió acadèmica > Documents d'alumnes**. La llista s'obre mostrant només les tramitacions **Pendents** per defecte (treu el filtre per veure-les totes). Aquesta és l'única pantalla amb accions d'Aprovar/Rebutjar — la llista només de lectura que també veus a la fitxa de l'alumne (pestanya **Documentació**) és només de referència.
+Vés a **Gestió acadèmica > Documents d'alumnes**. La llista s'obre mostrant només les tramitacions **Pendents** per defecte (treu el filtre per veure-les totes). Aquesta és l'única pantalla amb accions d'Aprovar/Rebutjar — la llista només de lectura que també veus a la fitxa de l'alumne (secció **Documentació** de la pestanya **Secretaria**) és només de referència.
 
 ![Llista de documents de l'alumnat filtrada per Pendent, amb les icones d'aprovar (✓) i rebutjar (✗) a cada fila](../../assets/secretary/documents-01-pendents.png)
 

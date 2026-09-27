@@ -93,7 +93,7 @@ Small shared helper — the human-readable label for a document's type, in the c
 
 ### `security/rules/contacts.xml` — tutor access to Google credentials
 
-The tutor, TAC and Head of Studies rows exist only to read the **Google Workspace credentials PDF** (`doc_type='google_credentials'`, created by `_gw_deliver_credentials()` in `google_workspace_integration.py`) from the student form's **Documentation** tab: tutors for their own students, the TAC team for every student, since they reset those passwords (see [google_workspace_student.md](google_workspace_student.md#password-reset)). Four rules:
+The tutor, TAC and Head of Studies rows exist only to read the **Google Workspace credentials PDF** (`doc_type='google_credentials'`, created by `_gw_deliver_credentials()` in `google_workspace_integration.py`) from the **Documentation** section of the student form's **Secretary** tab (shown only to whoever can read some document of that student, `res.partner.can_see_documents`): tutors for their own students, the TAC team for every student, since they reset those passwords (see [google_workspace_student.md](google_workspace_student.md#password-reset)). Four rules:
 
 | Rule | Group | Domain |
 |------|-------|--------|

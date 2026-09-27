@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="action_report_meeting_presence" model="ir.actions.report">
+            <field name="name">Meeting attendance</field>
+            <field name="model">ems.meeting.presence</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_meeting_presence</field>
+            <field name="report_file">ems.report_meeting_presence</field>
+            <field name="print_report_name">'Attendance - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="ems.model_ems_meeting_presence"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="report_meeting_presence">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="presence">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <style>
+                                .mp-title { font-size: 22px; margin-bottom: 6px; }
+                                .mp-section { font-size: 14px; margin-top: 16px; margin-bottom: 4px; }
+                                .mp-table th, .mp-table td { padding: 4px 8px !important; line-height: 1.3; }
+                                .mp-summary td { padding: 2px 12px 2px 0; }
+                            </style>
+                            <h1 class="mp-title"><span t-field="presence.name"/></h1>
+                            <p>
+                                <span t-field="presence.date" t-options='{"widget": "datetime"}'/> -
+                                <span t-field="presence.date_end" t-options='{"widget": "datetime"}'/>
+                                <t t-if="presence.space_id"> - <span t-field="presence.space_id.name"/></t>
+                            </p>
+                            <table class="mp-summary">
+                                <tr><td><strong>Convened</strong></td><td><span t-field="presence.convened_count"/></td></tr>
+                                <tr><td><strong>Present</strong></td><td><span t-field="presence.present_count"/></td></tr>
+                                <tr><td><strong>Justified</strong></td><td><span t-field="presence.justified_count"/></td></tr>
+                                <tr><td><strong>Absent</strong></td><td><span t-field="presence.absent_count"/></td></tr>
+                            </table>
+
+                            <t t-call="ems.report_meeting_presence_section">
+                                <t t-set="state" t-value="'present'"/>
+                                <t t-set="title">Present</t>
+                            </t>
+                            <t t-call="ems.report_meeting_presence_section">
+                                <t t-set="state" t-value="'justified'"/>
+                                <t t-set="title">Justified absences</t>
+                            </t>
+                            <t t-call="ems.report_meeting_presence_section">
+                                <t t-set="state" t-value="'absent'"/>
+                                <t t-set="title">Absent</t>
+                            </t>
+                            <t t-call="ems.report_meeting_presence_section">
+                                <t t-set="state" t-value="'pending'"/>
+                                <t t-set="title">Pending</t>
+                            </t>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+        <!-- One state's people, under its own heading. A template of its own, and not a loop over
+             (state, title) pairs, because a string inside a t-foreach expression is never picked up
+             for translation - the heading text has to be plain template text. -->
+        <template id="report_meeting_presence_section">
+            <t t-set="lines" t-value="presence.line_ids.filtered(lambda line: line.state == state).sorted(lambda line: line.employee_id.name)"/>
+            <t t-if="lines">
+                <h3 class="mp-section"><t t-out="title"/> (<t t-out="len(lines)"/>)</h3>
+                <table class="table table-sm mp-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th t-if="state == 'present'">Time</th>
+                            <th t-if="state == 'justified'">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="lines" t-as="line">
+                            <td>
+                                <span t-field="line.employee_id.name"/>
+                                <em t-if="not line.is_convened"> (not convened)</em>
+                            </td>
+                            <td t-if="state == 'present'"><span t-field="line.checkin_time" t-options='{"widget": "datetime"}'/></td>
+                            <td t-if="state == 'justified'"><span t-field="line.notes"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </t>
+        </template>
+    </data>
+</odoo>

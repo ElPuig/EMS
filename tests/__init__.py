@@ -217,3 +217,13 @@ from . import test_role_smoke_secretary_tour
 from . import test_role_smoke_tac_tour
 from . import test_user_profile_tour
 from . import test_user_menu_documentation_tour
+from . import test_contact_data_request
+from . import test_contact_data_request_send_wizard
+from . import test_portal_contact_data
+from . import test_contact_data_request_tour
+from . import test_student_private_note
+from . import test_student_private_note_tour
+from . import test_student_benefit_access
+from . import test_meeting_presence
+from . import test_meeting_presence_tour
+from . import test_docs_screenshots_meeting_presence

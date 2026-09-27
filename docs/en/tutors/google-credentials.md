@@ -12,14 +12,14 @@ You can create the Google Workspace account of the students you tutor, view and 
 
 ## Downloading a student's credentials
 
-1. Open the student's form and go to the **Documentation** tab.
+1. Open the student's form and go to the **Secretary** tab, **Documentation** section.
 2. On the **Google Workspace credentials** row, click the file name in the **File** column. The PDF opens in a new tab, where you can print or save it.
 
-![Documentation tab with the Google credentials](../../assets/tutors/credencials-google-01-documentacio.png)
+![Documentation section of the Secretary tab, with the Google credentials](../../assets/tutors/credencials-google-01-documentacio.png)
 
 If the list is empty, the student has no Google account yet: create it as explained below.
 
-In the **Documentation** tab you only see the Google credentials of the students you tutor. The other documents (ID card, IBAN, medical card…) are handled by the secretary's office.
+In the **Documentation** section you only see the Google credentials of the students you tutor (on any other student's form the section doesn't appear). The other documents (ID card, IBAN, medical card…) are handled by the secretary's office.
 
 ---
 
@@ -47,7 +47,7 @@ The button is only shown while the student has no Google account. If the student
 
 3. Confirm the message that appears.
 
-The student receives the new password at their personal email address and a new credentials PDF is saved in the **Documentation** tab. The previous password stops working and its PDF is marked **Cancelled**. The first time they sign in to Google, the student has to change the password.
+The student receives the new password at their personal email address and a new credentials PDF is saved in the **Documentation** section of the **Secretary** tab. The previous password stops working and its PDF is marked **Cancelled**. The first time they sign in to Google, the student has to change the password.
 
 The button is only shown if the student has an active Google account. If you cannot see it, the student has none yet: create it as explained above.
 
@@ -63,7 +63,7 @@ The button is only shown if the student has an active Google account. If you can
 
 A ZIP file is downloaded with one PDF per student, named after the student. If none of the selected students has credentials, a warning is shown and nothing is downloaded. Only the students you tutor are included.
 
-> **Note:** the same **Download Google credentials** action is also available from a single student's own form, using the same **Actions** ⚙ menu — though for just one student, downloading the PDF directly from the **Documentation** tab above is quicker.
+> **Note:** the same **Download Google credentials** action is also available from a single student's own form, using the same **Actions** ⚙ menu — though for just one student, downloading the PDF directly from the **Documentation** section of the **Secretary** tab above is quicker.
 
 ---
 

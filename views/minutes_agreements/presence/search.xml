@@ -1,0 +1,29 @@
+<odoo>
+    <data>
+        <record id="view_meeting_presence_search" model="ir.ui.view">
+            <field name="name">ems.meeting.presence.search</field>
+            <field name="model">ems.meeting.presence</field>
+            <field name="arch" type="xml">
+                <search string="Meeting attendance">
+                    <field name="name"/>
+                    <field name="space_id"/>
+                    <!-- A session with no course is not hidden by the facet: it belongs to no year in
+                         particular, and the default must never leave a list mysteriously empty. -->
+                    <filter string="Current course" name="current_course"
+                            domain="['|', ('course_id', '=', False), ('course_id.is_current', '=', True)]"/>
+                    <separator/>
+                    <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                    <filter string="Open" name="open" domain="[('state', '=', 'open')]"/>
+                    <filter string="Closed" name="closed" domain="[('state', '=', 'closed')]"/>
+                    <separator/>
+                    <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
+                    <group expand="0" string="Group By">
+                        <filter string="State" name="group_state" context="{'group_by': 'state'}"/>
+                        <filter string="Course" name="group_course" context="{'group_by': 'course_id'}"/>
+                        <filter string="Date" name="group_date" context="{'group_by': 'date:month'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

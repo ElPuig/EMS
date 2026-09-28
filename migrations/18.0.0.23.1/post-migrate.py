@@ -26,7 +26,7 @@ def _archive_orphaned_calendar_rows(cr):
 def _resync_teaching_from_calendars(env):
     """Resyncs ems.teaching for every real teacher from their CURRENT calendar - reuses the same
     fix now applied going forward ('hr.employee._teaching_entries_from_calendar()' +
-    'ems.teaching.sync_from_schedule()', see models/employees/teaching.py and
+    'ems.teaching._sync_from_schedule()', see models/employees/teaching.py and
     models/employees/employee.py). Searches each teacher's live calendar state rather than
     assuming anything about this database's own shape - safe/idempotent for a teacher whose
     ems.teaching was already correct (no net change), and also what clears a stale group
@@ -34,7 +34,7 @@ def _resync_teaching_from_calendars(env):
     ('ems.teaching.unlink()' 's own cleanup) - no separate pass needed for that case.
 
     'active_test=False' is deliberate here (unlike the ongoing fix, which only ever resyncs a
-    course transition's own 'affected_teachers' or an explicit 'regenerate_all_from_calendars()'
+    course transition's own 'affected_teachers' or an explicit '_regenerate_all_from_calendars()'
     scope): this one-time backfill must also reach an ALREADY-archived/departed teacher (found
     empirically running this migration the first time - Priscila Rodríguez's own case, the
     report's original example, was otherwise silently skipped by the default active-only search
@@ -47,7 +47,7 @@ def _resync_teaching_from_calendars(env):
         ('resource_calendar_id.is_framework', '=', False),
     ])
     for teacher in teachers:
-        env['ems.teaching'].sync_from_schedule(teacher, teacher._teaching_entries_from_calendar())
+        env['ems.teaching']._sync_from_schedule(teacher, teacher._teaching_entries_from_calendar())
     _logger.info("Migration 18.0.0.23.1: resynced ems.teaching for %d teacher(s) from their current calendar.", len(teachers))
 
 

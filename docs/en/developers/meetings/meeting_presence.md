@@ -20,6 +20,8 @@ erDiagram
     "ems.meeting.presence" }o--o| "hr.department" : "department_id (scope)"
     "ems.meeting.presence" }o--o| "ems.workgroup" : "workgroup_id (scope)"
     "ems.meeting.presence.line" }o--|| "hr.employee.public" : "employee_id"
+    "ems.meeting.presence" }o--o| "hr.employee.public" : "convener_id"
+    "ems.meeting.presence" }o--o{ "hr.employee.public" : "manager_ids"
 ```
 
 ### `ems.meeting.presence` (`_inherit = ['ems.base']`: chatter, `active`)
@@ -33,6 +35,8 @@ erDiagram
 | `space_id` | `Many2one → ems.space` | Optional room |
 | `course_id` | `Many2one → ems.course` | Defaults to the current course |
 | `company_id` | `Many2one → res.company` | Defaults to the current company; the scanned tag is only looked up among this company's employees |
+| `convener_id` | `Many2one → hr.employee.public` | Who convenes the meeting. Defaults to the creator's employee, editable (the secretariat may create a meeting on someone else's behalf). Decides who can open the kiosk from the meetings page, see below |
+| `manager_ids` | `Many2many → hr.employee.public` | Other people who can also open the kiosk from the meetings page |
 | `scope` | `Selection` | Who is convened: `all_teachers` (default), `all_staff`, `department`, `workgroup`, `manual` |
 | `department_id` / `workgroup_id` | `Many2one` | The target of the `department` / `workgroup` scope (required by a constraint for those scopes) |
 | `state` | `Selection` | `draft` → `open` → `closed`, tracked |
@@ -93,12 +97,40 @@ sequenceDiagram
 - `GET /ems/presence/<token>` renders `web.frontend_layout` with an `<owl-component name="ems.meeting_presence_kiosk">` (Odoo's `public_components` registry, bundled in `web.assets_frontend`). An unknown token is a 404; a known one renders the page whatever the state, and the page says whether the session is open.
 - `POST /ems/presence/<token>/status` returns `{'status', 'present_count', 'pending_count', 'convened', 'attendees'}`. `convened` are the people still pending, alphabetical ignoring accents and case, on the left of the page; `attendees` the present ones, the latest arrival first with its local time and a flag for someone who was not convened, on the right. Someone justified is in neither. Every scan's answer carries the same two lists, so the page never waits for a poll to show who just came in. The page polls it every 5 seconds, so the kiosk switches on when the window starts and off when it ends (or when a manager closes or reopens the session) without reloading the laptop at the door. The page header shows the window (`windowLabel`, `_ems_window_label()`: local time, of the browser or else of the company, since the visitor is anonymous).
 - `POST /ems/presence/<token>/scan` (`type='json'`, `auth='public'`) returns `{'status': ..., 'employee_name', 'employee_avatar', 'present_count', 'pending_count'}`; `status` is one of `ok`, `already`, `unknown`, `not_convened`, `not_open`, `closed`.
-- **The input works like the clock-in kiosk's: there is no box to type in.** The reader is a USB keyboard that types the tag's UID and ends with Enter. A listener on the whole page (`onKeydown()`) collects the keys exactly as Odoo's own barcode service does (`barcodes/static/src/barcode_service.js`, the one `hr_attendance`'s kiosk uses): only printable keys count, Enter or Tab ends a code, and so does the reader going quiet for 150 ms; a code of at least 3 keys is a tag. Somebody typing is too slow for that (each key empties the buffer before the next arrives), so typing a code by hand registers nothing. The service itself is not used, because it needs the web client's environment and this page is a public component; the rules are copied, and the tours play both a reader (a burst of `keydown` events, with and without the closing Enter) and a person typing.
+- **The input works like the clock-in kiosk's: there is no box to type in.** The reader is a USB keyboard that types the tag's UID and ends with Enter. A listener on the whole page (`useTagReader()`, `static/src/js/frontend/tag_reader.js`, shared with the meetings page) collects the keys exactly as Odoo's own barcode service does (`barcodes/static/src/barcode_service.js`, the one `hr_attendance`'s kiosk uses): only printable keys count, Enter or Tab ends a code, and so does the reader going quiet for 150 ms; a code of at least 3 keys is a tag. Somebody typing is too slow for that (each key empties the buffer before the next arrives), so typing a code by hand registers nothing. The service itself is not used, because it needs the web client's environment and this page is a public component; the rules are copied, and the tours play both a reader (a burst of `keydown` events, with and without the closing Enter) and a person typing.
 - **The one exception is a box to type a code in, shown only outside production** (`_ems_show_code_box()`: `ems.environment_type != 'production'`, an undeclared one counting as not production), as a testing aid where there is no reader. It has its own submit and the page listener ignores keys typed into it. `deploy.sh` always declares production, so the real kiosk never has it.
 - **Short names.** The lists show a name without its last surname (`kiosk_short_name()`, applied by `_ems_kiosk_names()`), to keep the rows short; the card in the middle and the PDF keep the whole name. An employee's name is a single string with nothing saying which words are given names and which are surnames, so the rule only drops the last word (with the particles that go with it: "Fernando del Olmo Fernández" becomes "Fernando del Olmo", "Josep Maria Vila i Serra" becomes "Josep Maria Vila") when that is safe, and **in any doubt the whole name stays**: a longer name is never a wrong one. It stays whole for a name of one or two words, when only a given name would be left ("Olga de la Morena", "Maribel del Tío") and for a three-word name whose second word is a common second given name ("Gerardo Jesús Nicolau", "Josep Manel Cos": `_SECOND_GIVEN_NAMES`, only names that are not also surnames). The one case it cannot tell is a three-word name whose second word is an uncommon given name. If two people of the company's staff would end up with the same short name, both keep their whole names; the comparison is against the whole staff, not against the meeting, so a name never changes on screen when somebody else comes in.
 - **The two lists always fit.** `fitLists()` gives each list the biggest font (9 to 36 px) and the number of columns (1 to 6) with which every name shows without scrolling, measuring the widest row with the page's own font (canvas `measureText`) against the room the list has, and does it again whenever the lists change, the window is resized or the fonts arrive. A handful of names get one big column, a staff meeting's hundred get several small ones; only past the 9 px floor does a list scroll, as a last resort. The width goes to the lists: the card in the middle is narrow on purpose.
 - The page asks `/status` only while its tab is visible (`document.hidden`), and once more as soon as it becomes visible again: a kiosk left open in a background tab costs the server nothing.
 - On a server hosting several databases, the kiosk needs the database to be resolvable without a session (`dbfilter`, or `?db=<name>` on the URL), like any other public route.
+
+---
+
+## Meetings page (issue #526)
+
+A fixed public address, `/ems/meetings`, that the computers with a reader keep open as their home page, so nobody has to carry each meeting's kiosk link over to them. It reads tags like the kiosk (`useTagReader()`), and each tag gets the list of meetings its owner can open today, each a link to its kiosk.
+
+```mermaid
+sequenceDiagram
+    participant R as Reader
+    participant P as /ems/meetings (OWL public component)
+    participant S as /ems/meetings/scan
+    participant K as /ems/presence/<token>?back=1
+    R->>P: tag UID + Enter
+    P->>S: {barcode}
+    S->>S: employee by barcode, _ems_meetings_run_by(employee)
+    S-->>P: {status, employee_name, meetings: [{name, url, window, room, status}]}
+    P->>K: click on a meeting (same tab)
+    K->>P: "Meetings" link in the kiosk header (backUrl)
+```
+
+- **No token.** The address is fixed and predictable; the tag is the only credential. That was accepted on purpose: what it opens are kiosks, which only register attendance (and list names, see "Kiosk security").
+- **`_ems_run_by(employee)`** decides whether an employee can open a meeting: its `convener_id`, one of its `manager_ids`, the company's Director (`res.company.director_id`, also for a meeting with no convener), or a chief above the convener in the chain of command. The chain is the tutor scope's (`hr.employee.tutor_scope_user_ids`, issue #483): every ancestor through `parent_id` whose user holds `ems.group_department_chief` (Seminar Chief, Department Chief, Head of Studies, Deputy, Director). So a Department Chief opens what their department's staff convene and a Deputy Head of Studies what their whole area convenes, but a chief of another branch does not. It resolves the real hierarchy instead of granting it by role centre-wide, as CLAUDE.md's permission-escalation rule asks.
+- **`_ems_meetings_run_by(employee)`** lists the meetings of the employee's company in state `open` (the kiosk is published only once attendance is started) whose `date_end` has not passed and whose `date` is before the end of the current local day (tz of the context or of the company, via `ems.datetime_utils`), earliest first, filtered by `_ems_run_by()`. A draft, a closed session or one that already ended is left out, since its kiosk takes no tags.
+- **`_ems_hub_scan(barcode)`** (called with `sudo()` from `POST /ems/meetings/scan`) returns `{'status': 'ok' | 'none' | 'unknown', 'employee_name', 'meetings'}`; each meeting carries its kiosk URL with `?back=1`, its window (`_ems_window_label()`), room and kiosk status (`open` / `not_open`).
+- **`GET /ems/meetings`** renders `web.frontend_layout` with the `ems.meeting_presence_hub` public component. Its words come from `_ems_hub_labels()` in the company partner's language (the visitor is anonymous). The code box outside production (`_ems_show_code_box()`) is the same testing aid as the kiosk's.
+- **The page clears itself** 30 seconds after a tag if nobody picks a meeting.
+- **The way back.** The kiosk route takes `?back=1` and then passes `backUrl='/ems/meetings'`, shown as a "Meetings" link in the kiosk header. A kiosk opened straight from its own link has no such link.
 
 ---
 
@@ -110,6 +142,8 @@ sequenceDiagram
 | Secretary (`ems.group_secretary`) | Full |
 | Academic administrator (`ems.group_academic_admin`) | Full |
 | Teacher and the rest | None: they only pass their tag |
+
+The convener and managers of a meeting get no backend rights from those fields: they only decide who can open the kiosk from the meetings page.
 
 There are no record rules: the sessions are centre-wide by nature (a staff meeting has no branch of the hierarchy to be scoped to), and the roles above are the ones that convene one. The quality administrator is deliberately left out for now: that role cannot read the courses, rooms, departments or workgroups a session points at (it implies neither `ems.group_teacher` nor `ems.group_secretary`), so opening a session would fail on them. It joins when the quality work's minutes land (issue #497), which brings its own quality groups. The *Meetings* root menu and its *Attendance* entry are visible to the same groups.
 

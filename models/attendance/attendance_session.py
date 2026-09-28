@@ -248,7 +248,8 @@ class EmsAttendanceSessionHeader(models.Model):
         }
 
     def _auto_checkin_teacher(self, teacher, date, schedule=None):
-        """Auto check-in the teacher if they haven't checked in yet today.
+        """Auto check-in the teacher if they haven't checked in yet today and the roll-call is
+        being taken during their own working hours.
 
         Called from create() (see below) as a side effect of taking attendance, not the
         teacher's own primary action - so any failure here must never block the session that
@@ -261,14 +262,26 @@ class EmsAttendanceSessionHeader(models.Model):
         mode = self.env.company.auto_checkin_mode
         if not mode or mode == 'disabled':
             return
-        today = datetime.today().date()
-        if not teacher or date != today:
+        if not teacher or date != self.get_local_today():
+            return
+
+        # Naive UTC with no microseconds: exactly the "now" hr.employee's stored
+        # last_attendance_id is computed against ('check_in' <= now). A check-in even a
+        # fraction of a second later than that is left out of it and, being a stored compute
+        # that only depends on 'attendance_ids', never picked up afterwards: the kiosk then
+        # believes the teacher is checked out and tries a second check-in instead of the
+        # check-out, which hr.attendance's own validity check rejects (found 2026-09-28).
+        now = fields.Datetime.now()
+        attendance_model = self.env['hr.attendance'].sudo()
+        # Only a roll-call taken during the teacher's own working hours checks them in (a
+        # teacher with no working schedule has none, so is never checked in automatically).
+        if not attendance_model._is_within_working_hours(teacher, now):
             return
 
         day_start = datetime(date.year, date.month, date.day, 0, 0, 0)
         day_end   = datetime(date.year, date.month, date.day, 23, 59, 59)
 
-        existing = self.env['hr.attendance'].sudo().search([
+        existing = attendance_model.search([
             ('employee_id', '=', teacher.id),
             ('check_in', '>=', day_start),
             ('check_in', '<=', day_end),
@@ -279,33 +292,29 @@ class EmsAttendanceSessionHeader(models.Model):
 
         if mode == 'first':
             # First working hour from the teacher's resource calendar
-            if not teacher.resource_calendar_id:
-                return
             weekday = str(date.weekday())
             calendar_attendances = teacher.resource_calendar_id.attendance_ids.filtered(
                 lambda a: a.dayofweek == weekday
             ).sorted(key=lambda a: a.hour_from)
             if not calendar_attendances:
                 return
-            first_hour = calendar_attendances[0].hour_from
-            check_in_utc = self.time_float_to_utc_datetime(date, first_hour)
-            check_in_naive = self.datetime_to_odoo(check_in_utc)
+            check_in = self.datetime_to_odoo(self.time_float_to_utc_datetime(date, calendar_attendances[0].hour_from))
 
         elif mode == 'start':
             # Start time of the attendance schedule used in the current session
             if not schedule or not schedule.start_time:
                 return
-            check_in_utc = self.time_float_to_utc_datetime(date, schedule.start_time)
-            check_in_naive = self.datetime_to_odoo(check_in_utc)
+            check_in = self.datetime_to_odoo(self.time_float_to_utc_datetime(date, schedule.start_time))
 
         elif mode == 'current':
-            # Current clock time
-            check_in_naive = self.datetime_to_odoo(
-                self.local_datetime_to_utc(self.get_local_datetime())
-            )
+            check_in = now
 
         else:
             return
+
+        # Never in the future (e.g. roll-call opened a few minutes before the session starts),
+        # for the same last_attendance_id reason as above.
+        check_in_naive = min(check_in, now)
 
         try:
             with self.env.cr.savepoint():
@@ -587,6 +596,10 @@ class EmsAttendanceSessionHeader(models.Model):
 
     @api.model
     def create_scheduled_session(self, date, schedule_id):
+        # The date comes from the web client: never trust it to be today or earlier, a computer
+        # with a wrong clock could send any day.
+        if fields.Date.to_date(date) > self.get_local_today():
+            raise ValidationError(_("A roll-call can't be taken for a future date."))
         record   = self.create({'date': date, 'attendance_schedule_id': schedule_id, 'mode': 'scheduled'})
         template = record.attendance_schedule_id.attendance_template_id
         previous = self.search([

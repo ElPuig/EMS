@@ -47,7 +47,7 @@ class TestDocsScreenshotsMeetingPresence(DocsScreenshotMixin, HttpCase):
                 'line_ids': [(0, 0, {'employee_id': teacher.id}) for teacher in cls.teachers], **vals,
             })
 
-        cls.presence = _session('Claustre de professorat')
+        cls.presence = _session('Claustre de professorat', convener_id=cls.teachers[0].id)
         cls.presence.action_open()
         for barcode in ('DOCSHOT001', 'DOCSHOT005', 'DOCSHOT006', 'DOCSHOT007'):
             cls.presence._ems_register_scan(barcode)
@@ -59,7 +59,8 @@ class TestDocsScreenshotsMeetingPresence(DocsScreenshotMixin, HttpCase):
         cls.closed._ems_register_scan('DOCSHOT001')
         cls.closed._ems_register_scan('DOCSHOT002')
         cls.closed.action_close()
-        cls.draft = _session('Sessió de formació')
+        cls.draft = _session('Sessió de formació', convener_id=cls.teachers[0].id,
+                             manager_ids=[(6, 0, cls.teachers[3].ids)])
 
         # An action of its own, scoped to these fixtures: it is what guarantees no real record can
         # appear in the shot, rather than trusting a crop.
@@ -87,9 +88,10 @@ class TestDocsScreenshotsMeetingPresence(DocsScreenshotMixin, HttpCase):
                       login=login, wait_for='.o_field_widget[name=line_ids] .o_data_row',
                       run="document.querySelector('.o-mail-Form-chatter').style.display = 'none'",
                       wait_after='.o_form_view',
-                      marks=[('label[for^=name]', 1, 'left'), ('.o_field_widget[name=duration]', 2, 'right'),
-                             ('label[for^=scope]', 3, 'left'), ('label[for^=kiosk_lang]', 4, 'left'),
-                             ('.o_field_widget[name=line_ids] .o_data_row:first-child .o_data_cell:first-child', 5, 'left')])
+                      marks=[('label[for^=name]', 1, 'left'), ('label[for^=duration]', 2, 'left'),
+                             ('label[for^=convener_id]', 3, 'left'), ('label[for^=scope]', 4, 'left'),
+                             ('label[for^=kiosk_lang]', 5, 'left'),
+                             ('.o_field_widget[name=line_ids] .o_data_row:first-child .o_data_cell:first-child', 6, 'left')])
         # Open: the day of the meeting.
         self._capture(f'/odoo/action-{action}/{self.presence.id}', '.o_form_view', 'meeting-presence-form.png',
                       login=login, wait_for='.o_field_widget[name=line_ids] .o_data_row',
@@ -109,3 +111,15 @@ class TestDocsScreenshotsMeetingPresence(DocsScreenshotMixin, HttpCase):
                            " document.querySelectorAll('.o_ems_presence_time').forEach(function (el, i) {"
                            " el.textContent = times[i]; }); })()"],
                       wait_after=['.o_ems_presence_card_success', '.o_ems_presence_time'])
+
+    def test_capture_meetings_page(self):
+        """The meetings page right after the convener of the staff meeting passed their tag. The
+        window shown is made up, as the kiosk's, so the shot does not depend on when it is taken."""
+        self.env.company.partner_id.write({'lang': 'ca_ES', 'tz': 'Europe/Madrid'})
+        self._capture('/ems/meetings', '.o_ems_presence_hub', 'meeting-presence-hub.png',
+                      wait_for='.o_ems_presence_prompt',
+                      run=["(function () { 'DOCSHOT001'.split('').concat('Enter').forEach(function (key) {"
+                           " document.body.dispatchEvent(new KeyboardEvent('keydown', {key: key, bubbles: true})); }); })()",
+                           "document.querySelector('.o_ems_presence_hub_details > span').textContent = '17:00 - 19:00';"
+                           " document.querySelector('.o_ems_presence_hub').style.minHeight = '0';"],
+                      wait_after=['.o_ems_presence_hub_meeting', '.o_ems_presence_hub'])

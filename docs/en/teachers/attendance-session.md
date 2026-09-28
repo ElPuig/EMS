@@ -30,6 +30,10 @@ narrow the list down to one group.
 
 ---
 
+> The day and the time this screen goes by (which slot is "current", what "today" is) are always
+> the centre's, Spanish time, taken from the server: a computer with a wrong clock or timezone
+> doesn't change them.
+
 ## Sessions vs. Planned Slots
 
 The selector on the right lists what's available for the chosen date, split into two groups:
@@ -108,6 +112,15 @@ substitution). It shows, for today only:
 Marking statuses, adding notes and issuing strikes work exactly the same way as in your own
 sessions. The **Delete session** button isn't available in Guard mode — only the teacher who
 actually owns the slot (or an Administrator) can delete a guard-covered session.
+
+---
+
+## Automatic Check-In
+
+If the centre has enabled it, starting a session also checks you in automatically, as long as you
+haven't checked in yet today and you are taking the roll-call **during your own working hours**.
+Taking the roll-call outside them (from home, before your shift starts) records the attendance
+normally but doesn't check you in. When you leave, check out at the kiosk as usual.
 
 ---
 

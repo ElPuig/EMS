@@ -33,7 +33,7 @@ class TestTeachingSyncFromSchedule(TransactionCase):
     def test_creates_new_teaching_from_entries(self):
         entries = [{'subject_id': self.subject.id, 'group_ids': [self.group_a.id]}]
 
-        self.env['ems.teaching'].sync_from_schedule(self.teacher, entries)
+        self.env['ems.teaching']._sync_from_schedule(self.teacher, entries)
 
         teaching = self.env['ems.teaching'].search([
             ('teacher_id', '=', self.teacher.id),
@@ -43,11 +43,11 @@ class TestTeachingSyncFromSchedule(TransactionCase):
         self.assertTrue(teaching)
 
     def test_removes_teaching_no_longer_in_entries(self):
-        self.env['ems.teaching'].sync_from_schedule(self.teacher, [
+        self.env['ems.teaching']._sync_from_schedule(self.teacher, [
             {'subject_id': self.subject.id, 'group_ids': [self.group_a.id]},
         ])
 
-        self.env['ems.teaching'].sync_from_schedule(self.teacher, [
+        self.env['ems.teaching']._sync_from_schedule(self.teacher, [
             {'subject_id': self.subject.id, 'group_ids': [self.group_b.id]},
         ])
 
@@ -55,12 +55,12 @@ class TestTeachingSyncFromSchedule(TransactionCase):
         self.assertEqual(remaining.group_id, self.group_b)
 
     def test_keeps_unchanged_teaching_record(self):
-        self.env['ems.teaching'].sync_from_schedule(self.teacher, [
+        self.env['ems.teaching']._sync_from_schedule(self.teacher, [
             {'subject_id': self.subject.id, 'group_ids': [self.group_a.id]},
         ])
         teaching_before = self.env['ems.teaching'].search([('teacher_id', '=', self.teacher.id)])
 
-        self.env['ems.teaching'].sync_from_schedule(self.teacher, [
+        self.env['ems.teaching']._sync_from_schedule(self.teacher, [
             {'subject_id': self.subject.id, 'group_ids': [self.group_a.id]},
         ])
         teaching_after = self.env['ems.teaching'].search([('teacher_id', '=', self.teacher.id)])
@@ -68,11 +68,11 @@ class TestTeachingSyncFromSchedule(TransactionCase):
         self.assertEqual(teaching_before, teaching_after)
 
     def test_empty_entries_removes_all_teaching(self):
-        self.env['ems.teaching'].sync_from_schedule(self.teacher, [
+        self.env['ems.teaching']._sync_from_schedule(self.teacher, [
             {'subject_id': self.subject.id, 'group_ids': [self.group_a.id]},
         ])
 
-        self.env['ems.teaching'].sync_from_schedule(self.teacher, [])
+        self.env['ems.teaching']._sync_from_schedule(self.teacher, [])
 
         remaining = self.env['ems.teaching'].search([('teacher_id', '=', self.teacher.id)])
         self.assertFalse(remaining)

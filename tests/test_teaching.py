@@ -5,7 +5,7 @@ from .common import create_level_study_group
 
 
 class TestTeaching(TransactionCase):
-    """sync_from_schedule() is already covered by test_ems_teaching_sync.py — this file
+    """_sync_from_schedule() is already covered by test_ems_teaching_sync.py — this file
     covers the model's own CRUD/constraint/access behaviour."""
 
     @classmethod

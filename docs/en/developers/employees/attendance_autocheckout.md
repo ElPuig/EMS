@@ -60,23 +60,27 @@ microsecond bug below used to have, every single night).
 
 ```mermaid
 flowchart TD
-    A[_auto_close_attendance] --> B[_get_last_working_hour for check_in's date]
-    B --> C{Schedule found for that day?}
-    C -- No --> D[Log a warning, return False — left open]
-    C -- Yes --> E{Scheduled hour already passed?}
-    E -- No --> F[Return False — too early, leave open]
-    E -- Yes --> G{Scheduled hour is before check_in itself?}
+    A[_auto_close_attendance] --> B[_get_closing_hour for check_in's date]
+    B --> C{Working hours expected that day?}
+    C -- Yes --> E{Closing hour already passed?}
+    C -- No --> K{Framework has a period that weekday?}
+    K -- No --> D[Log a warning, return False - left open]
+    K -- Yes --> E
+    E -- No --> F[Return False - too early, leave open]
+    E -- Yes --> G{Closing hour is before check_in itself?}
     G -- Yes --> H[Fallback: check_out = check_in + 1h,<br/>notify the employee + their manager to review]
-    G -- No --> I[check_out = scheduled hour,<br/>chatter note only]
+    G -- No --> I[check_out = closing hour,<br/>chatter note only - naming the framework<br/>when it came from it]
     H --> J[(write check_out, out_mode='auto_check_out')]
     I --> J
 ```
 
-`_get_last_working_hour(employee, work_date)` returns the end of the last stretch the employee was actually **expected** to work that day, as a naive UTC datetime — `None` if they have no calendar, never work that weekday, or an approved absence covers the whole of it.
+`_get_closing_hour(employee, work_date)` (and `_get_last_working_hour()`, which returns just its hour) gives the naive UTC hour to close at: the end of the last stretch the employee was actually **expected** to work that day or, when nothing was expected of them that day, the end of that day in their framework (see below). `None` only when neither exists.
 
 **It asks the calendar what was expected; it does not read the raw weekly timetable** (changed 2026-09-08, when `hr_holidays` first made absences visible to Odoo — see [Staff absences](absence.md)). An approved absence becomes a `resource.calendar.leaves` row on the employee's own calendar, and Odoo's `hr.employee._get_expected_attendances()` already subtracts those (it calls `_work_intervals_batch` with `compute_leaves=True`). The earlier version filtered `resource_calendar_id.attendance_ids` by weekday and took the latest `hour_to`, which knew nothing about leave: a teacher who left at 14:00 with the afternoon approved off and forgot to check out had their attendance closed at 18:00, crediting four hours they had permission to miss. Only an **approved** absence counts — a request still awaiting its approver never becomes a resource leave, so it correctly changes nothing.
 
-Both cases that yield `None` mean the same thing to the caller: there is no scheduled hour to close at, so the attendance is left open (with a `WARNING` in the log) for a human to correct. That is deliberate — inventing an end time for a day the employee was wholly on leave is exactly the behaviour this replaced. Covered by `TestEmployeeAutocheckout`.
+**Nothing expected that day: the framework's end of day.** The purpose of the auto check-out is to close a forgotten attendance, so the next check-in isn't taken as its check-out. When the employee's own timetable expects nothing of them that day but they checked in anyway (a personal schedule with no slots yet, e.g. a new course's schedule created by the course transition's rollover and not filled in yet, since `seed_from_framework()` only records `source_framework_id` and never writes rows; a weekday they don't work; an absence covering the whole day), `_get_closing_framework()` returns the schedule's `source_framework_id` (or the company's `default_schedule_framework_id` for a schedule predating that reference), and the attendance closes at the end of that weekday's last framework period. No absence is subtracted there: the fallback only applies to a day nothing was expected anyway. So a morning-only teacher on the ESO framework closes at 14:40; the admin chooses the right framework per teacher. The chatter note names the framework used. Auto check-in (`_is_within_working_hours()`) deliberately keeps reading only the real timetable, so nobody is checked in automatically on a day nothing was expected of them.
+
+`None` (no expected hours and no framework period that weekday, e.g. a weekend, or no schedule at all) leaves the attendance open, with a `WARNING` in the log, for a human to correct. Covered by `TestEmployeeAutocheckout`.
 
 ## `_cron_auto_check_out()` — the nightly EMS mode
 

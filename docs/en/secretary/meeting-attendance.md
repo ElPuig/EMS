@@ -18,10 +18,11 @@ Go to **Meetings → Attendance** and click **New**.
 
 1. Type the name of the meeting (1).
 2. In **Starts** and **Duration** (2) set when the meeting starts and how long it lasts (2 hours by default). **Ends** is worked out for you; you can also type it and the duration adjusts.
-3. In **Who is convened** (3) choose **All teachers**, **All staff**, **A department**, **A workgroup** or **Chosen by hand**. If you choose a department or a workgroup, select it.
-4. In **Kiosk language** (4) choose the language of the screen at the door.
-5. If needed, fill in the room and the course.
-6. Save. The **People** tab (5) is filled with the convened people.
+3. **Convener** (3) shows you. If you are creating the meeting on someone else's behalf, choose them. In **Managers**, add any other people who also need to be able to open the kiosk (see "Meetings page").
+4. In **Who is convened** (4) choose **All teachers**, **All staff**, **A department**, **A workgroup** or **Chosen by hand**. If you choose a department or a workgroup, select it.
+5. In **Kiosk language** (5) choose the language of the screen at the door.
+6. If needed, fill in the room and the course.
+7. Save. The **People** tab (6) is filled with the convened people.
 
 To add someone to the list, click **Add a line** and pick them. To remove someone, click the bin at the end of their row. If you change **Who is convened** after saving, click **Load convened people**: only the missing people are added.
 
@@ -66,6 +67,26 @@ Anyone with the kiosk link sees these names: do not share it outside the meeting
 If a tag is not read or someone does not have theirs, mark them by hand (see "Marking a person by hand").
 
 While the meeting is open, the form's **Summary** and the **People** list show who has passed their tag (reload the page to refresh them).
+
+---
+
+## Meetings page
+
+Computers with an NFC reader that serve several meetings can keep the meetings page always open. It needs no login: `https://ems.elpuig.xeill.net/ems/meetings` (in your installation, the EMS address followed by `/ems/meetings`). Set it as the browser's home page, in full screen (**F11**).
+
+1. Pass your tag over the reader. The meetings you can open today appear.
+2. Click the meeting: its kiosk opens.
+3. When it is over, click **Meetings**, at the top right of the kiosk, to go back to the meetings page.
+
+![Meetings page after passing a tag](../../assets/secretary/meeting-presence-hub.png)
+
+It lists the meetings where **Start attendance** has been clicked and that have not ended yet, with their times, the room and whether they are **In progress** or **Not started yet**. If nobody picks a meeting, the list clears after 30 seconds.
+
+Each person sees the meetings:
+
+- they convened (the **Convener** field) or are a **Manager** of;
+- convened by the people below them: a Department or Seminar Chief, those of their staff; the Head of Studies or the Deputy, those of their whole area;
+- the Director, all of them.
 
 ---
 

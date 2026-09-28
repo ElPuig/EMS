@@ -78,7 +78,7 @@ class EmsStudentImportWizard(models.TransientModel):
             ))
 
         self.log_file = self._build_log_csv(stats['log'])
-        self.log_file_name = f"import_esfera_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        self.log_file_name = f"import_esfera_{self.env['ems.datetime_utils'].get_local_datetime().strftime('%Y%m%d_%H%M%S')}.csv"
         self.result_html = self._build_result_html(stats)
         return {
             'type': 'ir.actions.act_window',
@@ -291,7 +291,7 @@ class EmsStudentImportWizard(models.TransientModel):
                 existing.write(to_write)
             self._prepend_import_notes(existing, notes)
             stats['updated'] += 1
-            stats['log'].append({'tipus': 'Alumne', 'accio': 'Actualitzat', 'partner_id': existing.id, 'ts': datetime.now()})
+            stats['log'].append({'tipus': 'Alumne', 'accio': 'Actualitzat', 'partner_id': existing.id, 'ts': self.env['ems.datetime_utils'].get_local_datetime()})
             return existing
         vals = {name: value for name, value in data.items() if not self._is_empty(value)}
         if not vals.get('name'):
@@ -306,7 +306,7 @@ class EmsStudentImportWizard(models.TransientModel):
         student = self.env['res.partner'].create(vals)
         self._prepend_import_notes(student, notes)
         stats['created'] += 1
-        stats['log'].append({'tipus': 'Alumne', 'accio': 'Creat', 'partner_id': student.id, 'ts': datetime.now()})
+        stats['log'].append({'tipus': 'Alumne', 'accio': 'Creat', 'partner_id': student.id, 'ts': self.env['ems.datetime_utils'].get_local_datetime()})
         return student
 
     def _process_tutor(self, row, col_map, prefix, student, stats):
@@ -377,7 +377,7 @@ class EmsStudentImportWizard(models.TransientModel):
                 "a new family contact may have been created even if one already exists.",
                 student=student.name, tutor=full_name,
             ))
-        stats['log'].append({'tipus': 'Familiar', 'accio': accio, 'partner_id': family.id, 'ts': datetime.now()})
+        stats['log'].append({'tipus': 'Familiar', 'accio': accio, 'partner_id': family.id, 'ts': self.env['ems.datetime_utils'].get_local_datetime()})
 
         relation_type, is_fallback = self._deduce_relation_type(observacio)
         if is_fallback and observacio:

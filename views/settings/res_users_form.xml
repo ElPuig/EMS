@@ -11,6 +11,11 @@
                         categories instead. Enable the debug mode to view or edit them manually.
                     </div>
                 </xpath>
+                <!-- Always the company's timezone (models/settings/timezone.py): editing it here would
+                     be silently undone. -->
+                <field name="tz" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </field>
             </field>
         </record>
     </data>

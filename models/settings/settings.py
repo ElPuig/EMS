@@ -25,6 +25,11 @@ class ems_settings(models.TransientModel):
    convalidation_end_day = fields.Integer(related="company_id.convalidation_end_day", readonly=False)
    convalidation_end_month = fields.Selection(related="company_id.convalidation_end_month", readonly=False)
    convalidation_end_time = fields.Float(related="company_id.convalidation_end_time", readonly=False)
+   convalidation_legal_prior_studies = fields.Text(related="company_id.convalidation_legal_prior_studies", readonly=False)
+   convalidation_legal_certificate = fields.Text(related="company_id.convalidation_legal_certificate", readonly=False)
+   convalidation_legal_other = fields.Text(related="company_id.convalidation_legal_other", readonly=False)
+   convalidation_appeal_text = fields.Text(related="company_id.convalidation_appeal_text", readonly=False)
+   convalidation_sign_by_delegation = fields.Boolean(related="company_id.convalidation_sign_by_delegation", readonly=False)
 
    current_course_id = fields.Many2one(comodel_name="ems.course", related="company_id.current_course_id", readonly=False)
    enrollment_course_id = fields.Many2one(comodel_name="ems.course", related="company_id.enrollment_course_id", readonly=False)

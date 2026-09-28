@@ -104,7 +104,7 @@ class TestCourseTransition(TransactionCase):
         # own teacher_ids without ever giving them a matching calendar block - see decision 3/4 of
         # the plan this class tests). The bottom-up sync redesign's automatic hook (Phase 4) reads
         # a teacher's ENTIRE current calendar on every touch - exactly the same "submit my whole
-        # schedule" semantics every other caller of sync_from_schedule_batch already has - so
+        # schedule" semantics every other caller of _sync_from_schedule_batch already has - so
         # firing it here would "correct" these deliberately-inconsistent fixtures out from under
         # the test. course_transition_wizard.py itself is not yet migrated to rely on this hook
         # (Phase 7, deferred) - it still manages these models directly - so its own fixtures
@@ -1214,12 +1214,12 @@ class TestCourseTransition(TransactionCase):
         """2026-09-02: resource.calendar.attendance.attendance_schedule_id (added 2026-08-11
         specifically to replace the content-matching inference used elsewhere in this method) is
         now read directly here when present. Sets the block up the same way a real live-edit/
-        import would - via ems.attendance_template.sync_from_schedule(), which populates the FK
+        import would - via ems.attendance_template._sync_from_schedule(), which populates the FK
         through _link_calendar_attendance() - unlike every other test in this section, which uses
         the raw _calendar_block() helper and deliberately exercises the inference fallback
         instead (that coverage is unaffected by this change and still passes unmodified)."""
         block = self._calendar_block(self.teacher.resource_calendar_id, [self.group1])
-        self.env['ems.attendance_template'].sync_from_schedule(self.teacher, [{
+        self.env['ems.attendance_template']._sync_from_schedule(self.teacher, [{
             'subject_id': self.subject_int.id, 'group_ids': [self.group1.id],
             'dayofweek': block.dayofweek, 'hour_from': block.hour_from, 'hour_to': block.hour_to,
             'space_id': self.space.id,

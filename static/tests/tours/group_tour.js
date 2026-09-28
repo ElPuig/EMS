@@ -34,6 +34,10 @@ registry.category("web_tour.tours").add("ems_group_form_tabs_and_reinforcement_c
             run: "click",
         },
         {
+            trigger: ".o_form_view .o_notebook .nav-item:first-child .nav-link.active[name='schedule']",
+            content: "Schedule is the first tab and the one open by default",
+        },
+        {
             trigger: ".o_form_view .o_notebook .nav-link:contains('Students')",
             content: "Open the Students tab",
             run: "click",
@@ -90,6 +94,12 @@ registry.category("web_tour.tours").add("ems_group_form_tabs_and_reinforcement_c
             trigger: ".o_form_button_save",
             content: "Save",
             run: "click",
+        },
+        {
+            // Wait for the save to finish: clicking a tab before its re-render lets the form
+            // switch back to another page right after the click.
+            trigger: ".o_breadcrumb .active:contains('Tour Reinforcement Group')",
+            content: "Reinforcement group saved",
         },
         // A reinforcement group has no "Students" tab of its own (removed 2026-09-07 along with
         // 'reinforcement_student_ids' - see group.md): 'Enrolled' (ems.enrollment-backed, same

@@ -203,7 +203,7 @@ class ems_employee_base(models.AbstractModel):
         """Fills this teacher's own weekly schedule with a break/patio period taken from the
         schedule framework(s) of the level(s) they ACTUALLY teach (`teaching_ids.group_id.
         level_id` — kept in sync with the real calendar by `apply_schedule_changes`/
-        `sync_from_schedule`, so it reflects what the teacher genuinely teaches right now, not a
+        `_sync_from_schedule`, so it reflects what the teacher genuinely teaches right now, not a
         UI convenience field like `source_framework_id`). A teacher spanning several levels whose
         frameworks happen to define the exact same break (e.g. ESO and Batxillerat, at this
         centre) sees it once, same as before — no special-casing needed, the existing per-slot
@@ -276,9 +276,9 @@ class ems_employee_base(models.AbstractModel):
     def _teaching_entries_from_calendar(self):
         """This teacher's current teaching entries, read straight off their own
         'resource_calendar_id.attendance_ids' — the same {'subject_id', 'group_ids', ...} shape
-        'ems.teaching.sync_from_schedule()'/'ems.attendance_template.sync_from_schedule_batch()'
+        'ems.teaching._sync_from_schedule()'/'ems.attendance_template._sync_from_schedule_batch()'
         already expect. Extracted from what used to be inline in
-        'ems.attendance_template.regenerate_all_from_calendars()' so course transition's own
+        'ems.attendance_template._regenerate_all_from_calendars()' so course transition's own
         teaching resync ('course_transition_wizard._apply_teaching_resync()', added 2026-09-01)
         can reuse the exact same entries without duplicating the dict-building logic — both need
         "what does this teacher's calendar say they teach, right now" as their single source of
@@ -306,8 +306,8 @@ class ems_employee_base(models.AbstractModel):
         '_apply_schedule_line_archive_pass'/'_apply_schedule_line_write_pass') and one level below
         the automatic 'resource.calendar.attendance' hook (Phase 4, see
         '_ems_sync_schedule_from_calendar_unless_suppressed' below). Not new reconciliation logic -
-        both 'ems.teaching.sync_from_schedule' and 'ems.attendance_template.sync_from_schedule'
-        already correctly reduce to a single-teacher case ('sync_from_schedule_batch([(teacher,
+        both 'ems.teaching._sync_from_schedule' and 'ems.attendance_template._sync_from_schedule'
+        already correctly reduce to a single-teacher case ('_sync_from_schedule_batch([(teacher,
         entries)])' already runs through the exact same Phase 1+2 pipeline for a batch of one, no
         code changed there for this to be true). This just gives that case its own clear name and
         home, at the level ('hr.employee', the calendar's own "container") the whole redesign's
@@ -316,8 +316,8 @@ class ems_employee_base(models.AbstractModel):
         simplified to reuse this instead, Phase 5)."""
         self.ensure_one()
         entries = self._teaching_entries_from_calendar()
-        self.env['ems.teaching'].sync_from_schedule(self, entries)
-        self.env['ems.attendance_template'].sync_from_schedule(self, entries)
+        self.env['ems.teaching']._sync_from_schedule(self, entries)
+        self.env['ems.attendance_template']._sync_from_schedule(self, entries)
 
     def _ems_sync_schedule_from_calendar_unless_suppressed(self):
         """Bottom-up sync redesign, Phase 4 (2026-09-08) - recordset-level wrapper around
@@ -704,10 +704,39 @@ class ems_employee(models.AbstractModel):
         string="Pending classroom conflicts", compute="_compute_pending_classroom_conflict_count",
         groups="base.group_system,hr.group_hr_user,ems.group_teacher")
 
+    # The native identification_id/ssnid carry groups="hr.group_hr_user", which a Department
+    # Chief does not have (and cannot be given: it would open every employee's private data
+    # centre-wide). These read-only copies, shown to them in the "Private Information" tab,
+    # reach the chain of command instead: the employee, every chief above them and the
+    # Director (tutor_scope_user_ids). Blank for anyone else. The HR officers (Head of Studies
+    # and above, TAC, the secretariat) edit the native fields in the same tab, and
+    # can_view_identity is always True for them, since it also decides whether the tab shows.
+    can_view_identity = fields.Boolean(
+        string="Can view identity", compute="_compute_scoped_identity", compute_sudo=True,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher")
+    scoped_identification_id = fields.Char(
+        string="Identity document", compute="_compute_scoped_identity", compute_sudo=True,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher")
+    scoped_ssnid = fields.Char(
+        string="Social Security No", compute="_compute_scoped_identity", compute_sudo=True,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher")
+
     @api.depends("schedule_import_code")
     def _compute_pending_identification(self):
         for employee in self:
             employee.pending_identification = bool(employee.schedule_import_code)
+
+    @api.depends_context('uid')
+    @api.depends('identification_id', 'ssnid', 'parent_id', 'user_id')
+    def _compute_scoped_identity(self):
+        # compute_sudo=True: self runs as superuser, but self.env.user is still the real viewer.
+        user = self.env.user
+        hr_officer = user.has_group('hr.group_hr_user')
+        for employee in self:
+            allowed = hr_officer or user in employee.tutor_scope_user_ids
+            employee.can_view_identity = allowed
+            employee.scoped_identification_id = employee.identification_id if allowed else False
+            employee.scoped_ssnid = employee.ssnid if allowed else False
 
     def _compute_pending_classroom_conflict_count(self):
         Attendance = self.env['resource.calendar.attendance']

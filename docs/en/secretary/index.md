@@ -19,7 +19,7 @@ This section contains the manuals for **secretariat staff**.
 - [Attendance Reports](attendance-reports.md) — Print the 3 PDF attendance reports (by group/student/subject) and explore attendance data with the Attendance analysis pivot/graph screen.
 - [Managing student and family contacts](student-contacts.md) — Contact types and how they change, adding a family contact to a student, and registering bonifications and exemptions.
 - [Authorizations: creating, sending and following up](authorizations.md) — Creating authorization forms, sending them to students during the course and following up the answers.
-- [Convalidations: completing the validated requests](convalidations.md) — Registering in Esfera the convalidations the Head of Studies validated, adjusting their grade and completing them so the student sees them.
+- [Convalidations: registering resolutions](convalidations.md) — Registering resolved convalidations in Esfera and closing them so the student receives the resolution and sees the grade.
 - [Contact data requests: asking families to update their details](../tutors/contact-data-requests.md) — Ask students and families to review their contact details from the portal, follow up the answers and approve the changes (shared manual with the tutors).
 - [Meeting attendance with the NFC tag](meeting-attendance.md) — Creating the session of a meeting (staff meeting, department, training), setting the kiosk at the door, marking who is present and printing the PDF.
 - [Reviewing student documents](student-documents.md) — Approving, rejecting or reopening ID/medical/IBAN/benefit submissions, and what each decision does behind the scenes.

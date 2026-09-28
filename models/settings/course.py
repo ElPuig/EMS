@@ -2,7 +2,7 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
-from datetime import date, datetime
+from datetime import date
 
 class EmsCourse(models.Model):
 	_name = "ems.course"
@@ -13,8 +13,8 @@ class EmsCourse(models.Model):
     ]
 
 	name = fields.Char(string="Name", compute="_compute_name", store=True)
-	start = fields.Integer(string="Start", default=lambda self: datetime.now().year, required=True)
-	end = fields.Integer(string="End", default=lambda self: datetime.now().year+1, required=True)	
+	start = fields.Integer(string="Start", default=lambda self: self.env['ems.datetime_utils'].get_local_datetime().year, required=True)
+	end = fields.Integer(string="End", default=lambda self: self.env['ems.datetime_utils'].get_local_datetime().year+1, required=True)	
 
 	# 1. Operational Course: For day-to-day operations (Attendance, Grades, Incidents)
 	is_current = fields.Boolean(

@@ -8,6 +8,9 @@
                     <span t-esc="props.name"/>
                     <small class="o_ems_presence_window" t-esc="props.windowLabel"/>
                 </h1>
+                <a t-if="props.backUrl" class="o_ems_presence_back" t-att-href="props.backUrl">
+                    <i class="fa fa-arrow-left me-2"/><span t-esc="labels.back"/>
+                </a>
             </header>
 
             <div class="o_ems_presence_body">
@@ -55,6 +58,43 @@
 
             <!-- A testing aid, only outside production: the real thing has no box, as the clock-in kiosk. -->
             <form t-if="isOpen and props.showCodeBox" class="o_ems_presence_form" t-on-submit="onSubmit">
+                <input type="text" class="o_ems_presence_input" t-ref="barcodeInput" autocomplete="off" autocapitalize="off"
+                       spellcheck="false" t-att-placeholder="labels.type_hint"/>
+            </form>
+        </div>
+    </t>
+
+    <t t-name="ems.MeetingPresenceHub">
+        <div class="o_ems_presence_hub">
+            <h1 class="o_ems_presence_hub_title" t-esc="labels.title"/>
+
+            <div t-if="state.status === 'ok'" class="o_ems_presence_hub_result">
+                <p class="o_ems_presence_hub_who">
+                    <strong t-esc="state.employeeName"/> - <span t-esc="labels.choose"/>
+                </p>
+                <div class="o_ems_presence_hub_list">
+                    <a t-foreach="state.meetings" t-as="meeting" t-key="meeting.id" t-att-href="meeting.url"
+                       t-attf-class="o_ems_presence_hub_meeting o_ems_presence_hub_{{ meeting.status }}">
+                        <span class="o_ems_presence_hub_name" t-esc="meeting.name"/>
+                        <span class="o_ems_presence_hub_details">
+                            <span t-esc="meeting.window"/>
+                            <span t-if="meeting.room" t-esc="meeting.room"/>
+                        </span>
+                        <span class="o_ems_presence_hub_status" t-esc="labels[meeting.status]"/>
+                    </a>
+                </div>
+            </div>
+            <div t-elif="state.status" class="o_ems_presence_hub_message">
+                <strong t-if="state.employeeName" t-esc="state.employeeName"/>
+                <span t-esc="labels[state.status]"/>
+            </div>
+            <div t-else="" class="o_ems_presence_prompt">
+                <i class="fa fa-id-card-o fa-4x"/>
+                <div class="o_ems_presence_prompt_title" t-esc="labels.prompt"/>
+            </div>
+
+            <!-- A testing aid, only outside production, as the kiosk's. -->
+            <form t-if="props.showCodeBox" class="o_ems_presence_form" t-on-submit="onSubmit">
                 <input type="text" class="o_ems_presence_input" t-ref="barcodeInput" autocomplete="off" autocapitalize="off"
                        spellcheck="false" t-att-placeholder="labels.type_hint"/>
             </form>

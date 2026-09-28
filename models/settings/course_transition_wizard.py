@@ -3,7 +3,6 @@
 import base64
 import csv
 import io
-from datetime import datetime
 
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
@@ -826,18 +825,18 @@ class ems_course_transition_wizard(models.TransientModel):
         part of their old schedule). Mirrors 'ems.attendance_template.regenerate_all_from_
         calendars()' 's own calendar-as-source-of-truth resync, but scoped and lightweight - never
         touches templates, so it is safe to call from this interactive wizard action (unlike
-        'regenerate_all_from_calendars()', whose own docstring restricts it to an offline
+        '_regenerate_all_from_calendars()', whose own docstring restricts it to an offline
         migration window).
 
         This is the ONLY place 'ems.teaching' ever gets reconciled as a consequence of a course
         transition - before this, a departed/reassigned teacher's stale teaching links (and, via
         'ems.teaching.unlink()' 's own cleanup, their group's stale 'tutor_id') survived
         indefinitely, since neither the calendar archival above nor the working-schedule
-        importer's own call to 'ems.teaching.sync_from_schedule(..., replace=False)' (deliberately
+        importer's own call to 'ems.teaching._sync_from_schedule(..., replace=False)' (deliberately
         additive-only, by design - one imported file is only ever one slice of the centre's
         schedule) ever remove a stale entry outright."""
         for teacher in teachers:
-            self.env['ems.teaching'].sync_from_schedule(teacher, teacher._teaching_entries_from_calendar())
+            self.env['ems.teaching']._sync_from_schedule(teacher, teacher._teaching_entries_from_calendar())
 
     def _apply_planning_rollover(self):
         """Step - copies every ems.planning (and its planning_outcome_ids) of the studies in
@@ -1067,7 +1066,7 @@ Called from `_apply_cleanup()` **last**, after `students._ems_clear_operational_
         follower about an operation that only concerns the staff.
         """
         self.ensure_one()
-        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        stamp = self.env['ems.datetime_utils'].get_local_datetime().strftime("%Y%m%d_%H%M%S")
         self.audit_file = self._build_audit_csv()
         self.audit_file_name = "course_transition_%s.csv" % stamp
 

@@ -1120,7 +1120,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         'import_planner_data()' - which is where the actual failure happened. '_apply_import' has
         its OWN separate self-conflict safety net ('find_self_conflicts', called from
         '_apply_import' directly, not through the wizard screen) that reads 'ems.attendance_schedule'
-        - a model only brought in sync with the calendar by 'sync_from_schedule_batch', which runs
+        - a model only brought in sync with the calendar by '_sync_from_schedule_batch', which runs
         AFTER this check, not before. In 'replace' mode this means the check always sees the
         teacher's now-stale PRE-import 'ems.attendance_schedule' rows (the calendar itself was
         already correctly rewritten earlier in the same call), producing the exact same false

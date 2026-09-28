@@ -38,6 +38,14 @@ It is the address the credentials of the new Google account are sent to. Without
 
 ---
 
+## Identity Document and Social Security Number
+
+The **Private Information** tab of a teacher's record opens with an **Identification** group holding the **Identity document** (DNI/NIE) and the **Social Security No**. You, the Deputy, the Director and the TAC coordinator can edit them on teachers' records; the Secretariat keeps them up to date for every staff member, ASP included.
+
+A teacher's Department Chief and Seminar Chief can also see these two fields, read-only, on the records of the staff in their own department (only their own chain of command, not other departments). For them the tab shows the **Identification** group alone: the rest of the private information stays hidden.
+
+---
+
 ## Creating the Corporate Google Account
 
 The buttons that manage the teacher's corporate account are on the top bar of their record. Which one appears depends on the state the account is in — only one is ever offered at a time:

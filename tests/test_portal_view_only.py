@@ -103,9 +103,13 @@ class TestPortalViewOnly(HttpCase):
         self._login(self.family_user)
         page = self._lands_on('/my/home', '/my/home').text
         self.assertIn('href="/my/asistencia"', page)
-        for url in ('/my/gestion-matriculas', '/my/documentacion', '/my/convalidaciones'):
+        for url in ('/my/gestion-matriculas', '/my/documentacion'):
             self.assertNotIn(f'href="{url}"', page)
             self._lands_on(url, '/my/home')
+        # Convalidations have their own rule (issue #529): the family files them for an adult
+        # child who shares with it.
+        self.assertIn('href="/my/convalidaciones"', page)
+        self._lands_on('/my/convalidaciones', '/my/convalidaciones')
         self._lands_on('/my/asistencia', '/my/asistencia')
         self._lands_on('/my/comunicaciones', '/my/comunicaciones')
         # Switching back to the minor gives the family its managing pages again, menu included
@@ -139,8 +143,10 @@ class TestPortalViewOnly(HttpCase):
 
     def test_minor_is_sent_home_from_every_managing_page(self):
         self._login(self.minor_user)
-        for url in ('/my/gestion-matriculas', '/my/documentacion', '/my/convalidaciones'):
+        for url in ('/my/gestion-matriculas', '/my/documentacion'):
             self._lands_on(url, '/my/home')
+        # He reads his convalidations, filed by his family (issue #529).
+        self._lands_on('/my/convalidaciones', '/my/convalidaciones')
 
     def test_minor_cannot_post_managing_actions(self):
         self._login(self.minor_user)
@@ -159,8 +165,9 @@ class TestPortalViewOnly(HttpCase):
         self._login(self.minor_user)
         page = self._lands_on('/my/home', '/my/home').text
         self.assertIn('href="/my/asistencia"', page)
-        for url in ('/my/gestion-matriculas', '/my/documentacion', '/my/convalidaciones'):
+        for url in ('/my/gestion-matriculas', '/my/documentacion'):
             self.assertNotIn(f'href="{url}"', page)
+        self.assertIn('href="/my/convalidaciones"', page)
 
     def test_family_keeps_every_entry_and_page(self):
         """The cached header must not leak the minor's trimmed menu to anyone else."""

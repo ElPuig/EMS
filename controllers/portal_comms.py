@@ -38,8 +38,12 @@ class EMSPortalCommsController(CustomerPortal):
         # child) only sees what is addressed to the student: the enrollment, document and
         # convalidation threads are the conversation of whoever acts for him with the centre
         # (res.partner._ems_portal_is_view_only).
+        # The convalidation threads have a rule of their own (issue #529): whoever may file them
+        # follows them, even from a view-only account (the family of an adult who authorized it).
         if ems_portal_is_view_only():
             origin = [('partner_ids', 'in', [partner.id])]
+            if request.env.user.partner_id._ems_convalidation_can_request(partner):
+                origin = ['|'] + origin + ['&', ('model', '=', 'ems.convalidation'), ('res_id', 'in', convalidation_ids)]
         else:
             origin = [
                 '|', '|', '|',

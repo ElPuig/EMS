@@ -290,3 +290,55 @@ registry.category("web_tour.tours").add("ems_meeting_presence_kiosk_reader", {
         },
     ],
 });
+
+// Issue #526: the meetings page, a fixed address the computers with a reader keep open, anonymous
+// and in production (no code box: only a reader's burst of keys counts).
+registry.category("web_tour.tours").add("ems_meeting_presence_hub", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_ems_presence_hub .o_ems_presence_prompt",
+            content: "The meetings page waits for a tag",
+        },
+        {
+            trigger: "body:not(:has(.o_ems_presence_input))",
+            content: "There is no box to type a code in",
+        },
+        {
+            trigger: ".o_ems_presence_prompt",
+            content: "A tag nobody owns",
+            run: () => pressKeys([..."NOSUCHTAG", "Enter"]),
+        },
+        {
+            trigger: ".o_ems_presence_hub_message:contains('Unknown tag')",
+            content: "It says so",
+        },
+        {
+            trigger: ".o_ems_presence_hub_message",
+            content: "The convener passes their tag",
+            run: () => pressKeys([..."TESTHUBTOUR1", "Enter"]),
+        },
+        {
+            trigger: ".o_ems_presence_hub_who:contains('Hub Tour Convener')",
+            content: "The page says whose meetings these are",
+        },
+        {
+            trigger: ".o_ems_presence_hub_meeting:contains('Hub tour meeting')",
+            content: "Their meeting is listed: open it",
+            run: "click",
+        },
+        {
+            trigger: ".o_ems_presence_kiosk .o_ems_presence_title:contains('Hub tour meeting')",
+            content: "Its kiosk opens",
+        },
+        {
+            trigger: ".o_ems_presence_back",
+            content: "Back to the meetings page",
+            run: "click",
+        },
+        {
+            trigger: ".o_ems_presence_hub .o_ems_presence_prompt",
+            content: "The meetings page waits for the next tag",
+        },
+    ],
+});

@@ -620,6 +620,62 @@ Mail leaves through the company's configured server, which is the other half of 
 replaces: the Apps Script sent from the personal Google account of whoever last ran its
 "Identificar-me com a remitent d'emails" menu entry, and stopped working when that person left.
 
+## Public holidays
+
+Public holidays are native `resource.calendar.leaves` rows with no `resource_id`, managed from
+**Employee Attendances > Absences > Configuration > Public Holidays** (Time Off Administrator,
+which in practice is only `admin`, see *Access control*). Odoo does not ship any holiday
+calendar: national, Catalan, local and the centre's own closing days (free-disposal days,
+Christmas, Easter...) are all entered by hand. EMS extends the model in
+`models/employees/public_holiday.py`.
+
+```mermaid
+flowchart TD
+    A[Public holiday created or edited] --> B{resource_id set?}
+    B -- no --> C[calendar_id forced empty:<br/>applies to every schedule]
+    B -- yes --> D[personal leave, calendar kept]
+    C --> E[native: overtime recomputed<br/>for every affected employee/day]
+    D --> E
+    E --> F[EMS: technical attendances on days<br/>left with no expected hours are deleted]
+```
+
+### A public holiday always applies to every schedule
+
+Natively, a public holiday may be tied to one working schedule (`calendar_id`, "Working Hours")
+and then only applies to employees on exactly that schedule. That never fits EMS: every teacher
+has a personal schedule (one `resource.calendar` per employee, recreated at every course
+transition), so a holiday tied to one of them misses everybody else. The trap is easy to fall
+into, because the "Public Time Off" smart button on a schedule's form opens the list with
+`default_calendar_id` set to that schedule: the first Diada entered this way was tied to the
+default schedule framework, which has no employees, and applied to nobody.
+
+So `create()` and `write()` always leave `calendar_id` empty on a row without `resource_id`
+(defaults from the context included), and the "Working Hours" column is hidden from the Public
+Holidays list (`view_public_holiday_list_ems`). Personal leaves (`resource_id` set, e.g. an
+approved `hr.leave`) keep their calendar untouched.
+
+### Cleaning up the "absence" attendances a holiday makes obsolete
+
+With `res.company.absence_management` on, Odoo's `hr.attendance._cron_absence_detection()`
+creates every night a one-second *technical* attendance (`in_mode`/`out_mode` `'technical'`,
+shown in red) for each employee who didn't check in the day before, so the missed hours count as
+negative overtime. It deletes it right away when that day had no expected hours - a holiday
+entered in advance therefore never produces one.
+
+A holiday (or absence) entered *afterwards* is only half handled natively: creating, editing or
+deleting a `resource.calendar.leaves` recomputes the overtime of the affected employees and days
+(`hr_attendance/models/resource_calendar_leaves.py`), but the red technical attendance stays.
+EMS's `_unlink_technical_attendances_without_expected_hours()`, run after `create()` and
+`write()`, deletes the technical attendances on the affected days that are now left with no
+expected hours (`hr.employee._get_expected_attendances()`, the same computation the native cron
+uses). It only ever touches technical attendances, and only on days nothing is expected any more:
+a real check-in on a holiday, or a technical attendance on a partial holiday, is kept. The same
+applies to a personal leave, so approving a whole-day absence after the fact also clears that
+day's red row.
+
+`migrations/18.0.0.30.1/post-migrate.py` detaches the public holidays already tied to a schedule
+through the same `write()`, which also clears the technical attendances they had left behind.
+
 ## Access control
 
 | Group | `hr.leave` records visible | Reason and attachment | Can |

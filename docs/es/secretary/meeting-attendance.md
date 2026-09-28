@@ -18,10 +18,11 @@ Navega a **Reuniones → Asistencia** y haz clic en **Nuevo**.
 
 1. Escribe el nombre de la reunión (1).
 2. En **Comienza** y **Duración** (2) indica cuándo empieza la reunión y cuánto dura (por defecto, 2 horas). El campo **Finaliza** se calcula solo; también puedes escribirlo tú y la duración se ajusta.
-3. En **A quién se convoca** (3) elige **Todo el profesorado**, **Todo el personal**, **Un departamento**, **Un grupo de trabajo** o **Elegido a mano**. Si eliges un departamento o un grupo de trabajo, selecciónalo.
-4. En **Idioma del quiosco** (4) elige el idioma de la pantalla de la entrada.
-5. Si hace falta, rellena la sala y el curso.
-6. Guarda. La pestaña **Personas** (5) se carga con las personas convocadas.
+3. En **Convocante** (3) apareces tú. Si creas la reunión en nombre de otra persona, elígela. En **Gestores** añade, si hace falta, otras personas que también tengan que poder abrir el quiosco (ver «Página de reuniones»).
+4. En **A quién se convoca** (4) elige **Todo el profesorado**, **Todo el personal**, **Un departamento**, **Un grupo de trabajo** o **Elegido a mano**. Si eliges un departamento o un grupo de trabajo, selecciónalo.
+5. En **Idioma del quiosco** (5) elige el idioma de la pantalla de la entrada.
+6. Si hace falta, rellena la sala y el curso.
+7. Guarda. La pestaña **Personas** (6) se carga con las personas convocadas.
 
 Para añadir a alguien a la lista, haz clic en **Añadir una línea** y elígelo. Para quitarlo, haz clic en la papelera de su fila. Si cambias **A quién se convoca** después de guardar, haz clic en **Cargar las personas convocadas**: solo se añaden las que faltan.
 
@@ -66,6 +67,26 @@ Quien tenga el enlace del quiosco ve estos nombres: no lo compartas fuera de la 
 Si una tarjeta no se lee o alguien no la lleva, márcalo a mano (véase «Marcar a una persona a mano»).
 
 Mientras la reunión está abierta, el **Resumen** del formulario y la lista **Personas** muestran quién ha pasado la tarjeta (recarga la página para actualizarlos).
+
+---
+
+## Página de reuniones
+
+Los ordenadores con lector NFC que sirven para varias reuniones pueden tener siempre abierta la página de reuniones, que no pide iniciar sesión: `https://ems.elpuig.xeill.net/ems/meetings` (en vuestra instalación, la dirección de EMS seguida de `/ems/meetings`). Déjala como página de inicio del navegador, a pantalla completa (**F11**).
+
+1. Pasa la tarjeta por el lector. Aparecen las reuniones que puedes abrir hoy.
+2. Haz clic en la reunión: se abre su quiosco.
+3. Cuando termine, haz clic en **Reuniones**, arriba a la derecha del quiosco, para volver a la página de reuniones.
+
+![Página de reuniones después de pasar la tarjeta](../../assets/secretary/meeting-presence-hub.png)
+
+Aparecen las reuniones en las que se ha hecho clic en **Iniciar la asistencia** y que aún no han terminado, con el horario, la sala y si están **En proceso** o **Aún no ha empezado**. Si nadie elige ninguna reunión, la lista se borra a los 30 segundos.
+
+Cada persona ve las reuniones:
+
+- que ha convocado (campo **Convocante**) o de las que es **Gestor**;
+- que han convocado las personas que tiene por debajo: un jefe de departamento o de seminario, las de su gente; el jefe de estudios o el adjunto, las de toda su área;
+- la directora, todas.
 
 ---
 

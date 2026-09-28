@@ -30,7 +30,7 @@
             <field name="perm_unlink" eval="False"/>
         </record>
 
-        <!-- 2. Deleting a staff record stays exclusive to the administrators, even though
+        <!-- 2. Deleting a staff record stays exclusive to the administrators (the secretariat included), even though
              hr.group_hr_user grants unlink on hr.employee. An unsatisfiable domain is the way to
              express "this group never deletes" in a mechanism that only ever grants: rules for a
              user's groups are OR-ed, so this one contributes nothing to that OR and the operation
@@ -38,12 +38,26 @@
         <record id="rule_hr_employee_no_unlink_staff_manager" model="ir.rule">
             <field name="name">Employee: staff managers never delete</field>
             <field name="model_id" ref="ems.model_hr_employee"/>
-            <field name="groups" eval="[(4, ref('ems.group_head_of_studies')), (4, ref('ems.group_tac'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_head_of_studies')), (4, ref('ems.group_tac')), (4, ref('ems.group_secretary'))]"/>
             <field name="domain_force">[(0, '=', 1)]</field>
             <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- 2b. The secretariat also implies hr.group_hr_user (security/groups.xml), to keep the staff's
+             personal data up to date: unlike the two posts above, it manages ASP and teachers alike,
+             so its write/create is not bounded by employee type. Deletion stays refused by rule 2. -->
+        <record id="rule_hr_employee_write_secretary" model="ir.rule">
+            <field name="name">Employee: secretariat, all staff (write/create)</field>
+            <field name="model_id" ref="ems.model_hr_employee"/>
+            <field name="groups" eval="[(4, ref('ems.group_secretary'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
         </record>
 
         <!-- 3. The counterpart that keeps the administrators where they already were, on all three

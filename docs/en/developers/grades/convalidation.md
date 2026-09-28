@@ -2,13 +2,20 @@
 
 ## Overview
 
-A **convalidation request** is a student asking for some subjects (vocational training modules) of their study to be recognised because they already passed them elsewhere. An adult student, the family of a minor one, or a minor applicant with no family on file (straight from a GEDAC preinscription), files the request from the portal during the yearly **request period** set in the EMS settings (or the secretariat registers one received on paper, at any time).
+A **convalidation request** is a student asking for some subjects (vocational training modules) of their study to be recognised because they already passed them elsewhere. It is filed from the portal during the yearly **request period** set in the EMS settings (or the secretariat registers one received on paper, at any time): an adult student files it himself, and so does his family when he authorized sharing with it; a minor's family files it for him (see [Portal](#portal)).
 
-Resolving it is a **linear, two-step circuit**, mirroring what the centre actually does: the **Head of Studies** decides subject by subject and writes the grade the previous studies hold, then the **secretariat** registers the resolution in Esfera (the Departament d'Educació's own system, outside EMS) and completes the request. Only a completed request reaches the student's grades — until then the resolution is not official.
+Resolving it follows the centre's official circuit. The **Deputy Head of Studies** reviews every request and keeps it until it is resolved, deciding subject by subject (the grade the previous studies hold, or the reason for refusing). Each request is then resolved one of two ways:
+
+- **by the centre:** the review becomes a proposal the **Director** turns into the official resolution, a PDF kept on the request (or sends back for review, saying why);
+- **by the Ministry:** the Head of Studies files it there and marks it *In process at the Ministry*; when the answer arrives they record it (optionally attaching the Ministry's PDF) and it skips the Director.
+
+Every resolution, a full refusal included, then goes to the **secretariat**, who registers it in Esfera (the Departament d'Educació's own system, outside EMS) and closes the request. Only a completed request reaches the student's grades.
+
+> **Not yet legally signed:** the resolution PDF carries no qualified electronic signature. Signing it with the Director's certificate is future work, tracked in issue #530.
 
 Only studies whose **level** has `allows_convalidation` set can receive requests. `data/cat/ems.level.csv` sets it for `CFGM` and `CFGS`, the cycles the centre's secretariat publishes convalidation forms for.
 
-**Module files:** `models/grades/convalidation.py`, `models/grades/convalidation_info_wizard.py`, `models/curriculum/level.py` (`allows_convalidation`), `models/curriculum/study.py` (`_ems_convalidable_subjects`), `models/grades/grade_subject_line.py`, `models/grades/grade_session.py`, `models/grades/year_record.py`, `models/grades/grade_review_wizard.py`, `models/grades/em_grading_wizard.py`, `models/contacts/contact.py` (stat button), `models/settings/company.py` (request period), `models/settings/settings.py`, `views/settings/form.xml`, `models/contacts/portal.py` (`_ems_portal_can_act_for`), `controllers/portal_convalidation.py`, `views/academic_management/convalidations/{views,menu}.xml`, `views/portal/portal_convalidations.xml`, `mails/grades/convalidation_resolved.xml`, `mails/grades/convalidation_info_request.xml`, `data/main/mail.activity.type.csv`, `static/src/js/backend/grade_matrix_field.js`, `static/src/js/backend/grade_tutor_matrix.js`, `tests/test_convalidation.py`, `tests/test_convalidation_period.py`, `tests/test_portal_convalidation.py`, `tests/test_convalidation_tour.py`, `static/tests/tours/convalidation_tour.js`
+**Module files:** `models/grades/convalidation.py`, `models/grades/convalidation_info_wizard.py`, `models/grades/convalidation_return_wizard.py`, `reports/grades/report_convalidation_resolution.xml`, `models/curriculum/level.py` (`allows_convalidation`), `models/curriculum/study.py` (`_ems_convalidable_subjects`), `models/grades/grade_subject_line.py`, `models/grades/grade_session.py`, `models/grades/year_record.py`, `models/grades/grade_review_wizard.py`, `models/grades/em_grading_wizard.py`, `models/contacts/contact.py` (stat button), `models/settings/company.py` (request period), `models/settings/settings.py`, `views/settings/form.xml`, `models/contacts/portal.py` (`_ems_portal_can_act_for`), `controllers/portal_convalidation.py`, `views/academic_management/convalidations/{views,menu}.xml`, `views/portal/portal_convalidations.xml`, `mails/grades/convalidation_resolved.xml`, `mails/grades/convalidation_info_request.xml`, `data/main/mail.activity.type.csv`, `static/src/js/backend/grade_matrix_field.js`, `static/src/js/backend/grade_tutor_matrix.js`, `tests/test_convalidation.py`, `tests/test_convalidation_period.py`, `tests/test_portal_convalidation.py`, `tests/test_convalidation_tour.py`, `static/tests/tours/convalidation_tour.js`
 
 **See also:** [`grade_session.md`](grade_session.md), [`year_record.md`](year_record.md), [`em_grading_wizard.md`](em_grading_wizard.md).
 
@@ -25,6 +32,8 @@ erDiagram
     EMS_SUBJECT ||--o{ EMS_CONVALIDATION_LINE : "subject_id (restrict)"
     EMS_CONVALIDATION }o--o{ IR_ATTACHMENT : "attachment_ids"
     EMS_CONVALIDATION ||--o{ EMS_CONVALIDATION_INFO_WIZARD : "convalidation_id (cascade)"
+    EMS_CONVALIDATION ||--o{ EMS_CONVALIDATION_RETURN_WIZARD : "convalidation_id (cascade)"
+    EMS_CONVALIDATION |o--o| IR_ATTACHMENT : "resolution_pdf_id (set null)"
     EMS_CONVALIDATION_LINE ..> EMS_GRADE_SUBJECT_LINE : "is_convalidated + grade (sync)"
     EMS_CONVALIDATION_LINE ..> EMS_STUDENT_YEAR_RECORD_SUBJECT : "is_convalidated + grade (sync)"
 ```
@@ -37,15 +46,23 @@ erDiagram
 | `student_id` | M2o `res.partner` | Required. Student or applicant (an applicant enrolling into a cycle is the typical requester). |
 | `requester_id` | M2o `res.partner` | The portal user who submitted it: the student or a family contact. |
 | `course_id` | M2o `ems.course` | Required. Defaults to the enrollment course (`is_enrollment_default`), else the current one: requests are made while enrolling. |
-| `study_id` | M2o `ems.study` | Required. Its level must allow convalidations (`_check_study_allows_convalidation`). Cannot change once the request is validated. |
+| `study_id` | M2o `ems.study` | Required. Its level must allow convalidations (`_check_study_allows_convalidation`). |
 | `basis` | Selection | `prior_studies`, `certificate`, `other`. |
 | `student_notes`, `resolution_notes` | Text | Applicant's comments, and comments sent to the student with the resolution. |
 | `attachment_ids` | M2m `ir.attachment` | Supporting documents, optional. Linked to the request (`res_model`/`res_id`) on create/write, so they follow its access rights. The portal's own answers add to this same field. |
+| (what was filed) | | `student_id`, `course_id`, `study_id`, `basis` and `student_notes` (`FILED_FIELDS`) are set on creation — from the portal, or by the secretariat registering a paper request — and cannot be written afterwards, except through `sudo`; the form shows them read-only once saved. |
 | `line_ids` | O2m | At least one (`_check_has_lines`, also triggered by `study_id` since a request created without lines carries no `line_ids` in `vals`). |
-| `state` | Selection, stored | `pending`, `in_progress`, `completed`, `rejected`, `cancelled`. Written by the actions only (`readonly`), never computed: the circuit is driven by people, not by the lines' own states. |
-| `validation_date`, `validated_by_id` | Date, M2o | Stamped by `action_validate`. |
-| `resolution_date`, `resolved_by_id` | Date, M2o | Stamped when the request is completed or rejected. |
-| `granted_count`, `pending_count` | Integer compute | List columns. `pending_count` is what `action_validate` requires to be zero. |
+| `state` | Selection, stored | `pending`, `ministry` (*In process at the Ministry*), `direction` (*Pending the Director*), `in_progress` (*Pending the secretariat*), `completed`, `rejected`, `cancelled`. Written by the actions only (with `sudo`; any other write is refused in `write()`), never computed: the circuit is driven by people, not by the lines' own states. |
+| `resolved_by_ministry`, `ministry_date` | Boolean, Date | Set by `action_send_to_ministry`. |
+| `ministry_resolution` (+ `_filename`) | Binary (attachment) | The Ministry's own resolution, optional; editable only while `ministry`. |
+| `info_request`, `info_request_date` | Text, Date | The last request for information (`ems.convalidation.info_wizard`), shown on the portal above the answer form while the request is `pending` or `ministry`, and on its own tab in the form. |
+| `return_reason` | Text | The Director's reason for sending the last proposal back; shown on the form while `pending`, cleared by the next proposal. |
+| `validation_date`, `validated_by_id` | Date, M2o | *Proposal date / Proposed by*: stamped by `action_propose` and `action_ministry_resolved`. |
+| `signature_date`, `signed_by_id` | Date, M2o | *Resolution date / Resolved by*: stamped by `action_resolve` (whoever pressed it). |
+| `resolution_pdf_id` | M2o `ir.attachment` | The official resolution the student gets: the centre's PDF (`action_resolve`), or a copy of `ministry_resolution` under its own file name (`action_ministry_resolved`). |
+| `resolution_pdf_link` | Html compute | The file name as a link to `/web/content/<id>` opening in a new tab, which the form shows instead of the many2one (that one would open the attachment's own form). |
+| `resolution_date`, `resolved_by_id` | Date, M2o | *Registration date / Registered by*: stamped by the secretariat's `action_complete`. |
+| `granted_count`, `pending_count` | Integer compute | List columns. `pending_count` is what a proposal requires to be zero. |
 | `has_centre_title` | Boolean compute | True when the student's academic history holds a `title_obtained` record: a hint that their previous grades can be looked up here. Its absence proves nothing (only recent years are in EMS), so nothing is shown in that case. |
 
 ### `ems.convalidation.line` (subject)
@@ -58,36 +75,58 @@ erDiagram
 | `subject_id` | M2o `ems.subject` | Must be one of `study_id._ems_convalidable_subjects()` (the study's subjects minus the tutorship). Unique per request. |
 | `state` | Selection | `pending`, `granted`, `rejected`. |
 | `grade` | Integer | The grade a granted subject is recorded with. Defaults to `CONVALIDATED_GRADE` (5) and is constrained to 5..10: a convalidated subject is passed by definition. |
-| `resolution_notes` | Char | Where the resolution comes from (e.g. "Granted by the Department, file no. 1234"), shown to the student. |
+| `rejection_reason` | Text | Why the subject is refused. Required on every refused line before a proposal or a Ministry resolution (`_ems_check_decided`); printed on the resolution. |
+| `resolution_notes` | Char | Optional remarks shown to the student (hidden column in the form). |
 
 ## Workflow
 
 ```mermaid
 stateDiagram-v2
     [*] --> pending: portal / secretariat
-    pending --> in_progress: action_validate (Head of Studies, something granted)
-    pending --> rejected: action_validate (nothing granted) / action_reject
-    in_progress --> completed: action_complete (secretariat)
-    in_progress --> rejected: action_reject (secretariat)
-    pending --> cancelled: action_cancel (student)
+    pending --> direction: action_propose (Head of Studies)
+    direction --> pending: action_return (Director, with reason)
+    direction --> in_progress: action_resolve (Director, PDF)
+    pending --> ministry: action_send_to_ministry (Head of Studies)
+    ministry --> in_progress: action_ministry_resolved (Head of Studies)
+    in_progress --> completed: action_complete (secretariat, something granted)
+    in_progress --> rejected: action_complete (secretariat, nothing granted)
+    pending --> cancelled: action_cancel (applicant)
     cancelled --> pending: action_reopen
     completed --> [*]
     rejected --> [*]
 ```
 
-- **`action_validate`** (Head of Studies): requires every line decided (`pending_count == 0`). With at least one granted line the request moves to `in_progress`, stamps the validation and schedules the secretariat's task. With none, there is nothing to register in Esfera, so it is rejected straight away.
-- **`action_complete`** (secretariat): the only door to `completed`, and therefore to the student's grades. It also withdraws the student from every granted subject (`_ems_withdraw_convalidated_subjects`, see below).
-- **`action_reject`**: the Head of Studies while `pending`, the secretariat while `in_progress`. Every line still standing is rejected too, so the student never reads "convalidated" on a rejected request.
-- **`action_request_info`** opens `ems.convalidation.info_wizard`, which emails the applicant and posts the text on the portal without moving the request.
-- **`action_cancel` / `action_reopen`**: the student's own, from the portal, while the request is `pending`.
+- **`action_propose`** (Head of Studies, `pending`): requires every line decided and every refusal explained (`_ems_check_decided`). Stamps the proposal, clears `return_reason`, closes the review task and schedules the Director's.
+- **`action_send_to_ministry`** (Head of Studies, `pending`): sets `resolved_by_ministry` and `ministry_date`. The review task stays open (the request is still theirs), the applicant can no longer cancel, and can still be asked for documents.
+- **`action_ministry_resolved`** (Head of Studies, `ministry`): same checks as a proposal; copies `ministry_resolution`, if any, into `resolution_pdf_id` and goes straight to `in_progress`.
+- **`action_resolve`** (Director, `direction`): stamps `signature_date`/`signed_by_id`, renders the resolution (`_ems_generate_resolution_pdf`) and moves on to the secretariat.
+- **`action_return`** (Director, `direction`): opens `ems.convalidation.return_wizard`; `_ems_return(reason)` goes back to `pending`, stores the reason, posts it as an internal note (the student is not told) and re-schedules the review task.
+- **`action_complete`** (secretariat, `in_progress`): the only way out of the circuit, for every resolution. `completed` when at least one line is granted, `rejected` otherwise; stamps the registration, emails the resolution and, for granted subjects, withdraws the student from them (`_ems_withdraw_convalidated_subjects`, see below).
+- **`action_request_info`** opens `ems.convalidation.info_wizard` while `pending` or `ministry` (`REVIEW_STATES`): it emails the applicant and posts the text on the portal without moving the request.
+- **`action_cancel` / `action_reopen`**: the applicant's own, from the portal, while the request is `pending`.
 
-**Who may do what.** `_ems_is_head_of_studies()` / `_ems_is_secretary()` (with `group_academic_admin` counting as both) gate the request's actions; on the lines, `_ems_check_can_decide()` guards `state`/`subject_id` (Head of Studies, only while the request is `pending`) and `_ems_check_can_grade()` guards `grade` (Head of Studies while `pending`, secretariat while `in_progress`). `sudo` bypasses both: the request's own actions write their lines that way, after checking who is acting on the request as a whole.
+There is no whole-request "reject" action: a refusal is a resolution like any other, decided line by line, issued by the Director (or the Ministry) and registered by the secretariat.
 
-**Tasks.** Each step puts the request in the to-do list of whoever owns the next one: `ems.mail_activity_convalidation_review` on creation, for the **Deputy Head of Studies** (the holder of `ems.role_dhos`, who handles vocational training), and `ems.mail_activity_convalidation_registration` on validation, for **every member of the secretariat** (`ems.group_secretary` minus `ems.group_academic_admin`). `_ems_task_recipients()` resolves both from the organisation, so there is nothing to configure: both types carry `ems_task_assignment = False` and stay out of Academic Management → Configuration → Task Assignment on purpose, the same choice [`task_assignment.md`](../shared/task_assignment.md) makes for attendance corrections, whose recipient also comes from the org chart. The administrator is subtracted because it implies every group — exactly why that screen stopped deriving recipients from groups. Each step closes the previous task (`_ems_close_tasks`), assignees are unsubscribed from the thread so the task is their only notice, and when nobody holds the position a warning is logged and no task is created.
+**Who may do what.** `_ems_is_head_of_studies()` / `_ems_is_director()` / `_ems_is_secretary()` (with `group_academic_admin` counting as all three) gate the request's actions. On the lines, `_ems_check_can_decide()` guards `state`, `subject_id`, `grade` and `rejection_reason`: the Head of Studies, only while the request is in `REVIEW_STATES`. Once proposed, nobody changes the decision — the Director resolves or returns it, and the secretariat only registers it. `sudo` bypasses the check: the request's own actions write their lines that way, after checking who is acting on the request as a whole.
 
-**Resolution notice.** Completing or rejecting a request stamps it and calls `_ems_send_resolution()`, which queues `ems.email_template_convalidation_resolved` (`force_send=False`) to `student_id._ems_notification_recipients()` filtered by email — the student when adult, the family when a minor — and logs the recipients, or the lack of any, as a chatter note. Validation sends no email: the student sees the new state on the portal.
+**Tasks.** Each step puts the request in the to-do list of whoever owns the next one: `ems.mail_activity_convalidation_review` for the **Deputy Head of Studies** (holder of `ems.role_dhos`), on creation, on reopening and when the Director returns a proposal; `ems.mail_activity_convalidation_resolution` for the **Director** (holder of `ems.role_director`) on a proposal; and `ems.mail_activity_convalidation_registration` for **every member of the secretariat** (`ems.group_secretary` minus `ems.group_academic_admin`) once resolved. `_ems_task_recipients()` resolves them from the organisation (`_EMS_TASK_ROLES`), so there is nothing to configure: the three types carry `ems_task_assignment = False` and stay out of Academic Management → Configuration → Task Assignment on purpose, the same choice [`task_assignment.md`](../shared/task_assignment.md) makes for attendance corrections, whose recipient also comes from the org chart. The administrator is subtracted because it implies every group — exactly why that screen stopped deriving recipients from groups. Each step closes the previous task (`_ems_close_tasks`, via `_ems_move_on`), assignees are unsubscribed from the thread so the task is their only notice, and when nobody holds the position a warning is logged and no task is created.
 
-**Communications page.** The portal's Communications page (`controllers/portal_comms.py`) lists the comments posted on the student's requests, never their internal notes. `_ems_post_communication()` posts one comment each time the request is created, validated, cancelled, reopened, answered from the portal, or resolved. Requests are created with `mail_create_nosubscribe`, and every post (`_ems_poster()`: comments and internal notes alike) carries it too — `message_post()` otherwise subscribes whoever posts a comment, which made the Head of Studies and the secretary who acted on a request followers, emailed every later message. So a request has no followers, these comments email nobody, and the only emails are the resolution and the request for information, both to the student (or family) through the mail queue.
+**Resolution notice.** `action_complete` calls `_ems_send_resolution()`, which queues `ems.email_template_convalidation_resolved` (`force_send=False`) with `resolution_pdf_id` attached to `student_id._ems_convalidation_recipients()` filtered by email — the student always, plus the family while the student is a minor or when an adult authorized sharing (`auth_share`) — and logs the recipients, or the lack of any, as a chatter note. The intermediate steps send no email: the student sees the new state on the portal.
+
+**Communications page.** The portal's Communications page (`controllers/portal_comms.py`) lists the comments posted on the student's requests, never their internal notes. `_ems_post_communication()` posts one comment each time the request is created, proposed, sent to the Ministry, resolved (by the Director or the Ministry), cancelled, reopened, answered from the portal, or registered. Requests are created with `mail_create_nosubscribe`, and every post (`_ems_poster()`: comments and internal notes alike) carries it too — `message_post()` otherwise subscribes whoever posts a comment, which made the staff who acted on a request followers, emailed every later message. So a request has no followers, these comments email nobody, and the only emails are the resolution and the request for information, through the mail queue.
+
+## Resolution document
+
+`ems.report_convalidation_resolution` (`reports/grades/report_convalidation_resolution.xml`, not bound to the Print menu) is rendered by `_ems_generate_resolution_pdf()` when the Director resolves, always in Catalan (`_ems_resolution_lang()`), and kept as `resolution_pdf_id` (named *Resolució &lt;number&gt;.pdf*). It replaces any earlier one. Contents:
+
+- Company header (`web.external_layout`) and the title *Resolució de convalidació de mòduls professionals*.
+- Registration number, request date, applicant (with `document_id`), the representative of a minor (`_ems_resolution_representative()`: the family contact that filed it, else the first one on file), study and course.
+- Grounds of law: RD 1085/2020, art. 8 (fixed), plus `_ems_resolution_legal_grounds()`: the text configured for the request's `basis`, or the standard one.
+- One row per module: code, name, favourable/unfavourable, grade — *Convalidat* when the line keeps the default 5 (`_ems_is_default_grade()`), the number otherwise — and the refusal reason.
+- Place (company city) and `signature_date`, *El director / La directora*, *Per delegació* when configured, a green *Validat a l'EMS* stamp (who resolved it, the date and the registration number) where a signature would go, and the name from `_ems_resolution_signatory()`: the holder of `ems.role_director`, or `signed_by_id` when signing by delegation. The stamp is only EMS's own record of the step, not a qualified electronic signature (issue #530).
+- The appeal footer, `_ems_resolution_appeal_text()`: configured, or a standard one naming the competent body only in general terms (the exact body is pending confirmation with the Inspecció).
+
+The configurable texts live on `res.company` (see [Request period](#request-period) for the settings block): `convalidation_legal_prior_studies`, `convalidation_legal_certificate`, `convalidation_legal_other`, `convalidation_appeal_text` (Text, empty = standard text, written in Catalan) and `convalidation_sign_by_delegation` (Boolean).
 
 ## Withdrawal from the subject
 
@@ -95,7 +134,7 @@ Completing a request means the student no longer takes the subjects it convalida
 
 - **Who is told:** before deleting, the enrollment's groups give the subject's teachers (active `ems.teaching` for group + subject) and the groups' tutors. Each gets an `ems.mail_activity_convalidation_notice` activity **on the student** (`res.partner`), not on the request: teachers cannot read convalidations, but they can open the student. The summary names the subject; the note, the grade and the registration number. Assignees that were not already following the student are unsubscribed again, so the activity is their only notice.
 - **Placements afterwards:** `sale.order._ems_apply_destination_placement()` skips any subject `_ems_is_convalidated()` for the student, so a request completed before the student is placed (the usual case during summer enrollment) never gets the subject enrolled back.
-- **Validation alone withdraws nothing:** the resolution is not official until the secretariat registers it.
+- **The resolution alone withdraws nothing:** the request is not closed until the secretariat registers it.
 
 ## Grades integration
 
@@ -120,14 +159,24 @@ flowchart LR
 
 `controllers/portal_convalidation.py` (`/my/convalidaciones`) always acts on `get_portal_student()`: the student, or the child a family has selected. It uses `sudo()` because portal users have no ACL on these models.
 
-**Who acts.** `res.partner._ems_portal_can_act_for(student)` (`models/contacts/portal.py`): whoever the centre contacts on the student's behalf (`_ems_notification_recipients()`), i.e. the student themselves once they are of age (`is_adult`), their family while they are a minor, or the minor applicant themselves when no family is on file; a student with no birth date counts as a minor. Whoever may only consult (a minor on their own account, a family looking at its adult child, see "Who sees and who acts on the portal" in `docs/en/developers/contacts/portal_access_wizard.md`) is sent back to `/my/home` by `@ems_portal_manage_required` on every route. `_ems_convalidation_student()` still checks `_ems_portal_can_act_for()` and returns an empty recordset otherwise, as a last line of defence.
+**Who files requests** has its own rule, `res.partner._ems_convalidation_can_request(student)` (`models/contacts/portal.py`), independent from the rest of the portal's `_ems_portal_can_act_for()`:
+
+| Student | Who files and follows up (answers, cancels) | Who only reads |
+|---------|---------------------------------------------|----------------|
+| Adult, no `auth_share` | The student | - |
+| Adult, `auth_share` | The student and the family | - |
+| Minor with a family contact | The family | The student |
+| Minor without a family contact (a GEDAC applicant included) | Nobody: the page tells the student to fill in the family's contact details from the profile page | The student |
+
+A student with no birth date counts as a minor. `_ems_convalidation_portal_visible()` decides whether the page (and its home card and header entry, which live outside the view-only block) is shown: to whoever can file, and to the student himself; anyone else is sent back to `/my/home`. The Communications page shows the convalidation threads to a view-only account (the family of an adult who shares) when it can file them.
 
 | Route | Behaviour |
 |-------|-----------|
-| `GET /my/convalidaciones` | Requests of the student, plus the new-request form when `_ems_portal_study()` finds a study **and the request period is open**. The form is a Bootstrap collapse, folded by default; it opens with `?new=1` or when the page comes back with a validation `?error=`. It says when the period closes. While closed, a notice with the next opening replaces the form. |
-| `POST /my/convalidaciones/submit` | Refused with `?error=closed` outside the request period. Then checks that at least one subject in `_ems_portal_requestable_subjects()` and a valid `basis` are sent, and creates the request and its attachments. Documents are optional: the form says per case which ones are needed, and the Head of Studies can ask for more. |
-| `POST /my/convalidaciones/reply/<id>` | The applicant's answer: files and/or text, while the request is `pending` or `in_progress`, whatever the date. The files join `attachment_ids` and the text is posted as a comment (`_ems_portal_add_documents`). |
-| `POST /my/convalidaciones/cancel/<id>` | Only the student's own request, only while `pending`, whatever the date. |
+| `GET /my/convalidaciones` | Requests of the student, plus the new-request form when the viewer can file, `_ems_portal_study()` finds a study **and the request period is open**. The form is a Bootstrap collapse, folded by default; it opens with `?new=1` or when the page comes back with a validation `?error=`. It says when the period closes. While closed, a notice with the next opening replaces the form. Otherwise, a notice explains why the viewer cannot file. |
+| `POST /my/convalidaciones/submit` | Only whoever can file. Refused with `?error=closed` outside the request period. Then checks that at least one subject in `_ems_portal_requestable_subjects()` and a valid `basis` are sent, and creates the request and its attachments. Documents are optional: the form says per case which ones are needed, and the Head of Studies can ask for more. |
+| `POST /my/convalidaciones/reply/<id>` | The applicant's answer: files and/or text, while the request is `pending` or `ministry`, whatever the date. The files join `attachment_ids` and the text is posted as a comment (`_ems_portal_add_documents`). |
+| `POST /my/convalidaciones/cancel/<id>` | Only while `pending`, whatever the date. |
+| `GET /my/convalidaciones/resolution/<id>` | Downloads `resolution_pdf_id` of a `completed`/`rejected` request, for whoever sees the page. |
 
 ### Request period
 
@@ -146,18 +195,19 @@ A yearly window, with no year, stored on `res.company` and edited in Settings �
 
 - `_ems_portal_study(student)`: the study of the student's non-cancelled `sale.order` for the enrollment course, else `main_group_id.study_id`. The result is kept only if its level allows convalidations.
 - `_ems_portal_requestable_subjects(student, study)`: the convalidable subjects minus those already in a non-cancelled, non-rejected line. A rejected subject can be asked for again with new documents.
-- The grade of a granted subject is only rendered once the request is `completed` — the template hides the whole column otherwise, which is what "the secretariat makes it official" means for the student.
+- The grade of a granted subject is only rendered once the request is `completed` — the template hides the whole column otherwise, which is what "the secretariat makes it official" means for the student. A notice explains the `ministry`, `direction` and `in_progress` states.
 
 ## Access control
 
-| Role | Request | Lines | Validate | Complete |
-|------|---------|-------|----------|----------|
-| Academic admin | CRUD | CRUD | Yes | Yes |
-| Head of Studies / Director | CRU | CRUD | Yes | No |
-| Secretary | CRU | CRUD (grade while `in_progress`) | No | Yes |
-| Teacher / tutor | none | none | No | No |
-| Portal (adult student / family of a minor) | through the controller only; new requests only during the request period | through the controller only | No | No |
-| Settings administrator | Configures the request period | - | - | - |
+| Role | Request | Lines | Review / propose / Ministry | Resolve / return | Register (complete) |
+|------|---------|-------|-----------------------------|------------------|---------------------|
+| Academic admin | CRUD | CRUD | Yes | Yes | Yes |
+| Director | CRU | CRUD | Yes (implies Head of Studies) | Yes | No |
+| Head of Studies / Deputy | CRU | CRUD | Yes | No | No |
+| Secretary | CRU | CRUD (no decision, no grade) | No | No | Yes |
+| Teacher / tutor | none | none | No | No | No |
+| Portal | through the controller only, per the table in [Portal](#portal); new requests only during the request period | through the controller only | No | No | No |
+| Settings administrator | Configures the request period and the resolution texts | - | - | - | - |
 
-- **Student form:** the **Convalidations** stat button is limited to the three groups above. Its count is computed with `sudo`, so the form still opens for roles without access.
-- **Menu:** Academic management → Convalidations (`menu_ems_convalidations`).
+- **Student form:** the **Convalidations** stat button is limited to the groups above. Its count is computed with `sudo`, so the form still opens for roles without access.
+- **Menu:** Academic management → Convalidations (`menu_ems_convalidations`). Its default filters show every open state (Head of Studies, Ministry, Director, secretariat).

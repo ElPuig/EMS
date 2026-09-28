@@ -4,9 +4,9 @@
 
 # Configuración de convalidaciones
 
-El **periodo de solicitud** fija cuándo el alumnado y las familias pueden presentar solicitudes de convalidación nuevas desde el portal. Se repite cada año, sin ningún año que actualizar: solo hay que cambiarlo si el centro cambia las fechas.
+Configura cuándo se pueden presentar solicitudes de convalidación desde el portal y los textos de la resolución oficial que emite la dirección.
 
-**Rol necesario:** Administrador (Ajustes)
+**Rol necesario:** Administrador (Configuración)
 
 ---
 
@@ -14,11 +14,13 @@ El **periodo de solicitud** fija cuándo el alumnado y las familias pueden prese
 
 Navega a: **Ajustes → EMS Management → Configuración de convalidaciones**
 
-![Periodo de solicitud en los ajustes](../../assets/admin/convalidations-settings.png)
-
 ---
 
-## Configurar el periodo de solicitud
+## Periodo de solicitud
+
+El **periodo de solicitud** fija cuándo se pueden presentar solicitudes de convalidación nuevas desde el portal. Se repite cada año, sin ningún año que actualizar: solo hay que cambiarlo si el centro cambia las fechas.
+
+![Periodo de solicitud en la configuración](../../assets/admin/convalidations-settings.png)
 
 1. En **Apertura**, elige el día, el mes y la hora en que empieza el periodo.
 2. En **Cierre**, elige el día, el mes y la hora en que termina. El minuto de cierre todavía forma parte del periodo.
@@ -28,16 +30,37 @@ Por defecto el periodo va del **1 de octubre a las 08:00** al **31 de marzo a la
 
 El periodo puede cruzar el cambio de año, como hace el de por defecto: si la apertura es más tarde en el calendario que el cierre, va desde la apertura hasta final de año, y desde el 1 de enero hasta el cierre.
 
-Los ajustes no aceptan un día que no exista en su mes (tampoco el 29 de febrero, para que el periodo sea igual cada año), ni un periodo que se abra y se cierre en el mismo momento.
+La configuración no acepta un día que no exista en su mes (tampoco el 29 de febrero, para que el periodo sea igual cada año), ni un periodo que se abra y se cierre en el mismo momento.
 
----
-
-## Qué limita el periodo y qué no
+### Qué limita el periodo y qué no
 
 | Quién | Durante el periodo | Fuera del periodo |
 |-------|--------------------|-------------------|
-| Alumnado mayor de edad y familias de los menores, en el portal | Presentar solicitudes nuevas, consultar las suyas, responder al centro, cancelar las pendientes | Todo excepto presentar solicitudes nuevas. El portal indica cuándo se abrirá el periodo |
-| Jefatura de Estudios, secretaría | Todo | Todo: pueden registrar solicitudes recibidas en papel y tramitar cualquier solicitud en cualquier momento |
+| Alumnado y familias, en el portal | Presentar solicitudes nuevas, consultar las suyas, responder al centro, anular las pendientes | Todo excepto presentar solicitudes nuevas. El portal indica cuándo se abrirá el periodo |
+| Jefatura de Estudios, Dirección, secretaría | Todo | Todo: pueden registrar solicitudes recibidas en papel y tramitar cualquier solicitud en cualquier momento |
+
+---
+
+## Textos de la resolución
+
+La resolución que emite la dirección se genera siempre en catalán. Tres parámetros permiten ajustar su contenido:
+
+![Fundamentos de derecho de la resolución](../../assets/admin/convalidations-settings-resolution.png)
+
+| Parámetro | Qué hace |
+|-----------|----------|
+| **Resolución: fundamentos de derecho** | Un texto para cada motivo de solicitud (estudios previos, certificado de profesionalidad, otro), que se añade al Real Decreto 1085/2020, artículo 8. |
+| **Resolución: recurso** | El pie que indica cómo y ante quién se puede recurrir la resolución. |
+| **Resolución: firma por delegación** | Si está marcado, la resolución indica **Per delegació** y muestra el nombre de quien la ha resuelto en lugar del de la persona que ocupa el cargo de director/a. |
+
+Si dejas un texto vacío, se usa el texto estándar. El texto estándar del recurso menciona el órgano competente de forma general: escribe el órgano concreto cuando el centro lo tenga confirmado. Escribe los textos en catalán, la lengua de la resolución.
+
+1. Escribe los textos que quieras personalizar y marca, si hace falta, **Resolución: firma por delegación**.
+2. Guarda.
+
+Los cambios se aplican a las resoluciones que se emitan a partir de ese momento.
+
+---
 
 Consulta [Convalidaciones](../head_of_studies/convalidations.md) para saber cómo se tramitan las solicitudes, y el [manual de las familias](../families/manual-convalidacions.md) para ver qué ve el alumnado.
 

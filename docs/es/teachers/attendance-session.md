@@ -30,6 +30,10 @@ acotar la lista a un solo grupo.
 
 ---
 
+> El día y la hora que usa esta pantalla (qué franja es la "actual", qué día es "hoy") son siempre
+> los del centro, hora de España, tomados del servidor: un ordenador con el reloj o la zona horaria
+> mal configurados no los cambia.
+
 ## Sesiones vs. franjas previstas
 
 El selector de la derecha lista lo disponible para la fecha elegida, separado en dos bloques:
@@ -111,6 +115,16 @@ sustitución). Muestra, solo para el día de hoy:
 Marcar estados, añadir notas y poner strikes funciona exactamente igual que en tus propias
 sesiones. El botón **Eliminar sesión** no está disponible en modo Guardia — solo el docente titular
 de la franja (o un administrador) puede eliminar una sesión cubierta en guardia.
+
+---
+
+## Fichaje de entrada automático
+
+Si el centro lo tiene activado, iniciar una sesión también te ficha la entrada automáticamente,
+siempre que hoy todavía no hayas fichado y estés pasando lista **dentro de tu horario laboral**. Si
+pasas lista fuera de horario (desde casa, antes de que empiece tu jornada), la asistencia se
+registra igualmente pero no se te ficha la entrada. Cuando te vayas, ficha la salida en el quiosco
+como siempre.
 
 ---
 

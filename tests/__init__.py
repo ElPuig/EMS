@@ -58,6 +58,8 @@ from . import test_tracking
 from . import test_non_teaching_type_tour
 from . import test_teaching_reduction_type_tour
 from . import test_employee_autocheckout
+from . import test_public_holiday
+from . import test_public_holiday_tour
 from . import test_user_implied_groups
 from . import test_space_type
 from . import test_space_type_tour
@@ -113,6 +115,7 @@ from . import test_working_schedules_import_wizard_tour
 from . import test_working_schedule_split_period_tour
 from . import test_working_schedule_stale_breaks_tour
 from . import test_working_schedule_multi_group_tour
+from . import test_working_schedule_role_edit_tour
 from . import test_task_assignment
 from . import test_year_record
 from . import test_grade_review
@@ -227,3 +230,7 @@ from . import test_student_benefit_access
 from . import test_meeting_presence
 from . import test_meeting_presence_tour
 from . import test_docs_screenshots_meeting_presence
+from . import test_employee_identity_visibility
+from . import test_employee_identity_visibility_tour
+from . import test_timezone
+from . import test_schedule_edit_roles

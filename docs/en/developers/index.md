@@ -56,7 +56,7 @@ Technical reference for developers working on the EMS module.
 | [Department Chief / Seminar Chief / Head of Studies / Director cascade](employees/department.md) | `hr.department.manager_id`/`seminar_chief_id`/`is_top_level`/`top_level_role` (Head of Studies/Deputy/Secretary) plus `res.company.director_id` driving `hr.employee.parent_id` (between departments and up to the Director) and the `role_dchieff`/`role_seminar`/`role_hos`/`role_dhos`/`role_secretary`/`role_director` roles automatically |
 | [hr.job (EMS extension)](employees/job.md) | Two fields only (`employee_type`, `group_id`) — the security-group auto-grant is consumed and already tested from `hr.employee`'s side |
 | [ems.workgroup](employees/workgroup.md) | Simple free-form employee grouping (project teams, committees) — no business logic |
-| [ems.teaching](employees/teaching.md) | Ternary teacher/group/subject relation, derived from and kept in sync with the schedule via `sync_from_schedule()` |
+| [ems.teaching](employees/teaching.md) | Ternary teacher/group/subject relation, derived from and kept in sync with the schedule via `_sync_from_schedule()` |
 | [ems.non_teaching_type](employees/non_teaching_type.md) | Catalogue of non-subject schedule period types (breaks, guard duties); note the admin group is `group_department_chief`, not the usual `group_academic_admin` |
 | [hr.attendance auto-checkout (EMS extension)](employees/attendance_autocheckout.md) | Closing stale open attendances on check-in, and the EMS nightly cron mode using the employee's real schedule instead of fixed hours |
 | [res.users (EMS extension)](employees/user.md) | `_sync_ems_implied_groups()` — compensates for Odoo's own implied-group grants being permanent/never auto-revoked |
@@ -118,6 +118,7 @@ Technical reference for developers working on the EMS module.
 | [Task assignment](shared/task_assignment.md) | `mail.activity.type`'s `ems_task_assignment`/`ems_assignee_ids` — an explicit, config-driven recipient list decoupled from security groups |
 | [`ems.base`](shared/base.md) | Chatter/notification helpers (`notify`, `chatter`, `chatter_exception`), permission checks (`get_user_is_admin`/`_tutor`), `persistent_hash` — the foundational mixin inherited by most business models |
 | [`ems.datetime_utils`](shared/datetime_utils.md) | Timezone-aware ↔ naive-UTC ↔ float-hour conversions shared by every attendance/schedule model |
+| [Dates, times and timezones](shared/timezones.md) | The one-timezone policy (always the company's): server-side helpers, the web client's company-timezone service and `serverNow()`, and the record-level `tz` alignment |
 | [`ems.multithreading`](shared/multithreading.md) | The `run_in_thread()` setup/compute/store/callback engine behind the LimeSurvey integration's long-running actions |
 | [`ems.schedule_report_mixin`](shared/schedule_report_mixin.md) | The shared weekly-schedule aggregation-to-report pipeline (report-line building, break derivation, colour/time-label helpers) behind both the group's and the student's own read-only Schedule tab |
 | [`google.workspace.mixin`](shared/google_workspace_mixin.md) | The Directory API client, password policy, and text/phone normalization shared by the staff and student Google Workspace integrations |

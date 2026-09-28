@@ -17225,6 +17225,7 @@ msgstr "<span class=\"o_form_label\">Mayor de edad</span>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Identification"
 msgstr "Identificación"
 
@@ -17627,3 +17628,20 @@ msgstr "Personas convocadas"
 #: code:addons/ems/models/meetings/presence.py:0
 msgid "Everyone has registered"
 msgstr "Todas las personas se han registrado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__can_view_identity
+msgid "Can view identity"
+msgstr "Puede ver la identificación"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__scoped_identification_id
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Identity document"
+msgstr "Documento de identidad"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__scoped_ssnid
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Social Security No"
+msgstr "Núm. de la Seguridad Social"

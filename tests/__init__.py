@@ -227,3 +227,5 @@ from . import test_student_benefit_access
 from . import test_meeting_presence
 from . import test_meeting_presence_tour
 from . import test_docs_screenshots_meeting_presence
+from . import test_employee_identity_visibility
+from . import test_employee_identity_visibility_tour

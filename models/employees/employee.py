@@ -704,10 +704,39 @@ class ems_employee(models.AbstractModel):
         string="Pending classroom conflicts", compute="_compute_pending_classroom_conflict_count",
         groups="base.group_system,hr.group_hr_user,ems.group_teacher")
 
+    # The native identification_id/ssnid carry groups="hr.group_hr_user", which a Department
+    # Chief does not have (and cannot be given: it would open every employee's private data
+    # centre-wide). These read-only copies, shown to them in the "Private Information" tab,
+    # reach the chain of command instead: the employee, every chief above them and the
+    # Director (tutor_scope_user_ids). Blank for anyone else. The HR officers (Head of Studies
+    # and above, TAC, the secretariat) edit the native fields in the same tab, and
+    # can_view_identity is always True for them, since it also decides whether the tab shows.
+    can_view_identity = fields.Boolean(
+        string="Can view identity", compute="_compute_scoped_identity", compute_sudo=True,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher")
+    scoped_identification_id = fields.Char(
+        string="Identity document", compute="_compute_scoped_identity", compute_sudo=True,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher")
+    scoped_ssnid = fields.Char(
+        string="Social Security No", compute="_compute_scoped_identity", compute_sudo=True,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher")
+
     @api.depends("schedule_import_code")
     def _compute_pending_identification(self):
         for employee in self:
             employee.pending_identification = bool(employee.schedule_import_code)
+
+    @api.depends_context('uid')
+    @api.depends('identification_id', 'ssnid', 'parent_id', 'user_id')
+    def _compute_scoped_identity(self):
+        # compute_sudo=True: self runs as superuser, but self.env.user is still the real viewer.
+        user = self.env.user
+        hr_officer = user.has_group('hr.group_hr_user')
+        for employee in self:
+            allowed = hr_officer or user in employee.tutor_scope_user_ids
+            employee.can_view_identity = allowed
+            employee.scoped_identification_id = employee.identification_id if allowed else False
+            employee.scoped_ssnid = employee.ssnid if allowed else False
 
     def _compute_pending_classroom_conflict_count(self):
         Attendance = self.env['resource.calendar.attendance']

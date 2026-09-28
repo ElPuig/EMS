@@ -441,8 +441,10 @@ class TestConvalidation(TransactionCase):
         later_course = self.env['ems.course'].create({'start': 2095, 'end': 2096})
         other_student = self.env['res.partner'].create({
             'name': 'Convalidation Other Student', 'contact_type': 'student', 'student_id': next_student_id()})
+        _level, other_study = create_level_study(self, 'TCVO', level={'allows_convalidation': True},
+                                                 study={'code': 'TCVO001'})
         for vals in ({'student_notes': "Rewritten"}, {'basis': 'other'}, {'course_id': later_course.id},
-                     {'student_id': other_student.id}):
+                     {'student_id': other_student.id}, {'study_id': other_study.id}, {'state': 'completed'}):
             for user in (self.secretary, self.head_of_studies, self.director):
                 with self.assertRaises(UserError):
                     request.with_user(user).write(vals)

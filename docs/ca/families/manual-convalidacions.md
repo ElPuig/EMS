@@ -8,7 +8,17 @@ Demana la convalidació dels mòduls de formació professional que ja has supera
 
 Només es poden sol·licitar convalidacions als cicles formatius (CFGM i CFGS).
 
-**Qui les pot sol·licitar:** l'alumne, des del seu propi compte, si és major d'edat; la família, des del seu compte, si l'alumne és menor d'edat. Un alumne menor d'edat que entri amb el seu propi compte, o la família d'un alumne que ha fet 18 anys, no veu aquest apartat. Excepció: un aspirant menor d'edat sense cap família registrada al centre (preinscripció) les sol·licita des del seu propi compte.
+---
+
+## Qui les pot sol·licitar
+
+| Alumne | Qui fa la sol·licitud | Qui la pot consultar |
+|--------|-----------------------|----------------------|
+| Menor d'edat | La família, des del seu compte | La família i l'alumne |
+| Major d'edat | L'alumne, des del seu compte | L'alumne |
+| Major d'edat que ha autoritzat compartir la informació amb la família | L'alumne o la família, cadascú des del seu compte | L'alumne i la família |
+
+Un alumne menor d'edat veu les seves sol·licituds, però no en pot fer: el portal li indica que les ha de fer la seva família. Si el centre no té cap familiar seu registrat, el portal li demana que ompli les dades de contacte de la família des de la pàgina de perfil.
 
 ---
 
@@ -28,7 +38,7 @@ Fora d'aquest període el formulari es substitueix per un avís que diu quan s'o
 
 ![Període de sol·licitud tancat](../../assets/families/convalidations-portal-closed.png)
 
-Les sol·licituds ja presentades no es veuen afectades: les pots continuar consultant, respondre al centre i cancel·lar-les en qualsevol moment.
+Les sol·licituds ja presentades no es veuen afectades: les pots continuar consultant, respondre al centre i anul·lar-les mentre estiguin pendents.
 
 ---
 
@@ -46,7 +56,7 @@ Les sol·licituds ja presentades no es veuen afectades: les pots continuar consu
 
 | Cas | Documentació |
 |-----|--------------|
-| Estudis superats en aquest centre | Cap: el centre consulta el teu expedient. |
+| Estudis superats en aquest centre | Cap: el centre consulta l'expedient. |
 | Estudis superats en un altre centre | El certificat acadèmic o l'expedient dels estudis superats. |
 | Certificat de professionalitat o acreditació de competències | El certificat mateix. |
 | Estudis universitaris o resolució del Ministeri | La resolució, si ja la tens. |
@@ -63,23 +73,31 @@ Cada sol·licitud apareix sota el formulari, amb el seu número de registre (per
 
 | Estat | Significat |
 |-------|------------|
-| **Pendent** | El centre encara no l'ha resolt. |
-| **En procés** | El Cap d'Estudis l'ha aprovada i secretaria l'està registrant. |
-| **Completada** | Ja està registrada. Hi veus la nota de cada mòdul convalidat, i ja no has d'assistir a aquests mòduls. |
-| **Rebutjada** | No s'ha concedit la convalidació. |
+| **Pendent** | El centre l'està revisant. |
+| **En procés Ministeri** | El centre l'ha tramitat amb el Ministeri, que la resoldrà. Ja no es pot anul·lar. |
+| **Pendent de direcció** | Revisada; falta la resolució oficial de la direcció. |
+| **Pendent de secretaria** | Ja està resolta; secretaria l'està registrant a l'expedient. |
+| **Completada** | Registrada, amb algun mòdul convalidat. Hi veus la nota de cada mòdul convalidat, i ja no has d'assistir a aquests mòduls. |
+| **Rebutjada** | Registrada, sense cap mòdul convalidat. |
 | **Anul·lada** | La sol·licitud s'ha anul·lat. |
 
-La taula mostra la resolució de cada mòdul (**Pendent**, **Convalidat** o **Rebutjat**) i les observacions del centre. Quan la sol·licitud està **Completada**, hi apareix també la columna **Nota**.
+La taula mostra la resolució de cada mòdul (**Pendent**, **Convalidat** o **Rebutjat**) i, a **Observacions**, el motiu dels mòduls rebutjats. Quan la sol·licitud està **Completada**, hi apareix també la columna **Nota**.
 
-![Una sol·licitud al portal](../../assets/families/convalidations-portal-request.png)
+Quan la sol·licitud queda **Completada** o **Rebutjada**, rebràs un correu amb la resolució oficial en PDF. També la pots descarregar des del portal amb el botó **Resolució oficial**.
 
-Quan la sol·licitud es completa o es rebutja, rebràs un correu amb la resolució. La sol·licitud, la seva anul·lació i la resolució també queden registrades a la pàgina **Comunicacions**.
+![Una sol·licitud resolta al portal](../../assets/families/convalidations-portal-request.png)
+
+La sol·licitud, cada canvi d'estat i la resolució també queden registrats a la pàgina **Comunicacions**.
 
 ---
 
 ## Respondre o afegir documentació
 
-Mentre la sol·licitud està **Pendent** o **En procés**, al seu requadre hi ha **Respon o afegeix documentació**: escriu-hi la resposta, adjunta els fitxers que et demanin i fes clic a **Envia**. Els documents s'afegeixen a la sol·licitud.
+Si el centre et demana documentació, rebràs un correu i, al requadre de la sol·licitud, veuràs l'avís **Documentació sol·licitada** amb el que et demanen. Just a sota, a **Respon o afegeix documentació**, escriu-hi la resposta, adjunta els fitxers i fes clic a **Envia**. Els documents s'afegeixen a la sol·licitud.
+
+![Documentació sol·licitada pel centre](../../assets/families/convalidations-portal-info.png)
+
+Pots respondre mentre la sol·licitud està **Pendent** o **En procés Ministeri**.
 
 ---
 

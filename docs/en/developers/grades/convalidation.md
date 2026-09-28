@@ -46,13 +46,13 @@ erDiagram
 | `student_id` | M2o `res.partner` | Required. Student or applicant (an applicant enrolling into a cycle is the typical requester). |
 | `requester_id` | M2o `res.partner` | The portal user who submitted it: the student or a family contact. |
 | `course_id` | M2o `ems.course` | Required. Defaults to the enrollment course (`is_enrollment_default`), else the current one: requests are made while enrolling. |
-| `study_id` | M2o `ems.study` | Required. Its level must allow convalidations (`_check_study_allows_convalidation`). Cannot change once the request is validated. |
+| `study_id` | M2o `ems.study` | Required. Its level must allow convalidations (`_check_study_allows_convalidation`). |
 | `basis` | Selection | `prior_studies`, `certificate`, `other`. |
 | `student_notes`, `resolution_notes` | Text | Applicant's comments, and comments sent to the student with the resolution. |
 | `attachment_ids` | M2m `ir.attachment` | Supporting documents, optional. Linked to the request (`res_model`/`res_id`) on create/write, so they follow its access rights. The portal's own answers add to this same field. |
-| (what was filed) | | `student_id`, `course_id`, `basis` and `student_notes` (`FILED_FIELDS`) are set on creation — from the portal, or by the secretariat registering a paper request — and cannot be written afterwards, except through `sudo`; the form shows them read-only once saved. |
+| (what was filed) | | `student_id`, `course_id`, `study_id`, `basis` and `student_notes` (`FILED_FIELDS`) are set on creation — from the portal, or by the secretariat registering a paper request — and cannot be written afterwards, except through `sudo`; the form shows them read-only once saved. |
 | `line_ids` | O2m | At least one (`_check_has_lines`, also triggered by `study_id` since a request created without lines carries no `line_ids` in `vals`). |
-| `state` | Selection, stored | `pending`, `ministry` (*In process at the Ministry*), `direction` (*Pending the Director*), `in_progress` (*Pending the secretariat*), `completed`, `rejected`, `cancelled`. Written by the actions only (`readonly`), never computed: the circuit is driven by people, not by the lines' own states. |
+| `state` | Selection, stored | `pending`, `ministry` (*In process at the Ministry*), `direction` (*Pending the Director*), `in_progress` (*Pending the secretariat*), `completed`, `rejected`, `cancelled`. Written by the actions only (with `sudo`; any other write is refused in `write()`), never computed: the circuit is driven by people, not by the lines' own states. |
 | `resolved_by_ministry`, `ministry_date` | Boolean, Date | Set by `action_send_to_ministry`. |
 | `ministry_resolution` (+ `_filename`) | Binary (attachment) | The Ministry's own resolution, optional; editable only while `ministry`. |
 | `info_request`, `info_request_date` | Text, Date | The last request for information (`ems.convalidation.info_wizard`), shown on the portal above the answer form while the request is `pending` or `ministry`, and on its own tab in the form. |

@@ -16146,17 +16146,16 @@ msgstr "Diciembre"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid ""
-"Every year, students (and the families of minors) can request convalidations"
-" from the portal only between these two moments, in the centre's local time."
-" Outside it the portal accepts no new requests; the ones already submitted "
-"are still handled as usual, and staff can register and process requests at "
-"any time."
+"Every year, convalidations can only be requested from the portal between "
+"these two moments, in the centre's local time. Outside it the portal accepts"
+" no new requests; the ones already submitted are still handled as usual, and"
+" staff can register and process requests at any time."
 msgstr ""
-"Cada año, el alumnado (y las familias de los menores de edad) solo puede "
-"solicitar convalidaciones desde el portal entre estos dos momentos, en hora "
-"local del centro. Fuera de este periodo el portal no acepta solicitudes "
-"nuevas; las ya presentadas se siguen tramitando con normalidad, y el "
-"personal puede registrar y tramitar solicitudes en cualquier momento."
+"Cada año, solo se pueden solicitar convalidaciones desde el portal entre "
+"estos dos momentos, en hora local del centro. Fuera de este periodo el "
+"portal no acepta solicitudes nuevas; las ya presentadas se siguen tramitando"
+" con normalidad, y el personal puede registrar y tramitar solicitudes en "
+"cualquier momento."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_end_month__2
@@ -18308,9 +18307,9 @@ msgstr ""
 #. odoo-python
 #: code:addons/ems/models/grades/convalidation.py:0
 msgid ""
-"The student, course, grounds and applicant's comments cannot be changed once "
-"the request is submitted."
-msgstr "El alumno, el curso, el motivo y las observaciones del solicitante no se pueden modificar una vez presentada la solicitud."
+"The student, course, study, grounds and applicant's comments cannot be "
+"changed once the request is submitted."
+msgstr "El alumno, el curso, el estudio, el motivo y las observaciones del solicitante no se pueden modificar una vez presentada la solicitud."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
@@ -18331,3 +18330,9 @@ msgstr "Resuelto por:"
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 msgid "Validated in EMS"
 msgstr "Validado en EMS"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "The state of a request only changes through its buttons."
+msgstr "El estado de una solicitud solo cambia con sus botones."

@@ -95,8 +95,7 @@
                         </div>
                         <group>
                             <group>
-                                <field name="study_id" options="{'no_create': True}"
-                                       readonly="state != 'pending'"/>
+                                <field name="study_id" options="{'no_create': True}" readonly="id"/>
                                 <field name="course_id" options="{'no_create': True}" readonly="id"/>
                                 <field name="basis" readonly="id"/>
                             </group>

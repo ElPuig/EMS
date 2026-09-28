@@ -36,6 +36,11 @@
 - The documentation the Head of Studies asks for is shown on the request's portal card, right
   above the answer form, and on its own tab in the backend form.
 
+## Convalidation requests are fixed once filed (issue #529):
+- The student, course, study, grounds and applicant's comments of a request cannot be changed
+  after it is submitted, and its state only changes through the circuit's buttons (also enforced
+  on the server).
+
 # Internal changes
 
 ## View-only portal tour fixture actually enables sharing (issue #529):

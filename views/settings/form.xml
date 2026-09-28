@@ -24,7 +24,7 @@
                         </block>
 
                         <block title="Convalidations Settings" name="ems_convalidation_settings">
-                            <setting string="Request period" help="Every year, students (and the families of minors) can request convalidations from the portal only between these two moments, in the centre's local time. Outside it the portal accepts no new requests; the ones already submitted are still handled as usual, and staff can register and process requests at any time." id="convalidation_period">
+                            <setting string="Request period" help="Every year, convalidations can only be requested from the portal between these two moments, in the centre's local time. Outside it the portal accepts no new requests; the ones already submitted are still handled as usual, and staff can register and process requests at any time." id="convalidation_period">
                                 <div class="content-group mt8">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="o_form_label" style="width: 8ch;">Opens</span>

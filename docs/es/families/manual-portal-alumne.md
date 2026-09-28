@@ -132,7 +132,7 @@ Mientras el alumno es menor de edad, es la **familia** quien lo gestiona todo de
 * las **Comunicaciones** dirigidas a él,
 * el **Perfil**.
 
-**Matrícula y autorizaciones**, **Convalidaciones** y **Documentación** no aparecen en la cuenta del alumno: se encarga la familia. Cuando el alumno cumple 18 años, tiene acceso a todos los apartados.
+**Matrícula y autorizaciones** y **Documentación** no aparecen en la cuenta del alumno: se encarga la familia. En **Convalidaciones** el alumno consulta sus solicitudes, pero las hace la familia. Cuando el alumno cumple 18 años, tiene acceso a todos los apartados.
 
 ---
 
@@ -140,7 +140,7 @@ Mientras el alumno es menor de edad, es la **familia** quien lo gestiona todo de
 
 Desde el día en que el alumno cumple 18 años, es **él mismo** quien lo gestiona todo desde su propia cuenta: matrícula, autorizaciones, convalidaciones y documentación. Si todavía no tenía cuenta propia en el portal, pedidla al tutor o a Secretaría.
 
-La familia conserva su cuenta pero **deja de ver al alumno** en el portal, salvo que el alumno autorice compartir su información con la familia (la autorización de *compartir con la familia*). En ese caso, la familia vuelve a poder consultar la **Asistencia**, las **Calificaciones**, las **Comunicaciones** dirigidas al alumno y el **Perfil**, pero ya no puede gestionar nada: la matrícula, las autorizaciones, las convalidaciones y la documentación son cosa del alumno.
+La familia conserva su cuenta pero **deja de ver al alumno** en el portal, salvo que el alumno autorice compartir su información con la familia (la autorización de *compartir con la familia*). En ese caso, la familia vuelve a poder consultar la **Asistencia**, las **Calificaciones**, las **Comunicaciones** dirigidas al alumno y el **Perfil**, pero ya no puede gestionar la matrícula, las autorizaciones ni la documentación, que son cosa del alumno. Sí puede seguir solicitando y siguiendo las **Convalidaciones** del alumno.
 
 Una familia a la que no le queda ningún alumno por ver encuentra un aviso en el inicio del portal que lo explica.
 

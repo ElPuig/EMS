@@ -17,7 +17,7 @@ CONVALIDATED_GRADE = 5
 CLOSED_STATES = ('completed', 'rejected', 'cancelled')
 
 # What the applicant filed, fixed once the request exists.
-FILED_FIELDS = {'student_id', 'course_id', 'basis', 'student_notes'}
+FILED_FIELDS = {'student_id', 'course_id', 'study_id', 'basis', 'student_notes'}
 
 # States in which the Head of Studies still decides the subjects, and in which the applicant can
 # be asked for (and send) more documentation: before the resolution exists.
@@ -189,13 +189,15 @@ class EmsConvalidation(models.Model):
         return convalidations
 
     def write(self, vals):
-        if 'study_id' in vals and self.filtered(lambda convalidation: convalidation.state != 'pending'):
-            raise UserError(_("The study of a request cannot change once it has been validated."))
-        # What the applicant filed - who for, which course, on what grounds and in their own
-        # words - is the request itself: nobody rewrites it afterwards.
-        if FILED_FIELDS & set(vals) and not self.env.su:
-            raise UserError(_("The student, course, grounds and applicant's comments cannot be changed "
-                              "once the request is submitted."))
+        if not self.env.su:
+            # What the applicant filed - who for, which course and study, on what grounds and in
+            # their own words - is the request itself: nobody rewrites it afterwards.
+            if FILED_FIELDS & set(vals):
+                raise UserError(_("The student, course, study, grounds and applicant's comments cannot be "
+                                  "changed once the request is submitted."))
+            # The state only moves through the circuit's own actions, which write it with sudo.
+            if 'state' in vals:
+                raise UserError(_("The state of a request only changes through its buttons."))
         res = super().write(vals)
         if 'attachment_ids' in vals:
             self._ems_link_attachments()

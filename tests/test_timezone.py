@@ -58,6 +58,10 @@ class TestCompanyTimezone(TransactionCase):
         """The kiosk runs as the public user, whose empty timezone made Odoo's own "hasn't checked
         out since..." error show the check-in in UTC (11:08 for a 13:08 check-in)."""
         self.env['res.company']._ems_align_timezones()
+        # Off, or the second check-in would auto-close the first one first (a day with no expected
+        # hours closes at the end of the framework's day, issue #520) and Odoo would raise a
+        # different error: this test is only about the timezone of the one below.
+        self.env.company.auto_check_out = False
         employee = self.env['hr.employee'].create({'name': 'TZ Test Teacher'})
         self.env['hr.attendance'].create({'employee_id': employee.id, 'check_in': datetime(2026, 9, 28, 11, 8)})
         kiosk = self.env['hr.attendance'].with_user(self.env.ref('base.public_user')).sudo()

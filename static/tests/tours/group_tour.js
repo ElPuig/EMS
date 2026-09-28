@@ -95,6 +95,12 @@ registry.category("web_tour.tours").add("ems_group_form_tabs_and_reinforcement_c
             content: "Save",
             run: "click",
         },
+        {
+            // Wait for the save to finish: clicking a tab before its re-render lets the form
+            // switch back to another page right after the click.
+            trigger: ".o_breadcrumb .active:contains('Tour Reinforcement Group')",
+            content: "Reinforcement group saved",
+        },
         // A reinforcement group has no "Students" tab of its own (removed 2026-09-07 along with
         // 'reinforcement_student_ids' - see group.md): 'Enrolled' (ems.enrollment-backed, same
         // field/tab already checked above for the 'main' group) is the only membership tab left,

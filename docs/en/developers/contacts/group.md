@@ -337,7 +337,7 @@ flowchart TD
     flagging is done by `ems.attendance_template._flag_room_change_pending()`: the calendar block(s)
     behind the entry are found by matching **calendar + weekday/hour + subject** (not
     `attendance_schedule_id`, which is only linked at the very end of the whole sync -
-    `sync_from_schedule_batch`'s own `_link_calendar_attendance` call), reverted to the line's own
+    `_sync_from_schedule_batch`'s own `_link_calendar_attendance` call), reverted to the line's own
     still-current room, and flagged (`space_pending_group_sync = True`,
     **`pending_new_space_id`** = the room actually requested).
 

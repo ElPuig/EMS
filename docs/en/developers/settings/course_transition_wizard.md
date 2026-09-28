@@ -283,12 +283,12 @@ anywhere in this wizard before — a teacher's stale (subject, group) links from
 transition survived forever, since the working-schedule importer's own incremental sync is
 additive-only by design (`replace=False`, see `working_schedule.md`) and never removes them
 either. The fix reuses `hr.employee._teaching_entries_from_calendar()` (the same entries dict
-`ems.attendance_template.regenerate_all_from_calendars()` already builds for its own template
+`ems.attendance_template._regenerate_all_from_calendars()` already builds for its own template
 rebuild — extracted into a shared helper so both stay in sync with one calendar-reading
-implementation) and calls `ems.teaching.sync_from_schedule(teacher, entries)` — the same
+implementation) and calls `ems.teaching._sync_from_schedule(teacher, entries)` — the same
 `replace=True` reconciliation the Schedule tab's own live edit already uses
 (`ems_working_schedule.apply_schedule_changes`), just triggered from the transition instead of a
-manual save. `regenerate_all_from_calendars()` itself gained the identical call, since it has the
+manual save. `_regenerate_all_from_calendars()` itself gained the identical call, since it has the
 exact same "rebuild from the calendar, but never touched `ems.teaching`" gap.
 
 A group's tutoring assignment is itself recorded as an ordinary `ems.teaching` row on the group's

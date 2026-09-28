@@ -3,7 +3,7 @@
 import { registry } from "@web/core/registry";
 
 // ems.teaching's own CRUD screen is secondary — the model is normally kept in sync from
-// the schedule (sync_from_schedule(), see the dev doc) rather than hand-edited. This tour
+// the schedule (_sync_from_schedule(), see the dev doc) rather than hand-edited. This tour
 // only confirms the list and the (three Many2one selectors) form actually render without
 // crashing, which a clean upgrade and passing TransactionCase tests don't prove.
 registry.category("web_tour.tours").add("ems_teaching_form_renders", {

@@ -11,7 +11,7 @@ for "Maths, group A" might have two schedule rows: Monday 9:00–10:00 and Wedne
 
 **This doc covers the model's own fields/logic.** The pipeline that creates, archives and
 rewrites these rows from a teacher's live-edited or imported timetable
-(`sync_from_schedule`/`sync_from_schedule_batch`) is documented in
+(`_sync_from_schedule`/`_sync_from_schedule_batch`) is documented in
 [`attendance_template.md`](attendance_template.md) — not repeated here.
 
 **Module file:** `models/attendance/attendance_schedule.py` (`EmsAttendanceSchedule`)
@@ -212,7 +212,7 @@ reason `ems.attendance_template.teacher_ids` is a Many2many rather than one temp
 (see [`attendance_template.md`](attendance_template.md)'s "Co-teaching" section).
 
 **Captured by `ems.attendance_template._link_calendar_attendance(teacher_entries)`**, called at
-the end of `sync_from_schedule_batch` (right
+the end of `_sync_from_schedule_batch` (right
 after `_run_schedule_sync_plans` finishes writing the schedule lines for this same call — see
 `attendance_template.md`'s "CRUD flow"). For every `(teacher, entries)` pair, it matches each
 entry's own `(dayofweek, hour_from, hour_to)` against that teacher's own `resource_calendar_id.
@@ -237,7 +237,7 @@ retroactively would have meant re-running the exact broad, ambiguity-prone infer
 to stop needing, on data that had already had time to drift. The bottom-up sync redesign's own
 design invariant (every active line always has a real calendar block behind it, see
 [`attendance_template.md`](attendance_template.md)) made that acceptable to finally do: the
-migration reruns `ems.attendance_template.regenerate_all_from_calendars()` (already existing since
+migration reruns `ems.attendance_template._regenerate_all_from_calendars()` (already existing since
 2026-08-11) once more, which rebuilds every active template/line straight from each teacher's
 current calendar and links the FK as a natural consequence - no new matching logic needed, and no
 unresolved room conflicts turned up doing it. Every calendar write since goes through the automatic

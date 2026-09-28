@@ -49,9 +49,9 @@ class EmsTeaching(models.Model):
 
 	def unlink(self):
 		"""Clears a group's stale 'tutor_id' whenever the teaching that backed it goes away -
-		the single choke point every removal path already goes through (sync_from_schedule()'s
+		the single choke point every removal path already goes through (_sync_from_schedule()'s
 		own 'replace=True' drop, a direct admin unlink, and the calendar-driven resync added to
-		course transition/regenerate_all_from_calendars()). A tutoring assignment is itself
+		course transition/_regenerate_all_from_calendars()). A tutoring assignment is itself
 		recorded as an ordinary ems.teaching row, on the group's own tutoring subject
 		(subject_id.is_tutorship) - deliberately never wired to 'ems.group.tutor_id' by a stored
 		relation, since that field predates this model's own calendar-driven sync and is set
@@ -68,7 +68,7 @@ class EmsTeaching(models.Model):
 				group.tutor_id = False
 		return result
 
-	def sync_from_schedule(self, teacher, entries, replace=True):
+	def _sync_from_schedule(self, teacher, entries, replace=True):
 		"""Sync 'teacher.teaching_ids' from the (subject_id, group_ids) pairs found in 'entries'
 		(dicts with a 'subject_id' and a 'group_ids' list), keeping any entry that is unchanged and
 		only creating what's actually new.
@@ -81,7 +81,16 @@ class EmsTeaching(models.Model):
 		  incrementally alongside others over time; unlinking here would silently destroy a teacher's
 		  already-imported assignments from a DIFFERENT file the moment they appear in this one too
 		  (found 2026-08-01: a teacher shared between two department imports lost the first
-		  department's teaching assignments when the second was imported)."""
+		  department's teaching assignments when the second was imported).
+
+		Runs as superuser (issue #531): ems.teaching is derived data, rebuilt from a calendar the
+		caller has just written with their OWN rights - that write is the authorization check. The
+		rebuild itself also deletes teaching rows, writes 'hr.employee.teaching_ids' and may clear
+		an 'ems.group.tutor_id' (see unlink() above), none of which a schedule editor (Department
+		Chief and above) holds direct rights on. Granting those one at a time in
+		ir.model.access.csv is what broke Head of Studies twice before. Private on purpose, so the
+		sudo() can't be reached over RPC with arbitrary 'teacher'/'entries'."""
+		teacher = teacher.sudo()
 		old_items = dict()
 		for teaching in teacher.teaching_ids.filtered('active'):
 			old_items["%s.%s" % (teaching.subject_id.id, teaching.group_id.id)] = teaching

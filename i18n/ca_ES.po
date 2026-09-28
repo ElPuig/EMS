@@ -8510,7 +8510,6 @@ msgstr "Dreta"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__resolution
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
-#: model:ir.model.fields,field_description:ems.field_ems_convalidation__resolution_pdf_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__resolution_pdf_link
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 msgid "Resolution"
@@ -18418,3 +18417,8 @@ msgstr "Validat a l'EMS"
 #: code:addons/ems/models/grades/convalidation.py:0
 msgid "The state of a request only changes through its buttons."
 msgstr "L'estat d'una sol·licitud només canvia amb els seus botons."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__resolution_pdf_id
+msgid "Resolution PDF"
+msgstr "PDF de la resolució"

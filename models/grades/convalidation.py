@@ -96,7 +96,7 @@ class EmsConvalidation(models.Model):
                                         "whoever signs on their behalf when signing by delegation.")
     # The official resolution the student gets: the centre's PDF, or the Ministry's own when the
     # Head of Studies attached it (it is optional).
-    resolution_pdf_id = fields.Many2one(string="Resolution", comodel_name='ir.attachment', readonly=True,
+    resolution_pdf_id = fields.Many2one(string="Resolution PDF", comodel_name='ir.attachment', readonly=True,
                                         copy=False, ondelete='set null')
     # The resolution's file name as a link that opens the PDF in a new tab, rather than the
     # attachment's own form a many2one would open.

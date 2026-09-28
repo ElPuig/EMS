@@ -10,7 +10,6 @@ import io
 import json
 import math
 import re
-from datetime import datetime
 
 from ..shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC
 
@@ -1734,7 +1733,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		self.overall_summary_html = self._summary_blocks_html(
 			[self._summary_block_html(title, lines, note=note) for title, lines, note in sections])
 		self.summary_file = self._build_summary_csv(sections)
-		self.summary_file_name = "working_schedules_import_%s.csv" % datetime.now().strftime("%Y%m%d_%H%M%S")
+		self.summary_file_name = "working_schedules_import_%s.csv" % self.env['ems.datetime_utils'].get_local_datetime().strftime("%Y%m%d_%H%M%S")
 		self._advance_state()
 
 	def _get_or_create_pending_teacher(self, identifier, manual_email=False):

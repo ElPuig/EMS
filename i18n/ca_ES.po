@@ -17650,3 +17650,9 @@ msgstr "Document d'identitat"
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Social Security No"
 msgstr "Núm. de la Seguretat Social"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+msgid "A roll-call can't be taken for a future date."
+msgstr "No es pot passar llista d'una data futura."

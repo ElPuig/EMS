@@ -3,7 +3,6 @@
 import base64
 import csv
 import io
-from datetime import datetime
 
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
@@ -1067,7 +1066,7 @@ Called from `_apply_cleanup()` **last**, after `students._ems_clear_operational_
         follower about an operation that only concerns the staff.
         """
         self.ensure_one()
-        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        stamp = self.env['ems.datetime_utils'].get_local_datetime().strftime("%Y%m%d_%H%M%S")
         self.audit_file = self._build_audit_csv()
         self.audit_file_name = "course_transition_%s.csv" % stamp
 

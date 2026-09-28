@@ -66,3 +66,8 @@ def migrate(cr, _version):
     _recompute_stale_last_attendance(env)
     _detach_public_holidays_from_schedules(env)
     _drop_stale_data_request_menu_translations(cr)
+    # Issue #518: one timezone for the whole centre, the company's. Every existing partner (users,
+    # families, the public user the attendance kiosk runs as), employee and working schedule carries
+    # whatever timezone its browser gave it (America/Lima, Atlantic/Canary... or none, so UTC):
+    # align them all with the company's. See docs/en/developers/shared/timezones.md.
+    env['res.company']._ems_align_timezones()

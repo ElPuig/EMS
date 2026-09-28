@@ -1,4 +1,4 @@
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from unittest.mock import patch
 
 import pytz
@@ -367,6 +367,14 @@ class TestAttendanceSessionHeader(TransactionCase):
         result = self.env['ems.attendance_session_header'].with_user(self.teacher_user).create_scheduled_session(
             date.today().isoformat(), self.schedule2.id)
         self.assertTrue(result['is_continuation'])
+
+    def test_create_scheduled_session_rejects_a_future_date(self):
+        """The date comes from the web client, whose clock can be wrong: the server never takes a
+        roll-call for a day after its own (company-timezone) today."""
+        tomorrow = self.env['ems.datetime_utils'].get_local_today() + timedelta(days=1)
+        with self.assertRaises(ValidationError):
+            self.env['ems.attendance_session_header'].with_user(self.teacher_user).create_scheduled_session(
+                tomorrow.isoformat(), self.schedule.id)
 
 
 class TestAttendanceSessionLine(TransactionCase):

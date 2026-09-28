@@ -43,6 +43,9 @@ def post_init_hook(env):
     # opens the next campaign), so a fresh install needs it seeded once.
     env['ems.course']._ems_seed_enrollment_default()
     _backfill_missing_teacher_calendars(env)
+    # Every partner, employee and calendar created while the data loaded got its 'tz' from the
+    # installer's browser: align them all with the company's (docs/en/developers/shared/timezones.md).
+    env['res.company']._ems_align_timezones()
     # Installing hr_holidays hands its Administrator group to every existing user via
     # 'base.default_user'; take it back from everyone EMS does not actually grant it to.
     env['res.users']._ems_sync_time_off_groups()

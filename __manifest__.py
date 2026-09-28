@@ -525,11 +525,13 @@
         'web.assets_backend': [
             'ems/static/src/xml/backend/**/*',
             'ems/static/src/css/backend/**/*',
+            'ems/static/src/js/shared/**/*',
             'ems/static/src/js/backend/**/*',
         ],
         'web.assets_frontend': [
            'ems/static/src/css/frontend/**/*',
            'ems/static/src/scss/frontend/**/*',
+           'ems/static/src/js/shared/**/*',
            'ems/static/src/js/frontend/**/*',
            'ems/static/src/xml/frontend/**/*',
         ],

@@ -4,7 +4,6 @@ from odoo import models, fields, api, _
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools import email_normalize
 from ..shared import base
-import datetime
 import re
 from dateutil.relativedelta import relativedelta
 from markupsafe import Markup
@@ -63,7 +62,7 @@ class EmsStudentBenefit(models.Model):
     @api.onchange('benefit_type')
     def _onchange_benefit_type(self):
         if self.benefit_type:
-            today = fields.Date.today()
+            today = self.env['ems.datetime_utils'].get_local_today()
             
             # Scholarship case: 9 months
             if self.benefit_type == 'scholarship':
@@ -716,7 +715,7 @@ class ResPartner(models.Model):
     def _compute_is_adult(self):
         for partner in self:
             partner.is_adult = bool(partner.birth_date) and (
-                relativedelta(datetime.date.today(), partner.birth_date).years >= 18)
+                relativedelta(self.env['ems.datetime_utils'].get_local_today(), partner.birth_date).years >= 18)
 
     @api.depends('main_group_id')
     def _compute_main_group_pending_change(self):

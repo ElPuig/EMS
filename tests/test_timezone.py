@@ -55,16 +55,24 @@ class TestCompanyTimezone(TransactionCase):
         self.assertEqual(self.env.ref('base.public_user').partner_id.tz, 'Europe/Madrid')
 
     def test_attendance_kiosk_error_shows_spanish_time(self):
-        """The kiosk runs as the public user, whose empty timezone made Odoo's own "hasn't checked
-        out since..." error show the check-in in UTC (11:08 for a 13:08 check-in)."""
+        """The kiosk runs as the public user, whose empty timezone made Odoo's own attendance errors
+        ("hasn't checked out since...", "was already checked in on...") show times in UTC (11:08 for
+        a 13:08 check-in). Both format the time with the acting user's timezone; this checks it
+        through the overlap one, built only from closed attendances, so that neither the real clock
+        nor the automatic check-out of an open attendance (create()) can change the outcome. A
+        winter and a summer date, so a fixed offset can't pass it."""
         self.env['res.company']._ems_align_timezones()
-        # Off, or the second check-in would auto-close the first one first (a day with no expected
-        # hours closes at the end of the framework's day, issue #520) and Odoo would raise a
-        # different error: this test is only about the timezone of the one below.
-        self.env.company.auto_check_out = False
         employee = self.env['hr.employee'].create({'name': 'TZ Test Teacher'})
-        self.env['hr.attendance'].create({'employee_id': employee.id, 'check_in': datetime(2026, 9, 28, 11, 8)})
         kiosk = self.env['hr.attendance'].with_user(self.env.ref('base.public_user')).sudo()
-        with self.assertRaises(ValidationError) as error:
-            kiosk.create({'employee_id': employee.id, 'check_in': datetime(2026, 9, 28, 15, 0)})
-        self.assertIn('13:08', str(error.exception))
+        for utc_day, expected in ((datetime(2026, 1, 12), '12:08'), (datetime(2026, 9, 28), '13:08')):
+            with self.subTest(expected=expected):
+                self.env['hr.attendance'].create({
+                    'employee_id': employee.id,
+                    'check_in': utc_day.replace(hour=10), 'check_out': utc_day.replace(hour=12),
+                })
+                with self.assertRaises(ValidationError) as error:
+                    kiosk.create({
+                        'employee_id': employee.id,
+                        'check_in': utc_day.replace(hour=11, minute=8), 'check_out': utc_day.replace(hour=13),
+                    })
+                self.assertIn(expected, str(error.exception))

@@ -2145,7 +2145,7 @@ msgstr "Mode de sortida automàtica"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__auto_checkout_retry_until model:ir.model.fields,field_description:ems.field_res_config_settings__auto_checkout_retry_until
 msgid "Auto Checkout Retry Until"
-msgstr ""
+msgstr "Reintentar fins a"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__auto_checkout_time model:ir.model.fields,field_description:ems.field_res_config_settings__auto_checkout_time
@@ -3961,12 +3961,12 @@ msgstr "Google Workspace: no s'ha pogut suspendre %(email)s. Comprova que la OU 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__google_ws_sa_json model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_sa_json
 msgid "Google Ws Sa Json"
-msgstr ""
+msgstr "JSON del compte de servei"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__google_ws_sa_json_encrypted
 msgid "Google Ws Sa Json Encrypted"
-msgstr ""
+msgstr "JSON del compte de servei (xifrat)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_suspended model:ir.model.fields,field_description:ems.field_res_users__google_ws_suspended model:ir.model.fields.selection,name:ems.selection__hr_employee__google_ws_state__suspended model:ir.model.fields.selection,name:ems.selection__res_partner__google_ws_state__suspended
@@ -5409,7 +5409,7 @@ msgstr "D'acord"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__google_ws_ou_adult model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_ou_adult
 msgid "OU (adults 18+)"
-msgstr ""
+msgstr "OU (adults 18+)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__google_ws_ou_minor model:ir.model.fields,field_description:ems.field_res_config_settings__google_ws_ou_minor
@@ -18422,3 +18422,8 @@ msgstr "L'estat d'una sol·licitud només canvia amb els seus botons."
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__resolution_pdf_id
 msgid "Resolution PDF"
 msgstr "PDF de la resolució"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
+msgid "This only resolves attendances left open from previous days, never for the current day."
+msgstr "Això només resol les assistències que han quedat obertes de dies anteriors, mai les del dia actual."

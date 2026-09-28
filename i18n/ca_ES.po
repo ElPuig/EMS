@@ -17625,3 +17625,10 @@ msgstr "Persones convocades"
 #: code:addons/ems/models/meetings/presence.py:0
 msgid "Everyone has registered"
 msgstr "Tothom s'ha registrat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee_autocheckout.py:0
+#, python-format
+msgid "This attendance was automatically checked out at the end of the day in the schedule framework \"%s\", because the working schedule expected no hours that day."
+msgstr "Aquesta assistència va ser registrada automàticament com a sortida al final del dia segons el marc horari \"%s\", perquè l'horari laboral no preveia cap hora aquell dia."

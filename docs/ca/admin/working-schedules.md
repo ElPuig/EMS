@@ -98,6 +98,8 @@ En crear un empleat nou de tipus **Professor**, l'EMS automàticament:
 
 Encara no cal assignar res — obre la seva pestanya **Horari** i fes servir **Edita** per començar a omplir assignatures, seguint la secció "Editar l'horari d'un docent" més avall. Si més endavant li canvies el nom, el calendari es renombra automàticament; si l'elimines, el seu calendari personal s'elimina automàticament també.
 
+> **Sortida automàtica un dia sense hores previstes.** Si un docent fitxa l'entrada un dia en què el seu horari no li preveu cap hora (l'horari encara no té cap franja, per exemple un docent nou o l'horari d'un curs nou que encara no s'ha omplert; un dia que no li toca venir; o una absència de dia sencer), la sortida automàtica tanca el fitxatge al final d'aquell dia segons el marc horari de l'horari, i hi deixa una nota amb el nom del marc. Així una sortida oblidada no fa que la següent entrada es registri com a sortida. Assegura't que l'horari de cada docent apunti al marc que correspon a la seva jornada real (per exemple, el marc d'ESO per a un docent només de matins): amb un marc que arriba fins al vespre, la sortida es posaria a aquella hora.
+
 ---
 
 ## Veure l'horari d'un docent

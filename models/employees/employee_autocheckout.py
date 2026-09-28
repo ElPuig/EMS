@@ -72,19 +72,21 @@ class ems_attendance(models.Model):
 
     def _auto_close_attendance(self):
         """Close this open attendance using the last scheduled working hour
-        for its check-in date (with a check_in+1h fallback), regardless of
-        the current time of day. Returns True if it was closed, False if it
-        could not be (no schedule for that day, or the scheduled check-out
-        hasn't happened yet)."""
+        for its check-in date - or the end of that day in the framework, when
+        nothing was expected that day (see _get_closing_hour()) - with a
+        check_in+1h fallback, regardless of the current time of day. Returns
+        True if it was closed, False if it could not be (neither working hours
+        nor a framework period that day, or the check-out hour hasn't happened
+        yet)."""
         self.ensure_one()
         now = datetime.now(timezone.utc).replace(tzinfo=None)
         work_date = self.check_in.date()
-        check_out = self._get_last_working_hour(self.employee_id, work_date)
+        check_out, framework = self._get_closing_hour(self.employee_id, work_date)
 
         if check_out is None:
             _logger.warning(
-                "EMS auto-checkout: employee %s (id=%d) has no working schedule "
-                "for %s — skipping.",
+                "EMS auto-checkout: employee %s (id=%d) has neither working hours nor a "
+                "framework period for %s — skipping.",
                 self.employee_id.name, self.employee_id.id, work_date,
             )
             return False
@@ -125,6 +127,13 @@ class ems_attendance(models.Model):
                 ),
                 partner_ids=partners.ids,
             )
+        elif framework:
+            self.message_post(
+                body=_(
+                    'This attendance was automatically checked out at the end of the day in the '
+                    'schedule framework "%s", because the working schedule expected no hours that day.'
+                ) % framework.name
+            )
         else:
             self.message_post(
                 body=_('This attendance was automatically checked out at the end of the scheduled working hours.')
@@ -164,8 +173,14 @@ class ems_attendance(models.Model):
         return pytz.utc.localize(dt).astimezone(employee_tz).strftime('%Y-%m-%d %H:%M:%S')
 
     def _get_last_working_hour(self, employee, work_date):
-        """End of the last stretch the employee was actually expected to work on work_date, as
-        a naive UTC datetime, or None when nothing was expected of them at all.
+        """End of the last stretch the employee was expected to work on work_date - or, when
+        nothing was expected of them that day, the end of that day in their framework - as a
+        naive UTC datetime. See _get_closing_hour()."""
+        return self._get_closing_hour(employee, work_date)[0]
+
+    def _get_closing_hour(self, employee, work_date):
+        """(hour, framework): the naive UTC hour an attendance checked in on work_date is closed
+        at, and the framework it was read from (empty when it came from the real timetable).
 
         Asks the calendar what was expected rather than reading its raw weekly 'attendance_ids':
         an approved absence becomes a 'resource.calendar.leaves' row on that same calendar (see
@@ -176,30 +191,64 @@ class ems_attendance(models.Model):
         leave for. Only an approved absence counts: a request still awaiting its approver never
         becomes a resource leave, so it correctly changes nothing here.
 
-        None means the same thing to the caller in both of the cases that produce it - the
-        employee never works that weekday, or an absence covers the whole of it: either way
-        there is no scheduled hour to close at, and leaving the attendance open for a human to
-        correct is more honest than closing it at an invented time.
+        When nothing was expected of them at all that day (a schedule with no slots yet, a
+        weekday they don't work, an absence covering the whole day) but they checked in anyway,
+        the attendance still has to be closed - otherwise their next check-in is taken as the
+        check-out of this one. It ends where that weekday ends in their framework
+        (_get_closing_framework()). None only when the framework has no period that weekday
+        either (or there is no framework at all).
         """
         expected = self._get_expected_intervals(employee, work_date)
+        framework = self.env['resource.calendar']
         if not expected:
-            return None
+            framework = self._get_closing_framework(employee)
+            expected = self._get_framework_intervals(employee, framework, work_date)
+        if not expected:
+            return None, framework
 
         last_end = max(interval_end for _interval_start, interval_end in expected)
-        return last_end.astimezone(pytz.utc).replace(tzinfo=None)
+        return last_end.astimezone(pytz.utc).replace(tzinfo=None), framework
 
     def _get_expected_intervals(self, employee, work_date):
         """(start, end) pairs, tz-aware, of every stretch the employee is expected to work on
-        work_date - approved absences already subtracted (see _get_last_working_hour() above
-        for why the calendar is asked instead of reading its raw 'attendance_ids'). Empty for
-        an employee with no working schedule at all."""
+        work_date - approved absences already subtracted (see _get_closing_hour() for why the
+        calendar is asked instead of reading its raw 'attendance_ids'). Empty for an employee
+        with no working schedule at all."""
         if not employee.resource_calendar_id:
             return []
 
-        employee_tz = pytz.timezone(employee._get_tz())
-        day_start = employee_tz.localize(datetime.combine(work_date, time.min))
-        day_end = employee_tz.localize(datetime.combine(work_date, time.max))
+        day_start, day_end = self._get_local_day_bounds(employee, work_date)
         return [(start, end) for start, end, *_rest in employee._get_expected_attendances(day_start, day_end)]
+
+    def _get_closing_framework(self, employee):
+        """The framework the employee's schedule was built from ('source_framework_id'), or the
+        company's default one for a schedule that predates that reference. Empty for an employee
+        with no schedule at all."""
+        calendar = employee.resource_calendar_id
+        if not calendar:
+            return self.env['resource.calendar']
+        return calendar.source_framework_id or employee.company_id.default_schedule_framework_id
+
+    def _get_framework_intervals(self, employee, framework, work_date):
+        """(start, end) pairs, tz-aware, of 'framework''s periods on work_date, in the employee's
+        own timezone. Deliberately without subtracting any absence: it only ever stands in for a
+        day nothing was expected of the employee, so there is nothing left to subtract from."""
+        if not framework:
+            return []
+
+        day_start, day_end = self._get_local_day_bounds(employee, work_date)
+        resource = employee.resource_id
+        attendances = framework._attendance_intervals_batch(
+            day_start, day_end, resource, tz=day_start.tzinfo)[resource.id]
+        return [(start, end) for start, end, *_rest in attendances]
+
+    def _get_local_day_bounds(self, employee, work_date):
+        """Start and end of 'work_date' in the employee's own timezone, tz-aware."""
+        employee_tz = pytz.timezone(employee._get_tz())
+        return (
+            employee_tz.localize(datetime.combine(work_date, time.min)),
+            employee_tz.localize(datetime.combine(work_date, time.max)),
+        )
 
     def _is_within_working_hours(self, employee, moment):
         """Whether 'moment' (naive UTC, the ORM's own convention) falls inside one of the

@@ -98,6 +98,8 @@ Al crear un empleado nuevo de tipo **Profesor**, EMS automáticamente:
 
 Todavía no hace falta asignar nada — abre su pestaña **Horario** y usa **Editar** para empezar a rellenar asignaturas, siguiendo la sección "Editar el horario de un docente" más abajo. Si más adelante le cambias el nombre, el calendario se renombra automáticamente; si lo eliminas, su calendario personal se elimina automáticamente también.
 
+> **Salida automática un día sin horas previstas.** Si un docente ficha la entrada un día en que su horario no le prevé ninguna hora (el horario aún no tiene ninguna franja, por ejemplo un docente nuevo o el horario de un curso nuevo que aún no se ha rellenado; un día que no le toca venir; o una ausencia de día completo), la salida automática cierra el fichaje al final de ese día según el marco horario del horario, y deja una nota en el fichaje con el nombre del marco. Así una salida olvidada no hace que la siguiente entrada se registre como salida. Asegúrate de que el horario de cada docente apunte al marco que corresponde a su jornada real (por ejemplo, el marco de ESO para un docente solo de mañanas): con un marco que llega hasta la tarde, la salida se pondría a esa hora.
+
 ---
 
 ## Ver el horario de un docente

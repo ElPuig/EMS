@@ -37,7 +37,26 @@ class TestEmployeeAutocheckout(TransactionCase):
             'day_period': 'morning',
         })
 
-    def _expected_utc(self, hour_float):
+    @staticmethod
+    def _other_weekday(day):
+        return str((day.weekday() + 1) % 7)
+
+    def _set_framework(self, slots):
+        """Give the teacher's (still empty) schedule a dedicated reference framework whose only
+        periods are 'slots' - (dayofweek, hour_from, hour_to) tuples. 'attendance_ids' is always
+        passed explicitly: resource.calendar's own default would otherwise add a standard 40h week."""
+        framework = self.env['resource.calendar'].create({
+            'name': 'Test Autocheckout Framework',
+            'is_framework': True,
+            'attendance_ids': [(0, 0, {
+                'name': 'Test Period', 'dayofweek': dayofweek, 'day_period': 'morning',
+                'hour_from': hour_from, 'hour_to': hour_to,
+            }) for dayofweek, hour_from, hour_to in slots],
+        })
+        self.calendar.source_framework_id = framework
+        return framework
+
+    def _expected_utc(self, hour_float, day=None):
         """The naive UTC datetime '_get_last_working_hour' itself would produce for a plain
         local hour on 'self.today', as a fixed point of comparison for these tests.
 
@@ -51,7 +70,7 @@ class TestEmployeeAutocheckout(TransactionCase):
         exactly that offset (found 2026-09-09 via CI, where they diverge)."""
         tz = pytz.timezone(self.teacher._get_tz())
         hour, minute = int(hour_float), round((hour_float % 1) * 60)
-        local = tz.localize(datetime.combine(self.today, time(hour, minute)))
+        local = tz.localize(datetime.combine(day or self.today, time(hour, minute)))
         return local.astimezone(pytz.utc).replace(tzinfo=None)
 
     def test_get_last_working_hour_none_without_calendar(self):
@@ -62,9 +81,15 @@ class TestEmployeeAutocheckout(TransactionCase):
         attendance_model = self.env['hr.attendance']
         self.assertIsNone(attendance_model._get_last_working_hour(employee, self.today))
 
-    def test_get_last_working_hour_none_without_slots_that_day(self):
-        attendance_model = self.env['hr.attendance']
-        self.assertIsNone(attendance_model._get_last_working_hour(self.teacher, self.today))
+    def test_a_day_off_closes_at_the_end_of_its_framework_day(self):
+        """A teacher who doesn't come every day but checks in on a day off anyway: the attendance
+        must still be closed, at the end of that day in their framework."""
+        self._add_slot(8.0, 14.0, dayofweek=self._other_weekday(self.today))
+        self._set_framework([(self.weekday, 8.0, 15.0)])
+
+        result = self.env['hr.attendance']._get_last_working_hour(self.teacher, self.today)
+
+        self.assertEqual(result, self._expected_utc(15.0))
 
     def test_get_last_working_hour_returns_latest_slot(self):
         self._add_slot(8.0, 10.0)
@@ -106,9 +131,11 @@ class TestEmployeeAutocheckout(TransactionCase):
         self.assertFalse(attendance.check_out)
 
     def test_auto_close_attendance_false_without_schedule(self):
+        """Neither working hours nor a framework period that day: nothing to close at."""
+        check_in = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=2)
+        self._set_framework([(self._other_weekday(check_in.date()), 8.0, 14.0)])
         attendance = self.env['hr.attendance'].create({
-            'employee_id': self.teacher.id,
-            'check_in': datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=2),
+            'employee_id': self.teacher.id, 'check_in': check_in,
         })
 
         closed = attendance._auto_close_attendance()
@@ -353,10 +380,9 @@ class TestEmployeeAutocheckout(TransactionCase):
 
         self.assertEqual(result, self._expected_utc(18.0))
 
-    def test_a_whole_day_absence_leaves_nothing_to_close_at(self):
-        """Nothing was expected of them at all, so there is no scheduled hour to close at and
-        the attendance is deliberately left open for a human to correct - inventing an hour
-        here is exactly what this fix is removing.
+    def test_a_whole_day_absence_closes_at_the_end_of_its_framework_day(self):
+        """Nothing was expected of them at all, yet they checked in: the attendance is closed at
+        the end of that day in their framework rather than left open until their next check-in.
 
         Must land on a real Mon-Fri workday, not necessarily 'self.today': a whole-day absence's
         duration is computed by 'ems.absence._ems_working_days', which counts Mon-Fri days only
@@ -370,10 +396,12 @@ class TestEmployeeAutocheckout(TransactionCase):
         while day.weekday() >= 5:
             day += timedelta(days=1)
         self._add_slot(8.0, 14.0, dayofweek=str(day.weekday()))
+        self._set_framework([(str(day.weekday()), 8.0, 14.5)])
         self._approved_absence(day)
 
-        self.assertIsNone(
-            self.env['hr.attendance']._get_last_working_hour(self.teacher, day))
+        result = self.env['hr.attendance']._get_last_working_hour(self.teacher, day)
+
+        self.assertEqual(result, self._expected_utc(14.5, day=day))
 
     def test_a_pending_request_does_not_move_the_check_out(self):
         """Only an approved absence frees the employee from those hours."""
@@ -391,3 +419,56 @@ class TestEmployeeAutocheckout(TransactionCase):
         result = self.env['hr.attendance']._get_last_working_hour(self.teacher, self.today)
 
         self.assertEqual(result, self._expected_utc(18.0))
+
+    # --- Nothing expected that day: close at the end of the day in the framework -------------
+    #
+    # A teacher whose schedule expects nothing that day (no slots at all yet, a weekday they
+    # don't work) but who checked in anyway closes at the end of that weekday in the framework
+    # the schedule was built from. See docs/en/developers/employees/attendance_autocheckout.md.
+
+    def test_empty_schedule_closes_at_the_end_of_its_framework_day(self):
+        self._set_framework([(self.weekday, 8.0, 10.0), (self.weekday, 10.0, 14.5)])
+
+        result = self.env['hr.attendance']._get_last_working_hour(self.teacher, self.today)
+
+        self.assertEqual(result, self._expected_utc(14.5))
+
+    def test_empty_schedule_none_when_its_framework_has_no_periods_that_day(self):
+        self._set_framework([(self._other_weekday(self.today), 8.0, 14.0)])
+
+        self.assertIsNone(
+            self.env['hr.attendance']._get_last_working_hour(self.teacher, self.today))
+
+    def test_a_schedule_with_slots_ignores_its_framework(self):
+        self._set_framework([(self.weekday, 8.0, 21.0)])
+        self._add_slot(8.0, 12.0)
+
+        result = self.env['hr.attendance']._get_last_working_hour(self.teacher, self.today)
+
+        self.assertEqual(result, self._expected_utc(12.0))
+
+    def test_a_schedule_predating_its_framework_reference_uses_the_company_default(self):
+        framework = self._set_framework([(self.weekday, 8.0, 13.0)])
+        self.calendar.source_framework_id = False
+        self.teacher.company_id.default_schedule_framework_id = framework
+
+        result = self.env['hr.attendance']._get_last_working_hour(self.teacher, self.today)
+
+        self.assertEqual(result, self._expected_utc(13.0))
+
+    def test_auto_close_empty_schedule_closes_at_framework_end_with_a_note(self):
+        # A week ago: the framework's end of day has long passed, whatever the time right now.
+        day = self.today - timedelta(days=7)
+        self._set_framework([(str(day.weekday()), 8.0, 14.0)])
+        check_in = self._expected_utc(9.0, day=day)
+        attendance = self.env['hr.attendance'].create({
+            'employee_id': self.teacher.id, 'check_in': check_in,
+        })
+
+        closed = attendance._auto_close_attendance()
+
+        self.assertTrue(closed)
+        self.assertEqual(attendance.check_out, self._expected_utc(14.0, day=day))
+        self.assertEqual(attendance.out_mode, 'auto_check_out')
+        self.assertTrue(any(
+            'Test Autocheckout Framework' in message.body for message in attendance.message_ids))

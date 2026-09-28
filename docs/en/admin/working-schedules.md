@@ -98,6 +98,8 @@ When you create a new employee of type **Teacher**, EMS automatically:
 
 Nothing needs to be assigned yet — open their **Schedule** tab and use **Edit** to start filling in subjects, following the "Edit a Teacher's Schedule" section below. Renaming the teacher later automatically renames their calendar to match; deleting the teacher automatically deletes their personal calendar.
 
+> **Automatic check-out on a day with no expected hours.** If a teacher checks in on a day their schedule expects nothing of them (their schedule has no time slots yet, e.g. a new teacher or a new course's schedule not filled in yet; a day they don't work; or a whole-day absence), the automatic check-out closes the attendance at the end of that day in the schedule's framework, and leaves a note on the attendance naming it. This keeps a forgotten check-out from turning their next check-in into a check-out. Make sure each teacher's schedule points at the framework that matches their real working day (e.g. the ESO framework for a morning-only teacher): with a framework that runs until the evening, the check-out would be set that late.
+
 ---
 
 ## View a Teacher's Schedule

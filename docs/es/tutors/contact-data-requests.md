@@ -22,9 +22,9 @@ Disponible para los tutores de grupo (para su alumnado), la secretaría y la jef
 
 ## Enviar una solicitud
 
-![Menú Comunidad educativa con la sección Estudiantes abierta: Estudiantes y Datos Estudiantes](../../assets/tutors/dades-contacte-01-menu.png)
+![Menú Comunidad educativa con la sección Estudiantes abierta: Estudiantes y Solicitud de datos](../../assets/tutors/dades-contacte-01-menu.png)
 
-1. Id a **Comunidad educativa → Estudiantes (1) → Datos Estudiantes (2)** y haced clic en **Solicitar datos de contacto**. También podéis abrirlo desde el menú ⚙ de la lista de estudiantes, de la ficha de un estudiante, de la lista de grupos o de la ficha de un grupo.
+1. Id a **Comunidad educativa → Estudiantes (1) → Solicitud de datos (2)** y haced clic en **Solicitar datos de contacto**. También podéis abrirlo desde el menú ⚙ de la lista de estudiantes, de la ficha de un estudiante, de la lista de grupos o de la ficha de un grupo.
 2. Elegid quién la recibe:
    - **Grupos / estudios / niveles**: elegid los grupos. Los tutores solo pueden elegir sus grupos.
    - **Alumnos seleccionados**: elegid los alumnos uno a uno.
@@ -41,7 +41,7 @@ Cada alumno, o la familia de un menor, recibe un correo con un enlace al portal.
 
 ![Lista de seguimiento de las solicitudes, con los estados Pendiente de respuesta, Por revisar y Hecho](../../assets/tutors/dades-contacte-03-seguiment.png)
 
-En **Comunidad educativa → Estudiantes → Datos Estudiantes**:
+En **Comunidad educativa → Estudiantes → Solicitud de datos**:
 
 - **Pendiente de respuesta**: enviada, todavía sin respuesta.
 - **Por revisar**: la familia ha respondido.

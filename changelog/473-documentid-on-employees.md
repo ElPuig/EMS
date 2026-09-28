@@ -16,6 +16,13 @@
 
 # Changes
 
+## Students > "Student Data" menu renamed "Data request":
+- The menu is now "Data request" ("Sol·licitud de dades" / "Solicitud de datos"). The tutors'
+  manuals and their menu screenshot are updated to match.
+- Migration 18.0.0.30.1 (post-migrate) drops the menu's old Catalan/Spanish names, since an
+  upgrade loads the .po files without overwriting existing translations and would otherwise
+  keep "Dades Estudiants"/"Datos Estudiantes".
+
 ## Schedule is the first tab on the teacher and group forms:
 - The "Schedule" tab is now the first one (and so the one open by default) on the teacher/ASP
   form and on the group form, the same as the My Profile screen already did. For an ASP

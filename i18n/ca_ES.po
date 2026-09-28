@@ -17093,8 +17093,8 @@ msgstr "Recordatori: "
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_contact_data_requests
-msgid "Student Data"
-msgstr "Dades Estudiants"
+msgid "Data request"
+msgstr "Sol·licitud de dades"
 
 #. module: ems
 #. odoo-javascript

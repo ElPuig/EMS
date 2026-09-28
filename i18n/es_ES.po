@@ -17095,8 +17095,8 @@ msgstr "Recordatorio: "
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_contact_data_requests
-msgid "Student Data"
-msgstr "Datos Estudiantes"
+msgid "Data request"
+msgstr "Solicitud de datos"
 
 #. module: ems
 #. odoo-javascript

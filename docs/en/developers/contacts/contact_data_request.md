@@ -20,7 +20,7 @@ levels), answered on `/my/dades-contacte`, and applied only once a reviewer appr
 | `views/community/contact_data_request/` | Send wizard, bindings (students list/form, groups list/form), request list/form/search, return wizard, menu |
 | `mails/contacts/contact_data_request.xml` | `ems.email_template_contact_data_request` (first request, reminder, returned) |
 
-The menu is **Educational Community > Students > Student Data** (`menu_contact_data_requests`,
+The menu is **Educational Community > Students > Data request** (`menu_contact_data_requests`,
 groups: academic admin, secretary, head of studies, tutor). *Students* is a section
 (`menu_students_root`, no action) holding the Students list (`menu_students`, which keeps its action:
 the cog-menu scripts read it by xmlid) and this menu, so clicking Educational Community still opens the

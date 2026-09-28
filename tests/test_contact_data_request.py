@@ -386,10 +386,10 @@ class TestContactDataRequestCorporateEmail(TransactionCase):
 
 
 class TestContactDataRequestMenu(TransactionCase):
-    """Student Data sits under Educational Community > Students (issue #507): Students is a section
+    """Data request sits under Educational Community > Students (issue #507): Students is a section
     holding the Students list and this menu."""
 
-    def test_students_is_a_section_with_the_students_list_and_student_data(self):
+    def test_students_is_a_section_with_the_students_list_and_data_request(self):
         community = self.env.ref('ems.menu_community')
         section = self.env.ref('ems.menu_students_root')
         students = self.env.ref('ems.menu_students')
@@ -404,8 +404,8 @@ class TestContactDataRequestMenu(TransactionCase):
     def test_menu_names_are_translated(self):
         section = self.env.ref('ems.menu_students_root')
         data = self.env.ref('ems.menu_contact_data_requests')
-        self.assertEqual(data.with_context(lang='en_US').name, 'Student Data')
-        self.assertEqual(data.with_context(lang='ca_ES').name, 'Dades Estudiants')
-        self.assertEqual(data.with_context(lang='es_ES').name, 'Datos Estudiantes')
+        self.assertEqual(data.with_context(lang='en_US').name, 'Data request')
+        self.assertEqual(data.with_context(lang='ca_ES').name, 'Sol·licitud de dades')
+        self.assertEqual(data.with_context(lang='es_ES').name, 'Solicitud de datos')
         self.assertEqual(section.with_context(lang='ca_ES').name, 'Estudiants')
         self.assertEqual(section.with_context(lang='es_ES').name, 'Estudiantes')

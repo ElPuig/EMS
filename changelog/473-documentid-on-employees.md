@@ -13,6 +13,9 @@
   (scoped_identification_id, scoped_ssnid, can_view_identity), since the native fields'
   hr.group_hr_user gate is per field, not per record.
 - Tests: tests/test_employee_identity_visibility.py plus Department Chief and secretariat tours.
+- Head of Studies (staff management) and admin (teacher roles) manuals explain who sees and
+  edits these fields, and the secretariat's new HR permissions (added during the release close
+  review).
 
 # Changes
 

@@ -118,6 +118,7 @@ Technical reference for developers working on the EMS module.
 | [Task assignment](shared/task_assignment.md) | `mail.activity.type`'s `ems_task_assignment`/`ems_assignee_ids` — an explicit, config-driven recipient list decoupled from security groups |
 | [`ems.base`](shared/base.md) | Chatter/notification helpers (`notify`, `chatter`, `chatter_exception`), permission checks (`get_user_is_admin`/`_tutor`), `persistent_hash` — the foundational mixin inherited by most business models |
 | [`ems.datetime_utils`](shared/datetime_utils.md) | Timezone-aware ↔ naive-UTC ↔ float-hour conversions shared by every attendance/schedule model |
+| [Dates, times and timezones](shared/timezones.md) | The one-timezone policy (always the company's): server-side helpers, the web client's company-timezone service and `serverNow()`, and the record-level `tz` alignment |
 | [`ems.multithreading`](shared/multithreading.md) | The `run_in_thread()` setup/compute/store/callback engine behind the LimeSurvey integration's long-running actions |
 | [`ems.schedule_report_mixin`](shared/schedule_report_mixin.md) | The shared weekly-schedule aggregation-to-report pipeline (report-line building, break derivation, colour/time-label helpers) behind both the group's and the student's own read-only Schedule tab |
 | [`google.workspace.mixin`](shared/google_workspace_mixin.md) | The Directory API client, password policy, and text/phone normalization shared by the staff and student Google Workspace integrations |

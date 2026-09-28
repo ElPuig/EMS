@@ -38,6 +38,14 @@ Es la dirección donde se envían las credenciales de la nueva cuenta de Google.
 
 ---
 
+## Documento de identidad y número de la Seguridad Social
+
+La pestaña **Información privada** de la ficha de un docente empieza con un grupo **Identificación** con el **Documento de identidad** (DNI/NIE) y el **Núm. de la Seguridad Social**. Vosotros, el adjunto/a, el Director y el coordinador TAC podéis editarlos en las fichas del profesorado; la Secretaría los mantiene al día para todo el personal, PAS incluido.
+
+El Jefe de departamento y el Jefe de seminario de un docente también pueden ver estos dos campos, solo de lectura, en las fichas del personal de su propio departamento (solo su propia cadena de mando, no la de otros departamentos). Para ellos la pestaña solo muestra el grupo **Identificación**: el resto de la información privada queda oculta.
+
+---
+
 ## Crear la cuenta corporativa de Google
 
 Los botones que gestionan la cuenta corporativa están en la barra superior de la ficha. Cuál aparece depende del estado de la cuenta: solo se ofrece uno cada vez.

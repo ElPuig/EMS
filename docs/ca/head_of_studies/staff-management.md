@@ -38,6 +38,14 @@ En desar també es crea l'horari setmanal propi del professor o professora, prec
 
 ---
 
+## Document d'identitat i número de la Seguretat Social
+
+La pestanya **Informació privada** de la fitxa d'un docent comença amb un grup **Identificació** amb el **Document d'identitat** (DNI/NIE) i el **Núm. de la Seguretat Social**. Vosaltres, l'adjunt/a, el Director i el coordinador TAC els podeu editar a les fitxes del professorat; la Secretaria els manté al dia per a tot el personal, PAS inclòs.
+
+El Cap de departament i el Cap de seminari d'un docent també poden veure aquests dos camps, només de lectura, a les fitxes del personal del seu propi departament (només la seva pròpia cadena de comandament, no la d'altres departaments). Per a ells la pestanya només mostra el grup **Identificació**: la resta de la informació privada queda amagada.
+
+---
+
 ## Crear el compte corporatiu de Google
 
 Els botons que gestionen el compte corporatiu són a la barra superior de la fitxa. Quin apareix depèn de l'estat del compte: només se n'ofereix un cada vegada.

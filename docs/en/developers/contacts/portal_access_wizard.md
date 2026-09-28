@@ -15,7 +15,9 @@
 Two rules, both in `models/contacts/portal.py`, deliberately kept apart:
 
 - `_ems_notification_recipients()`: who **acts** on the student's behalf. It is also used for
-  authorizations and convalidation notices, so it never includes a minor who has a family.
+  authorizations, so it never includes a minor who has a family. Convalidations have their own
+  rules (`_ems_convalidation_can_request()`, `_ems_convalidation_recipients()`), see
+  [`convalidation.md`](../grades/convalidation.md#portal).
 - `_ems_portal_access_recipients()`: who gets a **portal account**, which is the above plus
   the student himself. A minor gets his own, view-only account (see below) next to his
   family's.
@@ -78,13 +80,15 @@ from this wizard; nothing grants it automatically.
 | Portal page | Acts for the student | View-only |
 |---|:---:|:---:|
 | Home, Attendance (schedule), Grades, Profile | ✓ | ✓ |
-| Communications | ✓ (all threads) | only messages addressed to the student (`partner_ids`) |
-| Enrollment and authorizations, Convalidations, Documentation | ✓ | hidden, route redirects to `/my/home` |
+| Communications | ✓ (all threads) | only messages addressed to the student (`partner_ids`), plus the convalidation threads when it may file them |
+| Enrollment and authorizations, Documentation | ✓ | hidden, route redirects to `/my/home` |
+| Convalidations | own rule, see [`convalidation.md`](../grades/convalidation.md#portal): the minor reads his own, the family of an adult who shares files them | |
 | Native `/my/quotes`, `/my/orders[/<id>...]`, `/my/invoices[/<id>]` | native rules | empty lists, documents refused |
 
 Enforced server side in `controllers/portal_view_only.py`:
 - `@ems_portal_manage_required`, placed under `@http.route` on every enrollment,
-  authorization, convalidation and documentation route (GET and POST).
+  authorization and documentation route (GET and POST). The convalidation routes check
+  `_ems_convalidation_can_request()` / `_ems_convalidation_portal_visible()` instead.
 - `_document_check_access()` refuses `sale.order`/`account.move`, and the quotation/order/
   invoice list domains are emptied, because a minor is the customer (`partner_id`) of his own
   enrollment, so the native portal rules would otherwise let him open, sign or decline it.

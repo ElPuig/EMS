@@ -8,9 +8,9 @@ from .test_portal_convalidation import create_portal_convalidation_fixtures
 
 @tagged('post_install', '-at_install')
 class TestConvalidationTour(HttpCase):
-    """Issue #276 - proves every screen convalidations reach renders in a browser, each one for
-    the least-privileged role that uses it: the request list/form for the two steps of the
-    circuit (Head of Studies, then secretariat), the student form's stat button, CV in both
+    """Issues #276 and #529 - proves every screen convalidations reach renders in a browser, each
+    one for the least-privileged role that uses it: the request list/form for every step of the
+    circuit (Head of Studies, Ministry, Director, secretariat), the student form's stat button, CV in both
     grade views (the teacher who is also the group's tutor) and the portal page, where the
     student files a request and answers with more documentation. Logic is covered by
     test_convalidation.py and test_portal_convalidation.py."""
@@ -44,27 +44,50 @@ class TestConvalidationTour(HttpCase):
         # from the subject, which deletes their line in any OPEN session only. The board round
         # keeps it - and it is the one the tutor's view still lists (it skips final rounds).
         session.state = 'board'
-        self.request.line_ids.sudo().action_grant()
-        self.request.sudo().action_validate()
+        self._resolve()
         self.request.sudo().action_complete()
         self.assertTrue(session.grade_subject_line_ids.is_convalidated)
         return session
 
-    def test_head_of_studies_resolves(self):
+    def _propose(self):
+        self.request.line_ids.sudo().action_grant()
+        self.request.sudo().action_propose()
+
+    def _resolve(self):
+        self._propose()
+        self.request.sudo().action_resolve()
+
+    def test_head_of_studies_proposes(self):
         self.start_tour("/odoo", "ems_convalidation_resolve", login=self.head_of_studies.login)
-        self.assertEqual(self.request.state, 'in_progress')
+        self.assertEqual(self.request.state, 'direction')
         self.assertEqual(self.request.line_ids.state, 'granted')
         self.assertEqual(self.request.line_ids.grade, 8)
 
+    def test_head_of_studies_records_the_ministry_resolution(self):
+        self.start_tour("/odoo", "ems_convalidation_ministry", login=self.head_of_studies.login)
+        self.assertEqual(self.request.state, 'in_progress')
+        self.assertTrue(self.request.resolved_by_ministry)
+        self.assertEqual(self.request.line_ids.rejection_reason, 'Refused by the Ministry')
+
+    def test_director_resolves(self):
+        self._propose()
+        self.start_tour("/odoo", "ems_convalidation_director_resolves", login=self.director.login)
+        self.assertEqual(self.request.state, 'in_progress')
+        self.assertTrue(self.request.resolution_pdf_id)
+
+    def test_director_returns(self):
+        self._propose()
+        self.start_tour("/odoo", "ems_convalidation_director_returns", login=self.director.login)
+        self.assertEqual(self.request.state, 'pending')
+        self.assertEqual(self.request.return_reason, 'Check the hours')
+
     def test_secretary_completes(self):
-        self.request.line_ids.sudo().action_grant()
-        self.request.sudo().action_validate()
+        self._resolve()
         self.start_tour("/odoo", "ems_convalidation_complete", login=self.secretary.login)
         self.assertEqual(self.request.state, 'completed')
 
     def test_teacher_reads_the_current_course_history(self):
-        self.request.line_ids.sudo().action_grant()
-        self.request.sudo().action_validate()
+        self._resolve()
         self.request.sudo().action_complete()
         record = self.env['ems.student.year_record'].search([
             ('student_id', '=', self.student.id), ('course_id', '=', self.course.id)])

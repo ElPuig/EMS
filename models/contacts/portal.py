@@ -152,6 +152,38 @@ class ems_contact_portal(models.Model):
         return student in self.get_portal_students() \
             and self in student._ems_notification_recipients()
 
+    def _ems_convalidation_can_request(self, student):
+        """Whether this portal partner may file (and follow up) convalidation requests for the
+        student - a rule of its own, narrower and wider than _ems_portal_can_act_for (issue #529):
+
+        - a minor never files them himself, only his family; a minor with no family contact on
+          file cannot have any filed until someone fills that contact in;
+        - an adult files them himself, and so does his family when he authorized sharing with
+          it (auth_share), which is exactly when get_portal_students() shows him to it."""
+        self.ensure_one()
+        if not student or student.contact_type not in ('student', 'applicant'):
+            return False
+        if student.is_adult:
+            return self == student or (self.contact_type == 'family' and student in self.get_portal_students())
+        return self != student and self in student._ems_family_contacts()
+
+    def _ems_convalidation_portal_visible(self):
+        """Whether the portal shows this partner the Convalidations page for the student he is
+        looking at: whoever may request them, and the student himself, who at least reads his
+        own requests (and is told why he cannot file one when he is a minor)."""
+        self.ensure_one()
+        student = self.get_portal_student()
+        return student.contact_type in ('student', 'applicant') \
+            and (student == self or self._ems_convalidation_can_request(student))
+
+    def _ems_convalidation_recipients(self):
+        """Whoever hears about this student's convalidations (issue #529): the student always,
+        and his family too while he is a minor or when he authorized sharing with it."""
+        self.ensure_one()
+        if self.is_adult and not self.auth_share:
+            return self
+        return self | self._ems_family_contacts()
+
     def get_portal_student(self, student_id=None):
         """Returns the student partner for this partner.
 

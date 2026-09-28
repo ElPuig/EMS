@@ -4,6 +4,8 @@ from markupsafe import Markup
 
 from odoo import _, api, fields, models
 
+from .convalidation import REVIEW_STATES
+
 
 class EmsConvalidationInfoWizard(models.TransientModel):
     _name = 'ems.convalidation.info_wizard'
@@ -13,7 +15,7 @@ class EmsConvalidationInfoWizard(models.TransientModel):
                                        ondelete='cascade')
     student_id = fields.Many2one(string="Student", related='convalidation_id.student_id')
     message = fields.Text(string="What is missing", required=True,
-                          help="Sent to the student (or the family of a minor) by email, and shown on the "
+                          help="Sent to the student (and their family, when it follows their convalidations) by email, and shown on the "
                                "portal, where they can answer and attach the documents asked for.")
 
     @api.model
@@ -28,15 +30,17 @@ class EmsConvalidationInfoWizard(models.TransientModel):
         does not move: it stays where it was until the missing documents arrive."""
         self.ensure_one()
         convalidation = self.convalidation_id
-        convalidation._ems_check_state(('pending', 'in_progress'))
+        convalidation._ems_check_state(REVIEW_STATES)
         template = self.env.ref('ems.email_template_convalidation_info_request', raise_if_not_found=False)
-        recipients = convalidation.student_id._ems_notification_recipients().filtered('email')
+        recipients = convalidation.student_id._ems_convalidation_recipients().filtered('email')
         body = Markup("<p>{}</p>").format(self.message)
         for recipient in recipients:
             template.with_context(
                 lang=recipient.lang or convalidation.student_id.lang,
                 ems_info_request=self.message,
             ).sudo().send_mail(convalidation.id, force_send=False, email_values={'email_to': recipient.email})
+        convalidation.sudo().write({'info_request': self.message,
+                                    'info_request_date': fields.Date.context_today(self)})
         convalidation._ems_post_communication(_("Documentation requested"), body)
         if recipients:
             note = _("Information requested from %s.") % ", ".join(recipients.mapped('email'))

@@ -24,7 +24,7 @@
                         </block>
 
                         <block title="Convalidations Settings" name="ems_convalidation_settings">
-                            <setting string="Request period" help="Every year, students (and the families of minors) can request convalidations from the portal only between these two moments, in the centre's local time. Outside it the portal accepts no new requests; the ones already submitted are still handled as usual, and staff can register and process requests at any time." id="convalidation_period">
+                            <setting string="Request period" help="Every year, convalidations can only be requested from the portal between these two moments, in the centre's local time. Outside it the portal accepts no new requests; the ones already submitted are still handled as usual, and staff can register and process requests at any time." id="convalidation_period">
                                 <div class="content-group mt8">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <span class="o_form_label" style="width: 8ch;">Opens</span>
@@ -41,6 +41,22 @@
                                         <field name="convalidation_end_time" widget="float_time" class="text-center" style="width: 6ch;"/>
                                     </div>
                                 </div>
+                            </setting>
+                            <setting string="Resolution: grounds of law" help="Text added to Royal Decree 1085/2020, art. 8, in the resolution the Director issues, depending on the grounds of the request. Write it in Catalan, the language of the resolution. Leave it empty to use the standard text." id="convalidation_legal_grounds">
+                                <div class="content-group mt8">
+                                    <div class="o_form_label">Prior vocational training or university studies</div>
+                                    <field name="convalidation_legal_prior_studies" placeholder="Standard text"/>
+                                    <div class="o_form_label mt8">Professional certificate or accreditation of competences</div>
+                                    <field name="convalidation_legal_certificate" placeholder="Standard text"/>
+                                    <div class="o_form_label mt8">Other</div>
+                                    <field name="convalidation_legal_other" placeholder="Standard text"/>
+                                </div>
+                            </setting>
+                            <setting string="Resolution: appeal" help="Footer of the resolution saying how and before whom it can be appealed. Write it in Catalan. Leave it empty to use the standard text, which names the competent body only in general terms." id="convalidation_appeal">
+                                <field name="convalidation_appeal_text" placeholder="Standard text"/>
+                            </setting>
+                            <setting string="Resolution: signed by delegation" help="The resolution is signed on the Director's behalf: it says so, and shows the name of whoever actually resolved it instead of the Director's." id="convalidation_sign_by_delegation">
+                                <field name="convalidation_sign_by_delegation"/>
                             </setting>
                         </block>
 

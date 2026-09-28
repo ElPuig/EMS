@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #529 - the centre's official resolution of a convalidation request, generated
+             when the Director resolves the Head of Studies' proposal
+             (ems.convalidation._ems_generate_resolution_pdf) and always rendered in Catalan.
+             Not bound to the Print menu: the resolution is the PDF kept on the request. A
+             qualified electronic signature with the Director's certificate is future work
+             (issue #530). -->
+        <record id="action_report_convalidation_resolution" model="ir.actions.report">
+            <field name="name">Convalidation resolution</field>
+            <field name="model">ems.convalidation</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_convalidation_resolution</field>
+            <field name="report_file">ems.report_convalidation_resolution</field>
+        </record>
+
+        <template id="report_convalidation_resolution">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+                        <t t-set="representative" t-value="doc._ems_resolution_representative()"/>
+                        <div class="page o_ems_convalidation_resolution">
+                            <style>
+                                .o_ems_convalidation_resolution { font-size: 12px; }
+                                .o_ems_convalidation_resolution h2 { font-size: 18px; margin-bottom: 12px; }
+                                .o_ems_convalidation_resolution h3 { font-size: 13px; margin-top: 14px; margin-bottom: 4px; }
+                                .o_ems_convalidation_resolution table td, .o_ems_convalidation_resolution table th { padding: 3px 6px !important; }
+                                .o_ems_convalidation_signature { margin-top: 36px; }
+                                .o_ems_convalidation_stamp { display: inline-block; margin: 10px 0 8px 0; border: 2px solid #2e7d32; border-radius: 8px; color: #2e7d32; font-size: 10px; }
+                                /* The report layout frames every table (a ::before border, opted out of with
+                                   o_ignore_layout_styling) and borders every cell. */
+                                .o_ems_convalidation_stamp td { border: none !important; }
+                                .o_ems_convalidation_stamp td { padding: 6px 12px 6px 0 !important; vertical-align: middle; }
+                                .o_ems_convalidation_stamp td.o_ems_convalidation_stamp_check { padding: 6px 10px 6px 12px !important; font-size: 30px; }
+                                .o_ems_convalidation_stamp_title { font-size: 13px; font-weight: bold; }
+                                .o_ems_convalidation_appeal { margin-top: 28px; font-size: 10px; }
+                            </style>
+
+                            <h2>Resolution of convalidation of vocational training modules</h2>
+
+                            <table class="table table-sm table-borderless">
+                                <tbody>
+                                    <tr>
+                                        <th class="w-25">Registration number</th>
+                                        <td t-esc="doc.name"/>
+                                    </tr>
+                                    <tr>
+                                        <th>Request date</th>
+                                        <td t-out="doc.submission_date" t-options="{'widget': 'date'}"/>
+                                    </tr>
+                                    <tr>
+                                        <th>Applicant</th>
+                                        <td>
+                                            <t t-esc="doc.student_id.name"/>
+                                            <t t-if="doc.student_id.document_id"> - <t t-esc="doc.student_id.document_id"/></t>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="representative">
+                                        <th>Representative</th>
+                                        <td>
+                                            <t t-esc="representative.name"/>
+                                            <t t-if="representative.document_id"> - <t t-esc="representative.document_id"/></t>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Study</th>
+                                        <td t-esc="doc.study_id.name"/>
+                                    </tr>
+                                    <tr>
+                                        <th>Course</th>
+                                        <td t-esc="doc.course_id.name"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <h3>Grounds of law</h3>
+                            <p class="mb-1">Royal Decree 1085/2020, of 9 December, which establishes convalidations of vocational training modules of the titles of the Spanish education system, article 8.</p>
+                            <p t-esc="doc._ems_resolution_legal_grounds()"/>
+
+                            <h3>Resolution</h3>
+                            <p>In view of the request and the documentation provided, I resolve on the convalidation of the following vocational training modules:</p>
+                            <table class="table table-sm table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Code</th>
+                                        <th>Module</th>
+                                        <th>Result</th>
+                                        <th>Grade</th>
+                                        <th>Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc.line_ids" t-as="line">
+                                        <td t-esc="line.subject_id.code"/>
+                                        <td t-esc="line.subject_id.name"/>
+                                        <td>
+                                            <t t-if="line.state == 'granted'">Favourable</t>
+                                            <t t-else="">Unfavourable</t>
+                                        </td>
+                                        <td>
+                                            <t t-if="line.state == 'granted'">
+                                                <t t-if="line._ems_is_default_grade()">Convalidated</t>
+                                                <t t-else="" t-esc="line.grade"/>
+                                            </t>
+                                        </td>
+                                        <td t-esc="line.rejection_reason if line.state != 'granted' else ''"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p t-if="doc.resolution_notes" t-esc="doc.resolution_notes"/>
+
+                            <div class="o_ems_convalidation_signature">
+                                <p class="mb-0">
+                                    <t t-if="doc.env.company.city"><t t-esc="doc.env.company.city"/>, </t>
+                                    <t t-out="doc.signature_date" t-options="{'widget': 'date'}"/>
+                                </p>
+                                <p class="mb-0 mt-3">The Director</p>
+                                <p t-if="doc.env.company.convalidation_sign_by_delegation" class="mb-0">By delegation</p>
+                                <!-- Validation stamp where the signature goes: EMS records who resolved it
+                                     and when. Not a qualified electronic signature (issue #530). A table,
+                                     not flexbox: wkhtmltopdf's WebKit does not lay flexbox out. -->
+                                <div class="o_ems_convalidation_stamp">
+                                <table class="o_ignore_layout_styling">
+                                    <tr>
+                                        <td class="o_ems_convalidation_stamp_check"><i class="fa fa-check-circle"/></td>
+                                        <td>
+                                            <div class="o_ems_convalidation_stamp_title">Validated in EMS</div>
+                                            <div>Resolved by: <t t-esc="doc._ems_resolution_signatory()"/></div>
+                                            <div>Date: <t t-out="doc.signature_date" t-options="{'widget': 'date'}"/></div>
+                                            <div>Reference: <t t-esc="doc.name"/></div>
+                                        </td>
+                                    </tr>
+                                </table>
+                                </div>
+                                <p class="mb-0" t-esc="doc._ems_resolution_signatory()"/>
+                            </div>
+
+                            <p class="o_ems_convalidation_appeal" t-esc="doc._ems_resolution_appeal_text()"/>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

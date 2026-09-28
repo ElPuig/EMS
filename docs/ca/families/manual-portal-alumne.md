@@ -132,7 +132,7 @@ Mentre l'alumne és menor d'edat, és la **família** qui ho gestiona tot des de
 * les **Comunicacions** que li adrecen,
 * el **Perfil**.
 
-**Matrícula i autoritzacions**, **Convalidacions** i **Documentació** no apareixen al compte de l'alumne: se n'encarrega la família. Quan l'alumne compleix 18 anys, té accés a tots els apartats.
+**Matrícula i autoritzacions** i **Documentació** no apareixen al compte de l'alumne: se n'encarrega la família. A **Convalidacions** l'alumne consulta les seves sol·licituds, però les fa la família. Quan l'alumne compleix 18 anys, té accés a tots els apartats.
 
 ---
 
@@ -140,7 +140,7 @@ Mentre l'alumne és menor d'edat, és la **família** qui ho gestiona tot des de
 
 Des del dia que l'alumne fa 18 anys, és **ell mateix** qui ho gestiona tot des del seu propi compte: matrícula, autoritzacions, convalidacions i documentació. Si encara no tenia compte propi al portal, demaneu-lo al tutor o a Secretaria.
 
-La família conserva el seu compte però **deixa de veure l'alumne** al portal, llevat que l'alumne autoritzi compartir la seva informació amb la família (l'autorització de *compartir amb la família*). En aquest cas, la família torna a poder consultar l'**Assistència**, les **Qualificacions**, les **Comunicacions** que s'adrecen a l'alumne i el **Perfil**, però ja no pot gestionar res: la matrícula, les autoritzacions, les convalidacions i la documentació són cosa de l'alumne.
+La família conserva el seu compte però **deixa de veure l'alumne** al portal, llevat que l'alumne autoritzi compartir la seva informació amb la família (l'autorització de *compartir amb la família*). En aquest cas, la família torna a poder consultar l'**Assistència**, les **Qualificacions**, les **Comunicacions** que s'adrecen a l'alumne i el **Perfil**, però ja no pot gestionar la matrícula, les autoritzacions ni la documentació, que són cosa de l'alumne. Sí que pot continuar sol·licitant i seguint les **Convalidacions** de l'alumne.
 
 Una família a qui no li queda cap alumne per veure troba un avís a l'inici del portal que ho explica.
 

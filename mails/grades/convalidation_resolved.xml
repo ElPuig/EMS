@@ -3,8 +3,9 @@
     <data noupdate="0">
 
         <!-- Sent once a convalidation request is fully resolved
-             (ems.convalidation._ems_send_resolution), to the student when adult and to the
-             family when a minor. No <field name="lang">, for the same reason as
+             (ems.convalidation._ems_send_resolution), to the student and, while a minor or when
+             they authorized sharing, to their family (res.partner._ems_convalidation_recipients),
+             with the official resolution attached. No <field name="lang">, for the same reason as
              mails/enrollment/authorization_send.xml: the sender sets the recipient's language.
              The resolution labels are written in each translation instead of read from the
              selection, so each block stays in a single language. -->
@@ -29,10 +30,12 @@
                                 <strong t-if="line.state == 'granted'">convalidated</strong>
                                 <t t-if="line.state == 'granted'"> (grade <t t-out="line.grade"/>)</t>
                                 <strong t-if="line.state != 'granted'">rejected</strong>
+                                <t t-if="line.state != 'granted' and line.rejection_reason">: <t t-out="line.rejection_reason"/></t>
                                 <t t-if="line.resolution_notes"> (<t t-out="line.resolution_notes"/>)</t>
                             </li>
                         </ul>
                         <p t-if="object.resolution_notes" t-out="object.resolution_notes"/>
+                        <p t-if="object.resolution_pdf_id">The official resolution is attached.</p>
                         <p>
                             You can check it on the school portal:
                             <a t-attf-href="{{ object.get_base_url() }}/my/convalidaciones">Convalidations</a>.
@@ -65,10 +68,12 @@
                                 <strong t-if="line.state == 'granted'">convalidat</strong>
                                 <t t-if="line.state == 'granted'"> (nota <t t-out="line.grade"/>)</t>
                                 <strong t-if="line.state != 'granted'">denegat</strong>
+                                <t t-if="line.state != 'granted' and line.rejection_reason">: <t t-out="line.rejection_reason"/></t>
                                 <t t-if="line.resolution_notes"> (<t t-out="line.resolution_notes"/>)</t>
                             </li>
                         </ul>
                         <p t-if="object.resolution_notes" t-out="object.resolution_notes"/>
+                        <p t-if="object.resolution_pdf_id">Us adjuntem la resolució oficial.</p>
                         <p>
                             La podeu consultar al portal del centre:
                             <a t-attf-href="{{ object.get_base_url() }}/ca/my/convalidaciones">Convalidacions</a>.
@@ -101,10 +106,12 @@
                                 <strong t-if="line.state == 'granted'">convalidado</strong>
                                 <t t-if="line.state == 'granted'"> (nota <t t-out="line.grade"/>)</t>
                                 <strong t-if="line.state != 'granted'">denegado</strong>
+                                <t t-if="line.state != 'granted' and line.rejection_reason">: <t t-out="line.rejection_reason"/></t>
                                 <t t-if="line.resolution_notes"> (<t t-out="line.resolution_notes"/>)</t>
                             </li>
                         </ul>
                         <p t-if="object.resolution_notes" t-out="object.resolution_notes"/>
+                        <p t-if="object.resolution_pdf_id">Os adjuntamos la resolución oficial.</p>
                         <p>
                             Podéis consultarla desde el portal del centro:
                             <a t-attf-href="{{ object.get_base_url() }}/es/my/convalidaciones">Convalidaciones</a>.

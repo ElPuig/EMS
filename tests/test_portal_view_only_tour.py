@@ -34,6 +34,8 @@ class TestPortalViewOnlyTour(HttpCase):
         } for family, student in ((cls.family, cls.minor), (cls.adult_family, cls.adult))])
         # auth_share is a stored compute read from the student's accepted 'share' authorization;
         # set it directly, as tests/test_strike.py does.
+        # Flushed first: a pending recompute would otherwise overwrite it with False.
+        cls.env.flush_all()
         cls.env.cr.execute("UPDATE res_partner SET auth_share = TRUE WHERE id = %s", (cls.adult.id,))
         cls.adult.invalidate_recordset(['auth_share'])
         cls.env['res.users'].with_context(no_reset_password=True).create([{

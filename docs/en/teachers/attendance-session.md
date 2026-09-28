@@ -111,6 +111,15 @@ actually owns the slot (or an Administrator) can delete a guard-covered session.
 
 ---
 
+## Automatic Check-In
+
+If the centre has enabled it, starting a session also checks you in automatically, as long as you
+haven't checked in yet today and you are taking the roll-call **during your own working hours**.
+Taking the roll-call outside them (from home, before your shift starts) records the attendance
+normally but doesn't check you in. When you leave, check out at the kiosk as usual.
+
+---
+
 ## Deleting a Session
 
 If you started a session by mistake, select it and click **Delete session** in the header, then

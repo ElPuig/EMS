@@ -40,6 +40,21 @@ Són **valors proposats**: el gestor de les absències els pot canviar sol·lici
 
 ---
 
+## Festius i dies de tancament
+
+**Absències > Configuració > Festius públics**. L'EMS no porta cap calendari de festius: s'han d'entrar tots a mà, un cop per curs:
+
+- Els **nacionals** (1 de novembre, 6 i 8 de desembre, Nadal, Cap d'Any, Reis, Divendres Sant, 1 de maig...).
+- Els **de Catalunya** (Dilluns de Pasqua, Sant Joan, l'11 de setembre, Sant Esteve...).
+- Els **dos locals del municipi del centre**: els de la població on és l'institut, no els de Barcelona.
+- Els **dies que el centre és tancat** encara que no siguin festius oficials: dies de lliure disposició, vacances de Nadal i de Setmana Santa, agost... Un període de diversos dies es pot entrar en una sola línia.
+
+Cada festiu s'aplica **a tot el personal**, sigui quin sigui el seu horari. Cal posar-hi el nom i les dates d'inici i de fi (per a un dia sencer, de les 00:00 a les 23:59).
+
+Entra'ls **abans** que arribin. Cada nit, l'EMS registra una absència sense justificar (un fitxatge en vermell, que compta com a hores en negatiu) a qui no va fitxar el dia anterior, tret que aquell dia no tingués hores previstes. Si un festiu s'entra tard, en desar-lo s'esborren sols els fitxatges en vermell d'aquells dies i les hores en negatiu corresponents. El mateix passa quan s'aprova tard una absència de dia sencer.
+
+---
+
 ## Qui aprova
 
 No es configura aquí. Surt de l'organigrama: l'aprovador de cada persona és **el responsable del seu departament de nivell superior**, que es defineix al formulari del departament (camp *Responsable d'àrea*).

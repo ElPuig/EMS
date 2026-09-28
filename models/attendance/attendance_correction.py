@@ -96,7 +96,8 @@ class ems_attendance_correction(models.Model):
     def _is_check_out_requestable_for(self, attendance):
         # A teacher who is still clocked in and still within their expected working hours
         # for that day hasn't left yet - any check-out they'd type in would be invented, not
-        # remembered. Once the day's schedule ends (or there was none to begin with - a
+        # remembered (a day nothing was expected of them ends where their framework's does,
+        # see _get_closing_hour()). Once the day's schedule ends (or there was none to begin with - a
         # holiday, an absence covering the whole day, a non-working weekday), there's nothing
         # left to be "still within", so the check-out becomes requestable again.
         is_open = bool(attendance.check_in) and not attendance.check_out

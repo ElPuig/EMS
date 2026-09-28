@@ -114,6 +114,16 @@ de la franja (o un administrador) puede eliminar una sesión cubierta en guardia
 
 ---
 
+## Fichaje de entrada automático
+
+Si el centro lo tiene activado, iniciar una sesión también te ficha la entrada automáticamente,
+siempre que hoy todavía no hayas fichado y estés pasando lista **dentro de tu horario laboral**. Si
+pasas lista fuera de horario (desde casa, antes de que empiece tu jornada), la asistencia se
+registra igualmente pero no se te ficha la entrada. Cuando te vayas, ficha la salida en el quiosco
+como siempre.
+
+---
+
 ## Eliminar una sesión
 
 Si has iniciado una sesión por error, selecciónala y haz clic en **Eliminar sesión** en la

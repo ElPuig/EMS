@@ -40,6 +40,21 @@ These are **proposals**: the absence manager can change them request by request.
 
 ---
 
+## Public holidays and closing days
+
+**Absences > Configuration > Public Holidays**. EMS doesn't ship any holiday calendar: every one of them is entered by hand, once per school year:
+
+- The **national** ones (1 November, 6 and 8 December, Christmas, New Year's Day, Epiphany, Good Friday, 1 May...).
+- The **Catalan** ones (Easter Monday, Saint John's Day, 11 September, Saint Stephen's Day...).
+- The **two local holidays of the centre's town**: those of the town the school is in, not Barcelona's.
+- The **days the centre is closed** even though they aren't official holidays: free-disposal days, Christmas and Easter breaks, August... A period of several days can be entered as a single line.
+
+Each holiday applies **to all staff**, whatever their working schedule. Enter its name and its start and end dates (for a whole day, 00:00 to 23:59).
+
+Enter them **before** they come. Every night, EMS records an unjustified absence (a red attendance that counts as negative hours) for anyone who didn't check in the day before, unless nothing was expected of them that day. If a holiday is entered late, saving it deletes the red attendances of those days and their negative hours on its own. The same happens when a whole-day absence is approved late.
+
+---
+
 ## Who approves
 
 Not configured here. It comes from the org chart: everyone's approver is **the manager of their top-level department**, set on the department's own form (the *Area Manager* field).

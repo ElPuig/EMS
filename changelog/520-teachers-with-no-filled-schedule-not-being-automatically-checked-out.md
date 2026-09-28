@@ -1,0 +1,8 @@
+# Fixes
+
+## Automatic check-out on a day with no expected hours (closed at the end of the framework's day):
+
+- A teacher whose working schedule expected nothing of them that day was never auto-checked out: `_get_last_working_hour()` found nothing expected and left the attendance open indefinitely. This hit every teacher whose personal schedule had no time slots at all (58 teachers after the 2026-2027 course transition created their new, still-unfilled calendars), and also anyone checking in on a weekday they don't work or during a whole-day approved absence. Admins had to close them by hand, and the next kiosk check-in was recorded as the check-out of the previous day's attendance.
+- The goal of the auto check-out is to close a forgotten attendance, so the next day doesn't need two check-ins. When the real timetable expects nothing that day, the attendance now closes at the end of that weekday in the schedule's reference framework (`source_framework_id`, or the company's default framework for a schedule predating that reference). The chatter note names the framework used. Admins set each teacher's framework to match their real working day (e.g. ESO for morning-only teachers, ending 14:40).
+- A day with expected hours keeps using the real timetable (approved partial absences still subtracted). Only a day with no framework period either (e.g. a weekend) is still left open. Auto check-in is unchanged: nobody is checked in automatically on a day nothing was expected of them.
+- The check-out correction request follows the same rule: on such a day, the check-out becomes requestable once the framework's day has ended.

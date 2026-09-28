@@ -1,6 +1,9 @@
-from datetime import date, datetime
+from datetime import date, datetime, time
 from unittest.mock import patch
 
+import pytz
+
+from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
@@ -45,8 +48,17 @@ class TestAttendanceSessionHeader(TransactionCase):
         })
         cls.teacher = cls.env['hr.employee'].create({
             'name': 'Test Teacher (Attendance Session)', 'employee_type': 'teacher',
-            'user_id': cls.teacher_user.id,
+            'user_id': cls.teacher_user.id, 'tz': 'Europe/Madrid',
         })
+        # Today: 8-14 and 16-20 (Europe/Madrid), on the personal calendar employee.create()
+        # already gave the teacher, so a roll-call can be taken both inside and outside their
+        # working hours.
+        cls.teacher.resource_calendar_id.flexible_hours = False
+        cls.env['resource.calendar.attendance'].create([{
+            'calendar_id': cls.teacher.resource_calendar_id.id, 'name': 'Test Slot',
+            'dayofweek': str(date.today().weekday()), 'hour_from': hour_from, 'hour_to': hour_to,
+            'day_period': period,
+        } for hour_from, hour_to, period in ((8.0, 14.0, 'morning'), (16.0, 20.0, 'afternoon'))])
         cls.student1 = cls.env['res.partner'].create({'name': 'Session Student 1', 'contact_type': 'student', 'student_id': next_student_id()})
         cls.student2 = cls.env['res.partner'].create({'name': 'Session Student 2', 'contact_type': 'student', 'student_id': next_student_id()})
         cls.template = cls.env['ems.attendance_template'].create({
@@ -87,6 +99,24 @@ class TestAttendanceSessionHeader(TransactionCase):
 
     # --- auto check-in of the session's own teacher -----------------------------------
 
+    @staticmethod
+    def _today_at(local_hour, local_minute=0):
+        """Naive UTC for today at the given Europe/Madrid wall-clock time (the ORM's own
+        convention, and what fields.Datetime.now() returns)."""
+        local = pytz.timezone('Europe/Madrid').localize(
+            datetime.combine(date.today(), time(local_hour, local_minute)))
+        return local.astimezone(pytz.utc).replace(tzinfo=None)
+
+    def _take_roll_call_at(self, now, schedule=None):
+        with patch.object(fields.Datetime, 'now', return_value=now):
+            return self.env['ems.attendance_session_header'].create({
+                'attendance_schedule_id': (schedule or self.schedule).id, 'date': date.today(),
+                'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+            })
+
+    def _teacher_attendances(self):
+        return self.env['hr.attendance'].search([('employee_id', '=', self.teacher.id)])
+
     def test_auto_checkin_failure_does_not_block_the_session(self):
         """A failure auto-checking-in the teacher (e.g. an issue #422-class collision on a
         stale record from before that fix was deployed, or literally anything else) must
@@ -102,30 +132,79 @@ class TestAttendanceSessionHeader(TransactionCase):
         with patch.object(type(self.env['hr.attendance']), 'create', _boom), \
              patch.object(type(self.env['ems.attendance_session_header']),
                           '_notify_auto_checkin_failure', autospec=True) as notify_mock:
-            session = self.env['ems.attendance_session_header'].create({
-                'attendance_schedule_id': self.schedule.id, 'date': date.today(),
-                'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
-            })
+            session = self._take_roll_call_at(self._today_at(10))
 
         self.assertTrue(session.exists(), "the session itself must still be created")
         notify_mock.assert_called_once()
-        self.assertFalse(
-            self.env['hr.attendance'].search([('employee_id', '=', self.teacher.id)]),
-            "the failed check-in must not leave a half-written record behind")
+        self.assertFalse(self._teacher_attendances(),
+                         "the failed check-in must not leave a half-written record behind")
 
     def test_auto_checkin_creates_a_real_attendance_on_success(self):
         """The success path, so the failure-isolation test above isn't the only proof this
         still actually checks the teacher in when nothing goes wrong."""
         self.env.company.auto_checkin_mode = 'current'
+        now = self._today_at(10)
 
-        self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': self.schedule.id, 'date': date.today(),
-            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
-        })
+        self._take_roll_call_at(now)
 
-        attendance = self.env['hr.attendance'].search([('employee_id', '=', self.teacher.id)])
+        attendance = self._teacher_attendances()
         self.assertEqual(len(attendance), 1)
         self.assertEqual(attendance.in_mode, 'auto_check_in')
+        self.assertEqual(attendance.check_in, now)
+
+    def test_auto_checkin_is_the_employees_last_attendance(self):
+        """Regression (2026-09-28): the automatic check-in used to be stored with microseconds,
+        so it was a fraction of a second later than the "now" hr.employee's stored
+        last_attendance_id is computed against and never became it. The kiosk then saw the
+        teacher as checked out and tried a second check-in instead of the check-out, rejected
+        by hr.attendance's own "hasn't checked out since" validation."""
+        self.env.company.auto_checkin_mode = 'current'
+        self._take_roll_call_at(self._today_at(10))
+        attendance = self._teacher_attendances()
+
+        teacher = self.teacher.sudo()
+        self.assertEqual(teacher.last_attendance_id, attendance)
+        self.assertEqual(teacher.attendance_state, 'checked_in')
+
+        # What the kiosk does when the teacher leaves: must check out, not check in again.
+        with patch.object(fields.Datetime, 'now', return_value=self._today_at(13)):
+            teacher._attendance_action_change()
+        self.assertEqual(self._teacher_attendances(), attendance)
+        self.assertEqual(attendance.check_out, self._today_at(13))
+
+    def test_auto_checkin_is_never_in_the_future(self):
+        """'start' mode, roll-call opened before the session starts: the check-in is capped at
+        the current time, for the same last_attendance_id reason as the test above."""
+        self.env.company.auto_checkin_mode = 'start'
+        now = self._today_at(8, 50)
+
+        self._take_roll_call_at(now, schedule=self.schedule2)  # starts at 9:00
+
+        attendance = self._teacher_attendances()
+        self.assertEqual(attendance.check_in, now)
+        self.assertEqual(self.teacher.sudo().last_attendance_id, attendance)
+
+    def test_no_auto_checkin_outside_working_hours(self):
+        """A roll-call taken outside the teacher's working hours (e.g. from home, before their
+        shift starts) takes attendance but doesn't check the teacher in (2026-09-28)."""
+        self.env.company.auto_checkin_mode = 'current'
+
+        for local_hour in (7, 15, 21):
+            with self.subTest(local_hour=local_hour):
+                session = self._take_roll_call_at(self._today_at(local_hour))
+                self.assertTrue(session.exists())
+                self.assertFalse(self._teacher_attendances())
+                session.unlink()
+
+    def test_no_auto_checkin_without_working_schedule(self):
+        """A teacher with no working schedule has no working hours, so is never checked in
+        automatically."""
+        self.env.company.auto_checkin_mode = 'current'
+        self.teacher.resource_calendar_id = False
+
+        self._take_roll_call_at(self._today_at(10))
+
+        self.assertFalse(self._teacher_attendances())
 
     def test_space_id_comes_from_schedule_line_not_template(self):
         # Regression guard for the 2026-08-01 room-granularity change: a schedule line's own room

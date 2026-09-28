@@ -42,6 +42,8 @@
                 </xpath>
                 <field name="tz" position="attributes">
                     <attribute name="invisible">not can_edit</attribute>
+                    <!-- Always the company's timezone (models/settings/timezone.py). -->
+                    <attribute name="readonly">1</attribute>
                 </field>
                 <group name="signature" position="attributes">
                     <attribute name="invisible">not can_edit</attribute>

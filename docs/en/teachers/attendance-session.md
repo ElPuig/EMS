@@ -30,6 +30,10 @@ narrow the list down to one group.
 
 ---
 
+> The day and the time this screen goes by (which slot is "current", what "today" is) are always
+> the centre's, Spanish time, taken from the server: a computer with a wrong clock or timezone
+> doesn't change them.
+
 ## Sessions vs. Planned Slots
 
 The selector on the right lists what's available for the chosen date, split into two groups:

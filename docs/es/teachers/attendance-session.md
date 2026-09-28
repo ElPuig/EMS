@@ -30,6 +30,10 @@ acotar la lista a un solo grupo.
 
 ---
 
+> El día y la hora que usa esta pantalla (qué franja es la "actual", qué día es "hoy") son siempre
+> los del centro, hora de España, tomados del servidor: un ordenador con el reloj o la zona horaria
+> mal configurados no los cambia.
+
 ## Sesiones vs. franjas previstas
 
 El selector de la derecha lista lo disponible para la fecha elegida, separado en dos bloques:

@@ -395,7 +395,7 @@ class EmsAttendanceTemplate(models.Model):
 
 		teacher_entries, skipped = self._drop_unresolved_conflicts(teacher_entries)
 		if teacher_entries:
-			self.sync_from_schedule_batch(teacher_entries, start_date=fields.Date.today())
+			self.sync_from_schedule_batch(teacher_entries, start_date=self.env['ems.datetime_utils'].get_local_today())
 
 		# NOTE: scoped the same way as the archive step above - every currently active line
 		# belonging to one of 'teachers' was, by construction, JUST created by the sync above (this
@@ -417,7 +417,7 @@ class EmsAttendanceTemplate(models.Model):
 		either, so '_drop_unresolved_conflicts' must not treat them as a conflict. Falls back to the
 		same full-course-year default '_plan_schedule_sync' itself uses when an entry carries no
 		explicit dates, so an unset date range still compares consistently against an explicit one."""
-		now = datetime.now()
+		now = self.env['ems.datetime_utils'].get_local_datetime()
 		default_start, default_end = date(now.year, 9, 1), date(now.year + 1, 7, 1)
 		start_a = entry_a.get('date_from') or default_start
 		end_a = entry_a.get('date_to') or default_end
@@ -803,7 +803,7 @@ class EmsAttendanceTemplate(models.Model):
 		cell dicts, see 'apply_schedule_changes') and a regenerate_all_from_calendars() entry (read
         straight off an 'ems.attendance_schedule' ORM record) both carry the SAME key without either
 		needing a translation step."""
-		now = datetime.now()
+		now = self.env['ems.datetime_utils'].get_local_datetime()
 		entry_dates = entries[0] if entries else {}
 		start_date = entry_dates.get('date_from') or start_date or datetime(now.year, 9, 1)
 		end_date = entry_dates.get('date_to') or datetime(now.year + 1, 7, 1)

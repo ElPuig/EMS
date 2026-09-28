@@ -30,6 +30,10 @@ per acotar la llista a un sol grup.
 
 ---
 
+> El dia i l'hora que fa servir aquesta pantalla (quina franja és l'"actual", quin dia és "avui")
+> són sempre els del centre, hora d'Espanya, presos del servidor: un ordinador amb el rellotge o la
+> zona horària mal configurats no els canvia.
+
 ## Sessions vs. franges previstes
 
 El selector de la dreta llista el que hi ha disponible per a la data triada, separat en dos blocs:

@@ -19,12 +19,15 @@ others just grab an instance directly, e.g. `models/settings/settings.py`'s
 
 | Method | Purpose |
 |--------|---------|
-| `current_tz()` | The timezone to use: `context['tz']` if present, else the company's own `partner_id.tz`, else UTC. |
+| `company_tz_name()` | The company's own `partner_id.tz` (read with `sudo()`), else `'UTC'`. |
+| `current_tz()` | Always the company's timezone, never the acting user's nor the one in the context: see [timezones.md](timezones.md). |
 | `time_float_to_local_datetime(date, time_float)` | Combines a `date` and a float hour into an aware local `datetime`. |
 | `time_float_to_utc_datetime(date, time_float)` | Same, converted to UTC. |
 | `local_datetime_to_utc(dt)` / `utc_datetime_to_local(dt)` | Plain `dt.astimezone(...)` calls. |
 | `datetime_to_odoo(dt)` | Strips `tzinfo` — Odoo's `Datetime` fields are naive UTC. |
 | `get_local_datetime()` | `datetime.now(self.current_tz())`. |
+| `get_local_today()` | Today's date in the company's timezone. Use it (and `get_local_datetime()`) instead of `date.today()`/`datetime.now()`, which are UTC in Odoo. |
+| `get_server_epoch_ms()` | The server's clock (ms since epoch), for the web client's `server_clock.js`. |
 | `time_to_float(time)` | `datetime.time` → float hour. |
 | `next_occurrence_utc(time_float)` | Given a float hour, the next naive-UTC moment that time occurs — today if not yet passed, otherwise tomorrow. Used for scheduling one-off cron-like triggers at a fixed local time. |
 | `ranges_overlap(start_a, end_a, start_b, end_b)` | Plain half-open interval overlap test — no timezone awareness needed, both ranges must already be in the same units. |

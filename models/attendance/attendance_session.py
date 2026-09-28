@@ -261,8 +261,7 @@ class EmsAttendanceSessionHeader(models.Model):
         mode = self.env.company.auto_checkin_mode
         if not mode or mode == 'disabled':
             return
-        today = datetime.today().date()
-        if not teacher or date != today:
+        if not teacher or date != self.get_local_today():
             return
 
         day_start = datetime(date.year, date.month, date.day, 0, 0, 0)
@@ -587,6 +586,10 @@ class EmsAttendanceSessionHeader(models.Model):
 
     @api.model
     def create_scheduled_session(self, date, schedule_id):
+        # The date comes from the web client: never trust it to be today or earlier, a computer
+        # with a wrong clock could send any day.
+        if fields.Date.to_date(date) > self.get_local_today():
+            raise ValidationError(_("A roll-call can't be taken for a future date."))
         record   = self.create({'date': date, 'attendance_schedule_id': schedule_id, 'mode': 'scheduled'})
         template = record.attendance_schedule_id.attendance_template_id
         previous = self.search([

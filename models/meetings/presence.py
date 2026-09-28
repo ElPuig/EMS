@@ -282,8 +282,7 @@ class EmsMeetingPresence(models.Model):
         return status
 
     def _ems_local(self, moment):
-        """`moment`, a naive UTC datetime as the ORM stores it, in local time (the one of the
-        browser or, failing that, of the company: the kiosk's visitor is anonymous)."""
+        """`moment`, a naive UTC datetime as the ORM stores it, in the company's local time."""
         return self.env['ems.datetime_utils'].utc_datetime_to_local(moment.replace(tzinfo=UTC))
 
     def _ems_window_label(self):

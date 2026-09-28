@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.30.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.30.1',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -524,11 +524,13 @@
         'web.assets_backend': [
             'ems/static/src/xml/backend/**/*',
             'ems/static/src/css/backend/**/*',
+            'ems/static/src/js/shared/**/*',
             'ems/static/src/js/backend/**/*',
         ],
         'web.assets_frontend': [
            'ems/static/src/css/frontend/**/*',
            'ems/static/src/scss/frontend/**/*',
+           'ems/static/src/js/shared/**/*',
            'ems/static/src/js/frontend/**/*',
            'ems/static/src/xml/frontend/**/*',
         ],

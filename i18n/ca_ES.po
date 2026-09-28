@@ -17625,3 +17625,9 @@ msgstr "Persones convocades"
 #: code:addons/ems/models/meetings/presence.py:0
 msgid "Everyone has registered"
 msgstr "Tothom s'ha registrat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+msgid "A roll-call can't be taken for a future date."
+msgstr "No es pot passar llista d'una data futura."

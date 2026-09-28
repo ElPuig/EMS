@@ -122,7 +122,7 @@ class ems_working_schedule(models.Model):
 
 		Bottom-up sync redesign, Phase 5 (2026-09-08): the unlink+write below is a single-teacher
 		operation, so - unlike the import wizard's own per-teacher loop - it never risks the
-		cross-teacher false-collision 'sync_from_schedule_batch' guards against; suppressing the
+		cross-teacher false-collision '_sync_from_schedule_batch' guards against; suppressing the
 		automatic hook here is purely to avoid syncing the SAME teacher redundantly (once per
 		hook-triggered write, once explicitly below) rather than a correctness requirement. The
 		explicit sync at the end now reuses 'hr.employee._ems_sync_schedule_from_calendar()' (Phase
@@ -1790,11 +1790,11 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		# ems.attendance_mixin) - this method runs ONCE PER TEACHER in a loop ('_apply_import'
 		# below), and the automatic resource.calendar.attendance hook would otherwise try to
 		# re-sync each one immediately, in isolation - exactly the false cross-teacher room-
-		# collision 'sync_from_schedule_batch's own docstring warns about (a teacher already
+		# collision '_sync_from_schedule_batch's own docstring warns about (a teacher already
 		# resynced here colliding against another teacher's still-stale line, simply because that
 		# other teacher's own turn in this loop hasn't happened yet). Suppressed for this whole
 		# method; '_apply_import' still runs its own explicit, correctly-ordered
-		# 'sync_from_schedule_batch' across every teacher together, unchanged, right after.
+		# '_sync_from_schedule_batch' across every teacher together, unchanged, right after.
 		calendar = teacher.with_context(**{EMS_SKIP_AUTO_SCHEDULE_SYNC: True}).resource_calendar_id
 		existing = calendar.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4'))
 		new_slots = {(entry['dayofweek'], entry['hour_from'], entry['hour_to']) for entry in entries}
@@ -1811,7 +1811,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		re-parsing the XML from scratch (which would also re-resolve teachers/pending-codes against
 		data this same call is about to change)."""
 		# NOTE: attendance_template sync is deferred and batched across every teacher (see
-		# sync_from_schedule_batch, below) — syncing one teacher at a time here would let an
+		# _sync_from_schedule_batch, below) — syncing one teacher at a time here would let an
 		# early teacher's fresh schedule line falsely collide with a later teacher's still-stale one
 		# whenever they share a classroom, since the later teacher hasn't been re-synced yet.
 		teacher_entries = []
@@ -1877,7 +1877,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		# scope (groups are reused across academic years, but their attendance templates are
 		# archived by the course transition wizard first - see
 		# docs/en/developers/employees/working_schedule.md), so an external overlap found here is
-		# always either legitimate co-teaching (left alone - sync_from_schedule_batch's own
+		# always either legitimate co-teaching (left alone - _sync_from_schedule_batch's own
 		# reconciliation folds the new teacher into the same shared template) or a genuine problem
 		# the onchange preview should already have caught. Raising here too (not just previewing)
 		# is the safety net for a wizard whose cache was built before some other change landed.
@@ -1901,7 +1901,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		# Skipped entirely in 'replace' mode (2026-09-06, found from a real import failing here) -
 		# 'find_self_conflicts' reads 'ems.attendance_schedule', which is only brought in sync with
 		# the calendar (already correctly rewritten by '_write_teacher_schedule' above, for every
-		# teacher in this batch) by 'sync_from_schedule_batch' further BELOW, not yet run at this
+		# teacher in this batch) by '_sync_from_schedule_batch' further BELOW, not yet run at this
 		# point. In 'replace' mode this means any hit here is a guaranteed false positive: a stale
 		# 'ems.attendance_schedule' row for a slot the calendar write already dropped, not yet
 		# reflected because the sync that would clean it up hasn't executed yet - exactly the same
@@ -1930,8 +1930,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			(teacher, teacher._teaching_entries_from_calendar()) for teacher, _attendance_ids in teacher_attendance_ids.values()
 		]
 		for teacher, calendar_entries in calendar_teacher_entries:
-			self.env['ems.teaching'].sync_from_schedule(teacher, calendar_entries)
-		self.env['ems.attendance_template'].sync_from_schedule_batch(calendar_teacher_entries)
+			self.env['ems.teaching']._sync_from_schedule(teacher, calendar_entries)
+		self.env['ems.attendance_template']._sync_from_schedule_batch(calendar_teacher_entries)
 
 	def import_planner_data(self):
 		self.ensure_one()

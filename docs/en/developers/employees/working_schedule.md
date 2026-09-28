@@ -114,7 +114,7 @@ Three fields, three different roles:
 ```mermaid
 flowchart LR
     G["ems.group.space_id\n(the group's own 'home' room)"] -->|default at creation only| RC["resource.calendar.attendance.space_id\n(the weekly block - plain stored field)"]
-    RC -->|entry['space_id'], via sync_from_schedule*| AS["ems.attendance_schedule.space_id\n(the recurring line - AUTHORITATIVE)"]
+    RC -->|entry['space_id'], via _sync_from_schedule*| AS["ems.attendance_schedule.space_id\n(the recurring line - AUTHORITATIVE)"]
     AT["ems.attendance_template.space_id\n('Session's default space' - seed only)"] -.->|default for a manually-created line| AS
     AS -->|_compute_space_id| ASH["ems.attendance_session_header.space_id\n(read here for attendance-taking/reporting)"]
 ```
@@ -152,8 +152,8 @@ This section only covers the model-level foundation those two features will buil
 
 - **`seed_from_framework(self, framework)`** — points a calendar's `source_framework_id` at `framework` and clears its own Mon–Fri attendance rows. Writes *nothing* else (per the empty-slot rule) — the framework's periods only become real rows the first time the Schedule tab actually saves something.
 - **`apply_schedule_changes(self, cells, source_framework_id=None)`** — the single write path used by the Schedule tab's "Save": unlinks all Mon–Fri rows and recreates them from `cells` (a list of dicts shaped like `resource.calendar.attendance` create-vals), then re-derives `ems.teaching` and `ems.attendance_template` from the same `cells` (see below) and, if `source_framework_id` was passed (only when `New` picked/inherited a different framework), updates the calendar's own reference.
-- **`ems.teaching.sync_from_schedule(self, teacher, entries)`** (`models/employees/teaching.py`) — diffs `teacher.teaching_ids` against `entries` (subject_id + group_ids pairs) by a `"subject.group"` key: creates what's missing, unlinks what's no longer there, leaves the rest untouched. Shared by both the XML importer and `apply_schedule_changes`.
-- **`ems.attendance_template.sync_from_schedule(self, teacher, entries, start_date=None)`** (`models/attendance/attendance_template.py`) — a single-teacher sync, keyed by `"subject.sorted(group_ids).sorted(teacher_ids)"`, creating/archiving `ems.attendance_template` + their `attendance_schedule_ids`, and calling `fill_students()` on new ones. `start_date` defaults to September 1st (a fresh XML import assumes a brand-new course) but the Schedule tab's grid always passes *today* (a live mid-course edit shouldn't imply retroactive attendance). Internally delegates to `sync_from_schedule_batch()` wrapping its single `(teacher, entries)` pair, so a solo live edit is reconciled for co-teaching exactly like the XML importer's own multi-teacher batch — see "Co-teaching" below. Also links each freshly-written `resource.calendar.attendance` row to the `ems.attendance_schedule` line it now represents (`_link_calendar_attendance`, 2026-08-11) — see [`attendance_schedule.md`](../attendance/attendance_schedule.md)'s own section on `attendance_schedule_id` for the mechanism.
+- **`ems.teaching._sync_from_schedule(self, teacher, entries)`** (`models/employees/teaching.py`) — diffs `teacher.teaching_ids` against `entries` (subject_id + group_ids pairs) by a `"subject.group"` key: creates what's missing, unlinks what's no longer there, leaves the rest untouched. Shared by both the XML importer and `apply_schedule_changes`.
+- **`ems.attendance_template._sync_from_schedule(self, teacher, entries, start_date=None)`** (`models/attendance/attendance_template.py`) — a single-teacher sync, keyed by `"subject.sorted(group_ids).sorted(teacher_ids)"`, creating/archiving `ems.attendance_template` + their `attendance_schedule_ids`, and calling `fill_students()` on new ones. `start_date` defaults to September 1st (a fresh XML import assumes a brand-new course) but the Schedule tab's grid always passes *today* (a live mid-course edit shouldn't imply retroactive attendance). Internally delegates to `_sync_from_schedule_batch()` wrapping its single `(teacher, entries)` pair, so a solo live edit is reconciled for co-teaching exactly like the XML importer's own multi-teacher batch — see "Co-teaching" below. Also links each freshly-written `resource.calendar.attendance` row to the `ems.attendance_schedule` line it now represents (`_link_calendar_attendance`, 2026-08-11) — see [`attendance_schedule.md`](../attendance/attendance_schedule.md)'s own section on `attendance_schedule_id` for the mechanism.
 - **`get_schedule_hours_summary(self)`** — not stored, computed on demand (see "The 'Schedule' tab widget" below for why). Sums each Mon–Fri attendance row's duration (`hour_to - hour_from`, rounded UP with `math.ceil` — a period that only partially overlaps an hour still counts as a full hour), split into `{'teaching': {'rows': [...], 'total': int}, 'fixed': {'rows': [...], 'total': int}, 'total': int}`. `teaching` rows are keyed by `attendance.group_ids[:1].level_id` for subject periods taught to a `'main'` `ems.group` — or, for a `'reinforcement'` group (no single `level_id` of its own, see "Reinforcement groups" below), keyed and labelled by the group itself instead — plus any non-teaching activity not routed to `fixed`; `fixed` rows are activities with `non_teaching.is_fixed` (any day, e.g. guard duties) plus coordination meetings (`non_teaching.code == 'CM'`) specifically on Wednesday (`dayofweek == '2'`) — the centre's fixed non-teaching commitments. Activities with `non_teaching.is_break` are dropped from both. Also folds in one `teaching` row per [`ems.teaching_reduction_type`](teaching_reduction_type.md) assigned to `get_employee()` (`hr.employee.teaching_reduction_ids`) — an entitlement never scheduled as a real block, added as positive extra hours to the total (16h of real classes + a 2h reduction shows 18h, not 16h). Reuses `get_report_label()` for translated activity names, same as the PDF report.
 
 ```mermaid
@@ -164,8 +164,8 @@ sequenceDiagram
     participant AT as ems.attendance_template
     W->>C: apply_schedule_changes(cells, source_framework_id?)
     C->>C: unlink Mon-Fri rows, recreate from cells
-    C->>T: sync_from_schedule(teacher, entries)
-    C->>AT: sync_from_schedule(teacher, entries, start_date=today)
+    C->>T: _sync_from_schedule(teacher, entries)
+    C->>AT: _sync_from_schedule(teacher, entries, start_date=today)
     AT->>AT: _link_calendar_attendance(teacher_entries)
     AT->>C: writes attendance_schedule_id on each freshly-created attendance row
 ```
@@ -201,7 +201,7 @@ above only started running with commit `bc29e04b` (`18.0.0.20.0`, 2026-07-12) �
 only became `'teacher'` later, which `write()` has no equivalent logic for) can have
 `resource_calendar_id` falsy. `_write_teacher_schedule()` (the import wizard, above) silently
 no-ops on an empty `resource_calendar_id.write(...)` — no exception, `ems.teaching.
-sync_from_schedule()` runs independently right after and correctly creates the teaching rows
+_sync_from_schedule()` runs independently right after and correctly creates the teaching rows
 regardless, which is what let this go unnoticed until a real import for a real teacher (Óscar
 Bagan, this dev DB) left an empty Schedule tab despite real `ems.teaching` rows. `post_init_hook`
 (`__init__.py`) and `migrations/18.0.0.22.0/post-migrate.py`'s `_backfill_missing_teacher_
@@ -256,7 +256,7 @@ A **framework** is just a `resource.calendar` with `is_framework=True` and an op
 - **Read-only view**: entries positioned absolutely by exact `hour_from`/`hour_to` (not hour-rounded) inside an hourly-tick background grid. Blank/unassigned rows are filtered out of the read view entirely (nothing to show). The grid's own vertical axis (`computeBounds()` in `schedule_grid_geometry.js`, shared with the group widget) fits tightly to the teacher's actual entries — an afternoon-only teacher (e.g. 14h–22h) sees exactly that window, not a wider one padded out to a generic default; `DEFAULT_START`/`DEFAULT_END` (8h–20h) only apply as a fallback canvas when the calendar has no entries yet.
 - **Derived break** (view mode only): a break the teacher's own calendar has no real saved row for yet is filled in from `hr.employee._get_derived_break_entries()`. The algorithm is deliberately **gap-based, not level-based**: it checks *every* break defined on *any* level's framework — a candidate is included only if it doesn't overlap any of that specific weekday's real entries; two frameworks defining the exact same break collapse into one result. This deliberately never tries to guess "the" level a teacher belongs to — a teacher can plausibly teach several levels, even within the same day (e.g. an English teacher covering ESO, Batxillerat and cicles), each with its own break time.
 
-  **Candidates are scoped to the level(s) the teacher actually teaches (added 2026-08-11).** `teaching_ids.group_id.level_id` (kept in sync with the real calendar by `apply_schedule_changes`/`sync_from_schedule` - it reflects what the teacher genuinely teaches right now, not a UI convenience field like `source_framework_id`) drives which framework(s)' break rows are even considered - `self.env['resource.calendar'].search([('is_framework', '=', True), ('level_id', 'in', levels.ids)])`. Falls back to searching every framework, unscoped, only when the teacher has no identifiable level at all (no active teaching assignment, or their level(s) have no framework configured yet). A teacher spanning several levels whose frameworks happen to define the exact same break (ESO and Batxillerat, at this centre) needs no special-casing - the per-slot dedup below already collapses it to one; a teacher genuinely spanning DIFFERENT break configurations (ESO and a CCFF program) sees every one of their own relevant breaks, still never an unrelated program's. Real-world bug this fixed: a teacher genuinely teaching only a CCFF program (CFGS/EFPS) was shown that program's own break correctly, but ALSO two unrelated ESO breaks that happened to fit by time alone, since candidates were searched across every framework unconditionally before this. Developer's own spec: *"si el docente solo da clase en CCFF, se muestran los patios de CCFF [...] si es de ESO, los patios de la mañana de la ESO [...] si da clase en una mezcla [...] debería verse un hueco sin docencia donde encaja un patio."*
+  **Candidates are scoped to the level(s) the teacher actually teaches (added 2026-08-11).** `teaching_ids.group_id.level_id` (kept in sync with the real calendar by `apply_schedule_changes`/`_sync_from_schedule` - it reflects what the teacher genuinely teaches right now, not a UI convenience field like `source_framework_id`) drives which framework(s)' break rows are even considered - `self.env['resource.calendar'].search([('is_framework', '=', True), ('level_id', 'in', levels.ids)])`. Falls back to searching every framework, unscoped, only when the teacher has no identifiable level at all (no active teaching assignment, or their level(s) have no framework configured yet). A teacher spanning several levels whose frameworks happen to define the exact same break (ESO and Batxillerat, at this centre) needs no special-casing - the per-slot dedup below already collapses it to one; a teacher genuinely spanning DIFFERENT break configurations (ESO and a CCFF program) sees every one of their own relevant breaks, still never an unrelated program's. Real-world bug this fixed: a teacher genuinely teaching only a CCFF program (CFGS/EFPS) was shown that program's own break correctly, but ALSO two unrelated ESO breaks that happened to fit by time alone, since candidates were searched across every framework unconditionally before this. Developer's own spec: *"si el docente solo da clase en CCFF, se muestran los patios de CCFF [...] si es de ESO, los patios de la mañana de la ESO [...] si da clase en una mezcla [...] debería verse un hueco sin docencia donde encaja un patio."*
 
   **Containment is a WHOLE-WEEK span per half of the day, not a per-day one (redesigned 2026-08-11).** A candidate break is classified "morning" or "afternoon" by its own `hour_from` (`DAY_PERIOD_SPLIT_HOUR = 13`, matching the Schedule tab widget's own `card.hourFrom < 13` convention — see below), and checked against the teacher's own aggregate morning/afternoon span (earliest `hour_from` to latest `hour_to` among ALL the teacher's real entries classified into that same half, across ALL 5 weekdays, not just the one being evaluated). A half the teacher never works AT ALL during the week (no real entry falls into that classification on any weekday) contributes no break, ever. Otherwise, every matching candidate is shown on **every** weekday, including a day the teacher happens to be off entirely — only the per-day overlap-with-a-real-entry check still applies per weekday. Real-world bug this replaced (2026-08-11): the original per-day design used each individual DAY's own span, so a teacher whose real classes only ever started in the afternoon on some days (or only in the morning on others — a common dual-shift vocational-program pattern) could see their OWN break missing entirely on the days that didn't happen to literally span into the break's own hour, even though the school genuinely has that break every day the teacher works that half. Developer's own spec: *"si el docente trabaja de mañana, se muestra siempre el patio de la mañana [...] de tarde [...] de mañana y tarde, se muestran ambos [...] aunque ese día el docente no trabaje."* Classification deliberately does **not** trust the stored `day_period` field on the teacher's own real rows — two different write paths populate it with two different, equally arbitrary thresholds of their own (13h here; 15h in the XML planner importer, `working_schedule.py`'s `_parse_schedule_entries`) and have been found disagreeing with each other on a real boundary entry (a 14:25 entry stored as `'morning'` by the importer's own rule while genuinely being that teacher's only afternoon work) — recomputing from `hour_from` with one consistent rule, applied uniformly to both the teacher's real entries and every candidate break, stays immune to that pre-existing inconsistency.
 
@@ -301,8 +301,8 @@ real fields, not a parallel EMS-only pair.
 
 **How it flows through to the derived templates:**
 - `resource.calendar.attendance.date_from`/`.date_to` (blank by default - "valid all course year",
-  unchanged behavior) are read by `ems.attendance_template.regenerate_all_from_calendars()` and by
-  the live-edit path (`apply_schedule_changes` → `sync_from_schedule`) into each entry dict under
+  unchanged behavior) are read by `ems.attendance_template._regenerate_all_from_calendars()` and by
+  the live-edit path (`apply_schedule_changes` → `_sync_from_schedule`) into each entry dict under
   the SAME key names (`date_from`/`date_to` - matching the established convention that an entry
   dict's keys mirror the underlying calendar field names directly, same as `dayofweek`/`hour_from`/
   `hour_to`/`space_id`).
@@ -313,7 +313,7 @@ real fields, not a parallel EMS-only pair.
   overlap (`attendance_template_id.start_date <= template.end_date AND ...end_date >=
   ...start_date`) - unchanged; two templates derived from non-overlapping-dated calendar blocks
   simply never appear as candidates for each other, no special-casing needed there.
-- `ems.attendance_template._drop_unresolved_conflicts` (the `regenerate_all_from_calendars()`
+- `ems.attendance_template._drop_unresolved_conflicts` (the `_regenerate_all_from_calendars()`
   migration-time conflict-dropper, see `docs/en/developers/attendance/attendance_template.md`) was
   also made date-aware (`_entry_dates_overlap`) - two entries whose dates genuinely don't overlap
   were never going to collide once synced, so must not be treated as an unresolved conflict either.
@@ -387,7 +387,7 @@ that algorithm, not a scenario it special-cases.
 
 A template's identity is therefore `(subject_id, group_ids, teacher_ids)` — the **same** `(subject, group)` combination can have several active templates simultaneously, one per distinct exact set of co-teachers, split at the exact `(weekday, hour_from, hour_to)` slot level. Example: teacher A teaches "Programació"/DAW1A on Monday and Wednesday; teacher B joins only for the exact same Wednesday slot. The result is **two** templates: a shared A+B template for Wednesday, and A's own solo template for Monday — not one shared template covering both days.
 
-`ems.attendance_template._reconcile_teacher_groups(self, teacher_entries)` is the single algorithm behind this, used by **both** `sync_from_schedule` (one teacher, the Schedule tab's live editor) and `sync_from_schedule_batch` (several teachers, the XML importer's normal case — `sync_from_schedule` just wraps its one pair and delegates to the batch version):
+`ems.attendance_template._reconcile_teacher_groups(self, teacher_entries)` is the single algorithm behind this, used by **both** `_sync_from_schedule` (one teacher, the Schedule tab's live editor) and `_sync_from_schedule_batch` (several teachers, the XML importer's normal case — `_sync_from_schedule` just wraps its one pair and delegates to the batch version):
 
 ```mermaid
 flowchart LR
@@ -413,14 +413,14 @@ submitting teacher's existing active templates *not* re-submitted this call is t
 deliberately dropped and folded/archived accordingly). The XML importer's `entries` is never
 that — a file only ever describes **one slice** of the centre's schedule (e.g. one department),
 imported incrementally alongside other files over time. Reusing `_reconcile_teacher_groups` (via
-`sync_from_schedule_batch`) for the importer was tried and found (2026-08-01) to silently archive
+`_sync_from_schedule_batch`) for the importer was tried and found (2026-08-01) to silently archive
 a shared teacher's already-imported *other* department the moment a second department's file
 mentioning that same teacher was imported — zero error raised, pure data loss, since from
 `touched_templates`' point of view the first department's combo simply "wasn't resubmitted this
 call" and was there for the taking.
 
 **Fix: `_reconcile_fresh_import` + `sync_from_schedule_batch_fresh_import`** — the importer's own
-entry point, structurally identical to `_reconcile_teacher_groups`/`sync_from_schedule_batch` but
+entry point, structurally identical to `_reconcile_teacher_groups`/`_sync_from_schedule_batch` but
 **without** the `touched_templates` pre-scan: it only ever reconciles a `(subject, group-set)` key
 that is actually present in the batch's own submitted entries, never a submitting teacher's
 untouched other combos. `vacated` is still computed (needed for a co-teaching merge to correctly
@@ -428,7 +428,7 @@ archive an external teacher's now-superseded solo template), but scoped to those
 The identical "full replace" assumption was independently found in `ems.teaching.sync_from_
 schedule` too (it unconditionally unlinked any teaching pair not in `entries`) — fixed by adding a
 `replace` parameter: `True` (default) for the live editor, `False` for the importer's `create()`.
-`sync_from_schedule_batch`/`_reconcile_teacher_groups` themselves are untouched — the live editor
+`_sync_from_schedule_batch`/`_reconcile_teacher_groups` themselves are untouched — the live editor
 keeps relying on their "this call = the whole schedule" semantics, which is correct there.
 
 ## Import wizard (`ems.working_schedules_import_wizard`)
@@ -454,7 +454,7 @@ all at once). So by the time a study's groups are due for a fresh import, there 
 nothing active left to reconcile against for that scope — an active overlap found during import
 is always either legitimate co-teaching or a real problem, never something to silently resolve.
 
-Parses a planner XML export (`<TeacherNode name="email ...">` → `<DayNode name="N ...">` → `<HourNode name="N HH:MM">` → `<Subject>`/`<NonTeaching>`/`<Students>`/optional `<Space>`/optional `<Topic>` children) via `_parse_schedule_entries()`, writes the calendar (`_write_teacher_schedule`, see "`import_mode`" below), then calls `ems.teaching.sync_from_schedule`/`ems.attendance_template.sync_from_schedule_batch` reading straight off each affected teacher's calendar — the SAME entry points the Schedule tab's own live-edit grid widget uses (unified 2026-09-02, see below; there used to be a separate, importer-only pair here).
+Parses a planner XML export (`<TeacherNode name="email ...">` → `<DayNode name="N ...">` → `<HourNode name="N HH:MM">` → `<Subject>`/`<NonTeaching>`/`<Students>`/optional `<Space>`/optional `<Topic>` children) via `_parse_schedule_entries()`, writes the calendar (`_write_teacher_schedule`, see "`import_mode`" below), then calls `ems.teaching._sync_from_schedule`/`ems.attendance_template._sync_from_schedule_batch` reading straight off each affected teacher's calendar — the SAME entry points the Schedule tab's own live-edit grid widget uses (unified 2026-09-02, see below; there used to be a separate, importer-only pair here).
 
 **Optional `<Topic name="...">` sibling (issue #428, added 2026-09-11):** free text, read as-is
 into `topic` — no resolution/validation step (unlike `<Subject>`/`<Space>`), since there's no
@@ -526,7 +526,7 @@ that screen ran) - it should essentially never fire in normal use.
 separate reconciliation pair) are deleted - their whole reason to exist was that the calendar
 couldn't be trusted to reflect the true current state between separate import runs; now that
 `_write_teacher_schedule` gets that right, the importer reads the calendar back exactly like a
-live Schedule-tab edit already does, through the same `sync_from_schedule_batch`
+live Schedule-tab edit already does, through the same `_sync_from_schedule_batch`
 (`attendance_template.md`) - one reconciliation method for both callers instead of two
 near-duplicates.
 

@@ -9,8 +9,8 @@
 `docs/en/developers/attendance/attendance_template.md`'s "Archive-or-delete" section) deletes a
 superseded/duplicate template outright instead of archiving it forever, but only when none of its
 schedule lines (active or archived) ever had a real `attendance_session_ids` entry. Applied so far
-to every template-level archival call site in the calendar-sync pipeline (`sync_from_schedule_batch`,
-`_archive_stale_schedule_sync`, `regenerate_all_from_calendars`) and to the working-schedule import
+to every template-level archival call site in the calendar-sync pipeline (`_sync_from_schedule_batch`,
+`_archive_stale_schedule_sync`, `_regenerate_all_from_calendars`) and to the working-schedule import
 wizard's own `db_conflicts` "prevail_left" resolution (`working_schedule.py`).
 
 ## What's left

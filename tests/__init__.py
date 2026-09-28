@@ -115,6 +115,7 @@ from . import test_working_schedules_import_wizard_tour
 from . import test_working_schedule_split_period_tour
 from . import test_working_schedule_stale_breaks_tour
 from . import test_working_schedule_multi_group_tour
+from . import test_working_schedule_role_edit_tour
 from . import test_task_assignment
 from . import test_year_record
 from . import test_grade_review
@@ -232,3 +233,4 @@ from . import test_docs_screenshots_meeting_presence
 from . import test_employee_identity_visibility
 from . import test_employee_identity_visibility_tour
 from . import test_timezone
+from . import test_schedule_edit_roles

@@ -2,7 +2,7 @@
 
 ## Overview
 
-`ems.teaching` is the ternary relation teacher–group–subject: "this teacher teaches this subject to this group." It is derived from, and kept in sync with, the teacher's weekly schedule (`sync_from_schedule()`) — not normally hand-maintained, though its own CRUD screen exists for direct edits.
+`ems.teaching` is the ternary relation teacher–group–subject: "this teacher teaches this subject to this group." It is derived from, and kept in sync with, the teacher's weekly schedule (`_sync_from_schedule()`) — not normally hand-maintained, though its own CRUD screen exists for direct edits.
 
 **Module file:** `models/employees/teaching.py` — `_inherit = ['ems.base']`, EMS's shared mixin (`models/shared/base.py`, itself built on `mail.thread`/`mail.activity.mixin`) used by several models across the app. It contributes `active` (archive flag), `action_archive()`, `get_user_is_admin()`/`get_user_is_tutor()`/`get_user_is_tutor_of_self()`, `notify()` (bus toast) and `chatter()`/`chatter_exception()` (mail-thread logging helpers) — none of which `ems.teaching` overrides or uses directly beyond inheriting `active`. `ems.base` doesn't have its own dedicated technical doc yet (per the DTON roadmap, shared mixins are documented at their first consumer rather than getting a dedicated phase); this is that first mention.
 
@@ -31,16 +31,29 @@ flowchart TD
     B -- No --> D[OK]
 ```
 
-### `sync_from_schedule(teacher, entries)` — the real source of truth
+### `_sync_from_schedule(teacher, entries)` — the real source of truth
 
 Shared by the working-schedule XML importer and the employee "Schedule" tab's grid widget (see [Working schedules](working_schedule.md)) so `teaching_ids` always reflects what's actually on the schedule instead of being maintained separately by hand in two places. Diffs the teacher's current `teaching_ids` against the `(subject_id, group_ids)` pairs found in `entries`: unchanged pairs are left alone, new pairs are created, pairs no longer present are **unlinked** (not archived — the schedule is the single source of truth, so a stale teaching row has no reason to persist even as history).
 
 Also called from the course transition wizard now (`_apply_teaching_resync`, see
-`course_transition_wizard.md`) and from `ems.attendance_template.regenerate_all_from_calendars()`
+`course_transition_wizard.md`) and from `ems.attendance_template._regenerate_all_from_calendars()`
 — both read `hr.employee._teaching_entries_from_calendar()` (a teacher's current calendar,
 translated into this same entries shape) as their source of truth, added 2026-09-01 after
 `ems.teaching` was found to never get resynced by either (see
 `plans/course_transition_stale_teacher_assignments.md`).
+
+**Runs as superuser, and is private for that reason (issue #531).** Who may change a teacher's
+teaching assignments is decided by who may write that teacher's calendar
+(`resource.calendar.attendance`, Department Chief and above, plus TAC), which every caller has
+already done with the user's own rights before calling this. The sync that follows is derived
+data: it creates and deletes `ems.teaching` rows, writes `hr.employee.teaching_ids` and, through
+`unlink()` below, can clear an `ems.group.tutor_id`, none of which a schedule editor holds direct
+rights on. So the method runs on `teacher.sudo()`, and has a leading underscore so it can't be
+called over RPC with an arbitrary teacher. Don't fix a schedule editor's `AccessError` here by
+adding rights to this model's ACL: Head of Studies broke twice that way, each fix granting only
+the one right that happened to fail (the save deletes rows whenever a subject or group is dropped
+from the grid). `tests/test_schedule_edit_roles.py` saves real schedules as every editor role, and
+`tests/test_working_schedule_role_edit_tour.py` does it through the browser as Department Chief.
 
 ### `unlink()` — clearing a stale group tutor (2026-09-01)
 
@@ -53,7 +66,7 @@ it clears it (a plain `write()`, so `EmsGroup._sync_tutor_role()` runs exactly a
 manual reassignment). Captured *before* the actual delete (fields are unreadable on a gone
 record), applied only *after*, and only if `tutor_id` hasn't already moved on to someone else in
 the meantime. Since `unlink()` is the one choke point every removal path already goes through —
-`sync_from_schedule()`'s own drop, the two calendar-driven resyncs above, or a direct admin
+`_sync_from_schedule()`'s own drop, the two calendar-driven resyncs above, or a direct admin
 delete — this single override is what keeps a group's displayed tutor honest everywhere, without
 any "group has 0 students" heuristic anywhere in the codebase.
 
@@ -61,11 +74,13 @@ any "group has 0 students" heuristic anywhere in the codebase.
 
 ## Access Control
 
-Defined in `security/ir.model.access.csv` (lines 99–101).
+Defined in `security/ir.model.access.csv`. These rights only govern direct edits (the "Subject
+assignation" screen); the schedule-driven sync above doesn't depend on them.
 
 | Role | Create | Read | Write | Delete | Group XML ID |
 |------|:------:|:----:|:-----:|:------:|--------------|
 | Administrator | ✓ | ✓ | ✓ | ✓ | `ems.group_academic_admin` |
+| Head of Studies / Deputy / Director | ✓ | ✓ | ✓ | — | `ems.group_head_of_studies` |
 | Teacher | — | ✓ | — | — | `ems.group_teacher` |
 | Secretary | — | ✓ | — | — | `ems.group_secretary` |
 

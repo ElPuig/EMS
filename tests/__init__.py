@@ -58,6 +58,8 @@ from . import test_tracking
 from . import test_non_teaching_type_tour
 from . import test_teaching_reduction_type_tour
 from . import test_employee_autocheckout
+from . import test_public_holiday
+from . import test_public_holiday_tour
 from . import test_user_implied_groups
 from . import test_space_type
 from . import test_space_type_tour

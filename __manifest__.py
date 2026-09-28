@@ -254,6 +254,7 @@
             'views/attendance/guard_duty_board/menu.xml',
 
             'views/attendance/absence/leave.xml',
+            'views/attendance/absence/public_holiday.xml',
             'views/attendance/absence/menu.xml',
             'views/attendance/absence/monthly_report.xml',
             'reports/attendance/report_guard_duty_board.xml',

@@ -40,6 +40,21 @@ Son **valores propuestos**: el gestor de las ausencias los puede cambiar solicit
 
 ---
 
+## Festivos y días de cierre
+
+**Ausencias > Configuración > Días festivos**. El EMS no trae ningún calendario de festivos: hay que introducirlos todos a mano, una vez por curso:
+
+- Los **nacionales** (1 de noviembre, 6 y 8 de diciembre, Navidad, Año Nuevo, Reyes, Viernes Santo, 1 de mayo...).
+- Los **de Cataluña** (Lunes de Pascua, San Juan, 11 de septiembre, San Esteban...).
+- Los **dos locales del municipio del centro**: los de la población donde está el instituto, no los de Barcelona.
+- Los **días en que el centro está cerrado** aunque no sean festivos oficiales: días de libre disposición, vacaciones de Navidad y de Semana Santa, agosto... Un periodo de varios días puede introducirse en una sola línea.
+
+Cada festivo se aplica **a todo el personal**, sea cual sea su horario. Hay que indicar el nombre y las fechas de inicio y de fin (para un día entero, de 00:00 a 23:59).
+
+Introdúcelos **antes** de que lleguen. Cada noche, el EMS registra una ausencia sin justificar (un fichaje en rojo, que cuenta como horas en negativo) a quien no fichó el día anterior, salvo que ese día no tuviera horas previstas. Si un festivo se introduce tarde, al guardarlo se borran solos los fichajes en rojo de esos días y las horas en negativo correspondientes. Lo mismo ocurre cuando se aprueba tarde una ausencia de día entero.
+
+---
+
 ## Quién aprueba
 
 No se configura aquí. Sale del organigrama: el aprobador de cada persona es **el responsable de su departamento de nivel superior**, que se define en el formulario del departamento (campo *Responsable de área*).

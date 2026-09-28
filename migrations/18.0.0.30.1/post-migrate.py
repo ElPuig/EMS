@@ -31,6 +31,22 @@ def _recompute_stale_last_attendance(env):
     _logger.info("Migration 18.0.0.30.1: recomputed the last attendance of %s employees.", len(employees))
 
 
+def _detach_public_holidays_from_schedules(env):
+    """A public holiday tied to one working schedule only applied to the employees on exactly that
+    schedule - nobody, in practice, since every teacher has a personal one (the first Diada was
+    tied to the default schedule framework, with no employees). Detaching it through the ORM also
+    recomputes the affected overtime and deletes the red "absence" technical attendances left on
+    those days (models/employees/public_holiday.py)."""
+    holidays = env['resource.calendar.leaves'].search([
+        ('resource_id', '=', False), ('calendar_id', '!=', False),
+    ])
+    if not holidays:
+        return
+    holidays.write({'calendar_id': False})
+    _logger.info("Migration 18.0.0.30.1: detached %s public holidays from their schedule.", len(holidays))
+
+
 def migrate(cr, _version):
     env = api.Environment(cr, SUPERUSER_ID, {})
     _recompute_stale_last_attendance(env)
+    _detach_public_holidays_from_schedules(env)

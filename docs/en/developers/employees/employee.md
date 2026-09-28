@@ -149,3 +149,31 @@ Views are not affected (the web client requests an explicit field list, which ne
 | **Enforced by** | `tests/test_employee_staff_permissions.py::test_ems_hr_employee_only_fields_declare_groups`, which fails listing any EMS field that regresses. |
 
 Keep the field's `groups=` consistent with the `groups=` of any view element whose `invisible`/`readonly` expression reads it, or `./upgrade.sh` reports an "Access Rights Inconsistency" warning for that element.
+
+### Identity document and social security number for the chain of command
+
+Both live in an "Identification" group of the "Private Information" tab, and who gets what depends on `hr.group_hr_user`:
+
+| Viewer | What they get |
+|--------|---------------|
+| HR officers: Head of Studies/Deputy and above, TAC, the secretariat (all imply `hr.group_hr_user`) | The native `identification_id` and `ssnid`, editable, on any employee they can read. Writing follows `security/rules/employees.xml`: the Head of Studies and TAC write teachers only (issue #391), the secretariat writes every staff member, nobody but the administrators deletes. |
+| Department Chief (and Seminar Chief), who lack `hr.group_hr_user` | Read-only copies (`scoped_identification_id`, `scoped_ssnid`) of the employees in their own chain of command. No tab at all on anyone else. |
+| Anyone else with the teacher form (plain teachers, tutors) | No tab. |
+
+Why copies for the Department Chief: the native fields carry `groups="hr.group_hr_user"`, which is a per-field gate, not a per-record one. Giving that group to a Department Chief would open every employee's private data centre-wide. Instead, three computed fields on `hr.employee` scope the data by record:
+
+| Field | Value |
+|-------|-------|
+| `can_view_identity` | True when the viewer is in the employee's `tutor_scope_user_ids` (the employee, every chief above them through `parent_id` and the Director - see [role_hierarchy.md](role_hierarchy.md#tutor-scope-permissions-escalate-along-the-chain-of-command-issue-483)) or holds `hr.group_hr_user`. It is the tab's `invisible` condition. |
+| `scoped_identification_id` | `identification_id` when `can_view_identity`, blank otherwise. |
+| `scoped_ssnid` | `ssnid` when `can_view_identity`, blank otherwise. |
+
+View mechanics (`view_employee_form`):
+
+- Layout of the tab: "Identification" first, EMS's "Emergency" beside it in the right-hand column, the native "Private Contact" below both. The native Citizenship/Family/Education groups stay hidden and take no column.
+- The tab's `groups` becomes `hr.group_hr_user,ems.group_department_chief`, and its "Private Contact" and EMS "Emergency" groups get `groups="hr.group_hr_user"`, so a Department Chief sees the "Identification" group alone.
+- Inside that group, the native fields carry `groups="hr.group_hr_user"` and the copies `groups="!hr.group_hr_user"`, so each viewer gets exactly one pair. The native pair duplicates the fields of the hidden "Citizenship" group; both nodes are bound to the same field.
+- Both pairs carry the same labels ("Identity document", "Social Security No").
+- `compute_sudo=True` reads the native fields as superuser, and `@api.depends_context('uid')` keeps the value per viewer. The compute checks `self.env.user`, which is still the real viewer under `compute_sudo`.
+- A Department Chief has no write access to `hr.employee`, so the whole form, copies included, is read-only for them.
+- Tests: `tests/test_employee_identity_visibility.py` (scope per viewer, and who may write) and `tests/test_employee_identity_visibility_tour.py` (a Department Chief's browser, and a secretariat edit on an ASP).

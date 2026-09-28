@@ -3,7 +3,7 @@
     <data>
 
         <!-- Issue #507. Under Educational Community > Students, after the Students list. -->
-        <menuitem name="Student Data" sequence="2" id="menu_contact_data_requests"
+        <menuitem name="Data request" sequence="2" id="menu_contact_data_requests"
                   parent="menu_students_root" action="action_ems_contact_data_request"
                   groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies,ems.group_tutor"/>
 

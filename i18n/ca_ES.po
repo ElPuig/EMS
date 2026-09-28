@@ -17093,8 +17093,8 @@ msgstr "Recordatori: "
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_contact_data_requests
-msgid "Student Data"
-msgstr "Dades Estudiants"
+msgid "Data request"
+msgstr "Sol·licitud de dades"
 
 #. module: ems
 #. odoo-javascript
@@ -17223,6 +17223,7 @@ msgstr "<span class=\"o_form_label\">Major d'edat</span>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Identification"
 msgstr "Identificació"
 
@@ -17632,3 +17633,20 @@ msgstr "Tothom s'ha registrat"
 #, python-format
 msgid "This attendance was automatically checked out at the end of the day in the schedule framework \"%s\", because the working schedule expected no hours that day."
 msgstr "Aquesta assistència va ser registrada automàticament com a sortida al final del dia segons el marc horari \"%s\", perquè l'horari laboral no preveia cap hora aquell dia."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__can_view_identity
+msgid "Can view identity"
+msgstr "Pot veure la identificació"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__scoped_identification_id
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Identity document"
+msgstr "Document d'identitat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__scoped_ssnid
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Social Security No"
+msgstr "Núm. de la Seguretat Social"

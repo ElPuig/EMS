@@ -22,9 +22,9 @@ Available to group tutors (for their own students), the secretariat and the Head
 
 ## Sending a request
 
-![Educational Community menu with the Students section open: Students and Student Data](../../assets/tutors/dades-contacte-01-menu.png)
+![Educational Community menu with the Students section open: Students and Data request](../../assets/tutors/dades-contacte-01-menu.png)
 
-1. Go to **Educational Community → Students (1) → Student Data (2)** and click **Request contact data**. You can also open it from the ⚙ menu of the students list, a student's form, the groups list or a group's form.
+1. Go to **Educational Community → Students (1) → Data request (2)** and click **Request contact data**. You can also open it from the ⚙ menu of the students list, a student's form, the groups list or a group's form.
 2. Choose who receives it:
    - **Groups / studies / levels**: pick the groups. Tutors can only pick their own groups.
    - **Selected students**: pick the students one by one.
@@ -41,7 +41,7 @@ Each student, or the family of a minor, receives an email with a link to the por
 
 ![Follow-up list of the requests, with the states Pending answer, To review and Done](../../assets/tutors/dades-contacte-03-seguiment.png)
 
-In **Educational Community → Students → Student Data**:
+In **Educational Community → Students → Data request**:
 
 - **Pending answer**: sent, not answered yet.
 - **To review**: the family has answered.

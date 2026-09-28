@@ -362,6 +362,9 @@ Design points:
   not lead up to them.
 - Only students whose group has a tutor are in anyone's scope; the centre-wide rights of
   `group_student_data_reader` (#393/#448) are unchanged and still cover the rest for reading.
+- **Not only tutor rights.** The same chain gates the employee's own identity document and social
+  security number (`hr.employee.can_view_identity`, see
+  [employee.md](employee.md#identity-document-and-social-security-number-for-the-chain-of-command)).
 - **New tutor-scoped rules or checks** should match on `tutor_scope_user_ids` /
   `user_acts_as_tutor()`, never on `tutor_id.user_id`, so they escalate the same way.
 - Tests: `tests/test_tutor_scope.py`; `create_head_of_studies_branch()` in `tests/common.py`
@@ -420,6 +423,12 @@ Two details worth keeping in mind if this is ever touched:
 - **Sitting outside the page's group gate protects nothing less.** `private_email` carries
   `groups="hr.group_hr_user"` on the field itself, which is what actually gates it.
 
+**The secretariat (`group_secretary`) also implies `hr.group_hr_user`**, since it keeps the staff's
+personal data up to date (identity document, social security number...). Unlike the two posts
+above it manages ASP and teachers alike, so its write/create is not bounded by employee type; it
+never deletes either. See
+[employee.md](employee.md#identity-document-and-social-security-number-for-the-chain-of-command).
+
 ### What the record rules narrow back down
 
 `hr.group_hr_user` is broader than this issue asked for, so `security/rules/employees.xml` bounds it
@@ -430,7 +439,8 @@ included, exactly as before.
 | Rule | Groups | Effect |
 |------|--------|--------|
 | `rule_hr_employee_write_teacher_only` | `group_head_of_studies`, `group_tac` | `write`/`create` only where `employee_type = 'teacher'` |
-| `rule_hr_employee_no_unlink_staff_manager` | `group_head_of_studies`, `group_tac` | `unlink` with an unsatisfiable domain: never deletes |
+| `rule_hr_employee_no_unlink_staff_manager` | `group_head_of_studies`, `group_tac`, `group_secretary` | `unlink` with an unsatisfiable domain: never deletes |
+| `rule_hr_employee_write_secretary` | `group_secretary` | `write`/`create` on every staff member, ASP and teachers alike |
 | `rule_hr_employee_write_all` | `group_academic_admin`, `group_secretary_admin` | The unrestricted counterpart, on all three operations |
 
 ```mermaid
@@ -440,10 +450,13 @@ to this user?"}
     R -- "group_head_of_studies
 or group_tac" --> T["teacher_only: employee_type = 'teacher'
 no_unlink: [(0, '=', 1)]"]
+    R -- "group_secretary" --> S["write_secretary: domain [] (no unlink)
+no_unlink: [(0, '=', 1)]"]
     R -- "group_academic_admin
 or group_secretary_admin" --> A["write_all
 domain: []"]
     T --> OR["Rules for a user's groups are OR-ed"]
+    S --> OR
     A --> OR
     OR --> D{"Any rule matched?"}
     D -- yes --> OK["Allowed"]

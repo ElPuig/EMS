@@ -22,9 +22,9 @@ Disponible per als tutors de grup (per al seu alumnat), la secretaria i la direc
 
 ## Enviar una sol·licitud
 
-![Menú Comunitat Educativa amb la secció Estudiants oberta: Estudiants i Dades Estudiants](../../assets/tutors/dades-contacte-01-menu.png)
+![Menú Comunitat Educativa amb la secció Estudiants oberta: Estudiants i Sol·licitud de dades](../../assets/tutors/dades-contacte-01-menu.png)
 
-1. Aneu a **Comunitat Educativa → Estudiants (1) → Dades Estudiants (2)** i feu clic a **Sol·licita dades de contacte**. També el podeu obrir des del menú ⚙ de la llista d'estudiants, de la fitxa d'un estudiant, de la llista de grups o de la fitxa d'un grup.
+1. Aneu a **Comunitat Educativa → Estudiants (1) → Sol·licitud de dades (2)** i feu clic a **Sol·licita dades de contacte**. També el podeu obrir des del menú ⚙ de la llista d'estudiants, de la fitxa d'un estudiant, de la llista de grups o de la fitxa d'un grup.
 2. Trieu qui la rep:
    - **Grups / estudis / nivells**: trieu els grups. Els tutors només poden triar els seus grups.
    - **Alumnes seleccionats**: trieu els alumnes un per un.
@@ -41,7 +41,7 @@ Cada alumne, o la família d'un menor, rep un correu amb un enllaç al portal. E
 
 ![Llista de seguiment de les sol·licituds, amb els estats Pendent de resposta, Per revisar i Fet](../../assets/tutors/dades-contacte-03-seguiment.png)
 
-A **Comunitat Educativa → Estudiants → Dades Estudiants**:
+A **Comunitat Educativa → Estudiants → Sol·licitud de dades**:
 
 - **Pendent de resposta**: enviada, encara sense resposta.
 - **Per revisar**: la família ha respost.

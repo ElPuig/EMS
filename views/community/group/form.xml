@@ -83,6 +83,23 @@
                         </group>
 
                         <notebook>
+                            <page string="Schedule" name="schedule">
+                                <field name="schedule_attendance_ids" widget="readonly_schedule_grid" nolabel="1">
+                                    <list limit="200">
+                                        <field name="dayofweek"/>
+                                        <field name="hour_from"/>
+                                        <field name="hour_to"/>
+                                        <field name="day_period"/>
+                                        <field name="subject_id"/>
+                                        <field name="topic"/>
+                                        <field name="non_teaching"/>
+                                        <field name="non_teaching_is_break"/>
+                                        <field name="employee_id"/>
+                                        <field name="space_id"/>
+                                    </list>
+                                </field>
+                            </page>
+
                             <page string="Students" invisible="group_type != 'main'">
                                  <field name="main_student_ids" widget="many2many">
                                     <list default_order="name asc" >
@@ -103,23 +120,6 @@
                                         <field name="image_1920" widget="image" />
                                         <field name="student_id" class="align-middle"/>
                                         <field name="subject_ids" widget="many2many_tags"/>
-                                    </list>
-                                </field>
-                            </page>
-
-                            <page string="Schedule" name="schedule">
-                                <field name="schedule_attendance_ids" widget="readonly_schedule_grid" nolabel="1">
-                                    <list limit="200">
-                                        <field name="dayofweek"/>
-                                        <field name="hour_from"/>
-                                        <field name="hour_to"/>
-                                        <field name="day_period"/>
-                                        <field name="subject_id"/>
-                                        <field name="topic"/>
-                                        <field name="non_teaching"/>
-                                        <field name="non_teaching_is_break"/>
-                                        <field name="employee_id"/>
-                                        <field name="space_id"/>
                                     </list>
                                 </field>
                             </page>

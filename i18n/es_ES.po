@@ -17095,8 +17095,8 @@ msgstr "Recordatorio: "
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_contact_data_requests
-msgid "Student Data"
-msgstr "Datos Estudiantes"
+msgid "Data request"
+msgstr "Solicitud de datos"
 
 #. module: ems
 #. odoo-javascript
@@ -17225,6 +17225,7 @@ msgstr "<span class=\"o_form_label\">Mayor de edad</span>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Identification"
 msgstr "Identificación"
 
@@ -17634,3 +17635,20 @@ msgstr "Todas las personas se han registrado"
 #, python-format
 msgid "This attendance was automatically checked out at the end of the day in the schedule framework \"%s\", because the working schedule expected no hours that day."
 msgstr "Esta asistencia fue registrada automáticamente como salida al final del día según el marco horario \"%s\", porque el horario laboral no preveía ninguna hora ese día."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__can_view_identity
+msgid "Can view identity"
+msgstr "Puede ver la identificación"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__scoped_identification_id
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Identity document"
+msgstr "Documento de identidad"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__scoped_ssnid
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Social Security No"
+msgstr "Núm. de la Seguridad Social"

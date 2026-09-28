@@ -143,7 +143,7 @@ registry.category("web_tour.tours").add("ems_contact_data_tutor", {
 });
 
 // Educational Community opens the Students list, and its Students section (a dropdown, since it now
-// holds two entries) leads to Student Data. Selectors are the menus' xmlids: the labels are translated.
+// holds two entries) leads to Data request. Selectors are the menus' xmlids: the labels are translated.
 registry.category("web_tour.tours").add("ems_contact_data_menu", {
     test: true,
     url: "/odoo",
@@ -173,12 +173,12 @@ registry.category("web_tour.tours").add("ems_contact_data_menu", {
         },
         {
             trigger: ".o-dropdown--menu .dropdown-item[data-menu-xmlid='ems.menu_contact_data_requests']",
-            content: "and Student Data",
+            content: "and Data request",
             run: "click",
         },
         {
             trigger: ".o_action_manager .o_list_view",
-            content: "Student Data lists the contact data requests",
+            content: "Data request lists the contact data requests",
         },
     ],
 });

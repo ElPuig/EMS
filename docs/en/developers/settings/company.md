@@ -37,7 +37,7 @@ This doc is primarily a **map**: most of these fields already have their own det
 | Field | Type | Documented in |
 |-------|------|----------------|
 | `strike_escalation_threshold` | `Integer`, default `3` | [ems.strike](../coexistence/strike.md) |
-| `auto_checkin_mode` | `Selection` (`disabled`/`first`/`start`/`current`), default `disabled` | Not yet documented elsewhere — used by the employee auto-checkin flow (`models/employees/employee_autocheckout.py` and related) |
+| `auto_checkin_mode` | `Selection` (`disabled`/`first`/`start`/`current`), default `disabled` | [ems.attendance_session_header](../attendance/attendance_session.md) (automatic check-in section) |
 | `auto_checkout_mode` | `Selection` (`native`/`ems`), default `native` | Same as above |
 | `auto_checkout_time` | `Float`, default `1.0` | Same as above |
 | `auto_checkout_retry_until` | `Float`, default `6.0` | Same as above |

@@ -181,18 +181,34 @@ class ems_attendance(models.Model):
         there is no scheduled hour to close at, and leaving the attendance open for a human to
         correct is more honest than closing it at an invented time.
         """
-        if not employee.resource_calendar_id:
+        expected = self._get_expected_intervals(employee, work_date)
+        if not expected:
             return None
+
+        last_end = max(interval_end for _interval_start, interval_end in expected)
+        return last_end.astimezone(pytz.utc).replace(tzinfo=None)
+
+    def _get_expected_intervals(self, employee, work_date):
+        """(start, end) pairs, tz-aware, of every stretch the employee is expected to work on
+        work_date - approved absences already subtracted (see _get_last_working_hour() above
+        for why the calendar is asked instead of reading its raw 'attendance_ids'). Empty for
+        an employee with no working schedule at all."""
+        if not employee.resource_calendar_id:
+            return []
 
         employee_tz = pytz.timezone(employee._get_tz())
         day_start = employee_tz.localize(datetime.combine(work_date, time.min))
         day_end = employee_tz.localize(datetime.combine(work_date, time.max))
-        expected = employee._get_expected_attendances(day_start, day_end)
-        if not expected:
-            return None
+        return [(start, end) for start, end, *_rest in employee._get_expected_attendances(day_start, day_end)]
 
-        last_end = max(interval_end for _interval_start, interval_end, *_rest in expected)
-        return last_end.astimezone(pytz.utc).replace(tzinfo=None)
+    def _is_within_working_hours(self, employee, moment):
+        """Whether 'moment' (naive UTC, the ORM's own convention) falls inside one of the
+        stretches the employee is expected to work that day, in their own timezone."""
+        local_moment = pytz.utc.localize(moment).astimezone(pytz.timezone(employee._get_tz()))
+        return any(
+            start <= local_moment <= end
+            for start, end in self._get_expected_intervals(employee, local_moment.date())
+        )
 
     def _cron_auto_check_out(self):
         """Delegates to native Odoo or EMS checkout logic based on company's auto_checkout_mode."""

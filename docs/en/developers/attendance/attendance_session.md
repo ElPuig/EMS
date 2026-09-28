@@ -108,6 +108,41 @@ student_id.student_email else []`.
 
 ---
 
+## Automatic check-in of the session's teacher (`_auto_checkin_teacher()`)
+
+`create()` also checks the session's teacher in (`hr.attendance` with `in_mode='auto_check_in'`)
+as a side effect of taking attendance, driven by `res.company.auto_checkin_mode`:
+
+| Mode | Check-in time |
+|------|---------------|
+| `disabled` (default) | No automatic check-in |
+| `first` | The teacher's first working hour that weekday |
+| `start` | The session's own start time |
+| `current` | Now |
+
+It only happens when all of these hold:
+
+- the session is for today, and the teacher has no attendance yet today;
+- "now" falls inside one of the teacher's expected working intervals for today
+  (`hr.attendance._is_within_working_hours()`, `models/employees/employee_autocheckout.py`, built on
+  the same `_get_expected_intervals()` the auto-checkout uses, so approved absences are already
+  subtracted). A teacher with no working schedule has none, so is never checked in automatically.
+  Guard duty is inside the teacher's own schedule, and a substitute works on a copy of the absent
+  teacher's schedule, so neither needs special-casing.
+
+The check-in is capped at `fields.Datetime.now()` (naive UTC, no microseconds), never later.
+Native `hr.employee.last_attendance_id` is a **stored** compute searching `check_in <= now` and
+depending only on `attendance_ids`: a check-in even a fraction of a second in the future is left
+out of it and never picked up afterwards, so the kiosk sees the teacher as checked out and tries a
+second check-in instead of the check-out, which `hr.attendance._check_validity()` rejects
+("hasn't checked out since..."). This is what `current` mode's microsecond-precision timestamps
+used to cause, and what `start` mode could cause for a roll-call opened before the session starts.
+
+Any failure creating the attendance is isolated in a savepoint and reported to academic admins
+through an activity (`_notify_auto_checkin_failure()`): the roll-call itself is never blocked.
+
+---
+
 ## `copy()` / `unlink()`
 
 `copy()` is blocked outright (`UserError`) — a session is a historical record of a specific

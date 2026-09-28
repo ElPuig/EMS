@@ -114,6 +114,15 @@ de la franja (o un administrador) pot eliminar una sessió coberta en guàrdia.
 
 ---
 
+## Fitxatge d'entrada automàtic
+
+Si el centre ho té activat, iniciar una sessió també et fitxa l'entrada automàticament, sempre que
+avui encara no hagis fitxat i estiguis passant llista **dins del teu horari laboral**. Si passes
+llista fora d'horari (des de casa, abans que comenci la teva jornada), l'assistència es registra
+igualment però no se't fitxa l'entrada. Quan marxis, fitxa la sortida al quiosc com sempre.
+
+---
+
 ## Eliminar una sessió
 
 Si has iniciat una sessió per error, selecciona-la i fes clic a **Eliminar sessió** a la capçalera,

@@ -14,7 +14,7 @@ from odoo.tests.common import HttpCase, TransactionCase
 
 from odoo.addons.ems.models.meetings.presence import kiosk_short_name
 
-from .common import create_role_employee, create_role_user, mock_outgoing_email
+from .common import create_head_of_studies_branch, create_role_employee, create_role_user, mock_outgoing_email
 
 
 class MeetingPresenceFixtures:
@@ -551,6 +551,85 @@ class TestMeetingPresence(MeetingPresenceFixtures, TransactionCase):
                          self._public(self.teacher) | self._public(self.child_teacher))
 
 
+class TestMeetingPresenceHub(MeetingPresenceFixtures, TransactionCase):
+    """Issue #526: the meetings page lists, for a tag, the meetings its owner can open today - as
+    convener, manager, Director or chief above the convener. See
+    docs/en/developers/meetings/meeting_presence.md."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls._setup_fixtures()
+        cls.convener_user = create_role_user(cls, 'tutor', 'test_hub_convener', name='Hub Convener')
+        cls.convener = create_role_employee(cls, cls.convener_user, barcode='TESTHUB001')
+        create_head_of_studies_branch(cls, 'MPH', cls.convener)
+        for index, user in enumerate((cls.department_chief, cls.head_of_studies, cls.other_department_chief,
+                                      cls.other_head_of_studies), 2):
+            user.employee_id.barcode = f'TESTHUB00{index}'
+
+    def _meeting(self, **vals):
+        vals = {'name': 'Hub meeting', 'scope': 'manual', 'convener_id': self.convener.id, **vals}
+        session = self._session(**vals)
+        session.action_open()
+        return session
+
+    def test_the_convener_is_whoever_creates_the_meeting_by_default(self):
+        session = self.env['ems.meeting.presence'].with_user(self.convener_user).sudo(False)
+        self.assertEqual(session._default_convener().id, self.convener.id)
+        secretary = create_role_user(self, 'secretary', 'test_hub_secretary')
+        employee = create_role_employee(self, secretary, employee_type='asp')
+        created = self.env['ems.meeting.presence'].with_user(secretary).create({'name': 'By the secretariat', 'scope': 'manual'})
+        self.assertEqual(created.convener_id.id, employee.id)
+
+    def test_who_runs_a_meeting_follows_the_chain_above_its_convener(self):
+        session = self._meeting(manager_ids=[(6, 0, [self.asp.id])])
+        runs = {
+            'convener': self.convener, 'manager': self.asp,
+            'department chief': self.department_chief.employee_id, 'head of studies': self.head_of_studies.employee_id,
+        }
+        for who, employee in runs.items():
+            self.assertTrue(session._ems_run_by(employee), who)
+        does_not = {
+            'another department chief': self.other_department_chief.employee_id,
+            'another head of studies': self.other_head_of_studies.employee_id,
+            'a teacher': self.teacher,
+        }
+        for who, employee in does_not.items():
+            self.assertFalse(session._ems_run_by(employee), who)
+
+    def test_the_director_runs_every_meeting_even_one_with_no_convener(self):
+        director = create_role_user(self, 'director', 'test_hub_director')
+        self.env.company.director_id = create_role_employee(self, director)
+        self.assertTrue(self._meeting()._ems_run_by(director.employee_id))
+        self.assertTrue(self._meeting(convener_id=False)._ems_run_by(director.employee_id))
+
+    def test_the_page_lists_the_open_meetings_still_ahead_today(self):
+        """Frozen at 11:00 in Madrid (10:00 UTC): 'today' is the local day, which ends at 23:00 UTC."""
+        self.env.company.partner_id.tz = 'Europe/Madrid'
+        later = self._meeting(name='Later today', date='2026-03-10 15:00:00')
+        going_on = self._meeting(name='Going on', date='2026-03-10 09:30:00')
+        late_night = self._meeting(name='Late at night', date='2026-03-10 22:30:00')
+        self._meeting(name='Already ended', date='2026-03-10 07:00:00', duration=1.0)
+        self._meeting(name='Just after local midnight', date='2026-03-10 23:30:00')
+        self._meeting(name='Closed', date='2026-03-10 09:00:00').action_close()
+        self._session(name='Still a draft', scope='manual', convener_id=self.convener.id, date='2026-03-10 12:00:00')
+        self._meeting(name='Someone else', date='2026-03-10 12:00:00', convener_id=self.teacher.id)
+        with self._at('2026-03-10 10:00:00'):
+            listed = self.env['ems.meeting.presence']._ems_meetings_run_by(self.convener)
+            self.assertEqual(listed.mapped('name'), [going_on.name, later.name, late_night.name])
+            result = self.env['ems.meeting.presence']._ems_hub_scan(' TESTHUB001 ')
+        self.assertEqual((result['status'], result['employee_name']), ('ok', self.convener.name))
+        self.assertEqual([item['status'] for item in result['meetings']], ['open', 'not_open', 'not_open'])
+        self.assertEqual(result['meetings'][0]['url'], f'/ems/presence/{going_on.access_token}?back=1')
+
+    def test_a_tag_with_nothing_to_open_or_nobody_behind_it(self):
+        self._meeting()
+        result = self.env['ems.meeting.presence']._ems_hub_scan('TESTHUB005')
+        self.assertEqual((result['status'], result['meetings']), ('none', []))
+        self.assertEqual(self.env['ems.meeting.presence']._ems_hub_scan('NOSUCHTAG'), {'status': 'unknown'})
+        self.assertEqual(self.env['ems.meeting.presence']._ems_hub_scan(''), {'status': 'unknown'})
+
+
 @tagged('post_install', '-at_install')
 class TestMeetingPresenceController(MeetingPresenceFixtures, HttpCase):
     """The public kiosk routes, called the way the page does: anonymous, token in the URL."""
@@ -625,3 +704,27 @@ class TestMeetingPresenceController(MeetingPresenceFixtures, HttpCase):
         self.presence.action_close()
         self.assertEqual(self._scan('TESTPRES001')['status'], 'closed')
         self.assertFalse(self.presence.line_ids.filtered(lambda line: line.state == 'present'))
+
+    # -- the meetings page (issue #526) ---------------------------------------------------
+
+    def test_meetings_page_is_public_at_a_fixed_address(self):
+        self.authenticate(None, None)
+        response = self.url_open('/ems/meetings')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('ems.meeting_presence_hub', response.text)
+
+    def test_meetings_scan_route_lists_what_the_tag_can_open(self):
+        self.presence.manager_ids = [(6, 0, [self.asp.id])]
+        self.authenticate(None, None)
+        result = self.make_jsonrpc_request('/ems/meetings/scan', {'barcode': 'TESTPRES003'})
+        self.assertEqual(result['status'], 'ok')
+        self.assertEqual([item['url'] for item in result['meetings']],
+                         [f'/ems/presence/{self.presence.access_token}?back=1'])
+        self.assertEqual(self.make_jsonrpc_request('/ems/meetings/scan', {'barcode': 'TESTPRES001'})['status'], 'none')
+
+    def test_the_kiosk_leads_back_only_when_opened_from_the_meetings_page(self):
+        self.authenticate(None, None)
+        self.assertEqual(self._kiosk_props()['backUrl'], '')
+        response = self.url_open(f'/ems/presence/{self.presence.access_token}?back=1')
+        props = json.loads(html.unescape(re.search(r'props="([^"]*)"', response.text).group(1)))
+        self.assertEqual(props['backUrl'], '/ems/meetings')

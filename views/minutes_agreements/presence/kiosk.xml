@@ -11,5 +11,17 @@
                 <owl-component name="ems.meeting_presence_kiosk" t-att-props="props"/>
             </t>
         </template>
+
+        <!-- The meetings page (issue #526): the fixed address the computers with a reader keep open.
+             It reads tags like the kiosk, with its words already translated in 'props' for the same
+             reason. -->
+        <template id="meeting_presence_hub" name="Meetings">
+            <t t-call="web.frontend_layout">
+                <t t-set="no_header" t-value="True"/>
+                <t t-set="no_footer" t-value="True"/>
+                <t t-set="pageName" t-value="'o_ems_meeting_presence'"/>
+                <owl-component name="ems.meeting_presence_hub" t-att-props="props"/>
+            </t>
+        </template>
     </data>
 </odoo>

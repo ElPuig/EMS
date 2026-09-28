@@ -7,6 +7,8 @@
                 <search string="Meeting attendance">
                     <field name="name"/>
                     <field name="space_id"/>
+                    <field name="convener_id"/>
+                    <field name="manager_ids"/>
                     <!-- A session with no course is not hidden by the facet: it belongs to no year in
                          particular, and the default must never leave a list mysteriously empty. -->
                     <filter string="Current course" name="current_course"
@@ -19,6 +21,7 @@
                     <filter string="Archived" name="archived" domain="[('active', '=', False)]"/>
                     <group expand="0" string="Group By">
                         <filter string="State" name="group_state" context="{'group_by': 'state'}"/>
+                        <filter string="Convener" name="group_convener" context="{'group_by': 'convener_id'}"/>
                         <filter string="Course" name="group_course" context="{'group_by': 'course_id'}"/>
                         <filter string="Date" name="group_date" context="{'group_by': 'date:month'}"/>
                     </group>

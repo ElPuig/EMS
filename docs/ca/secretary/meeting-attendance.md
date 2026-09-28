@@ -18,10 +18,11 @@ Navega a **Reunions → Assistència** i fes clic a **Nou**.
 
 1. Escriu el nom de la reunió (1).
 2. A **Comença** i **Durada** (2) indica quan comença la reunió i quant dura (per defecte, 2 hores). El camp **Acaba** es calcula sol; també el pots escriure tu i la durada s'ajusta.
-3. A **Qui es convoca** (3) tria **Tot el professorat**, **Tot el personal**, **Un departament**, **Un grup de treball** o **Triat a mà**. Si tries un departament o un grup de treball, selecciona'l.
-4. A **Idioma del quiosc** (4) tria l'idioma de la pantalla de l'entrada.
-5. Si cal, omple la sala i el curs.
-6. Desa. La pestanya **Persones** (5) es carrega amb les persones convocades.
+3. A **Convocant** (3) apareixes tu. Si crees la reunió en nom d'una altra persona, tria-la. A **Gestors** afegeix, si cal, altres persones que també hagin de poder obrir el quiosc (vegeu «Pàgina de reunions»).
+4. A **Qui es convoca** (4) tria **Tot el professorat**, **Tot el personal**, **Un departament**, **Un grup de treball** o **Triat a mà**. Si tries un departament o un grup de treball, selecciona'l.
+5. A **Idioma del quiosc** (5) tria l'idioma de la pantalla de l'entrada.
+6. Si cal, omple la sala i el curs.
+7. Desa. La pestanya **Persones** (6) es carrega amb les persones convocades.
 
 Per afegir algú a la llista, fes clic a **Afegir una línia** i tria'l. Per treure'n, fes clic a la paperera de la seva fila. Si canvies **Qui es convoca** després de desar, fes clic a **Carrega les persones convocades**: només s'hi afegeixen les que falten.
 
@@ -66,6 +67,26 @@ Qui tingui l'enllaç del quiosc veu aquests noms: no el comparteixis fora de la 
 Si una targeta no es llegeix o algú no la porta, marca'l a mà (vegeu «Marcar una persona a mà»).
 
 Mentre la reunió és oberta, el **Resum** del formulari i la llista **Persones** mostren qui ha passat la targeta (recarrega la pàgina per actualitzar-los).
+
+---
+
+## Pàgina de reunions
+
+Els ordinadors amb lector NFC que serveixen per a diverses reunions poden tenir sempre oberta la pàgina de reunions, que no demana iniciar sessió: `https://ems.elpuig.xeill.net/ems/meetings` (a la vostra instal·lació, l'adreça d'EMS seguida de `/ems/meetings`). Deixa-la com a pàgina d'inici del navegador, a pantalla completa (**F11**).
+
+1. Passa la targeta pel lector. Apareixen les reunions que pots obrir avui.
+2. Fes clic a la reunió: s'obre el seu quiosc.
+3. Quan acabi, fes clic a **Reunions**, a dalt a la dreta del quiosc, per tornar a la pàgina de reunions.
+
+![Pàgina de reunions després de passar la targeta](../../assets/secretary/meeting-presence-hub.png)
+
+Surten les reunions en què s'ha fet clic a **Comença l'assistència** i que encara no han acabat, amb l'horari, la sala i si estan **En procés** o **Encara no ha començat**. Si ningú no tria cap reunió, la llista s'esborra al cap de 30 segons.
+
+Cada persona veu les reunions:
+
+- que ha convocat (camp **Convocant**) o de les quals és **Gestor**;
+- que han convocat les persones que té per sota: un cap de departament o de seminari, les de la seva gent; el cap d'estudis o l'adjunt, les de tota la seva àrea;
+- la directora, totes.
 
 ---
 

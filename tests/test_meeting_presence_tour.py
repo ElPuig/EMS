@@ -93,3 +93,17 @@ class TestMeetingPresenceTour(HttpCase):
         self.start_tour(f"/ems/presence/{presence.access_token}", "ems_meeting_presence_kiosk_reader")
         self.assertEqual(presence.present_count, 2)
         self.assertEqual(set(presence.line_ids.mapped('method')), {'nfc'})
+
+    def test_meeting_presence_hub_tour(self):
+        """Issue #526: the meetings page, anonymous and in production (reader only). An unknown tag,
+        then the convener's: the meeting is listed, opens its kiosk, and the kiosk leads back."""
+        self.env['ir.config_parameter'].sudo().set_param('ems.environment_type', 'production')
+        self.env.company.partner_id.lang = 'en_US'
+        convener = self.env['hr.employee'].create({
+            'name': 'Hub Tour Convener', 'employee_type': 'teacher', 'barcode': 'TESTHUBTOUR1',
+        })
+        presence = self.env['ems.meeting.presence'].create({
+            'name': 'Hub tour meeting', 'scope': 'manual', 'kiosk_lang': 'en_US', 'convener_id': convener.id,
+        })
+        presence.action_open()
+        self.start_tour("/ems/meetings", "ems_meeting_presence_hub")

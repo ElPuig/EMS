@@ -11,6 +11,7 @@ import {
 } from "@odoo/owl";
 import { rpc } from "@web/core/network/rpc";
 import { registry } from "@web/core/registry";
+import { useTagReader } from "@ems/js/frontend/tag_reader";
 
 // How long the card of the person who just passed their tag stays on screen.
 const CARD_MS = 3500;
@@ -21,11 +22,6 @@ const FONT_MIN = 9; // px: below this the list scrolls instead, a last resort fo
 const MAX_COLUMNS = 6;
 const ROW_FACTOR = 1.3; // a row's height in font sizes: line height plus its padding
 const COLUMN_GAP = 16; // px
-
-// The reader, as Odoo's own barcode service (the one the clock-in kiosk uses) takes it: keys
-// that come close together are a tag, keys that come apart are somebody typing and are dropped.
-const MAX_TIME_BETWEEN_KEYS_MS = 150;
-const MIN_CODE_LENGTH = 3;
 
 // How often the page asks the server whether the session takes tags now: it can start, end, close
 // or reopen while the page is up, and nobody should have to reload the laptop at the door.
@@ -45,11 +41,8 @@ const CARDS = {
 
 /**
  * The kiosk of a meeting attendance (issue #521), mounted by the public component service on
- * /ems/presence/<token>. It works like the clock-in kiosk: there is no box to type in. An NFC
- * reader is a USB keyboard, it types the tag's UID and ends with Enter; a listener on the whole
- * page collects the keys and takes them for a tag only if they came fast, as Odoo's barcode service
- * does (150 ms at most between keys), so somebody typing a code by hand registers nothing.
- * The one exception is a box to type a code in, shown only outside production
+ * /ems/presence/<token>. It reads tags like the clock-in kiosk, with no box to type in (see
+ * useTagReader). The one exception is a box to type a code in, shown only outside production
  * (props.showCodeBox), for trying the kiosk out where there is no reader.
  */
 export class MeetingPresenceKiosk extends Component {
@@ -59,6 +52,8 @@ export class MeetingPresenceKiosk extends Component {
         name: String,
         windowLabel: String,
         showCodeBox: Boolean,
+        // The meetings page, when the kiosk was opened from there: the way back to it.
+        backUrl: { type: String, optional: true },
         status: String,
         labels: Object,
         present_count: Number,
@@ -86,8 +81,6 @@ export class MeetingPresenceKiosk extends Component {
         // other must both be registered, and the second card must not race the first.
         this.queue = Promise.resolve();
         this.hideTimeout = null;
-        this.keyTimeout = null;
-        this.keys = "";
         onMounted(() => {
             this.fitLists();
             // The font the names are measured with may not be there yet.
@@ -100,51 +93,12 @@ export class MeetingPresenceKiosk extends Component {
         onWillDestroy(() => {
             clearInterval(this.pollTimer);
             clearTimeout(this.hideTimeout);
-            clearTimeout(this.keyTimeout);
         });
-        useExternalListener(document, "keydown", (ev) => this.onKeydown(ev));
+        useTagReader((code) => this.register(code));
     }
 
     get labels() {
         return this.props.labels;
-    }
-
-    /**
-     * The reader: the same rules as Odoo's barcode service. Keys pile up in a buffer; Enter or Tab
-     * (or the reader going quiet for MAX_TIME_BETWEEN_KEYS_MS) ends it, and a buffer of at least
-     * MIN_CODE_LENGTH keys is a tag. A person typing is too slow for that: the buffer is emptied
-     * after every key and never reaches three.
-     */
-    onKeydown(ev) {
-        if (!ev.key) {
-            return;
-        }
-        // Only printable keys and the two that end a code count (Shift, arrows, F keys... do not).
-        const isEnd = ev.key === "Enter" || ev.key === "Tab";
-        const isSpecial = !["Control", "Alt"].includes(ev.key) && (ev.key.length > 1 || ev.metaKey);
-        if (isSpecial && !isEnd) {
-            return;
-        }
-        // Whoever types in the code box is not a reader: that box has its own submit.
-        if (ev.target.matches?.("input, textarea, [contenteditable='true']")) {
-            return;
-        }
-        clearTimeout(this.keyTimeout);
-        if (isEnd) {
-            this.checkKeys(ev);
-        } else {
-            this.keys += ev.key;
-            this.keyTimeout = setTimeout(() => this.checkKeys(), MAX_TIME_BETWEEN_KEYS_MS);
-        }
-    }
-
-    checkKeys(ev) {
-        const code = this.keys.replace(/Alt|Shift|Control/g, "");
-        this.keys = "";
-        if (code.length >= MIN_CODE_LENGTH) {
-            ev?.preventDefault();
-            this.register(code);
-        }
     }
 
     /** The code box (outside production only): typing there and pressing Enter registers a tag. */

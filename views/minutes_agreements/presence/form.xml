@@ -37,6 +37,9 @@
                                 <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
                             </group>
                             <group>
+                                <field name="convener_id" readonly="state == 'closed'" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="manager_ids" widget="many2many_tags" readonly="state == 'closed'"
+                                       options="{'no_create': True, 'no_open': True}"/>
                                 <field name="scope" readonly="state == 'closed'"/>
                                 <field name="department_id" invisible="scope != 'department'"
                                        required="scope == 'department'" readonly="state == 'closed'"

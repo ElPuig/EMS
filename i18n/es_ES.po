@@ -4454,6 +4454,8 @@ msgid "Import students from Esfera (SAGA)"
 msgstr "Importar alumnos desde Esfera"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_notice_line__display_status__started
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__in_progress
 msgid "In progress"
@@ -17439,6 +17441,8 @@ msgid "Meeting attendance line"
 msgstr "Línea de asistencia a reunión"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
 #: model:ir.ui.menu,name:ems.menu_minutes
 msgid "Meetings"
 msgstr "Reuniones"
@@ -17627,3 +17631,54 @@ msgstr "Personas convocadas"
 #: code:addons/ems/models/meetings/presence.py:0
 msgid "Everyone has registered"
 msgstr "Todas las personas se han registrado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__convener_id
+#: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
+msgid "Convener"
+msgstr "Convocante"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__manager_ids
+msgid "Managers"
+msgstr "Gestores"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_meeting_presence__convener_id
+msgid "Who convenes the meeting. They, everyone above them in the chain of command and the managers can open its kiosk by passing their tag on the meetings page."
+msgstr "Quién convoca la reunión. Esta persona, todos los que tiene por encima en la cadena de mando y los gestores pueden abrir su quiosco pasando la tarjeta por la página de reuniones."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_meeting_presence__manager_ids
+msgid "Other people who can also open this meeting's kiosk by passing their tag on the meetings page."
+msgstr "Otras personas que también pueden abrir el quiosco de esta reunión pasando la tarjeta por la página de reuniones."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Pass your tag to see the meetings you can open"
+msgstr "Pase la tarjeta para ver las reuniones que puede abrir"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Choose the meeting"
+msgstr "Elija la reunión"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "You have no meeting to open today"
+msgstr "Hoy no tiene ninguna reunión para abrir"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "The tag could not be read, try again"
+msgstr "No se ha podido leer la tarjeta, inténtelo de nuevo"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Not started yet"
+msgstr "Aún no ha empezado"

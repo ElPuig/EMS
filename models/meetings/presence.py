@@ -104,6 +104,22 @@ class EmsMeetingPresence(models.Model):
         default='all_teachers',
         help="Who is convened. It only decides who is loaded into the list: people can always be added or removed by hand.",
     )
+    convener_id = fields.Many2one(
+        string="Convener",
+        comodel_name="hr.employee.public",
+        default=lambda self: self._default_convener(),
+        tracking=True,
+        help="Who convenes the meeting. They, everyone above them in the chain of command and the "
+             "managers can open its kiosk by passing their tag on the meetings page.",
+    )
+    manager_ids = fields.Many2many(
+        string="Managers",
+        comodel_name="hr.employee.public",
+        relation="ems_meeting_presence_manager_rel",
+        column1="presence_id",
+        column2="employee_id",
+        help="Other people who can also open this meeting's kiosk by passing their tag on the meetings page.",
+    )
     department_id = fields.Many2one(string="Department", comodel_name="hr.department")
     workgroup_id = fields.Many2one(string="Workgroup", comodel_name="ems.workgroup")
     state = fields.Selection(
@@ -137,6 +153,12 @@ class EmsMeetingPresence(models.Model):
     pending_count = fields.Integer(string="Pending", compute="_compute_counts")
     justified_count = fields.Integer(string="Justified", compute="_compute_counts")
     absent_count = fields.Integer(string="Absent", compute="_compute_counts")
+
+    @api.model
+    def _default_convener(self):
+        # Read through hr.employee.public, as every employee field here: the secretariat does not
+        # imply hr.group_hr_user.
+        return self.env['hr.employee.public'].browse(self.env.user.employee_id.id)
 
     @api.model
     def _get_installed_langs(self):
@@ -260,6 +282,76 @@ class EmsMeetingPresence(models.Model):
         self.ensure_one()
         return {'type': 'ir.actions.act_url', 'url': self.kiosk_url, 'target': 'new'}
 
+    def _ems_run_by(self, employee):
+        """Whether `employee` (an hr.employee) can open this meeting's kiosk from the meetings page:
+        its convener, one of its managers, the Director, or a chief above the convener in the chain
+        of command. The chain is the tutor scope's (hr.employee.tutor_scope_user_ids, issue #483):
+        whoever is above the convener through parent_id and holds a chief's role, so a Department
+        Chief runs what their department's staff convene and a Deputy Head of Studies what their
+        whole branch convenes, but not what another branch does."""
+        self.ensure_one()
+        if employee.id in (self.convener_id | self.manager_ids).ids or employee == self.company_id.director_id:
+            return True
+        convener = self.env['hr.employee'].sudo().browse(self.convener_id.id)
+        return bool(employee.user_id) and employee.user_id in convener.tutor_scope_user_ids
+
+    @api.model
+    def _ems_meetings_run_by(self, employee):
+        """The meetings of `employee`'s company that `employee` can open from the meetings page
+        today: the ones whose kiosk is published (open) and still ahead or going on today, in local
+        time, the earliest first (see _ems_run_by). A draft, a closed one or one that already ended
+        is left out: its kiosk takes no tags."""
+        presences = self.with_company(employee.company_id)
+        now = fields.Datetime.now()
+        local_now = presences.env['ems.datetime_utils'].utc_datetime_to_local(now.replace(tzinfo=UTC))
+        tomorrow = local_now.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
+        return presences.search([
+            ('company_id', '=', employee.company_id.id),
+            ('state', '=', 'open'),
+            ('date', '<', tomorrow.astimezone(UTC).replace(tzinfo=None)),
+            ('date_end', '>=', now),
+        ], order='date, id').filtered(lambda presence: presence._ems_run_by(employee))
+
+    @api.model
+    def _ems_hub_scan(self, barcode):
+        """What the meetings page shows for the tag `barcode` was read from. Meant to be called with
+        sudo() from its anonymous route. Returns a status ('ok', 'none' when the person has no
+        meeting to open today, 'unknown'), who it was and the meetings, each with the link to its
+        kiosk (which then offers the way back to the meetings page)."""
+        barcode = (barcode or '').strip()
+        employee = self.env['hr.employee'].search([('barcode', '=', barcode)], limit=1) if barcode else False
+        if not employee:
+            return {'status': 'unknown'}
+        meetings = self._ems_meetings_run_by(employee)
+        return {
+            'status': 'ok' if meetings else 'none',
+            'employee_name': employee.name,
+            'meetings': [{
+                'id': presence.id,
+                'name': presence.name,
+                'url': f'/ems/presence/{presence.access_token}?back=1',
+                'window': presence._ems_window_label(),
+                'room': presence.space_id.name or '',
+                'status': presence._ems_kiosk_status(),
+            } for presence in meetings],
+        }
+
+    @api.model
+    def _ems_hub_labels(self):
+        """Every word the meetings page shows, translated in the caller's context: the page is
+        anonymous, as the kiosk (see _ems_kiosk_labels)."""
+        return {
+            'title': _("Meetings"),
+            'prompt': _("Pass your tag to see the meetings you can open"),
+            'type_hint': _("or type its code and press Enter"),
+            'choose': _("Choose the meeting"),
+            'none': _("You have no meeting to open today"),
+            'unknown': _("Unknown tag"),
+            'error': _("The tag could not be read, try again"),
+            'open': _("In progress"),
+            'not_open': _("Not started yet"),
+        }
+
     def _ems_show_code_box(self):
         """Whether the kiosk shows a box for typing a code. It is a testing aid for where there is
         no reader, and only shown outside production: the real kiosk has no box and takes nothing
@@ -357,6 +449,7 @@ class EmsMeetingPresence(models.Model):
             'attendees': _("Attendees"),
             'all_in': _("Everyone has registered"),
             'not_convened_note': _("(not convened)"),
+            'back': _("Meetings"),
         }
 
     def _ems_register_scan(self, barcode):

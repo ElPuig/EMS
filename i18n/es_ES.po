@@ -2342,6 +2342,7 @@ msgstr "Puede editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form model_terms:ir.ui.view,arch_db:ems.view_graduation_wizard_form model_terms:ir.ui.view,arch_db:ems.view_withdrawal_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_reject_wizard_form model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_return_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -2521,6 +2522,7 @@ msgstr "Cerrando encuestas"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_content__code model:ir.model.fields,field_description:ems.field_ems_criteria__code model:ir.model.fields,field_description:ems.field_ems_outcome__code model:ir.model.fields,field_description:ems.field_ems_space__code model:ir.model.fields,field_description:ems.field_ems_study__code model:ir.model.fields,field_description:ems.field_ems_subject__code model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__code model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__code
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 msgid "Code"
 msgstr "Código"
 
@@ -2741,6 +2743,7 @@ msgstr "País"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__course_id
 #: model:ir.model.fields,field_description:ems.field_ems_planning__course_id
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__course_id model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 msgid "Course"
 msgstr "Curso"
 
@@ -2807,6 +2810,7 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -2818,6 +2822,7 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3087,6 +3092,7 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -4260,6 +4266,7 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__id
 msgid "ID"
 msgstr "ID"
 
@@ -4679,6 +4686,7 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -4690,6 +4698,7 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -5552,6 +5561,7 @@ msgstr "Ruta de la unidad organizativa donde se crean los estudiantes menores de
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_document__doc_type__other
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__basis__other
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Other"
 msgstr "Otro"
 
@@ -7037,6 +7047,7 @@ msgstr "Calle 2"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__student_id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_private_note__partner_id
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__student_id
 msgid "Student"
 msgstr "Alumno"
 
@@ -7186,6 +7197,7 @@ msgstr "Estudios para matriculación"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__study_id
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__study_name
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 msgid "Study"
 msgstr "Estudio"
 
@@ -8496,6 +8508,9 @@ msgstr "Derecha"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__resolution
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__resolution_pdf_id
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__resolution_pdf_link
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 msgid "Resolution"
 msgstr "Resolución"
 
@@ -9142,6 +9157,8 @@ msgstr "Salida original"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__reason model:ir.model.fields,field_description:ems.field_ems_strike__reason_id model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__reason
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__reason
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 msgid "Reason"
 msgstr "Motivo"
 
@@ -9629,6 +9646,7 @@ msgstr "openpyxl es necesario para importar ficheros xlsx."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__applicant model:res.partner.category,name:ems.partner_category_applicant model_terms:ir.ui.view,arch_db:ems.view_applicant_list model_terms:ir.ui.view,arch_db:ems.view_applicant_search
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 msgid "Applicant"
 msgstr "Solicitante"
 
@@ -11810,6 +11828,7 @@ msgstr "Previsualizar"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__result_html
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 msgid "Result"
 msgstr "Resultado"
 
@@ -14757,6 +14776,7 @@ msgstr "Convalidar los módulos pendientes"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__is_convalidated
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__is_convalidated
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_line__state__granted
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 msgid "Convalidated"
 msgstr "Convalidado"
 
@@ -14868,11 +14888,13 @@ msgstr "Usuario del portal que ha presentado la solicitud: el alumno o un famili
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__basis__prior_studies
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Prior vocational training or university studies"
 msgstr "Estudios previos de formación profesional o universitarios"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__basis__certificate
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Professional certificate or accreditation of competences"
 msgstr "Certificado de profesionalidad o acreditación de competencias"
 
@@ -14886,6 +14908,7 @@ msgstr "Observaciones"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__convalidation_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__convalidation_id
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__request_id
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__convalidation_id
 msgid "Request"
 msgstr "Solicitud"
 
@@ -14901,6 +14924,7 @@ msgstr "Observaciones de la resolución"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__resolution_date
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__signature_date
 msgid "Resolution date"
 msgstr "Fecha de resolución"
 
@@ -14918,6 +14942,7 @@ msgstr "Resuelta"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__resolved_by_id
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__signed_by_id
 msgid "Resolved by"
 msgstr "Resuelta por"
 
@@ -15654,6 +15679,8 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/convalidation_info_wizard.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__info_request
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 msgid "Documentation requested"
 msgstr "Documentación solicitada"
 
@@ -15670,6 +15697,7 @@ msgstr "EMS: Convalidación, documentación solicitada"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__grade
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 msgid "Grade"
 msgstr "Nota"
 
@@ -15736,8 +15764,9 @@ msgstr "Pendientes de Jefatura de Estudios"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__in_progress
 msgid "Pending the secretariat"
-msgstr "Pendientes de secretaría"
+msgstr "Pendiente de secretaría"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
@@ -15948,6 +15977,7 @@ msgstr "Expediente de convalidación"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__name
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 msgid "Registration number"
 msgstr "Número de registro"
 
@@ -16857,6 +16887,7 @@ msgstr "Solicitudes"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_reject_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_return_wizard_form
 msgid "Return"
 msgstr "Devolver"
 
@@ -17627,3 +17658,676 @@ msgstr "Personas convocadas"
 #: code:addons/ems/models/meetings/presence.py:0
 msgid "Everyone has registered"
 msgstr "Todas las personas se han registrado"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"<i class=\"fa fa-clock-o me-1\"/> The request has been filed with the "
+"Ministry, which resolves it. It can no longer be cancelled; you will be "
+"notified once the resolution arrives."
+msgstr ""
+"<i class=\"fa fa-clock-o me-1\"/> La solicitud se ha tramitado con el "
+"Ministerio, que la resuelve. Ya no se puede anular; recibiréis un aviso "
+"cuando llegue la resolución."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"<i class=\"fa fa-clock-o me-1\"/> The request has been resolved. The "
+"secretariat is now registering it in your record; you will receive the "
+"resolution once it is done."
+msgstr ""
+"<i class=\"fa fa-clock-o me-1\"/> La solicitud se ha resuelto. Secretaría la"
+" está registrando en vuestro expediente; recibiréis la resolución cuando "
+"termine."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"<i class=\"fa fa-clock-o me-1\"/> The request has been reviewed and is "
+"pending the Director's official resolution."
+msgstr ""
+"<i class=\"fa fa-clock-o me-1\"/> La solicitud se ha revisado y está "
+"pendiente de la resolución oficial de la dirección."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "<i class=\"fa fa-download me-1\"/>Official resolution"
+msgstr "<i class=\"fa fa-download me-1\"/>Resolución oficial"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> Convalidations for students "
+"under 18 are requested by their family, and we have no family contact on "
+"file for you. Fill in your family's contact details from your"
+msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> Las convalidaciones del "
+"alumnado menor de 18 años las solicita la familia, y no tenemos ningún "
+"contacto familiar vuestro registrado. Rellenad los datos de contacto de "
+"vuestros familiares desde vuestra"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/> Convalidations for students under 18 "
+"are requested by their family, from their own portal account. You can follow"
+" them here."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/> Las convalidaciones del alumnado menor"
+" de 18 años las solicita la familia, desde su propia cuenta del portal. Aquí"
+" podéis hacer el seguimiento."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>The grade defaults to 5, which the resolution\n"
+"                                    shows as \"Convalidated\". Write the one the previous studies hold when it is known.\n"
+"                                    Every refused subject needs its reason, which the resolution states."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>La nota por defecto es 5, que la "
+"resolución muestra como \"Convalidado\". Escribid la de los estudios previos"
+" cuando se sepa. Cada módulo denegado necesita su motivo, que la resolución "
+"indica."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid "<strong>Returned by the Director:</strong>"
+msgstr "<strong>Devuelta por la dirección:</strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+msgid "By delegation"
+msgstr "Por delegación"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid ""
+"Confirm the resolution is registered in the student's record: the request "
+"closes and the student is notified."
+msgstr ""
+"Confirmad que la resolución está registrada en el expediente del alumno: la "
+"solicitud se cierra y se le notifica."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Convalidate or reject every subject of the request first."
+msgstr "Primero convalidad o denegad todos los módulos de la solicitud."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__convalidation_appeal_text
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__convalidation_appeal_text
+msgid "Convalidation Appeal Text"
+msgstr "Texto de recurso de la convalidación"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__convalidation_legal_certificate
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__convalidation_legal_certificate
+msgid "Convalidation Legal Certificate"
+msgstr "Fundamentos de derecho: certificado de profesionalidad"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__convalidation_legal_other
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__convalidation_legal_other
+msgid "Convalidation Legal Other"
+msgstr "Fundamentos de derecho: otros"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__convalidation_legal_prior_studies
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__convalidation_legal_prior_studies
+msgid "Convalidation Legal Prior Studies"
+msgstr "Fundamentos de derecho: estudios previos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__convalidation_sign_by_delegation
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__convalidation_sign_by_delegation
+msgid "Convalidation Sign By Delegation"
+msgstr "Firma por delegación"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Convalidation request resolved"
+msgstr "Solicitud de convalidación resuelta"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Convalidation request resolved by the Ministry"
+msgstr "Solicitud de convalidación resuelta por el Ministerio"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Convalidation request sent to the Ministry"
+msgstr "Solicitud de convalidación tramitada con el Ministerio"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Convalidation request under resolution"
+msgstr "Solicitud de convalidación en resolución"
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_report_convalidation_resolution
+msgid "Convalidation resolution"
+msgstr "Resolución de convalidación"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+msgid "Favourable"
+msgstr "Favorable"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__ministry_date
+msgid "Filed with the Ministry on"
+msgstr "Tramitada con el Ministerio el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Footer of the resolution saying how and before whom it can be appealed. "
+"Write it in Catalan. Leave it empty to use the standard text, which names "
+"the competent body only in general terms."
+msgstr ""
+"Pie de la resolución que indica cómo y ante quién se puede recurrir. "
+"Escribidlo en catalán. Dejadlo vacío para usar el texto estándar, que solo "
+"menciona el órgano competente en términos generales."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+msgid "Grounds of law"
+msgstr "Fundamentos de derecho"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__ministry
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+msgid "In process at the Ministry"
+msgstr "En proceso Ministerio"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+msgid ""
+"In view of the request and the documentation provided, I resolve on the "
+"convalidation of the following vocational training modules:"
+msgstr ""
+"Vista la solicitud y la documentación aportada, resuelvo sobre la "
+"convalidación de los módulos profesionales siguientes:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid "Issue the official resolution (PDF) and send it to the secretariat."
+msgstr "Emite la resolución oficial (PDF) y la pasa a secretaría."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid ""
+"Mark it once the request has been filed with the Ministry. The student will "
+"no longer be able to cancel it. Continue?"
+msgstr ""
+"Marcadlo una vez tramitada la solicitud con el Ministerio. El alumno ya no "
+"podrá anularla. ¿Queréis continuar?"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__ministry_resolution
+msgid "Ministry resolution"
+msgstr "Resolución del Ministerio"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__ministry_resolution_filename
+msgid "Ministry resolution file name"
+msgstr "Nombre del fichero de la resolución del Ministerio"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid "Ministry resolution received"
+msgstr "Resolución del Ministerio recibida"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Ministry resolution.pdf"
+msgstr "Resolución del Ministerio.pdf"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+msgid "Module"
+msgstr "Módulo"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Only the Director can resolve a convalidation proposal."
+msgstr "Solo la dirección puede resolver una propuesta de convalidación."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Only the Head of Studies can review convalidations."
+msgstr "Solo el jefe de estudios puede revisar convalidaciones."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Only the secretariat can register a resolved convalidation."
+msgstr "Solo secretaría puede registrar una convalidación resuelta."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid ""
+"Other cases provided for by the regulations in force, based on the "
+"documentation provided by the applicant."
+msgstr ""
+"Otros supuestos previstos en la normativa vigente, a partir de la "
+"documentación aportada por la persona solicitante."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__direction
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+msgid "Pending the Director"
+msgstr "Pendiente de dirección"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid ""
+"Previously passed vocational training modules or university studies: the "
+"modules they correspond to are convalidated, as set out in Royal Decree "
+"1085/2020 and in the royal decree of the title."
+msgstr ""
+"Módulos profesionales o estudios universitarios superados previamente: se "
+"convalidan los módulos que tienen correspondencia con ellos, de acuerdo con "
+"lo que establecen el Real Decreto 1085/2020 y el real decreto del título."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid ""
+"Professional certificate or accreditation of professional competences: the "
+"vocational training modules associated with the accredited units of "
+"competence are convalidated, according to the correspondence set out in the "
+"royal decree of the title."
+msgstr ""
+"Certificado de profesionalidad o acreditación de competencias profesionales:"
+" se convalidan los módulos profesionales asociados a las unidades de "
+"competencia acreditadas, según la correspondencia que establece el real "
+"decreto del título."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__validation_date
+msgid "Proposal date"
+msgstr "Fecha de la propuesta"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Proposal returned to the Head of Studies by the Director:"
+msgstr "Propuesta devuelta al jefe de estudios por la dirección:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__validated_by_id
+msgid "Proposed by"
+msgstr "Propuesta por"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__rejection_reason
+msgid "Reason for refusal"
+msgstr "Motivo de la denegación"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid ""
+"Record the Ministry's outcome for every subject: the request goes straight "
+"to the secretariat."
+msgstr ""
+"Registrad el resultado del Ministerio para cada módulo: la solicitud pasa "
+"directamente a secretaría."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__resolved_by_id
+msgid "Registered by"
+msgstr "Registrada por"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid "Registered in Esfera"
+msgstr "Registrada en Esfera"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__resolution_date
+msgid "Registration date"
+msgstr "Fecha de registro"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+msgid "Representative"
+msgstr "Representante"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+msgid "Request date"
+msgstr "Fecha de la solicitud"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Resolution %s.pdf"
+msgstr "Resolución %s.pdf"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+msgid "Resolution of convalidation of vocational training modules"
+msgstr "Resolución de convalidación de módulos profesionales"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Resolution: appeal"
+msgstr "Resolución: recurso"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Resolution: grounds of law"
+msgstr "Resolución: fundamentos de derecho"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Resolution: signed by delegation"
+msgstr "Resolución: firma por delegación"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid "Resolve"
+msgstr "Resolver"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_convalidation_resolution
+msgid "Resolve convalidation proposal"
+msgstr "Resolver propuesta de convalidación"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__resolved_by_ministry
+msgid "Resolved by the Ministry"
+msgstr "Resuelta por el Ministerio"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_return_wizard_form
+msgid "Return to the Head of Studies"
+msgstr "Devolver al jefe de estudios"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__return_reason
+msgid "Returned by the Director"
+msgstr "Devuelta por la dirección"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+msgid ""
+"Royal Decree 1085/2020, of 9 December, which establishes convalidations of "
+"vocational training modules of the titles of the Spanish education system, "
+"article 8."
+msgstr ""
+"Real Decreto 1085/2020, de 9 de diciembre, por el que se establecen "
+"convalidaciones de módulos profesionales de los títulos de formación "
+"profesional del sistema educativo español, artículo 8."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid "Send proposal to the Director"
+msgstr "Enviar propuesta a dirección"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_info_wizard__message
+msgid ""
+"Sent to the student (and their family, when it follows their convalidations)"
+" by email, and shown on the portal, where they can answer and attach the "
+"documents asked for."
+msgstr ""
+"Se envía por correo al alumno (y a su familia, cuando sigue sus "
+"convalidaciones) y se muestra en el portal, donde pueden responder y "
+"adjuntar los documentos pedidos."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Standard text"
+msgstr "Texto estándar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Text added to Royal Decree 1085/2020, art. 8, in the resolution the Director"
+" issues, depending on the grounds of the request. Write it in Catalan, the "
+"language of the resolution. Leave it empty to use the standard text."
+msgstr ""
+"Texto que se añade al Real Decreto 1085/2020, art. 8, en la resolución que "
+"emite la dirección, según el motivo de la solicitud. Escribidlo en catalán, "
+"la lengua de la resolución. Dejadlo vacío para usar el texto estándar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+msgid "The Director"
+msgstr "El director / La directora"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid ""
+"The Director has issued the official resolution. The secretariat will now "
+"register it in your record, and it will be sent to you once it is done."
+msgstr ""
+"La dirección ha emitido la resolución oficial. Secretaría ahora la "
+"registrará en vuestro expediente, y os la enviaremos cuando termine."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_convalidation_return_wizard
+msgid ""
+"The Director sends a convalidation proposal back to the Head of Studies."
+msgstr ""
+"La dirección devuelve una propuesta de convalidación al jefe de estudios."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid ""
+"The Head of Studies has reviewed the request and sent the resolution "
+"proposal to the Director, who will issue the official resolution."
+msgstr ""
+"El jefe de estudios ha revisado la solicitud y ha enviado la propuesta de "
+"resolución a la dirección, que emitirá la resolución oficial."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid ""
+"The Ministry has resolved the request. The secretariat will now register it "
+"in your record, and the grades will be published once it is done."
+msgstr ""
+"El Ministerio ha resuelto la solicitud. Secretaría ahora la registrará en "
+"vuestro expediente, y las notas se publicarán cuando termine."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid "The Ministry resolves it: the request waits here for its answer."
+msgstr "La resuelve el Ministerio: la solicitud espera aquí su respuesta."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation__ministry_resolution
+msgid "The Ministry's own resolution (PDF), when it has arrived."
+msgstr "La resolución del Ministerio (PDF), cuando haya llegado."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid ""
+"The centre resolves it: the Director turns this proposal into the official "
+"resolution."
+msgstr ""
+"La resuelve el centro: la dirección convierte esta propuesta en la "
+"resolución oficial."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid ""
+"The official resolution will be issued as proposed and sent to the "
+"secretariat. Continue?"
+msgstr ""
+"Se emitirá la resolución oficial tal como se ha propuesto y se pasará a "
+"secretaría. ¿Queréis continuar?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid ""
+"The request has been filed with the Ministry, which will resolve it. It can "
+"no longer be cancelled; you will be notified once the resolution arrives."
+msgstr ""
+"La solicitud se ha tramitado con el Ministerio, que la resolverá. Ya no se "
+"puede anular; recibiréis un aviso cuando llegue la resolución."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation__resolved_by_ministry
+msgid ""
+"The request was filed with the Ministry, whose resolution goes straight to "
+"the secretariat, without the Director."
+msgstr ""
+"La solicitud se tramitó con el Ministerio, cuya resolución pasa directamente"
+" a secretaría, sin la dirección."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"The resolution is signed on the Director's behalf: it says so, and shows the"
+" name of whoever actually resolved it instead of the Director's."
+msgstr ""
+"La resolución se firma en nombre de la dirección: lo indica, y muestra el "
+"nombre de quien la ha resuelto en lugar del de la dirección."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid ""
+"The resolution will be sent to the student and the grades published. "
+"Continue?"
+msgstr ""
+"Se enviará la resolución al alumno y se publicarán las notas. ¿Queréis "
+"continuar?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid ""
+"This resolution does not end the administrative procedure. An ordinary "
+"appeal may be lodged against it before the competent body of the educational"
+" Administration the centre depends on within one month from the day after "
+"its notification (articles 121 and 122 of Law 39/2015, of 1 October, and "
+"article 11 of Royal Decree 1085/2020)."
+msgstr ""
+"Contra esta resolución, que no pone fin a la vía administrativa, podéis "
+"interponer recurso de alzada ante el órgano competente de la Administración "
+"educativa de la que depende el centro en el plazo de un mes a contar desde "
+"el día siguiente a la notificación (artículos 121 y 122 de la Ley 39/2015, "
+"de 1 de octubre, y artículo 11 del Real Decreto 1085/2020)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+msgid "Unfavourable"
+msgstr "Desfavorable"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_return_wizard__reason
+msgid ""
+"What the Head of Studies has to review. Shown on the request until the next "
+"proposal; the student is not told."
+msgstr ""
+"Qué debe revisar el jefe de estudios. Se muestra en la solicitud hasta la "
+"próxima propuesta; al alumno no se le comunica."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_return_wizard_form
+msgid "What the Head of Studies has to review..."
+msgstr "Qué debe revisar el jefe de estudios..."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation__signed_by_id
+msgid ""
+"Who issued the centre's official resolution: the Director, or whoever signs "
+"on their behalf when signing by delegation."
+msgstr ""
+"Quién emitió la resolución oficial del centro: la dirección, o quien firma "
+"en su nombre cuando se firma por delegación."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation__return_reason
+msgid "Why the Director sent the last proposal back for review."
+msgstr "Por qué la dirección devolvió la última propuesta para revisarla."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_line__rejection_reason
+msgid ""
+"Why the subject is not convalidated. Required to refuse it: the resolution "
+"states it."
+msgstr ""
+"Por qué no se convalida el módulo. Es necesario para denegarlo: la "
+"resolución lo indica."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Write the reason for refusing: %s"
+msgstr "Escribid el motivo de la denegación: %s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "profile page"
+msgstr "página de perfil"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "<i class=\"fa fa-exclamation-circle me-1\"/>Documentation requested"
+msgstr "<i class=\"fa fa-exclamation-circle me-1\"/>Documentación solicitada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__info_request_date
+msgid "Documentation requested on"
+msgstr "Documentación solicitada el"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation__info_request
+msgid ""
+"The last request for information sent to the applicant, shown on the portal "
+"next to the answer form while the request is under review."
+msgstr ""
+"La última petición de información enviada a la persona solicitante, que se "
+"muestra en el portal junto al formulario de respuesta mientras la solicitud "
+"está en revisión."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid ""
+"The student, course, grounds and applicant's comments cannot be changed once "
+"the request is submitted."
+msgstr "El alumno, el curso, el motivo y las observaciones del solicitante no se pueden modificar una vez presentada la solicitud."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+msgid "Date:"
+msgstr "Fecha:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+msgid "Reference:"
+msgstr "Referencia:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+msgid "Resolved by:"
+msgstr "Resuelto por:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+msgid "Validated in EMS"
+msgstr "Validado en EMS"

@@ -5,50 +5,55 @@ import base64
 from odoo import http
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
-from .portal_view_only import ems_portal_manage_required
+
+from odoo.addons.ems.models.grades.convalidation import REVIEW_STATES
 
 
 class EmsPortalConvalidationController(CustomerPortal):
-    """Issue #276 - adult students, and the families of minor ones, request subject
-    convalidations from the portal. Always about the student resolved by get_portal_student(): no
-    student id travels in a form, so nobody can file or cancel a request for someone else. New
-    requests only during the yearly request period set in the EMS settings; answering and
-    cancelling are always possible. sudo because portal users have no ACL on ems.convalidation -
-    see docs/en/developers/grades/convalidation.md."""
+    """Issues #276 and #529 - subject convalidation requests on the portal. An adult student
+    files them himself, and so does his family when he authorized sharing with it; a minor's
+    family files them for him, and the minor himself only reads them
+    (res.partner._ems_convalidation_can_request). Always about the student resolved by
+    get_portal_student(): no student id travels in a form, so nobody can file or cancel a request
+    for someone else. New requests only during the yearly request period set in the EMS settings;
+    answering and cancelling are always possible. sudo because portal users have no ACL on
+    ems.convalidation - see docs/en/developers/grades/convalidation.md."""
 
     _redirect = '/my/convalidaciones'
 
     def _ems_convalidation_student(self):
-        """The student the portal user acts for (see res.partner._ems_portal_can_act_for), or an
-        empty recordset. Whoever may only consult never gets this far (ems_portal_manage_required):
-        this is the last line of defence, not the one that tells them."""
+        """The student the portal user may file and follow up requests for, or an empty
+        recordset."""
         partner = request.env.user.partner_id
         student = partner.get_portal_student()
-        return student if student.contact_type in ('student', 'applicant') \
-            and partner._ems_portal_can_act_for(student) else student.browse()
+        return student if partner._ems_convalidation_can_request(student) else student.browse()
 
     def _ems_convalidation_company(self):
         return request.env.company.sudo()
 
     @http.route('/my/convalidaciones', type='http', auth='user', website=True)
-    @ems_portal_manage_required
     def portal_convalidations(self, **kwargs):
         partner = request.env.user.partner_id
+        if not partner._ems_convalidation_portal_visible():
+            return request.redirect('/my/home')
+        viewed = partner.get_portal_student()
         student = self._ems_convalidation_student()
         company = self._ems_convalidation_company()
         Convalidation = request.env['ems.convalidation'].sudo()
         study = Convalidation._ems_portal_study(student) if student else request.env['ems.study']
-        convalidations = Convalidation.search([('student_id', '=', student.id)]) \
-            if student else Convalidation
+        convalidations = Convalidation.search([('student_id', '=', viewed.id)])
         # fields_get(): selection labels in the visitor's language.
         selections = Convalidation.fields_get(['state', 'basis'], ['selection'])
         line_states = request.env['ems.convalidation.line'].sudo().fields_get(['state'], ['selection'])
         values = self._prepare_portal_layout_values()
         values.update({
             'page_name': 'convalidations',
-            'student': student,
+            'student': viewed,
+            'can_request': bool(student),
+            # A minor reading his own page: why he cannot file a request himself.
+            'minor_without_family': not student and not viewed.is_adult and not viewed._ems_family_contacts(),
             'students': partner.get_portal_students(),
-            'viewing_as_family': student != partner,
+            'viewing_as_family': viewed != partner,
             'period_open': company._ems_convalidation_period_open(),
             'period_next_change': company._ems_convalidation_period_next_change(),
             # The period is the centre's local time: shown in it whatever the visitor's own tz.
@@ -69,7 +74,6 @@ class EmsPortalConvalidationController(CustomerPortal):
         return request.render('ems.portal_convalidations', values)
 
     @http.route('/my/convalidaciones/submit', type='http', auth='user', methods=['POST'], website=True)
-    @ems_portal_manage_required
     def portal_convalidation_submit(self, **post):
         student = self._ems_convalidation_student()
         if not student:
@@ -123,14 +127,13 @@ class EmsPortalConvalidationController(CustomerPortal):
 
     @http.route('/my/convalidaciones/reply/<int:convalidation_id>', type='http', auth='user',
                 methods=['POST'], website=True)
-    @ems_portal_manage_required
     def portal_convalidation_reply(self, convalidation_id, **post):
         """Answer a request for information: the files join the request's own documents and the
         text is posted where the Head of Studies reads it. Only while the request is still open."""
         student = self._ems_convalidation_student()
         convalidation = request.env['ems.convalidation'].sudo().browse(convalidation_id)
         if not (student and convalidation.exists() and convalidation.student_id == student
-                and convalidation.state in ('pending', 'in_progress')):
+                and convalidation.state in REVIEW_STATES):
             return request.redirect(self._redirect)
         files = [upload for upload in request.httprequest.files.getlist('documents') if upload.filename]
         message = (post.get('message') or '').strip()[:2000]
@@ -141,7 +144,6 @@ class EmsPortalConvalidationController(CustomerPortal):
 
     @http.route('/my/convalidaciones/cancel/<int:convalidation_id>', type='http', auth='user',
                 methods=['POST'], website=True)
-    @ems_portal_manage_required
     def portal_convalidation_cancel(self, convalidation_id, **post):
         student = self._ems_convalidation_student()
         convalidation = request.env['ems.convalidation'].sudo().browse(convalidation_id)
@@ -149,3 +151,20 @@ class EmsPortalConvalidationController(CustomerPortal):
                 and convalidation.state == 'pending':
             convalidation.action_cancel()
         return request.redirect(self._redirect)
+
+    @http.route('/my/convalidaciones/resolution/<int:convalidation_id>', type='http', auth='user', website=True)
+    def portal_convalidation_resolution(self, convalidation_id, **kwargs):
+        """The official resolution of a closed request, for whoever sees the student's page."""
+        partner = request.env.user.partner_id
+        convalidation = request.env['ems.convalidation'].sudo().browse(convalidation_id)
+        if not (partner._ems_convalidation_portal_visible() and convalidation.exists()
+                and convalidation.student_id == partner.get_portal_student()
+                and convalidation.state in ('completed', 'rejected')):
+            return request.redirect(self._redirect)
+        document = convalidation.resolution_pdf_id
+        if not document:
+            return request.redirect(self._redirect)
+        return request.make_response(document.raw, headers=[
+            ('Content-Type', document.mimetype or 'application/pdf'),
+            ('Content-Disposition', http.content_disposition(document.name)),
+        ])

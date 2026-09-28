@@ -60,6 +60,16 @@ registry.category("web_tour.tours").add("ems_settings_edit", {
             run: "edit 20:30",
         },
         {
+            trigger: ".app_settings_block[data-key='ems'] .o_field_widget[name='convalidation_appeal_text'] textarea",
+            content: "Edit the appeal footer of the convalidation resolution",
+            run: "edit Recurs davant la direcció dels serveis territorials",
+        },
+        {
+            trigger: ".app_settings_block[data-key='ems'] .o_field_widget[name='convalidation_sign_by_delegation'] input[type='checkbox']",
+            content: "The resolution can be signed by delegation",
+            run: "click",
+        },
+        {
             trigger: ".app_settings_block[data-key='ems'] .o_field_widget[name='google_ws_enabled'] input[type='checkbox']",
             content: "Toggle Google Workspace enabled",
             run: "click",

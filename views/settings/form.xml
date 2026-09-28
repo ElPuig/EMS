@@ -42,6 +42,22 @@
                                     </div>
                                 </div>
                             </setting>
+                            <setting string="Resolution: grounds of law" help="Text added to Royal Decree 1085/2020, art. 8, in the resolution the Director issues, depending on the grounds of the request. Write it in Catalan, the language of the resolution. Leave it empty to use the standard text." id="convalidation_legal_grounds">
+                                <div class="content-group mt8">
+                                    <div class="o_form_label">Prior vocational training or university studies</div>
+                                    <field name="convalidation_legal_prior_studies" placeholder="Standard text"/>
+                                    <div class="o_form_label mt8">Professional certificate or accreditation of competences</div>
+                                    <field name="convalidation_legal_certificate" placeholder="Standard text"/>
+                                    <div class="o_form_label mt8">Other</div>
+                                    <field name="convalidation_legal_other" placeholder="Standard text"/>
+                                </div>
+                            </setting>
+                            <setting string="Resolution: appeal" help="Footer of the resolution saying how and before whom it can be appealed. Write it in Catalan. Leave it empty to use the standard text, which names the competent body only in general terms." id="convalidation_appeal">
+                                <field name="convalidation_appeal_text" placeholder="Standard text"/>
+                            </setting>
+                            <setting string="Resolution: signed by delegation" help="The resolution is signed on the Director's behalf: it says so, and shows the name of whoever actually resolved it instead of the Director's." id="convalidation_sign_by_delegation">
+                                <field name="convalidation_sign_by_delegation"/>
+                            </setting>
                         </block>
 
                          <block title="Center Data" name="ems_email_settings">

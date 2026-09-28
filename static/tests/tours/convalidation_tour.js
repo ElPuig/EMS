@@ -2,12 +2,12 @@
 
 import { registry } from "@web/core/registry";
 
-// Issue #276 - subject convalidations. Every tour runs against records seeded by
+// Issues #276 and #529 - subject convalidations. Every tour runs against records seeded by
 // tests/test_convalidation_tour.py and uses structural selectors (button names, CSS classes),
 // so the logged-in user's language does not matter.
 
-// The Head of Studies resolves a request from Academic management > Convalidations: grants the
-// subject, grades it and hands the request over to the secretariat.
+// The Head of Studies reviews a request from Academic management > Convalidations: grants the
+// subject, grades it and sends the resolution proposal to the Director.
 registry.category("web_tour.tours").add("ems_convalidation_resolve", {
     test: true,
     url: "/odoo/action-ems.action_convalidation",
@@ -39,13 +39,13 @@ registry.category("web_tour.tours").add("ems_convalidation_resolve", {
             run: "edit 8",
         },
         {
-            trigger: ".o_form_view button[name='action_validate']",
-            content: "Hand the request over to the secretariat",
+            trigger: ".o_form_view button[name='action_propose']",
+            content: "Send the proposal to the Director",
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_statusbar_status button[data-value='in_progress'].o_arrow_button_current",
-            content: "The request is now the secretariat's",
+            trigger: ".o_form_view .o_statusbar_status button[data-value='direction'].o_arrow_button_current",
+            content: "The request is now the Director's",
         },
         {
             trigger: ".o_notebook .nav-link[name='documents']",
@@ -59,6 +59,133 @@ registry.category("web_tour.tours").add("ems_convalidation_resolve", {
     ],
 });
 
+// The Head of Studies files a request with the Ministry, and records its refusal once it answers:
+// a refused subject needs its reason.
+registry.category("web_tour.tours").add("ems_convalidation_ministry", {
+    test: true,
+    url: "/odoo/action-ems.action_convalidation",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Convalidation Student')",
+            content: "Open the pending request",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view button[name='action_send_to_ministry']",
+            content: "It has been filed with the Ministry",
+            run: "click",
+        },
+        {
+            trigger: ".modal footer button.btn-primary",
+            content: "Confirm",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_statusbar_status button.o_arrow_button_current[data-value='ministry']",
+            content: "The request waits for the Ministry",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='ministry_resolution']",
+            content: "The Ministry's resolution can be attached",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row button[name='action_reject']",
+            content: "The Ministry refused the subject",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row td[name='rejection_reason']",
+            content: "Write the reason for refusing it",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row td[name='rejection_reason'] textarea",
+            content: "The reason",
+            run: "edit Refused by the Ministry",
+        },
+        {
+            trigger: ".o_form_view button[name='action_ministry_resolved']",
+            content: "Record the Ministry's resolution",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_statusbar_status button.o_arrow_button_current[data-value='in_progress']",
+            content: "Straight to the secretariat, without the Director",
+        },
+    ],
+});
+
+// The Director turns the proposal into the official resolution.
+registry.category("web_tour.tours").add("ems_convalidation_director_resolves", {
+    test: true,
+    url: "/odoo/action-ems.action_convalidation",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Convalidation Student')",
+            content: "The proposal is listed for the Director",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_statusbar_status button[data-value='direction'].o_arrow_button_current",
+            content: "It is waiting for the Director",
+        },
+        {
+            trigger: ".o_form_view button[name='action_resolve']",
+            content: "Resolve it",
+            run: "click",
+        },
+        {
+            trigger: ".modal footer button.btn-primary",
+            content: "Confirm issuing the resolution",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_statusbar_status button[data-value='in_progress'].o_arrow_button_current",
+            content: "The request goes on to the secretariat",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='resolution_pdf_link'] a[href^='/web/content/'][target='_blank']",
+            content: "with the resolution PDF",
+        },
+    ],
+});
+
+// The Director sends the proposal back to the Head of Studies, saying why.
+registry.category("web_tour.tours").add("ems_convalidation_director_returns", {
+    test: true,
+    url: "/odoo/action-ems.action_convalidation",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Convalidation Student')",
+            content: "Open the proposal",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view button[name='action_return']",
+            content: "Return it to the Head of Studies",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='reason'] textarea",
+            content: "Say why",
+            run: "edit Check the hours",
+        },
+        {
+            trigger: ".modal footer button[name='action_return']",
+            content: "Return it",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_statusbar_status button[data-value='pending'].o_arrow_button_current",
+            content: "The request is back under review",
+        },
+        {
+            trigger: ".o_form_view .alert-warning .o_field_widget[name='return_reason']:contains('Check the hours')",
+            content: "showing the Director's reason",
+        },
+    ],
+});
+
 // The secretariat registers the resolution in Esfera and completes the request.
 registry.category("web_tour.tours").add("ems_convalidation_complete", {
     test: true,
@@ -66,7 +193,7 @@ registry.category("web_tour.tours").add("ems_convalidation_complete", {
     steps: () => [
         {
             trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Convalidation Student')",
-            content: "The validated request is listed for the secretariat too",
+            content: "The resolved request is listed for the secretariat too",
             run: "click",
         },
         {

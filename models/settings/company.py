@@ -75,6 +75,14 @@ class ems_company(models.Model):
     convalidation_end_day = fields.Integer(default=31)
     convalidation_end_month = fields.Selection(selection=MONTHS, default='3', required=True)
     convalidation_end_time = fields.Float(default=23 + 59 / 60)
+    # The convalidation resolution's configurable texts (issue #529): the grounds of law of each
+    # basis and the appeal footer. Empty means the standard text (ems.convalidation
+    # _ems_resolution_legal_grounds / _ems_resolution_appeal_text), issued in Catalan.
+    convalidation_legal_prior_studies = fields.Text()
+    convalidation_legal_certificate = fields.Text()
+    convalidation_legal_other = fields.Text()
+    convalidation_appeal_text = fields.Text()
+    convalidation_sign_by_delegation = fields.Boolean()
 
     current_course_id = fields.Many2one(comodel_name="ems.course")
     enrollment_course_id = fields.Many2one(

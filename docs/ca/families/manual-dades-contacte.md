@@ -33,6 +33,18 @@ Si teniu més d'un fill o filla al centre, primer trieu l'alumne al menú de dal
 - **Ja no és contacte**: marqueu-ho per a un familiar amb qui ja no s'ha de contactar.
 - El nom i la data de naixement de l'alumne no es poden canviar aquí: per corregir-los, contacteu amb la secretaria.
 
+## Foto de l'alumne
+
+La foto és opcional. Serveix perquè el professorat reconegui l'alumne a les llistes de classe.
+
+1. Al bloc **Foto**, feu clic al botó per triar un fitxer i trieu una foto recent en JPG o PNG, amb la cara descoberta.
+2. La foto s'obre en un marc vertical (1). Arrossegueu-la per moure-la i amplieu-la fins que la cara ompli el marc: amb la barra, amb els botons de lupa o amb la roda del ratolí (al mòbil, pessigant). El botó de la fletxa gira la foto (2).
+3. Al costat de la **Foto actual** veieu com quedarà la **Foto nova** (3). Només s'envia la part que queda dins del marc.
+
+![Bloc Foto: la foto triada dins del marc, els controls per ampliar i girar, i la foto nova al costat de l'actual](../../assets/families/dades-contacte-07-foto.png)
+
+Per no canviar la foto, feu clic a **Mantenir la foto actual**. La foto nova, com la resta de canvis, s'aplica quan el centre la revisa.
+
 ## Diversos fills
 
 Un familiar que afegiu també s'ofereix per als altres fills i filles del centre: a **També és contacte de**, deixeu marcats els fills dels quals és contacte. Quan el centre l'aprova, queda vinculat a tots, i no cal tornar-lo a afegir per a cada fill.

@@ -59,6 +59,14 @@ Use the filters **Pending answer**, **To review**, **Pending for more than a wee
 
 If a change adds a family contact, the **Also linked to** column lists the family's other children it is linked to as well: approving does it.
 
+If the family sent a new photo of the student, the **Photo** row shows the **Photo on file** and the **Proposed photo**. Hover over a photo to see it bigger.
+
+![A photo in the list of changes, zoomed in on hover](../../assets/tutors/dades-contacte-05-foto-ampliada.png)
+
+Click the row to compare them side by side, at a large size. Approving the request puts the proposed photo on the student's record.
+
+![The photo on file and the proposed one side by side](../../assets/tutors/dades-contacte-06-foto.png)
+
 To approve several at once, select them in the list and click **Approve**.
 
 ## Returning an answer to the family

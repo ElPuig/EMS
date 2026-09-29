@@ -33,6 +33,18 @@ Si tenéis más de un hijo o hija en el centro, elegid primero el alumno en el m
 - **Ya no es contacto**: marcadlo para un familiar con quien ya no se debe contactar.
 - El nombre y la fecha de nacimiento del alumno no se pueden cambiar aquí: para corregirlos, contactad con la secretaría.
 
+## Foto del alumno
+
+La foto es opcional. Sirve para que el profesorado reconozca al alumno en las listas de clase.
+
+1. En el bloque **Foto**, haced clic en el botón para elegir un archivo y elegid una foto reciente en JPG o PNG, con la cara descubierta.
+2. La foto se abre en un marco vertical (1). Arrastradla para moverla y ampliadla hasta que la cara llene el marco: con la barra, con los botones de lupa o con la rueda del ratón (en el móvil, pellizcando). El botón de la flecha gira la foto (2).
+3. Junto a la **Foto actual** veis cómo quedará la **Foto nueva** (3). Solo se envía la parte que queda dentro del marco.
+
+![Bloque Foto: la foto elegida dentro del marco, los controles para ampliar y girar, y la foto nueva junto a la actual](../../assets/families/dades-contacte-07-foto.png)
+
+Para no cambiar la foto, haced clic en **Mantener la foto actual**. La foto nueva, como el resto de cambios, se aplica cuando el centro la revisa.
+
 ## Varios hijos
 
 Un familiar que añadís también se ofrece para vuestros otros hijos e hijas del centro: en **También es contacto de**, dejad marcados los hijos de los que es contacto. Cuando el centro lo aprueba, queda vinculado a todos, y no hace falta añadirlo de nuevo para cada hijo.

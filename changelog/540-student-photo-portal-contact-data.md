@@ -17,6 +17,8 @@
   metadata (a phone photo carries the GPS position where it was taken).
 - A photo already sent is kept when the form comes back with errors or is sent again while it
   waits for review, so the family does not have to pick it again.
+- Family and tutor manuals (Catalan, Spanish, English) explain how to send and review the photo,
+  with screenshots on an invented student drawn as an illustration.
 
 # Fixes
 

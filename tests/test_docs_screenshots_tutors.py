@@ -11,6 +11,7 @@ One test method per manual (see docs/en/developers/shared/testing.md, "DocsScree
 by hand afterwards. The academic-history manual reuses existing captures of the same screens
 (teachers/secretary), so it has no method here.
 """
+import base64
 import json
 from datetime import date, datetime
 
@@ -20,7 +21,7 @@ from odoo.tests.common import HttpCase, tagged
 
 from .common import (
     DocsScreenshotMixin, create_level_study_group, create_role_employee, create_role_user,
-    mock_outgoing_email, next_student_id,
+    draw_invented_student_photo, mock_outgoing_email, next_student_id,
 )
 from .test_contact_data_request import valid_dni
 
@@ -437,7 +438,8 @@ class TestDocsScreenshotsTutors(DocsScreenshotMixin, HttpCase):
 
     def test_capture_contact_data_requests(self):
         """contact-data-requests (issue #507): the menu, the send assistant, the follow-up list and
-        an answer to review, as the group's tutor - all on three invented students."""
+        an answer to review, as the group's tutor - all on three invented students; and (issue #540)
+        the answer's new photo, compared with the one on file and zoomed on hover."""
         course = self.env['res.partner']._ems_running_course() \
             or self.env['ems.course'].create({'start': 2096, 'end': 2097, 'is_current': True})
         mother, father = self.env.ref('ems.relation_type_mother'), self.env.ref('ems.relation_type_father')
@@ -494,6 +496,9 @@ class TestDocsScreenshotsTutors(DocsScreenshotMixin, HttpCase):
         data['student'].update(street="Carrer de l'Exemple 12", zip='08921', city='Santa Coloma de Gramenet',
                                document_id=valid_dni(10000101))
         data['family'][0]['mobile'] = '+34 600 000 112'
+        # And a new photo (issue #540). Both are drawings of an invented student, never a real face.
+        self.classmate.image_1920 = base64.b64encode(draw_invented_student_photo('on_file'))
+        data['photo'] = Request._ems_photo_from_upload(draw_invented_student_photo('new'))[0]
         data['family'].append({
             'key': 'n0', 'id': False, 'remove': False, 'relation_type_id': father.id, 'firstname': 'Jordi',
             'lastname': 'Mostra Ribas', 'mobile': '+34 600 000 113', 'email': 'jordi.mostra@example.com'})
@@ -534,4 +539,20 @@ class TestDocsScreenshotsTutors(DocsScreenshotMixin, HttpCase):
             login=login, wait_for='.o_form_view .o_statusbar_status',
             marks=[(".o_form_statusbar button[name='action_approve']", '1', 'top'),
                    (".o_form_statusbar button[name='action_open_reject_wizard']", '2', 'top')],
+        )
+        # The photo change opened: both photos side by side.
+        photo_cell = "div[name='line_ids'] .o_data_row div[name='new_image'] img"
+        self._capture(
+            '%s/%d' % (action_url, answered.id), '.o_dialog .modal-content', 'dades-contacte-06-foto.png',
+            login=login, wait_for=photo_cell, click=photo_cell, wait_after='.o_dialog .o_ems_photo_compare img',
+        )
+        # Hovering a photo shows it bigger (the image widget's zoom): the mouse is not needed, the
+        # tooltip service reacts to the mouseenter event itself.
+        self._capture(
+            '%s/%d' % (action_url, answered.id), '#ems-clip', 'dades-contacte-05-foto-ampliada.png',
+            login=login, wait_for=photo_cell,
+            run=["document.querySelector(%s).dispatchEvent(new MouseEvent('mouseenter', {bubbles: false}))"
+                 % json.dumps(photo_cell),
+                 self._union_clip_js(["div[name='line_ids'] .o_data_row:last-child", '.o_image_zoom'])],
+            wait_after=['.o_image_zoom img', '#ems-clip'], beyond_viewport=False,
         )

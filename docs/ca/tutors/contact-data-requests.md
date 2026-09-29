@@ -59,6 +59,14 @@ Feu servir els filtres **Pendent de resposta**, **Per revisar**, **Pendents fa m
 
 Si un canvi afegeix un familiar, la columna **També vinculat a** indica els altres fills de la família als quals també es vincula: en aprovar-lo es fa.
 
+Si la família ha enviat una foto nova de l'alumne, la fila **Foto** mostra la **Foto actual** i la **Foto proposada**. Passeu el ratolí per sobre d'una foto per veure-la més gran.
+
+![Una foto de la llista de canvis, ampliada en passar-hi el ratolí per sobre](../../assets/tutors/dades-contacte-05-foto-ampliada.png)
+
+Feu clic a la fila per comparar-les una al costat de l'altra, a mida gran. En aprovar la sol·licitud, la foto proposada passa a la fitxa de l'alumne.
+
+![La foto actual i la proposada una al costat de l'altra](../../assets/tutors/dades-contacte-06-foto.png)
+
 Per aprovar-ne diverses alhora, seleccioneu-les a la llista i feu clic a **Aprovar**.
 
 ## Retornar una resposta a la família

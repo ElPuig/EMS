@@ -2,6 +2,17 @@
 
 import { registry } from "@web/core/registry";
 
+// Picks the seeded "Attendance Session Guard Tour" slot in the session dropdown, optionally the
+// one for a given time range when the fixtures seed more than one.
+function selectSlot(timeRange = "") {
+    const select = document.querySelector(".ems-av-session-wrap select");
+    const option = [...select.options].find(
+        (o) => o.textContent.includes("Attendance Session Guard Tour") && o.textContent.includes(timeRange)
+    );
+    select.value = option.value;
+    select.dispatchEvent(new Event("change"));
+}
+
 // Fills the gaps left by attendance_passlist_tour.js/attendance_status_tour.js (which
 // already cover: starting a session from a planned slot, marking a status, adding notes) and
 // strike_tour.js (strike issuing + History's strike_count column). Never driven in a real
@@ -30,14 +41,7 @@ registry.category("web_tour.tours").add("ems_attendance_session_continuation", {
         {
             trigger: ".ems-av-session-wrap select",
             content: "Select the first period's planned slot (08:00 - 09:00)",
-            run: function () {
-                const select = document.querySelector(".ems-av-session-wrap select");
-                const option = [...select.options].find(
-                    (o) => o.textContent.includes("Attendance Session Guard Tour") && o.textContent.includes("08:00 - 09:00")
-                );
-                select.value = option.value;
-                select.dispatchEvent(new Event("change"));
-            },
+            run: () => selectSlot("08:00 - 09:00"),
         },
         {
             trigger: ".ems-av-planned-card",
@@ -82,14 +86,7 @@ registry.category("web_tour.tours").add("ems_attendance_session_continuation", {
         {
             trigger: ".ems-av-session-wrap select",
             content: "Select the second, back-to-back period's planned slot (09:00 - 10:00)",
-            run: function () {
-                const select = document.querySelector(".ems-av-session-wrap select");
-                const option = [...select.options].find(
-                    (o) => o.textContent.includes("Attendance Session Guard Tour") && o.textContent.includes("09:00 - 10:00")
-                );
-                select.value = option.value;
-                select.dispatchEvent(new Event("change"));
-            },
+            run: () => selectSlot("09:00 - 10:00"),
         },
         {
             trigger: ".ems-av-start-btn",
@@ -126,14 +123,7 @@ registry.category("web_tour.tours").add("ems_attendance_session_continuation", {
         {
             trigger: ".ems-av-session-wrap select",
             content: "Re-select the second period to confirm it's back to being an un-started planned slot",
-            run: function () {
-                const select = document.querySelector(".ems-av-session-wrap select");
-                const option = [...select.options].find(
-                    (o) => o.textContent.includes("Attendance Session Guard Tour") && o.textContent.includes("09:00 - 10:00")
-                );
-                select.value = option.value;
-                select.dispatchEvent(new Event("change"));
-            },
+            run: () => selectSlot("09:00 - 10:00"),
         },
         {
             trigger: ".ems-av-planned-hint",
@@ -160,12 +150,7 @@ registry.category("web_tour.tours").add("ems_attendance_session_guard", {
         {
             trigger: ".ems-av-session-wrap select",
             content: "Select the other teacher's not-yet-started slot",
-            run: function () {
-                const select = document.querySelector(".ems-av-session-wrap select");
-                const option = [...select.options].find((o) => o.textContent.includes("Attendance Session Guard Tour"));
-                select.value = option.value;
-                select.dispatchEvent(new Event("change"));
-            },
+            run: () => selectSlot(),
         },
         {
             trigger: ".ems-av-start-btn",
@@ -213,14 +198,7 @@ registry.category("web_tour.tours").add("ems_attendance_session_remove_line", {
         {
             trigger: ".ems-av-session-wrap select",
             content: "Select the first period's planned slot (08:00 - 09:00)",
-            run: function () {
-                const select = document.querySelector(".ems-av-session-wrap select");
-                const option = [...select.options].find(
-                    (o) => o.textContent.includes("Attendance Session Guard Tour") && o.textContent.includes("08:00 - 09:00")
-                );
-                select.value = option.value;
-                select.dispatchEvent(new Event("change"));
-            },
+            run: () => selectSlot("08:00 - 09:00"),
         },
         { trigger: ".ems-av-start-btn", content: "Start the session", run: "click" },
         {
@@ -280,19 +258,61 @@ registry.category("web_tour.tours").add("ems_attendance_session_admin_start", {
         {
             trigger: ".ems-av-session-wrap select",
             content: "Select the colleague's first period (08:00 - 09:00)",
-            run: function () {
-                const select = document.querySelector(".ems-av-session-wrap select");
-                const option = [...select.options].find(
-                    (o) => o.textContent.includes("Attendance Session Guard Tour") && o.textContent.includes("08:00 - 09:00")
-                );
-                select.value = option.value;
-                select.dispatchEvent(new Event("change"));
-            },
+            run: () => selectSlot("08:00 - 09:00"),
         },
         { trigger: ".ems-av-start-btn", content: "Start the session", run: "click" },
         {
             trigger: ".ems-av-name:contains('Zoe Aguilar')",
             content: "The session started and its students are loaded",
         },
+    ],
+});
+
+// Hovering (or tapping, on touch screens) a student's photo shows it enlarged in a popover.
+// The popover lives in the webclient's overlay container, outside the roll-call table, so the
+// triggers below look it up from the document root rather than inside the row.
+const zoeAvatar = ".ems-av-line:has(.ems-av-name:contains('Zoe Aguilar')) .ems-av-avatar";
+const zoomedPhoto = ".ems-avatar-zoom-popover img.ems-avatar-zoom-img[src$='/image_512']";
+const noZoomedPhoto = "body:not(:has(.ems-avatar-zoom-popover))";
+registry.category("web_tour.tours").add("ems_attendance_session_avatar_zoom", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_passlist",
+    steps: () => [
+        { trigger: ".ems-av-root", content: "Roll-call view loaded" },
+        {
+            trigger: ".ems-av-mode-wrap select",
+            content: "Switch to Manual mode so the seeded slot isn't hidden by the current-slot filter",
+            run: "select manual",
+        },
+        {
+            trigger: ".ems-av-session-wrap select",
+            content: "Select the first period's planned slot (08:00 - 09:00)",
+            run: () => selectSlot("08:00 - 09:00"),
+        },
+        { trigger: ".ems-av-start-btn", content: "Start the session", run: "click" },
+        {
+            trigger: zoeAvatar,
+            content: "Hover Zoe Aguilar's photo",
+            run: function () {
+                this.anchor.dispatchEvent(new MouseEvent("mouseenter"));
+            },
+        },
+        { trigger: zoomedPhoto, content: "Her photo is shown enlarged, at a higher resolution" },
+        {
+            trigger: ".ems-avatar-zoom-popover .ems-avatar-zoom-name:contains('Zoe Aguilar')",
+            content: "Her name is repeated under it, since the enlarged photo covers the one in the row",
+        },
+        {
+            trigger: zoeAvatar,
+            content: "Move the mouse away from the photo",
+            run: function () {
+                this.anchor.dispatchEvent(new MouseEvent("mouseleave"));
+            },
+        },
+        { trigger: noZoomedPhoto, content: "The enlarged photo is gone" },
+        { trigger: zoeAvatar, content: "Tap the photo (touch screens have no hover)", run: "click" },
+        { trigger: zoomedPhoto, content: "Tapping also shows the enlarged photo" },
+        { trigger: zoeAvatar, content: "Tap it again", run: "click" },
+        { trigger: noZoomedPhoto, content: "A second tap closes it" },
     ],
 });

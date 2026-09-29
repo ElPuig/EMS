@@ -137,6 +137,9 @@ class TestAttendanceSessionTour(HttpCase):
         self.assertFalse(lines.filtered(lambda l: l.student_id == self.student2).active)
         self.assertTrue(lines.filtered(lambda l: l.student_id == self.student1).active)
 
+    def test_attendance_session_avatar_zoom_tour(self):
+        self.start_tour("/odoo", "ems_attendance_session_avatar_zoom", login="test_teacher_attendance_session_guard_tour")
+
     def test_attendance_session_removed_line_form_tour(self):
         session = self.env['ems.attendance_session_header'].create({
             'attendance_schedule_id': self.schedule1.id, 'date': date.today(),

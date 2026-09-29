@@ -14,6 +14,7 @@ import { useDateTimePicker } from "@web/core/datetime/datetime_hook";
 import { usePopover } from "@web/core/popover/popover_hook";
 import { useHotkey } from "@web/core/hotkeys/hotkey_hook";
 import { serverNow, syncServerClock } from "./server_clock";
+import { useAvatarZoom } from "./avatar_zoom";
 
 class EmsDatePickerPopover extends Component {
     static components = { DateTimePicker };
@@ -62,6 +63,7 @@ class AttendanceSessionView extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.dialog = useService("dialog");
+        this.avatarZoom = useAvatarZoom();
         this.statuses = [];   // populated in onWillStart from model fields_get
 
         this.notesDialog   = useRef("notesDialog");

@@ -302,6 +302,7 @@
     border: 2px solid #dee2e6;
     background: #e9ecef;
     vertical-align: middle;
+    cursor: zoom-in;
 }
 
 .ems-av-name {

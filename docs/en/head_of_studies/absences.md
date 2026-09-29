@@ -16,6 +16,7 @@
 4. [Direction's approval](#directions-approval)
 5. [Per-employee report](#per-employee-report)
 6. [Monthly report](#monthly-report)
+7. [Expected absences](#expected-absences)
 
 ---
 
@@ -35,7 +36,7 @@ Nobody approves their own absence: an Area Manager's request is decided by Direc
 
 ## Approving or refusing
 
-**Employee Attendances > Absences > Management > Absences**.
+**Employee Attendances > Absences > Management > Requested absences**.
 
 That lists your area's requests, opening on **Waiting For Me**: the ones pending your acknowledgement and the ones whose supporting document you have to validate. Every absence goes through you first and then through Direction, and the list has one column for each:
 
@@ -72,12 +73,11 @@ You can attach a **supporting document** to any request, of any type, and at any
 
 ## Adjusting what an absence counts towards
 
-Two fields on the form, changeable at any time:
+One field on the form, changeable at any time:
 
 | Field | What it does | Ticked on |
 |---|---|---|
 | **Adds the hours to the monthly report** | Makes these hours part of the monthly count | Every type except `Sick leave` |
-| **Filed through ATRI** | Marks that the leave is handled on the Generalitat's portal | The `ATRI` type only |
 
 You can also change the **absence type** after approving. Do that when the employee picked one that does not apply.
 
@@ -91,7 +91,7 @@ Whether an absence is a whole day or a few hours is controlled by the **Whole da
 
 Direction goes last: a request reaches you once its Head has validated it, together with its supporting document when the type requires one.
 
-**Employee Attendances > Absences > Management > Absences** opens on **Waiting For Me**: every absence **Pending Direction**, plus the Area Managers' own absences, which you handle as their Head (with the Head's buttons described above). Each one also leaves you an activity ("Direction review of the absence").
+**Employee Attendances > Absences > Management > Requested absences** opens on **Waiting For Me**: every absence **Pending Direction**, plus the Area Managers' own absences, which you handle as their Head (with the Head's buttons described above). Each one also leaves you an activity ("Direction review of the absence").
 
 Review them from the list with the icons beside **Direction status**, or open one and use the buttons at the top, which take you back to the list once done:
 
@@ -137,3 +137,23 @@ The **Health hours** column totals each person's `Health` hours. The limit is **
 Grouped by month, with the summed hours and the number of absences behind each. Only absences with **Adds the hours to the monthly report** ticked are included; refused and cancelled ones are left out.
 
 To change the period, remove the **Current Course** filter and pick the one you need.
+
+---
+
+## Expected absences
+
+**Employee Attendances > Absences > Management > Expected absences**.
+
+When you already know a teacher will be away but they have not requested the absence yet (they phoned in this morning, or it was agreed in a meeting), enter it here so guard duty can be planned around it straight away.
+
+1. Click **New**.
+2. Choose the **Teacher**. Only the teachers in your own area are offered: a Head of Studies or Deputy sees their own teachers, and Direction sees everyone.
+3. Set **From** and **To**, date and time. They start out as today, 08:00 to 15:00. An absence can span several days.
+4. Optionally, add **Notes** for your own reference. The teacher never sees this entry.
+5. Save.
+
+From that moment the teacher appears on the guard duty schedule as absent with a request still awaiting approval (lighter italic red), for the hours you entered.
+
+When the teacher requests the absence themselves, the expected absence is linked to it automatically and its status changes from **Expected** to **Requested**. From then on only the teacher's own request counts, with its own dates and hours: if it is later refused or cancelled, the entry does not come back onto the schedule. A requested entry can no longer be edited; it stays in the list, under the **Requested** filter, as a record.
+
+If the teacher turns out not to be absent after all, delete the entry.

@@ -38,7 +38,7 @@ Cada tipus porta quatre indicadors que decideixen com surten proposades les sol�
 | Dia sencer per defecte | `Salut` i `Prova mèdica invasiva` |
 | Es tramita per ATRI | Només `ATRI` |
 
-Són **valors proposats**: el gestor de les absències els pot canviar sol·licitud a sol·licitud.
+Són **valors proposats**: el gestor de les absències els pot canviar sol·licitud a sol·licitud. **Es tramita per ATRI** n'és l'excepció: només decideix si el formulari de sol·licitud mostra a l'empleat els enllaços al portal ATRI, i sempre segueix el tipus.
 
 L'indicador natiu **Document de suport** de cada tipus decideix si les seves sol·licituds esperen un justificant després que el cap les doni per rebudes. Està marcat a tots els tipus menys `Salut` i `ATRI`. Ve de les dades del mateix mòdul, així que un canvi fet aquí es desfà a la següent actualització: demana-ho a l'equip de l'EMS.
 

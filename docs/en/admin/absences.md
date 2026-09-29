@@ -38,7 +38,7 @@ Each type carries four flags that decide how new requests come proposed:
 | Whole day by default | `Health` and `Invasive medical test` |
 | Filed through ATRI | `ATRI` only |
 
-These are **proposals**: the absence manager can change them request by request.
+These are **proposals**: the absence manager can change them request by request. **Filed through ATRI** is the exception: it only decides whether the request form shows the employee the links to the ATRI portal, and it always follows the type.
 
 The native **Supporting Document** flag of each type decides whether its requests wait for a document after the Head receives them. It is ticked on every type except `Health` and `ATRI`. It comes from the module's own data, so a change made here is undone by the next update: ask the EMS team to change it.
 

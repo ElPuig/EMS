@@ -69,6 +69,8 @@ Each row is a time block of the shift on screen:
 
 A time block where nobody is missing has an empty Absences column.
 
+In a co-taught class (two teachers in the same classroom) where only one of them is away, their line is **struck through**: it stays there so you know who is missing, but no guard is needed because the other teacher is taking the class. Hovering over it says so. If both are away, or each teacher has half of the group in a different classroom, the line is not struck through and the class does need covering.
+
 ![Absences table for the same time block: the absent teacher and what needs covering, against who is on guard duty](../../assets/teachers/guard-duty-02-absencies.png)
 
 ---
@@ -81,6 +83,8 @@ A teacher who is away is shown in red wherever their name appears — in their o
 - **Lighter italic red** — the absence has been requested and is still awaiting approval.
 
 Refused and cancelled requests are not shown.
+
+An absence the Head of Studies already knows about, but the teacher has not requested yet, is also shown as awaiting approval.
 
 A teacher on guard duty who is away is marked in the Guard duty column, and produces no line in the Absences column: they have no class of their own for anyone to cover.
 

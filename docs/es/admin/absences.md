@@ -38,7 +38,7 @@ Cada tipo lleva cuatro indicadores que deciden cómo salen propuestas las solici
 | Día entero por defecto | `Salud` y `Prueba médica invasiva` |
 | Se tramita por ATRI | Solo `ATRI` |
 
-Son **valores propuestos**: el gestor de las ausencias los puede cambiar solicitud a solicitud.
+Son **valores propuestos**: el gestor de las ausencias los puede cambiar solicitud a solicitud. **Se tramita por ATRI** es la excepción: solo decide si el formulario de solicitud muestra al empleado los enlaces al portal ATRI, y siempre sigue el tipo.
 
 El indicador nativo **Documentos de apoyo** de cada tipo decide si sus solicitudes esperan un justificante después de que el jefe las dé por recibidas. Está marcado en todos los tipos menos `Salud` y `ATRI`. Viene de los datos del propio módulo, así que un cambio hecho aquí se deshace en la siguiente actualización: pídelo al equipo del EMS.
 

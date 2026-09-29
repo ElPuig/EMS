@@ -18,7 +18,7 @@ Pertànyer a secretaria no dona aquest permís: la resta de l'equip demana les s
 
 ## Aprovar o rebutjar
 
-**Assistència del personal > Absències > Administració > Absències**.
+**Assistència del personal > Absències > Administració > Absències sol·licitades**.
 
 Hi surten només les sol·licituds de la teva àrea, en estat **Pendent** mentre esperen que les donis per rebudes.
 
@@ -26,7 +26,7 @@ Quan el tipus d'absència exigeix justificant (tots menys `Salut` i `ATRI`), la 
 
 ![Llista d'absències, amb les accions Aprovar/Rebutjar en una sol·licitud pendent](../../assets/head_of_studies/hos-absences-list.png)
 
-Tens accés al motiu escrit i al justificant de la teva gent, i pots ajustar els camps **Suma les hores a l'informe mensual**, **Es tramita per ATRI** i **Dia sencer?**, a més de corregir el tipus d'absència.
+Tens accés al motiu escrit i al justificant de la teva gent, i pots ajustar els camps **Suma les hores a l'informe mensual** i **Dia sencer?**, a més de corregir el tipus d'absència.
 
 **Rebutjar és definitiu**, i demana confirmació abans: un cop rebutges una sol·licitud, ni tu ni la persona la podeu tornar a *Pendent*, així que hauria de fer-ne una de nova. El justificant, en canvi, es pot adjuntar en qualsevol moment, també en una sol·licitud ja rebuda.
 

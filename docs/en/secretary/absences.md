@@ -18,7 +18,7 @@ Working in the secretariat does not grant this: everyone else on the team reques
 
 ## Approving or refusing
 
-**Employee Attendances > Absences > Management > Absences**.
+**Employee Attendances > Absences > Management > Requested absences**.
 
 Only your area's requests appear there, in state **Pending** while they await your acknowledgement.
 
@@ -26,7 +26,7 @@ When the absence type requires a supporting document (every type except `Health`
 
 ![Absences list, with Approve/Refuse actions on a pending request](../../assets/head_of_studies/hos-absences-list.png)
 
-You have access to the written reason and the supporting document of your own people, and you can adjust **Adds the hours to the monthly report**, **Filed through ATRI** and **Whole day?**, as well as correcting the absence type.
+You have access to the written reason and the supporting document of your own people, and you can adjust **Adds the hours to the monthly report** and **Whole day?**, as well as correcting the absence type.
 
 **Refusing is final**, and it asks for confirmation first: once you refuse a request, neither you nor the employee can put it back to *Pending*, so the employee would have to file a new one. The supporting document, on the other hand, can be attached at any point, on a request that is already received included.
 

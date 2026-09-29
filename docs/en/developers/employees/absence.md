@@ -115,7 +115,7 @@ unrelated to leave requests) is a stored compute that always mirrors this same
 |---|---|---|
 | `ems_full_day` "Whole day" | `hr.leave.type.ems_full_day_default` | Employee, while the request is unapproved |
 | `ems_counts_hours` "Adds the hours to the monthly report" | `hr.leave.type.ems_counts_hours` | The approver only |
-| `ems_needs_atri` "Filed through ATRI" | `hr.leave.type.ems_needs_atri` | Employee, while unapproved |
+| `ems_needs_atri` "Filed through ATRI" | `hr.leave.type.ems_needs_atri` | Nobody: not shown on the form, only read by an invisible node that shows the ATRI portal notice |
 | `ems_responsible_declaration` | — | Employee; required when the type demands it |
 | `ems_document_state` "Supporting document status" | set when the Head acknowledges the request | The Head's and Direction's buttons, and the employee attaching the document; never written directly by the employee |
 | `ems_document_reminder_date` / `ems_document_escalated` | — | The reminder scheduled action only |
@@ -133,9 +133,11 @@ The status fields are the steps of the approval and where the request stands bet
 [The approval, step by step](#the-approval-step-by-step) below.
 
 **The employee never picks the ATRI flag or the monthly-report flag.** Both are derived from the
-absence type and shown only to the approver, who corrects them when the employee chose the wrong
-type - which is also why `holiday_status_id` itself stays editable for the approver after
-approval, overriding Odoo's own readonly (`is_absence_manager` drives that).
+absence type. The monthly-report flag is shown to the approver, who can override it per request.
+The ATRI flag is shown to nobody: its only use is the ATRI portal notice on the form, and when the
+employee chose the wrong type the approver changes the type itself, which recomputes both. That
+is also why `holiday_status_id` stays editable for the approver after approval, overriding
+Odoo's own readonly (`is_absence_manager` drives that).
 
 ## The approval, step by step
 
@@ -400,6 +402,8 @@ being archived.
 | My Time Off | `group_hr_holidays_responsible` | Only a manager needs it as an entry: for them the parent is a dropdown header, not a link |
 | Overview | `group_hr_holidays_responsible` | The centre-wide absence calendar: what an absence manager uses to see who is missing. Meaningless to an employee, whose record rules would empty it anyway |
 | Management, Reporting, Configuration | native groups | Unchanged |
+| Management > Requested absences | native groups | EMS entry on Odoo's own `hr_leave_action_action_approve_department`, replacing `hr_holidays.menu_open_department_leave_approve` ("Time Off"), which is archived: next to the expected absences, the name has to say which of the two kinds it lists |
+| Management > Expected absences | `ems.group_head_of_studies` | Added by EMS, see *Expected absences* |
 
 The action behind My Time Off also drops Odoo's default `search_default_group_date_from`: the
 centre's own list is short and already sorted by date, so grouping it by month only buries a
@@ -545,6 +549,68 @@ same file renames the dashboard's create button from a bare "New" to "Absence re
 
 Both changes are covered by the `ems_absence_dashboard` tour: an OWL template inheritance error
 surfaces only in a browser, never in `./upgrade.sh`, which merely checks the XML parses.
+
+## Expected absences
+
+The Head of Studies or their Deputy often knows a teacher will be away before the teacher files
+anything (a phone call first thing in the morning, a training day agreed in a meeting). The guard
+duty board has to plan around it all the same, so `ems.absence_pending`
+(`models/employees/absence_pending.py`) lets them enter it on the teacher's behalf. It is not an
+`hr.leave`: it has no type, no approval and no hours to count, and it is invisible to the teacher.
+
+```mermaid
+erDiagram
+    HR_EMPLOYEE ||--o{ EMS_ABSENCE_PENDING : "employee_id (teachers only)"
+    HR_LEAVE |o--o{ EMS_ABSENCE_PENDING : "leave_id (set once, for good)"
+    EMS_ABSENCE_PENDING {
+        datetime date_from
+        datetime date_to
+        text note
+        selection state "pending / linked"
+    }
+```
+
+| Field | Notes |
+|---|---|
+| `employee_id` | Required. The picker's domain (`_domain_employee_id`) offers only teachers in the user's own branch, the same domain the record rule enforces |
+| `date_from`, `date_to` | Required `Datetime` range (UTC in the database, like every datetime). Default: today 08:00-15:00 in the company's timezone. `date_to > date_from` |
+| `note` | Optional, for the Head's own reference |
+| `state` | `pending` (labelled *Expected*) until linked, then `linked` (*Requested*) for good. Stored, not computed from `leave_id` |
+| `leave_id` | The teacher's own request it was linked to. `ondelete='set null'` |
+
+**Linking is automatic and final.** `hr.leave.create()` and, when its dates, hours, employee or
+state change, `hr.leave.write()` call `ems.absence_pending._link_to_leaves()`: every `pending`
+entry of the same employee that overlaps the absence becomes `linked` to it. The absence's range
+is read by `hr.leave._ems_utc_range()` exactly as the guard duty board reads it (the requested
+hours of a partial one-day absence, whole days in the company's timezone otherwise), not from
+Odoo's own `date_from`/`date_to`, which clip a whole day to the employee's working hours. It runs
+under `sudo()`, since the teacher filing the absence has no access to the model at all.
+
+Only absences in a state the board plans around (`confirm`, `validate1`, `validate`) link. Once
+linked, the entry has done its job and stays as history: refusing, cancelling, moving or deleting
+the teacher's absence never sends it back to `pending`, and its employee and dates can no longer
+be edited (`write()` raises). From then on only the real absence counts.
+
+**On the guard duty board**, `ems.course._get_guard_duty_absence_intervals()` adds every
+`pending` entry touching the requested day as a `pending` interval, clipped to that day in the
+company's timezone (`_get_local_hours()`). Linked entries are ignored. See
+[guard_duty_board.md](../attendance/guard_duty_board.md).
+
+**Access.** Only `ems.group_head_of_studies` has an ACL on the model (full CRUD). The Director
+implies that group. `rule_absence_pending_hierarchy` (`security/rules/attendance.xml`) narrows it
+to `[('employee_id', 'child_of', user.employee_ids.ids), ('employee_id.employee_type', '=',
+'teacher')]`: the teachers below the user through `parent_id`, i.e. their own branch of the real
+hierarchy, not every teacher centre-wide. The Director sits above every Area Manager, so the same
+domain gives them the whole centre. Department Chiefs, tutors and teachers have no access at all.
+
+Technical administrators (`base.group_system`, e.g. `admin`) usually have no place in the org
+chart, so the hierarchy rule alone would leave them no teacher to choose. They get their own ACL
+and `rule_absence_pending_system`, `[('employee_id.employee_type', '=', 'teacher')]`; rules of
+different groups are OR-ed, so it widens their reach to every teacher without touching anyone
+else's. The teacher picker's domain (`_domain_employee_id`) mirrors both rules.
+
+The menu entry, **Absences > Management > Expected absences**, carries
+`groups="ems.group_head_of_studies,base.group_system"`.
 
 ## Hour computation
 
@@ -756,7 +822,8 @@ Two native mechanisms carry most of this:
   `leave_manager_id`.
 
 EMS adds exactly one record rule of its own here, `rule_absence_own_request_write` (see the
-supporting document section above), paired with a field-level check in `write()`.
+supporting document section above), paired with a field-level check in `write()`. The
+expected absences have their own model and rule, see *Expected absences* above.
 
   **Who holds it is derived from the approval relation, not from a group chain.** The three
   approvers sit in two different EMS chains (`group_head_of_studies` for VET and ESO/BTX, the

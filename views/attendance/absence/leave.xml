@@ -157,8 +157,10 @@
                         <label for="ems_responsible_declaration"/>
                     </div>
                     <!-- Derived from the absence type, never picked by the employee - only the
-                         manager or Direction corrects it when the type was chosen wrongly. -->
-                    <field name="ems_needs_atri" groups="hr_holidays.group_hr_holidays_responsible"/>
+                         manager or Direction corrects it when the type was chosen wrongly. The ATRI
+                         flag is not shown at all: it only drives the ATRI notice above, and a
+                         wrongly chosen type is corrected by changing the type itself, which
+                         recomputes it. -->
                     <field name="ems_counts_hours" groups="hr_holidays.group_hr_holidays_responsible"/>
                     <!-- Each step's own status, for the Head and Direction only. Read-only here:
                          the Head decides with the header buttons and Direction with its own.

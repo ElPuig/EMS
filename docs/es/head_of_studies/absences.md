@@ -16,6 +16,7 @@
 4. [Aprobación de Dirección](#aprobación-de-dirección)
 5. [Informe por empleado](#informe-por-empleado)
 6. [Informe mensual](#informe-mensual)
+7. [Ausencias previstas](#ausencias-previstas)
 
 ---
 
@@ -35,7 +36,7 @@ Nadie aprueba su propia ausencia: la de un responsable de área la resuelve Dire
 
 ## Aprobar o rechazar
 
-**Asistencia del personal > Ausencias > Administración > Ausencias**.
+**Asistencia del personal > Ausencias > Administración > Ausencias solicitadas**.
 
 Ahí tienes las solicitudes de tu área, y se abre con **Esperándome**: las que esperan que las des por recibidas y las que tienen un justificante que debes validar. Cada ausencia pasa primero por ti y después por Dirección, y el listado tiene una columna para cada uno:
 
@@ -72,12 +73,11 @@ Puedes adjuntar un **justificante** a cualquier solicitud, de cualquier tipo y e
 
 ## Ajustar el cómputo de una ausencia
 
-Dos campos del formulario, que puedes cambiar en cualquier momento:
+Un campo del formulario, que puedes cambiar en cualquier momento:
 
 | Campo | Qué hace | Viene marcado en |
 |---|---|---|
 | **Suma las horas al informe mensual** | Hace que las horas entren en el recuento mensual | Todos los tipos excepto `Baja laboral` |
-| **Se tramita por ATRI** | Marca que el permiso se gestiona en el portal de la Generalitat | Solo el tipo `ATRI` |
 
 También puedes cambiar el **tipo de ausencia** después de haberla aprobado. Hazlo cuando la persona haya elegido uno que no corresponde.
 
@@ -89,7 +89,7 @@ Si la ausencia es de día entero o de unas horas concretas lo controla la casill
 
 **Solo Dirección.** Dirección revisa cada ausencia en último lugar: le llega una vez el jefe la ha validado, con el justificante cuando el tipo lo exige. En las ausencias de **ATRI**, comprueba que la solicitud se ha tramitado de verdad en el portal de la Generalitat.
 
-**Asistencia del personal > Ausencias > Administración > Ausencias** se abre con **Esperándome**: todas las ausencias **Pendiente Dirección**, y las ausencias de los propios jefes de área, que gestionas tú como su jefe (con los botones del jefe descritos más arriba). Cada una te deja también una actividad ("Revisión de dirección de la ausencia").
+**Asistencia del personal > Ausencias > Administración > Ausencias solicitadas** se abre con **Esperándome**: todas las ausencias **Pendiente Dirección**, y las ausencias de los propios jefes de área, que gestionas tú como su jefe (con los botones del jefe descritos más arriba). Cada una te deja también una actividad ("Revisión de dirección de la ausencia").
 
 Revísalas desde el listado con los iconos junto a **Estado Dirección**, o abre una y usa los botones de arriba, que te devuelven al listado al acabar:
 
@@ -135,3 +135,23 @@ La columna **Horas por salud** suma las horas del tipo `Salud` de cada persona. 
 Agrupado por mes, con la suma de horas y el número de ausencias de cada mes. Entran solo las ausencias con **Suma las horas al informe mensual** marcado, y quedan fuera las rechazadas y las canceladas.
 
 Para cambiar el periodo, quita el filtro **Curso actual** y elige el que necesites.
+
+---
+
+## Ausencias previstas
+
+**Asistencia del personal > Ausencias > Administración > Ausencias previstas**.
+
+Cuando ya sabes que un docente faltará pero todavía no ha solicitado la ausencia (ha llamado esta mañana, o se ha acordado en una reunión), regístrala aquí para que las guardias se puedan planificar enseguida.
+
+1. Haz clic en **Nuevo**.
+2. Elige el **Profesor**. Solo aparecen los docentes de tu área: la Jefatura de Estudios o la Jefatura de Estudios Adjunta ve a sus docentes, y Dirección los ve a todos.
+3. Indica **De** y **A**, con fecha y hora. Por defecto, hoy de 08:00 a 15:00. Una ausencia puede abarcar varios días.
+4. Si quieres, añade **Notas** para ti. El docente nunca ve esta entrada.
+5. Guarda.
+
+A partir de ese momento, el docente aparece en el horario de guardias como ausente con una solicitud pendiente de aprobar (rojo más claro y en cursiva), durante las horas que has indicado.
+
+Cuando el docente solicita la ausencia, la ausencia prevista se vincula a ella automáticamente y su estado pasa de **Prevista** a **Solicitada**. Desde entonces solo cuenta la solicitud del docente, con sus fechas y horas: si después se rechaza o se cancela, la entrada no vuelve al horario de guardias. Una entrada solicitada ya no se puede modificar; queda en la lista, con el filtro **Solicitada**, como registro.
+
+Si finalmente el docente no falta, borra la entrada.

@@ -1362,6 +1362,7 @@ msgstr "Acció"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_needaction
 msgid "Action Needed"
 msgstr "Acció Necessària"
 
@@ -1672,10 +1673,12 @@ msgid "Load"
 msgstr "Carrega"
 
 #. module: ems
+#. odoo-python
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/absence_dashboard.xml:0
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_new
+#: code:addons/ems/models/employees/absence_pending.py:0
 msgid "New"
 msgstr "Nou"
 
@@ -1865,6 +1868,7 @@ msgstr "Adjunt"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_attachment_count
 msgid "Attachment Count"
 msgstr "Quantitat d'adjunts"
 
@@ -2811,6 +2815,7 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -2823,6 +2828,7 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -2924,6 +2930,7 @@ msgstr "Dades descarregades"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__date model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__issue_date model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__date model:ir.model.fields,field_description:ems.field_ems_minute__date model:ir.model.fields.selection,name:ems.selection__ems_authorization_field__field_type__date model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__date model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_monthly_list
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__date model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 msgid "Date"
 msgstr "Data"
 
@@ -3093,6 +3100,7 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -3814,6 +3822,7 @@ msgstr "Seguiment"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_follower_ids
 msgid "Followers"
 msgstr "Seguidors"
 
@@ -3822,6 +3831,7 @@ msgstr "Seguidors"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "Seguidors (Companys)"
 
@@ -3845,6 +3855,7 @@ msgstr "Divendres"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__from_date model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__date_from
 msgid "From"
 msgstr "De"
 
@@ -4089,6 +4100,7 @@ msgstr "Grup"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
 #: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 msgid "Group By"
 msgstr "Agrupar per"
 
@@ -4159,6 +4171,7 @@ msgstr "Té taxes"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_planning__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__has_message
 msgid "Has Message"
 msgstr "Té missatge"
 
@@ -4267,6 +4280,7 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__id
 msgid "ID"
 msgstr "ID"
 
@@ -4300,6 +4314,7 @@ msgstr "Si l'IBAN està mapejat i una fila té valor, tots els comptes bancaris 
 #: model:ir.model.fields,help:ems.field_ems_attendance_issue_status__message_needaction model:ir.model.fields,help:ems.field_ems_attendance_issue_student__message_needaction model:ir.model.fields,help:ems.field_ems_attendance_issue_tutor__message_needaction model:ir.model.fields,help:ems.field_ems_attendance_justification__message_needaction model:ir.model.fields,help:ems.field_ems_attendance_schedule__message_needaction model:ir.model.fields,help:ems.field_ems_attendance_session_header__message_needaction model:ir.model.fields,help:ems.field_ems_attendance_template__message_needaction model:ir.model.fields,help:ems.field_ems_base__message_needaction model:ir.model.fields,help:ems.field_ems_enrollment__message_needaction model:ir.model.fields,help:ems.field_ems_grade_session__message_needaction model:ir.model.fields,help:ems.field_ems_limesurvey_block__message_needaction model:ir.model.fields,help:ems.field_ems_limesurvey_enrollment__message_needaction model:ir.model.fields,help:ems.field_ems_limesurvey_header__message_needaction model:ir.model.fields,help:ems.field_ems_limesurvey_recipient__message_needaction model:ir.model.fields,help:ems.field_ems_notice__message_needaction model:ir.model.fields,help:ems.field_ems_notice_line__message_needaction model:ir.model.fields,help:ems.field_ems_student_document__message_needaction model:ir.model.fields,help:ems.field_ems_teaching__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_convalidation__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_absence_pending__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr "Si està marcat, nous missatges que requereixen de la vostra atenció. "
 
@@ -4309,6 +4324,8 @@ msgstr "Si està marcat, nous missatges que requereixen de la vostra atenció. "
 #: model:ir.model.fields,help:ems.field_ems_convalidation__message_has_sms_error
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__message_has_error
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_absence_pending__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_absence_pending__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Si està marcat, alguns missatges han fallat en intentar ser lliurats."
 
@@ -4569,6 +4586,7 @@ msgstr "És taxa de matrícula"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_is_follower
 msgid "Is Follower"
 msgstr "És seguidor"
 
@@ -4689,6 +4707,7 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -4701,6 +4720,7 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -5035,6 +5055,7 @@ msgstr "Missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_has_error
 msgid "Message Delivery error"
 msgstr "Error de lliurament del missatge"
 
@@ -5043,6 +5064,7 @@ msgstr "Error de lliurament del missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_ids
 msgid "Messages"
 msgstr "Missatges"
 
@@ -5300,6 +5322,7 @@ msgstr "Nota"
 #. odoo-javascript
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__notes model:ir.model.fields,field_description:ems.field_ems_attendance_justification__notes model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__notes model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__notes model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__notes model:ir.model.fields,field_description:ems.field_ems_content__notes model:ir.model.fields,field_description:ems.field_ems_criteria__notes model:ir.model.fields,field_description:ems.field_ems_group__notes model:ir.model.fields,field_description:ems.field_ems_level__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__notes model:ir.model.fields,field_description:ems.field_ems_outcome__notes model:ir.model.fields,field_description:ems.field_ems_role__notes model:ir.model.fields,field_description:ems.field_ems_student_benefit__notes model:ir.model.fields,field_description:ems.field_ems_study__notes model:ir.model.fields,field_description:ems.field_ems_subject__notes model:ir.model.fields,field_description:ems.field_ems_tracking__notes model:ir.model.fields,field_description:ems.field_ems_workgroup__notes model:ir.model.fields,field_description:ems.field_hr_employee__notes model:ir.model.fields,field_description:ems.field_hr_employee_base__notes model:ir.model.fields,field_description:ems.field_hr_employee_public__notes model_terms:ir.ui.view,arch_db:ems.attendance_report_session model_terms:ir.ui.view,arch_db:ems.level_view_form model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form model_terms:ir.ui.view,arch_db:ems.view_content_form model_terms:ir.ui.view,arch_db:ems.view_criteria_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form model_terms:ir.ui.view,arch_db:ems.view_outcome_form model_terms:ir.ui.view,arch_db:ems.view_role_form model_terms:ir.ui.view,arch_db:ems.view_study_form model_terms:ir.ui.view,arch_db:ems.view_subject_form model_terms:ir.ui.view,arch_db:ems.view_workgroup_form model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__notes model_terms:ir.ui.view,arch_db:ems.report_meeting_presence_section
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__note
 msgid "Notes"
 msgstr "Notes"
 
@@ -5376,6 +5399,7 @@ msgstr "Número"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_needaction_counter
 msgid "Number of Actions"
 msgstr "Quantitat d'accions"
 
@@ -5384,6 +5408,7 @@ msgstr "Quantitat d'accions"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_has_error_counter
 msgid "Number of errors"
 msgstr "Quantitat d'errors"
 
@@ -5391,6 +5416,7 @@ msgstr "Quantitat d'errors"
 #: model:ir.model.fields,help:ems.field_ems_attendance_issue_status__message_needaction_counter model:ir.model.fields,help:ems.field_ems_attendance_issue_student__message_needaction_counter model:ir.model.fields,help:ems.field_ems_attendance_issue_tutor__message_needaction_counter model:ir.model.fields,help:ems.field_ems_attendance_justification__message_needaction_counter model:ir.model.fields,help:ems.field_ems_attendance_schedule__message_needaction_counter model:ir.model.fields,help:ems.field_ems_attendance_session_header__message_needaction_counter model:ir.model.fields,help:ems.field_ems_attendance_template__message_needaction_counter model:ir.model.fields,help:ems.field_ems_base__message_needaction_counter model:ir.model.fields,help:ems.field_ems_enrollment__message_needaction_counter model:ir.model.fields,help:ems.field_ems_grade_session__message_needaction_counter model:ir.model.fields,help:ems.field_ems_limesurvey_block__message_needaction_counter model:ir.model.fields,help:ems.field_ems_limesurvey_enrollment__message_needaction_counter model:ir.model.fields,help:ems.field_ems_limesurvey_header__message_needaction_counter model:ir.model.fields,help:ems.field_ems_limesurvey_recipient__message_needaction_counter model:ir.model.fields,help:ems.field_ems_notice__message_needaction_counter model:ir.model.fields,help:ems.field_ems_notice_line__message_needaction_counter model:ir.model.fields,help:ems.field_ems_student_document__message_needaction_counter model:ir.model.fields,help:ems.field_ems_teaching__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_convalidation__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_absence_pending__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr "Quantitat de missatges que requereixen d'una acció"
 
@@ -5398,6 +5424,7 @@ msgstr "Quantitat de missatges que requereixen d'una acció"
 #: model:ir.model.fields,help:ems.field_ems_attendance_issue_status__message_has_error_counter model:ir.model.fields,help:ems.field_ems_attendance_issue_student__message_has_error_counter model:ir.model.fields,help:ems.field_ems_attendance_issue_tutor__message_has_error_counter model:ir.model.fields,help:ems.field_ems_attendance_justification__message_has_error_counter model:ir.model.fields,help:ems.field_ems_attendance_schedule__message_has_error_counter model:ir.model.fields,help:ems.field_ems_attendance_session_header__message_has_error_counter model:ir.model.fields,help:ems.field_ems_attendance_template__message_has_error_counter model:ir.model.fields,help:ems.field_ems_base__message_has_error_counter model:ir.model.fields,help:ems.field_ems_enrollment__message_has_error_counter model:ir.model.fields,help:ems.field_ems_grade_session__message_has_error_counter model:ir.model.fields,help:ems.field_ems_limesurvey_block__message_has_error_counter model:ir.model.fields,help:ems.field_ems_limesurvey_enrollment__message_has_error_counter model:ir.model.fields,help:ems.field_ems_limesurvey_header__message_has_error_counter model:ir.model.fields,help:ems.field_ems_limesurvey_recipient__message_has_error_counter model:ir.model.fields,help:ems.field_ems_notice__message_has_error_counter model:ir.model.fields,help:ems.field_ems_notice_line__message_has_error_counter model:ir.model.fields,help:ems.field_ems_student_document__message_has_error_counter model:ir.model.fields,help:ems.field_ems_teaching__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_convalidation__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_absence_pending__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "Quantitat de missatges amb error de lliurament"
 
@@ -6037,6 +6064,7 @@ msgstr "Plantilla de pressupost"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_planning__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__rating_ids
 msgid "Ratings"
 msgstr "Qualificacions"
 
@@ -6474,6 +6502,7 @@ msgstr "En execució"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Error de lliurament d'un SMS"
 
@@ -6994,6 +7023,7 @@ msgstr "Estat / Província"
 #: model:ir.model.fields,field_description:ems.field_hr_leave__state
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__state model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__state
 msgid "Status"
 msgstr "Estat"
 
@@ -7412,6 +7442,8 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__teacher_id model:ir.model.fields,field_description:ems.field_ems_grade_outcome__teacher_id model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__teacher_id model:ir.model.fields,field_description:ems.field_ems_grade_session__teacher_id model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__teacher_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__teacher_id model:ir.model.fields,field_description:ems.field_ems_strike__teacher_id model:ir.model.fields,field_description:ems.field_ems_teaching__teacher_id model:ir.model.fields,field_description:ems.field_ems_tracking__teacher_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__teacher_id model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__employee_id model:ir.model.fields,field_description:ems.field_resource_calendar__employee_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__employee_id model:ir.model.fields.selection,name:ems.selection__ems_role__employee_type__teacher model:ir.model.fields.selection,name:ems.selection__hr_employee__employee_type__teacher model:ir.model.fields.selection,name:ems.selection__hr_job__employee_type__teacher model:res.groups,name:ems.group_teacher model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form model_terms:ir.ui.view,arch_db:ems.view_attendance_session_list model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__employee_id
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 msgid "Teacher"
 msgstr "Professor/a"
 
@@ -7842,6 +7874,7 @@ msgstr "Avuí"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__to_date
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__date_to
 msgid "To"
 msgstr "A"
 
@@ -8221,6 +8254,7 @@ msgstr "Estem treballant en aquesta secció per oferir-te la millor experiència
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_planning__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__website_message_ids
 msgid "Website Messages"
 msgstr "Missatges del lloc web"
 
@@ -8228,6 +8262,7 @@ msgstr "Missatges del lloc web"
 #: model:ir.model.fields,help:ems.field_ems_attendance_issue_status__website_message_ids model:ir.model.fields,help:ems.field_ems_attendance_issue_student__website_message_ids model:ir.model.fields,help:ems.field_ems_attendance_issue_tutor__website_message_ids model:ir.model.fields,help:ems.field_ems_attendance_justification__website_message_ids model:ir.model.fields,help:ems.field_ems_attendance_schedule__website_message_ids model:ir.model.fields,help:ems.field_ems_attendance_session_header__website_message_ids model:ir.model.fields,help:ems.field_ems_attendance_template__website_message_ids model:ir.model.fields,help:ems.field_ems_base__website_message_ids model:ir.model.fields,help:ems.field_ems_enrollment__website_message_ids model:ir.model.fields,help:ems.field_ems_grade_session__website_message_ids model:ir.model.fields,help:ems.field_ems_limesurvey_block__website_message_ids model:ir.model.fields,help:ems.field_ems_limesurvey_enrollment__website_message_ids model:ir.model.fields,help:ems.field_ems_limesurvey_header__website_message_ids model:ir.model.fields,help:ems.field_ems_limesurvey_recipient__website_message_ids model:ir.model.fields,help:ems.field_ems_notice__website_message_ids model:ir.model.fields,help:ems.field_ems_notice_line__website_message_ids model:ir.model.fields,help:ems.field_ems_student_document__website_message_ids model:ir.model.fields,help:ems.field_ems_teaching__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_convalidation__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_absence_pending__website_message_ids
 msgid "Website communication history"
 msgstr "Històric de comunicacions del lloc web"
 
@@ -18728,3 +18763,96 @@ msgstr "Avís de justificant pendent (dies)"
 #: model_terms:ir.ui.view,arch_db:ems.view_hr_holidays_filter_ems
 msgid "My pending supporting documents"
 msgstr "Els meus justificants pendents"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "%(teacher)s (%(start)s - %(stop)s)"
+msgstr "%(teacher)s (%(start)s - %(stop)s)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__leave_id
+msgid "Absence requested"
+msgstr "Absència sol·licitada"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_absence_pending
+msgid "Announce an absence a teacher has not requested yet"
+msgstr "Avança una absència que el docent encara no ha sol·licitat"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__pending
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+msgid "Expected"
+msgstr "Prevista"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_absence_pending
+msgid "Expected absence"
+msgstr "Absència prevista"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_absence_pending
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_pending_absence_ids
+#: model:ir.ui.menu,name:ems.menu_absence_pending
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_list
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+msgid "Expected absences"
+msgstr "Absències previstes"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_absence_pending__state
+msgid ""
+"Expected until the teacher requests the absence themselves, then linked to "
+"their request for good: from that moment only the request counts, whatever "
+"becomes of it."
+msgstr "Prevista fins que el docent sol·licita l'absència, i aleshores es vincula definitivament a la seva sol·licitud: a partir d'aquest moment només compta la sol·licitud, passi el que passi amb ella."
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_absence_pending
+msgid ""
+"It shows on the guard duty schedule as a pending absence until the teacher\n"
+"                    requests it, and from then on only their own request counts."
+msgstr "Surt a l'horari de guàrdies com a absència pendent fins que el docent la sol·licita, i a partir d'aleshores només compta la seva pròpia sol·licitud."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_absence_pending__employee_id
+msgid "Only the teachers below you in the hierarchy."
+msgstr "Només els docents que tens per sota a la jerarquia."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__linked
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+msgid "Requested"
+msgstr "Sol·licitada"
+
+#. module: ems
+#: model:ir.ui.menu,name:ems.menu_absence_requested
+msgid "Requested absences"
+msgstr "Absències sol·licitades"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "The end of an absence must come after its start."
+msgstr "El final d'una absència ha de ser posterior al seu inici."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid ""
+"This absence has already been requested by the teacher: only their own "
+"request counts now."
+msgstr "El docent ja ha sol·licitat aquesta absència: ara només compta la seva pròpia sol·licitud."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "Why the teacher will be absent, for your own reference"
+msgstr "Per què faltarà el docent, com a referència per a tu"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Co-taught: another teacher is in the class, no guard needed"
+msgstr "Codocència: hi ha un altre docent a la classe, no cal guàrdia"

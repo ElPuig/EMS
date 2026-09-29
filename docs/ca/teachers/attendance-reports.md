@@ -12,7 +12,7 @@
 
 ## Explorar els informes d'assistència
 
-1. Vés a **Assistència → Informes**. S'obre directament amb una **taula dinàmica**, mostrant per defecte **només els teus propis grups i assignatures**.
+1. Vés a **Assistència → Informes**. S'obre directament amb una **taula dinàmica** amb el filtre **Les meves assignatures** activat, que mostra només els teus propis grups i assignatures. Si ets tutor/a d'un grup, en treure aquest filtre també veus els teus tutoritzats en totes les assignatures (consulta el [manual de tutors](../tutors/attendance-reports.md)).
 2. La taula agrupa per **assignatura i després per alumne**. Fes clic a la icona **Expandeix-ho tot** (a dalt a la dreta, al costat de Capgirar eixos) dues vegades: un cop per desplegar les assignatures i un altre per desplegar els alumnes de cada assignatura. El número principal és el **% de faltes per alumne** — el **Compte** (nombre de sessions comptabilitzades) i el **Recompte de strikes** es mostren al costat, així pots saber si un 33% surt de 3 sessions o de 30, i si ve acompanyat de strikes disciplinaris.
 
    ![Taula dinàmica d'informes d'assistència, expandida per assignatura i alumne](../../assets/teachers/informes-01-taula-dinamica.png)

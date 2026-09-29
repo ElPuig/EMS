@@ -144,6 +144,9 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             'view_mode': 'pivot',
             'views': [(pivot_view.id, 'pivot')],
             'domain': [('id', 'in', report_lines.ids)],
+            # The real menu opens with this removable filter on for a teacher (see
+            # action_attendance_reports_open); the manual's step 1 refers to its facet.
+            'context': {'search_default_my_subjects': 1},
         })
         # "Expand all" unfolds one row level per click (subject first, then student) - see the
         # manual's own step-by-step. tbody tr:nth-of-type(N) counts plain table rows (no
@@ -152,8 +155,10 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         # the first click -> 4 (+ both students) after the second.
         self._capture(
             '/odoo/action-%d' % pivot_action.id,
-            '.o_pivot', 'informes-01-taula-dinamica.png',
-            login='doc_shot_teacher', wait_for='.o_pivot table tbody tr',
+            # The whole action, not just '.o_pivot', so the "My subjects" facet in the search
+            # bar shows up too.
+            '.o_action_manager', 'informes-01-taula-dinamica.png',
+            login='doc_shot_teacher', wait_for='.o_searchview_facet',
             click=['.o_pivot_expand_button', '.o_pivot_expand_button'],
             wait_after=[
                 '.o_pivot table tbody tr:nth-of-type(2)',

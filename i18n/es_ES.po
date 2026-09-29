@@ -18865,3 +18865,12 @@ msgstr "Por qué faltará el docente, como referencia para ti"
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Co-taught: another teacher is in the class, no guard needed"
 msgstr "Codocencia: hay otro docente en la clase, no hace falta guardia"
+
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__session_active
+msgid "Active session"
+msgstr "Sesión activa"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search
+msgid "My subjects"
+msgstr "Mis asignaturas"

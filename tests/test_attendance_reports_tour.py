@@ -136,3 +136,7 @@ class TestAttendanceReportsTour(HttpCase):
         for user in (teacher_user, tutor_user):
             with self.subTest(login=user.login):
                 self.start_tour("/odoo", "ems_attendance_report_student_scope", login=user.login, step_delay=300)
+
+    def test_attendance_report_tutor_scope_tour(self):
+        _teacher_user, tutor_user = self._seed_student_scope()
+        self.start_tour("/odoo", "ems_attendance_report_tutor_scope", login=tutor_user.login, step_delay=300)

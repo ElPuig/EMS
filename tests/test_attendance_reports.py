@@ -365,10 +365,12 @@ class TestAttendanceReportWizards(AttendanceReportCommon):
         server_action = self.env.ref('ems.action_attendance_reports_open')
         result = server_action.with_user(self.owner_user).run()
         self.assertEqual(result.get('domain'), [
-            ('attendance_session_id.active', '=', True),
-            ('template_teacher_ids.user_id', '=', self.owner_user.id),
+            ('session_active', '=', True),
+            '|', ('template_teacher_ids.user_id', '=', self.owner_user.id),
+            ('student_id.tutor_id.tutor_scope_user_ids', '=', self.owner_user.id),
         ])
         self.assertEqual(result.get('context', {}).get('pivot_measures'), ['absence_rate', 'strike_count', '__count'])
+        self.assertEqual(result['context'].get('search_default_my_subjects'), 1)
 
     def test_reports_action_unscoped_for_academic_admin(self):
         # group_academic_admin implies group_head_of_studies (security/groups.xml), which is one
@@ -377,7 +379,8 @@ class TestAttendanceReportWizards(AttendanceReportCommon):
         # admin included.
         server_action = self.env.ref('ems.action_attendance_reports_open')
         result = server_action.with_user(self.admin_user).run()
-        self.assertEqual(result.get('domain'), [('attendance_session_id.active', '=', True)])
+        self.assertEqual(result.get('domain'), [('session_active', '=', True)])
+        self.assertNotIn('search_default_my_subjects', result['context'])
         self.assertIn(self.group1, self.line_recent.group_ids)
 
     def test_reports_action_domain_excludes_a_line_of_an_archived_session(self):
@@ -476,11 +479,9 @@ class TestAttendanceReportWizards(AttendanceReportCommon):
         self.assertFalse(off_values['detail_strikes'][self.student1])
 
 
-class TestAttendanceStudentReportScope(AttendanceReportCommon):
-    """Issue #500: the by-student report mixes session lines (readable by every teacher) with
-    session headers (readable only by the session's own teacher). A plain teacher gets only their
-    own sessions; the student's tutor scope (the tutor, their chiefs up the parent_id chain, the
-    Director) gets every session of the student, whatever the subject or teacher."""
+class AttendanceReportTutorScopeCommon(AttendanceReportCommon):
+    """Adds another teacher's session (subject_b, group1) and a tutor of group1 who teaches nothing,
+    with a department chief above them. student1 (group1) is a tutee; student2 (group2) is not."""
 
     @classmethod
     def setUpClass(cls):
@@ -518,6 +519,13 @@ class TestAttendanceStudentReportScope(AttendanceReportCommon):
         cls.group1.tutor_id = cls.tutor_employee
         cls.student1.main_group_id = cls.group1
         cls.student2.main_group_id = cls.group2
+
+
+class TestAttendanceStudentReportScope(AttendanceReportTutorScopeCommon):
+    """Issue #500: the by-student report mixes session lines (readable by every teacher) with
+    session headers (readable only by the session's own teacher). A plain teacher gets only their
+    own sessions; the student's tutor scope (the tutor, their chiefs up the parent_id chain, the
+    Director) gets every session of the student, whatever the subject or teacher."""
 
     def _report_lines(self, user, **vals):
         wizard = self._wizard(user, report_type='student', student_id=self.student1.id,
@@ -576,3 +584,132 @@ class TestAttendanceStudentReportScope(AttendanceReportCommon):
                               from_date=self.other_date, to_date=self.today)
         values = self._values(wizard, status_ids=[self.line_foreign.id])
         self.assertNotIn(self.line_foreign, values['main'].entries)
+
+
+class TestAttendanceGroupSubjectReportScope(AttendanceReportTutorScopeCommon):
+    """The by-group and by-subject reports: a plain teacher gets only their own sessions, while for a
+    group in the user's tutor scope (its tutor, the chiefs above them, the Director) they cover every
+    subject of the group, whoever teaches it. Never widened for a group outside that scope."""
+
+    def _lines(self, user, **vals):
+        wizard = self._wizard(user, from_date=self.other_date, to_date=self.today, **vals)
+        return wizard._get_report_lines(), self._values(wizard)
+
+    def _onchange_dates(self, user, **vals):
+        wizard = self.env['ems.attendance_report_wizard'].with_user(user).new(vals)
+        wizard._onchange_group_id()
+        wizard._onchange_subject_id()
+        return wizard.from_date, wizard.to_date
+
+    # --- by group ------------------------------------------------------------------------
+
+    def test_tutor_finds_tutored_group_without_teaching_it(self):
+        wizard = self._wizard(self.tutor_user, report_type='group')
+        wizard._compute_allowed_ids()
+        self.assertIn(self.group1, wizard.allowed_group_ids)
+        self.assertNotIn(self.group2, wizard.allowed_group_ids)
+
+    def test_group_tutor_every_subject(self):
+        lines, values = self._lines(self.tutor_user, report_type='group', group_id=self.group1.id)
+        self.assertEqual(set(lines.ids), {self.line_recent.id, self.line_old.id, self.line_other.id, self.line_foreign.id})
+        self.assertEqual(set(values['lines']), {self.subject_a, self.subject_b})
+        # The detail rows read the other teacher's session header too.
+        self.assertEqual(values['detail_entries'][self.subject_b][0].attendance_session_id.session_teacher_id,
+                         self.other_employee)
+
+    def test_group_chief_above_the_tutor_every_subject(self):
+        _lines, values = self._lines(self.chief_user, report_type='group', group_id=self.group1.id)
+        self.assertEqual(set(values['lines']), {self.subject_a, self.subject_b})
+
+    def test_group_plain_teacher_only_own_sessions(self):
+        lines, values = self._lines(self.owner_user, report_type='group', group_id=self.group1.id)
+        self.assertEqual(set(lines.ids), {self.line_recent.id, self.line_old.id})
+        self.assertEqual(set(values['lines']), {self.subject_a})
+
+    def test_group_onchange_tutor_covers_every_session(self):
+        self.assertEqual(self._onchange_dates(self.tutor_user, report_type='group', group_id=self.group1.id),
+                         (self.other_date, self.today))
+
+    def test_group_outside_tutor_scope_not_widened(self):
+        # A group picked by hand outside the dropdown gets no sudo(): record rules decide.
+        lines, _values = self._lines(self.tutor_user, report_type='group', group_id=self.group2.id)
+        self.assertFalse(lines)
+
+    # --- by subject ----------------------------------------------------------------------
+
+    def test_tutor_finds_subjects_taught_by_others_in_tutored_group(self):
+        wizard = self._wizard(self.tutor_user, report_type='subject', subject_id=self.subject_b.id)
+        wizard._compute_allowed_ids()
+        self.assertEqual(wizard.allowed_subject_ids, self.subject_a | self.subject_b)
+        # subject_a is also taught in group2, which is not in the tutor's scope.
+        self.assertEqual(wizard._get_groups_teaching(self.subject_a), self.group1)
+
+    def test_plain_teacher_subjects_and_groups_unchanged(self):
+        wizard = self._wizard(self.owner_user, report_type='subject', subject_id=self.subject_a.id)
+        wizard._compute_allowed_ids()
+        self.assertEqual(wizard.allowed_subject_ids, self.subject_a)
+        self.assertEqual(wizard._get_groups_teaching(self.subject_a), self.group1 | self.group2)
+
+    def test_subject_tutor_every_session_of_tutored_group(self):
+        lines, values = self._lines(self.tutor_user, report_type='subject', subject_id=self.subject_b.id,
+                                    group_ids=[(6, 0, [self.group1.id])])
+        self.assertEqual(set(lines.ids), {self.line_other.id, self.line_foreign.id})
+        self.assertEqual(set(values['lines']), {self.student1, self.student2})
+
+    def test_subject_onchange_tutor_prefills_group_and_dates(self):
+        wizard = self.env['ems.attendance_report_wizard'].with_user(self.tutor_user).new({
+            'report_type': 'subject', 'subject_id': self.subject_b.id,
+        })
+        wizard._onchange_subject_id()
+        self.assertEqual(wizard.group_ids._origin, self.group1)
+        self.assertEqual((wizard.from_date, wizard.to_date), (self.other_date, self.other_date))
+
+    def test_subject_outside_tutor_scope_not_widened(self):
+        lines, _values = self._lines(self.tutor_user, report_type='subject', subject_id=self.subject_a.id,
+                                     group_ids=[(6, 0, [self.group2.id])])
+        self.assertFalse(lines)
+
+
+class TestAttendanceReportsAnalysisScope(AttendanceReportTutorScopeCommon):
+    """The 'Reports' pivot/graph: a teacher sees their own subjects plus every subject of their
+    tutor scope's students, with the removable 'My subjects' filter on by default."""
+
+    def _action(self, user):
+        return self.env.ref('ems.action_attendance_reports_open').with_user(user).run()
+
+    def _search(self, user, *extra):
+        domain = self._action(user)['domain'] + list(extra)
+        return self.env['ems.attendance_session_line'].with_user(user).search(domain)
+
+    def test_tutor_sees_every_subject_of_tutees(self):
+        found = self._search(self.tutor_user)
+        self.assertEqual(set(found.ids) & self._fixture_ids(), {self.line_recent.id, self.line_old.id, self.line_other.id})
+
+    def test_my_subjects_filter_shows_only_own_teaching(self):
+        arch = self.env.ref('ems.view_attendance_report_analysis_search').arch
+        self.assertIn('name="my_subjects" domain="[(\'template_teacher_ids.user_id\', \'=\', uid)]"', arch)
+        # With the default filter on, the tutor (who teaches nothing) gets none and the owner only their own.
+        found = self._search(self.tutor_user, ('template_teacher_ids.user_id', '=', self.tutor_user.id))
+        self.assertFalse(set(found.ids) & self._fixture_ids())
+        found = self._search(self.owner_user, ('template_teacher_ids.user_id', '=', self.owner_user.id))
+        self.assertEqual(set(found.ids) & self._fixture_ids(), {self.line_recent.id, self.line_old.id})
+
+    def test_chief_above_the_tutor_sees_tutees(self):
+        self.assertIn(self.line_other, self._search(self.chief_user))
+
+    def test_plain_teacher_only_own_subjects(self):
+        found = self._search(self.other_user)
+        self.assertEqual(set(found.ids) & self._fixture_ids(), {self.line_other.id, self.line_foreign.id})
+
+    def test_tutor_pivot_groups_every_subject(self):
+        domain = self._action(self.tutor_user)['domain'] + [('student_id', '=', self.student1.id)]
+        groups = self.env['ems.attendance_session_line'].with_user(self.tutor_user).read_group(
+            domain, ['absence_rate:avg'], ['subject_id'])
+        self.assertEqual({group['subject_id'][0] for group in groups}, {self.subject_a.id, self.subject_b.id})
+
+    def test_tutor_current_course_excludes_archived_session_of_another_teacher(self):
+        self.session_other.action_archive()
+        self.assertNotIn(self.line_other, self._search(self.tutor_user))
+
+    def _fixture_ids(self):
+        return {self.line_recent.id, self.line_old.id, self.line_other.id, self.line_foreign.id}

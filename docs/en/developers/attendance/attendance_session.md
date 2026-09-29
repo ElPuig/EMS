@@ -152,6 +152,23 @@ day's roll-call, duplicating it makes no sense. `unlink()` cascades (native `ond
 lines/issue tables) and additionally calls `remove_if_empty()` on any `ems.attendance_issue_tutor`
 for that date, cleaning up now-orphaned notification-tracking rows.
 
+## Enlarged student photo on hover (`useAvatarZoom`, issue #538)
+
+The roll-call row's 44px thumbnail (`image_128`) opens an enlarged, 132px copy (`image_512`, sharp
+on HiDPI screens) with the student's name as a caption, after a 150ms hover delay (so sweeping the
+mouse down the list doesn't flash one per row), and closes on mouse leave. A click/tap toggles it,
+for touch screens with no hover. It is a reusable hook, `useAvatarZoom()`
+(`static/src/js/backend/avatar_zoom.js`), not roll-call specific: it takes the partner as the
+`[id, display_name]` many2one pair the widget already has.
+
+It is rendered through Odoo's popover service (`usePopover`), not a CSS `transform: scale()` on the
+thumbnail: the roll-call table lives inside `.ems-av-body { overflow-y: auto }` under a sticky
+header (`z-index: 9`), which would clip the scaled image and hide it under the header on the first
+rows. The popover is mounted in the webclient's overlay container, outside both. Odoo's own
+popover animation is disabled; `avatar_zoom.css` animates the photo growing out of the thumbnail
+(disabled under `prefers-reduced-motion`). Covered by the `ems_attendance_session_avatar_zoom`
+tour (hover, leave, tap, tap again; teacher login).
+
 ## Removing a student from the roll-call (`active`, issue #537)
 
 A line can be removed from a session's roll-call when the student isn't required to attend it

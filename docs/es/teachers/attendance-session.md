@@ -78,6 +78,9 @@ Guardar.
   ya que es la justificación la que lo decide.
 - Usa el desplegable de **ordenación** (arriba a la derecha) para reordenar la lista por apellido o
   nombre, ascendente o descendente.
+- Pasa el ratón por encima de la foto de un alumno para verla ampliada, con su nombre debajo; se
+  cierra al apartar el ratón. En una tableta o pantalla táctil, toca la foto para ampliarla y vuelve
+  a tocarla para cerrarla.
 
 ![Sesión actual con los botones de estado, una nota y un alumno con ausencia justificada (escudo) y uno quitado de la lista (última fila)](../../assets/teachers/passlist-01-assistencia-actual.png)
 

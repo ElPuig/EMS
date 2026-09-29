@@ -78,6 +78,9 @@ Desar.
   i les notes queden bloquejats, ja que és la justificació la que ho decideix.
 - Fes servir el desplegable d'**ordenació** (a dalt a la dreta) per reordenar la llista per cognom
   o nom, ascendent o descendent.
+- Passa el ratolí per sobre de la foto d'un alumne per veure-la ampliada, amb el nom a sota; es
+  tanca quan apartes el ratolí. En una tauleta o pantalla tàctil, toca la foto per ampliar-la i
+  torna-la a tocar per tancar-la.
 
 ![Sessió actual amb els botons d'estat, una nota i un alumne amb absència justificada (escut) i un de tret de la llista (última fila)](../../assets/teachers/passlist-01-assistencia-actual.png)
 

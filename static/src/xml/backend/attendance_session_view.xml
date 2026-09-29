@@ -166,7 +166,10 @@
                                             'ems-av-line--removed': isRemoved,
                                         }">
                                         <td class="ems-av-td-student">
-                                            <img class="ems-av-avatar" t-att-src="avatarUrl(line)" alt=""/>
+                                            <img class="ems-av-avatar" t-att-src="avatarUrl(line)" alt=""
+                                                 t-on-mouseenter="(ev) => avatarZoom.onEnter(ev, line.student_id)"
+                                                 t-on-mouseleave="avatarZoom.onLeave"
+                                                 t-on-click="(ev) => avatarZoom.onClick(ev, line.student_id)"/>
                                             <span class="ems-av-name"
                                                   t-att-title="line.student_id ? line.student_id[1] : ''"
                                                   t-esc="line.student_id ? line.student_id[1] : '—'"/>

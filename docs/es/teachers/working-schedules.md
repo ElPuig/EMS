@@ -12,7 +12,8 @@ Consulta tu propio horario semanal — asignaturas, grupos, aulas, patios y reun
 
 ## Acceso
 
-Ve a: **Empleados → [tu propia ficha] → pestaña Horario**
+Haz clic en tu avatar, en la esquina superior derecha del EMS, y elige **Mi perfil**. La pestaña
+**Horario** ya está activa cuando se abre la página.
 
 ---
 
@@ -22,6 +23,8 @@ Cada bloque de la cuadrícula semanal muestra:
 - su hora exacta de inicio y fin (las franjas no siempre están alineadas a la hora en punto, p. ej. `10:25–11:25`),
 - la asignatura y el/los grupo(s) que impartes — un mismo bloque puede nombrar más de un grupo cuando das una sesión idéntica a varios grupos a la vez (p. ej. una asignatura optativa que combina dos grupos oficiales en la misma aula) — o el motivo si no es una franja lectiva (un patio, una reunión de coordinación...). Si la asignatura en realidad se reparte en varios temas diferentes, cada uno impartido por separado (p. ej. un módulo repartido por idioma), su **tema** se muestra justo después de la asignatura (p. ej. "MP 3161 - Castellano") — contacta con un Jefe de Departamento o superior para establecerlo o corregirlo,
 - el aula, cuando el grupo tiene una asignada.
+
+![La cuadrícula de horario semanal: un bloque lectivo con su asignatura, grupo y aula, seguido de un bloque de patio](../../assets/teachers/horari-01-setmanal.png)
 
 Una franja que todavía no tiene ningún bloque simplemente no tiene nada asignado — contacta con un administrador si crees que falta algo o hay algún error en tu horario.
 

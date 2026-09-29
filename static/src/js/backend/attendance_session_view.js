@@ -13,6 +13,7 @@ import { DateTimePicker } from "@web/core/datetime/datetime_picker";
 import { useDateTimePicker } from "@web/core/datetime/datetime_hook";
 import { usePopover } from "@web/core/popover/popover_hook";
 import { useHotkey } from "@web/core/hotkeys/hotkey_hook";
+import { serverNow, syncServerClock } from "./server_clock";
 
 class EmsDatePickerPopover extends Component {
     static components = { DateTimePicker };
@@ -26,7 +27,7 @@ class EmsDatePickerPopover extends Component {
     get todayLabel() { return _t("Today"); }
 
     goToday() {
-        this.props.pickerProps.onSelect?.(DateTime.now(), "date");
+        this.props.pickerProps.onSelect?.(serverNow(), "date");
         this.props.close();
     }
 }
@@ -44,7 +45,7 @@ class EmsDateInput extends Component {
         useDateTimePicker({
             createPopover: (_, options) => usePopover(EmsDatePickerPopover, options),
             get pickerProps() {
-                return { type: "date", value: self.props.value, maxDate: DateTime.now() };
+                return { type: "date", value: self.props.value, maxDate: serverNow() };
             },
             onApply: (value) => self.props.onApply(value),
         });
@@ -75,7 +76,7 @@ class AttendanceSessionView extends Component {
         this.strikeReasons = [];   // populated in onWillStart from ems.strike.reason
 
         this.state = useState({
-            date: this._todayStr(),
+            date: "",           // set in onWillStart, once the server clock is known
             sessions: [],
             planned: [],
             groups: [],          // string[] — group names present in today's sessions/schedules
@@ -97,16 +98,18 @@ class AttendanceSessionView extends Component {
         });
 
         onWillStart(async () => {
-            await Promise.all([this._loadStatuses(), this._loadStrikeReasons()]);
+            await Promise.all([this._loadStatuses(), this._loadStrikeReasons(), syncServerClock(this.orm)]);
+            this.state.date = this._todayStr();
             await this._loadAll();
         });
     }
 
     // ── Date helpers ─────────────────────────────────────────────────────────
 
+    // "Today" and "now" come from the server's clock, in the company's timezone - never the
+    // computer's (see server_clock.js).
     _todayStr() {
-        const d = new Date();
-        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        return serverNow().toISODate();
     }
 
     _shiftDate(dateStr, days) {
@@ -246,8 +249,8 @@ class AttendanceSessionView extends Component {
     }
 
     _nowAsFloat() {
-        const now = new Date();
-        return now.getHours() + now.getMinutes() / 60;
+        const now = serverNow();
+        return now.hour + now.minute / 60;
     }
 
     _isCurrentSlot(s, now) {

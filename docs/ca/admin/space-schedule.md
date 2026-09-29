@@ -17,6 +17,8 @@ Professorat) — tothom que pugui obrir un espai en pot veure l'horari d'ocupaci
 
 Navega a: **Comunitat Educativa → Configuració → Espais → [una aula] → pestanya Horari**
 
+![Fitxa d'una aula, amb la seva ocupació setmanal a la pestanya Horari](../../assets/admin/admin-space-schedule.png)
+
 ---
 
 ## Llegir l'Horari

@@ -23,20 +23,24 @@ class EmsMinute(models.Model):
     abstract = fields.Char(string="Abstract or main topic", size=255, required=True)
 
     @api.depends('type', 'workgroup_id', 'department_id', 'nature')
+    @api.depends_context('lang')
     def _compute_display_name(self):
-        # TODO: fix selection text using the new form (look at wiki)
+        # _description_selection() gives the labels in the current language; the raw
+        # _fields[...].selection is the English source.
+        type_labels = dict(self._fields['type']._description_selection(self.env))
+        nature_labels = dict(self._fields['nature']._description_selection(self.env))
         for minute in self:
             group_name = minute.workgroup_id.name if minute.type == "workgroup" else minute.department_id.name
-            minute.display_name = "%s: %s (%s)" % (
-                dict(minute._fields['type'].selection).get(minute.type),
-                group_name,
-                dict(minute._fields['nature'].selection).get(minute.nature),
-            )
+            minute.display_name = f"{type_labels.get(minute.type)}: {group_name} ({nature_labels.get(minute.nature)})"
 
     @api.depends("type", "workgroup_id", "department_id")
+    @api.depends_context('lang')
     def _compute_members(self):
         for minute in self:
-            minute.members = "Workgroup: %s" % minute.workgroup_id.name if minute.type == "workgroup" else "Department: %s" % minute.department_id.name
+            # The group field's own (translated) label, e.g. "Workgroup: <name>".
+            group_field = 'workgroup_id' if minute.type == "workgroup" else 'department_id'
+            label = self._fields[group_field]._description_string(self.env)
+            minute.members = f"{label}: {minute[group_field].name}"
 
     # TODO: Should also set the permissions for the record (department and also workgroup <-- NEW)
     #       https://www.cybrosys.com/blog/how-to-create-record-rule-in-odoo-16

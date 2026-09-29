@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
@@ -705,3 +707,27 @@ class TestDepartment(TransactionCase):
         non_staff = self.env['hr.employee'].create({'name': 'Test Non-Staff (Non-Staff Seminar)'})
         with self.assertRaises(Exception):
             department.seminar_chief_id = non_staff.id
+
+    def test_rewriting_unchanged_hierarchy_fields_skips_cascade(self):
+        # Issue #510: every upgrade reloads data/custom/hr.department.csv, rewriting parent_id/
+        # is_top_level with the values they already have - that must not re-run the cascade.
+        seminar_chief = self._create_employee('Test Seminar Chief (No-op Rewrite)', with_user=True)
+        department = self.env['hr.department'].create({
+            'name': 'Test Department (No-op Rewrite)', 'seminar_chief_id': seminar_chief.id,
+        })
+        with patch.object(self.registry['hr.department'], '_cascade_department_heads', autospec=True) as cascade:
+            department.write({'parent_id': department.parent_id.id, 'is_top_level': department.is_top_level})
+            cascade.assert_not_called()
+            department.write({'seminar_chief_id': False})
+            cascade.assert_called_once()
+
+    def test_upgrade_reload_keeps_manual_group_of_seminar_chief(self):
+        # The real incident behind issue #510: a seminar chief granted Secretary by hand lost it
+        # on every EMS upgrade.
+        seminar_chief = self._create_employee('Test Seminar Chief (Manual Group)', with_user=True)
+        department = self.env['hr.department'].create({
+            'name': 'Test Department (Manual Group)', 'seminar_chief_id': seminar_chief.id,
+        })
+        seminar_chief.user_id.write({'groups_id': [(4, self.group_secretary.id)]})
+        department.write({'parent_id': department.parent_id.id, 'is_top_level': department.is_top_level})
+        self.assertIn(self.group_secretary, seminar_chief.user_id.groups_id)

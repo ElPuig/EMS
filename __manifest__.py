@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.26.1',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.30.1',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -108,6 +108,9 @@
             'views/community/contact/native_action_bindings.xml',
             'views/community/contact/exit_wizards.xml',
             'views/community/contact/student_document.xml',
+            'views/community/contact_data_request/send_wizard.xml',
+            'views/community/contact_data_request/request.xml',
+            'views/community/contact_data_request/menu.xml',
 
             'views/community/group/list.xml',
             'views/community/group/form.xml',
@@ -185,6 +188,7 @@
 
             'views/planning_grading/menu.xml',
             'views/planning_grading/planning/list.xml',
+            'views/planning_grading/planning/search.xml',
             'views/planning_grading/planning/form.xml',
             'views/planning_grading/planning/menu.xml',
             'views/planning_grading/grading/list.xml',
@@ -194,6 +198,7 @@
             'views/planning_grading/grading/wizard.xml',
             'views/planning_grading/grading/import_wizard.xml',
             'views/planning_grading/grading/em_wizard.xml',
+            'views/planning_grading/grading/year_record/grade_review_wizard.xml',
             'views/planning_grading/grading/year_record/list.xml',
             'views/planning_grading/grading/year_record/form.xml',
             'views/planning_grading/grading/year_record/search.xml',
@@ -249,6 +254,7 @@
             'views/attendance/guard_duty_board/menu.xml',
 
             'views/attendance/absence/leave.xml',
+            'views/attendance/absence/public_holiday.xml',
             'views/attendance/absence/menu.xml',
             'views/attendance/absence/monthly_report.xml',
             'reports/attendance/report_guard_duty_board.xml',
@@ -267,6 +273,15 @@
             'views/communications/notice/list.xml',
             'views/communications/notice/search.xml',
             'views/communications/notice/form.xml',
+
+        # Report first: the form's Print button references it.
+        'reports/meetings/report_meeting_presence.xml',
+        'views/minutes_agreements/menu.xml',
+            'views/minutes_agreements/presence/search.xml',
+            'views/minutes_agreements/presence/list.xml',
+            'views/minutes_agreements/presence/form.xml',
+            'views/minutes_agreements/presence/kiosk.xml',
+            'views/minutes_agreements/presence/menu.xml',
 
         'views/coexistence/strike/list.xml',
         'views/coexistence/strike/form.xml',
@@ -295,6 +310,7 @@
             'reports/contacts/report_group_schedule.xml',
             'reports/contacts/report_student_schedule.xml',
             'reports/facilities/report_space_schedule.xml',
+            'reports/grades/report_convalidation_resolution.xml',
         'reports/enrollment/templates/report_enrollment_template.xml',
         'reports/enrollment/enrollment.xml',
             'views/academic_management/enrollment_configuration/enrollment_template_form.xml',
@@ -310,6 +326,8 @@
             'views/academic_management/authorizations/menu.xml',
             'views/academic_management/task_assignment/view.xml',
             'views/academic_management/task_assignment/menu.xml',
+            'views/academic_management/convalidations/views.xml',
+            'views/academic_management/convalidations/menu.xml',
 
         'views/sales/product_view.xml',
         'views/accounting/payment_term_views.xml',
@@ -325,7 +343,9 @@
             'views/portal/portal_enrollment_confirmed.xml',
             'views/portal/portal_comms.xml',
             'views/portal/portal_schedule.xml',
+            'views/portal/portal_contact_data.xml',
             'views/portal/portal_documentation.xml',
+            'views/portal/portal_convalidations.xml',
             'views/portal/portal_under_construction.xml',
 
         'views/documentation/menu.xml',       
@@ -345,6 +365,9 @@
         'mails/coexistence/strike_escalation.xml',
         'mails/enrollment/enrollment_send.xml',
         'mails/enrollment/authorization_send.xml',
+        'mails/grades/convalidation_resolved.xml',
+        'mails/grades/convalidation_info_request.xml',
+        'mails/contacts/contact_data_request.xml',
 
         ### Reports templates ###
         'reports/attendance/templates/sumary_table.xml',
@@ -365,6 +388,7 @@
         'data/main/hr.departure.reason.csv',
         'data/main/res.partner.relation.type.csv',
         'data/main/mail.activity.type.csv',
+        'data/main/mail.message.subtype.csv',
         'data/main/mail.template-google_welcome.csv',
         'data/main/mail.template-google_lifecycle.csv',
         'data/main/ir.cron-google_workspace.csv',
@@ -444,7 +468,6 @@
         'data/custom/resource.calendar.attendance.csv',
         'data/custom/res.company.csv',
         'data/custom/res.partner.csv',
-        'data/custom/ems.course.csv',
         'data/custom/crm.team.csv',
         'data/custom/ems.authorization.template.csv',
         'data/custom/ir.sequence-enrollment_number.csv',
@@ -503,11 +526,15 @@
         'web.assets_backend': [
             'ems/static/src/xml/backend/**/*',
             'ems/static/src/css/backend/**/*',
+            'ems/static/src/js/shared/**/*',
             'ems/static/src/js/backend/**/*',
         ],
         'web.assets_frontend': [
            'ems/static/src/css/frontend/**/*',
            'ems/static/src/scss/frontend/**/*',
+           'ems/static/src/js/shared/**/*',
+           'ems/static/src/js/frontend/**/*',
+           'ems/static/src/xml/frontend/**/*',
         ],
         'web.assets_common': [
             #'ems/static/src/css/**/*',

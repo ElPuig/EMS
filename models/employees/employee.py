@@ -15,6 +15,9 @@ employee_types = [
 
 WEEKDAYS = ('0', '1', '2', '3', '4')
 
+# Every chief rung of the chain implies it: Seminar/Department Chief, Head of Studies, Director.
+TUTOR_SCOPE_CHIEF_GROUP = 'ems.group_department_chief'
+
 # Classifies a real entry or a candidate break into "works mornings"/"works afternoons" for
 # '_get_derived_break_entries' - computed directly from 'hour_from' rather than trusting the
 # stored 'day_period' field, since two different write paths populate that field with two
@@ -112,6 +115,15 @@ class ems_employee_base(models.AbstractModel):
     roles = fields.Char(string="Role names", compute="_compute_roles_str", store=True)	
     tutorships = fields.Char(string="Tutorship names", compute="_compute_tutorships_str", store=True)	
 
+    # Users who act as this employee's tutees' tutor (issue #483): the employee's own user, every
+    # chief above them in the hierarchy (Seminar Chief, Department Chief, Head of Studies - all in
+    # group_department_chief) and the Director. Record rules and tutor checks match on this field
+    # instead of tutor_id.user_id, so permissions escalate along the real chain of command, not by
+    # role centre-wide. Not stored: always follows the current hierarchy.
+    tutor_scope_user_ids = fields.Many2many(
+        string="Users acting as tutor", comodel_name="res.users",
+        compute="_compute_tutor_scope_user_ids", search="_search_tutor_scope_user_ids", compute_sudo=True)
+
     # This field is used to set the entire form as read-only; compute_sudo needed to compute on read-only.
     read_only = fields.Boolean(string="Read only", compute="_compute_read_only", compute_sudo=True, store=False)
 
@@ -120,6 +132,34 @@ class ems_employee_base(models.AbstractModel):
     # button visibility). 'PDF' export is intentionally NOT gated by this field — every role that
     # can already read a schedule may also export it.
     can_edit_schedule = fields.Boolean(string="Can edit schedule", compute="_compute_can_edit_schedule", compute_sudo=True, store=False)
+
+    def _compute_tutor_scope_user_ids(self):
+        for employee in self:
+            users = employee.user_id | employee.company_id.director_id.user_id
+            ancestor, seen = employee.parent_id, employee
+            while ancestor and ancestor not in seen:
+                if ancestor.user_id and ancestor.user_id.has_group(TUTOR_SCOPE_CHIEF_GROUP):
+                    users |= ancestor.user_id
+                seen |= ancestor
+                ancestor = ancestor.parent_id
+            employee.tutor_scope_user_ids = users
+
+    def _search_tutor_scope_user_ids(self, operator, value):
+        """The mirror of the compute, for record rules: the employees whose tutees the given users
+        tutor - their own employee records, everyone below them when they are a chief, everyone
+        in a company they direct."""
+        if operator not in ('=', 'in'):
+            raise NotImplementedError(_("Unsupported search on tutor_scope_user_ids"))
+        user_ids = [user_id for user_id in ([value] if isinstance(value, int) else value or []) if user_id]
+        Employee = self.env['hr.employee'].sudo().with_context(active_test=False)
+        own = Employee.search([('user_id', 'in', user_ids)])
+        chiefs = own.filtered(lambda employee: employee.user_id.has_group(TUTOR_SCOPE_CHIEF_GROUP))
+        if chiefs:
+            own |= Employee.search([('id', 'child_of', chiefs.ids)])
+        domain = [('id', 'in', own.ids)]
+        if own.directed_company_ids:
+            domain = ['|', ('company_id', 'in', own.directed_company_ids.ids)] + domain
+        return domain
 
     def _compute_read_only(self):
         # compute_sudo=True (needed so a read-only user can compute this field at all — see
@@ -163,7 +203,7 @@ class ems_employee_base(models.AbstractModel):
         """Fills this teacher's own weekly schedule with a break/patio period taken from the
         schedule framework(s) of the level(s) they ACTUALLY teach (`teaching_ids.group_id.
         level_id` — kept in sync with the real calendar by `apply_schedule_changes`/
-        `sync_from_schedule`, so it reflects what the teacher genuinely teaches right now, not a
+        `_sync_from_schedule`, so it reflects what the teacher genuinely teaches right now, not a
         UI convenience field like `source_framework_id`). A teacher spanning several levels whose
         frameworks happen to define the exact same break (e.g. ESO and Batxillerat, at this
         centre) sees it once, same as before — no special-casing needed, the existing per-slot
@@ -236,9 +276,9 @@ class ems_employee_base(models.AbstractModel):
     def _teaching_entries_from_calendar(self):
         """This teacher's current teaching entries, read straight off their own
         'resource_calendar_id.attendance_ids' — the same {'subject_id', 'group_ids', ...} shape
-        'ems.teaching.sync_from_schedule()'/'ems.attendance_template.sync_from_schedule_batch()'
+        'ems.teaching._sync_from_schedule()'/'ems.attendance_template._sync_from_schedule_batch()'
         already expect. Extracted from what used to be inline in
-        'ems.attendance_template.regenerate_all_from_calendars()' so course transition's own
+        'ems.attendance_template._regenerate_all_from_calendars()' so course transition's own
         teaching resync ('course_transition_wizard._apply_teaching_resync()', added 2026-09-01)
         can reuse the exact same entries without duplicating the dict-building logic — both need
         "what does this teacher's calendar say they teach, right now" as their single source of
@@ -266,8 +306,8 @@ class ems_employee_base(models.AbstractModel):
         '_apply_schedule_line_archive_pass'/'_apply_schedule_line_write_pass') and one level below
         the automatic 'resource.calendar.attendance' hook (Phase 4, see
         '_ems_sync_schedule_from_calendar_unless_suppressed' below). Not new reconciliation logic -
-        both 'ems.teaching.sync_from_schedule' and 'ems.attendance_template.sync_from_schedule'
-        already correctly reduce to a single-teacher case ('sync_from_schedule_batch([(teacher,
+        both 'ems.teaching._sync_from_schedule' and 'ems.attendance_template._sync_from_schedule'
+        already correctly reduce to a single-teacher case ('_sync_from_schedule_batch([(teacher,
         entries)])' already runs through the exact same Phase 1+2 pipeline for a batch of one, no
         code changed there for this to be true). This just gives that case its own clear name and
         home, at the level ('hr.employee', the calendar's own "container") the whole redesign's
@@ -276,8 +316,8 @@ class ems_employee_base(models.AbstractModel):
         simplified to reuse this instead, Phase 5)."""
         self.ensure_one()
         entries = self._teaching_entries_from_calendar()
-        self.env['ems.teaching'].sync_from_schedule(self, entries)
-        self.env['ems.attendance_template'].sync_from_schedule(self, entries)
+        self.env['ems.teaching']._sync_from_schedule(self, entries)
+        self.env['ems.attendance_template']._sync_from_schedule(self, entries)
 
     def _ems_sync_schedule_from_calendar_unless_suppressed(self):
         """Bottom-up sync redesign, Phase 4 (2026-09-08) - recordset-level wrapper around
@@ -298,7 +338,6 @@ class ems_employee_base(models.AbstractModel):
     @api.onchange('tutorship_ids')
     def _onchange_tutorship_ids(self):
         self.update_tutor_role()
-        self._sync_security_groups()
 
     @api.depends('department_id')
     def _compute_parent_id(self):
@@ -387,10 +426,6 @@ class ems_employee_base(models.AbstractModel):
                 employee.roles = "%s, %s" % (employee.roles, role.name)
             employee.roles = employee.roles.lstrip(", ")
     
-    @api.onchange('job_id')
-    def _onchange_job_id(self):
-        self._sync_security_groups()
-
     def _get_own_groups(self):
         """The groups this employee actually works with: the ones they teach plus the ones
         they tutor. Backs res.partner's 'is_my_student' (issue #421) - see
@@ -474,7 +509,6 @@ class ems_employee_base(models.AbstractModel):
                         'type': 'notification',
                     }
                 }
-        self._sync_security_groups()
 
     @api.constrains('role_ids')
     def check_role_hierarchy(self):
@@ -537,27 +571,34 @@ class ems_employee_base(models.AbstractModel):
             synced = employee.with_context(**{EMS_ROLE_SYNC_CONTEXT_KEY: True})
             synced.role_ids = [(4 if is_director else 3, role_director)]
 
-    def _sync_security_groups(self):
-        """Sync res.users.groups_id based on role_ids and job_id that have a linked security group."""
-        role_groups = self.env['ems.role'].sudo().search([('group_id', '!=', False)]).mapped('group_id')
-        job_groups = self.env['hr.job'].sudo().search([('group_id', '!=', False)]).mapped('group_id')
-        managed_groups = role_groups | job_groups
-        if not managed_groups:
-            return
-        for employee in self:
-            sudo_employee = self.env['hr.employee'].sudo().search([('id', '=', employee.id)], limit=1)
-            if not sudo_employee or not sudo_employee.user_id:
+    def _ems_role_job_groups(self):
+        """Security groups granted by this employee's current roles and job position."""
+        self.ensure_one()
+        return self.role_ids.group_id | self.job_id.group_id
+
+    def _sync_security_groups(self, previous_groups=None):
+        """Grant the security groups this employee's roles/job carry, and revoke only the ones a
+        role/job stopped granting in this change.
+
+        'previous_groups' maps employee id -> '_ems_role_job_groups()' before the change; a group
+        in there that no current role/job grants any longer is revoked. Without it nothing is
+        revoked. A group granted by hand (Settings > Users) is therefore kept by any sync that
+        doesn't take away a role/job which granted it - it used to be wiped on every sync of that
+        employee, including the one each EMS upgrade triggers by reloading
+        data/custom/hr.department.csv (issue #510). Archived employees are synced too: a departed
+        teacher's tutorship is usually cleared after archiving them."""
+        previous_groups = previous_groups or {}
+        for employee in self.sudo().with_context(active_test=False):
+            user = employee.user_id
+            if not user:
                 continue
-            should_have = employee.role_ids.mapped('group_id') | employee.job_id.group_id
-            commands = []
-            for g in managed_groups:
-                if g in should_have and g not in sudo_employee.user_id.groups_id:
-                    commands.append((4, g.id))
-                elif g not in should_have and g in sudo_employee.user_id.groups_id:
-                    commands.append((3, g.id))
+            should_have = employee._ems_role_job_groups()
+            lost = previous_groups.get(employee.id, self.env['res.groups']) - should_have
+            commands = [(4, group.id) for group in should_have - user.groups_id]
+            commands += [(3, group.id) for group in lost & user.groups_id]
             if commands:
-                sudo_employee.user_id.sudo().write({'groups_id': commands})
-            self._sync_secretary_home_action(sudo_employee, should_have)
+                user.write({'groups_id': commands})
+            self._sync_secretary_home_action(employee, should_have)
 
     def _sync_secretary_home_action(self, sudo_employee, should_have):
         """Secretary staff never have a session of their own to take (see
@@ -580,9 +621,11 @@ class ems_employee_base(models.AbstractModel):
             # NOTE: I don't know why, but unlink (3, ID) does not arrive when unlinked from '_onchange_role_ids' (I tried everything!!!), but a remove... (2, ID)
             for command in vals["tutorship_ids"]:
                 if command[0] == 2: command[0] = 3
+        sync_groups = {'role_ids', 'tutorship_ids', 'job_id'} & vals.keys()
+        previous_groups = {employee.id: employee._ems_role_job_groups() for employee in self} if sync_groups else {}
         res = super(ems_employee_base, self).write(vals)
-        if 'role_ids' in vals or 'tutorship_ids' in vals or 'job_id' in vals:
-            self._sync_security_groups()
+        if sync_groups:
+            self._sync_security_groups(previous_groups)
         return res
                         
     @api.constrains("role_ids")
@@ -619,12 +662,23 @@ class ems_employee(models.AbstractModel):
     activity_type_id = fields.Many2one(groups="hr.group_hr_user,ems.group_teacher")
     activity_type_icon = fields.Char(groups="hr.group_hr_user,ems.group_teacher")
 
+    # groups=: mandatory on every field that lives on hr.employee and not on
+    # hr.employee.public, per the rule in Odoo's own hr.employee docstring - without it the
+    # ORM prefetches the field for a user who only reaches the employee through
+    # hr.employee.public (no hr.group_hr_user, e.g. a secretary) and hr.employee.fetch()
+    # raises AccessError over it, anywhere in the codebase an employee field happens to be
+    # read (issue #492). Same trio as employee_type above: base.group_system carries its own
+    # read ACL on hr.employee (hr/security/ir.model.access.csv), so it never reaches the
+    # public profile, and listing it keeps the form's own elements - which are shown to it -
+    # consistent with the fields they depend on.
     schedule_import_code = fields.Char(
         string="Schedule import code", copy=False,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="Raw placeholder code (e.g. 'X1') from a working-schedule import, kept only "
              "while the teacher's real identity is still unknown.")
     pending_identification = fields.Boolean(
         string="Pending identification", compute="_compute_pending_identification", store=True,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="A schedule was imported for this teacher before their real identity was known.")
 
     # Feeds the shared 'ems_archived_reason_ribbon' field widget (form + kanban, same widget
@@ -647,12 +701,42 @@ class ems_employee(models.AbstractModel):
     # issue #405 was originally built for. Not stored, same reasoning as the group's own field -
     # cheap to compute, and pending conflicts are rare/short-lived by design.
     pending_classroom_conflict_count = fields.Integer(
-        string="Pending classroom conflicts", compute="_compute_pending_classroom_conflict_count")
+        string="Pending classroom conflicts", compute="_compute_pending_classroom_conflict_count",
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher")
+
+    # The native identification_id/ssnid carry groups="hr.group_hr_user", which a Department
+    # Chief does not have (and cannot be given: it would open every employee's private data
+    # centre-wide). These read-only copies, shown to them in the "Private Information" tab,
+    # reach the chain of command instead: the employee, every chief above them and the
+    # Director (tutor_scope_user_ids). Blank for anyone else. The HR officers (Head of Studies
+    # and above, TAC, the secretariat) edit the native fields in the same tab, and
+    # can_view_identity is always True for them, since it also decides whether the tab shows.
+    can_view_identity = fields.Boolean(
+        string="Can view identity", compute="_compute_scoped_identity", compute_sudo=True,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher")
+    scoped_identification_id = fields.Char(
+        string="Identity document", compute="_compute_scoped_identity", compute_sudo=True,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher")
+    scoped_ssnid = fields.Char(
+        string="Social Security No", compute="_compute_scoped_identity", compute_sudo=True,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher")
 
     @api.depends("schedule_import_code")
     def _compute_pending_identification(self):
         for employee in self:
             employee.pending_identification = bool(employee.schedule_import_code)
+
+    @api.depends_context('uid')
+    @api.depends('identification_id', 'ssnid', 'parent_id', 'user_id')
+    def _compute_scoped_identity(self):
+        # compute_sudo=True: self runs as superuser, but self.env.user is still the real viewer.
+        user = self.env.user
+        hr_officer = user.has_group('hr.group_hr_user')
+        for employee in self:
+            allowed = hr_officer or user in employee.tutor_scope_user_ids
+            employee.can_view_identity = allowed
+            employee.scoped_identification_id = employee.identification_id if allowed else False
+            employee.scoped_ssnid = employee.ssnid if allowed else False
 
     def _compute_pending_classroom_conflict_count(self):
         Attendance = self.env['resource.calendar.attendance']
@@ -683,6 +767,13 @@ class ems_employee(models.AbstractModel):
     def _compute_attendance_manager_id(self):
         for employee in self:
             employee.attendance_manager_id = employee.leave_manager_id
+
+    @api.constrains('private_email')
+    def _check_private_email_not_corporate(self):
+        # The personal email is the Google Workspace account's recovery address, so it can't be
+        # the corporate account itself (issue #514).
+        for employee in self:
+            employee.company_id._ems_check_personal_email(employee.private_email)
 
     @api.model_create_multi
     def create(self, vals_list):

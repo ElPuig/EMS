@@ -78,7 +78,8 @@ This mirrors the semantics already frozen in the academic history, where `ems.st
 flowchart TD
     S0["0 · Academic history<br/>generate_for_students(scope, source)"] --> GUARD{"Step 0 OK?"}
     GUARD -- no --> ABORT["Abort the whole wizard"]
-    GUARD -- yes --> S1["1 · Graduates → alumni<br/>_ems_convert_to_ex_student()"]
+    GUARD -- yes --> S0B["0b · Planning rollover<br/>_apply_planning_rollover()"]
+    S0B --> S1["1 · Graduates → alumni<br/>_ems_convert_to_ex_student()"]
     S1 --> S2["2 · Revoke portal<br/>_ems_revoke_student_portal()"]
     S2 --> S2B["2b · Archive the graduates<br/>active = False"]
     S2B --> S7["7 · Archive attendance templates"]
@@ -92,6 +93,17 @@ flowchart TD
 ```
 
 Steps 3 and 4 are a single bulk call to `sale.order._ems_apply_destination_placement()`, which is already idempotent and already ordered (group before subject enrollments). Every step is scoped to `study_ids` except the flip.
+
+### Step 0b: planning rollover (issue #503)
+
+`_apply_planning_rollover()` copies every [`ems.planning`](../planning/planning.md) of the
+studies in scope from `source_course_id` to `target_course_id`, including its
+`planning_outcome_ids` (which `copy()` does NOT duplicate on its own — a plain `one2many`
+defaults to `copy=False` in this Odoo version, confirmed empirically while implementing this).
+Idempotent: skips any study+subject that already has a target-course planning, so relaunching a
+transition never duplicates one. Scoped to `study_ids` like every other step here, since studies
+transition at different times — a study still pending never gets its planning rolled forward
+until its own run.
 
 ### Why the cleanup runs before the placement
 
@@ -271,12 +283,12 @@ anywhere in this wizard before — a teacher's stale (subject, group) links from
 transition survived forever, since the working-schedule importer's own incremental sync is
 additive-only by design (`replace=False`, see `working_schedule.md`) and never removes them
 either. The fix reuses `hr.employee._teaching_entries_from_calendar()` (the same entries dict
-`ems.attendance_template.regenerate_all_from_calendars()` already builds for its own template
+`ems.attendance_template._regenerate_all_from_calendars()` already builds for its own template
 rebuild — extracted into a shared helper so both stay in sync with one calendar-reading
-implementation) and calls `ems.teaching.sync_from_schedule(teacher, entries)` — the same
+implementation) and calls `ems.teaching._sync_from_schedule(teacher, entries)` — the same
 `replace=True` reconciliation the Schedule tab's own live edit already uses
 (`ems_working_schedule.apply_schedule_changes`), just triggered from the transition instead of a
-manual save. `regenerate_all_from_calendars()` itself gained the identical call, since it has the
+manual save. `_regenerate_all_from_calendars()` itself gained the identical call, since it has the
 exact same "rebuild from the calendar, but never touched `ems.teaching`" gap.
 
 A group's tutoring assignment is itself recorded as an ordinary `ems.teaching` row on the group's
@@ -623,9 +635,9 @@ The wizard writes through `sudo()` where the reused helpers already do (`_ems_ap
 `static/src/js/backend/blocking_action_form.js` exposes `blockingActionFormView(messages)`, a
 form-view factory that blocks the UI on the named buttons and unblocks in
 `afterExecuteActionButton` (which Odoo calls even when the action raised, so a failure cannot
-leave the screen stuck — proven by the import wizard's error-dialog tour). It backs four
-wizards: this one (`action_apply`), grade session creation, grade session state change and the
-Esfer@ grade import.
+leave the screen stuck — proven by the import wizard's error-dialog tour). It backs this wizard
+(`action_apply`), grade session creation, grade session state change, the Esfer@ grade import, the
+working schedules import and the contact data request assistant.
 
 No live counter anywhere, for the reason above: a single transaction publishes nothing until it
 commits.

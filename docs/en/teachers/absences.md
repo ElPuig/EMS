@@ -50,7 +50,7 @@ Choosing the **ATRI** type shows the portal links on the form. The request has t
 - [My requests - leave and absences](https://atriportal.gencat.cat/ATRI-ng/#/meves-sollicituds/permisos-absencies)
 - [ATRI leave and absences manual (PDF)](https://atriportal.gencat.cat/ATRI-web/gestor-continguts/2011.pdf)
 
-Direction checks that you filed it on the portal before setting the check to `Done`.
+Direction checks that you filed it on the portal before approving it on its side (**Direction status** `Done`).
 
 Each option shows the full wording of the leave. Read it before choosing: ticking it declares that it applies to you.
 
@@ -85,7 +85,7 @@ To request more than one day, tick it and change the end date. For a single day 
 
 For a medical appointment, the document must expressly state the patient's first name and surname and the time of entry to and exit from the centre or medical practice.
 
-**A certificate that arrives later is filed on the same request.** Open the absence, even one already approved, attach the file and save. That is what clears a **Direction check** left at *Missing document*: you do not have to request the absence again.
+**A certificate that arrives later is filed on the same request.** Open the absence, even one already approved, attach the file and save. That is what clears a **Direction status** left at *Missing document*: you do not have to request the absence again.
 
 To remove one, click the cross on the file and confirm.
 
@@ -107,24 +107,23 @@ If you leave the form without sending it, EMS tells you and lets you discard it.
 
 ## Checking its status
 
-**Absences** shows your own list, with two columns:
+**Absences** shows your own list. Your absence is approved twice, by your Head (Deputy Head of Studies, Head of Studies or Secretary) and by Direction, in either order.
 
 **Status**
 
 | Value | Means |
 |---|---|
 | Pending | Not decided yet |
-| Approved | Granted |
+| Pending Head | Direction has approved it, your Head has not yet |
+| Pending Direction | Your Head has approved it, Direction has not reviewed it yet |
+| Pending Document | Direction is waiting for your supporting document: attach it to the same request, even if it is already approved |
+| Approved | Granted by both |
 | Refused | Denied. This is final: to insist, file a new request |
 | Cancelled | Withdrawn |
 
-**Direction check** — whether Direction has checked the supporting document:
+The **Head status** and **Direction status** columns show each one's decision separately.
 
-| Value | Colour | What you have to do |
-|---|---|---|
-| Not done | grey | Nothing, it has not been reviewed yet |
-| Missing document | red | Attach the supporting document to the same request, even if it is already approved |
-| Done | green | Nothing |
+Once your Head approves it, the absence already counts in the absence calendar and the guard duty board.
 
 ---
 

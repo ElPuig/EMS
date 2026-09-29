@@ -21,6 +21,10 @@ if [ "$(whoami)" != "odoo" ]; then
     exec sudo -u odoo "$0" "$@"
 fi
 
+# Sourced up front, not inside restore_backup: that function checks out the previous release tag
+# first, which may predate this helper file.
+source /root/myModules/ems/scripts/odoo_modules.sh
+
 BACKUP_DIR="/root/backups"
 BACKUP_RETENTION_DAYS=30
 FILESTORE_PATH="/var/lib/odoo/.local/share/Odoo/filestore/ems"
@@ -80,7 +84,10 @@ restore_backup() {
     # this reconciliation itself fails, otherwise production is left down AND undeployable (2026-07-12
     # incident: this step failed, 'set -e' killed the function here, and both the service restart and
     # the 'git checkout main' below never ran).
-    if ! sudo -u odoo bash -c "odoo -d ems -u ems --stop-after-init -c /etc/odoo/odoo.conf"; then
+    # Same module list as upgrade.sh: the OCA repos keep update.sh's freshly pulled code.
+    local modules
+    modules=$(ems_modules_to_upgrade /etc/odoo/odoo.conf ems)
+    if ! sudo -u odoo bash -c "odoo -d ems -u $modules --stop-after-init -c /etc/odoo/odoo.conf"; then
         echo ">> WARNING: post-restore reconciliation failed - investigate before the next deploy, but restarting the service on the restored data first." >&2
     fi
 

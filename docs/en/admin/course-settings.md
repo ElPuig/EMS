@@ -14,6 +14,8 @@ The **Current course** setting controls which academic year (e.g. `2025-2026`) i
 
 Navigate to: **Settings → EMS Management → Course Management Settings**
 
+![Course Management Settings: the Current course and Enrollment course selectors, with the Set up the next course link](../../assets/admin/admin-course-settings.png)
+
 ---
 
 ## Change the Current Course

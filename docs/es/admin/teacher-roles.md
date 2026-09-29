@@ -28,15 +28,17 @@ Los niveles de permisos forman una jerarquía — cada nivel incluye todos los p
 | Coordinador/a TAC | *(bloque TAC — ved la nota de abajo)* | Manual — se añade al campo **Cargos** de la ficha del profesor |
 | Coordinador/a de orientación | *(bloque Orientación — ved la nota de abajo)* | Manual — se añade al campo **Cargos** de la ficha del profesor |
 
-> El Jefe de departamento tiene actualmente los mismos permisos que el Tutor, además de poder crear, editar y eliminar Grupos de alumnos (Contactos → Grupos). Existe como nivel propio para poder ampliarse de forma independiente en el futuro. El Jefe de seminario tiene el mismo nivel de permisos.
+> El Jefe de departamento tiene actualmente los mismos permisos que el Tutor, además de poder crear, editar y eliminar Grupos de alumnos (Contactos → Grupos). Existe como nivel propio para poder ampliarse de forma independiente en el futuro. El Jefe de seminario tiene el mismo nivel de permisos. Ambos pueden ver también, solo de lectura, el documento de identidad y el número de la Seguridad Social del personal de su propia cadena de mando (pestaña **Información privada**, grupo **Identificación**).
 >
-> **El rol de Secretario/a no forma parte de esta jerarquía.** Concede acceso a un bloque de permisos completamente separado (Secretaría: Manager/Administrador), sin relación con la cadena Profesor→...→Director de arriba — aunque se configura de la misma manera (como "Responsable de área" en un departamento top-level), no ocupa ningún peldaño de esta escala.
+> **El rol de Secretario/a no forma parte de esta jerarquía.** Concede acceso a un bloque de permisos completamente separado (Secretaría: Manager/Administrador), sin relación con la cadena Profesor→...→Director de arriba — aunque se configura de la misma manera (como "Responsable de área" en un departamento top-level), no ocupa ningún peldaño de esta escala. La Secretaría también tiene los permisos de Recursos Humanos de Odoo: puede crear y editar la ficha de todo el personal, PAS y profesorado, información privada incluida, pero no eliminarla.
 >
 > **El cargo de Coordinador/a de orientación tampoco forma parte de esta jerarquía.** Concede un bloque de permisos propio y separado (Orientación: Manager/Administrador) y, como el de TAC, se asigna a mano desde el campo **Cargos** de la ficha del profesor. No es unipersonal: normalmente lo ocupa un equipo. Concede acceso de solo lectura a los datos de todo el alumnado del centro - notas, historial académico, asistencia diaria y sus incidencias, faltas de convivencia, contactos, matrículas y autorizaciones - y, como único permiso de escritura, indicar las necesidades educativas especiales (NEE) de cualquier alumno o solicitante. No da acceso a facturas ni a pagos. **El cargo de Coordinador/a de convivencia concede el mismo acceso de lectura**, sin las NEE, más todas las faltas de convivencia del centro. El historial académico no necesita ningún cargo: lo puede leer cualquier profesor. Ved [Consultar los datos académicos de un alumno](../teachers/student-academic-data.md).
 >
 > **El cargo de Coordinador/a TAC tampoco forma parte de esta jerarquía.** Concede un bloque de permisos propio y separado (TAC: Manager/Administrador) y, a diferencia de todos los demás cargos de esta tabla, se asigna a mano, desde el campo **Cargos** de la ficha del profesor. Concede dos cosas: poder crear y editar fichas de profesorado enteras, información privada incluida, el mismo derecho que ha ganado la jefatura de estudios, y [crear y suspender la cuenta de Google de cualquier alumno, restablecer su contraseña](student-google-account.md) y consultar sus credenciales. Nada más de la escala de arriba. No es unipersonal: el cargo lo puede ocupar un equipo de varias personas a la vez.
 >
 > **La jefatura de estudios, la adjunta y la dirección ya pueden crear y editar profesorado.** Hasta hace poco solo podía hacerlo la administración; ved [Crear y editar profesorado](../head_of_studies/staff-management.md). Borrar una ficha de personal y gestionar el PAS siguen siendo exclusivos de la administración.
+>
+> **Los permisos del tutor suben por la jerarquía.** El jefe de seminario, el jefe de departamento y el jefe de estudios (o el adjunto) de un tutor tienen, sobre el alumnado de ese tutor, todos sus permisos; la dirección, sobre el alumnado de todos los tutores. Solo los jefes del tutor, no los de otros departamentos o áreas. Los listados de "Mis alumnos" solo muestran los grupos propios.
 
 ---
 
@@ -64,6 +66,8 @@ La insignia muestra automáticamente el color elegido con un texto legible, sea 
 2. En el campo **Roles**, añadir el rol que corresponda al nivel de permisos a conceder (p. ej. **Jefe de departamento**).
 3. Hacer clic en **Guardar** (o navegar fuera de la ficha — Odoo guarda automáticamente).
 
+![Campo Roles en la ficha de un docente, con dos roles asignados en forma de etiquetas de colores](../../assets/admin/admin-teacher-roles-employee.png)
+
 La cuenta de usuario del profesor se actualiza de inmediato: se concede el grupo de seguridad vinculado al rol, junto con todo lo que implica (p. ej. asignar **Jefe de departamento** también concede el acceso de Tutor y de Profesor).
 
 > Los roles **Tutor**, **Jefe de departamento**, **Jefe de seminario**, **Jefe de estudios**, **Jefe de estudios adjunto**, **Secretario/a** y **Director** no se pueden añadir ni quitar manualmente — ni desde aquí, ni desde la lista **Asignado a** del propio rol (**Comunidad Educativa → Configuración → Profesorado/PAS → Roles**), ni mediante importación o edición masiva. Intentarlo muestra un mensaje que indica exactamente dónde hay que hacer el cambio en realidad. El Tutor se gestiona automáticamente según si el profesor es tutor de algún Grupo; los cinco siguientes se gestionan automáticamente desde el formulario de un departamento; el Director se gestiona automáticamente desde Ajustes (ver más abajo).
@@ -78,6 +82,8 @@ La cuenta de usuario del profesor se actualiza de inmediato: se concede el grupo
 
 Se revoca el grupo de seguridad correspondiente (y cualquier acceso que solo ese rol justificaba) de la cuenta de usuario del profesor.
 
+> **Los permisos concedidos directamente en la cuenta de usuario se mantienen.** Si se ha dado un permiso a mano desde **Ajustes → Usuarios** (por ejemplo, acceso de Secretaría a un profesor que no es el Responsable de área de Secretaría), cambiar los roles del profesor o actualizar EMS no lo quita. La única excepción: si más adelante el profesor pierde un rol que concede ese mismo permiso, se va con el rol, porque no hay forma de distinguir los dos casos. Si pasa, hay que volver a concederlo a mano.
+
 ---
 
 ## Asignar un Jefe de departamento / Jefe de seminario
@@ -87,6 +93,8 @@ A diferencia de los demás roles, **Jefe de departamento** y **Jefe de seminario
 1. Navegar a **Empleados → Departamentos** y abrir el departamento.
 2. Establecer el **Jefe de departamento** (el campo `Manager` del departamento) y, opcionalmente, el **Jefe de seminario**. Este campo solo muestra docentes y personal PAS — una cuenta técnica o del sistema nunca es una opción válida.
 3. Hacer clic en **Guardar**.
+
+![Ficha de un departamento con su Jefe de departamento y Jefe de seminario](../../assets/admin/admin-teacher-roles-department.png)
 
 Esto tiene un efecto inmediato y automático sobre todos los profesores de ese departamento:
 

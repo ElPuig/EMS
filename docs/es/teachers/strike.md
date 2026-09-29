@@ -20,6 +20,8 @@ A veces hay que dejar constancia del comportamiento de un alumno durante una ses
    - Una casilla **Expulsado de clase**, desmarcada por defecto — márcala si la incidencia terminó con el alumno fuera del aula.
 4. Haz clic en **Enviar**.
 
+![El diálogo de strike: el nombre del alumno, la alternancia Aviso de atención/Expulsado de clase, el desplegable de Motivo ya establecido en el valor genérico por defecto, y el campo opcional de Detalles](../../assets/teachers/strike-01-dialeg.png)
+
 Y ya está — no hace falta ninguna otra confirmación, ni nada más allá del motivo.
 
 ---

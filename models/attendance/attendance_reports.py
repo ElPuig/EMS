@@ -1,8 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import api, fields, models
+
+from ..shared import base
 
 overall_status = [("assistance", "Assistance"), ("absence", "Absence")]
+
+REPORT_REFS = {
+	"group": "ems.action_attendance_report_group",
+	"student": "ems.action_attendance_report_student",
+	"subject": "ems.action_attendance_report_subject",
+}
 
 # A single wizard (ems.attendance_report_wizard) drives all 3 PDF variants through a 'report_type'
 # selector (by group / by student / by subject). Each variant filters the same
@@ -77,7 +85,11 @@ class EmsAttendanceReportWizard(models.TransientModel):
 		taught_pairs = {(teaching.group_id.id, teaching.subject_id.id) for teaching in teachings}
 		enrollments = self.env["ems.enrollment"].search([("group_id", "in", teachings.mapped("group_id").ids)])
 		enrollments = enrollments.filtered(lambda enrollment: (enrollment.group_id.id, enrollment.subject_id.id) in taught_pairs)
-		return enrollments.mapped("student_id")
+		# Plus the students in the user's tutor scope, even when the user doesn't teach them.
+		tutees = self.env["res.partner"].search([
+			("contact_type", "=", "student"), ("tutor_id.tutor_scope_user_ids", "=", self.env.uid),
+		])
+		return enrollments.mapped("student_id") | tutees
 
 	def _get_groups_teaching(self, subject):
 		if not subject:
@@ -87,6 +99,22 @@ class EmsAttendanceReportWizard(models.TransientModel):
 		if teacher.id > 1:
 			domain.append(("teacher_id", "=", teacher.id))
 		return self.env["ems.teaching"].search(domain).mapped("group_id")
+
+	def _get_student_lines(self, date_range=True):
+		"""The session lines the by-student report covers, shared by the date prefill, print() and
+		the PDF render. Lines are readable by every teacher, but session headers only by their own
+		teacher: a plain teacher gets their own sessions only, while the student's tutor scope
+		(tutor, chiefs above them, Director) gets every session of this one student via sudo()."""
+		self.ensure_one()
+		domain = [("student_id", "=", self.student_id.id)]
+		if date_range:
+			domain += [("date", ">=", self.from_date), ("date", "<=", self.to_date)]
+		lines = self.env["ems.attendance_session_line"]
+		if base.EmsBase.user_acts_as_tutor(self, self.student_id.tutor_id):
+			lines = lines.sudo()
+		else:
+			domain.append(("attendance_session_id", "in", self.env["ems.attendance_session_header"]._search([])))
+		return lines.search(domain)
 
 	@api.model
 	def default_get(self, fields_list):
@@ -150,10 +178,7 @@ class EmsAttendanceReportWizard(models.TransientModel):
 	def _onchange_student_id(self):
 		for wizard in self:
 			if wizard.report_type == "student" and wizard.student_id:
-				sessions = self.env["ems.attendance_session_line"].search([
-					("student_id", "=", wizard.student_id.id),
-				]).mapped("attendance_session_id")
-				wizard._fill_dates(sessions)
+				wizard._fill_dates(wizard._get_student_lines(date_range=False).attendance_session_id)
 
 	@api.onchange("subject_id")
 	def _onchange_subject_id(self):
@@ -172,41 +197,46 @@ class EmsAttendanceReportWizard(models.TransientModel):
 	# --- action -------------------------------------------------------------------------------
 
 	def print(self):
+		# Printed on the wizard itself (docids, no data): the PDF recomputes its lines from the
+		# wizard, and the download gets its file name from print_report_name.
 		self.ensure_one()
-		line_model = self.env["ems.attendance_session_line"]
+		return self.env.ref(REPORT_REFS[self.report_type]).with_context(landscape=True).report_action(self)
+
+	# --- business -----------------------------------------------------------------------------
+
+	def _get_report_lines(self):
+		"""The session lines the selected report covers."""
+		self.ensure_one()
 		if self.report_type == "student":
-			status_ids = line_model.search([
-				("student_id", "=", self.student_id.id),
-				("attendance_session_id.date", ">=", self.from_date),
-				("attendance_session_id.date", "<=", self.to_date),
-			]).ids
-			report_ref = "ems.action_attendance_report_student"
+			return self._get_student_lines()
+		session_domain = [("date", ">=", self.from_date), ("date", "<=", self.to_date)]
+		if self.report_type == "group":
+			session_domain.append(("group_ids", "in", [self.group_id.id]))
 		else:
-			session_domain = [("date", ">=", self.from_date), ("date", "<=", self.to_date)]
-			if self.report_type == "group":
-				session_domain.append(("group_ids", "in", [self.group_id.id]))
-				report_ref = "ems.action_attendance_report_group"
-			else:
-				session_domain += [("group_ids", "in", self.group_ids.ids), ("subject_id", "=", self.subject_id.id)]
-				report_ref = "ems.action_attendance_report_subject"
-			session_ids = self.env["ems.attendance_session_header"].search(session_domain).ids
-			# Exclude student-less lines: when a student partner is hard-deleted, their session
-			# lines survive with student_id = NULL (Odoo's default ondelete='set null'). Grouping
-			# those by student would render a phantom blank-name row/group in the PDF.
-			status_ids = line_model.search([
-				("attendance_session_id", "in", session_ids), ("student_id", "!=", False),
-			]).ids
+			session_domain += [("group_ids", "in", self.group_ids.ids), ("subject_id", "=", self.subject_id.id)]
+		# Exclude student-less lines: when a student partner is hard-deleted, their session
+		# lines survive with student_id = NULL (Odoo's default ondelete='set null'). Grouping
+		# those by student would render a phantom blank-name row/group in the PDF.
+		return self.env["ems.attendance_session_line"].search([
+			("attendance_session_id", "in", self.env["ems.attendance_session_header"]._search(session_domain)),
+			("student_id", "!=", False),
+		])
 
-		data = {"doc_ids": [self.read()[0]["id"]], "status_ids": status_ids}
-		return self.env.ref(report_ref).with_context(landscape=True).report_action(None, data=data)
+	def get_report_filename(self):
+		"""Download file name (print_report_name of the 3 reports): the report's own name plus the
+		student, group or subject it's about, so several downloads can be told apart."""
+		self.ensure_one()
+		subject = {"group": self.group_id, "student": self.student_id, "subject": self.subject_id}[self.report_type]
+		return f"{self.env.ref(REPORT_REFS[self.report_type]).name}_{subject.name.replace(' ', '_')}"
 
 
-def _build_report_values(env, docids, data, group_key):
+def _build_report_values(env, docids, group_key):
 	# Shared by the 3 report data models below: they only differ in group_key (the dimension the
-	# per-line entries are grouped by for the detail sections).
-	if not docids:
-		docids = data["doc_ids"]  # report_action(None, ...) never sets active_ids, so docids is None here.
-	entries = list(env["ems.attendance_session_line"].browse(data["status_ids"]))
+	# per-line entries are grouped by for the detail sections). docids is the wizard: the lines are
+	# always recomputed from it, never taken from the client (the by-student report may widen them
+	# to the tutor scope, see _get_student_lines).
+	wizard = env["ems.attendance_report_wizard"].browse(docids)
+	entries = list(wizard._get_report_lines())
 	main = _report_data(entries, env)
 
 	grouped = {}
@@ -214,7 +244,6 @@ def _build_report_values(env, docids, data, group_key):
 		grouped.setdefault(group_key(entry), []).append(entry)
 	lines = {key: _report_data(items, env) for key, items in grouped.items()}
 
-	wizard = env["ems.attendance_report_wizard"].browse(data["doc_ids"])
 	detail_status_ids = set(wizard.detail_status_ids.ids)
 	# Per-dimension "Details"/"Strikes" are kept out of _report_data (which still aggregates every
 	# entry, regardless of detail_status_ids, for the % summary) — they're only the optional,
@@ -245,7 +274,7 @@ class EmsAttendanceReportGroup(models.AbstractModel):
 	_description = "Attendance report data: by group."
 
 	def _get_report_values(self, docids, data=None):
-		return _build_report_values(self.env, docids, data, lambda entry: entry.attendance_session_id.subject_id)
+		return _build_report_values(self.env, docids, lambda entry: entry.attendance_session_id.subject_id)
 
 
 class EmsAttendanceReportStudent(models.AbstractModel):
@@ -253,7 +282,7 @@ class EmsAttendanceReportStudent(models.AbstractModel):
 	_description = "Attendance report data: by student."
 
 	def _get_report_values(self, docids, data=None):
-		return _build_report_values(self.env, docids, data, lambda entry: entry.attendance_session_id.subject_id)
+		return _build_report_values(self.env, docids, lambda entry: entry.attendance_session_id.subject_id)
 
 
 class EmsAttendanceReportSubject(models.AbstractModel):
@@ -261,7 +290,7 @@ class EmsAttendanceReportSubject(models.AbstractModel):
 	_description = "Attendance report data: by subject."
 
 	def _get_report_values(self, docids, data=None):
-		return _build_report_values(self.env, docids, data, lambda entry: entry.student_id)
+		return _build_report_values(self.env, docids, lambda entry: entry.student_id)
 
 
 class _report_data:

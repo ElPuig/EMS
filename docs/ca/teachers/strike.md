@@ -20,6 +20,8 @@ De vegades cal deixar constància del comportament d'un alumne durant una sessi�
    - Una casella **Expulsat de classe**, desmarcada per defecte — marca-la si la incidència ha acabat amb l'alumne fora de l'aula.
 4. Clica **Enviar**.
 
+![El diàleg de strike: el nom de l'alumne, l'alternança Toc d'atenció/Expulsat de classe, el desplegable de Motiu ja establert al valor genèric per defecte, i el camp opcional de Detalls](../../assets/teachers/strike-01-dialeg.png)
+
 Ja està — no cal cap altra confirmació, ni res més enllà del motiu.
 
 ---

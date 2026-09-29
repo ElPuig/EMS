@@ -4,7 +4,6 @@ from odoo import models, fields, api, _
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools import email_normalize
 from ..shared import base
-import datetime
 import re
 from dateutil.relativedelta import relativedelta
 from markupsafe import Markup
@@ -12,6 +11,13 @@ from markupsafe import Markup
 # The only fields guidance (Orientació) may write on a student or applicant it could not edit
 # otherwise - see rule_contact_orientation_special_needs and _ems_check_orientation_write() (issue #465).
 ORIENTATION_WRITABLE_FIELDS = {'special_needs'}
+# Read and write every student's private notes (issue #511); the student's tutor and the chiefs
+# above them do too, through hr.employee.tutor_scope_user_ids - see _ems_can_access_private_notes().
+PRIVATE_NOTES_GROUPS = ('ems.group_academic_admin', 'ems.group_orientation', 'ems.group_coexistence')
+
+# Contact types whose 'email' is a personal address, so it can never be a corporate one (issue
+# #514). Staff work contacts (no contact_type) are left out: their email IS the corporate account.
+PERSONAL_EMAIL_CONTACT_TYPES = ('student', 'family', 'applicant', 'alumni', 'withdrawal', 'expelled')
 
 class EmsStudentBenefit(models.Model):
     _name = 'ems.student.benefit'
@@ -56,7 +62,7 @@ class EmsStudentBenefit(models.Model):
     @api.onchange('benefit_type')
     def _onchange_benefit_type(self):
         if self.benefit_type:
-            today = fields.Date.today()
+            today = self.env['ems.datetime_utils'].get_local_today()
             
             # Scholarship case: 9 months
             if self.benefit_type == 'scholarship':
@@ -96,6 +102,7 @@ class ResPartner(models.Model):
     enrollment_ids = fields.One2many(string='Enrollment', comodel_name='ems.enrollment', inverse_name='student_id')
     strike_ids = fields.One2many(string='Strikes', comodel_name='ems.strike', inverse_name='student_id')
     strike_count = fields.Integer(string='Strike count', compute='_compute_strike_count')
+    convalidation_count = fields.Integer(string='Convalidation count', compute='_compute_convalidation_count')
     # Study granted at pre-enrollment (GEDAC), for a student the centre already has:
     # the internal continuer changing studies next course (ESO4 -> SMX1). Only active
     # students use it -- an applicant's destination already lives in study_id, which is
@@ -194,6 +201,13 @@ class ResPartner(models.Model):
                 raise ValidationError(_("%(email)s is not a valid email address.", email=partner.email))
             if partner.student_email and not email_normalize(partner.student_email):
                 raise ValidationError(_("%(email)s is not a valid student email address.", email=partner.student_email))
+
+    @api.constrains('email')
+    def _check_email_not_corporate(self):
+        # Only on 'email' itself, not 'contact_type': a legacy corporate address must not block
+        # a type change (applicant -> student, graduation...) that doesn't touch the email.
+        for partner in self.filtered(lambda p: p.contact_type in PERSONAL_EMAIL_CONTACT_TYPES):
+            (partner.company_id or self.env.company)._ems_check_personal_email(partner.email)
     student_id = fields.Char(string="Student ID", copy=False)
     medical_id = fields.Char(string="Medical ID")
     nuss = fields.Char(string="NUSS")
@@ -216,6 +230,14 @@ class ResPartner(models.Model):
     wpi_enrolled = fields.Boolean(string="WPI enrolled")
 
     document_ids = fields.One2many('ems.student.document', 'partner_id', string='Documents')
+    # Shows the Secretary tab's Documentation section only to whoever the ems.student.document rules
+    # let read something of this student - admin/secretary (all), TAC (credentials), the student's
+    # tutor scope (credentials) - so nobody else gets an empty list that looks as if there were none.
+    can_see_documents = fields.Boolean(string='Can see documents', compute='_compute_can_see_documents')
+    # Same for the Bonifications & Exemptions section: mirrors the ems.student.benefit record rules
+    # (security/rules/contacts.xml) - admin, secretary, Head of Studies, guidance, coexistence, and
+    # the student's tutor scope.
+    can_see_benefits = fields.Boolean(string='Can see benefits', compute='_compute_can_see_benefits')
 
     selected_student_id = fields.Many2one(
         'res.partner',
@@ -265,6 +287,21 @@ class ResPartner(models.Model):
     # on-screen, not-yet-saved edit of main_group_id, so it needs a real compute/depends,
     # not the default()-only idiom (which only ever evaluates once, at load time).
     main_group_pending_change = fields.Boolean(compute='_compute_main_group_pending_change', store=False)
+
+    # Public notes (teachers), issue #511: the native field, restricted to internal users - a
+    # portal student or family can read their own partner record, and the form's own note under
+    # the tab promises them these notes are never visible to them.
+    comment = fields.Html(groups='base.group_user')
+
+    # Private notes (tutoring), issue #511: stored in ems.student.private_note, which only the
+    # academic admin can reach directly. Unlike the public notes (comment, read by every teacher),
+    # this field is empty for anyone _ems_can_access_private_notes() rejects, and writing it is
+    # handled by create()/write() themselves (_ems_store_private_notes) - not an inverse - so
+    # guidance and coexistence can write it on students whose partner record they cannot write.
+    private_notes = fields.Html(
+        string='Private notes (tutoring)', compute='_compute_private_notes', readonly=False, store=False)
+    can_access_private_notes = fields.Boolean(
+        string='Can access private notes', compute='_compute_private_notes', store=False)
 
     def _ems_enrollment_in_force(self):
         """The student's enrollment that governs what may be done with them now.
@@ -395,6 +432,13 @@ class ResPartner(models.Model):
             'view_mode': 'form',
             'target': 'current',
         }
+
+    def action_view_convalidations(self):
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_convalidation')
+        action['domain'] = [('student_id', '=', self.id)]
+        action['context'] = {'default_student_id': self.id}
+        return action
 
     def action_view_strikes(self):
         self.ensure_one()
@@ -654,6 +698,14 @@ class ResPartner(models.Model):
                 else:
                     partner.benefit_status = 'none'
 
+    def _compute_convalidation_count(self):
+        # sudo: the student form is open to roles with no access to convalidations; the button
+        # that uses the count is only shown to the ones that do.
+        counts = dict(self.env['ems.convalidation'].sudo()._read_group(
+            [('student_id', 'in', self._origin.ids)], ['student_id'], ['__count']))
+        for partner in self:
+            partner.convalidation_count = counts.get(partner._origin, 0)
+
     @api.depends('strike_ids')
     def _compute_strike_count(self):
         for partner in self:
@@ -663,7 +715,7 @@ class ResPartner(models.Model):
     def _compute_is_adult(self):
         for partner in self:
             partner.is_adult = bool(partner.birth_date) and (
-                relativedelta(datetime.date.today(), partner.birth_date).years >= 18)
+                relativedelta(self.env['ems.datetime_utils'].get_local_today(), partner.birth_date).years >= 18)
 
     @api.depends('main_group_id')
     def _compute_main_group_pending_change(self):
@@ -754,6 +806,7 @@ class ResPartner(models.Model):
         # two remaining exclusions as write(): not self.env.su (system flows) and a
         # non-'student' contact_type (applicant_import_wizard). student_import_wizard stays
         # excluded too, since it never sets study_id in the first place.
+        private_notes = [entry.pop('private_notes', False) for entry in values]
         is_su = self.env.su
         study_refresh_flags = []
         for entry in values:
@@ -785,6 +838,9 @@ class ResPartner(models.Model):
 
         contact = super(ResPartner, self).create(values)
         contact._sync_category()
+        for record, notes in zip(contact, private_notes):
+            if notes:
+                record._ems_store_private_notes(notes)
 
         # zip() relies on api.model_create_multi's guaranteed order-preservation between the
         # input values and the returned recordset.
@@ -804,6 +860,13 @@ class ResPartner(models.Model):
     def write(self, values):
         # Fired when the model is updated (Source: https://www.cybrosys.com/blog/how-to-override-create-write-and-unlink-methods-in-odoo-17)
         # Note: values is a dict (method fired once per entry)
+        # Private notes first, and without going through super(): they are checked on their own
+        # (_ems_can_access_private_notes), so they must not need write access on the partner.
+        if 'private_notes' in values:
+            values = dict(values)
+            self._ems_store_private_notes(values.pop('private_notes'))
+            if not values:
+                return True
         self._ems_normalize_student_id(values)
         self._ems_check_student_id_on_write(values)
         self._ems_check_orientation_write(values)
@@ -1240,6 +1303,56 @@ class ResPartner(models.Model):
         is_head_of_studies = base.EmsBase.get_user_is_head_of_studies(self)
         return not (is_admin or is_secretary or is_head_of_studies or self._user_is_tutor_of_record())
 
+    @api.depends('tutor_id')
+    @api.depends_context('uid')
+    def _compute_can_see_benefits(self):
+        user = self.env.user
+        sees_all = any(user.has_group(group) for group in (
+            'ems.group_academic_admin', 'ems.group_secretary', 'ems.group_head_of_studies',
+            'ems.group_student_data_reader'))
+        for partner in self:
+            partner.can_see_benefits = sees_all or base.EmsBase.user_acts_as_tutor(partner, partner.tutor_id)
+
+    @api.depends('tutor_id')
+    @api.depends_context('uid')
+    def _compute_can_see_documents(self):
+        user = self.env.user
+        sees_all = any(user.has_group(group) for group in (
+            'ems.group_academic_admin', 'ems.group_secretary', 'ems.group_tac'))
+        for partner in self:
+            partner.can_see_documents = sees_all or base.EmsBase.user_acts_as_tutor(partner, partner.tutor_id)
+
+    @api.depends('tutor_id')
+    @api.depends_context('uid')
+    def _compute_private_notes(self):
+        notes = {note.partner_id.id: note.notes for note in self.env['ems.student.private_note'].sudo().search(
+            [('partner_id', 'in', self._origin.ids)])}
+        for partner in self:
+            partner.can_access_private_notes = partner._ems_can_access_private_notes()
+            partner.private_notes = partner.can_access_private_notes and notes.get(partner._origin.id, False)
+
+    def _ems_can_access_private_notes(self):
+        self.ensure_one()
+        user = self.env.user
+        return (self.env.su or any(user.has_group(group) for group in PRIVATE_NOTES_GROUPS)
+                or base.EmsBase.user_acts_as_tutor(self, self.tutor_id))
+
+    def _ems_store_private_notes(self, notes):
+        PrivateNote = self.env['ems.student.private_note'].sudo()
+        for partner in self:
+            if not partner._ems_can_access_private_notes():
+                raise AccessError(_(
+                    "Only the student's tutor, the chiefs above them, the guidance and coexistence teams "
+                    "and the academic administrators can change the private notes of %(name)s.",
+                    name=partner.display_name))
+            note = PrivateNote.search([('partner_id', '=', partner.id)])
+            if note:
+                note.notes = notes
+            elif notes:
+                PrivateNote.create({'partner_id': partner.id, 'notes': notes})
+        # Stored outside res.partner, so nothing else tells the ORM this compute is stale.
+        self.invalidate_recordset(['private_notes'])
+
     def _get_special_needs_readonly(self):
         return self._get_read_only_user() and not self.env.user.has_group('ems.group_orientation')
 
@@ -1265,16 +1378,12 @@ class ResPartner(models.Model):
         # True when the current user is a tutor of this student, or a tutor of a
         # student related to this family contact (so tutors can also edit the
         # profiles of their students' parents/legal guardians).
-        tutors = self.env.user.employee_ids.filtered(lambda t: t.tutorship_ids)
-        if not tutors:
-            return False
-        if self.tutor_id in tutors:
-            return True
-        related_tutors = self.relation_all_ids.other_partner_id.tutor_id
-        return bool(related_tutors & tutors)
+        return any(base.EmsBase.user_acts_as_tutor(self, tutor)
+                   for tutor in self.tutor_id | self.relation_all_ids.other_partner_id.tutor_id)
 
     def _get_is_tutor_readonly(self):
-        # True only when the user is a tutor of this student and NOT admin/secretary/HoS.
+        # True only when the user acts as tutor of this student (the tutor or a chief above them,
+        # see hr.employee.tutor_scope_user_ids) and is NOT admin/secretary/HoS.
         # Used to make non-contact fields read-only for tutors while admin/secretary/HoS
         # keep full edit access.
         is_admin = base.EmsBase.get_user_is_admin(self)
@@ -1282,11 +1391,7 @@ class ResPartner(models.Model):
         is_head_of_studies = base.EmsBase.get_user_is_head_of_studies(self)
         if is_admin or is_secretary or is_head_of_studies:
             return False
-        for t in self.env.user.employee_ids:
-            if t.id != False and len(t.tutorship_ids) > 0:
-                if self.tutor_id == t:
-                    return True
-        return False
+        return base.EmsBase.user_acts_as_tutor(self, self.tutor_id)
 
     def open_form(self):
         return {
@@ -1308,7 +1413,7 @@ class ResPartner(models.Model):
             'country_id': self.country_id.id,
         })
         return {
-            'name': 'New student contact',
+            'name': _('New student contact'),
             'type': 'ir.actions.act_window',
             'res_model': 'ems.contact.relation.wizard',
             'res_id': wizard.id,

@@ -37,6 +37,8 @@ En obrir el menú es mostra una llista de tots els estudis ordenada per codi. Ca
 5. Opcionalment, afegeix notes lliures a la pestanya **Notes**.
 6. Fes clic a **Desa** (o usa les engrunes de navegació per anar a una altra pàgina — Odoo desa automàticament).
 
+![Fitxa d'un estudi, amb la pestanya Assignatures](../../assets/admin/admin-study-form.png)
+
 ---
 
 ## Editar un estudi

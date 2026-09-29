@@ -38,6 +38,8 @@ En obrir el menú es mostra una llista de totes les assignatures ordenada per co
 6. Opcionalment, afegeix notes lliures a la pestanya **Notes**.
 7. Fes clic a **Desa** (o usa les engrunes de navegació per anar a una altra pàgina — Odoo desa automàticament).
 
+![Fitxa d'una assignatura, amb els resultats d'aprenentatge a la pestanya Resultat d'aprenentatge](../../assets/admin/admin-subject-outcomes.png)
+
 ### Afegir resultats d'aprenentatge
 
 Els resultats d'aprenentatge només existeixen dins d'una assignatura — no hi ha un menú separat de "Resultats".

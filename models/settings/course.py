@@ -2,7 +2,7 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
-from datetime import date, datetime
+from datetime import date
 
 class EmsCourse(models.Model):
 	_name = "ems.course"
@@ -13,8 +13,8 @@ class EmsCourse(models.Model):
     ]
 
 	name = fields.Char(string="Name", compute="_compute_name", store=True)
-	start = fields.Integer(string="Start", default=lambda self: datetime.now().year, required=True)
-	end = fields.Integer(string="End", default=lambda self: datetime.now().year+1, required=True)	
+	start = fields.Integer(string="Start", default=lambda self: self.env['ems.datetime_utils'].get_local_datetime().year, required=True)
+	end = fields.Integer(string="End", default=lambda self: self.env['ems.datetime_utils'].get_local_datetime().year+1, required=True)	
 
 	# 1. Operational Course: For day-to-day operations (Attendance, Grades, Incidents)
 	is_current = fields.Boolean(
@@ -48,8 +48,8 @@ class EmsCourse(models.Model):
 		"""Mark an enrollment default when no course carries one, and only then.
 
 		'is_enrollment_default' is live application state, not configuration: the centre
-		moves it when it opens the following year's campaign. That is why it is NOT a
-		column of data/custom/ems.course.csv - a synced column would silently revert that
+		moves it when it opens the following year's campaign. That is why it must never be
+		a column of a course data file - a synced column would silently revert that
 		move on the next upgrade, and new enrollments would start landing on the wrong
 		course (see CLAUDE.md, "fields that are live application state").
 

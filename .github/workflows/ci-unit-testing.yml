@@ -7,24 +7,29 @@ on:
 
 jobs:
   # Computes two things once, shared by every shard below: whether this push only touched
-  # changelog/ (see the "Detect changelog-only push" step) and the dynamic test-shard matrix
-  # (scripts/testing/compute_test_shards.py - self-maintaining, discovers tests/*_tour.py at
-  # run time so a new tour file is picked up automatically, no workflow edit needed).
+  # non-code paths (see the "Detect non-code-only push" step) and the dynamic test-shard
+  # matrix (scripts/testing/compute_test_shards.py - self-maintaining, discovers
+  # tests/*_tour.py at run time so a new tour file is picked up automatically, no workflow
+  # edit needed).
   plan:
     name: Plan test shards
     runs-on: ubuntu-24.04
+    # actions: read lets "Detect non-code-only push" look up the previous head's own CI run.
+    permissions:
+      contents: read
+      actions: read
     outputs:
       matrix: ${{ steps.shards.outputs.matrix }}
-      changelog_only: ${{ steps.diff.outputs.changelog_only }}
+      skip_tests: ${{ steps.diff.outputs.skip_tests }}
     steps:
       # ref: pinned to the PR branch's own head commit - NOT the default for a pull_request
       # event, which is refs/pull/<pr>/merge (a synthetic 2-parent commit GitHub regenerates
-      # on every push, merging the PR branch into main). The "Detect changelog-only push" step
-      # below relies on HEAD~1 being the previous commit *on this branch*; against the merge
-      # ref, HEAD~1 is main's own tip instead, so the diff silently covers the whole PR against
-      # main rather than just the latest push - confirmed 2026-09-05 (issue #401's own
-      # /changelog-clean commit), where this caused the full test matrix to run anyway despite
-      # the commit only touching changelog/. Empty-string-safe for workflow_dispatch (no
+      # on every push, merging the PR branch into main). The "Detect non-code-only push" step
+      # below diffs this push's range against the branch's own head; against the merge ref the
+      # diff silently covers the whole PR against main rather than just the latest push -
+      # confirmed 2026-09-05 (issue #401's own /changelog-clean commit), where this caused the
+      # full test matrix to run anyway despite the commit only touching changelog/.
+      # Empty-string-safe for workflow_dispatch (no
       # github.event.pull_request context there): actions/checkout treats an empty `ref` as
       # "use the default", same as omitting it.
       - name: Checkout EMS
@@ -37,25 +42,60 @@ jobs:
       # GitHub's own path filtering), or it risks getting stuck "pending" forever and
       # blocking merges even when everything is fine - see require-changelog-clean.yml's own
       # comment for the same gotcha. So instead of filtering this workflow's trigger, detect
-      # here whether the push that triggered this specific run only touched changelog/
-      # (the working-draft PR notes folder - see CLAUDE.md's "PR changelog" section, cleaned
-      # up via the "/changelog-clean" comment command right before merging) and skip the
-      # expensive steps below for that one case, while still letting every job succeed.
-      - name: Detect changelog-only push
+      # here whether the push that triggered this specific run only touched paths that can
+      # never affect runtime behaviour: changelog/ (the working-draft PR notes folder - see
+      # CLAUDE.md's "PR changelog" section), docs/ (technical + trilingual user manuals and
+      # their docs/assets/ images), plans/ (design notes for not-yet-implemented work) and any
+      # root-level .md file (README.md, CLAUDE.md...). i18n/*.po is deliberately NOT included -
+      # a malformed .po file can break the module's translation load, which the real test run
+      # would actually catch. Skip the expensive steps below for that one case, while still
+      # letting every job succeed.
+      - name: Detect non-code-only push
         id: diff
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          if [ "${{ github.event_name }}" != "pull_request" ]; then
-            echo "changelog_only=false" >> "$GITHUB_OUTPUT"
-          elif git rev-parse HEAD~1 >/dev/null 2>&1; then
-            CHANGED=$(git diff --name-only HEAD~1 HEAD)
-            if [ -n "$CHANGED" ] && ! echo "$CHANGED" | grep -qv '^changelog/'; then
-              echo "changelog_only=true" >> "$GITHUB_OUTPUT"
-              echo "This push only touches changelog/ - skipping the full test suite for this run."
-            else
-              echo "changelog_only=false" >> "$GITHUB_OUTPUT"
+          # Diff the whole push (github.event.before..HEAD), never just HEAD~1: a push of several
+          # commits whose *last* one only touches docs used to skip the suite for all of them -
+          # confirmed 2026-09-26 on PR #517, a release integrating six code branches followed by
+          # a docs-only close-review commit. Only a "synchronize" event has a previous head to
+          # compare with; opening/reopening a PR, or a force-push whose old head can't be
+          # fetched any more, always runs the full suite.
+          #
+          # Skipping is only safe if the previous head's code actually passed: GitHub shows the
+          # PR's checks for the newest head only, so a docs-only push landing while the previous
+          # head's run is still going (or after it failed) would otherwise turn the PR green on a
+          # run that tested nothing - confirmed 2026-09-26 on PR #517 ("fix for updates" still
+          # running when a CLAUDE.md-only commit was pushed on top). So wait for the previous
+          # head's own run of this workflow to finish, and skip only if it succeeded; anything
+          # else (failed, cancelled, no run found, timed out waiting) runs the full suite.
+          BEFORE="${{ github.event.before }}"
+          skip=false
+          if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.action }}" = "synchronize" ] \
+             && [ -n "$BEFORE" ] && git fetch --no-tags --depth=1 origin "$BEFORE" >/dev/null 2>&1; then
+            CHANGED=$(git diff --name-only "$BEFORE" HEAD)
+            if [ -n "$CHANGED" ] && ! echo "$CHANGED" | grep -qvE '^(changelog|docs|plans)/|^[^/]+\.md$'; then
+              echo "This push only touches changelog/, docs/, plans/ or root-level .md files - checking the previous head's CI run ($BEFORE)."
+              deadline=$(( $(date +%s) + 120 * 60 ))
+              while :; do
+                prev=$(gh run list --repo "${{ github.repository }}" --workflow ci-unit-testing.yml \
+                  --commit "$BEFORE" --event pull_request --limit 1 --json status,conclusion \
+                  --jq 'if length == 0 then "none" else .[0] | "\(.status) \(.conclusion)" end' 2>/dev/null || true)
+                case "$prev" in
+                  "completed success") skip=true; break ;;
+                  completed*|none|"") echo "Previous head's run: '${prev:-lookup failed}' - running the full suite."; break ;;
+                esac
+                if [ "$(date +%s)" -ge "$deadline" ]; then
+                  echo "Timed out waiting for the previous head's run - running the full suite."; break
+                fi
+                echo "Previous head's run is '$prev' - waiting for it to finish..."
+                sleep 60
+              done
             fi
-          else
-            echo "changelog_only=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "skip_tests=$skip" >> "$GITHUB_OUTPUT"
+          if [ "$skip" = true ]; then
+            echo "Previous head's run passed - skipping the full test suite for this run."
           fi
 
       - name: Compute test shards
@@ -73,7 +113,7 @@ jobs:
   test:
     name: "Test (${{ matrix.name }})"
     needs: plan
-    if: needs.plan.outputs.changelog_only != 'true'
+    if: needs.plan.outputs.skip_tests != 'true'
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.plan.outputs.matrix) }}

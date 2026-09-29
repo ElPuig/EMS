@@ -20,6 +20,8 @@ Sometimes a student's behaviour during a session needs to be flagged so the fami
    - A **Kicked out of class** checkbox, unchecked by default — tick it if the incident ended with the student being sent out of the classroom.
 4. Click **Send**.
 
+![The strike dialog: the student's name, the Attention notice/Kicked out of class toggle, the Reason dropdown pre-filled with the generic default, and the optional Details field](../../assets/teachers/strike-01-dialeg.png)
+
 That's it — no further confirmation is needed, and nothing is required beyond the reason.
 
 ---

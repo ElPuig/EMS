@@ -374,7 +374,7 @@ def _regenerate_attendance_templates_from_calendars(env):
     2026-08-11) once it became clear this whole class of stale/orphaned data is moot the instant
     every active template is archived and rebuilt from each teacher's CURRENT
     resource.calendar.attendance rows anyway: an exact duplicate can never survive a rebuild that
-    groups by (subject, group-set, teacher-set), by construction. `regenerate_all_from_calendars()`
+    groups by (subject, group-set, teacher-set), by construction. `_regenerate_all_from_calendars()`
     (ems.attendance_template) does the archive+rebuild; called here, inside this same migration, so
     it finishes before the Odoo service is reachable by any user after this upgrade - nobody ever
     sees an intermediate state with no active templates.
@@ -386,7 +386,7 @@ def _regenerate_attendance_templates_from_calendars(env):
     is imported/entered for real. There is no way to route around this: the whole point of points
     1-4 is that a template only ever exists as a consequence of a real calendar.
 
-    A SECOND, narrower case of the same breaking change: `regenerate_all_from_calendars()` itself
+    A SECOND, narrower case of the same breaking change: `_regenerate_all_from_calendars()` itself
     drops one side of any unresolved room conflict it finds (see that method's own docstring, and
     `ems.attendance_template._drop_unresolved_conflicts` - a real, recurring pattern confirmed by
     the developer 2026-08-11: a support/reinforcement teacher recorded under their own subject_id,
@@ -394,7 +394,7 @@ def _regenerate_attendance_templates_from_calendars(env):
     co-teaching detection can't recognise since the subject genuinely differs). Every dropped entry
     is logged below by name so whoever runs this migration knows exactly which pairs need a manual
     fix afterward (Employees > Schedule tab) - deliberately not guessed at automatically."""
-    skipped = env['ems.attendance_template'].regenerate_all_from_calendars()
+    skipped = env['ems.attendance_template']._regenerate_all_from_calendars()
     _logger.info(
         "Migration 18.0.0.22.0: archived every pre-existing ems.attendance_template and "
         "regenerated a fresh, calendar-backed set from each teacher's current working schedule.")

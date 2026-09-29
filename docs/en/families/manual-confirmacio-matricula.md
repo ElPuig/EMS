@@ -18,6 +18,7 @@ This guide explains, step by step, how families (or students) confirm the **enro
 6. [Step 5 — Choosing the payment plan and method](#step-5--choosing-the-payment-plan-and-method)
 7. [Step 6 — Registering the bank account (IBAN)](#step-6--registering-the-bank-account-iban)
 8. [Step 7 — Confirming the enrollment](#step-7--confirming-the-enrollment)
+9. [After confirming: following the payments](#after-confirming-following-the-payments)
 
 ---
 
@@ -159,6 +160,28 @@ When all of them are met, the **Confirm Enrollment** button becomes active (maro
 ![Confirm Enrollment button enabled](../../assets/families/Matricula-confirmacio-08-ConfirmacioOK.png)
 
 > Once confirmed, the enrollment is registered and the page switches to read-only mode, showing the enrollment information. If you later need to make any change, you will have to contact the [school's Secretary's office](https://elpuig.xeill.net/el-centre/secretaria).
+
+---
+
+## After confirming: following the payments
+
+Once the school issues the enrollment invoice, the **Enrollment** section shows a payment schedule inside the **Payment** block, with one row per installment. Each row shows:
+
+* Which installment it is (**Single payment**, or **Payment 1 of 2** and **Payment 2 of 2**) and its due date.
+* The amount.
+* Its status: **Paid** (green) or **Pending** (yellow).
+
+![Payment schedule with both installments pending](../../assets/families/Matricula-confirmacio-09-CalendariPagaments.png)
+
+With a two-installment plan, the first one can read **Paid** while the second stays **Pending** until the September collection.
+
+Once the school registers the payment, the installment turns to **Paid**:
+
+![Payment schedule with the single payment already collected](../../assets/families/Matricula-confirmacio-10-PagamentPagat.png)
+
+When the school registers the payment of an installment, you also get a notice in the portal, both in the **Communications** block of the enrollment page itself and in the **Communications** section of the main menu. The notice states which installment was collected, the amount and the due date.
+
+> Installments are updated when the school registers the payment in its system, not at the exact moment of the bank charge: a few days may pass between the two. If an installment is still **Pending** well after its due date, contact the [school's Secretary's office](https://elpuig.xeill.net/el-centre/secretaria).
 
 ---
 

@@ -139,3 +139,24 @@ registry.category("web_tour.tours").add("ems_attendance_report_analysis", {
         { trigger: ".o_form_view .o_field_widget[name='report_type']", content: "The unified report wizard opened" },
     ],
 });
+
+// Issue #500: the by-student variant for a non-admin user, on a student who also has sessions of
+// another teacher. Picking the student used to raise an AccessError (the date prefill read the other
+// teacher's session headers). Run twice: as a plain teacher (own sessions only) and as the
+// student's tutor, who doesn't teach them but must still find them and print every subject.
+registry.category("web_tour.tours").add("ems_attendance_report_student_scope", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_report_wizard",
+    steps: () => [
+        { trigger: ".o_form_view .o_field_widget[name='report_type']", content: "Unified report wizard loaded" },
+        pickReportType("By student"),
+        ...selectMany2one("student_id", "Student Scope Tour Student"),
+        {
+            trigger: ".o_form_view .o_field_widget[name='from_date'] input:not([value=''])",
+            content: "from_date got auto-filled by the student's onchange",
+        },
+        { trigger: "body:not(:has(.o_error_dialog))", content: "No access error after picking the student" },
+        { trigger: "button[name='print']", content: "Print the report", run: "click" },
+        { trigger: "body:not(:has(.o_error_dialog))", content: "No client-side error after printing" },
+    ],
+});

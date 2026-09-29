@@ -33,6 +33,8 @@ A survey moves through a fixed sequence of states as you work through it:
 6. **Download** — pulls the response data back into EMS as a CSV, ready for analysis (e.g. in
    Metabase).
 
+![A draft survey, with the lifecycle status bar and the Compute recipients button](../../assets/admin/admin-survey-form.png)
+
 You can return an uploaded/computed survey to **Draft** (recomputing recipients from scratch)
 at any point before it's closed.
 

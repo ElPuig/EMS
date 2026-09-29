@@ -30,6 +30,10 @@ per acotar la llista a un sol grup.
 
 ---
 
+> El dia i l'hora que fa servir aquesta pantalla (quina franja és l'"actual", quin dia és "avui")
+> són sempre els del centre, hora d'Espanya, presos del servidor: un ordinador amb el rellotge o la
+> zona horària mal configurats no els canvia.
+
 ## Sessions vs. franges previstes
 
 El selector de la dreta llista el que hi ha disponible per a la data triada, separat en dos blocs:
@@ -75,6 +79,8 @@ Desar.
 - Fes servir el desplegable d'**ordenació** (a dalt a la dreta) per reordenar la llista per cognom
   o nom, ascendent o descendent.
 
+![Sessió actual amb els botons d'estat, una nota i un alumne amb absència justificada (escut)](../../assets/teachers/passlist-01-assistencia-actual.png)
+
 ---
 
 ## Afegir notes
@@ -104,9 +110,20 @@ substitució). Mostra, només per al dia d'avui:
 - Franges de l'horari d'altres docents que encara no s'han convertit en sessió — tria'n una i fes
   clic a **Iniciar sessió**, igual que en mode normal.
 
+![Mode Guàrdia, mostrant una franja d'una companya encara no iniciada](../../assets/teachers/passlist-02-mode-guarida.png)
+
 Marcar estats, afegir notes i posar strikes funciona exactament igual que a les teves pròpies
 sessions. El botó **Eliminar sessió** no està disponible en mode Guàrdia — només el docent titular
 de la franja (o un administrador) pot eliminar una sessió coberta en guàrdia.
+
+---
+
+## Fitxatge d'entrada automàtic
+
+Si el centre ho té activat, iniciar una sessió també et fitxa l'entrada automàticament, sempre que
+avui encara no hagis fitxat i estiguis passant llista **dins del teu horari laboral**. Si passes
+llista fora d'horari (des de casa, abans que comenci la teva jornada), l'assistència es registra
+igualment però no se't fitxa l'entrada. Quan marxis, fitxa la sortida al quiosc com sempre.
 
 ---
 

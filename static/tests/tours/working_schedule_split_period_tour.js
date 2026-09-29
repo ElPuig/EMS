@@ -25,6 +25,27 @@ registry.category("web_tour.tours").add("ems_working_schedule_split_period", {
             run: "click",
         },
         {
+            // Typing before the switch has settled loses the text: the control panel re-renders.
+            trigger: ".o_list_view .o_data_row",
+            content: "List view rendered",
+        },
+        {
+            // Search rather than expect the teacher on the list's first page: a database with
+            // more than 80 teachers (like a real centre's) pushes it off that page.
+            trigger: ".o_searchview_input",
+            content: "Search for the tour's own teacher",
+            run: "edit Split Period Tour Teacher",
+        },
+        {
+            trigger: ".o_searchview_input",
+            content: "Confirm the search",
+            run: "press Enter",
+        },
+        {
+            trigger: ".o_searchview_facet",
+            content: "Search applied",
+        },
+        {
             trigger: ".o_list_view .o_data_row .o_data_cell:contains('Split Period Tour Teacher')",
             content: "Open the tour's own teacher",
             run: "click",

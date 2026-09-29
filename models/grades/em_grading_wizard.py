@@ -2,6 +2,7 @@
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+from ..shared import base
 
 # Students do not finish their work placement (EM) at the same time, so the EM grade is
 # closed per student, never as a group act. The wizard shows the selected group as a matrix
@@ -45,7 +46,7 @@ class EmsEmGradingWizard(models.TransientModel):
     def _tutor_scope_domain(self):
         if self._is_manager():
             return []
-        return [('tutor_id.user_id', '=', self.env.uid)]
+        return [('tutor_id.tutor_scope_user_ids', '=', self.env.uid)]
 
     def _is_manager(self):
         return self.env.user.has_group('ems.group_academic_admin') \
@@ -56,7 +57,7 @@ class EmsEmGradingWizard(models.TransientModel):
         already restricts the picker (group_domain); this is the defensive check."""
         if self._is_manager():
             return True
-        return bool(group.tutor_id) and group.tutor_id.user_id.id == self.env.uid
+        return base.EmsBase.user_acts_as_tutor(self, group.tutor_id)
 
     @api.onchange('study_id')
     def _onchange_study_id(self):
@@ -166,11 +167,12 @@ class EmsEmGradingWizard(models.TransientModel):
 
     def _live_subject_lines(self, student):
         """The student's grade lines of the LAST round of each module of the group with an
-        external weight — the round that carries the final grade of the course in progress."""
+        external weight — the round that carries the final grade of the course in progress.
+        A convalidated module has no work placement to grade."""
         lines = self.env['ems.grade_subject_line'].sudo().search([
             ('student_id', '=', student.id),
             ('grade_session_id.group_id', '=', self.group_id.id),
-        ]).filtered(lambda line: line.external_ponderation > 0)
+        ]).filtered(lambda line: line.external_ponderation > 0 and not line.is_convalidated)
         last_lines = self.env['ems.grade_subject_line'].sudo()
         for subject in lines.mapped('subject_id'):
             subject_lines = lines.filtered(lambda line: line.subject_id == subject)

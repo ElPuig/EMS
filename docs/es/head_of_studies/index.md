@@ -11,16 +11,22 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 ## Manuales disponibles
 
 - [Histórico académico: consultas de cohorte](academic-history.md)
+- [Convalidaciones: revisar y resolver las solicitudes](convalidations.md) — Revisar cada módulo y hacer la propuesta (Jefatura de Estudios), resolverla oficialmente (Dirección) o tramitarla con el Ministerio.
+- [Asistencia a reuniones con la tarjeta NFC](../secretary/meeting-attendance.md) — Confirmar la asistencia a un claustro o a una reunión con el lector NFC de la entrada (manual compartido con secretaría).
+- [Programaciones docentes: definir las ponderaciones de la calificación](planning.md)
 - [Gestión de contactos de alumnos y familias](../secretary/student-contacts.md) — tienes el mismo acceso completo de lectura/escritura que secretaría aquí, para cualquier alumno de todo el centro.
+- [Credenciales de Google del alumnado](../tutors/google-credentials.md) — consultarlas, crear la cuenta y restablecer la contraseña, los mismos pasos que los tutores, para el alumnado de los tutores de tu área.
 - [Decidir sobre solicitudes de corrección de fichajes](attendance-corrections.md)
 - [Strikes: menú Convivencia y correos de escalado](strike.md)
 - [El horario semanal de un grupo](../admin/group-schedule.md)
 - [Informes de asistencia](attendance-reports.md)
-- [Gestionar las ausencias del personal](absences.md) — Aprobar las ausencias de tu área, ajustar su cómputo, la verificación de dirección y los dos informes.
+- [Gestionar las ausencias del personal](absences.md) — Aprobar las ausencias de tu área, ajustar su cómputo, la aprobación de Dirección y los dos informes.
 - [Crear y editar profesorado](staff-management.md)
 - [Autorizaciones: crearlas, enviarlas y hacer el seguimiento](../secretary/authorizations.md) — Crear formularios de autorización, enviarlos al alumnado durante el curso y hacer el seguimiento de las respuestas (manual compartido con secretaría).
+- [Solicitudes de datos de contacto: pedir a las familias que actualicen los datos](../tutors/contact-data-requests.md) — Pedir al alumnado y a las familias que revisen los datos de contacto desde el portal, hacer el seguimiento de las respuestas y aprobar los cambios (manual compartido con los tutores).
 - [Comunicados: enviar tus propios correos masivos](notice.md)
 - [Horario de guardias](../teachers/guard-duty-schedule.md) — Quién falta en cada franja horaria, y quién está de guardia para cubrirlo.
+- [Notas públicas y notas privadas del alumno](../teachers/student-notes.md) — Dónde todo el profesorado lee las notas públicas de un alumno, y quién puede leer y escribir las privadas de tutoría.
 
 ---
 

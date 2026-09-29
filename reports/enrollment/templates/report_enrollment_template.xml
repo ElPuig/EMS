@@ -44,7 +44,8 @@
                                                     <span class="text-muted text-decoration-line-through me-1">
                                                         <t t-esc="'%.2f €' % line.price_unit"/>
                                                     </span>
-                                                    (<t t-esc="'-%d%%' % line.discount"/>)
+                                                    <!-- Not '-%d%%': Odoo's XML loader turns '%%' into '%'. -->
+                                                    (<t t-esc="'-%d' % line.discount + '%'"/>)
                                                     <span class="ms-1">
                                                         <t t-esc="'%.2f €' % line.price_subtotal"/>
                                                     </span>

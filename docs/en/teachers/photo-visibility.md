@@ -34,8 +34,11 @@ From your profile you can turn **Disable profile picture** on or off:
 ## How to change it
 
 1. Click your avatar in the top-right corner of EMS and choose **My Profile**.
-2. Under **Photo**, toggle **Disable profile picture**.
-3. Close the window — the change is saved automatically.
+2. Open the **Preferences** tab.
+3. Under **Photo**, toggle **Disable profile picture**.
+4. Close the window — the change is saved automatically.
+
+![The Preferences tab: Language and the Photo group with its "Disable profile picture" toggle](../../assets/teachers/foto-01-preferencies.png)
 
 > **Note:** while disabled, no photo can be uploaded for you from anywhere — not your
 > profile, not your employee record — until you turn the switch back off.

@@ -28,15 +28,17 @@ Els nivells de permisos formen una jerarquia — cada nivell inclou tots els per
 | Coordinador/a TAC | *(bloc TAC — vegeu la nota de sota)* | Manual — s'afegeix al camp **Càrrecs** de la fitxa del professor |
 | Coordinador/a d'orientació | *(bloc Orientació — vegeu la nota de sota)* | Manual — s'afegeix al camp **Càrrecs** de la fitxa del professor |
 
-> El Cap de departament té actualment els mateixos permisos que el Tutor, a més de poder crear, editar i eliminar Grups d'alumnes (Contactes → Grups). Existeix com a nivell propi perquè es pugui ampliar de manera independent en el futur. El Cap de seminari té el mateix nivell de permisos.
+> El Cap de departament té actualment els mateixos permisos que el Tutor, a més de poder crear, editar i eliminar Grups d'alumnes (Contactes → Grups). Existeix com a nivell propi perquè es pugui ampliar de manera independent en el futur. El Cap de seminari té el mateix nivell de permisos. Tots dos poden veure també, només de lectura, el document d'identitat i el número de la Seguretat Social del personal de la seva pròpia cadena de comandament (pestanya **Informació privada**, grup **Identificació**).
 >
-> **El rol de Secretari/ària no forma part d'aquesta jerarquia.** Concedeix accés a un bloc de permisos completament separat (Secretaria: Manager/Administrador), sense relació amb la cadena Professor→...→Director de dalt — encara que es configura de la mateixa manera (com a "Responsable d'àrea" en un departament top-level), no ocupa cap esglaó d'aquesta escala.
+> **El rol de Secretari/ària no forma part d'aquesta jerarquia.** Concedeix accés a un bloc de permisos completament separat (Secretaria: Manager/Administrador), sense relació amb la cadena Professor→...→Director de dalt — encara que es configura de la mateixa manera (com a "Responsable d'àrea" en un departament top-level), no ocupa cap esglaó d'aquesta escala. La Secretaria també té els permisos de Recursos Humans de l'Odoo: pot crear i editar la fitxa de tot el personal, PAS i professorat, informació privada inclosa, però no eliminar-la.
 >
 > **El càrrec de Coordinador/a d'orientació tampoc no forma part d'aquesta jerarquia.** Concedeix un bloc de permisos propi i separat (Orientació: Manager/Administrador) i, com el de TAC, s'assigna a mà des del camp **Càrrecs** de la fitxa del professor. No és unipersonal: normalment l'ocupa un equip. Concedeix accés de només lectura a les dades de tot l'alumnat del centre - notes, historial acadèmic, assistència diària i les seves incidències, faltes de convivència, contactes, matrícules i autoritzacions - i, com a únic permís d'escriptura, indicar les necessitats educatives especials (NEE) de qualsevol alumne o sol·licitant. No dona accés a factures ni a pagaments. **El càrrec de Coordinador/a de convivència concedeix el mateix accés de lectura**, sense les NEE, més totes les faltes de convivència del centre. L'historial acadèmic no necessita cap càrrec: el pot llegir qualsevol professor. Vegeu [Consultar les dades acadèmiques d'un alumne](../teachers/student-academic-data.md).
 >
 > **El càrrec de Coordinador/a TAC tampoc no forma part d'aquesta jerarquia.** Concedeix un bloc de permisos propi i separat (TAC: Manager/Administrador) i, a diferència de tots els altres càrrecs d'aquesta taula, s'assigna a mà, des del camp **Càrrecs** de la fitxa del professor. Concedeix dues coses: poder crear i editar fitxes de professorat senceres, informació privada inclosa, el mateix dret que ha guanyat la prefectura d'estudis, i [crear i suspendre el compte de Google de qualsevol alumne, restablir-ne la contrasenya](student-google-account.md) i consultar-ne les credencials. Res més de l'escala de dalt. No és unipersonal: el càrrec el pot ocupar un equip de diverses persones alhora.
 >
 > **La prefectura d'estudis, l'adjunta i la direcció ja poden crear i editar professorat.** Fins fa poc només ho podia fer l'administració; vegeu [Crear i editar professorat](../head_of_studies/staff-management.md). Esborrar una fitxa de personal i gestionar el PAS continuen sent exclusius de l'administració.
+>
+> **Els permisos del tutor pugen per la jerarquia.** El cap de seminari, el cap de departament i el cap d'estudis (o l'adjunt) d'un tutor tenen, sobre l'alumnat d'aquest tutor, tots els seus permisos; la direcció, sobre l'alumnat de tots els tutors. Només els caps del tutor, no els de la resta de departaments o àrees. Els llistats de "Els meus alumnes" només mostren els grups propis.
 
 ---
 
@@ -64,6 +66,8 @@ La insígnia mostra automàticament el color triat amb un text llegible, sigui q
 2. Al camp **Rols**, afegiu el rol que correspongui al nivell de permisos a concedir (p. ex. **Cap de departament**).
 3. Feu clic a **Desar** (o navegueu fora de la fitxa — l'Odoo desa automàticament).
 
+![Camp Rols a la fitxa d'un docent, amb dos rols assignats en forma d'etiquetes de colors](../../assets/admin/admin-teacher-roles-employee.png)
+
 El compte d'usuari del professor s'actualitza immediatament: es concedeix el grup de seguretat vinculat al rol, juntament amb tot allò que implica (p. ex. assignar **Cap de departament** també concedeix l'accés de Tutor i de Professor).
 
 > Els rols **Tutor**, **Cap de departament**, **Cap de seminari**, **Cap d'estudis**, **Cap d'estudis adjunt**, **Secretari/ària** i **Director** no es poden afegir ni treure manualment — ni des d'aquí, ni des de la llista **Assignat a** del propi rol (**Comunitat Educativa → Configuració → Professorat/PAS → Rols**), ni per importació o edició massiva. Intentar-ho mostra un missatge que indica exactament on s'ha de fer el canvi en realitat. El Tutor es gestiona automàticament segons si el professor és tutor d'algun Grup; els cinc següents es gestionen automàticament des del formulari d'un departament; el Director es gestiona automàticament des d'Ajustes (vegeu més avall).
@@ -78,6 +82,8 @@ El compte d'usuari del professor s'actualitza immediatament: es concedeix el gru
 
 Es revoca el grup de seguretat corresponent (i qualsevol accés que només aquell rol justificava) del compte d'usuari del professor.
 
+> **Els permisos concedits directament al compte d'usuari es mantenen.** Si s'ha donat un permís a mà des d'**Ajustos → Usuaris** (per exemple, accés de Secretaria a un professor que no és el Responsable d'àrea de Secretaria), canviar els rols del professor o actualitzar l'EMS no el treu. L'única excepció: si més endavant el professor perd un rol que concedeix aquest mateix permís, se'n va amb el rol, perquè no hi ha manera de distingir els dos casos. Si passa, cal tornar-lo a concedir a mà.
+
 ---
 
 ## Assignar un Cap de departament / Cap de seminari
@@ -87,6 +93,8 @@ A diferència dels altres rols, **Cap de departament** i **Cap de seminari** no 
 1. Navegueu a **Empleats → Departaments** i obriu el departament.
 2. Establiu el **Cap de departament** (el camp `Manager` del departament) i, opcionalment, el **Cap de seminari**. Aquest camp només mostra docents i personal PAS — un compte tècnic o del sistema mai és una opció vàlida.
 3. Feu clic a **Desar**.
+
+![Fitxa d'un departament amb el seu Cap de departament i Cap de seminari](../../assets/admin/admin-teacher-roles-department.png)
 
 Això té un efecte immediat i automàtic sobre tots els professors d'aquell departament:
 

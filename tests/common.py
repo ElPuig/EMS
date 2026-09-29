@@ -119,6 +119,19 @@ ROLE_GROUP_XMLIDS = {
 }
 
 
+CORPORATE_TEST_DOMAIN = 'school.example.com'
+
+
+def enforce_corporate_email_policy(cls, domain=CORPORATE_TEST_DOMAIN):
+    """Makes res.company._ems_is_corporate_email() actually apply for the test class (issue
+    #514): sets a fictitious Google Workspace domain on the company and declares the database a
+    production one, since this dev box is 'ems.environment_type' = 'dev' (which skips the check)
+    and CI's clean database has no value at all. Call once from setUpClass; both writes are
+    rolled back with the class transaction."""
+    cls.env.company.google_ws_domain = domain
+    cls.env['ir.config_parameter'].sudo().set_param('ems.environment_type', 'production')
+
+
 def create_role_user(cls, role, login, **overrides):
     """Creates a res.users with `role`'s group (see ROLE_GROUP_XMLIDS) plus base.group_user.
 
@@ -160,6 +173,26 @@ def create_role_employee(cls, user, employee_type='teacher', **overrides):
         **overrides,
     }
     return cls.env['hr.employee'].create(vals)
+
+
+def create_head_of_studies_branch(cls, prefix, tutor_employee):
+    """Hangs `tutor_employee` below a Department Chief who hangs below a new Head of Studies
+    (parent_id set directly, as the department cascade would), plus the people who must stay
+    out of that tutor's scope: another Department Chief under the same Head of Studies and a
+    second Head of Studies with nothing below them (issue #483). Sets cls.head_of_studies,
+    cls.department_chief, cls.other_department_chief and cls.other_head_of_studies (res.users)."""
+    key = prefix.lower()
+    cls.head_of_studies = create_role_user(cls, 'head_of_studies', f'test_hos_{key}', name=f'{prefix} Head of Studies')
+    head = create_role_employee(cls, cls.head_of_studies)
+    cls.department_chief = create_role_user(
+        cls, 'department_chief', f'test_chief_{key}', name=f'{prefix} Department Chief')
+    tutor_employee.parent_id = create_role_employee(cls, cls.department_chief, parent_id=head.id)
+    cls.other_department_chief = create_role_user(
+        cls, 'department_chief', f'test_other_chief_{key}', name=f'{prefix} Other Department Chief')
+    create_role_employee(cls, cls.other_department_chief, parent_id=head.id)
+    cls.other_head_of_studies = create_role_user(
+        cls, 'head_of_studies', f'test_other_hos_{key}', name=f'{prefix} Other Head of Studies')
+    create_role_employee(cls, cls.other_head_of_studies)
 
 
 def create_student_academic_file(cls, prefix, group, course=None, student=None):
@@ -231,6 +264,9 @@ class DocsScreenshotMixin:
     never expose real personal data"."""
 
     OUTPUT_DIR = os.environ.get('EMS_SCREENSHOT_DIR', '/tmp/ems_doc_screenshots')
+    # The web client shows a date and time in the browser's own timezone, and this headless
+    # Chrome is on UTC: a screenshot of a screen that shows a time sets its own (e.g. 'Europe/Madrid').
+    BROWSER_TIMEZONE = None
 
     @staticmethod
     def _trim(path, margin=6):
@@ -248,6 +284,94 @@ class DocsScreenshotMixin:
             max(left - margin, 0), max(top - margin, 0),
             min(right + margin, image.width), min(bottom + margin, image.height),
         )).save(path)
+
+    @staticmethod
+    def _union_clip_js(selectors, element_id='ems-clip'):
+        """JS that lays an invisible box over the union of `selectors`, so one shot can cover
+        blocks that share no container of their own (clip to '#<element_id>' afterwards)."""
+        return ("(function () { var old = document.getElementById(%s); if (old) { old.remove(); }"
+                " var rects = %s.map(function (s) { return document.querySelector(s).getBoundingClientRect(); });"
+                " var left = Math.min.apply(null, rects.map(function (r) { return r.left; }));"
+                " var top = Math.min.apply(null, rects.map(function (r) { return r.top; }));"
+                " var right = Math.max.apply(null, rects.map(function (r) { return r.right; }));"
+                " var bottom = Math.max.apply(null, rects.map(function (r) { return r.bottom; }));"
+                " var box = document.createElement('div'); box.id = %s;"
+                " box.style.cssText = 'position:absolute;pointer-events:none;left:' + (left + scrollX) + 'px;top:'"
+                " + (top + scrollY) + 'px;width:' + (right - left) + 'px;height:' + (bottom - top) + 'px';"
+                " document.body.appendChild(box); })();"
+                % (json.dumps(element_id), json.dumps(list(selectors)), json.dumps(element_id)))
+
+    @staticmethod
+    def _mouse_click(browser, selector):
+        box = json.loads(browser._websocket_request('Runtime.evaluate', params={
+            'expression': """JSON.stringify((function () {
+                var r = document.querySelector(%s).getBoundingClientRect();
+                return {x: r.x + r.width / 2, y: r.y + r.height / 2};
+            })())""" % json.dumps(selector),
+            'returnByValue': True,
+        })['result']['value'])
+        for event in ('mouseMoved', 'mousePressed', 'mouseReleased'):
+            browser._websocket_request('Input.dispatchMouseEvent', params={
+                'type': event, 'x': box['x'], 'y': box['y'], 'button': 'left', 'clickCount': 1,
+            })
+
+    MARK_RADIUS = 13
+
+    def _draw_marks(self, browser, path, clip, marks):
+        """Draws a numbered circle next to each marked element, in the style the manuals
+        already used for their hand-made callouts. `anchor` places it relative to the element:
+        'left' (default, just outside its left edge), 'right', 'top' (above its centre),
+        'center', or 'text-right' (right after the element's text rather than its box - for a
+        cell or a row that spans far wider than what it says)."""
+        from PIL import Image, ImageDraw, ImageFont
+        image = Image.open(path).convert('RGB')
+        draw = ImageDraw.Draw(image)
+        font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', 14)
+        radius = self.MARK_RADIUS
+        for mark in marks:
+            selector, label = mark[0], mark[1]
+            anchor = mark[2] if len(mark) > 2 else 'left'
+            rect = json.loads(browser._websocket_request('Runtime.evaluate', params={
+                'expression': """JSON.stringify((function () {
+                    var el = document.querySelector(%s);
+                    if (!el) { return null; }
+                    var r = el.getBoundingClientRect();
+                    if (%s) {
+                        // Union of the element's own text nodes only: a cell's box (or a child
+                        // stretched to fill it) spans far wider than what it says.
+                        var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), node,
+                            left = Infinity, top = Infinity, right = -Infinity, bottom = -Infinity;
+                        while ((node = walker.nextNode())) {
+                            if (!node.textContent.trim()) { continue; }
+                            var range = document.createRange();
+                            range.selectNodeContents(node);
+                            var t = range.getBoundingClientRect();
+                            left = Math.min(left, t.left); top = Math.min(top, t.top);
+                            right = Math.max(right, t.right); bottom = Math.max(bottom, t.bottom);
+                        }
+                        if (right > left) {
+                            r = {x: left, y: top, width: right - left, height: bottom - top};
+                        }
+                    }
+                    return {x: r.x, y: r.y, width: r.width, height: r.height};
+                })())""" % (json.dumps(selector), json.dumps(anchor.startswith('text-'))),
+                'returnByValue': True,
+            })['result']['value'])
+            self.assertTrue(rect, "mark selector matched nothing: %s" % selector)
+            x, y = rect['x'] - clip['x'], rect['y'] - clip['y']
+            centre = {
+                'left': (x - radius - 4, y + rect['height'] / 2),
+                'right': (x + rect['width'] + radius + 4, y + rect['height'] / 2),
+                'text-right': (x + rect['width'] + radius + 6, y + rect['height'] / 2),
+                'top': (x + rect['width'] / 2, y - radius - 2),
+                'center': (x + rect['width'] / 2, y + rect['height'] / 2),
+            }[anchor]
+            cx = min(max(centre[0], radius + 1), image.width - radius - 2)
+            cy = min(max(centre[1], radius + 1), image.height - radius - 2)
+            draw.ellipse([cx - radius, cy - radius, cx + radius, cy + radius],
+                         fill=(0, 229, 238), outline=(0, 0, 0), width=2)
+            draw.text((cx, cy), str(label), fill=(0, 0, 0), font=font, anchor='mm')
+        image.save(path)
 
     @staticmethod
     def _appear_code(selector):
@@ -289,16 +413,25 @@ class DocsScreenshotMixin:
         raise TimeoutError("never appeared: %s" % selector)
 
     def _capture(self, url_path, selector, filename, login=None, wait_for=None, padding=8,
-                 click=None, wait_after=None, tour=None, max_height=None):
+                 click=None, run=None, wait_after=None, tour=None, max_height=None, marks=None,
+                 beyond_viewport=True):
         """Load url_path as `login`, wait for `wait_for` (defaults to `selector`), optionally
-        click `click` and wait for `wait_after`, then write a PNG clipped to `selector` into
-        OUTPUT_DIR.
+        click `click` (or run arbitrary JS via `run`) and wait for `wait_after`, then write a
+        PNG clipped to `selector` into OUTPUT_DIR.
 
         The click exists for a send/confirm assistant whose preview is built by an onchange,
         which opening the form with defaults does not fire on its own. max_height cuts the shot
         short, for a selector as big as the page whose empty lower part _trim() can't tell apart.
         login=None skips authentication entirely, for a page shown before signing in (e.g. the
-        login screen itself) - there is no session to set up.
+        login screen itself) - there is no session to set up. `run` is a raw JS expression (or
+        list of them, paired with `wait_after` the same way `click` is) for an interaction a
+        plain `.click()` can't express - e.g. setting a <select>'s value and dispatching its own
+        change event, needed for an OWL component that reacts to 'change' rather than a click.
+        `marks` draws numbered callouts that a manual's text refers to ("click (1), then (2)"):
+        a list of (selector, label) or (selector, label, anchor) - see _draw_marks().
+        beyond_viewport=False for a shot of an open navbar section dropdown: capturing beyond the
+        viewport makes Chrome resize the page, and Odoo closes that dropdown on the resize (the apps
+        menu survives it). The clip must then lie inside the viewport (max_height keeps it short).
         """
         os.makedirs(self.OUTPUT_DIR, exist_ok=True)
         # A tour reports success with Odoo's own signal ('tour succeeded', the one start_tour()
@@ -324,6 +457,10 @@ class DocsScreenshotMixin:
             browser._websocket_request('Emulation.setDeviceMetricsOverride', params={
                 'width': 1400, 'height': 1600, 'deviceScaleFactor': 1, 'mobile': False,
             })
+            if self.BROWSER_TIMEZONE:
+                browser._websocket_request('Emulation.setTimezoneOverride', params={
+                    'timezoneId': self.BROWSER_TIMEZONE,
+                })
             url = werkzeug.urls.url_join(self.base_url(), url_path)
             browser.navigate_to(url, wait_stop=True)
             if tour:
@@ -334,22 +471,35 @@ class DocsScreenshotMixin:
                     % (json.dumps(tour), json.dumps(url_path)), timeout=120)
             else:
                 browser._wait_code_ok(self._appear_code(wait_for or selector), timeout=60)
-            if click:
-                browser._websocket_request('Runtime.evaluate', params={
-                    'expression': 'document.querySelector(%s).click()' % json.dumps(click),
-                })
-                # Not a second browser._wait_code_ok(): ChromeBrowser's own success future
-                # (self._result) is single-use, set once in __init__ and never reset - a SECOND
-                # call just re-reads the FIRST wait's already-resolved value instead of actually
-                # waiting again, so it returns near-instantly regardless of whether wait_after's
-                # own condition is true yet. Harmless for a click whose effect is a synchronous
-                # DOM update (already rendered by the time this line runs), but silently wrong
-                # for one that needs a server round-trip (e.g. opening a dialog whose defaults
-                # come from an onchange) - found 2026-09-17 capturing the "Request Correction"
-                # wizard, where the rect grab right after used to fail with a null selector
-                # because the dialog hadn't mounted yet. Poll from Python instead, which has no
-                # such single-use limitation.
-                self._poll_for(browser, wait_after or selector)
+            if click or run:
+                # click/run/wait_after each accept either one item or a list, for a sequence of
+                # steps that each need their own settle before the next one fires (e.g. a pivot's
+                # "Expand all" clicked twice, once per row level - found 2026-09-17 capturing the
+                # attendance-reports pivot). click and run are mutually exclusive per call (pick
+                # whichever fits the interaction), not mixed within the same list.
+                steps = run if run else click
+                steps = steps if isinstance(steps, (list, tuple)) else [steps]
+                wait_afters = wait_after if isinstance(wait_after, (list, tuple)) else [wait_after] * len(steps)
+                for step, step_wait in zip(steps, wait_afters):
+                    if not run and step.startswith('mouse:'):
+                        # A real (trusted) mouse click at the element's centre, for a control
+                        # that ignores a synthetic .click() - e.g. the navbar's section dropdowns.
+                        self._mouse_click(browser, step[len('mouse:'):])
+                    else:
+                        expression = step if run else 'document.querySelector(%s).click()' % json.dumps(step)
+                        browser._websocket_request('Runtime.evaluate', params={'expression': expression})
+                    # Not a second browser._wait_code_ok(): ChromeBrowser's own success future
+                    # (self._result) is single-use, set once in __init__ and never reset - a SECOND
+                    # call just re-reads the FIRST wait's already-resolved value instead of actually
+                    # waiting again, so it returns near-instantly regardless of whether wait_after's
+                    # own condition is true yet. Harmless for a click whose effect is a synchronous
+                    # DOM update (already rendered by the time this line runs), but silently wrong
+                    # for one that needs a server round-trip (e.g. opening a dialog whose defaults
+                    # come from an onchange) - found 2026-09-17 capturing the "Request Correction"
+                    # wizard, where the rect grab right after used to fail with a null selector
+                    # because the dialog hadn't mounted yet. Poll from Python instead, which has no
+                    # such single-use limitation.
+                    self._poll_for(browser, step_wait or selector)
             rect = browser._websocket_request('Runtime.evaluate', params={
                 'expression': """JSON.stringify((function () {
                     var el = document.querySelector(%s);
@@ -367,11 +517,13 @@ class DocsScreenshotMixin:
                 'scale': 1,
             }
             png = browser._websocket_request('Page.captureScreenshot', params={
-                'clip': clip, 'captureBeyondViewport': True,
+                'clip': clip, 'captureBeyondViewport': beyond_viewport,
             }, timeout=30.0)['data']
             path = os.path.join(self.OUTPUT_DIR, filename)
             with open(path, 'wb') as handle:
                 handle.write(base64.b64decode(png))
+            if marks:
+                self._draw_marks(browser, path, clip, marks)
             self._trim(path)
             self.assertGreater(os.path.getsize(path), 2000, "%s looks empty" % filename)
             self._logger.info("Wrote %s", path)

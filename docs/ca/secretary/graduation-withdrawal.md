@@ -28,6 +28,8 @@ Seleccioneu un o més alumnes (des de la llista o des de la fitxa d'un sol alumn
 
 Només es pot marcar l'alumnat que està al **darrer curs del seu estudi** (per exemple, 2n de CFGM/CFGS/Batxillerat, 4t d'ESO) — l'assistent mostra per què un alumne encara no es pot marcar si no és el cas (no és al darrer curs, o ja té matrícula per al curs vinent, cosa que es considera incompatible amb graduar-se). Els tutors poden marcar els seus propis tutoritzats; secretaria i admin poden marcar qualsevol.
 
+![Assistent de graduació: un alumne es pot marcar i l'altre mostra per què no (no és a l'últim curs)](../../assets/secretary/graduacio-01-assistent.png)
+
 Heu marcat un alumne per error? **Desmarcar** ho reverteix — excepte el registre intern "s'ha graduat almenys una vegada", que és permanent i és el que decideix si serà extitulat o baixa si aquell alumne deixa el centre més endavant. Desmarcar mai no desfà això.
 
 ## Tramitar una baixa (o una expulsió)
@@ -35,6 +37,8 @@ Heu marcat un alumne per error? **Desmarcar** ho reverteix — excepte el regist
 Només secretaria i admin poden tramitar-ho. Se us demanarà triar entre **Baixa** i
 **Expulsió**, la **data de sortida** i, opcionalment, un **motiu** — després confirmeu. Un cop
 aplicat, no es pot desfer des del propi assistent.
+
+![Assistent de baixa amb el tipus (Baixa/Expulsió), la data i el motiu de sortida i la matrícula pendent que cancel·larà](../../assets/secretary/baixa-01-assistent.png)
 
 - La **Baixa** cobreix que l'alumne marxi pel seu compte, tant si és decisió pròpia com decisió
   administrativa del centre ("d'ofici") — no hi ha una opció separada per a aquesta distinció,

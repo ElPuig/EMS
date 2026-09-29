@@ -20,32 +20,35 @@
 
         <record model="ir.actions.report" id="action_attendance_report_student">
             <field name="name">Attendance report: by student</field>
-            <field name="model">report.ems.attendance_report_student</field>
+            <field name="model">ems.attendance_report_wizard</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">ems.attendance_report_student</field>
             <field name="report_file">attendance_report_student</field>
-            <field name="binding_model_id" ref="ems.model_report_ems_attendance_report_student"/>
-            <field name="binding_type">report</field>
+            <!-- Printed from the wizard's own Print button only, never from a Print menu. -->
+            <field name="binding_model_id" eval="False"/>
+            <field name="print_report_name">object.get_report_filename()</field>
         </record>
 
         <record model="ir.actions.report" id="action_attendance_report_subject">
             <field name="name">Attendance report: by subject</field>
-            <field name="model">report.ems.attendance_report_subject</field>
+            <field name="model">ems.attendance_report_wizard</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">ems.attendance_report_subject</field>
             <field name="report_file">attendance_report_subject</field>
-            <field name="binding_model_id" ref="ems.model_report_ems_attendance_report_subject"/>
-            <field name="binding_type">report</field>
+            <!-- Printed from the wizard's own Print button only, never from a Print menu. -->
+            <field name="binding_model_id" eval="False"/>
+            <field name="print_report_name">object.get_report_filename()</field>
         </record>
 
         <record model="ir.actions.report" id="action_attendance_report_group">
             <field name="name">Attendance report: by group</field>
-            <field name="model">report.ems.attendance_report_group</field>
+            <field name="model">ems.attendance_report_wizard</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">ems.attendance_report_group</field>
             <field name="report_file">attendance_report_group</field>
-            <field name="binding_model_id" ref="ems.model_report_ems_attendance_report_group"/>
-            <field name="binding_type">report</field>
+            <!-- Printed from the wizard's own Print button only, never from a Print menu. -->
+            <field name="binding_model_id" eval="False"/>
+            <field name="print_report_name">object.get_report_filename()</field>
         </record>
 
         <record model="ir.actions.act_window" id="action_attendance_report_analysis">

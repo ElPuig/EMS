@@ -19,6 +19,18 @@ class ems_settings(models.TransientModel):
    schedule_import_first_entry_time = fields.Float(related="company_id.schedule_import_first_entry_time", readonly=False)
    schedule_import_last_entry_time  = fields.Float(related="company_id.schedule_import_last_entry_time",  readonly=False)
 
+   convalidation_start_day = fields.Integer(related="company_id.convalidation_start_day", readonly=False)
+   convalidation_start_month = fields.Selection(related="company_id.convalidation_start_month", readonly=False)
+   convalidation_start_time = fields.Float(related="company_id.convalidation_start_time", readonly=False)
+   convalidation_end_day = fields.Integer(related="company_id.convalidation_end_day", readonly=False)
+   convalidation_end_month = fields.Selection(related="company_id.convalidation_end_month", readonly=False)
+   convalidation_end_time = fields.Float(related="company_id.convalidation_end_time", readonly=False)
+   convalidation_legal_prior_studies = fields.Text(related="company_id.convalidation_legal_prior_studies", readonly=False)
+   convalidation_legal_certificate = fields.Text(related="company_id.convalidation_legal_certificate", readonly=False)
+   convalidation_legal_other = fields.Text(related="company_id.convalidation_legal_other", readonly=False)
+   convalidation_appeal_text = fields.Text(related="company_id.convalidation_appeal_text", readonly=False)
+   convalidation_sign_by_delegation = fields.Boolean(related="company_id.convalidation_sign_by_delegation", readonly=False)
+
    current_course_id = fields.Many2one(comodel_name="ems.course", related="company_id.current_course_id", readonly=False)
    enrollment_course_id = fields.Many2one(comodel_name="ems.course", related="company_id.enrollment_course_id", readonly=False)
    # NOTE: cannot be named 'default_*' here — res.config.settings treats that prefix as a special

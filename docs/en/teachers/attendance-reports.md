@@ -20,6 +20,8 @@ yourself, plus 3 printable PDF reports (by group, by student, by subject) reacha
    is the **% of absences per student** — **Count** (number of sessions counted) and **Strike count** are
    shown alongside it, so you can tell whether a 33% comes from 3 sessions or from 30, and whether it comes
    with disciplinary strikes attached.
+
+   ![Attendance reports pivot table, expanded by subject and student](../../assets/teachers/informes-01-taula-dinamica.png)
 3. Use the search bar to filter further (by student, group, subject or status), and **Group By** to change
    how the table is folded.
 4. Use the **spreadsheet/download icon** in the header to export the current pivot to Excel.
@@ -36,6 +38,8 @@ On the **Attendance reports** screen, click the **⚙ (gear)** icon in the heade
 report**. In the form, pick the **Report type** — by group, by student, or by subject — and the fields adapt
 to your choice.
 
+![Print attendance report form, with a group selected and the fields filled in](../../assets/teachers/informes-02-imprimir.png)
+
 **Attendance report (by group):**
 1. Pick a **Group** — the dropdown only shows the groups **you actually teach**; if a group you expect is
    missing, check that you're assigned to it in your teaching schedule.
@@ -50,7 +54,8 @@ to your choice.
 2. The **Tutor** and the **From**/**To** dates fill in automatically from the student and their full
    session range.
 3. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, and any
-   session notes recorded for the period.
+   session notes recorded for the period. It only includes **the sessions you taught** that student. If you
+   are the student's tutor, it includes every subject instead (see the tutors' manual).
 
 **Attendance report (by subject):**
 1. Pick a **Subject** — the dropdown only shows subjects **you actually teach**.
@@ -66,6 +71,8 @@ to your choice.
   statuses only (**Miss**, **Justified Miss**) so the report stays a manageable size; add more and a warning
   appears that the report may become slow to generate or fail for large selections.
 - **Include strikes** (on by default) — adds tables of the disciplinary strikes recorded during the period.
+
+The downloaded PDF is named after the report and the selected student, group or subject (e.g. `Attendance report_ by student_Name_Surname.pdf`), so several downloads can be told apart.
 
 ---
 

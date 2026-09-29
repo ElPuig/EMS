@@ -30,6 +30,10 @@ narrow the list down to one group.
 
 ---
 
+> The day and the time this screen goes by (which slot is "current", what "today" is) are always
+> the centre's, Spanish time, taken from the server: a computer with a wrong clock or timezone
+> doesn't change them.
+
 ## Sessions vs. Planned Slots
 
 The selector on the right lists what's available for the chosen date, split into two groups:
@@ -73,6 +77,8 @@ status for that session — it's saved immediately, no need to click a separate 
 - Use the **sort** dropdown (top-right) to reorder the list by lastname or first name, ascending or
   descending.
 
+![Current session with the status buttons, a note, and a student with a justified absence (shield)](../../assets/teachers/passlist-01-assistencia-actual.png)
+
 ---
 
 ## Adding Notes
@@ -101,9 +107,20 @@ substitution). It shows, for today only:
 - Slots from other teachers' timetables that haven't been turned into a session yet — pick one and
   click **Start session** just like in normal mode.
 
+![Guard mode, showing a colleague's slot not started yet](../../assets/teachers/passlist-02-mode-guarida.png)
+
 Marking statuses, adding notes and issuing strikes work exactly the same way as in your own
 sessions. The **Delete session** button isn't available in Guard mode — only the teacher who
 actually owns the slot (or an Administrator) can delete a guard-covered session.
+
+---
+
+## Automatic Check-In
+
+If the centre has enabled it, starting a session also checks you in automatically, as long as you
+haven't checked in yet today and you are taking the roll-call **during your own working hours**.
+Taking the roll-call outside them (from home, before your shift starts) records the attendance
+normally but doesn't check you in. When you leave, check out at the kiosk as usual.
 
 ---
 

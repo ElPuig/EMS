@@ -2,6 +2,7 @@
 import logging
 from odoo import models, fields, api, _
 from odoo.tools import email_normalize
+from ..shared import base
 
 _logger = logging.getLogger(__name__)
 
@@ -55,24 +56,25 @@ class EmsPortalAccessWizard(models.TransientModel):
         """Admin/secretary manage any student; a tutor only its own students."""
         if self.env.user.has_group('ems.group_academic_admin') or self.env.user.has_group('ems.group_secretary'):
             return True
-        return bool(student.tutor_id) and student.tutor_id.user_id.id == self.env.uid
+        return base.EmsBase.user_acts_as_tutor(self, student.tutor_id)
 
     def _build_lines(self, students):
         """Build the One2many command list for the recipient preview."""
         lines = []
         for student in students:
-            recipients = student._ems_notification_recipients()
-            if not recipients:
-                lines.append((0, 0, {
-                    'student_id': student.id,
-                    'note': _('No family contact found'),
-                }))
-                continue
-            for r in recipients:
+            # A minor student with no family on file still gets his own, view-only account:
+            # the missing family is flagged on his line instead of replacing it.
+            no_family = not student._ems_notification_recipients()
+            for r in student._ems_portal_access_recipients():
                 user = r.with_context(active_test=False).user_ids[:1]
                 has_portal = bool(user) and user._is_portal()
                 connected = has_portal and bool(user.login_date)
-                note = '' if r.email else _('Recipient without email')
+                if not r.email:
+                    note = _('Recipient without email')
+                elif no_family:
+                    note = _('No family contact found')
+                else:
+                    note = ''
                 lines.append((0, 0, {
                     'student_id': student.id,
                     'recipient_id': r.id,
@@ -145,11 +147,9 @@ class EmsPortalAccessWizard(models.TransientModel):
             if student.contact_type != 'applicant' and student.is_adult and not student.email:
                 issues.append(_("%s: adult student without main email") % student.name)
                 continue
-            recipients = student._ems_notification_recipients()
-            if not recipients:
+            if not student._ems_notification_recipients():
                 issues.append(_("%s: no family contact to manage") % student.name)
-                continue
-            for r in recipients:
+            for r in student._ems_portal_access_recipients():
                 if not r.email:
                     issues.append(_("%(student)s: recipient %(name)s has no email") % {
                         'student': student.name, 'name': r.name})

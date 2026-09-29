@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
+from ..shared import base
 
 class EmsAuthorizationTemplate(models.Model):
     _name = 'ems.authorization.template'
@@ -367,9 +368,7 @@ class EmsAuthorization(models.Model):
     def _ems_sees_every_student(self):
         """Secretary, academic admin and head of studies work with every student's
         authorizations; anyone else who reaches them - a tutor - only with their own group's."""
-        user = self.env.user
-        return any(user.has_group(xmlid) for xmlid in (
-            'ems.group_academic_admin', 'ems.group_secretary', 'ems.group_head_of_studies'))
+        return base.EmsBase.get_user_sees_every_student(self)
 
     @api.model
     def action_open_follow_up(self):

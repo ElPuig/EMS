@@ -35,7 +35,7 @@ Group membership is not edited directly by admins in normal operation; it is der
 
 - **`ems.role`** (`models/employees/role.py`) is a role catalog. Each role may carry a `group_id`: employees holding that role are automatically added to the linked `res.groups`.
 - **`data/cat/ems.role.csv`**'s own `group_id/id` column wires each role catalog entry to its security group, e.g. `role_tutor → group_tutor`, `role_dchieff → group_department_chief`, `role_seminar → group_department_chief`, `role_hos`/`role_dhos → group_head_of_studies`, `role_secretary → group_secretary` (Secretary block, independent from this chain — see the Access Control table below), `role_director → group_director`, `role_tac → group_tac_admin` (TAC block, likewise independent). Roles with an empty `group_id` (`role_catskills`, `role_orc`, `role_erasmus`, `role_vetcoord`, `role_schieff`, `role_cchieff`) are purely descriptive and grant nothing.
-- **`ems_employee_base._sync_security_groups()`** (`models/employees/employee.py`) diffs an employee's `role_ids`/`job_id` derived groups against `res.users.groups_id` and issues `(4, id)`/`(3, id)` commands, called from `write()` and the relevant `@api.onchange` handlers.
+- **`ems_employee_base._sync_security_groups(previous_groups)`** (`models/employees/employee.py`) grants (`(4, id)`) every group the employee's current `role_ids`/`job_id` carry (`_ems_role_job_groups()`), and revokes (`(3, id)`) only the groups in `previous_groups` - the same set captured before the change, keyed by employee id - that no current role/job still grants. It is called from `hr.employee.write()` and `ems.role.write()`, each capturing `previous_groups` before `super().write()`; called with no argument (Google Workspace user creation, migrations) it only grants. It never reconciles the user's whole group list against the roles, so a role/job-managed group granted by hand in Settings > Users survives every sync that doesn't take away a role/job granting that same group (issue #510: every EMS upgrade used to wipe it - see [department.md](department.md)). Documented limitation: a hand-granted group that a role *also* grants goes when that role does. Archived employees are synced too (`active_test=False`): a departed teacher's tutorship is usually cleared after archiving them, and their Tutor group has to follow the role.
 - **`ems.role.write()` calls it too**, for the other direction. The role's own "Assigned to" list writes `ems.role.employee_ids` and never reaches `hr.employee.write()`, so until this was added (issue #391) a role linked to a security group could be granted from that screen with none of its permissions actually applied - the holder saw the role on their record and got an `AccessError` the moment they used it. It affects every manually-assignable role carrying a `group_id` (`role_quality`, `role_coexistence`, `role_secretary_admin`, `role_tac`); it stayed hidden because those roles happen to have been assigned from the employee side. Both the employees losing the role and the ones gaining it are re-synced, so the membership is captured on both sides of `super().write()`.
 - `role_tutor`, `role_dchieff`, `role_seminar`, `role_hos`, `role_dhos`, `role_secretary` and `role_director` are **not** manually assignable — no role in this chain remains manual: `update_tutor_role()` links/unlinks `role_tutor` based on whether the employee is referenced as `tutor_id` on any `ems.group`; `update_department_head_role()`/`update_seminar_chief_role()` do the same for `role_dchieff`/`role_seminar` based on `hr.department.manager_id`/`seminar_chief_id` (labelled "Department Chief"/"Seminar Chief" on the department form); `update_area_manager_role()` does the same for `role_hos`/`role_dhos`/`role_secretary` based on a *top-level* department's `manager_id`/`top_level_role` (labelled "Area Manager" on the department form — `role_secretary` is how the `ASP` top-level department's manager is handled, a teacher coordinating administrative/secretariat staff); `update_director_role()` does the same for `role_director` based on `res.company.director_id` (Ajustes/Settings > EMS Management — deliberately not a department field, see [Department Chief / Seminar Chief / Head of Studies / Director cascade](department.md)). Note `role_secretary` was changed from non-unipersonal to unipersonal in `data/cat/ems.role.csv` when it joined `top_level_role` — there is only ever one ASP Area Manager centre-wide, same as Head of Studies/Deputy/Director.
 
@@ -66,9 +66,10 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A["Admin adds role to employee.role_ids"] --> B["write()/onchange triggers _sync_security_groups()"]
-    B --> C["Diff role_ids.group_id vs user.groups_id"]
-    C --> D["(4, id) / (3, id) commands on res.users.groups_id"]
+    A["role_ids/job_id change (hr.employee or ems.role write())"] --> P["Capture previous_groups = _ems_role_job_groups()"]
+    P --> B["super().write(), then _sync_security_groups(previous_groups)"]
+    B --> C["(4, id) for current role/job groups the user lacks"]
+    B --> D["(3, id) for previous_groups no current role/job still grants"]
 ```
 
 ## Access Control
@@ -76,7 +77,7 @@ flowchart LR
 | Group | Implies | Comment |
 |-------|---------|---------|
 | `ems.group_teacher` | `hr_attendance.group_hr_attendance_own_reader` | Base teacher access |
-| `ems.group_tutor` | `ems.group_teacher` | Teacher in charge of a group; row-level access to their group's students is granted via record rules in `security/rules/*.xml` that filter on `group_teacher` + a domain on `tutor_id`, not on `group_tutor` itself |
+| `ems.group_tutor` | `ems.group_teacher` | Teacher in charge of a group; row-level access to their group's students is granted via record rules in `security/rules/*.xml` that filter on `group_teacher` + a domain on `tutor_id.tutor_scope_user_ids`, not on `group_tutor` itself - see [Tutor scope](#tutor-scope-permissions-escalate-along-the-chain-of-command-issue-483) |
 | `ems.group_department_chief` | `ems.group_tutor` | Department head. Grants full read/write/create/unlink access to `ems.group` (see `access_ems_group_department_chief`), otherwise currently identical to Tutor |
 | `ems.group_head_of_studies` | `ems.group_department_chief`, `hr_attendance.group_hr_attendance_manager`, `hr.group_hr_user`, `ems.group_student_data_reader`, `base.group_partner_manager` | Full read/write access to all employees' attendance records, plus create/edit on teachers - see [Staff management](#staff-management-issue-391) below - plus full read/write access to every student's data centre-wide - see [Full access to student data for Head of Studies / Director](#full-access-to-student-data-for-head-of-studies--director-issue-448) below |
 | `ems.group_director` | `ems.group_head_of_studies` | Currently identical to Head of Studies |
@@ -150,7 +151,7 @@ and applicant, not only their tutees'.
 | `special_needs`'s ORM `groups` | Gains `ems.group_orientation` next to tutor, secretary and admin. Without it the field is stripped from every view and any read raises `AccessError`. |
 | `rule_contact_orientation_special_needs` (`security/rules/contacts.xml`) | `perm_write` on contacts whose `contact_type` is `student` or `applicant`. An `ir.rule` cannot name fields, so on its own this would open the whole file. |
 | `res.partner._ems_check_orientation_write()` | The field-level half of that rule, same pattern as `hr.leave._ems_check_own_approved_write()`: a write touching anything other than `special_needs` raises `AccessError` on every student/applicant the user reaches **only** through the rule above - neither admin, secretary, Head of Studies nor tutor of the record. A guidance member who is also someone's tutor keeps full edit of their own tutees. |
-| `special_needs_readonly` (non-stored, form only) | `read_only_user` minus guidance: the Student data tab shows the editable dropdown instead of the read-only badge, and the Applicant data tab's field is editable. |
+| `special_needs_readonly` (non-stored, form only) | `read_only_user` minus guidance: the student data block (top of the form) shows the editable dropdown instead of the read-only badge, and the Applicant data tab's field is editable. |
 
 
 ### Models covered
@@ -178,7 +179,7 @@ distinction matters: in EMS an enrolment *is* a `sale.order`, and the student fo
 tab** resolves its authorizations through `res.partner._ems_enrollment_in_force()`, which walks
 `sale_order_ids`. Denying it does not merely hide a number - the walk yields nothing *silently*,
 so the tab renders empty and, worse, the `auth_image`/`auth_trip`/`auth_healt`/`auth_share`
-badges on the Student data tab all read **"No"** on a student whose family did sign. Read access
+badges on the Secretary tab all read **"No"** on a student whose family did sign. Read access
 here is what a tutor already has (`rule_sale_order_teacher`, ACL via `group_teacher`); these two
 posts get the same mechanism with an open domain instead of one narrowed to own tutees.
 
@@ -306,6 +307,70 @@ flowchart LR
     D["group_director"] --> HS
 ```
 
+## Tutor scope: permissions escalate along the chain of command (issue #483)
+
+Every chief above a tutor - their Seminar Chief, their Department Chief, their Head of Studies
+(or Deputy) and the Director - holds every tutor right over that tutor's students. Only *their*
+chiefs: another department's chief, or the Head of Studies of another area, gets nothing from
+it. This is the "escalate by hierarchy, not by role" rule of `CLAUDE.md` applied to every
+tutor-scoped permission at once.
+
+The group implication alone never gave chiefs that: every tutor-scoped record rule compared
+`tutor_id.user_id` with the current user, and a chief usually tutors no group, so each of those
+rules matched nothing for them. Found with the Google credentials of #478: a Head of Studies was
+left with a plain teacher's view.
+
+The fix is a single shared field, not one extra rule per model:
+
+| Piece | What it does |
+|-------|--------------|
+| `tutor_scope_user_ids` (`ems_employee_base`, so on `hr.employee` and `hr.employee.public`) | Non-stored `Many2many → res.users`: the employee's own user, every ancestor through `parent_id` whose user is in `group_department_chief` (`TUTOR_SCOPE_CHIEF_GROUP` - Seminar Chief, Department Chief, Head of Studies and Director all have it), and the user of `res.company.director_id`. |
+| `_search_tutor_scope_user_ids` | Its mirror for domains (`=`/`in` a user id): the user's own employee records, plus everything `child_of` them when the user is a chief, plus every employee of the company when the user is its Director. A falsy id matches nobody. |
+| Record rules (`security/rules/{contacts,attendance,coexistence,grading}.xml`) | Every `...tutor_id.user_id = user.id` became `...tutor_id.tutor_scope_user_ids = user.id`. `=` on a many2many means "contains". |
+| `ems.base.user_acts_as_tutor(tutor)` (`models/shared/base.py`) | The same test for Python checks: `get_user_is_tutor_of_self()`, the grade session's `can_edit`, the portal access, graduation and EM grading wizards, the authorization send wizard's student filter, and `res.partner._user_is_tutor_of_record()`/`_get_is_tutor_readonly()` (a chief edits exactly what the tutor edits, no more). |
+| `ems.base.get_user_is_tutor()` | "Acts as tutor of some group": an employee with tutorships has the user in their scope. Gates creating attendance justifications. |
+| Pickers | The EM grading wizard's group picker (`_tutor_scope_domain`) and the justification's student picker (`_onchange_allowed_student_ids`) also match on `tutor_scope_user_ids`, so they offer exactly what the server then accepts. |
+
+```mermaid
+graph TD
+    D["Director<br/>(res.company.director_id)"] --> H["Head of Studies / Deputy<br/>(top-level department manager)"]
+    H --> C["Department Chief"]
+    C --> SC["Seminar Chief"]
+    SC --> T["Tutor"]
+    H --> C2["Another Department Chief<br/>(out of scope)"]
+    T --> G["ems.group.tutor_id"]
+    G --> S["Students (main_group_id)"]
+    T -. "tutor_scope_user_ids" .-> U["{Tutor, Seminar Chief, Department Chief,<br/>Head of Studies, Director}"]
+```
+
+Design points:
+
+- **Follows `parent_id`**, which the department cascade (`hr.employee._compute_parent_id`,
+  `hr.department._effective_manager()`) already keeps equal to the real chain of command,
+  including departments without a Seminar Chief and `shares_manager_with_parent`.
+- **Not stored**, so a change of department, chief, area manager or Director applies on the next
+  request, with no recomputation to trigger. `ir.rule` caches the evaluated domain (which still
+  only carries the user id), not the search result, so the cache never goes stale. The search
+  costs a couple of `hr.employee` queries (about 20 ms on the development data), once per query,
+  not per row.
+- **Permissions only.** Lists of "my students" keep matching on the literal tutor - the default
+  "My students" facet (`_ems_my_students_domain`), the tutor enrollment list and the
+  authorization follow-up screen - so a chief does not open those screens on hundreds of
+  students. Notifications (strike escalation, attendance issue emails) still go to `tutor_id`
+  alone.
+- **The Director** covers every student with a tutor, even when a broken department chain would
+  not lead up to them.
+- Only students whose group has a tutor are in anyone's scope; the centre-wide rights of
+  `group_student_data_reader` (#393/#448) are unchanged and still cover the rest for reading.
+- **Not only tutor rights.** The same chain gates the employee's own identity document and social
+  security number (`hr.employee.can_view_identity`, see
+  [employee.md](employee.md#identity-document-and-social-security-number-for-the-chain-of-command)).
+- **New tutor-scoped rules or checks** should match on `tutor_scope_user_ids` /
+  `user_acts_as_tutor()`, never on `tutor_id.user_id`, so they escalate the same way.
+- Tests: `tests/test_tutor_scope.py`; `create_head_of_studies_branch()` in `tests/common.py`
+  builds the Head of Studies → Department Chief → tutor chain, plus an out-of-scope chief and Head
+  of Studies, for any test that needs it.
+
 ## Staff management (issue #391)
 
 Until this issue only `group_academic_admin` could write to `hr.employee`; `group_teacher` (and
@@ -358,6 +423,12 @@ Two details worth keeping in mind if this is ever touched:
 - **Sitting outside the page's group gate protects nothing less.** `private_email` carries
   `groups="hr.group_hr_user"` on the field itself, which is what actually gates it.
 
+**The secretariat (`group_secretary`) also implies `hr.group_hr_user`**, since it keeps the staff's
+personal data up to date (identity document, social security number...). Unlike the two posts
+above it manages ASP and teachers alike, so its write/create is not bounded by employee type; it
+never deletes either. See
+[employee.md](employee.md#identity-document-and-social-security-number-for-the-chain-of-command).
+
 ### What the record rules narrow back down
 
 `hr.group_hr_user` is broader than this issue asked for, so `security/rules/employees.xml` bounds it
@@ -368,7 +439,8 @@ included, exactly as before.
 | Rule | Groups | Effect |
 |------|--------|--------|
 | `rule_hr_employee_write_teacher_only` | `group_head_of_studies`, `group_tac` | `write`/`create` only where `employee_type = 'teacher'` |
-| `rule_hr_employee_no_unlink_staff_manager` | `group_head_of_studies`, `group_tac` | `unlink` with an unsatisfiable domain: never deletes |
+| `rule_hr_employee_no_unlink_staff_manager` | `group_head_of_studies`, `group_tac`, `group_secretary` | `unlink` with an unsatisfiable domain: never deletes |
+| `rule_hr_employee_write_secretary` | `group_secretary` | `write`/`create` on every staff member, ASP and teachers alike |
 | `rule_hr_employee_write_all` | `group_academic_admin`, `group_secretary_admin` | The unrestricted counterpart, on all three operations |
 
 ```mermaid
@@ -378,10 +450,13 @@ to this user?"}
     R -- "group_head_of_studies
 or group_tac" --> T["teacher_only: employee_type = 'teacher'
 no_unlink: [(0, '=', 1)]"]
+    R -- "group_secretary" --> S["write_secretary: domain [] (no unlink)
+no_unlink: [(0, '=', 1)]"]
     R -- "group_academic_admin
 or group_secretary_admin" --> A["write_all
 domain: []"]
     T --> OR["Rules for a user's groups are OR-ed"]
+    S --> OR
     A --> OR
     OR --> D{"Any rule matched?"}
     D -- yes --> OK["Allowed"]

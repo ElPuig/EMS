@@ -55,6 +55,8 @@ Per fer la importació:
 
 En acabar, l'auxiliar mostra un **resum de la importació**: quants aspirants s'han creat, quants s'han actualitzat i quantes files s'han omès. També podeu **descarregar el registre (CSV)** i, si n'hi ha, el CSV `gedac_alumnes_actius_<data>.csv` amb els continuadors interns.
 
+Si el correu d'un aspirant al fitxer pertany al domini del centre (un compte corporatiu), l'aspirant es crea o s'actualitza igualment, però sense aquest correu, i el resum mostra un avís per a aquest aspirant.
+
 ![Resum del resultat de la importació](../../assets/secretary/preinscrpcio-Secretaria-03.png)
 
 ---
@@ -64,7 +66,7 @@ En acabar, l'auxiliar mostra un **resum de la importació**: quants aspirants s'
 Els aspirants nous apareixen a la vista **Pre-inscripció**. Per revisar-los còmodament:
 
 * Feu servir el **panell d'estudis** de l'esquerra **(1)** per filtrar l'alumnat per estudi (SMX, ASIX, GA...). Al costat de cada estudi hi ha el nombre d'aspirants.
-* La llista ve **agrupada automàticament per torn** (*Afternoon* / *Morning*) **(2)** i, dins de cada torn, **per curs** (1r, 2n) **(3)**. Aquesta agrupació permet aplicar la **plantilla de matrícula** de manera més senzilla: cada combinació d'**estudi, torn i curs** té assignada una plantilla i un grup destí per defecte.
+* La llista ve **agrupada automàticament per torn** (*Tarda* / *Matí*) **(2)** i, dins de cada torn, **per curs** (1r, 2n) **(3)**. Aquesta agrupació permet aplicar la **plantilla de matrícula** de manera més senzilla: cada combinació d'**estudi, torn i curs** té assignada una plantilla i un grup destí per defecte.
 
 ![Vista de Pre-inscripció amb el panell d'estudis i l'agrupació per torn i curs](../../assets/secretary/preinscrpcio-Secretaria-04.png)
 
@@ -119,6 +121,8 @@ Perquè les famílies puguin confirmar la matrícula més endavant, cal que ting
 ![Menú Accions amb l'opció d'accés al portal](../../assets/secretary/preinscrpcio-Secretaria-07.png)
 
 > Aquesta opció genera o activa l'accés al portal educatiu per a l'alumnat i les seves famílies, de manera que, quan rebin el correu de proposta, hi puguin entrar a respondre les autoritzacions i confirmar la matrícula. Els alumnes que ja són del centre solen tenir-lo actiu.
+>
+> Un alumne menor d'edat també rep el seu propi accés, a més del de la família, però només de consulta (horari, les seves comunicacions i perfil): és la família qui confirma la matrícula. Vegeu [Com gestionar l'accés al portal](../tutors/acces-portal.md#qui-rep-laccés-alumnes-i-famílies).
 
 ---
 
@@ -178,6 +182,21 @@ Si l'alumne tenia dret al benefici però l'ha pujat i s'ha aprovat **després** 
 4. El sistema cancel·la la factura emesa, recalcula les línies de taxes amb l'estat de beneficis actual de l'alumne i genera i publica una factura nova. L'operació queda registrada al xat de la matrícula.
 
 > Si la factura ja té **pagaments registrats**, el botó es bloqueja amb un error: en aquest cas cal emetre una **factura rectificativa** manualment des de Comptabilitat.
+
+---
+
+## Els pagaments registrats es veuen al portal
+
+Quan registreu el cobrament d'un termini de la factura d'una matrícula (des de **Comptabilitat**, o amb la remesa SEPA), el portal de la família s'actualitza tot sol:
+
+* A l'apartat **Matrícula**, dins del bloc **Pagament**, el termini passa de **Pendent** a **Pagat**. En un pagament en dos terminis, cada termini té el seu propi estat.
+* Al bloc **Comunicacions** de la mateixa pàgina, i a l'apartat **Comunicacions** del portal, hi apareix un avís amb el termini cobrat, l'import i la data de venciment.
+
+Així és com la família veu el calendari de pagaments al seu portal:
+
+![Calendari de pagaments tal com el veu la família al portal](../../assets/families/Matricula-confirmacio-09-CalendariPagaments.png)
+
+L'avís no s'envia per correu electrònic: només es publica al portal. Un cobrament parcial d'un termini no el marca com a pagat ni genera cap avís; cal que el termini quedi cobert del tot.
 
 ---
 

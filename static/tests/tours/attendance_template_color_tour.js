@@ -19,6 +19,14 @@ registry.category("web_tour.tours").add("ems_attendance_template_color_smoke", {
             content: "Attendance templates list view loaded",
         },
         {
+            // The action opens with the default "Show only mine" filter (added after this tour),
+            // which hides this fixture: its teacher is not the logged-in user. Removed by
+            // structure (the filter facet), not by its label, so the tour works in any language.
+            trigger: ".o_searchview_facet:has(.fa-filter) .o_facet_remove",
+            content: "Remove the default 'Show only mine' filter",
+            run: "click",
+        },
+        {
             trigger: ".o_searchview_input",
             content: "Search for the fixture template by teacher (the search view's default "
                 + "field) - this dev database has hundreds of real templates, so the fixture row "

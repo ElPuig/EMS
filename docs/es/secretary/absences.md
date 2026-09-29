@@ -22,11 +22,13 @@ Pertenecer a secretaría no da ese permiso: el resto del equipo pide sus ausenci
 
 Ahí salen solo las solicitudes de tu área, en estado **Pendiente** mientras esperan decisión.
 
+![Lista de ausencias, con las acciones Aprobar/Rechazar en una solicitud pendiente](../../assets/head_of_studies/hos-absences-list.png)
+
 Tienes acceso al motivo escrito y al justificante de tu gente, y puedes ajustar los campos **Suma las horas al informe mensual**, **Se tramita por ATRI** y **¿Día entero?**, además de corregir el tipo de ausencia.
 
-**Rechazar es definitivo**, y pide confirmación antes: nadie puede devolver una solicitud rechazada a *Pendiente*, y la persona tendría que hacer una nueva. El justificante, en cambio, se puede adjuntar en cualquier momento, también en una solicitud ya aprobada.
+**Rechazar es definitivo**, y pide confirmación antes: una vez rechazas una solicitud, ni tú ni la persona podéis devolverla a *Pendiente*, así que tendría que hacer una nueva. El justificante, en cambio, se puede adjuntar en cualquier momento, también en una solicitud ya aprobada.
 
-La **verificación de dirección** la ves pero no la puedes modificar: la marca Dirección.
+Aprobar es tu mitad: Dirección también aprueba cada ausencia, en la columna **Estado Dirección**, que ves pero no puedes modificar. La columna **Estado** combina las dos.
 
 El detalle de estos campos y de los dos informes está en el manual de [Jefatura de Estudios](../head_of_studies/absences.md), y se aplica igual a tu área.
 

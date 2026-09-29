@@ -72,7 +72,9 @@ A non-stored `Html` field building a download link (`/web/content/<attachment_id
 
 ## `_doc_label()`
 
-Small shared helper (`dict(self._fields['doc_type'].selection).get(self.doc_type, ...)`) — the human-readable, current-language label for a document's type. Used by `_compute_name`, every chatter message, and `_schedule_review_activities`'s task summary, so the six near-identical message bodies across `create()`/`action_approve()`/`action_reject()`/`action_cancel()`/`action_reset_to_pending()` don't each re-derive it.
+Small shared helper — the human-readable label for a document's type, in the current language (`self._fields['doc_type']._description_selection(self.env)`, the same translated labels `fields_get()` returns; reading `_fields[...].selection` directly would give the English source). A chatter message or review task built from it is stored as text, so it stays in the language of the user who triggered it (usually the secretary approving/rejecting), as is standard in Odoo.
+
+`name` (the display name: breadcrumb, form title, notification e-mail subject) is computed on the fly, not stored, with `@api.depends_context('lang')`, so every reader sees it in their own language. `_rec_names_search = ['partner_id']` keeps name search working (by student). Used by `_compute_name`, every chatter message, and `_schedule_review_activities`'s task summary, so the six near-identical message bodies across `create()`/`action_approve()`/`action_reject()`/`action_cancel()`/`action_reset_to_pending()` don't each re-derive it.
 
 ---
 
@@ -86,26 +88,27 @@ Small shared helper (`dict(self._fields['doc_type'].selection).get(self.doc_type
 | Secretary | ✓ | ✓ | ✓ | ✓ |
 | Tutor (`ems.group_tutor`) | — | ✓ | — | — |
 | TAC (`ems.group_tac`) | — | ✓ | — | — |
+| Chiefs above a tutor (through the tutor rule) | — | ✓ | — | — |
 | Portal (`base.group_portal`) | — | ✓ | — | — |
 
 ### `security/rules/contacts.xml` — tutor access to Google credentials
 
-The tutor and TAC rows exist only to read the **Google Workspace credentials PDF** (`doc_type='google_credentials'`, created by `_gw_deliver_credentials()` in `google_workspace_integration.py`) from the student form's **Documentation** tab: tutors for their own students, the TAC team for every student, since they reset those passwords (see [google_workspace_student.md](google_workspace_student.md#password-reset)). Four rules:
+The tutor, TAC and Head of Studies rows exist only to read the **Google Workspace credentials PDF** (`doc_type='google_credentials'`, created by `_gw_deliver_credentials()` in `google_workspace_integration.py`) from the **Documentation** section of the student form's **Secretary** tab (shown only to whoever can read some document of that student, `res.partner.can_see_documents`): tutors for their own students, the TAC team for every student, since they reset those passwords (see [google_workspace_student.md](google_workspace_student.md#password-reset)). Four rules:
 
 | Rule | Group | Domain |
 |------|-------|--------|
-| `rule_ems_student_document_tutor` | `ems.group_tutor` | `doc_type = 'google_credentials'` and `partner_id.tutor_id.user_id = user` (read only) |
+| `rule_ems_student_document_tutor` | `ems.group_tutor` | `doc_type = 'google_credentials'` and `partner_id.tutor_id.tutor_scope_user_ids = user` (read only) |
 | `rule_ems_student_document_tac` | `ems.group_tac` | `doc_type = 'google_credentials'` (read only) |
 | `rule_ems_student_document_secretary` | `ems.group_secretary` | none (full access) |
 | `rule_ems_student_document_admin` | `ems.group_academic_admin` | none (full access) |
 
-Rules of the groups a user belongs to are ORed, so the two unrestricted rules are what keep the tutor rule from narrowing staff who are also in `group_tutor`: the academic admin always is (admin → director → head of studies → department chief → tutor), and a secretary may also tutor a group. Every other document type (ID card, IBAN, medical card, benefit proof) stays invisible to tutors and TAC. The PDF download works through the normal `ir.attachment` check, which defers to read access on the owning `ems.student.document` record.
+Rules of the groups a user belongs to are ORed, so the two unrestricted rules are what keep the tutor rule from narrowing staff who are also in `group_tutor`: the academic admin always is (admin → director → head of studies → department chief → tutor), and a secretary may also tutor a group. Through `tutor_scope_user_ids`, the tutor rule also gives every chief above a tutor (Seminar/Department Chief, Head of Studies, Director) the credentials of that tutor's students (see [Tutor scope](../employees/role_hierarchy.md#tutor-scope-permissions-escalate-along-the-chain-of-command-issue-483)). Every other document type (ID card, IBAN, medical card, benefit proof) stays invisible to tutors, their chiefs and TAC. The PDF download works through the normal `ir.attachment` check, which defers to read access on the owning `ems.student.document` record.
 
-In the views, the Documentation page adds `ems.group_tutor` and `ems.group_tac` to its `groups`, and the Approve / Reject / Reset to pending buttons of the document list and form are restricted to `ems.group_academic_admin,ems.group_secretary`, so a tutor opening a credentials row gets a plain read-only form.
+In the views, the Documentation page adds `ems.group_tutor` (which every chief implies) and `ems.group_tac` to its `groups`, and the Approve / Reject / Reset to pending buttons of the document list and form are restricted to `ems.group_academic_admin,ems.group_secretary`, so a tutor opening a credentials row gets a plain read-only form.
 
 ### Bulk download: "Download Google credentials"
 
-A server action (`action_google_credentials_download_bulk`, `views/community/contact/google_credentials_download.xml`) bound to both the `res.partner` list's and form's Actions menu, for academic admin, secretary, tutor and TAC:
+A server action (`action_google_credentials_download_bulk`, `views/community/contact/google_credentials_download.xml`) bound to both the `res.partner` list's and form's Actions menu, for academic admin, secretary, tutor (and so every chief) and TAC:
 
 ```mermaid
 sequenceDiagram
@@ -146,6 +149,16 @@ A second, independent attempt (`enrollment.py`'s invoicing-time fallback, force-
 3. `enrollment.py`'s invoicing-time fallback no longer attempts to silently self-grant trust — it now raises a clear `ValidationError` if the bank isn't approved yet, since points 1-2 mean this should no longer be reachable through normal use; if it is, the actual approval step was skipped and that should be surfaced, not papered over. See the "Billing" section of `enrollment.md`.
 
 ---
+
+## `benefit_type`
+
+A `Selection` whose choices come from `ems.student.benefit.benefit_type` (`_selection_benefit_type()`, translated labels) - the same keys, since an approved benefit document becomes an `ems.student.benefit` (`_apply_benefit`). Stored as varchar like any selection, so the keys already in the database stay valid. It used to be a plain `Char`, which made the review list and form show the internal key (`large_family_gen`).
+
+The review list's Approve/Reject buttons are icon-only (label as tooltip): with the text as well, the two buttons don't fit their column.
+
+## Portal page (`/my/documentacion`)
+
+`portal_documentation()` passes the type, status and benefit-category labels to the template as dicts built from `fields_get()` (`doc_type_labels`, `doc_status_labels`, `benefit_category_labels`, next to the existing `benefit_types`). `fields_get()` returns selection labels translated into the visitor's language; reading `record._fields[...].selection` directly in QWeb returns the English source instead, which is how the page used to show "Pending review"/"Passport" to a Catalan family. The upload modals take their titles from `doc_type_labels` too. Covered by `TestPortalActions.test_documentation_page_translates_selection_labels`.
 
 ## Views
 

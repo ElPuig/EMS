@@ -50,7 +50,7 @@ En triar el tipus **ATRI**, el formulari et mostra els enllaços al portal. La s
 - [Les meves sol·licituds - permisos i absències](https://atriportal.gencat.cat/ATRI-ng/#/meves-sollicituds/permisos-absencies)
 - [Manual de permisos i absències d'ATRI (PDF)](https://atriportal.gencat.cat/ATRI-web/gestor-continguts/2011.pdf)
 
-Direcció comprova que l'hagis tramitat al portal abans de marcar la verificació com a `Fet`.
+Direcció comprova que l'hagis tramitat al portal abans d'aprovar-la per la seva banda (**Estat Direcció** `Fet`).
 
 Cada opció mostra el text complet del permís. Llegeix-lo abans de triar: en marcar-la, declares que t'hi trobes.
 
@@ -85,7 +85,7 @@ Per demanar més d'un dia, marca-la i canvia la data de fi. Si és un sol dia, l
 
 En el cas de consulta mèdica, el justificant ha de fer constar expressament el nom i cognoms del o de la pacient i l'hora d'entrada i sortida del centre o consulta mèdica.
 
-**Un justificant que arriba més tard s'adjunta a la mateixa sol·licitud.** Obre l'absència, encara que ja estigui aprovada, adjunta el fitxer i desa. Això és el que fa desaparèixer una **Comprovació de direcció** en estat *Falta document*: no cal tornar a sol·licitar l'absència.
+**Un justificant que arriba més tard s'adjunta a la mateixa sol·licitud.** Obre l'absència, encara que ja estigui aprovada, adjunta el fitxer i desa. Això és el que resol un **Estat Direcció** en *Falta document*: no cal tornar a sol·licitar l'absència.
 
 Per esborrar-ne un, fes clic a la creu del fitxer i confirma.
 
@@ -107,24 +107,23 @@ Si surts del formulari sense enviar-lo, l'EMS t'avisa i et deixa descartar-lo.
 
 ## Consultar l'estat
 
-A **Absències** tens la teva llista, amb dues columnes:
+A **Absències** tens la teva llista. La teva absència s'aprova dues vegades, pel teu cap (cap d'estudis adjunt, cap d'estudis o secretari/ària) i per Direcció, en qualsevol ordre.
 
 **Estat**
 
 | Valor | Significa |
 |---|---|
 | Pendent | Encara no s'ha resolt |
-| Aprovada | Concedida |
-| Rebutjada | Denegada. És definitiu: si vols insistir, cal fer una sol·licitud nova |
-| Cancel·lada | Anul·lada |
+| Pendent Cap | Direcció l'ha aprovada, el teu cap encara no |
+| Pendent Direcció | El teu cap l'ha aprovada, Direcció encara no l'ha revisada |
+| Pendent Document | Direcció espera el justificant: adjunta'l a la mateixa sol·licitud, encara que ja estigui aprovada |
+| Aprovat | Concedida per tots dos |
+| Rebutjat | Denegada. És definitiu: si vols insistir, cal fer una sol·licitud nova |
+| Cancel·lat | Anul·lada |
 
-**Verificació de direcció** — si direcció ja ha comprovat el justificant:
+Les columnes **Estat Cap** i **Estat Direcció** mostren la decisió de cadascú per separat.
 
-| Valor | Color | Què has de fer |
-|---|---|---|
-| No fet | gris | Res, encara no s'ha revisat |
-| Falta document | vermell | Adjuntar el justificant a la mateixa sol·licitud, encara que ja estigui aprovada |
-| Fet | verd | Res |
+Un cop l'aprova el teu cap, l'absència ja compta al calendari d'absències i al quadrant de guàrdies.
 
 ---
 

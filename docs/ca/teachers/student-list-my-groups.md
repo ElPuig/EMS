@@ -22,12 +22,14 @@ Aquesta guia explica com surt filtrada la llista d'alumnat quan l'obres, i com a
 
 Obre **Comunitat Educativa → Alumnat**. A la barra de cerca ja hi ha dos filtres aplicats:
 
-- **Alumnat** — amaga l'alumnat antic (exalumnat, baixes i expulsions).
+- **Estudiants** — amaga l'alumnat antic (exalumnat, baixes i expulsions).
 - **El meu alumnat** — mostra només l'alumnat dels teus grups.
 
 Els teus grups són els del teu horari més qualsevol grup del qual siguis tutor o tutora.
 Un alumne surt a la llista quan aquest grup és el seu grup principal, o quan hi està
 matriculat en alguna de les teves matèries — incloent-hi grups de reforç i desdoblaments.
+
+![La llista d'Alumnat amb els dos filtres aplicats, mostrant només un alumne del propi grup del professor](../../assets/teachers/alumnat-01-els-meus-grups.png)
 
 ---
 

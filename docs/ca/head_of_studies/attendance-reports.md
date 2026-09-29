@@ -49,6 +49,8 @@ A la pantalla d'**Informes d'assistència**, fes clic a la icona **⚙ (engranat
   seleccions grans.
 - **Inclou els strikes** (actiu per defecte) — afegeix taules dels strikes disciplinaris del període.
 
+El PDF descarregat porta el nom de l'informe i de l'alumne, grup o assignatura seleccionats (p. ex. `Informe d'assistència_ per estudiant_Nom_Cognom.pdf`), per poder distingir diverses descàrregues.
+
 ---
 
 [← Tornar als manuals de Cap d'Estudis](index.md)

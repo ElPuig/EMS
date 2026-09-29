@@ -72,6 +72,26 @@ class TestMinute(TransactionCase):
         self.assertIn(self.workgroup.name, minute.display_name)
         self.assertNotIn('False', minute.display_name)
 
+    def _translate(self, record, field, label):
+        # Set on purpose rather than relying on i18n/ca_ES.po, so a test database loaded without
+        # the Catalan translations still proves the label goes through the translation layer.
+        self.env['res.lang']._activate_lang('ca_ES')
+        record.with_context(lang='ca_ES')[field] = label
+
+    def test_display_name_follows_language(self):
+        self._translate(self.env.ref('ems.selection__ems_minute__type__department'), 'name', 'Reunió dep.')
+        self._translate(self.env.ref('ems.selection__ems_minute__nature__ordinary'), 'name', 'Ordinària')
+        minute = self._minute(type='department', department_id=self.department.id)
+        catalan = minute.with_context(lang='ca_ES').display_name
+        self.assertIn('Reunió dep.', catalan)
+        self.assertIn('Ordinària', catalan)
+        self.assertIn('Department meeting', minute.with_context(lang='en_US').display_name)
+
+    def test_members_follows_language(self):
+        self._translate(self.env.ref('ems.field_ems_minute__department_id'), 'field_description', 'Departament')
+        minute = self._minute(type='department', department_id=self.department.id)
+        self.assertEqual(minute.with_context(lang='ca_ES').members, "Departament: %s" % self.department.name)
+
     def test_members_department_meeting(self):
         minute = self._minute(type='department', department_id=self.department.id)
         self.assertEqual(minute.members, "Department: %s" % self.department.name)

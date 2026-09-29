@@ -170,6 +170,7 @@ class EmsStudentUpdateWizard(models.TransientModel):
         updated = 0
         not_found = 0
         errors = []
+        warnings = []
         result_rows = []   # original row + ems_import_status column
         fieldnames = None
 
@@ -205,6 +206,11 @@ class EmsStudentUpdateWizard(models.TransientModel):
                             ))
                 else:
                     vals[field] = raw or False
+            # A corporate address is left out (keeping the student's current personal email)
+            # instead of failing the whole row on res.partner's constraint (issue #514).
+            if vals.get('email') and not self.env.company._ems_drop_corporate_email(
+                    vals['email'], student.name, warnings):
+                del vals['email']
 
             row_error = None
             try:
@@ -269,6 +275,10 @@ class EmsStudentUpdateWizard(models.TransientModel):
             "%(updated)s student(s) updated, %(not_found)s IDALU not found.",
             updated=updated, not_found=not_found,
         ))
+        if warnings:
+            html += Markup('<p><b>{}</b></p>{}').format(
+                _("Warnings (%(count)s):", count=len(warnings)),
+                self.env['ems.base'].build_html_list(warnings))
         if errors:
             items = Markup('').join(Markup('<li>{}</li>').format(e) for e in errors)
             html += Markup('<p><b>{}</b></p><ul>{}</ul>').format(

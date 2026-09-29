@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- The Head of Studies resolves; the secretariat registers requests received on paper
+             and follows them up. -->
+        <menuitem id="menu_ems_convalidations"
+                  name="Convalidations"
+                  parent="menu_ems_academic_management"
+                  action="action_convalidation"
+                  groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"
+                  sequence="15"/>
+    </data>
+</odoo>

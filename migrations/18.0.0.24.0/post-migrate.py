@@ -77,7 +77,7 @@ def _backfill_calendar_to_schedule_link(env):
     always the entry point, never the other way round.
 
     That FK is only ever set by 'ems.attendance_template._link_calendar_attendance', called at the
-    end of 'sync_from_schedule_batch' - a calendar block created or resynced before this FK column
+    end of '_sync_from_schedule_batch' - a calendar block created or resynced before this FK column
     existed (added 2026-08-11) or before the automatic create/write/unlink hook existed (added the
     same day as this migration, see the bottom-up sync redesign's Phase 4) never went through that
     step, so it can be missing the link even though a matching schedule line genuinely exists.
@@ -85,12 +85,12 @@ def _backfill_calendar_to_schedule_link(env):
     Rather than writing a bespoke matching query here, this reuses the exact same full
     archive-and-rebuild-from-calendar tool already used by 'migrations/18.0.0.22.0' and
     'migrations/18.0.0.23.1'/'18.0.0.23.5' for the original calendar-driven-templates rollout -
-    'regenerate_all_from_calendars()' rebuilds every active template/line straight from each
+    '_regenerate_all_from_calendars()' rebuilds every active template/line straight from each
     teacher's current calendar and links every calendar row it touches by construction, so running
     it once more here closes this exact gap without inventing new logic. Confirmed via a dry run
     against this project's own dev database (2026-09-08, rolled back, never committed): 11
     pre-existing unlinked lines dropped to 0, with zero unresolved room conflicts."""
-    skipped = env['ems.attendance_template'].regenerate_all_from_calendars()
+    skipped = env['ems.attendance_template']._regenerate_all_from_calendars()
     _logger.info(
         "Migration 18.0.0.24.0: archived every pre-existing ems.attendance_template and "
         "regenerated a fresh, calendar-linked set from each teacher's current working schedule "

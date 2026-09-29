@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from urllib.parse import quote
-
-from odoo import _
 from odoo.http import request, route
 from odoo.addons.portal.controllers.portal import CustomerPortal
 
@@ -17,8 +14,8 @@ class EMSPortalAccount(CustomerPortal):
     in the template would still let a crafted POST go through. Here we never
     process the write for portal users and render a read-only variant instead.
 
-    To request a legitimate correction, the read-only template offers a mailto:
-    link addressed to the center's secretariat (configurable in EMS settings).
+    The contact details are corrected through the review page of issue #507
+    (controllers/portal_contact_data.py), which the read-only template links to.
     """
 
     def _prepare_portal_layout_values(self):
@@ -36,29 +33,6 @@ class EMSPortalAccount(CustomerPortal):
         (teachers, secretariat, admin) keep the standard editable form.
         """
         return request.env.user.has_group('base.group_portal')
-
-    def _ems_profile_change_mailto(self):
-        """Build the mailto: link for personal-data change requests.
-
-        Returns an empty string when no secretariat email is configured, so the
-        template can hide the button.
-        """
-        company = request.env.user.company_id
-        recipient = (company.sudo().secretariat_email or '').strip()
-        if not recipient:
-            return ''
-        student = request.env.user.partner_id.get_portal_student()
-        subject = _("Personal data modification for student %s") % (student.name or '')
-        body = _(
-            "Good morning,\r\n"
-            "I would like to make a change to my personal data:\r\n"
-            "\r\n"
-            "\r\n"
-            "Best regards"
-        )
-        return "mailto:%s?subject=%s&body=%s" % (
-            recipient, quote(subject), quote(body),
-        )
 
     @route(['/my/account'], type='http', auth='user', website=True)
     def account(self, redirect=None, **post):
@@ -79,7 +53,6 @@ class EMSPortalAccount(CustomerPortal):
             'redirect': redirect,
             'page_name': 'my_details',
             'ems_profile_readonly': True,
-            'ems_profile_change_mailto': self._ems_profile_change_mailto(),
         })
 
         response = request.render("portal.portal_my_details", values)

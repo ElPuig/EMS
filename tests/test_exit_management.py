@@ -5,7 +5,13 @@ from unittest.mock import patch
 
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group, next_student_id
+from .common import (
+    create_level_study_group,
+    create_role_employee,
+    create_role_user,
+    mock_outgoing_email,
+    next_student_id,
+)
 
 
 class TestExitManagement(TransactionCase):
@@ -14,6 +20,9 @@ class TestExitManagement(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # The withdrawal cascade revokes the portal access and can post chatter notes on
+        # contacts read from seed data - see CLAUDE.md's "Email safety in tests".
+        mock_outgoing_email(cls)
         Course = cls.env['ems.course']
         # The current course is driven by the "Current course" setting
         # (company.current_course_id), which syncs ems.course.is_current.
@@ -415,6 +424,32 @@ class TestExitManagement(TransactionCase):
         result = student.toggle_active()
         self.assertTrue(student.active)
         self.assertIsNone(result)
+
+    # --- withdrawal as a secretary, without access to hr.employee (#492) ----
+
+    def test_withdrawal_wizard_as_secretary_reads_group_tutor(self):
+        """The secretary registering the withdrawal has no access to hr.employee, so
+        Odoo serves the group's tutor through hr.employee.public. Reading any field of
+        it in Python (year_record._generate_one's group.tutor_id.name) prefetches every
+        field the user may access, which raises AccessError for any hr.employee-only
+        field EMS declares without groups= - see Odoo's own hr.employee docstring and
+        test_employee_staff_permissions' structural guard over that same rule.
+        """
+        tutor_user = create_role_user(self, 'teacher', 'exit492_tutor@example.com')
+        tutor = create_role_employee(self, tutor_user, name='0000 Exit 492 Tutor')
+        self.group.tutor_id = tutor
+        secretary = create_role_user(self, 'secretary', 'exit492_secretary@example.com')
+        student = self._student('WW Secretary 492')
+
+        wizard = self.env['ems.withdrawal_wizard'].with_user(secretary) \
+            .with_context(active_ids=student.ids).create({})
+        wizard.action_apply()
+
+        self.assertFalse(student.active)
+        self.assertEqual(student.contact_type, 'withdrawal')
+        year_record = self.env['ems.student.year_record'].search([
+            ('student_id', '=', student.id), ('course_id', '=', self.current_course.id)])
+        self.assertEqual(year_record.tutor_name, tutor.name)
 
     # --- migration: archive pre-existing alumni/withdrawal (18.0.0.22.0) -----
 

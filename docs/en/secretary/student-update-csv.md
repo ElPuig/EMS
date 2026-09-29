@@ -30,6 +30,8 @@ From the **Students** list, open the actions menu (the gear icon ⚙️) and cho
 
 Once the columns are loaded, first choose which one holds the **student ID (IDALU/RALC)** — this is required, it's how each row is matched to a student. Then map as many or as few of the other fields as your file actually has (name, phone, email, address, documents…) — anything left unmapped is simply not touched.
 
+![Update students from CSV, with the file's columns mapped to the student ID, name, phone, email and bank account](../../assets/secretary/actualitzacio-csv-01-columnes.png)
+
 ## Updating the bank account
 
 If you map an **IBAN** column and a row has a value in it, that becomes the student's active bank account (any other account they had is deactivated). Leave IBAN unmapped, or leave the cell blank for a given row, and their bank details are left untouched.
@@ -37,6 +39,8 @@ If you map an **IBAN** column and a row has a value in it, that becomes the stud
 ## Reading the result
 
 After clicking **Update students**, you'll see how many students were updated and how many IDs weren't found, plus any row-level errors (e.g. an unparseable date). A downloadable **result CSV** — your original file with an extra status column — shows exactly what happened to every row, useful for a large file.
+
+If the email column holds an address of the centre's own domain (a corporate account), that value is not written: the student keeps their current personal email, the rest of the row is still updated, and the result lists a warning for that student.
 
 ---
 

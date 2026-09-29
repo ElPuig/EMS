@@ -27,7 +27,7 @@ En desar també es crea l'horari setmanal propi del professor o professora, prec
 
 ### Per què el correu personal és obligatori
 
-És l'adreça on s'envien les credencials del compte de Google nou. Sense ella el compte corporatiu simplement no es crea: la fitxa es desa, però no passa res més i queda una nota a l'historial de missatges explicant què falta. Demaneu una adreça personal abans de crear la fitxa: no és cap formalitat, és l'única manera que la persona rebi la seva contrasenya. El camp surt dues vegades a la fitxa: a la pantalla principal, perquè res obligatori quedi amagat darrere d'una pestanya mentre la creeu, i al seu lloc habitual dins la pestanya **Informació privada**. És el mateix camp: si n'ompliu un, s'omple l'altre.
+És l'adreça on s'envien les credencials del compte de Google nou. Sense ella el compte corporatiu simplement no es crea: la fitxa es desa, però no passa res més i queda una nota a l'historial de missatges explicant què falta. Demaneu una adreça personal abans de crear la fitxa: no és cap formalitat, és l'única manera que la persona rebi la seva contrasenya. El camp surt dues vegades a la fitxa: a la pantalla principal, perquè res obligatori quedi amagat darrere d'una pestanya mentre la creeu, i al seu lloc habitual dins la pestanya **Informació privada**. És el mateix camp: si n'ompliu un, s'omple l'altre. Tampoc pot ser una adreça del domini del centre: EMS no la deixa desar, perquè també és l'adreça de recuperació del compte corporatiu.
 
 ---
 
@@ -35,6 +35,14 @@ En desar també es crea l'horari setmanal propi del professor o professora, prec
 
 1. Aneu a **Comunitat Educativa → Professorat** i obriu la fitxa.
 2. Canvieu el que calgui i feu clic a **Desa** (o marxeu de la pantalla, l'Odoo desa automàticament).
+
+---
+
+## Document d'identitat i número de la Seguretat Social
+
+La pestanya **Informació privada** de la fitxa d'un docent comença amb un grup **Identificació** amb el **Document d'identitat** (DNI/NIE) i el **Núm. de la Seguretat Social**. Vosaltres, l'adjunt/a, el Director i el coordinador TAC els podeu editar a les fitxes del professorat; la Secretaria els manté al dia per a tot el personal, PAS inclòs.
+
+El Cap de departament i el Cap de seminari d'un docent també poden veure aquests dos camps, només de lectura, a les fitxes del personal del seu propi departament (només la seva pròpia cadena de comandament, no la d'altres departaments). Per a ells la pestanya només mostra el grup **Identificació**: la resta de la informació privada queda amagada.
 
 ---
 

@@ -9,5 +9,14 @@
             <field name="target">inline</field>
             <field name="context">{'module' : 'ems'}</field>
         </record>    
+
+        <!-- queue_job's own "Job Queue" app menu is easy to hide or miss: also reachable from
+             Settings > Technical > Automation, next to Scheduled Actions. -->
+        <menuitem id="menu_technical_queue_job"
+                  name="Jobs"
+                  parent="base.menu_automation"
+                  action="queue_job.action_queue_job"
+                  sequence="3"
+                  groups="queue_job.group_queue_job_manager"/>
     </data>
 </odoo>

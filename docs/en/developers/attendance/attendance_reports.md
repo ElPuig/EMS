@@ -53,6 +53,12 @@ Many2many the way it does for an owned/computed one) — see `attendance_session
 `Many2one` at the time this report code was ported; it became the `Many2many` `study_ids` in a later pass,
 2026-08-05 — see [`attendance_template.md`](attendance_template.md).)
 
+`session_active` (`Boolean`, stored `related="attendance_session_id.active"`) marks the lines of the current
+course (the course transition archives every outgoing session). It exists so the analysis screen can filter on
+the current course without going through `attendance_session_id`: a domain on that path is resolved with
+`ems.attendance_session_header._search()`, which applies the header's record rules (a teacher only reads their
+own sessions) and would hide the other teachers' sessions a tutor must see.
+
 It also gained `absence_rate` (`Float`, `compute`+`store`, `aggregator="avg"`): `100.0` if
 `status_id.category == 'absence'` else `0.0`. Storing 0/100 rather than a boolean means the graph view's
 `avg` aggregation resolves directly to a percentage — no separate widget/formatting needed. Odoo 18 field
@@ -67,9 +73,9 @@ Each wizard has 2 responsibilities, both formerly raw SQL, now plain ORM:
 
 | Wizard | Dropdown filter (`allowed_*_ids`) | `print()` |
 |---|---|---|
-| `..._group_wizard` | `env['ems.teaching'].search([('teacher_id', '=', current_teacher.id)]).mapped('group_id')` (no study filter — see "Wizard simplification" below) | `_get_report_lines()`: lines of the readable sessions of the group in the date range |
+| `..._group_wizard` | `env['ems.teaching'].search([('teacher_id', '=', current_teacher.id)]).mapped('group_id')` (no study filter — see "Wizard simplification" below), plus the groups in the user's tutor scope (`_get_tutor_group_ids()`) | `_get_sessions()` — see "Tutor scope in the PDF reports" below |
 | `..._student_wizard` | enrollments whose `(group_id, subject_id)` matches one of the teacher's `ems.teaching` pairs (no group filter anymore — see "Wizard simplification" below), plus every student whose tutor has the current user in `tutor_scope_user_ids` | `_get_student_lines()` — see "By-student report: own sessions vs tutor scope" below |
-| `..._subject_wizard` | `allowed_subject_ids`: teacher's own taught subjects (no group filter — see "Wizard simplification" below); `allowed_group_ids`: `env['ems.teaching'].search([('subject_id', '=', subject_id), ('teacher_id', '=', current_teacher.id)]).mapped('group_id')` | domain now `("group_ids", "in", self.group_ids.ids)` (was `self.group_id.id` singular) |
+| `..._subject_wizard` | `allowed_subject_ids`: teacher's own taught subjects (no group filter — see "Wizard simplification" below) plus every subject taught in a group of the user's tutor scope; `allowed_group_ids` (`_get_groups_teaching()`): the groups where the subject is taught by the user **or** that are in the user's tutor scope | `_get_sessions()` — see "Tutor scope in the PDF reports" below |
 
 The `current_teacher.id > 1` admin-bypass check (an existing convention: any user with no `hr.employee`
 record, or whose employee id is 1, sees unfiltered data) was preserved as-is — not in scope to change.
@@ -107,13 +113,21 @@ own. The wizard-side scoping above is UX convenience (don't overwhelm a teacher'
 subjects/students they don't teach), not a security boundary; it was never enforced by `ir.rule` and still
 isn't after this change.
 
-### By-student report: own sessions vs tutor scope
+### Tutor scope in the PDF reports
 
 Session **lines** are readable by every teacher, but session **headers**
 (`ems.attendance_session_header`) only by the teacher who owns the session
-(`rule_attendance_session_teacher_own`). The by-student report needs both, so it decides which sessions
-to include in a single place, `ems.attendance_report_wizard._get_student_lines(date_range=True)`, used by
-the From/To prefill (`_onchange_student_id`), by `print()` and by the PDF render:
+(`rule_attendance_session_teacher_own`). The PDF reports need both. A plain teacher gets their own sessions
+only; the tutor scope (`hr.employee.tutor_scope_user_ids`: the tutor, their chiefs up the `parent_id` chain
+and the Director) gets every session of their tutees or tutored groups, whatever the subject or teacher, by
+reading them under `sudo()`. There is no read `ir.rule` on the header for the tutor scope on purpose: it
+would also list those sessions in the tutor's *Attendance sessions* screen.
+
+#### By-student report
+
+It decides which sessions to include in a single place,
+`ems.attendance_report_wizard._get_student_lines(date_range=True)`, used by the From/To prefill
+(`_onchange_student_id`), by `print()` and by the PDF render:
 
 | Who | Sessions in the by-student report | How |
 |---|---|---|
@@ -136,8 +150,26 @@ creator) and calls `_get_student_lines()` again (see "Printing" above), so a han
 use the `sudo()` path for another student. Strikes listed in the PDF are still searched with the user's own
 rights (`Strike: tutees` already covers the tutor scope).
 
-The by-group and by-subject reports are unchanged: they search headers directly, so a teacher, tutor or
-not, only gets their own sessions there.
+#### By-group and by-subject reports
+
+Same idea, per group instead of per student, in `_get_sessions(date_range=True)`, used by the From/To
+prefill (`_onchange_group_id`, `_onchange_subject_id`), by `print()` and by the PDF render
+(`_get_report_lines()` searches the lines of those sessions):
+
+| Selected groups | Sessions in the report | How |
+|---|---|---|
+| Groups in the user's tutor scope (`_get_tutor_group_ids()`: `ems.group` whose `tutor_id.tutor_scope_user_ids` contains the user) | Every session of the group (by subject: of that subject), whoever taught it | Header search under `sudo()`, restricted to those groups |
+| Any other group | Only the sessions the user can read (their own) | Plain header search, record rules decide |
+
+The lines are returned in the sessions' environment (`sudo()` when the tutor scope widened them), so the
+PDF can read the other teachers' session headers. The widening is per group: a group picked by hand outside
+the dropdown and outside the tutor scope never gets the `sudo()` path. A session shared by a tutored group
+and another group (a joint session) brings all of its lines, including the other group's students. Inside
+an onchange the wizard's `group_ids` are `NewId` copies, so `_get_sessions()` works on `._origin`.
+
+The dropdowns follow the same scope: by group, the tutored groups are added to the ones the user teaches;
+by subject, the subjects taught by anyone in a tutored group are added, and for such a subject only the
+tutored groups (plus the ones the user teaches it in) are offered and prefilled.
 
 ### Wizard simplification: all 3, done incrementally
 
@@ -395,17 +427,22 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
   `graph_measure` alone was *not* enough to control the actual default on first paint — see "Default measure
   ..." above — the arch's own field order is what actually decides it, and `graph_measure` is now belt and
   braces on top of that. "Count" is available as a pivot measure alongside the other two — sample size
-  matters when reading a percentage. The server action also adds a default `domain` scoping to the current
-  user's own teaching
-  (`[('template_teacher_ids.user_id', '=', env.uid)]`) **unless** they have `ems.group_head_of_studies`,
-  `ems.group_secretary` or `ems.group_secretary_admin` — `group_head_of_studies` alone covers head of
-  studies/deputy/director/academic admin too, since each implies the one below it
-  (`security/groups.xml`). This is UX scoping, not a security boundary (same distinction as the wizard
-  dropdowns above): an `ir.actions.act_window.domain` is baked silently into every search from *this
-  specific menu entry* — unlike a `search_default_*` filter, it renders no removable facet chip, so a
-  teacher can't broaden it from this screen's search bar. `ir.rule` still grants every teacher unrestricted
-  read underneath, so the data remains reachable through any other path that doesn't carry this domain
-  (e.g. a different view/export) — this menu entry just never offers one.
+  matters when reading a percentage. Unless the user has `ems.group_head_of_studies`,
+  `ems.group_secretary` or `ems.group_secretary_admin` (`group_head_of_studies` alone covers head of
+  studies/deputy/director/academic admin too, since each implies the one below it, `security/groups.xml`),
+  the server action also:
+  - adds a `domain` scoping to the user's own teaching **or** their tutor scope's students:
+    `['|', ('template_teacher_ids.user_id', '=', uid), ('student_id.tutor_id.tutor_scope_user_ids', '=', uid)]`.
+    A tutor (and the chiefs above them, and the Director) sees every subject of their tutees, including the
+    ones taught by other teachers;
+  - turns on the **My subjects** filter by default (`context['search_default_my_subjects'] = 1`; filter
+    `my_subjects` in the search view, `[('template_teacher_ids.user_id', '=', uid)]`), so the screen opens
+    on the user's own subjects and removing the facet shows the tutees' other subjects.
+
+  The action domain is UX scoping, not a security boundary (same distinction as the wizard dropdowns
+  above): it renders no facet chip and can't be removed from the search bar, while `ir.rule` still grants
+  every teacher read on every line underneath. The `template_teacher_ids.user_id` leaf goes through the
+  header's record rules, which is harmless there: it only has to match the user's own sessions.
 - **Current-course-only by default (2026-08-10, developer feedback: "debe mostrar la información del curso
   actual. Una vez transicionamos de curso, debería estar en blanco")**: before this, the screen had no
   course/active scoping at all — it showed every `ems.attendance_session_line` ever recorded, across every
@@ -413,7 +450,9 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
   unaltered", per its own docstring). Fixed with `[('attendance_session_id.active', '=', True)]` — the
   *session* (the line's own parent) always has a real `active` field, and the course transition wizard
   already archives every outgoing course's sessions (see `course_transition_wizard.md`), so filtering on the
-  session's own state is exactly "this course only," without adding a field to the line itself. Set on
+  session's own state is exactly "this course only". The domain is `[('session_active', '=', True)]`, on the
+  line's own stored copy of the session's `active` (see "Data model" above), never on the
+  `attendance_session_id.active` path, which would apply the header's record rules. Set on
   `action_attendance_report_analysis`'s own XML `domain` (so the base action stays self-describing), but the
   server action's code sets it again as a literal Python list rather than reading and extending the base
   one — `.read()` returns `ir.actions.act_window.domain` as its raw stored **string**, not a parsed list,
@@ -452,7 +491,7 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
 |---|:---:|:---:|
 | Administrator / Director / Head of Studies (+ deputy) | ✓ | ✓ (all data, no default domain) |
 | Secretary (+ admin) | read-only | ✓ (all data, no default domain) |
-| Teacher / Tutor / Department Chief | ✓ (dropdowns scoped to own teaching, see bug fixes above) | ✓ (defaults to own teaching via `action_attendance_reports_open`; removable, not a hard restriction — see above) |
+| Teacher / Tutor / Department Chief | ✓ (dropdowns scoped to own teaching plus the tutor scope; tutored groups/students cover every subject, see "Tutor scope in the PDF reports") | ✓ (own teaching plus the tutor scope's students, with the removable **My subjects** filter on by default via `action_attendance_reports_open`) |
 
 ## Testing
 
@@ -469,10 +508,19 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
   one wizard tour that switches through all 3 `report_type`s on a single open form (each variant's selector
   shows, its onchange fills tutor/dates, the by-subject prefills `group_ids`), exercises the shared Detail
   statuses / Include strikes defaults + the inline size-warning banner (absent within the default, appears
-  after adding "Attended"), and prints once at the end (printing returns a report download that closes the
-  dialog, so the single print comes last); plus the analysis-screen tour (pivot default, 2× Expand-all
+  after adding "Attended"), and prints once at the end; plus the analysis-screen tour (pivot default, 2× Expand-all
   drilling subject → student, graph + Measures switch, and the single ⚙ cog entry opening the unified
   wizard — the only coverage of the custom `cogMenu` JS). Both `start_tour()` calls use `step_delay=300`
   (see the flakiness note above). All 3 variants' PDF *data* (QWeb HTML) render was additionally verified
   out-of-band via `_render_qweb_html` (no wkhtmltopdf), which is what catches template crashes like the
   `<td t-field=...>` one — a `TransactionCase`/clean `upgrade.sh` renders no QWeb.
+- Tutor scope (`AttendanceReportTutorScopeCommon` fixture: a second teacher's session in the tutored group,
+  a tutor of that group who teaches nothing, a department chief above them):
+  `TestAttendanceStudentReportScope` (by student), `TestAttendanceGroupSubjectReportScope` (by group and by
+  subject: dropdowns, date prefill, every subject for the tutor and the chief, own sessions only for a plain
+  teacher, no widening for a group outside the tutor scope) and `TestAttendanceReportsAnalysisScope` (the
+  pivot's action domain as tutor/chief/plain teacher, the **My subjects** filter, `read_group` by subject as
+  tutor, and the current-course filter on `session_active`). Tours `ems_attendance_report_student_scope`
+  (as a plain teacher and as a tutor) and `ems_attendance_report_tutor_scope` (as a tutor: the default
+  facet, removing it shows other teachers' subjects in the pivot, graph, then the by-group and by-subject
+  PDFs of the tutored group; the wizard stays open after a download, so both print from the same dialog).

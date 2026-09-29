@@ -662,6 +662,10 @@ class EmsAttendanceSessionLine(models.Model):
         relation="ems_attendance_session_line_group_rel", column1="attendance_session_line_id", column2="group_id",
     )
     subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", related="attendance_session_id.subject_id", store=True)
+    # Current course = active session (the course transition archives them). Stored on the line so
+    # filtering on it never goes through the header's record rules, which only let a teacher read
+    # their own sessions: a tutor must still see the other teachers' sessions of their tutees.
+    session_active = fields.Boolean(string="Active session", related="attendance_session_id.active", store=True)
 
     # 0/100 rather than a boolean so the 'Attendance reports' graph's default measure (avg,
     # grouped by subject) resolves directly to a percentage of absence.

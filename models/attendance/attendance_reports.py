@@ -66,15 +66,23 @@ class EmsAttendanceReportWizard(models.TransientModel):
 		# An employee id <= 1 means ADMIN: no teacher-scoping is applied to the dropdowns.
 		return self.env["hr.employee"].search([("user_id", "=", self.env.uid)])
 
+	def _get_tutor_group_ids(self):
+		"""Groups whose tutor has the user in their tutor scope (the tutor, the chiefs above them,
+		the Director): the by-group and by-subject reports cover every subject of these groups."""
+		return self.env["ems.group"].search([("tutor_id.tutor_scope_user_ids", "=", self.env.uid)])
+
 	def _get_teacher_group_ids(self):
 		teacher = self._get_current_teacher()
 		domain = [("teacher_id", "=", teacher.id)] if teacher.id > 1 else []
-		return self.env["ems.teaching"].search(domain).mapped("group_id")
+		return self.env["ems.teaching"].search(domain).mapped("group_id") | self._get_tutor_group_ids()
 
 	def _get_teacher_subject_ids(self):
 		teacher = self._get_current_teacher()
 		domain = [("teacher_id", "=", teacher.id)] if teacher.id > 1 else []
-		return self.env["ems.teaching"].search(domain).mapped("subject_id")
+		taught = self.env["ems.teaching"].search(domain).mapped("subject_id")
+		# Plus every subject taught in a group of the user's tutor scope, whoever teaches it.
+		tutored = self.env["ems.teaching"].search([("group_id", "in", self._get_tutor_group_ids().ids)]).mapped("subject_id")
+		return taught | tutored
 
 	def _get_teacher_student_ids(self):
 		teacher = self._get_current_teacher()
@@ -97,7 +105,7 @@ class EmsAttendanceReportWizard(models.TransientModel):
 		teacher = self._get_current_teacher()
 		domain = [("subject_id", "=", subject.id)]
 		if teacher.id > 1:
-			domain.append(("teacher_id", "=", teacher.id))
+			domain = ["&"] + domain + ["|", ("teacher_id", "=", teacher.id), ("group_id", "in", self._get_tutor_group_ids().ids)]
 		return self.env["ems.teaching"].search(domain).mapped("group_id")
 
 	def _get_student_lines(self, date_range=True):
@@ -115,6 +123,26 @@ class EmsAttendanceReportWizard(models.TransientModel):
 		else:
 			domain.append(("attendance_session_id", "in", self.env["ems.attendance_session_header"]._search([])))
 		return lines.search(domain)
+
+	def _get_sessions(self, date_range=True):
+		"""The sessions the by-group / by-subject report covers, shared by the date prefill, print()
+		and the PDF render. Headers are only readable by their own teacher, so a plain teacher gets
+		their own sessions; for the selected groups in the user's tutor scope, every session of the
+		group (any subject, any teacher) is added via sudo()."""
+		self.ensure_one()
+		# _origin: inside an onchange the wizard's x2many values are NewId copies of the groups.
+		if self.report_type == "group":
+			groups, domain = self.group_id._origin, []
+		else:
+			groups, domain = self.group_ids._origin, [("subject_id", "=", self.subject_id.id)]
+		if date_range:
+			domain += [("date", ">=", self.from_date), ("date", "<=", self.to_date)]
+		headers = self.env["ems.attendance_session_header"]
+		sessions = headers.search(domain + [("group_ids", "in", groups.ids)])
+		tutor_groups = groups & self._get_tutor_group_ids()
+		if tutor_groups:
+			sessions = sessions.sudo() | headers.sudo().search(domain + [("group_ids", "in", tutor_groups.ids)])
+		return sessions
 
 	@api.model
 	def default_get(self, fields_list):
@@ -170,9 +198,7 @@ class EmsAttendanceReportWizard(models.TransientModel):
 	def _onchange_group_id(self):
 		for wizard in self:
 			if wizard.report_type == "group" and wizard.group_id:
-				wizard._fill_dates(self.env["ems.attendance_session_header"].search([
-					("group_ids", "in", [wizard.group_id.id]),
-				]))
+				wizard._fill_dates(wizard._get_sessions(date_range=False))
 
 	@api.onchange("student_id")
 	def _onchange_student_id(self):
@@ -190,9 +216,7 @@ class EmsAttendanceReportWizard(models.TransientModel):
 			# they don't want (the field stays editable, restricted to allowed_group_ids).
 			wizard.group_ids = allowed_groups
 			if wizard.subject_id:
-				wizard._fill_dates(self.env["ems.attendance_session_header"].search([
-					("subject_id", "=", wizard.subject_id.id), ("group_ids", "in", allowed_groups.ids),
-				]))
+				wizard._fill_dates(wizard._get_sessions(date_range=False))
 
 	# --- action -------------------------------------------------------------------------------
 
@@ -209,16 +233,14 @@ class EmsAttendanceReportWizard(models.TransientModel):
 		self.ensure_one()
 		if self.report_type == "student":
 			return self._get_student_lines()
-		session_domain = [("date", ">=", self.from_date), ("date", "<=", self.to_date)]
-		if self.report_type == "group":
-			session_domain.append(("group_ids", "in", [self.group_id.id]))
-		else:
-			session_domain += [("group_ids", "in", self.group_ids.ids), ("subject_id", "=", self.subject_id.id)]
+		sessions = self._get_sessions()
 		# Exclude student-less lines: when a student partner is hard-deleted, their session
 		# lines survive with student_id = NULL (Odoo's default ondelete='set null'). Grouping
 		# those by student would render a phantom blank-name row/group in the PDF.
-		return self.env["ems.attendance_session_line"].search([
-			("attendance_session_id", "in", self.env["ems.attendance_session_header"]._search(session_domain)),
+		# Same env as the sessions: sudo() when the tutor scope widened them, so the PDF can read
+		# the other teachers' session headers.
+		return self.env["ems.attendance_session_line"].with_env(sessions.env).search([
+			("attendance_session_id", "in", sessions.ids),
 			("student_id", "!=", False),
 		])
 

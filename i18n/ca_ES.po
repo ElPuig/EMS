@@ -18427,3 +18427,13 @@ msgstr "PDF de la resolució"
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
 msgid "This only resolves attendances left open from previous days, never for the current day."
 msgstr "Això només resol les assistències que han quedat obertes de dies anteriors, mai les del dia actual."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__session_active
+msgid "Active session"
+msgstr "Sessió activa"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search
+msgid "My subjects"
+msgstr "Les meves assignatures"

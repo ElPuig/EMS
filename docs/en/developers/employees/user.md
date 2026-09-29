@@ -36,6 +36,23 @@ flowchart TD
 
 ---
 
+## Security group change log
+
+Every grant or revocation of a security group is written to the **server log** (never the database), one `INFO` line per user from the `odoo.addons.ems.models.employees.user` logger:
+
+```
+Security groups of <login> (user <id>) changed by <actor login> (uid <uid>) via <caller>: added [...]; removed [...]
+```
+
+- **Both sides are covered:** `res.users.write()` (a `groups_id`/`sel_groups_*`/`in_group_*` write, which includes Settings > Users) and `res.groups.write()` with `users` (`models/employees/group.py`; e.g. `_ems_sync_time_off_groups` works from the group's side). Implied groups Odoo adds in the same write are part of the diff.
+- **`<caller>`** is the nearest EMS function up the stack, other than these two `write()` overrides (e.g. `_sync_security_groups (models/employees/employee.py:600)`), or `no EMS code (Settings > Users or Odoo itself)`. A chained revocation logs its own line: removing an EMS group logs once from its caller and again from `_sync_ems_implied_groups` for the implied groups it takes away.
+- **`uid 1`** (`__system__`) means code running as the superuser (an upgrade, a migration, a cron); a person's uid means they did it by hand, or triggered the code that did.
+- Direct SQL on `res_groups_users_rel` bypasses it.
+
+Added for issue #535: a Secretary group granted by hand kept disappearing, and nothing recorded who or what had removed it. `grep "Security groups of <login>"` in production's log answers it. Tested in `tests/test_group_change_log.py`.
+
+---
+
 ## Access Control
 
 No EMS-specific `ir.model.access.csv` rows for `res.users` — standard Odoo user administration access applies.

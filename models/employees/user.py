@@ -1,10 +1,44 @@
 # -*- coding: utf-8 -*-
 
+import logging
+import traceback
+
 from odoo import _, fields, models, SUPERUSER_ID
 from odoo.exceptions import UserError
 from .employee import _UNSET, write_photo
 
+_logger = logging.getLogger(__name__)
+
 EMS_SYNC_CONTEXT_KEY = 'ems_syncing_groups'
+
+
+def _group_change_caller():
+    """Nearest EMS function up the stack that isn't one of the write() overrides doing the
+    logging itself, i.e. the code that actually asked for the change. None means no EMS code was
+    involved: an admin in Settings > Users, or Odoo itself."""
+    for frame in reversed(traceback.extract_stack()[:-2]):
+        if '/ems/' not in frame.filename:
+            continue
+        path = frame.filename.split('/ems/')[-1]
+        if frame.name == 'write' and path in ('models/employees/user.py', 'models/employees/group.py'):
+            continue
+        return f"{frame.name} ({path}:{frame.lineno})"
+    return None
+
+
+def log_group_changes(env, before, after):
+    """Logs, per user, the security groups granted and revoked between two {user: groups}
+    snapshots (issue #535: a group granted by hand kept disappearing and nothing recorded who
+    or what removed it). Server log only, never the database: these changes are rare."""
+    caller = _group_change_caller() or "no EMS code (Settings > Users or Odoo itself)"
+    for user, groups_before in before.items():
+        groups_after = after.get(user, env['res.groups'])
+        added, removed = groups_after - groups_before, groups_before - groups_after
+        if added or removed:
+            _logger.info(
+                "Security groups of %s (user %s) changed by %s (uid %s) via %s: added [%s]; removed [%s]",
+                user.login, user.id, env.user.login, env.uid, caller,
+                ", ".join(added.mapped('full_name')), ", ".join(removed.mapped('full_name')))
 
 # "Private Information" tab fields (hr/views/res_users.xml's "personal_information" page) -
 # always self-editable regardless of "can_edit"/administrator status (developer feedback
@@ -76,9 +110,10 @@ class ems_users(models.Model):
             k == 'groups_id' or k.startswith(('sel_groups_', 'in_group_'))
             for k in vals
         )
+        groups_before = {user: user.groups_id for user in self.sudo()} if trigger else {}
         before = {}
         if trigger and not self.env.context.get(EMS_SYNC_CONTEXT_KEY):
-            before = {user: user.groups_id for user in self}
+            before = groups_before
 
         disabling = vals.get('image_disabled') is True
         photo = vals.pop('image_1920', _UNSET)
@@ -94,6 +129,9 @@ class ems_users(models.Model):
                     raise UserError(_("The profile picture is disabled; it cannot be changed."))
 
         res = super().write(vals)
+
+        if groups_before:
+            log_group_changes(self.env, groups_before, {user: user.groups_id for user in groups_before})
 
         if private_vals:
             self.with_user(SUPERUSER_ID).write(private_vals)

@@ -47,10 +47,14 @@ També es mostra per defecte amb el filtre **Mostrar tan sols el curs actual**. 
 per veure les programacions de tots els cursos (per exemple, per consultar amb quins pesos es
 van calcular les notes d'un curs anterior).
 
+![Llista de programacions amb els filtres Mostrar tan sols els meus i Mostrar tan sols el curs actual](../../assets/teachers/programacions-01-llista.png)
+
 En obrir una programació hi veus el repartiment entre nota del centre i estada, i, a la pestanya
-**Ponderació dels RA**, el pes propi de cada resultat d'aprenentatge dins de la part interna. El
-historial al lateral del formulari registra cada canvi fet a la programació (qui ha canviat què, i
+**Ponderació dels resultats d'aprenentatge**, el pes propi de cada resultat d'aprenentatge dins de la part interna. L'historial
+del formulari registra cada canvi fet a la programació (qui ha canviat què, i
 quan).
+
+![Formulari d'una programació amb la pestanya Ponderació dels resultats d'aprenentatge](../../assets/teachers/programacions-02-formulari.png)
 
 ## Demanar un canvi
 

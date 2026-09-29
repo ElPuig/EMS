@@ -6,7 +6,7 @@
 (study, subject, course), splitting 100% between an internal grade (from learning outcomes) and
 an external one (e.g. work placement), and — via `ems.planning_outcome` — splitting the
 internal 100% further across that subject's own learning outcomes. Despite the model's name
-and description ("Curriculum deployment in the classroom"), it is not yet the broader
+("Teaching planning"), it is not yet the broader
 curriculum-planning feature that name implies — the code's own `TODO` comments say so
 explicitly (a redactor-teacher field, a review/approval workflow) — it exists today solely to
 feed [`ems.grade_session`](../grades/grade_session.md)'s `_final_from_parts()` formula and the

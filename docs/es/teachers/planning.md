@@ -48,10 +48,14 @@ También se muestra por defecto con el filtro **Mostrar solamente el curso actua
 faceta para ver las programaciones de todos los cursos (por ejemplo, para consultar con qué pesos
 se calcularon las notas de un curso anterior).
 
+![Lista de programaciones con los filtros Mostrar solamente los míos y Mostrar solamente el curso actual](../../assets/teachers/programacions-01-llista.png)
+
 Al abrir una programación ves el reparto entre nota del centro y estancia, y, en la pestaña
-**Ponderación de los RA**, el peso propio de cada resultado de aprendizaje dentro de la parte
-interna. El historial en el lateral del formulario registra cada cambio hecho en la programación
+**Ponderación de los resultados de aprendizaje**, el peso propio de cada resultado de aprendizaje dentro de la parte
+interna. El historial del formulario registra cada cambio hecho en la programación
 (quién cambió qué, y cuándo).
+
+![Formulario de una programación con la pestaña Ponderación de los resultados de aprendizaje](../../assets/teachers/programacions-02-formulari.png)
 
 ## Pedir un cambio
 

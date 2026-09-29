@@ -712,7 +712,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		lines = []
 		for conflict in conflicts:
 			template = conflict.attendance_template_id
-			weekday = dict(conflict.weekdays_selection).get(conflict.weekday)
+			weekday = conflict._weekday_label(conflict.weekday)
 			lines.append(_("%(teacher)s - %(subject)s (%(weekday)s %(time)s)") % {
 				'teacher': ", ".join(template.teacher_ids.mapped('display_name')),
 				'subject': template.display_name,
@@ -1269,7 +1269,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 	def _entry_label(self, item, entry):
 		groups = ", ".join(self.env['ems.group'].browse(entry.get('group_ids') or []).mapped('display_name'))
-		weekday = dict(self.env['ems.attendance_schedule'].weekdays_selection).get(entry['dayofweek'])
+		weekday = self.env['ems.attendance_schedule']._weekday_label(entry['dayofweek'])
 		time_range = "%s-%s" % (self._format_hour(entry['hour_from']), self._format_hour(entry['hour_to']))
 		return _("%(teacher)s - %(subject)s (%(groups)s, %(weekday)s %(time)s)") % {
 			'teacher': self._teacher_label_for_item(item),
@@ -1511,7 +1511,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		return self.env['hr.employee'].search([('schedule_import_code', '=', identifier)], limit=1)
 
 	def _external_conflict_label(self, candidate):
-		weekday = dict(candidate.weekdays_selection).get(candidate.weekday)
+		weekday = candidate._weekday_label(candidate.weekday)
 		return _("%(teacher)s - %(subject)s (%(groups)s, %(weekday)s %(time)s)") % {
 			'teacher': ", ".join(candidate.attendance_template_id.teacher_ids.mapped('display_name')),
 			'subject': candidate.attendance_template_id.subject_id.display_name,
@@ -1639,13 +1639,9 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	def _continue_from_db_conflicts(self):
 		"""The 'db_conflicts' step's own 'Continue' handler - mirrors '_continue_from_internal_
 		conflicts' exactly on the left (new-entry) side, but the right side is a real, already-
-		persisted 'ems.attendance_schedule' record instead of another node_cache position:
-		'prevail_left' archives it outright (always allowed regardless of 'has_sessions' - only
-		in-place field edits on a line with real history are locked), 'reassign_rooms' writes its
-		new room through the shared 'ems.attendance_mixin._write_or_new_version()' (archives and
-		clones with the new room if it already has sessions, plain write otherwise) rather than a
-		raw 'write()' - the one piece of forward-planning from an earlier session that made this
-		screen's own Green phase smaller than screen 4's. Also builds the "Overall summary" step's
+		persisted 'ems.attendance_schedule' record instead of another node_cache position, which
+		this step leaves untouched: archiving it ('prevail_left') or moving it ('reassign_rooms')
+		only happens on Import (see '_apply_db_conflict_resolutions'). Also builds the "Overall summary" step's
 		own content before advancing - one block per category, each with its own count header AND
 		concrete detail lines (see '_summary_block_html') - the last screen before Import, so this
 		is the last point anything needs precomputing."""
@@ -1661,32 +1657,14 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 		node_cache = json.loads(self.parsed_entries_json or '[]')
 		indices_to_remove = {}
+		# Only the new entries (the cache) change here: the existing sessions are only touched on
+		# Import, see '_apply_db_conflict_resolutions'.
 		for line in self.external_conflict_line_ids:
-			if line.resolution == 'prevail_left':
-				# NOTE: "archives/trims the existing DB session's template" (the plan's own words)
-				# - archiving just this one line is enough to free the slot ("trims"), but if that
-				# was the template's only active line, the now-empty template is
-				# archived-or-deleted outright too ("archives") rather than left as an orphaned,
-				# lineless record - deleted instead of archived when it has no real sessions
-				# (2026-09-07, see 'ems.attendance_template._archive_or_delete'). Bug fixed
-				# 2026-09-08 (bottom-up sync redesign, Phase 6): this used to archive
-				# 'right_schedule_id' directly, leaving the teacher's own calendar block silently
-				# pointing at a now-archived session - '_archive_via_calendar_blocks' instead
-				# archives the CALENDAR block(s) behind it, and the automatic hook archives the
-				# schedule line (and its template, if left empty) as a natural consequence, exactly
-				# like 'ems.group_classroom_change_wizard''s own equivalent fix the same day.
-				line.right_schedule_id._archive_via_calendar_blocks()
-			elif line.resolution == 'prevail_right':
+			if line.resolution == 'prevail_right':
 				indices_to_remove.setdefault(line.left_item_index, set()).add(line.left_entry_index)
 			elif line.resolution == 'reassign_rooms':
 				node_cache[line.left_item_index]['entries'][line.left_entry_index]['space_id'] = line.left_space_id.id
 				node_cache[line.left_item_index]['attendance_ids'][line.left_entry_index + 1][2]['space_id'] = line.left_space_id.id
-				if line.right_schedule_id.space_id != line.right_space_id:
-					# NOTE: same 2026-09-08 fix as the 'prevail_left' branch above - moves the
-					# CALENDAR block(s) behind 'right_schedule_id', letting the automatic hook keep
-					# the schedule line itself correctly in sync, instead of writing it directly and
-					# leaving the calendar stale.
-					line.right_schedule_id._relocate_via_calendar_blocks(line.right_space_id)
 
 		for item_index, entry_indices in indices_to_remove.items():
 			for entry_index in sorted(entry_indices, reverse=True):
@@ -1933,8 +1911,26 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			self.env['ems.teaching']._sync_from_schedule(teacher, calendar_entries)
 		self.env['ems.attendance_template']._sync_from_schedule_batch(calendar_teacher_entries)
 
+	def _apply_db_conflict_resolutions(self):
+		"""The 'db_conflicts' resolutions that change an existing session, applied on Import rather
+		than when leaving that screen: nothing may be written before Import (Cancel on the summary
+		must still undo everything), and archiving there also deleted a session-less template
+		together with its conflict line, so the summary counted one conflict fewer. Both go through
+		the CALENDAR block(s) behind 'right_schedule_id' (bottom-up sync redesign, 2026-09-08), so
+		the automatic hook keeps the schedule line, and its template, in sync:
+		- 'prevail_left' archives the existing session, freeing its slot for the new entry (and the
+		  template too if left empty, deleted instead when it has no real sessions - see
+		  'ems.attendance_template._archive_or_delete');
+		- 'reassign_rooms' moves it to the room picked for it."""
+		for line in self.external_conflict_line_ids:
+			if line.resolution == 'prevail_left':
+				line.right_schedule_id._archive_via_calendar_blocks()
+			elif line.resolution == 'reassign_rooms' and line.right_schedule_id.space_id != line.right_space_id:
+				line.right_schedule_id._relocate_via_calendar_blocks(line.right_space_id)
+
 	def import_planner_data(self):
 		self.ensure_one()
+		self._apply_db_conflict_resolutions()
 		self._apply_import(json.loads(self.parsed_entries_json or '[]'))
 		return {
 			'type': 'ir.actions.client',

@@ -814,3 +814,43 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             marks=[('.o_navbar_apps_menu button', '1', 'right'),
                    (".o-dropdown--menu [data-menu-xmlid='hr_attendance.menu_hr_attendance_root']", '2', 'text-right')],
         )
+
+    def test_capture_planning(self):
+        level, study, group = create_level_study_group(self, 'DOCPLN', level={
+            'name': 'Formació professional',
+        }, study={
+            'code': 'DOCPLN01', 'acronym': 'DAM', 'name': "Desenvolupament d'aplicacions multiplataforma",
+        }, group={'acronym': 'A', 'course': 1})
+        subjects = self.env['ems.subject'].create([{
+            'code': 'DOCPLN%s' % acronym, 'acronym': acronym, 'name': name,
+            'study_ids': [(6, 0, [study.id])],
+        } for acronym, name in (('BD', 'Bases de dades'), ('PRG', 'Programació'))])
+        self.env['ems.teaching'].create([{
+            'teacher_id': self.teacher_employee.id, 'group_id': group.id, 'subject_id': subject.id,
+        } for subject in subjects])
+        current = self.env.company.current_course_id
+        previous = self.env['ems.course'].search([('start', '=', current.start - 1)], limit=1) \
+            or self.env['ems.course'].create({'start': current.start - 1, 'end': current.start})
+
+        def planning(subject, course, internal, weights):
+            outcomes = self.env['ems.outcome'].search([('subject_id', '=', subject.id)]) \
+                or self.env['ems.outcome'].create([{
+                    'code': '%s_0%dRA' % (subject.code, n), 'acronym': 'RA%d' % n,
+                    'name': "Resultat d'aprenentatge %d" % n, 'subject_id': subject.id,
+                } for n in range(1, len(weights) + 1)])
+            return self.env['ems.planning'].create({
+                'study_id': study.id, 'subject_id': subject.id, 'course_id': course.id,
+                'internal_ponderation': internal, 'external_ponderation': 100.0 - internal,
+                'planning_outcome_ids': [(0, 0, {'outcome_id': outcome.id, 'ponderation': weight})
+                                         for outcome, weight in zip(outcomes, weights)],
+            })
+        shown = planning(subjects[0], current, 90.0, (35.0, 25.0, 25.0, 15.0))
+        planning(subjects[1], current, 90.0, (40.0, 30.0, 30.0))
+        # Last year's: hidden by the "current course" filter the list opens with.
+        planning(subjects[0], previous, 85.0, (40.0, 20.0, 25.0, 15.0))
+
+        url = '/odoo/action-ems.action_planning_tree'
+        self._capture(url, '.o_web_client', 'programacions-01-llista.png', login='doc_shot_teacher',
+                      wait_for='.o_data_row', max_height=260)
+        self._capture('%s/%d' % (url, shown.id), '.o_form_sheet', 'programacions-02-formulari.png',
+                      login='doc_shot_teacher', wait_for='.o_field_one2many .o_data_row')

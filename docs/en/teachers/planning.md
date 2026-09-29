@@ -46,9 +46,13 @@ It also defaults to **Show only current course**. Remove that facet to see the p
 every academic year (for example, to check the weights a past course's grades were calculated
 with).
 
+![Plannings list with the Show only mine and Show only current course filters](../../assets/teachers/programacions-01-llista.png)
+
 Opening a planning shows its internal/external split and, in the **Outcome ponderation** tab,
-each learning outcome's own share of the internal part. The history panel at the side of the form
+each learning outcome's own share of the internal part. The form's history
 records every change made to the planning (who changed what, and when).
+
+![A planning's form with the Outcome ponderation tab](../../assets/teachers/programacions-02-formulari.png)
 
 ## Requesting a change
 

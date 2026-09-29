@@ -5813,13 +5813,13 @@ msgstr "Planificació i qualificació"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_planning_outcome
-msgid "Planning's outcome ponderation: self explanatory."
-msgstr "Ponderació del resultat de la planificació: autoexplicatiu.Ponderació de resultats de la planificació.Ponderació dels resultats d'aprenentatge dins de la programació docent: s'explica per ella mateixa."
+msgid "Teaching planning outcome ponderation"
+msgstr "Ponderació dels resultats d'aprenentatge de la programació docent"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_planning
-msgid "Planning: Curriculum deployment in the classroom (in development: just for grading ponderation at the moment)."
-msgstr "Programació docent: Desplegament del currículum a l'aula (en desenvolupament: només per avaluar la ponderació en aquest moment)."
+msgid "Teaching planning"
+msgstr "Programació docent"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_planning_tree model:ir.ui.menu,name:ems.menu_plannings

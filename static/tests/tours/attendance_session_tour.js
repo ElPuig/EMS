@@ -265,3 +265,34 @@ registry.category("web_tour.tours").add("ems_attendance_session_removed_line_for
         },
     ],
 });
+
+// An admin with no teaching employee sees every slot and can start one on its teacher's behalf.
+registry.category("web_tour.tours").add("ems_attendance_session_admin_start", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_passlist",
+    steps: () => [
+        { trigger: ".ems-av-root", content: "Roll-call view loaded" },
+        {
+            trigger: ".ems-av-mode-wrap select",
+            content: "Switch to Manual mode so the seeded slot isn't hidden by the current-slot filter",
+            run: "select manual",
+        },
+        {
+            trigger: ".ems-av-session-wrap select",
+            content: "Select the colleague's first period (08:00 - 09:00)",
+            run: function () {
+                const select = document.querySelector(".ems-av-session-wrap select");
+                const option = [...select.options].find(
+                    (o) => o.textContent.includes("Attendance Session Guard Tour") && o.textContent.includes("08:00 - 09:00")
+                );
+                select.value = option.value;
+                select.dispatchEvent(new Event("change"));
+            },
+        },
+        { trigger: ".ems-av-start-btn", content: "Start the session", run: "click" },
+        {
+            trigger: ".ems-av-name:contains('Zoe Aguilar')",
+            content: "The session started and its students are loaded",
+        },
+    ],
+});

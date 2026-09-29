@@ -122,6 +122,8 @@ as a side effect of taking attendance, driven by `res.company.auto_checkin_mode`
 
 It only happens when all of these hold:
 
+- the session's teacher is the user taking the roll-call (an admin starting a colleague's slot on
+  their behalf never checks that colleague in);
 - the session is for today, and the teacher has no attendance yet today;
 - "now" falls inside one of the teacher's expected working intervals for today
   (`hr.attendance._is_within_working_hours()`, `models/employees/employee_autocheckout.py`, built on
@@ -188,7 +190,9 @@ flowchart TD
 needs to see/edit sessions they don't personally own). `get_guard_sessions` returns today's
 sessions **excluding** the caller's own (already shown in normal mode); `get_guard_planned`
 returns not-yet-created schedules for **other** teachers today. `create_scheduled_session`
-is the click-to-start-a-session entry point, returning whether the new session is a
+is the click-to-start-a-session entry point (when the caller has no teaching employee, e.g. an
+admin, who sees every slot, the session's teacher is the slot's own first template teacher instead
+of the caller - `teacher_ids` is required on the template, so there always is one), returning whether the new session is a
 same-day continuation (mirroring `_auto_populate_lines`' own check, so the client can decide
 whether to show a "continuing from period 1" hint before the roll-call even loads).
 

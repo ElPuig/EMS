@@ -427,7 +427,10 @@ class EmsAttendanceSessionHeader(models.Model):
             if not record.attendance_session_line_ids:
                 record._auto_populate_lines()
 
-            record._auto_checkin_teacher(record.session_teacher_id, record.date, record.attendance_schedule_id)
+            # Only whoever is actually taking the roll-call gets checked in: an admin starting a
+            # colleague's session on their behalf must not check that colleague in.
+            if record.session_teacher_id.user_id == self.env.user:
+                record._auto_checkin_teacher(record.session_teacher_id, record.date, record.attendance_schedule_id)
 
             # NOTE: Collecting all status data first allow some optimizations.
             issue_status_by_tutor = dict()
@@ -611,7 +614,14 @@ class EmsAttendanceSessionHeader(models.Model):
         # with a wrong clock could send any day.
         if fields.Date.to_date(date) > self.get_local_today():
             raise ValidationError(_("A roll-call can't be taken for a future date."))
-        record   = self.create({'date': date, 'attendance_schedule_id': schedule_id, 'mode': 'scheduled'})
+        vals = {'date': date, 'attendance_schedule_id': schedule_id, 'mode': 'scheduled'}
+        if not self._default_teacher_id():
+            # Someone without a teaching employee (e.g. an admin, who sees every slot) takes the
+            # roll-call on behalf of the slot's own teacher.
+            # (teacher_ids is required on the template, so there's always one.)
+            schedule = self.env['ems.attendance_schedule'].browse(schedule_id)
+            vals['session_teacher_id'] = schedule.attendance_template_id.teacher_ids[:1].id
+        record   = self.create(vals)
         template = record.attendance_schedule_id.attendance_template_id
         previous = self.search([
             ('date', '=', date),

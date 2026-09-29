@@ -173,7 +173,11 @@ Els alumnes que s'han tret de la llista d'una sessió també hi apareixen, en gr
 
 ## Per a Administradors
 
-Un administrador fa servir exactament aquesta mateixa pantalla, sense res propi afegit — el que
+Un administrador que no és docent veu totes les sessions i franges del dia, no només les seves, i
+pot iniciar el pas de llista de qualsevol franja en nom del seu docent: la sessió queda a nom
+d'aquest docent i no es fa cap fitxatge automàtic.
+
+Per la resta, és la mateixa pantalla que fa servir un docent — el que
 en determina el contingut és pura configuració, coberta als manuals de l'Administrador:
 
 - [Horaris dels docents i marcs horaris](../admin/working-schedules.md) configura els horaris que

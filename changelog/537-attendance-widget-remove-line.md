@@ -10,3 +10,11 @@
 - Works in Guard mode too (same write path as any other line edit).
 - The History session form now lists removed students too, muted, through a new `all_attendance_session_line_ids` One2many (`active_test=False`); `attendance_session_line_ids` keeps Odoo's default filtering everywhere else.
 - Backend tests, a teacher-login browser tour (remove, restore, remove again; History form), teacher manual (en/ca/es) with an updated screenshot, developer doc and ca/es translations.
+
+# Fixes
+
+## Admins without a teaching profile could not start a roll-call:
+- An admin whose employee isn't a teacher sees every slot of the day on the roll-call screen, but "Start session" failed with a required-field error on the session's teacher (it defaults to the caller's own teaching employee). The session is now recorded under the slot's own teacher (first template teacher, always present since `teacher_ids` is required).
+- Automatic check-in now only applies when the session's teacher is the user actually taking the roll-call, so an admin starting a colleague's session never checks that colleague in.
+- Backend test and an admin-login browser tour; teacher manual (admin section, en/ca/es) and developer doc updated.
+

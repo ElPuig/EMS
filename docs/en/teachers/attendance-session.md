@@ -170,7 +170,11 @@ Students removed from a session's roll-call also appear in the session, greyed o
 
 ## For Administrators
 
-An Administrator uses this exact same screen, with nothing extra of their own on it — what
+An Administrator who isn't a teacher sees every session and slot of the day, not only their own,
+and can start any slot's roll-call on behalf of its teacher: the session is recorded under that
+teacher, and nobody is checked in automatically.
+
+Otherwise it's the same screen a teacher uses — what
 shapes what appears here is entirely configuration, covered in the Administrator manuals:
 
 - [Teacher Working Schedules & Schedule Frameworks](../admin/working-schedules.md) sets up the

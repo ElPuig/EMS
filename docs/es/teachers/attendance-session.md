@@ -174,7 +174,11 @@ Los alumnos que se han quitado de la lista de una sesión también aparecen en e
 
 ## Para Administradores
 
-Un administrador usa exactamente esta misma pantalla, sin nada propio añadido — lo que determina
+Un administrador que no es docente ve todas las sesiones y franjas del día, no solo las suyas, y
+puede iniciar el pase de lista de cualquier franja en nombre de su docente: la sesión queda a
+nombre de ese docente y no se hace ningún fichaje automático.
+
+Por lo demás, es la misma pantalla que usa un docente — lo que determina
 su contenido es pura configuración, cubierta en los manuales del Administrador:
 
 - [Horarios de los docentes y marcos horarios](../admin/working-schedules.md) configura los

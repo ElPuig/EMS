@@ -147,3 +147,15 @@ class TestAttendanceSessionTour(HttpCase):
             f"/odoo/action-ems.action_attendance_session_tree/{session.id}",
             "ems_attendance_session_removed_line_form", login="test_teacher_attendance_session_guard_tour")
 
+    def test_attendance_session_admin_start_tour(self):
+        admin_user = create_role_user(
+            self, 'academic_admin', 'test_admin_attendance_session_tour',
+            name='Attendance Session Tour Admin')
+        create_role_employee(self, admin_user, employee_type='asp', name='Attendance Session Tour Admin')
+        self.start_tour("/odoo", "ems_attendance_session_admin_start", login="test_admin_attendance_session_tour")
+
+        session = self.env['ems.attendance_session_header'].search([
+            ('attendance_schedule_id', '=', self.schedule1.id),
+        ])
+        self.assertEqual(session.session_teacher_id, self.teacher_employee)
+

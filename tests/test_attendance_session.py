@@ -108,8 +108,9 @@ class TestAttendanceSessionHeader(TransactionCase):
         return local.astimezone(pytz.utc).replace(tzinfo=None)
 
     def _take_roll_call_at(self, now, schedule=None):
+        # As the teacher: only whoever actually takes the roll-call gets checked in.
         with patch.object(fields.Datetime, 'now', return_value=now):
-            return self.env['ems.attendance_session_header'].create({
+            return self.env['ems.attendance_session_header'].with_user(self.teacher_user).create({
                 'attendance_schedule_id': (schedule or self.schedule).id, 'date': date.today(),
                 'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
             })
@@ -399,6 +400,24 @@ class TestAttendanceSessionHeader(TransactionCase):
         result = self.env['ems.attendance_session_header'].with_user(self.teacher_user).create_scheduled_session(
             date.today().isoformat(), self.schedule2.id)
         self.assertTrue(result['is_continuation'])
+
+    def test_admin_without_teaching_employee_starts_a_session_for_its_teacher(self):
+        """An admin sees every slot in the roll-call screen; starting one on the teacher's behalf
+        makes the slot's teacher the session's teacher, without checking them in."""
+        admin_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Admin User (Attendance Session)', 'login': 'test_admin_tas',
+            'groups_id': [(4, self.env.ref('ems.group_academic_admin').id), (4, self.env.ref('base.group_user').id)],
+        })
+        self.env['hr.employee'].create({
+            'name': 'Admin Employee (Attendance Session)', 'employee_type': 'employee', 'user_id': admin_user.id,
+        })
+        self.env.company.auto_checkin_mode = 'current'
+        with patch.object(fields.Datetime, 'now', return_value=self._today_at(9)):
+            result = self.env['ems.attendance_session_header'].with_user(admin_user).create_scheduled_session(
+                date.today().isoformat(), self.schedule.id)
+        session = self.env['ems.attendance_session_header'].browse(result['id'])
+        self.assertEqual(session.session_teacher_id, self.teacher)
+        self.assertFalse(self._teacher_attendances())
 
     def test_create_scheduled_session_rejects_a_future_date(self):
         """The date comes from the web client, whose clock can be wrong: the server never takes a

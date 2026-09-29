@@ -16,6 +16,7 @@ levels), answered on `/my/dades-contacte`, and applied only once a reviewer appr
 | `models/shared/student_scope_mixin.py` | `ems.student.scope.mixin`, the student picking shared with the authorization send wizard |
 | `models/contacts/family_contact.py` | Recognising, creating and linking family contacts (`_ems_find_family()`, `_ems_create_family_contact()`, `_ems_link_family()`) |
 | `controllers/portal_contact_data.py` | `/my/dades-contacte` (GET shows, POST validates and stages); a view-only account is sent home (`ems_portal_manage_required`) |
+| `static/src/js/frontend/contact_data_photo.js` | The student's photo on the portal page (`publicWidget` on `.o_ems_contact_data_photo`): framing the photo picked with Cropper.js and previewing it next to the one on file |
 | `views/portal/portal_contact_data.xml` | The portal page (`portal_contact_data_new_family_extras`: the repeated-contact question and the other-children checkboxes); the home banner (only while a request is pending) is in `portal_main.xml`, the **Update contact details** button of the Profile tab in `portal_account_readonly.xml` |
 | `views/community/contact_data_request/` | Send wizard, bindings (students list/form, groups list/form), request list/form/search, return wizard, menu |
 | `mails/contacts/contact_data_request.xml` | `ems.email_template_contact_data_request` (first request, reminder, returned) |
@@ -46,10 +47,50 @@ erDiagram
 - A line is one staged change: `action` `update` (a field of the student or of a family contact on
   file), `create` (a field of a new family contact; lines sharing `person_key` are one person) or
   `remove` (a family contact that is no longer one). `old_value`/`new_value` are the diff the
-  reviewer sees.
+  reviewer sees; for the student's photo, `old_image`/`new_image` (see "Student photo").
 - `matched_partner_id`: the new family contact is already on file (see below) and approval will
   link it. `possible_duplicate_id`: someone else holds the same mobile under a different name;
   approval creates a new contact, and `has_possible_duplicate` (stored) flags the request.
+
+## Student photo
+
+The student's photo (`res.partner.image_1920`, the one shown on class lists, roll call and grades)
+can be sent from the same portal page, as one more staged change. Only the student's photo: family
+contacts have none. It is optional: a missing photo is never listed as missing nor blocks sending.
+
+- The form is `multipart/form-data`; the file input is `s_photo`. The controller hands the raw
+  upload to `ems.contact.data.request._ems_photo_from_upload(raw)`, which returns
+  `(base64 JPEG, False)` or `(False, message)`. Only JPEG and PNG are accepted, checked by PIL's own
+  format detection (not the file name nor the browser's content type), up to 10 MB: SVG and WEBP,
+  which Odoo's `image_process()` would store untouched, are refused. The accepted image is turned
+  upright (EXIF orientation), resized to at most 1920 px and **re-encoded as JPEG**, which drops its
+  EXIF metadata (a phone photo carries the GPS position where it was taken).
+- In the data shape (`_ems_contact_data()`), the proposal carries it as a top-level `photo` key
+  (base64), never the photo on file, which is not compared: any photo sent is a change. The staged
+  line is an `update` of the student with `field_name = 'image_1920'`, the photo in `new_image`
+  and the photo on file at that moment in `old_image` (1024 px, big enough to compare), so the
+  reviewer compares both even after the student's photo changes. `new_value`/`old_value` stay
+  empty.
+- In the request form's list of changes both photos are thumbnails that keep their ratio (the
+  `image` widget with a height only: giving both sizes stretches it) and show bigger on hover
+  (its `zoom` option); opening the change shows them side by side, in the line's own form inside
+  `view_ems_contact_data_request_form`, which leaves out the technical fields (`field_name`,
+  `person_key`).
+- In the browser, `contact_data_photo.js` shows the photo picked in Cropper.js - Odoo's own copy,
+  the `html_editor.assets_image_cropper` bundle (`html_editor` comes through `portal` → `mail`),
+  loaded with `loadBundle()` only when a photo is picked - inside a 3:4 portrait frame: drag to
+  move it, zoom (slider, buttons, wheel or pinch, from the photo fitted in the frame up to 5
+  times) and rotate, with a live preview next to the photo on file. So a full-length photo can be
+  framed on the face. On sending, the framed photo (at most 900×1200) goes as a JPEG in
+  `s_photo_data` and the file input is emptied, so the server only gets what the family saw, and
+  validates it as any upload. **Keep the photo on file** empties both, dropping a photo sent
+  before too. Without JavaScript the file input is sent as it is (any ratio). Every word shown is
+  in the QWeb template, so it is translated there, not with `_t()`.
+- While the answer waits for review, and when the form comes back with errors, the photo already
+  sent travels back in a hidden input (`s_photo_data`) and is validated again on the next POST like
+  a new upload: the family does not have to pick it again, and nothing in that input is trusted. A
+  new file replaces it.
+- Approving writes `image_1920` with the reviewer's rights, like every other field of the student.
 
 ## Mandatory fields
 
@@ -214,7 +255,9 @@ request is pending (`_ems_contact_data_requested()`), and the email links to the
 - `tests/test_contact_data_request_send_wizard.py`: scope, "only incomplete", reopen, unreachable,
   portal grant, preview, tutor limits, and that a minor's own account is never asked.
 - `tests/test_portal_contact_data.py`: the portal page, validation, staging, foreign family contacts
-  ignored, home banner, Profile button;
+  ignored, home banner, Profile button; `TestPortalContactDataPhoto`: a photo is staged re-encoded
+  as JPEG without its EXIF, a file that is not a JPEG/PNG image is refused under its input, the
+  photo sent survives an answer with errors and a second answer without a new file;
   `TestPortalContactDataRules`: a minor's own account and a family looking at an adult child cannot
   review nor send, a corporate email is refused before it is staged; `TestPortalContactDataSiblings`:
   a family with two children - the other child is offered, a contact of that child with the same
@@ -222,5 +265,5 @@ request is pending (`_ems_contact_data_requested()`), and the email links to the
   person), nothing is said about another family's contacts, and only the account's own children can
   be chosen.
 - `tests/test_contact_data_request_tour.py`: family answers from the portal, entering through the
-  Profile button; a family with two children is pointed to a repeated contact and confirms it; the
+  Profile button, and frames a full-length photo (the photo staged is the 3:4 portrait); a family with two children is pointed to a repeated contact and confirms it; the
   group's tutor sends to their group and approves (list and form).

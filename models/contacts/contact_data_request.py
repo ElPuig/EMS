@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+import base64
 import re
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import email_normalize
+from odoo.tools.image import ImageProcess, image_apply_opt
 
 from ..shared import base
 
@@ -16,6 +18,11 @@ FAMILY_FIELDS = ('firstname', 'lastname', 'mobile', 'email', 'document_id', 'pas
 ADDRESS_FIELDS = ('street', 'zip', 'city')
 PHONE_FIELDS = ('mobile', 'phone')
 DNI_LETTERS = 'TRWAGMYFPDXBNJZSQVHLCKE'
+# The student's photo: optional, staged as an image of its own (see _ems_photo_from_upload()).
+PHOTO_FIELD = 'image_1920'
+PHOTO_FORMATS = ('JPEG', 'PNG')
+PHOTO_MAX_BYTES = 10 * 1024 * 1024
+PHOTO_MAX_SIZE = 1920
 REQUEST_GROUPS = 'ems.group_tutor,ems.group_secretary,ems.group_head_of_studies,ems.group_academic_admin'
 
 
@@ -239,6 +246,23 @@ class EmsContactDataRequest(models.Model):
             return False
 
     @api.model
+    def _ems_photo_from_upload(self, raw):
+        """(base64 JPEG, False) for a JPEG or PNG image, else (False, message). The format is
+        PIL's own detection, not the file name: SVG and WEBP, which image_process() would store
+        untouched, are refused. The photo is turned upright, resized and re-encoded, which drops
+        its EXIF metadata - a phone photo carries the GPS position where it was taken."""
+        if len(raw) > PHOTO_MAX_BYTES:
+            return False, _("The photo is too big: the maximum is 10 MB.")
+        try:
+            photo = ImageProcess(raw)
+        except (UserError, ValueError):
+            photo = None
+        if not photo or not photo.image or photo.original_format not in PHOTO_FORMATS:
+            return False, _("The photo must be a JPG or PNG image.")
+        photo.resize(PHOTO_MAX_SIZE, PHOTO_MAX_SIZE)
+        return base64.b64encode(image_apply_opt(photo.image, 'JPEG', quality=90)).decode(), False
+
+    @api.model
     def _ems_format_problems(self, prefix, values, fields_list):
         problems = []
         for field in fields_list:
@@ -369,6 +393,10 @@ class EmsContactDataRequest(models.Model):
         for field, old, new in changes(current['student'], proposal['student'], STUDENT_FIELDS):
             lines.append({'action': 'update', 'person_key': 's', 'partner_id': student.id,
                           'field_name': field, 'old_value': old, 'new_value': new})
+        if proposal.get('photo'):
+            lines.append({'action': 'update', 'person_key': 's', 'partner_id': student.id,
+                          'field_name': PHOTO_FIELD, 'old_image': student.sudo()[PHOTO_FIELD],
+                          'new_image': proposal['photo']})
         for entry in proposal['family']:
             before = current_family.get(entry['key'])
             if before:
@@ -410,7 +438,9 @@ class EmsContactDataRequest(models.Model):
         data = self.student_id._ems_contact_data()
         family = {entry['key']: entry for entry in data['family']}
         for line in self.line_ids:
-            if line.person_key == 's':
+            if line.field_name == PHOTO_FIELD:
+                data['photo'] = line.new_image
+            elif line.person_key == 's':
                 data['student'][line.field_name] = line.new_value or ''
             elif line.action == 'remove' and line.person_key in family:
                 family[line.person_key]['remove'] = True
@@ -460,7 +490,7 @@ class EmsContactDataRequest(models.Model):
         for lines in people.values():
             first = lines[0]
             if first.action == 'update':
-                first.partner_id.write({line.field_name: line.new_value or False for line in lines})
+                first.partner_id.write({line.field_name: line._ems_new_value() for line in lines})
             elif first.action == 'remove':
                 self.env['res.partner.relation'].search([
                     ('left_partner_id', '=', first.partner_id.id),
@@ -601,6 +631,9 @@ class EmsContactDataRequestLine(models.Model):
     field_label = fields.Char(string='Field', compute='_compute_field_label')
     old_value = fields.Char(string='On file')
     new_value = fields.Char(string='Proposed')
+    # Big enough to compare it with the proposed one (zoom, and the change's own form).
+    old_image = fields.Image(string='Photo on file', max_width=1024, max_height=1024)
+    new_image = fields.Image(string='Proposed photo', max_width=PHOTO_MAX_SIZE, max_height=PHOTO_MAX_SIZE)
     relation_type_id = fields.Many2one('res.partner.relation.type', string='Relation')
     matched_partner_id = fields.Many2one(
         'res.partner', string='Already on file as', ondelete='set null',
@@ -630,7 +663,14 @@ class EmsContactDataRequestLine(models.Model):
         partner_fields = self.env['res.partner']._fields
         for line in self:
             field = partner_fields.get(line.field_name or '')
-            line.field_label = field.get_description(self.env)['string'] if field else False
+            if line.field_name == PHOTO_FIELD:
+                line.field_label = _("Photo")
+            else:
+                line.field_label = field.get_description(self.env)['string'] if field else False
+
+    def _ems_new_value(self):
+        self.ensure_one()
+        return self.new_image if self.field_name == PHOTO_FIELD else self.new_value or False
 
 
 class EmsContactDataRequestRejectWizard(models.TransientModel):

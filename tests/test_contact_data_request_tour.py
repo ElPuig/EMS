@@ -1,11 +1,15 @@
+import base64
+import io
 import time
 from unittest.mock import patch
+
+from PIL import Image
 
 from odoo.tests.common import HttpCase, tagged
 
 from ..models.contacts.contact_data_request_send_wizard import EmsContactDataRequestSendWizard
 from .common import mock_outgoing_email, next_student_id
-from .test_contact_data_request import valid_dni
+from .test_contact_data_request import make_test_photo, valid_dni
 from .test_portal_contact_data import create_portal_contact_data_fixtures
 
 
@@ -26,12 +30,18 @@ class TestContactDataRequestTour(HttpCase):
         request = self.env['ems.contact.data.request'].search([('student_id', '=', self.minor.id)])
         self.assertEqual(request.state, 'submitted')
         self.assertIn('Tour Father', ' '.join(request.line_ids.mapped('person_name')))
+        # The photo sent is the portrait framed in the browser, not the full-length one picked.
+        photo = request.line_ids.filtered(lambda line: line.field_name == 'image_1920').new_image
+        width, height = Image.open(io.BytesIO(base64.b64decode(photo))).size
+        self.assertAlmostEqual(width / height, 3 / 4, places=2)
 
     def test_tutor_sends_and_approves_tour(self):
         request = self.env['ems.contact.data.request']._ems_open_for(self.minor, self.course)
         data = self.minor._ems_contact_data()
         data['student'].update(street='Tour Street 1', zip='08924', city='Tour City', document_id=valid_dni(10000006))
         data['family'][0]['lastname'] = 'Tour'
+        self.minor.image_1920 = base64.b64encode(make_test_photo(size=(300, 400)))
+        data['photo'] = request._ems_photo_from_upload(make_test_photo(size=(600, 800)))[0]
         request._ems_submit(data)
         original_apply = EmsContactDataRequestSendWizard.action_apply
 
@@ -43,6 +53,8 @@ class TestContactDataRequestTour(HttpCase):
             self.start_tour("/odoo", "ems_contact_data_tutor", login=self.tutor.login)
         self.assertEqual(request.state, 'done')
         self.assertEqual(self.minor.street, 'Tour Street 1')
+        self.assertEqual(self.minor.image_1920, request.line_ids.filtered(
+            lambda line: line.field_name == 'image_1920').new_image)
         self.assertTrue(self.env['ems.contact.data.request'].search([('student_id', '=', self.adult.id)]))
 
     def test_tutor_reaches_student_data_from_the_students_section_tour(self):

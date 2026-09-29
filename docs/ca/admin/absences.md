@@ -8,7 +8,7 @@
 
 ---
 
-## Els dos paràmetres
+## Els paràmetres
 
 **Ajustos > EMS > Configuració d'absències del personal**:
 
@@ -16,10 +16,12 @@
 |---|---|---|
 | Absència de dia sencer | 7:30 | Hores que val una absència de dia sencer. Sempre compta aquestes hores, tingui la persona les classes que tingui programades aquell dia |
 | Crèdit d'hores per motius de salut | 15:00 | Hores d'absència per motius de salut que pot fer servir cada persona per curs |
+| Recordatori del justificant | 1 dia | Un cop passada una absència que encara espera el justificant, es recorda a la persona cada aquest nombre de dies |
+| Avís de justificant pendent | 3 dies | Passats aquests dies des de l'absència, un justificant que encara falti també es comunica al cap que l'aprova |
 
 El crèdit **avisa, no bloqueja**: qui el supera rep un avís i la sol·licitud queda marcada per al cap d'estudis, però es tramita igual.
 
-![Bloc de configuració d'absències del personal, amb els camps de dia sencer i crèdit de salut](../../assets/admin/admin-absences-settings.png)
+![Bloc de configuració d'absències del personal, amb els camps de dia sencer, crèdit de salut i recordatoris del justificant](../../assets/admin/admin-absences-settings.png)
 
 ---
 
@@ -37,6 +39,8 @@ Cada tipus porta quatre indicadors que decideixen com surten proposades les sol�
 | Es tramita per ATRI | Només `ATRI` |
 
 Són **valors proposats**: el gestor de les absències els pot canviar sol·licitud a sol·licitud.
+
+L'indicador natiu **Document de suport** de cada tipus decideix si les seves sol·licituds esperen un justificant després que el cap les doni per rebudes. Està marcat a tots els tipus menys `Salut` i `ATRI`. Ve de les dades del mateix mòdul, així que un canvi fet aquí es desfà a la següent actualització: demana-ho a l'equip de l'EMS.
 
 ---
 

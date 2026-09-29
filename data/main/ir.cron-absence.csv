@@ -1,0 +1,2 @@
+"id","name","model_id/id","user_id/id","state","code","interval_number","interval_type"
+"ems.ir_cron_absence_document_reminder","EMS: Absence supporting document reminders","hr_holidays.model_hr_leave","base.user_root","code","model._cron_ems_document_reminder()","1","days"

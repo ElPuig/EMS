@@ -37,25 +37,36 @@ Nadie aprueba su propia ausencia: la de un responsable de área la resuelve Dire
 
 **Asistencia del personal > Ausencias > Administración > Ausencias**.
 
-Ahí tienes las solicitudes de tu área. Cada ausencia necesita dos aprobaciones, la tuya y la de Dirección, en cualquier orden, y el listado tiene una columna para cada una:
+Ahí tienes las solicitudes de tu área, y se abre con **Esperándome**: las que esperan que las des por recibidas y las que tienen un justificante que debes validar. Cada ausencia pasa primero por ti y después por Dirección, y el listado tiene una columna para cada uno:
 
 | Columna | Muestra |
 |---|---|
-| **Estado** | En qué punto está la solicitud entre las dos aprobaciones |
-| **Estado Jefatura** | Tu decisión: Pendiente, Aprobado o Rechazado |
-| **Estado Dirección** | La de Dirección: Pendiente, Falta documento, Hecho o Rechazado |
+| **Estado** | En qué punto está la solicitud |
+| **Estado Jefatura** | Tu parte: Pendiente, En espera de documentación, Pendiente de validación, Aprobado o Rechazado |
+| **Estado Dirección** | La de Dirección: Pendiente, Hecho o Rechazado |
 
-Para decidir, usa los dos iconos junto a **Estado Jefatura**: el pulgar aprueba y la cruz rechaza. También puedes abrir la solicitud y usar **Aprobar** o **Rechazar** arriba: una vez decidido, vuelves al listado.
+**Tu parte tiene dos pasos cuando el tipo de ausencia exige justificante** (todos menos `Salud` y `ATRI`), porque a menudo el justificante solo existe después de la ausencia:
 
-La ausencia tiene efecto (calendario de ausencias, saldo de horas, cuadrante de guardias) en cuanto la apruebas, aunque Dirección no la haya revisado.
+1. **Recibida: pendiente de documentación** (icono de bandeja en el listado, o el botón de arriba del formulario). Das por recibida la solicitud sin haber visto todavía el justificante. Pasa a **En espera de documentación** y se pide el justificante a la persona. Si ya lo había adjuntado con la solicitud, pasa directamente a **Pendiente de validación**.
+2. Cuando la persona adjunta el justificante, la solicitud vuelve sola a ti como **Pendiente de validación**. Ábrela, revisa el justificante y usa **Validar documentación** (también un icono de validación en el listado). Entonces pasa a Dirección.
 
-![Listado de ausencias, con las acciones Aprobar/Rechazar sobre una solicitud pendiente](../../assets/head_of_studies/hos-absences-list.png)
+Si el justificante no es válido, **Documentación insuficiente** devuelve la solicitud a la persona (En espera de documentación) con un mensaje que pide uno válido.
+
+Para `Salud` y `ATRI` hay un solo paso: **Validar** (el pulgar en el listado), que la envía directamente a Dirección.
+
+La cruz rechaza, en cualquiera de estos pasos. Cuando decides desde el formulario, vuelves al listado.
+
+La ausencia tiene efecto (calendario de ausencias, saldo de horas, cuadrante de guardias) en cuanto la das por recibida, aunque falte el justificante o Dirección no la haya revisado.
+
+Si unos días después de la ausencia (tres, si el centro no lo ha cambiado) la persona todavía no ha adjuntado el justificante, recibes un mensaje y una actividad para hacer el seguimiento; a la persona se le recuerda cada día.
+
+![Listado de ausencias, con las acciones sobre una solicitud pendiente](../../assets/head_of_studies/hos-absences-list.png)
 
 Tú ves el **motivo escrito** y el **justificante**; el resto del personal, no.
 
-**Rechazar es definitivo.** Una vez rechazas una solicitud, ni tú ni la persona podéis devolverla a *Pendiente*: para concederla finalmente, la persona tiene que hacer una nueva. Como el botón Rechazar está al lado de Aprobar, y en el listado es solo una cruz a su lado, siempre pide confirmación antes - lee el mensaje antes de aceptarlo.
+**Rechazar es definitivo.** Una vez rechazas una solicitud, ni tú ni la persona podéis devolverla a *Pendiente*: para concederla finalmente, la persona tiene que hacer una nueva. Como el botón Rechazar está al lado de los demás, y en el listado es solo una cruz, siempre pide confirmación antes - lee el mensaje antes de aceptarlo.
 
-Puedes adjuntar un **justificante** a cualquier solicitud, de cualquier tipo y en cualquier momento: un certificado entregado cuando la ausencia ya estaba aprobada se adjunta a esa misma solicitud, y eso es lo que resuelve un *Falta documento*.
+Puedes adjuntar un **justificante** a cualquier solicitud, de cualquier tipo y en cualquier momento: un certificado entregado después de la ausencia se adjunta a esa misma solicitud.
 
 ---
 
@@ -76,33 +87,31 @@ Si la ausencia es de día entero o de unas horas concretas lo controla la casill
 
 ## Aprobación de Dirección
 
-**Solo Dirección.** Dirección revisa el justificante de cada ausencia y, en las ausencias de **ATRI**, comprueba que la solicitud se ha tramitado de verdad en el portal de la Generalitat.
+**Solo Dirección.** Dirección revisa cada ausencia en último lugar: le llega una vez el jefe la ha validado, con el justificante cuando el tipo lo exige. En las ausencias de **ATRI**, comprueba que la solicitud se ha tramitado de verdad en el portal de la Generalitat.
 
-**Asistencia del personal > Ausencias > Administración > Ausencias** se abre con **Esperándome**: todas las ausencias que todavía no has aprobado, las haya aprobado o no su jefe, y las ausencias de los propios jefes de área, que apruebas tú como su jefe.
+**Asistencia del personal > Ausencias > Administración > Ausencias** se abre con **Esperándome**: todas las ausencias **Pendiente Dirección**, y las ausencias de los propios jefes de área, que gestionas tú como su jefe (con los botones del jefe descritos más arriba). Cada una te deja también una actividad ("Revisión de dirección de la ausencia").
 
-Revísalas desde el listado con los iconos junto a **Estado Dirección**, o abre una y usa los botones de arriba, que te devuelven al listado al terminar:
+Revísalas desde el listado con los iconos junto a **Estado Dirección**, o abre una y usa los botones de arriba, que te devuelven al listado al acabar:
 
-| Icono | Botón | El Estado Dirección pasa a |
+| Icono | Botón | Resultado |
 |---|---|---|
-| Casilla marcada | **Dirección: hecho** | Hecho |
-| Hoja | **Falta documento** | Falta documento |
-| Flecha atrás | **Dirección: pendiente** | Pendiente |
+| Casilla marcada | **Dirección: hecho** | Aprobado |
+| Hoja | **Documentación insuficiente** | Vuelve a la persona, En espera de documentación. Pide confirmación antes |
+| Flecha atrás | **Dirección: pendiente** | Deshace un *Hecho* |
 | Cruz | **Rechazar** | Rechazado. Rechaza toda la solicitud, pide confirmación antes y es definitivo |
 
-Puedes revisar una solicitud antes de que decida su jefe. El Aprobar/Rechazar del **Estado Jefatura** solo lo tienes en las ausencias de los jefes de área.
+Cuando un jefe da por recibida una ausencia, recibes su resumen como seguidor.
 
-Cuando un jefe aprueba una ausencia, recibes su resumen como seguidor.
-
-El **Estado** combina las dos aprobaciones:
+**Estado**:
 
 | Estado | Significa |
 |---|---|
-| Pendiente | Todavía no la ha aprobado nadie |
-| Pendiente Jefatura | Dirección sí, el jefe todavía no |
-| Pendiente Dirección | El jefe sí, Dirección todavía no |
-| Pendiente Documento | El jefe sí, y Dirección espera el justificante |
-| Aprobado | Los dos |
-| Rechazado | Uno de los dos la ha rechazado |
+| Pendiente | El jefe todavía no la ha dado por recibida |
+| En espera de documentación | Recibida por el jefe, espera el justificante de la persona |
+| Pendiente de validación | El justificante está adjunto, el jefe tiene que validarlo |
+| Pendiente Dirección | Validada por el jefe, espera a Dirección |
+| Aprobado | Ambos |
+| Rechazado | El jefe o Dirección la han rechazado |
 | Cancelado | La persona la ha retirado |
 
 El panel de búsqueda de la izquierda filtra por **Estado**.

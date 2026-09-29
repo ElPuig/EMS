@@ -15493,6 +15493,7 @@ msgid "Direction: pending"
 msgstr "Direcció: pendent"
 
 #. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 msgid "Validate"
@@ -18427,3 +18428,303 @@ msgstr "PDF de la resolució"
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
 msgid "This only resolves attendances left open from previous days, never for the current day."
 msgstr "Això només resol les assistències que han quedat obertes de dies anteriors, mai les del dia actual."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid ""
+"%(name)s has still not attached the supporting document for the absence of "
+"%(when)s."
+msgstr ""
+"%(name)s encara no ha adjuntat el justificant de l'absència del %(when)s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_kanban_ems
+msgid "<i class=\"fa fa-inbox\"/> Received: pending documentation"
+msgstr "<i class=\"fa fa-inbox\"/> Rebuda: pendent de documentació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_kanban_ems
+msgid "<i class=\"fa fa-thumbs-up\"/> Validate"
+msgstr "<i class=\"fa fa-thumbs-up\"/> Validar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "<span class=\"ms-2\">days</span>"
+msgstr "<span class=\"ms-2\">dies</span>"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_absence_document_overdue
+msgid "Absence supporting document not attached"
+msgstr "Justificant d'absència no adjuntat"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_absence_document_upload
+msgid "Attach the absence's supporting document"
+msgstr "Adjuntar el justificant de l'absència"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_document_state__awaiting
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_head_state__pending_document
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__pending_document
+msgid "Awaiting documentation"
+msgstr "En espera de documentació"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__is_absence_head
+msgid "Current user is the Head"
+msgstr "L'usuari actual és el cap"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_absence_direction_review
+msgid "Direction review of the absence"
+msgstr "Revisió de direcció de l'absència"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid ""
+"Direction validates a request once the Head has validated it and its "
+"supporting document."
+msgstr ""
+"La direcció valida una sol·licitud un cop el cap l'ha validada juntament amb"
+" el seu justificant."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_direction_state
+msgid ""
+"Direction's own approval, the last step: once the Head has validated the "
+"request and its supporting document, Direction checks it too (for ATRI "
+"absences, that it was really filed on the portal). Refusing it refuses the "
+"whole request."
+msgstr ""
+"L'aprovació de la direcció, l'últim pas: un cop el cap ha validat la "
+"sol·licitud i el seu justificant, la direcció també la comprova (per a les "
+"absències ATRI, que realment s'hagi tramitat al portal). Rebutjar-la rebutja"
+" tota la sol·licitud."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+msgid "Documentation insufficient"
+msgstr "Documentació insuficient"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_absence_document_reminder_ir_actions_server
+msgid "EMS: Absence supporting document reminders"
+msgstr "EMS: Recordatoris de justificants d'absència"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_document_reminder_date
+msgid "Last document reminder"
+msgstr "Darrer recordatori del justificant"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_document_escalated
+msgid "Missing document reported to the Head"
+msgstr "Justificant pendent comunicat al cap"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Missing supporting document report"
+msgstr "Avís de justificant pendent"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_document_state__not_required
+msgid "Not required"
+msgstr "No requerit"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid ""
+"Only a request under validation can be sent back for its supporting "
+"document."
+msgstr ""
+"Només es pot retornar per manca de justificant una sol·licitud que s'està "
+"validant."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid ""
+"Only a request whose supporting document is pending validation can be "
+"validated."
+msgstr ""
+"Només es pot validar una sol·licitud amb el justificant pendent de "
+"validació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid ""
+"Only the Head or Direction can change the supporting document status of an "
+"absence."
+msgstr ""
+"Només el cap o la direcció poden canviar l'estat del justificant d'una "
+"absència."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid ""
+"Only the Head who approves this absence can validate its supporting "
+"document."
+msgstr ""
+"Només el cap que aprova aquesta absència en pot validar el justificant."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_document_state__submitted
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_head_state__pending_validation
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__pending_validation
+msgid "Pending validation"
+msgstr "Pendent de validació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+msgid "Received: pending documentation"
+msgstr "Rebuda: pendent de documentació"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid ""
+"Reminder: the supporting document for your absence of %(when)s is still "
+"missing. Please attach it to the request so it can be validated."
+msgstr ""
+"Recordatori: encara falta el justificant de la teva absència del %(when)s. "
+"Adjunta'l a la sol·licitud perquè es pugui validar."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_document_state
+msgid ""
+"Set when the Head acknowledges the request: absence types that require a "
+"supporting document wait for it, and attaching it sends the request back to "
+"the Head for validation."
+msgstr ""
+"S'estableix quan el cap dona per rebuda la sol·licitud: els tipus d'absència"
+" que requereixen justificant l'esperen, i adjuntar-lo retorna la sol·licitud"
+" al cap perquè el validi."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Supporting document reminder"
+msgstr "Recordatori del justificant"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_document_state
+msgid "Supporting document status"
+msgstr "Estat del justificant"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_head_state
+msgid ""
+"The Head's side of the request: the Area Manager who approves this "
+"employee's absences acknowledges it, waits for the supporting document when "
+"its type requires one, and validates it."
+msgstr ""
+"La part del cap: l'area manager que aprova les absències d'aquest "
+"treballador dona per rebuda la sol·licitud, espera el justificant quan el "
+"tipus el requereix i el valida."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_document_reminder_date
+msgid ""
+"The last day the employee was reminded that the supporting document is "
+"missing."
+msgstr ""
+"L'últim dia que es va recordar al treballador que falta el justificant."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+msgid ""
+"The request goes back to the employee, who is asked to attach a valid "
+"supporting document. Continue?"
+msgstr ""
+"La sol·licitud torna al treballador, a qui es demana que adjunti un "
+"justificant vàlid. Voleu continuar?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid ""
+"The supporting document for your absence of %(when)s is not sufficient. "
+"Please attach a valid one to the request."
+msgstr ""
+"El justificant de la teva absència del %(when)s no és suficient. Adjunta'n "
+"un de vàlid a la sol·licitud."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"This many days after the absence, a supporting document still missing is "
+"also reported to the Head who approves it."
+msgstr ""
+"Passats aquests dies des de l'absència, un justificant que encara falti "
+"també es comunica al cap que l'aprova."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+msgid "Validate documentation"
+msgstr "Validar documentació"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_absence_document_validate
+msgid "Validate the absence's supporting document"
+msgstr "Validar el justificant de l'absència"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_document_state__validated
+msgid "Validated"
+msgstr "Validat"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_status
+msgid ""
+"Where the request stands: the Head acknowledges it, the employee attaches "
+"the supporting document when its type requires one, the Head validates it "
+"and Direction validates it last. The absence takes effect (calendar, hour "
+"balance, guard duty board) as soon as the Head acknowledges it."
+msgstr ""
+"On es troba la sol·licitud: el cap la dona per rebuda, el treballador "
+"adjunta el justificant quan el tipus el requereix, el cap el valida i la "
+"direcció la valida en últim lloc. L'absència té efecte (calendari, saldo "
+"d'hores, quadre de guàrdies) des que el cap la dona per rebuda."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__is_absence_head
+msgid ""
+"Whether the user reading this request acts as its Head: the employee's "
+"approver, or an officer other than Direction."
+msgstr ""
+"Si l'usuari que llegeix aquesta sol·licitud n'actua com a cap: l'aprovador "
+"del treballador, o un responsable que no sigui la direcció."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"While an absence that is already over is still awaiting its supporting "
+"document, the employee is reminded every this many days."
+msgstr ""
+"Mentre una absència ja acabada continua esperant el justificant, es recorda "
+"al treballador cada aquest nombre de dies."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_absence_document_reminder_days
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_absence_document_reminder_days
+msgid "Supporting document reminder (days)"
+msgstr "Recordatori del justificant (dies)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_absence_document_escalation_days
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_absence_document_escalation_days
+msgid "Missing supporting document report (days)"
+msgstr "Avís de justificant pendent (dies)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_holidays_filter_ems
+msgid "My pending supporting documents"
+msgstr "Els meus justificants pendents"

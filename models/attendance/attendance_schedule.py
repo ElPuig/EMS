@@ -141,9 +141,14 @@ class EmsAttendanceSchedule(models.Model):
                     other_teacher=", ".join(other.teacher_ids.mapped('display_name')),
                     other_space=other.space_id.display_name,
                     other_time=other.time_range,
-                    weekday=dict(schedule.weekdays_selection).get(schedule.weekday),
+                    weekday=schedule._weekday_label(schedule.weekday),
                     reason=reason,
                 ))
+
+    def _weekday_label(self, weekday):
+        """The weekday's name in the current language, for a message: 'weekdays_selection' itself is
+        the untranslated English list."""
+        return dict(self._fields['weekday']._description_selection(self.env)).get(weekday)
 
     def find_room_conflicts(self, new_space_id):
         """Every already-active 'ems.attendance_schedule' line that would collide with 'self' if it

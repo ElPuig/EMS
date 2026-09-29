@@ -2342,6 +2342,42 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertTrue(existing_schedule.active)
         self.assertFalse(second_teacher.resource_calendar_id.attendance_ids)
 
+    def test_db_conflict_resolution_is_only_applied_on_import(self):
+        # Nothing may be written before Import: "New prevails" used to archive the existing session
+        # (deleting its session-less template, and with it the conflict line the summary counts)
+        # and "Reassign rooms" to move it as soon as Continue left this screen, so Cancel on the
+        # summary could no longer undo either.
+        self._import({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
+            )),
+        })
+        existing_schedule = self.env['ems.attendance_schedule'].search([
+            ('attendance_template_id.teacher_ids', 'in', self.teacher.id),
+        ])
+        second_teacher = self._second_teacher()
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                second_teacher.work_email,
+                f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/><Students name="{self.group.name} Group"/>',
+            )),
+        })
+        while wizard.state != 'db_conflicts':
+            wizard.action_continue()
+        wizard.external_conflict_line_ids.resolution = 'prevail_left'
+
+        wizard.action_continue()  # db_conflicts -> summary
+
+        self.assertEqual(wizard.state, 'summary')
+        self.assertTrue(existing_schedule.exists() and existing_schedule.active)
+        self.assertEqual(len(wizard.external_conflict_line_ids), 1)
+        self.assertIn(">1 existing schedule conflict(s) resolved<", wizard.overall_summary_html)
+
+        wizard.import_planner_data()
+
+        self.assertFalse(existing_schedule.exists() and existing_schedule.active)
+
     def test_continue_from_db_conflicts_reassign_rooms_without_has_sessions_writes_in_place(self):
         self._import({
             'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(

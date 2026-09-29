@@ -363,6 +363,8 @@
                                 <field name="group_ids"/>
                                 <field name="non_teaching"/>
                                 <field name="non_teaching_is_break"/>
+                                <field name="date_from"/>
+                                <field name="date_to"/>
                                 <field name="space_id"/>
                             </list>
                         </field>

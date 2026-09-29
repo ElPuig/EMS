@@ -1,3 +1,25 @@
+# Fixes
+
+## Mid-course subject handoff dates lost when editing a schedule again:
+
+- Reopening a teacher's schedule in edit mode showed every card's date range blank, and saving then rewrote the blocks without them, silently turning a mid-course handoff into two year-long subjects in the same slot. The cards now load and keep their dates (employee form and My Profile).
+
+## Schedule import wrote to existing schedules before Import:
+
+- On the existing-schedule conflicts screen, "New prevails" archived the existing session and "Reassign rooms" moved it as soon as Continue was clicked, so Cancel on the summary no longer undid them, and a session-less template deleted that way vanished from the summary's count. Both now happen only when Import is clicked.
+
+## Break periods labelled in English on a teacher's schedule:
+
+- A teacher's editable weekly grid showed non-teaching periods by their stored text, frozen in the language they were saved in (the centre framework's breaks read "BR: Break" for everyone); it now shows the period type's translated name, like the read-only grids and the PDF already did.
+
+## Schedule import conflicts showed the wrong resolution:
+
+- Each conflict row's dropdown always displayed its first option ("Reassign rooms") instead of the resolution actually stored, so a row could look different from what Continue would apply.
+
+## Schedule import untranslated texts:
+
+- The import dialog's title, the weekday in every conflict description (also in the overlap error when saving a session), and the "New/Old" labels, room columns and "New/Old prevails" options of the existing-schedule conflicts screen showed in English in Catalan and Spanish. The summary also showed "Left/Right prevails" for those options.
+
 # Changes
 
 ## Teachers' plannings manual now has screenshots:
@@ -8,6 +30,11 @@
 ## Plannings' model name simplified:
 
 - The planning model's name, shown in the form's history and notifications, was a long developer note ("Planning: Curriculum deployment in the classroom (in development: ...)"); it is now "Teaching planning" ("Programació docent" / "Programación docente"), matching the menu. Its outcome-ponderation model got the same treatment, and its Catalan/Spanish translations, which had three different translations glued together, are fixed.
+
+## Working schedules manual: screenshots in Catalan and text brought up to date:
+
+- The 11 working-schedule screenshots (import wizard and schedule cards) were in the English UI; they are now generated in Catalan from fixture data (`TestDocsScreenshotsAdmin.test_capture_working_schedules`), the last hand-made/obsolete set of the user manuals.
+- The manual now names the cog entry as it really reads ("Import planner data (XML)"), the teachers screen and its dropdown by their real labels, the "Join session" conflict kind instead of the removed "Split session", and the existing-schedule conflicts screen's "New/Old" wording.
 
 # Internal changes
 

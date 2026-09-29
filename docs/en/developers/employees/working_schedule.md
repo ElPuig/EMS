@@ -1361,34 +1361,28 @@ not engineered further for a scenario this unlikely.
   genuine self-time-conflict with differing rooms keeps the older `prevail_left` default and no
   room pre-fill, since reassigning rooms fixes nothing when the actual problem is the same teacher
   needed in two places at the same time, not a shared room.
-- **`_continue_from_db_conflicts()`**, per resolution:
+- **`_continue_from_db_conflicts()`** only changes the new entries (`node_cache`); the existing
+  sessions are left untouched until Import, when **`_apply_db_conflict_resolutions()`** (called by
+  `import_planner_data()` before `_apply_import()`) applies what changes them. Nothing is written
+  before Import, so Cancel on the summary still undoes everything, and the summary still lists every
+  resolved line (archiving a session-less template there used to delete it together with its
+  conflict line). Per resolution:
   - `co_teaching`: no-op, same as screen 4 - `_reconcile_fresh_import`'s own merge already folds an
     external teacher's exact-match slot into the shared group correctly on its own.
-  - `prevail_left` (the new entry wins): `right_schedule_id._archive_via_calendar_blocks()` -
+  - `prevail_left` (the new entry wins), on Import: `right_schedule_id._archive_via_calendar_blocks()`
     archives every calendar block deriving that line, letting the automatic sync hook archive the
-    line (and its now-empty template, if nothing else backs it) as a natural consequence. Matches
-    the plan's own "archives/trims the existing DB session's template" wording literally: archiving
-    the line is the "trim". **Changed by the bottom-up sync redesign's Phase 6 (2026-09-08)** - a
-    bare `right_schedule_id.action_archive()` used to do this directly; found and fixed the same
-    day as a real bug (SMX1D/SMX2D on real data): archiving only the schedule line left the
-    teacher's own calendar block still pointing at it, ready to silently resurrect the conflict on
-    the next calendar resync. `_archive_via_calendar_blocks()` (`ems.attendance_schedule`) is the
-    shared method that now fixes this everywhere a caller needs to archive a session this way - see
-    `docs/en/developers/attendance/attendance_template.md`'s "Bottom-up sync redesign" section.
-  - `prevail_right` (the existing session wins): deletes the new entry, exactly like screen 4's own
-    `prevail_left`/`prevail_right` (same index-collection-then-reverse-delete mechanism, shared
-    with `_continue_from_internal_conflicts`).
-  - `reassign_rooms`: the **left** (new entry) side writes `space_id` into `node_cache` exactly like
-    screen 4. The **right** (existing DB record) side calls
-    `right_schedule_id._relocate_via_calendar_blocks(right_space_id)` - moves every calendar block
-    deriving that line to the new room, letting the automatic sync hook keep the schedule line
-    itself in sync (writing it in place, or cloning a fresh version if it `has_sessions`) as a
-    consequence. **Changed by the bottom-up sync redesign's Phase 6 (2026-09-08)** for the same
-    reason as `prevail_left` above - a direct `right_schedule_id._write_or_new_version({'space_id':
-    ...})` call used to leave the teacher's own calendar silently pointing at the old room. The
-    underlying `has_sessions`-aware write-in-place-or-clone decision is unchanged, just made by the
-    calendar-driven pipeline now instead of this call site reaching for `_write_or_new_version`
-    directly.
+    line (and its now-empty template, if nothing else backs it - deleted instead when it has no
+    real sessions) as a natural consequence. Archiving the schedule line alone would leave the
+    teacher's calendar block pointing at it, ready to resurrect the conflict on the next resync;
+    see `docs/en/developers/attendance/attendance_template.md`'s "Bottom-up sync redesign" section.
+  - `prevail_right` (the existing session wins), on Continue: deletes the new entry, exactly like
+    screen 4's own `prevail_left`/`prevail_right` (same index-collection-then-reverse-delete
+    mechanism, shared with `_continue_from_internal_conflicts`).
+  - `reassign_rooms`: the **left** (new entry) side writes `space_id` into `node_cache` on Continue,
+    exactly like screen 4. The **right** (existing DB record) side, on Import, calls
+    `right_schedule_id._relocate_via_calendar_blocks(right_space_id)`: moves every calendar block
+    deriving that line to the new room, letting the automatic sync hook keep the schedule line in
+    sync (writing it in place, or cloning a fresh version if it `has_sessions`).
 
 View/`continue_disabled`: same shape as screen 4, `internal_conflicts` excluded state on the
 placeholder alert becomes `db_conflicts`, `right_space_id`/column visibility identical.

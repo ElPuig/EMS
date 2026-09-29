@@ -4441,6 +4441,7 @@ msgstr "Modo de importación"
 
 #. module: ems
 #. odoo-javascript
+#: code:addons/ems/static/src/js/backend/import_planner_cog_menu.js:0
 #: code:addons/ems/static/src/xml/backend/import_planner_cog_menu.xml:0
 msgid "Import planner data (XML)"
 msgstr "Importar datos del planificador (XML)"
@@ -8567,7 +8568,7 @@ msgstr "Confirmar"
 
 #. module: ems
 #. odoo-javascript
-#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__prevail_left model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__prevail_left
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__prevail_left
 #: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
 #, python-format
 msgid "Left prevails"
@@ -8575,7 +8576,7 @@ msgstr "Prevalece la izquierda"
 
 #. module: ems
 #. odoo-javascript
-#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__prevail_right model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__prevail_right
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__prevail_right
 #: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
 #, python-format
 msgid "Right prevails"
@@ -12798,6 +12799,38 @@ msgstr "Importando el horario, por favor espere..."
 #, python-format
 msgid "— apply to all —"
 msgstr "— aplicar a todos —"
+
+#. module: ems
+#. odoo-javascript
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__prevail_left
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+msgid "New prevails"
+msgstr "Prevalece el nuevo"
+
+#. module: ems
+#. odoo-javascript
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__prevail_right
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+msgid "Old prevails"
+msgstr "Prevalece el antiguo"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+msgid "New classroom"
+msgstr "Aula nueva"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+msgid "Old classroom"
+msgstr "Aula antigua"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+msgid "Old"
+msgstr "Antiguo"
 
 #. module: ems
 #. odoo-javascript

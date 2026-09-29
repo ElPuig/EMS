@@ -1,6 +1,5 @@
 import importlib.util
 import os
-from datetime import date
 from unittest.mock import patch
 
 from dateutil.relativedelta import relativedelta
@@ -365,6 +364,11 @@ class TestEmployeeGoogleWorkspaceLifecycle(TransactionCase):
     warning email is patched out at the template level.
     """
 
+    def _today(self):
+        """The company-local day the code schedules lifecycle dates from (context_today), not
+        date.today(), which is UTC in Odoo and is a day behind right after local midnight."""
+        return self.env['ems.datetime_utils'].get_local_today()
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -399,7 +403,7 @@ class TestEmployeeGoogleWorkspaceLifecycle(TransactionCase):
         teacher.write({'active': False})
         self.assertEqual(
             teacher.google_ws_deactivation_date,
-            date.today() + relativedelta(days=GW_DEACTIVATION_DELAY_DAYS))
+            self._today() + relativedelta(days=GW_DEACTIVATION_DELAY_DAYS))
         self.assertFalse(
             teacher.google_ws_suspended,
             "Archiving must not suspend the account before the grace period ends")
@@ -457,14 +461,14 @@ class TestEmployeeGoogleWorkspaceLifecycle(TransactionCase):
     def test_cron_suspends_once_the_date_is_reached(self):
         teacher = self._new_teacher()
         teacher.write({'active': False})
-        teacher.google_ws_deactivation_date = date.today()
+        teacher.google_ws_deactivation_date = self._today()
         self.env['hr.employee'].with_context(
             queue_job__no_delay=True)._gw_cron_process_lifecycle()
         self.assertTrue(teacher.google_ws_suspended)
 
     def test_cron_ignores_active_employees(self):
         teacher = self._new_teacher()
-        teacher.google_ws_deactivation_date = date.today()
+        teacher.google_ws_deactivation_date = self._today()
         self.env['hr.employee'].with_context(
             queue_job__no_delay=True)._gw_cron_process_lifecycle()
         self.assertFalse(teacher.google_ws_suspended)
@@ -472,7 +476,7 @@ class TestEmployeeGoogleWorkspaceLifecycle(TransactionCase):
     def test_cron_is_idempotent(self):
         teacher = self._new_teacher()
         teacher.write({'active': False})
-        teacher.google_ws_deactivation_date = date.today()
+        teacher.google_ws_deactivation_date = self._today()
         self.env['hr.employee'].with_context(
             queue_job__no_delay=True)._gw_cron_process_lifecycle()
         with patch.object(type(teacher), 'action_suspend_google_account') as suspend:

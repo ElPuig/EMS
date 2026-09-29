@@ -125,3 +125,37 @@ class TestAttendanceSessionTour(HttpCase):
 
         line = session.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student1)
         self.assertEqual(line.status_id, self.env.ref('ems.attendance_status_delayed'))
+
+    def test_attendance_session_remove_line_tour(self):
+        self.start_tour("/odoo", "ems_attendance_session_remove_line", login="test_teacher_attendance_session_guard_tour")
+
+        session = self.env['ems.attendance_session_header'].search([
+            ('attendance_schedule_id', '=', self.schedule1.id),
+        ])
+        lines = session.with_context(active_test=False).attendance_session_line_ids
+        self.assertEqual(len(lines), 2)
+        self.assertFalse(lines.filtered(lambda l: l.student_id == self.student2).active)
+        self.assertTrue(lines.filtered(lambda l: l.student_id == self.student1).active)
+
+    def test_attendance_session_removed_line_form_tour(self):
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': self.schedule1.id, 'date': date.today(),
+            'mode': 'scheduled', 'session_teacher_id': self.teacher_employee.id,
+        })
+        session.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student2).active = False
+        self.start_tour(
+            f"/odoo/action-ems.action_attendance_session_tree/{session.id}",
+            "ems_attendance_session_removed_line_form", login="test_teacher_attendance_session_guard_tour")
+
+    def test_attendance_session_admin_start_tour(self):
+        admin_user = create_role_user(
+            self, 'academic_admin', 'test_admin_attendance_session_tour',
+            name='Attendance Session Tour Admin')
+        create_role_employee(self, admin_user, employee_type='asp', name='Attendance Session Tour Admin')
+        self.start_tour("/odoo", "ems_attendance_session_admin_start", login="test_admin_attendance_session_tour")
+
+        session = self.env['ems.attendance_session_header'].search([
+            ('attendance_schedule_id', '=', self.schedule1.id),
+        ])
+        self.assertEqual(session.session_teacher_id, self.teacher_employee)
+

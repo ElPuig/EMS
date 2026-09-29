@@ -202,6 +202,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         student_a = self._student(group, 'Marina Exemple')
         student_b = self._student(group, 'Pau Mostra')
         student_c = self._student(group, 'Nerea Prova')
+        student_d = self._student(group, 'Iker Model')
 
         # Spans the whole day (same trick as test_attendance_session_tour.py): makes the schedule
         # "current" regardless of what time this capture actually runs at, no time-freezing needed.
@@ -214,7 +215,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         schedule = self.env['ems.attendance_schedule'].create({
             'attendance_template_id': template.id, 'weekday': weekday,
             'start_time': 0.0, 'end_time': 23.0, 'space_id': space.id,
-            'student_ids': [(6, 0, (student_a + student_b + student_c).ids)],
+            'student_ids': [(6, 0, (student_a + student_b + student_c + student_d).ids)],
         })
         session = self.env['ems.attendance_session_header'].create({
             'attendance_schedule_id': schedule.id, 'date': date.today(),
@@ -239,6 +240,8 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             'notes': 'Visita mèdica',
         })
         line_c.write({'status_id': status_miss.id, 'attendance_justification_id': justification.id})
+        # Removed from the roll-call (issue #537): greyed out, last in the list, restore button.
+        lines.filtered(lambda line: line.student_id == student_d).active = False
 
         self._capture(
             '/odoo/action-ems.action_attendance_passlist',

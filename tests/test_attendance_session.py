@@ -108,8 +108,9 @@ class TestAttendanceSessionHeader(TransactionCase):
         return local.astimezone(pytz.utc).replace(tzinfo=None)
 
     def _take_roll_call_at(self, now, schedule=None):
+        # As the teacher: only whoever actually takes the roll-call gets checked in.
         with patch.object(fields.Datetime, 'now', return_value=now):
-            return self.env['ems.attendance_session_header'].create({
+            return self.env['ems.attendance_session_header'].with_user(self.teacher_user).create({
                 'attendance_schedule_id': (schedule or self.schedule).id, 'date': date.today(),
                 'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
             })
@@ -310,6 +311,24 @@ class TestAttendanceSessionHeader(TransactionCase):
         second_line = second.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student1)
         self.assertEqual(second_line.status_id, self.env.ref('ems.attendance_status_miss'))
 
+    def test_continuation_session_keeps_removed_students_removed(self):
+        """Issue #537: a student removed from the first period's roll-call (e.g. not sitting an
+        exam spanning both periods) stays removed, and restorable, in the continuation."""
+        first = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': self.schedule.id, 'date': date.today(),
+            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+        })
+        first.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student1).active = False
+
+        second = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': self.schedule2.id, 'date': date.today(),
+            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+        })
+        lines = second.with_context(active_test=False).attendance_session_line_ids
+        self.assertEqual(len(lines), 2)
+        self.assertFalse(lines.filtered(lambda l: l.student_id == self.student1).active)
+        self.assertTrue(lines.filtered(lambda l: l.student_id == self.student2).active)
+
     # --- copy / unlink -------------------------------------------------------------------
 
     def test_copy_is_blocked(self):
@@ -359,6 +378,20 @@ class TestAttendanceSessionHeader(TransactionCase):
         # DB had a genuine session for that same date). Only assert our own session is in there.
         self.assertIn(session.id, [entry['id'] for entry in result])
 
+    def test_guard_teacher_can_remove_a_line(self):
+        other_teacher_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Guard Teacher User (Attendance Session)', 'login': 'test_guard_teacher_tas',
+            'groups_id': [(4, self.env.ref('ems.group_teacher').id), (4, self.env.ref('base.group_user').id)],
+        })
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': self.schedule.id, 'date': date.today(),
+            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+        })
+        line = session.attendance_session_line_ids[:1]
+        self.env['ems.attendance_session_header'].with_user(other_teacher_user).write_guard_session_line(
+            line.id, {'active': False})
+        self.assertFalse(line.active)
+
     def test_create_scheduled_session_marks_continuation(self):
         first = self.env['ems.attendance_session_header'].create({
             'attendance_schedule_id': self.schedule.id, 'date': date.today(),
@@ -367,6 +400,24 @@ class TestAttendanceSessionHeader(TransactionCase):
         result = self.env['ems.attendance_session_header'].with_user(self.teacher_user).create_scheduled_session(
             date.today().isoformat(), self.schedule2.id)
         self.assertTrue(result['is_continuation'])
+
+    def test_admin_without_teaching_employee_starts_a_session_for_its_teacher(self):
+        """An admin sees every slot in the roll-call screen; starting one on the teacher's behalf
+        makes the slot's teacher the session's teacher, without checking them in."""
+        admin_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Admin User (Attendance Session)', 'login': 'test_admin_tas',
+            'groups_id': [(4, self.env.ref('ems.group_academic_admin').id), (4, self.env.ref('base.group_user').id)],
+        })
+        self.env['hr.employee'].create({
+            'name': 'Admin Employee (Attendance Session)', 'employee_type': 'employee', 'user_id': admin_user.id,
+        })
+        self.env.company.auto_checkin_mode = 'current'
+        with patch.object(fields.Datetime, 'now', return_value=self._today_at(9)):
+            result = self.env['ems.attendance_session_header'].with_user(admin_user).create_scheduled_session(
+                date.today().isoformat(), self.schedule.id)
+        session = self.env['ems.attendance_session_header'].browse(result['id'])
+        self.assertEqual(session.session_teacher_id, self.teacher)
+        self.assertFalse(self._teacher_attendances())
 
     def test_create_scheduled_session_rejects_a_future_date(self):
         """The date comes from the web client, whose clock can be wrong: the server never takes a
@@ -479,3 +530,56 @@ class TestAttendanceSessionLine(TransactionCase):
         if issue_tutor:
             self.assertFalse(issue_tutor.attendance_issue_student_ids)
 
+    # --- removal from the roll-call (issue #537) ------------------------------------------
+
+    def _issue_statuses(self, line):
+        return self.env['ems.attendance_issue_status'].search([('attendance_session_line_id', '=', line.id)])
+
+    def test_removed_line_is_left_out_of_reports(self):
+        line = self._line()
+        line.status_id = self.env.ref('ems.attendance_status_miss')
+        line.active = False
+        domain = [('attendance_session_id', '=', self.session.id)]
+        self.assertFalse(self.env['ems.attendance_session_line'].search(domain))
+        groups = self.env['ems.attendance_session_line'].read_group(domain, ['absence_rate:avg'], [])
+        self.assertFalse(groups[0]['__count'])
+
+    def test_removing_a_line_cancels_its_pending_notification(self):
+        line = self._line()
+        line.status_id = self.env.ref('ems.attendance_status_miss')
+        self.assertTrue(self._issue_statuses(line))
+        line.active = False
+        self.assertFalse(self._issue_statuses(line))
+
+    def test_removing_an_already_notified_line_sends_a_rectification(self):
+        # Without a recipient no family notification is ever queued, so nothing is "already notified".
+        self.student.student_email = 'session.line.student@example.com'
+        line = self._line()
+        line.status_id = self.env.ref('ems.attendance_status_miss')
+        original = self._issue_statuses(line)
+        original.notification_id.sudo().state = 'done'
+        line.active = False
+
+        statuses = self._issue_statuses(line)
+        rectification = statuses.filtered('rectification')
+        self.assertEqual(len(rectification), 1)
+        # No status: the student simply wasn't required to attend.
+        self.assertFalse(rectification.attendance_status_id)
+        self.assertEqual(original.rectified_by, rectification)
+
+    def test_restoring_a_removed_line_notifies_again(self):
+        line = self._line()
+        line.active = False
+        line.status_id = self.env.ref('ems.attendance_status_miss')
+        self.assertFalse(self._issue_statuses(line))
+        line.active = True
+        self.assertTrue(self._issue_statuses(line))
+
+    def test_a_line_with_strikes_cannot_be_removed(self):
+        line = self._line()
+        self.env['ems.strike'].create({
+            'student_id': self.student.id, 'teacher_id': self.teacher.id,
+            'attendance_session_line_id': line.id,
+        })
+        with self.assertRaises(UserError):
+            line.active = False

@@ -423,7 +423,7 @@ msgid ""
 "                                <li><strong>Student:</strong> <span t-field=\"object.attendance_issue_student_id.student_id\"/></li>\n"
 "                                <li><strong>Date:</strong> <span t-field=\"object.attendance_session_id.weekday\"/>, <t t-out=\"object.attendance_session_id.date\"/> from <span t-field=\"object.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"object.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/></li>                                \n"
 "                                <li><strong>Session:</strong> <span t-field=\"object.attendance_session_id.attendance_schedule_id.attendance_template_id\"/></li>\n"
-"                                <li><strong>Status:</strong> <span t-field=\"object.attendance_status_id\"/></li>\n"
+"                                <li><strong>Status:</strong> <span t-if=\"object.attendance_status_id\" t-field=\"object.attendance_status_id\"/><t t-else=\"\">Not required to attend (removed from the roll-call)</t></li>\n"
 "                                <t t-if=\"object.notes\">\n"
 "                                    <li><strong>Details:</strong> <span t-field=\"object.notes\"/></li>\n"
 "                                </t>\n"
@@ -451,7 +451,7 @@ msgstr ""
 "                                <li><strong>Estudiant:</strong> <span t-field=\"object.attendance_issue_student_id.student_id\"/></li>\n"
 "                                <li><strong>Data:</strong> <span t-field=\"object.attendance_session_id.weekday\"/>, <t t-out=\"object.attendance_session_id.date\"/> de <span t-field=\"object.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"object.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/></li>                                \n"
 "                                <li><strong>Sessió:</strong> <span t-field=\"object.attendance_session_id.attendance_schedule_id.attendance_template_id\"/></li>\n"
-"                                <li><strong>Estat:</strong> <span t-field=\"object.attendance_status_id\"/></li>\n"
+"                                <li><strong>Estat:</strong> <span t-if=\"object.attendance_status_id\" t-field=\"object.attendance_status_id\"/><t t-else=\"\">No havia d'assistir (tret de la llista)</t></li>\n"
 "                                <t t-if=\"object.notes\">\n"
 "                                    <li><strong>Detalls:</strong> <span t-field=\"object.notes\"/></li>\n"
 "                                </t>\n"
@@ -485,7 +485,7 @@ msgid ""
 "                                                <ul>\n"
 "                                                    <t t-foreach=\"student.attendance_issue_status_ids\" t-as=\"status\">\n"
 "                                                        <li t-att-style=\"'text-decoration: line-through;' if status.rectified_by.id != False else ''\">\n"
-"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | from <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-field=\"status.attendance_status_id\"/>\n"
+"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | from <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-if=\"status.attendance_status_id\" t-field=\"status.attendance_status_id\"/><t t-else=\"\">Not required to attend (removed from the roll-call)</t>\n"
 "                                                            <t t-if=\"status.notes\">\n"
 "                                                                | <span t-field=\"status.notes\"/>\n"
 "                                                            </t>\n"
@@ -522,7 +522,7 @@ msgstr ""
 "                                                <ul>\n"
 "                                                    <t t-foreach=\"student.attendance_issue_status_ids\" t-as=\"status\">\n"
 "                                                        <li t-att-style=\"'text-decoration: line-through;' if status.rectified_by.id != False else ''\"> \n"
-"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | de <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-field=\"status.attendance_status_id\"/>\n"
+"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | de <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-if=\"status.attendance_status_id\" t-field=\"status.attendance_status_id\"/><t t-else=\"\">No havia d'assistir (tret de la llista)</t>\n"
 "                                                            <t t-if=\"status.notes\">\n"
 "                                                                | <span t-field=\"status.notes\"/>\n"
 "                                                            </t>\n"
@@ -1369,6 +1369,7 @@ msgstr "Acció Necessària"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__active model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__active model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__active model:ir.model.fields,field_description:ems.field_ems_attendance_justification__active model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__active model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__active model:ir.model.fields,field_description:ems.field_ems_attendance_template__active model:ir.model.fields,field_description:ems.field_ems_base__active model:ir.model.fields,field_description:ems.field_ems_enrollment__active model:ir.model.fields,field_description:ems.field_ems_grade_session__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__active model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__active model:ir.model.fields,field_description:ems.field_ems_notice__active model:ir.model.fields,field_description:ems.field_ems_notice_line__active model:ir.model.fields,field_description:ems.field_ems_strike__active model:ir.model.fields,field_description:ems.field_ems_strike_reason__active model:ir.model.fields,field_description:ems.field_ems_teaching__active model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__active model:ir.model.fields,field_description:ems.field_ems_attendance_status__active model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__active model:ir.model.fields,field_description:ems.field_ems_group__active model:ir.model.fields.selection,name:ems.selection__ems_study__transition_state__active
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__active
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__active
 msgid "Active"
 msgstr "Actiu"
 
@@ -18904,3 +18905,33 @@ msgstr "Sessió activa"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search
 msgid "My subjects"
 msgstr "Les meves assignatures"
+
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__all_attendance_session_line_ids
+msgid "All statuses"
+msgstr "Tots els estats"
+
+#. module: ems
+#. odoo-javascript
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "A student with strikes in this session can't be removed from the roll-call."
+msgstr "No es pot treure de la llista un alumne amb strikes en aquesta sessió."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Remove from the roll-call (not required to attend)"
+msgstr "Treure de la llista (no ha d'assistir)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Restore to the roll-call"
+msgstr "Tornar a afegir a la llista"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Remove %s from this roll-call? They will count neither as attended nor as absent."
+msgstr "Treure %s de la llista d'aquesta sessió? No comptarà ni com a assistència ni com a absència."

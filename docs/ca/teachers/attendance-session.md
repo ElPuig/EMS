@@ -79,7 +79,7 @@ Desar.
 - Fes servir el desplegable d'**ordenació** (a dalt a la dreta) per reordenar la llista per cognom
   o nom, ascendent o descendent.
 
-![Sessió actual amb els botons d'estat, una nota i un alumne amb absència justificada (escut)](../../assets/teachers/passlist-01-assistencia-actual.png)
+![Sessió actual amb els botons d'estat, una nota i un alumne amb absència justificada (escut) i un de tret de la llista (última fila)](../../assets/teachers/passlist-01-assistencia-actual.png)
 
 ---
 
@@ -97,6 +97,25 @@ que els botons d'estat.
 Si el comportament d'un alumne durant la sessió cal deixar-lo constatat, fes clic a la icona
 d'strike (⚠) a la seva fila — consulta el [manual de strikes](strike.md) per al flux complet
 (motiu, casella de "expulsat de classe", què passa després d'enviar-lo).
+
+---
+
+## Treure un alumne de la llista
+
+De vegades un alumne no ha d'assistir a una sessió concreta, per exemple un examen que només fa
+una part del grup. En lloc de marcar-lo com a present o absent, fes clic a la icona de treure (una
+persona amb una creu) al final de la seva fila i confirma (mira l'última fila de la captura de "Marcar l'assistència"). La fila es queda a la llista, en gris i
+amb els botons bloquejats, i l'alumne **no compta ni com a assistència ni com a absència**: queda
+fora dels informes i dels percentatges d'assistència, i no s'avisa la família.
+
+- Si ja l'havies marcat absent i la família encara **no** havia rebut l'avís, l'avís s'anul·la. Si
+  ja s'havia enviat, la família rep el correu de rectificació habitual indicant que l'alumne no
+  havia d'assistir.
+- Si la matèria continua a la franja següent (doble període), l'alumne també queda tret de la
+  llista en aquella sessió.
+- T'has equivocat? Fes clic a la icona de restaurar (una fletxa corbada) a la fila en gris i
+  l'alumne torna a la llista amb l'estat que tenia.
+- No es pot treure un alumne que ha rebut un strike en aquella sessió: era a classe.
 
 ---
 
@@ -148,11 +167,17 @@ quants strikes es van posar durant aquella sessió, amb un botó per veure'n el 
 > **Actual** en mode **Manual** i selecciona aquella sessió des del selector — la llista de
 > l'Historial no permet editar.
 
+Els alumnes que s'han tret de la llista d'una sessió també hi apareixen, en gris.
+
 ---
 
 ## Per a Administradors
 
-Un administrador fa servir exactament aquesta mateixa pantalla, sense res propi afegit — el que
+Un administrador que no és docent veu totes les sessions i franges del dia, no només les seves, i
+pot iniciar el pas de llista de qualsevol franja en nom del seu docent: la sessió queda a nom
+d'aquest docent i no es fa cap fitxatge automàtic.
+
+Per la resta, és la mateixa pantalla que fa servir un docent — el que
 en determina el contingut és pura configuració, coberta als manuals de l'Administrador:
 
 - [Horaris dels docents i marcs horaris](../admin/working-schedules.md) configura els horaris que

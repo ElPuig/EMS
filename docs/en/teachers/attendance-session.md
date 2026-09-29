@@ -77,7 +77,7 @@ status for that session — it's saved immediately, no need to click a separate 
 - Use the **sort** dropdown (top-right) to reorder the list by lastname or first name, ascending or
   descending.
 
-![Current session with the status buttons, a note, and a student with a justified absence (shield)](../../assets/teachers/passlist-01-assistencia-actual.png)
+![Current session with the status buttons, a note, and a student with a justified absence (shield) and one removed from the roll-call (last row)](../../assets/teachers/passlist-01-assistencia-actual.png)
 
 ---
 
@@ -94,6 +94,25 @@ is disabled for a justified absence, same as the status buttons.
 If a student's behaviour during the session needs to be flagged, click the strike icon (⚠) on
 their row — see the [Strikes manual](strike.md) for the full flow (reason, kicked-out checkbox,
 what happens after you send it).
+
+---
+
+## Removing a Student from the Roll-Call
+
+Sometimes a student isn't required to attend a particular session, for example an exam that only
+some of the group sit. Instead of marking them as attended or absent, click the remove icon (a
+person with a cross) at the end of their row and confirm (see the last row in the screenshot under "Marking Attendance"). The row stays on the list, greyed out
+and with its buttons locked, and the student counts **neither as attended nor as absent**: they're
+left out of the attendance reports and percentages, and the family isn't notified.
+
+- If you had already marked them absent and the family had **not** been notified yet, the
+  notification is cancelled. If it had already been sent, the family gets the usual correction
+  email saying the student wasn't required to attend.
+- If the subject continues in the next period (a double period), the student is also removed
+  there.
+- Made a mistake? Click the restore icon (a curved arrow) on the greyed-out row and the student is
+  back on the roll-call with the status they had.
+- A student who got a strike in that session can't be removed: they were in class.
 
 ---
 
@@ -145,11 +164,17 @@ during that session, with a button to see their full detail.
 > **Current** in **Manual** mode and pick that session from the selector — the History list itself
 > doesn't allow edits.
 
+Students removed from a session's roll-call also appear in the session, greyed out.
+
 ---
 
 ## For Administrators
 
-An Administrator uses this exact same screen, with nothing extra of their own on it — what
+An Administrator who isn't a teacher sees every session and slot of the day, not only their own,
+and can start any slot's roll-call on behalf of its teacher: the session is recorded under that
+teacher, and nobody is checked in automatically.
+
+Otherwise it's the same screen a teacher uses — what
 shapes what appears here is entirely configuration, covered in the Administrator manuals:
 
 - [Teacher Working Schedules & Schedule Frameworks](../admin/working-schedules.md) sets up the

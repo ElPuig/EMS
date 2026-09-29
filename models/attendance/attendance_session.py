@@ -80,6 +80,12 @@ class EmsAttendanceSessionHeader(models.Model):
     mode = fields.Selection(string="Mode", selection=[('scheduled', 'Scheduled'), ('guard', 'Guard'), ('manual', 'Manual')], default="scheduled", required=True)
 
     attendance_session_line_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_session_line", inverse_name="attendance_session_id")
+    # Same lines, including the ones removed from the roll-call (issue #537), for the History form
+    # to list them greyed out. A view-level context can't do it: the parent read already filters them.
+    all_attendance_session_line_ids = fields.One2many(
+        string="All statuses", comodel_name="ems.attendance_session_line", inverse_name="attendance_session_id",
+        context={'active_test': False},
+    )
     attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ems.attendance_schedule", required=True)
 
     notes = fields.Text("Notes")
@@ -154,11 +160,13 @@ class EmsAttendanceSessionHeader(models.Model):
         issue_status = data["values"]
 
         if not issue_status or rectification:
-            as_id = self.sudo().env['ems.attendance_session_line'].sudo().search([('id', '=', attendance_session_line)])
+            # browse(), not search(): a line removed from the roll-call is archived, and its
+            # rectification must still find it. No status then: the student wasn't required to attend.
+            as_id = self.sudo().env['ems.attendance_session_line'].browse(attendance_session_line)
             issue_status = repo.create({
                 'attendance_issue_student_id': issue_student.id,
                 'attendance_session_line_id': attendance_session_line,
-                'attendance_status_id': as_id.status_id.id,
+                'attendance_status_id': as_id.status_id.id if as_id.active else False,
                 'rectification': rectification,
                 'notes': as_id.notes,
                 'send_to': send_to,
@@ -372,13 +380,16 @@ class EmsAttendanceSessionHeader(models.Model):
         previssions = EmsAttendanceJustification.get_current_justifications(self, self.start_date, self.end_date)
 
         if previous and previous.end_time <= self.start_time:
-            for prev in previous.attendance_session_line_ids:
+            # active_test=False: a student removed from the previous period's roll-call (e.g. not
+            # sitting an exam spanning both periods) stays removed, and restorable, in this one.
+            for prev in previous.with_context(active_test=False).attendance_session_line_ids:
                 line = None
                 for p in previssions:
                     if p.student_id == prev.student_id:
                         line = p.perform_justification(self._setup_new_line_data(prev.student_id), True)
                 if line is None:
                     line = self._setup_next_session_line_data(prev)
+                line["active"] = prev.active
                 lines.append(line)
         else:
             # NOTE: 'schedule.student_ids' (moved here from the template 2026-08-11 - see
@@ -416,7 +427,10 @@ class EmsAttendanceSessionHeader(models.Model):
             if not record.attendance_session_line_ids:
                 record._auto_populate_lines()
 
-            record._auto_checkin_teacher(record.session_teacher_id, record.date, record.attendance_schedule_id)
+            # Only whoever is actually taking the roll-call gets checked in: an admin starting a
+            # colleague's session on their behalf must not check that colleague in.
+            if record.session_teacher_id.user_id == self.env.user:
+                record._auto_checkin_teacher(record.session_teacher_id, record.date, record.attendance_schedule_id)
 
             # NOTE: Collecting all status data first allow some optimizations.
             issue_status_by_tutor = dict()
@@ -600,7 +614,14 @@ class EmsAttendanceSessionHeader(models.Model):
         # with a wrong clock could send any day.
         if fields.Date.to_date(date) > self.get_local_today():
             raise ValidationError(_("A roll-call can't be taken for a future date."))
-        record   = self.create({'date': date, 'attendance_schedule_id': schedule_id, 'mode': 'scheduled'})
+        vals = {'date': date, 'attendance_schedule_id': schedule_id, 'mode': 'scheduled'}
+        if not self._default_teacher_id():
+            # Someone without a teaching employee (e.g. an admin, who sees every slot) takes the
+            # roll-call on behalf of the slot's own teacher.
+            # (teacher_ids is required on the template, so there's always one.)
+            schedule = self.env['ems.attendance_schedule'].browse(schedule_id)
+            vals['session_teacher_id'] = schedule.attendance_template_id.teacher_ids[:1].id
+        record   = self.create(vals)
         template = record.attendance_schedule_id.attendance_template_id
         previous = self.search([
             ('date', '=', date),
@@ -629,6 +650,9 @@ class EmsAttendanceSessionLine(models.Model):
     _name = "ems.attendance_session_line"
     _description = "Attendance status line: information about a status per student within an attendance session."
 
+    # Archived = removed from this roll-call (issue #537): neither attended nor missed, so it's
+    # left out of reports and notifications, but can be restored from the roll-call widget.
+    active = fields.Boolean(default=True)
     status_id = fields.Many2one(
         string="Status", comodel_name="ems.attendance_status", required=True,
         default=lambda self: self.env.ref("ems.attendance_status_attended", raise_if_not_found=False),
@@ -680,7 +704,9 @@ class EmsAttendanceSessionLine(models.Model):
 
     def status_is_notificable(self):
         # TODO: we want to notify also a justified miss? Maybe to prevent falsification (inform about a preveision? But if legit, will be also notified...)
-        return bool(self.status_id.notifiable)
+        # A removed line is never notified: archiving one behaves like marking it non-notifiable
+        # (pending notification cancelled, already-sent one rectified), restoring it like the reverse.
+        return bool(self.active and self.status_id.notifiable)
 
     def _justification_vals(self):
         """This line's own vals, shaped for ems.attendance_justification.perform_justification() -
@@ -707,6 +733,8 @@ class EmsAttendanceSessionLine(models.Model):
         return records
 
     def write(self, vals):
+        if vals.get("active") is False and self.filtered("strike_ids"):
+            raise UserError(_("A student with strikes in this session can't be removed from the roll-call."))
         super().write(vals)
         self._update_notification()
 

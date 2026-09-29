@@ -10,8 +10,10 @@ Writes PNGs to /tmp/ems_doc_screenshots (override with EMS_SCREENSHOT_DIR); copy
 docs/assets/head_of_studies/ by hand afterwards. See test_docs_screenshots.py's own module
 docstring for the full rationale (rolled-back transaction, made-up people, one element per shot).
 """
+import base64
 from datetime import datetime
 
+from odoo import Command
 from odoo.tests.common import HttpCase, tagged
 
 from .common import (
@@ -47,20 +49,32 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
             'ems_submitted': True, 'ems_responsible_declaration': True,
         })
         cls.leave_health.sudo().action_approve()
-        # A third one approved by both, so the list shows the three stages of the double
-        # approval: pending for both, approved by the Head only, and approved by both.
+        # Two more, so the list shows every stage: pending, awaiting its supporting document,
+        # pending Direction (a type that needs no document) and approved by both.
+        cls.leave_awaiting = cls.env['hr.leave'].create({
+            'employee_id': cls.other_employee.id, 'holiday_status_id': cls.leave_type_justified.id,
+            'request_date_from': datetime(2027, 3, 22).date(), 'request_date_to': datetime(2027, 3, 22).date(),
+            'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
+        })
+        cls.leave_awaiting.sudo().action_approve()
         cls.leave_done = cls.env['hr.leave'].create({
             'employee_id': cls.other_employee.id, 'holiday_status_id': cls.leave_type_justified.id,
             'request_date_from': datetime(2027, 3, 1).date(), 'request_date_to': datetime(2027, 3, 1).date(),
             'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
         })
         cls.leave_done.sudo().action_approve()
+        cls.leave_done.sudo().supported_attachment_ids = [Command.link(cls.env['ir.attachment'].create({
+            'name': 'justificant.pdf', 'datas': base64.b64encode(b'justificant'),
+            'res_model': 'hr.leave', 'res_id': cls.leave_done.id,
+        }).id)]
+        cls.leave_done.sudo().action_ems_document_validate()
         cls.leave_done.sudo().action_ems_direction_done()
         cls.absence_action = cls.env['ir.actions.act_window'].create({
             'name': 'Absències',
             'res_model': 'hr.leave',
             'view_mode': 'list,form',
-            'domain': [('id', 'in', [cls.leave_pending.id, cls.leave_health.id, cls.leave_done.id])],
+            'domain': [('id', 'in', [cls.leave_pending.id, cls.leave_health.id, cls.leave_awaiting.id,
+                                     cls.leave_done.id])],
             'context': {'hide_employee_name': 0},
         })
 
@@ -199,6 +213,39 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
             'main_group_id': cls.group.id,
         })
 
+    def test_capture_expected_absences(self):
+        # Two teachers below this Head of Studies (the model only lets them pick their own branch):
+        # one still expected, one whose own request has since been filed and linked the entry.
+        expected_teacher, requested_teacher = self.env['hr.employee'].create([{
+            'name': name, 'employee_type': 'teacher', 'parent_id': self.hos_employee.id,
+        } for name in ('0000 Joan Exemple', '0000 Núria Mostra')])
+        Pending = self.env['ems.absence_pending']
+        expected = Pending.create([{
+            'employee_id': teacher.id, 'date_from': start, 'date_to': stop,
+        } for teacher, (start, stop) in (
+            (expected_teacher, Pending._utc_bounds(datetime(2027, 4, 12).date(), 8.0, 15.0)),
+            (requested_teacher, Pending._utc_bounds(datetime(2027, 4, 14).date(), 8.0, 11.0)),
+        )])
+        self.env['hr.leave'].create({
+            'employee_id': requested_teacher.id, 'holiday_status_id': self.leave_type_justified.id,
+            'request_date_from': datetime(2027, 4, 14).date(), 'request_date_to': datetime(2027, 4, 14).date(),
+            'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
+        })
+        self.assertEqual(expected.mapped('state'), ['pending', 'linked'])
+        # Scoped to the fixture, and without the action's default "Expected" filter, so both
+        # states show.
+        action = self.env['ir.actions.act_window'].create({
+            'name': 'Absències previstes',
+            'res_model': 'ems.absence_pending',
+            'view_mode': 'list,form',
+            'domain': [('id', 'in', expected.ids)],
+        })
+        self._capture(
+            '/odoo/action-%d' % action.id,
+            '.o_list_table', 'hos-expected-absences-list.png',
+            login='doc_shot_hos', wait_for='.o_list_renderer .o_data_row + .o_data_row',
+        )
+
     def test_capture_head_of_studies_screenshots(self):
         self._capture(
             '/odoo/action-%d' % self.absence_action.id,
@@ -211,6 +258,8 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
             # left for _trim to even need to do. Same fix applied to academic-history below.
             '.o_list_table', 'hos-absences-list.png',
             login='doc_shot_hos', wait_for='.o_list_renderer .o_data_row',
+            # Wide enough for the Direction column, the last one, to be in the shot.
+            viewport_width=1700,
         )
         self._capture(
             '/odoo/action-%d' % self.year_record_action.id,

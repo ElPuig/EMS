@@ -121,6 +121,9 @@
                                        approver is only a warning. */
                                     .gdb-absent { color: #b52a37; font-weight: 700; }
                                     .gdb-absent-pending { color: #b52a37; font-style: italic; }
+                                    /* Same as the screen's .o_guard_board_absence_covered: a co-taught
+                                       class whose other teacher is in needs no guard. */
+                                    .gdb-absence-covered { text-decoration: line-through; opacity: 0.6; }
                                 </style>
 
                                 <h1 class="gdb-title">
@@ -166,7 +169,7 @@
                                                         <td class="gdb-time" t-esc="line['time_label']"/>
                                                         <td>
                                                             <t t-foreach="line['absences']" t-as="absence">
-                                                                <div class="gdb-absence-row">
+                                                                <div t-att-class="'gdb-absence-row gdb-absence-covered' if absence['covered'] else 'gdb-absence-row'">
                                                                     <span t-att-class="'gdb-absent' if absence['state'] == 'approved' else 'gdb-absent-pending'" t-esc="absence['teacher'].name"/>
                                                                     <span class="gdb-absence-class">
                                                                         <t t-esc="absence['group'].name"/><t t-if="absence['subject']"> · <t t-esc="absence['subject'].acronym"/></t><t t-if="absence['room']"> · <t t-esc="absence['room'].display_name"/></t>

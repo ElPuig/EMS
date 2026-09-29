@@ -190,6 +190,10 @@ export class GuardDutyBoard extends Component {
         return _t("(WC)");
     }
 
+    get coveredTitle() {
+        return _t("Co-taught: another teacher is in the class, no guard needed");
+    }
+
     // Compact label for the level dropdown's own toggle button - the full checkbox list already
     // shows every level by name, this is just what's visible before opening it.
     get levelFilterLabel() {

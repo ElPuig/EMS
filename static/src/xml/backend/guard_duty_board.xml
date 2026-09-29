@@ -158,7 +158,9 @@
                                         </td>
                                         <td class="o_guard_board_absence_cell">
                                             <t t-foreach="line.absences" t-as="absence" t-key="absence.teacher + '-' + absence.group">
-                                                <div class="o_guard_board_absence_row">
+                                                <div class="o_guard_board_absence_row"
+                                                     t-att-class="{ o_guard_board_absence_covered: absence.covered }"
+                                                     t-att-title="absence.covered ? coveredTitle : false">
                                                     <span t-att-class="absenceClass(absence.state)" t-esc="absence.teacher"/>
                                                     <span class="o_guard_board_absence_class">
                                                         <t t-esc="absence.group"/><t t-if="absence.subject"> · <t t-esc="absence.subject"/></t><t t-if="absence.room"> · <t t-esc="absence.room"/></t>

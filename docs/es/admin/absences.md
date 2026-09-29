@@ -8,7 +8,7 @@
 
 ---
 
-## Los dos parámetros
+## Los parámetros
 
 **Ajustes > EMS > Configuración de ausencias del personal**:
 
@@ -16,10 +16,12 @@
 |---|---|---|
 | Ausencia de día entero | 7:30 | Horas que vale una ausencia de día entero. Siempre cuenta esas horas, tenga la persona las clases que tenga programadas ese día |
 | Crédito de horas por motivos de salud | 15:00 | Horas de ausencia por motivos de salud que puede usar cada persona por curso |
+| Recordatorio del justificante | 1 día | Una vez pasada una ausencia que todavía espera el justificante, se recuerda a la persona cada este número de días |
+| Aviso de justificante pendiente | 3 días | Pasados estos días desde la ausencia, un justificante que todavía falte también se comunica al jefe que la aprueba |
 
 El crédito **avisa, no bloquea**: quien lo supera recibe un aviso y la solicitud queda marcada para la jefatura de estudios, pero se tramita igual.
 
-![Bloque de configuración de ausencias del personal, con los campos de día entero y crédito de salud](../../assets/admin/admin-absences-settings.png)
+![Bloque de configuración de ausencias del personal, con los campos de día entero, crédito de salud y recordatorios del justificante](../../assets/admin/admin-absences-settings.png)
 
 ---
 
@@ -36,7 +38,9 @@ Cada tipo lleva cuatro indicadores que deciden cómo salen propuestas las solici
 | Día entero por defecto | `Salud` y `Prueba médica invasiva` |
 | Se tramita por ATRI | Solo `ATRI` |
 
-Son **valores propuestos**: el gestor de las ausencias los puede cambiar solicitud a solicitud.
+Son **valores propuestos**: el gestor de las ausencias los puede cambiar solicitud a solicitud. **Se tramita por ATRI** es la excepción: solo decide si el formulario de solicitud muestra al empleado los enlaces al portal ATRI, y siempre sigue el tipo.
+
+El indicador nativo **Documentos de apoyo** de cada tipo decide si sus solicitudes esperan un justificante después de que el jefe las dé por recibidas. Está marcado en todos los tipos menos `Salud` y `ATRI`. Viene de los datos del propio módulo, así que un cambio hecho aquí se deshace en la siguiente actualización: pídelo al equipo del EMS.
 
 ---
 

@@ -83,6 +83,16 @@
                             <setting string="Health absence allowance" help="Hours of self-declared health absence each employee may use per course. Going over it does not block the request, it only warns the employee and flags it for the Head of Studies." id="ems_health_allowance_hours">
                                 <field name="ems_health_allowance_hours" widget="float_time"/>
                             </setting>
+
+                            <setting string="Supporting document reminder" help="While an absence that is already over is still awaiting its supporting document, the employee is reminded every this many days." id="ems_absence_document_reminder_days">
+                                <field name="ems_absence_document_reminder_days" class="text-center" style="width: 5ch;"/>
+                                <span class="ms-2">days</span>
+                            </setting>
+
+                            <setting string="Missing supporting document report" help="This many days after the absence, a supporting document still missing is also reported to the Head who approves it." id="ems_absence_document_escalation_days">
+                                <field name="ems_absence_document_escalation_days" class="text-center" style="width: 5ch;"/>
+                                <span class="ms-2">days</span>
+                            </setting>
                         </block>
 
                          <block title="Student's Attendance Settings" name="ems_attendance_settings">

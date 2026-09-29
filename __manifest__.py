@@ -257,6 +257,7 @@
             'views/attendance/absence/public_holiday.xml',
             'views/attendance/absence/menu.xml',
             'views/attendance/absence/monthly_report.xml',
+            'views/attendance/absence/absence_pending.xml',
             'reports/attendance/report_guard_duty_board.xml',
 
             'views/attendance/attendance_issue/menu.xml',
@@ -393,6 +394,7 @@
         'data/main/mail.template-google_lifecycle.csv',
         'data/main/ir.cron-google_workspace.csv',
         'data/main/ir.cron-group_public_schedule.csv',
+        'data/main/ir.cron-absence.csv',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
         'data/main/ems.attendance_status.csv',

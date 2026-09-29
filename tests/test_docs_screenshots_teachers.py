@@ -371,6 +371,23 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
         }).action_approve()
 
+        # A second teaching teacher, in another group at the same time, whose absence the Head of
+        # Studies has entered as expected (issue #509): it reads as pending, not approved.
+        expected_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'B', 'level_id': level.id, 'study_id': study.id,
+        })
+        expected_teacher = self.env['hr.employee'].create({'name': '0000 Joan Prova', 'employee_type': 'teacher'})
+        expected_calendar = self.env['resource.calendar'].create({
+            'name': '0000 Joan Prova Calendar', 'employee_id': expected_teacher.id})
+        expected_teacher.resource_calendar_id = expected_calendar
+        expected_calendar.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': subject.id, 'group_ids': [expected_group.id], 'name': 'DOCGUARD: BD',
+        }])
+        Pending = self.env['ems.absence_pending']
+        start, stop = Pending._utc_bounds(monday, 8.0, 15.0)
+        Pending.create({'employee_id': expected_teacher.id, 'date_from': start, 'date_to': stop})
+
         # This board has no domain to scope it by (get_guard_duty_board_data() is a plain RPC,
         # not a view/action with a 'domain' field) and its own aggregation is explicitly
         # centre-wide by design (_get_guard_duty_board_attendance_ids()'s own NOTE) - even WITH
@@ -390,7 +407,8 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         # data only. addCleanup (not addClassCleanup): this is a real, process-wide monkeypatch,
         # not a DB write - it must not leak into any other test in this class.
         fixture_employee_ids = (
-            teaching_teacher | guard_teacher | wc_guard_teacher | patio_guard_teacher).ids
+            teaching_teacher | guard_teacher | wc_guard_teacher | patio_guard_teacher
+            | expected_teacher).ids
         course_model = type(self.env['ems.course'])
         original_get_attendance_ids = course_model._get_guard_duty_board_attendance_ids
 

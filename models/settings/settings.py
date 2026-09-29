@@ -16,6 +16,8 @@ class ems_settings(models.TransientModel):
    auto_checkout_retry_until = fields.Float(related="company_id.auto_checkout_retry_until", readonly=False)
    ems_full_day_hours = fields.Float(related="company_id.ems_full_day_hours", readonly=False)
    ems_health_allowance_hours = fields.Float(related="company_id.ems_health_allowance_hours", readonly=False)
+   ems_absence_document_reminder_days = fields.Integer(related="company_id.ems_absence_document_reminder_days", readonly=False)
+   ems_absence_document_escalation_days = fields.Integer(related="company_id.ems_absence_document_escalation_days", readonly=False)
    schedule_import_first_entry_time = fields.Float(related="company_id.schedule_import_first_entry_time", readonly=False)
    schedule_import_last_entry_time  = fields.Float(related="company_id.schedule_import_last_entry_time",  readonly=False)
 

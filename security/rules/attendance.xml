@@ -356,4 +356,25 @@
         <field name="perm_create" eval="False"/>
         <field name="perm_unlink" eval="False"/>
     </record>
+
+    <!-- ems.absence_pending (issue #509): the Head of Studies and their Deputy only announce
+         absences for the teachers below them, found by walking the real hierarchy (parent_id)
+         rather than granted centre-wide by role. The Director implies the group and sits above
+         everyone, so the same domain gives them the whole centre. -->
+    <record id="rule_absence_pending_hierarchy" model="ir.rule">
+        <field name="name">Expected absence: teachers in the user's own hierarchy</field>
+        <field name="model_id" ref="ems.model_ems_absence_pending"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[('employee_id', 'child_of', user.employee_ids.ids), ('employee_id.employee_type', '=', 'teacher')]</field>
+    </record>
+
+    <!-- A technical administrator (e.g. 'admin') usually has no place in the org chart, so the
+         hierarchy rule above would leave them no teacher at all. Rules of different groups are
+         OR-ed, so this widens it to every teacher for them only. -->
+    <record id="rule_absence_pending_system" model="ir.rule">
+        <field name="name">Expected absence: every teacher, for technical administrators</field>
+        <field name="model_id" ref="ems.model_ems_absence_pending"/>
+        <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+        <field name="domain_force">[('employee_id.employee_type', '=', 'teacher')]</field>
+    </record>
 </odoo>

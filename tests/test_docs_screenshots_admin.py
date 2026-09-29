@@ -122,7 +122,14 @@ class TestDocsScreenshotsAdmin(HttpCase, DocsScreenshotMixin):
             '.o_settings_container:has(#ems_full_day_hours)',
             'admin-absences-settings.png',
             login='doc_shot_admin', wait_for='a.tab[data-key="ems"]',
-            click='a.tab[data-key="ems"]', wait_after='#ems_full_day_hours',
+            # Scrolled into view after the tab switch, and captured within the viewport: the
+            # settings page scrolls inside its own container, so a block below the viewport's
+            # bottom edge is captured as blank, and capturing beyond the viewport resizes the
+            # page, which undoes the scroll.
+            run=['document.querySelector(\'a.tab[data-key="ems"]\').click()',
+                 "document.querySelector('#ems_full_day_hours').scrollIntoView({block: 'start'})"],
+            wait_after=['#ems_absence_document_escalation_days', '#ems_full_day_hours'],
+            beyond_viewport=False,
         )
 
     # ------------------------------------------------------------------------------------------

@@ -6,3 +6,7 @@ ems.mail_activity_convalidation_review,Review convalidation request,default,ems.
 ems.mail_activity_convalidation_registration,Register convalidation in Esfera,default,ems.convalidation,fa-pencil-square-o,False
 ems.mail_activity_convalidation_resolution,Resolve convalidation proposal,default,ems.convalidation,fa-gavel,False
 ems.mail_activity_convalidation_notice,Convalidated subject,default,res.partner,fa-info-circle,False
+ems.mail_activity_absence_document_upload,Attach the absence's supporting document,default,hr.leave,fa-paperclip,False
+ems.mail_activity_absence_document_validate,Validate the absence's supporting document,default,hr.leave,fa-check-square-o,False
+ems.mail_activity_absence_direction_review,Direction review of the absence,default,hr.leave,fa-gavel,False
+ems.mail_activity_absence_document_overdue,Absence supporting document not attached,default,hr.leave,fa-exclamation-triangle,False

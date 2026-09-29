@@ -414,7 +414,7 @@ class DocsScreenshotMixin:
 
     def _capture(self, url_path, selector, filename, login=None, wait_for=None, padding=8,
                  click=None, run=None, wait_after=None, tour=None, max_height=None, marks=None,
-                 beyond_viewport=True):
+                 beyond_viewport=True, viewport_width=1400):
         """Load url_path as `login`, wait for `wait_for` (defaults to `selector`), optionally
         click `click` (or run arbitrary JS via `run`) and wait for `wait_after`, then write a
         PNG clipped to `selector` into OUTPUT_DIR.
@@ -432,6 +432,8 @@ class DocsScreenshotMixin:
         beyond_viewport=False for a shot of an open navbar section dropdown: capturing beyond the
         viewport makes Chrome resize the page, and Odoo closes that dropdown on the resize (the apps
         menu survives it). The clip must then lie inside the viewport (max_height keeps it short).
+        viewport_width widens the page for a list whose last columns would otherwise fall off its
+        right edge.
         """
         os.makedirs(self.OUTPUT_DIR, exist_ok=True)
         # A tour reports success with Odoo's own signal ('tour succeeded', the one start_tour()
@@ -455,7 +457,7 @@ class DocsScreenshotMixin:
             # lays out against it: anything below the fold renders as a grey band otherwise,
             # even with captureBeyondViewport.
             browser._websocket_request('Emulation.setDeviceMetricsOverride', params={
-                'width': 1400, 'height': 1600, 'deviceScaleFactor': 1, 'mobile': False,
+                'width': viewport_width, 'height': 1600, 'deviceScaleFactor': 1, 'mobile': False,
             })
             if self.BROWSER_TIMEZONE:
                 browser._websocket_request('Emulation.setTimezoneOverride', params={

@@ -896,6 +896,71 @@ class TestGuardDutyBoard(TransactionCase):
         self.assertEqual(row['subject'], self.subject)
         self.assertEqual(row['room'], self.space)
 
+    def _co_teach(self, room_b=None):
+        """teacher_a and teacher_b both teach group_a on Monday 9-10, each on their own calendar,
+        teacher_b in `room_b` when given (a group split across two rooms) or the group's own."""
+        self._schedule_class(self.teacher_a, self.group_a, 'Test Calendar A (Co-teaching)')
+        calendar_b = self._new_calendar(self.teacher_b, 'Test Calendar B (Co-teaching)')
+        vals = {'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+                'subject_id': self.subject.id, 'group_ids': [self.group_a.id], 'name': 'TGDBA: TGDB'}
+        if room_b:
+            vals['space_id'] = room_b.id
+        calendar_b.apply_schedule_changes([vals])
+
+    def _absence_row(self, line, teacher):
+        return next(row for row in line['absences'] if row['teacher'] == teacher)
+
+    def test_a_co_taught_class_with_one_teacher_in_is_covered(self):
+        """Still listed, so everyone knows who is away, but marked as needing no guard."""
+        monday = self._monday()
+        self._co_teach()
+        self._absence(self.teacher_a, monday)
+
+        line = self._teaching_line(monday)
+
+        self.assertTrue(self._absence_row(line, self.teacher_a)['covered'])
+        self.assertNotIn(self.teacher_b, [row['teacher'] for row in line['absences']])
+
+    def test_a_co_taught_class_with_both_teachers_away_is_not_covered(self):
+        monday = self._monday()
+        self._co_teach()
+        self._absence(self.teacher_a, monday)
+        self._absence(self.teacher_b, monday, approve=False)
+
+        line = self._teaching_line(monday)
+
+        self.assertFalse(self._absence_row(line, self.teacher_a)['covered'])
+        self.assertFalse(self._absence_row(line, self.teacher_b)['covered'])
+
+    def test_a_group_split_across_two_rooms_is_not_covered(self):
+        """Each teacher has half of the group in their own room: the absent teacher's half is
+        left without anyone, whatever the other half's teacher is doing."""
+        monday = self._monday()
+        self._co_teach(room_b=self.space_b)
+        self._absence(self.teacher_a, monday)
+
+        line = self._teaching_line(monday)
+
+        self.assertFalse(self._absence_row(line, self.teacher_a)['covered'])
+
+    def test_report_strikes_through_a_covered_row(self):
+        monday = self._monday()
+        self._co_teach()
+        self._absence(self.teacher_a, monday)
+
+        html, _content_type = self.env['ir.actions.report'].with_context(
+            guard_duty_weekday=str(monday.weekday()), guard_duty_date=str(monday), guard_duty_view='table').\
+            _render_qweb_html('ems.report_guard_duty_board', [self.course.id])
+
+        self.assertIn(b'gdb-absence-row gdb-absence-covered', html)
+
+    def test_a_single_teacher_class_is_not_covered(self):
+        monday = self._monday()
+        self._schedule_class(self.teacher_a, self.group_a, 'Test Calendar A (Not Covered)')
+        self._absence(self.teacher_a, monday)
+
+        self.assertFalse(self._absence_row(self._teaching_line(monday), self.teacher_a)['covered'])
+
     def test_a_guard_teacher_absence_produces_no_row_to_cover(self):
         """An absent guard has nothing for anyone to cover - they are missing from the guard
         column (tested above), not a class left without a teacher."""
@@ -938,6 +1003,7 @@ class TestGuardDutyBoard(TransactionCase):
         self.assertEqual(row['group'], self.group_a.name)
         self.assertEqual(row['subject'], self.subject.acronym)
         self.assertEqual(row['room'], self.space.display_name)
+        self.assertIs(row['covered'], False)
 
     def test_report_guard_duty_board_prints_the_absences_table_via_context(self):
         """Issue #442: the PDF must print whichever of the board's two tabs was actually on

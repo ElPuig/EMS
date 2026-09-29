@@ -205,6 +205,13 @@
     opacity: 0.75;
 }
 
+/* A co-taught class whose other teacher is in: still listed so everyone knows who is away, but
+   struck through because nobody needs to cover it. */
+.o_guard_board_absence_covered {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
 /* The second tab: one row per time block, what needs covering against who can cover it. Its
    absence column carries a whole line per uncovered class (teacher + group/subject/room), so it
    is left-aligned and given more room than a group column ever needs.

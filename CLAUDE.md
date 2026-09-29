@@ -268,12 +268,19 @@ overnight while the developer slept) and confirmed to work well.
 **Must be started and ended explicitly — never assumed, never left open-ended.** The same goes for
 any advance authorization of an action that normally needs the developer's confirmation (e.g.
 merging a PR): if it wasn't asked for explicitly, or the wording could be read more than one way,
-ask before acting (developer, 2026-09-27: *"No quiero sustos."*). This is not a
+don't act on it (developer, 2026-09-27: *"No quiero sustos."*). This is not a
 standing default; it only applies for the exact stretch the developer scoped it to.
 - **Starting it:** the developer says so directly ("te dejo en piloto automático", "activo el
   piloto automático", or similar unambiguous wording) and should say what it's scoped to — e.g.
-  "hasta que termines el gate de tests y seguido de la funcionalidad de grupos". If the scope
-  wasn't stated clearly, ask before assuming what it covers.
+  "hasta que termines el gate de tests y seguido de la funcionalidad de grupos".
+- **Every question goes before the mode starts, never during it** (developer, 2026-09-27: *"la
+  gracia del piloto automático es que el usuario no tenga que intervenir, así que las preguntas
+  sobre temas ambiguos hay que hacerlas ANTES de arrancar el piloto"*). Once it's on, the
+  developer is away and a question just stalls the work. So, right when they announce it and
+  before starting any work, resolve every doubt in one go: an unclear scope, and any
+  authorization the work may need (e.g. "¿puedo fusionar la PR si sale verde?"). Anything
+  still unauthorized once the mode is running is simply not done: leave it for the closing
+  summary instead of asking.
 - **Ending it:** either the developer says so, or the agent finishes everything the mode was
   scoped to and then explicitly declares the mode over as part of its own summary (see below) —
   never trail off and quietly keep making autonomous calls past the point the work was actually
@@ -870,7 +877,9 @@ Run it on the current release branch (e.g. `v18.0.0.29.0`), in this order:
    is green, stop and ask the developer for confirmation (with a notification, trigger 3). Never
    merge without it. The only exception is an explicit, advance authorization for this specific
    routine (e.g. "fusiona tú si sale verde, que me voy a dormir"); if the wording is ambiguous or
-   open to interpretation, or before starting "piloto automático", ask. With the go-ahead:
+   open to interpretation, ask, and under "piloto automático" ask before the mode starts (never
+   during it; without a clear authorization, don't merge and leave it for the summary). With the
+   go-ahead:
    - Mark the PR ready for review if it is a draft (GraphQL `markPullRequestReadyForReview` via
      `gh api graphql`, not `gh pr ready`, which may hit the same Projects-classic error as
      `gh pr edit`).

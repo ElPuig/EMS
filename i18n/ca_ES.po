@@ -18900,6 +18900,7 @@ msgstr "Per què faltarà el docent, com a referència per a tu"
 msgid "Co-taught: another teacher is in the class, no guard needed"
 msgstr "Codocència: hi ha un altre docent a la classe, no cal guàrdia"
 
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__session_active
 msgid "Active session"
 msgstr "Sessió activa"
@@ -18909,6 +18910,7 @@ msgstr "Sessió activa"
 msgid "My subjects"
 msgstr "Les meves assignatures"
 
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__all_attendance_session_line_ids
 msgid "All statuses"
 msgstr "Tots els estats"
@@ -18939,6 +18941,7 @@ msgstr "Tornar a afegir a la llista"
 msgid "Remove %s from this roll-call? They will count neither as attended nor as absent."
 msgstr "Treure %s de la llista d'aquesta sessió? No comptarà ni com a assistència ni com a absència."
 
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__old_image
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form

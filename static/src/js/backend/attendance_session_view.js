@@ -207,7 +207,9 @@ class AttendanceSessionView extends Component {
         const lines = await this.orm.searchRead(
             "ems.attendance_session_line",
             [["attendance_session_id", "=", sessionId]],
-            ["id", "student_id", "status_id", "notes", "attendance_justification_id", "attendance_prevision_id", "strike_ids"],
+            ["id", "student_id", "status_id", "notes", "attendance_justification_id", "attendance_prevision_id", "strike_ids", "active"],
+            // Removed (archived) lines are still listed, greyed out, so they can be restored.
+            { context: { active_test: false } },
         );
         lines.forEach(l => { l.status_id = l.status_id ? l.status_id[0] : false; });
 
@@ -231,6 +233,8 @@ class AttendanceSessionView extends Component {
         const dir = sortDir === "asc" ? 1 : -1;
         const locale = { sensitivity: "base" };
         return [...lines].sort((a, b) => {
+            // Students removed from the roll-call always go last.
+            if (a.active !== b.active) return a.active ? -1 : 1;
             const va = sortField === "lastname"
                 ? (a.student_id ? (this._lastnameMap[a.student_id[0]] || "") : "")
                 : (a.student_id ? a.student_id[1] : "");
@@ -352,6 +356,10 @@ class AttendanceSessionView extends Component {
             justifiedTitle:          _t("Justified absence — status and notes are locked."),
             deleteSession:          _t("Delete session"),
             deleteSessionConfirm:   _t("Delete this session? This action cannot be undone."),
+            removeLine:             _t("Remove from the roll-call (not required to attend)"),
+            restoreLine:            _t("Restore to the roll-call"),
+            removeLineHasStrikes:   _t("A student with strikes in this session can't be removed from the roll-call."),
+            removeLineConfirm:      (name) => sprintf(_t("Remove %s from this roll-call? They will count neither as attended nor as absent."), name),
         };
     }
 
@@ -449,6 +457,26 @@ class AttendanceSessionView extends Component {
             await this._writeSessionLine(lineId, { status_id: statusId });
             const line = this.state.lines.find(l => l.id === lineId);
             if (line) line.status_id = statusId;
+        } finally {
+            this.state.saving[lineId] = false;
+        }
+    }
+
+    onRemoveLineClick(lineId, studentName) {
+        this.dialog.add(ConfirmationDialog, {
+            body: this.strings.removeLineConfirm(studentName),
+            confirm: () => this._setLineActive(lineId, false),
+        });
+    }
+
+    async _setLineActive(lineId, active) {
+        if (this.state.saving[lineId]) return;
+        this.state.saving[lineId] = true;
+        try {
+            await this._writeSessionLine(lineId, { active });
+            const line = this.state.lines.find(l => l.id === lineId);
+            if (line) line.active = active;
+            this.state.lines = this._sortedLines(this.state.lines);
         } finally {
             this.state.saving[lineId] = false;
         }

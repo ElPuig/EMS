@@ -8,7 +8,7 @@
 - One activity per step for whoever acts next (employee: attach the document, due the day after the absence; Head: validate it; Director: review it).
 - Daily scheduled action reminding the employee (note, every N days, default 1) once the absence is over and the document is still missing, and reporting it once to the Head after M days (default 3). Both configurable in Settings > Staff Absence Settings.
 - "Waiting For Me" filters follow the new steps (the Head's includes documents to validate; Direction's lists only what the Head has validated); new "My pending supporting documents" filter for employees.
-- Migration (18.0.0.30.2): already-approved requests count as validated by the Head; Direction's former "Missing document" becomes "Awaiting documentation".
+- Migration (18.0.0.31.0): already-approved requests count as validated by the Head; Direction's former "Missing document" becomes "Awaiting documentation".
 - Technical and user documentation (teachers, head of studies/Direction, secretary, admin) and ca_ES/es_ES translations updated.
 - Absences list: status and Head status columns widened so the new status names fit.
 - The employee's own absence list and form no longer show the Head's and Direction's separate status columns/badges; the overall status tells them where their request stands.

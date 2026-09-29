@@ -248,7 +248,7 @@ health allowance. The notes are `mail.mt_note` addressed to their recipients onl
 department chief and Direction following the request are not sent every reminder. Sending the
 request back as insufficient resets both markers.
 
-**Upgrade.** `migrations/18.0.0.30.2/post-migrate.py` marks every request the Head had already
+**Upgrade.** `migrations/18.0.0.31.0/post-migrate.py` marks every request the Head had already
 approved as `validated` (that is what the approval meant until then), turns Direction's former
 "Missing document" into "Awaiting documentation" (Direction back to Pending), recomputes both
 stored status columns, and gives the employee the upload activity on those requests.

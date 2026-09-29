@@ -196,3 +196,72 @@ registry.category("web_tour.tours").add("ems_attendance_session_guard", {
         },
     ],
 });
+
+// Issue #537: removing a student from the roll-call (e.g. not sitting an exam) and restoring it.
+// Structural selectors only (row/button classes), never the translated button titles.
+const anaRow = ".ems-av-line:has(.ems-av-name:contains('Ana Bosch'))";
+registry.category("web_tour.tours").add("ems_attendance_session_remove_line", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_passlist",
+    steps: () => [
+        { trigger: ".ems-av-root", content: "Roll-call view loaded" },
+        {
+            trigger: ".ems-av-mode-wrap select",
+            content: "Switch to Manual mode so the seeded slot isn't hidden by the current-slot filter",
+            run: "select manual",
+        },
+        {
+            trigger: ".ems-av-session-wrap select",
+            content: "Select the first period's planned slot (08:00 - 09:00)",
+            run: function () {
+                const select = document.querySelector(".ems-av-session-wrap select");
+                const option = [...select.options].find(
+                    (o) => o.textContent.includes("Attendance Session Guard Tour") && o.textContent.includes("08:00 - 09:00")
+                );
+                select.value = option.value;
+                select.dispatchEvent(new Event("change"));
+            },
+        },
+        { trigger: ".ems-av-start-btn", content: "Start the session", run: "click" },
+        {
+            trigger: `${anaRow} .ems-av-remove-btn`,
+            content: "Remove Ana Bosch from the roll-call",
+            run: "click",
+        },
+        { trigger: ".modal-footer .btn-primary", content: "Confirm the removal", run: "click" },
+        {
+            trigger: `.ems-av-line--removed:has(.ems-av-name:contains('Ana Bosch')) .ems-av-status-btn:disabled`,
+            content: "Ana Bosch's row is greyed out and her status buttons are locked",
+        },
+        {
+            trigger: `${anaRow} .ems-av-restore-btn`,
+            content: "Restore her",
+            run: "click",
+        },
+        {
+            trigger: `${anaRow}:not(.ems-av-line--removed) .ems-av-remove-btn`,
+            content: "She's back on the roll-call: remove her again for good",
+            run: "click",
+        },
+        { trigger: ".modal-footer .btn-primary", content: "Confirm the removal", run: "click" },
+        {
+            trigger: ".ems-av-line--removed .ems-av-name:contains('Ana Bosch')",
+            content: "Ana Bosch is removed again",
+        },
+    ],
+});
+
+// The History form lists removed students too, greyed out.
+registry.category("web_tour.tours").add("ems_attendance_session_removed_line_form", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_field_one2many .o_data_row.text-muted:contains('Ana Bosch')",
+            content: "The removed student is listed, muted",
+        },
+        {
+            trigger: ".o_field_one2many .o_data_row:not(.text-muted):contains('Zoe Aguilar')",
+            content: "The student still on the roll-call is listed normally",
+        },
+    ],
+});

@@ -32,7 +32,7 @@ def _migrate_absence_document_state(env):
     leaves.flush_recordset(['ems_head_state', 'ems_status'])
     awaiting = leaves.filtered(lambda leave: leave.ems_status == 'pending_document')
     awaiting._ems_update_activities()
-    _logger.info("Migration 18.0.0.30.2: recomputed the status of %s absences, %s now awaiting "
+    _logger.info("Migration 18.0.0.31.0: recomputed the status of %s absences, %s now awaiting "
                  "their supporting document.", len(leaves), len(awaiting))
 
 

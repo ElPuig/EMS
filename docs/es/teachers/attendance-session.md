@@ -79,7 +79,7 @@ Guardar.
 - Usa el desplegable de **ordenación** (arriba a la derecha) para reordenar la lista por apellido o
   nombre, ascendente o descendente.
 
-![Sesión actual con los botones de estado, una nota y un alumno con ausencia justificada (escudo)](../../assets/teachers/passlist-01-assistencia-actual.png)
+![Sesión actual con los botones de estado, una nota y un alumno con ausencia justificada (escudo) y uno quitado de la lista (última fila)](../../assets/teachers/passlist-01-assistencia-actual.png)
 
 ---
 
@@ -97,6 +97,25 @@ justificada, igual que los botones de estado.
 Si el comportamiento de un alumno durante la sesión necesita quedar constatado, haz clic en el
 icono de strike (⚠) en su fila — consulta el [manual de strikes](strike.md) para el flujo completo
 (motivo, casilla de "expulsado de clase", qué pasa después de enviarlo).
+
+---
+
+## Quitar a un alumno de la lista
+
+A veces un alumno no tiene que asistir a una sesión concreta, por ejemplo un examen que solo hace
+una parte del grupo. En lugar de marcarlo como presente o ausente, haz clic en el icono de quitar
+(una persona con una cruz) al final de su fila y confirma (mira la última fila de la captura de "Marcar la asistencia"). La fila se queda en la lista, en gris y
+con los botones bloqueados, y el alumno **no cuenta ni como asistencia ni como ausencia**: queda
+fuera de los informes y de los porcentajes de asistencia, y no se avisa a la familia.
+
+- Si ya lo habías marcado ausente y la familia todavía **no** había recibido el aviso, el aviso se
+  anula. Si ya se había enviado, la familia recibe el correo de rectificación habitual indicando
+  que el alumno no tenía que asistir.
+- Si la materia continúa en la franja siguiente (doble período), el alumno también queda fuera de
+  la lista en esa sesión.
+- ¿Te has equivocado? Haz clic en el icono de restaurar (una flecha curvada) en la fila en gris y
+  el alumno vuelve a la lista con el estado que tenía.
+- No se puede quitar a un alumno que ha recibido un strike en esa sesión: estaba en clase.
 
 ---
 
@@ -148,6 +167,8 @@ alumno, cuántos strikes se pusieron durante esa sesión, con un botón para ver
 > Si necesitas cambiar algo de una sesión pasada en lugar de solo consultarla, vuelve a **Actual**
 > en modo **Manual** y selecciona esa sesión desde el selector — la lista del Historial no permite
 > editar.
+
+Los alumnos que se han quitado de la lista de una sesión también aparecen en ella, en gris.
 
 ---
 

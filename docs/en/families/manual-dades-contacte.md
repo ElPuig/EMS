@@ -33,6 +33,18 @@ If you have more than one child at the school, choose the student in the menu at
 - **No longer a contact**: tick it for a family contact who should no longer be contacted.
 - The name and the birth date of the student cannot be changed here: to correct them, contact the secretary's office.
 
+## Student's photo
+
+The photo is optional. It helps the teachers recognise the student on the class lists.
+
+1. In the **Photo** block, click the button to choose a file and pick a recent photo in JPG or PNG, with the face uncovered.
+2. The photo opens in a portrait frame (1). Drag it to move it and zoom in until the face fills the frame: with the slider, the magnifier buttons or the mouse wheel (on a phone, by pinching). The arrow button rotates the photo (2).
+3. Next to the **Photo on file** you see how the **New photo** will look (3). Only the part inside the frame is sent.
+
+![Photo block: the photo picked inside the frame, the zoom and rotate controls, and the new photo next to the one on file](../../assets/families/dades-contacte-07-foto.png)
+
+To keep the current photo, click **Keep the photo on file**. The new photo, like every other change, is applied once the school reviews it.
+
 ## Several children
 
 A family contact you add is also offered for your other children at the school: under **Also a contact of**, leave ticked the children they are a contact of. Once the school approves it they are linked to all of them, so you do not have to add them again for each child.

@@ -184,3 +184,33 @@ header nav.navbar .ems-custom-navbar .nav-link.active {
     font-size: 1.1rem;
     font-weight: 500;
 }
+/* Issue #507 follow-up: the student's photo on /my/dades-contacte (contact_data_photo.js). The
+   frames keep the 3:4 portrait ratio the photo is cropped to. */
+.o_ems_contact_data_photo {
+    .o_ems_photo_frame {
+        width: 96px;
+        height: 128px;
+        overflow: hidden;
+        object-fit: cover;
+    }
+
+    .o_ems_photo_new_preview img.o_ems_photo_sent {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .o_ems_photo_stage {
+        max-width: 480px;
+        height: 360px;
+
+        img {
+            display: block;
+            max-width: 100%;
+        }
+    }
+
+    .o_ems_photo_zoom {
+        max-width: 240px;
+    }
+}

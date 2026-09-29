@@ -139,7 +139,7 @@
                         <div t-if="errors.get('family')" class="mt-1" t-out="errors.get('family')"/>
                     </div>
 
-                    <form action="/my/dades-contacte" method="post" class="o_ems_contact_data_form">
+                    <form action="/my/dades-contacte" method="post" enctype="multipart/form-data" class="o_ems_contact_data_form">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
 
                         <div class="card mb-4">
@@ -149,6 +149,45 @@
                                     <div class="col-md-6"><span class="text-muted">Name: </span><t t-out="student.name"/></div>
                                     <div class="col-md-6"><span class="text-muted">Birth date: </span><t t-out="student.birth_date" t-options="{'widget': 'date'}"/></div>
                                     <div class="col-12 small text-muted">To correct the name or the birth date, contact the secretary's office.</div>
+                                </div>
+                                <!-- The student's photo: contact_data_photo.js frames the photo picked with
+                                Cropper.js and shows it next to the one on file. Every word is here, so
+                                it is translated. -->
+                                <div class="mb-3 o_ems_contact_data_photo">
+                                    <label class="form-label" for="s_photo">Photo</label>
+                                    <div class="d-flex flex-wrap gap-3 align-items-start">
+                                        <figure class="text-center mb-0">
+                                            <img t-if="photo_on_file" t-att-src="photo_on_file" class="rounded border o_ems_photo_frame" alt="Photo on file"/>
+                                            <div t-else="" class="rounded border d-flex align-items-center justify-content-center text-muted o_ems_photo_frame"><i class="fa fa-user fa-3x"/></div>
+                                            <figcaption class="small text-muted mt-1">Photo on file</figcaption>
+                                        </figure>
+                                        <figure t-attf-class="text-center mb-0 o_ems_photo_new #{'' if photo else 'd-none'}">
+                                            <div class="rounded border o_ems_photo_frame o_ems_photo_new_preview">
+                                                <img t-if="photo_preview" t-att-src="photo_preview" class="o_ems_photo_sent" alt="New photo"/>
+                                            </div>
+                                            <figcaption class="small text-muted mt-1">New photo</figcaption>
+                                        </figure>
+                                    </div>
+                                    <div class="o_ems_photo_editor d-none mt-3">
+                                        <div class="o_ems_photo_stage"><img class="o_ems_photo_source" alt="Photo to adjust"/></div>
+                                        <div class="small text-muted mt-1">Drag the photo to move it and zoom in until the face fills the frame.</div>
+                                        <div class="d-flex align-items-center gap-2 mt-2">
+                                            <button type="button" class="btn btn-sm btn-secondary o_ems_photo_zoom_out" title="Zoom out" aria-label="Zoom out"><i class="fa fa-search-minus"/></button>
+                                            <input type="range" class="form-range o_ems_photo_zoom" min="0" max="100" step="1" value="0" aria-label="Zoom"/>
+                                            <button type="button" class="btn btn-sm btn-secondary o_ems_photo_zoom_in" title="Zoom in" aria-label="Zoom in"><i class="fa fa-search-plus"/></button>
+                                            <button type="button" class="btn btn-sm btn-secondary o_ems_photo_rotate" title="Rotate" aria-label="Rotate"><i class="fa fa-rotate-right"/></button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <input type="file" name="s_photo" id="s_photo" accept="image/jpeg,image/png"
+                                               t-attf-class="form-control #{'is-invalid' if errors.get('s_photo') else ''}"/>
+                                        <input type="hidden" name="s_photo_data" t-att-value="photo or ''"/>
+                                        <div t-if="errors.get('s_photo')" class="invalid-feedback" t-out="errors.get('s_photo')"/>
+                                        <div class="small text-danger mt-1 d-none o_ems_photo_type_error">The photo must be a JPG or PNG image.</div>
+                                        <div t-if="photo" class="small text-success mt-1 o_ems_photo_pending">The new photo will replace the one on file once the school reviews it.</div>
+                                        <button type="button" t-attf-class="btn btn-link btn-sm px-0 o_ems_photo_discard #{'' if photo else 'd-none'}">Keep the photo on file</button>
+                                        <div class="small text-muted mt-1">Optional. A recent passport-style photo, face uncovered, in JPG or PNG.</div>
+                                    </div>
                                 </div>
                                 <t t-set="values" t-value="data['student']"/>
                                 <div class="row">

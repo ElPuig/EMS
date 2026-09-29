@@ -18,7 +18,7 @@ from dateutil.relativedelta import relativedelta
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import DocsScreenshotMixin, mock_outgoing_email, next_student_id
+from .common import DocsScreenshotMixin, draw_invented_student_photo, mock_outgoing_email, next_student_id
 
 
 @tagged('-standard', 'ems_screenshots', 'post_install', '-at_install')
@@ -130,7 +130,8 @@ class TestDocsScreenshotsFamilies(DocsScreenshotMixin, HttpCase):
 
     def test_capture_manual_dades_contacte(self):
         """manual-dades-contacte (issue #507): the Profile tab's button, the student's card, the
-        family section and the form marked in red after sending it incomplete."""
+        family section, the form marked in red after sending it incomplete, and (issue #540) a
+        photo framed in the photo editor."""
         # The family contact as the secretariat would have entered it. Creating the user
         # rewrote the name split in this class's fixtures: set it explicitly.
         self.family.write({'firstname': 'Marc', 'lastname': 'Exemple Vidal', 'mobile': '+34 600 000 003'})
@@ -191,6 +192,38 @@ class TestDocsScreenshotsFamilies(DocsScreenshotMixin, HttpCase):
         self._capture(
             url, ".o_ems_family_entry[data-key='n0']", 'dades-contacte-06-contacte-repetit.png',
             login=login, wait_for=wait, run=fill_and_send, wait_after='.o_ems_contact_match',
+        )
+
+        # The student's photo (issue #540): a full-length photo picked and framed on the face,
+        # next to the photo on file. Both are drawings of an invented student, never a real face.
+        (self.student | self.sibling).write({'image_1920': base64.b64encode(draw_invented_student_photo('on_file'))})
+        full_length = base64.b64encode(draw_invented_student_photo('new', full_length=True)).decode()
+        pick_photo = (
+            "(async function () {"
+            " var bytes = Uint8Array.from(atob(%s), function (c) { return c.charCodeAt(0); });"
+            " var transfer = new DataTransfer();"
+            " transfer.items.add(new File([bytes], 'foto.png', {type: 'image/png'}));"
+            " var input = document.querySelector(\"input[name='s_photo']\");"
+            " input.files = transfer.files;"
+            " input.dispatchEvent(new Event('change', {bubbles: true}));"
+            "})()" % json.dumps(full_length))
+        # What a family does by hand: zoom in and drag the photo until the face fills the frame
+        # (the face of draw_invented_student_photo(full_length=True) is around x=450, y=430).
+        frame_face = (
+            "(function () {"
+            " var cropper = document.querySelector('.o_ems_photo_source').cropper;"
+            " var box = cropper.getCropBoxData(); var ratio = box.height / 380;"
+            " cropper.zoomTo(ratio);"
+            " cropper.setCanvasData({left: box.left + box.width / 2 - 450 * ratio,"
+            "                        top: box.top + box.height / 2 - 430 * ratio});"
+            "})()")
+        self._capture(
+            url, '.o_ems_contact_data_photo', 'dades-contacte-07-foto.png', login=login, wait_for=wait,
+            run=[pick_photo, frame_face], wait_after=['.o_ems_photo_editor .cropper-container', '.o_ems_photo_new_preview img'],
+            # Capturing beyond the viewport resizes the page, and Cropper.js redraws mid-shot.
+            beyond_viewport=False,
+            marks=[('.o_ems_photo_stage', '1', 'right'), ('.o_ems_photo_rotate', '2', 'right'),
+                   ('.o_ems_photo_new', '3', 'right')],
         )
 
     def test_capture_portal_onboarding(self):

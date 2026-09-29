@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+import base64
+import binascii
 import re
 
 from odoo import _, http
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
+from odoo.tools.image import image_data_uri, image_process
 
 from ..models.contacts.contact_data_request import ADDRESS_FIELDS, FAMILY_FIELDS, STUDENT_FIELDS
 from .portal_view_only import ems_portal_manage_required
@@ -16,7 +19,9 @@ class EmsPortalContactData(CustomerPortal):
     Always the student resolved by res.partner._ems_portal_contact_data_student(): no student id
     travels in the form, only whoever acts for the student gets here (a view-only account is sent
     home, like every other managing page), and only the family contacts already related to that
-    student can be edited or removed. A family contact it adds may also be linked to the account's
+    student can be edited or removed. The student's photo is optional and goes through
+    ems.contact.data.request._ems_photo_from_upload(), and one already sent comes back in a hidden
+    input, validated again on every POST. A family contact it adds may also be linked to the account's
     other children, chosen among those it answers for, and one that repeats a contact of those
     children (same document or phone) is pointed out first. Everything is read and staged with
     sudo, since portal users have no rights on the relations nor on ems.contact.data.request;
@@ -53,6 +58,9 @@ class EmsPortalContactData(CustomerPortal):
         Request = request.env['ems.contact.data.request'].sudo()
         proposal = self._ems_parse_contact_data(post, current, siblings)
         problems = Request._ems_contact_data_problems(proposal, student.is_adult, current=current)
+        proposal['photo'], photo_problem = self._ems_parse_photo(post)
+        if photo_problem:
+            problems.append(('s_photo', photo_problem))
         match_issues = self._ems_annotate_matches(student, siblings, proposal)
         if problems or match_issues:
             errors = {}
@@ -98,6 +106,22 @@ class EmsPortalContactData(CustomerPortal):
                     "A document belongs to one person: if it is not the same person, correct the document number.")
         return issues
 
+    def _ems_parse_photo(self, post):
+        """(base64 photo, problem) from the posted form: a new file wins over the one already sent
+        (s_photo_data), and both are validated the same way, since the hidden input comes from the
+        browser too. (False, False) when there is none."""
+        upload = post.get('s_photo')
+        if upload and getattr(upload, 'filename', None):
+            raw = upload.read()
+        else:
+            try:
+                raw = base64.b64decode(post.get('s_photo_data') or '', validate=True)
+            except (binascii.Error, ValueError):
+                raw = b''
+        if not raw:
+            return False, False
+        return request.env['ems.contact.data.request'].sudo()._ems_photo_from_upload(raw)
+
     def _ems_parse_contact_data(self, post, current, siblings):
         """The posted form in the shape of res.partner._ems_contact_data(). Existing family contacts
         come from `current` - never from ids in the form - so only this student's own can be
@@ -135,13 +159,21 @@ class EmsPortalContactData(CustomerPortal):
                 family.append(entry)
         return {'student': student, 'family': family}
 
-    def _ems_render_contact_data(self, student, data, siblings, data_request=None, errors=None, sent=False):
+    def _ems_render_contact_data(self, student, data, siblings=(), data_request=None, errors=None, sent=False):
         values = self._prepare_portal_layout_values()
         for entry in data['family']:
             entry.setdefault('same_address', not any(entry.get(field) for field in ADDRESS_FIELDS) or all(
                 (entry.get(field) or '') == (data['student'].get(field) or '') for field in ADDRESS_FIELDS))
+        photo = data.get('photo')
+        if isinstance(photo, bytes):
+            photo = photo.decode()
         values.update({
             'page_name': 'contact_data',
+            'photo': photo,
+            # Thumbnails to show; the full photo sent travels in the hidden input.
+            'photo_preview': photo and image_data_uri(base64.b64encode(
+                image_process(base64.b64decode(photo), size=(256, 256)))),
+            'photo_on_file': student and student.image_256 and image_data_uri(student.image_256),
             'student': student,
             'data': data,
             'siblings': [{'id': child.id, 'name': child.name} for child in siblings],

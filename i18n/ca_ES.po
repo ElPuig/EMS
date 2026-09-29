@@ -5816,6 +5816,9 @@ msgid "Phone"
 msgstr "Telèfon"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
 #: model_terms:ir.ui.view,arch_db:ems.view_users_form_simple_modif_photo_visibility
 msgid "Photo"
 msgstr "Foto"
@@ -18935,3 +18938,88 @@ msgstr "Tornar a afegir a la llista"
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 msgid "Remove %s from this roll-call? They will count neither as attended nor as absent."
 msgstr "Treure %s de la llista d'aquesta sessió? No comptarà ni com a assistència ni com a absència."
+
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__old_image
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form
+msgid "Photo on file"
+msgstr "Foto actual"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "New photo"
+msgstr "Foto nova"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__new_image
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form
+msgid "Proposed photo"
+msgstr "Foto proposada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "Photo to adjust"
+msgstr "Foto per ajustar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "Drag the photo to move it and zoom in until the face fills the frame."
+msgstr "Arrossega la foto per moure-la i amplia-la fins que la cara ompli el marc."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "Zoom"
+msgstr "Zoom"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "Zoom in"
+msgstr "Ampliar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "Zoom out"
+msgstr "Reduir"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "Rotate"
+msgstr "Girar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "Keep the photo on file"
+msgstr "Mantenir la foto actual"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "The new photo will replace the one on file once the school reviews it."
+msgstr "La foto nova substituirà l'actual quan el centre la revisi."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "Optional. A recent passport-style photo, face uncovered, in JPG or PNG."
+msgstr "Opcional. Una foto recent tipus carnet, amb la cara descoberta, en JPG o PNG."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "The photo is too big: the maximum is 10 MB."
+msgstr "La foto és massa gran: el màxim és de 10 MB."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+#: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+msgid "The photo must be a JPG or PNG image."
+msgstr "La foto ha de ser una imatge JPG o PNG."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form
+msgid "Change"
+msgstr "Canvi"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form
+msgid "No photo on file"
+msgstr "Sense foto a la fitxa"

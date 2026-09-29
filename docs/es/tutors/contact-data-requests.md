@@ -59,6 +59,14 @@ Usad los filtros **Pendiente de respuesta**, **Por revisar**, **Pendientes desde
 
 Si un cambio añade un familiar, la columna **También vinculado a** indica los otros hijos de la familia a los que también se vincula: al aprobarlo se hace.
 
+Si la familia ha enviado una foto nueva del alumno, la fila **Foto** muestra la **Foto actual** y la **Foto propuesta**. Pasad el ratón por encima de una foto para verla más grande.
+
+![Una foto de la lista de cambios, ampliada al pasar el ratón por encima](../../assets/tutors/dades-contacte-05-foto-ampliada.png)
+
+Haced clic en la fila para compararlas una al lado de la otra, a tamaño grande. Al aprobar la solicitud, la foto propuesta pasa a la ficha del alumno.
+
+![La foto actual y la propuesta una al lado de la otra](../../assets/tutors/dades-contacte-06-foto.png)
+
 Para aprobar varias a la vez, seleccionadlas en la lista y haced clic en **Aprobar**.
 
 ## Devolver una respuesta a la familia

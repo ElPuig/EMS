@@ -59,6 +59,39 @@ registry.category("web_tour.tours").add("ems_contact_data_portal", {
             run: "edit 711200008",
         },
         {
+            trigger: ".o_ems_contact_data_photo input[name='s_photo']",
+            content: "Pick a full-length photo of the student",
+            async run() {
+                const canvas = document.createElement("canvas");
+                canvas.width = 600;
+                canvas.height = 1600;
+                const context = canvas.getContext("2d");
+                context.fillStyle = "#3a7bd5";
+                context.fillRect(0, 0, 600, 1600);
+                context.fillStyle = "#f2c9a0";
+                context.fillRect(220, 80, 160, 200); // the face, at the top
+                const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+                const transfer = new DataTransfer();
+                transfer.items.add(new File([blob], "full_length.png", { type: "image/png" }));
+                const input = document.querySelector(".o_ems_contact_data_photo input[name='s_photo']");
+                input.files = transfer.files;
+                input.dispatchEvent(new Event("change", { bubbles: true }));
+            },
+        },
+        {
+            trigger: ".o_ems_photo_editor .cropper-container",
+            content: "The photo opens in the frame to adjust it",
+        },
+        {
+            trigger: ".o_ems_photo_zoom_in",
+            content: "Zoom in on the face",
+            run: "click",
+        },
+        {
+            trigger: ".o_ems_photo_new:not(.d-none) .o_ems_photo_new_preview img",
+            content: "The new photo is previewed next to the one on file",
+        },
+        {
             trigger: ".o_ems_contact_data_submit",
             content: "Send the details for review",
             run: "click",
@@ -129,6 +162,26 @@ registry.category("web_tour.tours").add("ems_contact_data_tutor", {
         {
             trigger: ".o_form_view div[name='line_ids'] .o_data_row",
             content: "The form lists the changes to review",
+        },
+        {
+            trigger: ".o_form_view div[name='line_ids'] .o_data_row div[name='new_image'] img",
+            content: "Open the new photo, to compare it with the one on file",
+            run: "click",
+        },
+        {
+            trigger: ".o_dialog .o_ems_photo_compare div[name='old_image'] img",
+            content: "Both photos are shown side by side",
+        },
+        {
+            trigger: ".o_dialog .o_ems_photo_compare div[name='new_image'] img",
+        },
+        {
+            trigger: ".o_dialog .o_form_button_cancel, .o_dialog .modal-footer .btn-primary",
+            content: "Close the change",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.o_dialog))",
         },
         {
             trigger: ".o_form_view button[name='action_approve']",

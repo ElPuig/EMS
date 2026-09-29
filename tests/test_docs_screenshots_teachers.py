@@ -144,6 +144,9 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             'view_mode': 'pivot',
             'views': [(pivot_view.id, 'pivot')],
             'domain': [('id', 'in', report_lines.ids)],
+            # The real menu opens with this removable filter on for a teacher (see
+            # action_attendance_reports_open); the manual's step 1 refers to its facet.
+            'context': {'search_default_my_subjects': 1},
         })
         # "Expand all" unfolds one row level per click (subject first, then student) - see the
         # manual's own step-by-step. tbody tr:nth-of-type(N) counts plain table rows (no
@@ -152,8 +155,10 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         # the first click -> 4 (+ both students) after the second.
         self._capture(
             '/odoo/action-%d' % pivot_action.id,
-            '.o_pivot', 'informes-01-taula-dinamica.png',
-            login='doc_shot_teacher', wait_for='.o_pivot table tbody tr',
+            # The whole action, not just '.o_pivot', so the "My subjects" facet in the search
+            # bar shows up too.
+            '.o_action_manager', 'informes-01-taula-dinamica.png',
+            login='doc_shot_teacher', wait_for='.o_searchview_facet',
             click=['.o_pivot_expand_button', '.o_pivot_expand_button'],
             wait_after=[
                 '.o_pivot table tbody tr:nth-of-type(2)',
@@ -197,6 +202,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         student_a = self._student(group, 'Marina Exemple')
         student_b = self._student(group, 'Pau Mostra')
         student_c = self._student(group, 'Nerea Prova')
+        student_d = self._student(group, 'Iker Model')
 
         # Spans the whole day (same trick as test_attendance_session_tour.py): makes the schedule
         # "current" regardless of what time this capture actually runs at, no time-freezing needed.
@@ -209,7 +215,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         schedule = self.env['ems.attendance_schedule'].create({
             'attendance_template_id': template.id, 'weekday': weekday,
             'start_time': 0.0, 'end_time': 23.0, 'space_id': space.id,
-            'student_ids': [(6, 0, (student_a + student_b + student_c).ids)],
+            'student_ids': [(6, 0, (student_a + student_b + student_c + student_d).ids)],
         })
         session = self.env['ems.attendance_session_header'].create({
             'attendance_schedule_id': schedule.id, 'date': date.today(),
@@ -234,6 +240,8 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             'notes': 'Visita mèdica',
         })
         line_c.write({'status_id': status_miss.id, 'attendance_justification_id': justification.id})
+        # Removed from the roll-call (issue #537): greyed out, last in the list, restore button.
+        lines.filtered(lambda line: line.student_id == student_d).active = False
 
         self._capture(
             '/odoo/action-ems.action_attendance_passlist',
@@ -371,6 +379,23 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
         }).action_approve()
 
+        # A second teaching teacher, in another group at the same time, whose absence the Head of
+        # Studies has entered as expected (issue #509): it reads as pending, not approved.
+        expected_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'B', 'level_id': level.id, 'study_id': study.id,
+        })
+        expected_teacher = self.env['hr.employee'].create({'name': '0000 Joan Prova', 'employee_type': 'teacher'})
+        expected_calendar = self.env['resource.calendar'].create({
+            'name': '0000 Joan Prova Calendar', 'employee_id': expected_teacher.id})
+        expected_teacher.resource_calendar_id = expected_calendar
+        expected_calendar.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': subject.id, 'group_ids': [expected_group.id], 'name': 'DOCGUARD: BD',
+        }])
+        Pending = self.env['ems.absence_pending']
+        start, stop = Pending._utc_bounds(monday, 8.0, 15.0)
+        Pending.create({'employee_id': expected_teacher.id, 'date_from': start, 'date_to': stop})
+
         # This board has no domain to scope it by (get_guard_duty_board_data() is a plain RPC,
         # not a view/action with a 'domain' field) and its own aggregation is explicitly
         # centre-wide by design (_get_guard_duty_board_attendance_ids()'s own NOTE) - even WITH
@@ -390,7 +415,8 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         # data only. addCleanup (not addClassCleanup): this is a real, process-wide monkeypatch,
         # not a DB write - it must not leak into any other test in this class.
         fixture_employee_ids = (
-            teaching_teacher | guard_teacher | wc_guard_teacher | patio_guard_teacher).ids
+            teaching_teacher | guard_teacher | wc_guard_teacher | patio_guard_teacher
+            | expected_teacher).ids
         course_model = type(self.env['ems.course'])
         original_get_attendance_ids = course_model._get_guard_duty_board_attendance_ids
 
@@ -791,3 +817,43 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             marks=[('.o_navbar_apps_menu button', '1', 'right'),
                    (".o-dropdown--menu [data-menu-xmlid='hr_attendance.menu_hr_attendance_root']", '2', 'text-right')],
         )
+
+    def test_capture_planning(self):
+        level, study, group = create_level_study_group(self, 'DOCPLN', level={
+            'name': 'Formació professional',
+        }, study={
+            'code': 'DOCPLN01', 'acronym': 'DAM', 'name': "Desenvolupament d'aplicacions multiplataforma",
+        }, group={'acronym': 'A', 'course': 1})
+        subjects = self.env['ems.subject'].create([{
+            'code': 'DOCPLN%s' % acronym, 'acronym': acronym, 'name': name,
+            'study_ids': [(6, 0, [study.id])],
+        } for acronym, name in (('BD', 'Bases de dades'), ('PRG', 'Programació'))])
+        self.env['ems.teaching'].create([{
+            'teacher_id': self.teacher_employee.id, 'group_id': group.id, 'subject_id': subject.id,
+        } for subject in subjects])
+        current = self.env.company.current_course_id
+        previous = self.env['ems.course'].search([('start', '=', current.start - 1)], limit=1) \
+            or self.env['ems.course'].create({'start': current.start - 1, 'end': current.start})
+
+        def planning(subject, course, internal, weights):
+            outcomes = self.env['ems.outcome'].search([('subject_id', '=', subject.id)]) \
+                or self.env['ems.outcome'].create([{
+                    'code': '%s_0%dRA' % (subject.code, n), 'acronym': 'RA%d' % n,
+                    'name': "Resultat d'aprenentatge %d" % n, 'subject_id': subject.id,
+                } for n in range(1, len(weights) + 1)])
+            return self.env['ems.planning'].create({
+                'study_id': study.id, 'subject_id': subject.id, 'course_id': course.id,
+                'internal_ponderation': internal, 'external_ponderation': 100.0 - internal,
+                'planning_outcome_ids': [(0, 0, {'outcome_id': outcome.id, 'ponderation': weight})
+                                         for outcome, weight in zip(outcomes, weights)],
+            })
+        shown = planning(subjects[0], current, 90.0, (35.0, 25.0, 25.0, 15.0))
+        planning(subjects[1], current, 90.0, (40.0, 30.0, 30.0))
+        # Last year's: hidden by the "current course" filter the list opens with.
+        planning(subjects[0], previous, 85.0, (40.0, 20.0, 25.0, 15.0))
+
+        url = '/odoo/action-ems.action_planning_tree'
+        self._capture(url, '.o_web_client', 'programacions-01-llista.png', login='doc_shot_teacher',
+                      wait_for='.o_data_row', max_height=260)
+        self._capture('%s/%d' % (url, shown.id), '.o_form_sheet', 'programacions-02-formulari.png',
+                      login='doc_shot_teacher', wait_for='.o_field_one2many .o_data_row')

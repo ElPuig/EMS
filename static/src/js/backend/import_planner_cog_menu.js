@@ -26,7 +26,8 @@ export class ImportPlannerCogMenu extends Component {
         //let data = this.orm.call("resource.calendar", "action_import_planner_data", [ ]);
         //this.orm.call("resource.calendar", "action_import_planner_data", [[]]);
         this.action.doAction({
-            name: "Import: planner data",
+            // Same text as the cog entry itself, so the dialog is titled after what was clicked.
+            name: _t("Import planner data (XML)"),
             type: "ir.actions.act_window",
             res_model: "ems.working_schedules_import_wizard",
             res_id: false,

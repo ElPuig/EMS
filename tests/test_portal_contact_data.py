@@ -7,7 +7,7 @@ from odoo.http import Request
 from odoo.tests.common import HttpCase, tagged
 
 from .common import CORPORATE_TEST_DOMAIN, enforce_corporate_email_policy, mock_outgoing_email, next_student_id
-from .test_contact_data_request import create_contact_data_fixtures, valid_dni
+from .test_contact_data_request import create_contact_data_fixtures, make_test_photo, valid_dni
 
 
 def create_portal_contact_data_fixtures(cls, prefix):
@@ -26,10 +26,10 @@ class PortalContactDataHelpers:
     """Posting the review form as the logged-in portal user, with the family fixtures of
     create_portal_contact_data_fixtures()."""
 
-    def _post(self, **values):
+    def _post(self, files=None, **values):
         page = self.url_open('/my/dades-contacte')
         token = re.search(r'name="csrf_token" value="([^"]+)"', page.text).group(1)
-        return self.url_open('/my/dades-contacte', data=dict(values, csrf_token=token))
+        return self.url_open('/my/dades-contacte', data=dict(values, csrf_token=token), files=files)
 
     def _complete_form(self, **overrides):
         key = f'f{self.family.id}'
@@ -66,6 +66,16 @@ class TestPortalContactData(PortalContactDataHelpers, HttpCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(self.minor.name, response.text)
         self.assertIn(f'name="f{self.family.id}_mobile"', response.text)
+
+    def test_an_account_without_students_is_told_there_is_nothing_to_review(self):
+        self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'No Students (TPCD)', 'login': 'test_nostudents_tpcd', 'password': 'test_nostudents_tpcd',
+            'lang': 'en_US', 'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
+        })
+        self.authenticate('test_nostudents_tpcd', 'test_nostudents_tpcd')
+        response = self.url_open('/my/dades-contacte')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('There are no contact details to review for this account.', response.text)
 
     def test_missing_fields_are_marked_and_nothing_is_staged(self):
         response = self._post(**self._complete_form(s_street=''))
@@ -119,6 +129,63 @@ class TestPortalContactData(PortalContactDataHelpers, HttpCase):
         self.assertIn('href="/my/dades-contacte"', response.text)
         self.assertNotIn('Request a data change', response.text)
         self.assertNotIn('secretariat.tpcd@example.com', response.text)
+
+
+@tagged('post_install', '-at_install')
+class TestPortalContactDataPhoto(PortalContactDataHelpers, HttpCase):
+    """The student's photo sent from /my/dades-contacte: staged for review like every other change,
+    re-encoded, and never lost when the form comes back or is sent again."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        mock_outgoing_email(cls)
+        create_portal_contact_data_fixtures(cls, 'TPCP')
+
+    def setUp(self):
+        super().setUp()
+        self.authenticate(self.family_user.login, self.family_user.login)
+
+    def _photo_line(self):
+        return self._request().line_ids.filtered(lambda line: line.field_name == 'image_1920')
+
+    def _staged_photo(self, page):
+        return re.search(r'name="s_photo_data" value="([^"]*)"', page).group(1)
+
+    def test_the_form_accepts_a_photo(self):
+        page = self.url_open('/my/dades-contacte').text
+        self.assertIn('enctype="multipart/form-data"', page)
+        self.assertIn('name="s_photo"', page)
+
+    def test_a_photo_is_staged_for_review(self):
+        response = self._post(files={'s_photo': ('photo.png', make_test_photo('PNG', camera='Test Phone'), 'image/png')},
+                              **self._complete_form())
+        self.assertIn('o_ems_contact_data_sent', response.text)
+        line = self._photo_line()
+        self.assertTrue(line.new_image)
+        self.assertFalse(self.minor.image_1920, "Nothing is written before the review")
+        self.assertTrue(self._staged_photo(self.url_open('/my/dades-contacte').text))
+
+    def test_a_file_that_is_not_a_photo_is_refused_under_its_input(self):
+        response = self._post(files={'s_photo': ('photo.jpg', b'<svg></svg>', 'image/jpeg')}, **self._complete_form())
+        self.assertIn('o_ems_contact_data_errors', response.text)
+        self.assertIn('The photo must be a JPG or PNG image.', response.text)
+        self.assertFalse(self._request())
+
+    def test_the_photo_survives_an_answer_with_errors(self):
+        response = self._post(files={'s_photo': ('photo.jpg', make_test_photo(), 'image/jpeg')},
+                              **self._complete_form(s_street=''))
+        staged = self._staged_photo(response.text)
+        self.assertTrue(staged, "The family does not have to pick the photo again")
+        self._post(s_photo_data=staged, **self._complete_form())
+        self.assertTrue(self._photo_line().new_image)
+
+    def test_sending_again_without_a_new_file_keeps_the_photo(self):
+        self._post(files={'s_photo': ('photo.jpg', make_test_photo(), 'image/jpeg')}, **self._complete_form())
+        staged = self._staged_photo(self.url_open('/my/dades-contacte').text)
+        self._post(s_photo_data=staged, **self._complete_form(s_city='Other City'))
+        self.assertTrue(self._photo_line().new_image)
+        self.assertIn('Other City', self._request().line_ids.mapped('new_value'))
 
 
 @tagged('post_install', '-at_install')

@@ -15,6 +15,7 @@ Writes PNGs to /tmp/ems_doc_screenshots (override with EMS_SCREENSHOT_DIR); copy
 docs/assets/admin/ by hand afterwards. See test_docs_screenshots.py's own module docstring for
 the full rationale (rolled-back transaction, made-up people, one element per shot).
 """
+import base64
 from datetime import date
 from unittest.mock import patch
 
@@ -122,7 +123,14 @@ class TestDocsScreenshotsAdmin(HttpCase, DocsScreenshotMixin):
             '.o_settings_container:has(#ems_full_day_hours)',
             'admin-absences-settings.png',
             login='doc_shot_admin', wait_for='a.tab[data-key="ems"]',
-            click='a.tab[data-key="ems"]', wait_after='#ems_full_day_hours',
+            # Scrolled into view after the tab switch, and captured within the viewport: the
+            # settings page scrolls inside its own container, so a block below the viewport's
+            # bottom edge is captured as blank, and capturing beyond the viewport resizes the
+            # page, which undoes the scroll.
+            run=['document.querySelector(\'a.tab[data-key="ems"]\').click()',
+                 "document.querySelector('#ems_full_day_hours').scrollIntoView({block: 'start'})"],
+            wait_after=['#ems_absence_document_escalation_days', '#ems_full_day_hours'],
+            beyond_viewport=False,
         )
 
     # ------------------------------------------------------------------------------------------
@@ -374,3 +382,181 @@ class TestDocsScreenshotsAdmin(HttpCase, DocsScreenshotMixin):
                    (".o_data_row td[name='ems_assignee_ids']", '3', 'text-right')],
         )
 
+
+    def test_capture_working_schedules(self):
+        # --- Fixtures. A made-up study ("INF") and classrooms ("E1"-"E3"): a clean install already
+        # loads the centre's real groups (DAM1A...), and the wizard resolves group names by name. ---
+        course = self.env.company.current_course_id
+        level, study, group_1a = create_level_study_group(self, 'DOCWS', level={
+            'acronym': 'CF', 'name': 'Formació professional',
+        }, study={'code': 'DOCWS01', 'acronym': 'INF', 'name': "Informàtica (exemple)"},
+            group={'acronym': 'A', 'course': 1})
+        other_study = self.env['ems.study'].create({
+            'code': 'DOCWS02', 'acronym': 'XEX', 'name': 'Xarxes (exemple)', 'level_id': level.id,
+            'date': date(2024, 1, 1), 'deprecated': False,
+        })
+        room_1, room_2, room_3 = self.env['ems.space'].create([{
+            'code': 'DOCWS-E%d' % n, 'name': 'Aula E%d' % n,
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        } for n in (1, 2, 3)])
+        group_1a.space_id = room_1
+        Group = self.env['ems.group']
+        group_1b = Group.create({'course': 1, 'acronym': 'B', 'level_id': level.id, 'study_id': study.id,
+                                 'space_id': room_2.id})
+        group_1c = Group.create({'course': 1, 'acronym': 'C', 'level_id': level.id, 'study_id': study.id,
+                                 'space_id': room_1.id})
+        # No classroom: listed on "Resolve groups" as a group still missing one.
+        group_2a = Group.create({'course': 2, 'acronym': 'A', 'level_id': level.id, 'study_id': study.id})
+        Subject = self.env['ems.subject']
+        databases, programming = Subject.create([{
+            'code': code, 'acronym': acronym, 'name': name, 'study_ids': [(6, 0, [study.id])],
+        } for code, acronym, name in (('DOCWSBD', 'BD', 'Bases de dades'),
+                                      ('DOCWSPRG', 'PRG', 'Programació'))])
+        # Taught in another study only: a subject/group mismatch on "Resolve subjects".
+        networks = Subject.create({'code': 'DOCWSXAR', 'acronym': 'XAR', 'name': 'Xarxes locals',
+                                   'study_ids': [(6, 0, [other_study.id])]})
+        Employee = self.env['hr.employee']
+        laia, marc, pere = Employee.create([{
+            'name': name, 'employee_type': 'teacher', 'work_email': email,
+        } for name, email in (('0000 Laia Casas', 'laia.casas@example.com'),
+                              ('0000 Marc Vidal', 'marc.vidal@example.com'),
+                              ('0000 Pere Font', 'pere.font@example.com'))])
+
+        # An already-active session of Pere's in room E1 on Monday 11:00, which the file's own
+        # 11:00 class for Laia in INF1A (room E1 too) collides with: "Existing schedule conflicts".
+        template = self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, [pere.id])], 'subject_id': databases.id,
+            'group_ids': [(6, 0, [group_1c.id])],
+            'start_date': date(course.start, 9, 1), 'end_date': date(course.end, 6, 30),
+        })
+        existing = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': '0',
+            'start_time': 11.0, 'end_time': 12.0, 'space_id': room_1.id,
+        })
+        self.env['resource.calendar.attendance'].create({
+            'calendar_id': pere.resource_calendar_id.id, 'name': 'BD: Bases de dades',
+            'dayofweek': '0', 'hour_from': 11.0, 'hour_to': 12.0, 'day_period': 'morning',
+            'group_ids': [group_1c.id], 'subject_id': databases.id, 'space_id': room_1.id,
+            'attendance_schedule_id': existing.id,
+        })
+
+        def hour(start, subject, students):
+            return ('<H name="1 %s"><Subject name="%s %s"/><Students name="%s"/></H>'
+                    % (start, subject.code, subject.name, students))
+        planner = (
+            '<root>'
+            '<T name="laia.casas@example.com Laia Casas"><D name="1 Monday">'
+            + hour('08:00', databases, group_1a.name)
+            # Matches no group by name: "Resolve groups".
+            + hour('09:00', programming, 'INF 1r B')
+            + hour('10:00', networks, group_2a.name)
+            + hour('11:00', databases, group_1a.name)
+            + '</D></T>'
+            # Same room (E1) and time as Laia's 08:00 class: "File conflicts".
+            '<T name="marc.vidal@example.com Marc Vidal"><D name="1 Monday">'
+            + hour('08:00', programming, group_1c.name)
+            # A following slot, so the 08:00 one ends at 09:00 like Laia's: an entry's end is the
+            # next one's start, and a conflict needs the exact same times.
+            + hour('09:00', programming, group_1c.name)
+            + '</D></T>'
+            # Neither is known yet: "Resolve teachers".
+            '<T name="nou.docent@example.com Nou Docent"><D name="1 Monday">'
+            '<H name="1 12:00"><NonTeaching name="G Guard"/></H></D></T>'
+            '<T name="X1"><D name="2 Tuesday"><H name="1 08:00"><NonTeaching name="G Guard"/></H></D></T>'
+            '</root>'
+        )
+        # A transient record is only readable by its creator: everything as the login user.
+        admin_env = self.env(user=self.admin_user, context=dict(self.env.context, lang='ca_ES'))
+        attachment = admin_env['ir.attachment'].create({
+            'name': 'horaris_inf.xml', 'datas': base64.b64encode(planner.encode()),
+        })
+        wizard = admin_env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': [(6, 0, attachment.ids)],
+        })
+        action = self.env['ir.actions.act_window'].create({
+            'name': 'Importar dades del planificador (XML)',
+            'res_model': 'ems.working_schedules_import_wizard', 'res_id': wizard.id,
+            'view_mode': 'form', 'target': 'new', 'context': "{'dialog_size': 'extra-large'}",
+        })
+
+        def capture(filename, selector='.modal-content', **kwargs):
+            wizard.flush_recordset()
+            self._capture('/odoo/action-%d' % action.id, selector, filename,
+                          login='doc_shot_admin', **{'wait_for': '.modal-content .o_form_view', **kwargs})
+
+        capture('working-schedules-import-01-welcome.png',
+                wait_for=".modal-content div[name='attachment_ids'] .o_attachment")
+        wizard.action_continue()
+        self.assertEqual(wizard.state, 'groups')
+        capture('working-schedules-import-02-resolve-groups.png',
+                wait_for=".modal-content div[name='space_line_ids'] .o_data_row")
+        wizard.group_line_ids.group_id = group_1b
+        capture('working-schedules-import-02b-resolve-groups-classroom.png',
+                wait_for=".modal-content div[name='space_line_ids'] .o_data_row")
+        wizard.space_line_ids.space_id = room_3
+        wizard.action_continue()
+        self.assertEqual(wizard.state, 'subjects')
+        capture('working-schedules-import-03-resolve-subjects.png',
+                wait_for=".modal-content div[name='subject_line_ids'] .o_data_row")
+        wizard.subject_line_ids.subject_id = programming
+        wizard.action_continue()
+        self.assertEqual(wizard.state, 'teachers')
+        capture('working-schedules-import-04-resolve-teachers.png',
+                wait_for=".modal-content div[name='teacher_line_ids'] .o_data_row + .o_data_row")
+        wizard.action_continue()
+        self.assertEqual(wizard.state, 'internal_conflicts')
+        wizard.internal_conflict_line_ids.write({
+            'resolution': 'reassign_rooms', 'left_space_id': room_1.id, 'right_space_id': room_2.id,
+        })
+        capture('working-schedules-import-05-file-conflicts.png',
+                wait_for=".modal-content div[name='internal_conflict_line_ids'] select")
+        wizard.action_continue()
+        self.assertEqual(wizard.state, 'db_conflicts')
+        # Keeping the existing session: "New prevails" would already archive it on Continue.
+        wizard.external_conflict_line_ids.resolution = 'prevail_right'
+        capture('working-schedules-import-06-existing-schedule-conflicts.png',
+                wait_for=".modal-content div[name='external_conflict_line_ids'] select")
+        wizard.action_continue()
+        self.assertEqual(wizard.state, 'summary')
+        capture('working-schedules-import-07-overall-summary.png',
+                wait_for=".modal-content div[name='overall_summary_html'] *")
+        capture('working-schedules-import-07b-overall-summary-download.png', selector='#ems-clip',
+                wait_for=".modal-content div[name='summary_file'] a",
+                run=self._union_clip_js([".modal-content div[name='summary_file']",
+                                         ".modal-content .modal-footer"]),
+                wait_after='#ems-clip')
+
+        # --- The teacher's Schedule tab: the same slot holding one subject until February and
+        # another one from March (a mid-course handoff), as two cards on Monday. ---
+        jordi = Employee.create({'name': '0000 Jordi Exemple', 'employee_type': 'teacher'})
+        jordi.resource_calendar_id.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 10, 'hour_to': 11, 'day_period': 'morning',
+            'subject_id': subject.id, 'group_ids': [group_2a.id], 'space_id': room_3.id,
+            'name': '%s: %s' % (subject.acronym, subject.name),
+            'date_from': start, 'date_to': stop,
+        } for subject, start, stop in (
+            (databases, date(course.start, 9, 1), date(course.end, 2, 28)),
+            (programming, date(course.end, 3, 1), date(course.end, 6, 30)),
+        )])
+        employee_action = self.env['ir.actions.act_window'].create({
+            'name': 'Empleats', 'res_model': 'hr.employee', 'view_mode': 'form',
+            'domain': [('id', '=', jordi.id)],
+        })
+        url = '/odoo/action-%d/%d' % (employee_action.id, jordi.id)
+        grid = ".o_field_widget[name='schedule_attendance_ids']"
+        self._capture(url, grid, 'working-schedules-midcourse-handoff.png', login='doc_shot_admin',
+                      wait_for=".nav-link[name='schedule']", click=".nav-link[name='schedule']",
+                      wait_after='.o_schedule_grid_entry + .o_schedule_grid_entry', max_height=140)
+        # Only Monday's two filled cards: the framework's own blank slots fill the rest of the column.
+        tag_cards = ("Array.from(document.querySelectorAll(\".o_schedule_grid_day_column[data-day='0']"
+                     " .o_schedule_grid_card\")).filter(function (card) {"
+                     " return card.querySelector('.o_schedule_grid_card_subject').value; })"
+                     ".forEach(function (card, index) { card.id = 'ems-card-' + index; });")
+        self._capture(url, '#ems-clip', 'working-schedules-edit-cards.png',
+                      login='doc_shot_admin', wait_for=".nav-link[name='schedule']",
+                      run=["document.querySelector(\".nav-link[name='schedule']\").click();",
+                           "document.querySelector('.o_schedule_grid_toolbar button').click();",
+                           tag_cards + self._union_clip_js(['#ems-card-0', '#ems-card-1'])],
+                      wait_after=['.o_schedule_grid_toolbar button',
+                                  '.o_schedule_grid_card_date', '#ems-clip'])

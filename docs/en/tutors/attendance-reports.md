@@ -13,9 +13,9 @@ yourself, plus 3 printable PDF reports (by group, by student, by subject) reacha
 
 ## Exploring Attendance Reports
 
-1. Navigate to **Attendance → Reports**. It opens directly on a **pivot table**, showing **only your own
-   groups and subjects** by default (same scope as the by-group and by-subject PDF reports below — being
-   someone's tutor alone doesn't widen this, only actually teaching a subject in their group does).
+1. Navigate to **Attendance → Reports**. It opens directly on a **pivot table** with the **My subjects**
+   filter on, showing only the subjects you teach. Remove that filter (the **×** on it in the search bar)
+   to see **all your tutees in every subject**, whoever teaches it, together with your own students.
 2. The table groups by **subject, then student**. Click the **Expand all** icon (top-right, next to Flip
    axis) twice: once to unfold the subjects, once more to unfold each subject's students. The main number
    is the **% of absences per student** — **Count** (number of sessions counted) and **Strike count** are
@@ -40,13 +40,12 @@ report**. In the form, pick the **Report type** — by group, by student, or by 
 to your choice.
 
 **Attendance report (by group):**
-1. Pick a **Group** — the dropdown only shows the groups **you actually teach**, not every group you
-   tutor: being the tutor of a group doesn't by itself grant it access here if you don't teach any subject
-   in it.
+1. Pick a **Group** — the dropdown shows the groups you teach and the groups you tutor.
 2. The **Tutor** and the **From**/**To** dates fill in automatically from the group and its full session
    range.
 3. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, and any
-   session notes recorded for the period.
+   session notes recorded for the period. For a group you tutor it includes **every subject**, whoever
+   taught the session; for any other group, only the sessions you taught.
 
 **Attendance report (by student):**
 1. Pick a **Student** — the dropdown shows the students enrolled in a subject **you teach** and **all your
@@ -59,19 +58,21 @@ to your choice.
 
    ![Print attendance report form by student, with a tutee selected and the tutor and dates filled in](../../assets/tutors/tutor-informes-01-per-estudiant.png)
 
-The Department or Seminar Chief, the Head of Studies above you and the Director get the same full
-by-student report for your tutees.
+The Department or Seminar Chief, the Head of Studies above you and the Director see the same as you: your
+tutees on the **Reports** screen, and the full PDF reports of your tutees and of the groups you tutor.
 
 **Attendance report (by subject):**
-1. Pick a **Subject** — the dropdown only shows subjects **you actually teach**, not every subject taught
-   in a group you tutor.
-2. The **Groups** field fills in automatically with every group where you teach that subject, and
+1. Pick a **Subject** — the dropdown shows the subjects you teach and every subject taught in a group you
+   tutor.
+2. The **Groups** field fills in automatically with every group where you teach that subject and every
+   group you tutor where it's taught, and
    **Tutors** shows their tutors for reference (this is where you can actually see who tutors each group —
    not by picking the group yourself first). If you only want some of those groups in the report, remove
    the others from the **Groups** field — it stays editable.
 3. The **From**/**To** dates fill in automatically to cover the full session range for your selection.
 4. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, and any
-   session notes recorded for the period.
+   session notes recorded for the period. For the groups you tutor it includes every session of the
+   subject, whoever taught it.
 
 **For any report type**, two controls govern the per-line detail in the PDF:
 - **Detail statuses** — which statuses appear in the "Details" tables. It defaults to absence-related

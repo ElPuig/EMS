@@ -36,8 +36,10 @@
 
                         <notebook>
                             <page string="Statuses">
-                                <field name="attendance_session_line_ids">
-                                    <list default_order="student_id asc" editable="bottom" create="0" delete="0">
+                                <!-- Students removed from the roll-call are listed too, greyed out. -->
+                                <field name="all_attendance_session_line_ids">
+                                    <list default_order="student_id asc" editable="bottom" create="0" delete="0" decoration-muted="not active">
+                                        <field name="active" column_invisible="True"/>
                                         <field name="image_1920" widget="image" readonly="True"/>
                                         <field name="student_id" width="175px" class="align-middle" readonly="True"/>
                                         <field name="status_id" widget="radio" class="align-middle" options="{'horizontal': true}" readonly="True"/>

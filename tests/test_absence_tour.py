@@ -30,8 +30,12 @@ class TestAbsenceTour(HttpCase):
         create_role_user(cls, 'head_of_studies', 'absence_tour_hos', email='absence_tour_hos@example.com')
         create_role_user(cls, 'director', 'absence_tour_direction',
                          email='absence_tour_direction@example.com')
+        # The absent teacher themselves, for the employee's own view of their requests.
+        employee_user = create_role_user(cls, 'teacher', 'absence_tour_employee',
+                                         email='absence_tour_employee@example.com')
         employee = cls.env['hr.employee'].create({
             'name': 'Tour Absent Teacher', 'employee_type': 'teacher',
+            'user_id': employee_user.id,
         })
         # A fresh DB (CI, unlike this box's own dev DB) has no "current course" configured at
         # all, so this must be set explicitly rather than assumed - see test_absence.py's
@@ -55,14 +59,14 @@ class TestAbsenceTour(HttpCase):
         })
 
         # A second request, with a file already on it - the justification-removal tour needs
-        # something to try to delete. Deliberately of a type that requires no document, and
-        # approved below: Odoo hides the attachment on either count, and the tour is what proves
-        # neither condition is left on the inherited form.
+        # something to try to delete. Deliberately of a type that requires no document (ATRI),
+        # and approved below: Odoo hides the attachment on either count, and the tour is what
+        # proves neither condition is left on the inherited form.
         documented = cls.env['hr.leave'].create({
             'employee_id': cls.env['hr.employee'].create({
                 'name': 'Tour Documented Teacher', 'employee_type': 'teacher',
             }).id,
-            'holiday_status_id': cls.env.ref('ems.leave_type_justified').id,
+            'holiday_status_id': cls.env.ref('ems.leave_type_atri').id,
             'request_date_from': day,
             'request_date_to': day,
             'ems_full_day': True,
@@ -77,19 +81,37 @@ class TestAbsenceTour(HttpCase):
         }).id)]
         documented.action_approve()
 
-        # Approved by the Head and waiting for Direction - what Direction's own filter lists.
-        reviewable = cls.env['hr.leave'].create({
+        # Validated by the Head and waiting for Direction - what Direction's own filter lists.
+        # Two of them: Direction sends one back for its document and validates the other. ATRI,
+        # which requires no document, so the Head's acknowledgement is already their validation.
+        for offset, name in ((7, 'Tour Reviewed Teacher'), (14, 'Tour Validated Teacher')):
+            cls._create_request(name, 'ems.leave_type_atri', day + timedelta(days=offset)).action_approve()
+
+        # Acknowledged by the Head, and its supporting document attached since: the Head's own
+        # second step, validating it.
+        submitted = cls._create_request('Tour Submitted Teacher', 'ems.leave_type_sick_leave',
+                                        day + timedelta(days=21))
+        submitted.action_approve()
+        submitted.supported_attachment_ids = [Command.link(cls.env['ir.attachment'].create({
+            'name': 'baixa.txt',
+            'datas': base64.b64encode(b'sick leave certificate'),
+            'res_model': 'hr.leave',
+            'res_id': submitted.id,
+        }).id)]
+
+    @classmethod
+    def _create_request(cls, employee_name, type_xmlid, day):
+        return cls.env['hr.leave'].create({
             'employee_id': cls.env['hr.employee'].create({
-                'name': 'Tour Reviewed Teacher', 'employee_type': 'teacher',
+                'name': employee_name, 'employee_type': 'teacher',
             }).id,
-            'holiday_status_id': cls.env.ref('ems.leave_type_justified').id,
-            'request_date_from': day + timedelta(days=7),
-            'request_date_to': day + timedelta(days=7),
+            'holiday_status_id': cls.env.ref(type_xmlid).id,
+            'request_date_from': day,
+            'request_date_to': day,
             'ems_full_day': True,
             'ems_submitted': True,
             'ems_responsible_declaration': True,
         })
-        reviewable.action_approve()
 
     def test_absence_request_tour(self):
         self.start_tour("/odoo", "ems_absence_request", login="absence_tour_direction")
@@ -100,11 +122,17 @@ class TestAbsenceTour(HttpCase):
     def test_absence_head_approval_tour(self):
         self.start_tour("/odoo", "ems_absence_head_approval", login="absence_tour_hos")
 
+    def test_absence_employee_view_tour(self):
+        self.start_tour("/odoo", "ems_absence_employee_view", login="absence_tour_employee")
+
     def test_absence_dashboard_tour(self):
         self.start_tour("/odoo", "ems_absence_dashboard", login="admin")
 
     def test_absence_submit_tour(self):
-        self.start_tour("/odoo", "ems_absence_submit", login="admin")
+        # The fixture employee, not 'admin': the new request defaults to today, and the real
+        # admin of this box may well have an absence of its own today already, which Odoo
+        # refuses to overlap.
+        self.start_tour("/odoo", "ems_absence_submit", login="absence_tour_employee")
 
     def test_absence_report_tour(self):
         self.start_tour("/odoo", "ems_absence_report", login="admin")

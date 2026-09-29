@@ -4,6 +4,7 @@
 identically across dozens of test files)."""
 
 import base64
+import io
 import itertools
 import json
 import os
@@ -16,6 +17,82 @@ from odoo.tests.common import ChromeBrowser
 
 
 _test_student_id_sequence = itertools.count(1)
+
+
+# Looks of the invented student drawn by draw_invented_student_photo(): the photo on file (a
+# year ago: short hair, blue backdrop) and the new one (longer hair, light backdrop).
+INVENTED_STUDENT_LOOKS = {
+    'on_file': {'backdrop': (120, 160, 205), 'hair_length': 0.0, 'shirt': (45, 70, 120)},
+    'new': {'backdrop': (225, 228, 232), 'hair_length': 0.45, 'shirt': (170, 55, 60)},
+}
+
+
+def draw_invented_student_photo(look='new', full_length=False):
+    """PNG bytes of an illustrated (not photographic) portrait of an invented student, for the
+    manuals' screenshots: never a real person's face (CLAUDE.md, "Screenshots must never expose
+    real personal data"). `look` is a key of INVENTED_STUDENT_LOOKS; full_length draws the whole
+    body in a park, with the face small at the top, the kind of photo a family frames on the face
+    before sending it. Drawn at twice the size and scaled down, for smooth edges."""
+    from PIL import Image, ImageDraw
+
+    colors = INVENTED_STUDENT_LOOKS[look]
+    skin, skin_shade, hair = (236, 196, 160), (214, 168, 132), (70, 45, 30)
+    width, height = (900, 1600) if full_length else (600, 800)
+    image = Image.new('RGB', (width * 2, height * 2), colors['backdrop'])
+    draw = ImageDraw.Draw(image)
+    if full_length:
+        draw.rectangle([0, 0, width * 2, height * 2 * 0.62], fill=(170, 205, 235))
+        draw.rectangle([0, height * 2 * 0.62, width * 2, height * 2], fill=(120, 170, 95))
+        head, cx, top = 300, width, 740
+    else:
+        head, cx, top = 470, width, 400
+
+    def box(x0, y0, x1, y1):
+        return [cx + x0 * head, top + y0 * head, cx + x1 * head, top + y1 * head]
+
+    # Body: trousers and shoes for the full-length photo, then shirt, neck and shoulders.
+    if full_length:
+        draw.rectangle(box(-0.55, 2.9, -0.05, 6.4), fill=(50, 55, 75))
+        draw.rectangle(box(0.05, 2.9, 0.55, 6.4), fill=(50, 55, 75))
+        draw.ellipse(box(-0.75, 6.25, -0.02, 6.6), fill=(35, 35, 35))
+        draw.ellipse(box(0.02, 6.25, 0.75, 6.6), fill=(35, 35, 35))
+        draw.rounded_rectangle(box(-0.95, 1.05, -0.62, 2.9), radius=head * 0.15, fill=colors['shirt'])
+        draw.rounded_rectangle(box(0.62, 1.05, 0.95, 2.9), radius=head * 0.15, fill=colors['shirt'])
+        draw.ellipse(box(-0.95, 2.75, -0.62, 3.05), fill=skin)
+        draw.ellipse(box(0.62, 2.75, 0.95, 3.05), fill=skin)
+        draw.rounded_rectangle(box(-0.7, 0.95, 0.7, 3.0), radius=head * 0.25, fill=colors['shirt'])
+    else:
+        draw.ellipse(box(-1.05, 1.0, 1.05, 2.6), fill=colors['shirt'])
+    draw.rectangle(box(-0.17, 0.55, 0.17, 1.02), fill=skin_shade)
+    draw.pieslice(box(-0.2, 0.8, 0.2, 1.2), 0, 180, fill=skin_shade)
+    # Hair behind the head (down to the jaw on the sides when it is long), ears, face.
+    draw.ellipse(box(-0.53, -0.62, 0.53, 0.3), fill=hair)
+    if colors['hair_length']:
+        for side in (-1, 1):
+            left, right = sorted((side * 0.37, side * 0.55))
+            draw.rounded_rectangle(box(left, -0.2, right, colors['hair_length']), radius=head * 0.08, fill=hair)
+    draw.ellipse(box(-0.55, -0.05, -0.38, 0.25), fill=skin_shade)
+    draw.ellipse(box(0.38, -0.05, 0.55, 0.25), fill=skin_shade)
+    draw.ellipse(box(-0.45, -0.5, 0.45, 0.72), fill=skin)
+    # Fringe.
+    draw.chord(box(-0.5, -0.62, 0.5, 0.05), 180, 360, fill=hair)
+    draw.polygon([tuple(box(-0.46, -0.3, 0, 0)[:2]), tuple(box(0.1, -0.3, 0, 0)[:2]),
+                  tuple(box(-0.46, -0.05, 0, 0)[:2])], fill=hair)
+    # Eyebrows, eyes, nose, mouth.
+    for side in (-1, 1):
+        x = side * 0.19
+        draw.line(box(x - 0.1, -0.02, x + 0.1, -0.05)[:4], fill=hair, width=int(head * 0.035))
+        draw.ellipse(box(x - 0.08, 0.05, x + 0.08, 0.14), fill=(250, 250, 250))
+        draw.ellipse(box(x - 0.045, 0.05, x + 0.045, 0.14), fill=(80, 55, 40))
+        draw.ellipse(box(x - 0.02, 0.075, x + 0.02, 0.115), fill=(20, 20, 20))
+    draw.line(box(0.0, 0.15, 0.03, 0.33)[:4], fill=skin_shade, width=int(head * 0.025))
+    draw.line(box(0.03, 0.33, -0.04, 0.34)[:4], fill=skin_shade, width=int(head * 0.025))
+    draw.arc(box(-0.16, 0.34, 0.16, 0.52), 20, 160, fill=(170, 80, 80), width=int(head * 0.03))
+
+    image = image.resize((width, height), Image.LANCZOS)
+    stream = io.BytesIO()
+    image.save(stream, format='PNG')
+    return stream.getvalue()
 
 
 def next_student_id():
@@ -414,7 +491,7 @@ class DocsScreenshotMixin:
 
     def _capture(self, url_path, selector, filename, login=None, wait_for=None, padding=8,
                  click=None, run=None, wait_after=None, tour=None, max_height=None, marks=None,
-                 beyond_viewport=True):
+                 beyond_viewport=True, viewport_width=1400):
         """Load url_path as `login`, wait for `wait_for` (defaults to `selector`), optionally
         click `click` (or run arbitrary JS via `run`) and wait for `wait_after`, then write a
         PNG clipped to `selector` into OUTPUT_DIR.
@@ -432,6 +509,8 @@ class DocsScreenshotMixin:
         beyond_viewport=False for a shot of an open navbar section dropdown: capturing beyond the
         viewport makes Chrome resize the page, and Odoo closes that dropdown on the resize (the apps
         menu survives it). The clip must then lie inside the viewport (max_height keeps it short).
+        viewport_width widens the page for a list whose last columns would otherwise fall off its
+        right edge.
         """
         os.makedirs(self.OUTPUT_DIR, exist_ok=True)
         # A tour reports success with Odoo's own signal ('tour succeeded', the one start_tour()
@@ -455,7 +534,7 @@ class DocsScreenshotMixin:
             # lays out against it: anything below the fold renders as a grey band otherwise,
             # even with captureBeyondViewport.
             browser._websocket_request('Emulation.setDeviceMetricsOverride', params={
-                'width': 1400, 'height': 1600, 'deviceScaleFactor': 1, 'mobile': False,
+                'width': viewport_width, 'height': 1600, 'deviceScaleFactor': 1, 'mobile': False,
             })
             if self.BROWSER_TIMEZONE:
                 browser._websocket_request('Emulation.setTimezoneOverride', params={

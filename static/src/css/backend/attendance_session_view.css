@@ -254,8 +254,28 @@
 .ems-av-th-notes,
 .ems-av-td-notes {
     white-space: nowrap;
+    padding-right: 8px;
+    text-align: center;
+}
+
+/* Remove/restore column (last one) */
+.ems-av-th-remove,
+.ems-av-td-remove {
+    white-space: nowrap;
     padding-right: 20px;
     text-align: center;
+}
+
+/* --- Rows removed from the roll-call ---------------------- */
+.ems-av-line--removed td {
+    background: #f1f3f5;
+    opacity: 0.6;
+}
+.ems-av-line--removed .ems-av-name {
+    text-decoration: line-through;
+}
+.ems-av-line--removed .ems-av-td-remove {
+    opacity: 1;
 }
 
 /* --- Justified rows --------------------------------------- */
@@ -282,6 +302,7 @@
     border: 2px solid #dee2e6;
     background: #e9ecef;
     vertical-align: middle;
+    cursor: zoom-in;
 }
 
 .ems-av-name {
@@ -370,6 +391,39 @@
 }
 .ems-av-notes-btn--has-notes:hover {
     background: #fff3e0;
+}
+
+/* --- Remove/restore button ---------------------------------- */
+.ems-av-remove-btn,
+.ems-av-restore-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #dee2e6;
+    background: #fff;
+    color: #adb5bd;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.ems-av-remove-btn:hover:not(:disabled) {
+    background: #fdecea;
+    border-color: #dc3545;
+    color: #dc3545;
+}
+.ems-av-restore-btn {
+    color: #0d6efd;
+    border-color: #0d6efd;
+}
+.ems-av-restore-btn:hover:not(:disabled) {
+    background: #e7f1ff;
+}
+.ems-av-remove-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
 }
 
 /* --- Strike button ------------------------------------------ */
@@ -681,7 +735,7 @@
     .ems-av-td-student {
         padding-left: 12px;
     }
-    .ems-av-td-notes {
+    .ems-av-td-remove {
         padding-right: 12px;
     }
     .ems-av-name {

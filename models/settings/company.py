@@ -62,6 +62,10 @@ class ems_company(models.Model):
 
     ems_full_day_hours = fields.Float(default=7.5)
     ems_health_allowance_hours = fields.Float(default=15.0)
+    ems_absence_document_reminder_days = fields.Integer(
+        string="Supporting document reminder (days)", default=1)
+    ems_absence_document_escalation_days = fields.Integer(
+        string="Missing supporting document report (days)", default=3)
 
     schedule_import_first_entry_time = fields.Float(default=8.0)
     schedule_import_last_entry_time  = fields.Float(default=21.0)
@@ -357,6 +361,18 @@ class ems_company(models.Model):
         """Yearly self-declared health absence allowance. Same fallback rationale as above,
         except a zero here would flag every single request as over the allowance."""
         return self.ems_health_allowance_hours or self._fields['ems_health_allowance_hours'].default(self)
+
+    def _ems_absence_document_reminder_days(self):
+        """Days between two reminders of a missing supporting document. Same fallback rationale:
+        a zero would remind the employee on every run of the scheduled action."""
+        return (self.ems_absence_document_reminder_days
+                or self._fields['ems_absence_document_reminder_days'].default(self))
+
+    def _ems_absence_document_escalation_days(self):
+        """Days after the absence before a missing supporting document is reported to the Head.
+        Same fallback rationale as above."""
+        return (self.ems_absence_document_escalation_days
+                or self._fields['ems_absence_document_escalation_days'].default(self))
 
     def _ems_is_corporate_email(self, email):
         """True if `email` belongs to the centre's own Google Workspace domain (or a subdomain

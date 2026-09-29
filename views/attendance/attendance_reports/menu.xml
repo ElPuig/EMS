@@ -62,15 +62,16 @@
                  (deliberately - see the model's own docstring, "statistical data... should be
                  unaltered"), but its session ALWAYS does, and the course transition wizard
                  archives every outgoing session (see course_transition_wizard.md) - so filtering
-                 on the session's own active state is exactly "this course's sessions only,"
-                 without needing a new field on the line itself. -->
-            <field name="domain">[('attendance_session_id.active', '=', True)]</field>
+                 on the session's own active state is exactly "this course's sessions only". It
+                 goes through the line's stored session_active, not attendance_session_id.active:
+                 the path would apply the header's record rules and hide the other teachers'
+                 sessions a tutor must see. -->
+            <field name="domain">[('session_active', '=', True)]</field>
         </record>
 
-        <!-- Head of Studies/Director/Administrator and Secretariat see the whole centre by
-             default; everyone else (teacher/tutor/department chief) defaults to only their own
-             teaching. A removable default, not a security boundary (ir.rule already grants every
-             teacher unrestricted read on ems.attendance_session_line — see attendance_reports.py). -->
+        <!-- Head of Studies/Director/Administrator and Secretariat see the whole centre. Everyone
+             else (teacher/tutor/department chief) is scoped to their own teaching plus their tutor
+             scope's students (every subject), with the removable "My subjects" filter on by default. -->
         <record model="ir.actions.server" id="action_attendance_reports_open">
             <field name="name">Reports</field>
             <field name="model_id" ref="ems.model_ems_attendance_session_line"/>
@@ -95,9 +96,10 @@ action['context'] = {'pivot_measures': ['absence_rate', 'strike_count', '__count
 # instead of trying to extend the string. Kept as a literal matching the base action's own XML
 # domain (not read from it) - this action is only ever reached through this server action, never
 # opened directly, so there's no risk of the two silently drifting apart unnoticed.
-action['domain'] = [('attendance_session_id.active', '=', True)]
+action['domain'] = [('session_active', '=', True)]
 if not (env.user.has_group('ems.group_head_of_studies') or env.user.has_group('ems.group_secretary') or env.user.has_group('ems.group_secretary_admin')):
-    action['domain'] += [('template_teacher_ids.user_id', '=', env.uid)]
+    action['domain'] += ['|', ('template_teacher_ids.user_id', '=', env.uid), ('student_id.tutor_id.tutor_scope_user_ids', '=', env.uid)]
+    action['context']['search_default_my_subjects'] = 1
             </field>
         </record>
 

@@ -17,7 +17,8 @@
 5. [Justificant](#justificant)
 6. [Enviar la sol·licitud](#enviar-la-sollicitud)
 7. [Consultar l'estat](#consultar-lestat)
-8. [Crèdit d'hores per motius de salut](#crèdit-dhores-per-motius-de-salut)
+8. [Recordatoris d'un justificant pendent](#recordatoris-dun-justificant-pendent)
+9. [Crèdit d'hores per motius de salut](#crèdit-dhores-per-motius-de-salut)
 
 ---
 
@@ -81,11 +82,13 @@ Per demanar més d'un dia, marca-la i canvia la data de fi. Si és un sol dia, l
 
 ## Justificant
 
-**Pots adjuntar-ne un a qualsevol absència, de qualsevol tipus i en qualsevol moment.** Tres tipus l'*exigeixen*: **Baixa laboral**, **Assistència a consulta mèdica** i **Prova mèdica invasiva**; en la resta és opcional, i val la pena adjuntar-lo sempre que el tinguis.
+**Pots adjuntar-ne un a qualsevol absència, de qualsevol tipus i en qualsevol moment.** Tots els tipus l'*exigeixen* excepte **Salut** i **ATRI** (l'ATRI es justifica al mateix portal de la Generalitat); en aquests dos és opcional.
 
 En el cas de consulta mèdica, el justificant ha de fer constar expressament el nom i cognoms del o de la pacient i l'hora d'entrada i sortida del centre o consulta mèdica.
 
-**Un justificant que arriba més tard s'adjunta a la mateixa sol·licitud.** Obre l'absència, encara que ja estigui aprovada, adjunta el fitxer i desa. Això és el que resol un **Estat Direcció** en *Falta document*: no cal tornar a sol·licitar l'absència.
+**Un justificant que arriba més tard s'adjunta a la mateixa sol·licitud.** No cal tenir-lo quan demanes l'absència: el teu cap marca la sol·licitud com a rebuda i queda esperant el justificant (**En espera de documentació**). Quan el tinguis, obre l'absència, adjunta el fitxer a **Justificant** i desa. Ja està: la sol·licitud torna sola al teu cap perquè el validi, no cal tornar a sol·licitar l'absència ni prémer res més.
+
+Si el teu cap o Direcció consideren que el justificant no és vàlid, la sol·licitud torna a **En espera de documentació** i reps un missatge: adjunta'n un de vàlid de la mateixa manera.
 
 Per esborrar-ne un, fes clic a la creu del fitxer i confirma.
 
@@ -107,23 +110,32 @@ Si surts del formulari sense enviar-lo, l'EMS t'avisa i et deixa descartar-lo.
 
 ## Consultar l'estat
 
-A **Absències** tens la teva llista. La teva absència s'aprova dues vegades, pel teu cap (cap d'estudis adjunt, cap d'estudis o secretari/ària) i per Direcció, en qualsevol ordre.
+A **Absències** tens la teva llista. La teva absència passa primer pel teu cap (cap d'estudis adjunt, cap d'estudis o secretari/ària) i després per Direcció.
 
 **Estat**
 
 | Valor | Significa |
 |---|---|
-| Pendent | Encara no s'ha resolt |
-| Pendent Cap | Direcció l'ha aprovada, el teu cap encara no |
-| Pendent Direcció | El teu cap l'ha aprovada, Direcció encara no l'ha revisada |
-| Pendent Document | Direcció espera el justificant: adjunta'l a la mateixa sol·licitud, encara que ja estigui aprovada |
+| Pendent | El teu cap encara no l'ha vista |
+| En espera de documentació | El teu cap l'ha rebuda i espera el justificant: adjunta'l a la mateixa sol·licitud |
+| Pendent de validació | Has adjuntat el justificant i el teu cap l'ha de validar |
+| Pendent Direcció | El teu cap l'ha validada, Direcció encara no l'ha revisada |
 | Aprovat | Concedida per tots dos |
 | Rebutjat | Denegada. És definitiu: si vols insistir, cal fer una sol·licitud nova |
 | Cancel·lat | Anul·lada |
 
-Les columnes **Estat Cap** i **Estat Direcció** mostren la decisió de cadascú per separat.
+El filtre **Els meus justificants pendents** mostra les sol·licituds que esperen un justificant teu.
 
-Un cop l'aprova el teu cap, l'absència ja compta al calendari d'absències i al quadrant de guàrdies.
+Un cop la rep el teu cap, l'absència ja compta al calendari d'absències i al quadrant de guàrdies, encara que falti el justificant.
+
+
+---
+
+## Recordatoris d'un justificant pendent
+
+Si l'absència ja ha passat i continua **En espera de documentació**, l'EMS t'ho recorda amb un missatge cada dia fins que adjuntis el justificant. També tens una activitat pendent ("Adjuntar el justificant de l'absència") que es posa en vermell l'endemà de l'absència.
+
+Uns dies després de l'absència (tres, si el centre no ho ha canviat), també s'avisa el teu cap que el justificant encara falta.
 
 ---
 

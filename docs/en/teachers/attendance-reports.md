@@ -13,8 +13,9 @@ yourself, plus 3 printable PDF reports (by group, by student, by subject) reacha
 
 ## Exploring Attendance Reports
 
-1. Navigate to **Attendance → Reports**. It opens directly on a **pivot table**, showing **only your own
-   groups and subjects** by default.
+1. Navigate to **Attendance → Reports**. It opens directly on a **pivot table** with the **My subjects**
+   filter on, showing only your own groups and subjects. If you are a group tutor, removing that filter also
+   shows your tutees in every subject (see the [tutors manual](../tutors/attendance-reports.md)).
 2. The table groups by **subject, then student**. Click the **Expand all** icon (top-right, next to Flip
    axis) twice: once to unfold the subjects, once more to unfold each subject's students. The main number
    is the **% of absences per student** — **Count** (number of sessions counted) and **Strike count** are

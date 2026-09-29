@@ -6,7 +6,7 @@ from odoo.exceptions import ValidationError
 class EmsPlanning(models.Model):
     _name = "ems.planning"
     _inherit = ["mail.thread", "mail.activity.mixin"]
-    _description = "Planning: Curriculum deployment in the classroom (in development: just for grading ponderation at the moment)."
+    _description = "Teaching planning"
     _sql_constraints = [
         ('unique_study_subject_course', 'unique (study_id, subject_id, course_id)', 'A planning already exists for this study, subject and course!')
     ]

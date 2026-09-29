@@ -1,6 +1,10 @@
+import base64
+import io
 from datetime import date
 
 from dateutil.relativedelta import relativedelta
+
+from PIL import Image
 
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
@@ -14,6 +18,18 @@ DNI_LETTERS = 'TRWAGMYFPDXBNJZSQVHLCKE'
 def valid_dni(number):
     """A DNI with its right check letter, e.g. valid_dni(12345678) -> '12345678Z'."""
     return f'{number:08d}{DNI_LETTERS[number % 23]}'
+
+
+def make_test_photo(fmt='JPEG', size=(40, 30), camera=None):
+    """An image file's raw bytes, e.g. a phone photo: `camera` goes into its EXIF (Model tag)."""
+    stream = io.BytesIO()
+    params = {}
+    if camera:
+        exif = Image.Exif()
+        exif[0x0110] = camera
+        params['exif'] = exif
+    Image.new('RGB', size, (200, 120, 40)).save(stream, format=fmt, **params)
+    return stream.getvalue()
 
 
 def create_contact_data_fixtures(cls, prefix='TCDR'):
@@ -255,6 +271,46 @@ class TestContactDataRequest(TransactionCase):
         request = self._request()
         request._ems_submit(data)
         self.assertEqual(request._ems_proposal()['student']['street'], 'Test Street 2')
+
+    # --- the student's photo -----------------------------------------------------------------
+
+    def test_photo_is_reencoded_as_jpeg_without_exif_and_resized(self):
+        raw = make_test_photo('PNG', size=(2400, 1200), camera='Test Phone')
+        photo, error = self.Request._ems_photo_from_upload(raw)
+        self.assertFalse(error)
+        image = Image.open(io.BytesIO(base64.b64decode(photo)))
+        self.assertEqual(image.format, 'JPEG')
+        self.assertEqual(image.size, (1920, 960))
+        self.assertFalse(dict(image.getexif()), "A phone photo's metadata (GPS position) is dropped")
+
+    def test_photo_other_than_jpeg_or_png_is_refused(self):
+        for raw in (b'not an image', make_test_photo('GIF'),
+                    b'<svg xmlns="http://www.w3.org/2000/svg"></svg>'):
+            photo, error = self.Request._ems_photo_from_upload(raw)
+            self.assertFalse(photo)
+            self.assertEqual(error, "The photo must be a JPG or PNG image.")
+
+    def test_photo_is_staged_and_written_on_approval(self):
+        photo, _error = self.Request._ems_photo_from_upload(make_test_photo())
+        data = self._complete(self.minor._ems_contact_data())
+        data['photo'] = photo
+        request = self._request()
+        request._ems_submit(data)
+        line = request.line_ids.filtered(lambda line: line.field_name == 'image_1920')
+        self.assertEqual(line.field_label, 'Photo')
+        self.assertTrue(line.new_image)
+        self.assertFalse(self.minor.image_1920, "Nothing is written before the review")
+        self.assertEqual(request._ems_proposal()['photo'], line.new_image)
+        request.with_user(self.tutor).action_approve()
+        self.assertTrue(self.minor.image_1920)
+
+    def test_photo_is_optional(self):
+        data = self._complete(self.minor._ems_contact_data())
+        self.assertFalse(self.Request._ems_contact_data_problems(data, False), "No photo is not a problem")
+        request = self._request()
+        request._ems_submit(data)
+        self.assertFalse(request.line_ids.filtered(lambda line: line.field_name == 'image_1920'))
+        self.assertNotIn('photo', request._ems_proposal())
 
     # --- returning and reminding ------------------------------------------------------------
 

@@ -12,7 +12,7 @@
 
 ## Explorar los informes de asistencia
 
-1. Ve a **Asistencia → Informes**. Se abre directamente con una **tabla dinámica**, mostrando por defecto **solo tus propios grupos y asignaturas**.
+1. Ve a **Asistencia → Informes**. Se abre directamente con una **tabla dinámica** con el filtro **Mis asignaturas** activado, que muestra solo tus propios grupos y asignaturas. Si eres tutor/a de un grupo, al quitar ese filtro también ves a tus tutorizados en todas las asignaturas (consulta el [manual de tutores](../tutors/attendance-reports.md)).
 2. La tabla agrupa por **asignatura y luego por alumno**. Haz clic en el icono **Expandir todo** (arriba a la derecha, junto a Invertir ejes) dos veces: una para desplegar las asignaturas y otra para desplegar los alumnos de cada asignatura. El número principal es el **% de faltas por alumno** — el **Recuento** (número de sesiones contabilizadas) y el **Recuento de strikes** se muestran al lado, así puedes saber si un 33% sale de 3 sesiones o de 30, y si viene acompañado de strikes disciplinarios.
 
    ![Tabla dinámica de informes de asistencia, expandida por asignatura y alumno](../../assets/teachers/informes-01-taula-dinamica.png)

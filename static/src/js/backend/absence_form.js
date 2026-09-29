@@ -4,15 +4,17 @@ import { registry } from "@web/core/registry";
 import { FormController } from "@web/views/form/form_controller";
 import { formView } from "@web/views/form/form_view";
 
-// The decisions on an absence, the Head's and Direction's. Whoever takes one is working through
+// The decisions on an absence, the Head's (acknowledging it, then validating its supporting
+// document) and Direction's. Whoever takes one is working through
 // a list of requests, so once it is recorded they are taken back to that list instead of being
 // left on a form they are done with.
 const DECISION_BUTTONS = new Set([
     "action_approve",
     "action_validate",
     "action_refuse",
+    "action_ems_document_validate",
+    "action_ems_document_insufficient",
     "action_ems_direction_done",
-    "action_ems_direction_missing_doc",
     "action_ems_direction_reset",
     "action_ems_direction_refuse",
 ]);
@@ -42,8 +44,8 @@ export class AbsenceFormController extends FormController {
     }
 
     decisionState() {
-        const { state, ems_direction_state } = this.model.root.data;
-        return `${state}/${ems_direction_state}`;
+        const { state, ems_document_state, ems_direction_state } = this.model.root.data;
+        return `${state}/${ems_document_state}/${ems_direction_state}`;
     }
 }
 

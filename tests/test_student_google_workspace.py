@@ -243,6 +243,11 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
     warning email is patched out at the transport level.
     """
 
+    def _today(self):
+        """The company-local day the code schedules lifecycle dates from (context_today), not
+        date.today(), which is UTC in Odoo and is a day behind right after local midnight."""
+        return self.env['ems.datetime_utils'].get_local_today()
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -278,7 +283,7 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
         student.write({'active': False})
         self.assertEqual(
             student.google_ws_deactivation_date,
-            date.today() + relativedelta(days=GW_DEACTIVATION_DELAY_DAYS))
+            self._today() + relativedelta(days=GW_DEACTIVATION_DELAY_DAYS))
         self.assertFalse(student.google_ws_suspended)
         self.assertFalse(student.google_ws_deletion_date)
 
@@ -307,7 +312,7 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
         student.action_suspend_google_account()
         self.assertEqual(
             student.google_ws_deletion_date,
-            date.today() + relativedelta(days=GW_DELETION_DELAY_DAYS))
+            self._today() + relativedelta(days=GW_DELETION_DELAY_DAYS))
         self.assertFalse(student.google_ws_deactivation_date)
 
     def test_reactivating_cancels_the_deletion(self):
@@ -345,7 +350,7 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
         student = self._new_student()
         student.action_suspend_google_account()
         student.action_delete_google_account()
-        student.google_ws_deletion_date = date.today()
+        student.google_ws_deletion_date = self._today()
         student.action_delete_google_account()
         self.assertTrue(student.google_ws_deleted)
 
@@ -395,21 +400,21 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
     def test_cron_suspends_once_the_deactivation_date_is_reached(self):
         student = self._new_student()
         student.write({'active': False})
-        student.google_ws_deactivation_date = date.today()
+        student.google_ws_deactivation_date = self._today()
         self.env['res.partner'].with_context(
             queue_job__no_delay=True)._gw_cron_process_lifecycle()
         self.assertTrue(student.google_ws_suspended)
         self.assertEqual(
             student.google_ws_deletion_date,
-            date.today() + relativedelta(days=GW_DELETION_DELAY_DAYS))
+            self._today() + relativedelta(days=GW_DELETION_DELAY_DAYS))
 
     def test_cron_deletes_once_the_deletion_date_is_reached(self):
         student = self._new_student()
         student.write({'active': False})
-        student.google_ws_deactivation_date = date.today()
+        student.google_ws_deactivation_date = self._today()
         self.env['res.partner'].with_context(
             queue_job__no_delay=True)._gw_cron_process_lifecycle()
-        student.google_ws_deletion_date = date.today()
+        student.google_ws_deletion_date = self._today()
         self.env['res.partner'].with_context(
             queue_job__no_delay=True)._gw_cron_process_lifecycle()
         self.assertTrue(student.google_ws_deleted)
@@ -425,7 +430,7 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
 
     def test_cron_ignores_active_students(self):
         student = self._new_student()
-        student.google_ws_deactivation_date = date.today()
+        student.google_ws_deactivation_date = self._today()
         self.env['res.partner'].with_context(
             queue_job__no_delay=True)._gw_cron_process_lifecycle()
         self.assertFalse(student.google_ws_suspended)

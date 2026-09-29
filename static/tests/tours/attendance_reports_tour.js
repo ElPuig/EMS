@@ -160,3 +160,52 @@ registry.category("web_tour.tours").add("ems_attendance_report_student_scope", {
         { trigger: "body:not(:has(.o_error_dialog))", content: "No client-side error after printing" },
     ],
 });
+
+// A tutor who teaches none of their tutees' subjects. The 'Reports' screen opens with the removable
+// "My subjects" filter on (nothing of theirs to show); removing it brings every subject of their
+// tutees, taught by other teachers, in both the pivot and the graph. The by-group and by-subject
+// PDFs cover those other teachers' sessions too.
+registry.category("web_tour.tours").add("ems_attendance_report_tutor_scope", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_reports_open",
+    steps: () => [
+        { trigger: ".o_searchview_facet:contains('My subjects')", content: "'My subjects' filter on by default" },
+        {
+            trigger: ".o_searchview_facet:contains('My subjects') .o_facet_remove",
+            content: "Remove the 'My subjects' filter",
+            run: "click",
+        },
+        { trigger: ".o_searchview:not(:has(.o_searchview_facet))", content: "No filter left" },
+        { trigger: ".o_pivot_view .o_pivot_cell_value", content: "Pivot shows the tutees' lines" },
+        { trigger: ".o_pivot_expand_button", content: "Expand all: Total -> subject", run: "click" },
+        {
+            trigger: ".o_pivot_view:contains('Student Scope Tour Subject 1'):contains('Student Scope Tour Subject 2')",
+            content: "Both subjects, taught by other teachers, are listed",
+        },
+        { trigger: ".o_switch_view.o_graph", content: "Switch to graph", run: "click" },
+        { trigger: ".o_graph_renderer canvas", content: "Graph renders a chart" },
+
+        // --- By group PDF: the tutored group, although the tutor teaches nothing in it ---
+        { trigger: ".o_cp_action_menus button:has(.fa-cog)", content: "Open the Actions cog menu", run: "click" },
+        { trigger: ".o_attendance_report_cog_menu", content: "Open the PDF wizard", run: "click" },
+        { trigger: ".o_form_view .o_field_widget[name='group_id']", content: "By-group selector shown by default" },
+        ...selectMany2one("group_id", "Student Scope Tour Group"),
+        {
+            trigger: ".o_form_view .o_field_widget[name='from_date'] input:not([value=''])",
+            content: "from_date got auto-filled from the group's sessions",
+        },
+        { trigger: "button[name='print']", content: "Print the by-group report", run: "click" },
+        { trigger: "body:not(:has(.o_error_dialog))", content: "No error after printing by group" },
+
+        // --- By subject PDF (same dialog, which stays open after a download): a subject taught by
+        // another teacher in the tutored group ---
+        pickReportType("By subject"),
+        ...selectMany2one("subject_id", "Student Scope Tour Subject 2"),
+        {
+            trigger: ".o_form_view .o_field_widget[name='group_ids'] .o_tag:contains('Student Scope Tour Group')",
+            content: "group_ids got pre-filled with the tutored group",
+        },
+        { trigger: "button[name='print']", content: "Print the by-subject report", run: "click" },
+        { trigger: "body:not(:has(.o_error_dialog))", content: "No client-side error after printing" },
+    ],
+});

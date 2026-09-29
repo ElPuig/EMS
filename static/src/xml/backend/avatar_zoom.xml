@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="ems.AvatarZoom">
+        <div class="ems-avatar-zoom">
+            <img class="ems-avatar-zoom-img" t-att-src="imageUrl" alt=""/>
+            <span t-if="props.name" class="ems-avatar-zoom-name" t-esc="props.name"/>
+        </div>
+    </t>
+
+</templates>

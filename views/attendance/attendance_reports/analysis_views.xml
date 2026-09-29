@@ -39,6 +39,8 @@
                     <field name="group_ids"/>
                     <field name="subject_id"/>
                     <field name="status_id"/>
+                    <filter string="My subjects" name="my_subjects" domain="[('template_teacher_ids.user_id', '=', uid)]"/>
+                    <separator/>
                     <filter string="Date" name="filter_date" date="date"/>
                     <group string="Group By">
                         <filter string="Group" name="group_by_group" context="{'group_by': 'group_ids'}"/>

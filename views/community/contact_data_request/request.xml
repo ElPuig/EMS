@@ -77,20 +77,58 @@
                             <field name="missing_fields" nolabel="1" colspan="2"/>
                         </group>
                         <separator string="Changes"/>
+                        <!-- The photos: only a height, so they keep their ratio; zoom shows them
+                        bigger on hover, and opening the change compares them side by side. -->
                         <field name="line_ids" readonly="1">
                             <list create="false" delete="false" edit="false"
                                   decoration-success="action == 'create'" decoration-danger="action == 'remove'">
+                                <field name="field_name" column_invisible="1"/>
                                 <field name="person_name"/>
                                 <field name="action"/>
                                 <field name="field_label"/>
                                 <field name="old_value"/>
                                 <field name="new_value"/>
+                                <field name="old_image" widget="image" options="{'size': [0, 96], 'zoom': true}"
+                                       invisible="field_name != 'image_1920' or not old_image" optional="show"/>
+                                <field name="new_image" widget="image" options="{'size': [0, 96], 'zoom': true}"
+                                       invisible="field_name != 'image_1920'" optional="show"/>
                                 <field name="relation_type_id" optional="show"/>
                                 <field name="matched_partner_id" optional="show"/>
                                 <field name="possible_duplicate_id" optional="show"
                                        decoration-warning="possible_duplicate_id"/>
                                 <field name="also_student_ids" widget="many2many_tags" optional="show"/>
                             </list>
+                            <form string="Change">
+                                <field name="field_name" invisible="1"/>
+                                <group>
+                                    <group>
+                                        <field name="person_name"/>
+                                        <field name="action"/>
+                                        <field name="field_label"/>
+                                    </group>
+                                    <group>
+                                        <field name="relation_type_id" invisible="not relation_type_id"/>
+                                        <field name="matched_partner_id" invisible="not matched_partner_id"/>
+                                        <field name="possible_duplicate_id" invisible="not possible_duplicate_id"/>
+                                        <field name="also_student_ids" widget="many2many_tags" invisible="not also_student_ids"/>
+                                    </group>
+                                </group>
+                                <group invisible="field_name == 'image_1920' or action == 'remove'">
+                                    <field name="old_value" invisible="action == 'create'"/>
+                                    <field name="new_value"/>
+                                </group>
+                                <div class="row text-center o_ems_photo_compare" invisible="field_name != 'image_1920'">
+                                    <div class="col-6">
+                                        <div class="fw-bold mb-2">Photo on file</div>
+                                        <field name="old_image" widget="image" options="{'size': [0, 420]}" invisible="not old_image"/>
+                                        <div class="text-muted" invisible="old_image">No photo on file</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="fw-bold mb-2">Proposed photo</div>
+                                        <field name="new_image" widget="image" options="{'size': [0, 420]}"/>
+                                    </div>
+                                </div>
+                            </form>
                         </field>
                     </sheet>
                 </form>

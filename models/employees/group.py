@@ -2,6 +2,8 @@
 
 from odoo import models
 
+from .user import log_group_changes
+
 
 class ems_groups(models.Model):
     _inherit = "res.groups"
@@ -26,3 +28,23 @@ class ems_groups(models.Model):
             'mail.module_category_canned_response',                # Canned Responses -> Settings
             'queue_job.module_category_queue_job',                 # Job Queue -> Settings
         ]
+
+    def write(self, vals):
+        """Logs the users this write adds to or removes from each group, the same way
+        res.users.write() does from the user's side (issue #535)."""
+        if 'users' not in vals:
+            return super().write(vals)
+        users = self.sudo().with_context(active_test=False).users | self._ems_users_in_commands(vals['users'])
+        before = {user: user.groups_id for user in users}
+        res = super().write(vals)
+        log_group_changes(self.env, before, {user: user.groups_id for user in users})
+        return res
+
+    def _ems_users_in_commands(self, commands):
+        user_ids = set()
+        for command in commands or []:
+            if command[0] in (3, 4):
+                user_ids.add(command[1])
+            elif command[0] == 6:
+                user_ids.update(command[2])
+        return self.env['res.users'].sudo().with_context(active_test=False).browse(user_ids)

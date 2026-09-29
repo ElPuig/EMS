@@ -13110,6 +13110,12 @@ msgid "Guard duty schedule (%s)"
 msgstr "Horario de guardias (%s)"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Guard duty schedule"
+msgstr "Horario de guardias"
+
+#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board model_terms:ir.ui.view,arch_db:ems.portal_schedule
 msgid "No schedule available."
 msgstr "No hay horario disponible."

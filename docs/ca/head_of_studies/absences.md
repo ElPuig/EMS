@@ -154,4 +154,6 @@ A partir d'aquest moment, el docent surt a l'horari de guàrdies com a absent am
 
 Quan el docent sol·licita l'absència, l'absència prevista s'hi vincula automàticament i el seu estat passa de **Prevista** a **Sol·licitada**. Des d'aleshores només compta la sol·licitud del docent, amb les seves dates i hores: si després es rebutja o es cancel·la, l'entrada no torna a l'horari de guàrdies. Una entrada sol·licitada ja no es pot modificar; queda a la llista, amb el filtre **Sol·licitada**, com a registre.
 
+![Llista d'absències previstes, una encara prevista i una ja sol·licitada pel docent](../../assets/head_of_studies/hos-expected-absences-list.png)
+
 Si finalment el docent no falta, esborra l'entrada.

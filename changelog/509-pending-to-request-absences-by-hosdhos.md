@@ -8,11 +8,18 @@
 - Access follows the real hierarchy, not the role: only `ems.group_head_of_studies` has access (the Director implies it), narrowed by `rule_absence_pending_hierarchy` to teachers below the user through `parent_id` (`child_of user.employee_ids`). A Head of Studies or Deputy reaches only their own teachers; the Director reaches everyone; Department Chiefs, tutors and teachers have no access at all. Technical administrators (`base.group_system`, e.g. `admin`), who usually are not in the org chart, reach every teacher through a rule of their own.
 - Odoo's own "Time Off" entry under Management is replaced by an EMS entry on the same action, "Requested absences", so the two kinds (expected vs requested) can be told apart in the menu.
 - Tests (`TestAbsencePending`, `TestAbsencePendingTour` logged in as a Head of Studies), developer docs (`absence.md`, `guard_duty_board.md`), Head of Studies manual section and a note in the teachers' guard duty manual (en/ca/es), ca_ES/es_ES translations.
+- Screenshots: the Head of Studies manual shows the expected absences list (one expected, one already requested; `TestDocsScreenshotsHeadOfStudies.test_capture_expected_absences`), and the teachers' guard duty screenshots now include an expected absence in its pending style.
 
 ## Co-taught classes struck through on the guard duty absences table:
 
 - When a class is co-taught (two teachers, same group, period and room) and only one of them is away, their line on the absences table (screen and PDF) stays listed but struck through, with a tooltip: someone is missing, but the other teacher is taking the class, so no guard is needed.
 - A group split across two rooms, or a class where both teachers are away, is not marked: it still needs covering.
+
+# Fixes
+
+## Guard duty board's "Guard duty schedule" button untranslated:
+
+- The button switching the guard duty board back to the timetable view showed in English in Catalan and Spanish; its JS translation was missing from both `.po` files (only the "Guard duty schedule (%s)" title was there).
 
 # Changes
 

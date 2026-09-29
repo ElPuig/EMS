@@ -154,4 +154,6 @@ A partir de ese momento, el docente aparece en el horario de guardias como ausen
 
 Cuando el docente solicita la ausencia, la ausencia prevista se vincula a ella automáticamente y su estado pasa de **Prevista** a **Solicitada**. Desde entonces solo cuenta la solicitud del docente, con sus fechas y horas: si después se rechaza o se cancela, la entrada no vuelve al horario de guardias. Una entrada solicitada ya no se puede modificar; queda en la lista, con el filtro **Solicitada**, como registro.
 
+![Lista de ausencias previstas, una todavía prevista y otra ya solicitada por el docente](../../assets/head_of_studies/hos-expected-absences-list.png)
+
 Si finalmente el docente no falta, borra la entrada.

@@ -284,6 +284,7 @@
             'views/minutes_agreements/presence/kiosk.xml',
             'views/minutes_agreements/presence/menu.xml',
 
+        'views/coexistence/strike/issue.xml',
         'views/coexistence/strike/list.xml',
         'views/coexistence/strike/form.xml',
         'views/coexistence/strike/menu.xml',

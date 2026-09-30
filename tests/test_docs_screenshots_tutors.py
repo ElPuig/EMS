@@ -197,16 +197,16 @@ class TestDocsScreenshotsTutors(DocsScreenshotMixin, HttpCase):
         strikes = self.env['ems.strike'].create([{
             'student_id': self.student.id, 'teacher_id': self.teacher.id,
             'reason_id': self.env.ref('ems.strike_reason_material').id,
-            'date': datetime(2027, 3, 2, 9, 15),
+            'date': datetime(2026, 3, 2, 9, 15),
             'notes': "No ha portat l'ordinador per tercera vegada.",
         }, {
             'student_id': self.student.id, 'teacher_id': self.teacher.id,
             'reason_id': self.env.ref('ems.strike_reason_behaviour').id,
-            'date': datetime(2027, 3, 9, 11, 40), 'kicked_out': True,
+            'date': datetime(2026, 3, 9, 11, 40), 'kicked_out': True,
         }, {
             'student_id': self.classmate.id, 'teacher_id': self.teacher.id,
             'reason_id': self.env.ref('ems.strike_reason_device_misuse').id,
-            'date': datetime(2027, 3, 5, 12, 5),
+            'date': datetime(2026, 3, 5, 12, 5),
         }])
         # The native list has no domain (record rules scope it): our own, scoped to the fixtures.
         list_action = self.env['ir.actions.act_window'].create({

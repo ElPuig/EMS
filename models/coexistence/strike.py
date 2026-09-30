@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class ems_strike(models.Model):
@@ -12,12 +13,18 @@ class ems_strike(models.Model):
     student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]", required=True, ondelete="cascade")
     teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", required=True, default=lambda self: self.env.user.employee_id)
     attendance_session_line_id = fields.Many2one(string="Session line", comodel_name="ems.attendance_session_line", ondelete="set null", index=True)
-    reason_id = fields.Many2one(string="Reason", comodel_name="ems.strike.reason", required=True, default=lambda self: self.env.ref("ems.strike_reason_other", raise_if_not_found=False))
+    reason_id = fields.Many2one(string="Reason", comodel_name="ems.strike.reason", required=True, default=lambda self: self._default_reason_id())
     date = fields.Datetime(string="Date and time", default=fields.Datetime.now, required=True)
     notes = fields.Text(string="Details")
     kicked_out = fields.Boolean(string="Kicked out of class", default=False)
     send_to = fields.Char(string="Sent to", readonly=True, copy=False)
     strike_count = fields.Integer(string="Strike count", compute="_compute_strike_count")
+
+    @api.model
+    def _default_reason_id(self):
+        """First active reason by its own order, the same one the roll-call dialog preselects
+        (attendance_session_view.js), so both ways of issuing a strike agree."""
+        return self.env["ems.strike.reason"].search([], limit=1)
 
     @api.depends("student_id", "date", "reason_id")
     def _compute_display_name(self):
@@ -30,6 +37,14 @@ class ems_strike(models.Model):
             strike.strike_count = self.search_count([
                 ("student_id", "=", strike.student_id.id), ("id", "<=", strike.id),
             ]) if strike.id else 0
+
+    @api.constrains("date")
+    def _check_date_not_in_future(self):
+        # Both sides are naive UTC (how Odoo stores and returns Datetime), so no tz conversion.
+        now = fields.Datetime.now()
+        for strike in self:
+            if strike.date > now:
+                raise ValidationError(_("A strike can't be dated in the future."))
 
     @api.model_create_multi
     def create(self, vals_list):

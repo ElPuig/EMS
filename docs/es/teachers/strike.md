@@ -4,7 +4,7 @@
 
 # Strikes: notificar una incidencia disciplinaria
 
-A veces hay que dejar constancia del comportamiento de un alumno durante una sesión, para que la familia, el tutor de grupo y, si se repite, el coordinador de convivencia tengan conocimiento. Esta página explica cómo poner un strike desde la vista de pasar lista.
+A veces hay que dejar constancia del comportamiento de un alumno durante una sesión, para que la familia, el tutor de grupo y, si se repite, el coordinador de convivencia tengan conocimiento. Esta página explica cómo poner un strike desde la vista de pasar lista, o desde la sección de Convivencia cuando la incidencia ocurre fuera de clase.
 
 **Rol necesario:** Profesor
 
@@ -23,6 +23,20 @@ A veces hay que dejar constancia del comportamiento de un alumno durante una ses
 ![El diálogo de strike: el nombre del alumno, la alternancia Aviso de atención/Expulsado de clase, el desplegable de Motivo ya establecido en el valor genérico por defecto, y el campo opcional de Detalles](../../assets/teachers/strike-01-dialeg.png)
 
 Y ya está — no hace falta ninguna otra confirmación, ni nada más allá del motivo.
+
+---
+
+## Poner un strike fuera de clase
+
+Si te encuentras una incidencia fuera de una sesión (en el pasillo, en el patio...), no hace falta pasar lista antes:
+
+1. Ve a **Convivencia → Strikes** y haz clic en **Nuevo strike**.
+2. En el diálogo que se abre, elige el **Alumno** (escribe parte del nombre) y, si hace falta, cambia el **Motivo**, marca **Expulsado de clase**, ajusta la **Fecha y hora** (empieza con el momento actual; se puede atrasar, pero nunca poner en el futuro) y añade **Detalles**. El campo **Profesor/a** muestra tu nombre y no se puede cambiar: el strike lo pones siempre tú.
+3. Haz clic en **Enviar**. El strike aparece en la lista y se envían las mismas notificaciones que se describen más abajo.
+
+Si cierras el diálogo o haces clic en **Cancelar**, no se guarda nada y no se notifica a nadie.
+
+![El diálogo Nuevo strike: Alumno, Motivo, Expulsado de clase, Profesor/a (solo lectura), Fecha y hora y los Detalles opcionales, con los botones Enviar y Cancelar](../../assets/teachers/strike-02-fora-de-classe.png)
 
 ---
 

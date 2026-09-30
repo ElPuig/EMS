@@ -110,6 +110,7 @@ from . import test_student_google_workspace_tour
 from . import test_employee_ems_user
 from . import test_strike
 from . import test_strike_tour
+from . import test_strike_issue_standalone_tour
 from . import test_working_schedule
 from . import test_ems_teaching_sync
 from . import test_employee_schedule_lifecycle

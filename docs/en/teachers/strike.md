@@ -4,7 +4,7 @@
 
 # Strikes: Flagging a Disciplinary Incident
 
-Sometimes a student's behaviour during a session needs to be flagged so the family, the group tutor and — if it happens repeatedly — the coexistence coordinator are aware. This page explains how to issue a strike from the roll-call view.
+Sometimes a student's behaviour during a session needs to be flagged so the family, the group tutor and — if it happens repeatedly — the coexistence coordinator are aware. This page explains how to issue a strike from the roll-call view, or from the Coexistence section when the incident happens outside class.
 
 **Required role:** Teacher
 
@@ -23,6 +23,20 @@ Sometimes a student's behaviour during a session needs to be flagged so the fami
 ![The strike dialog: the student's name, the Attention notice/Kicked out of class toggle, the Reason dropdown pre-filled with the generic default, and the optional Details field](../../assets/teachers/strike-01-dialeg.png)
 
 That's it — no further confirmation is needed, and nothing is required beyond the reason.
+
+---
+
+## Issuing a Strike Outside Class
+
+If you come across an incident outside a session (in a corridor, in the playground...), you don't need to take attendance first:
+
+1. Go to **Coexistence → Strikes** and click **New strike**.
+2. In the dialog that opens, choose the **Student** (type part of their name) and, if needed, change the **Reason**, tick **Kicked out of class**, adjust the **Date and time** (it starts at the current moment; it can be moved back, never into the future) and add **Details**. The **Teacher** field shows your name and can't be changed: the strike is always issued by you.
+3. Click **Send**. The strike is added to the list and the same notifications described below are sent.
+
+If you close the dialog or click **Cancel**, nothing is saved and nobody is notified.
+
+![The New strike dialog: Student, Reason, Kicked out of class, Teacher (read-only), Date and time and the optional Details, with the Send and Cancel buttons](../../assets/teachers/strike-02-fora-de-classe.png)
 
 ---
 

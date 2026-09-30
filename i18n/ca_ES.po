@@ -2348,6 +2348,7 @@ msgstr "Pot editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_reject_wizard_form model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_return_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -3064,6 +3065,7 @@ msgstr "Descripció i notes"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_strike__notes model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+#: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
 msgid "Details"
 msgstr "Detalls"
 
@@ -10591,6 +10593,7 @@ msgstr "Manca de material necessari"
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0 model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
 msgid "Send"
 msgstr "Enviar"
 
@@ -19026,3 +19029,16 @@ msgstr "Canvi"
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form
 msgid "No photo on file"
 msgstr "Sense foto a la fitxa"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_strike_issue
+#: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
+#: model_terms:ir.ui.view,arch_db:ems.view_strike_list
+msgid "New strike"
+msgstr "Nou strike"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/coexistence/strike.py:0
+msgid "A strike can't be dated in the future."
+msgstr "No es pot posar un strike amb data futura."

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #402: issuing a strike outside the roll-call view (e.g. a student caught in
+             the corridor). A dialog rather than the list's standard "New": saving a strike
+             emails the student, tutor and family right away, and the full-page form would
+             autosave a half-filled one just by navigating away. Closing the dialog discards. -->
+        <record id="view_strike_form_issue" model="ir.ui.view">
+            <field name="name">ems.strike.form.issue</field>
+            <field name="model">ems.strike</field>
+            <field name="priority">100</field>
+            <field name="arch" type="xml">
+                <form string="New strike">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="student_id" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="reason_id" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="kicked_out"/>
+                            </group>
+                            <group>
+                                <!-- Only an administrator can issue a strike on another teacher's
+                                     behalf (rule_strike_teacher_own); everyone else sees themselves
+                                     as the issuer, read-only (filled by the field's default). -->
+                                <field name="teacher_id" groups="ems.group_academic_admin" options="{'no_create': True}"/>
+                                <field name="teacher_id" groups="!ems.group_academic_admin" readonly="1" options="{'no_open': True}"/>
+                                <!-- Never in the future (_check_date_not_in_future); max_date only
+                                     greys out later days in the picker, the constraint is what enforces it. -->
+                                <field name="date" options="{'max_date': 'today'}"/>
+                            </group>
+                        </group>
+                        <group string="Details">
+                            <field name="notes" nolabel="1"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Send" special="save" class="btn-primary o_strike_issue_send" data-hotkey="q"/>
+                        <button string="Cancel" special="cancel" class="btn-secondary" data-hotkey="x"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_strike_issue" model="ir.actions.act_window">
+            <field name="name">New strike</field>
+            <field name="res_model">ems.strike</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_strike_form_issue"/>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

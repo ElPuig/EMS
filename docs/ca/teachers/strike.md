@@ -4,7 +4,7 @@
 
 # Strikes: notificar una incidència disciplinària
 
-De vegades cal deixar constància del comportament d'un alumne durant una sessió, perquè la família, el tutor de grup i, si es repeteix, el coordinador de convivència en tinguin coneixement. Aquesta pàgina explica com posar un strike des de la vista de passar llista.
+De vegades cal deixar constància del comportament d'un alumne durant una sessió, perquè la família, el tutor de grup i, si es repeteix, el coordinador de convivència en tinguin coneixement. Aquesta pàgina explica com posar un strike des de la vista de passar llista, o des de la secció de Convivència quan la incidència passa fora de classe.
 
 **Rol necessari:** Professor
 
@@ -23,6 +23,20 @@ De vegades cal deixar constància del comportament d'un alumne durant una sessi�
 ![El diàleg de strike: el nom de l'alumne, l'alternança Toc d'atenció/Expulsat de classe, el desplegable de Motiu ja establert al valor genèric per defecte, i el camp opcional de Detalls](../../assets/teachers/strike-01-dialeg.png)
 
 Ja està — no cal cap altra confirmació, ni res més enllà del motiu.
+
+---
+
+## Posar un strike fora de classe
+
+Si et trobes una incidència fora d'una sessió (al passadís, al pati...), no cal passar llista abans:
+
+1. Ves a **Convivència → Strikes** i clica **Nou strike**.
+2. Al diàleg que s'obre, tria l'**Estudiant** (escriu part del nom) i, si cal, canvia el **Motiu**, marca **Expulsat de classe**, ajusta la **Data i hora** (comença amb el moment actual; es pot endarrerir, però mai posar en el futur) i afegeix-hi **Detalls**. El camp **Professor/a** mostra el teu nom i no es pot canviar: el strike el poses sempre tu.
+3. Clica **Enviar**. El strike apareix a la llista i s'envien les mateixes notificacions que es descriuen més avall.
+
+Si tanques el diàleg o cliques **Cancel·la**, no es desa res i no es notifica ningú.
+
+![El diàleg Nou strike: Estudiant, Motiu, Expulsat de classe, Professor/a (només lectura), Data i hora i els Detalls opcionals, amb els botons Enviar i Cancel·la](../../assets/teachers/strike-02-fora-de-classe.png)
 
 ---
 

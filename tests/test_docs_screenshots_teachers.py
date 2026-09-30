@@ -528,6 +528,16 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             click='.ems-av-strike-btn', wait_after='.ems-av-strike-dialog[open]',
         )
 
+    def test_capture_strike_standalone(self):
+        # Issue #402: the "New strike" dialog of Coexistence > Strikes. Same as above, it only
+        # opens the dialog and never sends, so no ems.strike (nor email) is created.
+        self._capture(
+            '/odoo/action-ems.action_strike_list',
+            '.modal-content', 'strike-02-fora-de-classe.png',
+            login='doc_shot_teacher', wait_for='.o_list_button_add_strike',
+            click='.o_list_button_add_strike', wait_after='.modal .o_form_view',
+        )
+
     def test_capture_student_academic_data(self):
         level, study, group = create_level_study_group(self, 'DOCACAD', level={
             'name': 'Formació professional',

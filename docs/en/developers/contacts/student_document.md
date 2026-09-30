@@ -108,7 +108,7 @@ In the views, the Documentation page adds `ems.group_tutor` (which every chief i
 
 ### Bulk download: "Download Google credentials"
 
-A server action (`action_google_credentials_download_bulk`, `views/community/contact/google_credentials_download.xml`) bound to both the `res.partner` list's and form's Actions menu, for academic admin, secretary, tutor (and so every chief) and TAC:
+A server action (`action_google_credentials_download_bulk`, `views/community/contact/google_credentials_download.xml`) bound to the `res.partner` list's cog menu, for academic admin, secretary, tutor (and so every chief) and TAC. A student's own form offers the same method as an entry of its Actions dropdown, shown only when `can_download_google_credentials` (the student has a credentials PDF the user may read, through the same record rules):
 
 ```mermaid
 sequenceDiagram

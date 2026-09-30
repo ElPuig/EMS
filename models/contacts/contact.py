@@ -238,6 +238,15 @@ class ResPartner(models.Model):
     # (security/rules/contacts.xml) - admin, secretary, Head of Studies, guidance, coexistence, and
     # the student's tutor scope.
     can_see_benefits = fields.Boolean(string='Can see benefits', compute='_compute_can_see_benefits')
+    # Which of the form's Actions dropdown entries apply to this student for the current user, with
+    # the same rule each assistant applies on its own (it drops someone else's student anyway, so
+    # offering the entry there only opened an assistant with nothing to do). Portal access: the
+    # portal wizard's _user_can_manage (admin, secretary, tutor scope); authorizations and contact
+    # data requests: ems.student.scope.mixin's _scope_acts_on_student (also Head of Studies).
+    can_manage_portal_access = fields.Boolean(
+        string='Can manage portal access', compute='_compute_student_action_rights')
+    can_send_student_requests = fields.Boolean(
+        string='Can send authorizations and data requests', compute='_compute_student_action_rights')
 
     selected_student_id = fields.Many2one(
         'res.partner',
@@ -974,6 +983,12 @@ class ResPartner(models.Model):
 
         return contact
 
+    @api.model
+    def fields_get(self, allfields=None, attributes=None):
+        # No Archive/Unarchive for a plain teacher: see EmsBase.fields_get_active_readonly_for_teachers.
+        return base.EmsBase.fields_get_active_readonly_for_teachers(
+            self, super().fields_get(allfields, attributes))
+
     def toggle_active(self):
         """Archiving one or several students opens the withdrawal wizard instead
         of archiving directly, mirroring hr.employee (archiving asks for a reason
@@ -1315,6 +1330,16 @@ class ResPartner(models.Model):
             'ems.group_student_data_reader'))
         for partner in self:
             partner.can_see_benefits = sees_all or base.EmsBase.user_acts_as_tutor(partner, partner.tutor_id)
+
+    @api.depends('contact_type', 'tutor_id')
+    @api.depends_context('uid')
+    def _compute_student_action_rights(self):
+        portal = self.env['ems.portal.access.wizard']
+        scope = self.env['ems.student.scope.mixin']
+        for partner in self:
+            is_student = partner.contact_type in ('student', 'applicant')
+            partner.can_manage_portal_access = is_student and portal._user_can_manage(partner)
+            partner.can_send_student_requests = is_student and scope._scope_acts_on_student(partner)
 
     @api.depends('tutor_id')
     @api.depends_context('uid')

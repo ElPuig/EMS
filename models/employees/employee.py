@@ -5,6 +5,7 @@ import base64
 from odoo import SUPERUSER_ID, models, fields, api, Command, _
 from odoo.exceptions import UserError, ValidationError
 
+from ..shared import base
 from ..shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC
 from ..shared.schedule_report_mixin import HOUR_EPSILON
 
@@ -907,6 +908,12 @@ class ems_employee(models.AbstractModel):
             orphaned = (calendars - still_used).filtered(lambda calendar: calendar.id not in company_calendar_ids)
             orphaned.unlink()
         return result
+
+    @api.model
+    def fields_get(self, allfields=None, attributes=None):
+        # No Archive/Unarchive for a plain teacher: see EmsBase.fields_get_active_readonly_for_teachers.
+        return base.EmsBase.fields_get_active_readonly_for_teachers(
+            self, super().fields_get(allfields, attributes))
 
     def action_archive(self):
         """Cascades to this teacher's own personal calendar - mirrors 'ems_working_schedule.

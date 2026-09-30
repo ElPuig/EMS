@@ -34,6 +34,9 @@
         'survey', 
         'hr_attendance',
         'hr_holidays',
+        # auto-installed with hr_holidays + hr_attendance anyway; listed so its "Deduct Extra
+        # Hours" header button exists before views/community/employee/form.xml moves it.
+        'hr_holidays_attendance',
         'queue_job',
         'sale_management',
         'sale_pdf_quote_builder',

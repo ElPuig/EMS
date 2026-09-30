@@ -114,3 +114,7 @@ was a safe, non-breaking rename.
 recordset (none of these three need a real record); `notify` likewise (it only touches
 `self.env.user`); `chatter`/`chatter_exception`/`action_archive` against a real
 `ems.limesurvey_header` record, an arbitrary already-DTON'd consumer.
+
+## Archive/Unarchive only for users who can archive
+
+`fields_get_active_readonly_for_teachers(res)` / `user_can_archive()` (called unbound from `res.partner.fields_get()` and `hr.employee.fields_get()`): the web client offers Archive/Unarchive in the cog menu (form and list) whenever the model's `active` field isn't readonly, and never checks whether the user may write the record. `user_can_archive()` is true when the user holds write access to the model (`ir.model.access`) through a group other than `ems.group_teacher`, or through an ACL granted to everyone; otherwise `active` is reported readonly and the entries disappear. The teacher's own write access is narrowed by record rules to a tutor's students and families, and archiving a student opens the withdrawal assistant, which only the secretary, the Head of Studies or an admin may use. Only a `readonly` attribute that was actually requested is overridden. Tested by `tests/test_archive_entry.py`, and in a browser by `TestActionsDropdownTour` (`noArchiveInCog`).

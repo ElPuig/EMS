@@ -43,6 +43,13 @@ class EmsStudentScopeMixin(models.AbstractModel):
         return base.EmsBase.get_user_sees_every_student(self)
 
     @api.model
+    def _scope_acts_on_student(self, student):
+        """Whether the sender may act on this student: staff who see every student, or whoever
+        acts as the student's tutor (the tutor, or a chief above them - issue #483). Also drives
+        which entries a student's form offers (res.partner._compute_student_action_rights)."""
+        return self._scope_sees_every_student() or base.EmsBase.user_acts_as_tutor(self, student.tutor_id)
+
+    @api.model
     def _scope_allowed_groups(self):
         """The main groups the sender may pick: every one for the staff who see every student, and
         for a tutor the groups they act as tutor of - their own, or those of the tutors below them
@@ -102,9 +109,7 @@ class EmsStudentScopeMixin(models.AbstractModel):
             students = self.student_ids._origin
         else:
             students = self._students_from_scope()
-        if not self._scope_sees_every_student():
-            students = students.filtered(lambda student: base.EmsBase.user_acts_as_tutor(self, student.tutor_id))
-        return students
+        return students.filtered(self._scope_acts_on_student)
 
     def _scope_foreign_students(self, students):
         """Students picked by hand that _resolve_students() dropped - someone else's student picked

@@ -156,16 +156,19 @@ class EmsWithdrawalWizard(models.TransientModel):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-        if not self._is_secretary_or_admin():
-            raise UserError(_("Only the secretary or an administrator can register withdrawals."))
+        if not self._can_register_exits():
+            raise UserError(_("Only the secretary, the head of studies or an administrator can register withdrawals."))
         active_ids = self.env.context.get('active_ids') or []
         students = self.env['res.partner'].browse(active_ids).filtered(
             lambda p: p.contact_type == 'student')
         res['line_ids'] = [(0, 0, self._line_vals(s)) for s in students]
         return res
 
-    def _is_secretary_or_admin(self):
-        return self.env.user.has_group('ems.group_academic_admin') or self.env.user.has_group('ems.group_secretary')
+    def _can_register_exits(self):
+        """Withdrawals and expulsions: the secretary, the academic admin, and the Head of Studies
+        (the one group shared by Head of Studies, Deputy Head of Studies and Director)."""
+        return any(self.env.user.has_group(xmlid) for xmlid in (
+            'ems.group_academic_admin', 'ems.group_secretary', 'ems.group_head_of_studies'))
 
     def _current_course(self):
         return self.env.company.current_course_id \
@@ -183,8 +186,8 @@ class EmsWithdrawalWizard(models.TransientModel):
         cleans active attendance templates, cancels pending enrolments and revokes
         the portal (with sibling check)."""
         self.ensure_one()
-        if not self._is_secretary_or_admin():
-            raise UserError(_("Only the secretary or an administrator can register withdrawals."))
+        if not self._can_register_exits():
+            raise UserError(_("Only the secretary, the head of studies or an administrator can register withdrawals."))
         course = self._current_course()
         done = 0
         revoked = skipped = 0

@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { checkActions } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // Issue #478: "Download Google credentials" on the students list's Actions (cog) menu, run by a
 // tutor. Selected student has no credentials PDF, so the action must answer with a warning
@@ -47,25 +48,27 @@ registry.category("web_tour.tours").add("ems_google_credentials_download", {
     ],
 });
 
-// Issue #482: the same server action must also be reachable from the student's own form, not
-// only from the list's cog menu (see the tour above) - opened directly on the seeded student's
-// form (see test_google_credentials_download_form_tour), no list/search steps needed here.
+// On a student's own form the download is an entry of the Actions dropdown, offered only when the
+// student has credentials the user may read (can_download_google_credentials) - so the form never
+// needs the list's "nothing to download" warning. Opened directly on the seeded student's form
+// (see test_google_credentials_download_form_tour); the download itself is not clicked, for the
+// same reason as above.
 registry.category("web_tour.tours").add("ems_google_credentials_download_form", {
     test: true,
     steps: () => [
-        {
-            trigger: ".o_form_view .o_cp_action_menus button",
-            content: "Open the form's Actions (cog) menu",
-            run: "click",
-        },
-        {
-            trigger: ".o_menu_item:contains('Download Google credentials')",
-            content: "'Download Google credentials' is also offered from the form",
-            run: "click",
-        },
-        {
-            trigger: ".modal .modal-body:contains('Google credentials')",
-            content: "The tutor is told there is nothing to download, same as from the list",
-        },
+        ...checkActions(
+            { offered: ["action_download_google_credentials"] },
+            "The tutor's student has credentials: the download is offered",
+        ),
+    ],
+});
+
+registry.category("web_tour.tours").add("ems_google_credentials_download_form_none", {
+    test: true,
+    steps: () => [
+        ...checkActions(
+            { offered: ["action_authorization_send_bulk"], notOffered: ["action_download_google_credentials"] },
+            "No credentials to download: the entry is not offered",
+        ),
     ],
 });

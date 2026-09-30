@@ -58,9 +58,9 @@ to the students OU gets `403`, not `404`, for a non-existent user, so `get()` ca
 reliably tell "free" from "not authorized." `_gw_email_used_in_ems` additionally excludes
 any candidate already claimed by another student record in EMS itself.
 
-### Manual creation from the form header
+### Manual creation from the form
 
-The header button **Create Google account** calls `action_create_google_account()`, the public
+The **Create Google account** entry of the form's Actions dropdown calls `action_create_google_account()`, the public
 entry point: it checks `can_create_google_account` (raising `AccessError` otherwise) and then runs
 `_gw_create_account()`, which holds the whole creation flow above. Every automatic path (the
 queue job enqueued by `_gw_enqueue_if_ready()`, and the re-creation of a deleted account inside
@@ -212,7 +212,7 @@ stateDiagram-v2
     suspended --> active: action_reactivate_google_account()
 ```
 
-| `google_ws_state` | Header button shown (`views/community/contact/form.xml`) | Meaning |
+| `google_ws_state` | Actions dropdown entry shown (`views/community/contact/form.xml`) | Meaning |
 |---|---|---|
 | `none` | Create Google account (also needs `can_create_google_account`) | Not a student, or no corporate email yet |
 | `active` | Suspend Google account, Reset Google password (the latter also needs `can_reset_google_password`) | Fully set up |
@@ -224,7 +224,7 @@ already archived/withdrawn before the field existed.
 
 ## Password reset
 
-`action_reset_google_password()` (header button **Reset Google password**, only while
+`action_reset_google_password()` (Actions dropdown entry **Reset Google password**, only while
 `google_ws_state == 'active'`, behind a `confirm`) gives an existing account a new password:
 
 ```mermaid
@@ -291,8 +291,8 @@ write path.
 | Action | Who |
 |---|---|
 | Create Google account (button, plus the same check inside `action_create_google_account()`) | `ems.group_secretary`, `ems.group_academic_admin`, `ems.group_tac`, and the student's own tutor scope (`can_create_google_account`, issue #513) |
-| Header button suspend | `ems.group_secretary`, `ems.group_academic_admin`, `ems.group_tac` |
-| Header buttons reactivate/delete/cancel | `ems.group_secretary`, `ems.group_academic_admin` |
+| Suspend (Actions dropdown entry) | `ems.group_secretary`, `ems.group_academic_admin`, `ems.group_tac` |
+| Reactivate/delete/cancel (Actions dropdown entries) | `ems.group_secretary`, `ems.group_academic_admin` |
 | Reset Google password (button, plus the same check inside the method) | `ems.group_academic_admin`, `ems.group_tac`, and the student's own tutor scope (`can_reset_google_password` / `user_acts_as_tutor`, issue #490) |
 | Reading the credentials PDFs (Secretary tab's Documentation section, bulk download) | see [student_document.md](student_document.md#access-control): tutors their own students' (every chief above a tutor, that tutor's students), TAC everyone's |
 | Grace-period banners, optional list columns, search filters | same as above |

@@ -56,6 +56,11 @@ class ResPartnerGoogleWorkspace(models.Model):
         compute_sudo=True, store=False,
         help="Whether the user looking at this student may create their Google account: the "
              "secretary, plus everyone who may reset the password.")
+    can_download_google_credentials = fields.Boolean(
+        string="Can download the Google credentials",
+        compute='_compute_can_download_google_credentials', store=False,
+        help="Whether the student has a Google credentials PDF the user looking at them may "
+             "read, so the form only offers the download when there is something to download.")
 
     # ------------------------------------------------------------------
     # Compute
@@ -85,6 +90,18 @@ class ResPartnerGoogleWorkspace(models.Model):
             partner.can_reset_google_password = privileged or base.EmsBase.user_acts_as_tutor(
                 partner, partner.tutor_id)
             partner.can_create_google_account = secretary or partner.can_reset_google_password
+
+    # Not compute_sudo: the document ACL and record rules are what decide whose credentials the
+    # user may read (a tutor only their own students'), same as the download itself. A plain
+    # teacher has no ACL on the documents at all, hence the has_access() guard.
+    @api.depends('document_ids.doc_type', 'document_ids.doc_file_name')
+    @api.depends_context('uid')
+    def _compute_can_download_google_credentials(self):
+        readable = self.env['res.partner']
+        if self.env['ems.student.document'].has_access('read'):
+            readable = self._origin._get_google_credentials_documents().partner_id
+        for partner in self:
+            partner.can_download_google_credentials = partner._origin in readable
 
     # ------------------------------------------------------------------
     # Helpers

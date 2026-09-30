@@ -10,20 +10,23 @@
                     <attribute name="invisible">1</attribute>
                 </xpath>
 
-                <xpath expr="//sheet" position="before">
-                    <header>
-                        <field name="google_ws_state" invisible="1"/>
-                        <field name="google_signin_missing" invisible="1"/>
-                        <field name="pending_identification" invisible="1"/>
+                <!-- Into the native <header>, not a second one: a form has one status bar, and
+                     every action on this employee sits in its "Actions" dropdown, never loose in
+                     the header (see docs/en/developers/shared/actions_dropdown.md). Native
+                     buttons join it too: hr_holidays_attendance's "Deduct Extra Hours" is moved
+                     in by view_employee_form_native_actions, which has to run after it. -->
+                <xpath expr="//header" position="inside">
+                    <field name="google_ws_state" invisible="1"/>
+                    <field name="google_signin_missing" invisible="1"/>
+                    <field name="pending_identification" invisible="1"/>
+                    <div name="ems_actions" string="Actions">
                         <button name="action_mark_as_identified" type="object"
                                 string="Mark as identified"
-                                class="btn-secondary"
                                 invisible="not pending_identification"
                                 confirm="This clears the pending-identification placeholder without creating any Google/EMS account. Use it only once you are sure this employee will not need one created from this record (e.g. already has one elsewhere). Continue?"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <button name="action_create_google_account" type="object"
                                 string="Create Google account"
-                                class="btn-secondary"
                                 invisible="google_ws_state != 'none'"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <!-- Corporate email already exists but no EMS user is linked yet
@@ -32,12 +35,10 @@
                              Workspace API call. -->
                         <button name="action_create_ems_user" type="object"
                                 string="Create EMS User"
-                                class="btn-secondary"
                                 invisible="google_ws_state != 'pending_user'"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <button name="action_suspend_google_account" type="object"
                                 string="Suspend Google account"
-                                class="btn-secondary"
                                 invisible="google_ws_state != 'active'"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <!-- Repair, not a state of its own: the account is active and
@@ -46,12 +47,10 @@
                              than replacing it. Hidden as soon as the link is back. -->
                         <button name="action_relink_google_signin" type="object"
                                 string="Re-link Google sign-in"
-                                class="btn-secondary"
                                 invisible="not google_signin_missing"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <button name="action_reactivate_google_account" type="object"
                                 string="Reactivate Google account"
-                                class="btn-secondary"
                                 invisible="google_ws_state != 'suspended'"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <!-- Grace period (issue #388): archiving only schedules the
@@ -60,10 +59,12 @@
                              the date field itself. -->
                         <button name="action_cancel_scheduled_deactivation" type="object"
                                 string="Cancel scheduled deactivation"
-                                class="btn-secondary"
                                 invisible="not google_ws_deactivation_date"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
-                    </header>
+                    </div>
+                </xpath>
+
+                <xpath expr="//sheet" position="before">
                     <!-- Same groups as the buttons above, for the same reason as on the
                          student form: whoever cannot act on the account has no business
                          reading its schedule either. -->
@@ -411,6 +412,22 @@
                 <xpath expr="//group[@name='managers']" position="attributes">
                     <attribute name="invisible">True</attribute>
                 </xpath>          
+            </field>
+        </record>
+
+        <!-- Native header buttons into the Actions dropdown (view_employee_form above). A
+             separate view because hr_holidays_attendance adds "Deduct Extra Hours" at priority
+             120, after view_employee_form: this one must run later still to find it. Matched on
+             its context, not its string (translatable) or name (a %(xmlid)d action id). -->
+        <record model="ir.ui.view" id="view_employee_form_native_actions">
+            <field name="name">ems.employee.form.native.actions</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="priority">130</field>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='ems_actions']" position="inside">
+                    <xpath expr="//header/button[contains(@context, 'deduct_extra_hours')]" position="move"/>
+                </xpath>
             </field>
         </record>
     </data>

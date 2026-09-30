@@ -5965,6 +5965,7 @@ msgstr "Acceso al portal"
 
 #. module: ems
 #: model:ir.actions.server,name:ems.action_portal_access_bulk
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Portal access (students/families)"
 msgstr "Acceso al portal (alumnos/familias)"
 
@@ -9877,8 +9878,8 @@ msgstr "Ya tiene matrícula para el próximo curso — la graduación es incompa
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/graduation_wizard.py:0
-msgid "Only the secretary or an administrator can register withdrawals."
-msgstr "Solo secretaría o administración pueden registrar bajas."
+msgid "Only the secretary, the head of studies or an administrator can register withdrawals."
+msgstr "Solo secretaría, jefatura de estudios o administración pueden registrar bajas."
 
 #. module: ems
 #. odoo-python
@@ -14472,6 +14473,7 @@ msgstr "Enviar autorizaciones"
 #: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
 #: model:ir.actions.server,name:ems.action_authorization_send_bulk
 #: model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Send authorizations"
 msgstr "Enviar autorizaciones"
 
@@ -15152,6 +15154,7 @@ msgstr "Necesidades educativas especiales de solo lectura"
 
 #. module: ems
 #: model:ir.actions.server,name:ems.action_google_credentials_download_bulk
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Download Google credentials"
 msgstr "Descargar credenciales de Google"
 
@@ -16954,6 +16957,7 @@ msgstr "Recordatorios"
 #: model:ir.actions.server,name:ems.action_contact_data_request_bulk
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_list
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Request contact data"
 msgstr "Solicitar datos de contacto"
 
@@ -19045,3 +19049,35 @@ msgstr "Nuevo strike"
 #: code:addons/ems/models/coexistence/strike.py:0
 msgid "A strike can't be dated in the future."
 msgstr "No se puede poner un strike con fecha futura."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Actions"
+msgstr "Acciones"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_download_google_credentials model:ir.model.fields,field_description:ems.field_res_users__can_download_google_credentials
+msgid "Can download the Google credentials"
+msgstr "Puede descargar las credenciales de Google"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__can_download_google_credentials
+#: model:ir.model.fields,help:ems.field_res_users__can_download_google_credentials
+msgid ""
+"Whether the student has a Google credentials PDF the user looking at them "
+"may read, so the form only offers the download when there is something to "
+"download."
+msgstr "Si el alumno tiene un PDF de credenciales de Google que puede leer el usuario que lo consulta, para que la ficha solo ofrezca la descarga cuando hay algo que descargar."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_manage_portal_access
+#: model:ir.model.fields,field_description:ems.field_res_users__can_manage_portal_access
+msgid "Can manage portal access"
+msgstr "Puede gestionar el acceso al portal"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_send_student_requests
+#: model:ir.model.fields,field_description:ems.field_res_users__can_send_student_requests
+msgid "Can send authorizations and data requests"
+msgstr "Puede enviar autorizaciones y solicitudes de datos"

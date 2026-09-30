@@ -443,6 +443,10 @@ The **field-level** editing surface for tutors is narrower than the record rule 
 | Relation wizard | `views/community/contact/relation_wizard.xml` | `action_contact_relation_wizard` |
 | Menu | `views/community/contact/menu.xml` + `views/community/menu.xml` | `action_student_kanban` (top-level "Educational Community" entry), `action_family_list`, `action_provider_kanban` |
 
+### Student form button box
+
+Next to the native smart buttons, a student's form adds **Strikes** (`action_view_strikes`, only when there is at least one), **Convalidations** (`action_view_convalidations`) and **Attendance** (`action_view_attendance_reports`, teacher/secretary/secretary admin, always shown for a student). The last one opens the attendance **Reports** pivot filtered on the student, with the menu's own role-based scope - see "Student form entry point" in `docs/en/developers/attendance/attendance_reports.md`.
+
 ### Student form pages
 
 A student's form has its own header instead of the native contact block (hidden for students), laid out to fit above the tabs:

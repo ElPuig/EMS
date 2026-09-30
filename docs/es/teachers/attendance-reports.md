@@ -22,6 +22,16 @@
 
 ---
 
+## Desde la ficha del alumno
+
+Para consultar la asistencia de un solo alumno, abre su ficha y haz clic en el botón **Asistencia** de la parte superior, junto a **Reuniones** y **Relaciones**. Se abre la misma tabla dinámica, ya filtrada por ese alumno (el filtro **Alumno** de la barra de búsqueda, que puedes quitar con su **×**). Verás las asignaturas que impartes a ese alumno (todas, si también eres su tutor/a). La vista de gráfico y los informes PDF funcionan exactamente como se describe en este manual.
+
+![El botón Asistencia en la ficha del alumno](../../assets/tutors/tutor-informes-02-boto-fitxa.png)
+
+![Tabla dinámica de asistencia filtrada por un alumno](../../assets/tutors/tutor-informes-03-alumne.png)
+
+---
+
 ## Imprimir un informe PDF
 
 En la pantalla de **Informes de asistencia**, haz clic en el icono **⚙ (engranaje)** de la cabecera y elige **Imprimir informe de asistencia**. En el formulario, elige el **Tipo de informe** — por grupo, por alumno o por asignatura — y los campos se adaptan a tu elección.

@@ -115,6 +115,20 @@ class TestDocsScreenshotsTutors(DocsScreenshotMixin, HttpCase):
             login='doc_shot_tutor',
             wait_for=".modal-content .o_field_widget[name='student_id'] input",
         )
+        # The student's file: its 'Assistència' button, then the pivot it opens (issue #519).
+        button = "button[name='action_view_attendance_reports']"
+        self._capture(
+            self._student_url(self.student), '.o_control_panel .o-form-buttonbox',
+            'tutor-informes-02-boto-fitxa.png', login='doc_shot_tutor', wait_for=button,
+        )
+        self._capture(
+            self._student_url(self.student), '.o_action_manager', 'tutor-informes-03-alumne.png',
+            login='doc_shot_tutor', wait_for=button,
+            click=[button, '.o_pivot_expand_button', '.o_pivot_expand_button'],
+            wait_after=['.o_pivot_view .o_pivot_cell_value', ".o_pivot_view tbody tr:nth-child(2)",
+                        ".o_pivot_view tbody tr:nth-child(3)"],
+            max_height=420,
+        )
 
     def test_capture_change_student_group(self):
         # Two subjects enrolled through the current group: the ones the warning says will move.

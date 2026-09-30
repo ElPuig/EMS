@@ -19029,3 +19029,14 @@ msgstr "Cambio"
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form
 msgid "No photo on file"
 msgstr "Sin foto en la ficha"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "Attendance - %(student)s"
+msgstr "Asistencia - %(student)s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "<span class=\"o_stat_text\">Attendance</span>"
+msgstr "<span class=\"o_stat_text\">Asistencia</span>"

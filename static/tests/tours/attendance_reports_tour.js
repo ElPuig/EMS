@@ -209,3 +209,33 @@ registry.category("web_tour.tours").add("ems_attendance_report_tutor_scope", {
         { trigger: "body:not(:has(.o_error_dialog))", content: "No client-side error after printing" },
     ],
 });
+
+// Issue #519: the 'Attendance' button on a student's form opens the same 'Reports' screen, filtered
+// on that student. Run as the student's tutor, who teaches none of their subjects: without the
+// "My subjects" default filter, both subjects (taught by other teachers) show up.
+registry.category("web_tour.tours").add("ems_attendance_report_from_student", {
+    test: true,
+    steps: () => [
+        {
+            trigger: "button[name='action_view_attendance_reports']",
+            content: "Open the student's attendance from the form's button box",
+            run: "click",
+        },
+        {
+            trigger: ".o_searchview_facet:contains('Student Scope Tour Student')",
+            content: "Filtered on the student",
+        },
+        {
+            trigger: ".o_searchview:not(:has(.o_searchview_facet:contains('My subjects')))",
+            content: "No 'My subjects' filter",
+        },
+        { trigger: ".o_pivot_view .o_pivot_cell_value", content: "Pivot renders by default" },
+        { trigger: ".o_pivot_expand_button", content: "Expand all: Total -> subject", run: "click" },
+        {
+            trigger: ".o_pivot_view:contains('Student Scope Tour Subject 1'):contains('Student Scope Tour Subject 2')",
+            content: "Every subject of the student is listed",
+        },
+        { trigger: ".o_switch_view.o_graph", content: "Switch to graph", run: "click" },
+        { trigger: ".o_graph_renderer canvas", content: "Graph renders a chart" },
+    ],
+});

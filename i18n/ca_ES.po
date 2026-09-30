@@ -19026,3 +19026,14 @@ msgstr "Canvi"
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form
 msgid "No photo on file"
 msgstr "Sense foto a la fitxa"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "Attendance - %(student)s"
+msgstr "Assistència - %(student)s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "<span class=\"o_stat_text\">Attendance</span>"
+msgstr "<span class=\"o_stat_text\">Assistència</span>"

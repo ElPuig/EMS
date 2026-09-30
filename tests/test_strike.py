@@ -343,6 +343,15 @@ class TestStrike(TransactionCase):
         action = self.minor_student.action_view_strikes()
         self.assertEqual(action['domain'], [('student_id', '=', self.minor_student.id)])
 
+    def test_strike_count_smart_button_presets_student(self):
+        # The list opened from the student's button passes the student on to its "New strike"
+        # dialog, which defaults (and locks, in the view) the student to it.
+        context = self.minor_student.action_view_strikes()['context']
+        self.assertEqual(context, {'strike_student_id': self.minor_student.id})
+        strike = self.env['ems.strike'].with_user(self.teacher_a_user).with_context(context).create({})
+        self.assertEqual(strike.student_id, self.minor_student)
+        self.assertEqual(strike.teacher_id.user_id, self.teacher_a_user)
+
     def test_kicked_out_default_false(self):
         strike = self._create_strike(self.teacher_a_user)
         self.assertFalse(strike.kicked_out)

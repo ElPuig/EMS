@@ -34,6 +34,8 @@ If you come across an incident outside a session (in a corridor, in the playgrou
 2. In the dialog that opens, choose the **Student** (type part of their name) and, if needed, change the **Reason**, tick **Kicked out of class**, adjust the **Date and time** (it starts at the current moment; it can be moved back, never into the future) and add **Details**. The **Teacher** field shows your name and can't be changed: the strike is always issued by you.
 3. Click **Send**. The strike is added to the list and the same notifications described below are sent.
 
+You can also start from the student's own form: click its **Strikes** button in the header and then **New strike**. The dialog then opens with that student already chosen, and it can't be changed.
+
 If you close the dialog or click **Cancel**, nothing is saved and nobody is notified.
 
 ![The New strike dialog: Student, Reason, Kicked out of class, Teacher (read-only), Date and time and the optional Details, with the Send and Cancel buttons](../../assets/teachers/strike-02-fora-de-classe.png)
@@ -53,7 +55,7 @@ If you close the dialog or click **Cancel**, nothing is saved and nobody is noti
 ## Consulting Strikes
 
 - **Convivencia → Strikes** lists every strike you have issued.
-- From a student's own form, a **Strikes** button appears in the header (only when the student has at least one) showing their accumulated count — click it to see the full history for that student.
+- From a student's own form, a **Strikes** button appears in the header showing their accumulated count (0 if they have none yet) — click it to see the full history for that student and, from there, issue a new one for them with **New strike**.
 - From **Attendance → History**, opening one of your past sessions now also shows, per student row, how many strikes were issued during that specific session, with a button to see their full detail.
 
 > If you are also a tutor, Head of Studies, Deputy Head of Studies, Director or coexistence coordinator, see the corresponding manual for how you can consult a wider set of strikes.

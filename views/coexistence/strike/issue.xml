@@ -14,7 +14,10 @@
                     <sheet>
                         <group>
                             <group>
-                                <field name="student_id" options="{'no_create': True, 'no_open': True}"/>
+                                <!-- Opened from a student's own "Strikes" button: that student, locked
+                                     (strike_student_id, see res.partner.action_view_strikes). -->
+                                <field name="student_id" options="{'no_create': True, 'no_open': True}"
+                                       readonly="context.get('strike_student_id')" force_save="1"/>
                                 <field name="reason_id" options="{'no_create': True, 'no_open': True}"/>
                                 <field name="kicked_out"/>
                             </group>

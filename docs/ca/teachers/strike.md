@@ -34,6 +34,8 @@ Si et trobes una incidència fora d'una sessió (al passadís, al pati...), no c
 2. Al diàleg que s'obre, tria l'**Estudiant** (escriu part del nom) i, si cal, canvia el **Motiu**, marca **Expulsat de classe**, ajusta la **Data i hora** (comença amb el moment actual; es pot endarrerir, però mai posar en el futur) i afegeix-hi **Detalls**. El camp **Professor/a** mostra el teu nom i no es pot canviar: el strike el poses sempre tu.
 3. Clica **Enviar**. El strike apareix a la llista i s'envien les mateixes notificacions que es descriuen més avall.
 
+També pots començar des de la fitxa del propi alumne: clica el seu botó **Strikes** de la capçalera i després **Nou strike**. Aleshores el diàleg s'obre amb aquell alumne ja escollit, i no es pot canviar.
+
 Si tanques el diàleg o cliques **Cancel·la**, no es desa res i no es notifica ningú.
 
 ![El diàleg Nou strike: Estudiant, Motiu, Expulsat de classe, Professor/a (només lectura), Data i hora i els Detalls opcionals, amb els botons Enviar i Cancel·la](../../assets/teachers/strike-02-fora-de-classe.png)
@@ -53,7 +55,7 @@ Si tanques el diàleg o cliques **Cancel·la**, no es desa res i no es notifica 
 ## Consultar els strikes
 
 - **Convivència → Strikes** mostra tots els strikes que has posat.
-- A la fitxa del propi alumne, apareix un botó de **Strikes** a la capçalera (només quan l'alumne en té algun) que mostra el recompte acumulat — clica'l per veure l'historial complet d'aquell alumne.
+- A la fitxa del propi alumne, apareix un botó de **Strikes** a la capçalera que mostra el recompte acumulat (0 si encara no en té cap) — clica'l per veure l'historial complet d'aquell alumne i, des d'allà, posar-li'n un de nou amb **Nou strike**.
 - Des de **Assistència → Historial**, en obrir una de les teves sessions anteriors ara també es mostra, per cada fila d'alumne, quants strikes es van posar durant aquella sessió concreta, amb un botó per veure'n el detall complet.
 
 > Si també ets tutor/a, Cap d'Estudis, Cap d'Estudis Adjunt/a, Direcció o coordinador/a de convivència, consulta el manual corresponent per saber com pots consultar un conjunt més ampli de strikes.

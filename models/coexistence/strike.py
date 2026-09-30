@@ -10,7 +10,7 @@ class ems_strike(models.Model):
     _inherit = ["ems.base"]
     _order = "date desc, id desc"
 
-    student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]", required=True, ondelete="cascade")
+    student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]", required=True, ondelete="cascade", default=lambda self: self.env.context.get("strike_student_id"))
     teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", required=True, default=lambda self: self.env.user.employee_id)
     attendance_session_line_id = fields.Many2one(string="Session line", comodel_name="ems.attendance_session_line", ondelete="set null", index=True)
     reason_id = fields.Many2one(string="Reason", comodel_name="ems.strike.reason", required=True, default=lambda self: self._default_reason_id())

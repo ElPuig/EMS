@@ -14,6 +14,10 @@ class TestStrikeIssueStandaloneTour(HttpCase):
         mock_outgoing_email(cls)
         cls.teacher_user = create_role_user(cls, 'teacher', 'strike_standalone_teacher')
         create_role_employee(cls, cls.teacher_user)
+        cls.student_without_strikes = cls.env['res.partner'].create({
+            'name': 'Strike From Student Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'student_email': 'strike_from_student_student@example.com',
+        })
         cls.env['res.partner'].create({
             'name': 'Strike Standalone Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'student_email': 'strike_standalone_student@example.com',
@@ -25,3 +29,10 @@ class TestStrikeIssueStandaloneTour(HttpCase):
         self.assertEqual(strike.teacher_id.user_id, self.teacher_user)
         self.assertTrue(strike.kicked_out)
         self.assertFalse(strike.attendance_session_line_id)
+
+    def test_strike_issue_from_student_tour(self):
+        self.start_tour(f"/odoo/action-ems.action_student_kanban/{self.student_without_strikes.id}",
+                        "ems_strike_issue_from_student", login=self.teacher_user.login)
+        strike = self.env['ems.strike'].search([('notes', '=', 'Insulted a classmate at the playground')])
+        self.assertEqual(strike.student_id, self.student_without_strikes)
+        self.assertEqual(strike.teacher_id.user_id, self.teacher_user)

@@ -444,7 +444,10 @@ class ResPartner(models.Model):
         self.ensure_one()
         action = self.env['ir.actions.act_window']._for_xml_id('ems.action_strike_list')
         action['domain'] = [('student_id', '=', self.id)]
-        action['context'] = {}
+        # Not default_student_id: the web client drops default_* keys from the list's context
+        # before running its "New strike" header button (action_service.js), so the dialog
+        # would open with no student. ems.strike reads this key for its default and to lock it.
+        action['context'] = {'strike_student_id': self.id}
         return action
 
     def action_new_enrollment(self):

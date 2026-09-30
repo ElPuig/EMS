@@ -34,7 +34,7 @@
 
                 <xpath expr="//div[@name='button_box']" position="inside">
                     <button name="action_view_strikes" type="object" class="oe_stat_button" icon="fa-exclamation-triangle"
-                            invisible="contact_type != 'student' or strike_count == 0">
+                            invisible="contact_type != 'student'">
                         <field name="strike_count" widget="statinfo" string="Strikes"/>
                     </button>
                     <button name="action_view_convalidations" type="object" class="oe_stat_button" icon="fa-exchange"

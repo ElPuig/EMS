@@ -8,6 +8,11 @@
 - The date and time can be set by hand to record an incident noticed earlier, but never in the future: a model constraint rejects a future date for every strike, whichever way it's created, and the date picker greys out later days.
 - Notifications and escalation to the coexistence coordinator work exactly as for a strike issued from the roll-call view.
 
+## New strike from the student's own form:
+
+- The "Strikes" button in a student's form header is now always shown (with 0 when the student has none), not only once they have one.
+- The strikes list it opens keeps the "New strike" button, and the dialog then opens with that student already chosen and read-only; everything else works as in the dialog above (issuer read-only except for administrators, never a future date, same notifications). The student is passed through a dedicated context key because Odoo drops default_* keys from a list's context before running its header buttons.
+
 # Changes
 
 ## Default strike reason follows the reasons' order:

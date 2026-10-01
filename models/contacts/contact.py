@@ -459,6 +459,18 @@ class ResPartner(models.Model):
         action['context'] = {'strike_student_id': self.id}
         return action
 
+    def action_view_attendance_reports(self):
+        """The attendance 'Reports' screen, with the same role-based scope as its menu, filtered on
+        this student (removable facet). Without "My subjects": every subject of the student the
+        user can see, e.g. all of them for their tutor."""
+        self.ensure_one()
+        action = self.env['ems.attendance_session_line']._get_reports_action()
+        # display_name too: read() returns it and the breadcrumb shows it over 'name'.
+        action['name'] = action['display_name'] = _("Attendance - %(student)s", student=self.display_name)
+        action['context'].pop('search_default_my_subjects', None)
+        action['context']['search_default_student_id'] = self.id
+        return action
+
     def action_new_enrollment(self):
         self.ensure_one()
         return {

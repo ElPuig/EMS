@@ -419,7 +419,8 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
 - **Menu → role-scoped entry point**: `menu_attendance_reports` ("Reports") no longer points at the
   act_window directly — it points at `action_attendance_reports_open`, an `ir.actions.server` (`state=
   "code"`, same style as `views/academic_management/enrollment/list_tutor.xml`'s
-  `action_student_group_enrollment`). Its inline code reads `action_attendance_report_analysis` via
+  `action_student_group_enrollment`). Its code is a single call to
+  `ems.attendance_session_line._get_reports_action()`, which reads `action_attendance_report_analysis` via
   `env.ref(...).sudo().read()[0]`, always sets `context['pivot_measures'] = ['absence_rate', 'strike_count',
   '__count']` and `context['graph_measure'] = 'absence_rate'`. For pivot, `pivot_measures` reliably decides
   which measures are enabled/visible (pivot can show several measures at once, so this is a whitelist, not a
@@ -438,6 +439,13 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
   - turns on the **My subjects** filter by default (`context['search_default_my_subjects'] = 1`; filter
     `my_subjects` in the search view, `[('template_teacher_ids.user_id', '=', uid)]`), so the screen opens
     on the user's own subjects and removing the facet shows the tutees' other subjects.
+- **Student form entry point** (issue #519): the **Attendance** button in a student's button box
+  (`views/community/contact/form.xml`, same groups as the server action: teacher, secretary, secretary
+  admin) calls `res.partner.action_view_attendance_reports()`, which reuses `_get_reports_action()` (same
+  role-based domain) and then names the action after the student, sets `search_default_student_id` (a
+  removable **Student** facet) and drops `search_default_my_subjects`: coming from a student's file, the
+  user wants every subject of that student they can see (all of them for the tutor), while a plain teacher
+  still only reaches their own subjects through the domain.
 
   The action domain is UX scoping, not a security boundary (same distinction as the wizard dropdowns
   above): it renders no facet chip and can't be removed from the search bar, while `ir.rule` still grants
@@ -499,8 +507,9 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
   `report_type` (including the bug fixes), `group_ids` prefill for the by-subject variant, `tutor_ids`
   following the type, `print()` dispatching to the right report per type + skipping student-less orphan
   lines, the stored related fields, `absence_rate`, `strike_count`'s `store=True` (aggregatable via
-  `read_group`), and `action_attendance_reports_open`'s role-based domain (`.run()` `with_user(...)` for a
-  plain teacher vs. an academic admin). Also: `detail_status_ids`'s default (absence-category only),
+  `read_group`), `action_attendance_reports_open`'s role-based domain (`.run()` `with_user(...)` for a
+  plain teacher vs. an academic admin), and the student form's `action_view_attendance_reports()` (same
+  domain, student facet, no **My subjects**). Also: `detail_status_ids`'s default (absence-category only),
   `detail_status_warning` computing `False`/`True`, and `_get_report_values` producing correctly filtered
   `detail_entries`/`detail_strikes` for **all 3** report data models (by-subject grouped by student,
   by-group/by-student grouped by subject).
@@ -523,4 +532,6 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
   tutor, and the current-course filter on `session_active`). Tours `ems_attendance_report_student_scope`
   (as a plain teacher and as a tutor) and `ems_attendance_report_tutor_scope` (as a tutor: the default
   facet, removing it shows other teachers' subjects in the pivot, graph, then the by-group and by-subject
-  PDFs of the tutored group; the wizard stays open after a download, so both print from the same dialog).
+  PDFs of the tutored group; the wizard stays open after a download, so both print from the same dialog),
+  plus `ems_attendance_report_from_student` (as a tutor: the student form's **Attendance** button opens
+  the pivot on the student facet, without **My subjects**, listing both subjects; then the graph).

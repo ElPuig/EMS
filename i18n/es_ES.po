@@ -19086,3 +19086,14 @@ msgstr "Puede enviar autorizaciones y solicitudes de datos"
 #: model:ir.model.fields,help:ems.field_ems_group__space_id
 msgid "Updated automatically whenever the group's schedule changes: the classroom of its tutorship or, if its schedule has no tutorship, the classroom where it spends the most teaching hours. It can also be set by hand: the group's classes still in the old classroom move to the new one."
 msgstr "Se actualiza automáticamente cada vez que cambia el horario del grupo: el aula de su tutoría o, si el horario no tiene tutoría, el aula donde pasa más horas de clase. También se puede cambiar a mano: las clases del grupo que siguen en el aula antigua se mueven a la nueva."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "Attendance - %(student)s"
+msgstr "Asistencia - %(student)s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "<span class=\"o_stat_text\">Attendance</span>"
+msgstr "<span class=\"o_stat_text\">Asistencia</span>"

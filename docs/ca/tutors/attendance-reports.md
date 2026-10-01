@@ -22,6 +22,16 @@
 
 ---
 
+## Des de la fitxa de l'alumne
+
+Per consultar l'assistència d'un sol alumne, obre la seva fitxa i fes clic al botó **Assistència** de la part superior, al costat de **Reunions** i **Relacions**. S'obre la mateixa taula dinàmica, ja filtrada per aquest alumne (el filtre **Estudiant** de la barra de cerca, que pots treure amb la seva **×**). D'un alumne que tutories hi veuràs **totes les assignatures**, les imparteixi qui les imparteixi; de qualsevol altre alumne, només les que li imparteixes tu. La vista de gràfic i els informes PDF funcionen exactament com es descriu en aquest manual.
+
+![El botó Assistència a la fitxa de l'alumne](../../assets/tutors/tutor-informes-02-boto-fitxa.png)
+
+![Taula dinàmica d'assistència filtrada per un alumne](../../assets/tutors/tutor-informes-03-alumne.png)
+
+---
+
 ## Imprimir un informe PDF
 
 A la pantalla d'**Informes d'assistència**, fes clic a la icona **⚙ (engranatge)** de la capçalera i tria **Imprimeix informe d'assistència**. Al formulari, escull el **Tipus d'informe** — per grup, per alumne o per assignatura — i els camps s'adapten a la teva tria.

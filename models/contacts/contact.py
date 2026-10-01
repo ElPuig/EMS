@@ -1247,10 +1247,7 @@ class ResPartner(models.Model):
             for subject in self.env['ems.subject'].sudo().search([
                 ('product_id', 'in', template.sale_order_template_line_ids.product_id.ids)
             ]):
-                subject_course = student.study_id._ems_subject_course(subject.product_id)
-                subject_group = group
-                if subject_course and subject_course != group.course:
-                    subject_group = group._ems_equivalent_for_course(subject_course) or group
+                subject_group = group._ems_group_for_subject(subject)
                 new_pairs.add((subject_group.id, subject.id))
                 if not Enrollment.search_count([
                     ('student_id', '=', student.id), ('group_id', '=', subject_group.id), ('subject_id', '=', subject.id)

@@ -21,6 +21,7 @@ Esta sección contiene los manuales para los **profesores**.
 | [Horario de guardias](guard-duty-schedule.md) | Consultar dónde está cada docente, y quién está de guardia, en cada franja horaria de la semana |
 | [Alumnado: tus grupos](student-list-my-groups.md) | Abrir la lista de alumnado ya filtrada a los grupos donde das clase o eres tutor, y ampliarla cuando la necesites entera |
 | [Desactivar tu foto de perfil](photo-visibility.md) | Activar o desactivar tu foto de perfil |
+| [Resumen diario de tareas pendientes](task-digest.md) | El correo de cada mañana con todo lo que tienes pendiente en la bandeja de EMS, y cómo desactivarlo |
 | [Informes de asistencia](attendance-reports.md) | Imprimir los 3 informes PDF de asistencia (por grupo/alumno/asignatura) y explorar los datos tú mismo con la pantalla de Análisis de asistencia |
 | [El horario semanal de un grupo](../admin/group-schedule.md) | Consultar el horario agregado de un grupo (asignaturas, docentes, aulas, patios) y exportarlo a PDF |
 | [El horario semanal de un alumno](../admin/student-schedule.md) | Consultar el horario propio de un alumno (asignaturas, docentes, aulas, patios), incluyendo clases solapadas, y exportarlo a PDF |

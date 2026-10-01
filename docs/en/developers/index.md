@@ -116,6 +116,7 @@ Technical reference for developers working on the EMS module.
 |-------|-------------|
 | [Free-pick color widget](shared/color_widget.md) | `widget="color"` + the `ems_color_swatch` styling, the `role_color_tags` badge widget, and `ems.hex_color_mixin` — used by `ems.role`, `ems.attendance_template`, and `hr.department`'s `custom_color` |
 | [Task assignment](shared/task_assignment.md) | `mail.activity.type`'s `ems_task_assignment`/`ems_assignee_ids` — an explicit, config-driven recipient list decoupled from security groups |
+| [Daily pending-tasks digest](shared/task_digest.md) | `res.users`' morning email listing each person's open activities, sent at the start of their working day (own schedule, else the default framework) |
 | [`ems.base`](shared/base.md) | Chatter/notification helpers (`notify`, `chatter`, `chatter_exception`), permission checks (`get_user_is_admin`/`_tutor`), `persistent_hash` — the foundational mixin inherited by most business models |
 | [`ems.datetime_utils`](shared/datetime_utils.md) | Timezone-aware ↔ naive-UTC ↔ float-hour conversions shared by every attendance/schedule model |
 | [Dates, times and timezones](shared/timezones.md) | The one-timezone policy (always the company's): server-side helpers, the web client's company-timezone service and `serverNow()`, and the record-level `tz` alignment |

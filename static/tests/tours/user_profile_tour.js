@@ -187,6 +187,17 @@ registry.category("web_tour.tours").add("ems_user_profile_tabs_ordinary_user", {
             trigger: ".o_form_view:not(:has(.o_field_widget[name='email']))",
             content: "Email is hidden from Preferences",
         },
+        // Daily pending-tasks digest: on by default, and the user can turn their own off (saved
+        // with the Private Information edit below; the Python side checks the stored value).
+        {
+            trigger: ".o_form_view .o_field_widget[name='ems_task_digest'] input:checked",
+            content: "The daily summary of pending tasks is on by default",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='ems_task_digest'] input:not(:checked)",
+            content: "The daily summary of pending tasks is turned off",
+        },
         {
             trigger: ".o_form_view:not(:has(.o_field_widget[name='tz']))",
             content: "Timezone is hidden from Preferences",

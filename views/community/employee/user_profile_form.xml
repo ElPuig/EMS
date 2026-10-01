@@ -21,6 +21,11 @@
                     <group name="ems_photo_visibility" string="Photo">
                         <field name="image_disabled"/>
                     </group>
+                    <!-- Daily pending-tasks digest (models/shared/task_digest.py): on by
+                         default, everybody can turn their own off. -->
+                    <group name="ems_notifications" string="Notifications">
+                        <field name="ems_task_digest"/>
+                    </group>
                 </group>
                 <!-- Preferences tab: for an ordinary self-viewing user, only "Disable profile
                      picture" (above) and "Language" stay visible/editable - everything else

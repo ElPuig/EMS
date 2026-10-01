@@ -368,6 +368,7 @@
         'mails/enrollment/authorization_send.xml',
         'mails/grades/convalidation_resolved.xml',
         'mails/grades/convalidation_info_request.xml',
+        'mails/shared/task_digest.xml',
         'mails/contacts/contact_data_request.xml',
 
         ### Reports templates ###
@@ -395,6 +396,7 @@
         'data/main/ir.cron-google_workspace.csv',
         'data/main/ir.cron-group_public_schedule.csv',
         'data/main/ir.cron-absence.csv',
+        'data/main/ir.cron-task_digest.csv',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
         'data/main/ems.attendance_status.csv',

@@ -5388,6 +5388,7 @@ msgstr "Estado de la notificación"
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_notifications
+#: model_terms:ir.ui.view,arch_db:ems.view_users_form_simple_modif_photo_visibility
 msgid "Notifications"
 msgstr "Notificaciones"
 
@@ -19029,3 +19030,24 @@ msgstr "Cambio"
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form
 msgid "No photo on file"
 msgstr "Sin foto en la ficha"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_task_digest_ir_actions_server
+#: model:mail.template,name:ems.email_template_task_digest
+msgid "EMS: Daily summary of pending tasks"
+msgstr "EMS: Resumen diario de tareas pendientes"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_users__ems_task_digest
+msgid "Daily summary of pending tasks"
+msgstr "Resumen diario de tareas pendientes"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_users__ems_task_digest
+msgid "Every working day, at the start of your working hours, an email listing the tasks you still have pending in EMS. Only sent when there is at least one."
+msgstr "Cada día laborable, al inicio de tu jornada, un correo con las tareas que aún tienes pendientes en EMS. Solo se envía si hay al menos una."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_users__ems_task_digest_date
+msgid "Last summary of pending tasks"
+msgstr "Último resumen de tareas pendientes"

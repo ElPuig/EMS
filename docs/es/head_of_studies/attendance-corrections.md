@@ -24,6 +24,8 @@ La solicitud sigue el mismo proceso de revisión que cualquier otra — incluido
 
 ## Decidir una solicitud
 
+Una solicitud nueva no te envía ningún correo en el momento: no es urgente. La encontrarás en la bandeja de actividades (🕒) y en el correo diario con todas tus tareas pendientes (consulta [Resumen diario de tareas pendientes](../teachers/task-digest.md)).
+
 Si te han enviado una solicitud (la verás como una actividad pendiente, y también aparecerá en **Fichajes de empleados → Asistencia → Solicitudes de corrección**):
 
 1. Abre la solicitud — desde la actividad, desde **Fichajes de empleados → Asistencia → Solicitudes de corrección**, o desde el botón **Correcciones** del propio fichaje.

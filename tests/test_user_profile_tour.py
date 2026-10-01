@@ -70,9 +70,11 @@ class TestUserProfileTour(HttpCase):
         # false conclusion, caused by a flawed reproduction (see docs/en/developers/employees/
         # user_profile.md's "A false bug found and retracted" section) - this tour, with the
         # correct user-menu navigation, is the actual proof it works fine.
-        self._create_teacher_login('Ordinary Profile Tour Teacher', 'test_440_profile_tour_ordinary')
+        teacher = self._create_teacher_login('Ordinary Profile Tour Teacher', 'test_440_profile_tour_ordinary')
         # To watch this tour in a real browser during development, add watch=True below.
         self.start_tour("/odoo", "ems_user_profile_tabs_ordinary_user", login='test_440_profile_tour_ordinary')
+        # The tour turns off their own daily pending-tasks digest (models/shared/task_digest.py).
+        self.assertFalse(teacher.user_id.ems_task_digest)
 
     def test_user_profile_tabs_tour_administrator(self):
         # 'ems.group_academic_admin' is used here rather than 'hr.group_hr_user' directly,

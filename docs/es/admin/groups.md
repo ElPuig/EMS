@@ -62,6 +62,10 @@ Puedes cambiar un grupo existente entre Principal y Refuerzo, pero:
 
 ## Cambiar el Aula de Referencia de un Grupo
 
+EMS mantiene el **Aula de referencia** al día automáticamente: cada vez que cambia el horario del grupo, pasa a ser el aula de la tutoría del grupo o, si el horario no tiene tutoría (por ejemplo, un grupo de refuerzo), el aula donde el grupo pasa más horas de clase. Esta actualización no mueve ninguna clase. Un grupo que todavía no tiene horario conserva el aula que le asignes, y la importación de horarios la usa para las clases que se importan sin aula.
+
+También puedes cambiarla a mano:
+
 Cambiar el **Aula de referencia** de un grupo (su aula por defecto) mueve automáticamente todas las clases de ese grupo que todavía usaban el aula antigua a la nueva. Si el aula nueva ya está ocupada por otra persona exactamente el mismo día y hora que una de esas clases, esa clase concreta se queda en su aula actual en vez de hacer fallar todo el guardado — ver "Resolver un Conflicto de Aula Pendiente" abajo.
 
 La misma gestión de conflictos también se aplica cuando se cambia el aula de una *sola* clase desde la pestaña **Horario** de un docente (ver [Editar el Horario de un Docente](working-schedules.md#editar-el-horario-de-un-docente)), o directamente desde la pestaña Horario del propio grupo (ver [El horario semanal de un grupo](group-schedule.md#editar-el-tema-o-el-aula-de-un-bloque)) — los tres casos se resuelven desde la misma pantalla.

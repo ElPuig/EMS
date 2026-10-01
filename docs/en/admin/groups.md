@@ -62,6 +62,10 @@ You can switch an existing group between Main and Reinforcement, but:
 
 ## Changing a Group's Reference Classroom
 
+EMS keeps the **Reference classroom** up to date on its own: whenever the group's schedule changes, it becomes the classroom of the group's tutorship or, if the schedule has no tutorship (a reinforcement group, for instance), the classroom where the group spends the most teaching hours. This update never moves any class. A group with no schedule yet keeps the classroom you give it, which the schedule import uses for classes imported without a classroom.
+
+You can still change it by hand:
+
 Changing a group's **Reference classroom** (the group's own default room) automatically moves every one of that group's classes still using the old room to the new one. If the new room is already taken by someone else at the exact same day/time as one of those classes, that one specific class is left in its current room instead of failing the whole save — see "Resolving a Pending Classroom Conflict" below.
 
 The same collision handling also applies when a *single* class's room is changed from a teacher's own **Schedule** tab (see [Edit a Teacher's Schedule](working-schedules.md#edit-a-teachers-schedule)), or when it's changed directly from the group's own Schedule tab (see [A Group's Weekly Schedule](group-schedule.md#editing-a-blocks-topic-or-classroom)) — all three cases are resolved from the same screen.

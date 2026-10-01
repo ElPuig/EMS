@@ -62,6 +62,10 @@ Pots canviar un grup existent entre Principal i Reforç, però:
 
 ## Canviar l'Aula de Referència d'un Grup
 
+EMS manté l'**Aula de referència** al dia automàticament: cada cop que canvia l'horari del grup, passa a ser l'aula de la tutoria del grup o, si l'horari no té tutoria (per exemple, un grup de reforç), l'aula on el grup fa més hores de classe. Aquesta actualització no mou cap classe. Un grup que encara no té horari conserva l'aula que li assigneu, i la importació d'horaris la fa servir per a les classes que s'importen sense aula.
+
+També la podeu canviar a mà:
+
 Canviar l'**Aula de referència** d'un grup (la seva aula per defecte) mou automàticament totes les classes d'aquest grup que encara usaven l'aula antiga a la nova. Si la nova aula ja està ocupada per algú altre exactament el mateix dia i hora que una d'aquestes classes, aquesta classe concreta es queda a la seva aula actual en comptes de fer fallar tot el desat — vegeu "Resoldre un Conflicte d'Aula Pendent" a sota.
 
 La mateixa gestió de conflictes també s'aplica quan es canvia l'aula d'una *sola* classe des de la pestanya **Horari** d'un docent (vegeu [Editar l'Horari d'un Docent](working-schedules.md#editar-lhorari-dun-docent)), o directament des de la pestanya Horari del propi grup (vegeu [L'horari setmanal d'un grup](group-schedule.md#editar-el-tema-o-laula-dun-bloc)) — els tres casos es resolen des de la mateixa pantalla.

@@ -19029,3 +19029,8 @@ msgstr "Cambio"
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form
 msgid "No photo on file"
 msgstr "Sin foto en la ficha"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_group__space_id
+msgid "Updated automatically whenever the group's schedule changes: the classroom of its tutorship or, if its schedule has no tutorship, the classroom where it spends the most teaching hours. It can also be set by hand: the group's classes still in the old classroom move to the new one."
+msgstr "Se actualiza automáticamente cada vez que cambia el horario del grupo: el aula de su tutoría o, si el horario no tiene tutoría, el aula donde pasa más horas de clase. También se puede cambiar a mano: las clases del grupo que siguen en el aula antigua se mueven a la nueva."

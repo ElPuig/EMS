@@ -3,6 +3,8 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import RedirectWarning, ValidationError
 
+from ..shared.attendance_mixin import EMS_SKIP_GROUP_CLASSROOM_CASCADE
+
 class EmsGroup(models.Model):
 	_name = "ems.group"
 	_description = "Groups: Where the students are assigned to."
@@ -29,7 +31,10 @@ class EmsGroup(models.Model):
 	tutor_id = fields.Many2one(string="Tutor", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 
 	delegate_id = fields.Many2one(string="Delegate", comodel_name="res.partner", domain="[('contact_type', '=', 'student'), ('main_group_id', '=', id)]")
-	space_id = fields.Many2one(string="Reference classroom", comodel_name="ems.space")
+	space_id = fields.Many2one(string="Reference classroom", comodel_name="ems.space",
+		help="Updated automatically whenever the group's schedule changes: the classroom of its tutorship or, "
+			"if its schedule has no tutorship, the classroom where it spends the most teaching hours. "
+			"It can also be set by hand: the group's classes still in the old classroom move to the new one.")
 
 	main_student_ids = fields.One2many(string="Students", comodel_name="res.partner", inverse_name="main_group_id", domain="[('contact_type', '=', 'student')]")
 	enrolled_student_ids = fields.Many2many(string="Enrolled", comodel_name="res.partner", compute="_compute_enrolled_student_ids")
@@ -41,17 +46,6 @@ class EmsGroup(models.Model):
 	# group's own classroom last changed) - drives a persistent banner on the form with a button
 	# opening 'ems.group_classroom_change_wizard', instead of a one-shot dialog that could be missed.
 	pending_classroom_conflict_count = fields.Integer(string="Pending classroom conflicts", compute="_compute_pending_classroom_conflict_count")
-	# NOTE: last deferred follow-up of issue #405 - see docs/en/developers/contacts/group.md's
-	# "Classroom drift suggestion" section. 'space_id' can silently drift from where the group
-	# actually meets (a collision gets resolved elsewhere but nobody updates the group's own
-	# field) - this suggests the correct room whenever the CURRENT one has zero real teaching
-	# hours. Computed, not stored (same reasoning as 'pending_classroom_conflict_count' above -
-	# the real dependency runs through 'resource.calendar.attendance.group_ids', a reverse M2M
-	# that @api.depends can't express cleanly); 'search=' is what still makes it usable in a list
-	# filter despite not being stored - same pattern as 'ems.study.uses_enrollment_flow'.
-	suggested_space_id = fields.Many2one(
-		string="Suggested classroom", comodel_name="ems.space",
-		compute="_compute_suggested_space_id", search="_search_suggested_space_id")
 	# NOTE: issue #446 - same gate as 'hr.employee.can_edit_schedule' (drives the Edit/Import/New
 	# buttons on the teacher's own Schedule tab), mirrored here so the group form's own Schedule
 	# tab knows whether to show its inline topic/classroom edit affordance (see
@@ -148,45 +142,6 @@ class EmsGroup(models.Model):
 		can_edit = self.env.user.has_group('ems.group_department_chief')
 		for group in self:
 			group.can_edit_schedule = can_edit
-
-	@api.depends('space_id')
-	def _compute_suggested_space_id(self):
-		# NOTE: 'space_id' is the only real dependency Odoo's own cache invalidation can track -
-		# the rest of the real dependency (every resource.calendar.attendance row referencing this
-		# group) lives on a different model via a reverse M2M, which @api.depends can't express.
-		# Declaring 'space_id' still matters: without it, applying a suggestion in the same
-		# transaction (action_apply_suggested_space) would leave this field's cached value stale
-		# (found the hard way - see tests/test_group_classroom_suggestion.py's own
-		# test_apply_suggestion_updates_space_and_propagates). A caller that changes the calendar
-		# elsewhere and needs a fresh read without reloading the record should still
-		# invalidate_recordset() explicitly, same as 'pending_classroom_conflict_count' above.
-		Attendance = self.env['resource.calendar.attendance']
-		for group in self:
-			blocks = Attendance.search([
-				('group_ids', '=', group.id),
-				('subject_id', '!=', False),
-				('calendar_id.active', '=', True),
-			])
-			hours_by_space = {}
-			for block in blocks.filtered('space_id'):
-				hours_by_space[block.space_id] = hours_by_space.get(block.space_id, 0.0) \
-					+ (block.hour_to - block.hour_from)
-			if not hours_by_space or hours_by_space.get(group.space_id, 0.0) > 0:
-				# Nothing to suggest: either the group has no real teaching anywhere yet, or its
-				# own current room already accounts for at least some of its real hours (drift is
-				# specifically "zero hours in the CURRENT room", not "not the majority room").
-				group.suggested_space_id = False
-				continue
-			# Most hours wins; ties broken by room name then id, so the result is deterministic.
-			group.suggested_space_id = sorted(
-				hours_by_space.items(), key=lambda item: (-item[1], item[0].name or '', item[0].id)
-			)[0][0]
-
-	def _search_suggested_space_id(self, operator, value):
-		if operator not in ('=', '!=') or value is not False:
-			raise NotImplementedError(_("Unsupported search on suggested_space_id"))
-		drifted = self.search([]).filtered('suggested_space_id')
-		return [('id', 'in' if operator == '!=' else 'not in', drifted.ids)]
 
 	def _sanitize_group_type_vals(self, vals):
 		# NOTE: '_onchange_group_type' already does this client-side, purely so the user SEES the fields
@@ -316,7 +271,7 @@ class EmsGroup(models.Model):
 			# NOTE: tutor_id field changes when the tutor is assigned from the teacher form, but the old tutor's role
 			# should be updated and must be done from here once changed.
 			self._sync_tutor_role(old_tutor | new_tutor)
-		if 'space_id' in vals:
+		if 'space_id' in vals and not self.env.context.get(EMS_SKIP_GROUP_CLASSROOM_CASCADE):
 			# NOTE: best-effort, issue #405 - deliberately AFTER super().write() has already fully
 			# succeeded (see docs/en/developers/contacts/group.md's "Classroom change propagation"
 			# section for why this never raises/rolls back: an earlier design used RedirectWarning
@@ -325,7 +280,11 @@ class EmsGroup(models.Model):
 			for group in self:
 				old_space = old_space_by_group[group.id]
 				if old_space and old_space != group.space_id:
-					group._propagate_classroom_change(old_space, group.space_id)
+					# Issue #458: the classes being moved must not recompute this same space_id
+					# halfway through (see EMS_SKIP_GROUP_CLASSROOM_CASCADE) - the edit is the
+					# user's call, the schedule follows it.
+					group.with_context(**{EMS_SKIP_GROUP_CLASSROOM_CASCADE: True})._propagate_classroom_change(
+						old_space, group.space_id)
 		return res
 
 	def action_reactivate(self):
@@ -362,18 +321,44 @@ class EmsGroup(models.Model):
 			"target": "new",
 		}
 
-	def action_apply_suggested_space(self):
-		"""Applies 'suggested_space_id' to 'space_id' - a plain field write, relying entirely on
-		write()'s own '_propagate_classroom_change' below to do the real work (a field assignment
-		on a persisted record goes through write() the same way an external caller's write() call
-		does). Provably conflict-free: 'suggested_space_id' is only ever set when the group's
-		CURRENT room already has zero active teaching hours (see '_compute_suggested_space_id'),
-		so '_propagate_classroom_change' will always find zero blocks left in the old room to
-		move - it can never reach '_resolve_or_flag_pending_block's own conflict branch. See
-		docs/en/developers/contacts/group.md's "Classroom drift suggestion" section."""
+	def _get_reference_space(self):
+		"""Issue #458 - the classroom this group's schedule says it belongs to: the room of its
+		tutorship blocks or, when its schedule has no tutorship (e.g. a reinforcement group), the
+		room where it spends the most teaching hours. Most hours wins either way, ties broken by
+		room name then id so the result is deterministic. Only active teaching blocks on active
+		calendars count; a block still flagged 'space_pending_group_sync' is skipped, since it sits
+		in a room it's waiting to leave (see '_propagate_classroom_change'). Empty when the group
+		has no such block at all."""
 		self.ensure_one()
-		if self.suggested_space_id:
-			self.space_id = self.suggested_space_id
+		blocks = self.env['resource.calendar.attendance'].with_context(active_test=True).search([
+			('group_ids', '=', self.id),
+			('subject_id', '!=', False),
+			('space_id', '!=', False),
+			('space_pending_group_sync', '=', False),
+			('calendar_id.active', '=', True),
+		])
+		blocks = blocks.filtered('subject_id.is_tutorship') or blocks
+		hours_by_space = {}
+		for block in blocks:
+			hours_by_space[block.space_id] = hours_by_space.get(block.space_id, 0.0) + (block.hour_to - block.hour_from)
+		if not hours_by_space:
+			return self.env['ems.space']
+		return sorted(hours_by_space.items(), key=lambda item: (-item[1], item[0].name or '', item[0].id))[0][0]
+
+	def _sync_reference_space(self):
+		"""Issue #458 - sets each group's 'space_id' to '_get_reference_space()', called by
+		'resource.calendar.attendance'/'resource.calendar' whenever a schedule changes. Never
+		clears it: a group with no schedule keeps whatever room it was given by hand, which the
+		working-schedules import wizard still needs as its fallback. Written without moving any
+		class (EMS_SKIP_GROUP_CLASSROOM_CASCADE): the schedule is the source here, so moving the
+		rest of the group's classes after its tutorship would be wrong. sudo: whoever edits a
+		schedule may have no write access to ems.group (same as '_mark_public_schedule_dirty')."""
+		if self.env.context.get(EMS_SKIP_GROUP_CLASSROOM_CASCADE):
+			return
+		for group in self.sudo().with_context(**{EMS_SKIP_GROUP_CLASSROOM_CASCADE: True}).exists():
+			space = group._get_reference_space()
+			if space and space != group.space_id:
+				group.space_id = space
 
 	def _propagate_classroom_change(self, old_space, new_space):
 		"""Best-effort propagation of a group's classroom change to its own teaching schedule (issue

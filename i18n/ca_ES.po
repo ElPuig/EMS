@@ -19078,3 +19078,8 @@ msgstr "Pot gestionar l'accés al portal"
 #: model:ir.model.fields,field_description:ems.field_res_users__can_send_student_requests
 msgid "Can send authorizations and data requests"
 msgstr "Pot enviar autoritzacions i sol·licituds de dades"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_group__space_id
+msgid "Updated automatically whenever the group's schedule changes: the classroom of its tutorship or, if its schedule has no tutorship, the classroom where it spends the most teaching hours. It can also be set by hand: the group's classes still in the old classroom move to the new one."
+msgstr "S'actualitza automàticament cada cop que canvia l'horari del grup: l'aula de la seva tutoria o, si l'horari no té tutoria, l'aula on fa més hores de classe. També es pot canviar a mà: les classes del grup que encara són a l'aula antiga es mouen a la nova."

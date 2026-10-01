@@ -11,7 +11,6 @@
                     archiveEnabled getter (keyed on model.root.activeFields). -->
                     <field name="active" invisible="1"/>
                     <field name="pending_classroom_conflict_count" invisible="1"/>
-                    <field name="suggested_space_id" invisible="1"/>
                     <field name="can_edit_schedule" invisible="1"/>
                     <!-- Outside <sheet> (above the white card), matching the equivalent banner on
                     the employee form's own "before sheet" placement (views/community/employee/
@@ -30,13 +29,6 @@
                             teaching block(s) couldn't move to their requested classroom automatically because of a room collision.
                         </p>
                         <button name="action_open_classroom_change_wizard" type="object" string="Resolve pending classrooms" class="btn-warning"/>
-                    </div>
-                    <div class="alert alert-info" role="alert" invisible="not suggested_space_id">
-                        <p>
-                            This group's teaching schedule doesn't actually use its assigned classroom - it mostly
-                            meets in <field name="suggested_space_id" nolabel="1" class="oe_inline"/> instead.
-                        </p>
-                        <button name="action_apply_suggested_space" type="object" string="Apply suggested classroom" class="btn-info"/>
                     </div>
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>

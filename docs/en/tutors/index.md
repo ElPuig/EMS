@@ -25,6 +25,7 @@ This section contains the manuals for **group tutors**.
 | [Your Students' Google Credentials](google-credentials.md) | Download the PDF with the Google account username and password of the students you tutor, one by one or for several students at once in a ZIP, create the account if they have none yet, and reset their password |
 | [Justifying Your Students' Absences](attendance-justifications.md) | Record a justification (for example, a medical certificate) so a tutee's absences become justified absences, and attach the document |
 | [Attendance Reports](attendance-reports.md) | Print the 3 PDF attendance reports (by group/student/subject) and explore attendance data yourself with the Attendance analysis pivot/graph screen |
+| [Your Students' Attendance Issues Report](attendance-issues-report.md) | The email with your students' absences and delays, and choosing when you receive it |
 | [A Group's Weekly Schedule](../admin/group-schedule.md) | View a group's aggregated timetable (subjects, teachers, classrooms, breaks) and export it to PDF |
 | [A Student's Weekly Schedule](../admin/student-schedule.md) | View one of your tutorands' own timetable (subjects, teachers, classrooms, breaks), including overlapping classes, and export it to PDF |
 | [A Student's Public and Private Notes](../teachers/student-notes.md) | Where every teacher reads a student's public notes, and who can read and write the private tutoring ones |

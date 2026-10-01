@@ -238,3 +238,4 @@ from . import test_employee_identity_visibility
 from . import test_employee_identity_visibility_tour
 from . import test_timezone
 from . import test_schedule_edit_roles
+from . import test_attendance_report_schedule

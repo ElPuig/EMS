@@ -33,13 +33,14 @@ reassigns a task.
 
 ### `hr.employee` (inherited) — expected working day
 
-Shared by the automatic check-out (`hr.attendance`, `employee_autocheckout.py`) and the digest:
+Shared by the automatic check-out (`hr.attendance`, `employee_autocheckout.py`), the digest and the tutor's attendance issues report:
 
 | Method | Returns |
 |--------|---------|
 | `_ems_local_day_bounds(work_date)` | Start and end of `work_date` in the employee's timezone (the company's, see [Timezones](timezones.md)), tz-aware. |
 | `_ems_expected_intervals(work_date)` | `(start, end)` pairs of what the employee is expected to work that day, from their own schedule, with approved absences and public holidays already subtracted (`_get_expected_attendances`). Empty without a schedule. |
 | `_ems_framework_intervals(framework, work_date)` | `(start, end)` pairs of a framework's periods that day, without subtracting anything (the automatic check-out only uses it on a day nothing was expected). |
+| `_ems_workday_intervals(work_date)` | The employee's working day: their own expected intervals if they have a (non-flexible) schedule, otherwise the company's default schedule framework (`res.company._ems_default_framework_intervals`). Also used by the tutor's attendance report ([attendance_issue.md](../attendance/attendance_issue.md)). |
 
 ---
 

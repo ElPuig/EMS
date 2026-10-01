@@ -474,30 +474,35 @@ msgid ""
 "                            Dear tutor,\n"
 "                        </p>\n"
 "                        <p>\n"
-"                            This is your students daily report, in order to inform you about today's attendance statuses:\n"
+"                            These are your students' attendance issues recorded since your previous report:\n"
 "                            </p><ul>\n"
-"                                <li>\n"
-"                                    <strong>Date: </strong><span t-field=\"object.issue_date\"/>\n"
-"                                    <ul>\n"
-"                                        <t t-foreach=\"object.attendance_issue_student_ids\" t-as=\"student\">\n"
-"                                            <li>\n"
-"                                                <strong>Student: </strong><span t-field=\"student.student_id\"/>\n"
-"                                                <ul>\n"
-"                                                    <t t-foreach=\"student.attendance_issue_status_ids\" t-as=\"status\">\n"
-"                                                        <li t-att-style=\"'text-decoration: line-through;' if status.rectified_by.id != False else ''\">\n"
-"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | from <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-if=\"status.attendance_status_id\" t-field=\"status.attendance_status_id\"/><t t-else=\"\">Not required to attend (removed from the roll-call)</t>\n"
-"                                                            <t t-if=\"status.notes\">\n"
-"                                                                | <span t-field=\"status.notes\"/>\n"
-"                                                            </t>\n"
-"                                                        </li>                                                        \n"
-"                                                    </t>\n"
-"                                                </ul>\n"
-"                                            </li>                                                                               \n"
-"                                        </t>\n"
-"                                    </ul>\n"
-"                                </li>\n"
+"                                <t t-foreach=\"object._tutor_report_days()\" t-as=\"day\">\n"
+"                                    <li>\n"
+"                                        <strong>Date: </strong><span t-field=\"day['issue'].issue_date\"/>\n"
+"                                        <ul>\n"
+"                                            <t t-foreach=\"day['students']\" t-as=\"student\">\n"
+"                                                <li>\n"
+"                                                    <strong>Student: </strong><span t-out=\"student['student'].display_name\"/>\n"
+"                                                    <ul>\n"
+"                                                        <t t-foreach=\"student['statuses']\" t-as=\"status\">\n"
+"                                                            <li t-att-style=\"'text-decoration: line-through;' if status.rectified_by.id != False else ''\">\n"
+"                                                                <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | from <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> to <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-if=\"status.attendance_status_id\" t-field=\"status.attendance_status_id\"/><t t-else=\"\">Not required to attend (removed from the roll-call)</t>\n"
+"                                                                <t t-if=\"status.notes\">\n"
+"                                                                    | <span t-field=\"status.notes\"/>\n"
+"                                                                </t>\n"
+"                                                            </li>\n"
+"                                                        </t>\n"
+"                                                    </ul>\n"
+"                                                </li>\n"
+"                                            </t>\n"
+"                                        </ul>\n"
+"                                    </li>\n"
+"                                </t>\n"
 "                            </ul>\n"
-"                                                \n"
+"                        \n"
+"                        <p>\n"
+"                            You can choose when you receive this report from your profile (My Profile, Preferences tab).\n"
+"                        </p>\n"
 "                        <p>\n"
 "                            Kind regards,<br/>\n"
 "                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
@@ -511,30 +516,35 @@ msgstr ""
 "                            Estimado/a tutor/a,\n"
 "                        </p>\n"
 "                        <p>\n"
-"                            Este es el reporte diario de sus alumnos, donde podrá consultar el estado de las asistencias de hoy:\n"
+"                            Estas son las incidencias de asistencia de sus alumnos registradas desde el último informe:\n"
 "                            </p><ul>\n"
-"                                <li>\n"
-"                                    <strong>Fecha: </strong><span t-field=\"object.issue_date\"/>\n"
-"                                    <ul>\n"
-"                                        <t t-foreach=\"object.attendance_issue_student_ids\" t-as=\"student\">\n"
-"                                            <li>\n"
-"                                                <strong>Estudiante: </strong><span t-field=\"student.student_id\"/>\n"
-"                                                <ul>\n"
-"                                                    <t t-foreach=\"student.attendance_issue_status_ids\" t-as=\"status\">\n"
-"                                                        <li t-att-style=\"'text-decoration: line-through;' if status.rectified_by.id != False else ''\"> \n"
-"                                                            <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | de <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-if=\"status.attendance_status_id\" t-field=\"status.attendance_status_id\"/><t t-else=\"\">No tenía que asistir (quitado de la lista)</t>\n"
-"                                                            <t t-if=\"status.notes\">\n"
-"                                                                | <span t-field=\"status.notes\"/>\n"
-"                                                            </t>\n"
-"                                                        </li>                                                        \n"
-"                                                    </t>\n"
-"                                                </ul>\n"
-"                                            </li>                                                                               \n"
-"                                        </t>\n"
-"                                    </ul>\n"
-"                                </li>\n"
+"                                <t t-foreach=\"object._tutor_report_days()\" t-as=\"day\">\n"
+"                                    <li>\n"
+"                                        <strong>Fecha: </strong><span t-field=\"day['issue'].issue_date\"/>\n"
+"                                        <ul>\n"
+"                                            <t t-foreach=\"day['students']\" t-as=\"student\">\n"
+"                                                <li>\n"
+"                                                    <strong>Estudiante: </strong><span t-out=\"student['student'].display_name\"/>\n"
+"                                                    <ul>\n"
+"                                                        <t t-foreach=\"student['statuses']\" t-as=\"status\">\n"
+"                                                            <li t-att-style=\"'text-decoration: line-through;' if status.rectified_by.id != False else ''\">\n"
+"                                                                <span t-field=\"status.attendance_session_id.attendance_schedule_id.attendance_template_id\"/> | de <span t-field=\"status.attendance_session_id.start_time\" t-options=\"{'widget': 'float_time'}\"/> a <span t-field=\"status.attendance_session_id.end_time\" t-options=\"{'widget': 'float_time'}\"/> | <span t-if=\"status.attendance_status_id\" t-field=\"status.attendance_status_id\"/><t t-else=\"\">No tenía que asistir (quitado de la lista)</t>\n"
+"                                                                <t t-if=\"status.notes\">\n"
+"                                                                    | <span t-field=\"status.notes\"/>\n"
+"                                                                </t>\n"
+"                                                            </li>\n"
+"                                                        </t>\n"
+"                                                    </ul>\n"
+"                                                </li>\n"
+"                                            </t>\n"
+"                                        </ul>\n"
+"                                    </li>\n"
+"                                </t>\n"
 "                            </ul>\n"
-"                                                \n"
+"                        \n"
+"                        <p>\n"
+"                            Puede elegir cuándo recibe este informe desde su perfil (Mi perfil, pestaña Preferencias).\n"
+"                        </p>\n"
 "                        <p>\n"
 "                            Saludos cordiales,<br/>\n"
 "                            <t t-out=\"object.create_uid.company_id.name\"/>\n"
@@ -7746,11 +7756,6 @@ msgstr ""
 #: code:addons/ems/models/employees/employee.py:0
 msgid "The tutor role cannot be assigned manually, it will be set automatically if any group is added to the 'tutorship' field."
 msgstr "El rol de tutor no se puede asignar manualmente; se establecerá automáticamente si se añade algún grupo al campo 'tutoria'."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
-msgid "The tutors will receive a daily attendance report at the end of their work tourn but, it its not defined, this time will be used to send the report."
-msgstr "Los/las tutores/as recibirás un informe de asistencia diario al final de su turno pero, si su horario laboral no se ha definido, esta hora se utilizará para enviar el informe."
 
 #. module: ems
 #. odoo-python
@@ -19051,3 +19056,79 @@ msgstr "Cada día laborable, al inicio de tu jornada, un correo con las tareas q
 #: model:ir.model.fields,field_description:ems.field_res_users__ems_task_digest_date
 msgid "Last summary of pending tasks"
 msgstr "Último resumen de tareas pendientes"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_users__ems_attendance_report_moment__fixed_time
+msgid "At a fixed time"
+msgstr "A una hora concreta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_users__ems_attendance_report_moment
+msgid "Attendance issues report"
+msgstr "Informe de incidencias de asistencia"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_users__ems_attendance_report_time
+msgid "Attendance issues report time"
+msgstr "Hora del informe de incidencias de asistencia"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Each tutor chooses in their profile when they receive their attendance "
+"issues report. This time is used when that moment can't be worked out (no "
+"schedule framework for that day), and as the initial time of the \"At a "
+"fixed time\" option."
+msgstr ""
+"Cada tutor/a elige en su perfil cuándo recibe su informe de incidencias de "
+"asistencia. Esta hora se usa cuando no se puede determinar ese momento "
+"(ningún marco horario para ese día) y como hora inicial de la opción \"A una"
+" hora concreta\"."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_users__ems_attendance_report_time
+msgid "Every working day of the centre, at this time."
+msgstr "Cada día lectivo del centro, a esta hora."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_users__ems_is_tutor
+msgid "Is a group tutor"
+msgstr "Es tutor/a de un grupo"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__tutor_notified
+msgid "Reported to the tutor"
+msgstr "Comunicada al tutor/a"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_report_schedule.py:0
+msgid "The attendance issues report time must be between 00:00 and 23:59."
+msgstr ""
+"La hora del informe de incidencias de asistencia debe estar entre las 00:00 "
+"y las 23:59."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_users__ems_attendance_report_moment__teacher_start
+msgid "When my next working day starts"
+msgstr "Cuando empieza mi siguiente jornada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_users__ems_attendance_report_moment__students_end
+msgid "When my students' day ends"
+msgstr "Cuando acaba la jornada de mis alumnos"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_users__ems_attendance_report_moment__teacher_end
+msgid "When my working day ends"
+msgstr "Cuando acaba mi jornada"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_users__ems_attendance_report_moment
+msgid ""
+"When you receive, as a tutor, the email with your students' attendance "
+"issues. Each email includes every issue recorded since the previous one."
+msgstr ""
+"Cuándo recibe, como tutor/a, el correo con las incidencias de asistencia de "
+"sus alumnos. Cada correo incluye todas las incidencias registradas desde el "
+"anterior."

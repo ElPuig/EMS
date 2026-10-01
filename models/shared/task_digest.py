@@ -2,7 +2,6 @@
 
 import logging
 from collections import defaultdict
-from datetime import datetime, time
 
 import pytz
 
@@ -61,33 +60,16 @@ class EmsTaskDigestUsers(models.Model):
 
     def _ems_workday_start(self, work_date):
         """Naive UTC start of the user's working day on work_date, or None when it is not a
-        working day for them.
-
-        Their own working schedule decides alone when they have one: a day it expects nothing of
-        them (a weekday they don't work, a public holiday, a whole-day approved absence) is no
-        working day, whatever their framework says. Without one (no employee, no schedule, or
-        flexible hours), the company's default schedule framework (always set: it is required),
-        public holidays subtracted."""
+        working day for them: their employee's working day (hr.employee._ems_workday_intervals)
+        or, without an employee, the company's default schedule framework."""
         self.ensure_one()
-        employee = self.employee_id
-        calendar = employee.resource_calendar_id
-        if calendar and not calendar.flexible_hours:
-            intervals = employee._ems_expected_intervals(work_date)
+        if self.employee_id:
+            intervals = self.employee_id._ems_workday_intervals(work_date)
         else:
-            intervals = self._ems_default_framework_intervals(work_date)
+            intervals = self.company_id._ems_default_framework_intervals(work_date)
         if not intervals:
             return None
         return min(start for start, _end in intervals).astimezone(pytz.utc).replace(tzinfo=None)
-
-    def _ems_default_framework_intervals(self, work_date):
-        """(start, end) pairs, tz-aware, of the company's default schedule framework on
-        work_date, public holidays subtracted."""
-        framework = self.company_id.default_schedule_framework_id
-        tz = pytz.timezone(self.env['ems.datetime_utils'].company_tz_name())
-        day_start = tz.localize(datetime.combine(work_date, time.min))
-        day_end = tz.localize(datetime.combine(work_date, time.max))
-        intervals = framework._work_intervals_batch(day_start, day_end, tz=tz, compute_leaves=True)[False]
-        return [(start, end) for start, end, _records in intervals]
 
     def _ems_send_task_digest(self, today):
         """Queue the digest and mark the day as done - also for a user without an email address,

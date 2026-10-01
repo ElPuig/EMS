@@ -2,6 +2,8 @@
 
 from odoo.tests.common import HttpCase, tagged
 
+from .common import create_level_study_group
+
 
 @tagged('post_install', '-at_install')
 class TestUserProfileTour(HttpCase):
@@ -86,3 +88,13 @@ class TestUserProfileTour(HttpCase):
             'Administrator Profile Tour Teacher', 'test_440_profile_tour_admin',
             extra_group_xmlids=('ems.group_academic_admin',))
         self.start_tour("/odoo", "ems_user_profile_tabs_administrator", login='test_440_profile_tour_admin')
+
+    def test_user_profile_attendance_report_tour_tutor(self):
+        """A group tutor (Tutor role, the least privileged one that tutors) picks when they get
+        their attendance issues report (models/attendance/attendance_report_schedule.py)."""
+        teacher = self._create_teacher_login(
+            'Tutor Profile Tour Teacher', 'test_527_profile_tour_tutor', extra_group_xmlids=('ems.group_tutor',))
+        create_level_study_group(self, 'TUPT', group={'tutor_id': teacher.id})
+        self.start_tour("/odoo", "ems_user_profile_attendance_report_tutor", login='test_527_profile_tour_tutor')
+        self.assertEqual(teacher.user_id.ems_attendance_report_moment, 'fixed_time')
+        self.assertAlmostEqual(teacher.user_id.ems_attendance_report_time, 21 + 20 / 60)

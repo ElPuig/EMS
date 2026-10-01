@@ -55,6 +55,30 @@ class EmsBase(models.AbstractModel):
         if 'tutor_id' in self.env[self._name]._fields:
             return EmsBase.user_acts_as_tutor(self, self.tutor_id)
 
+    # The web client offers Archive/Unarchive (cog menu, form and list) whenever the model's
+    # `active` field isn't readonly - it never checks whether the user may write the record. A
+    # teacher's write access to a model comes from ems.group_teacher, whose record rules narrow it
+    # to a tutor's own students/families (and archiving a student is a withdrawal, which only the
+    # secretary, the Head of Studies or an admin may register), so a plain teacher got the entry
+    # only to hit an error.
+    # Called from a model's fields_get() override, unbound
+    # (base.EmsBase.fields_get_active_readonly_for_teachers(self, res)), since res.partner and
+    # hr.employee don't inherit ems.base.
+    def fields_get_active_readonly_for_teachers(self, res):
+        if 'readonly' in res.get('active', {}) and not EmsBase.user_can_archive(self):
+            res['active']['readonly'] = True
+        return res
+
+    # The current user holds write access to the current model through some group other than
+    # ems.group_teacher (or through an ACL granted to everyone).
+    def user_can_archive(self):
+        accesses = self.env['ir.model.access'].sudo().search([
+            ('model_id.model', '=', self._name), ('perm_write', '=', True)])
+        if any(not access.group_id for access in accesses):
+            return True
+        writers = accesses.group_id - self.env.ref('ems.group_teacher')
+        return bool(writers & self.env.user.groups_id)
+
     # Returns a hashcode which is persistent between execution (not like the Python's native one).
     def persistent_hash(self, data):
         data_bytes = str(data).encode('utf-8')

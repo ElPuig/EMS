@@ -302,13 +302,14 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
         )
         self._capture(
             '/odoo/action-ems.action_employee_kanban/%d' % self.new_teacher.id,
-            # Not '.o_form_statusbar' alone: the employee form has two <header> blocks (the
-            # native one, its own button hidden via xpath, plus EMS's own with the real
-            # buttons) so plain querySelector('.o_form_statusbar') grabs the first (empty,
-            # near-zero-height) one instead of ours - target the button itself instead.
-            '.o_form_statusbar button[name="action_create_google_account"]',
-            'hos-staff-management-create-account.png',
-            login='doc_shot_hos', wait_for='.o_form_statusbar button[name="action_create_google_account"]',
+            # The form's Actions dropdown, open. Its menu is an overlay outside the form, hence
+            # the body; beyond_viewport=False because the dropdown closes when Chrome resizes the
+            # page.
+            'body', 'hos-staff-management-create-account.png',
+            login='doc_shot_hos', wait_for='.o_form_statusbar .o_ems_actions_toggle',
+            click='.o_form_statusbar .o_ems_actions_toggle',
+            wait_after='.o_ems_actions_menu button[name="action_create_google_account"]',
+            max_height=420, beyond_viewport=False,
         )
         self._capture(
             '/odoo/action-ems.action_strike_list/%d' % self.strike.id,

@@ -15,7 +15,7 @@ Como tutor/a de grupo, recibes una notificación por correo electrónico cada ve
 - **Convivencia → Strikes** muestra todos los strikes que has puesto tú mismo/a, más todos los strikes puestos a cualquier alumno de tu grupo — independientemente de qué profesor lo haya puesto.
 
   ![Lista de strikes con los del alumnado tutorado, los haya puesto quien los haya puesto](../../assets/tutors/amonestacions-01-llista.png)
-- En la ficha del propio alumno, aparece un botón de **Strikes** en la cabecera (solo cuando el alumno tiene alguno) que muestra el recuento acumulado — haz clic en él para ver el historial completo de ese alumno.
+- En la ficha del propio alumno, aparece un botón de **Strikes** en la cabecera que muestra el recuento acumulado (0 si aún no tiene ninguno) — haz clic en él para ver el historial completo de ese alumno y, desde allí, ponerle uno nuevo con **Nuevo strike**.
 
   ![Botón Strikes en la cabecera de la ficha de un alumno, con el recuento del alumno](../../assets/tutors/amonestacions-02-boto-fitxa.png)
 

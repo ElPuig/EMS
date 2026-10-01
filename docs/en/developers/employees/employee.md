@@ -110,7 +110,7 @@ not just this addon's own inherited views.
 
 | View | File | Notes |
 |------|------|-------|
-| Form | `views/community/employee/form.xml` | Heavily inherits `hr.view_employee_form`; adds the Google Workspace header buttons, the Schedule tab (`schedule_grid` widget), the Teaching tab (tutorships/coordination/subjects) |
+| Form | `views/community/employee/form.xml` | Heavily inherits `hr.view_employee_form`; adds the Actions dropdown to the native header (the Google Workspace/EMS user actions, plus hr_holidays_attendance's "Deduct Extra Hours" moved in by `view_employee_form_native_actions`, see [Form "Actions" dropdown](../shared/actions_dropdown.md)), the Schedule tab (`schedule_grid` widget), the Teaching tab (tutorships/coordination/subjects) |
 | Kanban | `views/community/employee/kanban.xml` | Renders `roles`/`tutorships`; also splits the presence icon's widget per group - see [absence.md](absence.md)'s "hr_holidays leaks a restricted field into the Teachers screen through a widget" |
 | List | `views/community/employee/list.xml` | — |
 | Menu | `views/community/employee/menu.xml` | `action_employee_kanban`, already covered by `employee_google_workspace_tour.js`'s navigation, but that tour never opens the employee's own **form** — see the new `employee_tour.js` added in this pass for that gap |

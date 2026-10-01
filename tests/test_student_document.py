@@ -430,6 +430,22 @@ class TestStudentDocumentTutorAccess(TransactionCase):
                 (tac, self.other_student, True)):
             self.assertEqual(student.with_user(user).can_see_documents, expected, (user.login, student.name))
 
+    def test_download_entry_only_for_readable_credentials(self):
+        # The form's "Download Google credentials" entry is only offered when there is a
+        # credentials PDF the user may read; a plain teacher has no ACL on documents at all.
+        teacher = create_role_user(self, 'teacher', 'test_teacher_credentials_entry')
+        tac = create_role_user(self, 'tac', 'test_tac_credentials_entry')
+        admin = create_role_user(self, 'academic_admin', 'test_admin_credentials_entry')
+        no_credentials = self.env['res.partner'].create({
+            'name': 'TSD No Credentials', 'contact_type': 'student', 'student_id': next_student_id(),
+        })
+        for user, student, expected in (
+                (self.tutor_user, self.student, True), (self.tutor_user, self.other_student, False),
+                (teacher, self.student, False), (tac, self.other_student, True),
+                (admin, no_credentials, False)):
+            self.assertEqual(student.with_user(user).can_download_google_credentials, expected,
+                             (user.login, student.name))
+
 
 class TestStudentDocumentTacAccess(TransactionCase):
     """Issue #478: the TAC team reads every student's Google credentials (they reset them), and

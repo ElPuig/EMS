@@ -15,7 +15,7 @@ Com a tutor/a de grup, reps una notificació per correu electrònic cada vegada 
 - **Convivència → Strikes** mostra tots els strikes que has posat tu mateix/a, més tots els strikes posats a qualsevol alumne del teu grup — independentment de quin professor l'hagi posat.
 
   ![Llista d'strikes amb els de l'alumnat tutorat, els hagi posat qui els hagi posat](../../assets/tutors/amonestacions-01-llista.png)
-- A la fitxa del propi alumne, apareix un botó de **Strikes** a la capçalera (només quan l'alumne en té algun) que mostra el recompte acumulat — clica'l per veure l'historial complet d'aquell alumne.
+- A la fitxa del propi alumne, apareix un botó de **Strikes** a la capçalera que mostra el recompte acumulat (0 si encara no en té cap) — clica'l per veure l'historial complet d'aquell alumne i, des d'allà, posar-li'n un de nou amb **Nou strike**.
 
   ![Botó Strikes a la capçalera de la fitxa d'un alumne, amb el recompte de l'alumne](../../assets/tutors/amonestacions-02-boto-fitxa.png)
 

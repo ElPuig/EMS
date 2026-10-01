@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // ems.portal.access.wizard has no menu/act_window of its own - it only opens via the
 // "Portal access (students/families)" server action bound to the students list's cog
@@ -99,16 +100,7 @@ registry.category("web_tour.tours").add("ems_portal_access_wizard_revoke", {
 registry.category("web_tour.tours").add("ems_portal_access_wizard_form", {
     test: true,
     steps: () => [
-        {
-            trigger: ".o_form_view .o_cp_action_menus button",
-            content: "Open the form's Actions (cog) menu",
-            run: "click",
-        },
-        {
-            trigger: ".o_menu_item:contains('students/families')",
-            content: "'Portal access (students/families)' is also offered from the form",
-            run: "click",
-        },
+        ...clickAction("action_portal_access_bulk", "'Portal access (students/families)' is also offered from the form"),
         {
             trigger: ".modal .o_field_widget[name='mode'] input[type='radio']:checked",
             content: "The wizard opened, same as from the list",

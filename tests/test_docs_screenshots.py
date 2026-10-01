@@ -320,29 +320,37 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             tour='ems_doc_shot_tutor_google_credentials',
             max_height=380,
         )
+        # The form's Actions dropdown, open. Its menu is an overlay outside the form, hence the
+        # body; beyond_viewport=False because the dropdown closes when Chrome resizes the page.
         # Written to the same folder; this one goes to docs/assets/admin/.
         self._capture(
             '/odoo/action-%d/%d' % (self.student_list_action.id, self.students[0].id),
-            '.o_form_view', 'compte-google-alumne-capcalera.png',
+            'body', 'compte-google-alumne-capcalera.png',
             login='doc_shot_tac',
-            wait_for=".o_form_statusbar button[name='action_reset_google_password']",
-            max_height=200,
+            wait_for='.o_form_statusbar .o_ems_actions_toggle',
+            click='.o_form_statusbar .o_ems_actions_toggle',
+            wait_after=".o_ems_actions_menu button[name='action_reset_google_password']",
+            max_height=420, beyond_viewport=False,
         )
-        # The same header seen by the group's tutor: the reset button and nothing else (#490).
+        # The same dropdown seen by the group's tutor: the reset, but no account lifecycle (#490).
         self._capture(
             '/odoo/action-%d/%d' % (self.student_list_action.id, self.students[0].id),
-            '.o_form_view', 'credencials-google-03-restablir.png',
+            'body', 'credencials-google-03-restablir.png',
             login='doc_shot_tutor',
-            wait_for=".o_form_statusbar button[name='action_reset_google_password']",
-            max_height=200,
+            wait_for='.o_form_statusbar .o_ems_actions_toggle',
+            click='.o_form_statusbar .o_ems_actions_toggle',
+            wait_after=".o_ems_actions_menu button[name='action_reset_google_password']",
+            max_height=420, beyond_viewport=False,
         )
-        # Pau has no Google account yet: the tutor gets the create button instead (#513).
+        # Pau has no Google account yet: the tutor gets the create entry instead (#513).
         self._capture(
             '/odoo/action-%d/%d' % (self.student_list_action.id, self.students[1].id),
-            '.o_form_view', 'credencials-google-04-crear.png',
+            'body', 'credencials-google-04-crear.png',
             login='doc_shot_tutor',
-            wait_for=".o_form_statusbar button[name='action_create_google_account']",
-            max_height=200,
+            wait_for='.o_form_statusbar .o_ems_actions_toggle',
+            click='.o_form_statusbar .o_ems_actions_toggle',
+            wait_after=".o_ems_actions_menu button[name='action_create_google_account']",
+            max_height=420, beyond_viewport=False,
         )
 
     def test_capture_convalidation_screenshots(self):

@@ -49,6 +49,18 @@ class EmsEnrollment(models.Model):
         self.compute_exclusion_ids('inuse_subject_ids', lambda enrollment: enrollment.student_id,
                                     'student_id.enrollment_ids.subject_id')
 
+    @api.onchange('subject_id')
+    def _onchange_subject_id(self):
+        """Default the group of a line added by hand on the student's form to the course the
+        study's enrollment templates sell the subject for (a 1st-year module pending for a
+        2nd-year student goes to the 1st-year group), the same group the enrollment placement
+        would pick. A reinforcement group is a deliberate choice and is left alone."""
+        for enrollment in self:
+            main_group = enrollment.student_id.main_group_id
+            if not (enrollment.subject_id and main_group) or enrollment.group_id.group_type == 'reinforcement':
+                continue
+            enrollment.group_id = main_group._ems_group_for_subject(enrollment.subject_id)
+
     @api.depends('subject_id')
     def _compute_display_name(self):
         for enrollment in self:

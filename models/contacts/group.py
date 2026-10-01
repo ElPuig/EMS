@@ -405,6 +405,20 @@ class EmsGroup(models.Model):
 			exact_domain.append(("shift", "=", self.shift))
 		return Group.search(exact_domain, limit=1) or Group.search(domain, order="name", limit=1)
 
+	def _ems_group_for_subject(self, subject):
+		"""The group where 'subject' is taught for a student whose main group is this one:
+		this same group, unless the study's enrollment templates sell the subject for a
+		single different course (e.g. a 1st-year module pending for a 2nd-year student),
+		in which case its equivalent group in that course (see _ems_equivalent_for_course).
+		Shared by every flow that enrolls a student in a subject - the enrollment placement,
+		the study-change refresh and the manual line on the student's form - so all of them
+		land on the same group for the same subject."""
+		self.ensure_one()
+		course = self.study_id._ems_subject_course(subject.product_id) if self.study_id else False
+		if course and course != self.course:
+			return self._ems_equivalent_for_course(course) or self
+		return self
+
 
 class EmsEnrollmentView(models.TransientModel):
 	_name = "ems.enrollment_view"

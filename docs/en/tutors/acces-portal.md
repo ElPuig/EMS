@@ -37,7 +37,7 @@ Once selected, open the **Actions** menu in the top bar and click **Portal acces
 
 ![Student list with selection and Actions menu](../../assets/tutors/tutor-accesalportal0.png)
 
-> **Note:** you can also open this dialog for a single student from their own form, using the same **Actions** ⚙ menu.
+> **Note:** you can also open this dialog for a single student from their own form, in the **Actions** menu of its header.
 
 > **Note:** as a tutor, you will only see and be able to manage your own students. Even if you select students from other groups, the dialog will only show those that belong to you.
 

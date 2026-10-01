@@ -8,7 +8,7 @@ Desde la ficha del alumno puedes crear su cuenta de Google Workspace, suspenderl
 
 **Rol necesario:** Administrador o Coordinador/a TAC. Secretaría también puede crear y suspender cuentas.
 
-Todos los botones están en la cabecera de la ficha del alumno (**Comunidad educativa → Estudiantes**). Cada botón solo aparece cuando la acción es posible.
+Todas las acciones están en el menú **Acciones** de la cabecera de la ficha del alumno (**Comunidad educativa → Estudiantes**). Cada opción solo aparece cuando la acción es posible.
 
 ![Cabecera de la ficha de un alumno con la cuenta de Google activa](../../assets/admin/compte-google-alumne-capcalera.png)
 

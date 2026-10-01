@@ -28,9 +28,9 @@ En la sección **Documentación** solo ves las credenciales de Google de los alu
 Normalmente la cuenta se crea automáticamente al matricular al alumno. Si alguno de tus alumnos aún no la tiene (a menudo porque en ese momento faltaba algún dato), puedes crearla tú mismo:
 
 1. Abre la ficha del alumno.
-2. En la cabecera, pulsa **Crear cuenta de Google**.
+2. En la cabecera, abre el menú **Acciones** y pulsa **Crear cuenta de Google**.
 
-![Botón Crear cuenta de Google en la cabecera de la ficha](../../assets/tutors/credencials-google-04-crear.png)
+![Crear cuenta de Google en el menú Acciones de la ficha](../../assets/tutors/credencials-google-04-crear.png)
 
 El alumno recibe las credenciales en su dirección de correo personal y el PDF con las credenciales se guarda en la pestaña **Documentación**. La primera vez que entre en Google, el alumno tendrá que cambiar la contraseña.
 
@@ -41,9 +41,9 @@ El botón solo aparece mientras el alumno no tiene cuenta de Google. Si al alumn
 ## Restablecer la contraseña de Google de un alumno
 
 1. Abre la ficha del alumno.
-2. En la cabecera, pulsa **Restablecer la contraseña de Google**.
+2. En la cabecera, abre el menú **Acciones** y pulsa **Restablecer la contraseña de Google**.
 
-![Botón Restablecer la contraseña de Google en la cabecera de la ficha](../../assets/tutors/credencials-google-03-restablir.png)
+![Restablecer la contraseña de Google en el menú Acciones de la ficha](../../assets/tutors/credencials-google-03-restablir.png)
 
 3. Confirma el mensaje que aparece.
 
@@ -63,7 +63,7 @@ El botón solo aparece si el alumno tiene una cuenta de Google activa. Si no lo 
 
 Se descarga un archivo ZIP con un PDF por alumno, con el nombre del alumno delante. Si ninguno de los alumnos seleccionados tiene credenciales, aparece un aviso y no se descarga nada. Solo se incluyen los alumnos que tutorizas.
 
-> **Nota:** la misma acción **Descargar credenciales de Google** también está disponible desde la ficha de un solo alumno, con el mismo menú **Acciones** ⚙ — aunque para un solo alumno, descargar el PDF directamente desde la sección **Documentación** de la pestaña **Secretaría** de arriba es más rápido.
+> **Nota:** la misma acción **Descargar credenciales de Google** también está disponible desde la ficha de un solo alumno, en el menú **Acciones** de su cabecera — aunque para un solo alumno, descargar el PDF directamente desde la sección **Documentación** de la pestaña **Secretaría** de arriba es más rápido.
 
 ---
 

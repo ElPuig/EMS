@@ -28,9 +28,9 @@ A la secció **Documentació** només hi veus les credencials de Google dels alu
 Normalment el compte es crea automàticament quan es matricula l'alumne. Si algun dels teus alumnes encara no en té (sovint perquè en aquell moment hi faltava alguna dada), el pots crear tu mateix:
 
 1. Obre la fitxa de l'alumne.
-2. A la capçalera, clica **Crear compte de Google**.
+2. A la capçalera, obre el menú **Accions** i clica **Crear compte de Google**.
 
-![Botó Crear compte de Google a la capçalera de la fitxa](../../assets/tutors/credencials-google-04-crear.png)
+![Crear compte de Google al menú Accions de la fitxa](../../assets/tutors/credencials-google-04-crear.png)
 
 L'alumne rep les credencials a la seva adreça de correu personal i el PDF amb les credencials es desa a la pestanya **Documentació**. La primera vegada que entri a Google, l'alumne haurà de canviar la contrasenya.
 
@@ -41,9 +41,9 @@ El botó només surt mentre l'alumne no té compte de Google. Si a l'alumne li f
 ## Restablir la contrasenya de Google d'un alumne
 
 1. Obre la fitxa de l'alumne.
-2. A la capçalera, clica **Restablir la contrasenya de Google**.
+2. A la capçalera, obre el menú **Accions** i clica **Restablir la contrasenya de Google**.
 
-![Botó Restablir la contrasenya de Google a la capçalera de la fitxa](../../assets/tutors/credencials-google-03-restablir.png)
+![Restablir la contrasenya de Google al menú Accions de la fitxa](../../assets/tutors/credencials-google-03-restablir.png)
 
 3. Confirma el missatge que apareix.
 
@@ -63,7 +63,7 @@ El botó només surt si l'alumne té un compte de Google actiu. Si no el veus, l
 
 Es descarrega un fitxer ZIP amb un PDF per alumne, amb el nom de l'alumne al davant. Si cap dels alumnes seleccionats té credencials, surt un avís i no es descarrega res. Només s'hi inclouen els alumnes que tutoritzes.
 
-> **Nota:** la mateixa acció **Descarregar credencials de Google** també està disponible des de la fitxa d'un sol alumne, amb el mateix menú **Accions** ⚙ — encara que per a un sol alumne, descarregar el PDF directament des de la secció **Documentació** de la pestanya **Secretaria** de dalt és més ràpid.
+> **Nota:** la mateixa acció **Descarregar credencials de Google** també està disponible des de la fitxa d'un sol alumne, al menú **Accions** de la seva capçalera — encara que per a un sol alumne, descarregar el PDF directament des de la secció **Documentació** de la pestanya **Secretaria** de dalt és més ràpid.
 
 ---
 

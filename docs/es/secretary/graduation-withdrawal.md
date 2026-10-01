@@ -34,7 +34,7 @@ Solo se puede marcar al alumnado que está en el **último curso de su estudio**
 
 ## Tramitar una baja (o una expulsión)
 
-Solo secretaría y admin pueden tramitarlo. Se te pedirá elegir entre **Baja** y **Expulsión**,
+Pueden tramitarlo secretaría, jefatura de estudios, jefatura de estudios adjunta, dirección y admin. Se te pedirá elegir entre **Baja** y **Expulsión**,
 la **fecha de salida** y, opcionalmente, un **motivo** — después confirmas. Una vez aplicado, no
 se puede deshacer desde el propio asistente.
 

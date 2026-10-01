@@ -186,7 +186,7 @@ class TestTaskDigest(TransactionCase):
         self.assertIn(f'/mail/view?model=res.partner&amp;res_id={mine.id}', body)
         self.assertIn(self.env.ref('mail.mail_activity_data_todo').name, body)
         self.assertIn(self.env.ref('mail.mail_activity_data_call').name, body)
-        self.assertIn('2 pending tasks', mail.subject)
+        self.assertIn('pending tasks (2)', mail.subject)
 
     def test_content_caps_each_type(self):
         self._assign(self.teacher_user, count=23)
@@ -201,4 +201,4 @@ class TestTaskDigest(TransactionCase):
         self.teacher_user.lang = 'ca_ES'
         self._assign(self.teacher_user)
         self._run_cron(9.25)
-        self.assertIn('tasca pendent', self._digests(self.teacher_user).subject)
+        self.assertIn('tasques pendents (1)', self._digests(self.teacher_user).subject)

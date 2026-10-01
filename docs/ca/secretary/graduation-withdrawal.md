@@ -34,7 +34,7 @@ Heu marcat un alumne per error? **Desmarcar** ho reverteix — excepte el regist
 
 ## Tramitar una baixa (o una expulsió)
 
-Només secretaria i admin poden tramitar-ho. Se us demanarà triar entre **Baixa** i
+Ho poden tramitar secretaria, cap d'estudis, cap d'estudis adjunt, direcció i admin. Se us demanarà triar entre **Baixa** i
 **Expulsió**, la **data de sortida** i, opcionalment, un **motiu** — després confirmeu. Un cop
 aplicat, no es pot desfer des del propi assistent.
 

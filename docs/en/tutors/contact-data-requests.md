@@ -24,7 +24,7 @@ Available to group tutors (for their own students), the secretariat and the Head
 
 ![Educational Community menu with the Students section open: Students and Data request](../../assets/tutors/dades-contacte-01-menu.png)
 
-1. Go to **Educational Community → Students (1) → Data request (2)** and click **Request contact data**. You can also open it from the ⚙ menu of the students list, a student's form, the groups list or a group's form.
+1. Go to **Educational Community → Students (1) → Data request (2)** and click **Request contact data**. You can also open it from the ⚙ menu of the students list, the groups list or a group's form, and from the **Actions** menu in the header of a student's form.
 2. Choose who receives it:
    - **Groups / studies / levels**: pick the groups. Tutors can only pick their own groups.
    - **Selected students**: pick the students one by one.

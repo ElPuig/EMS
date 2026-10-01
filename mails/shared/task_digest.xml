@@ -6,7 +6,9 @@
              one email per user and working day listing every activity still assigned to them.
              See docs/en/developers/shared/task_digest.md. No <field name="lang">, for the same
              reason as mails/enrollment/authorization_send.xml: the sender sets the recipient's
-             language, and each language's subject and body are written below. -->
+             language, and each language's subject and body are written below. Every literal stays
+             outside the {{ }}/t-out expressions, which must be identical in the three languages
+             (TestMailTemplateTranslations). -->
         <record id="email_template_task_digest" model="mail.template">
             <field name="name">EMS: Daily summary of pending tasks</field>
             <field name="model_id" ref="base.model_res_users"/>
@@ -14,7 +16,7 @@
             <field name="email_to">{{ object.email }}</field>
             <field name="auto_delete" eval="True"/>
             <field name="email_layout_xmlid">mail.mail_notification_light</field>
-            <field name="subject">EMS: {{ object._ems_task_digest_count() }} {{ 'pending task' if object._ems_task_digest_count() == 1 else 'pending tasks' }}</field>
+            <field name="subject">EMS: pending tasks ({{ object._ems_task_digest_count() }})</field>
             <field name="body_html">
                 <![CDATA[
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
@@ -23,7 +25,7 @@
                         <p>This is a summary of the tasks you still have pending in EMS, in case you haven't been able to look at them. You will find them all in the to-do tray (🕒) at the top of EMS.</p>
                         <t t-foreach="groups" t-as="group">
                             <h3 style="font-size: 15px; margin: 20px 0 8px 0; padding-bottom: 4px; border-bottom: 1px solid #dadce0;">
-                                <t t-out="group['type'].name or 'Other tasks'"/> (<t t-out="group['count']"/>)
+                                <t t-if="group['type']" t-out="group['type'].name"/><t t-else="">Other tasks</t> (<t t-out="group['count']"/>)
                             </h3>
                             <ul style="margin: 0; padding-left: 20px;">
                                 <li t-foreach="group['activities']" t-as="activity" style="margin-bottom: 4px;">
@@ -44,7 +46,7 @@
         </record>
 
         <record id="email_template_task_digest" model="mail.template" context="{'lang': 'ca_ES'}">
-            <field name="subject">EMS: {{ object._ems_task_digest_count() }} {{ 'tasca pendent' if object._ems_task_digest_count() == 1 else 'tasques pendents' }}</field>
+            <field name="subject">EMS: tasques pendents ({{ object._ems_task_digest_count() }})</field>
             <field name="body_html">
                 <![CDATA[
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
@@ -53,7 +55,7 @@
                         <p>Aquest és un resum de les tasques que encara tens pendents a l'EMS, per si no les has pogut mirar. Les trobaràs totes a la safata de tasques (🕒) de la part superior de l'EMS.</p>
                         <t t-foreach="groups" t-as="group">
                             <h3 style="font-size: 15px; margin: 20px 0 8px 0; padding-bottom: 4px; border-bottom: 1px solid #dadce0;">
-                                <t t-out="group['type'].name or 'Altres tasques'"/> (<t t-out="group['count']"/>)
+                                <t t-if="group['type']" t-out="group['type'].name"/><t t-else="">Altres tasques</t> (<t t-out="group['count']"/>)
                             </h3>
                             <ul style="margin: 0; padding-left: 20px;">
                                 <li t-foreach="group['activities']" t-as="activity" style="margin-bottom: 4px;">
@@ -74,7 +76,7 @@
         </record>
 
         <record id="email_template_task_digest" model="mail.template" context="{'lang': 'es_ES'}">
-            <field name="subject">EMS: {{ object._ems_task_digest_count() }} {{ 'tarea pendiente' if object._ems_task_digest_count() == 1 else 'tareas pendientes' }}</field>
+            <field name="subject">EMS: tareas pendientes ({{ object._ems_task_digest_count() }})</field>
             <field name="body_html">
                 <![CDATA[
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
@@ -83,7 +85,7 @@
                         <p>Este es un resumen de las tareas que aún tienes pendientes en EMS, por si no has podido mirarlas. Las encontrarás todas en la bandeja de tareas (🕒) de la parte superior de EMS.</p>
                         <t t-foreach="groups" t-as="group">
                             <h3 style="font-size: 15px; margin: 20px 0 8px 0; padding-bottom: 4px; border-bottom: 1px solid #dadce0;">
-                                <t t-out="group['type'].name or 'Otras tareas'"/> (<t t-out="group['count']"/>)
+                                <t t-if="group['type']" t-out="group['type'].name"/><t t-else="">Otras tareas</t> (<t t-out="group['count']"/>)
                             </h3>
                             <ul style="margin: 0; padding-left: 20px;">
                                 <li t-foreach="group['activities']" t-as="activity" style="margin-bottom: 4px;">

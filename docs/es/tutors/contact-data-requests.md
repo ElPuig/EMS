@@ -24,7 +24,7 @@ Disponible para los tutores de grupo (para su alumnado), la secretaría y la jef
 
 ![Menú Comunidad educativa con la sección Estudiantes abierta: Estudiantes y Solicitud de datos](../../assets/tutors/dades-contacte-01-menu.png)
 
-1. Id a **Comunidad educativa → Estudiantes (1) → Solicitud de datos (2)** y haced clic en **Solicitar datos de contacto**. También podéis abrirlo desde el menú ⚙ de la lista de estudiantes, de la ficha de un estudiante, de la lista de grupos o de la ficha de un grupo.
+1. Id a **Comunidad educativa → Estudiantes (1) → Solicitud de datos (2)** y haced clic en **Solicitar datos de contacto**. También podéis abrirlo desde el menú ⚙ de la lista de estudiantes, de la lista de grupos o de la ficha de un grupo, y desde el menú **Acciones** de la cabecera de la ficha de un estudiante.
 2. Elegid quién la recibe:
    - **Grupos / estudios / niveles**: elegid los grupos. Los tutores solo pueden elegir sus grupos.
    - **Alumnos seleccionados**: elegid los alumnos uno a uno.

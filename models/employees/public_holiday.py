@@ -50,6 +50,6 @@ class EmsPublicHoliday(models.Model):
         for attendance in technical_attendances:
             employee = attendance.employee_id
             day = attendance_model._get_day_start_and_day(employee, attendance.check_in)[1]
-            if not employee._get_expected_attendances(*attendance_model._get_local_day_bounds(employee, day)):
+            if not employee._get_expected_attendances(*employee._ems_local_day_bounds(day)):
                 obsolete |= attendance
         obsolete.unlink()

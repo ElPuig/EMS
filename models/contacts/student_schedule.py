@@ -42,9 +42,10 @@ class ems_student_schedule(models.Model):
     # as empty in between the two - with no @api.depends, the later enrollments never invalidated it).
     @api.depends('contact_type', 'main_group_id', 'enrollment_ids.subject_id', 'enrollment_ids.group_id')
     def _compute_schedule_attendance_ids(self):
-        # 'active_test=True' forced explicitly, not left to the ORM's own default: this tab is
-        # opened from ems.action_student_kanban, whose own context sets active_test=False so
-        # archived/withdrawn students still show up in that list - a context that then leaks into
+        # 'active_test=True' forced explicitly in _ems_teaching_attendances(), not left to the
+        # ORM's own default: this tab is opened from ems.action_student_kanban, whose own context
+        # sets active_test=False so archived/withdrawn students still show up in that list - a
+        # context that then leaks into
         # this compute too, since it's the same request. Without forcing it back on here, a stale/
         # archived calendar's own leftover attendance rows (never deleted, only archived, by course
         # transition's calendar rollover) resurface as if they were still part of the student's
@@ -54,18 +55,27 @@ class ems_student_schedule(models.Model):
         # one - traced to exactly this, not a data problem. See the identical fix on
         # ems.group._compute_schedule_attendance_ids and
         # ems.schedule_report_mixin._get_level_break_entries.
-        Attendance = self.env['resource.calendar.attendance'].with_context(active_test=True)
         for student in self:
             if student.contact_type != 'student':
                 student.schedule_attendance_ids = self.env['resource.calendar.attendance']
                 continue
-            teaching = self.env['resource.calendar.attendance']
-            for enrollment in student.enrollment_ids:
-                teaching |= Attendance.search([
-                    ('subject_id', '=', enrollment.subject_id.id),
-                    ('group_ids', '=', enrollment.group_id.id),
-                ])
-            student.schedule_attendance_ids = teaching | student._get_break_entries()
+            student.schedule_attendance_ids = student._ems_teaching_attendances() | student._get_break_entries()
+
+    def _ems_teaching_attendances(self):
+        """The teaching periods of the student's own schedule (breaks excluded): every period of
+        a subject they are enrolled in, in the group they are enrolled through - so a student
+        taking a subject in another group (e.g. a 2nd-year one repeating a 1st-year subject)
+        gets that group's period, not their main group's. Also used by the tutor's attendance
+        report to know when their students' day ends (attendance_report_schedule.py)."""
+        self.ensure_one()
+        Attendance = self.env['resource.calendar.attendance'].with_context(active_test=True)
+        teaching = Attendance
+        for enrollment in self.enrollment_ids:
+            teaching |= Attendance.search([
+                ('subject_id', '=', enrollment.subject_id.id),
+                ('group_ids', '=', enrollment.group_id.id),
+            ])
+        return teaching
 
     def _get_break_entries(self):
         """The student's break/patio period, derived from their MAIN group's level/shift — a

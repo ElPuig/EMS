@@ -421,9 +421,20 @@ class TestAttendanceCorrection(TransactionCase):
         ])
         self.assertEqual(activities.user_id, self.hos_user)
         # Deadline must not default to "today" (see attendance_correction.py's
-        # APPROVAL_ACTIVITY_DEADLINE_DAYS) or the notification email reads as if
-        # the request were already overdue on the day it was submitted.
+        # APPROVAL_ACTIVITY_DEADLINE_DAYS) or the task reads as if the request were
+        # already overdue on the day it was submitted.
         self.assertGreater(activities.date_deadline, fields.Date.context_today(correction))
+
+    def test_no_assignment_email_on_create(self):
+        """Not urgent: the approver learns of it from the task itself and the daily digest
+        (models/shared/task_digest.py), not from Odoo's "X assigned you an activity" email."""
+        correction = self._create_correction(self.teacher_user)
+        notices = self.env['mail.message'].search([
+            ('model', '=', 'ems.attendance_correction'),
+            ('res_id', '=', correction.id),
+            ('message_type', '=', 'user_notification'),
+        ])
+        self.assertFalse(notices)
 
     def test_requester_notified_on_decision(self):
         correction = self._create_correction(self.teacher_user)

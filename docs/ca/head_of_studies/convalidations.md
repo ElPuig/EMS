@@ -48,6 +48,8 @@ Cada pas genera una tasca a la safata d'activitats (🕒) de qui l'ha de fer:
 - Cada sol·licitud nova, o retornada per Direcció, a qui ocupa el càrrec de **Cap d'Estudis Adjunt/a**.
 - Cada proposta, a qui ocupa el càrrec de **Director/a**.
 
+Crear una tasca no envia cap correu. En canvi, cada dia laborable, a l'inici de la teva jornada, reps un únic correu amb tot el que tens pendent a la safata: vegeu [Resum diari de tasques pendents](../teachers/task-digest.md).
+
 ---
 
 ## Revisar una sol·licitud (Cap d'Estudis)

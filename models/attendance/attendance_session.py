@@ -138,19 +138,6 @@ class EmsAttendanceSessionHeader(models.Model):
         return self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")]) or False
 
 
-    def _get_notification_tutor_eta(self, tutor=None):
-        if tutor and tutor.resource_calendar_id and tutor.resource_calendar_id.id != 1:
-            today = fields.Datetime.now()
-            weekday = str(today.weekday())
-            slots = tutor.resource_calendar_id.attendance_ids.filtered(
-                lambda a: a.dayofweek == weekday
-            ).sorted(key=lambda a: a.hour_to, reverse=True)
-            if slots:
-                return self.datetime_to_odoo(self.time_float_to_utc_datetime(today, slots[0].hour_to))
-
-        notification_tutor_eta = self.time_float_to_utc_datetime(fields.Datetime.now(), self.env.company.attendance_issue_tutor_default)
-        return self.datetime_to_odoo(notification_tutor_eta)
-
     def _get_notification_status_eta(self):
         return fields.Datetime.now() + timedelta(seconds=self.env.company.attendance_issue_status_delay * 60) # from minutes to seconds
 
@@ -202,17 +189,6 @@ class EmsAttendanceSessionHeader(models.Model):
                 'issue_date': date
             })
         return issue_tutor
-
-    def _schedule_daily_assistance_notification(self, issue_tutor, eta):
-        if issue_tutor.notification_id.id != False: return
-
-        daily = issue_tutor.with_delay(
-            eta = eta,
-            description=f"Tutor's assistance report: ID={issue_tutor.id}"
-        ).send_notification()
-
-        job = self.sudo().env['queue.job'].search([('uuid', '=', daily.uuid)]) or False
-        if job: issue_tutor.sudo().write({'notification_id': job.id})
 
     def _schedule_family_assistance_notification(self, issue_status, eta, rectification):
         if issue_status.notification_id.id != False or not issue_status.send_to or issue_status.send_to == "": return
@@ -470,9 +446,9 @@ class EmsAttendanceSessionHeader(models.Model):
 
         for notification_tutor in notis:
             # noti internal structure: attendance_issue_tutor (1) --> (N) attendance_issue_student (1) --> (N) attendance_issue_status
-            # notifications for the tutors: daily (at the end if its tourn); notifications for the family (status): after a timeout (default 15 minutes).
+            # notifications for the tutors: one pending report per tutor, at the moment they chose (_schedule_tutor_report); notifications for the family (status): after a timeout (default 15 minutes).
 
-            self._schedule_daily_assistance_notification(notification_tutor, self._get_notification_tutor_eta(notification_tutor.tutor_id))
+            notification_tutor._schedule_tutor_report()
             for issue_student in notification_tutor.attendance_issue_student_ids:
                 for issue_status in issue_student.attendance_issue_status_ids:
                     self._schedule_family_assistance_notification(issue_status, notification_status_eta, rectification)

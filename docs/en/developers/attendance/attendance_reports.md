@@ -53,6 +53,16 @@ Many2many the way it does for an owned/computed one) — see `attendance_session
 `Many2one` at the time this report code was ported; it became the `Many2many` `study_ids` in a later pass,
 2026-08-05 — see [`attendance_template.md`](attendance_template.md).)
 
+`student_group_id` (`Many2one` to `ems.group`, `compute`+`store`, indexed) is the **student's own group when
+the roll-call was taken** (`student_id.main_group_id`), and it is what the analysis screen's *Group* filter
+and group-by, and the by-group PDF, use. `group_ids` is the *session's* groups: a session shared by several
+groups (e.g. a subject taught to ASIX2A, ASIX2B, DAM2A, DAM2B and DAW2A together) would put each of its
+students under every one of those groups. The compute depends on `student_id` only, on purpose: when a
+student changes group, the lines already taken keep the old group and the following ones get the new one,
+so each absence counts in the group the student was in on that date. A withdrawal clears the student's main
+group but leaves their earlier lines in their group. On the upgrade that added the field, Odoo computed it
+for the existing lines from each student's main group at that moment.
+
 `session_active` (`Boolean`, stored `related="attendance_session_id.active"`) marks the lines of the current
 course (the course transition archives every outgoing session). It exists so the analysis screen can filter on
 the current course without going through `attendance_session_id`: a domain on that path is resolved with
@@ -73,7 +83,7 @@ Each wizard has 2 responsibilities, both formerly raw SQL, now plain ORM:
 
 | Wizard | Dropdown filter (`allowed_*_ids`) | `print()` |
 |---|---|---|
-| `..._group_wizard` | `env['ems.teaching'].search([('teacher_id', '=', current_teacher.id)]).mapped('group_id')` (no study filter — see "Wizard simplification" below), plus the groups in the user's tutor scope (`_get_tutor_group_ids()`) | `_get_sessions()` — see "Tutor scope in the PDF reports" below |
+| `..._group_wizard` | `env['ems.teaching'].search([('teacher_id', '=', current_teacher.id)]).mapped('group_id')` (no study filter — see "Wizard simplification" below), plus the groups in the user's tutor scope (`_get_tutor_group_ids()`) | `_get_group_lines()` — see "Tutor scope in the PDF reports" below |
 | `..._student_wizard` | enrollments whose `(group_id, subject_id)` matches one of the teacher's `ems.teaching` pairs (no group filter anymore — see "Wizard simplification" below), plus every student whose tutor has the current user in `tutor_scope_user_ids` | `_get_student_lines()` — see "By-student report: own sessions vs tutor scope" below |
 | `..._subject_wizard` | `allowed_subject_ids`: teacher's own taught subjects (no group filter — see "Wizard simplification" below) plus every subject taught in a group of the user's tutor scope; `allowed_group_ids` (`_get_groups_teaching()`): the groups where the subject is taught by the user **or** that are in the user's tutor scope | `_get_sessions()` — see "Tutor scope in the PDF reports" below |
 
@@ -127,7 +137,8 @@ would also list those sessions in the tutor's *Attendance sessions* screen.
 
 It decides which sessions to include in a single place,
 `ems.attendance_report_wizard._get_student_lines(date_range=True)`, used by the From/To prefill
-(`_onchange_student_id`), by `print()` and by the PDF render:
+(`_onchange_student_id`), by `print()` and by the PDF render. The own-sessions vs `sudo()` split itself
+lives in `_search_scoped_lines()`, shared with the by-group report:
 
 | Who | Sessions in the by-student report | How |
 |---|---|---|
@@ -150,20 +161,34 @@ creator) and calls `_get_student_lines()` again (see "Printing" above), so a han
 use the `sudo()` path for another student. Strikes listed in the PDF are still searched with the user's own
 rights (`Strike: tutees` already covers the tutor scope).
 
-#### By-group and by-subject reports
+#### By-group report
 
-Same idea, per group instead of per student, in `_get_sessions(date_range=True)`, used by the From/To
-prefill (`_onchange_group_id`, `_onchange_subject_id`), by `print()` and by the PDF render
-(`_get_report_lines()` searches the lines of those sessions):
+`_get_group_lines(date_range=True)` (From/To prefill in `_onchange_group_id`, `print()`, PDF render) searches
+the **lines** whose `student_group_id` is the selected group, in the current course (`session_active`), with
+a student. It never goes through the session's `group_ids`, so a session shared with other groups only
+brings this group's students, and a student of the group attending a session of another group (a subject
+taken with another group) is still included. Access goes through the same `_search_scoped_lines()` as the
+by-student report:
+
+| Selected group | Lines in the report | How |
+|---|---|---|
+| In the user's tutor scope (`_get_tutor_group_ids()`: `ems.group` whose `tutor_id.tutor_scope_user_ids` contains the user) | Every line of the group's students, whatever subject or teacher | Line search under `sudo()` |
+| Any other group | Only the lines of the sessions the user can read (their own) | Line search restricted to the readable headers, record rules decide |
+
+#### By-subject report
+
+`_get_sessions(date_range=True)` (From/To prefill in `_onchange_subject_id`, `print()`, PDF render;
+`_get_report_lines()` then searches the lines of those sessions) selects the subject's sessions by the
+**session's** `group_ids`:
 
 | Selected groups | Sessions in the report | How |
 |---|---|---|
-| Groups in the user's tutor scope (`_get_tutor_group_ids()`: `ems.group` whose `tutor_id.tutor_scope_user_ids` contains the user) | Every session of the group (by subject: of that subject), whoever taught it | Header search under `sudo()`, restricted to those groups |
+| Groups in the user's tutor scope | Every session of that subject in the group, whoever taught it | Header search under `sudo()`, restricted to those groups |
 | Any other group | Only the sessions the user can read (their own) | Plain header search, record rules decide |
 
 The lines are returned in the sessions' environment (`sudo()` when the tutor scope widened them), so the
 PDF can read the other teachers' session headers. The widening is per group: a group picked by hand outside
-the dropdown and outside the tutor scope never gets the `sudo()` path. A session shared by a tutored group
+the dropdown and outside the tutor scope never gets the `sudo()` path. A session shared by a selected group
 and another group (a joint session) brings all of its lines, including the other group's students. Inside
 an onchange the wizard's `group_ids` are `NewId` copies, so `_get_sessions()` works on `._origin`.
 

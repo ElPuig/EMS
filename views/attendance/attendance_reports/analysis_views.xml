@@ -36,14 +36,14 @@
             <field name="arch" type="xml">
                 <search string="Attendance reports">
                     <field name="student_id"/>
-                    <field name="group_ids"/>
+                    <field name="student_group_id"/>
                     <field name="subject_id"/>
                     <field name="status_id"/>
                     <filter string="My subjects" name="my_subjects" domain="[('template_teacher_ids.user_id', '=', uid)]"/>
                     <separator/>
                     <filter string="Date" name="filter_date" date="date"/>
                     <group string="Group By">
-                        <filter string="Group" name="group_by_group" context="{'group_by': 'group_ids'}"/>
+                        <filter string="Group" name="group_by_group" context="{'group_by': 'student_group_id'}"/>
                         <filter string="Subject" name="group_by_subject" context="{'group_by': 'subject_id'}"/>
                         <filter string="Student" name="group_by_student" context="{'group_by': 'student_id'}"/>
                         <filter string="Status" name="group_by_status" context="{'group_by': 'status_id'}"/>

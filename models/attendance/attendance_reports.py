@@ -108,33 +108,49 @@ class EmsAttendanceReportWizard(models.TransientModel):
 			domain = ["&"] + domain + ["|", ("teacher_id", "=", teacher.id), ("group_id", "in", self._get_tutor_group_ids().ids)]
 		return self.env["ems.teaching"].search(domain).mapped("group_id")
 
+	def _search_scoped_lines(self, domain, date_range, tutor_scope):
+		"""Session lines are readable by every teacher, but session headers only by their own
+		teacher: a plain teacher gets the lines of their own sessions only, while the tutor scope
+		(tutor, chiefs above them, Director) gets every session, whatever the subject or teacher,
+		via sudo()."""
+		if date_range:
+			domain = domain + [("date", ">=", self.from_date), ("date", "<=", self.to_date)]
+		lines = self.env["ems.attendance_session_line"]
+		if tutor_scope:
+			return lines.sudo().search(domain)
+		return lines.search(domain + [("attendance_session_id", "in", self.env["ems.attendance_session_header"]._search([]))])
+
 	def _get_student_lines(self, date_range=True):
 		"""The session lines the by-student report covers, shared by the date prefill, print() and
-		the PDF render. Lines are readable by every teacher, but session headers only by their own
-		teacher: a plain teacher gets their own sessions only, while the student's tutor scope
-		(tutor, chiefs above them, Director) gets every session of this one student via sudo()."""
+		the PDF render: every session of this one student for its tutor scope."""
 		self.ensure_one()
-		domain = [("student_id", "=", self.student_id.id)]
-		if date_range:
-			domain += [("date", ">=", self.from_date), ("date", "<=", self.to_date)]
-		lines = self.env["ems.attendance_session_line"]
-		if base.EmsBase.user_acts_as_tutor(self, self.student_id.tutor_id):
-			lines = lines.sudo()
-		else:
-			domain.append(("attendance_session_id", "in", self.env["ems.attendance_session_header"]._search([])))
-		return lines.search(domain)
+		return self._search_scoped_lines(
+			[("student_id", "=", self.student_id.id)], date_range,
+			base.EmsBase.user_acts_as_tutor(self, self.student_id.tutor_id),
+		)
+
+	def _get_group_lines(self, date_range=True):
+		"""The session lines the by-group report covers, shared by the date prefill, print() and the
+		PDF render: those of the group's students, by the group each line keeps from its roll-call
+		(student_group_id), not by the session's groups, which would bring in every other group's
+		students of a shared session. Current course only, like the pivot."""
+		self.ensure_one()
+		group = self.group_id._origin
+		if not group:
+			return self.env["ems.attendance_session_line"]
+		return self._search_scoped_lines(
+			[("student_group_id", "=", group.id), ("session_active", "=", True), ("student_id", "!=", False)],
+			date_range, bool(group & self._get_tutor_group_ids()),
+		)
 
 	def _get_sessions(self, date_range=True):
-		"""The sessions the by-group / by-subject report covers, shared by the date prefill, print()
-		and the PDF render. Headers are only readable by their own teacher, so a plain teacher gets
-		their own sessions; for the selected groups in the user's tutor scope, every session of the
-		group (any subject, any teacher) is added via sudo()."""
+		"""The sessions the by-subject report covers, shared by the date prefill, print() and the
+		PDF render. Headers are only readable by their own teacher, so a plain teacher gets their
+		own sessions; for the selected groups in the user's tutor scope, every session of the
+		group (any teacher) is added via sudo()."""
 		self.ensure_one()
 		# _origin: inside an onchange the wizard's x2many values are NewId copies of the groups.
-		if self.report_type == "group":
-			groups, domain = self.group_id._origin, []
-		else:
-			groups, domain = self.group_ids._origin, [("subject_id", "=", self.subject_id.id)]
+		groups, domain = self.group_ids._origin, [("subject_id", "=", self.subject_id.id)]
 		if date_range:
 			domain += [("date", ">=", self.from_date), ("date", "<=", self.to_date)]
 		headers = self.env["ems.attendance_session_header"]
@@ -198,7 +214,7 @@ class EmsAttendanceReportWizard(models.TransientModel):
 	def _onchange_group_id(self):
 		for wizard in self:
 			if wizard.report_type == "group" and wizard.group_id:
-				wizard._fill_dates(wizard._get_sessions(date_range=False))
+				wizard._fill_dates(wizard._get_group_lines(date_range=False).attendance_session_id)
 
 	@api.onchange("student_id")
 	def _onchange_student_id(self):
@@ -233,6 +249,8 @@ class EmsAttendanceReportWizard(models.TransientModel):
 		self.ensure_one()
 		if self.report_type == "student":
 			return self._get_student_lines()
+		if self.report_type == "group":
+			return self._get_group_lines()
 		sessions = self._get_sessions()
 		# Exclude student-less lines: when a student partner is hard-deleted, their session
 		# lines survive with student_id = NULL (Odoo's default ondelete='set null'). Grouping

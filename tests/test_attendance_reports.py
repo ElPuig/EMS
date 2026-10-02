@@ -383,6 +383,27 @@ class TestAttendanceReportWizards(AttendanceReportCommon):
         self.assertNotIn('search_default_my_subjects', result['context'])
         self.assertIn(self.group1, self.line_recent.group_ids)
 
+    # --- Student form's 'Attendance' button: same screen, filtered on one student (issue #519) ---
+
+    def test_student_attendance_action_keeps_teacher_scope_and_filters_student(self):
+        result = self.student1.with_user(self.owner_user).action_view_attendance_reports()
+        self.assertEqual(result.get('domain'), [
+            ('session_active', '=', True),
+            '|', ('template_teacher_ids.user_id', '=', self.owner_user.id),
+            ('student_id.tutor_id.tutor_scope_user_ids', '=', self.owner_user.id),
+        ])
+        self.assertEqual(result['context'].get('search_default_student_id'), self.student1.id)
+        self.assertEqual(result['context'].get('pivot_measures'), ['absence_rate', 'strike_count', '__count'])
+        # Every subject of the student within the user's scope, not just their own teaching.
+        self.assertNotIn('search_default_my_subjects', result['context'])
+        self.assertIn(self.student1.name, result['name'])
+        self.assertEqual(result['display_name'], result['name'])
+
+    def test_student_attendance_action_unscoped_for_academic_admin(self):
+        result = self.student1.with_user(self.admin_user).action_view_attendance_reports()
+        self.assertEqual(result.get('domain'), [('session_active', '=', True)])
+        self.assertEqual(result['context'].get('search_default_student_id'), self.student1.id)
+
     def test_reports_action_domain_excludes_a_line_of_an_archived_session(self):
         """Developer feedback (2026-08-10): "debe mostrar la información del curso actual. Una
         vez transicionamos de curso, debería estar en blanco" - once the course transition wizard

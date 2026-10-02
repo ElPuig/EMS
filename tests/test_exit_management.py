@@ -3,6 +3,7 @@ import os
 from datetime import date
 from unittest.mock import patch
 
+from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
 from .common import (
@@ -298,6 +299,37 @@ class TestExitManagement(TransactionCase):
         """Once the history is frozen, the withdrawal must leave nothing operational
         behind: an ex-student enrolled in the group's subjects keeps showing up in the
         evaluation matrix, in the attendance sessions and in the EM grading wizard."""
+        self._check_withdrawal_clears_operational_records(self.env.user)
+
+    def test_withdrawal_by_head_of_studies(self):
+        """Head of Studies (and so Deputy Head of Studies and Director, same group) registers
+        withdrawals too: the whole cleanup runs with their rights (portal revoke: next test)."""
+        head_of_studies = create_role_user(self, 'head_of_studies', 'exit_hos@example.com')
+        student = self._check_withdrawal_clears_operational_records(head_of_studies)
+        self.assertFalse(student.active)
+
+    def test_withdrawal_by_head_of_studies_revokes_portal(self):
+        head_of_studies = create_role_user(self, 'head_of_studies', 'exit_hos_portal@example.com')
+        student = self._student('HoS Portal Withdrawal', email='hos.portal.withdrawal@example.com')
+        portal_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'HoS Portal Withdrawal', 'login': 'hos.portal.withdrawal@example.com',
+            'email': 'hos.portal.withdrawal@example.com', 'partner_id': student.id,
+            'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])],
+        })
+        self.env['ems.withdrawal_wizard'].with_user(head_of_studies).with_context(
+            active_ids=student.ids).create({}).action_apply()
+        self.assertFalse(portal_user.active)
+        self.assertFalse(student.active)
+        self.assertEqual(student.contact_type, 'withdrawal')
+
+    def test_withdrawal_refused_to_tutor(self):
+        tutor = create_role_user(self, 'tutor', 'exit_tutor@example.com')
+        student = self._student('Tutor Withdrawal')
+        with self.assertRaises(UserError):
+            self.env['ems.withdrawal_wizard'].with_user(tutor).with_context(
+                active_ids=student.ids).create({})
+
+    def _check_withdrawal_clears_operational_records(self, user):
         subject = self.env['ems.subject'].create({
             'code': 'SUBW', 'acronym': 'SBW', 'name': 'Subject W',
             'study_ids': [(6, 0, [self.study.id])]})
@@ -311,7 +343,7 @@ class TestExitManagement(TransactionCase):
             lambda line: line.student_id == student))
         self.group.delegate_id = student
 
-        wizard = self.env['ems.withdrawal_wizard'].with_context(
+        wizard = self.env['ems.withdrawal_wizard'].with_user(user).with_context(
             active_ids=student.ids).create({})
         wizard.action_apply()
 
@@ -328,6 +360,7 @@ class TestExitManagement(TransactionCase):
             [('student_id', '=', student.id)]))
         self.assertNotIn(student, self.group.enrolled_student_ids)
         self.assertFalse(self.group.delegate_id)
+        return student
 
     def test_gw_suspend_on_ex_student_conversion(self):
         # With Google Workspace enabled, converting a student to ex-student must be

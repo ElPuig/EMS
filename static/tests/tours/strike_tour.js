@@ -136,15 +136,15 @@ registry.category("web_tour.tours").add("ems_strike_session_history", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='attendance_session_line_ids'] .o_data_row td[name='student_id']:contains('Strike Tour Student')",
+            trigger: ".o_form_view .o_field_widget[name='all_attendance_session_line_ids'] .o_data_row td[name='student_id']:contains('Strike Tour Student')",
             content: "Student row loaded in the session's Statuses list",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='attendance_session_line_ids'] .o_data_row td[name='strike_count']:contains('2')",
+            trigger: ".o_form_view .o_field_widget[name='all_attendance_session_line_ids'] .o_data_row td[name='strike_count']:contains('2')",
             content: "The two strikes issued during this session are now visible in the Statuses list",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='attendance_session_line_ids'] .o_data_row button[name='action_view_strikes']",
+            trigger: ".o_form_view .o_field_widget[name='all_attendance_session_line_ids'] .o_data_row button[name='action_view_strikes']",
             content: "Click through to the full strike details for this student",
             run: "click",
         },

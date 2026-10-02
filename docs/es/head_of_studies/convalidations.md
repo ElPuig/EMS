@@ -48,6 +48,8 @@ Cada paso genera una tarea en la bandeja de actividades (🕒) de quien tiene qu
 - Cada solicitud nueva, o devuelta por Dirección, a quien ocupa el cargo de **Jefe/a de Estudios Adjunto/a**.
 - Cada propuesta, a quien ocupa el cargo de **Director/a**.
 
+Crear una tarea no envía ningún correo. En su lugar, cada día laborable, al inicio de tu jornada, recibes un único correo con todo lo que tienes pendiente en la bandeja: consulta [Resumen diario de tareas pendientes](../teachers/task-digest.md).
+
 ---
 
 ## Revisar una solicitud (Jefatura de Estudios)

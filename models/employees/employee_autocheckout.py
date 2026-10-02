@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from datetime import datetime, time, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytz
 
@@ -198,27 +198,16 @@ class ems_attendance(models.Model):
         (_get_closing_framework()). None only when the framework has no period that weekday
         either (or there is no framework at all).
         """
-        expected = self._get_expected_intervals(employee, work_date)
+        expected = employee._ems_expected_intervals(work_date)
         framework = self.env['resource.calendar']
         if not expected:
             framework = self._get_closing_framework(employee)
-            expected = self._get_framework_intervals(employee, framework, work_date)
+            expected = employee._ems_framework_intervals(framework, work_date)
         if not expected:
             return None, framework
 
         last_end = max(interval_end for _interval_start, interval_end in expected)
         return last_end.astimezone(pytz.utc).replace(tzinfo=None), framework
-
-    def _get_expected_intervals(self, employee, work_date):
-        """(start, end) pairs, tz-aware, of every stretch the employee is expected to work on
-        work_date - approved absences already subtracted (see _get_closing_hour() for why the
-        calendar is asked instead of reading its raw 'attendance_ids'). Empty for an employee
-        with no working schedule at all."""
-        if not employee.resource_calendar_id:
-            return []
-
-        day_start, day_end = self._get_local_day_bounds(employee, work_date)
-        return [(start, end) for start, end, *_rest in employee._get_expected_attendances(day_start, day_end)]
 
     def _get_closing_framework(self, employee):
         """The framework the employee's schedule was built from ('source_framework_id'), or the
@@ -229,34 +218,13 @@ class ems_attendance(models.Model):
             return self.env['resource.calendar']
         return calendar.source_framework_id or employee.company_id.default_schedule_framework_id
 
-    def _get_framework_intervals(self, employee, framework, work_date):
-        """(start, end) pairs, tz-aware, of 'framework''s periods on work_date, in the employee's
-        own timezone. Deliberately without subtracting any absence: it only ever stands in for a
-        day nothing was expected of the employee, so there is nothing left to subtract from."""
-        if not framework:
-            return []
-
-        day_start, day_end = self._get_local_day_bounds(employee, work_date)
-        resource = employee.resource_id
-        attendances = framework._attendance_intervals_batch(
-            day_start, day_end, resource, tz=day_start.tzinfo)[resource.id]
-        return [(start, end) for start, end, *_rest in attendances]
-
-    def _get_local_day_bounds(self, employee, work_date):
-        """Start and end of 'work_date' in the employee's own timezone, tz-aware."""
-        employee_tz = pytz.timezone(employee._get_tz())
-        return (
-            employee_tz.localize(datetime.combine(work_date, time.min)),
-            employee_tz.localize(datetime.combine(work_date, time.max)),
-        )
-
     def _is_within_working_hours(self, employee, moment):
         """Whether 'moment' (naive UTC, the ORM's own convention) falls inside one of the
         stretches the employee is expected to work that day, in their own timezone."""
         local_moment = pytz.utc.localize(moment).astimezone(pytz.timezone(employee._get_tz()))
         return any(
             start <= local_moment <= end
-            for start, end in self._get_expected_intervals(employee, local_moment.date())
+            for start, end in employee._ems_expected_intervals(local_moment.date())
         )
 
     def _cron_auto_check_out(self):

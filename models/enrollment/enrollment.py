@@ -836,10 +836,7 @@ class SaleOrder(models.Model):
             # group - resolved only when the study's own templates sell it for exactly
             # one course other than this one; ambiguous or unknown stays on `group`,
             # today's behaviour.
-            subject_group = group
-            course = self.ems_study_id._ems_subject_course(subject.product_id)
-            if course and course != group.course:
-                subject_group = group._ems_equivalent_for_course(course) or group
+            subject_group = group._ems_group_for_subject(subject)
             exists = Enrollment.search_count([
                 ('student_id', '=', student.id),
                 ('group_id', '=', subject_group.id),

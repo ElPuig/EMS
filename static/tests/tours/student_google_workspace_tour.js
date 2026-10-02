@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { checkActions, clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // Covers the two-stage leaving lifecycle (#388) as it is rendered on the student form
 // (views/community/contact/form.xml): the scheduled-deactivation banner with its
@@ -38,16 +39,15 @@ registry.category("web_tour.tours").add("ems_student_google_workspace_lifecycle"
             trigger: ".o_form_view:not(:has(.alert-danger))",
             content: "No deletion is scheduled yet: the account is still active",
         },
+        ...clickAction("action_cancel_scheduled_deactivation", "Call off the scheduled deactivation"),
         {
-            trigger: "button[name='action_cancel_scheduled_deactivation']",
-            content: "Call off the scheduled deactivation",
-            run: "click",
+            trigger: ".o_form_view:not(:has(.alert-warning:contains('scheduled to be deactivated')))",
+            content: "The banner is gone: the account is kept",
         },
-        {
-            trigger: ".o_form_view:not(:has(.alert-warning:contains('scheduled to be deactivated')))"
-                + ":not(:has(button[name='action_cancel_scheduled_deactivation']))",
-            content: "Banner and button are both gone: the account is kept",
-        },
+        ...checkActions(
+            { offered: ["action_suspend_google_account"], notOffered: ["action_cancel_scheduled_deactivation"] },
+            "Nothing left to call off: only the active account's own actions are offered",
+        ),
         {
             trigger: ".o_breadcrumb a",
             content: "Back to list",
@@ -63,11 +63,7 @@ registry.category("web_tour.tours").add("ems_student_google_workspace_lifecycle"
             trigger: ".alert-danger:contains('deleted for good')",
             content: "The deletion banner warns the account is about to be deleted",
         },
-        {
-            trigger: "button[name='action_delete_google_account']",
-            content: "Delete the account for good",
-            run: "click",
-        },
+        ...clickAction("action_delete_google_account", "Delete the account for good"),
         {
             trigger: ".modal-body:contains('cannot be recovered')",
             content: "The irreversible action asks for confirmation first",
@@ -78,28 +74,27 @@ registry.category("web_tour.tours").add("ems_student_google_workspace_lifecycle"
             run: "click",
         },
         {
-            trigger: ".o_form_view:not(:has(.alert-danger))"
-                + ":not(:has(button[name='action_delete_google_account']))",
-            content: "Deletion banner and button are gone: the account is deleted",
+            trigger: ".o_form_view:not(:has(.alert-danger))",
+            content: "The deletion banner is gone: the account is deleted",
         },
+        ...checkActions(
+            { offered: ["action_portal_access_bulk"], notOffered: ["action_delete_google_account"] },
+            "The deletion is done: nothing left to delete",
+        ),
     ],
 });
 
-// Issue #478: the TAC team resets a student's Google password from the form header (and is
-// offered the suspend button next to it). Opened by
+// Issue #478: the TAC team resets a student's Google password from the form's Actions
+// dropdown (and is offered the suspend entry next to it). Opened by
 // URL on the seeded student (see test_student_google_workspace_tour.py).
 registry.category("web_tour.tours").add("ems_student_google_password_reset", {
     test: true,
     steps: () => [
-        {
-            trigger: ".o_form_view .o_form_statusbar button[name='action_suspend_google_account']",
-            content: "The TAC team can also suspend the account",
-        },
-        {
-            trigger: ".o_form_view .o_form_statusbar button[name='action_reset_google_password']",
-            content: "Click 'Reset Google password'",
-            run: "click",
-        },
+        ...checkActions(
+            { offered: ["action_suspend_google_account", "action_reset_google_password"] },
+            "The TAC team can also suspend the account",
+        ),
+        ...clickAction("action_reset_google_password", "Click 'Reset Google password'"),
         {
             trigger: ".modal .modal-footer .btn-primary",
             content: "Confirm the reset",
@@ -128,15 +123,11 @@ registry.category("web_tour.tours").add("ems_student_google_password_reset", {
 registry.category("web_tour.tours").add("ems_student_google_password_reset_tutor", {
     test: true,
     steps: () => [
-        {
-            trigger: ".o_form_view .o_form_statusbar:not(:has(button[name='action_suspend_google_account']))",
-            content: "The tutor is not offered the account lifecycle buttons",
-        },
-        {
-            trigger: ".o_form_view .o_form_statusbar button[name='action_reset_google_password']",
-            content: "Click 'Reset Google password'",
-            run: "click",
-        },
+        ...checkActions(
+            { offered: ["action_reset_google_password"], notOffered: ["action_suspend_google_account"] },
+            "The tutor is not offered the account lifecycle buttons",
+        ),
+        ...clickAction("action_reset_google_password", "Click 'Reset Google password'"),
         {
             trigger: ".modal .modal-footer .btn-primary",
             content: "Confirm the reset",
@@ -164,23 +155,18 @@ registry.category("web_tour.tours").add("ems_student_google_password_reset_tutor
 registry.category("web_tour.tours").add("ems_student_google_account_create_tutor", {
     test: true,
     steps: () => [
-        {
-            trigger: ".o_form_view .o_form_statusbar:not(:has(button[name='action_reset_google_password']))",
-            content: "No account yet: nothing to reset",
-        },
-        {
-            trigger: ".o_form_view .o_form_statusbar button[name='action_create_google_account']",
-            content: "Click 'Create Google account'",
-            run: "click",
-        },
+        ...checkActions(
+            { offered: ["action_create_google_account"], notOffered: ["action_reset_google_password"] },
+            "No account yet: nothing to reset",
+        ),
+        ...clickAction("action_create_google_account", "Click 'Create Google account'"),
         {
             trigger: ".o-mail-Message:contains('account created')",
             content: "The chatter records the new account",
         },
-        {
-            trigger: ".o_form_view .o_form_statusbar:not(:has(button[name='action_create_google_account']))"
-                + " button[name='action_reset_google_password']",
-            content: "The account is active: the tutor can now reset its password",
-        },
+        ...checkActions(
+            { offered: ["action_reset_google_password"], notOffered: ["action_create_google_account"] },
+            "The account is active: the tutor can now reset its password",
+        ),
     ],
 });

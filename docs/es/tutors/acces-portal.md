@@ -37,7 +37,7 @@ Una vez hecha la selección, abre el menú **Acciones** en la barra superior y h
 
 ![Lista de alumnos con selección y menú Acciones](../../assets/tutors/tutor-accesalportal0.png)
 
-> **Nota:** también puedes abrir este cuadro de diálogo para un solo alumno desde su propia ficha, con el mismo menú **Acciones** ⚙.
+> **Nota:** también puedes abrir este cuadro de diálogo para un solo alumno desde su propia ficha, en el menú **Acciones** de la cabecera.
 
 > **Nota:** como tutor, solo verás y podrás gestionar tus alumnos. Aunque selecciones alumnos de otros grupos, el cuadro de diálogo solo mostrará los que te corresponden.
 

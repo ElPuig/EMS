@@ -32,6 +32,16 @@ yourself, plus 3 printable PDF reports (by group, by student, by subject) reacha
 
 ---
 
+## From a Student's File
+
+To look at a single student's attendance, open their file and click the **Attendance** button at the top, next to **Meetings** and **Relations**. It opens the same pivot table, already filtered on that student (the **Student** filter in the search bar, which you can remove with its **×**). You'll see every subject of that student. The graph view and the PDF reports work exactly as described in this manual.
+
+![The Attendance button on a student's file](../../assets/tutors/tutor-informes-02-boto-fitxa.png)
+
+![Attendance pivot table filtered on one student](../../assets/tutors/tutor-informes-03-alumne.png)
+
+---
+
 ## Printing a PDF Report
 
 On the **Attendance reports** screen, click the **⚙ (gear)** icon in the header and choose **Print attendance

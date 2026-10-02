@@ -21,13 +21,14 @@ erDiagram
     ems_attendance_issue_status }o--|| ems_attendance_session_line : "attendance_session_line_id"
 ```
 
-- **`ems.attendance_issue_tutor`** — one per (tutor, day): the unit the **daily tutor
-  digest** email is built around.
+- **`ems.attendance_issue_tutor`** — one per (tutor, day): groups that day's issues for the
+  tutor's report. The report itself is one per tutor, not per day (see below).
 - **`ems.attendance_issue_student`** — one per (tutor-day, student): purely a grouping
   level, no notification of its own.
 - **`ems.attendance_issue_status`** — one per notifiable session line: the unit the
   **family/student** email is built around, and what actually stores
-  `notification_id` (a `queue.job`) for that specific notification.
+  `notification_id` (a `queue.job`) for that specific notification. `tutor_notified` records
+  whether it has already gone out in a tutor's report.
 
 **Module file:** `models/attendance/attendance_issue.py` (`EmsAttendanceIssueTutor`, `EmsAttendanceIssueStudent`, `EmsAttendanceIssueStatus`)
 
@@ -35,10 +36,8 @@ erDiagram
 
 ## `send_notification()` — two independent notification tracks
 
-- **`EmsAttendanceIssueTutor.send_notification()`**: one email, the tutor's own daily
-  digest (`mail_attendance_issue_tutor`), scheduled via `with_delay()` from
-  `attendance_session.py`'s `_schedule_daily_assistance_notification` — timed for the end
-  of the tutor's working day (from their `resource_calendar_id`, or a company-wide default).
+- **The tutor's report** (`mail_attendance_issue_tutor`): see
+  [The tutor's report](#the-tutors-report-one-per-tutor-at-the-moment-they-choose) below.
 - **`EmsAttendanceIssueStatus.send_notification()`**: one email **per recipient**, sent
   individually (no BCC field on `mail.template`, and personal addresses must stay
   separated) — the student themselves (`mail_attendance_issue_status_student`) and each
@@ -49,6 +48,66 @@ erDiagram
   `_schedule_family_assistance_notification`, after a configurable delay
   (`res.company.attendance_issue_status_delay`, default 15 min) — enough time for a
   same-period status correction to happen before anyone gets emailed.
+
+---
+
+## The tutor's report: one per tutor, at the moment they choose
+
+Each tutor chooses in **My Profile → Preferences → Notifications** when they receive the email
+with their students' attendance issues (`res.users.ems_attendance_report_moment`, issue #527,
+`models/attendance/attendance_report_schedule.py`). Whatever the moment, **every report carries
+every issue not reported yet** (`ems.attendance_issue_status.tutor_notified = False`), so no
+moment loses data: it only decides when the tutor reads it and how complete the day is by then.
+
+| Moment | When the report is due |
+|--------|------------------------|
+| `teacher_end` (default) | End of the tutor's own working day (`hr.employee._ems_workday_intervals`: their schedule, approved absences and public holidays subtracted; the company's default schedule framework without one). Issues recorded after it go in the next report. |
+| `students_end` | End of the last class that day of any student they tutor, from each student's **own** schedule (`res.partner._ems_teaching_attendances`, built from their enrollments): a 2nd-year student taking a 1st-year subject counts with that group's class. Not "the group's end", which misses exactly that case. |
+| `teacher_start` | Start of the tutor's next working day: the previous day arrives complete. |
+| `fixed_time` | `ems_attendance_report_time` (local), every school day of the centre (a day the default schedule framework has periods, public holidays subtracted). |
+
+How the due moment (`hr.employee._ems_attendance_report_eta(issue_date)`) is worked out, all in
+the company's timezone:
+
+- **End-of-day moments** (`teacher_end`, `students_end`): that moment on the issues' day; if it
+  has already passed (a roll-call taken late, or for a past day), now.
+- **Next moments** (`teacher_start`, `fixed_time`): the first one strictly after now, looking up
+  to 14 days ahead.
+- **Fallback** when the moment can't be found (no working day that day, tutor on long leave,
+  students without class): the end of the centre's day (default schedule framework), and as a
+  last resort the company setting `attendance_issue_tutor_default`.
+- The moment is never earlier than now.
+
+```mermaid
+flowchart TD
+    A["Notifiable status recorded\n(create_notification_entries)"] --> B{"Tutor already has a\npending report job?"}
+    B -- yes --> C["Day joins it\n(issue_tutor.notification_id = that job)"]
+    B -- no --> D["New job, eta = _ems_attendance_report_eta(day)"]
+    D --> C
+    C --> E["Job runs: _send_tutor_report(tutor)"]
+    E --> F{"Statuses with tutor_notified = False?"}
+    F -- no --> G["Nothing sent"]
+    F -- yes --> H["One email, grouped by day and student\n(_tutor_report_days); mark them tutor_notified"]
+```
+
+- **One pending job per tutor** (`ems.attendance_issue_tutor._schedule_tutor_report()`), shared by
+  every day it covers, so a report sent the next morning or at a fixed time that spans two days is
+  a single email. A job already started, done or failed is never joined: a new issue then gets a
+  new job, which is also how an issue recorded after a report went out reaches the tutor (before
+  #527 it was never sent).
+- The job calls the model method `_send_tutor_report(tutor_id)` rather than a method on one day's
+  record, so it still works if that day is removed meanwhile. `send_notification()` on a record
+  stays as a thin wrapper, for jobs queued before #527.
+- **Changing the preference** (`res.users.write`) moves the pending job's `eta` to the new moment.
+- `remove_if_empty()` cancels the job only once no day refers to it any more.
+- A student without a tutor gets no report job (nobody to send it to).
+- The option is only shown to whoever actually tutors a group (`res.users.ems_is_tutor`, from
+  `ems.group.tutor_id`), not to every holder of `ems.group_tutor`, which Department Chiefs, Heads
+  of Studies and the Director also get.
+
+**Upgrade:** `migrations/18.0.0.32.0/post-migrate.py` marks every existing status as reported,
+except those whose day's job had not run yet, so the first report after the upgrade does not
+list the whole course again.
 
 ---
 
@@ -166,8 +225,9 @@ up that day's now-orphaned issue tracking) and `ems.attendance_session_line._upd
 (a line's status flips back to non-notifiable *before* its notification was ever sent —
 clean up immediately rather than leaving a dead tracking row). Cascades bottom-up: drops
 any `attendance_issue_student` with no remaining `attendance_issue_status_ids`, then drops
-the `attendance_issue_tutor` itself if it has no remaining students — cancelling the queued
-`notification_id` job (`button_cancelled()`) at each level via `unlink()`'s own override.
+the `attendance_issue_tutor` itself if it has no remaining students — cancelling each status's
+family `notification_id` job via `unlink()`'s own override, and the tutor's report job once no
+other day of that tutor uses it.
 
 ## Views
 

@@ -78,7 +78,7 @@ Call sites inside `action_create_google_account()`:
 ### `action_create_ems_user()`
 
 Public action (no Google API call): `_ems_create_user(google_id=self._gw_google_user_id())`,
-guarded by the same `employee_type`/`work_email` checks. This is the header button shown
+guarded by the same `employee_type`/`work_email` checks. This is the Actions dropdown entry shown
 in the `pending_user` state (below) — a corporate account already exists but no `res.users`
 is linked yet — and it is what `action_create_google_account()`'s adopt path now calls
 internally, so there is a single implementation either way.
@@ -177,14 +177,15 @@ The user archiving is deliberately **synchronous and independent** of
 immediately even if the Google integration is disabled or the queue is down.
 `_ems_sync_user_active` skips `self.env.user` and the superuser.
 
-## Header button state (`google_ws_state`)
+## Actions dropdown state (`google_ws_state`)
 
-The employee form (`views/community/employee/form.xml`) shows at most **one** of four
-mutually-exclusive header buttons, driven entirely by one computed, stored `Selection`
+The employee form's Actions dropdown (`views/community/employee/form.xml`, see
+[Form "Actions" dropdown](../shared/actions_dropdown.md)) offers at most **one** of four
+mutually-exclusive Google/EMS user entries, driven entirely by one computed, stored `Selection`
 field — `google_ws_state` — instead of each button evaluating its own combination of
 `work_email`/`user_id`/`google_ws_suspended`/`google_ws_manual_email`. This replaced an
 earlier version where two independently-computed `invisible` expressions could disagree
-and show two buttons at once for a teacher whose account was adopted from
+and show two entries at once for a teacher whose account was adopted from
 pre-integration/migrated data (`work_email` set, `user_id` not yet linked) — the bug that
 motivated the consolidation.
 
@@ -200,7 +201,7 @@ stateDiagram-v2
     suspended --> active: action_reactivate_google_account()
 ```
 
-| `google_ws_state` | Header button shown | Meaning |
+| `google_ws_state` | Actions dropdown entry shown | Meaning |
 |---|---|---|
 | `none` | Create Google account | No corporate email yet |
 | `manual_pending` | *(none)* | `google_ws_manual_email` ticked, waiting for the email to be typed in |
@@ -281,7 +282,7 @@ For a pending teacher that will genuinely never get an account through this reco
 duplicate/unmerged employee, or the post never ends up needing one), `hr.employee.action_mark_as_identified()`
 (`models/employees/employee.py`) is a manual, standalone escape hatch: it just clears
 `schedule_import_code` (with the same chatter note) and does nothing else — no Google API call, no
-`res.users` creation. Exposed as the **Mark as identified** header button
+`res.users` creation. Exposed as the **Mark as identified** Actions dropdown entry
 (`views/community/employee/form.xml`), visible only while `pending_identification` is `True`,
 behind a `confirm=` dialog since it can't be undone (the original placeholder code is gone once
 cleared, so this is a one-way action, not a toggle).
@@ -310,9 +311,9 @@ pattern). Google-side behaviour, the `google_ws_state` compute for every state, 
 and backfill tests live in `tests/test_exit_management.py`.
 `tests/test_employee_google_workspace_tour.py` +
 `static/tests/tours/employee_google_workspace_tour.js` open the employee form in a real
-browser for each state and assert exactly one header button renders — the client-side
+browser for each state and assert exactly one Google/EMS user entry is offered in the Actions dropdown — the client-side
 render that a `TransactionCase` cannot exercise. That tour also covers the grace period's banner and its
-"Cancel scheduled deactivation" button on an archived teacher, reached through the search
+"Cancel scheduled deactivation" entry on an archived teacher, reached through the search
 panel's Archived filter.
 
 `TestEmployeeGoogleWorkspaceLifecycle` (same file as the other backend tests) covers the

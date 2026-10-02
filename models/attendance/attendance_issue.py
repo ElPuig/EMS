@@ -2,6 +2,8 @@
 
 from odoo import models, fields, api, _
 
+from .attendance_report_schedule import PENDING_JOB_STATES
+
 class EmsAttendanceIssueTutor(models.Model):
     _name = "ems.attendance_issue_tutor"
     _description = "Attendance issue (tutor): contains the data about isues that can be reviewed by the student's tutor."
@@ -20,18 +22,79 @@ class EmsAttendanceIssueTutor(models.Model):
             issue_tutor.display_name = "%s: %s" % (issue_tutor.issue_date, issue_tutor.tutor_id.display_name)
 
     def send_notification(self):
+        """The tutor's report, with every issue of theirs not reported yet (not only this day's).
+        Kept for the jobs queued before the report became one per tutor."""
         self.ensure_one()
+        return self._send_tutor_report(self.tutor_id.id)
+
+    def _schedule_tutor_report(self):
+        """Attaches each day to its tutor's pending report job, or queues a new one at the moment
+        the tutor chose (res.users.ems_attendance_report_moment): one job per tutor, so a report
+        covering several days (sent the next morning, at a fixed time...) is a single email, and an
+        issue recorded after a report was sent goes in the next one instead of being lost."""
+        IssueTutor = self.sudo()
+        for issue_tutor in IssueTutor.browse(self.ids):
+            if issue_tutor.notification_id.state in PENDING_JOB_STATES:
+                continue
+            tutor = issue_tutor.tutor_id
+            if not tutor:
+                continue  # A student without tutor: nobody to report to.
+            job = IssueTutor.search([('tutor_id', '=', tutor.id), ('notification_id.state', 'in', PENDING_JOB_STATES)], limit=1).notification_id
+            if not job:
+                delayed = IssueTutor.browse().with_delay(
+                    eta=tutor._ems_attendance_report_eta(issue_tutor.issue_date),
+                    description=f"Tutor's attendance report: {tutor.name}",
+                )._send_tutor_report(tutor.id)
+                job = self.env['queue.job'].sudo().search([('uuid', '=', delayed.uuid)])
+            issue_tutor.notification_id = job
+
+    @api.model
+    def _send_tutor_report(self, tutor_id):
+        """Sends the tutor's report, if anything is left to report, and marks it as reported."""
+        statuses = self._tutor_report_pending_statuses(tutor_id)
+        if not statuses:
+            return True
+        # Rendered on the latest day; the template lists every pending day (_tutor_report_days).
+        issue_tutor = statuses.attendance_issue_student_id.attendance_issue_tutor_id.sorted('issue_date')[-1]
         template = self.env.ref('ems.mail_attendance_issue_tutor', raise_if_not_found=True)
-        template.sudo().send_mail(self.id, force_send=True)
+        template.sudo().send_mail(issue_tutor.id, force_send=True)
+        statuses.tutor_notified = True
         return True
+
+    @api.model
+    def _tutor_report_pending_statuses(self, tutor_id):
+        return self.env['ems.attendance_issue_status'].sudo().search([
+            ('attendance_issue_student_id.attendance_issue_tutor_id.tutor_id', '=', tutor_id),
+            ('tutor_notified', '=', False),
+        ])
+
+    def _tutor_report_days(self):
+        """The tutor's issues not reported yet, for the report's template: one dict per day,
+        oldest first, with 'issue' (this model's record of that day) and 'students' (a list of
+        dicts with 'student' and its pending 'statuses')."""
+        self.ensure_one()
+        statuses = self._tutor_report_pending_statuses(self.tutor_id.id)
+        days = []
+        for issue_tutor in statuses.attendance_issue_student_id.attendance_issue_tutor_id.sorted('issue_date'):
+            students = [
+                {'student': issue_student.student_id, 'statuses': issue_student.attendance_issue_status_ids & statuses}
+                for issue_student in issue_tutor.attendance_issue_student_ids
+                if issue_student.attendance_issue_status_ids & statuses
+            ]
+            days.append({'issue': issue_tutor, 'students': students})
+        return days
 
     def remove_if_empty(self):
         for issue_student in self.attendance_issue_student_ids:
             if len(issue_student.attendance_issue_status_ids) == 0: issue_student.unlink()
 
         if len(self.attendance_issue_student_ids) == 0:
-            self.notification_id.button_cancelled()
+            job = self.notification_id
             self.unlink()
+            # The job is the tutor's, shared with their other pending days: cancelled only once
+            # no day uses it any more.
+            if job and not self.sudo().search_count([('notification_id', '=', job.id)]):
+                job.button_cancelled()
 
 class EmsAttendanceIssueStudent(models.Model):
     _name = "ems.attendance_issue_student"
@@ -58,6 +121,10 @@ class EmsAttendanceIssueStatus(models.Model):
     attendance_session_id = fields.Many2one(string="Session", related="attendance_session_line_id.attendance_session_id", store=False)
 
     notification_id = fields.Many2one(string="Notification", comodel_name="queue.job")
+    # The tutor's report, unlike the family's notification above, is one job per tutor for
+    # several days (ems.attendance_issue_tutor._schedule_tutor_report), so each issue records itself
+    # whether it has already been reported.
+    tutor_notified = fields.Boolean(string="Reported to the tutor", default=False, copy=False, readonly=True)
     notification_status = fields.Selection(string="Notification status", related="notification_id.state")
     exception = fields.Text(string="Exception", related="notification_id.exc_info")
 

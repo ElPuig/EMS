@@ -11,7 +11,7 @@ import json
 import math
 import re
 
-from ..shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC
+from ..shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC, EMS_SKIP_GROUP_CLASSROOM_CASCADE
 
 
 def _m2m_command_ids(commands):
@@ -72,6 +72,14 @@ class ems_working_schedule(models.Model):
 				course = self.env['ems.course'].browse(vals['course_id']) if vals.get('course_id') else False
 				vals['name'] = "%s (%s)" % (employee.name, course.name) if course else employee.name
 		return super().create(vals_list)
+
+	def write(self, vals):
+		res = super().write(vals)
+		if 'active' in vals:
+			# Issue #458: only blocks on an active calendar count towards a group's reference
+			# classroom, so (un)archiving a whole calendar changes it for every group it teaches.
+			self.sudo().with_context(active_test=False).attendance_ids.group_ids._sync_reference_space()
+		return res
 
 	def action_archive(self):
 		"""Cascades to every remaining active 'attendance_ids' row - mirrors
@@ -423,6 +431,7 @@ class ems_working_schedule_assignation(models.Model):
 		# decision is made, regardless of which of the three overrides below reached it.
 		records.mapped('employee_id')._ems_sync_schedule_from_calendar_unless_suppressed()
 		records._get_public_schedule_groups()._mark_public_schedule_dirty()
+		records.sudo().group_ids._sync_reference_space()
 		return records
 
 	def write(self, vals):
@@ -433,9 +442,13 @@ class ems_working_schedule_assignation(models.Model):
 		# rather than only trusting it never happens.
 		before = self.mapped('employee_id') if trigger else self.env['hr.employee']
 		groups_before = self._get_public_schedule_groups() if public_trigger else self.env['ems.group']
+		# Issue #458: the groups a block leaves (a 'group_ids' change) need their reference
+		# classroom recomputed too, not only the ones it ends up in.
+		reference_groups_before = self.sudo().group_ids if trigger else self.env['ems.group']
 		res = super().write(vals)
 		if trigger:
 			(before | self.mapped('employee_id'))._ems_sync_schedule_from_calendar_unless_suppressed()
+			(reference_groups_before | self.sudo().group_ids)._sync_reference_space()
 		if public_trigger:
 			(groups_before | self._get_public_schedule_groups())._mark_public_schedule_dirty()
 		return res
@@ -443,9 +456,11 @@ class ems_working_schedule_assignation(models.Model):
 	def unlink(self):
 		before = self.mapped('employee_id')
 		groups_before = self._get_public_schedule_groups()
+		reference_groups_before = self.sudo().group_ids
 		res = super().unlink()
 		before._ems_sync_schedule_from_calendar_unless_suppressed()
 		groups_before._mark_public_schedule_dirty()
+		reference_groups_before._sync_reference_space()
 		return res
 
 	def _get_public_schedule_groups(self):
@@ -1836,8 +1851,14 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			entries = [e for e in item['entries'] if not e["non_teaching"]]
 			teacher_entries.append((teacher, entries))
 
+		# Issue #458: every group these calendars teach, before and after the write - returned so
+		# their reference classroom is recomputed once at the very end (see 'import_planner_data').
+		imported_calendars = self.env['resource.calendar'].sudo().browse(
+			[teacher.resource_calendar_id.id for teacher, _attendance_ids in teacher_attendance_ids.values()])
+		reference_groups = imported_calendars.attendance_ids.group_ids
 		for teacher, attendance_ids in teacher_attendance_ids.values():
 			self._write_teacher_schedule(teacher, attendance_ids)
+		reference_groups |= imported_calendars.attendance_ids.group_ids
 
 		# NOTE: ems.attendance_schedule.space_id is required, but ems.group.space_id (where it's
 		# taken from) is not — a group missing a classroom would otherwise fail with Odoo's generic
@@ -1910,6 +1931,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		for teacher, calendar_entries in calendar_teacher_entries:
 			self.env['ems.teaching']._sync_from_schedule(teacher, calendar_entries)
 		self.env['ems.attendance_template']._sync_from_schedule_batch(calendar_teacher_entries)
+		return reference_groups
 
 	def _apply_db_conflict_resolutions(self):
 		"""The 'db_conflicts' resolutions that change an existing session, applied on Import rather
@@ -1921,17 +1943,29 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		- 'prevail_left' archives the existing session, freeing its slot for the new entry (and the
 		  template too if left empty, deleted instead when it has no real sessions - see
 		  'ems.attendance_template._archive_or_delete');
-		- 'reassign_rooms' moves it to the room picked for it."""
+		- 'reassign_rooms' moves it to the room picked for it.
+		Returns the groups of every session it touched (see 'import_planner_data')."""
+		groups = self.env['ems.group'].sudo()
 		for line in self.external_conflict_line_ids:
+			if line.resolution in ('prevail_left', 'reassign_rooms'):
+				groups |= line.right_schedule_id.sudo().attendance_template_id.group_ids
 			if line.resolution == 'prevail_left':
 				line.right_schedule_id._archive_via_calendar_blocks()
 			elif line.resolution == 'reassign_rooms' and line.right_schedule_id.space_id != line.right_space_id:
 				line.right_schedule_id._relocate_via_calendar_blocks(line.right_space_id)
+		return groups
 
 	def import_planner_data(self):
 		self.ensure_one()
-		self._apply_db_conflict_resolutions()
-		self._apply_import(json.loads(self.parsed_entries_json or '[]'))
+		# Issue #458: a block imported without its own room takes its group's 'space_id', so the
+		# groups' reference classroom must not be recomputed while anything is still being written
+		# (EMS_SKIP_GROUP_CLASSROOM_CASCADE) - otherwise moving one block could change the room the
+		# next ones get, and the conflicts already checked would no longer be the real ones. Every
+		# group touched is recomputed once at the end instead.
+		frozen = self.with_context(**{EMS_SKIP_GROUP_CLASSROOM_CASCADE: True})
+		reference_groups = frozen._apply_db_conflict_resolutions()
+		reference_groups |= frozen._apply_import(json.loads(self.parsed_entries_json or '[]'))
+		self.env['ems.group'].browse(reference_groups.ids)._sync_reference_space()
 		return {
 			'type': 'ir.actions.client',
 			'tag': 'soft_reload',

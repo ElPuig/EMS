@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { checkActions } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // Issue #391: the Head of Studies may now create and edit teachers, private information
 // included (both ems.group_head_of_studies and ems.group_tac imply hr.group_hr_user).
@@ -29,10 +30,10 @@ registry.category("web_tour.tours").add("ems_employee_staff_permissions", {
             content: "Open the tour's own teacher",
             run: "click",
         },
-        {
-            trigger: ".o_statusbar_buttons button[name='action_create_google_account']",
-            content: "The Google Workspace button is visible to the Head of Studies",
-        },
+        ...checkActions(
+            { offered: ["action_create_google_account"] },
+            "The Google Workspace action is offered to the Head of Studies",
+        ),
         {
             trigger: ".o_form_view .o_field_widget[name='name'] input",
             content: "The name is editable, not locked behind a read-only form",

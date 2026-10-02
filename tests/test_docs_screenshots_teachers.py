@@ -9,7 +9,7 @@ hand when a documented screen changes its look:
 Batched one manual/test method at a time (see docs/en/developers/shared/testing.md, "DocsScreenshotMixin").
 """
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from unittest.mock import patch
 
 from odoo.tests.common import HttpCase, tagged
@@ -481,6 +481,47 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             login='doc_shot_teacher', tour='ems_doc_shot_photo_visibility',
         )
 
+    def test_capture_task_digest(self):
+        # 1. Where to turn it off: the same Preferences tab as test_capture_photo_visibility,
+        # with the "Notifications" option marked.
+        self._capture(
+            '/odoo', '.o_notebook_content', 'resum-tasques-01-preferencies.png',
+            login='doc_shot_teacher', tour='ems_doc_shot_photo_visibility',
+            marks=[(".o_field_widget[name='ems_task_digest']", '1', 'right')],
+        )
+        # 2. The email itself. A few pending tasks of different kinds on invented records, the
+        # digest rendered exactly as the cron would send it (models/shared/task_digest.py), then
+        # shown in the browser in place of the backend, under its subject line, to capture it.
+        def records(names):
+            return self.env['res.partner'].create([{'name': name} for name in names])
+        today = self.env['ems.datetime_utils'].get_local_today()
+        tasks = (
+            ('ems.mail_activity_convalidation_review', records(
+                ['Laia Serra Puig', 'Marc Vidal Roca', 'Nora Ferrer Soler']),
+             "Sol·licitud de convalidació"),
+            ('ems.mail_activity_absence_document_validate', records(['Jordi Exemple Mas']),
+             "Validar el justificant"),
+            ('ems.mail_activity_attendance_correction', records(['Anna Exemple Font']),
+             "Correcció de fitxatge"),
+        )
+        for offset, (activity_type, partners, summary) in enumerate(tasks):
+            for partner in partners:
+                partner.activity_schedule(activity_type, user_id=self.teacher_user.id, summary=summary,
+                                          date_deadline=today + timedelta(days=offset - 1))
+        template = self.env.ref('ems.email_template_task_digest').with_context(lang='ca_ES')
+        subject = template._render_field('subject', self.teacher_user.ids)[self.teacher_user.id]
+        body = template._render_field('body_html', self.teacher_user.ids)[self.teacher_user.id]
+        page = (
+            '<div id="ems-digest" style="background:#fff;padding:24px;max-width:760px;">'
+            '<div style="font-family:Arial,sans-serif;font-size:16px;font-weight:bold;'
+            'padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #dadce0;">%s</div>%s</div>'
+        ) % (subject, body)
+        self._capture(
+            '/odoo', '#ems-digest', 'resum-tasques-02-correu.png',
+            login='doc_shot_teacher', wait_for='.o_main_navbar',
+            run='document.body.innerHTML = %s;' % json.dumps(page), wait_after='#ems-digest',
+        )
+
     def test_capture_strike(self):
         from datetime import date
 
@@ -526,6 +567,16 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             '.ems-av-strike-dialog[open]', 'strike-01-dialeg.png',
             login='doc_shot_teacher', wait_for='.ems-av-strike-btn',
             click='.ems-av-strike-btn', wait_after='.ems-av-strike-dialog[open]',
+        )
+
+    def test_capture_strike_standalone(self):
+        # Issue #402: the "New strike" dialog of Coexistence > Strikes. Same as above, it only
+        # opens the dialog and never sends, so no ems.strike (nor email) is created.
+        self._capture(
+            '/odoo/action-ems.action_strike_list',
+            '.modal-content', 'strike-02-fora-de-classe.png',
+            login='doc_shot_teacher', wait_for='.o_list_button_add_strike',
+            click='.o_list_button_add_strike', wait_after='.modal .o_form_view',
         )
 
     def test_capture_student_academic_data(self):

@@ -8,7 +8,7 @@ From the student's form you can create their Google Workspace account, suspend i
 
 **Required role:** Administrator or TAC coordinator. The secretary's office can also create and suspend accounts.
 
-All the buttons are in the header of the student's form (**Educational Community → Students**). Each button only shows when its action is possible.
+All the actions are in the **Actions** menu in the header of the student's form (**Educational Community → Students**). Each entry only shows when its action is possible.
 
 ![Header of a student's form with an active Google account](../../assets/admin/compte-google-alumne-capcalera.png)
 

@@ -443,6 +443,10 @@ The **field-level** editing surface for tutors is narrower than the record rule 
 | Relation wizard | `views/community/contact/relation_wizard.xml` | `action_contact_relation_wizard` |
 | Menu | `views/community/contact/menu.xml` + `views/community/menu.xml` | `action_student_kanban` (top-level "Educational Community" entry), `action_family_list`, `action_provider_kanban` |
 
+### Student form button box
+
+Next to the native smart buttons, a student's form adds **Strikes** (`action_view_strikes`, only when there is at least one), **Convalidations** (`action_view_convalidations`) and **Attendance** (`action_view_attendance_reports`, teacher/secretary/secretary admin, always shown for a student). The last one opens the attendance **Reports** pivot filtered on the student, with the menu's own role-based scope - see "Student form entry point" in `docs/en/developers/attendance/attendance_reports.md`.
+
 ### Student form pages
 
 A student's form has its own header instead of the native contact block (hidden for students), laid out to fit above the tabs:
@@ -469,6 +473,21 @@ Below it, six pages grouped by task so related data never needs a tab switch. A 
 Student data, Documentation, Academic history and the native Invoicing tab used to be separate pages. The native `accounting` page is still there for every other contact type; for a student it is hidden (`view_partner_billing_tab_cleanup`) because `bank_ids` is shown again inside Secretary - the same field twice in the combined arch, which Odoo 18 supports. The former-student page (`former_student`) now follows `secretary`.
 
 Other student-related popups — [portal access](portal_access_wizard.md), [documents](student_document.md), [graduation/withdrawal](exit_wizards.md) — live in the same `views/community/contact/` folder but are documented separately. The import wizards (`student_import`, `student_update`, `applicant_import`) are not yet DTON'd (see the roadmap). The Form's own `schedule` page (a student's read-only weekly timetable) is likewise documented separately — see [Student schedule](student_schedule.md).
+
+### Student form actions: Actions dropdown, cog menu or smart button
+
+Where an action goes on a student's form depends on what it acts on:
+
+| Placement | Use it for | Current entries |
+|-----------|------------|-----------------|
+| **Actions** dropdown in the header (`<div name="ems_actions">`, see [Form "Actions" dropdown](../shared/actions_dropdown.md)) | Every action on this student. Each entry is a `type="object"` button with its own `invisible=`/`groups=`/`confirm=`, so the dropdown only lists what applies to this student and this user, and isn't shown when nothing does. No action is left loose in the header | The Google account lifecycle (create, suspend, reset password, reactivate, cancel scheduled deactivation, delete) and download of its credentials (`can_download_google_credentials`: only when there is a credentials PDF the user may read), plus Portal access (students/families), Send authorizations and Request contact data (the students list's bulk methods, run on this student alone), each offered only on a student the user may act on, with the same rule its assistant applies: `can_manage_portal_access` (the portal wizard's `_user_can_manage`: admin, secretary, the student's tutor scope) and `can_send_student_requests` (`ems.student.scope.mixin._scope_acts_on_student`: admin, secretary, Head of Studies, the student's tutor scope). A tutor opening another group's student is offered none of them |
+| ⚙ cog menu: `binding_model_id` = `res.partner` actions | On the **students list**, the bulk actions on the selection (`binding_view_types` = `list`: on the form the same methods are in the Actions dropdown, so a `form` binding would duplicate them). On the form, only Odoo's native entries remain (archive, duplicate, export, print, and native/OCA bindings) | Portal access, Send authorizations, Request contact data, Download Google credentials (list only) |
+| Smart button (`button_box`, `oe_stat_button`) | A count or status of related records, opening them | Strikes, Convalidations, Contact data |
+| Button inside a page | An action tied to the data shown on that page | "Add contact" in Contacts & Addresses |
+
+**Archive/Unarchive** (native cog entries) are only offered to users who can actually archive: the web client shows them whenever `active` isn't readonly in `fields_get()`, without checking write access, so `res.partner` and `hr.employee` override `fields_get()` to report `active` readonly for anyone whose write access to the model comes only from `ems.group_teacher` (record-rule-scoped to a tutor's own students/families, and archiving a student is a withdrawal, secretary/Head of Studies/admin only) or who has none - see `EmsBase.fields_get_active_readonly_for_teachers()`. TAC keeps it on employees (it implies `hr.group_hr_user`).
+
+Graduation and withdrawal are not on the student form: they are header buttons of the tutor's enrollment list (`views/academic_management/enrollment/list_tutor.xml`), acting on the students selected there.
 
 ### List view columns (2026-09-03)
 

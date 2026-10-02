@@ -47,7 +47,7 @@ Haced clic en **Guardar**.
 Id a **Gestión académica > Autorizaciones > Enviar autorizaciones**. También podéis abrir el asistente desde:
 
 - la lista de alumnos: seleccionad los alumnos, abrid el menú del engranaje ⚙ y elegid **Enviar autorizaciones**;
-- la ficha de un solo alumno: el mismo menú del engranaje ⚙;
+- la ficha de un solo alumno: el menú **Acciones** de la cabecera;
 - el formulario de la autorización: el botón **Enviar al alumnado**.
 
 ![Asistente Enviar autorizaciones](../../assets/secretary/authorizations-send-wizard.png)

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Daily pending-tasks digest (res.users._cron_ems_task_digest, models/shared/task_digest.py):
+             one email per user and working day listing every activity still assigned to them.
+             See docs/en/developers/shared/task_digest.md. No <field name="lang">, for the same
+             reason as mails/enrollment/authorization_send.xml: the sender sets the recipient's
+             language, and each language's subject and body are written below. Every literal stays
+             outside the {{ }}/t-out expressions, which must be identical in the three languages
+             (TestMailTemplateTranslations). -->
+        <record id="email_template_task_digest" model="mail.template">
+            <field name="name">EMS: Daily summary of pending tasks</field>
+            <field name="model_id" ref="base.model_res_users"/>
+            <field name="email_from">{{ object.company_id.name }} &lt;{{ object.company_id.email }}&gt;</field>
+            <field name="email_to">{{ object.email }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="email_layout_xmlid">mail.mail_notification_light</field>
+            <field name="subject">EMS: pending tasks ({{ object._ems_task_digest_count() }})</field>
+            <field name="body_html">
+                <![CDATA[
+                    <div style="font-family: Arial, sans-serif; font-size: 14px;">
+                        <t t-set="groups" t-value="object._ems_task_digest_groups()"/>
+                        <p>Hello <t t-out="object.name"/>,</p>
+                        <p>This is a summary of the tasks you still have pending in EMS, in case you haven't been able to look at them. You will find them all in the to-do tray (🕒) at the top of EMS.</p>
+                        <t t-foreach="groups" t-as="group">
+                            <h3 style="font-size: 15px; margin: 20px 0 8px 0; padding-bottom: 4px; border-bottom: 1px solid #dadce0;">
+                                <t t-if="group['type']" t-out="group['type'].name"/><t t-else="">Other tasks</t> (<t t-out="group['count']"/>)
+                            </h3>
+                            <ul style="margin: 0; padding-left: 20px;">
+                                <li t-foreach="group['activities']" t-as="activity" style="margin-bottom: 4px;">
+                                    <a t-attf-href="{{ object.get_base_url() }}/mail/view?model={{ activity.res_model }}&amp;res_id={{ activity.res_id }}" t-out="activity.res_name or activity.res_model"/>
+                                    <t t-if="activity.summary"> - <t t-out="activity.summary"/></t>
+                                    <span style="color: #666666;"> (due <t t-out="format_date(activity.date_deadline)"/><t t-if="activity.state == 'overdue'">, overdue</t>)</span>
+                                </li>
+                            </ul>
+                            <p t-if="group['more']" style="color: #666666;">... and <t t-out="group['more']"/> more.</p>
+                        </t>
+                        <p style="margin: 24px 0;">
+                            <a t-attf-href="{{ object.get_base_url() }}/odoo" style="background-color: #4a86e8; color: #ffffff; padding: 8px 16px; text-decoration: none; border-radius: 4px;">Open EMS</a>
+                        </p>
+                        <p style="color: #666666; font-size: 12px;">You receive this summary at the start of each working day while you have pending tasks. You can turn it off in My Profile, Preferences tab.</p>
+                    </div>
+                ]]>
+            </field>
+        </record>
+
+        <record id="email_template_task_digest" model="mail.template" context="{'lang': 'ca_ES'}">
+            <field name="subject">EMS: tasques pendents ({{ object._ems_task_digest_count() }})</field>
+            <field name="body_html">
+                <![CDATA[
+                    <div style="font-family: Arial, sans-serif; font-size: 14px;">
+                        <t t-set="groups" t-value="object._ems_task_digest_groups()"/>
+                        <p>Hola <t t-out="object.name"/>,</p>
+                        <p>Aquest és un resum de les tasques que encara tens pendents a l'EMS, per si no les has pogut mirar. Les trobaràs totes a la safata de tasques (🕒) de la part superior de l'EMS.</p>
+                        <t t-foreach="groups" t-as="group">
+                            <h3 style="font-size: 15px; margin: 20px 0 8px 0; padding-bottom: 4px; border-bottom: 1px solid #dadce0;">
+                                <t t-if="group['type']" t-out="group['type'].name"/><t t-else="">Altres tasques</t> (<t t-out="group['count']"/>)
+                            </h3>
+                            <ul style="margin: 0; padding-left: 20px;">
+                                <li t-foreach="group['activities']" t-as="activity" style="margin-bottom: 4px;">
+                                    <a t-attf-href="{{ object.get_base_url() }}/mail/view?model={{ activity.res_model }}&amp;res_id={{ activity.res_id }}" t-out="activity.res_name or activity.res_model"/>
+                                    <t t-if="activity.summary"> - <t t-out="activity.summary"/></t>
+                                    <span style="color: #666666;"> (data límit <t t-out="format_date(activity.date_deadline)"/><t t-if="activity.state == 'overdue'">, vençuda</t>)</span>
+                                </li>
+                            </ul>
+                            <p t-if="group['more']" style="color: #666666;">... i <t t-out="group['more']"/> més.</p>
+                        </t>
+                        <p style="margin: 24px 0;">
+                            <a t-attf-href="{{ object.get_base_url() }}/odoo" style="background-color: #4a86e8; color: #ffffff; padding: 8px 16px; text-decoration: none; border-radius: 4px;">Obre l'EMS</a>
+                        </p>
+                        <p style="color: #666666; font-size: 12px;">Reps aquest resum a l'inici de cada jornada mentre tinguis tasques pendents. El pots desactivar a El meu perfil, pestanya Preferències.</p>
+                    </div>
+                ]]>
+            </field>
+        </record>
+
+        <record id="email_template_task_digest" model="mail.template" context="{'lang': 'es_ES'}">
+            <field name="subject">EMS: tareas pendientes ({{ object._ems_task_digest_count() }})</field>
+            <field name="body_html">
+                <![CDATA[
+                    <div style="font-family: Arial, sans-serif; font-size: 14px;">
+                        <t t-set="groups" t-value="object._ems_task_digest_groups()"/>
+                        <p>Hola <t t-out="object.name"/>,</p>
+                        <p>Este es un resumen de las tareas que aún tienes pendientes en EMS, por si no has podido mirarlas. Las encontrarás todas en la bandeja de tareas (🕒) de la parte superior de EMS.</p>
+                        <t t-foreach="groups" t-as="group">
+                            <h3 style="font-size: 15px; margin: 20px 0 8px 0; padding-bottom: 4px; border-bottom: 1px solid #dadce0;">
+                                <t t-if="group['type']" t-out="group['type'].name"/><t t-else="">Otras tareas</t> (<t t-out="group['count']"/>)
+                            </h3>
+                            <ul style="margin: 0; padding-left: 20px;">
+                                <li t-foreach="group['activities']" t-as="activity" style="margin-bottom: 4px;">
+                                    <a t-attf-href="{{ object.get_base_url() }}/mail/view?model={{ activity.res_model }}&amp;res_id={{ activity.res_id }}" t-out="activity.res_name or activity.res_model"/>
+                                    <t t-if="activity.summary"> - <t t-out="activity.summary"/></t>
+                                    <span style="color: #666666;"> (fecha límite <t t-out="format_date(activity.date_deadline)"/><t t-if="activity.state == 'overdue'">, vencida</t>)</span>
+                                </li>
+                            </ul>
+                            <p t-if="group['more']" style="color: #666666;">... y <t t-out="group['more']"/> más.</p>
+                        </t>
+                        <p style="margin: 24px 0;">
+                            <a t-attf-href="{{ object.get_base_url() }}/odoo" style="background-color: #4a86e8; color: #ffffff; padding: 8px 16px; text-decoration: none; border-radius: 4px;">Abrir EMS</a>
+                        </p>
+                        <p style="color: #666666; font-size: 12px;">Recibes este resumen al inicio de cada jornada mientras tengas tareas pendientes. Puedes desactivarlo en Mi perfil, pestaña Preferencias.</p>
+                    </div>
+                ]]>
+            </field>
+        </record>
+
+    </data>
+</odoo>

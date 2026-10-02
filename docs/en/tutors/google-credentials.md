@@ -28,9 +28,9 @@ In the **Documentation** section you only see the Google credentials of the stud
 The account is normally created automatically when the student is enrolled. If a student of yours has none yet (usually because some of their details were missing at the time), you can create it yourself:
 
 1. Open the student's form.
-2. In the header, click **Create Google account**.
+2. In the header, open the **Actions** menu and click **Create Google account**.
 
-![Create Google account button in the student form header](../../assets/tutors/credencials-google-04-crear.png)
+![Create Google account in the Actions menu of the student form](../../assets/tutors/credencials-google-04-crear.png)
 
 The student receives the credentials at their personal email address and the credentials PDF is saved in the **Documentation** tab. The first time they sign in to Google, the student has to change the password.
 
@@ -41,9 +41,9 @@ The button is only shown while the student has no Google account. If the student
 ## Resetting a student's Google password
 
 1. Open the student's form.
-2. In the header, click **Reset Google password**.
+2. In the header, open the **Actions** menu and click **Reset Google password**.
 
-![Reset Google password button in the student form header](../../assets/tutors/credencials-google-03-restablir.png)
+![Reset Google password in the Actions menu of the student form](../../assets/tutors/credencials-google-03-restablir.png)
 
 3. Confirm the message that appears.
 
@@ -63,7 +63,7 @@ The button is only shown if the student has an active Google account. If you can
 
 A ZIP file is downloaded with one PDF per student, named after the student. If none of the selected students has credentials, a warning is shown and nothing is downloaded. Only the students you tutor are included.
 
-> **Note:** the same **Download Google credentials** action is also available from a single student's own form, using the same **Actions** ⚙ menu — though for just one student, downloading the PDF directly from the **Documentation** section of the **Secretary** tab above is quicker.
+> **Note:** the same **Download Google credentials** action is also available from a single student's own form, in the **Actions** menu of its header — though for just one student, downloading the PDF directly from the **Documentation** section of the **Secretary** tab above is quicker.
 
 ---
 

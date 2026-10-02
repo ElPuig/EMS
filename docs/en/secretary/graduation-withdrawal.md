@@ -34,7 +34,7 @@ Marked a student by mistake? **Unmark** reverses it — except the internal "has
 
 ## Registering a withdrawal (or an expulsion)
 
-Only secretary and admin can register one. You'll be asked to choose between **Withdrawal** and
+Secretary, Head of Studies, Deputy Head of Studies, Director and admin can register one. You'll be asked to choose between **Withdrawal** and
 **Expulsion**, the **exit date** and, optionally, a **reason** — then confirm. This cannot be
 undone from the wizard itself once applied.
 

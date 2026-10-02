@@ -77,7 +77,7 @@ flowchart TD
     A["line.status_id becomes notifiable\n(status_id.notifiable = True, e.g. 'miss')"] --> B["collect_issue_status_data()\nbuild {tutor: [{line, student, send_to}]}"]
     B --> C["create_notification_entries()"]
     C --> D["_get_or_create_issue_tutor (per day+tutor)\n-> _get_or_create_issue_student\n-> _get_or_create_issue_status"]
-    D --> E["_schedule_daily_assistance_notification\n(tutor digest, with_delay/queue_job)"]
+    D --> E["issue_tutor._schedule_tutor_report()\n(one pending job per tutor, with_delay/queue_job)"]
     D --> F["_schedule_family_assistance_notification\n(per issue_status, with_delay/queue_job)"]
     E --> G["ems.attendance_issue_tutor/_student/_status\n— models/attendance/attendance_issue.py"]
     F --> G

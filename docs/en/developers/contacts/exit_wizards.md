@@ -98,7 +98,7 @@ Both wizards return a `display_notification` client action (matching the pattern
 
 ## Access Control
 
-Both models: `ems.model_ems_graduation_wizard(.line)` / `ems.model_ems_withdrawal_wizard(.line)` in `ir.model.access.csv` — grant to `ems.group_academic_admin`/`ems.group_secretary`/`ems.group_teacher` (the graduation wizard's own `_user_can_manage` narrows the teacher grant to tutors-of-record only; the withdrawal wizard's `_is_secretary_or_admin` blocks teachers entirely regardless of the model-level grant — same "ACL is the ceiling, code/rule narrows further" pattern documented in [`enrollment.md`](enrollment.md#access-control)).
+Graduation wizard (`ems.model_ems_graduation_wizard(.line)`): granted to `ems.group_academic_admin`/`ems.group_secretary`/`ems.group_tutor` in `ir.model.access.csv`, and its own `_user_can_manage` narrows the tutor grant to the tutor scope of each student. Withdrawal wizard (`ems.model_ems_withdrawal_wizard(.line)`): granted to `ems.group_academic_admin`/`ems.group_secretary`/`ems.group_head_of_studies` (Head of Studies, Deputy Head of Studies and Director all hold that one group), and `_can_register_exits()` checks the same three groups on opening and on applying, so a tutor gets a legible error rather than an access error. The tutor enrollment list's **Withdrawal** button carries the same `groups`, and a teacher gets no Archive entry on a student (see [contact.md](contact.md#student-form-actions-actions-dropdown-cog-menu-or-smart-button)). Same "ACL is the ceiling, code/rule narrows further" pattern documented in [`enrollment.md`](enrollment.md#access-control).
 
 ---
 

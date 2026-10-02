@@ -69,9 +69,7 @@
             <field name="domain">[('session_active', '=', True)]</field>
         </record>
 
-        <!-- Head of Studies/Director/Administrator and Secretariat see the whole centre. Everyone
-             else (teacher/tutor/department chief) is scoped to their own teaching plus their tutor
-             scope's students (every subject), with the removable "My subjects" filter on by default. -->
+        <!-- Role-based scoping: see ems.attendance_session_line._get_reports_action(). -->
         <record model="ir.actions.server" id="action_attendance_reports_open">
             <field name="name">Reports</field>
             <field name="model_id" ref="ems.model_ems_attendance_session_line"/>
@@ -87,20 +85,9 @@
                  opening "Reports" hit "not allowed to modify ems.attendance_session_line". -->
             <field name="groups_id" eval="[(6, 0, [ref('ems.group_teacher'), ref('ems.group_secretary'), ref('ems.group_secretary_admin')])]"/>
             <field name="state">code</field>
-            <field name="code">
-action = env.ref('ems.action_attendance_report_analysis').sudo().read()[0]
-action['context'] = {'pivot_measures': ['absence_rate', 'strike_count', '__count'], 'graph_measure': 'absence_rate'}
-# NOTE: 'action['domain']' from .read() above is the base action's domain as a STRING (how
-# ir.actions.act_window.domain is actually stored), not a parsed list - concatenating a list onto
-# it would raise a TypeError, so the current-course filter is set here directly as a real list
-# instead of trying to extend the string. Kept as a literal matching the base action's own XML
-# domain (not read from it) - this action is only ever reached through this server action, never
-# opened directly, so there's no risk of the two silently drifting apart unnoticed.
-action['domain'] = [('session_active', '=', True)]
-if not (env.user.has_group('ems.group_head_of_studies') or env.user.has_group('ems.group_secretary') or env.user.has_group('ems.group_secretary_admin')):
-    action['domain'] += ['|', ('template_teacher_ids.user_id', '=', env.uid), ('student_id.tutor_id.tutor_scope_user_ids', '=', env.uid)]
-    action['context']['search_default_my_subjects'] = 1
-            </field>
+            <!-- Logic in ems.attendance_session_line._get_reports_action(), shared with the
+                 'Attendance' button on a student's form. -->
+            <field name="code">action = model._get_reports_action()</field>
         </record>
 
         <menuitem name="Reports" sequence="5" id="menu_attendance_reports" parent="menu_attendance" action="action_attendance_reports_open"/>

@@ -48,7 +48,7 @@ El Jefe de departamento y el Jefe de seminario de un docente también pueden ver
 
 ## Crear la cuenta corporativa de Google
 
-Los botones que gestionan la cuenta corporativa están en la barra superior de la ficha. Cuál aparece depende del estado de la cuenta: solo se ofrece uno cada vez.
+Las acciones que gestionan la cuenta corporativa están en el menú **Acciones** de la barra superior de la ficha. Cuál aparece depende del estado de la cuenta: solo se ofrece uno cada vez.
 
 | Botón | Cuándo aparece | Qué hace |
 |-------|----------------|----------|
@@ -58,7 +58,7 @@ Los botones que gestionan la cuenta corporativa están en la barra superior de l
 | **Reactivar cuenta de Google** | La cuenta está suspendida | La vuelve a activar |
 | **Marcar como identificado** | La ficha proviene de una importación de horarios y todavía es un marcador | Quita el estado de pendiente de identificación sin crear ninguna cuenta |
 
-![Botón Crear cuenta de Google en una ficha de profesorado sin cuenta todavía](../../assets/head_of_studies/hos-staff-management-create-account.png)
+![Menú Acciones con Crear cuenta de Google en una ficha de profesorado sin cuenta todavía](../../assets/head_of_studies/hos-staff-management-create-account.png)
 
 Cuando la cuenta se crea, las credenciales viajan por dos vías: se adjunta un PDF a la ficha y se envía un correo de bienvenida con la contraseña a la dirección personal. Si la cuenta no se puede crear porque faltan datos obligatorios, se publica una nota en el historial de mensajes de la ficha indicando exactamente qué campos faltan.
 

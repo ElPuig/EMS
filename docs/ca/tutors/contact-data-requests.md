@@ -24,7 +24,7 @@ Disponible per als tutors de grup (per al seu alumnat), la secretaria i la direc
 
 ![Menú Comunitat Educativa amb la secció Estudiants oberta: Estudiants i Sol·licitud de dades](../../assets/tutors/dades-contacte-01-menu.png)
 
-1. Aneu a **Comunitat Educativa → Estudiants (1) → Sol·licitud de dades (2)** i feu clic a **Sol·licita dades de contacte**. També el podeu obrir des del menú ⚙ de la llista d'estudiants, de la fitxa d'un estudiant, de la llista de grups o de la fitxa d'un grup.
+1. Aneu a **Comunitat Educativa → Estudiants (1) → Sol·licitud de dades (2)** i feu clic a **Sol·licita dades de contacte**. També el podeu obrir des del menú ⚙ de la llista d'estudiants, de la llista de grups o de la fitxa d'un grup, i des del menú **Accions** de la capçalera de la fitxa d'un estudiant.
 2. Trieu qui la rep:
    - **Grups / estudis / nivells**: trieu els grups. Els tutors només poden triar els seus grups.
    - **Alumnes seleccionats**: trieu els alumnes un per un.

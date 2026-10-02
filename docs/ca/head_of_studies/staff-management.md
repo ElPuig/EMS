@@ -48,7 +48,7 @@ El Cap de departament i el Cap de seminari d'un docent també poden veure aquest
 
 ## Crear el compte corporatiu de Google
 
-Els botons que gestionen el compte corporatiu són a la barra superior de la fitxa. Quin apareix depèn de l'estat del compte: només se n'ofereix un cada vegada.
+Les accions que gestionen el compte corporatiu són al menú **Accions** de la barra superior de la fitxa. Quin apareix depèn de l'estat del compte: només se n'ofereix un cada vegada.
 
 | Botó | Quan apareix | Què fa |
 |------|--------------|--------|
@@ -58,7 +58,7 @@ Els botons que gestionen el compte corporatiu són a la barra superior de la fit
 | **Reactiva el compte de Google** | El compte està suspès | El torna a activar |
 | **Marca com a identificat** | La fitxa prové d'una importació d'horaris i encara és un marcador | Treu l'estat de pendent d'identificació sense crear cap compte |
 
-![Botó Crea el compte de Google en una fitxa de professorat sense compte encara](../../assets/head_of_studies/hos-staff-management-create-account.png)
+![Menú Accions amb Crea el compte de Google en una fitxa de professorat sense compte encara](../../assets/head_of_studies/hos-staff-management-create-account.png)
 
 Quan el compte es crea, les credencials viatgen per dues vies: s'adjunta un PDF a la fitxa i s'envia un correu de benvinguda amb la contrasenya a l'adreça personal. Si el compte no es pot crear perquè falten dades obligatòries, es publica una nota a l'historial de missatges de la fitxa que indica exactament quins camps falten.
 

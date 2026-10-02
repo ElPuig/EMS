@@ -115,6 +115,20 @@ class TestDocsScreenshotsTutors(DocsScreenshotMixin, HttpCase):
             login='doc_shot_tutor',
             wait_for=".modal-content .o_field_widget[name='student_id'] input",
         )
+        # The student's file: its 'Assistència' button, then the pivot it opens (issue #519).
+        button = "button[name='action_view_attendance_reports']"
+        self._capture(
+            self._student_url(self.student), '.o_control_panel .o-form-buttonbox',
+            'tutor-informes-02-boto-fitxa.png', login='doc_shot_tutor', wait_for=button,
+        )
+        self._capture(
+            self._student_url(self.student), '.o_action_manager', 'tutor-informes-03-alumne.png',
+            login='doc_shot_tutor', wait_for=button,
+            click=[button, '.o_pivot_expand_button', '.o_pivot_expand_button'],
+            wait_after=['.o_pivot_view .o_pivot_cell_value', ".o_pivot_view tbody tr:nth-child(2)",
+                        ".o_pivot_view tbody tr:nth-child(3)"],
+            max_height=420,
+        )
 
     def test_capture_change_student_group(self):
         # Two subjects enrolled through the current group: the ones the warning says will move.
@@ -197,16 +211,16 @@ class TestDocsScreenshotsTutors(DocsScreenshotMixin, HttpCase):
         strikes = self.env['ems.strike'].create([{
             'student_id': self.student.id, 'teacher_id': self.teacher.id,
             'reason_id': self.env.ref('ems.strike_reason_material').id,
-            'date': datetime(2027, 3, 2, 9, 15),
+            'date': datetime(2026, 3, 2, 9, 15),
             'notes': "No ha portat l'ordinador per tercera vegada.",
         }, {
             'student_id': self.student.id, 'teacher_id': self.teacher.id,
             'reason_id': self.env.ref('ems.strike_reason_behaviour').id,
-            'date': datetime(2027, 3, 9, 11, 40), 'kicked_out': True,
+            'date': datetime(2026, 3, 9, 11, 40), 'kicked_out': True,
         }, {
             'student_id': self.classmate.id, 'teacher_id': self.teacher.id,
             'reason_id': self.env.ref('ems.strike_reason_device_misuse').id,
-            'date': datetime(2027, 3, 5, 12, 5),
+            'date': datetime(2026, 3, 5, 12, 5),
         }])
         # The native list has no domain (record rules scope it): our own, scoped to the fixtures.
         list_action = self.env['ir.actions.act_window'].create({

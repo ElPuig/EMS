@@ -101,7 +101,7 @@
                                 <span class="ms-2">minutes</span>
                             </setting>
 
-                            <setting string="Tutor's attendance report default send time" help="The tutors will receive a daily attendance report at the end of their work tourn but, it its not defined, this time will be used to send the report." id="attendance_issue_tutor_default">
+                            <setting string="Tutor's attendance report default send time" help="Each tutor chooses in their profile when they receive their attendance issues report. This time is used when that moment can't be worked out (no schedule framework for that day), and as the initial time of the &quot;At a fixed time&quot; option." id="attendance_issue_tutor_default">
                                 <field name="attendance_issue_tutor_default" widget="float_time" />
                             </setting>
 

@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.31.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.32.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -34,6 +34,9 @@
         'survey', 
         'hr_attendance',
         'hr_holidays',
+        # auto-installed with hr_holidays + hr_attendance anyway; listed so its "Deduct Extra
+        # Hours" header button exists before views/community/employee/form.xml moves it.
+        'hr_holidays_attendance',
         'queue_job',
         'sale_management',
         'sale_pdf_quote_builder',
@@ -284,6 +287,7 @@
             'views/minutes_agreements/presence/kiosk.xml',
             'views/minutes_agreements/presence/menu.xml',
 
+        'views/coexistence/strike/issue.xml',
         'views/coexistence/strike/list.xml',
         'views/coexistence/strike/form.xml',
         'views/coexistence/strike/menu.xml',
@@ -368,6 +372,7 @@
         'mails/enrollment/authorization_send.xml',
         'mails/grades/convalidation_resolved.xml',
         'mails/grades/convalidation_info_request.xml',
+        'mails/shared/task_digest.xml',
         'mails/contacts/contact_data_request.xml',
 
         ### Reports templates ###
@@ -395,6 +400,7 @@
         'data/main/ir.cron-google_workspace.csv',
         'data/main/ir.cron-group_public_schedule.csv',
         'data/main/ir.cron-absence.csv',
+        'data/main/ir.cron-task_digest.csv',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
         'data/main/ems.attendance_status.csv',

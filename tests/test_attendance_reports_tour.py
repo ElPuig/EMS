@@ -140,3 +140,9 @@ class TestAttendanceReportsTour(HttpCase):
     def test_attendance_report_tutor_scope_tour(self):
         _teacher_user, tutor_user = self._seed_student_scope()
         self.start_tour("/odoo", "ems_attendance_report_tutor_scope", login=tutor_user.login, step_delay=300)
+
+    def test_attendance_report_from_student_form_tour(self):
+        _teacher_user, tutor_user = self._seed_student_scope()
+        student = self.env['res.partner'].search([('name', '=', 'Student Scope Tour Student')])
+        self.start_tour(f"/odoo/res.partner/{student.id}", "ems_attendance_report_from_student",
+                        login=tutor_user.login, step_delay=300)

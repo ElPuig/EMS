@@ -48,7 +48,7 @@ A teacher's Department Chief and Seminar Chief can also see these two fields, re
 
 ## Creating the Corporate Google Account
 
-The buttons that manage the teacher's corporate account are on the top bar of their record. Which one appears depends on the state the account is in — only one is ever offered at a time:
+The actions that manage the teacher's corporate account are in the **Actions** menu on the top bar of their record. Which one appears depends on the state the account is in — only one is ever offered at a time:
 
 | Button | When it appears | What it does |
 |--------|-----------------|--------------|
@@ -58,7 +58,7 @@ The buttons that manage the teacher's corporate account are on the top bar of th
 | **Reactivate Google account** | The account is suspended | Reactivates it |
 | **Mark as identified** | The record came from a schedule import and is still a placeholder | Clears the pending-identification state without creating any account |
 
-![Create Google account button on a teacher's record with no account yet](../../assets/head_of_studies/hos-staff-management-create-account.png)
+![Actions menu with Create Google account on a teacher's record with no account yet](../../assets/head_of_studies/hos-staff-management-create-account.png)
 
 When the account is created, the credentials travel two ways: a PDF is attached to the teacher's own record, and a welcome email with the password is sent to their personal address. If the account cannot be created because some required data is missing, a note is posted in the record's message history explaining exactly which fields are missing.
 

@@ -10,6 +10,8 @@ from . import test_contact_tour
 from . import test_course_transition
 from . import test_course_transition_tour
 from . import test_enrollment
+from . import test_enrollment_subject_group
+from . import test_enrollment_subject_group_tour
 from . import test_enrollment_benefit
 from . import test_enrollment_template
 from . import test_enrollment_placement
@@ -60,6 +62,7 @@ from . import test_tracking
 from . import test_non_teaching_type_tour
 from . import test_teaching_reduction_type_tour
 from . import test_employee_autocheckout
+from . import test_task_digest
 from . import test_public_holiday
 from . import test_public_holiday_tour
 from . import test_user_implied_groups
@@ -107,9 +110,13 @@ from . import test_grade_import_wizard_tour
 from . import test_employee_google_workspace
 from . import test_employee_google_workspace_tour
 from . import test_student_google_workspace_tour
+from . import test_actions_dropdown_tour
+from . import test_archive_entry
+from . import test_student_action_rights
 from . import test_employee_ems_user
 from . import test_strike
 from . import test_strike_tour
+from . import test_strike_issue_standalone_tour
 from . import test_working_schedule
 from . import test_ems_teaching_sync
 from . import test_employee_schedule_lifecycle
@@ -128,8 +135,8 @@ from . import test_group
 from . import test_group_classroom_change
 from . import test_group_classroom_change_tour
 from . import test_employee_classroom_change_tour
-from . import test_group_classroom_suggestion
-from . import test_group_classroom_suggestion_tour
+from . import test_group_reference_space
+from . import test_group_reference_space_tour
 from . import test_group_schedule
 from . import test_group_schedule_topic_classroom_edit_tour
 from . import test_group_public_schedule
@@ -237,3 +244,4 @@ from . import test_employee_identity_visibility
 from . import test_employee_identity_visibility_tour
 from . import test_timezone
 from . import test_schedule_edit_roles
+from . import test_attendance_report_schedule

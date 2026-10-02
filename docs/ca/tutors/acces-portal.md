@@ -37,7 +37,7 @@ Un cop feta la selecció, obre el menú **Accions** a la barra superior i fes cl
 
 ![Llista d'alumnes amb selecció i menú Accions](../../assets/tutors/tutor-accesalportal0.png)
 
-> **Nota:** també pots obrir aquest quadre de diàleg per a un sol alumne des de la seva pròpia fitxa, amb el mateix menú **Accions** ⚙.
+> **Nota:** també pots obrir aquest quadre de diàleg per a un sol alumne des de la seva pròpia fitxa, al menú **Accions** de la capçalera.
 
 > **Nota:** com a tutor, només veuràs i podràs gestionar els teus alumnes. Encara que seleccionis alumnes d'altres grups, el quadre de diàleg només mostrarà els que et corresponen.
 

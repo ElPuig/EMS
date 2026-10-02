@@ -50,6 +50,22 @@ The placement already ran the creation under `sudo()`, which was believed to be 
 
 `inuse_subject_ids` is recomputed from `student_id.enrollment_ids.subject_id` — every subject the student is already enrolled in *anywhere*, including the row currently being edited (a mild self-inclusion quirk with no practical effect: the domain that consumes this field only need exclude subjects other than the one already chosen on the same line). `display_name` is just the subject's own `display_name` — enrollment rows have no meaningful name of their own, so lists/references show the subject instead of a generic `"ems.enrollment,123"`.
 
+### Manual lines on the student's form — subject domain and default group
+
+The embedded `enrollment_ids` list on the student's Studies tab (`views/community/contact/form.xml`) restricts `subject_id` to `[('id', 'not in', inuse_subject_ids), ('study_ids', 'in', parent.study_id)]`: only the student's own study subjects, minus the ones already enrolled. A new line starts on the student's main group (`default_group_id` context), and `_onchange_subject_id()` then moves it to `student_id.main_group_id._ems_group_for_subject(subject)`:
+
+```mermaid
+flowchart TD
+    A["subject_id picked"] --> B{"group is reinforcement?"}
+    B -- yes --> Z["keep the group"]
+    B -- no --> C["study._ems_subject_course(subject.product_id)"]
+    C --> D{"single course, different from the main group's?"}
+    D -- no --> E["main group"]
+    D -- yes --> F["main_group._ems_equivalent_for_course(course)\n(same acronym/shift, else first group of that course)"]
+```
+
+`ems.group._ems_group_for_subject()` is the single resolution shared by every flow that enrolls a student in a subject — this onchange, `sale.order._ems_apply_destination_placement()` and `res.partner._ems_refresh_enrollments_from_template()` — so a manual line lands in the same group the enrollment placement would have picked. The course comes from the study's enrollment templates (`sale.order.template.study_year`): a subject sold by no template, or by more than one course's, stays in the main group. Covered by `tests/test_enrollment_subject_group.py` and `tests/test_enrollment_subject_group_tour.py` (secretary).
+
 ### `create()`/`unlink()` — keeping two side systems in sync
 
 An enrollment row is the trigger that adds/removes a student from whichever `ems.attendance_template`s and `ems.grade_session`s already exist for that subject/group:

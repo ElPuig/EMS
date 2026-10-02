@@ -48,6 +48,8 @@ Each step creates a task in the activity tray (🕒) of whoever has to do it:
 - Every new request, or one sent back by the Director, for whoever holds the **Deputy Head of Studies** position.
 - Every proposal, for whoever holds the **Director** position.
 
+Creating a task sends no email. Instead, every working day at the start of your working hours you get a single email listing everything still pending in your tray: see [Daily Summary of Pending Tasks](../teachers/task-digest.md).
+
 ---
 
 ## Reviewing a request (Head of Studies)

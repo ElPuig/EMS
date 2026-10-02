@@ -21,6 +21,7 @@ Aquesta secció conté els manuals per als **professors**.
 | [Horari de guàrdies](guard-duty-schedule.md) | Consultar on és cada docent, i qui està de guàrdia, a cada franja horària de la setmana |
 | [Alumnat: els teus grups](student-list-my-groups.md) | Obrir la llista d'alumnat ja filtrada als grups on fas classe o ets tutor, i ampliar-la quan la necessitis sencera |
 | [Desactivar la teva foto de perfil](photo-visibility.md) | Activar o desactivar la teva foto de perfil |
+| [Resum diari de tasques pendents](task-digest.md) | El correu de cada matí amb tot el que tens pendent a la safata de l'EMS, i com desactivar-lo |
 | [Informes d'assistència](attendance-reports.md) | Imprimir els 3 informes PDF d'assistència (per grup/alumne/assignatura) i explorar les dades tu mateix amb la pantalla d'Anàlisi d'assistència |
 | [L'horari setmanal d'un grup](../admin/group-schedule.md) | Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF |
 | [L'horari setmanal d'un alumne](../admin/student-schedule.md) | Consultar l'horari propi d'un alumne (assignatures, docents, aules, patis), incloent-hi classes solapades, i exportar-lo a PDF |

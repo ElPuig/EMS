@@ -8,7 +8,7 @@ Des de la fitxa de l'alumne pots crear el seu compte de Google Workspace, suspen
 
 **Rol necessari:** Administrador o Coordinador/a TAC. Secretaria també pot crear i suspendre comptes.
 
-Tots els botons són a la capçalera de la fitxa de l'alumne (**Comunitat Educativa → Estudiants**). Cada botó només apareix quan l'acció és possible.
+Totes les accions són al menú **Accions** de la capçalera de la fitxa de l'alumne (**Comunitat Educativa → Estudiants**). Cada opció només apareix quan l'acció és possible.
 
 ![Capçalera de la fitxa d'un alumne amb el compte de Google actiu](../../assets/admin/compte-google-alumne-capcalera.png)
 

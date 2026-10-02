@@ -25,6 +25,7 @@ Aquesta secció conté els manuals per als **tutors de grup**.
 | [Credencials de Google del teu alumnat](google-credentials.md) | Descarregar el PDF amb l'usuari i la contrasenya del compte de Google dels alumnes que tutoritzes, d'un en un o de diversos alumnes alhora en un ZIP, crear-los el compte si encara no en tenen, i restablir-los la contrasenya |
 | [Justificar les faltes del teu alumnat](attendance-justifications.md) | Registrar un justificant (per exemple, un informe mèdic) perquè les faltes d'un alumne tutoritzat passin a falta justificada, i adjuntar-hi el document |
 | [Informes d'assistència](attendance-reports.md) | Imprimir els 3 informes PDF d'assistència (per grup/alumne/assignatura) i explorar les dades tu mateix amb la pantalla d'Anàlisi d'assistència |
+| [Informe d'incidències d'assistència dels teus alumnes](attendance-issues-report.md) | El correu amb les faltes i els retards dels teus alumnes, i com triar quan el reps |
 | [L'horari setmanal d'un grup](../admin/group-schedule.md) | Consultar l'horari agregat d'un grup (assignatures, docents, aules, patis) i exportar-lo a PDF |
 | [L'horari setmanal d'un alumne](../admin/student-schedule.md) | Consultar l'horari propi d'un dels teus tutorands (assignatures, docents, aules, patis), incloent-hi classes solapades, i exportar-lo a PDF |
 | [Notes públiques i notes privades de l'alumne](../teachers/student-notes.md) | On tot el professorat llegeix les notes públiques d'un alumne, i qui pot llegir i escriure les privades de tutoria |

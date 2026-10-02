@@ -238,6 +238,15 @@ class ResPartner(models.Model):
     # (security/rules/contacts.xml) - admin, secretary, Head of Studies, guidance, coexistence, and
     # the student's tutor scope.
     can_see_benefits = fields.Boolean(string='Can see benefits', compute='_compute_can_see_benefits')
+    # Which of the form's Actions dropdown entries apply to this student for the current user, with
+    # the same rule each assistant applies on its own (it drops someone else's student anyway, so
+    # offering the entry there only opened an assistant with nothing to do). Portal access: the
+    # portal wizard's _user_can_manage (admin, secretary, tutor scope); authorizations and contact
+    # data requests: ems.student.scope.mixin's _scope_acts_on_student (also Head of Studies).
+    can_manage_portal_access = fields.Boolean(
+        string='Can manage portal access', compute='_compute_student_action_rights')
+    can_send_student_requests = fields.Boolean(
+        string='Can send authorizations and data requests', compute='_compute_student_action_rights')
 
     selected_student_id = fields.Many2one(
         'res.partner',
@@ -444,7 +453,22 @@ class ResPartner(models.Model):
         self.ensure_one()
         action = self.env['ir.actions.act_window']._for_xml_id('ems.action_strike_list')
         action['domain'] = [('student_id', '=', self.id)]
-        action['context'] = {}
+        # Not default_student_id: the web client drops default_* keys from the list's context
+        # before running its "New strike" header button (action_service.js), so the dialog
+        # would open with no student. ems.strike reads this key for its default and to lock it.
+        action['context'] = {'strike_student_id': self.id}
+        return action
+
+    def action_view_attendance_reports(self):
+        """The attendance 'Reports' screen, with the same role-based scope as its menu, filtered on
+        this student (removable facet). Without "My subjects": every subject of the student the
+        user can see, e.g. all of them for their tutor."""
+        self.ensure_one()
+        action = self.env['ems.attendance_session_line']._get_reports_action()
+        # display_name too: read() returns it and the breadcrumb shows it over 'name'.
+        action['name'] = action['display_name'] = _("Attendance - %(student)s", student=self.display_name)
+        action['context'].pop('search_default_my_subjects', None)
+        action['context']['search_default_student_id'] = self.id
         return action
 
     def action_new_enrollment(self):
@@ -971,6 +995,12 @@ class ResPartner(models.Model):
 
         return contact
 
+    @api.model
+    def fields_get(self, allfields=None, attributes=None):
+        # No Archive/Unarchive for a plain teacher: see EmsBase.fields_get_active_readonly_for_teachers.
+        return base.EmsBase.fields_get_active_readonly_for_teachers(
+            self, super().fields_get(allfields, attributes))
+
     def toggle_active(self):
         """Archiving one or several students opens the withdrawal wizard instead
         of archiving directly, mirroring hr.employee (archiving asks for a reason
@@ -1247,10 +1277,7 @@ class ResPartner(models.Model):
             for subject in self.env['ems.subject'].sudo().search([
                 ('product_id', 'in', template.sale_order_template_line_ids.product_id.ids)
             ]):
-                subject_course = student.study_id._ems_subject_course(subject.product_id)
-                subject_group = group
-                if subject_course and subject_course != group.course:
-                    subject_group = group._ems_equivalent_for_course(subject_course) or group
+                subject_group = group._ems_group_for_subject(subject)
                 new_pairs.add((subject_group.id, subject.id))
                 if not Enrollment.search_count([
                     ('student_id', '=', student.id), ('group_id', '=', subject_group.id), ('subject_id', '=', subject.id)
@@ -1312,6 +1339,16 @@ class ResPartner(models.Model):
             'ems.group_student_data_reader'))
         for partner in self:
             partner.can_see_benefits = sees_all or base.EmsBase.user_acts_as_tutor(partner, partner.tutor_id)
+
+    @api.depends('contact_type', 'tutor_id')
+    @api.depends_context('uid')
+    def _compute_student_action_rights(self):
+        portal = self.env['ems.portal.access.wizard']
+        scope = self.env['ems.student.scope.mixin']
+        for partner in self:
+            is_student = partner.contact_type in ('student', 'applicant')
+            partner.can_manage_portal_access = is_student and portal._user_can_manage(partner)
+            partner.can_send_student_requests = is_student and scope._scope_acts_on_student(partner)
 
     @api.depends('tutor_id')
     @api.depends_context('uid')

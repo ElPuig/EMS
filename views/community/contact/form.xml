@@ -34,8 +34,16 @@
 
                 <xpath expr="//div[@name='button_box']" position="inside">
                     <button name="action_view_strikes" type="object" class="oe_stat_button" icon="fa-exclamation-triangle"
-                            invisible="contact_type != 'student' or strike_count == 0">
+                            invisible="contact_type != 'student'">
                         <field name="strike_count" widget="statinfo" string="Strikes"/>
+                    </button>
+                    <!-- Same groups as the attendance 'Reports' menu (action_attendance_reports_open). -->
+                    <button name="action_view_attendance_reports" type="object" class="oe_stat_button" icon="fa-calendar-check-o"
+                            invisible="contact_type != 'student'"
+                            groups="ems.group_teacher,ems.group_secretary,ems.group_secretary_admin">
+                        <div class="o_stat_info">
+                            <span class="o_stat_text">Attendance</span>
+                        </div>
                     </button>
                     <button name="action_view_convalidations" type="object" class="oe_stat_button" icon="fa-exchange"
                             invisible="contact_type not in ('student', 'applicant') or convalidation_count == 0"
@@ -49,50 +57,75 @@
                         <field name="google_ws_state" invisible="1"/>
                         <field name="can_reset_google_password" invisible="1"/>
                         <field name="can_create_google_account" invisible="1"/>
-                        <!-- Tutors create their own students' account too (issue #513), with the
-                             same per-record rule as the password reset below. -->
-                        <button name="action_create_google_account" type="object"
-                                string="Create Google account"
-                                class="btn-secondary"
-                                invisible="google_ws_state != 'none' or not can_create_google_account"
-                                groups="ems.group_secretary,ems.group_academic_admin,ems.group_tac,ems.group_tutor"/>
-                        <button name="action_suspend_google_account" type="object"
-                                string="Suspend Google account"
-                                class="btn-secondary"
-                                invisible="google_ws_state != 'active'"
-                                groups="ems.group_secretary,ems.group_academic_admin,ems.group_tac"/>
-                        <!-- Not the secretary: they only create accounts, as part of enrolling
-                             a student (issue #478). Tutors reset their own students' password
-                             (issue #490); group_tutor is what the chiefs above them imply, but
-                             group membership alone does not say *whose* tutor the user is - hence
-                             can_reset_google_password, which action_reset_google_password()
-                             re-checks server-side. -->
-                        <button name="action_reset_google_password" type="object"
-                                string="Reset Google password"
-                                class="btn-secondary"
-                                invisible="google_ws_state != 'active' or not can_reset_google_password"
-                                confirm="This gives the student's Google account a new password: the current one stops working and new credentials are generated. Continue?"
-                                groups="ems.group_academic_admin,ems.group_tac,ems.group_tutor"/>
-                        <button name="action_reactivate_google_account" type="object"
-                                string="Reactivate Google account"
-                                class="btn-secondary"
-                                invisible="google_ws_state != 'suspended'"
-                                groups="ems.group_secretary,ems.group_academic_admin"/>
-                        <!-- Grace period (issue #388): leaving the school only schedules
-                             the suspension, and the suspension only schedules the
-                             deletion. Neither date is part of google_ws_state, so these
-                             are driven by the date fields themselves. -->
-                        <button name="action_cancel_scheduled_deactivation" type="object"
-                                string="Cancel scheduled deactivation"
-                                class="btn-secondary"
-                                invisible="not google_ws_deactivation_date"
-                                groups="ems.group_secretary,ems.group_academic_admin"/>
-                        <button name="action_delete_google_account" type="object"
-                                string="Delete Google account"
-                                class="btn-secondary"
-                                invisible="not google_ws_deletion_date"
-                                confirm="This deletes the corporate Google account for good: the mailbox and the Drive files cannot be recovered afterwards. Continue?"
-                                groups="ems.group_secretary,ems.group_academic_admin"/>
+                        <field name="can_download_google_credentials" invisible="1"/>
+                        <field name="can_manage_portal_access" invisible="1"/>
+                        <field name="can_send_student_requests" invisible="1"/>
+                        <!-- Every action on a contact's form goes in this one "Actions"
+                             dropdown, never loose in the header, so the header can't fill up
+                             with buttons again (see docs/en/developers/shared/actions_dropdown.md).
+                             Each entry keeps its own invisible/groups/confirm, and the dropdown
+                             isn't shown when none applies. -->
+                        <div name="ems_actions" string="Actions">
+                            <!-- Tutors create their own students' account too (issue #513), with the
+                                 same per-record rule as the password reset below. -->
+                            <button name="action_create_google_account" type="object"
+                                    string="Create Google account"
+                                    invisible="google_ws_state != 'none' or not can_create_google_account"
+                                    groups="ems.group_secretary,ems.group_academic_admin,ems.group_tac,ems.group_tutor"/>
+                            <button name="action_suspend_google_account" type="object"
+                                    string="Suspend Google account"
+                                    invisible="google_ws_state != 'active'"
+                                    groups="ems.group_secretary,ems.group_academic_admin,ems.group_tac"/>
+                            <!-- Not the secretary: they only create accounts, as part of enrolling
+                                 a student (issue #478). Tutors reset their own students' password
+                                 (issue #490); group_tutor is what the chiefs above them imply, but
+                                 group membership alone does not say *whose* tutor the user is - hence
+                                 can_reset_google_password, which action_reset_google_password()
+                                 re-checks server-side. -->
+                            <button name="action_reset_google_password" type="object"
+                                    string="Reset Google password"
+                                    invisible="google_ws_state != 'active' or not can_reset_google_password"
+                                    confirm="This gives the student's Google account a new password: the current one stops working and new credentials are generated. Continue?"
+                                    groups="ems.group_academic_admin,ems.group_tac,ems.group_tutor"/>
+                            <button name="action_reactivate_google_account" type="object"
+                                    string="Reactivate Google account"
+                                    invisible="google_ws_state != 'suspended'"
+                                    groups="ems.group_secretary,ems.group_academic_admin"/>
+                            <!-- Grace period (issue #388): leaving the school only schedules
+                                 the suspension, and the suspension only schedules the
+                                 deletion. Neither date is part of google_ws_state, so these
+                                 are driven by the date fields themselves. -->
+                            <button name="action_cancel_scheduled_deactivation" type="object"
+                                    string="Cancel scheduled deactivation"
+                                    invisible="not google_ws_deactivation_date"
+                                    groups="ems.group_secretary,ems.group_academic_admin"/>
+                            <button name="action_delete_google_account" type="object"
+                                    string="Delete Google account"
+                                    invisible="not google_ws_deletion_date"
+                                    confirm="This deletes the corporate Google account for good: the mailbox and the Drive files cannot be recovered afterwards. Continue?"
+                                    groups="ems.group_secretary,ems.group_academic_admin"/>
+                            <!-- Same methods as the students list's cog-menu entries (the
+                                 server actions of the same name), run here on this student
+                                 alone; groups as in each server action's groups_id, and only
+                                 on a student the user may act on (someone else's student is
+                                 dropped by the assistant anyway). -->
+                            <button name="action_portal_access_bulk" type="object"
+                                    string="Portal access (students/families)"
+                                    invisible="not can_manage_portal_access"
+                                    groups="ems.group_academic_admin,ems.group_secretary,ems.group_teacher"/>
+                            <button name="action_authorization_send_bulk" type="object"
+                                    string="Send authorizations"
+                                    invisible="not can_send_student_requests"
+                                    groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies,ems.group_tutor"/>
+                            <button name="action_contact_data_request_bulk" type="object"
+                                    string="Request contact data"
+                                    invisible="not can_send_student_requests"
+                                    groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies,ems.group_tutor"/>
+                            <button name="action_download_google_credentials" type="object"
+                                    string="Download Google credentials"
+                                    invisible="not can_download_google_credentials"
+                                    groups="ems.group_academic_admin,ems.group_secretary,ems.group_tutor,ems.group_tac"/>
+                        </div>
                     </header>
                     <!-- Same groups as the buttons above: the teacher role has read
                          access to every res.partner (rule_contact_teacher), so without
@@ -465,7 +498,10 @@
                             </group>
                             <field name="enrollment_ids" string="" context="{'default_group_id': main_group_id}" readonly="main_group_id == False or read_only_user or is_tutor_readonly">                            
                                 <list editable="top" default_order="subject_id asc, group_id asc">
-                                    <field name="subject_id" domain="[('id','not in', inuse_subject_ids)]"/>
+                                    <!-- Only the student's own study subjects; picking one moves the
+                                         group to the course its enrollment template sells it for
+                                         (ems.enrollment._onchange_subject_id). -->
+                                    <field name="subject_id" domain="[('id','not in', inuse_subject_ids), ('study_ids', 'in', parent.study_id)]"/>
                                     <field name="group_id" domain="['|', ('study_id','=', parent.study_id), ('group_type','=','reinforcement')]"/>
                                     <field name="inuse_subject_ids" column_invisible="True"/>
                                 </list>

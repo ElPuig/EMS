@@ -34,6 +34,16 @@ EMS_BYPASS_TEMPLATE_LOCK_KEY = 'ems_bypass_template_lock'
 # never needed to (it never touches resource.calendar.attendance in the first place).
 EMS_SKIP_AUTO_SCHEDULE_SYNC = 'ems_skip_auto_schedule_sync'
 
+# Issue #458 (docs/en/developers/contacts/group.md's "Reference classroom" section) - stops the two
+# directions linking a group's reference classroom (ems.group.space_id) and its schedule from
+# cascading into each other. While set: ems.group.write() doesn't move the group's classes to a new
+# space_id (issue #405's _propagate_classroom_change), and a schedule change doesn't recompute the
+# group's space_id (ems.group._sync_reference_space). Set by the automatic recompute's own write,
+# by the manual-edit propagation while it moves classes, and by the working-schedules import
+# wizard while it writes calendars (its blocks fall back on the group's space_id, so it mustn't
+# change halfway through; the wizard recomputes once at the end).
+EMS_SKIP_GROUP_CLASSROOM_CASCADE = 'ems_skip_group_classroom_cascade'
+
 
 class EmsAttendanceMixin(models.AbstractModel):
     _name = 'ems.attendance_mixin'

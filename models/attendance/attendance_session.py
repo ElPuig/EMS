@@ -355,10 +355,20 @@ class EmsAttendanceSessionHeader(models.Model):
 
         previssions = EmsAttendanceJustification.get_current_justifications(self, self.start_date, self.end_date)
 
+        # NOTE: 'schedule.student_ids' (moved here from the template 2026-08-11 - see
+        # plans/calendar_driven_attendance_templates.md, point 1), not 'template.student_ids'
+        # (removed) - the roster is this specific weekly slot's own, not shared across every
+        # slot of the template.
+        roster = schedule.student_ids
         if previous and previous.end_time <= self.start_time:
             # active_test=False: a student removed from the previous period's roll-call (e.g. not
             # sitting an exam spanning both periods) stays removed, and restorable, in this one.
-            for prev in previous.with_context(active_test=False).attendance_session_line_ids:
+            # Only for this slot's own roster, though: the previous period of the same template
+            # can have different students (issue #534: a custom schedule attending only one of two
+            # consecutive hours), and a student only in this slot starts fresh below.
+            carried_lines = previous.with_context(active_test=False).attendance_session_line_ids.filtered(
+                lambda prev: prev.student_id in roster)
+            for prev in carried_lines:
                 line = None
                 for p in previssions:
                     if p.student_id == prev.student_id:
@@ -367,19 +377,15 @@ class EmsAttendanceSessionHeader(models.Model):
                     line = self._setup_next_session_line_data(prev)
                 line["active"] = prev.active
                 lines.append(line)
-        else:
-            # NOTE: 'schedule.student_ids' (moved here from the template 2026-08-11 - see
-            # plans/calendar_driven_attendance_templates.md, point 1), not 'template.student_ids'
-            # (removed) - the roster is this specific weekly slot's own, not shared across every
-            # slot of the template.
-            for student in schedule.student_ids:
-                line = None
-                for p in previssions:
-                    if p.student_id == student:
-                        line = p.perform_justification(self._setup_new_line_data(student), True)
-                if line is None:
-                    line = self._setup_new_line_data(student)
-                lines.append(line)
+            roster -= carried_lines.student_id
+        for student in roster:
+            line = None
+            for p in previssions:
+                if p.student_id == student:
+                    line = p.perform_justification(self._setup_new_line_data(student), True)
+            if line is None:
+                line = self._setup_new_line_data(student)
+            lines.append(line)
 
         if lines:
             def _to_id(v):

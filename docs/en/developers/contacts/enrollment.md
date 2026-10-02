@@ -68,31 +68,31 @@ flowchart TD
 
 ### `create()`/`unlink()` — keeping two side systems in sync
 
-An enrollment row is the trigger that adds/removes a student from whichever `ems.attendance_template`s and `ems.grade_session`s already exist for that subject/group:
+An enrollment row is the trigger that adds/removes a student from whichever attendance schedule lines and `ems.grade_session`s already exist for that subject/group:
 
 ```mermaid
 flowchart TD
-    A["create()"] --> B["_ems_sync_attendance_template_add()"]
+    A["create()"] --> B["_ems_resync_student_lines(student, subject)"]
     A --> C["_ems_sync_grade_session_add() — only 'open' sessions"]
+    W["write() changing group_id"] --> B2["_ems_resync_student_lines(..., lines attended before)"]
     D["unlink()"] --> E{"ems_bypass_grade_guard in context?"}
     E -- no --> F{"student already has scored grades\nfor this group+subject?"}
     F -- yes --> G["raise UserError"]
     F -- no --> H[proceed]
     E -- yes --> H
-    H --> I["super().unlink()"]
-    I --> J["_ems_sync_attendance_template_remove()"]
+    H --> I["delete the slots, super().unlink()"]
+    I --> J["_ems_resync_student_lines(..., lines attended before)"]
     I --> K["_ems_sync_grade_session_remove() — only 'open' sessions"]
 ```
 
-- **Attendance template add:** every `ems.attendance_template` matching `(subject_id, group_id in group_ids)` gets the student added — `group_ids` can cover several groups (co-teaching), so `group_id in group_ids` rather than `=`.
-- **`_ems_still_enrolled(student_id, subject_id, group_ids)` — added 2026-07-30:** shared `@api.model` helper (`True` if an `ems.enrollment` row still exists for that student+subject in any of the given `group_ids`), extracted so the two `_remove` hooks below can't drift apart on what "still enrolled" means, and reusable by any future caller needing the same check.
-- **Attendance template remove:** only drops the student if `_ems_still_enrolled` says **no** other remaining enrollment keeps them within that same template's scope (checked over `group_id in template.group_ids`) — otherwise a co-teaching student would be wrongly dropped from a template still covering one of their other groups.
+- **Attendance rosters:** which schedule lines an enrollment makes its student attend is decided by `_ems_attends()`: every line of its own group's templates for the subject (`group_ids` can cover several groups, co-teaching), or only its custom slots (issue #534). `_ems_resync_student_lines(student, subject, previous_lines)` adds the student to every line their enrollments in that subject attend now, and removes them from the lines they attended before (`previous_lines`) that no longer apply - so a co-teaching student enrolled through two groups of the same template stays in it when one enrollment goes. The whole mechanism, custom slots included, is documented in [`enrollment_slot.md`](enrollment_slot.md).
+- **`_ems_still_enrolled(student_id, subject_id, group_ids)` — added 2026-07-30:** shared `@api.model` helper (`True` if an `ems.enrollment` row still exists for that student+subject in any of the given `group_ids`), the guard of the grade-session remove hook below.
 - **Grade session add/remove:** only touches sessions in `state = 'open'` — `board`/`final` sessions are frozen and must not gain or lose lines from a later enrollment change. `_ems_sync_grade_session_remove` now also checks `_ems_still_enrolled` (for the exact `group_id` being removed) before deleting grade lines — added for symmetry with the attendance-template guard above; the only historical trigger (a duplicate `ems.enrollment` row for the same triple) is itself now prevented by the `_sql_constraints` above, so this is defensive rather than currently reachable through normal use.
 - **`ems_bypass_grade_guard`** (context flag): the withdrawal flow (`res.partner._ems_clear_operational_records`, see [`contact.md`](contact.md)) unlinks enrollments with `sudo().with_context(ems_bypass_grade_guard=True)` — it runs *after* the academic history has already frozen the grades, so the normal "has scored grades" guard would otherwise block exactly the cleanup it needs to do.
 
 #### Both cascades run under `sudo()` (issue #435)
 
-`_ems_matching_attendance_schedules()`, `_ems_still_enrolled()`, both `_ems_sync_grade_session_*` searches and `ems.grade_session._ems_has_scored_grades()` all `sudo()` their own reads/writes. They are system-level consequences of an enrollment change that was *already* authorized when the row was created or deleted — not separate actions the acting user must independently be entitled to perform on the attendance/grading side. This is the same reasoning `_ems_move_group()` documents for its own `sudo()` below.
+`_ems_attended_lines()`, `_ems_student_subject_enrollments()`, `_ems_still_enrolled()`, both `_ems_sync_grade_session_*` searches and `ems.grade_session._ems_has_scored_grades()` all `sudo()` their own reads/writes. They are system-level consequences of an enrollment change that was *already* authorized when the row was created or deleted — not separate actions the acting user must independently be entitled to perform on the attendance/grading side. This is the same reasoning `_ems_move_group()` documents for its own `sudo()` below.
 
 Without it, **who** created the enrollment silently decided how much of the cascade happened, because both side systems are access-restricted in ways `ems.enrollment` is not:
 
@@ -124,7 +124,7 @@ flowchart TD
     C -- no --> D["create() a new_group row\n(same subject)"] --> E
 ```
 
-Implemented as `unlink()` + `create()` (never a direct `group_id` write) specifically so the row-level side effects documented above — the attendance-template roster sync and the open-grade-session line sync — fire exactly as they already do for any other enrollment change, instead of needing a second, parallel sync path. The "already exists" check avoids a duplicate-key error when the student happens to already have that same subject enrolled in the destination group before the move (e.g. from an earlier reinforcement enrollment).
+Implemented as `unlink()` + `create()` (never a direct `group_id` write) specifically so the row-level side effects documented above — the attendance roster resync and the open-grade-session line sync — fire exactly as they already do for any other enrollment change, instead of needing a second, parallel sync path. The "already exists" check avoids a duplicate-key error when the student happens to already have that same subject enrolled in the destination group before the move (e.g. from an earlier reinforcement enrollment).
 
 **Runs entirely under `sudo()`.** By the time this runs, `student.main_group_id` already equals `new_group` (the caller writes it via `super().write()` first) — so a caller whose own ORM access to the student/enrollment came from being the tutor of the *old* group (`rule_contact_tutor`/`rule_enrollment_tutor`, both keyed off the student's current `tutor_id`, itself `related="main_group_id.tutor_id"`) can lose that access mid-transaction the instant the group differs, most obviously when the destination group has a different tutor. The group change itself was already authorized at the point `main_group_id` was written; this cascade is a system-level consequence of that authorized action, not a separate action needing its own re-check — the same reasoning `sale.order._ems_apply_destination_placement()` already applies to its own `sudo()`'d `create()` (see [`../enrollment/enrollment.md`](../enrollment/enrollment.md)). `sudo()` only bypasses ACL/record rules, never this model's own Python-level guards: `unlink()`'s scored-grades check still runs, and still aborts the **whole** group change (nothing is repointed) with the same `UserError` a manual delete would raise, if any of the old group's subjects already has scored grades.
 

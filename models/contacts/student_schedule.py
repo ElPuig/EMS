@@ -30,6 +30,15 @@ class ems_student_schedule(models.Model):
     # an invisible view field" pattern already used for 'hr.employee.can_edit_schedule'.
     shift = fields.Selection(related="main_group_id.shift", string="Shift", readonly=True)
 
+    # Issue #534: a student attending a subject split across several groups. The toggle only shows
+    # the custom-schedule tools on the form; switching it off makes every enrollment follow its group
+    # again (see 'write'). The slots themselves live on ems.enrollment.slot.
+    custom_schedule = fields.Boolean(string="Custom schedule",
+        help="Attend some subjects only in specific sessions, possibly with other groups of the same level.")
+    enrollment_slot_ids = fields.One2many(string="Slots", comodel_name="ems.enrollment.slot", inverse_name="student_id")
+    enrollment_slot_broken_count = fields.Integer(string="Slots no longer in the schedule",
+        compute="_compute_enrollment_slot_broken_count")
+
     # A real dependency on 'resource.calendar.attendance' itself can't be expressed (it's a
     # cross-model search, same structural limitation ems.group._compute_schedule_attendance_ids
     # already has) - a web client request always computes this fresh anyway (a new transaction,
@@ -40,7 +49,9 @@ class ems_student_schedule(models.Model):
     # TestStudentSchedule's own break-derivation test: setUpClass creates the student, THEN its
     # enrollments, and an unrelated earlier field read on the student had already cached this field
     # as empty in between the two - with no @api.depends, the later enrollments never invalidated it).
-    @api.depends('contact_type', 'main_group_id', 'enrollment_ids.subject_id', 'enrollment_ids.group_id')
+    @api.depends('contact_type', 'main_group_id', 'enrollment_ids.subject_id', 'enrollment_ids.group_id',
+                 'enrollment_ids.slot_ids.group_id', 'enrollment_ids.slot_ids.weekday',
+                 'enrollment_ids.slot_ids.start_time', 'enrollment_ids.slot_ids.end_time')
     def _compute_schedule_attendance_ids(self):
         # 'active_test=True' forced explicitly in _ems_teaching_attendances(), not left to the
         # ORM's own default: this tab is opened from ems.action_student_kanban, whose own context
@@ -61,20 +72,39 @@ class ems_student_schedule(models.Model):
                 continue
             student.schedule_attendance_ids = student._ems_teaching_attendances() | student._get_break_entries()
 
+    def _compute_enrollment_slot_broken_count(self):
+        for student in self:
+            student.enrollment_slot_broken_count = len(
+                student.enrollment_slot_ids.filtered(lambda slot: slot.state == 'broken'))
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'custom_schedule' in vals and not vals['custom_schedule']:
+            self.enrollment_slot_ids.unlink()
+        return res
+
+    def action_drop_custom_schedule(self):
+        self.write({'custom_schedule': False})
+
     def _ems_teaching_attendances(self):
         """The teaching periods of the student's own schedule (breaks excluded): every period of
         a subject they are enrolled in, in the group they are enrolled through - so a student
         taking a subject in another group (e.g. a 2nd-year one repeating a 1st-year subject)
         gets that group's period, not their main group's. Also used by the tutor's attendance
-        report to know when their students' day ends (attendance_report_schedule.py)."""
+        report to know when their students' day ends (attendance_report_schedule.py). A custom
+        enrollment (issue #534) only contributes its own slots, possibly from other groups -
+        'ems.enrollment._ems_attends' decides, the same rule the attendance rosters follow."""
         self.ensure_one()
         Attendance = self.env['resource.calendar.attendance'].with_context(active_test=True)
         teaching = Attendance
         for enrollment in self.enrollment_ids:
             teaching |= Attendance.search([
                 ('subject_id', '=', enrollment.subject_id.id),
-                ('group_ids', '=', enrollment.group_id.id),
-            ])
+                ('group_ids', 'in', (enrollment.group_id | enrollment.slot_ids.group_id).ids),
+            ]).filtered(lambda block, enrollment=enrollment: any(
+                enrollment._ems_attends(group, block.dayofweek, block.hour_from, block.hour_to)
+                for group in block.group_ids
+            ))
         return teaching
 
     def _get_break_entries(self):

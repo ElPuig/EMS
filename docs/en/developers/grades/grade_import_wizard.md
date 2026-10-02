@@ -150,8 +150,8 @@ session, the wizard calls `grade_session._ems_add_student_lines()` explicitly; i
 and leaves every other student's lines untouched. This happens **before** the line indexes are
 built, so the lines created here are picked up by the same import.
 
-Creating an enrollment also adds the student to the module's attendance templates
-(`_ems_sync_attendance_template_add`), which is consistent: if they take the module, they belong
+Creating an enrollment also adds the student to the module's attendance schedule lines
+(`_ems_resync_student_lines`), which is consistent: if they take the module, they belong
 on its attendance list.
 
 Each created enrollment is counted in the result and logged in the CSV with `ENROLLMENT` /

@@ -1,0 +1,16 @@
+# What's new
+
+## Custom schedule: one subject split across several groups (issue #534):
+- A student's form has a new "Custom schedule" switch (Studies tab). With it on, any enrolled subject can be customized: its group's sessions become editable slots, and each slot can be removed or replaced by a session of another group of the same level, including a group of a different study (e.g. 2 h with SMX1C and 2 h with SMX1D, or recovering a subject with another study's group).
+- New model `ems.enrollment.slot` (`models/contacts/enrollment_slot.py`). Only customized enrollments store slots; an enrollment without slots follows its group exactly as before. A slot is identified by its (group, weekday, start time, end time) key, not by a schedule line id, so it survives the sync pipeline archiving and cloning lines. Decided with the developer: slots are not generated for every enrollment, because those rows would be a second derived copy of the calendar to keep in sync on every schedule change.
+- One rule (`ems.enrollment._ems_attends`) now decides which sessions an enrollment makes its student attend, and every consumer uses it: schedule-line rosters (`fill_students`, so every calendar resync honours the custom slots with no hook of its own), incremental roster changes on enrollment/slot create/write/unlink (`_ems_resync_student_lines`, replacing `_ems_sync_attendance_template_add/remove`) and the student's Schedule tab (and the tutor's attendance report that reuses it).
+- When a teacher's schedule change moves a customized session to another time, the slot turns "Not taught" (red row), the student is not added to the new session, and a warning banner appears at the top of the student's form until someone reviews it. A room-only change keeps the slot valid.
+- Grading is unchanged: the enrollment's group stays the grading group, so a student split across two groups is graded once.
+- A main-group change keeps a customized subject's slots. Changing an enrollment's group now also moves the student between the two groups' attendance lists (it never did before).
+- Same access as the enrollments themselves (secretary, Head of Studies and admin edit any student; a tutor edits their tutees; teachers read).
+- Docs: `docs/en/developers/contacts/enrollment_slot.md` (new), `enrollment.md` updated.
+
+# Fixes
+
+## Consecutive roll-calls copied students from the previous period:
+- Taking attendance for the second of two consecutive periods of the same template copied every student of the first period's roll-call, instead of only this period's own roster. It now copies the previous statuses only for the students of this period's roster, and gives the rest of the roster a fresh line. Found while implementing issue #534 (a student attending only one of the two hours), but it also affected any manual per-session roster change.

@@ -161,6 +161,47 @@
         <field name="perm_unlink" eval="True"/>
     </record>
 
+    <!-- ems.enrollment.slot (issue #534): exactly the same reach as ems.enrollment above - a
+         slot is only a refinement of one of the student's enrollments. -->
+    <record id="rule_enrollment_slot_admin" model="ir.rule">
+        <field name="name">Enrollment slot: admin</field>
+        <field name="model_id" ref="ems.model_ems_enrollment_slot"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
+        <field name="domain_force">[]</field>
+    </record>
+
+    <record id="rule_enrollment_slot_secretary" model="ir.rule">
+        <field name="name">Enrollment slot: secretary (full access)</field>
+        <field name="model_id" ref="ems.model_ems_enrollment_slot"/>
+        <field name="groups" eval="[(4, ref('ems.group_secretary'))]"/>
+        <field name="domain_force">[]</field>
+    </record>
+
+    <record id="rule_enrollment_slot_teacher" model="ir.rule">
+        <field name="name">Enrollment slot: teacher (read only)</field>
+        <field name="model_id" ref="ems.model_ems_enrollment_slot"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_enrollment_slot_tutor" model="ir.rule">
+        <field name="name">Enrollment slot: tutor (edit its tutorands)</field>
+        <field name="model_id" ref="ems.model_ems_enrollment_slot"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('student_id.tutor_id.tutor_scope_user_ids', '=' , user.id)]</field>
+    </record>
+
+    <record id="rule_enrollment_slot_head_of_studies" model="ir.rule">
+        <field name="name">Enrollment slot: Head of Studies (all data)</field>
+        <field name="model_id" ref="ems.model_ems_enrollment_slot"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[]</field>
+    </record>
+
     <record id="rule_sale_order_admin" model="ir.rule">
         <field name="name">Enrollment (sale.order): admin</field>
         <field name="model_id" ref="sale.model_sale_order"/>

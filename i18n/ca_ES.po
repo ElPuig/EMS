@@ -2828,6 +2828,7 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -2841,6 +2842,7 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3114,6 +3116,7 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -3433,6 +3436,7 @@ msgstr "Data de finalització"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__end_time model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__end_time
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__end_time
 msgid "End Time"
 msgstr "Hora de finalització"
 
@@ -3463,6 +3467,7 @@ msgstr "Productes matriculats (Tècnic)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization__enrollment_id model:ir.model.fields,field_description:ems.field_ems_group__enrollment_view_ids model:ir.model.fields,field_description:ems.field_res_partner__enrollment_ids model:ir.model.fields,field_description:ems.field_res_users__enrollment_ids model:ir.ui.menu,name:ems.menu_ems_enrollment model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor model_terms:ir.ui.view,arch_db:ems.view_applicant_list
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__enrollment_id
 msgid "Enrollment"
 msgstr "Matrícula"
 
@@ -3863,6 +3868,7 @@ msgstr "Comentari per l'alumne de l'assignatura"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__4 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__4 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
+#: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_slot__weekday__4
 msgid "Friday"
 msgstr "Divendres"
 
@@ -4105,6 +4111,7 @@ msgstr "Atorgar accés"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__group_id model:ir.model.fields,field_description:ems.field_ems_authorization__group_id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__group_id model:ir.model.fields,field_description:ems.field_ems_enrollment__group_id model:ir.model.fields,field_description:ems.field_ems_enrollment_view__group_id model:ir.model.fields,field_description:ems.field_ems_grade_session__group_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__group_id model:ir.model.fields,field_description:ems.field_ems_student_year_record__group_id model:ir.model.fields,field_description:ems.field_ems_teaching__group_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__group_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__group_id model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search model_terms:ir.ui.view,arch_db:ems.view_grade_session_search model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_group_list model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor model_terms:ir.ui.view,arch_db:ems.view_year_record_search
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__group_id model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__group_id
 msgid "Group"
 msgstr "Grup"
 
@@ -4294,6 +4301,7 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__id
 msgid "ID"
 msgstr "ID"
 
@@ -4722,6 +4730,7 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -4735,6 +4744,7 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -5131,6 +5141,7 @@ msgstr "Modo"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__0 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
+#: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_slot__weekday__0
 msgid "Monday"
 msgstr "Dilluns"
 
@@ -5445,6 +5456,7 @@ msgstr "Quantitat de missatges amb error de lliurament"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+#: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_slot__state__ok
 msgid "OK"
 msgstr "D'acord"
 
@@ -6537,6 +6549,7 @@ msgstr "Línia comanda de venda"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__5 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__5
+#: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_slot__weekday__5
 msgid "Saturday"
 msgstr "Dissabte"
 
@@ -6816,6 +6829,7 @@ msgstr "Producte de servei"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__attendance_session_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__attendance_schedule_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__attendance_session_id model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_attendance_report_group_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_student_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_report_subject_wizard model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__attendance_schedule_id
 msgid "Session"
 msgstr "Sessió"
 
@@ -6958,6 +6972,7 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__space_id model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__space_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__space_id model:ir.model.fields,field_description:ems.field_ems_minute__space_id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__space_id
 msgid "Space"
 msgstr "Espai"
 
@@ -7008,6 +7023,7 @@ msgstr "Data d'inici"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__start_time model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__start_time
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__start_time
 msgid "Start Time"
 msgstr "Hora d'inici"
 
@@ -7043,6 +7059,7 @@ msgstr "Estat / Província"
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__state model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__state
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__state
 msgid "Status"
 msgstr "Estat"
 
@@ -7099,6 +7116,7 @@ msgstr "Carrer 2"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__student_id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_private_note__partner_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__student_id
 msgid "Student"
 msgstr "Estudiant"
 
@@ -7274,6 +7292,7 @@ msgstr "Estudi: El tipus d'estudi concret (tipus de batxillerat, grau universita
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__subject_record_id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__subject_id
 msgid "Subject"
 msgstr "Assignatura"
 
@@ -7371,6 +7390,7 @@ msgstr "Resum"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__6 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__6
+#: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_slot__weekday__6
 msgid "Sunday"
 msgstr "Diumenge"
 
@@ -7862,6 +7882,7 @@ msgstr "Aquesta plantilla ja ha estat utilitzada per registrar les assistències
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__3 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__3 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
+#: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_slot__weekday__3
 msgid "Thursday"
 msgstr "Dijous"
 
@@ -7931,6 +7952,7 @@ msgstr "Cert quan el compte de Google Workspace de l'alumne està suspès (exalu
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__1 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__1 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
+#: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_slot__weekday__1
 msgid "Tuesday"
 msgstr "Dimarts"
 
@@ -8283,11 +8305,13 @@ msgstr "Històric de comunicacions del lloc web"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__2 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__2 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
+#: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_slot__weekday__2
 msgid "Wednesday"
 msgstr "Dimecres"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__weekday model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__weekday
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__weekday
 msgid "Weekday"
 msgstr "Dia laborable"
 
@@ -19197,3 +19221,107 @@ msgstr ""
 "Quan rebeu, com a tutor/a, el correu amb les incidències d'assistència dels "
 "vostres alumnes. Cada correu inclou totes les incidències registrades des de"
 " l'anterior."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__allowed_group_ids
+msgid "Allowed groups"
+msgstr "Grups permesos"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__custom_schedule
+#: model:ir.model.fields,help:ems.field_res_users__custom_schedule
+msgid ""
+"Attend some subjects only in specific sessions, possibly with other groups "
+"of the same level."
+msgstr "Assisteix a algunes assignatures només en sessions concretes, potser amb altres grups del mateix nivell."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__is_custom_schedule
+msgid "Custom"
+msgstr "Personalitzada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__custom_schedule
+#: model:ir.model.fields,field_description:ems.field_res_users__custom_schedule
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Custom schedule"
+msgstr "Horari personalitzat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Customize the sessions of this subject"
+msgstr "Personalitza les sessions d'aquesta assignatura"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_enrollment_slot
+msgid ""
+"Enrollment slot: a weekly session a student attends for an enrolled subject"
+msgstr "Franja de matrícula: una sessió setmanal a la qual assisteix un alumne d'una assignatura matriculada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Every subject follows its group"
+msgstr "Totes les assignatures segueixen el seu grup"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"Every subject will follow its group again and the custom slots will be "
+"deleted. Continue?"
+msgstr "Totes les assignatures tornaran a seguir el seu grup i s'esborraran les franges personalitzades. Voleu continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Follow the group again"
+msgstr "Torna a seguir el grup"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_slot__state__broken
+msgid "Not taught"
+msgstr "No s'imparteix"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__slot_ids
+#: model:ir.model.fields,field_description:ems.field_res_partner__enrollment_slot_ids
+#: model:ir.model.fields,field_description:ems.field_res_users__enrollment_slot_ids
+msgid "Slots"
+msgstr "Franges"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__enrollment_slot_broken_count
+#: model:ir.model.fields,field_description:ems.field_res_users__enrollment_slot_broken_count
+msgid "Slots no longer in the schedule"
+msgstr "Franges que ja no són a l'horari"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/enrollment_slot.py:0
+msgid ""
+"The group %(group)s can't be used for %(subject)s: only groups of the same "
+"level as the student's enrollment can."
+msgstr "El grup %(group)s no es pot fer servir per a %(subject)s: només s'hi poden fer servir els grups del mateix nivell que la matrícula de l'alumne."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/enrollment_slot.py:0
+msgid "The group %(group)s has no class of %(subject)s at that time."
+msgstr "El grup %(group)s no té cap classe de %(subject)s en aquest horari."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"The student will attend every session of this subject's group again. "
+"Continue?"
+msgstr "L'alumne tornarà a assistir a totes les sessions del grup d'aquesta assignatura. Voleu continuar?"
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_enrollment_slot_unique_enrollment_slot
+msgid "This student already attends this slot for this subject."
+msgstr "Aquest alumne ja assisteix a aquesta franja per a aquesta assignatura."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"session(s) of this student's custom schedule are no longer in the timetable "
+"(a teacher's schedule changed). Review them in the Studies tab."
+msgstr "sessió(ns) de l'horari personalitzat d'aquest alumne ja no consten a l'horari (ha canviat l'horari d'un docent). Reviseu-les a la pestanya Estudis."

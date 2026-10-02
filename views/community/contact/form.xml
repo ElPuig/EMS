@@ -138,6 +138,13 @@
                         <field name="google_ws_deactivation_date" readonly="1" nolabel="1"
                                class="oe_inline"/>.
                     </div>
+                    <!-- Issue #534: same placement and pattern as pending_classroom_conflict_count on
+                         the group and employee forms - always visible, not buried in a tab. -->
+                    <field name="enrollment_slot_broken_count" invisible="1"/>
+                    <div class="alert alert-warning" role="alert" invisible="not enrollment_slot_broken_count">
+                        <field name="enrollment_slot_broken_count" nolabel="1" class="oe_inline"/>
+                        session(s) of this student's custom schedule are no longer in the timetable (a teacher's schedule changed). Review them in the Studies tab.
+                    </div>
                     <div class="alert alert-danger" role="alert"
                          invisible="not google_ws_deletion_date"
                          groups="ems.group_secretary,ems.group_academic_admin">
@@ -495,6 +502,10 @@
                                      combine both conditions. The record rules already block the write
                                      server-side either way, but the field looked editable when it wasn't. -->
                                 <field name="wpi_enrolled" readonly="read_only_user or is_tutor_readonly" />
+                                <!-- Issue #534. Locked while slots exist: switching it off goes through
+                                     the "Every subject follows its group" button below, which asks first
+                                     since it deletes them. -->
+                                <field name="custom_schedule" readonly="main_group_id == False or read_only_user or is_tutor_readonly or enrollment_slot_ids"/>
                             </group>
                             <field name="enrollment_ids" string="" context="{'default_group_id': main_group_id}" readonly="main_group_id == False or read_only_user or is_tutor_readonly">                            
                                 <list editable="top" default_order="subject_id asc, group_id asc">
@@ -504,6 +515,44 @@
                                     <field name="subject_id" domain="[('id','not in', inuse_subject_ids), ('study_ids', 'in', parent.study_id)]"/>
                                     <field name="group_id" domain="['|', ('study_id','=', parent.study_id), ('group_type','=','reinforcement')]"/>
                                     <field name="inuse_subject_ids" column_invisible="True"/>
+                                    <!-- Issue #534: only with the "Custom schedule" toggle on. -->
+                                    <field name="is_custom_schedule" column_invisible="not parent.custom_schedule"/>
+                                    <button name="action_customize_slots" type="object" title="Customize the sessions of this subject" icon="fa-sliders"
+                                            column_invisible="not parent.custom_schedule"
+                                            invisible="is_custom_schedule or parent.read_only_user or parent.is_tutor_readonly"/>
+                                    <button name="action_follow_group" type="object" title="Follow the group again" icon="fa-undo"
+                                            column_invisible="not parent.custom_schedule"
+                                            invisible="not is_custom_schedule or parent.read_only_user or parent.is_tutor_readonly"
+                                            confirm="The student will attend every session of this subject's group again. Continue?"/>
+                                </list>
+                            </field>
+                        </group>
+                        <!-- Issue #534: the exact sessions of each customized subject (see
+                             docs/en/developers/contacts/enrollment_slot.md). A slot no longer in the
+                             schedule (a teacher's schedule changed) shows in red and raises the banner
+                             at the top of the form. -->
+                        <group invisible="not custom_schedule">
+                            <separator name="custom_schedule" string="Custom schedule" colspan="2"/>
+                            <div colspan="2" invisible="not enrollment_slot_ids or read_only_user or is_tutor_readonly">
+                                <button name="action_drop_custom_schedule" type="object" string="Every subject follows its group"
+                                        class="btn-secondary" icon="fa-undo"
+                                        confirm="Every subject will follow its group again and the custom slots will be deleted. Continue?"/>
+                            </div>
+                            <field name="enrollment_slot_ids" string="" colspan="2"
+                                   readonly="read_only_user or is_tutor_readonly">
+                                <list editable="bottom" default_order="subject_id, weekday, start_time"
+                                      decoration-danger="state == 'broken'">
+                                    <field name="enrollment_id" string="Subject" domain="[('student_id', '=', parent.id), ('slot_ids', '!=', False)]"
+                                           options="{'no_create': True, 'no_open': True}"/>
+                                    <field name="subject_id" column_invisible="True"/>
+                                    <field name="allowed_group_ids" column_invisible="True"/>
+                                    <field name="group_id" options="{'no_create': True, 'no_open': True}"/>
+                                    <field name="attendance_schedule_id" width="260px" options="{'no_create': True, 'no_open': True}"/>
+                                    <field name="weekday" force_save="1" readonly="1"/>
+                                    <field name="start_time" widget="float_time" force_save="1" readonly="1"/>
+                                    <field name="end_time" widget="float_time" force_save="1" readonly="1"/>
+                                    <field name="space_id"/>
+                                    <field name="state"/>
                                 </list>
                             </field>
                         </group>

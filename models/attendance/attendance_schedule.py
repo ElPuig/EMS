@@ -253,19 +253,24 @@ class EmsAttendanceSchedule(models.Model):
         )
 
     def fill_students(self):
-        """Reset 'student_ids' from this line's own template's current (subject_id, group_ids)
-        enrollments - moved here from 'ems.attendance_template' 2026-08-11 (see
-        plans/calendar_driven_attendance_templates.md, point 1). Subject/groups still live on the
-        template (co-teaching/room stay template- and line-level concerns respectively - only the
-        roster itself became per-line), so this reads them via 'attendance_template_id' rather than
-        duplicating them here."""
+        """Reset 'student_ids' from the enrollments that make their student attend this line - moved
+        here from 'ems.attendance_template' 2026-08-11 (see plans/calendar_driven_attendance_templates.md,
+        point 1). Every calendar resync fills its new lines through here, so a custom enrollment's
+        slots (issue #534) are honoured with no hook of their own in the sync pipeline."""
         for schedule in self:
-            template = schedule.attendance_template_id
-            students = self.env['ems.enrollment'].search([
-                ('group_id', 'in', template.group_ids.ids),
-                ('subject_id', '=', template.subject_id.id)
-            ]).mapped('student_id')
-            schedule.student_ids = [(6, 0, students.ids)]
+            schedule.student_ids = [(6, 0, schedule._ems_expected_students().ids)]
+
+    def _ems_expected_students(self):
+        """The students whose enrollments make them attend this line ('ems.enrollment._ems_attends'):
+        enrolled in its subject through one of its template's groups and following that group, or
+        holding a custom slot that matches it, whatever their enrollment's own group."""
+        self.ensure_one()
+        template = self.attendance_template_id
+        enrollments = self.env['ems.enrollment'].search([
+            ('subject_id', '=', template.subject_id.id),
+            '|', ('group_id', 'in', template.group_ids.ids), ('slot_ids.group_id', 'in', template.group_ids.ids),
+        ])
+        return enrollments.filtered(lambda enrollment: enrollment._ems_attends_line(self)).student_id
 
     def reload_students(self):
         self.student_ids = [(5)]

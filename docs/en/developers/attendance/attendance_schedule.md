@@ -23,7 +23,9 @@ rewrites these rows from a teacher's live-edited or imported timetable
 | Field | Type | Notes |
 |-------|------|-------|
 | `weekday` | `Selection` ("0"=Monday…"6"=Sunday) | **Do not renumber** — matches Python's `date.weekday()` values exactly, several computes rely on this. |
-| `name` | computed + stored | `"{template} \| {weekday} \| {time_range}"`, purely for the session form's dropdown sort order (SQL sort on a non-stored field wouldn't work). |
+| `name` | computed + stored | `"{template} \| {weekday} \| {time_range}"`, weekday in English. Stored so the session pickers can search it by text; not shown to users (see `display_name`). |
+| `template_label` | related `attendance_template_id.display_name`, stored | Only to sort by: `_order = 'template_label, weekday, start_time, id'` - grouped by subject (and groups) alphabetically, then by weekday **number**, so Monday comes before Friday in every language (sorting by `name` put Friday first). |
+| `display_name` | computed, per language (`@api.depends_context('lang')`) | Same text as `name`, but with the weekday in the reader's language (`_weekday_label`). `name` is stored, so it can only hold one language (English); it stays the sort key, and `_search_display_name` also matches a weekday typed in the reader's language. |
 | `start_time`/`end_time` | `Float` | Hours as a decimal (e.g. `9.5` = 9:30). |
 | `start_date`/`end_date` | `Datetime`, computed + stored | The template's own `start_date`/`end_date` (a plain date) combined with this schedule's `start_time`/`end_time`, converted local→UTC via `ems.datetime_utils` — stored as full datetimes because timezone-correct comparisons need a real date, not a bare time-of-day float. |
 | `time_range` | `Char`, computed + stored | `"HH:MM - HH:MM"`, derived from `start_date`/`end_date` converted back to local time. |

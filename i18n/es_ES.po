@@ -7293,6 +7293,7 @@ msgstr "Estudio: El tipo concreto de estudio (tipo de licenciatura, titulación 
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__subject_record_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__subject_id
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Subject"
 msgstr "Asignatura"
 
@@ -19328,3 +19329,28 @@ msgid ""
 "session(s) of this student's custom schedule are no longer in the timetable "
 "(a teacher's schedule changed). Review them in the Studies tab."
 msgstr "sesión(es) del horario personalizado de este alumno ya no están en el horario (ha cambiado el horario de un docente). Revísalas en la pestaña Estudios."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Day"
+msgstr "Día"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Start hour"
+msgstr "Inicio"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "End hour"
+msgstr "Fin"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__allowed_schedule_ids
+msgid "Allowed sessions"
+msgstr "Sesiones permitidas"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__template_label
+msgid "Template name"
+msgstr "Nombre de la plantilla"

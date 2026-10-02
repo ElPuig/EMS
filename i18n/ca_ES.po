@@ -7293,6 +7293,7 @@ msgstr "Estudi: El tipus d'estudi concret (tipus de batxillerat, grau universita
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__subject_record_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__subject_id
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Subject"
 msgstr "Assignatura"
 
@@ -19325,3 +19326,28 @@ msgid ""
 "session(s) of this student's custom schedule are no longer in the timetable "
 "(a teacher's schedule changed). Review them in the Studies tab."
 msgstr "sessió(ns) de l'horari personalitzat d'aquest alumne ja no consten a l'horari (ha canviat l'horari d'un docent). Reviseu-les a la pestanya Estudis."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Day"
+msgstr "Dia"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Start hour"
+msgstr "Inici"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "End hour"
+msgstr "Final"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__allowed_schedule_ids
+msgid "Allowed sessions"
+msgstr "Sessions permeses"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__template_label
+msgid "Template name"
+msgstr "Nom de la plantilla"

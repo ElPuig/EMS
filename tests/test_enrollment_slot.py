@@ -123,6 +123,69 @@ class TestEnrollmentSlot(EnrollmentSlotCase):
 
         self.assertIn(self.line_e_fri, self._lines_of(self.student))
 
+    def test_group_picker_offers_only_groups_teaching_the_subject(self):
+        # group_no_class: same level, but no class of the subject at all.
+        group_no_class = self.env['ems.group'].create({'course': 1, 'acronym': 'G', 'level_id': self.level.id, 'study_id': self.study.id})
+        self.enrollment.action_customize_slots()
+
+        offered = self.enrollment.slot_ids[:1].allowed_group_ids
+
+        self.assertEqual(offered, self.group_c | self.group_d | self.group_other_study)
+        self.assertNotIn(group_no_class, offered)
+        self.assertNotIn(self.group_other_level, offered)
+
+    def test_session_picker_offers_only_the_chosen_group_sessions(self):
+        self.enrollment.action_customize_slots()
+        Slot = self.env['ems.enrollment.slot']
+
+        with_group = Slot.new({'enrollment_id': self.enrollment.id, 'group_id': self.group_d.id})
+        without_group = Slot.new({'enrollment_id': self.enrollment.id})
+
+        self.assertEqual(with_group.allowed_schedule_ids._origin, self.line_d_wed | self.line_d_thu)
+        self.assertEqual(without_group.allowed_schedule_ids._origin,
+                         self.line_c_mon | self.line_c_tue | self.line_d_wed | self.line_d_thu | self.line_e_fri)
+
+    def test_picking_a_session_sets_its_group(self):
+        """Group C left over from an earlier choice, then a group D session picked: the row must
+        follow the session, never end up as a class that doesn't exist."""
+        self.enrollment.action_customize_slots()
+        draft = self.env['ems.enrollment.slot'].new({
+            'enrollment_id': self.enrollment.id, 'group_id': self.group_c.id,
+            'attendance_schedule_id': self.line_d_wed.id,
+        })
+        draft._onchange_attendance_schedule_id()
+        self.assertEqual(draft.group_id, self.group_d)
+
+        slot = self.env['ems.enrollment.slot'].create({
+            'enrollment_id': self.enrollment.id, 'group_id': self.group_c.id,
+            'attendance_schedule_id': self.line_d_thu.id,
+        })
+        self.assertEqual(slot.group_id, self.group_d)
+        self.assertEqual(slot.state, 'ok')
+
+    def test_session_names_follow_the_reader_language(self):
+        """The session picker shows ems.attendance_schedule's display_name: its weekday must be in
+        the reader's language, and searchable as typed in it, while the stored 'name' (the sort
+        key) stays English."""
+        Schedule = self.env['ems.attendance_schedule'].with_context(lang='ca_ES')
+        line = Schedule.browse(self.line_c_mon.id)
+
+        self.assertIn('Dilluns', line.display_name)
+        self.assertIn('Monday', line.name)
+        found = Schedule.name_search('Dilluns', [('id', 'in', (self.line_c_mon | self.line_c_tue).ids)])
+        self.assertEqual([record_id for record_id, _name in found], [self.line_c_mon.id])
+
+    def test_sessions_are_ordered_by_weekday_number(self):
+        """Alphabetically, Friday would come before Monday (and Dijous before Dilluns)."""
+        friday = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': self.line_c_mon.attendance_template_id.id,
+            'weekday': '4', 'start_time': 9.0, 'end_time': 10.0, 'space_id': self.space_b.id,
+        })
+        found = self.env['ems.attendance_schedule'].search([
+            ('attendance_template_id', '=', self.line_c_mon.attendance_template_id.id),
+        ])
+        self.assertEqual(found.ids, [self.line_c_mon.id, self.line_c_tue.id, friday.id])
+
     def test_slot_with_a_group_of_another_level_is_rejected(self):
         self.enrollment.action_customize_slots()
         with self.assertRaises(ValidationError):

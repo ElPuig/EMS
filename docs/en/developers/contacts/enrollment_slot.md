@@ -38,7 +38,8 @@ Deliberately not stored for the enrollments that follow their group (decided wit
 | `attendance_schedule_id` | `Many2one → ems.attendance_schedule`, computed (not stored), editable | The active line currently matching the key (read under `sudo()`). Picking one in the UI copies its key: an onchange fills the key fields, and `create()`/`write()` turn an `attendance_schedule_id` value into the key too, for programmatic callers |
 | `space_id` | `Many2one → ems.space`, computed (not stored) | The room of that line |
 | `state` | Selection `ok`/`broken` ("Not taught"), computed (not stored) | `broken` when no active line matches the key any more |
-| `allowed_group_ids` | `Many2many → ems.group`, computed | Domain helper for `group_id` |
+| `allowed_group_ids` | `Many2many → ems.group`, computed | Domain of `group_id`: the groups of the allowed level that have an active class of the subject (stricter than the level constraint, see below) |
+| `allowed_schedule_ids` | `Many2many → ems.attendance_schedule`, computed | Domain of `attendance_schedule_id`: the subject's active sessions taught to the chosen group, or to any allowed group while none is chosen. Picking a session also sets `group_id` to that session's group (onchange, and `create()`/`write()` for programmatic callers), so a row can never point at a class that doesn't exist |
 
 `_sql_constraints`: unique `(enrollment_id, group_id, weekday, start_time)`. Python constraints: `group_id` is the enrollment's group or a group of its level (the student's main group's level when the enrollment's group has none, e.g. a reinforcement group); and the key must match an active line **when it is written** - a slot that stops matching later, because a teacher's schedule changed, turns `broken` instead of blocking that change.
 
@@ -80,6 +81,6 @@ Same ACL and record rules as `ems.enrollment` (`security/ir.model.access.csv`, `
 | View | File | Notes |
 |------|------|-------|
 | "Custom schedule" toggle | `views/community/contact/form.xml`, Studies tab, next to "WPI enrolled" | Same `readonly` conditions as `enrollment_ids`, plus read-only while slots exist |
-| Per-subject "Custom" column and icon buttons (customize / follow the group again) | Same file, `enrollment_ids` list | Columns shown only with `custom_schedule` |
+| Per-subject icon buttons (customize / follow the group again; which one shows tells whether the subject is customized) | Same file, `enrollment_ids` list | Shown only with `custom_schedule`; `is_custom_schedule` is an invisible column, only there for the buttons' `invisible=` |
 | Slot list and "Every subject follows its group" button | Same file, "Custom schedule" section below the enrollment list | Shown only with `custom_schedule`; a `broken` row is red. Its subject column only offers enrollments already customized (`slot_ids != False`) |
 | Broken-slot banner | `views/community/contact/form.xml`, above the sheet | Same pattern as `pending_classroom_conflict_count` on the group and employee forms |

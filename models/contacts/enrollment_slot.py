@@ -40,15 +40,27 @@ class EmsEnrollmentSlot(models.Model):
 	# this model ever being written. Picking a line in the UI only copies its key (see create/write).
 	attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ems.attendance_schedule",
 		compute="_compute_attendance_schedule_id", readonly=False,
-		domain="[('attendance_template_id.subject_id', '=', subject_id), ('attendance_template_id.group_ids', 'in', group_id)]")
+		domain="[('id', 'in', allowed_schedule_ids)]")
+	# NOTE: the session picker's choices, computed rather than a plain domain on 'group_id': with no
+	# group picked yet, such a domain offered every group's sessions, and picking another group's
+	# session left the row pointing at a class that doesn't exist (red).
+	allowed_schedule_ids = fields.Many2many(string="Allowed sessions", comodel_name="ems.attendance_schedule",
+		compute="_compute_allowed_schedule_ids")
 	space_id = fields.Many2one(string="Space", comodel_name="ems.space", compute="_compute_attendance_schedule_id")
 	state = fields.Selection(string="Status", selection=[('ok', "OK"), ('broken', "Not taught")],
 		compute="_compute_attendance_schedule_id")
 
-	@api.depends('enrollment_id.group_id', 'student_id.main_group_id')
+	@api.depends('enrollment_id.group_id', 'enrollment_id.subject_id', 'student_id.main_group_id')
 	def _compute_allowed_group_ids(self):
+		"""The groups the UI offers: those of the allowed level that actually have a class of this
+		subject right now. Stricter than '_check_group_level' on purpose - a slot whose group stops
+		teaching the subject must turn 'broken', not block later writes (e.g. moving the slots to a
+		new enrollment when the main group changes)."""
 		for slot in self:
-			slot.allowed_group_ids = slot._ems_allowed_groups()
+			teaching = self.env['ems.attendance_template'].sudo().search([
+				('active', '=', True), ('subject_id', '=', slot.subject_id.id),
+			]).group_ids
+			slot.allowed_group_ids = slot._ems_allowed_groups() & teaching
 
 	@api.depends('subject_id', 'group_id', 'weekday', 'start_time', 'end_time')
 	def _compute_attendance_schedule_id(self):
@@ -60,9 +72,23 @@ class EmsEnrollmentSlot(models.Model):
 
 	@api.onchange('attendance_schedule_id')
 	def _onchange_attendance_schedule_id(self):
+		"""Picking a session sets the whole key, its group included, so the two can never disagree."""
 		for slot in self:
-			if slot.attendance_schedule_id:
-				slot.update(self._ems_key_vals(slot.attendance_schedule_id))
+			line = slot.attendance_schedule_id
+			if line:
+				slot.update({**self._ems_key_vals(line), 'group_id': slot._ems_group_of(line, slot.group_id)})
+
+	@api.depends('subject_id', 'group_id', 'allowed_group_ids')
+	def _compute_allowed_schedule_ids(self):
+		"""The active sessions of the subject taught to the chosen group - or, before one is chosen,
+		to any group the picker allows."""
+		for slot in self:
+			groups = slot.group_id or slot.allowed_group_ids
+			slot.allowed_schedule_ids = self.env['ems.attendance_schedule'].sudo().with_context(active_test=True).search([
+				('attendance_template_id.active', '=', True),
+				('attendance_template_id.subject_id', '=', slot.subject_id.id),
+				('attendance_template_id.group_ids', 'in', groups.ids),
+			]) if slot.subject_id and groups else self.env['ems.attendance_schedule']
 
 	@api.constrains('enrollment_id', 'group_id')
 	def _check_group_level(self):
@@ -149,8 +175,20 @@ class EmsEnrollmentSlot(models.Model):
 		line_id = vals.pop('attendance_schedule_id', False)
 		if line_id:
 			line = self.env['ems.attendance_schedule'].sudo().browse(line_id)
-			vals = {**self._ems_key_vals(line), **{key: value for key, value in vals.items() if key not in ('weekday', 'start_time', 'end_time')}}
+			group = self.env['ems.group'].browse(vals.get('group_id') or self[:1].group_id.id)
+			vals = {
+				**{key: value for key, value in vals.items() if key not in ('weekday', 'start_time', 'end_time')},
+				**self._ems_key_vals(line),
+				'group_id': self._ems_group_of(line, group).id,
+			}
 		return vals
+
+	@api.model
+	def _ems_group_of(self, line, group):
+		"""'group' if 'line' is taught to it, otherwise the line's own group (the first one of a
+		co-taught template)."""
+		groups = line.attendance_template_id.group_ids
+		return group if group in groups else groups[:1]
 
 	@api.model
 	def _ems_snapshot_lines(self, enrollments):

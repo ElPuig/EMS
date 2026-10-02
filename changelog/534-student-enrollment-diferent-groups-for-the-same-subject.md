@@ -14,3 +14,7 @@
 
 ## Consecutive roll-calls copied students from the previous period:
 - Taking attendance for the second of two consecutive periods of the same template copied every student of the first period's roll-call, instead of only this period's own roster. It now copies the previous statuses only for the students of this period's roster, and gives the rest of the roster a fresh line. Found while implementing issue #534 (a student attending only one of the two hours), but it also affected any manual per-session roster change.
+
+## Untranslated messages built inside comprehensions (working-schedules import, send wizards):
+- `_()` finds the user's language by inspecting its caller's frame, which a generator expression (and, on Python 3.10, a list comprehension) runs in a frame of its own. The working-schedules import wizard's unresolved-conflict list ("A vs. B") was therefore always shown in English, on every Python version, and on Python 3.10 so were its room/schedule conflict lines, the missing-classroom warning, the summary's resolved group/teacher lines, and the "Not one of your students" note in the authorization and contact-data request send wizards.
+- All ten calls now use `self.env._`, which takes the language from the environment. The two identical unresolved-conflict checks became one helper, `_raise_if_unresolved`. New test: `test_unresolved_conflict_list_is_translated_into_catalan`.

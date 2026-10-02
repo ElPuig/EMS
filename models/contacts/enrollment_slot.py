@@ -96,7 +96,7 @@ class EmsEnrollmentSlot(models.Model):
 			if slot.group_id not in slot._ems_allowed_groups():
 				raise ValidationError(_(
 					"The group %(group)s can't be used for %(subject)s: only groups of the same level as the "
-					"student's enrollment can.",
+					"student's enrollment, or reinforcement groups, can.",
 					group=slot.group_id.display_name, subject=slot.subject_id.display_name,
 				))
 
@@ -137,15 +137,16 @@ class EmsEnrollmentSlot(models.Model):
 		return res
 
 	def _ems_allowed_groups(self):
-		"""The enrollment's own group, plus every group of its level (any study) - the student's main
-		group's level when the enrollment's group has none (a reinforcement group)."""
+		"""The enrollment's own group, every group of its level (any study) - the student's main
+		group's level when the enrollment's group has none - and every reinforcement group, which
+		belongs to no level or study (the enrollment's own group can be one too)."""
 		self.ensure_one()
 		group = self.enrollment_id.group_id
 		level = group.level_id or self.student_id.main_group_id.level_id
-		allowed = group
+		domain = [('group_type', '=', 'reinforcement')]
 		if level:
-			allowed |= self.env['ems.group'].sudo().search([('level_id', '=', level.id)])
-		return allowed
+			domain = ['|', ('level_id', '=', level.id)] + domain
+		return group | self.env['ems.group'].sudo().search(domain)
 
 	def _ems_matching_lines(self):
 		"""The ACTIVE schedule lines this slot's key points at (normally one)."""

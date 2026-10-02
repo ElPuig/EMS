@@ -27,6 +27,8 @@ class EmsEnrollment(models.Model):
     # its group - see '_ems_attends' and docs/en/developers/contacts/enrollment_slot.md.
     slot_ids = fields.One2many(string="Slots", comodel_name="ems.enrollment.slot", inverse_name="enrollment_id")
     is_custom_schedule = fields.Boolean(string="Custom", compute="_compute_is_custom_schedule")
+    # The student is enrolled (and graded in 'group_id') but attends no class of this subject at all.
+    is_remote = fields.Boolean(string="Not in person", copy=False)
 
     # NOTE: this field is used within ems.base.get_user_is_tutor, which is used to block the opening of the edit form if no permissions.
     #       BUT, at this moment, only admins and secretary are allowed to create manual enrollments.
@@ -47,8 +49,8 @@ class EmsEnrollment(models.Model):
         # opened from the UI never carries it, a placement running on their behalf always does.
         if not self.env.su and "user_is_admin" in fields_list:
             # This happens when opening the form, when storing fires again but field per field
-            if not (res["user_is_admin"] or self.get_user_is_secretary() or self.get_user_is_head_of_studies()):
-                raise UserError(_("Only admins, secretary staff and Head of Studies can create manual enrollments."))
+            if not self.get_user_can_edit_enrollments():
+                raise UserError(_("Only admins and secretary staff can create manual enrollments."))
         return res
 
     @api.depends('student_id')
@@ -86,8 +88,18 @@ class EmsEnrollment(models.Model):
             enrollment._ems_sync_grade_session_add()
         return enrollments
 
+    # What anybody who can't edit enrollments themselves (the tutor and the chiefs above them, see
+    # rule_enrollment_tutor) may still change: which sessions the student attends, never what or in
+    # which group they are enrolled (issue #534). The slots live on ems.enrollment.slot.
+    _CUSTOMIZATION_FIELDS = {'is_remote'}
+
     def write(self, vals):
-        previous = self.env['ems.enrollment.slot']._ems_snapshot_lines(self) if 'group_id' in vals else {}
+        if set(vals) - self._CUSTOMIZATION_FIELDS and not (self.env.su or self.get_user_can_edit_enrollments()):
+            raise UserError(_(
+                "Only admins and secretary staff can change an enrollment. You can still customize "
+                "which sessions the student attends, from the custom schedule on their form."
+            ))
+        previous = self.env['ems.enrollment.slot']._ems_snapshot_lines(self) if {'group_id', 'is_remote'} & set(vals) else {}
         res = super().write(vals)
         self.env['ems.enrollment.slot']._ems_resync(previous)
         return res
@@ -114,11 +126,13 @@ class EmsEnrollment(models.Model):
 
     def _ems_attends(self, group, weekday, start_time, end_time):
         """True if this enrollment makes its student attend the 'group' class at that weekday/time
-        (issue #534): every class of its own group when it follows the group (no slot), only its
-        stored slots when it is custom. THE rule every consumer goes through - schedule-line
+        (issue #534): none when it is not in person ('is_remote'), every class of its own group when
+        it follows the group (no slot), only its stored slots when it is custom. THE rule every consumer goes through - schedule-line
         rosters ('_ems_attended_lines', 'ems.attendance_schedule._ems_expected_students') and the
         student's schedule tab ('res.partner._ems_teaching_attendances')."""
         self.ensure_one()
+        if self.is_remote:
+            return False
         if not self.slot_ids:
             return group == self.group_id
         return any(
@@ -166,8 +180,8 @@ class EmsEnrollment(models.Model):
     def _ems_resync_student_lines(self, student, subject, previous_lines=None):
         """Puts 'student' in every active line their enrollments in 'subject' now make them attend,
         and takes them out of the lines in 'previous_lines' (what they attended before the change)
-        that no longer apply. Only ever touches this student, so a teacher's own manual roster edits
-        for anybody else survive. Shared by every enrollment/slot change (issue #534)."""
+        that no longer apply. Only ever touches this student, so it never rewrites a whole roster.
+        Shared by every enrollment/slot change (issue #534)."""
         current = self._ems_student_subject_enrollments(student, subject)._ems_attended_lines()
         current.student_ids = [(4, student.id)]
         if previous_lines:
@@ -177,7 +191,7 @@ class EmsEnrollment(models.Model):
         """Stores the slots the enrollment follows right now (its group's), so customizing starts
         from what the student already attends and no roster changes."""
         Slot = self.env['ems.enrollment.slot']
-        for enrollment in self.filtered(lambda enrollment: not enrollment.slot_ids):
+        for enrollment in self.filtered(lambda enrollment: not enrollment.slot_ids and not enrollment.is_remote):
             lines = enrollment._ems_attended_lines()
             Slot.create([
                 {'enrollment_id': enrollment.id, 'group_id': enrollment.group_id.id, **Slot._ems_key_vals(line)}
@@ -188,6 +202,13 @@ class EmsEnrollment(models.Model):
 
     def action_follow_group(self):
         self.slot_ids.unlink()
+        self.filtered('is_remote').write({'is_remote': False})
+
+    def action_set_remote(self):
+        """Not in person: the student attends no class of the subject, but stays enrolled (and
+        graded) in it."""
+        self.slot_ids.unlink()
+        self.write({'is_remote': True})
 
     @api.model
     def _ems_move_group(self, student, old_group, new_group):
@@ -218,7 +239,10 @@ class EmsEnrollment(models.Model):
             already_in_new_group = Enrollment.search_count([
                 ('student_id', '=', student.id), ('group_id', '=', new_group.id), ('subject_id', '=', subject.id)])
             if not already_in_new_group:
-                new_enrollment = Enrollment.create({'student_id': student.id, 'group_id': new_group.id, 'subject_id': subject.id})
+                new_enrollment = Enrollment.create({
+                    'student_id': student.id, 'group_id': new_group.id, 'subject_id': subject.id,
+                    'is_remote': enrollment.is_remote,
+                })
                 if enrollment.slot_ids:
                     # Issue #534: a custom enrollment keeps its slots - they don't depend on the
                     # student's main group.

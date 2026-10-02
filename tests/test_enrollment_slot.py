@@ -1,6 +1,6 @@
 from datetime import date
 
-from odoo.exceptions import AccessError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
 from odoo.addons.ems.models.shared.attendance_mixin import EMS_BYPASS_TEMPLATE_LOCK_KEY
@@ -186,6 +186,53 @@ class TestEnrollmentSlot(EnrollmentSlotCase):
         ])
         self.assertEqual(found.ids, [self.line_c_mon.id, self.line_c_tue.id, friday.id])
 
+    def test_slot_with_a_reinforcement_group(self):
+        """A reinforcement group belongs to no level, but it is a valid place to attend a subject."""
+        reinforcement = self.env['ems.group'].create({'group_type': 'reinforcement', 'name': 'TSLT Reinforcement'})
+        (line_r,) = _create_template(self, reinforcement, self.study, [('3', 11.0, 12.0)])
+        self.enrollment.action_customize_slots()
+
+        self.assertIn(reinforcement, self.enrollment.slot_ids[:1].allowed_group_ids)
+        self._slot(line_r, reinforcement)
+        self.assertIn(self.student, line_r.student_ids)
+
+    def test_not_in_person_attends_no_session(self):
+        self.enrollment.action_customize_slots()
+
+        self.enrollment.action_set_remote()
+
+        self.assertTrue(self.enrollment.is_remote)
+        self.assertFalse(self.enrollment.slot_ids)
+        self.assertFalse(self._lines_of(self.student))
+        self.assertTrue(self.student.enrollment_is_customized)
+        (self.line_c_mon | self.line_c_tue).reload_students()
+        self.assertFalse(self._lines_of(self.student))
+
+    def test_not_in_person_back_to_the_group(self):
+        self.enrollment.action_set_remote()
+
+        self.enrollment.action_follow_group()
+
+        self.assertFalse(self.enrollment.is_remote)
+        self.assertEqual(self._lines_of(self.student), self.line_c_mon | self.line_c_tue)
+
+    def test_dropping_the_custom_schedule_also_clears_not_in_person(self):
+        self.student.custom_schedule = True
+        self.enrollment.action_set_remote()
+
+        self.student.action_drop_custom_schedule()
+
+        self.assertFalse(self.enrollment.is_remote)
+        self.assertEqual(self._lines_of(self.student), self.line_c_mon | self.line_c_tue)
+
+    def test_main_group_change_keeps_not_in_person(self):
+        self.enrollment.action_set_remote()
+
+        self.env['ems.enrollment']._ems_move_group(self.student, self.group_c, self.group_d)
+
+        self.assertTrue(self.student.enrollment_ids.is_remote)
+        self.assertFalse(self._lines_of(self.student))
+
     def test_slot_with_a_group_of_another_level_is_rejected(self):
         self.enrollment.action_customize_slots()
         with self.assertRaises(ValidationError):
@@ -345,6 +392,16 @@ class TestEnrollmentSlotAccess(EnrollmentSlotCase):
         cls.secretary = create_role_user(cls, 'secretary', 'test_secretary_enrollment_slot')
         cls.teacher_user = create_role_user(cls, 'teacher', 'test_teacher_enrollment_slot')
         create_role_employee(cls, cls.teacher_user)
+        # The tutor of groups C and D (so moving a student between them keeps them in scope).
+        cls.tutor_user = create_role_user(cls, 'tutor', 'test_tutor_enrollment_slot')
+        (cls.group_c | cls.group_d).tutor_id = create_role_employee(cls, cls.tutor_user)
+        cls.other_tutors_student = cls.env['res.partner'].create({
+            'name': '0000 TSLT Other Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': cls.group_other_study.id,
+        })
+        cls.other_tutors_enrollment = cls.env['ems.enrollment'].create({
+            'student_id': cls.other_tutors_student.id, 'group_id': cls.group_other_study.id, 'subject_id': cls.subject.id,
+        })
 
     def test_secretary_can_customize(self):
         self.enrollment.with_user(self.secretary).action_customize_slots()
@@ -354,6 +411,76 @@ class TestEnrollmentSlotAccess(EnrollmentSlotCase):
         })
 
         self.assertIn(self.student, self.line_d_wed.student_ids)
+
+    def test_tutor_customizes_but_does_not_enroll(self):
+        """Issue #534: customizing which sessions a student attends is the tutor's too; what they
+        study and the group they are graded in (the enrollment itself) is not."""
+        enrollment = self.enrollment.with_user(self.tutor_user)
+        student = self.student.with_user(self.tutor_user)
+        self.assertTrue(student.can_customize_schedule)
+        self.assertFalse(student.can_edit_enrollments)
+
+        enrollment.action_customize_slots()
+        self.env['ems.enrollment.slot'].with_user(self.tutor_user).create({
+            'enrollment_id': self.enrollment.id, 'attendance_schedule_id': self.line_d_wed.id,
+        })
+        self.assertIn(self.student, self.line_d_wed.student_ids)
+        enrollment.action_set_remote()
+        self.assertFalse(self._lines_of(self.student))
+        enrollment.action_follow_group()
+        self.assertEqual(self._lines_of(self.student), self.line_c_mon | self.line_c_tue)
+
+        with self.assertRaises(UserError):
+            enrollment.write({'group_id': self.group_d.id})
+        with self.assertRaises(AccessError):
+            enrollment.unlink()
+        with self.assertRaises(AccessError):
+            self.env['ems.enrollment'].with_user(self.tutor_user).create({
+                'student_id': self.classmate.id, 'group_id': self.group_d.id, 'subject_id': self.subject.id,
+            })
+
+    def test_tutor_cannot_customize_another_tutors_student(self):
+        self.assertFalse(self.other_tutors_student.with_user(self.tutor_user).can_customize_schedule)
+        with self.assertRaises(AccessError):
+            self.other_tutors_enrollment.with_user(self.tutor_user).action_set_remote()
+
+    def test_plain_teacher_can_neither_edit_nor_customize(self):
+        student = self.student.with_user(self.teacher_user)
+        self.assertFalse(student.can_edit_enrollments)
+        self.assertFalse(student.can_customize_schedule)
+
+    def test_secretary_can_edit_enrollments(self):
+        self.assertTrue(self.student.with_user(self.secretary).can_edit_enrollments)
+        self.enrollment.with_user(self.secretary).write({'group_id': self.group_d.id})
+        self.assertEqual(self.enrollment.group_id, self.group_d)
+
+    def test_tutor_moves_a_student_only_to_an_equivalent_group(self):
+        """Same study, course and shift (SMX1A -> SMX1B): moving the main group moves the student's
+        enrollments too, so anything else is the secretary's office's."""
+        student = self.student.with_user(self.tutor_user)
+        self.assertEqual(student.allowed_main_group_ids, self.group_c | self.group_d)
+        with self.assertRaises(UserError):
+            student.write({'main_group_id': self.group_other_study.id})
+
+        student.write({'main_group_id': self.group_d.id})
+
+        self.assertEqual(self.student.main_group_id, self.group_d)
+        self.assertEqual(self.student.enrollment_ids.group_id, self.group_d)
+
+    def test_roster_cannot_be_edited_by_hand(self):
+        """The roster follows the enrollments: even an admin edits it through the student's custom
+        schedule, never directly on the session."""
+        admin = create_role_user(self, 'academic_admin', 'test_admin_enrollment_slot_roster')
+        with self.assertRaises(UserError) as error:
+            self.line_c_mon.with_user(admin).with_context(lang='ca_ES').write({'student_ids': [(3, self.student.id)]})
+        self.assertIn('vénen de les seves matrícules', str(error.exception))
+
+    def test_only_admins_reload_students(self):
+        admin = create_role_user(self, 'academic_admin', 'test_admin_enrollment_slot_reload')
+        self.line_c_mon.with_user(admin).reload_students()
+        with self.assertRaises(AccessError) as error:
+            self.line_c_mon.with_user(self.teacher_user).reload_students()
+        self.assertIn('Only administrators', str(error.exception))
 
     def test_plain_teacher_cannot_create_slots(self):
         self.enrollment.action_customize_slots()

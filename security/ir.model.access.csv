@@ -116,7 +116,7 @@ ems.access_ems_teaching_teacher,ems.access_ems_teaching_teacher,ems.model_ems_te
 ems.access_ems_teaching_secretary,ems.access_ems_teaching_secretary,ems.model_ems_teaching,ems.group_secretary,1,0,0,0
 
 ems.access_ems_enrollment_admin,ems.access_ems_enrollment_admin,ems.model_ems_enrollment,ems.group_academic_admin,1,1,1,1
-ems.access_ems_enrollment_teacher,ems.access_ems_enrollment_teacher,ems.model_ems_enrollment,ems.group_teacher,1,1,1,1
+ems.access_ems_enrollment_teacher,ems.access_ems_enrollment_teacher,ems.model_ems_enrollment,ems.group_teacher,1,1,0,0
 ems.access_ems_enrollment_secretary,ems.access_ems_enrollment_secretary,ems.model_ems_enrollment,ems.group_secretary,1,1,1,1
 ems.access_ems_enrollment_slot_admin,ems.access_ems_enrollment_slot_admin,ems.model_ems_enrollment_slot,ems.group_academic_admin,1,1,1,1
 ems.access_ems_enrollment_slot_teacher,ems.access_ems_enrollment_slot_teacher,ems.model_ems_enrollment_slot,ems.group_teacher,1,1,1,1

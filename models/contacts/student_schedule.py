@@ -32,12 +32,20 @@ class ems_student_schedule(models.Model):
 
     # Issue #534: a student attending a subject split across several groups. The toggle only shows
     # the custom-schedule tools on the form; switching it off makes every enrollment follow its group
-    # again (see 'write'). The slots themselves live on ems.enrollment.slot.
+    # again, in person (see 'write'). The slots themselves live on ems.enrollment.slot.
     custom_schedule = fields.Boolean(string="Custom schedule",
         help="Attend some subjects only in specific sessions, possibly with other groups of the same level.")
     enrollment_slot_ids = fields.One2many(string="Slots", comodel_name="ems.enrollment.slot", inverse_name="student_id")
     enrollment_slot_broken_count = fields.Integer(string="Slots no longer in the schedule",
         compute="_compute_enrollment_slot_broken_count")
+    enrollment_is_customized = fields.Boolean(string="Has customized subjects",
+        compute="_compute_enrollment_is_customized")
+    # Issue #534 permissions, for the Studies tab: adding/removing enrollments is the secretary's
+    # office and academic administration's only; customizing which sessions a student attends is
+    # theirs too, plus the tutor's and every chief above them (tutor_scope_user_ids). The server
+    # enforces the same split (ACL, rule_enrollment_tutor, ems.enrollment.write()).
+    can_edit_enrollments = fields.Boolean(string="Can edit enrollments", compute="_compute_enrollment_permissions")
+    can_customize_schedule = fields.Boolean(string="Can customize the schedule", compute="_compute_enrollment_permissions")
 
     # A real dependency on 'resource.calendar.attendance' itself can't be expressed (it's a
     # cross-model search, same structural limitation ems.group._compute_schedule_attendance_ids
@@ -77,10 +85,24 @@ class ems_student_schedule(models.Model):
             student.enrollment_slot_broken_count = len(
                 student.enrollment_slot_ids.filtered(lambda slot: slot.state == 'broken'))
 
+    @api.depends('tutor_id')
+    @api.depends_context('uid')
+    def _compute_enrollment_permissions(self):
+        can_edit = self.env['ems.base'].get_user_can_edit_enrollments()
+        for student in self:
+            student.can_edit_enrollments = can_edit
+            student.can_customize_schedule = can_edit or self.env['ems.base'].user_acts_as_tutor(student.tutor_id)
+
+    @api.depends('enrollment_ids.slot_ids', 'enrollment_ids.is_remote')
+    def _compute_enrollment_is_customized(self):
+        for student in self:
+            student.enrollment_is_customized = any(
+                enrollment.slot_ids or enrollment.is_remote for enrollment in student.enrollment_ids)
+
     def write(self, vals):
         res = super().write(vals)
         if 'custom_schedule' in vals and not vals['custom_schedule']:
-            self.enrollment_slot_ids.unlink()
+            self.enrollment_ids.action_follow_group()
         return res
 
     def action_drop_custom_schedule(self):

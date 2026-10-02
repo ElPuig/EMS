@@ -36,7 +36,7 @@ rewrites these rows from a teacher's live-edited or imported timetable
 
 ## Locking (the manual "Edit" button was removed 2026-08-11; extended to an unconditional field lock the same day)
 
-**As of 2026-08-11, every field on this model except `student_ids` is unconditionally locked** via
+**As of 2026-08-11, every field on this model except `student_ids` is unconditionally locked** (and `student_ids` itself is sync-only since 18.0.0.33.0, see below) via
 a `write()` guard (`_LOCKED_FIELDS = {'active', 'weekday', 'start_time', 'end_time', 'space_id',
 'attendance_template_id', 'notes'}`) - the same `EMS_BYPASS_TEMPLATE_LOCK_KEY` mechanism
 `ems.attendance_template` uses (see that doc's "Access control" section). `security/
@@ -80,23 +80,35 @@ full picture.
 
 ## `student_ids`: the roster, and who keeps it current
 
-The roster is this specific weekly slot's own (a given day/time can genuinely differ - someone
-sitting in, someone excused), which is why it lives here rather than on the template. Three things
-write it, and only the third is manual:
+The roster is this specific weekly slot's own, which is why it lives here rather than on the
+template. It always follows the students' enrollments, custom schedules included
+(`ems.enrollment._ems_attends`, issue #534 - see
+[`../contacts/enrollment_slot.md`](../contacts/enrollment_slot.md)): a student split across two
+groups, or not attending a subject in person, is expressed on their own form, not on the session.
 
-- `fill_students()` - resets the line from the current `(subject_id, group_ids)` enrollments of its
-  template. Called by the calendar sync for genuinely **new** slots only (see
-  [`attendance_template.md`](attendance_template.md)); a slot that already existed keeps whatever
-  roster it has, so a per-line customization survives a resync.
-- `ems.enrollment.create()`/`unlink()` - incremental add/remove of a single student across every
-  matching line, without touching anybody else's roster (see
-  [`../contacts/enrollment.md`](../contacts/enrollment.md#createunlink--keeping-two-side-systems-in-sync)).
-  **This cascade runs under `sudo()` since issue #435**: the models involved are access-restricted
-  in ways `ems.enrollment` is not, so before that fix the roster was only updated when an academic
-  admin happened to be the one making the enrollment change.
-- The **"Reload students"** button (`reload_students()`) - the manual escape hatch: wipes the line's
-  roster and refills it from current enrollments. It is what an admin/teacher reaches for when a
-  roster has drifted, and the only supported way to discard a per-line customization.
+**It is not editable by hand, admin included.** `write()` rejects `student_ids` with a `UserError`
+unless the write runs under `sudo()` or with `EMS_ROSTER_SYNC_KEY` in the context, and the line's
+form shows the list read-only. A hand edit used to contradict the student's enrollment without any
+trace on the student's form, and was silently lost on the next reload. A one-off change for a
+single day (a student who doesn't sit that day's exam) is still made on that day's roll-call
+(`ems.attendance_session_line`), which is a different model. Writers:
+
+- `fill_students()` - rebuilds the line from `_ems_expected_students()`. Called by the calendar sync
+  for genuinely **new** slots (see [`attendance_template.md`](attendance_template.md)), so a resync
+  honours custom schedules with no hook of its own.
+- `ems.enrollment._ems_resync_student_lines()` - incremental add/remove of a single student on
+  every enrollment or slot change, without touching anybody else's roster, under `sudo()` (issue
+  #435: the models involved are access-restricted in ways `ems.enrollment` is not).
+- A student's withdrawal (`res.partner._ems_clear_operational_records`, `sudo()`).
+- The **"Reload students"** button (`reload_students()`) - an academic-admin repair tool only
+  (button `groups=`, and an `AccessError` for anybody else): it just runs `fill_students()`, so it
+  can only put a roster back in line with the enrollments.
+
+Hand edits made before this (18.0.0.33.0) were turned into custom schedules by
+`migrations/18.0.0.33.0/post-migrate.py`, so nobody's sessions changed with the upgrade: a student
+taken out of every session of a subject became "not in person", one moved between groups got
+slots for exactly the sessions they were in. The same migration removed the non-student partners
+some rosters carried (Odoo's own archived "Default User Template", added by hand by mistake).
 
 ---
 

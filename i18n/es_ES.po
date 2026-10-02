@@ -5518,12 +5518,6 @@ msgstr "Solo los administradores pueden cambiar el estado de la evaluación."
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/contacts/enrollment.py:0
-msgid "Only admins, secretary staff and Head of Studies can create manual enrollments."
-msgstr "Solo los administradores, el personal de secretaría y la Jefatura de Estudios pueden crear matrículas manuales."
-
-#. module: ems
-#. odoo-python
 #: code:addons/ems/models/communications/notice.py:0
 msgid "Only draft notices can be sent."
 msgstr ""
@@ -17345,7 +17339,6 @@ msgstr "Visibles solo para el tutor/a del alumno/a, los cargos por encima de él
 msgid "Bank Accounts"
 msgstr "Cuentas bancarias"
 
-
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid ""
@@ -19302,8 +19295,8 @@ msgstr "Franjas que ya no están en el horario"
 #: code:addons/ems/models/contacts/enrollment_slot.py:0
 msgid ""
 "The group %(group)s can't be used for %(subject)s: only groups of the same "
-"level as the student's enrollment can."
-msgstr "El grupo %(group)s no se puede usar para %(subject)s: solo se pueden usar los grupos del mismo nivel que la matrícula del alumno."
+"level as the student's enrollment, or reinforcement groups, can."
+msgstr "El grupo %(group)s no se puede usar para %(subject)s: solo se pueden usar los grupos del mismo nivel que la matrícula del alumno o los grupos de refuerzo."
 
 #. module: ems
 #. odoo-python
@@ -19354,3 +19347,88 @@ msgstr "Sesiones permitidas"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__template_label
 msgid "Template name"
 msgstr "Nombre de la plantilla"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__enrollment_is_customized
+#: model:ir.model.fields,field_description:ems.field_res_users__enrollment_is_customized
+msgid "Has customized subjects"
+msgstr "Tiene asignaturas personalizadas"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment__is_remote
+msgid "Not in person"
+msgstr "No presencial"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Not in person: attends no class of this subject"
+msgstr "No presencial: no asiste a ninguna clase de esta asignatura"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_schedule.py:0
+msgid "Only administrators can reload the students of a session."
+msgstr "Solo los administradores pueden recargar los alumnos de una sesión."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form
+msgid ""
+"The student list will be rebuilt from the students' current enrollments, "
+"custom schedules included. Do you wish to continue?"
+msgstr "La lista de alumnos se reconstruirá a partir de las matrículas actuales de los alumnos, incluidos los horarios personalizados. ¿Desea continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"The student will attend no session of this subject (they stay enrolled and "
+"graded in it). Continue?"
+msgstr "El alumno no asistirá a ninguna sesión de esta asignatura (sigue matriculado y evaluado en ella). ¿Continuar?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_schedule.py:0
+msgid ""
+"The students of a session come from their enrollments. To change which "
+"sessions a student attends, use the custom schedule on the student's form."
+msgstr "Los alumnos de una sesión vienen de sus matrículas. Para cambiar a qué sesiones asiste un alumno, usa el horario personalizado de su ficha."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__allowed_main_group_ids
+#: model:ir.model.fields,field_description:ems.field_res_users__allowed_main_group_ids
+msgid "Allowed main groups"
+msgstr "Grupos principales permitidos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_customize_schedule
+#: model:ir.model.fields,field_description:ems.field_res_users__can_customize_schedule
+msgid "Can customize the schedule"
+msgstr "Puede personalizar el horario"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_edit_enrollments
+#: model:ir.model.fields,field_description:ems.field_res_users__can_edit_enrollments
+msgid "Can edit enrollments"
+msgstr "Puede editar la matrícula"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/enrollment.py:0
+msgid ""
+"Only admins and secretary staff can change an enrollment. You can still "
+"customize which sessions the student attends, from the custom schedule on "
+"their form."
+msgstr "Solo los administradores y el personal de secretaría pueden cambiar una matrícula. Sí puedes personalizar a qué sesiones asiste el alumno, desde el horario personalizado de su ficha."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/enrollment.py:0
+msgid "Only admins and secretary staff can create manual enrollments."
+msgstr "Solo los administradores y el personal de secretaría pueden crear matrículas manuales."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid ""
+"You can only move %(student)s to a group of the same study, course and shift"
+" as %(group)s. Ask the secretary's office for any other change."
+msgstr "Solo puedes mover a %(student)s a un grupo del mismo estudio, curso y turno que %(group)s. Pide a secretaría cualquier otro cambio."

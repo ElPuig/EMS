@@ -36,15 +36,15 @@ flowchart TD
     D -- no --> E["raise UserError"]
 ```
 
-Only users in `ems.group_academic_admin` or `ems.group_secretary` may open a blank `ems.enrollment` form at all — tutors are expected to enroll a student in a subject from the **student's own form** (the embedded one2many on `res.partner`, see [`contact.md`](contact.md)), not from this model's standalone list/menu. The check happens in `default_get` rather than via `ir.model.access.csv`/`ir.rule` because the "New" button itself can't easily be hidden per-role from the standalone action (see the method's own `TODO`) — tutors do have model-level create rights (needed for the embedded one2many to work), so the guard has to fire when the blank form actually loads.
+Only users in `ems.group_academic_admin` or `ems.group_secretary` may open a blank `ems.enrollment` form at all. Since 18.0.0.33.0 that is also all the model's access rights allow (see [Access Control](#access-control)): nobody else holds create rights any more, so this guard is now a friendlier message in front of the ACL rather than the only barrier. It stays in `default_get` because the standalone action's "New" button can't easily be hidden per role (see the method's own `TODO`).
 
-**Extended to secretary 2026-09-07 (secretary report: could delete a manually-added line from a student's form but never create one).** The guard originally only exempted `user_is_admin` (`ems.group_academic_admin`); the error message itself had always claimed a tutor could also enroll from the student's form, which was never actually true for this guard (tutors have never been exempted here — `ems.base.get_user_is_tutor()` is checked nowhere in this method). Fixed by adding `ems.base.get_user_is_secretary()` (a new companion to `get_user_is_admin()`, replacing the inline `self.env.user.has_group('ems.group_secretary')` already duplicated twice in `contact.py`) and rewording the message to no longer promise tutor access. Tutors remain unaffected — see "Deliberately excluded" note in [`contact.md`](contact.md) for why the embedded one2many is actually `readonly` for a tutor of the student being edited anyway.
+**Extended to secretary 2026-09-07 (secretary report: could delete a manually-added line from a student's form but never create one).** The guard originally only exempted `user_is_admin` (`ems.group_academic_admin`); the error message itself had always claimed a tutor could also enroll from the student's form, which was never actually true for this guard (tutors have never been exempted here — `ems.base.get_user_is_tutor()` is checked nowhere in this method). Fixed by adding `ems.base.get_user_is_secretary()` (a new companion to `get_user_is_admin()`, replacing the inline `self.env.user.has_group('ems.group_secretary')` already duplicated twice in `contact.py`) and rewording the message to no longer promise tutor access. 
 
 **The `env.su` escape hatch — added 2026-09-01, after the guard broke enrollment confirmation in production.** `create()` builds its values through `_add_missing_default_values()`, which calls `default_get()`, so a guard living there fires on **every** creation, not only on the ones a human starts from a form. That is exactly what happened once the 26-27 transition flipped the current course: from that moment `sale.order._ems_placement_is_individual()` is true for every pending enrollment, so confirming one runs `_ems_apply_destination_placement()` — which creates the subject enrollments — and the confirmation died with *"Only admins can create manual enrollments"* instead of placing the student.
 
 The placement already ran the creation under `sudo()`, which was believed to be enough. It is not: **`sudo()` does not turn `env.user` into the superuser, it only sets `env.su`**. `get_user_is_admin()` reads `self.env.user.has_group(...)`, so under `sudo()` it still answers for the real user behind the request — a student confirming from the portal (`controllers/portal_enrollment.py`, `enrollment.sudo().action_confirm()`), or the secretary confirming from the backend. Neither is an academic admin, and neither was ever meant to be blocked here.
 
-`env.su` is what tells the two situations apart, and it is the only signal that does: a form opened from the UI never carries it, a placement running on somebody's behalf always does. Covered by `tests/test_enrollment_placement.py::test_placement_runs_for_whoever_confirms` (portal user and secretary) and `::test_manual_enrollment_is_still_blocked_for_a_tutor` (the guard itself, unchanged for manual creation).
+`env.su` is what tells the two situations apart, and it is the only signal that does: a form opened from the UI never carries it, a placement running on somebody's behalf always does. Covered by `tests/test_enrollment_placement.py::test_placement_runs_for_whoever_confirms` (portal user and secretary) and `::test_manual_enrollment_is_still_blocked_for_a_tutor` (a tutor creating one by hand: refused by the ACL since 18.0.0.33.0).
 
 ### `_compute_inuse_subject_ids` / `_compute_display_name`
 
@@ -136,10 +136,41 @@ Covered by `tests/test_enrollment.py` (`_ems_move_group` directly: repoint, unto
 
 ## Access Control
 
+**Who does what (issue #534, 18.0.0.33.0):** adding, removing or changing an enrollment (its subject or group: what the student studies and where they are graded) is the secretary's office and academic administration's only. The tutor, and every chief above them in the hierarchy (`hr.employee.tutor_scope_user_ids`: department/seminar chief, Head or Deputy Head of Studies of that branch, Director), customizes which sessions their students attend: the `is_remote` flag here and the `ems.enrollment.slot` rows (see [`enrollment_slot.md`](enrollment_slot.md)).
+
+> **Note:** until 18.0.0.32.0 a tutor could add and remove their students' enrollments through the server (the student's form already showed them read-only), and Head of Studies/Deputy/Director could do it for every student (issue #466). Both are restricted since 18.0.0.33.0.
+
 ### `ir.model.access.csv`
 
 | Role | Read | Write | Create | Delete |
 |------|:----:|:-----:|:------:|:------:|
+| Academic admin | ✓ | ✓ | ✓ | ✓ |
+| Secretary | ✓ | ✓ | ✓ | ✓ |
+| Teacher (and every role implying it: tutor, chiefs, Head of Studies, Director) | ✓ | ✓ | — | — |
+| Student data reader | ✓ | — | — | — |
+
+Create/delete are taken away at the ACL level on purpose: a record rule can't remove a right, a rule with `perm_create` off is simply ignored for create (and if no rule is left, nothing restricts it).
+
+### `security/rules/contacts.xml` record rules
+
+| Rule | Groups | Domain | Write |
+|------|--------|--------|:-----:|
+| `rule_enrollment_admin` | Academic admin | `[]` (unrestricted) | ✓ |
+| `rule_enrollment_secretary` | Secretary | `[]` (unrestricted) | ✓ |
+| `rule_enrollment_teacher` | Teacher | `[]` (read-only) | — |
+| `rule_enrollment_tutor` | Teacher (tutor scope) | `student_id.tutor_id.tutor_scope_user_ids = user.id` | ✓ (customization only, see below) |
+| `rule_enrollment_head_of_studies` | Head of Studies | `[]` (read-only) | — |
+
+### Python-level checks
+
+- `write()`: anybody who isn't academic admin or secretary (`ems.base.get_user_can_edit_enrollments()`) may only write `_CUSTOMIZATION_FIELDS` (`is_remote`), else `UserError`. `sudo()` cascades (main group change, study change, placement, withdrawal, convalidation) are unaffected.
+- `default_get()`: the manual-creation guard (above) now lets through academic admin and secretary only.
+- `res.partner._ems_check_main_group_change()`: changing a student's main group moves their enrollments (`_ems_move_group`), so anybody else may only move them to an equivalent group - same study, course and shift (SMX1A ↔ SMX1B, not SMX1C nor DAM2B); the form offers only those (`allowed_main_group_ids`). Clearing the group (withdrawal, graduation) is not a move and isn't checked.
+- `res.partner.can_edit_enrollments` / `can_customize_schedule` (non-stored, `depends_context('uid')`) drive the Studies tab: the enrollment list is read-only without the first, the custom-schedule tools (toggle, row buttons, slot list) need the second. The row buttons stay clickable on a read-only list.
+
+Tests: `tests/test_enrollment.py` (Head of Studies blocked), `tests/test_enrollment_slot.py::TestEnrollmentSlotAccess` (tutor customizes but doesn't enroll, another tutor's student, plain teacher, secretary, equivalent main groups), `tests/test_enrollment_slot_tour.py::test_tutor_customizes_without_editing_enrollments_tour`.
+
+------|:----:|:-----:|:------:|:------:|
 | Academic admin | ✓ | ✓ | ✓ | ✓ |
 | Teacher | ✓ | ✓ | ✓ | ✓ |
 | Secretary | ✓ | ✓ | ✓ | ✓ |

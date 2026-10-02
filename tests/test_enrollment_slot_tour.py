@@ -1,6 +1,6 @@
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_role_user
+from .common import create_role_employee, create_role_user
 from .test_enrollment_slot import create_enrollment_slot_fixture
 
 
@@ -16,6 +16,9 @@ class TestEnrollmentSlotTour(HttpCase):
         # Secretary: the least-privileged role that edits any student's enrollment.
         # create_role_user() sets 'lang': 'en_US' - the tour matches "Studies" and weekday names.
         create_role_user(cls, 'secretary', 'test_secretary_enrollment_slot_tour')
+        # The tutor of the student's group: customizes, but can't add or remove enrollments.
+        tutor = create_role_user(cls, 'tutor', 'test_tutor_enrollment_slot_tour')
+        cls.group_c.tutor_id = create_role_employee(cls, tutor)
 
     def test_split_a_subject_between_two_groups_tour(self):
         self.start_tour("/odoo", "ems_enrollment_slot", login="test_secretary_enrollment_slot_tour")
@@ -23,3 +26,9 @@ class TestEnrollmentSlotTour(HttpCase):
         self.assertTrue(self.student.custom_schedule)
         lines = self.env['ems.attendance_schedule'].search([('student_ids', 'in', self.student.id)])
         self.assertEqual(lines, self.line_c_mon | self.line_d_wed)
+
+    def test_tutor_customizes_without_editing_enrollments_tour(self):
+        self.start_tour("/odoo", "ems_enrollment_slot_tutor", login="test_tutor_enrollment_slot_tour")
+
+        self.assertTrue(self.enrollment.is_remote)
+        self.assertFalse(self.env['ems.attendance_schedule'].search([('student_ids', 'in', self.student.id)]))

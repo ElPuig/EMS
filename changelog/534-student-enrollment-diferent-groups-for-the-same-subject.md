@@ -10,6 +10,22 @@
 - Same access as the enrollments themselves (secretary, Head of Studies and admin edit any student; a tutor edits their tutees; teachers read).
 - Docs: `docs/en/developers/contacts/enrollment_slot.md` (new), `enrollment.md` updated.
 
+## Not in person (issue #534):
+- A third per-subject option next to "customize" and "follow the group" on the student's form: the student stays enrolled and graded in the subject but attends none of its sessions (no roll-call lines, nothing on their Schedule tab). Not-in-person subjects are shown muted.
+- Reinforcement groups (which belong to no level) can now be used in a custom schedule too.
+
+# Changes
+
+## Session rosters are no longer edited by hand (issue #534):
+- The students of a weekly session now always come from the enrollments, custom schedules included, for everybody, admins included: a hand edit used to contradict the student's enrollment without any trace on their form, and was lost on the next reload. A one-off change for a single day is still made on that day's roll-call.
+- "Reload students" is now an admin-only repair tool; it rebuilds the list from the enrollments.
+- The 18.0.0.33.0 migration turns every hand edit still in place into the equivalent custom schedule (slots, or not in person), so nobody's sessions change with the upgrade, and removes the non-student entries some rosters carried by mistake. Tried on a copy of production: 39 students' subjects converted, every roster identical before and after except 14 entries of Odoo's own "Default User Template" partner.
+
+## Who edits enrollments and who customizes sessions (issue #534):
+- Adding, removing or changing a student's enrollments (subject or group) is now the secretary's office and academic administration's only, enforced on the server too: the teacher access rights no longer include creating or deleting enrollments, and anybody else may only change the "not in person" flag. Head/Deputy Head of Studies and Director lose the centre-wide add/remove they had since issue #466, and a tutor can no longer do it through the server either (the form already showed it read-only).
+- The tutor, and every chief above them in the hierarchy, customizes their students' sessions: custom schedule, not in person and back to the group, from the student's form.
+- A tutor (or chief) can still change a student's main group, but only to an equivalent one - same study, course and shift (SMX1A to SMX1B, not SMX1C nor DAM2B) - since it moves all of the student's enrollments; the form offers only those groups.
+
 # Fixes
 
 ## Consecutive roll-calls copied students from the previous period:

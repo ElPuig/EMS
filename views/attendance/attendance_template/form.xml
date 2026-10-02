@@ -62,7 +62,7 @@
                                      plans/calendar_driven_attendance_templates.md, point 1) is NOT an
                                      inline column here - a full class roster (25-30 students) doesn't
                                      fit a list row; open each line's own form (action_open_form) to
-                                     manage its 'Students' tab instead. -->
+                                     see its 'Students' tab instead (read-only, see that form). -->
                                 <!-- No manual add/remove (create="0" delete="0") - a line only ever
                                      comes into existence, or goes away, as a consequence of syncing the
                                      teacher's calendar (2026-08-11, same calendar-lock refinement as the

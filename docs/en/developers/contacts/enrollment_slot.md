@@ -10,11 +10,13 @@ A student can attend one subject split across several groups, e.g. 2 h with SMX1
 
 ### Following the group or custom: one rule
 
-Only **custom** enrollments store slots. An enrollment with no slot rows **follows its group**, exactly as before this feature. One predicate, `ems.enrollment._ems_attends(group, weekday, start_time, end_time)`, answers "does this enrollment make its student attend that class?" for both cases, and every consumer goes through it:
+Only **custom** enrollments store slots. An enrollment with no slot rows **follows its group**, exactly as before this feature. An enrollment marked **not in person** (`is_remote`) attends no session at all, but stays enrolled and graded in its group. One predicate, `ems.enrollment._ems_attends(group, weekday, start_time, end_time)`, answers "does this enrollment make its student attend that class?" for both cases, and every consumer goes through it:
 
 ```mermaid
 flowchart TD
-    A["enrollment._ems_attends(group, weekday, start, end)"] --> B{"slot_ids?"}
+    A["enrollment._ems_attends(group, weekday, start, end)"] --> R{"is_remote?"}
+    R -- "yes (not in person)" --> N["never"]
+    R -- no --> B{"slot_ids?"}
     B -- "no (follows the group)" --> C["group == enrollment.group_id\n(any weekday/time)"]
     B -- "yes (custom)" --> D["a stored slot has exactly\nthat group, weekday and times"]
 ```
@@ -33,7 +35,7 @@ Deliberately not stored for the enrollments that follow their group (decided wit
 |-------|------|-------|
 | `enrollment_id` | `Many2one → ems.enrollment` | Required, `ondelete='cascade'`; its `display_name` is the subject's |
 | `student_id`, `subject_id` | `Many2one`, related to the enrollment, stored | For record rules, search and grouping |
-| `group_id` | `Many2one → ems.group` | Required. The enrollment's group or any other group **of the same level** (any study) whose active templates teach the subject |
+| `group_id` | `Many2one → ems.group` | Required. The enrollment's group, any other group **of the same level** (any study), or any reinforcement group (they belong to no level) |
 | `weekday`, `start_time`, `end_time` | Selection, Float, Float | The key. Copied from the schedule line picked in the UI |
 | `attendance_schedule_id` | `Many2one → ems.attendance_schedule`, computed (not stored), editable | The active line currently matching the key (read under `sudo()`). Picking one in the UI copies its key: an onchange fills the key fields, and `create()`/`write()` turn an `attendance_schedule_id` value into the key too, for programmatic callers |
 | `space_id` | `Many2one → ems.space`, computed (not stored) | The room of that line |
@@ -41,11 +43,11 @@ Deliberately not stored for the enrollments that follow their group (decided wit
 | `allowed_group_ids` | `Many2many → ems.group`, computed | Domain of `group_id`: the groups of the allowed level that have an active class of the subject (stricter than the level constraint, see below) |
 | `allowed_schedule_ids` | `Many2many → ems.attendance_schedule`, computed | Domain of `attendance_schedule_id`: the subject's active sessions taught to the chosen group, or to any allowed group while none is chosen. Picking a session also sets `group_id` to that session's group (onchange, and `create()`/`write()` for programmatic callers), so a row can never point at a class that doesn't exist |
 
-`_sql_constraints`: unique `(enrollment_id, group_id, weekday, start_time)`. Python constraints: `group_id` is the enrollment's group or a group of its level (the student's main group's level when the enrollment's group has none, e.g. a reinforcement group); and the key must match an active line **when it is written** - a slot that stops matching later, because a teacher's schedule changed, turns `broken` instead of blocking that change.
+`_sql_constraints`: unique `(enrollment_id, group_id, weekday, start_time)`. Python constraints: `group_id` is the enrollment's group, a group of its level (the student's main group's level when the enrollment's group has none) or a reinforcement group; and the key must match an active line **when it is written** - a slot that stops matching later, because a teacher's schedule changed, turns `broken` instead of blocking that change.
 
-On `ems.enrollment`: `slot_ids` (One2many), `is_custom_schedule` (computed: has slots), `action_customize_slots()` (stores one slot per line the enrollment currently attends, so customizing starts from what the student has now and changes no roster), `action_follow_group()` (deletes the slots).
+On `ems.enrollment`: `slot_ids` (One2many), `is_custom_schedule` (computed: has slots), `is_remote` ("Not in person"), `action_customize_slots()` (stores one slot per line the enrollment currently attends, so customizing starts from what the student has now and changes no roster), `action_set_remote()` (deletes the slots, sets `is_remote`), `action_follow_group()` (deletes the slots, clears `is_remote`). A main-group change carries `is_remote` to the new enrollment.
 
-On `res.partner` (`models/contacts/student_schedule.py`): `custom_schedule` (Boolean, "Custom schedule": only shows the custom-schedule tools; writing it to `False` deletes every slot of the student. On the form it is read-only while slots exist, and `action_drop_custom_schedule()` - a button with a confirmation - is the way to switch it off), `enrollment_slot_ids` (One2many on `student_id`), `enrollment_slot_broken_count` (banner).
+On `res.partner` (`models/contacts/student_schedule.py`): `custom_schedule` (Boolean, "Custom schedule": only shows the custom-schedule tools; writing it to `False` deletes every slot of the student. On the form it is read-only while slots exist, and `action_drop_custom_schedule()` - a button with a confirmation - is the way to switch it off), `enrollment_slot_ids` (One2many on `student_id`), `enrollment_slot_broken_count` (banner), `enrollment_is_customized` (any slot or not-in-person subject: locks the toggle). Switching the toggle off runs `action_follow_group()` on every enrollment.
 
 ## Consumers
 
@@ -60,7 +62,7 @@ On `res.partner` (`models/contacts/student_schedule.py`): `custom_schedule` (Boo
 
 Because the calendar resync fills new lines through `fill_students()`, custom slots are honoured there with no hook in the sync pipeline. An enrollment whose `group_id` changes is resynced too (`ems.enrollment.write()`), which plain enrollments never were before. A custom slot whose class moves to another time simply matches no line any more: the new line doesn't get the student, and the slot turns `broken`.
 
-`_ems_resync_student_lines(student, subject, previous_lines)` adds the student to every active line their enrollments in that subject make them attend (`_ems_attended_lines`), and removes them from the lines in `previous_lines` that no longer match. It only ever touches that student (`(4, id)`/`(3, id)`), so a teacher's own manual edits of a line's roster for other students survive, and it runs under `sudo()` for the same reason as the old cascade (issue #435, see [`enrollment.md`](enrollment.md#both-cascades-run-under-sudo-issue-435)).
+`_ems_resync_student_lines(student, subject, previous_lines)` adds the student to every active line their enrollments in that subject make them attend (`_ems_attended_lines`), and removes them from the lines in `previous_lines` that no longer match. It only ever touches that student (`(4, id)`/`(3, id)`) and runs under `sudo()` for the same reason as the old cascade (issue #435, see [`enrollment.md`](enrollment.md#both-cascades-run-under-sudo-issue-435)).
 
 `ems.enrollment._ems_move_group()` (main group change) moves a custom enrollment's slots to the new enrollment before deleting the old one, so the customization survives. Moving or deleting slots inside such a cascade uses the `ems_skip_slot_resync` context key (`EMS_SKIP_SLOT_RESYNC`), so the caller resyncs once with its own snapshot. Enrollment `unlink()` deletes its slots through the ORM first (the database cascade alone would skip the roster resync).
 
@@ -72,15 +74,19 @@ Taking attendance for the second of two consecutive periods of the same template
 
 `tests/test_enrollment_slot.py`: `TestEnrollmentSlot` (rule, consumers, cascades), `TestEnrollmentSlotAccess` (secretary vs plain teacher), `TestEnrollmentSlotCalendar` (the real calendar pipeline: student schedule tab, a teacher moving or adding a class). `tests/test_enrollment_slot_tour.py` (secretary splits a subject between two groups from the student's form). Their fixture, `create_enrollment_slot_fixture()`, is shared.
 
+## Hand-edited rosters
+
+A session's roster can't be edited by hand any more (see [`../attendance/attendance_schedule.md`](../attendance/attendance_schedule.md#student_ids-the-roster-and-who-keeps-it-current)): this model is the way to change which sessions a student attends. The hand edits in place before 18.0.0.33.0 were converted into slots / not-in-person by that version's migration.
+
 ## Access Control
 
-Same ACL and record rules as `ems.enrollment` (`security/ir.model.access.csv`, `security/rules/contacts.xml`): academic admin, secretary and Head of Studies have full access; a teacher reads every slot and edits only those of their tutored students (`student_id.tutor_id.tutor_scope_user_ids`); the student data reader reads everything. The session picker (`attendance_schedule_id`) lists the schedule lines the user can read: every line for secretary, Head of Studies and admin, only their own teaching for a plain tutor - the existing slots still display for everybody, since the web client reads a Many2one's name under `sudo()`.
+Customizing is the tutor's job too, while editing the enrollment itself isn't (see [`enrollment.md`](enrollment.md#access-control)): academic admin and secretary customize any student; the tutor and every chief above them (`student_id.tutor_id.tutor_scope_user_ids`, `rule_enrollment_slot_tutor`) customize their own students; other teachers, Head of Studies outside the student's branch and the student data reader only read. The session picker (`attendance_schedule_id`) lists the schedule lines the user can read - every line for secretary, Head of Studies and admin, only their own teaching for a plain tutor; the existing slots still display for everybody, since the web client reads a Many2one's name under `sudo()`.
 
 ## Views
 
 | View | File | Notes |
 |------|------|-------|
 | "Custom schedule" toggle | `views/community/contact/form.xml`, Studies tab, next to "WPI enrolled" | Same `readonly` conditions as `enrollment_ids`, plus read-only while slots exist |
-| Per-subject icon buttons (customize / follow the group again; which one shows tells whether the subject is customized) | Same file, `enrollment_ids` list | Shown only with `custom_schedule`; `is_custom_schedule` is an invisible column, only there for the buttons' `invisible=` |
+| Per-subject icon buttons (customize / not in person / follow the group again; which ones show tells the subject's state), not-in-person rows muted | Same file, `enrollment_ids` list | Shown only with `custom_schedule`; `is_custom_schedule` is an invisible column, only there for the buttons' `invisible=` |
 | Slot list and "Every subject follows its group" button | Same file, "Custom schedule" section below the enrollment list | Shown only with `custom_schedule`; a `broken` row is red. Its subject column only offers enrollments already customized (`slot_ids != False`) |
 | Broken-slot banner | `views/community/contact/form.xml`, above the sheet | Same pattern as `pending_classroom_conflict_count` on the group and employee forms |

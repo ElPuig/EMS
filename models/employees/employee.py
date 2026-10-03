@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import base64
+from datetime import timedelta
 
-from odoo import SUPERUSER_ID, models, fields, api, Command, _
+from pytz import UTC
+
+from odoo import SUPERUSER_ID, models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 
 from ..shared import base
@@ -629,6 +632,20 @@ class ems_employee_base(models.AbstractModel):
             self._sync_security_groups(previous_groups)
         return res
                         
+    @api.model
+    def _get_employee_working_now(self):
+        """hr counts anyone with a slot of their schedule within the next hour as "should be
+        working now", so a teacher showed as Absent (the yellow presence dot) up to an hour before
+        their first class and in every gap shorter than an hour between two (issue #555). Here
+        only the current instant counts: a slot must already have started and not yet ended."""
+        start = self.env['ems.datetime_utils'].utc_datetime_to_local(fields.Datetime.now().replace(tzinfo=UTC))
+        stop = start + timedelta(seconds=1)
+        working_now = self.browse()
+        for calendar in self.resource_calendar_id:
+            if calendar._work_intervals_batch(start, stop)[False]:
+                working_now |= self.filtered(lambda employee: employee.resource_calendar_id == calendar)
+        return working_now.ids
+
     @api.constrains("role_ids")
     def check_limit(self):
         for employee in self:

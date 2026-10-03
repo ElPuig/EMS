@@ -769,6 +769,18 @@ class ems_employee(models.AbstractModel):
         for employee in self:
             employee.attendance_manager_id = employee.leave_manager_id
 
+    def _inverse_work_contact_details(self):
+        # hr's inverse writes work_email/mobile_phone to the linked user's partner, and
+        # res.partner.write() then demands write access on res.users, which only the "Access
+        # Rights" group holds - so a Head of Studies who may edit a teacher could not remove or
+        # fix its manual corporate email (issue #552). The employee write check has already
+        # passed by now, so its partner is written as superuser; except when the linked user
+        # manages access rights, whose email (and so password reset) stays under the native guard.
+        linked = self.filtered(
+            lambda e: e.user_id and not e.user_id.sudo().has_group('base.group_erp_manager'))
+        super(ems_employee, linked.sudo())._inverse_work_contact_details()
+        super(ems_employee, self - linked)._inverse_work_contact_details()
+
     @api.constrains('private_email')
     def _check_private_email_not_corporate(self):
         # The personal email is the Google Workspace account's recovery address, so it can't be

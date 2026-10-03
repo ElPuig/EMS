@@ -29,6 +29,7 @@ class TestEnrollmentSlotTour(HttpCase):
 
     def test_tutor_customizes_without_editing_enrollments_tour(self):
         self.start_tour("/odoo", "ems_enrollment_slot_tutor", login="test_tutor_enrollment_slot_tour")
+        # Marking the subject not in person afterwards dropped every slot, the group D one included.
 
         self.assertTrue(self.enrollment.is_remote)
         self.assertFalse(self.env['ems.attendance_schedule'].search([('student_ids', 'in', self.student.id)]))

@@ -141,9 +141,9 @@ class TestEnrollmentSlot(EnrollmentSlotCase):
         with_group = Slot.new({'enrollment_id': self.enrollment.id, 'group_id': self.group_d.id})
         without_group = Slot.new({'enrollment_id': self.enrollment.id})
 
-        self.assertEqual(with_group.allowed_schedule_ids._origin, self.line_d_wed | self.line_d_thu)
-        self.assertEqual(without_group.allowed_schedule_ids._origin,
-                         self.line_c_mon | self.line_c_tue | self.line_d_wed | self.line_d_thu | self.line_e_fri)
+        self.assertEqual(sorted(with_group.allowed_schedule_ids), sorted((self.line_d_wed | self.line_d_thu).ids))
+        self.assertEqual(sorted(without_group.allowed_schedule_ids), sorted(
+            (self.line_c_mon | self.line_c_tue | self.line_d_wed | self.line_d_thu | self.line_e_fri).ids))
 
     def test_picking_a_session_sets_its_group(self):
         """Group C left over from an earlier choice, then a group D session picked: the row must
@@ -438,6 +438,26 @@ class TestEnrollmentSlotAccess(EnrollmentSlotCase):
             self.env['ems.enrollment'].with_user(self.tutor_user).create({
                 'student_id': self.classmate.id, 'group_id': self.group_d.id, 'subject_id': self.subject.id,
             })
+
+    def test_tutor_reads_and_picks_another_groups_sessions(self):
+        """A split schedule points at another group's sessions, which the tutor can't read as such
+        (they only read what they teach): opening the student's form and picking those sessions
+        must work anyway."""
+        teacher_c = self.line_c_mon.attendance_template_id.teacher_ids
+        self.assertNotEqual(teacher_c.user_id, self.tutor_user)
+        self.enrollment.action_customize_slots()
+        self._slot(self.line_d_wed, self.group_d)
+        self.env.invalidate_all()
+
+        # Any teacher reads every student's form - a plain one included.
+        for user in (self.tutor_user, self.teacher_user):
+            self.student.with_user(user).web_read({'enrollment_slot_ids': {'fields': {
+                'allowed_schedule_ids': {}, 'space_id': {'fields': {'display_name': {}}},
+                'attendance_schedule_id': {'fields': {'display_name': {}}},
+            }}})
+        picker = self.env['ems.attendance_schedule'].with_user(self.tutor_user).with_context(ems_enrollment_slot_picker=True)
+        found = picker.name_search('', [('id', 'in', (self.line_d_wed | self.line_d_thu).ids)])
+        self.assertEqual({record_id for record_id, _name in found}, set((self.line_d_wed | self.line_d_thu).ids))
 
     def test_tutor_cannot_customize_another_tutors_student(self):
         self.assertFalse(self.other_tutors_student.with_user(self.tutor_user).can_customize_schedule)

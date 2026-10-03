@@ -44,8 +44,10 @@ class EmsEnrollmentSlot(models.Model):
 	# NOTE: the session picker's choices, computed rather than a plain domain on 'group_id': with no
 	# group picked yet, such a domain offered every group's sessions, and picking another group's
 	# session left the row pointing at a class that doesn't exist (red).
-	allowed_schedule_ids = fields.Many2many(string="Allowed sessions", comodel_name="ems.attendance_schedule",
-		compute="_compute_allowed_schedule_ids")
+	# NOTE: a plain list of ids (Json), not a Many2many: the web client checks read access on every
+	# record of an x2many it is sent, invisible or not, and a tutor can't read the schedule lines of
+	# a group they don't teach - which are precisely the ones a split schedule picks.
+	allowed_schedule_ids = fields.Json(string="Allowed sessions", compute="_compute_allowed_schedule_ids")
 	space_id = fields.Many2one(string="Space", comodel_name="ems.space", compute="_compute_attendance_schedule_id")
 	state = fields.Selection(string="Status", selection=[('ok', "OK"), ('broken', "Not taught")],
 		compute="_compute_attendance_schedule_id")
@@ -74,9 +76,11 @@ class EmsEnrollmentSlot(models.Model):
 	def _onchange_attendance_schedule_id(self):
 		"""Picking a session sets the whole key, its group included, so the two can never disagree."""
 		for slot in self:
-			line = slot.attendance_schedule_id
+			# sudo(): the line can be another group's, which a tutor can't read (see 'name_search' on
+			# ems.attendance_schedule for the picker itself).
+			line = slot.attendance_schedule_id.sudo()
 			if line:
-				slot.update({**self._ems_key_vals(line), 'group_id': slot._ems_group_of(line, slot.group_id)})
+				slot.update({**self._ems_key_vals(line), 'group_id': slot._ems_group_of(line, slot.group_id).id})
 
 	@api.depends('subject_id', 'group_id', 'allowed_group_ids')
 	def _compute_allowed_schedule_ids(self):
@@ -88,7 +92,7 @@ class EmsEnrollmentSlot(models.Model):
 				('attendance_template_id.active', '=', True),
 				('attendance_template_id.subject_id', '=', slot.subject_id.id),
 				('attendance_template_id.group_ids', 'in', groups.ids),
-			]) if slot.subject_id and groups else self.env['ems.attendance_schedule']
+			]).ids if slot.subject_id and groups else []
 
 	@api.constrains('enrollment_id', 'group_id')
 	def _check_group_level(self):

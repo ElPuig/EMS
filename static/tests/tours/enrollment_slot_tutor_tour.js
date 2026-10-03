@@ -43,6 +43,40 @@ registry.category("web_tour.tours").add("ems_enrollment_slot_tutor", {
             content: "Its group's two sessions are now slots",
         },
         {
+            trigger: ".o_field_widget[name='enrollment_slot_ids'] .o_field_x2many_list_row_add a",
+            content: "Add a slot",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='enrollment_slot_ids'] .o_selected_row .o_field_widget[name='enrollment_id'] input",
+            content: "Pick the subject",
+            run: "edit TSLT Split",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-menu li:contains('TSLT Split Subject')",
+            content: "Select it",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='enrollment_slot_ids'] .o_selected_row .o_field_widget[name='attendance_schedule_id'] input",
+            content: "Pick a session of another group (one the tutor doesn't teach)",
+            run: "edit Wednesday",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-menu li:contains('TSLT1D')",
+            content: "Select group D's Wednesday session",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_button_save",
+            content: "Save",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='enrollment_slot_ids'] .o_data_row:contains('TSLT1D'):contains('Wednesday')",
+            content: "The slot with group D is saved",
+        },
+        {
             trigger: ".o_field_widget[name='enrollment_ids'] .o_data_row button[name='action_set_remote']",
             content: "Mark it as not in person",
             run: "click",

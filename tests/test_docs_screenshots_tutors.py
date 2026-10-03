@@ -19,6 +19,8 @@ from dateutil.relativedelta import relativedelta
 
 from odoo.tests.common import HttpCase, tagged
 
+from odoo.addons.ems.models.shared.attendance_mixin import EMS_BYPASS_TEMPLATE_LOCK_KEY
+
 from .common import (
     DocsScreenshotMixin, create_level_study_group, create_role_employee, create_role_user,
     draw_invented_student_photo, mock_outgoing_email, next_student_id,
@@ -163,6 +165,67 @@ class TestDocsScreenshotsTutors(DocsScreenshotMixin, HttpCase):
                 '.tab-pane.active .alert-warning',
             ],
         )
+
+    def test_capture_custom_schedule(self):
+        """custom-schedule.md: Programació split between groups A and B, Bases de dades not in
+        person; then the B session moves to another time (a teacher's schedule change) and the
+        slot turns red, with the warning at the top of the form."""
+        space_type = self.env.ref('ems.space_type_classroom')
+        location = self.env.ref('ems.work_location_main')
+        space_a, space_b = self.env['ems.space'].create([
+            {'code': f'DOCTUT-{code}', 'name': f'Aula {code}', 'space_type_id': space_type.id,
+             'work_location_id': location.id}
+            for code in ('A', 'B')
+        ])
+        programming, databases = self.env['ems.subject'].create([
+            {'code': code, 'acronym': acronym, 'name': name, 'study_ids': [(6, 0, [self.study.id])]}
+            for code, acronym, name in (('DOCTUTCS1', 'PRG', 'Programació'), ('DOCTUTCS2', 'BD', 'Bases de dades'))
+        ])
+        other_teacher = self.env['hr.employee'].create({'name': '0000 Professora Grup B', 'employee_type': 'teacher'})
+
+        def lines(subject, group, teacher, space, slots):
+            template = self.env['ems.attendance_template'].create({
+                'teacher_ids': [(6, 0, teacher.ids)], 'study_ids': [(6, 0, self.study.ids)],
+                'subject_id': subject.id, 'group_ids': [(6, 0, group.ids)],
+                'start_date': date(2026, 9, 1), 'end_date': date(2027, 6, 30),
+            })
+            return self.env['ems.attendance_schedule'].create([{
+                'attendance_template_id': template.id, 'weekday': weekday, 'start_time': start,
+                'end_time': start + 1, 'space_id': space.id,
+            } for weekday, start in slots])
+
+        lines(programming, self.group, self.teacher, space_a, [('0', 9.0), ('1', 9.0)])
+        group_b_lines = lines(programming, self.other_group, other_teacher, space_b, [('2', 9.0), ('3', 9.0)])
+        lines(databases, self.group, self.teacher, space_a, [('3', 11.0)])
+        Enrollment = self.env['ems.enrollment']
+        programming_enrollment, databases_enrollment = Enrollment.create([
+            {'student_id': self.student.id, 'group_id': self.group.id, 'subject_id': subject.id}
+            for subject in (programming, databases)
+        ])
+        self.student.custom_schedule = True
+        programming_enrollment.action_customize_slots()
+        programming_enrollment.slot_ids.filtered(lambda slot: slot.weekday == '1').unlink()
+        self.env['ems.enrollment.slot'].create({
+            'enrollment_id': programming_enrollment.id, 'attendance_schedule_id': group_b_lines[0].id,
+        })
+        databases_enrollment.action_set_remote()
+
+        url = self._student_url(self.student)
+        open_tab = "document.querySelector(\".o_notebook .nav-link[name='studies']\").click();"
+        slots = "div[name='enrollment_slot_ids'] .o_data_row"
+        # A wider margin than the default: the enrollment list overflows the notebook by a few pixels
+        # (Bootstrap's negative row margins), which clipped its last row button.
+        self._capture(url, '.o_notebook', 'horari-personalitzat-01-franges.png', padding=24,
+                      login='doc_shot_tutor', wait_for='.o_notebook', run=open_tab, wait_after=slots)
+
+        # The group B Wednesday class moves to another time: the slot no longer matches anything.
+        group_b_lines[0].with_context(**{EMS_BYPASS_TEMPLATE_LOCK_KEY: True}).action_archive()
+        banner = ".o_form_view .alert-warning:has([name='enrollment_slot_broken_count'])"
+        self._capture(url, banner, 'horari-personalitzat-02-avis.png',
+                      login='doc_shot_tutor', wait_for=banner)
+        self._capture(url, "div[name='enrollment_slot_ids']", 'horari-personalitzat-03-franja-no-impartida.png',
+                      login='doc_shot_tutor', wait_for='.o_notebook', run=open_tab,
+                      wait_after=slots + '.text-danger')
 
     def test_capture_family_contacts(self):
         mother = self.env['res.partner'].create({

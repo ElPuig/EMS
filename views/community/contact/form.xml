@@ -568,7 +568,8 @@
                                     <field name="allowed_group_ids" column_invisible="True"/>
                                     <field name="allowed_schedule_ids" column_invisible="True"/>
                                     <field name="group_id" options="{'no_create': True, 'no_open': True}"/>
-                                    <field name="attendance_schedule_id" width="260px" options="{'no_create': True, 'no_open': True}"/>
+                                    <field name="attendance_schedule_id" width="260px" context="{'ems_enrollment_slot_picker': True}"
+                                           options="{'no_create': True, 'no_open': True}"/>
                                     <field name="weekday" string="Day" force_save="1" readonly="1"/>
                                     <field name="start_time" string="Start hour" widget="float_time" force_save="1" readonly="1"/>
                                     <field name="end_time" string="End hour" widget="float_time" force_save="1" readonly="1"/>

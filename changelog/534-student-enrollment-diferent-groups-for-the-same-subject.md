@@ -10,6 +10,8 @@
 - Same access as the enrollments themselves (secretary, Head of Studies and admin edit any student; a tutor edits their tutees; teachers read).
 - Docs: `docs/en/developers/contacts/enrollment_slot.md` (new), `enrollment.md` updated.
 
+- User manual for tutors (`docs/{en,ca,es}/tutors/custom-schedule.md`, with screenshots); the tutors' group-change manual and the secretary's student-contacts manual updated to the new permissions.
+
 ## Not in person (issue #534):
 - A third per-subject option next to "customize" and "follow the group" on the student's form: the student stays enrolled and graded in the subject but attends none of its sessions (no roll-call lines, nothing on their Schedule tab). Not-in-person subjects are shown muted.
 - Reinforcement groups (which belong to no level) can now be used in a custom schedule too.

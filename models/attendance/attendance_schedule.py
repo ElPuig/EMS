@@ -146,6 +146,17 @@ class EmsAttendanceSchedule(models.Model):
         return "%s | %s | %s" % (self.attendance_template_id.display_name, weekday_label, self.time_range)
 
     @api.model
+    def name_search(self, name='', args=None, operator='ilike', limit=100):
+        """The custom-schedule session picker (issue #534, context key set by the student form):
+        a tutor customizing a student's sessions has to pick lines they can't read - another
+        group's - so the search runs under sudo(), always within the picker's own domain
+        (ems.enrollment.slot.allowed_schedule_ids, computed server-side). It only ever reveals
+        the session's name: subject, groups, weekday and time."""
+        if self.env.context.get('ems_enrollment_slot_picker') and args:
+            return super(EmsAttendanceSchedule, self.sudo()).name_search(name, args, operator, limit)
+        return super().name_search(name, args, operator, limit)
+
+    @api.model
     def _search_display_name(self, operator, value):
         """Also match the weekday as the user reads it: 'name' is stored in English, so typing
         'Dimecres' in a session picker would otherwise find nothing."""

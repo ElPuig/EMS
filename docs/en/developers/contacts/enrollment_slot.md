@@ -41,7 +41,7 @@ Deliberately not stored for the enrollments that follow their group (decided wit
 | `space_id` | `Many2one → ems.space`, computed (not stored) | The room of that line |
 | `state` | Selection `ok`/`broken` ("Not taught"), computed (not stored) | `broken` when no active line matches the key any more |
 | `allowed_group_ids` | `Many2many → ems.group`, computed | Domain of `group_id`: the groups of the allowed level that have an active class of the subject (stricter than the level constraint, see below) |
-| `allowed_schedule_ids` | `Many2many → ems.attendance_schedule`, computed | Domain of `attendance_schedule_id`: the subject's active sessions taught to the chosen group, or to any allowed group while none is chosen. Picking a session also sets `group_id` to that session's group (onchange, and `create()`/`write()` for programmatic callers), so a row can never point at a class that doesn't exist |
+| `allowed_schedule_ids` | `Json` (list of ids), computed | Domain of `attendance_schedule_id`: the subject's active sessions taught to the chosen group, or to any allowed group while none is chosen. A plain id list on purpose, not a Many2many: the web client checks read access on every record of an x2many it is sent, invisible or not, and a tutor can't read another group's schedule lines - the very ones a split schedule picks. Picking a session also sets `group_id` to that session's group (onchange, and `create()`/`write()` for programmatic callers), so a row can never point at a class that doesn't exist |
 
 `_sql_constraints`: unique `(enrollment_id, group_id, weekday, start_time)`. Python constraints: `group_id` is the enrollment's group, a group of its level (the student's main group's level when the enrollment's group has none) or a reinforcement group; and the key must match an active line **when it is written** - a slot that stops matching later, because a teacher's schedule changed, turns `broken` instead of blocking that change.
 
@@ -81,6 +81,16 @@ A session's roster can't be edited by hand any more (see [`../attendance/attenda
 ## Access Control
 
 Customizing is the tutor's job too, while editing the enrollment itself isn't (see [`enrollment.md`](enrollment.md#access-control)): academic admin and secretary customize any student; the tutor and every chief above them (`student_id.tutor_id.tutor_scope_user_ids`, `rule_enrollment_slot_tutor`) customize their own students; other teachers, Head of Studies outside the student's branch and the student data reader only read. The session picker (`attendance_schedule_id`) lists the schedule lines the user can read - every line for secretary, Head of Studies and admin, only their own teaching for a plain tutor; the existing slots still display for everybody, since the web client reads a Many2one's name under `sudo()`.
+
+### Picking another group's session as a tutor
+
+A tutor only reads the schedule lines they teach (`rule_attendance_schedule_teacher_own`), while a split schedule is made of other groups' lines. Three things make the picker work for them anyway, all limited to the custom-schedule picker:
+
+- `allowed_schedule_ids` is a `Json` id list (see above), so sending the choices to the browser checks nothing.
+- `ems.attendance_schedule.name_search()` runs under `sudo()` when the context carries `ems_enrollment_slot_picker` (set by the student form's `attendance_schedule_id` field) and a domain is given - the picker's own `[('id', 'in', allowed_schedule_ids)]`. It only reveals session names (subject, groups, weekday, time).
+- `_onchange_attendance_schedule_id()` and `_ems_resolve_line_vals()` read the picked line under `sudo()`.
+
+Found while capturing the tutors' manual screenshots (the tutor's own tour only used the row buttons): a tutor opening a student whose schedule had a slot in another group got an `AccessError` on `ems.attendance_schedule`. Covered by `TestEnrollmentSlotAccess::test_tutor_reads_and_picks_another_groups_sessions` and the tutor tour, which now adds a slot of another group.
 
 ## Views
 

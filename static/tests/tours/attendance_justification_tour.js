@@ -95,6 +95,30 @@ registry.category("web_tour.tours").add("ems_attendance_justification_tutor_open
     ],
 });
 
+// Issue #553: Head of Studies opening a justification whose file a tutor uploaded - the
+// attachment used to stay unlinked (no res_id), so only its uploader could read it.
+registry.category("web_tour.tours").add("ems_attendance_justification_hos_attachment", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_justification_tree",
+    steps: () => [
+        { trigger: ".o_list_view", content: "Justifications list loaded" },
+        {
+            trigger: ".o_list_view .o_data_row td:contains('Attendance Justification Tutor Tour Student')",
+            content: "Open the justification",
+            run: "click",
+        },
+        {
+            trigger: ".o_notebook .nav-link:contains('Attached files')",
+            content: "Open Attached files tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='attachment_ids'] .o_data_row:contains('Tour justificant.pdf')",
+            content: "The tutor's file is listed",
+        },
+    ],
+});
+
 // Creating a brand-new justification through the UI: exercises widget="daterange" (confirmed
 // working the same way as ems.attendance_template's own daterange fields, see
 // attendance_template_tour.js - single combined-range widget here though, since the form only

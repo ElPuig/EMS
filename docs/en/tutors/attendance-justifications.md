@@ -38,6 +38,8 @@ The period can include future days (for example, a planned hospital stay). When 
 
 The download icon opens the file; the cross removes it from the justification. Use the **Notes** tab to add a comment.
 
+The attached files can be opened by everyone who can see the justification: the teachers of the affected sessions, Head of Studies and the academic administration.
+
 ---
 
 ## Checking, changing or deleting a justification

@@ -177,6 +177,8 @@ class EmsAttendanceJustification(models.Model):
             if not justification._check_permissions():
                 raise ValidationError(_("Only the student's tutor can justify its attendances."))
 
+            justification.attachment_ids._ems_link_to(justification)
+
             for line in justification.attendance_session_line_ids:
                 if line.status_id == self.env.ref("ems.attendance_status_miss"):
                     line.write(justification.perform_justification(line._justification_vals()))
@@ -196,6 +198,9 @@ class EmsAttendanceJustification(models.Model):
 
         # Must be saved after storing previous data
         updated = super().write(vals)
+        if 'attachment_ids' in vals:
+            for justification in self:
+                justification.attachment_ids._ems_link_to(justification)
         if dates_changed:
             # This method is called when an attendance session is created (because justification is beeing linked to the session)
             # so only on trying to update dates, the permissions must be checked to avoid unauthorized changes.

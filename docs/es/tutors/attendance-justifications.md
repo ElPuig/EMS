@@ -38,6 +38,8 @@ El período puede incluir días futuros (por ejemplo, un ingreso hospitalario pr
 
 Con el icono de descarga abres el fichero; con la cruz lo quitas del justificante. En la pestaña **Notas** puedes añadir un comentario.
 
+Los archivos adjuntos los puede abrir cualquiera que pueda ver el justificante: el profesorado de las sesiones afectadas, Jefatura de Estudios y la administración académica.
+
 ---
 
 ## Consultar, modificar o borrar un justificante

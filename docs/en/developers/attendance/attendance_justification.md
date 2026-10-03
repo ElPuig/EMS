@@ -29,6 +29,7 @@ gated the same way), and `unlink()`.
 | `session_teacher_ids` | computed + stored, `readonly=False` | Every teacher (template or session) touched by the linked lines — an editable compute (same pattern as `product.template.ems_study_ids`, see [`enrollment_product_extension.md`](../enrollment/enrollment_product_extension.md)), used for `ir.rule` permission filtering. |
 | `allowed_student_ids` | `Many2many`, not stored | Onchange-populated list of students the acting `teacher_id` may pick from (admin: everyone; otherwise: only their own tutorands). |
 | `tutor_id` | `related='student_id.tutor_id'` | Read by `ems.base`'s `get_user_is_tutor_of_self()` for the permission check above. |
+| `attachment_ids` | `Many2many → ir.attachment` | The "Attached files" tab. Every file is tied to its justification (`res_model`/`res_id`) on `create()`/`write()`, see below. |
 
 ---
 
@@ -98,6 +99,20 @@ For the same reason `write()` builds its `old_lines_map` (the old-vs-new line di
 when `start_date`/`end_date` are actually in `vals`, the single branch that consumes it.
 Reading `attendance_session_line_ids` enforces the record rules, so doing it unconditionally
 put a permission check in front of every unrelated write.
+
+---
+
+## Attached files and who can read them
+
+The form's attachments list creates each `ir.attachment` without a `res_id`, and Odoo only lets
+the uploader (or a system admin) read an attachment that is not tied to a record. `create()` and
+`write()` (when `attachment_ids` is in `vals`) therefore call `ir.attachment._ems_link_to()`
+(`models/shared/attachment.py`, shared with `ems.convalidation`), which sets `res_model`/`res_id`
+on the still-unlinked ones, with `sudo()`. From then on a file follows the justification's own
+access: anyone who can read the justification (the tutor and the chiefs above them, the teachers
+of the affected sessions, Head of Studies through `group_student_data_reader`, the academic
+administration) can open it. Issue #553: Head of Studies saw an empty "Attached files" tab;
+`migrations/18.0.0.32.1/post-migrate.py` links the attachments stored before the fix.
 
 ---
 

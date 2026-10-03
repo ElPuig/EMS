@@ -38,6 +38,8 @@ El període pot incloure dies futurs (per exemple, un ingrés hospitalari previs
 
 Amb la icona de descàrrega obres el fitxer; amb la creu el treus del justificant. A la pestanya **Notes** pots afegir-hi un comentari.
 
+Els fitxers adjunts els pot obrir tothom qui pot veure el justificant: el professorat de les sessions afectades, la Prefectura d'Estudis i l'administració acadèmica.
+
 ---
 
 ## Consultar, modificar o esborrar un justificant

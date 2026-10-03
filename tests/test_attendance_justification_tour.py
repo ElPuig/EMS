@@ -77,7 +77,14 @@ class TestAttendanceJustificationTour(HttpCase):
             'teacher_id': tutor.id, 'student_id': student.id,
             'start_date': datetime(2026, 2, 4, 0, 0), 'end_date': datetime(2026, 2, 4, 23, 59),
             'attendance_session_line_ids': [(6, 0, [line.id])],
+            # Uploaded the way the form's list does it: without a res_id (issue #553).
+            'attachment_ids': [(0, 0, {
+                'name': 'Tour justificant.pdf', 'raw': b'justificant',
+                'res_model': 'ems.attendance_justification',
+            })],
         })
+        cls.hos_user = create_role_user(cls, 'head_of_studies', 'tour_hos_attendance_justification')
+        create_role_employee(cls, cls.hos_user)
 
     def test_attendance_justification_open_and_edit_tour(self):
         force_user_language_to_english(self, self.env.ref('base.user_admin'))
@@ -106,3 +113,8 @@ class TestAttendanceJustificationTour(HttpCase):
         # Logs in as a plain tutor, not admin: the bug (issue #469) only exists for a user
         # the teacher record rules restrict to their own sessions.
         self.start_tour("/odoo", "ems_attendance_justification_tutor_open", login=self.tutor_user.login)
+
+    def test_attendance_justification_head_of_studies_attachment_tour(self):
+        # Head of Studies only reads justifications (student data reader): the attachment a
+        # tutor uploaded must show for them too (issue #553).
+        self.start_tour("/odoo", "ems_attendance_justification_hos_attachment", login=self.hos_user.login)

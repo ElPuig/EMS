@@ -25,6 +25,12 @@ Accounts can be created by administration, TAC coordination, the secretary's off
 
 ---
 
+## Correcting the name
+
+If the student's first name or last names were entered wrong, fix them on the form and save. EMS updates the name on the Google account by itself, in the background, and notes it in the record's message log. The corporate email address does **not** change.
+
+---
+
 ## Suspending the account
 
 1. Click **Suspend Google account**.

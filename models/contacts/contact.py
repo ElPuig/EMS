@@ -983,6 +983,10 @@ class ResPartner(models.Model):
         if 'birth_date' in values:
             self._gw_enqueue_relocate()
 
+        # Google Workspace: a name fixed in EMS is fixed on the Google account too (#542).
+        if {'name', 'firstname', 'lastname'} & set(values):
+            self._gw_enqueue_rename()
+
         # Google Workspace: archive -> schedule the suspension after a grace period
         # (issue #388); unarchive -> call it off, or reactivate if the cron got there
         # first and the account is already suspended.

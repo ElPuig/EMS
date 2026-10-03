@@ -25,6 +25,12 @@ Pueden crear cuentas administración, coordinación TAC, secretaría y el tutor 
 
 ---
 
+## Corregir el nombre
+
+Si el nombre o los apellidos del alumno se introdujeron mal, corríjalos en la ficha y guarde. EMS actualiza por sí solo, en segundo plano, el nombre de la cuenta de Google, y lo deja anotado en el historial de mensajes de la ficha. La dirección de correo corporativa **no** cambia.
+
+---
+
 ## Suspender la cuenta
 
 1. Pulsa **Suspender cuenta de Google**.

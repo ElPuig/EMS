@@ -331,6 +331,21 @@ class HrEmployeeGoogleWorkspace(models.Model):
                 description="Reactivate Google Workspace account: %s" % employee.name,
             ).action_reactivate_google_account()
 
+    def _gw_enqueue_rename(self):
+        """Enqueue the Google account name sync for staff with a corporate email
+        (deduplicated), so fixing a name in EMS also fixes it in Google (issue #542)."""
+        company = self.env.company
+        if not company.google_ws_enabled:
+            return
+        for employee in self.sudo().filtered(
+            lambda e: e.employee_type in ('teacher', 'asp') and e.work_email
+            and e.work_email.endswith('@%s' % company.google_ws_domain)
+        ):
+            employee.with_delay(
+                identity_key='gw_emp_rename_%s' % employee.id,
+                description="Rename Google Workspace account: %s" % employee.name,
+            ).action_sync_google_account_name()
+
     # ------------------------------------------------------------------
     # Main action (queue_job target / manual button)
     # ------------------------------------------------------------------
@@ -806,6 +821,20 @@ class HrEmployeeGoogleWorkspace(models.Model):
             "Google Workspace account reactivated: %(email)s (moved to OU %(ou)s).") % {
                 'email': emp.work_email, 'ou': ou})
 
+    def action_sync_google_account_name(self):
+        """Copy the employee's current name onto their Google account.
+
+        Triggered when the name changes. Suspended accounts are renamed too, so a
+        reactivated account comes back with the right name.
+        """
+        self.ensure_one()
+        if not self.env.company.google_ws_enabled:
+            return
+        emp = self.sudo()
+        if emp.employee_type not in ('teacher', 'asp') or not emp.work_email:
+            return
+        self._gw()._gw_sync_account_name(emp, emp.work_email, *self._gw_split_name())
+
     # ------------------------------------------------------------------
     # CRUD overrides (triggers)
     # ------------------------------------------------------------------
@@ -818,6 +847,8 @@ class HrEmployeeGoogleWorkspace(models.Model):
     def write(self, vals):
         res = super().write(vals)
         self._gw_enqueue_if_ready()
+        if 'name' in vals:
+            self._gw_enqueue_rename()
         if 'active' in vals:
             if vals.get('active'):
                 # Back before the deadline: nothing was ever changed in Google, so the

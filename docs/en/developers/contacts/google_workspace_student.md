@@ -108,6 +108,16 @@ line, and no test previously exercised the non-dry-run path. Fixed, with a regre
 from the staff suite cannot catch this class of bug, worth remembering for any future
 method added to either integration.
 
+## Renaming (`action_sync_google_account_name`)
+
+Writing `name`, `firstname` or `lastname` on a student with a `student_email` enqueues
+`action_sync_google_account_name()` (`_gw_enqueue_rename`, deduplicated by `identity_key`),
+which copies `firstname`/`lastname` onto the Google user's `givenName`/`familyName` through
+the mixin's `_gw_sync_account_name()` - the same helper the staff side uses, see
+[its own section](../employees/google_workspace_staff.md#renaming-action_sync_google_account_name)
+for the error handling. Suspended accounts are renamed too. The portal user needs nothing:
+it shares the student's partner, so its name is already the student's.
+
 ## Lifecycle
 
 Archiving a student does **not** touch the Google account straight away. It opens a
@@ -387,7 +397,8 @@ since this dev box is declared `'dev'`.
 `tests/test_student_google_workspace.py` (`TestStudentGoogleWorkspace`) — readiness,
 email-candidate strategy, creation (dry-run, both OUs, idempotence, missing-data
 `UserError`), suspend/reactivate (dry-run, idempotence), relocate (dry-run, the
-suspended-account skip, and the non-dry-run regression test for the bug above), and
+suspended-account skip, and the non-dry-run regression test for the bug above), the rename
+sync (#542: which writes enqueue it, the Directory API payload), and
 `unlink()`. `google_ws_state` for all 3 states and the `google_ws_suspended` migration
 backfill are already covered by `tests/test_exit_management.py` (not duplicated here — see
 that file's `test_gw_*`/`test_migration_backfills_suspended_for_alumni_and_withdrawal`).

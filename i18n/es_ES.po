@@ -16925,6 +16925,7 @@ msgstr "Seleccionad al menos un alumno o solicitante."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__has_possible_duplicate
+#: model:ir.model.fields,field_description:ems.field_ems_strike__duplicate_warning
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
 msgid "Possible duplicate"
 msgstr "Posible duplicado"
@@ -19200,3 +19201,35 @@ msgstr ""
 "Cuándo recibe, como tutor/a, el correo con las incidencias de asistencia de "
 "sus alumnos. Cada correo incluye todas las incidencias registradas desde el "
 "anterior."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Possible duplicate warning"
+msgstr "Aviso de posible duplicado"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Before sending a strike, warn the teacher if they already issued one to the same student within this many minutes, and ask them to confirm it. 0 disables the warning."
+msgstr "Antes de enviar un strike, avisa al docente si ya ha puesto uno al mismo alumno durante estos minutos, y le pide que lo confirme. 0 desactiva el aviso."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "minutes"
+msgstr "minutos"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
+msgid "This strike may be a duplicate of the one shown above. Send it anyway?"
+msgstr "Este strike puede ser un duplicado del que se muestra arriba. ¿Queréis enviarlo igualmente?"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__strike_duplicate_window model:ir.model.fields,field_description:ems.field_res_config_settings__strike_duplicate_window
+msgid "Strike Duplicate Window"
+msgstr "Ventana de duplicados de strikes"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/coexistence/strike.py:0
+#, python-format
+msgid "%(teacher)s already issued a strike to %(student)s at %(time)s (%(reason)s). Make sure this one is not a duplicate."
+msgstr "%(teacher)s ya ha puesto un strike a %(student)s a las %(time)s (%(reason)s). Aseguraos de que este no es un duplicado."

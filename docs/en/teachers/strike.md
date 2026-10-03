@@ -22,7 +22,7 @@ Sometimes a student's behaviour during a session needs to be flagged so the fami
 
 ![The strike dialog: the student's name, the Attention notice/Kicked out of class toggle, the Reason dropdown pre-filled with the generic default, and the optional Details field](../../assets/teachers/strike-01-dialeg.png)
 
-That's it — no further confirmation is needed, and nothing is required beyond the reason.
+That's it: nothing is required beyond the reason, and no further confirmation is needed unless the strike looks like a duplicate (see below).
 
 ---
 
@@ -39,6 +39,17 @@ You can also start from the student's own form: click its **Strikes** button in 
 If you close the dialog or click **Cancel**, nothing is saved and nobody is notified.
 
 ![The New strike dialog: Student, Reason, Kicked out of class, Teacher (read-only), Date and time and the optional Details, with the Send and Cancel buttons](../../assets/teachers/strike-02-fora-de-classe.png)
+
+---
+
+## Possible Duplicate Warning
+
+If you already issued a strike to the same student a moment ago (within 1 minute, by default), EMS warns you before sending a new one, showing when the previous one was issued and for what reason, so the same strike isn't sent twice by mistake:
+
+- From the roll-call view, clicking **Send** asks for confirmation. Click **Send** in that message if it is a different incident, or **Cancel** to go back to the strike dialog, with everything you had typed still there.
+- In the **New strike** dialog, the warning appears at the top as soon as you choose the student, and **Send** asks for confirmation as well.
+
+While a strike is being sent, its **Send** button stays disabled, so clicking it twice only sends it once.
 
 ---
 

@@ -49,11 +49,15 @@ The same `strike_ids` inverse also backs a computed `strike_count` (`Integer`, n
 ```mermaid
 flowchart TD
     A[Teacher clicks the strike button in the roll-call view] --> B[Dialog: reason dropdown defaults to 'Other', optional notes]
-    B --> C["orm.create('ems.strike', vals)"]
-    C --> D[ems.strike.create override]
     A2[Teacher clicks New strike in Coexistence → Strikes] --> B2["action_strike_issue dialog: student, reason, kicked out, date, notes"]
-    B2 --> C2[Send = special save]
-    C2 --> D
+    B --> W{"get_duplicate_warning(): same teacher + student within strike_duplicate_window?"}
+    B2 --> W
+    W -- yes --> X{Teacher confirms?}
+    X -- no --> B
+    X -- no --> B2
+    X -- yes --> C
+    W -- no --> C["orm.create (roll-call) / Send = special save (dialog)"]
+    C --> D[ems.strike.create override]
     D --> E[strike_count computed on read via search_count]
     D --> F["_notify(): one template per recipient kind (student / family if minor-auth_share / tutor)"]
     D --> G{"count % threshold == 0 ?"}
@@ -66,6 +70,9 @@ flowchart TD
   - the **New strike** header button of the Coexistence → Strikes list (`display="always"`, `groups="ems.group_teacher"`, so secretary never sees it), which opens `ems.action_strike_issue` (`target="new"`) on `ems.view_strike_form_issue`: student, reason, kicked out, date (defaults to now, editable for an incident noticed a bit earlier; `max_date: 'today'` greys out later days in the picker) and notes, with **Send** (`special="save"`) and **Cancel** in the footer. `teacher_id` is declared twice with complementary `groups`: editable for `ems.group_academic_admin`, `readonly="1"` for everyone else, who is the issuer through the field's default (a readonly field isn't sent on save, so the server-side default fills it) — and `rule_strike_teacher_own` rejects any other value anyway. No session line is set. The same list opened from a student's own **Strikes** button (`res.partner.action_view_strikes()`, always shown on a student's form, even at 0) carries `strike_student_id` in its context: `student_id`'s default reads it and the dialog's `student_id` is `readonly="context.get('strike_student_id')"` (`force_save`), so the dialog opens locked to that student. A custom key rather than `default_student_id` because the web client strips `default_*` keys from the list's context before running a header button (`doActionButton` in `action_service.js`).
 
   The list keeps `create="0"` on purpose: saving a strike emails the student, the tutor and maybe the family immediately, and Odoo's full-page form autosaves when the user navigates away, so a half-filled strike would be sent by accident. The dialog discards on close, and the list reloads itself when it closes (the list controller's `reload` option of `useViewButtons`).
+- **Possible duplicate warning** (issue #554): the same strike used to be sent twice a few seconds apart, from a double click on the roll-call dialog's Send (`create()` emails everyone synchronously, so it takes a few seconds, and the button had no in-flight guard). Two layers:
+  - `onStrikeSend` ignores clicks while `state.strikeSending` is set and disables the button meanwhile — this is what actually prevents the double submit (two concurrent requests would both pass the check below, since neither sees the other's uncommitted strike).
+  - `ems.strike.get_duplicate_warning(student_id, teacher_id=False)` returns a translated warning (previous strike's local time and reason) when that teacher — the current user's employee by default — already issued a strike to that student within the last `strike_duplicate_window` minutes, `False` otherwise or when the setting is `0`. It compares `create_date` (not `date`, which can be backdated) against `cr.now()`, which is what `create_date` is set from. Both entry points ask for confirmation with it: the roll-call calls it before `orm.create` and, if there is a warning, shows a `ConfirmationDialog` (closing the native `<dialog>` first, since it sits in the browser's top layer above Odoo's dialogs, and reopening it with what was typed if the teacher declines); the New strike dialog shows the non-stored `duplicate_warning` compute (new records only, recomputed on the student/teacher onchange) as an alert, and swaps its Send button for an identical one with `confirm=`. `create()` itself never blocks: a strike created from code, or a second one confirmed by the teacher, is legitimate.
 - **Notification** (`_notify`): `_collect_recipients_by_kind()` reuses the exact minor/`auth_share` authorization rule already used by `ems.attendance_issue_status`/`ems.notice`, but keeps the three recipient kinds separate instead of flattening them — student email always; family emails from `student.relation_all_ids` filtered to `contact_type == 'family'`, only if `not student.is_adult or student.auth_share` **and** `strike_family_notification_mode` allows it (`'all'`, or `'kicked_out'` with this strike's `kicked_out = True`); the group tutor's email (`student.tutor_id.email`, via the existing `res.partner.tutor_id` related field) — student and tutor are never gated by `strike_family_notification_mode`. Each kind gets its own `mail.template` (`ems.mail_strike_notification_student` / `_family` / `_tutor`, all three defined in `mails/coexistence/strike_notification.xml`) so the wording matches who's actually reading it (e.g. the student's own copy skips the redundant "Student:" row, the tutor's copy points to the Convivencia list instead of "reply to the teacher"). All three always render a "Kicked out of class: Yes/No" line (`object.kicked_out`), regardless of the value, so the recipient knows either way. One `send_mail(force_send=True, email_values={'email_to': ...})` call per recipient address, in that recipient's own language — same pattern as `ems_attendance_issue_status.send_notification()`.
 - **Escalation** (`_check_escalation`): fires every time `strike_count % strike_escalation_threshold == 0` (repeating, not one-time — e.g. at 3, 6, 9... strikes with the default threshold). Matching coordinators are resolved by walking `ems.role_coexistence.employee_ids` (bridged from `hr.employee.public` to `hr.employee`) and comparing each coordinator's `find_head_of_studies()` result to the issuing teacher's — only coordinators in the same HoS/DHoS branch are notified.
 - **Read**: see Access Control below.
@@ -93,13 +100,14 @@ Head of Studies' centre-wide **read** actually comes from `group_student_data_re
 ## Settings
 
 - `strike_escalation_threshold` (`res.company`, default `3`) — "Strikes Settings" block in Settings, same pattern as `attendance_issue_status_delay`.
+- `strike_duplicate_window` (`res.company`, minutes, default `1`, `0` disables) — same block; the window used by `get_duplicate_warning()` above. No migration: Odoo fills the field default into existing companies when it creates the column.
 - `strike_family_notification_mode` (`res.company`, `Selection`, `'all'`/`'kicked_out'`) — same block, `widget="radio"`. Defaults to `'all'` at the field level so an installation upgrading into this version keeps its existing always-notify-the-family behaviour unchanged (no migration script needed — the plain field default is enough, via the normal schema-backfill mechanism). A brand-new installation has no prior behaviour to preserve, so `post_init_hook` (`__init__.py::_default_strike_family_notification_kicked_out`) sets it to the stricter `'kicked_out'` instead, right after data files load.
 
 ---
 
 ## Frontend
 
-- `static/src/js/backend/attendance_session_view.js`: loads active `ems.strike.reason` records on `onWillStart`; `onStrikeClick`/`onStrikeCancel`/`onStrikeSend` mirror the existing notes-dialog handlers (`onNotesClick`/`onNotesCancel`/`onNotesSave`); `onStrikeSend` calls `orm.create("ems.strike", [...])`, including the `kicked_out` checkbox state.
+- `static/src/js/backend/attendance_session_view.js`: loads active `ems.strike.reason` records on `onWillStart`; `onStrikeClick`/`onStrikeCancel`/`onStrikeSend` mirror the existing notes-dialog handlers (`onNotesClick`/`onNotesCancel`/`onNotesSave`); `onStrikeSend` checks `get_duplicate_warning` (see CRUD Flow) and then calls `orm.create("ems.strike", [...])`, including the `kicked_out` checkbox state, guarded by `state.strikeSending` against double clicks.
 - `static/src/xml/backend/attendance_session_view.xml`: `<td class="ems-av-td-strike">` (button, `fa-exclamation-triangle`) placed immediately before the notes `<td>`; `<dialog t-ref="strikeDialog">` with a reason `<select>` + optional `<textarea>` + a "Kicked out of class" checkbox (unchecked by default, reset on every open) + Send/Cancel, structurally identical to the notes dialog.
 - `static/src/css/backend/attendance_session_view.css`: `.ems-av-strike-*` classes mirroring `.ems-av-notes-*`.
 

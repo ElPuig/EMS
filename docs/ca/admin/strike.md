@@ -32,6 +32,12 @@ Al mateix bloc "Strikes Settings" hi ha també una opció **Family notification*
 
 ---
 
+## Configurar l'avís de possible duplicat
+
+El mateix bloc "Strikes Settings" també té l'opció **Avís de possible duplicat**: si un docent ja ha posat un strike al mateix alumne durant aquests minuts (1 per defecte), se l'avisa i se li demana que ho confirmi abans d'enviar-ne un de nou. Posa-hi 0 per desactivar l'avís.
+
+---
+
 ## Assignar el rol de Convivència
 
 Els coordinadors de convivència s'assignen com qualsevol altre rol, a **Comunitat → Configuració → Professorat → Rols**, afegint un empleat al rol "Coexistence coordinator". A diferència de la majoria de rols de coordinació, aquest no es limita a una sola persona — assigna'n un per cada branca de Cap d'Estudis / Cap d'Estudis Adjunt/a segons calgui, ja que els correus d'escalat s'envien al coordinador que comparteixi la branca del professor que ha posat el strike. Consulta el manual [Rols de professorat i nivells de permisos](teacher-roles.md) per al flux general d'assignació de rols.

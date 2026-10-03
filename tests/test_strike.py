@@ -467,3 +467,54 @@ class TestStrike(TransactionCase):
         self._create_strike(self.teacher_a_user, attendance_session_line_id=session_line.id)
         action = session_line.action_view_strikes()
         self.assertEqual(action['domain'], [('attendance_session_line_id', '=', session_line.id)])
+
+    # Issue #554: possible duplicate warning.
+
+    def _duplicate_warning(self, user, **kwargs):
+        return self.env['ems.strike'].with_user(user).get_duplicate_warning(kwargs.get('student_id', self.minor_student.id), kwargs.get('teacher_id', False))
+
+    def test_duplicate_window_defaults_to_one_minute(self):
+        self.assertEqual(self.env['res.company'].new({}).strike_duplicate_window, 1)
+
+    def test_duplicate_warning_same_teacher_and_student(self):
+        self.assertFalse(self._duplicate_warning(self.teacher_a_user))
+        self._create_strike(self.teacher_a_user)
+        warning = self._duplicate_warning(self.teacher_a_user)
+        self.assertIn(self.minor_student.display_name, warning)
+        self.assertIn(self.teacher_a_employee.display_name, warning)
+
+    def test_no_duplicate_warning_for_another_teacher_or_student(self):
+        self._create_strike(self.teacher_a_user)
+        self.assertFalse(self._duplicate_warning(self.admin_user, teacher_id=self.coexistence_a_employee.id))
+        other_student = self.minor_student.copy({'student_id': next_student_id()})
+        self.assertFalse(self._duplicate_warning(self.teacher_a_user, student_id=other_student.id))
+
+    def test_no_duplicate_warning_outside_window(self):
+        strike = self._create_strike(self.teacher_a_user)
+        self.env.cr.execute("UPDATE ems_strike SET create_date = create_date - interval '61 seconds' WHERE id = %s", (strike.id,))
+        strike.invalidate_recordset(['create_date'])
+        self.assertFalse(self._duplicate_warning(self.teacher_a_user))
+        self.env.company.strike_duplicate_window = 2
+        self.assertTrue(self._duplicate_warning(self.teacher_a_user))
+
+    def test_duplicate_warning_disabled_by_zero_window(self):
+        self._create_strike(self.teacher_a_user)
+        self.env.company.strike_duplicate_window = 0
+        self.assertFalse(self._duplicate_warning(self.teacher_a_user))
+
+    def test_duplicate_warning_ignores_backdated_date(self):
+        # A strike noticed a while ago and backdated is still a fresh one to compare against.
+        self._create_strike(self.teacher_a_user, date=fields.Datetime.now() - timedelta(hours=2))
+        self.assertTrue(self._duplicate_warning(self.teacher_a_user))
+
+    def test_duplicate_warning_field_only_on_new_strike(self):
+        strike = self._create_strike(self.teacher_a_user)
+        self.assertFalse(strike.duplicate_warning)
+        new_strike = self.env['ems.strike'].with_user(self.teacher_a_user).new({'student_id': self.minor_student.id})
+        self.assertTrue(new_strike.duplicate_warning)
+
+    def test_issue_dialog_send_asks_confirmation_only_on_duplicate(self):
+        arch = self.env['ems.strike'].with_user(self.teacher_a_user).get_view(self.env.ref('ems.view_strike_form_issue').id)['arch']
+        buttons = etree.fromstring(arch).xpath("//footer/button[@special='save']")
+        self.assertEqual([(button.get('invisible'), bool(button.get('confirm'))) for button in buttons],
+                         [('duplicate_warning', False), ('not duplicate_warning', True)])

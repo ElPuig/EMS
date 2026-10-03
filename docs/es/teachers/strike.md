@@ -22,7 +22,7 @@ A veces hay que dejar constancia del comportamiento de un alumno durante una ses
 
 ![El diálogo de strike: el nombre del alumno, la alternancia Aviso de atención/Expulsado de clase, el desplegable de Motivo ya establecido en el valor genérico por defecto, y el campo opcional de Detalles](../../assets/teachers/strike-01-dialeg.png)
 
-Y ya está — no hace falta ninguna otra confirmación, ni nada más allá del motivo.
+Y ya está: no hace falta nada más allá del motivo, ni ninguna otra confirmación, salvo que el strike parezca un duplicado (ver más abajo).
 
 ---
 
@@ -39,6 +39,17 @@ También puedes empezar desde la ficha del propio alumno: haz clic en su botón 
 Si cierras el diálogo o haces clic en **Cancelar**, no se guarda nada y no se notifica a nadie.
 
 ![El diálogo Nuevo strike: Alumno, Motivo, Expulsado de clase, Profesor/a (solo lectura), Fecha y hora y los Detalles opcionales, con los botones Enviar y Cancelar](../../assets/teachers/strike-02-fora-de-classe.png)
+
+---
+
+## Aviso de posible duplicado
+
+Si hace un momento ya has puesto un strike al mismo alumno (dentro de 1 minuto, por defecto), EMS te avisa antes de enviar uno nuevo, y te muestra cuándo se puso el anterior y por qué motivo, para que no se envíe el mismo strike dos veces por error:
+
+- Desde el pase de lista, al hacer clic en **Enviar** te pide confirmación. Haz clic en **Enviar** en ese mensaje si es otra incidencia, o en **Cancelar** para volver al diálogo del strike, con todo lo que habías escrito.
+- En el diálogo **Nuevo strike**, el aviso aparece arriba del todo en cuanto eliges al alumno, y **Enviar** también te pide confirmación.
+
+Mientras se envía un strike, su botón **Enviar** queda desactivado, así que si haces clic dos veces solo se envía una.
 
 ---
 

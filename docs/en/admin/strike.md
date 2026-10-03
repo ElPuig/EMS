@@ -34,7 +34,7 @@ The same "Strikes Settings" block also has a **Family notification** option: **A
 
 ## Configuring the Possible Duplicate Warning
 
-The same "Strikes Settings" block also has a **Possible duplicate warning** option: if a teacher already issued a strike to the same student within this many minutes (1 by default), they are warned and asked to confirm before a new one is sent. Set it to 0 to turn the warning off.
+The same "Strikes Settings" block also has a **Possible duplicate warning** option: if a teacher already issued a strike to the same student within this many minutes (1 by default), from the same roll-call session or from the **New strike** dialog,, they are warned and asked to confirm before a new one is sent. Set it to 0 to turn the warning off.
 
 ---
 

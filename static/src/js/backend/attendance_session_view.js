@@ -533,7 +533,7 @@ class AttendanceSessionView extends Component {
         try {
             const lineId    = this.state.editingStrikeLineId;
             const studentId = this.state.editingStrikeStudentId;
-            const warning = await this.orm.call("ems.strike", "get_duplicate_warning", [studentId]);
+            const warning = await this.orm.call("ems.strike", "get_duplicate_warning", [studentId], { line_id: lineId });
             if (warning && !(await this._confirmDuplicateStrike(warning))) return;
             const reasonId  = parseInt(this.strikeReasonSelect.el.value);
             const notes     = this.strikeNotesTextarea.el.value.trim();

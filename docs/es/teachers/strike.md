@@ -44,7 +44,7 @@ Si cierras el diálogo o haces clic en **Cancelar**, no se guarda nada y no se n
 
 ## Aviso de posible duplicado
 
-Si hace un momento ya has puesto un strike al mismo alumno (dentro de 1 minuto, por defecto), EMS te avisa antes de enviar uno nuevo, y te muestra cuándo se puso el anterior y por qué motivo, para que no se envíe el mismo strike dos veces por error:
+Si hace un momento ya has puesto un strike al mismo alumno (dentro de 1 minuto, por defecto) y desde el mismo sitio (la misma sesión del pase de lista, o el diálogo **Nuevo strike**), EMS te avisa antes de enviar uno nuevo, y te muestra cuándo se puso el anterior y por qué motivo, para que no se envíe el mismo strike dos veces por error:
 
 - Desde el pase de lista, al hacer clic en **Enviar** te pide confirmación. Haz clic en **Enviar** en ese mensaje si es otra incidencia, o en **Cancelar** para volver al diálogo del strike, con todo lo que habías escrito.
 - En el diálogo **Nuevo strike**, el aviso aparece arriba del todo en cuanto eliges al alumno, y **Enviar** también te pide confirmación.

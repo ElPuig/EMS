@@ -19206,8 +19206,8 @@ msgstr "Avís de possible duplicat"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
-msgid "Before sending a strike, warn the teacher if they already issued one to the same student within this many minutes, and ask them to confirm it. 0 disables the warning."
-msgstr "Abans d'enviar un strike, avisa el docent si ja n'ha posat un al mateix alumne durant aquests minuts, i li demana que ho confirmi. 0 desactiva l'avís."
+msgid "Before sending a strike, warn the teacher if they already issued one to the same student within this many minutes (in the same roll-call session, when issued from the roll-call), and ask them to confirm it. 0 disables the warning."
+msgstr "Abans d'enviar un strike, avisa el docent si ja n'ha posat un al mateix alumne durant aquests minuts (a la mateixa sessió del passi de llista, si es posa des d'allà), i li demana que ho confirmi. 0 desactiva l'avís."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form

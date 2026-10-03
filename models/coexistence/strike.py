@@ -41,12 +41,13 @@ class ems_strike(models.Model):
                 ("student_id", "=", strike.student_id.id), ("id", "<=", strike.id),
             ]) if strike.id else 0
 
-    @api.depends("student_id", "teacher_id")
+    @api.depends("student_id", "teacher_id", "attendance_session_line_id")
     def _compute_duplicate_warning(self):
         # Only while issuing a new one (the New strike dialog's onchange): a saved strike would
         # find itself. A new record's NewId is falsy.
         for strike in self:
-            strike.duplicate_warning = False if strike.id else self.get_duplicate_warning(strike.student_id.id, strike.teacher_id.id)
+            strike.duplicate_warning = False if strike.id else self.get_duplicate_warning(
+                strike.student_id.id, strike.teacher_id.id, strike.attendance_session_line_id.id)
 
     @api.constrains("date")
     def _check_date_not_in_future(self):
@@ -66,10 +67,11 @@ class ems_strike(models.Model):
         return strikes
 
     @api.model
-    def get_duplicate_warning(self, student_id, teacher_id=False):
+    def get_duplicate_warning(self, student_id, teacher_id=False, line_id=False):
         """Issue #554: the same strike was sometimes sent twice a few seconds apart. Returns a
         warning if the teacher (the current user's employee by default) already issued a strike
-        to this student within the last strike_duplicate_window minutes, False otherwise. Both
+        to this student, on the same roll-call line (or on none, for the New strike dialog),
+        within the last strike_duplicate_window minutes, False otherwise. Both
         ways of issuing a strike ask for confirmation when there is one: the New strike dialog
         (duplicate_warning) and the roll-call view (attendance_session_view.js)."""
         window = self.env.company.strike_duplicate_window
@@ -79,6 +81,7 @@ class ems_strike(models.Model):
         # create_date rather than date, which can be backdated; it is set from cr.now().
         latest = self.search([
             ("student_id", "=", student_id), ("teacher_id", "=", teacher_id),
+            ("attendance_session_line_id", "=", line_id or False),
             ("create_date", ">=", self.env.cr.now() - timedelta(minutes=window)),
         ], order="create_date desc, id desc", limit=1)
         if not latest:

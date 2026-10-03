@@ -44,7 +44,7 @@ Si tanques el diàleg o cliques **Cancel·la**, no es desa res i no es notifica 
 
 ## Avís de possible duplicat
 
-Si fa un moment ja has posat un strike al mateix alumne (dins d'1 minut, per defecte), l'EMS t'avisa abans d'enviar-ne un de nou, i et mostra quan es va posar l'anterior i per quin motiu, perquè no s'enviï el mateix strike dues vegades per error:
+Si fa un moment ja has posat un strike al mateix alumne (dins d'1 minut, per defecte) i des del mateix lloc (la mateixa sessió del passi de llista, o el diàleg **Nou strike**), l'EMS t'avisa abans d'enviar-ne un de nou, i et mostra quan es va posar l'anterior i per quin motiu, perquè no s'enviï el mateix strike dues vegades per error:
 
 - Des del passi de llista, en clicar **Enviar** et demana confirmació. Clica **Enviar** en aquest missatge si és una altra incidència, o **Cancel·lar** per tornar al diàleg del strike, amb tot el que hi havies escrit.
 - Al diàleg **Nou strike**, l'avís apareix a dalt de tot tan bon punt tries l'alumne, i **Enviar** també et demana confirmació.

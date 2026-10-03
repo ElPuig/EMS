@@ -44,7 +44,7 @@ If you close the dialog or click **Cancel**, nothing is saved and nobody is noti
 
 ## Possible Duplicate Warning
 
-If you already issued a strike to the same student a moment ago (within 1 minute, by default), EMS warns you before sending a new one, showing when the previous one was issued and for what reason, so the same strike isn't sent twice by mistake:
+If you already issued a strike to the same student a moment ago (within 1 minute, by default) and from the same place (the same roll-call session, or the **New strike** dialog), EMS warns you before sending a new one, showing when the previous one was issued and for what reason, so the same strike isn't sent twice by mistake:
 
 - From the roll-call view, clicking **Send** asks for confirmation. Click **Send** in that message if it is a different incident, or **Cancel** to go back to the strike dialog, with everything you had typed still there.
 - In the **New strike** dialog, the warning appears at the top as soon as you choose the student, and **Send** asks for confirmation as well.

@@ -471,7 +471,8 @@ class TestStrike(TransactionCase):
     # Issue #554: possible duplicate warning.
 
     def _duplicate_warning(self, user, **kwargs):
-        return self.env['ems.strike'].with_user(user).get_duplicate_warning(kwargs.get('student_id', self.minor_student.id), kwargs.get('teacher_id', False))
+        return self.env['ems.strike'].with_user(user).get_duplicate_warning(
+            kwargs.get('student_id', self.minor_student.id), kwargs.get('teacher_id', False), kwargs.get('line_id', False))
 
     def test_duplicate_window_defaults_to_one_minute(self):
         self.assertEqual(self.env['res.company'].new({}).strike_duplicate_window, 1)
@@ -518,3 +519,13 @@ class TestStrike(TransactionCase):
         buttons = etree.fromstring(arch).xpath("//footer/button[@special='save']")
         self.assertEqual([(button.get('invisible'), bool(button.get('confirm'))) for button in buttons],
                          [('duplicate_warning', False), ('not duplicate_warning', True)])
+
+    def test_duplicate_warning_only_on_same_session_line(self):
+        line, other_line = self.env['ems.attendance_session_line'].create([
+            {'student_id': self.minor_student.id}, {'student_id': self.minor_student.id},
+        ])
+        self._create_strike(self.teacher_a_user, attendance_session_line_id=line.id)
+        self.assertTrue(self._duplicate_warning(self.teacher_a_user, line_id=line.id))
+        self.assertFalse(self._duplicate_warning(self.teacher_a_user, line_id=other_line.id))
+        # The New strike dialog sets no line: a roll-call strike is not its duplicate.
+        self.assertFalse(self._duplicate_warning(self.teacher_a_user))

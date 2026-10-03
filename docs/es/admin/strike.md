@@ -34,7 +34,7 @@ En el mismo bloque "Strikes Settings" hay también una opción **Family notifica
 
 ## Configurar el aviso de posible duplicado
 
-El mismo bloque "Strikes Settings" también tiene la opción **Aviso de posible duplicado**: si un docente ya ha puesto un strike al mismo alumno durante estos minutos (1 por defecto), se le avisa y se le pide que lo confirme antes de enviar uno nuevo. Pon 0 para desactivar el aviso.
+El mismo bloque "Strikes Settings" también tiene la opción **Aviso de posible duplicado**: si un docente ya ha puesto un strike al mismo alumno durante estos minutos (1 por defecto), desde la misma sesión del pase de lista o desde el diálogo **Nuevo strike**, se le avisa y se le pide que lo confirme antes de enviar uno nuevo. Pon 0 para desactivar el aviso.
 
 ---
 

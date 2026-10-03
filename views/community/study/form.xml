@@ -46,12 +46,7 @@
                             </page>
 
                             <page string="Attached files">
-                                <field name="attachment_ids" default_order="name asc" context="{'default_res_model': 'ems.study'}">
-                                     <list default_order="name asc">
-                                        <field name="name" />
-                                        <button class="btn btn-secondary fa fa-download" title="Download File" name="download" type="object" />
-                                    </list>
-                                </field>
+                                <field name="attachment_ids" widget="ems_attachments" nolabel="1"/>
                             </page>
 
                             <page string="Notes">

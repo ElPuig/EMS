@@ -377,3 +377,14 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
 
         self.assertEqual(justification.attachment_ids.res_id, justification.id)
         self.assertEqual(justification.attachment_ids.res_model, 'ems.attendance_justification')
+
+    def test_attachment_removed_by_tutor_is_deleted(self):
+        justification = self.env['ems.attendance_justification'].with_user(self.tutor_user).create({
+            'teacher_id': self.tutor_employee.id, 'student_id': self.student.id,
+            **self._today_range(),
+            'attachment_ids': [self._attachment_command('justificant.pdf')],
+        })
+        attachment = justification.attachment_ids
+
+        justification.with_user(self.tutor_user).write({'attachment_ids': [(3, attachment.id)]})
+        self.assertFalse(attachment.exists())

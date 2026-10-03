@@ -22,7 +22,7 @@ class TestStudyTour(HttpCase):
             'code': 'TOUR_STUDY_ATT', 'acronym': 'TSAT', 'name': 'Study Attachment Tour Study',
             'date': date(2024, 9, 1),
             'attachment_ids': [(0, 0, {
-                'name': 'Tour curriculum.pdf', 'raw': b'curriculum', 'res_model': 'ems.study',
+                'name': 'Tour curriculum.txt', 'raw': b'curriculum', 'res_model': 'ems.study',
             })],
         })
         self.start_tour("/odoo", "ems_study_teacher_attachment", login=teacher_user.login)

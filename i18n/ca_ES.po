@@ -3003,6 +3003,8 @@ msgstr "Delegat/da"
 
 #. module: ems
 #. odoo-python
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/attachments_field.xml:0
 #: code:addons/ems/models/communications/limesurvey.py:0 model_terms:ir.ui.view,arch_db:ems.view_employee_public_kanban
 msgid "Delete"
 msgstr "Suprimeix"
@@ -3206,6 +3208,8 @@ msgstr "Fet"
 
 #. module: ems
 #. odoo-python
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/attachments_field.xml:0
 #: code:addons/ems/models/communications/limesurvey.py:0
 msgid "Download"
 msgstr "Descarregar"
@@ -11871,6 +11875,8 @@ msgid "Transitioned"
 msgstr "Transicionat"
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/attachments_field.xml:0
 #: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__line_ids
 #: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard__state__preview
 #: model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form

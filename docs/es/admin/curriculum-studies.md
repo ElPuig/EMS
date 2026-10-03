@@ -33,7 +33,7 @@ Al abrir el menú se muestra una lista de todos los estudios ordenada por códig
    - **Fecha de publicación** *(obligatorio)*: Fecha de publicación del currículum.
    - **Obsoleto**: Déjalo sin marcar para un estudio activo; márcalo para retirar un estudio sin eliminarlo.
 3. En la pestaña **Asignaturas**, añade las asignaturas que componen este estudio.
-4. En la pestaña **Archivos adjuntos**, adjunta los documentos de referencia curricular (publicaciones oficiales, documentos de orientación, etc.). Los puede abrir cualquiera que pueda ver el estudio: el profesorado, la secretaría y la administración académica.
+4. En la pestaña **Archivos adjuntos**, pulsa el botón **Archivos adjuntos** y elige los documentos de referencia curricular (publicaciones oficiales, documentos de orientación, etc.); cada uno se llama como su fichero. Los puede abrir cualquiera que pueda ver el estudio: el profesorado, la secretaría y la administración académica. Con el icono del ojo previsualizas un fichero sin salir del EMS (PDF, imágenes y ficheros de texto); con el icono de descarga lo descargas; con la papelera lo borras al guardar el estudio.
 5. Opcionalmente, añade notas libres en la pestaña **Notas**.
 6. Haz clic en **Guardar** (o usa las migas de pan para navegar — Odoo guarda automáticamente).
 

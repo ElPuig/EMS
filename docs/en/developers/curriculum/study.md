@@ -108,21 +108,14 @@ flowchart TD
     D --> E[Form view: main data · administrative data · Subjects tab · Attached files tab · Notes tab]
 ```
 
-### Attached files and who can read them
+### Attached files
 
 The official curricula (BOE/DOGC references, guidance documents) ship as `ir.attachment` records
-in `data/cat/attachments/` and are attached to each study by `data/cat/ems.study.csv`; an admin
-can add more from the form's "Attached files" tab. Both arrive without a `res_id`, and Odoo only
-lets the uploader (or a system admin) read an attachment not tied to a record. `create()` and
-`write()` (when `attachment_ids` is in `vals`) therefore call `_ems_link_attachments()`, which
-ties the still-unlinked files to their study through `ir.attachment._ems_link_to()`
-(`models/shared/attachment.py`, shared with `ems.attendance_justification` and
-`ems.convalidation`). From then on a file follows the study's own read access: every teacher,
-the secretary's office and the academic administration. The data files keep it that way on their
-own: `data/cat/ems.study.csv` reloads on every upgrade (`noupdate=False`), and that `write()`
-links any curriculum still unlinked. A curriculum shared by several studies stays tied to the
-first one, which gives the same access since no record rule restricts `ems.study`. Issue #553;
-`migrations/18.0.0.33.0/post-migrate.py` links the files uploaded by hand before the fix.
+in `data/cat/attachments/`, attached to each study by `data/cat/ems.study.csv`; an admin can
+upload more from the "Attached files" tab. The tab uses the shared `ems.attachment_mixin` +
+`ems_attachments` widget (see [`attachments.md`](../shared/attachments.md)): every file is tied to
+its study, so every teacher, the secretary's office and the academic administration can open it
+(issue #553), and a removed file is deleted on save unless another study still holds it.
 
 ### Update
 

@@ -300,7 +300,7 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             login='doc_shot_tutor',
             wait_for='.o_form_sheet .o_notebook',
             click='.o_notebook .nav-item:nth-child(3) .nav-link',
-            wait_after=".o_field_widget[name='attachment_ids'] .o_data_row",
+            wait_after=".o_field_widget[name='attachment_ids'] .o_ems_attachment",
         )
 
     def test_capture_tutor_google_credentials_screenshots(self):

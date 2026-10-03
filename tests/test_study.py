@@ -229,3 +229,24 @@ class TestStudy(TransactionCase):
         attachments = self.env.ref('ems.study_cfgs_icb0_dam_2024').attachment_ids
         self.assertTrue(attachments)
         self.assertTrue(all(attachments.mapped('res_id')))
+
+    def test_removed_attachment_is_deleted(self):
+        """Removing a file from a study deletes it: the form's upload widget has no list of
+        existing files to pick from, so a detached file could never be reattached."""
+        self.test_study.write({'attachment_ids': [self._attachment_command('curriculum.pdf')]})
+        attachment = self.test_study.attachment_ids
+
+        self.test_study.write({'attachment_ids': [(3, attachment.id)]})
+        self.assertFalse(attachment.exists())
+
+    def test_removed_attachment_still_used_by_another_study_is_kept(self):
+        self.test_study.write({'attachment_ids': [self._attachment_command('shared.pdf')]})
+        attachment = self.test_study.attachment_ids
+        other = self.env['ems.study'].create({
+            'code': 'T14', 'acronym': 'T14A', 'name': 'Study Sharing A File', 'date': date(2024, 9, 1),
+            'attachment_ids': [(4, attachment.id)],
+        })
+
+        self.test_study.write({'attachment_ids': [(3, attachment.id)]})
+        self.assertTrue(attachment.exists())
+        self.assertEqual(other.attachment_ids, attachment)

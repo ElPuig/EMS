@@ -31,12 +31,12 @@ El período puede incluir días futuros (por ejemplo, un ingreso hospitalario pr
 ## Adjuntar el documento
 
 1. Abre el justificante desde la lista de **Justificaciones**.
-2. En la pestaña **Archivos adjuntos**, pulsa **Añadir una línea** y, en la ventana que se abre, **Nuevo**.
-3. Pulsa **Suba su archivo**, elige el fichero (por ejemplo, el informe médico) y guarda.
+2. En la pestaña **Archivos adjuntos**, pulsa el botón **Archivos adjuntos** y elige el fichero (por ejemplo, el informe médico). Puedes elegir varios a la vez; cada uno se llama como su fichero.
+3. Guarda el justificante.
 
 ![Pestaña Archivos adjuntos de un justificante](../../assets/tutors/justificants-03-adjunts.png)
 
-Con el icono de descarga abres el fichero; con la cruz lo quitas del justificante. En la pestaña **Notas** puedes añadir un comentario.
+Con el icono del ojo previsualizas el fichero sin salir del EMS (PDF, imágenes y ficheros de texto); con el icono de descarga lo descargas; con la papelera lo borras al guardar el justificante. En la pestaña **Notas** puedes añadir un comentario.
 
 Los archivos adjuntos los puede abrir cualquiera que pueda ver el justificante: el profesorado de las sesiones afectadas, Jefatura de Estudios y la administración académica.
 

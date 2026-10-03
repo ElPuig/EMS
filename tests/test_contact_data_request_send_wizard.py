@@ -1,7 +1,7 @@
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email
+from .common import create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email, next_student_id
 from .test_contact_data_request import create_contact_data_fixtures
 
 
@@ -100,6 +100,25 @@ class TestContactDataRequestSendWizard(TransactionCase):
         self.assertNotIn(self.group, wizard._scope_allowed_groups())
         self._wizard(user=self.tutor).action_apply()
         self.assertEqual(self._requests().student_id, self.minor)
+
+    def test_tutor_opening_it_from_a_list_gets_only_their_own(self):
+        # Issue #550: from the students or the groups list, someone else's students and groups
+        # selected there are not preloaded.
+        _level, _study, other_group = create_level_study_group(self, 'TCSL', study={
+            'code': 'TCSL01', 'acronym': 'TCSLS', 'name': 'Other List Study'})
+        other_student = self.env['res.partner'].create({
+            'name': 'Other Student (TCSW)', 'contact_type': 'student', 'main_group_id': other_group.id,
+            'student_id': next_student_id()})
+        Wizard = self.env['ems.contact.data.request.send.wizard'].with_user(self.tutor)
+        from_students = Wizard.with_context(
+            active_ids=(self.minor | other_student).ids, active_model='res.partner',
+        ).create({'course_id': self.course.id})
+        self.assertEqual(from_students.student_ids, self.minor)
+        from_groups = Wizard.with_context(
+            active_ids=(self.group | other_group).ids, active_model='ems.group',
+            default_group_ids=(self.group | other_group).ids,
+        ).create({'course_id': self.course.id})
+        self.assertEqual(from_groups.group_ids, self.group)
 
     def test_plain_teacher_cannot_request(self):
         teacher = create_role_user(self, 'teacher', 'test_teacher_tcsw', name='Teacher (TCSW)')

@@ -14642,12 +14642,6 @@ msgid ""
 msgstr "Només secretaria, l'administració acadèmica, la direcció d'estudis i els tutors poden enviar autoritzacions."
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
-#: code:addons/ems/models/contacts/contact_data_request_send_wizard.py:0
-msgid "Not one of your students"
-msgstr "No és un dels vostres alumnes"
-
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block
 msgid "Respond"

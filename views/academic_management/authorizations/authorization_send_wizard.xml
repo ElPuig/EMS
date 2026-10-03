@@ -26,8 +26,9 @@
                     </group>
                     <group invisible="target != 'students'" string="Students">
                         <field name="student_ids" widget="many2many_tags" nolabel="1" colspan="2"
-                               options="{'no_create': True}"/>
+                               domain="student_domain" options="{'no_create': True}"/>
                     </group>
+                    <field name="student_domain" invisible="1"/>
                     <field name="allowed_group_ids" invisible="1"/>
                     <field name="allowed_study_ids" invisible="1"/>
                     <field name="allowed_level_ids" invisible="1"/>

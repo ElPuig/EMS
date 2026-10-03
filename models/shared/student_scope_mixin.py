@@ -31,6 +31,11 @@ class EmsStudentScopeMixin(models.AbstractModel):
         'res.partner', string='Students',
         domain=[('contact_type', 'in', ('student', 'applicant'))],
     )
+    # The student picker's domain (the view's domain="student_domain"): a tutor is only offered
+    # the students they act on (issue #550). A default, not a compute: the assistant is always a
+    # new record, and a computed field with no field dependencies is not sent to the client on a
+    # new record - the same reason as ems.em_grading_wizard.group_domain.
+    student_domain = fields.Char(default=lambda self: str(self._scope_student_domain()))
     group_ids = fields.Many2many(
         'ems.group', string='Groups', domain="[('id', 'in', allowed_group_ids)]")
     ems_study_ids = fields.Many2many(
@@ -41,6 +46,13 @@ class EmsStudentScopeMixin(models.AbstractModel):
     @api.model
     def _scope_sees_every_student(self):
         return base.EmsBase.get_user_sees_every_student(self)
+
+    @api.model
+    def _scope_student_domain(self):
+        domain = [('contact_type', 'in', ('student', 'applicant'))]
+        if not self._scope_sees_every_student():
+            domain.append(('tutor_id.tutor_scope_user_ids', '=', self.env.uid))
+        return domain
 
     @api.model
     def _scope_acts_on_student(self, student):
@@ -61,13 +73,16 @@ class EmsStudentScopeMixin(models.AbstractModel):
 
     @api.model
     def _scope_students_from_context(self):
-        """The students selected in a students list the assistant was opened from. Only when the
-        list really was a students list: opened from another record, active_ids carry that record's
-        own id, which read as a res.partner id failed with "record does not exist"."""
+        """The students selected in a students list the assistant was opened from, the sender's own
+        only (issue #550): a tutor selecting the whole list starts from their students, not from
+        everyone else's flagged as left out. Only when the list really was a students list: opened
+        from another record, active_ids carry that record's own id, which read as a res.partner id
+        failed with "record does not exist"."""
         if self.env.context.get('active_model') != 'res.partner':
             return self.env['res.partner']
         return self.env['res.partner'].browse(self.env.context.get('active_ids') or []).filtered(
-            lambda partner: partner.contact_type in ('student', 'applicant'))
+            lambda partner: partner.contact_type in ('student', 'applicant')
+            and self._scope_acts_on_student(partner))
 
     def _enrolled_students(self):
         """Students holding a live (not cancelled) enrollment for the selected academic year.
@@ -100,8 +115,8 @@ class EmsStudentScopeMixin(models.AbstractModel):
     def _resolve_students(self):
         """The students this assistant would act on, deduplicated.
 
-        For a tutor, only their own group's - whatever reached the assistant. The group picker only
-        offers their own groups, and what a tutor can read of the enrollments behind the scope
+        For a tutor, only their own group's - whatever reached the assistant. The pickers only offer
+        their own students and groups, and what a tutor can read of the enrollments behind the scope
         target is limited to them too, but this is the one place that decides, not the widgets.
         """
         self.ensure_one()
@@ -110,11 +125,3 @@ class EmsStudentScopeMixin(models.AbstractModel):
         else:
             students = self._students_from_scope()
         return students.filtered(self._scope_acts_on_student)
-
-    def _scope_foreign_students(self, students):
-        """Students picked by hand that _resolve_students() dropped - someone else's student picked
-        by a tutor. Listed in the preview so the tutor sees why, rather than wondering where they
-        went."""
-        if self.target != 'students':
-            return self.env['res.partner']
-        return self.student_ids._origin - students

@@ -98,9 +98,11 @@ jobs:
             echo "Previous head's run passed - skipping the full test suite for this run."
           fi
 
+      # --canary: only one tour class runs in CI for now (issue #563), enough to prove Chrome
+      # works on the runner; running every tour in CI again is issue #565.
       - name: Compute test shards
         id: shards
-        run: echo "matrix=$(python3 scripts/testing/compute_test_shards.py)" >> "$GITHUB_OUTPUT"
+        run: echo "matrix=$(python3 scripts/testing/compute_test_shards.py --canary)" >> "$GITHUB_OUTPUT"
 
   # One shard = one full "install Odoo + EMS" runner running a subset of test classes, in
   # parallel with every other shard - see scripts/testing/compute_test_shards.py for how the
@@ -182,6 +184,25 @@ jobs:
             | sudo tee /etc/apt/sources.list.d/odoo.list
           sudo apt-get update -qq && sudo apt-get install -y odoo
 
+      # Odoo skips a tour instead of failing it when Chrome doesn't start, so this checks
+      # Chrome directly, as the odoo user and with Odoo's own switches, and fails right away
+      # with Chrome's output (issue #563).
+      - name: Check Chrome starts
+        if: matrix.needs_chrome
+        run: |
+          # TEMPORARY diagnostics for issue #563: which conditions let Chrome start on the
+          # runner. Remove once the cause is fixed.
+          echo "apparmor_restrict_unprivileged_userns=$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns 2>/dev/null)"
+          sudo aa-status 2>/dev/null | grep -i -E "chrom|profiles are in" || true
+          getent passwd odoo; ls -ld /var/lib/odoo || true
+          sudo mkdir -p /tmp/chrome-home && sudo chmod 777 /tmp/chrome-home
+          sudo scripts/testing/check_chrome_starts.sh runner || true
+          CHROME_CHECK_ENV="HOME=/tmp/chrome-home XDG_CONFIG_HOME=/tmp/chrome-home XDG_CACHE_HOME=/tmp/chrome-home" \
+            sudo -E scripts/testing/check_chrome_starts.sh odoo || true
+          sudo scripts/testing/check_chrome_starts.sh odoo --no-zygote || true
+          # The real check.
+          sudo scripts/testing/check_chrome_starts.sh odoo
+
       - name: Stop and disable Odoo system service
         run: |
           sudo systemctl stop odoo || true
@@ -249,6 +270,12 @@ jobs:
         run: |
           set -o pipefail
           sudo /opt/modules/ems/test.sh "${{ matrix.tags }}" 2>&1 | tee /tmp/odoo-test.log
+
+      # A skipped tour still ends in "0 failed, 0 error(s)", so a green test step alone
+      # doesn't prove the tours ran (issue #563).
+      - name: Fail if any tour was skipped
+        if: matrix.needs_chrome
+        run: scripts/testing/check_no_skipped_tours.sh /tmp/odoo-test.log
 
       - name: Collect Chrome/system logs for failed tour tests
         if: always() && matrix.needs_chrome

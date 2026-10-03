@@ -9,8 +9,8 @@ on the next CI run, no workflow/script edit needed.
 
 Used by two consumers, both invoked with the repo root as the working directory (the
 `tests/*_tour.py` glob below is relative to that, not to this file's own location):
-- CI (ci-unit-testing.yml): `python3 scripts/testing/compute_test_shards.py` prints a single
-  JSON line, `{"include": [{"name": ..., "tags": ..., "needs_chrome": bool}, ...]}`, for
+- CI (ci-unit-testing.yml): `python3 scripts/testing/compute_test_shards.py --canary` prints a
+  single JSON line, `{"include": [{"name": ..., "tags": ..., "needs_chrome": bool}, ...]}`, for
   GitHub Actions' `strategy.matrix: ${{ fromJson(...) }}`.
 - Local dev (test.sh's no-argument "run everything" form, via run_sharded_tests.py, which
   lives alongside this file): imports `compute_shards()` directly to drive the same split
@@ -19,6 +19,7 @@ Used by two consumers, both invoked with the repo root as the working directory 
 import glob
 import json
 import re
+import sys
 
 # Tune this based on observed wall-clock time (CI: the "ci" job's per-shard duration in the
 # Actions run summary; local: run_sharded_tests.py's own per-shard timing): more shards = more
@@ -35,21 +36,30 @@ import re
 # not a measured optimum - revisit after seeing a real CI run's per-shard timing.
 TOUR_SHARDS = 8
 
+# CI runs only these tour classes for now (`--canary`): enough to prove Chrome starts on the
+# runner and a tour really runs, without the cost of every tour (issue #563). Running all of
+# them in CI again is issue #565, after the test-suite improvements. A local full ./test.sh
+# still runs every tour.
+BROWSER_CANARY_CLASSES = ['TestLevelTour']
+
 
 def classes_in(path):
     with open(path) as handle:
         return re.findall(r'^class\s+(\w+)\s*\(', handle.read(), re.M)
 
 
-def compute_shards():
+def compute_shards(canary=False):
     tour_classes = set()
     for path in sorted(glob.glob('tests/*_tour.py')):
         tour_classes.update(classes_in(path))
     tour_classes = sorted(tour_classes)
 
-    shards = [[] for _ in range(TOUR_SHARDS)]
-    for index, cls in enumerate(tour_classes):
-        shards[index % TOUR_SHARDS].append(cls)
+    if canary:
+        shards = [BROWSER_CANARY_CLASSES]
+    else:
+        shards = [[] for _ in range(TOUR_SHARDS)]
+        for index, cls in enumerate(tour_classes):
+            shards[index % TOUR_SHARDS].append(cls)
 
     # "name" must be safe to use as a job-display suffix, an artifact name, and (locally) a
     # database name suffix - no spaces or punctuation beyond '-'. Artifact names must also be
@@ -73,7 +83,7 @@ def compute_shards():
         if not shard_classes:
             continue
         include.append({
-            'name': f'tour-{shard_index}',
+            'name': 'tour-canary' if canary else f'tour-{shard_index}',
             'tags': ','.join(f'/ems:{cls}' for cls in shard_classes),
             'needs_chrome': True,
         })
@@ -82,4 +92,4 @@ def compute_shards():
 
 
 if __name__ == '__main__':
-    print(json.dumps({'include': compute_shards()}))
+    print(json.dumps({'include': compute_shards(canary='--canary' in sys.argv[1:])}))

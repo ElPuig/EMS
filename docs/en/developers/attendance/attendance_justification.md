@@ -107,12 +107,12 @@ put a permission check in front of every unrelated write.
 The form's attachments list creates each `ir.attachment` without a `res_id`, and Odoo only lets
 the uploader (or a system admin) read an attachment that is not tied to a record. `create()` and
 `write()` (when `attachment_ids` is in `vals`) therefore call `ir.attachment._ems_link_to()`
-(`models/shared/attachment.py`, shared with `ems.convalidation`), which sets `res_model`/`res_id`
+(`models/shared/attachment.py`, shared with `ems.convalidation` and `ems.study`), which sets `res_model`/`res_id`
 on the still-unlinked ones, with `sudo()`. From then on a file follows the justification's own
 access: anyone who can read the justification (the tutor and the chiefs above them, the teachers
 of the affected sessions, Head of Studies through `group_student_data_reader`, the academic
 administration) can open it. Issue #553: Head of Studies saw an empty "Attached files" tab;
-`migrations/18.0.0.32.1/post-migrate.py` links the attachments stored before the fix.
+`migrations/18.0.0.33.0/post-migrate.py` links the attachments stored before the fix.
 
 ---
 

@@ -33,7 +33,7 @@ En obrir el menú es mostra una llista de tots els estudis ordenada per codi. Ca
    - **Data de publicació** *(obligatori)*: Data de publicació del currículum.
    - **Obsolet**: Deixa'l sense marcar per a un estudi actiu; marca'l per retirar un estudi sense eliminar-lo.
 3. A la pestanya **Assignatures**, afegeix les assignatures que componen aquest estudi.
-4. A la pestanya **Fitxers adjunts**, adjunta els documents de referència curricular (publicacions oficials, documents d'orientació, etc.).
+4. A la pestanya **Fitxers adjunts**, adjunta els documents de referència curricular (publicacions oficials, documents d'orientació, etc.). Els pot obrir tothom qui pot veure l'estudi: el professorat, la secretaria i l'administració acadèmica.
 5. Opcionalment, afegeix notes lliures a la pestanya **Notes**.
 6. Fes clic a **Desa** (o usa les engrunes de navegació per anar a una altra pàgina — Odoo desa automàticament).
 

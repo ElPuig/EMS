@@ -64,6 +64,26 @@ class EmsStudy(models.Model):
             year = self.env['ems.datetime_utils'].get_local_today().year if study.date is False else study.date.year
             study.display_name = "%s (%s): %s" % (study.acronym, year, study.name)
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        studies = super().create(vals_list)
+        studies._ems_link_attachments()
+        return studies
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'attachment_ids' in vals:
+            self._ems_link_attachments()
+        return res
+
+    def _ems_link_attachments(self):
+        """Ties the attached files (uploaded from the form, or the official curricula loaded from
+        data/cat/attachments/) to their study, so everyone who can read the study can open them.
+        A curriculum shared by several studies stays tied to the first one: no record rule
+        restricts ems.study, so any of them gives the same access."""
+        for study in self:
+            study.attachment_ids._ems_link_to(study)
+
     def _ems_last_course(self):
         """Highest group course of this study (2 for a CFGM/CFGS, 4 for ESO...), 0 when
         the study has no group yet. Answers "is this the final year?", which drives both

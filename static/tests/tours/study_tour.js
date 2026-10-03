@@ -145,3 +145,27 @@ registry.category("web_tour.tours").add("ems_study_crud", {
         },
     ],
 });
+
+// Issue #553: a teacher opening a study whose files someone else uploaded - the attachments used
+// to stay unlinked (no res_id), so only their uploader could read them.
+registry.category("web_tour.tours").add("ems_study_teacher_attachment", {
+    test: true,
+    url: "/odoo/action-ems.action_study_tree",
+    steps: () => [
+        { trigger: ".o_list_view", content: "Studies list loaded" },
+        {
+            trigger: ".o_list_view .o_data_row td:contains('Study Attachment Tour Study')",
+            content: "Open the study",
+            run: "click",
+        },
+        {
+            trigger: ".o_notebook .nav-link:contains('Attached files')",
+            content: "Open Attached files tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='attachment_ids'] .o_data_row:contains('Tour curriculum.pdf')",
+            content: "The file is listed",
+        },
+    ],
+});

@@ -52,6 +52,7 @@ from pathlib import Path
 from compute_test_shards import compute_shards
 
 FILESTORE_ROOT = Path("/var/lib/odoo/.local/share/Odoo/filestore")
+SCRIPT_DIR = Path(__file__).resolve().parent
 BASE_HTTP_PORT = 18069
 RESULT_RE = re.compile(r"odoo\.tests\.result: (\d+) failed, (\d+) error\(s\) of (\d+) tests")
 
@@ -146,7 +147,8 @@ class ShardBatchRunner:
         port = BASE_HTTP_PORT + self.port_counter
         self.port_counter += 1
         cmd = (
-            "sudo -u odoo bash -c "
+            # as_odoo.sh: the environment Chrome needs to start in tour tests (issue #563).
+            f"{SCRIPT_DIR / 'as_odoo.sh'} bash -c "
             f"\"odoo -d {db_name} --test-enable --test-tags='{shard['tags']}' "
             f"--http-port={port} --stop-after-init -c /etc/odoo/odoo.conf\""
         )

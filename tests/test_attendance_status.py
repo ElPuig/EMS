@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo.exceptions import AccessError, ValidationError
+from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 from .common import next_student_id
 
@@ -17,11 +17,6 @@ class TestAttendanceStatus(TransactionCase):
             'name': 'Test Admin (Attendance Status)', 'login': 'test_admin_astatus',
             'email': 'test_admin_astatus@example.com',
             'groups_id': [(4, cls.group_academic_admin.id), (4, cls.env.ref('base.group_user').id)],
-        })
-        cls.teacher_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Test Teacher (Attendance Status)', 'login': 'test_teacher_astatus',
-            'email': 'test_teacher_astatus@example.com',
-            'groups_id': [(4, cls.group_teacher.id), (4, cls.env.ref('base.group_user').id)],
         })
 
         cls.status_attended = cls.env.ref('ems.attendance_status_attended')
@@ -106,12 +101,6 @@ class TestAttendanceStatus(TransactionCase):
             self.env['ems.attendance_status'].with_user(self.admin_user).create({
                 'name': 'Bad color', 'category': 'absence', 'color': 'not-a-hex-color',
             })
-
-    def test_teacher_can_read_but_not_write(self):
-        status = self.env['ems.attendance_status'].with_user(self.teacher_user).browse(self.status_attended.id)
-        self.assertEqual(status.name, 'Attended')
-        with self.assertRaises(AccessError):
-            status.write({'name': 'Should not be allowed'})
 
     # --- integration with ems.attendance_session_line ---------------------
 

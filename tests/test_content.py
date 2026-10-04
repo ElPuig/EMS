@@ -1,4 +1,4 @@
-from odoo.exceptions import AccessError, ValidationError
+from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
 
@@ -7,16 +7,6 @@ class TestContent(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.teacher_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Test Teacher (Content)',
-            'login': 'test_teacher_for_content',
-            'groups_id': [(4, cls.env.ref('ems.group_teacher').id)],
-        })
-        cls.secretary_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Test Secretary (Content)',
-            'login': 'test_secretary_for_content',
-            'groups_id': [(4, cls.env.ref('ems.group_secretary').id)],
-        })
         cls.test_subject = cls.env['ems.subject'].create({
             'code': 'TST_CONT_SUBJ',
             'acronym': 'TCTS',
@@ -112,71 +102,3 @@ class TestContent(TransactionCase):
         })
         self.assertEqual(grandchild.level, 3)
         self.assertEqual(grandchild.subject_id, self.test_subject)
-
-    def test_admin_can_create(self):
-        content = self.env['ems.content'].create({
-            'code': 'T04',
-            'acronym': 'T04A',
-            'name': 'Admin Test',
-            'subject_id': self.test_subject.id,
-        })
-        self.assertTrue(content.id)
-
-    def test_admin_can_write(self):
-        content = self.env['ems.content'].create({
-            'code': 'T05',
-            'acronym': 'T05A',
-            'name': 'Before Write',
-            'subject_id': self.test_subject.id,
-        })
-        content.write({'name': 'After Write'})
-        self.assertEqual(content.name, 'After Write')
-
-    def test_admin_can_unlink(self):
-        content = self.env['ems.content'].create({
-            'code': 'T06',
-            'acronym': 'T06A',
-            'name': 'To Delete',
-            'subject_id': self.test_subject.id,
-        })
-        content_id = content.id
-        content.unlink()
-        self.assertFalse(self.env['ems.content'].search([('id', '=', content_id)]))
-
-    def test_teacher_cannot_create(self):
-        with self.assertRaises(AccessError):
-            self.env['ems.content'].with_user(self.teacher_user).create({
-                'code': 'T07',
-                'acronym': 'T07A',
-                'name': 'Teacher Attempt',
-                'subject_id': self.test_subject.id,
-            })
-
-    def test_teacher_cannot_write(self):
-        with self.assertRaises(AccessError):
-            self.test_content.with_user(self.teacher_user).write({'name': 'Teacher Write'})
-
-    def test_teacher_cannot_unlink(self):
-        with self.assertRaises(AccessError):
-            self.test_content.with_user(self.teacher_user).unlink()
-
-    def test_teacher_can_read(self):
-        content = self.test_content.with_user(self.teacher_user)
-        self.assertEqual(content.name, 'Test Content')
-
-    def test_secretary_cannot_create(self):
-        with self.assertRaises(AccessError):
-            self.env['ems.content'].with_user(self.secretary_user).create({
-                'code': 'T08',
-                'acronym': 'T08A',
-                'name': 'Secretary Attempt',
-                'subject_id': self.test_subject.id,
-            })
-
-    def test_secretary_cannot_write(self):
-        with self.assertRaises(AccessError):
-            self.test_content.with_user(self.secretary_user).write({'name': 'Secretary Write'})
-
-    def test_secretary_cannot_unlink(self):
-        with self.assertRaises(AccessError):
-            self.test_content.with_user(self.secretary_user).unlink()

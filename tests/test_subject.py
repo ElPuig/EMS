@@ -1,4 +1,3 @@
-from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
 
@@ -7,21 +6,6 @@ class TestSubject(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.teacher_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Test Teacher (Subject)',
-            'login': 'test_teacher_for_subject',
-            'groups_id': [(4, cls.env.ref('ems.group_teacher').id)],
-        })
-        cls.secretary_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Test Secretary (Subject)',
-            'login': 'test_secretary_for_subject',
-            'groups_id': [(4, cls.env.ref('ems.group_secretary').id)],
-        })
-        cls.test_subject = cls.env['ems.subject'].create({
-            'code': 'TST_SUBJ_001',
-            'acronym': 'TSSJ',
-            'name': 'Test Subject',
-        })
 
     def test_create_valid(self):
         subject = self.env['ems.subject'].create({
@@ -185,66 +169,3 @@ class TestSubject(TransactionCase):
         self.assertFalse(subject.product_id)
         subject.write({'notes': 'trigger write'})
         self.assertTrue(subject.product_id)
-
-    def test_admin_can_create(self):
-        subject = self.env['ems.subject'].create({
-            'code': 'T10',
-            'acronym': 'T10A',
-            'name': 'Admin Test',
-        })
-        self.assertTrue(subject.id)
-
-    def test_admin_can_write(self):
-        subject = self.env['ems.subject'].create({
-            'code': 'T11',
-            'acronym': 'T11A',
-            'name': 'Before Write',
-        })
-        subject.write({'name': 'After Write'})
-        self.assertEqual(subject.name, 'After Write')
-
-    def test_admin_can_unlink(self):
-        subject = self.env['ems.subject'].create({
-            'code': 'T12',
-            'acronym': 'T12A',
-            'name': 'To Delete',
-        })
-        subject_id = subject.id
-        subject.unlink()
-        self.assertFalse(self.env['ems.subject'].search([('id', '=', subject_id)]))
-
-    def test_teacher_cannot_create(self):
-        with self.assertRaises(AccessError):
-            self.env['ems.subject'].with_user(self.teacher_user).create({
-                'code': 'T13',
-                'acronym': 'T13A',
-                'name': 'Teacher Attempt',
-            })
-
-    def test_teacher_cannot_write(self):
-        with self.assertRaises(AccessError):
-            self.test_subject.with_user(self.teacher_user).write({'name': 'Teacher Write'})
-
-    def test_teacher_cannot_unlink(self):
-        with self.assertRaises(AccessError):
-            self.test_subject.with_user(self.teacher_user).unlink()
-
-    def test_teacher_can_read(self):
-        subject = self.test_subject.with_user(self.teacher_user)
-        self.assertEqual(subject.name, 'Test Subject')
-
-    def test_secretary_cannot_create(self):
-        with self.assertRaises(AccessError):
-            self.env['ems.subject'].with_user(self.secretary_user).create({
-                'code': 'T14',
-                'acronym': 'T14A',
-                'name': 'Secretary Attempt',
-            })
-
-    def test_secretary_cannot_write(self):
-        with self.assertRaises(AccessError):
-            self.test_subject.with_user(self.secretary_user).write({'name': 'Secretary Write'})
-
-    def test_secretary_cannot_unlink(self):
-        with self.assertRaises(AccessError):
-            self.test_subject.with_user(self.secretary_user).unlink()

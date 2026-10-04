@@ -312,7 +312,14 @@ have been asked live, not optional. State plainly which mode-scoped tasks got fi
 ## Testing conventions
 
 **Backend tests** — `tests/test_<model>.py`, using `odoo.tests.common.TransactionCase`:
-- Cover: valid create, required fields, display_name, admin CRUD, role access restrictions, relation integrity.
+- Cover: valid create, required fields, display_name, role access restrictions, relation integrity.
+- **Role access, model level (`ir.model.access`):** add the model's row to `ACCESS_MATRIX` in
+  `tests/test_access_matrix.py` (role → allowed operations, e.g. `'r'` or `'rwcu'`), not one
+  `test_<role>_can/cannot_<op>` method per role and operation in the model's own file (issue #567
+  replaced 141 of those). Record-level rules (`ir.rule`, e.g. "a tutor only edits their own
+  students") still need a real record, so they stay as tests in the model's own file. Don't write
+  "admin can create/write/unlink" tests with `self.env`: tests run as the superuser, which skips
+  every access check, so they only repeat the valid-create test.
 - Use `assertRaises(Exception)` for DB-level violations (Odoo's `assertRaises` does not accept exception tuples).
 - Use unique codes/acronyms in test data that do not conflict with production data (ESO, BTX, CFGM, CFGS, EFPS, CFGB, PFI already exist).
 

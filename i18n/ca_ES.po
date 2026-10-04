@@ -19815,3 +19815,10 @@ msgstr "Camp de color"
 #: model:ir.model.fields,field_description:ems.field_hr_work_location__name
 msgid "Work Location"
 msgstr "Ubicació de la feina"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__student_domain
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__student_domain
+#: model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__student_domain
+msgid "Student domain"
+msgstr "Domini de l'alumne"

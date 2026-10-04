@@ -35,7 +35,7 @@ class EmsStudentScopeMixin(models.AbstractModel):
     # the students they act on (issue #550). A default, not a compute: the assistant is always a
     # new record, and a computed field with no field dependencies is not sent to the client on a
     # new record - the same reason as ems.em_grading_wizard.group_domain.
-    student_domain = fields.Char(default=lambda self: str(self._scope_student_domain()))
+    student_domain = fields.Char(string="Student domain", default=lambda self: str(self._scope_student_domain()))
     group_ids = fields.Many2many(
         'ems.group', string='Groups', domain="[('id', 'in', allowed_group_ids)]")
     ems_study_ids = fields.Many2many(

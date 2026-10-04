@@ -3,6 +3,7 @@ from . import test_absence_tour
 from . import test_absence_pending
 from . import test_absence_pending_tour
 from . import test_accent_insensitive_sorting
+from . import test_access_matrix
 from . import test_contact
 from . import test_contact_group_change_tour
 from . import test_contact_relation_wizard
@@ -57,7 +58,6 @@ from . import test_public_holiday
 from . import test_public_holiday_tour
 from . import test_user_implied_groups
 from . import test_group_change_log
-from . import test_space_type
 from . import test_space
 from . import test_space_schedule
 from . import test_space_schedule_tour

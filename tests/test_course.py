@@ -1,4 +1,4 @@
-from odoo.exceptions import AccessError, ValidationError
+from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
 
@@ -7,28 +7,12 @@ class TestCourse(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.teacher_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Test Teacher (Course)',
-            'login': 'test_teacher_for_course',
-            'groups_id': [(4, cls.env.ref('ems.group_teacher').id)],
-        })
-        cls.secretary_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Test Secretary (Course)',
-            'login': 'test_secretary_for_course',
-            'groups_id': [(4, cls.env.ref('ems.group_secretary').id)],
-        })
         # is_current/is_enrollment_default are unipersonal and already assigned in the
         # working database's seed data; clear them so the tests are self-contained.
         cls.env['ems.course'].sudo().search([]).write({
             'is_current': False, 'is_enrollment_default': False,
         })
         cls.test_course = cls.env['ems.course'].create({'start': 1900, 'end': 1901})
-
-    def test_create_valid(self):
-        course = self.env['ems.course'].create({'start': 1910, 'end': 1911})
-        self.assertTrue(course.id)
-        self.assertEqual(course.start, 1910)
-        self.assertEqual(course.end, 1911)
 
     def test_name_computed(self):
         course = self.env['ems.course'].create({'start': 1920, 'end': 1921})
@@ -65,49 +49,6 @@ class TestCourse(TransactionCase):
         self.env.company.current_course_id = course_b.id
         self.assertFalse(course_a.is_current)
         self.assertTrue(course_b.is_current)
-
-    def test_admin_can_create(self):
-        course = self.env['ems.course'].create({'start': 1980, 'end': 1981})
-        self.assertTrue(course.id)
-
-    def test_admin_can_write(self):
-        course = self.env['ems.course'].create({'start': 1990, 'end': 1991})
-        course.write({'start': 1991, 'end': 1992})
-        self.assertEqual(course.name, '1991-1992')
-
-    def test_admin_can_unlink(self):
-        course = self.env['ems.course'].create({'start': 2000, 'end': 2001})
-        course_id = course.id
-        course.unlink()
-        self.assertFalse(self.env['ems.course'].search([('id', '=', course_id)]))
-
-    def test_teacher_cannot_create(self):
-        with self.assertRaises(AccessError):
-            self.env['ems.course'].with_user(self.teacher_user).create({'start': 2010, 'end': 2011})
-
-    def test_teacher_cannot_write(self):
-        with self.assertRaises(AccessError):
-            self.test_course.with_user(self.teacher_user).write({'start': 1901})
-
-    def test_teacher_cannot_unlink(self):
-        with self.assertRaises(AccessError):
-            self.test_course.with_user(self.teacher_user).unlink()
-
-    def test_teacher_can_read(self):
-        course = self.test_course.with_user(self.teacher_user)
-        self.assertEqual(course.name, '1900-1901')
-
-    def test_secretary_cannot_create(self):
-        with self.assertRaises(AccessError):
-            self.env['ems.course'].with_user(self.secretary_user).create({'start': 2020, 'end': 2021})
-
-    def test_secretary_cannot_write(self):
-        with self.assertRaises(AccessError):
-            self.test_course.with_user(self.secretary_user).write({'start': 1901})
-
-    def test_secretary_cannot_unlink(self):
-        with self.assertRaises(AccessError):
-            self.test_course.with_user(self.secretary_user).unlink()
 
     # --- seeding the enrollment default -------------------------------------
     # is_enrollment_default is never a column of a course data file (it is live

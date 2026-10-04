@@ -98,16 +98,14 @@ jobs:
             echo "Previous head's run passed - skipping the full test suite for this run."
           fi
 
-      # --canary: only one tour class runs in CI for now (issue #563), enough to prove Chrome
-      # works on the runner; running every tour in CI again is issue #565.
       - name: Compute test shards
         id: shards
-        run: echo "matrix=$(python3 scripts/testing/compute_test_shards.py --canary)" >> "$GITHUB_OUTPUT"
+        run: echo "matrix=$(python3 scripts/testing/compute_test_shards.py)" >> "$GITHUB_OUTPUT"
 
   # One shard = one full "install Odoo + EMS" runner running a subset of test classes, in
   # parallel with every other shard - see scripts/testing/compute_test_shards.py for how the
-  # subsets are chosen (one "fast" shard with everything except browser tours, split evenly
-  # across N "tour-*" shards). Each shard duplicates the install/setup cost (unavoidable on
+  # subsets are chosen ("backend-N" shards with everything except browser tours, "tours-N"
+  # shards with the tours, both balanced by measured duration - issue #565). Each shard duplicates the install/setup cost (unavoidable on
   # GitHub-hosted runners without a shared filesystem between jobs), but that cost runs
   # concurrently across shards instead of stacking sequentially - this repo's GitHub repo is
   # public, so the extra Actions minutes this duplication uses are free (see CLAUDE.md/chat
@@ -246,7 +244,7 @@ jobs:
             /tmp/odoo-upgrade.log
           if-no-files-found: ignore
 
-  # A matrix job's own check name changes per matrix value (e.g. "Test (tour-2)"), which
+  # A matrix job's own check name changes per matrix value (e.g. "Test (tours-2)"), which
   # branch protection would treat as a brand-new, never-configured check per shard - this
   # lightweight aggregator exists so there's a single, stable check reflecting "did the whole
   # matrix pass," with the real work split into parallel shards underneath it.

@@ -66,7 +66,12 @@ class TestEmployeePresenceState(TransactionCase):
             self.assertEqual(self._presence_at(7, 15), 'absent')
 
     def test_login_presence_control_is_disabled_for_every_company(self):
-        other_company = self.env['res.company'].create({'name': 'Test Company (Presence State)'})
+        # Reuses the current company's calendar: Odoo would otherwise create a "Standard 40
+        # hours/week" one, whose name is unique in EMS and already taken on a clean install.
+        other_company = self.env['res.company'].create({
+            'name': 'Test Company (Presence State)',
+            'resource_calendar_id': self.env.company.resource_calendar_id.id,
+        })
         self.assertTrue(other_company.hr_presence_control_login)
         _disable_login_presence_control(self.env)
         self.assertFalse(other_company.hr_presence_control_login)

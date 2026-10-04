@@ -406,6 +406,13 @@ itself would have been caught by this mechanism, per that tour's own comment.
   `department_chief` are skipped as strict subsets of `teacher`'s menu reach; `head_of_studies`/
   `director`/`academic_admin` and the `*_admin` variants are skipped as already
   `hr.group_hr_user`-equivalent in practice.
+- **Admin crawler (`tests/test_role_smoke_admin_tour.py`, issue #566):** a sixth crawler,
+  logged in as a fixture user with every EMS `*_admin` group plus Director and Head of Studies,
+  limited to `ems.*` actions (native Odoo apps are Odoo's to test). It covers every EMS
+  catalog/configuration screen in every view mode, so a screen that only needs "create a
+  record and save it" gets no tour of its own (the 15 that did were removed in #566); write a
+  dedicated tour only when the screen has behaviour of its own (a custom widget, a button, a
+  tab's content, a rule the UI must enforce).
 - **Maintaining the skip-list:** each crawler tour keeps a small, explicit list of action
   xmlids/ids it deliberately does not open (wizards, actions requiring context like
   `active_id` that only make sense launched from a specific record, print/report actions,

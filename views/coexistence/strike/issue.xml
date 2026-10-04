@@ -12,6 +12,11 @@
             <field name="arch" type="xml">
                 <form string="New strike">
                     <sheet>
+                        <!-- Issue #554: this teacher already issued a strike to this student a moment
+                             ago (ems.strike.get_duplicate_warning); Send then asks for confirmation. -->
+                        <div class="alert alert-warning o_strike_duplicate_warning" role="alert" invisible="not duplicate_warning">
+                            <field name="duplicate_warning"/>
+                        </div>
                         <group>
                             <group>
                                 <!-- Opened from a student's own "Strikes" button: that student, locked
@@ -37,7 +42,9 @@
                         </group>
                     </sheet>
                     <footer>
-                        <button string="Send" special="save" class="btn-primary o_strike_issue_send" data-hotkey="q"/>
+                        <button string="Send" special="save" class="btn-primary o_strike_issue_send" data-hotkey="q" invisible="duplicate_warning"/>
+                        <button string="Send" special="save" class="btn-primary o_strike_issue_send" data-hotkey="q" invisible="not duplicate_warning"
+                                confirm="This strike may be a duplicate of the one shown above. Send it anyway?"/>
                         <button string="Cancel" special="cancel" class="btn-secondary" data-hotkey="x"/>
                     </footer>
                 </form>

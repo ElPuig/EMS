@@ -92,6 +92,7 @@ class AttendanceSessionView extends Component {
             editingStrikeLineId: null,
             editingStrikeStudentId: null,
             editingStrikeStudentName: "",
+            strikeSending: false,
             sortField: 'lastname',  // 'lastname' | 'name'
             sortDir:   'asc',       // 'asc' | 'desc'
             viewMode: 'current',    // 'current' | 'manual' | 'guard'
@@ -525,23 +526,50 @@ class AttendanceSessionView extends Component {
     }
 
     async onStrikeSend() {
-        const lineId    = this.state.editingStrikeLineId;
-        const studentId = this.state.editingStrikeStudentId;
-        const reasonId  = parseInt(this.strikeReasonSelect.el.value);
-        const notes     = this.strikeNotesTextarea.el.value.trim();
-        const kickedOut = this.strikeKickoutRadioExpelled.el.checked;
-        const strikeId = await this.orm.create("ems.strike", [{
-            student_id: studentId,
-            reason_id: reasonId,
-            notes: notes || false,
-            kicked_out: kickedOut,
-            attendance_session_line_id: lineId,
-        }]);
-        const line = this.state.lines.find(l => l.id === lineId);
-        if (line) line.strike_ids = [...line.strike_ids, ...strikeId];
+        // Issue #554: create() emails everyone right away, so it takes a few seconds; a second
+        // click meanwhile used to issue the same strike twice.
+        if (this.state.strikeSending) return;
+        this.state.strikeSending = true;
+        try {
+            const lineId    = this.state.editingStrikeLineId;
+            const studentId = this.state.editingStrikeStudentId;
+            const warning = await this.orm.call("ems.strike", "get_duplicate_warning", [studentId], { line_id: lineId });
+            if (warning && !(await this._confirmDuplicateStrike(warning))) return;
+            const reasonId  = parseInt(this.strikeReasonSelect.el.value);
+            const notes     = this.strikeNotesTextarea.el.value.trim();
+            const kickedOut = this.strikeKickoutRadioExpelled.el.checked;
+            const strikeId = await this.orm.create("ems.strike", [{
+                student_id: studentId,
+                reason_id: reasonId,
+                notes: notes || false,
+                kicked_out: kickedOut,
+                attendance_session_line_id: lineId,
+            }]);
+            const line = this.state.lines.find(l => l.id === lineId);
+            if (line) line.strike_ids = [...line.strike_ids, ...strikeId];
+            this.strikeDialog.el.close();
+            this.state.editingStrikeLineId = null;
+            this.state.editingStrikeStudentId = null;
+        } finally {
+            this.state.strikeSending = false;
+        }
+    }
+
+    /** Resolves to whether the teacher still wants to send a possibly duplicated strike. The
+     *  native <dialog> sits in the browser's top layer, above Odoo's dialogs, so it is hidden
+     *  while asking and shown again, with what was typed, if the teacher declines. */
+    async _confirmDuplicateStrike(body) {
         this.strikeDialog.el.close();
-        this.state.editingStrikeLineId = null;
-        this.state.editingStrikeStudentId = null;
+        const confirmed = await new Promise((resolve) => {
+            this.dialog.add(ConfirmationDialog, {
+                body,
+                confirmLabel: this.strings.send,
+                confirm: () => resolve(true),
+                cancel: () => resolve(false),
+            }, { onClose: () => resolve(false) });
+        });
+        if (!confirmed) this.strikeDialog.el.showModal();
+        return confirmed;
     }
 
     onDeleteSession() {

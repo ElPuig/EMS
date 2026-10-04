@@ -116,6 +116,10 @@
                             <setting string="Family notification" help="Which strikes notify the family (minors, or authorized adults). The student and tutor are always notified." id="strike_family_notification_mode">
                                 <field name="strike_family_notification_mode" widget="radio" options="{'horizontal': true}"/>
                             </setting>
+                            <setting string="Possible duplicate warning" help="Before sending a strike, warn the teacher if they already issued one to the same student within this many minutes (in the same roll-call session, when issued from the roll-call), and ask them to confirm it. 0 disables the warning." id="strike_duplicate_window">
+                                <field name="strike_duplicate_window" class="text-center" style="width: 5ch;"/>
+                                <span class="ms-2">minutes</span>
+                            </setting>
                         </block>
 
                          <block title="LimeSurvey Settings" name="ems_limesurvey_settings">                          

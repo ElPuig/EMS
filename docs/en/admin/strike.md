@@ -32,6 +32,12 @@ The same "Strikes Settings" block also has a **Family notification** option: **A
 
 ---
 
+## Configuring the Possible Duplicate Warning
+
+The same "Strikes Settings" block also has a **Possible duplicate warning** option: if a teacher already issued a strike to the same student within this many minutes (1 by default), from the same roll-call session or from the **New strike** dialog,, they are warned and asked to confirm before a new one is sent. Set it to 0 to turn the warning off.
+
+---
+
 ## Assigning the Coexistence Role
 
 Coexistence coordinators are assigned like any other role, under **Community → Configuration → Teachers → Roles**, by adding an employee to the "Coexistence coordinator" role. Unlike most coordination roles, this one is not limited to a single person — assign one per Head of Studies / Deputy Head of Studies branch as needed, since escalation emails are routed to whichever coordinator shares the issuing teacher's branch. See the [Teacher Roles and Permission Levels](teacher-roles.md) manual for the general role-assignment workflow.

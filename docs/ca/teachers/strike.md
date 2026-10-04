@@ -22,7 +22,7 @@ De vegades cal deixar constància del comportament d'un alumne durant una sessi�
 
 ![El diàleg de strike: el nom de l'alumne, l'alternança Toc d'atenció/Expulsat de classe, el desplegable de Motiu ja establert al valor genèric per defecte, i el camp opcional de Detalls](../../assets/teachers/strike-01-dialeg.png)
 
-Ja està — no cal cap altra confirmació, ni res més enllà del motiu.
+Ja està: no cal res més enllà del motiu, ni cap altra confirmació, tret que el strike sembli un duplicat (vegeu més avall).
 
 ---
 
@@ -39,6 +39,17 @@ També pots començar des de la fitxa del propi alumne: clica el seu botó **Str
 Si tanques el diàleg o cliques **Cancel·la**, no es desa res i no es notifica ningú.
 
 ![El diàleg Nou strike: Estudiant, Motiu, Expulsat de classe, Professor/a (només lectura), Data i hora i els Detalls opcionals, amb els botons Enviar i Cancel·la](../../assets/teachers/strike-02-fora-de-classe.png)
+
+---
+
+## Avís de possible duplicat
+
+Si fa un moment ja has posat un strike al mateix alumne (dins d'1 minut, per defecte) i des del mateix lloc (la mateixa sessió del passi de llista, o el diàleg **Nou strike**), l'EMS t'avisa abans d'enviar-ne un de nou, i et mostra quan es va posar l'anterior i per quin motiu, perquè no s'enviï el mateix strike dues vegades per error:
+
+- Des del passi de llista, en clicar **Enviar** et demana confirmació. Clica **Enviar** en aquest missatge si és una altra incidència, o **Cancel·lar** per tornar al diàleg del strike, amb tot el que hi havies escrit.
+- Al diàleg **Nou strike**, l'avís apareix a dalt de tot tan bon punt tries l'alumne, i **Enviar** també et demana confirmació.
+
+Mentre s'envia un strike, el seu botó **Enviar** queda desactivat, de manera que si el cliques dues vegades només s'envia un cop.
 
 ---
 

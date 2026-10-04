@@ -29,6 +29,8 @@ class TestStrikeIssueStandaloneTour(HttpCase):
         self.assertEqual(strike.teacher_id.user_id, self.teacher_user)
         self.assertTrue(strike.kicked_out)
         self.assertFalse(strike.attendance_session_line_id)
+        # Issue #554: the second strike, confirmed despite the duplicate warning.
+        self.assertTrue(self.env['ems.strike'].search([('notes', '=', 'Threw a chair, a different incident')]))
 
     def test_strike_issue_from_student_tour(self):
         self.start_tour(f"/odoo/action-ems.action_student_kanban/{self.student_without_strikes.id}",

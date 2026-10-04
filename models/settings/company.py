@@ -28,6 +28,8 @@ class ems_company(models.Model):
     attendance_issue_status_delay = fields.Integer(default=15)
     attendance_issue_tutor_default = fields.Float(default=21.0)
     strike_escalation_threshold = fields.Integer(default=3)
+    # Minutes; 0 disables the possible-duplicate warning (ems.strike.get_duplicate_warning).
+    strike_duplicate_window = fields.Integer(default=1)
     # NOTE: defaults to 'all' so an installation upgrading into this version keeps today's
     # always-notify-the-family behaviour unchanged. A brand-new installation starts on the
     # stricter 'kicked_out' instead, set by post_init_hook (see __init__.py).

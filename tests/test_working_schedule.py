@@ -1,6 +1,5 @@
 from datetime import date
 
-from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
 from .common import create_level_study
@@ -1102,13 +1101,6 @@ class TestWorkingSchedule(TransactionCase):
         )
 
         self.assertIn('Guàrdia'.encode(), content)
-
-    def test_teacher_cannot_write_schedule_attendance(self):
-        calendar = self.env['resource.calendar'].create({'name': 'Test ACL Teacher (Working Schedule)'})
-        with self.assertRaises(AccessError):
-            self.env['resource.calendar.attendance'].with_user(self.teacher_user).create({
-                'calendar_id': calendar.id, 'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
-            })
 
     def test_head_of_department_can_write_schedule_attendance(self):
         calendar = self.env['resource.calendar'].create({'name': 'Test ACL HoD (Working Schedule)'})

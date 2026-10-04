@@ -200,7 +200,7 @@ After any change, run `upgrade.sh` and check for WARNING / ERROR / CRITICAL outp
 
 **Optimize for quota, not just wall-clock time (2026-08-06) — the project is only getting bigger, so this compounds.** Before running anything (an upgrade, a test, a screenshot-capture loop), think about whether batching verification to the end of a chunk of work costs less than verifying after every small step, or the other way around — it genuinely depends on the situation (e.g. a single risky change with an uncertain outcome is worth checking immediately, so a mistake doesn't get compounded by several more edits on top of it; several small, independent, low-risk edits are usually cheaper to verify once at the end). Don't default to "run the gate after every edit" out of habit — decide deliberately per task. This is a general planning habit across every kind of tool use (edits, greps, screenshots, test runs), not just about `./test.sh`.
 
-**Never run the full, unscoped `./test.sh` on a development branch, and don't offer it either (2026-10-03).** CI already runs the full suite unconditionally before anything merges, so a local full run is never the actual safety net, and it is too slow to be worth it: the developers don't run it themselves (developer, 2026-10-03: *"no vamos a lanzar batería completa en ramas de desarrollo. Quizás (y solo quizás) en las ramas de integración y preparación de una PR"*). On an issue branch (`<issue_number>-<slug>`), close the work with scoped `./test.sh TestClassName` runs covering what was touched and leave the rest to CI, without asking whether to run the full suite. The only place a local full run may make sense is a release/integration branch (named after the version that goes into production, e.g. `v18.0.0.33.0`), and even there only after asking whoever's driving. **Exception, tours (2026-10-03, issue #563):** CI runs every backend test but only one canary tour (`BROWSER_CANARY_CLASSES` in `scripts/testing/compute_test_shards.py`) until issue #565 brings every tour back. Before that, Chrome never started on the runner, so no tour ever ran in CI. Until then, a tour only runs when someone runs it locally: run the tours a change touches with a scoped `./test.sh`.
+**Never run the full, unscoped `./test.sh` on a development branch, and don't offer it either (2026-10-03).** CI already runs the full suite unconditionally before anything merges, so a local full run is never the actual safety net, and it is too slow to be worth it: the developers don't run it themselves (developer, 2026-10-03: *"no vamos a lanzar batería completa en ramas de desarrollo. Quizás (y solo quizás) en las ramas de integración y preparación de una PR"*). On an issue branch (`<issue_number>-<slug>`), close the work with scoped `./test.sh TestClassName` runs covering what was touched and leave the rest to CI, without asking whether to run the full suite. The only place a local full run may make sense is a release/integration branch (named after the version that goes into production, e.g. `v18.0.0.33.0`), and even there only after asking whoever's driving.
 
 **If a test run seems to hang with no output, refresh any browser tab you have open on the Odoo backend.** `--test-enable` spins up a real HTTP server for the duration of any `HttpCase`/tour test (e.g. `test_grade_session_tour`, `test_level_tour`, `test_strike_tour` — pulled in by the full, unscoped `./test.sh`, or by name if you target one directly). Odoo's teardown (`_wait_remaining_requests` in `odoo/tests/common.py`) waits for every open HTTP request against that server to finish before the process can exit — including a stray long-polling (bus) connection from an already-open browser tab pointed at the same host/port, which is designed to never close on its own. Refreshing (no need to close) that tab severs the stale connection and lets the run finish. Scoped runs of test classes with no tour/`HttpCase` tests don't hit this specific hang, but closing/refreshing before *any* `./test.sh` run is the standing habit regardless (see the notification trigger below, which fires for every run, not just tour ones).
 
@@ -312,7 +312,19 @@ have been asked live, not optional. State plainly which mode-scoped tasks got fi
 ## Testing conventions
 
 **Backend tests** — `tests/test_<model>.py`, using `odoo.tests.common.TransactionCase`:
-- Cover: valid create, required fields, display_name, admin CRUD, role access restrictions, relation integrity.
+- Cover what EMS itself adds: `create`/`write`/`unlink` overrides, its own `display_name`
+  computations, constraints (`_sql_constraints`, `@api.constrains`), computed fields, role
+  access restrictions, relation integrity. Don't test what is plain Odoo behaviour: a field that
+  is just `required=True` raising when omitted, a `display_name` that is simply `name`, a
+  "create a valid record" test on a model with no `create` override (issue #567 removed 43 of
+  those).
+- **Role access, model level (`ir.model.access`):** add the model's row to `ACCESS_MATRIX` in
+  `tests/test_access_matrix.py` (role → allowed operations, e.g. `'r'` or `'rwcu'`), not one
+  `test_<role>_can/cannot_<op>` method per role and operation in the model's own file (issue #567
+  replaced 141 of those). Record-level rules (`ir.rule`, e.g. "a tutor only edits their own
+  students") still need a real record, so they stay as tests in the model's own file. Don't write
+  "admin can create/write/unlink" tests with `self.env`: tests run as the superuser, which skips
+  every access check, so they only repeat the valid-create test.
 - Use `assertRaises(Exception)` for DB-level violations (Odoo's `assertRaises` does not accept exception tuples).
 - Use unique codes/acronyms in test data that do not conflict with production data (ESO, BTX, CFGM, CFGS, EFPS, CFGB, PFI already exist).
 
@@ -406,6 +418,13 @@ itself would have been caught by this mechanism, per that tour's own comment.
   `department_chief` are skipped as strict subsets of `teacher`'s menu reach; `head_of_studies`/
   `director`/`academic_admin` and the `*_admin` variants are skipped as already
   `hr.group_hr_user`-equivalent in practice.
+- **Admin crawler (`tests/test_role_smoke_admin_tour.py`, issue #566):** a sixth crawler,
+  logged in as a fixture user with every EMS `*_admin` group plus Director and Head of Studies,
+  limited to `ems.*` actions (native Odoo apps are Odoo's to test). It covers every EMS
+  catalog/configuration screen in every view mode, so a screen that only needs "create a
+  record and save it" gets no tour of its own (the 15 that did were removed in #566); write a
+  dedicated tour only when the screen has behaviour of its own (a custom widget, a button, a
+  tab's content, a rule the UI must enforce).
 - **Maintaining the skip-list:** each crawler tour keeps a small, explicit list of action
   xmlids/ids it deliberately does not open (wizards, actions requiring context like
   `active_id` that only make sense launched from a specific record, print/report actions,

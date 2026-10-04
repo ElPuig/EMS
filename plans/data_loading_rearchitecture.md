@@ -111,9 +111,9 @@ that in-app edits are lost).
 **Implementation for each model confirmed living:** add it to `_EMS_LIVING_CUSTOM_DATA_MODELS`;
 add a raw-SQL `pre-migrate` in the current unreleased version folder freezing its existing
 `__import__` xmlids (pattern: `migrations/18.0.0.29.0/pre-migrate.py`), otherwise the first
-upgrade shipping the change still reverts the data one last time; add a
-`test_custom_data_records_are_frozen_against_future_upgrades` test (precedent: `tests/test_group.py`,
-`tests/test_space.py`); update `data_loading.md`.
+upgrade shipping the change still reverts the data one last time (no new test needed:
+`tests/test_data_custom_import_prefix.py`'s `test_living_custom_data_is_frozen_against_future_upgrades`
+already checks every model in that list); update `data_loading.md`.
 
 **Inventory and preliminary classification (2026-09-25, to be confirmed in the audit):**
 

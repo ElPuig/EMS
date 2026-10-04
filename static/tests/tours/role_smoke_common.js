@@ -74,18 +74,20 @@ const CRAWL_STEP_TIMEOUT_MS = 60000;
 // complete or genuinely fail on its own, is what keeps one screen's problem from bleeding into
 // the next.
 
-export function roleSmokeSteps(content) {
+// options.xmlIdPrefix: only open actions whose xml_id starts with it (e.g. "ems." for the admin
+// crawler, whose menu also reaches every native Odoo app - those are Odoo's to test, not ours).
+export function roleSmokeSteps(content, options = {}) {
     return [
         {
             trigger: "body",
             timeout: CRAWL_STEP_TIMEOUT_MS,
             content,
-            run: async () => crawlAccessibleScreens(),
+            run: async () => crawlAccessibleScreens(options),
         },
     ];
 }
 
-export async function crawlAccessibleScreens() {
+export async function crawlAccessibleScreens({ xmlIdPrefix } = {}) {
     const { action: actionService, menu: menuService } = Component.env.services;
 
     // Force-load the lazy widget bundle (timepicker, one2many_list, ...) up front - a human
@@ -111,6 +113,8 @@ export async function crawlAccessibleScreens() {
     }
 
     const failures = [];
+    let openedActions = 0;
+    let openedViews = 0;
     for (const actionId of actionIds) {
         let action;
         try {
@@ -126,6 +130,10 @@ export async function crawlAccessibleScreens() {
         if (!action || action.target === "new" || SKIP_ACTION_XMLIDS.has(action.xml_id)) {
             continue; // Wizards/dialogs, or a confirmed false positive - see SKIP_ACTION_XMLIDS.
         }
+        if (xmlIdPrefix && !(action.xml_id || "").startsWith(xmlIdPrefix)) {
+            continue;
+        }
+        openedActions++;
         // Bound the initial page size regardless of the action's own default - this crawler
         // only cares whether the screen crashes, never about the data itself, and a real dev
         // DB's data volume (hundreds/thousands of rows on some models) shouldn't be allowed to
@@ -135,6 +143,7 @@ export async function crawlAccessibleScreens() {
         for (const viewType of (action.view_mode || "").split(",").map((type) => type.trim()).filter(Boolean)) {
             try {
                 await actionService.doAction(action, { viewType, clearBreadcrumbs: true });
+                openedViews++;
             } catch (error) {
                 failures.push(`Action ${actionId} (${action.name}), view=${viewType}: ${error.message || error}`);
             }
@@ -143,4 +152,10 @@ export async function crawlAccessibleScreens() {
     if (failures.length) {
         throw new Error(`${failures.length} screen(s) failed for this role:\n${failures.join("\n")}`);
     }
+    if (!openedActions) {
+        throw new Error("Role smoke tour opened no action at all - check its filters before " +
+            "trusting a green run.");
+    }
+    // Shows up in the test log, so a green run also says how much it actually covered.
+    console.log(`Role smoke crawl: ${openedViews} view(s) opened across ${openedActions} action(s).`);
 }

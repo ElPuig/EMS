@@ -29,13 +29,6 @@ class TestMinute(TransactionCase):
         base.update(vals)
         return self.env['ems.minute'].create(base)
 
-    def test_create_requires_abstract(self):
-        with self.assertRaises(Exception):
-            self.env['ems.minute'].create({
-                'space_id': self.space.id,
-                'assistant_ids': [(6, 0, [self.assistant.id])],
-            })
-
     def test_assistant_ids_required_is_ui_only_not_orm_enforced(self):
         """assistant_ids is required=True, but Odoo never enforces `required`
         for a One2many/Many2many field at the ORM/create() level — only the

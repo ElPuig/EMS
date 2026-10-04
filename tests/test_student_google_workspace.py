@@ -220,6 +220,43 @@ class TestStudentGoogleWorkspace(TransactionCase):
         self.assertEqual(kwargs['userKey'], 'laia@elpuig.xeill.net')
         self.assertEqual(kwargs['body']['orgUnitPath'], '/alumnos/+18')
 
+    # --- rename (issue #542) -----------------------------------------------
+
+    def _rename_calls(self, student, vals):
+        """Write `vals` with the queue run synchronously; return the rename job's mock."""
+        with patch.object(type(student), 'action_sync_google_account_name', autospec=True) as sync:
+            student.with_context(queue_job__no_delay=True).write(vals)
+        return sync
+
+    def test_fixing_the_surnames_syncs_the_google_account_name(self):
+        student = self._new_student(student_email='laia@elpuig.xeill.net')
+        self._rename_calls(student, {'lastname': 'Puig Rovira'}).assert_called_once_with(student)
+
+    def test_fixing_the_first_name_syncs_the_google_account_name(self):
+        student = self._new_student(student_email='laia@elpuig.xeill.net')
+        self._rename_calls(student, {'firstname': 'Laila'}).assert_called_once_with(student)
+
+    def test_rename_without_account_does_not_sync(self):
+        # No IDALU: not ready, so the write cannot create the account first.
+        student = self._new_student(student_id=False)
+        self._rename_calls(student, {'lastname': 'Puig Rovira'}).assert_not_called()
+
+    def test_other_writes_do_not_sync_the_name(self):
+        student = self._new_student(student_email='laia@elpuig.xeill.net')
+        self._rename_calls(student, {'mobile': '600000000'}).assert_not_called()
+
+    def test_sync_name_patches_first_name_and_surnames(self):
+        student = self._new_student(student_email='laia@elpuig.xeill.net')
+        mock_service = Mock()
+        self.company.google_ws_dry_run = False
+        with patch('odoo.addons.ems.models.shared.google_workspace_mixin.'
+                   'GoogleWorkspaceMixin._gw_get_service', return_value=mock_service):
+            student.action_sync_google_account_name()
+        __, kwargs = mock_service.users.return_value.patch.call_args
+        self.assertEqual(kwargs['userKey'], 'laia@elpuig.xeill.net')
+        self.assertEqual(kwargs['body'], {
+            'name': {'givenName': 'Laia', 'familyName': 'Puig Roca'}})
+
     # --- unlink ------------------------------------------------------------
 
     def test_unlink_suspends_google_account(self):

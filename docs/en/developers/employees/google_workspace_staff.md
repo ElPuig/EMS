@@ -138,6 +138,7 @@ flowchart LR
 | Unarchived before the deactivation date | schedule cancelled; the account was never touched | unarchived |
 | Unarchived while suspended | reactivated (queued) | unarchived |
 | Deleted (`unlink`) | suspended synchronously | archived |
+| Renamed (`name` written) | name patched to `_gw_split_name()` (queued), suspended accounts included | renamed (`_sync_user_name`, synchronous) |
 
 Unlike the student side, staff accounts are **never deleted** — the issue only asks for
 deletion of student accounts. `GW_DELETION_DELAY_DAYS` and `action_delete_google_account()`
@@ -145,6 +146,26 @@ exist only on `res.partner`.
 
 The delay is a fixed constant in `models/shared/google_workspace_mixin.py`
 (`GW_DEACTIVATION_DELAY_DAYS`, 30), not a company setting.
+
+### Renaming (`action_sync_google_account_name`)
+
+Writing `name` on a teacher/ASP whose `work_email` is in the company's Google domain
+enqueues `action_sync_google_account_name()` (`_gw_enqueue_rename`, deduplicated by
+`identity_key`), which patches the Google user's `givenName`/`familyName` with the same
+`_gw_split_name()` heuristic used at creation time, through the mixin's
+`_gw_sync_account_name()` (shared with students). The corporate address itself is never
+changed. A non-corporate `work_email` is skipped (not an account EMS manages). A 403/404
+answer (account deleted, or outside the managed OUs) posts a chatter note instead of
+failing the job, since a retry could never succeed; any other error is raised so the job
+shows as failed.
+
+The linked EMS user is renamed too, synchronously and regardless of the Google integration
+(`hr.employee._sync_user_name()`, `models/employees/employee.py`): native hr only syncs the
+other way (renaming a `res.users` renames its employees), so a fixed employee name - typically
+a pending-identification placeholder replaced by the real teacher - used to leave the user
+with the old one. It writes `firstname`/`lastname`, never `name`, so the native sync does not
+bounce it back. `migrations/18.0.0.33.0/post-migrate.py` aligned every user that had already
+drifted, employee name winning, and queued the Google rename for them.
 
 ### The daily cron
 
@@ -321,6 +342,10 @@ grace period itself (#388): scheduling on archive rather than suspending, the wa
 email, the first date winning over a second archive, cancelling on unarchive and via the
 button, the schedule being cleared once the account is actually suspended, the cron's
 date/active guards and idempotence, and `unlink()` still suspending immediately.
+
+The rename sync (#542) is covered in `TestEmployeeGoogleWorkspace` (`test_rename_*`,
+`test_sync_name_*`): which writes enqueue it, the Directory API payload, the 403/404
+report and dry-run.
 
 The student-side integration has its own
 `tests/test_student_google_workspace.py` — see

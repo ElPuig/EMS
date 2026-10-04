@@ -19432,3 +19432,15 @@ msgid ""
 "You can only move %(student)s to a group of the same study, course and shift"
 " as %(group)s. Ask the secretary's office for any other change."
 msgstr "Solo puedes mover a %(student)s a un grupo del mismo estudio, curso y turno que %(group)s. Pide a secretaría cualquier otro cambio."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/google_workspace_mixin.py:0
+msgid "Google Workspace: the account %s could not be renamed because it no longer exists or is outside the managed organizational units."
+msgstr "Google Workspace: no se ha podido cambiar el nombre de la cuenta %s porque ya no existe o está fuera de las unidades organizativas gestionadas."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/google_workspace_mixin.py:0
+msgid "Google Workspace account %(email)s renamed to %(name)s."
+msgstr "Se ha cambiado el nombre de la cuenta de Google Workspace %(email)s a %(name)s."

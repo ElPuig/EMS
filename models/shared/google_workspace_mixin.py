@@ -128,6 +128,37 @@ class GoogleWorkspaceMixin(models.AbstractModel):
         return True
 
     @api.model
+    def _gw_sync_account_name(self, record, email, given, family):
+        """Copy a name onto the Google account `email` belongs to (issue #542).
+
+        Shared by staff (``hr.employee``) and students (``res.partner``); `record` gets
+        the chatter note. Idempotent: patching the same name again is a no-op on
+        Google's side. A 403/404 (account deleted, or outside the managed OUs - the
+        OU-scoped role answers 403 for both) is reported instead of raised, since a
+        retry could never succeed; any other error is raised so the job shows as failed.
+        """
+        body = {'name': {'givenName': given or '', 'familyName': family or ''}}
+        if self.env.company.google_ws_dry_run:
+            _logger.info("[GW dry-run] rename %s -> %s", email, body)
+            return
+        service = self._gw_get_service()
+        try:
+            service.users().patch(userKey=email, body=body).execute()
+        except HttpError as e:
+            status = getattr(getattr(e, 'resp', None), 'status', None)
+            if status in (404, 403):
+                record.sudo().message_post(body=_(
+                    "Google Workspace: the account %s could not be renamed because it "
+                    "no longer exists or is outside the managed organizational units.")
+                    % email)
+                return
+            _logger.exception("Could not rename Google account %s", email)
+            raise
+        record.sudo().message_post(body=_(
+            "Google Workspace account %(email)s renamed to %(name)s.") % {
+                'email': email, 'name': record.name})
+
+    @api.model
     def _gw_format_phone(self, raw):
         """Return the given phone number in E.164 (+34...) or False."""
         if not raw:

@@ -104,7 +104,7 @@ and ask the developer whether `devel.sh` needs to run before continuing.
 
 `devel.sh` (interactive, or non-interactive via `./devel.sh <google_account> [domain]`) is the
 script that turns a freshly-restored real backup into a safe local dev environment: among other
-things (enabling the debugger, cancelling stuck queue jobs, pointing `report.url` - the address wkhtmltopdf loads a PDF's stylesheets and logo from - at this box's own Odoo port, since the restored production value, `http://127.0.0.1`, is the reverse proxy that only exists in production and left every PDF unstyled), it rewrites **every** stored email
+things (enabling the debugger, cancelling stuck queue jobs, pointing `report.url` - the address wkhtmltopdf loads a PDF's stylesheets and logo from - at this box's own Odoo port, since the restored production value, `http://127.0.0.1`, is the reverse proxy that only exists in production and left every PDF unstyled; forcing the Google Workspace integration into dry-run, `res.company.google_ws_dry_run`, so a restored production service account can never create, rename or suspend a real account in the centre's Google Workspace), it rewrites **every** stored email
 address (`res_partner.email`/`email_normalized`/`student_email`, plus the dependent
 `hr_employee.work_email`) to `<google_account>+<original_email, '@' encoded as '_at_'>@<domain>`
 — e.g. `kandilhamza@gmail.com` becomes `porrino.fernando+kandilhamza_at_gmail.com@elpuig.xeill.net`.

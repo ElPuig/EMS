@@ -1,11 +1,12 @@
 import importlib.util
 import os
-from unittest.mock import patch
+from unittest.mock import MagicMock, Mock, patch
 
 from dateutil.relativedelta import relativedelta
 
 from odoo.addons.ems.models.shared.google_workspace_mixin import (
     GW_DEACTIVATION_DELAY_DAYS,
+    HttpError,
 )
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
@@ -309,6 +310,79 @@ class TestEmployeeGoogleWorkspace(TransactionCase):
         with patch.object(type(teacher), 'action_suspend_google_account', autospec=True) as suspend:
             teacher.unlink()
         suspend.assert_not_called()
+
+    # --- rename (issue #542) -------------------------------------------
+    def _rename_calls(self, teacher, vals):
+        """Write `vals` with the queue run synchronously; return the rename job's mock."""
+        with patch.object(type(teacher), 'action_sync_google_account_name', autospec=True) as sync:
+            teacher.with_context(queue_job__no_delay=True).write(vals)
+        return sync
+
+    def test_rename_syncs_the_google_account_name(self):
+        teacher = self._new_teacher(
+            private_email='ada@example.com', work_email='ada@elpuig.xeill.net')
+        sync = self._rename_calls(teacher, {'name': 'Ada Byron King'})
+        sync.assert_called_once_with(teacher)
+
+    def test_rename_without_account_does_not_sync(self):
+        # No personal email: not ready, so the write cannot create the account first.
+        teacher = self._new_teacher()
+        self._rename_calls(teacher, {'name': 'Ada Byron King'}).assert_not_called()
+
+    def test_rename_with_non_corporate_email_does_not_sync(self):
+        teacher = self._new_teacher(
+            private_email='ada@example.com', work_email='ada@example.com')
+        self._rename_calls(teacher, {'name': 'Ada Byron King'}).assert_not_called()
+
+    def test_other_writes_do_not_sync_the_name(self):
+        teacher = self._new_teacher(
+            private_email='ada@example.com', work_email='ada@elpuig.xeill.net')
+        self._rename_calls(teacher, {'mobile_phone': '600000000'}).assert_not_called()
+
+    def test_rename_with_integration_disabled_does_not_sync(self):
+        teacher = self._new_teacher(
+            private_email='ada@example.com', work_email='ada@elpuig.xeill.net')
+        self.company.google_ws_enabled = False
+        self._rename_calls(teacher, {'name': 'Ada Byron King'}).assert_not_called()
+
+    def _sync_name_with_service(self, teacher, service):
+        self.company.google_ws_dry_run = False
+        with patch.object(type(self.env['google.workspace.mixin']), '_gw_get_service',
+                          return_value=service):
+            teacher.action_sync_google_account_name()
+
+    def test_sync_name_patches_given_and_family_name(self):
+        teacher = self._new_teacher(
+            name='Ada Byron King', private_email='ada@example.com',
+            work_email='ada@elpuig.xeill.net')
+        service = MagicMock()
+        self._sync_name_with_service(teacher, service)
+        __, kwargs = service.users.return_value.patch.call_args
+        self.assertEqual(kwargs['userKey'], 'ada@elpuig.xeill.net')
+        self.assertEqual(kwargs['body'], {
+            'name': {'givenName': 'Ada', 'familyName': 'Byron King'}})
+
+    def test_sync_name_on_a_missing_account_is_reported_not_raised(self):
+        teacher = self._new_teacher(
+            private_email='ada@example.com', work_email='ada@elpuig.xeill.net')
+        service = MagicMock()
+        service.users.return_value.patch.return_value.execute.side_effect = HttpError(
+            Mock(status=404), b'Not Found')
+        self._sync_name_with_service(teacher, service)
+        self.assertIn('could not be renamed', teacher.message_ids[0].body)
+
+    def test_sync_name_message_is_translated(self):
+        teacher = self._new_teacher(
+            private_email='ada@example.com', work_email='ada@elpuig.xeill.net')
+        self._sync_name_with_service(teacher.with_context(lang='ca_ES'), MagicMock())
+        self.assertIn("S'ha canviat el nom del compte", teacher.message_ids[0].body)
+
+    def test_sync_name_dry_run_calls_no_service(self):
+        teacher = self._new_teacher(
+            private_email='ada@example.com', work_email='ada@elpuig.xeill.net')
+        with patch.object(type(self.env['google.workspace.mixin']), '_gw_get_service') as service:
+            teacher.action_sync_google_account_name()
+        service.assert_not_called()
 
     # --- permissions ---------------------------------------------------
     def test_teacher_cannot_manage_employees(self):

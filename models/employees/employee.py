@@ -843,6 +843,7 @@ class ems_employee(models.AbstractModel):
             for employee in self:
                 employee.resource_calendar_id._refresh_personal_name()
             self._refresh_stale_avatar_placeholder()
+            self._sync_user_name()
 
         if photo is not _UNSET:
             for employee in self:
@@ -856,6 +857,21 @@ class ems_employee(models.AbstractModel):
             Group.sudo().search([('tutor_id', 'in', self.ids)])._mark_public_schedule_dirty()
 
         return result
+
+    def _sync_user_name(self):
+        """Give the linked EMS user the employee's name (issue #542).
+
+        Native hr only syncs the other way (a renamed user renames its employee), so a
+        name fixed on the employee form - e.g. a pending-identification placeholder
+        replaced by the real teacher's name - used to leave the user with the old one.
+        firstname/lastname are written rather than `name`: writing `name` on res.users
+        would bounce straight back to the employee through that same native sync. sudo():
+        HR officers edit employees but not users.
+        """
+        for employee in self.sudo().filtered('user_id'):
+            if employee.user_id.name != employee.name:
+                given, family = employee._gw_split_name()
+                employee.user_id.write({'firstname': given, 'lastname': family or False})
 
     def _refresh_stale_avatar_placeholder(self):
         """Regenerate the initials placeholder for any employee in `self` whose

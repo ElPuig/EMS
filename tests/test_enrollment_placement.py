@@ -288,19 +288,17 @@ class TestEnrollmentPlacement(TransactionCase):
                 self.assertEqual(len(student.enrollment_ids), 2)
 
     def test_manual_enrollment_is_still_blocked_for_a_tutor(self):
-        """The guard above is only lifted for sudo: a tutor creating an enrollment by
-        hand (no sudo, the form's own New button) is still turned away."""
+        """The placement above only works because it runs under sudo: a tutor creating an
+        enrollment by hand is still turned away - by the model's access rights themselves
+        since issue #534 (only academic admin and the secretary's office create enrollments),
+        before default_get()'s own guard is even reached."""
         student = self._student('Plc Manual')
-        with self.assertRaises(UserError) as caught:
+        with self.assertRaises(AccessError):
             self.env['ems.enrollment'].with_user(self.tutor).create({
                 'student_id': student.id,
                 'group_id': self.g1a.id,
                 'subject_id': self.subject1.id,
             })
-        # Not an AccessError (the tutor does hold the model's create right through
-        # group_teacher): the guard itself is what turns them away. Asserted by type
-        # rather than by message, which comes back in the run's own language.
-        self.assertNotIsInstance(caught.exception, AccessError)
 
     # --- group mismatch warning ---------------------------------------------
 

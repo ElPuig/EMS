@@ -200,9 +200,12 @@ their own students and follows up the answers:
   and levels) lives in `ems.student.scope.mixin` (`models/shared/student_scope_mixin.py`), shared
   with the contact data request wizard (issue #507, [contact data requests](../contacts/contact_data_request.md)). Studies and levels are hidden from tutors with `groups=` on the view nodes (a whole
   study or level would reach beyond their groups), so the server strips them rather than an
-  `invisible` expression deciding it in the browser. The student picker keeps its plain domain;
-  someone else's student picked by a tutor is listed in the preview as "Not one of your
-  students" and never sent to. What a tutor can read of the enrollments behind the scope target
+  `invisible` expression deciding it in the browser. Opened from the students list (or, for
+  contact data requests, the groups list), only the selected students and groups the sender acts
+  on are preloaded (issue #550), so selecting the whole list leaves the others out from the start.
+  The student picker offers a tutor only the students they act on: its domain is the assistant's
+  `student_domain` (a default, like `ems.em_grading_wizard.group_domain`), filtering on
+  `tutor_id.tutor_scope_user_ids` for anyone who does not see every student. What a tutor can read of the enrollments behind the scope target
   (`rule_sale_order_teacher`) and what they may create (`rule_ems_authorization_tutor`) say the
   same thing independently.
 

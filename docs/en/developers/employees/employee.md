@@ -106,6 +106,48 @@ not just this addon's own inherited views.
 
 ---
 
+## Presence dot (`hr_presence_state` / `hr_icon_display`)
+
+The coloured dot on the Teachers/ASP kanban cards and at the top of the employee form is Odoo's own
+presence icon (`hr`, `hr_attendance`, `hr_holidays`; not stored, recomputed on every read). EMS
+changes two of its inputs so it follows **only the attendance check-in/out and the employee's own
+schedule** (issue #555):
+
+- **"Should be working now" is the current instant, not the next hour.** hr's
+  `_get_employee_working_now()` asks the calendar for work intervals in `[now, now + 1h]`, so a
+  checked-out teacher showed as Absent up to an hour before their first class and in every gap
+  shorter than an hour between two slots. `ems_employee_base._get_employee_working_now()`
+  (`models/employees/employee.py`) asks for `[now, now + 1s]` instead, in the company's timezone
+  (see `docs/en/developers/shared/timezones.md`), still with `compute_leaves` so public holidays
+  count as not working. Its only callers are the presence computes (`hr`, `hr_attendance`;
+  `hr_presence` isn't installed).
+- **Login-based presence is off.** `res.company.hr_presence_control_login` (on by default in hr)
+  showed as Present anyone with EMS open in a browser (`im_status == 'online'`), checked in or
+  not, and flipped them to Absent after 30 minutes idle. `_disable_login_presence_control()`
+  (`__init__.py`) switches it off for every company: from `post_init_hook` on fresh installs and
+  from a `migrations/18.0.0.33.0/post-migrate.py` on upgrades. `hr_presence_control_attendance` stays on.
+
+- **Native labels fixed in Catalan/Spanish.** hr ships 'Out of Working hours' with no Catalan
+  translation, hr_holidays ships 'On leave' as "En sortir" (ca) and 'Present but on leave' as
+  "...de vacaciones" (es). Loading a `.po` never overwrites a translation that already exists, so
+  EMS's own i18n files can't correct them: `_fix_native_presence_translations()` (`__init__.py`)
+  writes them straight into `ir_model_fields_selection.name` (same `post_init_hook` +
+  `post-migrate.py` pair), and later hr/hr_holidays upgrades leave them alone for the same reason.
+
+```mermaid
+flowchart TD
+    A[hr_presence_state] --> B{Approved leave today?}
+    B -- yes --> L[Plane icon]
+    B -- no --> C{Checked in?}
+    C -- yes --> P[Present - green]
+    C -- no --> D{A schedule slot covers this instant?}
+    D -- yes --> X[Absent - yellow]
+    D -- no --> O[Out of working hours - grey]
+```
+
+Covered by `tests/test_employee_presence_state.py` (before the first slot, inside a slot, in a gap,
+after the last slot, checked in, online but not checked in, the company flag and the labels).
+
 ## Views
 
 | View | File | Notes |
@@ -128,6 +170,12 @@ Defined in `security/ir.model.access.csv` (lines 2–3).
 | Teacher | — | ✓ | — | — | `ems.group_teacher` |
 
 Plus Odoo's own `hr.group_hr_user`/`hr.group_hr_manager` access, unchanged by EMS. Several individual fields carry their own `groups=` restriction (e.g. `activity_*` fields limited to `hr.group_hr_user,ems.group_teacher`) rather than being gated at the model level.
+
+### Work email and work mobile of an employee linked to a user
+
+`work_email` and `mobile_phone` are stored on the employee's work contact, which for an employee linked to an EMS user is that user's own partner (hr's `_inverse_work_contact_details`). Odoo's `res.partner.write()` demands write access on `res.users` whenever the partner belongs to another internal user, and only "Access Rights" (`base.group_erp_manager`) has it. So natively, whoever may edit the employee (Head of Studies/Deputy, TAC, the secretariat) could still not change or remove those two fields, e.g. a manual corporate email (issue #552).
+
+EMS overrides `_inverse_work_contact_details` to write the linked user's partner as superuser. It runs after the employee's own write check, so it adds nothing to who can edit which employee (`security/rules/employees.xml` still decides that). One exception keeps the native guard: when the linked user holds `base.group_erp_manager`, the write goes through unchanged, since changing that user's email would also redirect their password reset.
 
 ### Every field EMS adds to `hr.employee` must declare `groups=`
 

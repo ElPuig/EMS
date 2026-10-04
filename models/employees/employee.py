@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import base64
+from datetime import timedelta
 
-from odoo import SUPERUSER_ID, models, fields, api, Command, _
+from pytz import UTC
+
+from odoo import SUPERUSER_ID, models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 
 from ..shared import base
@@ -629,6 +632,20 @@ class ems_employee_base(models.AbstractModel):
             self._sync_security_groups(previous_groups)
         return res
                         
+    @api.model
+    def _get_employee_working_now(self):
+        """hr counts anyone with a slot of their schedule within the next hour as "should be
+        working now", so a teacher showed as Absent (the yellow presence dot) up to an hour before
+        their first class and in every gap shorter than an hour between two (issue #555). Here
+        only the current instant counts: a slot must already have started and not yet ended."""
+        start = self.env['ems.datetime_utils'].utc_datetime_to_local(fields.Datetime.now().replace(tzinfo=UTC))
+        stop = start + timedelta(seconds=1)
+        working_now = self.browse()
+        for calendar in self.resource_calendar_id:
+            if calendar._work_intervals_batch(start, stop)[False]:
+                working_now |= self.filtered(lambda employee: employee.resource_calendar_id == calendar)
+        return working_now.ids
+
     @api.constrains("role_ids")
     def check_limit(self):
         for employee in self:
@@ -769,6 +786,18 @@ class ems_employee(models.AbstractModel):
         for employee in self:
             employee.attendance_manager_id = employee.leave_manager_id
 
+    def _inverse_work_contact_details(self):
+        # hr's inverse writes work_email/mobile_phone to the linked user's partner, and
+        # res.partner.write() then demands write access on res.users, which only the "Access
+        # Rights" group holds - so a Head of Studies who may edit a teacher could not remove or
+        # fix its manual corporate email (issue #552). The employee write check has already
+        # passed by now, so its partner is written as superuser; except when the linked user
+        # manages access rights, whose email (and so password reset) stays under the native guard.
+        linked = self.filtered(
+            lambda e: e.user_id and not e.user_id.sudo().has_group('base.group_erp_manager'))
+        super(ems_employee, linked.sudo())._inverse_work_contact_details()
+        super(ems_employee, self - linked)._inverse_work_contact_details()
+
     @api.constrains('private_email')
     def _check_private_email_not_corporate(self):
         # The personal email is the Google Workspace account's recovery address, so it can't be
@@ -843,6 +872,7 @@ class ems_employee(models.AbstractModel):
             for employee in self:
                 employee.resource_calendar_id._refresh_personal_name()
             self._refresh_stale_avatar_placeholder()
+            self._sync_user_name()
 
         if photo is not _UNSET:
             for employee in self:
@@ -856,6 +886,21 @@ class ems_employee(models.AbstractModel):
             Group.sudo().search([('tutor_id', 'in', self.ids)])._mark_public_schedule_dirty()
 
         return result
+
+    def _sync_user_name(self):
+        """Give the linked EMS user the employee's name (issue #542).
+
+        Native hr only syncs the other way (a renamed user renames its employee), so a
+        name fixed on the employee form - e.g. a pending-identification placeholder
+        replaced by the real teacher's name - used to leave the user with the old one.
+        firstname/lastname are written rather than `name`: writing `name` on res.users
+        would bounce straight back to the employee through that same native sync. sudo():
+        HR officers edit employees but not users.
+        """
+        for employee in self.sudo().filtered('user_id'):
+            if employee.user_id.name != employee.name:
+                given, family = employee._gw_split_name()
+                employee.user_id.write({'firstname': given, 'lastname': family or False})
 
     def _refresh_stale_avatar_placeholder(self):
         """Regenerate the initials placeholder for any employee in `self` whose

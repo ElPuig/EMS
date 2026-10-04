@@ -29,6 +29,7 @@ Aquesta secció conté els manuals per als **professors**.
 | [Sol·licitar una absència](absences.md) | Demanar una absència: triar-ne el tipus, dia sencer o unes hores, la declaració responsable, el justificant i enviar-la |
 | [Programacions: consultar les ponderacions dels teus mòduls](planning.md) | Consultar d'on surt el repartiment entre nota del centre i estada, i la ponderació per resultat d'aprenentatge, dels mòduls que imparteixes |
 | [Notes públiques i notes privades de l'alumne](student-notes.md) | On tot el professorat llegeix les notes públiques d'un alumne, i qui pot llegir i escriure les privades de tutoria |
+| [El punt de presència a la pantalla de Professors](staff-presence.md) | Què vol dir el punt verd, groc o gris al costat del nom de cada company, i en què es basa |
 
 ---
 

@@ -25,6 +25,12 @@ Poden crear comptes administració, coordinació TAC, secretaria i el tutor o tu
 
 ---
 
+## Corregir el nom
+
+Si el nom o els cognoms de l'alumne es van introduir malament, corregiu-los a la fitxa i deseu. EMS actualitza tot sol, en segon pla, el nom del compte de Google, i en deixa constància a l'historial de missatges de la fitxa. L'adreça de correu corporativa **no** canvia.
+
+---
+
 ## Suspendre el compte
 
 1. Clica **Suspendre compte de Google**.

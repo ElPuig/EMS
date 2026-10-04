@@ -2087,6 +2087,27 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertIn(wizard.internal_conflict_line_ids.left_label, str(capture.exception))
         self.assertEqual(wizard.state, 'internal_conflicts')
 
+    def test_unresolved_conflict_list_is_translated_into_catalan(self):
+        """Each conflict in the list is built inside a generator expression, where a plain '_' can't
+        find the user's language - it came out as 'A vs. B' even in Catalan, on every Python version."""
+        second_teacher = self._second_teacher()
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_two_teachers_same_slot(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
+                second_teacher.work_email,
+                f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/><Students name="{self.group.name} Group"/>',
+            )),
+        })
+        for _step in range(4):  # intro -> groups -> subjects -> teachers -> internal_conflicts
+            wizard.action_continue()
+        wizard.internal_conflict_line_ids.resolution = 'co_teaching'  # invalid for a plain_conflict
+
+        with self.assertRaises(ValidationError) as capture:
+            wizard.with_context(lang='ca_ES').action_continue()
+
+        self.assertIn(' davant de ', str(capture.exception))
+
     def test_continue_from_internal_conflicts_raises_for_reassign_rooms_same_room(self):
         second_teacher = self._second_teacher()
         wizard = self.env['ems.working_schedules_import_wizard'].create({

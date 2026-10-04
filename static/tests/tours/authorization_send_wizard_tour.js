@@ -133,6 +133,26 @@ registry.category("web_tour.tours").add("ems_authorization_tutor_send", {
             content: "No studies or levels to pick for a tutor",
         },
         {
+            trigger: ".o_dialog div[name='target'] input[data-value='students']",
+            content: "Switch to students picked by hand",
+            run: "click",
+        },
+        {
+            trigger: ".o_dialog div[name='student_ids'] input",
+            content: "Look for students: both fixtures' names start with 'Tour'",
+            run: "edit Tour",
+        },
+        {
+            // Issue #550: the picker offers the tutor's own student, never someone else's.
+            trigger: ".o-autocomplete--dropdown-menu:has(a:contains(Tour Send Wizard Student)):not(:has(a:contains(Tour Other Student)))",
+            content: "Only the tutor's own student is offered",
+        },
+        {
+            trigger: ".o_dialog div[name='target'] input[data-value='scope']",
+            content: "Back to groups",
+            run: "click",
+        },
+        {
             trigger: ".o_dialog div[name='template_ids'] input",
             content: "Pick the authorization from the catalogue",
             run: "edit Tour Send Wizard Authorization",

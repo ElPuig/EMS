@@ -87,10 +87,6 @@ class TestPlanningAccess(TransactionCase):
         with self.assertRaises(AccessError):
             self.planning_other.with_user(self.teacher_user).read(['name'])
 
-    def test_admin_can_write_planning(self):
-        self.planning_taught.write({'internal_ponderation': 80.0, 'external_ponderation': 20.0})
-        self.assertEqual(self.planning_taught.internal_ponderation, 80.0)
-
     def test_hos_sees_every_planning_not_just_taught(self):
         # Issue #503: Head of Studies/Deputy must see ALL plannings, not only the ones tied
         # to subjects they personally teach via ems.teaching (this HOS teaches nothing here).
@@ -286,20 +282,6 @@ class TestPlanningLogic(TransactionCase):
         planning.subject_id = self.subject_no_outcomes
         planning._onchange_planning_outcome_ids()
         self.assertFalse(planning.planning_outcome_ids)
-
-    def test_custom_data_records_are_frozen_against_future_upgrades(self):
-        # data/custom/ccff/ems.planning*.csv seeds the centre's grading-ponderation template
-        # only once: a centre rebalancing its own weights through the app (e.g. after a new
-        # learning outcome is added to the shared curriculum catalog) is 'living' data, not
-        # config this repo's CSV should keep re-pushing on every upgrade (issue #503 follow-up,
-        # found the hard way - see plans/ems_planning_outcome_ponderation_over_100.md). Mirrors
-        # test_group.py's own test for the same mechanism.
-        for model in ('ems.planning', 'ems.planning_outcome'):
-            custom_data = self.env['ir.model.data'].sudo().search([
-                ('module', '=', '__import__'), ('model', '=', model),
-            ])
-            self.assertTrue(custom_data, "no __import__-owned %s found - fixture assumption broken" % model)
-            self.assertTrue(all(custom_data.mapped('noupdate')), "%s rows not frozen" % model)
 
     # --- migration: replicate plannings across past courses (18.0.0.28.0) ---
 

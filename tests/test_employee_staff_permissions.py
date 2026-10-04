@@ -136,6 +136,45 @@ class TestEmployeeStaffPermissions(TransactionCase):
         self.assertEqual(self.teacher._gw_missing_fields(), [])
 
     # ------------------------------------------------------------------
+    # Work contact details of a teacher linked to an EMS user (issue #552)
+    # ------------------------------------------------------------------
+    def _linked_teacher(self, user_group):
+        """A teacher whose work_email/mobile_phone live on its EMS user's partner: hr's inverse
+        writes them there, and res.partner.write() demands write access on res.users for any
+        partner of another internal user."""
+        user = self._create_user(f'test_552_linked_{user_group.id}', user_group)
+        return self.env['hr.employee'].create({
+            'name': 'Test 552 Linked Teacher',
+            'employee_type': 'teacher',
+            'user_id': user.id,
+            'google_ws_manual_email': True,
+            'work_email': 'temporary.552@example.com',
+        })
+
+    def test_head_of_studies_can_remove_manual_work_email(self):
+        teacher = self._linked_teacher(self.group_teacher)
+        teacher.with_user(self.hos_user).write({'work_email': False})
+        self.assertFalse(teacher.work_email)
+        self.assertFalse(teacher.user_id.partner_id.email)
+
+    def test_head_of_studies_can_change_manual_work_email(self):
+        teacher = self._linked_teacher(self.group_teacher)
+        teacher.with_user(self.hos_user).write({'work_email': 'fixed.552@example.com'})
+        self.assertEqual(teacher.user_id.partner_id.email, 'fixed.552@example.com')
+
+    def test_head_of_studies_can_change_work_mobile(self):
+        teacher = self._linked_teacher(self.group_teacher)
+        teacher.with_user(self.hos_user).write({'mobile_phone': '600000552'})
+        self.assertEqual(teacher.user_id.partner_id.mobile, '600000552')
+
+    def test_head_of_studies_cannot_change_an_access_rights_admin_email(self):
+        """The native guard stays for users who manage access rights: redirecting their email
+        would redirect their password reset too."""
+        teacher = self._linked_teacher(self.env.ref('base.group_erp_manager'))
+        with self.assertRaises(AccessError):
+            teacher.with_user(self.hos_user).write({'work_email': False})
+
+    # ------------------------------------------------------------------
     # TAC coordinator
     # ------------------------------------------------------------------
     def test_tac_can_create_teacher(self):

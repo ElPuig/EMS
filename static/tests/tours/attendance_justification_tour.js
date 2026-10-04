@@ -95,6 +95,85 @@ registry.category("web_tour.tours").add("ems_attendance_justification_tutor_open
     ],
 });
 
+// Issue #553: Head of Studies opening a justification whose file a tutor uploaded - the
+// attachment used to stay unlinked (no res_id), so only its uploader could read it.
+registry.category("web_tour.tours").add("ems_attendance_justification_hos_attachment", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_justification_tree",
+    steps: () => [
+        { trigger: ".o_list_view", content: "Justifications list loaded" },
+        {
+            trigger: ".o_list_view .o_data_row td:contains('Attendance Justification Tutor Tour Student')",
+            content: "Open the justification",
+            run: "click",
+        },
+        {
+            trigger: ".o_notebook .nav-link:contains('Attached files')",
+            content: "Open Attached files tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='attachment_ids'] .o_ems_attachment:contains('Tour justificant.txt'):not(:has(.o_ems_attachment_delete))",
+            content: "The tutor's file is listed",
+        },
+        {
+            trigger: ".o_field_widget[name='attachment_ids'] .o_ems_attachment:contains('Tour justificant.txt') .o_ems_attachment_preview",
+            content: "Preview the file",
+            run: "click",
+        },
+        {
+            trigger: ".o-FileViewer .o-FileViewer-view",
+            content: "Odoo's file viewer shows the file",
+        },
+    ],
+});
+
+// The tutor's own files (ems_attachments widget): uploading straight from the tab, named after
+// the file, and removing one, which deletes it on save (ems.attachment_mixin).
+registry.category("web_tour.tours").add("ems_attendance_justification_tutor_attachments", {
+    test: true,
+    url: "/odoo/action-ems.action_attendance_justification_tree",
+    steps: () => [
+        { trigger: ".o_list_view", content: "Justifications list loaded" },
+        {
+            trigger: ".o_list_view .o_data_row td:contains('Attendance Justification Tutor Tour Student')",
+            content: "Open the justification",
+            run: "click",
+        },
+        {
+            trigger: ".o_notebook .nav-link:contains('Attached files')",
+            content: "Open Attached files tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='attachment_ids'] .o_attach",
+            content: "Upload a file straight from the tab",
+            run() {
+                const input = document.querySelector(".o_field_widget[name='attachment_ids'] input[type='file']");
+                const transfer = new DataTransfer();
+                transfer.items.add(new File(["uploaded"], "Tour upload.txt", { type: "text/plain" }));
+                input.files = transfer.files;
+                input.dispatchEvent(new Event("change", { bubbles: true }));
+            },
+        },
+        {
+            trigger: ".o_field_widget[name='attachment_ids'] .o_ems_attachment:contains('Tour upload.txt')",
+            content: "The uploaded file is listed under its own name",
+        },
+        {
+            trigger: ".o_field_widget[name='attachment_ids'] .o_ems_attachment:contains('Tour justificant.txt') .o_ems_attachment_delete",
+            content: "Delete the earlier file",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='attachment_ids']:not(:has(.o_ems_attachment:contains('Tour justificant.txt')))",
+            content: "The earlier file is gone",
+        },
+        { trigger: ".o_form_button_save", content: "Save", run: "click" },
+        { trigger: ".o_form_button_save:not(:visible)", content: "Save completed" },
+    ],
+});
+
 // Creating a brand-new justification through the UI: exercises widget="daterange" (confirmed
 // working the same way as ems.attendance_template's own daterange fields, see
 // attendance_template_tour.js - single combined-range widget here though, since the form only

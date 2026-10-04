@@ -4,7 +4,7 @@ from datetime import date, datetime
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, mock_outgoing_email, next_student_id
+from .common import create_level_study, create_role_user, mock_outgoing_email, next_student_id
 
 
 class TestAttendanceJustification(TransactionCase):
@@ -347,3 +347,44 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
         })
         justification._onchange_attendance_session_line_ids()
         self.assertFalse(justification.attendance_session_line_ids)
+
+    def _attachment_command(self, name):
+        return (0, 0, {'name': name, 'raw': b'justificant', 'res_model': 'ems.attendance_justification'})
+
+    def test_head_of_studies_sees_attachment_uploaded_by_tutor(self):
+        """Regression (#553): the form's attachments list creates each file without a res_id,
+        and Odoo only lets the uploader (or a system admin) read an unlinked attachment, so
+        Head of Studies saw an empty 'Attached files' tab."""
+        hos_user = create_role_user(self, 'head_of_studies', 'test_hos_taj')
+        justification = self.env['ems.attendance_justification'].with_user(self.tutor_user).create({
+            'teacher_id': self.tutor_employee.id, 'student_id': self.student.id,
+            **self._today_range(),
+            'attachment_ids': [self._attachment_command('justificant.pdf')],
+        })
+        self.env.invalidate_all()
+
+        names = justification.with_user(hos_user).attachment_ids.mapped('name')
+        self.assertEqual(names, ['justificant.pdf'])
+
+    def test_attachment_added_later_is_linked_to_justification(self):
+        justification = self.env['ems.attendance_justification'].with_user(self.tutor_user).create({
+            'teacher_id': self.tutor_employee.id, 'student_id': self.student.id,
+            **self._today_range(),
+        })
+        justification.with_user(self.tutor_user).write({
+            'attachment_ids': [self._attachment_command('justificant.pdf')],
+        })
+
+        self.assertEqual(justification.attachment_ids.res_id, justification.id)
+        self.assertEqual(justification.attachment_ids.res_model, 'ems.attendance_justification')
+
+    def test_attachment_removed_by_tutor_is_deleted(self):
+        justification = self.env['ems.attendance_justification'].with_user(self.tutor_user).create({
+            'teacher_id': self.tutor_employee.id, 'student_id': self.student.id,
+            **self._today_range(),
+            'attachment_ids': [self._attachment_command('justificant.pdf')],
+        })
+        attachment = justification.attachment_ids
+
+        justification.with_user(self.tutor_user).write({'attachment_ids': [(3, attachment.id)]})
+        self.assertFalse(attachment.exists())

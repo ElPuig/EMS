@@ -108,6 +108,15 @@ flowchart TD
     D --> E[Form view: main data · administrative data · Subjects tab · Attached files tab · Notes tab]
 ```
 
+### Attached files
+
+The official curricula (BOE/DOGC references, guidance documents) ship as `ir.attachment` records
+in `data/cat/attachments/`, attached to each study by `data/cat/ems.study.csv`; an admin can
+upload more from the "Attached files" tab. The tab uses the shared `ems.attachment_mixin` +
+`ems_attachments` widget (see [`attachments.md`](../shared/attachments.md)): every file is tied to
+its study, so every teacher, the secretary's office and the academic administration can open it
+(issue #553), and a removed file is deleted on save unless another study still holds it.
+
 ### Update
 
 ```mermaid

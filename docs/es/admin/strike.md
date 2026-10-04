@@ -32,6 +32,12 @@ En el mismo bloque "Strikes Settings" hay también una opción **Family notifica
 
 ---
 
+## Configurar el aviso de posible duplicado
+
+El mismo bloque "Strikes Settings" también tiene la opción **Aviso de posible duplicado**: si un docente ya ha puesto un strike al mismo alumno durante estos minutos (1 por defecto), desde la misma sesión del pase de lista o desde el diálogo **Nuevo strike**, se le avisa y se le pide que lo confirme antes de enviar uno nuevo. Pon 0 para desactivar el aviso.
+
+---
+
 ## Asignar el rol de Convivencia
 
 Los coordinadores de convivencia se asignan como cualquier otro rol, en **Comunidad → Configuración → Profesorado → Roles**, añadiendo un empleado al rol "Coexistence coordinator". A diferencia de la mayoría de roles de coordinación, este no se limita a una sola persona — asigna uno por cada rama de Jefatura de Estudios / Jefatura de Estudios Adjunta según convenga, ya que los correos de escalado se envían al coordinador que comparta la rama del profesor que ha puesto el strike. Consulta el manual [Roles de profesorado y niveles de permisos](teacher-roles.md) para el flujo general de asignación de roles.

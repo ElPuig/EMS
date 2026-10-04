@@ -234,6 +234,19 @@ class ResPartnerGoogleWorkspace(models.Model):
                 description="Relocate Google Workspace account: %s" % partner.name,
             ).action_relocate_google_account()
 
+    def _gw_enqueue_rename(self):
+        """Enqueue the Google account name sync for students that already have an
+        account (deduplicated), so fixing a name in EMS also fixes it in Google (#542)."""
+        if not self.env.company.google_ws_enabled:
+            return
+        for partner in self.filtered(
+            lambda r: r.contact_type == 'student' and r.student_email
+        ):
+            partner.with_delay(
+                identity_key='gw_rename_%s' % partner.id,
+                description="Rename Google Workspace account: %s" % partner.name,
+            ).action_sync_google_account_name()
+
     def _gw_schedule_deactivation(self):
         """Open the grace period instead of suspending the account right away.
 
@@ -711,6 +724,20 @@ class ResPartnerGoogleWorkspace(models.Model):
             raise
         self.message_post(body=_(
             "Google Workspace account moved to OU %(ou)s.") % {'ou': ou})
+
+    def action_sync_google_account_name(self):
+        """Copy the student's current first name and surnames onto their Google account.
+
+        Triggered when the name changes. Suspended accounts are renamed too, so a
+        reactivated account comes back with the right name.
+        """
+        self.ensure_one()
+        if not self.env.company.google_ws_enabled:
+            return
+        if self.contact_type != 'student' or not self.student_email:
+            return
+        self._gw()._gw_sync_account_name(
+            self, self.student_email, self.firstname, self.lastname)
 
     def action_reactivate_google_account(self):
         """Reactivate a suspended account; if it was deleted in Admin, recreate it.

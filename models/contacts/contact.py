@@ -99,6 +99,9 @@ class ResPartner(models.Model):
     
     # model-data fields:
     main_group_id = fields.Many2one(string='Main Group', comodel_name='ems.group')
+    # Domain helper for main_group_id on the form - see _compute_allowed_main_group_ids.
+    allowed_main_group_ids = fields.Many2many(string='Allowed main groups', comodel_name='ems.group',
+                                              compute='_compute_allowed_main_group_ids')
     enrollment_ids = fields.One2many(string='Enrollment', comodel_name='ems.enrollment', inverse_name='student_id')
     strike_ids = fields.One2many(string='Strikes', comodel_name='ems.strike', inverse_name='student_id')
     strike_count = fields.Integer(string='Strike count', compute='_compute_strike_count')
@@ -914,6 +917,8 @@ class ResPartner(models.Model):
         # outgoing group's enrollments - those are the ending year's history, not something
         # to repoint. Same env.su vs. env.user distinction already used for the same reason
         # in ems.enrollment.default_get().
+        if 'main_group_id' in values and not self.env.su:
+            self._ems_check_main_group_change(values['main_group_id'])
         old_main_groups = {}
         if 'main_group_id' in values and not self.env.su:
             old_main_groups = {partner.id: partner.main_group_id for partner in self}
@@ -982,6 +987,10 @@ class ResPartner(models.Model):
         # (accounts created without a birth date start in the minors OU).
         if 'birth_date' in values:
             self._gw_enqueue_relocate()
+
+        # Google Workspace: a name fixed in EMS is fixed on the Google account too (#542).
+        if {'name', 'firstname', 'lastname'} & set(values):
+            self._gw_enqueue_rename()
 
         # Google Workspace: archive -> schedule the suspension after a grace period
         # (issue #388); unarchive -> call it off, or reactivate if the cron got there
@@ -1234,6 +1243,48 @@ class ResPartner(models.Model):
         data <function> on upgrade to heal partners created before the shared marker."""
         partners = self.search([('contact_type', 'in', ('applicant', 'alumni', 'withdrawal', 'expelled'))])
         partners._sync_category()
+
+    def _ems_check_main_group_change(self, new_group_id):
+        """Issue #534: moving a student to another main group moves their enrollments with them, and
+        only the secretary's office and academic administration change enrollments freely. Anybody
+        else allowed to edit the student (the tutor and the chiefs above them) may only move them
+        between equivalent groups - same study, course and shift (SMX1A <-> SMX1B, not SMX1C nor
+        DAM2B) - the choices '_compute_allowed_main_group_ids' offers them."""
+        # Clearing the group (a withdrawal or graduation detaching the student) moves no enrollment.
+        if not new_group_id or self.env['ems.base'].get_user_can_edit_enrollments():
+            return
+        new_group = self.env['ems.group'].browse(new_group_id)
+        for partner in self:
+            if new_group != partner.main_group_id and new_group not in partner._ems_equivalent_main_groups():
+                raise UserError(_(
+                    "You can only move %(student)s to a group of the same study, course and shift as "
+                    "%(group)s. Ask the secretary's office for any other change.",
+                    student=partner.display_name, group=partner.main_group_id.display_name or _("(none)"),
+                ))
+
+    def _ems_equivalent_main_groups(self):
+        """The groups equivalent to this student's current (saved) main group: same study, course
+        and shift."""
+        self.ensure_one()
+        current = self._origin.main_group_id if self._origin else self.main_group_id
+        if not current:
+            return self.env['ems.group']
+        return self.env['ems.group'].sudo().search([
+            ('group_type', '=', 'main'), ('study_id', '=', current.study_id.id),
+            ('course', '=', current.course), ('shift', '=', current.shift),
+        ])
+
+    @api.depends('study_id')
+    @api.depends_context('uid')
+    def _compute_allowed_main_group_ids(self):
+        """The main groups the form offers: every group of the student's study to whoever edits
+        enrollments, the equivalent ones only to anybody else (see '_ems_check_main_group_change')."""
+        can_edit = self.env['ems.base'].get_user_can_edit_enrollments()
+        for partner in self:
+            if can_edit:
+                partner.allowed_main_group_ids = self.env['ems.group'].search([('study_id', '=', partner.study_id.id)])
+            else:
+                partner.allowed_main_group_ids = partner._ems_equivalent_main_groups()
 
     def _migrate_enrollments_on_group_change(self, old_main_groups):
         """For each partner whose main group actually changed (old_main_groups maps

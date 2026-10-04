@@ -74,6 +74,15 @@ odoo_port="${odoo_port:-8069}"
 sudo -u odoo bash -c "psql -d ems -c \"INSERT INTO ir_config_parameter (key, value) VALUES ('report.url', 'http://127.0.0.1:${odoo_port}') ON CONFLICT (key) DO UPDATE SET value = 'http://127.0.0.1:${odoo_port}';\""
 echo "<< PDF renderer pointed at http://127.0.0.1:${odoo_port}."
 
+echo ">> Forcing the Google Workspace integration into dry-run mode:"
+# A database restored from production carries production's live Google Workspace service account.
+# The address rewrite above keeps every corporate address on the centre's own domain, so without
+# dry-run any account creation (by hand, or automatic once a student/employee is complete) would
+# create a real account in the centre's real Google Workspace, and suspend/rename/reset calls would
+# reach it too. Dry-run only logs the payloads.
+sudo -u odoo bash -c "psql -d ems -c \"UPDATE res_company SET google_ws_dry_run = TRUE;\""
+echo "<< Google Workspace in dry-run mode."
+
 echo ">> Declaring this environment as 'dev' (see CLAUDE.md's 'Development vs. production environment declaration'):"
 sudo -u odoo bash -c "psql -d ems -c \"INSERT INTO ir_config_parameter (key, value) VALUES ('ems.environment_type', 'dev') ON CONFLICT (key) DO UPDATE SET value = 'dev';\""
 echo "<< Declared."

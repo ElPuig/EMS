@@ -9,7 +9,8 @@ from .common import create_level_study, create_role_employee, create_role_user, 
 
 
 class AttendanceReportCommon(TransactionCase):
-    """Shared fixtures: two teachers, two groups/subjects, two students and owner's sessions."""
+    """Shared fixtures: two teachers, two groups/subjects, two students (student1 in group1,
+    student2 in group2) and owner's sessions."""
 
     @classmethod
     def setUpClass(cls):
@@ -96,9 +97,11 @@ class AttendanceReportCommon(TransactionCase):
 
         cls.student1 = cls.env['res.partner'].create({
             'name': 'Test Student 1 (Attendance Reports)', 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': cls.group1.id,
         })
         cls.student2 = cls.env['res.partner'].create({
             'name': 'Test Student 2 (Attendance Reports)', 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': cls.group2.id,
         })
         # student1 is enrolled in both subjects of group1; student2 only in subject_a.
         cls.env['ems.enrollment'].create({
@@ -311,6 +314,17 @@ class TestAttendanceReportWizards(AttendanceReportCommon):
         self.assertEqual(self.line_recent.level_id, self.level)
         self.assertEqual(self.line_recent.study_ids, self.study1)
         self.assertEqual(self.line_recent.subject_id, self.subject_a)
+
+    def test_student_group_is_the_students_group_when_the_roll_call_is_taken(self):
+        self.assertEqual(self.line_recent.student_group_id, self.group1)
+        # A later group change only moves the following roll-calls, never the earlier ones.
+        self.student1.main_group_id = self.group2
+        self.assertEqual(self.line_recent.student_group_id, self.group1)
+        new_line = self.env['ems.attendance_session_line'].create({
+            'student_id': self.student1.id, 'status_id': self.status_attended.id,
+            'attendance_session_id': self.session_recent.id,
+        })
+        self.assertEqual(new_line.student_group_id, self.group2)
 
     def test_absence_rate_follows_status_category(self):
         self.assertEqual(self.line_recent.status_id.category, 'assistance')
@@ -538,8 +552,27 @@ class AttendanceReportTutorScopeCommon(AttendanceReportCommon):
         cls.tutor_user = create_role_user(cls, 'tutor', 'test_tutor_arw')
         cls.tutor_employee = create_role_employee(cls, cls.tutor_user, parent_id=cls.chief_employee.id)
         cls.group1.tutor_id = cls.tutor_employee
-        cls.student1.main_group_id = cls.group1
-        cls.student2.main_group_id = cls.group2
+
+    def _shared_session(self):
+        """A session of a template shared by group1 and group2, with a line for each group's student."""
+        template = self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, [self.owner_employee.id])], 'study_ids': [(6, 0, [self.study1.id, self.study2.id])],
+            'subject_id': self.subject_a.id, 'group_ids': [(6, 0, [self.group1.id, self.group2.id])],
+            'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
+        })
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': '3',
+            'start_time': 11.0, 'end_time': 12.0, 'space_id': self.space.id,
+        })
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': schedule.id, 'date': self.today,
+            'mode': 'manual', 'session_teacher_id': self.owner_employee.id,
+        })
+        line1, line2 = self.env['ems.attendance_session_line'].create([
+            {'student_id': student.id, 'status_id': self.status_attended.id, 'attendance_session_id': session.id}
+            for student in (self.student1, self.student2)
+        ])
+        return session, line1, line2
 
 
 class TestAttendanceStudentReportScope(AttendanceReportTutorScopeCommon):
@@ -632,7 +665,8 @@ class TestAttendanceGroupSubjectReportScope(AttendanceReportTutorScopeCommon):
 
     def test_group_tutor_every_subject(self):
         lines, values = self._lines(self.tutor_user, report_type='group', group_id=self.group1.id)
-        self.assertEqual(set(lines.ids), {self.line_recent.id, self.line_old.id, self.line_other.id, self.line_foreign.id})
+        # line_foreign is student2's (group2), in a group1 session: not a student of the group.
+        self.assertEqual(set(lines.ids), {self.line_recent.id, self.line_old.id, self.line_other.id})
         self.assertEqual(set(values['lines']), {self.subject_a, self.subject_b})
         # The detail rows read the other teacher's session header too.
         self.assertEqual(values['detail_entries'][self.subject_b][0].attendance_session_id.session_teacher_id,
@@ -646,6 +680,37 @@ class TestAttendanceGroupSubjectReportScope(AttendanceReportTutorScopeCommon):
         lines, values = self._lines(self.owner_user, report_type='group', group_id=self.group1.id)
         self.assertEqual(set(lines.ids), {self.line_recent.id, self.line_old.id})
         self.assertEqual(set(values['lines']), {self.subject_a})
+
+    def test_group_report_follows_the_students_group_not_the_sessions(self):
+        # A session shared by both groups: each group's report only has its own students.
+        shared_session, line1, line2 = self._shared_session()
+        group1_lines, _values = self._lines(self.env.user, report_type='group', group_id=self.group1.id)
+        group2_lines, _values = self._lines(self.env.user, report_type='group', group_id=self.group2.id)
+        self.assertIn(line1, group1_lines)
+        self.assertNotIn(line2, group1_lines)
+        self.assertIn(line2, group2_lines)
+        self.assertNotIn(line1, group2_lines)
+
+    def test_group_tutor_covers_a_tutee_in_another_groups_session(self):
+        # student1 (group1) attends a session of group2 only, e.g. a subject taken with another group.
+        template = self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, [self.owner_employee.id])], 'study_ids': [(6, 0, [self.study2.id])],
+            'subject_id': self.subject_a.id, 'group_ids': [(6, 0, [self.group2.id])],
+            'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
+        })
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': '4',
+            'start_time': 12.0, 'end_time': 13.0, 'space_id': self.space.id,
+        })
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': schedule.id, 'date': self.today,
+            'mode': 'manual', 'session_teacher_id': self.owner_employee.id,
+        })
+        line = self.env['ems.attendance_session_line'].create({
+            'student_id': self.student1.id, 'status_id': self.status_attended.id, 'attendance_session_id': session.id,
+        })
+        lines, _values = self._lines(self.tutor_user, report_type='group', group_id=self.group1.id)
+        self.assertIn(line, lines)
 
     def test_group_onchange_tutor_covers_every_session(self):
         self.assertEqual(self._onchange_dates(self.tutor_user, report_type='group', group_id=self.group1.id),
@@ -727,6 +792,19 @@ class TestAttendanceReportsAnalysisScope(AttendanceReportTutorScopeCommon):
         groups = self.env['ems.attendance_session_line'].with_user(self.tutor_user).read_group(
             domain, ['absence_rate:avg'], ['subject_id'])
         self.assertEqual({group['subject_id'][0] for group in groups}, {self.subject_a.id, self.subject_b.id})
+
+    def test_group_filter_and_grouping_follow_the_students_group(self):
+        # The pivot's "Group" filter and group-by: a session shared by both groups puts each line
+        # under its own student's group only, never under every group of the session.
+        _session, line1, line2 = self._shared_session()
+        search_arch = self.env.ref('ems.view_attendance_report_analysis_search').arch
+        self.assertIn('<field name="student_group_id"/>', search_arch)
+        self.assertIn("'group_by': 'student_group_id'", search_arch)
+        Line = self.env['ems.attendance_session_line']
+        self.assertEqual(Line.search([('student_group_id', '=', self.group1.id), ('id', 'in', (line1 | line2).ids)]), line1)
+        groups = Line.read_group([('id', 'in', (line1 | line2).ids)], ['__count'], ['student_group_id'])
+        self.assertEqual({group['student_group_id'][0]: group['student_group_id_count'] for group in groups},
+                         {self.group1.id: 1, self.group2.id: 1})
 
     def test_tutor_current_course_excludes_archived_session_of_another_teacher(self):
         self.session_other.action_archive()

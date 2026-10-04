@@ -24,7 +24,7 @@ yourself, plus 3 printable PDF reports (by group, by student, by subject) reacha
 
    ![Attendance reports pivot table, expanded by subject and student](../../assets/teachers/informes-01-taula-dinamica.png)
 3. Use the search bar to filter further (by student, group, subject or status), and **Group By** to change
-   how the table is folded.
+   how the table is folded. The group is the student's own group on the date of each session: a session shared by several groups counts each student only in their own group.
 4. Use the **spreadsheet/download icon** in the header to export the current pivot to Excel.
 5. Switch to the **graph** view (top-right icons) for a visual breakdown — by default it shows the
    **% of absence per subject**, so you can spot which subjects have the highest absenteeism at a glance.
@@ -57,7 +57,7 @@ to your choice.
 2. The **Tutor** and the **From**/**To** dates fill in automatically from the group and its full session
    range.
 3. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, and any
-   session notes recorded for the period.
+   session notes recorded for the period. It covers the group's students, in the group each one belonged to on the date of each session.
 
 **Attendance report (by student):**
 1. Pick a **Student** — the dropdown only shows students enrolled in a subject **you actually teach**; if a

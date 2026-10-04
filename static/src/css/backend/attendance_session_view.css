@@ -582,6 +582,7 @@
     cursor: pointer;
 }
 .ems-av-strike-send-btn:hover { background: #c82333; }
+.ems-av-strike-send-btn:disabled { opacity: 0.6; cursor: progress; }
 
 /* --- Notes dialog ----------------------------------------- */
 .ems-av-notes-dialog {

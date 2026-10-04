@@ -60,6 +60,54 @@ registry.category("web_tour.tours").add("ems_strike_issue_standalone", {
             trigger: ".o_list_view .o_data_row td[name='notes']:contains('Caught running in the corridor')",
             content: "The new strike is listed without reloading the page",
         },
+        // Issue #554: another strike for the same student a moment later is flagged as a
+        // possible duplicate and only sent once confirmed.
+        {
+            trigger: ".o_list_view .o_list_button_add_strike",
+            content: "Open the New strike dialog again",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_form_view:not(:has(.o_strike_duplicate_warning))",
+            content: "No warning before choosing the student",
+        },
+        {
+            trigger: ".modal .o_form_view .o_field_widget[name='student_id'] input",
+            content: "Search for the same student",
+            run: "edit Strike Standalone Student",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Strike Standalone Student')",
+            content: "Select the same student",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_strike_duplicate_warning:contains('Strike Standalone Student')",
+            content: "The dialog warns of the strike just issued",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='notes'] textarea",
+            content: "Add the details",
+            run: "edit Threw a chair, a different incident",
+        },
+        {
+            trigger: ".modal footer button.o_strike_issue_send",
+            content: "Send",
+            run: "click",
+        },
+        {
+            trigger: ".modal:not(:has(.o_form_view)) .modal-footer .btn-primary",
+            content: "It asks for confirmation: send it anyway",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal))",
+            content: "Both dialogs close",
+        },
+        {
+            trigger: ".o_list_view .o_data_row td[name='notes']:contains('Threw a chair, a different incident')",
+            content: "The second strike is listed too",
+        },
     ],
 });
 

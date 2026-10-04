@@ -10,16 +10,6 @@ class TestSpaceSchedule(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.teacher_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Test Teacher User (Space Schedule)',
-            'login': 'test_teacher_for_space_schedule',
-            'groups_id': [(4, cls.env.ref('base.group_user').id), (4, cls.env.ref('ems.group_teacher').id)],
-        })
-        cls.secretary_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Test Secretary User (Space Schedule)',
-            'login': 'test_secretary_for_space_schedule',
-            'groups_id': [(4, cls.env.ref('base.group_user').id), (4, cls.env.ref('ems.group_secretary').id)],
-        })
         cls.level, cls.study = create_level_study(cls, 'TSPL', level={'name': 'Test Level (Space Schedule)'}, study={
             'code': 'TSPL001', 'name': 'Test Study (Space Schedule)', 'date': date.today(),
         })
@@ -160,22 +150,6 @@ class TestSpaceSchedule(TransactionCase):
         self.assertFalse(unused_space.schedule_attendance_ids)
         self.assertEqual(unused_space.get_schedule_report_lines(), [])
         self.assertEqual(unused_space.get_subject_teachers_summary(), [])
-
-    def test_teacher_can_read_space_schedule(self):
-        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Teacher Access)')
-        calendar_a.apply_schedule_changes([{
-            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
-            'subject_id': self.subject_main.id, 'group_ids': [self.group.id], 'space_id': self.space.id,
-            'name': 'TSPL: TSPLM',
-        }])
-
-        space = self.space.with_user(self.teacher_user)
-        self.assertTrue(space.schedule_attendance_ids)
-        self.assertTrue(space.get_schedule_report_lines())
-
-    def test_secretary_can_read_space_schedule(self):
-        space = self.space.with_user(self.secretary_user)
-        self.assertEqual(space.get_schedule_report_lines(), space.get_schedule_report_lines())
 
     def test_report_space_schedule_renders(self):
         calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (PDF)')

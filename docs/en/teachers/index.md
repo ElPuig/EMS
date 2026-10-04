@@ -29,6 +29,7 @@ This section contains the manuals for **teachers**.
 | [Requesting an absence](absences.md) | Request an absence: choosing its type, a whole day or a few hours, the responsible declaration, the supporting document and sending it |
 | [Plannings: checking your subjects' grading ponderations](planning.md) | Check where the internal/work-placement split and the per-learning-outcome weighting of the subjects you teach comes from |
 | [A Student's Public and Private Notes](student-notes.md) | Where every teacher reads a student's public notes, and who can read and write the private tutoring ones |
+| [The Presence Dot on the Teachers Screen](staff-presence.md) | What the green, yellow and grey dot next to each colleague's name means, and what it is based on |
 
 ---
 

@@ -24,10 +24,10 @@ Available to group tutors (for their own students), the secretariat and the Head
 
 ![Educational Community menu with the Students section open: Students and Data request](../../assets/tutors/dades-contacte-01-menu.png)
 
-1. Go to **Educational Community → Students (1) → Data request (2)** and click **Request contact data**. You can also open it from the ⚙ menu of the students list, the groups list or a group's form, and from the **Actions** menu in the header of a student's form.
+1. Go to **Educational Community → Students (1) → Data request (2)** and click **Request contact data**. You can also open it from the ⚙ menu of the students list, the groups list or a group's form, and from the **Actions** menu in the header of a student's form. Opened from a list, only your own students and groups among the selected ones are added.
 2. Choose who receives it:
    - **Groups / studies / levels**: pick the groups. Tutors can only pick their own groups.
-   - **Selected students**: pick the students one by one.
+   - **Selected students**: pick the students one by one. Only your own students are offered.
 3. Leave **Only students with incomplete data** ticked to skip the students who already have every required detail.
 4. Leave **Grant portal access to whoever lacks it** ticked: the request is answered from the portal.
 5. Check the **Recipients (preview)**: what is missing and who receives the email. A student marked **Nobody reachable by email** has nobody with an email on file: call the family by phone.

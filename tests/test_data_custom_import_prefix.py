@@ -75,3 +75,17 @@ class TestDataCustomImportPrefix(TransactionCase):
             "(see CLAUDE.md's Data folder conventions) so an EMS upgrade never "
             "silently deletes centre data:\n" + "\n".join(violations),
         )
+
+    def test_living_custom_data_is_frozen_against_future_upgrades(self):
+        # data/custom/ seeds these models' records only once: what an admin then changes through
+        # the app (renaming a group or a classroom, rebalancing a planning's weights) is 'living'
+        # data the CSV must not re-push on every upgrade (see CLAUDE.md's "Data folder
+        # conventions"). '_ems_freeze_living_custom_data' (models/settings/company.py) already ran
+        # during this test run's own module (re)load, via '_register_hook()'.
+        for model in self.env['res.company']._EMS_LIVING_CUSTOM_DATA_MODELS:
+            with self.subTest(model=model):
+                custom_data = self.env['ir.model.data'].sudo().search([
+                    ('module', '=', '__import__'), ('model', '=', model),
+                ])
+                self.assertTrue(custom_data, f"no __import__-owned {model} found - fixture assumption broken")
+                self.assertTrue(all(custom_data.mapped('noupdate')), f"{model} rows not frozen")

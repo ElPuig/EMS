@@ -215,9 +215,7 @@ class EmsConvalidation(models.Model):
         (res_id 0): tie them to the request so they follow its access rights and show in the
         chatter's attachment box."""
         for convalidation in self:
-            convalidation.attachment_ids.filtered(lambda attachment: not attachment.res_id).sudo().write({
-                'res_model': self._name, 'res_id': convalidation.id,
-            })
+            convalidation.attachment_ids._ems_link_to(convalidation)
 
     @api.model
     def _ems_next_registration_number(self, course):

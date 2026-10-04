@@ -292,7 +292,7 @@
                     <button class="ems-av-strike-cancel-btn" t-on-click="onStrikeCancel">
                         <t t-esc="strings.cancel"/>
                     </button>
-                    <button class="ems-av-strike-send-btn" t-on-click="onStrikeSend">
+                    <button class="ems-av-strike-send-btn" t-on-click="onStrikeSend" t-att-disabled="state.strikeSending">
                         <t t-esc="strings.send"/>
                     </button>
                 </div>

@@ -28,6 +28,8 @@ def post_init_hook(env):
     """)
     _backfill_default_schedule_framework(env)
     _enable_unaccent_extension(env)
+    _disable_login_presence_control(env)
+    _fix_native_presence_translations(env)
     # Must run before _ems_seed_enrollment_default() below: that method's own "course after the
     # operational one" logic already reads is_current to decide, and would otherwise always find
     # it empty on a fresh install.
@@ -158,6 +160,43 @@ def _enable_unaccent_extension(env):
     here; existing installs upgrading to this version get it via
     migrations/18.0.0.22.0/post-migrate.py."""
     env.cr.execute("CREATE EXTENSION IF NOT EXISTS unaccent;")
+
+
+def _disable_login_presence_control(env):
+    """The presence dot on the Teachers/ASP screens must follow the attendance check-in/out
+    only (issue #555): hr's login-based control (on by default) shows as Present anyone who just
+    has EMS open in a browser, checked in or not, and as Absent once they leave it idle. Fresh
+    installs get it here; existing installs via migrations/18.0.0.33.0/post-migrate.py."""
+    env['res.company'].with_context(active_test=False).search([]).write({'hr_presence_control_login': False})
+
+
+# The presence dot's labels (the tooltip, and the record's selection value) as hr/hr_holidays ship
+# them in Catalan/Spanish, where they are missing or wrong (issue #555): 'Out of Working hours' has
+# no Catalan translation at all, 'On leave' is "En sortir" in Catalan, and 'Present but on leave'
+# is "...de vacaciones" in Spanish although the leave can be of any type.
+_NATIVE_PRESENCE_TRANSLATIONS = {
+    'presence_out_of_working_hour': {'ca_ES': "Fora de l'horari laboral"},
+    'out_of_working_hour': {'ca_ES': "Fora de l'horari laboral"},
+    'presence_holiday_absent': {'ca_ES': "De permís"},
+    'presence_holiday_present': {'es_ES': "Presente pero con permiso"},
+}
+
+
+def _fix_native_presence_translations(env):
+    """Written straight into the selection values: loading a .po never overwrites a translation
+    that already exists, so EMS's own i18n files can't correct hr's/hr_holidays' ones - and, for the
+    same reason, a later upgrade of those modules leaves these alone. Fresh installs get it here;
+    existing installs via migrations/18.0.0.33.0/post-migrate.py."""
+    for value, translations in _NATIVE_PRESENCE_TRANSLATIONS.items():
+        env.cr.execute("""
+            UPDATE ir_model_fields_selection selection
+               SET name = selection.name || %s::jsonb
+              FROM ir_model_fields field
+             WHERE field.id = selection.field_id
+               AND field.model IN ('hr.employee', 'hr.employee.base', 'hr.employee.public')
+               AND field.name IN ('hr_icon_display', 'hr_presence_state')
+               AND selection.value = %s
+        """, (Json(translations), value))
 
 
 def _apply_icu_collation_to_sort_fields(env):

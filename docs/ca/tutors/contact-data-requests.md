@@ -24,10 +24,10 @@ Disponible per als tutors de grup (per al seu alumnat), la secretaria i la direc
 
 ![Menú Comunitat Educativa amb la secció Estudiants oberta: Estudiants i Sol·licitud de dades](../../assets/tutors/dades-contacte-01-menu.png)
 
-1. Aneu a **Comunitat Educativa → Estudiants (1) → Sol·licitud de dades (2)** i feu clic a **Sol·licita dades de contacte**. També el podeu obrir des del menú ⚙ de la llista d'estudiants, de la llista de grups o de la fitxa d'un grup, i des del menú **Accions** de la capçalera de la fitxa d'un estudiant.
+1. Aneu a **Comunitat Educativa → Estudiants (1) → Sol·licitud de dades (2)** i feu clic a **Sol·licita dades de contacte**. També el podeu obrir des del menú ⚙ de la llista d'estudiants, de la llista de grups o de la fitxa d'un grup, i des del menú **Accions** de la capçalera de la fitxa d'un estudiant. Si l'obriu des d'una llista, només s'hi afegeixen els vostres alumnes i grups d'entre els seleccionats.
 2. Trieu qui la rep:
    - **Grups / estudis / nivells**: trieu els grups. Els tutors només poden triar els seus grups.
-   - **Alumnes seleccionats**: trieu els alumnes un per un.
+   - **Alumnes seleccionats**: trieu els alumnes un per un. Només s'hi ofereixen els vostres alumnes.
 3. Deixeu marcat **Només alumnes amb dades incompletes** per ometre els alumnes que ja tenen totes les dades obligatòries.
 4. Deixeu marcat **Dona accés al portal a qui no en tingui**: la sol·licitud es respon des del portal.
 5. Reviseu els **Destinataris (previsualització)**: què falta i qui rep el correu. Un alumne marcat amb **Ningú localitzable per correu** no té ningú amb correu: truqueu a la família.

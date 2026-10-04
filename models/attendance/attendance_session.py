@@ -355,10 +355,20 @@ class EmsAttendanceSessionHeader(models.Model):
 
         previssions = EmsAttendanceJustification.get_current_justifications(self, self.start_date, self.end_date)
 
+        # NOTE: 'schedule.student_ids' (moved here from the template 2026-08-11 - see
+        # plans/calendar_driven_attendance_templates.md, point 1), not 'template.student_ids'
+        # (removed) - the roster is this specific weekly slot's own, not shared across every
+        # slot of the template.
+        roster = schedule.student_ids
         if previous and previous.end_time <= self.start_time:
             # active_test=False: a student removed from the previous period's roll-call (e.g. not
             # sitting an exam spanning both periods) stays removed, and restorable, in this one.
-            for prev in previous.with_context(active_test=False).attendance_session_line_ids:
+            # Only for this slot's own roster, though: the previous period of the same template
+            # can have different students (issue #534: a custom schedule attending only one of two
+            # consecutive hours), and a student only in this slot starts fresh below.
+            carried_lines = previous.with_context(active_test=False).attendance_session_line_ids.filtered(
+                lambda prev: prev.student_id in roster)
+            for prev in carried_lines:
                 line = None
                 for p in previssions:
                     if p.student_id == prev.student_id:
@@ -367,19 +377,15 @@ class EmsAttendanceSessionHeader(models.Model):
                     line = self._setup_next_session_line_data(prev)
                 line["active"] = prev.active
                 lines.append(line)
-        else:
-            # NOTE: 'schedule.student_ids' (moved here from the template 2026-08-11 - see
-            # plans/calendar_driven_attendance_templates.md, point 1), not 'template.student_ids'
-            # (removed) - the roster is this specific weekly slot's own, not shared across every
-            # slot of the template.
-            for student in schedule.student_ids:
-                line = None
-                for p in previssions:
-                    if p.student_id == student:
-                        line = p.perform_justification(self._setup_new_line_data(student), True)
-                if line is None:
-                    line = self._setup_new_line_data(student)
-                lines.append(line)
+            roster -= carried_lines.student_id
+        for student in roster:
+            line = None
+            for p in previssions:
+                if p.student_id == student:
+                    line = p.perform_justification(self._setup_new_line_data(student), True)
+            if line is None:
+                line = self._setup_new_line_data(student)
+            lines.append(line)
 
         if lines:
             def _to_id(v):
@@ -661,6 +667,13 @@ class EmsAttendanceSessionLine(models.Model):
         string="Groups", comodel_name="ems.group", related="attendance_session_id.group_ids", store=True,
         relation="ems_attendance_session_line_group_rel", column1="attendance_session_line_id", column2="group_id",
     )
+    # The student's own group when the roll-call was taken, which is what the reports filter and
+    # group by. Not 'group_ids' (the session's groups): a session shared by several groups would
+    # put each of its students under every one of them. Only depends on student_id on purpose: a
+    # later group change moves the following roll-calls, never the earlier ones.
+    student_group_id = fields.Many2one(
+        string="Group", comodel_name="ems.group", compute="_compute_student_group_id", store=True, index=True,
+    )
     subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", related="attendance_session_id.subject_id", store=True)
     # Current course = active session (the course transition archives them). Stored on the line so
     # filtering on it never goes through the header's record rules, which only let a teacher read
@@ -800,6 +813,11 @@ class EmsAttendanceSessionLine(models.Model):
     def _compute_strike_count(self):
         for line in self:
             line.strike_count = len(line.strike_ids)
+
+    @api.depends('student_id')
+    def _compute_student_group_id(self):
+        for line in self:
+            line.student_group_id = line.student_id.main_group_id
 
     @api.depends('status_id')
     def _compute_absence_rate(self):

@@ -10,7 +10,7 @@ PREVISION_CAPTION = _lt("Absence expected by: ")
 class EmsAttendanceJustification(models.Model):
     _name = "ems.attendance_justification"
     _description = "Attendance justification: contains the data about an abscence justification (proof of attendance)."
-    _inherit = ['ems.base', 'ems.datetime_utils']
+    _inherit = ['ems.base', 'ems.datetime_utils', 'ems.attachment_mixin']
 
     start_date = fields.Datetime(string="Start date", required=True)
     end_date = fields.Datetime(string="End date", required=True)

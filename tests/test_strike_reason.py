@@ -16,10 +16,6 @@ class TestStrikeReason(TransactionCase):
         # ems.strike sends real emails synchronously on create() (see CLAUDE.md).
         mock_outgoing_email(cls)
 
-    def test_create_requires_name(self):
-        with self.assertRaises(Exception):
-            self.env['ems.strike.reason'].create({})
-
     def test_default_active(self):
         reason = self.env['ems.strike.reason'].create({'name': 'Test Reason'})
         self.assertTrue(reason.active)

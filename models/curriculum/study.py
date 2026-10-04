@@ -4,6 +4,7 @@ from odoo import models, fields, api, _
 
 class EmsStudy(models.Model):
     _name = "ems.study"
+    _inherit = ['ems.attachment_mixin']
     _description = "Study: The concrete type of study (kind of bachelor, concrete university grade, etc.)"
     _order = "code asc"
 

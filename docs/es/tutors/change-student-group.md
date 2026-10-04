@@ -14,7 +14,7 @@ A veces un alumno debe cambiar de grupo (por ejemplo, del grupo A al grupo B) de
 
 1. Abre la ficha del alumno (**Comunidad Educativa → Alumnado**, tus alumnos tutorizados).
 2. Ve a la pestaña **Estudios**.
-3. Cambia el campo **Grupo principal** por el grupo de destino. Solo se muestran grupos del mismo estudio/nivel — no puedes mover a un alumno a otro estudio de esta forma.
+3. Cambia el campo **Grupo principal** por el grupo de destino. Solo se ofrecen los grupos equivalentes al actual: mismo estudio, mismo curso y mismo turno (por ejemplo, de SMX1A a SMX1B, pero no a SMX1C, que es de tarde, ni a DAM2B). Cualquier otro cambio lo tiene que hacer Secretaría.
 4. Aparece un aviso amarillo en la parte superior de los datos de matrícula recordándote que, al guardar, se moverán las asignaturas del alumno al grupo nuevo. Guarda cuando estés listo.
 
    ![Pestaña Estudios con el nuevo grupo principal elegido y el aviso amarillo sobre las asignaturas matriculadas](../../assets/tutors/canvi-grup-01-avis.png)
@@ -22,6 +22,8 @@ A veces un alumno debe cambiar de grupo (por ejemplo, del grupo A al grupo B) de
 ## Qué ocurre automáticamente
 
 Cualquier asignatura en la que el alumno estuviera matriculado a través del grupo **antiguo** pasa automáticamente al grupo **nuevo** — no hace falta volver a matricularlo asignatura por asignatura. Su horario de asistencia y cualquier evaluación abierta se actualizan en consecuencia.
+
+Una asignatura con [horario personalizado](custom-schedule.md) conserva sus franjas y una no presencial lo sigue siendo: no dependen del grupo principal.
 
 Una asignatura en la que el alumno ya estuviera matriculado a través de un grupo **distinto** (por ejemplo, un grupo de refuerzo) no se toca — solo se mueven las matrículas que estaban realmente en el grupo principal antiguo.
 

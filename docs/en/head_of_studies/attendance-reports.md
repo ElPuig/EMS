@@ -21,7 +21,7 @@ yourself, plus 3 printable PDF reports (by group, by student, by subject) reacha
    shown alongside it, so you can tell whether a 33% comes from 3 sessions or from 30, and whether it comes
    with disciplinary strikes attached.
 3. Use the search bar to filter further (by student, group, subject or status), and **Group By** to change
-   how the table is folded — e.g. by group to compare assistance rates across the school.
+   how the table is folded — e.g. by group to compare assistance rates across the school. The group is the student's own group on the date of each session: a session shared by several groups counts each student only in their own group.
 
    ![Attendance reports pivot table, expanded by subject and student](../../assets/head_of_studies/hos-attendance-reports-pivot.png)
 4. Use the **spreadsheet/download icon** in the header to export the current pivot to Excel.
@@ -53,7 +53,7 @@ to your choice.
 2. The **Tutor** and the **From**/**To** dates fill in automatically from the group and its full session
    range.
 3. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, and any
-   session notes recorded for the period.
+   session notes recorded for the period. It covers the group's students, in the group each one belonged to on the date of each session.
 
 **Attendance report (by student):**
 1. Pick a **Student**.

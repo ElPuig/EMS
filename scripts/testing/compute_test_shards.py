@@ -27,8 +27,8 @@ import statistics
 # full "install Odoo + EMS") and GitHub's Free tier runs at most 20 jobs at once across the
 # whole account; locally, run_sharded_tests.py throttles how many Chrome shards run at once.
 # Pick these from a real CI run: the slowest shard sets the wall-clock time.
-BACKEND_SHARDS = 2
-TOUR_SHARDS = 8
+BACKEND_SHARDS = 3
+TOUR_SHARDS = 12
 
 TIMINGS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test_timings.json')
 

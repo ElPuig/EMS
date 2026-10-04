@@ -1,7 +1,8 @@
 name: Set up Odoo and install EMS
 description: >-
-  Installs the system packages, Odoo (and Chrome for browser tours), configures Odoo and installs
-  EMS with install.sh on a fresh database. Shared by the test shards and the scripts job of
+  Installs the system packages, Odoo (and Chrome for browser tours), configures Odoo and either
+  installs EMS with install.sh on a fresh database or only clones its OCA dependencies (see the
+  install_ems input). Shared by the test shards and the scripts job of
   ci-unit-testing.yml (issue #564). Expects a PostgreSQL service on localhost:5432 (user and
   password "odoo") and the EMS repository checked out in the workspace.
 
@@ -9,6 +10,12 @@ inputs:
   needs_chrome:
     description: Also install Chrome and websocket-client, and check that Chrome starts.
     default: "false"
+  install_ems:
+    description: >-
+      Install EMS with install.sh. The test shards pass "false": they only clone the OCA
+      dependencies, and test.sh (EMS_TEST_INSTALL=1) installs EMS and runs the tests in that same
+      module load, one load less per shard (issue #565).
+    default: "true"
 
 runs:
   using: composite
@@ -97,7 +104,15 @@ runs:
     # runner has no stdin/TTY to answer it - without it every job hangs on this step (confirmed
     # 2026-08-12). A CI database, thrown away at the end of the job, is always 'dev'.
     - name: Install EMS module
+      if: inputs.install_ems == 'true'
       shell: bash
       run: |
         set -o pipefail
         sudo /opt/modules/ems/install.sh dev 2>&1 | tee /tmp/odoo-install.log
+
+    - name: Clone OCA dependencies
+      if: inputs.install_ems != 'true'
+      shell: bash
+      run: |
+        sudo bash -c "source /opt/modules/ems/scripts/odoo_modules.sh && ems_clone_oca_repos /opt/modules"
+        sudo chown -R odoo:odoo /opt/modules

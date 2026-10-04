@@ -667,6 +667,13 @@ class EmsAttendanceSessionLine(models.Model):
         string="Groups", comodel_name="ems.group", related="attendance_session_id.group_ids", store=True,
         relation="ems_attendance_session_line_group_rel", column1="attendance_session_line_id", column2="group_id",
     )
+    # The student's own group when the roll-call was taken, which is what the reports filter and
+    # group by. Not 'group_ids' (the session's groups): a session shared by several groups would
+    # put each of its students under every one of them. Only depends on student_id on purpose: a
+    # later group change moves the following roll-calls, never the earlier ones.
+    student_group_id = fields.Many2one(
+        string="Group", comodel_name="ems.group", compute="_compute_student_group_id", store=True, index=True,
+    )
     subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", related="attendance_session_id.subject_id", store=True)
     # Current course = active session (the course transition archives them). Stored on the line so
     # filtering on it never goes through the header's record rules, which only let a teacher read
@@ -806,6 +813,11 @@ class EmsAttendanceSessionLine(models.Model):
     def _compute_strike_count(self):
         for line in self:
             line.strike_count = len(line.strike_ids)
+
+    @api.depends('student_id')
+    def _compute_student_group_id(self):
+        for line in self:
+            line.student_group_id = line.student_id.main_group_id
 
     @api.depends('status_id')
     def _compute_absence_rate(self):

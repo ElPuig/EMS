@@ -14,7 +14,7 @@
 
 1. Ve a **Asistencia → Informes**. Se abre directamente con una **tabla dinámica**, mostrando **todo el centro** por defecto.
 2. La tabla agrupa por **asignatura y luego por alumno**. Haz clic en el icono **Expandir todo** (arriba a la derecha, junto a Invertir ejes) dos veces: una para desplegar las asignaturas y otra para desplegar los alumnos de cada asignatura. El número principal es el **% de faltas por alumno** — el **Recuento** (número de sesiones contabilizadas) y el **Recuento de strikes** se muestran al lado, así puedes saber si un 33% sale de 3 sesiones o de 30, y si viene acompañado de strikes disciplinarios.
-3. Usa la barra de búsqueda para filtrar más (por alumno, grupo, asignatura o estado), y **Agrupar por** para cambiar cómo se pliega la tabla — por ejemplo, por grupo para comparar las tasas de asistencia entre grupos del centro.
+3. Usa la barra de búsqueda para filtrar más (por alumno, grupo, asignatura o estado), y **Agrupar por** para cambiar cómo se pliega la tabla — por ejemplo, por grupo para comparar las tasas de asistencia entre grupos del centro. El grupo es el del alumno en la fecha de cada sesión: una sesión compartida por varios grupos cuenta a cada alumno solo en su grupo.
 
    ![Tabla dinámica de los informes de asistencia, expandida por asignatura y alumno](../../assets/head_of_studies/hos-attendance-reports-pivot.png)
 4. Usa el icono de **hoja de cálculo/descarga** de la cabecera para exportar la tabla dinámica actual a Excel.
@@ -39,7 +39,7 @@ En la pantalla de **Informes de asistencia**, haz clic en el icono **⚙ (engran
 **Informe de asistencia (por grupo):**
 1. Selecciona un **Grupo**.
 2. El **Tutor/a** y las fechas **Desde**/**Hasta** se rellenan automáticamente a partir del grupo y su rango de sesiones.
-3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo.
+3. Haz clic en **Imprimir**. El PDF se abre con un resumen global de asistencia/absencia, un recuento por estado y las notas de sesión registradas durante el periodo. Incluye al alumnado del grupo, según el grupo de cada alumno en la fecha de cada sesión.
 
 **Informe de asistencia (por alumno):**
 1. Selecciona un **Alumno**.

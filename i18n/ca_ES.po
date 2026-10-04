@@ -1542,6 +1542,7 @@ msgstr "Administrador/a"
 
 #. module: ems
 #: model:res.groups,name:ems.group_coexistence model:res.groups,name:ems.group_quality model:res.groups,name:ems.group_settings model:res.groups,name:ems.group_tac model:res.groups,name:ems.group_orientation
+#: model:ir.model.fields,field_description:ems.field_hr_department__manager_id
 msgid "Manager"
 msgstr "Gestor/a"
 
@@ -2928,7 +2929,7 @@ msgstr "Currículum"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_document_id model:ir.model.fields.selection,name:ems.selection__ems_student_document__doc_type__dni model_terms:ir.ui.view,arch_db:ems.portal_documentation
 msgid "DNI / NIE"
-msgstr ""
+msgstr "DNI / NIE"
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_attendance_issues
@@ -3209,7 +3210,7 @@ msgstr "Documentació"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__document_ids model:ir.model.fields,field_description:ems.field_res_users__document_ids
 msgid "Documents"
-msgstr ""
+msgstr "Documents"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard__state__done
@@ -4299,7 +4300,7 @@ msgstr "Confirmo aquest compte bancari per a la nova matrícula i tot el proper 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_value model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_iban model_terms:ir.ui.view,arch_db:ems.view_student_document_form model_terms:ir.ui.view,arch_db:ems.view_student_document_list model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 msgid "IBAN"
-msgstr ""
+msgstr "IBAN"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
@@ -5371,6 +5372,7 @@ msgstr "Nota"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__notes model:ir.model.fields,field_description:ems.field_ems_attendance_justification__notes model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__notes model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__notes model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__notes model:ir.model.fields,field_description:ems.field_ems_content__notes model:ir.model.fields,field_description:ems.field_ems_criteria__notes model:ir.model.fields,field_description:ems.field_ems_group__notes model:ir.model.fields,field_description:ems.field_ems_level__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__notes model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__notes model:ir.model.fields,field_description:ems.field_ems_outcome__notes model:ir.model.fields,field_description:ems.field_ems_role__notes model:ir.model.fields,field_description:ems.field_ems_student_benefit__notes model:ir.model.fields,field_description:ems.field_ems_study__notes model:ir.model.fields,field_description:ems.field_ems_subject__notes model:ir.model.fields,field_description:ems.field_ems_tracking__notes model:ir.model.fields,field_description:ems.field_ems_workgroup__notes model:ir.model.fields,field_description:ems.field_hr_employee__notes model:ir.model.fields,field_description:ems.field_hr_employee_base__notes model:ir.model.fields,field_description:ems.field_hr_employee_public__notes model_terms:ir.ui.view,arch_db:ems.attendance_report_session model_terms:ir.ui.view,arch_db:ems.level_view_form model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_attendance_session_form model_terms:ir.ui.view,arch_db:ems.view_content_form model_terms:ir.ui.view,arch_db:ems.view_criteria_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form model_terms:ir.ui.view,arch_db:ems.view_outcome_form model_terms:ir.ui.view,arch_db:ems.view_role_form model_terms:ir.ui.view,arch_db:ems.view_study_form model_terms:ir.ui.view,arch_db:ems.view_subject_form model_terms:ir.ui.view,arch_db:ems.view_workgroup_form model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__notes model_terms:ir.ui.view,arch_db:ems.report_meeting_presence_section
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__note
+#: model:ir.model.fields,field_description:ems.field_res_partner__comment
 msgid "Notes"
 msgstr "Notes"
 
@@ -8147,7 +8149,7 @@ msgstr "En desenvolupament"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_role__unipersonal
 msgid "Unipersonal"
-msgstr ""
+msgstr "Unipersonal"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_product_product__ems_subject_unit_cost model:ir.model.fields,help:ems.field_product_template__ems_subject_unit_cost
@@ -19522,3 +19524,9 @@ msgstr "Pati"
 #: code:addons/ems/static/src/js/backend/archived_reason_ribbon_field.js:0
 msgid "Color field"
 msgstr "Camp de color"
+
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_work_location__name
+msgid "Work Location"
+msgstr "Ubicació de la feina"

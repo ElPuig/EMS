@@ -12,9 +12,10 @@
 - 6 texts from the web client (JavaScript) had no translation: archiving groups, "Processing,
   please wait...", the guard board's "Patio", among others; 5 more were translated but never
   loaded for the same reason.
-- 89 labels of fields EMS defines had no Catalan/Spanish translation (including the attendance
+- 100 labels of fields EMS defines had no Catalan/Spanish translation (including the attendance
   correction list's "Employee", "Attendance" and "Status" columns, and many strike, group,
-  classroom and wizard fields).
+  classroom and wizard fields). 11 of them only showed on a fresh install: the development
+  database still held older translations for them.
 
 # Internal changes
 

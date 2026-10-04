@@ -138,16 +138,14 @@ jobs:
       - name: Checkout EMS
         uses: actions/checkout@v7
 
-      - name: Set up Odoo
+      - name: Set up Odoo and install EMS
         uses: ./.github/actions/setup-odoo
         with:
           needs_chrome: ${{ matrix.needs_chrome }}
-          install_ems: "false"
 
-      # The shard installs EMS and runs its tests in a single module load (EMS_TEST_INSTALL=1:
-      # 'odoo -i ems --test-enable' instead of install.sh followed by '-u ems', issue #565).
-      # install.sh, update.sh and upgrade.sh are checked once, by the "scripts" job below, in
-      # parallel (issue #564).
+      # No update.sh/upgrade.sh here: test.sh's own '-u ems' (which is what runs the 2900+
+      # at_install tests) already reloads the module on top of the fresh install. Those two
+      # scripts are checked once, by the "scripts" job below, in parallel (issue #564).
       - name: Run EMS tests (${{ matrix.name }})
         env:
           # Raises Chrome's own internal log verbosity (odoo/tests/common.py passes this as
@@ -160,7 +158,7 @@ jobs:
           ODOO_BROWSER_LOG_VERBOSITY: "1"
         run: |
           set -o pipefail
-          sudo EMS_TEST_INSTALL=1 /opt/modules/ems/test.sh "${{ matrix.tags }}" 2>&1 | tee /tmp/odoo-test.log
+          sudo /opt/modules/ems/test.sh "${{ matrix.tags }}" 2>&1 | tee /tmp/odoo-test.log
 
       # A skipped tour still ends in "0 failed, 0 error(s)", so a green test step alone
       # doesn't prove the tours ran (issue #563).

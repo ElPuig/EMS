@@ -1,26 +1,6 @@
 #!/bin/bash
-# Shared helpers for the scripts that install or upgrade the EMS module: install.sh, upgrade.sh,
-# deploy.sh and the CI workflows. Meant to be sourced, not executed.
-
-# The OCA repositories EMS depends on, cloned next to it (branch 18.0).
-EMS_OCA_REPOS=(
-    "https://github.com/OCA/queue.git"
-    "https://github.com/OCA/partner-contact.git"
-)
-
-# Clones every repository in EMS_OCA_REPOS into folder $1 (the parent of ems/), skipping the ones
-# already there - update.sh is what keeps existing clones up to date.
-ems_clone_oca_repos() {
-    local modules_dir="$1" repo_url repo_name target
-    for repo_url in "${EMS_OCA_REPOS[@]}"; do
-        repo_name=$(basename "$repo_url" .git)
-        target="$modules_dir/$repo_name"
-        if [ ! -d "$target/.git" ]; then
-            echo "# $repo_name (cloning):"
-            git clone --depth 1 --branch 18.0 "$repo_url" "$target"
-        fi
-    done
-}
+# Shared helpers for every script that upgrades the EMS module: upgrade.sh, deploy.sh and
+# .github/workflows/deploy-check.yml. Meant to be sourced, not executed.
 
 # Prints option $2 from the odoo.conf file $1. Odoo writes "False" for unset options; normalised to
 # empty so callers can test with [ -n ... ].

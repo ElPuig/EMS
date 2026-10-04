@@ -35,13 +35,8 @@ else
         /*|-*) TAG="$1" ;;      # already a full --test-tags expression - pass through as-is
         *)     TAG="/ems:$1" ;; # bare class name - existing single-class shorthand
     esac
-    # EMS_TEST_INSTALL=1 (CI shards): the 'ems' database doesn't exist yet - install EMS and run
-    # the tests in that same load ('-i'), instead of installing first and loading it again with
-    # '-u' (one module load less per CI shard, issue #565).
-    MODE="-u ems"
-    [ "$EMS_TEST_INSTALL" = "1" ] && MODE="-i ems --without-demo=WITHOUT_DEMO"
     # as_odoo.sh: the environment Chrome needs to start in tour tests (issue #563).
-    "$SCRIPT_DIR/scripts/testing/as_odoo.sh" bash -c "odoo -d ems ${MODE} --test-enable --test-tags=${TAG} --stop-after-init -c /etc/odoo/odoo.conf 2>&1"
+    "$SCRIPT_DIR/scripts/testing/as_odoo.sh" bash -c "odoo -d ems -u ems --test-enable --test-tags=${TAG} --stop-after-init -c /etc/odoo/odoo.conf 2>&1"
     EXIT_CODE=$?
 fi
 

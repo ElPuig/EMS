@@ -10,6 +10,8 @@ from . import test_contact_tour
 from . import test_course_transition
 from . import test_course_transition_tour
 from . import test_enrollment
+from . import test_enrollment_slot
+from . import test_enrollment_slot_tour
 from . import test_enrollment_subject_group
 from . import test_enrollment_subject_group_tour
 from . import test_enrollment_benefit

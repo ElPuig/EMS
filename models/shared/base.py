@@ -25,6 +25,11 @@ class EmsBase(models.AbstractModel):
     def get_user_is_secretary(self):
         return self.env.user.has_group('ems.group_secretary')
 
+    # The current user may add, change or remove a student's enrollments (issue #534): academic
+    # admin and the secretary's office only - a tutor only customizes which sessions are attended.
+    def get_user_can_edit_enrollments(self):
+        return self.get_user_is_admin() or self.get_user_is_secretary()
+
     # The current user is Head of Studies, Deputy Head of Studies or Director - all three
     # share the single ems.group_head_of_studies group (Director implies it).
     def get_user_is_head_of_studies(self):

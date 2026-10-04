@@ -14,7 +14,7 @@ De vegades un alumne ha de canviar de grup (per exemple, del grup A al grup B) d
 
 1. Obre la fitxa de l'alumne (**Comunitat Educativa → Alumnat**, els teus alumnes tutoritzats).
 2. Ves a la pestanya **Estudis**.
-3. Canvia el camp **Grup principal** pel grup de destinació. Només es mostren grups del mateix estudi/nivell — no pots moure un alumne a un altre estudi d'aquesta manera.
+3. Canvia el camp **Grup principal** pel grup de destinació. Només es mostren els grups equivalents a l'actual: mateix estudi, mateix curs i mateix torn (per exemple, de SMX1A a SMX1B, però no a SMX1C, que és de tarda, ni a DAM2B). Qualsevol altre canvi l'ha de fer Secretaria.
 4. Apareix un avís groc a la part superior de les dades de matrícula recordant-te que, en desar, es mouran les assignatures de l'alumne al grup nou. Desa quan estiguis a punt.
 
    ![Pestanya Estudis amb el nou grup principal triat i l'avís groc sobre les assignatures matriculades](../../assets/tutors/canvi-grup-01-avis.png)
@@ -22,6 +22,8 @@ De vegades un alumne ha de canviar de grup (per exemple, del grup A al grup B) d
 ## Què passa automàticament
 
 Qualsevol assignatura en què l'alumne estigués matriculat a través del grup **antic** passa automàticament al grup **nou** — no cal tornar a matricular-lo assignatura per assignatura. El seu horari d'assistència i qualsevol avaluació oberta s'actualitzen en conseqüència.
+
+Una assignatura amb [horari personalitzat](custom-schedule.md) conserva les seves franges i una de no presencial continua sent-ho: no depenen del grup principal.
 
 Una assignatura en què l'alumne ja estigués matriculat a través d'un grup **diferent** (per exemple, un grup de reforç) no es toca — només es mouen les matrícules que estaven realment al grup principal antic.
 

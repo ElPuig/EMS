@@ -13,6 +13,7 @@ Esta sección contiene los manuales para los **tutores de grupo**.
 | Manual | Descripción |
 |--------|------------|
 | [Cambiar el grupo de un alumno](change-student-group.md) | Mover a un alumno tutorizado de un grupo a otro, con sus matrículas por asignatura siguiéndolo automáticamente |
+| [Horario personalizado de un alumno](custom-schedule.md) | Indicar a qué sesiones asiste un alumno: repartir una asignatura entre grupos, marcarla como no presencial o volver a seguir al grupo |
 | [Histórico académico de su alumnado](academic-history.md) | Consultar el registro permanente por curso de sus tutorizados: módulos, notas por RA y asistencia |
 | [Poner la nota de las prácticas de empresa (EM)](work-placement-grade.md) | Poner la nota de las prácticas a un estudiante cuando las termina: completa la nota final de todos los módulos con peso de prácticas, incluidas las finales pendientes de cursos anteriores |
 | [Junta de evaluación: revisar las calificaciones por alumno](junta-avaluacio.md) | Revisar y ajustar las calificaciones de cada alumno del grupo, asignatura por asignatura, para la junta de evaluación |

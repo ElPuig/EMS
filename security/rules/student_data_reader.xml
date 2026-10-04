@@ -30,6 +30,17 @@
             <field name="perm_unlink" eval="False"/>
         </record>
 
+        <record id="rule_ems_enrollment_slot_student_data_reader" model="ir.rule">
+            <field name="name">Enrollment slot: student data reader (all data, read only)</field>
+            <field name="model_id" ref="ems.model_ems_enrollment_slot"/>
+            <field name="groups" eval="[(4, ref('ems.group_student_data_reader'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
         <record id="rule_ems_enrollment_student_data_reader" model="ir.rule">
             <field name="name">Enrollment: student data reader (all data, read only)</field>
             <field name="model_id" ref="ems.model_ems_enrollment"/>

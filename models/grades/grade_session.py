@@ -174,7 +174,7 @@ class EmsGradeSession(models.Model):
         # the ones its caller happens to be allowed to read - a teacher only sees their own
         # sessions (rule_grade_session_teacher_own, security/rules/grading.xml), which would let
         # a secretary-who-also-teaches delete an enrollment already carrying another teacher's
-        # grades. Same reasoning as ems.enrollment._ems_matching_attendance_schedules().
+        # grades. Same reasoning as ems.enrollment._ems_attended_lines().
         if self.env["ems.grade_outcome_line"].sudo().search_count(domain + [("is_scored", "=", True)]):
             return True
         return bool(self.env["ems.grade_subject_line"].sudo().search_count(domain + [("external_is_scored", "=", True)]))

@@ -736,9 +736,23 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			})
 		return lines
 
+	def _raise_if_unresolved(self, conflict_lines):
+		"""Blocks advancing while any of 'conflict_lines' (internal or external) still has no valid
+		resolution, listing them. 'self.env._' rather than '_': the list is built inside a generator
+		expression, where '_' can't find the user's language (it inspects its caller's frame, and a
+		generator runs in its own) - those labels came out untranslated."""
+		invalid_lines = conflict_lines.filtered(lambda line: not line._resolution_is_valid())
+		if invalid_lines:
+			raise ValidationError(_(
+				"Please choose a valid resolution for every conflict before continuing:\n%s"
+			) % "\n".join(
+				self.env._("%(left)s vs. %(right)s") % {'left': line.left_label, 'right': line.right_label}
+				for line in invalid_lines
+			))
+
 	def _space_conflict_lines(self, conflicts):
 		return [
-			_("Room conflict: this import wants the same space and time as %s.") % line
+			self.env._("Room conflict: this import wants the same space and time as %s.") % line
 			for line in self._conflict_lines(conflicts)
 		]
 
@@ -747,7 +761,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		this same batch double-booked against their own, already-existing schedule for a different
 		subject/group (e.g. two departments scheduling them at the same time in separate files)."""
 		return [
-			_("Schedule conflict: this teacher already has an overlapping session, %s.") % line
+			self.env._("Schedule conflict: this teacher already has an overlapping session, %s.") % line
 			for line in self._conflict_lines(conflicts)
 		]
 
@@ -772,7 +786,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	def _missing_space_lines(self, missing_space):
 		"""One bullet line per group missing a classroom — shared by every onchange handler so the
 		message is worded identically wherever it appears."""
-		return [_("Group '%s' has no classroom assigned.") % group.name for group in missing_space]
+		return [self.env._("Group '%s' has no classroom assigned.") % group.name for group in missing_space]
 
 	def _classify_attachments(self):
 		"""Parses every 'attachment_ids' file (without writing anything), building the raw
@@ -1478,14 +1492,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		line's deletion can never shift another still-unprocessed line's stored index within the same
 		item (only relevant for the rare 3+-way collision case - see '_find_internal_conflicts')."""
 		self.ensure_one()
-		invalid_lines = self.internal_conflict_line_ids.filtered(lambda line: not line._resolution_is_valid())
-		if invalid_lines:
-			raise ValidationError(_(
-				"Please choose a valid resolution for every conflict before continuing:\n%s"
-			) % "\n".join(
-				_("%(left)s vs. %(right)s") % {'left': line.left_label, 'right': line.right_label}
-				for line in invalid_lines
-			))
+		self._raise_if_unresolved(self.internal_conflict_line_ids)
 
 		node_cache = json.loads(self.parsed_entries_json or '[]')
 		indices_to_remove = {}
@@ -1661,14 +1668,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		concrete detail lines (see '_summary_block_html') - the last screen before Import, so this
 		is the last point anything needs precomputing."""
 		self.ensure_one()
-		invalid_lines = self.external_conflict_line_ids.filtered(lambda line: not line._resolution_is_valid())
-		if invalid_lines:
-			raise ValidationError(_(
-				"Please choose a valid resolution for every conflict before continuing:\n%s"
-			) % "\n".join(
-				_("%(left)s vs. %(right)s") % {'left': line.left_label, 'right': line.right_label}
-				for line in invalid_lines
-			))
+		self._raise_if_unresolved(self.external_conflict_line_ids)
 
 		node_cache = json.loads(self.parsed_entries_json or '[]')
 		indices_to_remove = {}
@@ -1690,13 +1690,13 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		existing_items = self._teacher_preview_items(node_cache, ('resolved', 'email_match'))
 		pending_items = self._teacher_preview_items(node_cache, ('create_pending', 'placeholder'))
 		group_lines = [
-			_("%(raw)s resolved to %(group)s") % {'raw': line.raw_name, 'group': line.group_id.display_name}
+			self.env._("%(raw)s resolved to %(group)s") % {'raw': line.raw_name, 'group': line.group_id.display_name}
 			for line in self.group_line_ids
 		]
 		teacher_lines = [
-			_("%(raw)s will be created as a new pending teacher") % {'raw': line.raw_identifier}
+			self.env._("%(raw)s will be created as a new pending teacher") % {'raw': line.raw_identifier}
 			if line.create_new else
-			_("%(raw)s resolved to %(teacher)s") % {'raw': line.raw_identifier, 'teacher': line.employee_id.display_name}
+			self.env._("%(raw)s resolved to %(teacher)s") % {'raw': line.raw_identifier, 'teacher': line.employee_id.display_name}
 			for line in self.teacher_line_ids
 		]
 		sections = [

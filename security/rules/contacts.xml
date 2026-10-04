@@ -131,34 +131,83 @@
         <field name="perm_unlink" eval="False"/>
     </record>
 
+    <!-- Issue #534: adding or removing an enrollment (what a student studies, and the group they
+         are graded in) is the secretary's office and academic administration's job only - the
+         teacher ACL no longer grants create/unlink at all (a rule can't take a right away: one
+         with perm_create off is simply ignored for create). What the tutor, and every chief above
+         them (tutor_scope_user_ids), keeps is customizing which sessions the student attends:
+         the 'is_remote' flag here (ems.enrollment.write() rejects any other field for them) and
+         the ems.enrollment.slot rows. -->
     <record id="rule_enrollment_tutor" model="ir.rule">
-        <field name="name">enrollment: tutor (edit its tutorands)</field>
+        <field name="name">enrollment: tutor (customize its tutorands' sessions)</field>
         <field name="model_id" ref="ems.model_ems_enrollment"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
         <field name="domain_force">[('student_id.tutor_id.tutor_scope_user_ids', '=' , user.id)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
-        <field name="perm_create" eval="True"/>
-        <field name="perm_unlink" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
     </record>
 
-    <!-- Without this, Head/Deputy Head of Studies and Director only inherit group_teacher's
-         two rules above (read-only everywhere; write/create/unlink limited to their own
-         tutorands) - the same OR-combination gap already fixed for res.partner (issue #448,
-         rule_contact_head_of_studies) and ems.attendance_template/ems.attendance_schedule
-         (issue #444). Director/academic_admin already have full access via their own rules,
-         but also match this one (group_academic_admin implies group_director implies
-         group_head_of_studies) - harmless, since ir.rule domains for different groups are
-         OR-ed together. -->
+    <!-- Read-only since issue #534: Head/Deputy Head of Studies and Director no longer add or
+         remove enrollments (issue #466 had given them that centre-wide). They still customize the
+         sessions of the students in their own branch of the hierarchy, through rule_enrollment_tutor
+         (tutor_scope_user_ids walks up to them). Kept, read-only, so the intent stays explicit. -->
     <record id="rule_enrollment_head_of_studies" model="ir.rule">
-        <field name="name">enrollment: Head of Studies (all data)</field>
+        <field name="name">enrollment: Head of Studies (all data, read only)</field>
         <field name="model_id" ref="ems.model_ems_enrollment"/>
         <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
-        <field name="perm_write" eval="True"/>
-        <field name="perm_create" eval="True"/>
-        <field name="perm_unlink" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- ems.enrollment.slot (issue #534): who customizes a student's sessions - academic admin and
+         secretary for every student, the tutor and every chief above them (tutor_scope_user_ids)
+         for their own students; everybody else who can read enrollments reads these too. -->
+    <record id="rule_enrollment_slot_admin" model="ir.rule">
+        <field name="name">Enrollment slot: admin</field>
+        <field name="model_id" ref="ems.model_ems_enrollment_slot"/>
+        <field name="groups" eval="[(4, ref('ems.group_academic_admin'))]"/>
+        <field name="domain_force">[]</field>
+    </record>
+
+    <record id="rule_enrollment_slot_secretary" model="ir.rule">
+        <field name="name">Enrollment slot: secretary (full access)</field>
+        <field name="model_id" ref="ems.model_ems_enrollment_slot"/>
+        <field name="groups" eval="[(4, ref('ems.group_secretary'))]"/>
+        <field name="domain_force">[]</field>
+    </record>
+
+    <record id="rule_enrollment_slot_teacher" model="ir.rule">
+        <field name="name">Enrollment slot: teacher (read only)</field>
+        <field name="model_id" ref="ems.model_ems_enrollment_slot"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_enrollment_slot_tutor" model="ir.rule">
+        <field name="name">Enrollment slot: tutor (customize its tutorands' sessions)</field>
+        <field name="model_id" ref="ems.model_ems_enrollment_slot"/>
+        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="domain_force">[('student_id.tutor_id.tutor_scope_user_ids', '=' , user.id)]</field>
+    </record>
+
+    <record id="rule_enrollment_slot_head_of_studies" model="ir.rule">
+        <field name="name">Enrollment slot: Head of Studies (all data, read only)</field>
+        <field name="model_id" ref="ems.model_ems_enrollment_slot"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
     </record>
 
     <record id="rule_sale_order_admin" model="ir.rule">

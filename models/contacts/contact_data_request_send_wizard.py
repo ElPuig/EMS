@@ -52,7 +52,7 @@ class EmsContactDataRequestSendWizard(models.TransientModel):
     def _onchange_selection(self):
         students = self._resolve_students()
         lines = self._build_lines(students)
-        lines += [(0, 0, {'student_id': student.id, 'note': _("Not one of your students")})
+        lines += [(0, 0, {'student_id': student.id, 'note': self.env._("Not one of your students")})
                   for student in self._scope_foreign_students(students)]
         self.line_ids = [(5, 0, 0)] + lines
 

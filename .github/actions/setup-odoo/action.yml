@@ -33,7 +33,9 @@ runs:
             | sudo gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg
           echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
             | sudo tee /etc/apt/sources.list.d/google-chrome.list
-          PACKAGES="$PACKAGES google-chrome-stable"
+          # wkhtmltopdf: tours that print a report from the browser need it; without it Odoo
+          # doesn't produce the PDF and the screen flow differs from production's (issue #565).
+          PACKAGES="$PACKAGES google-chrome-stable wkhtmltopdf"
         fi
         sudo apt-get update -qq
         sudo apt-get install -y $PACKAGES

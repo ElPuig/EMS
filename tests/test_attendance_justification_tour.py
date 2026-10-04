@@ -96,11 +96,12 @@ class TestAttendanceJustificationTour(HttpCase):
             ('teacher_id', '=', self.teacher.id),
         ])
         self.assertEqual(len(justification), 1)
-        # Confirmed empirically: the headless test browser's own timezone (not the logged-in
-        # admin user's Europe/Madrid res.partner.tz) is what luxon uses to parse the typed
-        # text, and it's UTC in this container - stored values match exactly what was typed.
-        self.assertEqual(justification.start_date, datetime(2026, 2, 5, 9, 0))
-        self.assertEqual(justification.end_date, datetime(2026, 2, 5, 11, 0))
+        # The web client reads the typed 09:00-11:00 in the company's timezone (issue #518, see
+        # docs/en/developers/shared/timezones.md), and the database stores it in UTC.
+        utils = self.env['ems.datetime_utils']
+        typed_day = date(2026, 2, 5)
+        self.assertEqual(justification.start_date, utils.datetime_to_odoo(utils.time_float_to_utc_datetime(typed_day, 9.0)))
+        self.assertEqual(justification.end_date, utils.datetime_to_odoo(utils.time_float_to_utc_datetime(typed_day, 11.0)))
 
     def test_attendance_justification_tutor_open_tour(self):
         # Logs in as a plain tutor, not admin: the bug (issue #469) only exists for a user

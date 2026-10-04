@@ -16,3 +16,8 @@
   (no `hr_employee_public` SQL view or sales journal yet), and ~190 tests error out, so each
   shard still installs EMS first and runs the tests with `-u ems`.
 - `scripts/testing/update_test_timings.py` refreshes the durations from a CI run's test logs.
+- Fixed the three tours that failed once they really ran in CI: the tour shards now install
+  `wkhtmltopdf` (a tour printing a report from the browser behaves differently without it), the
+  role hierarchy-lock tour creates its own employees for the roles it opens instead of relying
+  on the development database's real ones, and the justification tour expects the typed time in
+  the company's timezone (its old expectation predated the #518 timezone fix).

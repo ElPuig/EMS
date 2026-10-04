@@ -19,32 +19,6 @@ class TestOutcome(TransactionCase):
             'subject_id': cls.test_subject.id,
         })
 
-    def test_create_valid(self):
-        outcome = self.env['ems.outcome'].create({
-            'code': 'TST_OUT_SUBJ_RA2',
-            'acronym': 'RA2',
-            'name': 'Test 02',
-            'subject_id': self.test_subject.id,
-        })
-        self.assertTrue(outcome.id)
-        self.assertEqual(outcome.subject_id, self.test_subject)
-
-    def test_create_missing_code(self):
-        with self.assertRaises(Exception):
-            self.env['ems.outcome'].create({
-                'acronym': 'T02',
-                'name': 'No Code',
-                'subject_id': self.test_subject.id,
-            })
-
-    def test_create_missing_subject(self):
-        with self.assertRaises(Exception):
-            self.env['ems.outcome'].create({
-                'code': 'TST_NO_SUBJ',
-                'acronym': 'T03',
-                'name': 'No Subject',
-            })
-
     def test_code_must_start_with_subject_code(self):
         with self.assertRaises(ValidationError):
             self.env['ems.outcome'].create({

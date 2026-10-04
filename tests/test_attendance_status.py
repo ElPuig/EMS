@@ -85,13 +85,6 @@ class TestAttendanceStatus(TransactionCase):
 
     # --- model behaviour -------------------------------------------------
 
-    def test_create_valid_status(self):
-        status = self.env['ems.attendance_status'].with_user(self.admin_user).create({
-            'name': 'Test Custom Status', 'category': 'absence',
-        })
-        self.assertEqual(status.name, 'Test Custom Status')
-        self.assertTrue(status.active)
-
     def test_category_required(self):
         with self.assertRaises(Exception):
             self.env['ems.attendance_status'].with_user(self.admin_user).create({'name': 'No category'})

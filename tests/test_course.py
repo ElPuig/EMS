@@ -14,12 +14,6 @@ class TestCourse(TransactionCase):
         })
         cls.test_course = cls.env['ems.course'].create({'start': 1900, 'end': 1901})
 
-    def test_create_valid(self):
-        course = self.env['ems.course'].create({'start': 1910, 'end': 1911})
-        self.assertTrue(course.id)
-        self.assertEqual(course.start, 1910)
-        self.assertEqual(course.end, 1911)
-
     def test_name_computed(self):
         course = self.env['ems.course'].create({'start': 1920, 'end': 1921})
         self.assertEqual(course.name, '1920-1921')

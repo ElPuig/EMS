@@ -25,32 +25,6 @@ class TestCriteria(TransactionCase):
             'outcome_id': cls.test_outcome.id,
         })
 
-    def test_create_valid(self):
-        criteria = self.env['ems.criteria'].create({
-            'code': 'TST_CRIT_SUBJ_RA1_B',
-            'acronym': 'CB1',
-            'name': 'Test 01',
-            'outcome_id': self.test_outcome.id,
-        })
-        self.assertTrue(criteria.id)
-        self.assertEqual(criteria.outcome_id, self.test_outcome)
-
-    def test_create_missing_code(self):
-        with self.assertRaises(Exception):
-            self.env['ems.criteria'].create({
-                'acronym': 'T02',
-                'name': 'No Code',
-                'outcome_id': self.test_outcome.id,
-            })
-
-    def test_create_missing_outcome(self):
-        with self.assertRaises(Exception):
-            self.env['ems.criteria'].create({
-                'code': 'TST_NO_OUTCOME',
-                'acronym': 'T03',
-                'name': 'No Outcome',
-            })
-
     def test_code_must_start_with_outcome_code(self):
         with self.assertRaises(ValidationError):
             self.env['ems.criteria'].create({

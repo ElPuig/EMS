@@ -14,18 +14,6 @@ class TestStudy(TransactionCase):
             'code': 'TST_STUDY_001', 'acronym': 'TSST', 'name': 'Test Study', 'date': date(2024, 9, 1),
         })
 
-    def test_create_valid(self):
-        study = self.env['ems.study'].create({
-            'code': 'T01',
-            'acronym': 'T01A',
-            'name': 'Test 01',
-            'date': date(2024, 9, 1),
-        })
-        self.assertTrue(study.id)
-        self.assertEqual(study.code, 'T01')
-        self.assertEqual(study.acronym, 'T01A')
-        self.assertEqual(study.name, 'Test 01')
-
     def test_deprecated_defaults_to_false(self):
         study = self.env['ems.study'].create({
             'code': 'T01D',
@@ -34,38 +22,6 @@ class TestStudy(TransactionCase):
             'date': date(2024, 9, 1),
         })
         self.assertFalse(study.deprecated)
-
-    def test_create_missing_code(self):
-        with self.assertRaises(Exception):
-            self.env['ems.study'].create({
-                'acronym': 'T02',
-                'name': 'No Code',
-                'date': date(2024, 9, 1),
-            })
-
-    def test_create_missing_acronym(self):
-        with self.assertRaises(Exception):
-            self.env['ems.study'].create({
-                'code': 'T03',
-                'name': 'No Acronym',
-                'date': date(2024, 9, 1),
-            })
-
-    def test_create_missing_name(self):
-        with self.assertRaises(Exception):
-            self.env['ems.study'].create({
-                'code': 'T04',
-                'acronym': 'T04A',
-                'date': date(2024, 9, 1),
-            })
-
-    def test_create_missing_date(self):
-        with self.assertRaises(Exception):
-            self.env['ems.study'].create({
-                'code': 'T05',
-                'acronym': 'T05A',
-                'name': 'No Date',
-            })
 
     def test_code_must_be_unique(self):
         self.env['ems.study'].create({

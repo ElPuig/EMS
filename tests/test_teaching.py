@@ -33,18 +33,6 @@ class TestTeaching(TransactionCase):
         })
         self.assertTrue(teaching.id)
 
-    def test_create_missing_teacher(self):
-        with self.assertRaises(Exception):
-            self.env['ems.teaching'].create({'group_id': self.group.id, 'subject_id': self.subject.id})
-
-    def test_create_missing_group(self):
-        with self.assertRaises(Exception):
-            self.env['ems.teaching'].create({'teacher_id': self.teacher.id, 'subject_id': self.subject.id})
-
-    def test_create_missing_subject(self):
-        with self.assertRaises(Exception):
-            self.env['ems.teaching'].create({'teacher_id': self.teacher.id, 'group_id': self.group.id})
-
     def test_duplicate_active_triple_blocked(self):
         with self.assertRaises(ValidationError):
             self.env['ems.teaching'].create({

@@ -312,7 +312,12 @@ have been asked live, not optional. State plainly which mode-scoped tasks got fi
 ## Testing conventions
 
 **Backend tests** — `tests/test_<model>.py`, using `odoo.tests.common.TransactionCase`:
-- Cover: valid create, required fields, display_name, role access restrictions, relation integrity.
+- Cover what EMS itself adds: `create`/`write`/`unlink` overrides, its own `display_name`
+  computations, constraints (`_sql_constraints`, `@api.constrains`), computed fields, role
+  access restrictions, relation integrity. Don't test what is plain Odoo behaviour: a field that
+  is just `required=True` raising when omitted, a `display_name` that is simply `name`, a
+  "create a valid record" test on a model with no `create` override (issue #567 removed 43 of
+  those).
 - **Role access, model level (`ir.model.access`):** add the model's row to `ACCESS_MATRIX` in
   `tests/test_access_matrix.py` (role → allowed operations, e.g. `'r'` or `'rwcu'`), not one
   `test_<role>_can/cannot_<op>` method per role and operation in the model's own file (issue #567

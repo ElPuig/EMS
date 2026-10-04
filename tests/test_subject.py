@@ -3,10 +3,6 @@ from odoo.tests.common import TransactionCase
 
 class TestSubject(TransactionCase):
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-
     def test_create_valid(self):
         subject = self.env['ems.subject'].create({
             'code': 'T01',
@@ -17,18 +13,6 @@ class TestSubject(TransactionCase):
         self.assertEqual(subject.code, 'T01')
         self.assertEqual(subject.acronym, 'T01A')
         self.assertEqual(subject.name, 'Test 01')
-
-    def test_create_missing_code(self):
-        with self.assertRaises(Exception):
-            self.env['ems.subject'].create({'acronym': 'T02', 'name': 'No Code'})
-
-    def test_create_missing_acronym(self):
-        with self.assertRaises(Exception):
-            self.env['ems.subject'].create({'code': 'T03', 'name': 'No Acronym'})
-
-    def test_create_missing_name(self):
-        with self.assertRaises(Exception):
-            self.env['ems.subject'].create({'code': 'T04', 'acronym': 'T04A'})
 
     def test_code_must_be_unique(self):
         self.env['ems.subject'].create({'code': 'UNIQ001', 'acronym': 'UQA', 'name': 'First'})

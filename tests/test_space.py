@@ -17,34 +17,6 @@ class TestSpace(TransactionCase):
             'space_type_id': cls.space_type.id, 'work_location_id': cls.work_location.id,
         })
 
-    def test_create_valid(self):
-        space = self.env['ems.space'].create({
-            'code': 'TST-SPACE-02', 'name': 'Test 01',
-            'space_type_id': self.space_type.id, 'work_location_id': self.work_location.id,
-        })
-        self.assertTrue(space.id)
-
-    def test_create_missing_code(self):
-        with self.assertRaises(Exception):
-            self.env['ems.space'].create({
-                'name': 'No Code', 'space_type_id': self.space_type.id,
-                'work_location_id': self.work_location.id,
-            })
-
-    def test_create_missing_space_type(self):
-        with self.assertRaises(Exception):
-            self.env['ems.space'].create({
-                'code': 'TST-SPACE-03', 'name': 'No Type', 'space_type_id': False,
-                'work_location_id': self.work_location.id,
-            })
-
-    def test_create_missing_work_location(self):
-        with self.assertRaises(Exception):
-            self.env['ems.space'].create({
-                'code': 'TST-SPACE-04', 'name': 'No Location', 'space_type_id': self.space_type.id,
-                'work_location_id': False,
-            })
-
     def test_new_space_defaults_to_main_building_classroom(self):
         space = self.env['ems.space'].new({})
         self.assertEqual(space.work_location_id, self.env.ref('ems.work_location_main'))

@@ -12,34 +12,10 @@ class TestTeachingReductionType(TransactionCase):
             'reduction_hours': 2,
         })
 
-    def test_create_valid(self):
-        reduction_type = self.env['ems.teaching_reduction_type'].create({'code': 'T01', 'name': 'Test 01', 'reduction_hours': 3})
-        self.assertTrue(reduction_type.id)
-        self.assertEqual(reduction_type.code, 'T01')
-        self.assertEqual(reduction_type.name, 'Test 01')
-        self.assertEqual(reduction_type.reduction_hours, 3)
-        self.assertTrue(reduction_type.active)
-
-    def test_create_missing_code(self):
-        with self.assertRaises(Exception):
-            self.env['ems.teaching_reduction_type'].create({'name': 'No Code', 'reduction_hours': 1})
-
-    def test_create_missing_name(self):
-        with self.assertRaises(Exception):
-            self.env['ems.teaching_reduction_type'].create({'code': 'T02', 'reduction_hours': 1})
-
-    def test_create_missing_reduction_hours(self):
-        with self.assertRaises(Exception):
-            self.env['ems.teaching_reduction_type'].create({'code': 'T03', 'name': 'No Hours'})
-
     def test_code_must_be_unique(self):
         self.env['ems.teaching_reduction_type'].create({'code': 'UNIQ', 'name': 'First', 'reduction_hours': 1})
         with self.assertRaises(Exception):
             self.env['ems.teaching_reduction_type'].create({'code': 'UNIQ', 'name': 'Second', 'reduction_hours': 1})
-
-    def test_display_name(self):
-        reduction_type = self.env['ems.teaching_reduction_type'].create({'code': 'T04', 'name': 'Age reduction', 'reduction_hours': 2})
-        self.assertEqual(reduction_type.display_name, 'Age reduction')
 
     def test_employee_can_have_several_reduction_types(self):
         other_type = self.env['ems.teaching_reduction_type'].create({'code': 'T09', 'name': 'Other Type', 'reduction_hours': 1})

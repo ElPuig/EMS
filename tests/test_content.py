@@ -30,14 +30,6 @@ class TestContent(TransactionCase):
         self.assertEqual(content.subject_id, self.test_subject)
         self.assertEqual(content.level, 1)
 
-    def test_create_missing_code(self):
-        with self.assertRaises(Exception):
-            self.env['ems.content'].create({
-                'acronym': 'T02',
-                'name': 'No Code',
-                'subject_id': self.test_subject.id,
-            })
-
     def test_code_must_be_unique_per_subject(self):
         with self.assertRaises(Exception):
             self.env['ems.content'].create({

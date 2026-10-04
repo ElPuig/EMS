@@ -28,7 +28,7 @@ Fill in:
 - **Authorizations to send**: one or more forms from the catalogue. They all go in the same email. The secretary's office and the head of studies create the forms; ask them if the one you need is not there.
 - **Academic Year**: the year the authorizations belong to.
 - **Send to**:
-  - **Selected students**: the students you add in the list below.
+  - **Selected students**: the students you add in the list below. Only your own students are offered; opened from the ⚙ menu of the students list, only your own students among the selected ones are added.
   - **Groups / studies / levels**: every student enrolled this year in the groups you choose. Only your own groups are offered.
 - **Send notification email**: leave it on to notify by email. Turn it off to make the authorizations appear on the portal without an email.
 
@@ -36,7 +36,6 @@ Fill in:
 
 - *Already requested*: the student already has that form this year. They are skipped.
 - *Outside the scope of these authorizations*: the form does not apply to that student's studies. They are skipped.
-- *Not one of your students*: the student is not in a group you tutor. They are skipped.
 - *No family contact found* or *Recipient without email*: the authorization is created, but nobody can be emailed.
 
 Click **Send**. A summary shows how many authorizations were sent, how many emails were queued and how many students were skipped.

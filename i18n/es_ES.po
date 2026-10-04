@@ -14662,12 +14662,6 @@ msgid ""
 msgstr "Solo secretaría, la administración académica, la jefatura de estudios y los tutores pueden enviar autorizaciones."
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/enrollment/authorization_send_wizard.py:0
-#: code:addons/ems/models/contacts/contact_data_request_send_wizard.py:0
-msgid "Not one of your students"
-msgstr "No es uno de vuestros alumnos"
-
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block
 msgid "Respond"

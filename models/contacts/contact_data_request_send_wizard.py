@@ -35,12 +35,18 @@ class EmsContactDataRequestSendWizard(models.TransientModel):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
+        allowed_groups = self._scope_allowed_groups()
         if {'allowed_group_ids', 'allowed_study_ids', 'allowed_level_ids'} & set(fields_list):
             res.update({
                 'allowed_level_ids': [(6, 0, self.env['ems.level'].search([]).ids)],
                 'allowed_study_ids': [(6, 0, self.env['ems.study'].search([]).ids)],
-                'allowed_group_ids': [(6, 0, self._scope_allowed_groups().ids)],
+                'allowed_group_ids': [(6, 0, allowed_groups.ids)],
             })
+        if res.get('group_ids'):
+            # Opened from the groups list (default_group_ids = active_ids): the sender's own only,
+            # as for students (issue #550).
+            groups = self.env['ems.group'].browse(self._fields['group_ids'].convert_to_cache(res['group_ids'], self))
+            res['group_ids'] = [(6, 0, (groups & allowed_groups).ids)]
         students = self._scope_students_from_context()
         if students:
             res['target'] = 'students'
@@ -51,10 +57,7 @@ class EmsContactDataRequestSendWizard(models.TransientModel):
                   'course_id', 'only_incomplete')
     def _onchange_selection(self):
         students = self._resolve_students()
-        lines = self._build_lines(students)
-        lines += [(0, 0, {'student_id': student.id, 'note': self.env._("Not one of your students")})
-                  for student in self._scope_foreign_students(students)]
-        self.line_ids = [(5, 0, 0)] + lines
+        self.line_ids = [(5, 0, 0)] + self._build_lines(students)
 
     def _existing_requests(self, students):
         requests = self.env['ems.contact.data.request'].search([

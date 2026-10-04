@@ -165,12 +165,11 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y google-chrome-stable
 
-      # Ubuntu 24.04 runner images restrict unprivileged user namespaces via AppArmor
-      # by default, which breaks Chrome's crashpad_handler even with --no-sandbox
-      # (Odoo already passes --no-sandbox itself): it fails with
-      # "crashpad/util/linux/socket.cc: recvmsg: Connection reset by peer" and the
-      # tour test then times out waiting for the devtools port. See
-      # https://github.com/actions/runner-images/issues/9491.
+      # Ubuntu 24.04 runner images restrict unprivileged user namespaces via AppArmor by
+      # default (https://github.com/actions/runner-images/issues/9491). This was added for the
+      # "crashpad ... recvmsg: Connection reset by peer" failure but didn't fix it: the real
+      # cause was the odoo user's HOME (issue #563, fixed with `sudo -H` in test.sh). Kept as a
+      # precaution; whether Chrome still needs it here hasn't been checked.
       - name: Allow unprivileged user namespaces for Chrome sandboxing
         if: matrix.needs_chrome
         run: echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
@@ -190,17 +189,6 @@ jobs:
       - name: Check Chrome starts
         if: matrix.needs_chrome
         run: |
-          # TEMPORARY diagnostics for issue #563: which conditions let Chrome start on the
-          # runner. Remove once the cause is fixed.
-          echo "apparmor_restrict_unprivileged_userns=$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns 2>/dev/null)"
-          sudo aa-status 2>/dev/null | grep -i -E "chrom|profiles are in" || true
-          getent passwd odoo; ls -ld /var/lib/odoo || true
-          sudo mkdir -p /tmp/chrome-home && sudo chmod 777 /tmp/chrome-home
-          sudo scripts/testing/check_chrome_starts.sh runner || true
-          CHROME_CHECK_ENV="HOME=/tmp/chrome-home XDG_CONFIG_HOME=/tmp/chrome-home XDG_CACHE_HOME=/tmp/chrome-home" \
-            sudo -E scripts/testing/check_chrome_starts.sh odoo || true
-          sudo scripts/testing/check_chrome_starts.sh odoo --no-zygote || true
-          # The real check.
           sudo scripts/testing/check_chrome_starts.sh odoo
 
       - name: Stop and disable Odoo system service

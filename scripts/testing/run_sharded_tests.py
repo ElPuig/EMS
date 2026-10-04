@@ -146,7 +146,8 @@ class ShardBatchRunner:
         port = BASE_HTTP_PORT + self.port_counter
         self.port_counter += 1
         cmd = (
-            "sudo -u odoo bash -c "
+            # -H: see test.sh (Chrome needs a writable HOME, issue #563).
+            "sudo -H -u odoo bash -c "
             f"\"odoo -d {db_name} --test-enable --test-tags='{shard['tags']}' "
             f"--http-port={port} --stop-after-init -c /etc/odoo/odoo.conf\""
         )

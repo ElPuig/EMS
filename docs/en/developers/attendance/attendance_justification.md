@@ -29,6 +29,7 @@ gated the same way), and `unlink()`.
 | `session_teacher_ids` | computed + stored, `readonly=False` | Every teacher (template or session) touched by the linked lines — an editable compute (same pattern as `product.template.ems_study_ids`, see [`enrollment_product_extension.md`](../enrollment/enrollment_product_extension.md)), used for `ir.rule` permission filtering. |
 | `allowed_student_ids` | `Many2many`, not stored | Onchange-populated list of students the acting `teacher_id` may pick from (admin: everyone; otherwise: only their own tutorands). |
 | `tutor_id` | `related='student_id.tutor_id'` | Read by `ems.base`'s `get_user_is_tutor_of_self()` for the permission check above. |
+| `attachment_ids` | `Many2many → ir.attachment` | The "Attached files" tab (`ems_attachments` widget, `ems.attachment_mixin`), see below. |
 
 ---
 
@@ -98,6 +99,15 @@ For the same reason `write()` builds its `old_lines_map` (the old-vs-new line di
 when `start_date`/`end_date` are actually in `vals`, the single branch that consumes it.
 Reading `attendance_session_line_ids` enforces the record rules, so doing it unconditionally
 put a permission check in front of every unrelated write.
+
+---
+
+## Attached files
+
+The "Attached files" tab uses the shared `ems.attachment_mixin` + `ems_attachments` widget (see
+[`attachments.md`](../shared/attachments.md)): the tutor uploads straight from the tab, every
+file is tied to the justification so whoever can read it can open the file (issue #553), and a
+removed file is deleted on save.
 
 ---
 

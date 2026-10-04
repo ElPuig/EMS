@@ -3,7 +3,7 @@ from datetime import date
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study
+from .common import create_level_study, create_role_user
 
 
 class TestStudy(TransactionCase):
@@ -200,3 +200,53 @@ class TestStudy(TransactionCase):
     def test_secretary_cannot_unlink(self):
         with self.assertRaises(AccessError):
             self.test_study.with_user(self.secretary_user).unlink()
+
+    def _attachment_command(self, name):
+        return (0, 0, {'name': name, 'raw': b'curriculum', 'res_model': 'ems.study'})
+
+    def test_teacher_reads_attachment_uploaded_by_someone_else(self):
+        """Regression (#553): the form's attachments list creates each file without a res_id,
+        and Odoo only lets the uploader (or a system admin) read an unlinked attachment, so a
+        teacher saw an empty 'Attached files' tab on every study."""
+        self.test_study.write({'attachment_ids': [self._attachment_command('curriculum.pdf')]})
+        teacher_user = create_role_user(self, 'teacher', 'test_teacher_study_attachment')
+        self.env.invalidate_all()
+
+        names = self.test_study.with_user(teacher_user).attachment_ids.mapped('name')
+        self.assertEqual(names, ['curriculum.pdf'])
+
+    def test_attachment_created_with_study_is_linked(self):
+        study = self.env['ems.study'].create({
+            'code': 'T13', 'acronym': 'T13A', 'name': 'Study With Attachment', 'date': date(2024, 9, 1),
+            'attachment_ids': [self._attachment_command('curriculum.pdf')],
+        })
+        self.assertEqual(study.attachment_ids.res_id, study.id)
+        self.assertEqual(study.attachment_ids.res_model, 'ems.study')
+
+    def test_official_curriculum_attachments_linked_on_data_load(self):
+        """The official curricula ship in data/cat/attachments/ and are attached to each study
+        by data/cat/ems.study.csv, whose reload (noupdate=False) links them."""
+        attachments = self.env.ref('ems.study_cfgs_icb0_dam_2024').attachment_ids
+        self.assertTrue(attachments)
+        self.assertTrue(all(attachments.mapped('res_id')))
+
+    def test_removed_attachment_is_deleted(self):
+        """Removing a file from a study deletes it: the form's upload widget has no list of
+        existing files to pick from, so a detached file could never be reattached."""
+        self.test_study.write({'attachment_ids': [self._attachment_command('curriculum.pdf')]})
+        attachment = self.test_study.attachment_ids
+
+        self.test_study.write({'attachment_ids': [(3, attachment.id)]})
+        self.assertFalse(attachment.exists())
+
+    def test_removed_attachment_still_used_by_another_study_is_kept(self):
+        self.test_study.write({'attachment_ids': [self._attachment_command('shared.pdf')]})
+        attachment = self.test_study.attachment_ids
+        other = self.env['ems.study'].create({
+            'code': 'T14', 'acronym': 'T14A', 'name': 'Study Sharing A File', 'date': date(2024, 9, 1),
+            'attachment_ids': [(4, attachment.id)],
+        })
+
+        self.test_study.write({'attachment_ids': [(3, attachment.id)]})
+        self.assertTrue(attachment.exists())
+        self.assertEqual(other.attachment_ids, attachment)

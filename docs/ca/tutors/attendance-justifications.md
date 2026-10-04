@@ -31,12 +31,14 @@ El període pot incloure dies futurs (per exemple, un ingrés hospitalari previs
 ## Adjuntar el document
 
 1. Obre el justificant des de la llista de **Justificants**.
-2. A la pestanya **Fitxers adjunts**, clica **Afegir una línia** i, a la finestra que s'obre, **Nou**.
-3. Clica **Pujar el teu arxiu**, tria el fitxer (per exemple, l'informe mèdic) i desa.
+2. A la pestanya **Fitxers adjunts**, clica el botó **Fitxers adjunts** i tria el fitxer (per exemple, l'informe mèdic). En pots triar diversos alhora; cadascun es diu com el seu fitxer.
+3. Desa el justificant.
 
 ![Pestanya Fitxers adjunts d'un justificant](../../assets/tutors/justificants-03-adjunts.png)
 
-Amb la icona de descàrrega obres el fitxer; amb la creu el treus del justificant. A la pestanya **Notes** pots afegir-hi un comentari.
+Amb la icona de l'ull previsualitzes el fitxer sense sortir de l'EMS (PDF, imatges i fitxers de text); amb la icona de descàrrega el descarregues; amb la paperera l'esborres quan desis el justificant. A la pestanya **Notes** pots afegir-hi un comentari.
+
+Els fitxers adjunts els pot obrir tothom qui pot veure el justificant: el professorat de les sessions afectades, la Prefectura d'Estudis i l'administració acadèmica.
 
 ---
 

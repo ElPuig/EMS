@@ -134,7 +134,17 @@ registry.category("web_tour.tours").add("ems_study_crud", {
             content: "Confirm deletion",
             run: "click",
         },
-        // Back in list — record must be gone
+        // Deleting from the form opens the next study (Odoo's own behavior): go back to the list
+        // from there. A bare ".o_list_view" used to match the next study's embedded attachments list.
+        {
+            trigger: ".o_form_view .o_breadcrumb:not(:contains('Tour Test Study'))",
+            content: "The deleted study's form is closed",
+        },
+        {
+            trigger: ".o_breadcrumb a",
+            content: "Back to the list",
+            run: "click",
+        },
         {
             trigger: ".o_list_view",
             content: "Back in list after deletion",
@@ -142,6 +152,39 @@ registry.category("web_tour.tours").add("ems_study_crud", {
         {
             trigger: ".o_list_view:not(:has(.o_data_row td[name='acronym']:contains('TOUR')))",
             content: "Study deleted — no longer in list",
+        },
+    ],
+});
+
+// Issue #553: a teacher opening a study whose files someone else uploaded - the attachments used
+// to stay unlinked (no res_id), so only their uploader could read them.
+registry.category("web_tour.tours").add("ems_study_teacher_attachment", {
+    test: true,
+    url: "/odoo/action-ems.action_study_tree",
+    steps: () => [
+        { trigger: ".o_list_view", content: "Studies list loaded" },
+        {
+            trigger: ".o_list_view .o_data_row td:contains('Study Attachment Tour Study')",
+            content: "Open the study",
+            run: "click",
+        },
+        {
+            trigger: ".o_notebook .nav-link:contains('Attached files')",
+            content: "Open Attached files tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='attachment_ids'] .o_ems_attachment:contains('Tour curriculum.txt'):not(:has(.o_ems_attachment_delete))",
+            content: "The file is listed",
+        },
+        {
+            trigger: ".o_field_widget[name='attachment_ids'] .o_ems_attachment:contains('Tour curriculum.txt') .o_ems_attachment_preview",
+            content: "Preview the file",
+            run: "click",
+        },
+        {
+            trigger: ".o-FileViewer .o-FileViewer-view",
+            content: "Odoo's file viewer shows the file",
         },
     ],
 });

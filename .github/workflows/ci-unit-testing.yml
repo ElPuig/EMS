@@ -140,101 +140,14 @@ jobs:
       - name: Checkout EMS
         uses: actions/checkout@v7
 
-      # One apt transaction for everything a shard needs: the system packages from
-      # apt-requirements.txt, Odoo from its nightly repository, and - only on shards that run
-      # browser tours - Chrome plus websocket-client. Adding every repository first and running
-      # a single 'apt-get update' saves the two extra index refreshes separate steps used to pay
-      # (issue #564). The "fast" shard runs no tour, so it never installs Chrome.
-      - name: Install system packages, Odoo and Chrome
-        env:
-          NEEDS_CHROME: ${{ matrix.needs_chrome }}
-        run: |
-          sudo mkdir -p /etc/apt/keyrings
-          curl -fsSL https://nightly.odoo.com/odoo.key \
-            | sudo gpg --dearmor -o /usr/share/keyrings/odoo-archive-keyring.gpg
-          echo "deb [signed-by=/usr/share/keyrings/odoo-archive-keyring.gpg] https://nightly.odoo.com/18.0/nightly/deb/ ./" \
-            | sudo tee /etc/apt/sources.list.d/odoo.list
-          PACKAGES="python3-pip $(grep -v '^#' apt-requirements.txt | tr '\n' ' ') odoo"
-          if [ "$NEEDS_CHROME" = "true" ]; then
-            curl -fsSL https://dl.google.com/linux/linux_signing_key.pub \
-              | sudo gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg
-            echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
-              | sudo tee /etc/apt/sources.list.d/google-chrome.list
-            PACKAGES="$PACKAGES google-chrome-stable"
-          fi
-          sudo apt-get update -qq
-          sudo apt-get install -y $PACKAGES
-          if [ "$NEEDS_CHROME" = "true" ]; then
-            sudo pip install --break-system-packages websocket-client
-          fi
+      - name: Set up Odoo and install EMS
+        uses: ./.github/actions/setup-odoo
+        with:
+          needs_chrome: ${{ matrix.needs_chrome }}
 
-      # Ubuntu 24.04 runner images restrict unprivileged user namespaces via AppArmor by
-      # default (https://github.com/actions/runner-images/issues/9491). This was added for the
-      # "crashpad ... recvmsg: Connection reset by peer" failure but didn't fix it: the real
-      # cause was the environment Chrome inherited (issue #563, see
-      # scripts/testing/as_odoo.sh). Kept as a precaution; whether Chrome still needs it here
-      # hasn't been checked.
-      - name: Allow unprivileged user namespaces for Chrome sandboxing
-        if: matrix.needs_chrome
-        run: echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
-
-      # Odoo skips a tour instead of failing it when Chrome doesn't start, so this checks
-      # Chrome directly, as the odoo user and with Odoo's own switches, and fails right away
-      # with Chrome's output (issue #563).
-      - name: Check Chrome starts
-        if: matrix.needs_chrome
-        run: |
-          sudo scripts/testing/check_chrome_starts.sh
-
-      - name: Stop and disable Odoo system service
-        run: |
-          sudo systemctl stop odoo || true
-          sudo systemctl disable odoo || true
-
-      - name: Copy EMS module and set permissions
-        run: |
-          sudo mkdir -p /opt/modules
-          sudo cp -r "$GITHUB_WORKSPACE" /opt/modules/ems
-          sudo chown -R odoo:odoo /opt/modules
-
-      - name: Configure Odoo
-        run: |
-          # 'secret' is required by EmsCompany._get_fernet_key() (models/settings/company.py)
-          # to encrypt/decrypt company-level credentials (LimeSurvey password, Google
-          # Workspace service account JSON) - any test touching those fields raises
-          # "Unable to locate a 'secret' value within odoo.conf" without it (confirmed via a
-          # real CI run, 2026-07-31 - TestCompanySettings and TestLimesurveyApi's whole
-          # setUpClass both failed on this). A fresh random Fernet key is fine here since
-          # this database is thrown away at the end of the job - it only needs to stay the
-          # same *within* this one run, not match production's or persist across runs.
-          SECRET=$(python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
-          sudo tee /etc/odoo/odoo.conf > /dev/null <<EOF
-          [options]
-          addons_path = /usr/lib/python3/dist-packages/odoo/addons,/opt/modules,/opt/modules/queue,/opt/modules/partner-contact
-          db_host = localhost
-          db_port = 5432
-          db_user = odoo
-          db_password = odoo
-          server_wide_modules = web,queue_job
-          secret = ${SECRET}
-          EOF
-
-      - name: Install EMS module
-        run: |
-          set -o pipefail
-          # 'dev' is required - install.sh interactively prompts for prod/dev when called with
-          # no argument (see CLAUDE.md's "Development vs. production environment declaration"),
-          # and a GitHub Actions runner has no stdin/TTY to answer that prompt with. Without this,
-          # every shard hangs forever on this exact step (confirmed 2026-08-12: every one of 9
-          # parallel shards stuck here for 20+ minutes, and an earlier run had to be manually
-          # cancelled after running 6 hours on 2026-08-11, the day the prompt was introduced) - a
-          # CI database, thrown away at the end of the job, is always 'dev', never 'prod'.
-          sudo /opt/modules/ems/install.sh dev 2>&1 | tee /tmp/odoo-install.log
-
-      # No update.sh/upgrade.sh here: install.sh already cloned the OCA repos, and test.sh's own
-      # '-u ems' (which is what runs the 2900+ at_install tests) already reloads the module a
-      # second time on top of the fresh install - an extra upgrade.sh run in between only cost
-      # ~35s per shard (issue #564). The upgrade path on real data is /deploy-check's job.
+      # No update.sh/upgrade.sh here: test.sh's own '-u ems' (which is what runs the 2900+
+      # at_install tests) already reloads the module on top of the fresh install. Those two
+      # scripts are checked once, by the "scripts" job below, in parallel (issue #564).
       - name: Run EMS tests (${{ matrix.name }})
         env:
           # Raises Chrome's own internal log verbosity (odoo/tests/common.py passes this as
@@ -283,6 +196,56 @@ jobs:
             /tmp/dmesg-tail.log
           if-no-files-found: ignore
 
+  # Checks the deployment scripts themselves on a fresh install: install.sh (through the shared
+  # setup action), then update.sh and upgrade.sh, the same sequence production runs. No tests:
+  # it runs in parallel with the shards and finishes before them, so it adds no wall-clock time
+  # (issue #564). The upgrade path on real production-like data is /deploy-check's job.
+  scripts:
+    name: "Scripts (install, update, upgrade)"
+    needs: plan
+    if: needs.plan.outputs.skip_tests != 'true'
+    runs-on: ubuntu-24.04
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout EMS
+        uses: actions/checkout@v7
+
+      - name: Set up Odoo and install EMS
+        uses: ./.github/actions/setup-odoo
+
+      - name: Update external dependencies
+        run: sudo /opt/modules/ems/update.sh
+
+      - name: Upgrade EMS module
+        run: |
+          set -o pipefail
+          sudo /opt/modules/ems/upgrade.sh 2>&1 | tee /tmp/odoo-upgrade.log
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: odoo-logs-scripts
+          path: |
+            /tmp/odoo-install.log
+            /tmp/odoo-upgrade.log
+          if-no-files-found: ignore
+
   # A matrix job's own check name changes per matrix value (e.g. "Test (tour-2)"), which
   # branch protection would treat as a brand-new, never-configured check per shard - this
   # lightweight aggregator exists so there's a single, stable check reflecting "did the whole
@@ -298,15 +261,17 @@ jobs:
   # and fixed earlier this session.
   ci:
     name: "Test (all)"
-    needs: test
+    needs: [test, scripts]
     if: always()
     runs-on: ubuntu-24.04
     steps:
       - name: Check all shards passed
         run: |
-          result="${{ needs.test.result }}"
-          if [ "$result" != "success" ] && [ "$result" != "skipped" ]; then
-            echo "::error::One or more test shards failed (aggregate result: $result) - see the 'Test (...)' jobs above."
-            exit 1
-          fi
-          echo "All test shards passed (aggregate result: $result)."
+          for job in "test=${{ needs.test.result }}" "scripts=${{ needs.scripts.result }}"; do
+            result="${job#*=}"
+            if [ "$result" != "success" ] && [ "$result" != "skipped" ]; then
+              echo "::error::The ${job%%=*} job failed (result: $result) - see its jobs above."
+              exit 1
+            fi
+          done
+          echo "All test shards and the scripts job passed."

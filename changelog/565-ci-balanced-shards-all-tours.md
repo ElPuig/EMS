@@ -19,5 +19,7 @@
 - Fixed the three tours that failed once they really ran in CI: the tour shards now install
   `wkhtmltopdf` (a tour printing a report from the browser behaves differently without it), the
   role hierarchy-lock tour creates its own employees for the roles it opens instead of relying
-  on the development database's real ones, and the justification tour expects the typed time in
+  on the development database's real ones and picks the role by its exact name (`:contains`
+  also matched "Deputy head of studies", listed first on a clean database), and the
+  justification tour expects the typed time in
   the company's timezone (its old expectation predated the #518 timezone fix).

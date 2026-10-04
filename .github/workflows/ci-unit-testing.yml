@@ -140,30 +140,33 @@ jobs:
       - name: Checkout EMS
         uses: actions/checkout@v7
 
-      - name: Install system dependencies
+      # One apt transaction for everything a shard needs: the system packages from
+      # apt-requirements.txt, Odoo from its nightly repository, and - only on shards that run
+      # browser tours - Chrome plus websocket-client. Adding every repository first and running
+      # a single 'apt-get update' saves the two extra index refreshes separate steps used to pay
+      # (issue #564). The "fast" shard runs no tour, so it never installs Chrome.
+      - name: Install system packages, Odoo and Chrome
+        env:
+          NEEDS_CHROME: ${{ matrix.needs_chrome }}
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y wget gnupg python3-pip \
-            $(grep -v '^#' apt-requirements.txt)
-
-      # Required to run the browser (tour) tests — mirrors the "Only under development
-      # environments" section of README.md, so CI exercises the same tours a developer
-      # would run locally instead of silently skipping them for missing dependencies. Skipped
-      # entirely for the "fast" shard, which runs zero tour/HttpCase tests and so never
-      # touches a browser - a real, if modest, extra speedup this matrix split makes possible
-      # that the old single-job workflow couldn't have (every test used to share one process,
-      # so Chrome always had to be installed regardless of which tests actually needed it).
-      - name: Install browser test dependencies (websocket-client, Chrome)
-        if: matrix.needs_chrome
-        run: |
-          sudo pip install --break-system-packages websocket-client
           sudo mkdir -p /etc/apt/keyrings
-          curl -fsSL https://dl.google.com/linux/linux_signing_key.pub \
-            | sudo gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg
-          echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
-            | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          curl -fsSL https://nightly.odoo.com/odoo.key \
+            | sudo gpg --dearmor -o /usr/share/keyrings/odoo-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/odoo-archive-keyring.gpg] https://nightly.odoo.com/18.0/nightly/deb/ ./" \
+            | sudo tee /etc/apt/sources.list.d/odoo.list
+          PACKAGES="python3-pip $(grep -v '^#' apt-requirements.txt | tr '\n' ' ') odoo"
+          if [ "$NEEDS_CHROME" = "true" ]; then
+            curl -fsSL https://dl.google.com/linux/linux_signing_key.pub \
+              | sudo gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg
+            echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
+              | sudo tee /etc/apt/sources.list.d/google-chrome.list
+            PACKAGES="$PACKAGES google-chrome-stable"
+          fi
           sudo apt-get update -qq
-          sudo apt-get install -y google-chrome-stable
+          sudo apt-get install -y $PACKAGES
+          if [ "$NEEDS_CHROME" = "true" ]; then
+            sudo pip install --break-system-packages websocket-client
+          fi
 
       # Ubuntu 24.04 runner images restrict unprivileged user namespaces via AppArmor by
       # default (https://github.com/actions/runner-images/issues/9491). This was added for the
@@ -174,15 +177,6 @@ jobs:
       - name: Allow unprivileged user namespaces for Chrome sandboxing
         if: matrix.needs_chrome
         run: echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
-
-      - name: Install Odoo v18 from official repository
-        run: |
-          wget -q -O - https://nightly.odoo.com/odoo.key \
-            | sudo gpg --dearmor -o /usr/share/keyrings/odoo-archive-keyring.gpg
-          echo "deb [signed-by=/usr/share/keyrings/odoo-archive-keyring.gpg] \
-            https://nightly.odoo.com/18.0/nightly/deb/ ./" \
-            | sudo tee /etc/apt/sources.list.d/odoo.list
-          sudo apt-get update -qq && sudo apt-get install -y odoo
 
       # Odoo skips a tour instead of failing it when Chrome doesn't start, so this checks
       # Chrome directly, as the odoo user and with Odoo's own switches, and fails right away
@@ -237,15 +231,10 @@ jobs:
           # CI database, thrown away at the end of the job, is always 'dev', never 'prod'.
           sudo /opt/modules/ems/install.sh dev 2>&1 | tee /tmp/odoo-install.log
 
-      - name: Update external dependencies
-        run: |
-          sudo /opt/modules/ems/update.sh
-
-      - name: Upgrade EMS module
-        run: |
-          set -o pipefail
-          sudo /opt/modules/ems/upgrade.sh 2>&1 | tee /tmp/odoo-upgrade.log
-
+      # No update.sh/upgrade.sh here: install.sh already cloned the OCA repos, and test.sh's own
+      # '-u ems' (which is what runs the 2900+ at_install tests) already reloads the module a
+      # second time on top of the fresh install - an extra upgrade.sh run in between only cost
+      # ~35s per shard (issue #564). The upgrade path on real data is /deploy-check's job.
       - name: Run EMS tests (${{ matrix.name }})
         env:
           # Raises Chrome's own internal log verbosity (odoo/tests/common.py passes this as
@@ -289,7 +278,6 @@ jobs:
           name: odoo-logs-${{ matrix.name }}
           path: |
             /tmp/odoo-install.log
-            /tmp/odoo-upgrade.log
             /tmp/odoo-test.log
             /tmp/odoo-chrome-logs
             /tmp/dmesg-tail.log

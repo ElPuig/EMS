@@ -34,9 +34,8 @@ else
         /*|-*) TAG="$1" ;;      # already a full --test-tags expression - pass through as-is
         *)     TAG="/ems:$1" ;; # bare class name - existing single-class shorthand
     esac
-    # -H: Chrome (tour tests) needs a HOME the odoo user can write to, or its crash handler
-    # fails ("--database is required") and Chrome never starts (issue #563).
-    sudo -H -u odoo bash -c "odoo -d ems -u ems --test-enable --test-tags=${TAG} --stop-after-init -c /etc/odoo/odoo.conf 2>&1"
+    # as_odoo.sh: the environment Chrome needs to start in tour tests (issue #563).
+    "$SCRIPT_DIR/scripts/testing/as_odoo.sh" bash -c "odoo -d ems -u ems --test-enable --test-tags=${TAG} --stop-after-init -c /etc/odoo/odoo.conf 2>&1"
     EXIT_CODE=$?
 fi
 

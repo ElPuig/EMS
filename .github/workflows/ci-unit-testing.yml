@@ -168,8 +168,9 @@ jobs:
       # Ubuntu 24.04 runner images restrict unprivileged user namespaces via AppArmor by
       # default (https://github.com/actions/runner-images/issues/9491). This was added for the
       # "crashpad ... recvmsg: Connection reset by peer" failure but didn't fix it: the real
-      # cause was the odoo user's HOME (issue #563, fixed with `sudo -H` in test.sh). Kept as a
-      # precaution; whether Chrome still needs it here hasn't been checked.
+      # cause was the environment Chrome inherited (issue #563, see
+      # scripts/testing/as_odoo.sh). Kept as a precaution; whether Chrome still needs it here
+      # hasn't been checked.
       - name: Allow unprivileged user namespaces for Chrome sandboxing
         if: matrix.needs_chrome
         run: echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
@@ -189,7 +190,7 @@ jobs:
       - name: Check Chrome starts
         if: matrix.needs_chrome
         run: |
-          sudo scripts/testing/check_chrome_starts.sh odoo
+          sudo scripts/testing/check_chrome_starts.sh
 
       - name: Stop and disable Odoo system service
         run: |

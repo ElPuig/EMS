@@ -106,6 +106,8 @@ The button stays disabled while something is missing. Hover over it and it will 
 
 If you leave the form without sending it, EMS tells you and lets you discard it.
 
+When you send it, your department chief and, if your department has one, your seminar chief receive an email with the absence type, the dates and the hours, but not the reason. They follow the request from then on, so they also receive anything written in its message history.
+
 ---
 
 ## Checking its status

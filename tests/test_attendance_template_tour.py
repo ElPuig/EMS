@@ -36,7 +36,7 @@ class TestAttendanceTemplateTour(HttpCase):
         # plans/calendar_driven_attendance_templates.md, point 3) - a template only ever comes
         # from the calendar-driven sync pipeline now, never a direct UI create, so this tour can
         # no longer build one through the "New" button (removed). sudo() here mirrors exactly what
-        # that pipeline itself does internally (ems.attendance_template.sync_from_schedule_batch*),
+        # that pipeline itself does internally (ems.attendance_template._sync_from_schedule_batch*),
         # not a workaround - this fixture stands in for "a template the sync pipeline already
         # produced", which is the only way one can exist.
         cls.template = cls.env['ems.attendance_template'].sudo().create({

@@ -158,6 +158,15 @@ registry.category("web_tour.tours").add("ems_user_profile_tabs_ordinary_user", {
     steps: () => [
         ...openMyProfileSteps("Ordinary Profile Tour Teacher"),
         ...tabOrderSteps(false),
+        // Header: "Request Time off" stays, "Request Allocation" is hidden for everybody.
+        {
+            trigger: ".o_form_statusbar button:contains('Request Time off')",
+            content: "\"Request Time off\" is in the header",
+        },
+        {
+            trigger: ".o_form_view:not(:has(.o_form_statusbar button:contains('Request Allocation')))",
+            content: "\"Request Allocation\" is hidden",
+        },
         // 1. Main form (header): read-only for an ordinary self-viewing user - only the photo is
         // editable regardless, which doesn't need a separate check here.
         {
@@ -186,6 +195,22 @@ registry.category("web_tour.tours").add("ems_user_profile_tabs_ordinary_user", {
         {
             trigger: ".o_form_view:not(:has(.o_field_widget[name='email']))",
             content: "Email is hidden from Preferences",
+        },
+        // Daily pending-tasks digest: on by default, and the user can turn their own off (saved
+        // with the Private Information edit below; the Python side checks the stored value).
+        {
+            trigger: ".o_form_view .o_field_widget[name='ems_task_digest'] input:checked",
+            content: "The daily summary of pending tasks is on by default",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='ems_task_digest'] input:not(:checked)",
+            content: "The daily summary of pending tasks is turned off",
+        },
+        // The attendance issues report only concerns whoever tutors a group: not this teacher.
+        {
+            trigger: ".o_form_view:not(:has(.o_field_widget[name='ems_attendance_report_moment']))",
+            content: "The attendance issues report option is hidden from a non-tutor",
         },
         {
             trigger: ".o_form_view:not(:has(.o_field_widget[name='tz']))",
@@ -258,6 +283,10 @@ registry.category("web_tour.tours").add("ems_user_profile_tabs_administrator", {
     url: "/odoo",
     steps: () => [
         ...openMyProfileSteps("Administrator Profile Tour Teacher"),
+        {
+            trigger: ".o_form_view:not(:has(.o_form_statusbar button:contains('Request Allocation')))",
+            content: "\"Request Allocation\" is hidden for an administrator too",
+        },
         ...tabOrderSteps(true),
         // 1. Main form (header): stays editable for an administrator.
         {
@@ -328,5 +357,43 @@ registry.category("web_tour.tours").add("ems_user_profile_tabs_administrator", {
         // "Private Information": editable for an administrator too (was already the case
         // natively - "can_edit" - but still worth a positive check here for completeness).
         ...privateInformationEditableSteps,
+    ],
+});
+
+// A group tutor chooses when they receive their attendance issues report
+// (models/attendance/attendance_report_schedule.py); the time only shows for "At a fixed time".
+registry.category("web_tour.tours").add("ems_user_profile_attendance_report_tutor", {
+    test: true,
+    url: "/odoo",
+    steps: () => [
+        ...openMyProfileSteps("Tutor Profile Tour Teacher"),
+        {
+            trigger: ".o_notebook .nav-link:contains('Preferences')",
+            content: "Open the Preferences tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view:not(:has(.o_field_widget[name='ems_attendance_report_time']))",
+            content: "No time to pick for the default moment",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='ems_attendance_report_moment'] select",
+            content: "Choose to receive the report at a fixed time",
+            run: "selectByLabel At a fixed time",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='ems_attendance_report_time'] input",
+            content: "Set the time",
+            run: "edit 21:20",
+        },
+        {
+            trigger: ".o_form_button_save",
+            content: "Save",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view:not(.o_form_dirty) .o_field_widget[name='ems_attendance_report_time'] input:value('21:20')",
+            content: "Saved",
+        },
     ],
 });

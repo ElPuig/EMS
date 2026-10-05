@@ -37,7 +37,7 @@ Una vez hecha la selección, abre el menú **Acciones** en la barra superior y h
 
 ![Lista de alumnos con selección y menú Acciones](../../assets/tutors/tutor-accesalportal0.png)
 
-> **Nota:** también puedes abrir este cuadro de diálogo para un solo alumno desde su propia ficha, con el mismo menú **Acciones** ⚙.
+> **Nota:** también puedes abrir este cuadro de diálogo para un solo alumno desde su propia ficha, en el menú **Acciones** de la cabecera.
 
 > **Nota:** como tutor, solo verás y podrás gestionar tus alumnos. Aunque selecciones alumnos de otros grupos, el cuadro de diálogo solo mostrará los que te corresponden.
 
@@ -88,10 +88,13 @@ La tabla de **Destinatarios (previsualización)** muestra, para cada alumno, qui
 
 El sistema decide automáticamente los destinatarios según la edad del alumno:
 
-- **Alumno mayor de edad** → el acceso se envía al **propio alumno** (a su correo principal).
-- **Alumno menor de edad** → el acceso se envía a los **familiares** asociados al alumno.
+- **Alumno mayor de edad** → el acceso se envía al **propio alumno** (a su correo principal). Cuando un alumno cumple 18 años, su familia deja de verlo en el portal (salvo que el alumno autorice compartir con la familia, y entonces solo para consultar) y el alumno lo gestiona todo. Si el alumno todavía no tenía cuenta propia en el portal, dadle acceso con esta misma acción.
+- **Alumno menor de edad** → el acceso se envía a los **familiares** asociados al alumno **y al propio alumno**. La familia gestiona la matrícula, las autorizaciones, las convalidaciones y la documentación. La cuenta del alumno muestra su horario, las comunicaciones dirigidas a él, su perfil y sus convalidaciones, solo para consultarlas.
+- **Aspirante menor de edad sin ningún familiar registrado** (recién llegado de la preinscripción de GEDAC) → el acceso se envía al aspirante, que gestiona su propia matrícula porque todavía no hay nadie más.
 
-Si un alumno menor no tiene ningún familiar asociado, o si a un destinatario le falta el correo electrónico, aparecerá el aviso correspondiente en la columna **Nota** y no se le enviará nada.
+Si a un destinatario le falta el correo electrónico, el aviso aparece en la columna **Nota** y no se le envía nada; el resto de destinatarios se procesan igualmente. Si un alumno menor no tiene ningún familiar asociado, el alumno recibe igualmente su acceso y la columna **Nota** avisa de que no se ha encontrado ningún familiar.
+
+El alumnado puede entrar con su correo principal y su contraseña, o con la cuenta del centro (`@elpuig.xeill.net`) mediante **Acceder con Google**. Es útil cuando un alumno ha perdido la contraseña del portal: la cuenta del centro abre el mismo portal.
 
 ---
 

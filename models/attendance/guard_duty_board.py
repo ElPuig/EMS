@@ -171,6 +171,17 @@ class EmsCourseGuardDutyBoard(models.Model):
             partial = leave.request_unit_hours and leave.request_date_from == leave.request_date_to
             hours = (leave.request_hour_from, leave.request_hour_to) if partial else WHOLE_DAY
             intervals[leave.employee_id.id].append((*hours, ABSENCE_STATES[leave.state]))
+        # An absence the Head of Studies already knows about but the teacher has not filed yet
+        # (issue #509) reads as a pending one. Once filed, the teacher's own request above is all
+        # that counts, so a linked entry is left out whatever became of that request.
+        pending = self.env['ems.absence_pending'].sudo().search([
+            ('employee_id', 'in', employees.ids),
+            ('state', '=', 'pending'),
+        ])
+        for absence in pending:
+            hours = absence._get_local_hours(day)
+            if hours:
+                intervals[absence.employee_id.id].append((*hours, 'pending'))
         return intervals
 
     @staticmethod
@@ -188,6 +199,19 @@ class EmsCourseGuardDutyBoard(models.Model):
             if overlapping:
                 states[employee.id] = 'approved' if 'approved' in overlapping else 'pending'
         return states
+
+    @staticmethod
+    def _guard_duty_is_co_taught(cell_entries, teacher, absences):
+        """Whether `teacher`'s class in this cell is still being taught by a co-teacher who is
+        not away: the row stays on the absences table, so everyone knows who is missing, but
+        nobody needs to cover it. Same room required, not just the same group and period: a
+        group split between two rooms (each teacher with half of it) leaves the absent teacher's
+        half uncovered even though the other half has its teacher."""
+        rooms = cell_entries.filtered(lambda attendance: attendance.employee_id == teacher).space_id
+        return any(
+            attendance.employee_id != teacher and attendance.employee_id.id not in absences
+            and attendance.space_id == rooms[:1]
+            for attendance in cell_entries)
 
     def get_guard_duty_board_lines(self, weekday, shift, level_ids=None, day=None):
         """Board rows for one weekday + shift: the ordered list of group columns actually taught in
@@ -311,6 +335,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'group': group,
                     'subject': first.subject_id,
                     'room': first.space_id,
+                    'covered': self._guard_duty_is_co_taught(cell_entries, teacher, cell_absences),
                 } for teacher in cell_teachers if teacher.id in cell_absences]
             if level_ids:
                 # A guard's own period is no longer necessarily one of 'periods' above (those now
@@ -462,6 +487,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'group': row['group'].name,
                     'subject': row['subject'].acronym if row['subject'] else False,
                     'room': row['room'].display_name if row['room'] else False,
+                    'covered': row['covered'],
                 } for row in line['absences']],
                 'is_break': line.get('is_break', False),
             })

@@ -23,11 +23,48 @@
                             </setting>
                         </block>
 
+                        <block title="Convalidations Settings" name="ems_convalidation_settings">
+                            <setting string="Request period" help="Every year, convalidations can only be requested from the portal between these two moments, in the centre's local time. Outside it the portal accepts no new requests; the ones already submitted are still handled as usual, and staff can register and process requests at any time." id="convalidation_period">
+                                <div class="content-group mt8">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <span class="o_form_label" style="width: 8ch;">Opens</span>
+                                        <field name="convalidation_start_day" class="text-center" style="width: 4ch;"/>
+                                        <field name="convalidation_start_month" class="w-auto"/>
+                                        <span>at</span>
+                                        <field name="convalidation_start_time" widget="float_time" class="text-center" style="width: 6ch;"/>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="o_form_label" style="width: 8ch;">Closes</span>
+                                        <field name="convalidation_end_day" class="text-center" style="width: 4ch;"/>
+                                        <field name="convalidation_end_month" class="w-auto"/>
+                                        <span>at</span>
+                                        <field name="convalidation_end_time" widget="float_time" class="text-center" style="width: 6ch;"/>
+                                    </div>
+                                </div>
+                            </setting>
+                            <setting string="Resolution: grounds of law" help="Text added to Royal Decree 1085/2020, art. 8, in the resolution the Director issues, depending on the grounds of the request. Write it in Catalan, the language of the resolution. Leave it empty to use the standard text." id="convalidation_legal_grounds">
+                                <div class="content-group mt8">
+                                    <div class="o_form_label">Prior vocational training or university studies</div>
+                                    <field name="convalidation_legal_prior_studies" placeholder="Standard text"/>
+                                    <div class="o_form_label mt8">Professional certificate or accreditation of competences</div>
+                                    <field name="convalidation_legal_certificate" placeholder="Standard text"/>
+                                    <div class="o_form_label mt8">Other</div>
+                                    <field name="convalidation_legal_other" placeholder="Standard text"/>
+                                </div>
+                            </setting>
+                            <setting string="Resolution: appeal" help="Footer of the resolution saying how and before whom it can be appealed. Write it in Catalan. Leave it empty to use the standard text, which names the competent body only in general terms." id="convalidation_appeal">
+                                <field name="convalidation_appeal_text" placeholder="Standard text"/>
+                            </setting>
+                            <setting string="Resolution: signed by delegation" help="The resolution is signed on the Director's behalf: it says so, and shows the name of whoever actually resolved it instead of the Director's." id="convalidation_sign_by_delegation">
+                                <field name="convalidation_sign_by_delegation"/>
+                            </setting>
+                        </block>
+
                          <block title="Center Data" name="ems_email_settings">
                             <setting string="Center code" help="Official Departament d'Educació center code, leading zero included (e.g. 08028047). Used by the GEDAC applicant import to keep only the applicants assigned to this center; the comparison ignores the leading zero the Excel drops." id="center_code">
                                 <field name="center_code" placeholder="08028047"/>
                             </setting>
-                            <setting string="Secretariat" help="Email address used as the recipient for messages addressed to the center's secretariat (e.g. portal personal-data change requests)." id="secretariat_email">
+                            <setting string="Secretariat" help="Email address of the center's secretariat, for messages addressed to it. No feature uses it yet." id="secretariat_email">
                                 <field name="secretariat_email" widget="email" placeholder="secretaria@example.com"/>
                             </setting>
                             <setting string="Notice email signature" help="Default sign-off appended to every Notice email. Copied onto each new notice as its own editable signature - editing it here only affects notices created afterward." id="notice_email_signature">
@@ -46,6 +83,16 @@
                             <setting string="Health absence allowance" help="Hours of self-declared health absence each employee may use per course. Going over it does not block the request, it only warns the employee and flags it for the Head of Studies." id="ems_health_allowance_hours">
                                 <field name="ems_health_allowance_hours" widget="float_time"/>
                             </setting>
+
+                            <setting string="Supporting document reminder" help="While an absence that is already over is still awaiting its supporting document, the employee is reminded every this many days." id="ems_absence_document_reminder_days">
+                                <field name="ems_absence_document_reminder_days" class="text-center" style="width: 5ch;"/>
+                                <span class="ms-2">days</span>
+                            </setting>
+
+                            <setting string="Missing supporting document report" help="This many days after the absence, a supporting document still missing is also reported to the Head who approves it." id="ems_absence_document_escalation_days">
+                                <field name="ems_absence_document_escalation_days" class="text-center" style="width: 5ch;"/>
+                                <span class="ms-2">days</span>
+                            </setting>
                         </block>
 
                          <block title="Student's Attendance Settings" name="ems_attendance_settings">
@@ -54,7 +101,7 @@
                                 <span class="ms-2">minutes</span>
                             </setting>
 
-                            <setting string="Tutor's attendance report default send time" help="The tutors will receive a daily attendance report at the end of their work tourn but, it its not defined, this time will be used to send the report." id="attendance_issue_tutor_default">
+                            <setting string="Tutor's attendance report default send time" help="Each tutor chooses in their profile when they receive their attendance issues report. This time is used when that moment can't be worked out (no schedule framework for that day), and as the initial time of the &quot;At a fixed time&quot; option." id="attendance_issue_tutor_default">
                                 <field name="attendance_issue_tutor_default" widget="float_time" />
                             </setting>
 
@@ -68,6 +115,10 @@
                             </setting>
                             <setting string="Family notification" help="Which strikes notify the family (minors, or authorized adults). The student and tutor are always notified." id="strike_family_notification_mode">
                                 <field name="strike_family_notification_mode" widget="radio" options="{'horizontal': true}"/>
+                            </setting>
+                            <setting string="Possible duplicate warning" help="Before sending a strike, warn the teacher if they already issued one to the same student within this many minutes (in the same roll-call session, when issued from the roll-call), and ask them to confirm it. 0 disables the warning." id="strike_duplicate_window">
+                                <field name="strike_duplicate_window" class="text-center" style="width: 5ch;"/>
+                                <span class="ms-2">minutes</span>
                             </setting>
                         </block>
 

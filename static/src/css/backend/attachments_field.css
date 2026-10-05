@@ -1,0 +1,15 @@
+/* ems_attachments widget (attachments_field.js): one row per file - icon, name, actions. */
+.o_field_widget .o_attachment.o_ems_attachment {
+    width: 100%;
+    max-width: 36rem;
+}
+.o_ems_attachment .o_attachment_wrap {
+    padding: 4px 6px;
+}
+.o_ems_attachment .o_ems_attachment_actions .btn {
+    font-size: 1rem;
+    color: var(--body-color, #374151);
+}
+.o_ems_attachment .o_ems_attachment_actions .btn:hover {
+    color: var(--primary, #714b67);
+}

@@ -80,6 +80,12 @@ class EmsAttendanceSessionHeader(models.Model):
     mode = fields.Selection(string="Mode", selection=[('scheduled', 'Scheduled'), ('guard', 'Guard'), ('manual', 'Manual')], default="scheduled", required=True)
 
     attendance_session_line_ids = fields.One2many(string="Statuses", comodel_name="ems.attendance_session_line", inverse_name="attendance_session_id")
+    # Same lines, including the ones removed from the roll-call (issue #537), for the History form
+    # to list them greyed out. A view-level context can't do it: the parent read already filters them.
+    all_attendance_session_line_ids = fields.One2many(
+        string="All statuses", comodel_name="ems.attendance_session_line", inverse_name="attendance_session_id",
+        context={'active_test': False},
+    )
     attendance_schedule_id = fields.Many2one(string="Session", comodel_name="ems.attendance_schedule", required=True)
 
     notes = fields.Text("Notes")
@@ -132,19 +138,6 @@ class EmsAttendanceSessionHeader(models.Model):
         return self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")]) or False
 
 
-    def _get_notification_tutor_eta(self, tutor=None):
-        if tutor and tutor.resource_calendar_id and tutor.resource_calendar_id.id != 1:
-            today = fields.Datetime.now()
-            weekday = str(today.weekday())
-            slots = tutor.resource_calendar_id.attendance_ids.filtered(
-                lambda a: a.dayofweek == weekday
-            ).sorted(key=lambda a: a.hour_to, reverse=True)
-            if slots:
-                return self.datetime_to_odoo(self.time_float_to_utc_datetime(today, slots[0].hour_to))
-
-        notification_tutor_eta = self.time_float_to_utc_datetime(fields.Datetime.now(), self.env.company.attendance_issue_tutor_default)
-        return self.datetime_to_odoo(notification_tutor_eta)
-
     def _get_notification_status_eta(self):
         return fields.Datetime.now() + timedelta(seconds=self.env.company.attendance_issue_status_delay * 60) # from minutes to seconds
 
@@ -154,11 +147,13 @@ class EmsAttendanceSessionHeader(models.Model):
         issue_status = data["values"]
 
         if not issue_status or rectification:
-            as_id = self.sudo().env['ems.attendance_session_line'].sudo().search([('id', '=', attendance_session_line)])
+            # browse(), not search(): a line removed from the roll-call is archived, and its
+            # rectification must still find it. No status then: the student wasn't required to attend.
+            as_id = self.sudo().env['ems.attendance_session_line'].browse(attendance_session_line)
             issue_status = repo.create({
                 'attendance_issue_student_id': issue_student.id,
                 'attendance_session_line_id': attendance_session_line,
-                'attendance_status_id': as_id.status_id.id,
+                'attendance_status_id': as_id.status_id.id if as_id.active else False,
                 'rectification': rectification,
                 'notes': as_id.notes,
                 'send_to': send_to,
@@ -194,17 +189,6 @@ class EmsAttendanceSessionHeader(models.Model):
                 'issue_date': date
             })
         return issue_tutor
-
-    def _schedule_daily_assistance_notification(self, issue_tutor, eta):
-        if issue_tutor.notification_id.id != False: return
-
-        daily = issue_tutor.with_delay(
-            eta = eta,
-            description=f"Tutor's assistance report: ID={issue_tutor.id}"
-        ).send_notification()
-
-        job = self.sudo().env['queue.job'].search([('uuid', '=', daily.uuid)]) or False
-        if job: issue_tutor.sudo().write({'notification_id': job.id})
 
     def _schedule_family_assistance_notification(self, issue_status, eta, rectification):
         if issue_status.notification_id.id != False or not issue_status.send_to or issue_status.send_to == "": return
@@ -248,7 +232,8 @@ class EmsAttendanceSessionHeader(models.Model):
         }
 
     def _auto_checkin_teacher(self, teacher, date, schedule=None):
-        """Auto check-in the teacher if they haven't checked in yet today.
+        """Auto check-in the teacher if they haven't checked in yet today and the roll-call is
+        being taken during their own working hours.
 
         Called from create() (see below) as a side effect of taking attendance, not the
         teacher's own primary action - so any failure here must never block the session that
@@ -261,14 +246,26 @@ class EmsAttendanceSessionHeader(models.Model):
         mode = self.env.company.auto_checkin_mode
         if not mode or mode == 'disabled':
             return
-        today = datetime.today().date()
-        if not teacher or date != today:
+        if not teacher or date != self.get_local_today():
+            return
+
+        # Naive UTC with no microseconds: exactly the "now" hr.employee's stored
+        # last_attendance_id is computed against ('check_in' <= now). A check-in even a
+        # fraction of a second later than that is left out of it and, being a stored compute
+        # that only depends on 'attendance_ids', never picked up afterwards: the kiosk then
+        # believes the teacher is checked out and tries a second check-in instead of the
+        # check-out, which hr.attendance's own validity check rejects (found 2026-09-28).
+        now = fields.Datetime.now()
+        attendance_model = self.env['hr.attendance'].sudo()
+        # Only a roll-call taken during the teacher's own working hours checks them in (a
+        # teacher with no working schedule has none, so is never checked in automatically).
+        if not attendance_model._is_within_working_hours(teacher, now):
             return
 
         day_start = datetime(date.year, date.month, date.day, 0, 0, 0)
         day_end   = datetime(date.year, date.month, date.day, 23, 59, 59)
 
-        existing = self.env['hr.attendance'].sudo().search([
+        existing = attendance_model.search([
             ('employee_id', '=', teacher.id),
             ('check_in', '>=', day_start),
             ('check_in', '<=', day_end),
@@ -279,33 +276,29 @@ class EmsAttendanceSessionHeader(models.Model):
 
         if mode == 'first':
             # First working hour from the teacher's resource calendar
-            if not teacher.resource_calendar_id:
-                return
             weekday = str(date.weekday())
             calendar_attendances = teacher.resource_calendar_id.attendance_ids.filtered(
                 lambda a: a.dayofweek == weekday
             ).sorted(key=lambda a: a.hour_from)
             if not calendar_attendances:
                 return
-            first_hour = calendar_attendances[0].hour_from
-            check_in_utc = self.time_float_to_utc_datetime(date, first_hour)
-            check_in_naive = self.datetime_to_odoo(check_in_utc)
+            check_in = self.datetime_to_odoo(self.time_float_to_utc_datetime(date, calendar_attendances[0].hour_from))
 
         elif mode == 'start':
             # Start time of the attendance schedule used in the current session
             if not schedule or not schedule.start_time:
                 return
-            check_in_utc = self.time_float_to_utc_datetime(date, schedule.start_time)
-            check_in_naive = self.datetime_to_odoo(check_in_utc)
+            check_in = self.datetime_to_odoo(self.time_float_to_utc_datetime(date, schedule.start_time))
 
         elif mode == 'current':
-            # Current clock time
-            check_in_naive = self.datetime_to_odoo(
-                self.local_datetime_to_utc(self.get_local_datetime())
-            )
+            check_in = now
 
         else:
             return
+
+        # Never in the future (e.g. roll-call opened a few minutes before the session starts),
+        # for the same last_attendance_id reason as above.
+        check_in_naive = min(check_in, now)
 
         try:
             with self.env.cr.savepoint():
@@ -362,28 +355,37 @@ class EmsAttendanceSessionHeader(models.Model):
 
         previssions = EmsAttendanceJustification.get_current_justifications(self, self.start_date, self.end_date)
 
+        # NOTE: 'schedule.student_ids' (moved here from the template 2026-08-11 - see
+        # plans/calendar_driven_attendance_templates.md, point 1), not 'template.student_ids'
+        # (removed) - the roster is this specific weekly slot's own, not shared across every
+        # slot of the template.
+        roster = schedule.student_ids
         if previous and previous.end_time <= self.start_time:
-            for prev in previous.attendance_session_line_ids:
+            # active_test=False: a student removed from the previous period's roll-call (e.g. not
+            # sitting an exam spanning both periods) stays removed, and restorable, in this one.
+            # Only for this slot's own roster, though: the previous period of the same template
+            # can have different students (issue #534: a custom schedule attending only one of two
+            # consecutive hours), and a student only in this slot starts fresh below.
+            carried_lines = previous.with_context(active_test=False).attendance_session_line_ids.filtered(
+                lambda prev: prev.student_id in roster)
+            for prev in carried_lines:
                 line = None
                 for p in previssions:
                     if p.student_id == prev.student_id:
                         line = p.perform_justification(self._setup_new_line_data(prev.student_id), True)
                 if line is None:
                     line = self._setup_next_session_line_data(prev)
+                line["active"] = prev.active
                 lines.append(line)
-        else:
-            # NOTE: 'schedule.student_ids' (moved here from the template 2026-08-11 - see
-            # plans/calendar_driven_attendance_templates.md, point 1), not 'template.student_ids'
-            # (removed) - the roster is this specific weekly slot's own, not shared across every
-            # slot of the template.
-            for student in schedule.student_ids:
-                line = None
-                for p in previssions:
-                    if p.student_id == student:
-                        line = p.perform_justification(self._setup_new_line_data(student), True)
-                if line is None:
-                    line = self._setup_new_line_data(student)
-                lines.append(line)
+            roster -= carried_lines.student_id
+        for student in roster:
+            line = None
+            for p in previssions:
+                if p.student_id == student:
+                    line = p.perform_justification(self._setup_new_line_data(student), True)
+            if line is None:
+                line = self._setup_new_line_data(student)
+            lines.append(line)
 
         if lines:
             def _to_id(v):
@@ -407,7 +409,10 @@ class EmsAttendanceSessionHeader(models.Model):
             if not record.attendance_session_line_ids:
                 record._auto_populate_lines()
 
-            record._auto_checkin_teacher(record.session_teacher_id, record.date, record.attendance_schedule_id)
+            # Only whoever is actually taking the roll-call gets checked in: an admin starting a
+            # colleague's session on their behalf must not check that colleague in.
+            if record.session_teacher_id.user_id == self.env.user:
+                record._auto_checkin_teacher(record.session_teacher_id, record.date, record.attendance_schedule_id)
 
             # NOTE: Collecting all status data first allow some optimizations.
             issue_status_by_tutor = dict()
@@ -447,9 +452,9 @@ class EmsAttendanceSessionHeader(models.Model):
 
         for notification_tutor in notis:
             # noti internal structure: attendance_issue_tutor (1) --> (N) attendance_issue_student (1) --> (N) attendance_issue_status
-            # notifications for the tutors: daily (at the end if its tourn); notifications for the family (status): after a timeout (default 15 minutes).
+            # notifications for the tutors: one pending report per tutor, at the moment they chose (_schedule_tutor_report); notifications for the family (status): after a timeout (default 15 minutes).
 
-            self._schedule_daily_assistance_notification(notification_tutor, self._get_notification_tutor_eta(notification_tutor.tutor_id))
+            notification_tutor._schedule_tutor_report()
             for issue_student in notification_tutor.attendance_issue_student_ids:
                 for issue_status in issue_student.attendance_issue_status_ids:
                     self._schedule_family_assistance_notification(issue_status, notification_status_eta, rectification)
@@ -587,7 +592,18 @@ class EmsAttendanceSessionHeader(models.Model):
 
     @api.model
     def create_scheduled_session(self, date, schedule_id):
-        record   = self.create({'date': date, 'attendance_schedule_id': schedule_id, 'mode': 'scheduled'})
+        # The date comes from the web client: never trust it to be today or earlier, a computer
+        # with a wrong clock could send any day.
+        if fields.Date.to_date(date) > self.get_local_today():
+            raise ValidationError(_("A roll-call can't be taken for a future date."))
+        vals = {'date': date, 'attendance_schedule_id': schedule_id, 'mode': 'scheduled'}
+        if not self._default_teacher_id():
+            # Someone without a teaching employee (e.g. an admin, who sees every slot) takes the
+            # roll-call on behalf of the slot's own teacher.
+            # (teacher_ids is required on the template, so there's always one.)
+            schedule = self.env['ems.attendance_schedule'].browse(schedule_id)
+            vals['session_teacher_id'] = schedule.attendance_template_id.teacher_ids[:1].id
+        record   = self.create(vals)
         template = record.attendance_schedule_id.attendance_template_id
         previous = self.search([
             ('date', '=', date),
@@ -616,6 +632,9 @@ class EmsAttendanceSessionLine(models.Model):
     _name = "ems.attendance_session_line"
     _description = "Attendance status line: information about a status per student within an attendance session."
 
+    # Archived = removed from this roll-call (issue #537): neither attended nor missed, so it's
+    # left out of reports and notifications, but can be restored from the roll-call widget.
+    active = fields.Boolean(default=True)
     status_id = fields.Many2one(
         string="Status", comodel_name="ems.attendance_status", required=True,
         default=lambda self: self.env.ref("ems.attendance_status_attended", raise_if_not_found=False),
@@ -648,7 +667,18 @@ class EmsAttendanceSessionLine(models.Model):
         string="Groups", comodel_name="ems.group", related="attendance_session_id.group_ids", store=True,
         relation="ems_attendance_session_line_group_rel", column1="attendance_session_line_id", column2="group_id",
     )
+    # The student's own group when the roll-call was taken, which is what the reports filter and
+    # group by. Not 'group_ids' (the session's groups): a session shared by several groups would
+    # put each of its students under every one of them. Only depends on student_id on purpose: a
+    # later group change moves the following roll-calls, never the earlier ones.
+    student_group_id = fields.Many2one(
+        string="Group", comodel_name="ems.group", compute="_compute_student_group_id", store=True, index=True,
+    )
     subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", related="attendance_session_id.subject_id", store=True)
+    # Current course = active session (the course transition archives them). Stored on the line so
+    # filtering on it never goes through the header's record rules, which only let a teacher read
+    # their own sessions: a tutor must still see the other teachers' sessions of their tutees.
+    session_active = fields.Boolean(string="Active session", related="attendance_session_id.active", store=True)
 
     # 0/100 rather than a boolean so the 'Attendance reports' graph's default measure (avg,
     # grouped by subject) resolves directly to a percentage of absence.
@@ -663,7 +693,9 @@ class EmsAttendanceSessionLine(models.Model):
 
     def status_is_notificable(self):
         # TODO: we want to notify also a justified miss? Maybe to prevent falsification (inform about a preveision? But if legit, will be also notified...)
-        return bool(self.status_id.notifiable)
+        # A removed line is never notified: archiving one behaves like marking it non-notifiable
+        # (pending notification cancelled, already-sent one rectified), restoring it like the reverse.
+        return bool(self.active and self.status_id.notifiable)
 
     def _justification_vals(self):
         """This line's own vals, shaped for ems.attendance_justification.perform_justification() -
@@ -690,6 +722,8 @@ class EmsAttendanceSessionLine(models.Model):
         return records
 
     def write(self, vals):
+        if vals.get("active") is False and self.filtered("strike_ids"):
+            raise UserError(_("A student with strikes in this session can't be removed from the roll-call."))
         super().write(vals)
         self._update_notification()
 
@@ -780,6 +814,11 @@ class EmsAttendanceSessionLine(models.Model):
         for line in self:
             line.strike_count = len(line.strike_ids)
 
+    @api.depends('student_id')
+    def _compute_student_group_id(self):
+        for line in self:
+            line.student_group_id = line.student_id.main_group_id
+
     @api.depends('status_id')
     def _compute_absence_rate(self):
         for line in self:
@@ -790,4 +829,27 @@ class EmsAttendanceSessionLine(models.Model):
         action = self.env['ir.actions.act_window']._for_xml_id('ems.action_strike_list')
         action['domain'] = [('attendance_session_line_id', '=', self.id)]
         action['context'] = {}
+        return action
+
+    @api.model
+    def _get_reports_action(self):
+        """The 'Reports' screen (pivot/graph), scoped to the current user: Head of Studies/Director/
+        Administrator and Secretariat see the whole centre; everyone else (teacher/tutor/department
+        chief) their own teaching plus their tutor scope's students (every subject), with the
+        removable "My subjects" filter on by default. Current course only for everyone: the course
+        transition archives every outgoing session. Opened from the menu
+        (action_attendance_reports_open) and from a student's form (res.partner's
+        action_view_attendance_reports)."""
+        action = self.env.ref('ems.action_attendance_report_analysis').sudo().read()[0]
+        action['context'] = {'pivot_measures': ['absence_rate', 'strike_count', '__count'], 'graph_measure': 'absence_rate'}
+        # The read domain is a string (how act_window stores it), so it's rebuilt as a list here.
+        action['domain'] = [('session_active', '=', True)]
+        user = self.env.user
+        if not (user.has_group('ems.group_head_of_studies') or user.has_group('ems.group_secretary')
+                or user.has_group('ems.group_secretary_admin')):
+            action['domain'] += [
+                '|', ('template_teacher_ids.user_id', '=', user.id),
+                ('student_id.tutor_id.tutor_scope_user_ids', '=', user.id),
+            ]
+            action['context']['search_default_my_subjects'] = 1
         return action

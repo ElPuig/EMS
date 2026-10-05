@@ -6,8 +6,6 @@
             <field name="arch" type="xml">
                 <search>
                     <field name="name" string="Group"/>
-                    <filter name="classroom_drift" string="Classroom drift"
-                            domain="[('suggested_space_id', '!=', False)]"/>
                 </search>
             </field>
         </record>

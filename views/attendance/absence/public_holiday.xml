@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Absences > Configuration > Public Holidays, and the "Public Time Off" button of a
+         schedule's form: a public holiday always applies to every schedule, so the column that
+         would tie it to one is hidden (models/employees/public_holiday.py empties it anyway). -->
+    <record id="view_public_holiday_list_ems" model="ir.ui.view">
+        <field name="name">ems.resource.calendar.leaves.public_holiday.list</field>
+        <field name="model">resource.calendar.leaves</field>
+        <field name="inherit_id" ref="hr_holidays.resource_calendar_leaves_tree_inherit"/>
+        <field name="arch" type="xml">
+            <field name="calendar_id" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>

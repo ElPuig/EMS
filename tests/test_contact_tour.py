@@ -1,8 +1,8 @@
 from odoo.tests import tagged, HttpCase
 
 from .common import (
-    create_level_study_group, create_role_employee, create_role_user, force_user_language_to_english,
-    next_student_id,
+    create_level_study_group, create_role_employee, create_role_user, enforce_corporate_email_policy,
+    force_user_language_to_english, next_student_id,
 )
 
 
@@ -55,11 +55,20 @@ class TestContactTour(HttpCase):
         self.start_tour("/odoo", "ems_contact_head_of_studies_full_access", login=hos_user.login, step_delay=300)
 
     def test_new_student_requires_student_id_tour(self):
-        # Issue #460: the Student data tab marks the Student ID (IDALU) required while the
+        # Issue #460: the student data block marks the Student ID (IDALU) required while the
         # student is new, and the student saves once it is filled in. Logged in as secretary,
         # the least-privileged role that registers students.
         secretary = create_role_user(self, 'secretary', 'test_secretary_student_id_tour', name='Secretary IDALU Tour')
         self.start_tour("/odoo", "ems_contact_new_student_requires_student_id", login=secretary.login)
+
+    def test_student_personal_email_not_corporate_tour(self):
+        # Issue #514: saving a corporate address as the student's personal email shows the
+        # validation dialog, and a real personal one then saves. Secretary, the least-privileged
+        # role that registers students.
+        enforce_corporate_email_policy(self)
+        secretary = create_role_user(self, 'secretary', 'test_secretary_personal_email_tour',
+                                     name='Secretary Personal Email Tour')
+        self.start_tour("/odoo", "ems_contact_personal_email_not_corporate", login=secretary.login)
 
     def test_contact_tutor_deletes_family_contact_tour(self):
         # Issue #470: a tutor hit an AccessError deleting a family contact of their own student

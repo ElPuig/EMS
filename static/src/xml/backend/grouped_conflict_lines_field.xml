@@ -46,11 +46,13 @@
                                                 <t t-esc="record.data.right_label"/>
                                             </t>
                                         </span>
+                                        <!-- The option is marked selected itself: a <select>'s own 'value' attribute
+                                             selects nothing, so the first option always showed instead of the
+                                             resolution actually stored. -->
                                         <select class="form-select form-select-sm"
-                                            t-att-value="record.data.resolution"
                                             t-on-change="(ev) => this.onRowResolutionChange(record, ev)">
                                             <t t-foreach="resolutionOptions(group.kind)" t-as="option" t-key="option.value">
-                                                <option t-att-value="option.value" t-esc="option.label"/>
+                                                <option t-att-value="option.value" t-att-selected="option.value === record.data.resolution" t-esc="option.label"/>
                                             </t>
                                         </select>
                                         <t t-if="record.data.resolution === 'reassign_rooms'">

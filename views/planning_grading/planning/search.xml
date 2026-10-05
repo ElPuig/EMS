@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_planning_search">
+            <field name="name">ems.planning.search</field>
+            <field name="model">ems.planning</field>
+            <field name="arch" type="xml">
+                <search string="Plannings">
+                    <field name="name"/>
+                    <field name="study_id"/>
+                    <field name="subject_id"/>
+                    <filter string="Show only mine" name="only_mine" domain="[('is_own_subject', '=', True)]"/>
+                    <separator/>
+                    <filter string="Show only current course" name="only_current_course" domain="[('course_id.is_current', '=', True)]"/>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

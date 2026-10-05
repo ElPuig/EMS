@@ -194,8 +194,14 @@
                 (4, ref('account.group_account_readonly')),
                 (4, ref('account.group_validate_bank_account')),
                 (4, ref('base.group_partner_manager')),
+                (4, ref('hr.group_hr_user')),
             ]"/>
         </record>
+
+        <!-- hr.group_hr_user above: the secretariat keeps the staff's personal data (identity
+             document, social security number...), so it gets Odoo's HR officer group, exactly
+             like the Head of Studies and TAC (issue #391). security/rules/employees.xml narrows
+             it back: write/create on every staff member, never delete. -->
 
         <!-- Same privileges as Manager for now; kept as its own group so it can be
              differentiated later without another migration. root/admin are added directly

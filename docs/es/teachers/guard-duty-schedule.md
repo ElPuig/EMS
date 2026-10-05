@@ -45,6 +45,8 @@ La columna **Guardia**, a la derecha, lista todos los docentes de guardia en esa
 
 Una fila cuya franja horaria coincide con el patio de algún nivel — sin ninguna clase programada en ella para nadie — muestra una pequeña etiqueta **"Patio"** junto a la hora, además de un borde marrón en el lado izquierdo de esa misma celda, para que una franja que parece vacía no se lea como un hueco en el horario.
 
+![Horario de guardias de una franja horaria: la clase de un grupo, una guardia normal, una guardia de WC, una fila de Patio con su propia guardia, y un docente marcado como ausente en rojo y negrita](../../assets/teachers/guard-duty-01-horari.png)
+
 ---
 
 ## Filtrar por nivel
@@ -67,6 +69,10 @@ Cada fila es una franja horaria del turno que tienes en pantalla:
 
 Una franja donde no falta nadie tiene la columna de ausencias vacía.
 
+En una clase con codocencia (dos docentes en la misma aula) en la que solo falta uno, su línea aparece **tachada**: sigue ahí para que sepas quién falta, pero no hace falta guardia porque el otro docente se hace cargo de la clase. Si pasas el ratón por encima, te lo indica. Si faltan los dos, o cada docente tiene medio grupo en un aula distinta, la línea no aparece tachada y sí hay que cubrir la clase.
+
+![Tabla de ausencias de la misma franja horaria: el docente ausente y qué hay que cubrir, frente a quién está de guardia](../../assets/teachers/guard-duty-02-absencies.png)
+
 ---
 
 ## Ausencias
@@ -77,6 +83,8 @@ Un docente que falta aparece en rojo allá donde salga su nombre — en su propi
 - **Rojo más suave y cursiva** — la ausencia se ha solicitado y todavía está pendiente de aprobación.
 
 Las solicitudes denegadas y canceladas no se muestran.
+
+Una ausencia que Jefatura de Estudios ya conoce pero que el docente todavía no ha solicitado también se muestra como pendiente de aprobar.
 
 Un docente de guardia que falta queda marcado en la columna de guardia y no genera ninguna línea en la columna de ausencias: no tiene ninguna clase propia que nadie deba cubrir.
 

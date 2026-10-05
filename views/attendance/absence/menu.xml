@@ -59,6 +59,21 @@
             <field name="groups_id" eval="[(6, 0, [ref('hr_holidays.group_hr_holidays_responsible')])]"/>
         </record>
 
+        <!-- Management holds two kinds of absence side by side: the requests teachers file
+             themselves and the ones the Head of Studies expects before any request exists
+             (ems.absence_pending, menu_absence_pending). Odoo's own entry is called just "Time
+             Off", which says nothing about which of the two it is, so it is replaced by an EMS
+             entry on the same action rather than renamed in place: a record of our own carries
+             its translations from this module's .po files, on a clean install as much as on an
+             upgrade. -->
+        <record model="ir.ui.menu" id="hr_holidays.menu_open_department_leave_approve">
+            <field name="active" eval="False"/>
+        </record>
+
+        <menuitem id="menu_absence_requested" name="Requested absences" sequence="5"
+                  parent="hr_holidays.menu_hr_holidays_management"
+                  action="hr_holidays.hr_leave_action_action_approve_department"/>
+
         <record model="ir.ui.menu" id="hr_holidays.menu_hr_holidays_my_leaves">
             <field name="active" eval="False"/>
         </record>

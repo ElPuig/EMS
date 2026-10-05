@@ -82,14 +82,21 @@ class TestStudentDocumentTour(HttpCase):
         self.start_tour("/odoo", "ems_google_credentials_download", login=tutor_user.login)
 
     def test_google_credentials_download_form_tour(self):
-        # Issue #482: the same action must also be offered from the student's own form.
+        # On the student's own form the download is an Actions dropdown entry, offered only when
+        # there are credentials the tutor may read.
         tutor_user = create_role_user(self, 'tutor', 'test_tutor_gc_download_form_tour',
                                       name='Tutor GC Download Form Tour')
         tutor = create_role_employee(self, tutor_user)
         __, __, group = create_level_study_group(self, 'TGCF', group={'tutor_id': tutor.id})
-        student = self.env['res.partner'].create({
-            'name': '0000 GCT No Credentials Form', 'contact_type': 'student', 'student_id': next_student_id(),
+        with_credentials, without_credentials = self.env['res.partner'].create([{
+            'name': name, 'contact_type': 'student', 'student_id': next_student_id(),
             'main_group_id': group.id,
+        } for name in ('0000 GCT Credentials Form', '0000 GCT No Credentials Form')])
+        self.env['ems.student.document'].create({
+            'partner_id': with_credentials.id, 'doc_type': 'google_credentials', 'status': 'approved',
+            'doc_file': base64.b64encode(b'credentials-pdf'), 'doc_file_name': 'credentials.pdf',
         })
-        self.start_tour(f"/odoo/res.partner/{student.id}", "ems_google_credentials_download_form",
+        self.start_tour(f"/odoo/res.partner/{with_credentials.id}", "ems_google_credentials_download_form",
                         login=tutor_user.login)
+        self.start_tour(f"/odoo/res.partner/{without_credentials.id}",
+                        "ems_google_credentials_download_form_none", login=tutor_user.login)

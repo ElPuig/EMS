@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from datetime import date
+from datetime import date, timedelta
 
-from odoo.exceptions import AccessError
+from lxml import etree
+
+from odoo import fields
+from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
 from .common import create_level_study_group, mock_outgoing_email, next_student_id
@@ -340,6 +343,15 @@ class TestStrike(TransactionCase):
         action = self.minor_student.action_view_strikes()
         self.assertEqual(action['domain'], [('student_id', '=', self.minor_student.id)])
 
+    def test_strike_count_smart_button_presets_student(self):
+        # The list opened from the student's button passes the student on to its "New strike"
+        # dialog, which defaults (and locks, in the view) the student to it.
+        context = self.minor_student.action_view_strikes()['context']
+        self.assertEqual(context, {'strike_student_id': self.minor_student.id})
+        strike = self.env['ems.strike'].with_user(self.teacher_a_user).with_context(context).create({})
+        self.assertEqual(strike.student_id, self.minor_student)
+        self.assertEqual(strike.teacher_id.user_id, self.teacher_a_user)
+
     def test_kicked_out_default_false(self):
         strike = self._create_strike(self.teacher_a_user)
         self.assertFalse(strike.kicked_out)
@@ -360,6 +372,69 @@ class TestStrike(TransactionCase):
     def test_attendance_session_line_id_is_optional(self):
         strike = self._create_strike(self.teacher_a_user)
         self.assertFalse(strike.attendance_session_line_id)
+
+    def test_teacher_issues_strike_outside_session(self):
+        # Issue #402: the "New strike" dialog (Coexistence > Strikes) only sends student,
+        # reason, kicked_out, date and notes; the issuer comes from the teacher_id default.
+        strike = self._create_strike(self.teacher_a_user, kicked_out=True, notes='Caught in the corridor.')
+        self.assertEqual(strike.teacher_id, self.teacher_a_employee)
+        self.assertFalse(strike.attendance_session_line_id)
+        self.assertIn('test_minor_student_strike@example.com', strike.send_to)
+
+    def test_teacher_cannot_issue_strike_for_another_teacher(self):
+        with self.assertRaises(AccessError):
+            self._create_strike(self.teacher_a_user, teacher_id=self.coexistence_a_employee.id)
+
+    def test_default_reason_is_first_active_by_order(self):
+        # Same reason the roll-call dialog preselects (first active by sequence), so the
+        # New strike dialog never disagrees with it once an admin reorders the reasons.
+        first = self.env['ems.strike.reason'].create({'name': 'Test First Reason (Strike)', 'sequence': -1})
+        strike = self.env['ems.strike'].with_user(self.teacher_a_user).create({'student_id': self.minor_student.id})
+        self.assertEqual(strike.reason_id, first)
+
+    def test_new_strike_button_hidden_from_secretary(self):
+        # Secretary reads strikes but can't create them, so the list's header button is
+        # stripped from their arch by its groups= attribute.
+        list_view = self.env.ref('ems.view_strike_list')
+        button_xpath = f"//header/button[@name='{self.env.ref('ems.action_strike_issue').id}']"
+
+        def issue_buttons(user):
+            arch = self.env['ems.strike'].with_user(user).get_view(list_view.id)['arch']
+            return etree.fromstring(arch).xpath(button_xpath)
+
+        self.assertTrue(issue_buttons(self.teacher_a_user))
+        self.assertFalse(issue_buttons(self.secretary_user))
+
+    def test_date_cannot_be_in_the_future(self):
+        with self.assertRaises(ValidationError):
+            self._create_strike(self.teacher_a_user, date=fields.Datetime.now() + timedelta(minutes=5))
+        strike = self._create_strike(self.admin_user)
+        with self.assertRaises(ValidationError):
+            strike.with_user(self.admin_user).write({'date': fields.Datetime.now() + timedelta(days=1)})
+
+    def test_date_can_be_in_the_past(self):
+        past = fields.Datetime.now() - timedelta(hours=2)
+        strike = self._create_strike(self.teacher_a_user, date=past)
+        self.assertEqual(strike.date, past)
+
+    def test_issue_dialog_teacher_editable_only_by_admin(self):
+        view = self.env.ref('ems.view_strike_form_issue')
+
+        def teacher_nodes(user):
+            arch = self.env['ems.strike'].with_user(user).get_view(view.id)['arch']
+            return etree.fromstring(arch).xpath("//field[@name='teacher_id']")
+
+        teacher_fields = teacher_nodes(self.teacher_a_user)
+        self.assertEqual(len(teacher_fields), 1)
+        self.assertEqual(teacher_fields[0].get('readonly'), '1')
+        admin_fields = teacher_nodes(self.admin_user)
+        self.assertEqual(len(admin_fields), 1)
+        self.assertNotEqual(admin_fields[0].get('readonly'), '1')
+
+    def test_issue_action_opens_dialog(self):
+        action = self.env.ref('ems.action_strike_issue')
+        self.assertEqual(action.target, 'new')
+        self.assertEqual(action.view_id, self.env.ref('ems.view_strike_form_issue'))
 
     def test_strike_count_per_session_line(self):
         session_line = self.env['ems.attendance_session_line'].create({
@@ -392,3 +467,65 @@ class TestStrike(TransactionCase):
         self._create_strike(self.teacher_a_user, attendance_session_line_id=session_line.id)
         action = session_line.action_view_strikes()
         self.assertEqual(action['domain'], [('attendance_session_line_id', '=', session_line.id)])
+
+    # Issue #554: possible duplicate warning.
+
+    def _duplicate_warning(self, user, **kwargs):
+        return self.env['ems.strike'].with_user(user).get_duplicate_warning(
+            kwargs.get('student_id', self.minor_student.id), kwargs.get('teacher_id', False), kwargs.get('line_id', False))
+
+    def test_duplicate_window_defaults_to_one_minute(self):
+        self.assertEqual(self.env['res.company'].new({}).strike_duplicate_window, 1)
+
+    def test_duplicate_warning_same_teacher_and_student(self):
+        self.assertFalse(self._duplicate_warning(self.teacher_a_user))
+        self._create_strike(self.teacher_a_user)
+        warning = self._duplicate_warning(self.teacher_a_user)
+        self.assertIn(self.minor_student.display_name, warning)
+        self.assertIn(self.teacher_a_employee.display_name, warning)
+
+    def test_no_duplicate_warning_for_another_teacher_or_student(self):
+        self._create_strike(self.teacher_a_user)
+        self.assertFalse(self._duplicate_warning(self.admin_user, teacher_id=self.coexistence_a_employee.id))
+        other_student = self.minor_student.copy({'student_id': next_student_id()})
+        self.assertFalse(self._duplicate_warning(self.teacher_a_user, student_id=other_student.id))
+
+    def test_no_duplicate_warning_outside_window(self):
+        strike = self._create_strike(self.teacher_a_user)
+        self.env.cr.execute("UPDATE ems_strike SET create_date = create_date - interval '61 seconds' WHERE id = %s", (strike.id,))
+        strike.invalidate_recordset(['create_date'])
+        self.assertFalse(self._duplicate_warning(self.teacher_a_user))
+        self.env.company.strike_duplicate_window = 2
+        self.assertTrue(self._duplicate_warning(self.teacher_a_user))
+
+    def test_duplicate_warning_disabled_by_zero_window(self):
+        self._create_strike(self.teacher_a_user)
+        self.env.company.strike_duplicate_window = 0
+        self.assertFalse(self._duplicate_warning(self.teacher_a_user))
+
+    def test_duplicate_warning_ignores_backdated_date(self):
+        # A strike noticed a while ago and backdated is still a fresh one to compare against.
+        self._create_strike(self.teacher_a_user, date=fields.Datetime.now() - timedelta(hours=2))
+        self.assertTrue(self._duplicate_warning(self.teacher_a_user))
+
+    def test_duplicate_warning_field_only_on_new_strike(self):
+        strike = self._create_strike(self.teacher_a_user)
+        self.assertFalse(strike.duplicate_warning)
+        new_strike = self.env['ems.strike'].with_user(self.teacher_a_user).new({'student_id': self.minor_student.id})
+        self.assertTrue(new_strike.duplicate_warning)
+
+    def test_issue_dialog_send_asks_confirmation_only_on_duplicate(self):
+        arch = self.env['ems.strike'].with_user(self.teacher_a_user).get_view(self.env.ref('ems.view_strike_form_issue').id)['arch']
+        buttons = etree.fromstring(arch).xpath("//footer/button[@special='save']")
+        self.assertEqual([(button.get('invisible'), bool(button.get('confirm'))) for button in buttons],
+                         [('duplicate_warning', False), ('not duplicate_warning', True)])
+
+    def test_duplicate_warning_only_on_same_session_line(self):
+        line, other_line = self.env['ems.attendance_session_line'].create([
+            {'student_id': self.minor_student.id}, {'student_id': self.minor_student.id},
+        ])
+        self._create_strike(self.teacher_a_user, attendance_session_line_id=line.id)
+        self.assertTrue(self._duplicate_warning(self.teacher_a_user, line_id=line.id))
+        self.assertFalse(self._duplicate_warning(self.teacher_a_user, line_id=other_line.id))
+        # The New strike dialog sets no line: a roll-call strike is not its duplicate.
+        self.assertFalse(self._duplicate_warning(self.teacher_a_user))

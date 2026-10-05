@@ -22,27 +22,40 @@ class HrEmployeeGoogleWorkspace(models.Model):
     # self.env['google.workspace.mixin'] (see _gw()).
     _inherit = 'hr.employee'
 
+    # groups=: every field below lives on hr.employee and not on hr.employee.public, so it
+    # must be group-restricted or the ORM prefetches it for users who only reach the employee
+    # through the public profile (no hr.group_hr_user, e.g. a secretary), and
+    # hr.employee.fetch() then raises AccessError over it wherever any employee field is read
+    # in Python - see the rule in Odoo's own hr.employee docstring and issue #492. The trio
+    # matches employee.py's own fields: base.group_system holds a read ACL on hr.employee, so
+    # it never goes through the public profile in the first place.
     google_ws_login = fields.Char(
         string="Suggested Google username", copy=False,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="Preferred username (the part before @domain) tried first when creating the "
              "corporate account. If it is already taken in Google, an alternative is "
              "generated automatically from the name.")
     google_ws_suspended = fields.Boolean(
         string="Google account suspended", default=False, copy=False,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="True when the employee's Google Workspace account is suspended (former staff).")
     google_ws_manual_email = fields.Boolean(
         string="Assign corporate email manually", copy=False,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="Tick to edit the Work Email by hand instead of letting EMS generate it "
              "when creating the Google account. For exceptional cases only.")
     google_ws_domain = fields.Char(
         related='company_id.google_ws_domain', readonly=True,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         string="Google Workspace domain")
     google_ws_deactivation_date = fields.Date(
         string="Scheduled Google deactivation", copy=False, readonly=True,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="Date the corporate account is due to be suspended, set when the employee is "
              "archived. Until then the account keeps working; unarchiving cancels it.")
     google_ws_missing_notice_sent = fields.Boolean(
         copy=False, default=False,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="Internal flag: a chatter note about missing required data was already "
              "posted, to avoid repeating it on every write.")
     google_ws_state = fields.Selection(
@@ -54,10 +67,12 @@ class HrEmployeeGoogleWorkspace(models.Model):
             ('suspended', 'Google account suspended'),
         ],
         string="Google account status", compute='_compute_google_ws_state', store=True,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="Single source of truth for the header buttons: which Google Workspace "
              "/ EMS user action, if any, applies to this employee right now.")
     google_signin_missing = fields.Boolean(
         string="Google sign-in not linked", compute='_compute_google_signin_missing',
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="True when the employee has an active account and an EMS user, but that "
              "user has lost its OAuth data and can no longer sign in with Google.")
 
@@ -316,6 +331,21 @@ class HrEmployeeGoogleWorkspace(models.Model):
                 description="Reactivate Google Workspace account: %s" % employee.name,
             ).action_reactivate_google_account()
 
+    def _gw_enqueue_rename(self):
+        """Enqueue the Google account name sync for staff with a corporate email
+        (deduplicated), so fixing a name in EMS also fixes it in Google (issue #542)."""
+        company = self.env.company
+        if not company.google_ws_enabled:
+            return
+        for employee in self.sudo().filtered(
+            lambda e: e.employee_type in ('teacher', 'asp') and e.work_email
+            and e.work_email.endswith('@%s' % company.google_ws_domain)
+        ):
+            employee.with_delay(
+                identity_key='gw_emp_rename_%s' % employee.id,
+                description="Rename Google Workspace account: %s" % employee.name,
+            ).action_sync_google_account_name()
+
     # ------------------------------------------------------------------
     # Main action (queue_job target / manual button)
     # ------------------------------------------------------------------
@@ -495,7 +525,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
         oauth_provider_id), and its signup fallback fails on an existing login,
         so a user whose OAuth fields were emptied gets a plain "Access Denied"
         with no way back through the UI. This resolves the Google id again and
-        hands it to the same _ems_link_google_signin() the creation paths use.
+        hands it to the same res.users._ems_link_google_signin() the creation paths use.
 
         Never overwrites an existing link (the button is hidden then) and never
         touches the Google Workspace account itself.
@@ -505,7 +535,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
             return False
         user = self.sudo().user_id
         google_id = self._gw_google_user_id(raise_on_error=True)
-        if not self._ems_link_google_signin(user, google_id):
+        if not user._ems_link_google_signin(google_id):
             provider = self.env.ref('auth_oauth.provider_google', raise_if_not_found=False)
             owner = self.env['res.users'].sudo().with_context(active_test=False).search([
                 ('oauth_provider_id', '=', provider.id),
@@ -583,28 +613,6 @@ class HrEmployeeGoogleWorkspace(models.Model):
             groups |= self.env.ref('ems.group_teacher')
         return groups
 
-    def _ems_link_google_signin(self, user, google_id):
-        """Pre-link "Sign in with Google" on the user (oauth_uid + provider).
-
-        Skipped when the id is unknown, or already taken by another user
-        (auth_oauth unique constraint). Returns True when the user ends up
-        linked to Google sign-in.
-        """
-        user = user.sudo()
-        if user.oauth_uid:
-            return True
-        provider = self.env.ref('auth_oauth.provider_google', raise_if_not_found=False)
-        if not google_id or not provider:
-            return False
-        taken = user.with_context(active_test=False).search_count([
-            ('oauth_provider_id', '=', provider.id),
-            ('oauth_uid', '=', str(google_id)),
-        ])
-        if taken:
-            return False
-        user.write({'oauth_provider_id': provider.id, 'oauth_uid': str(google_id)})
-        return True
-
     def _ems_create_user(self, google_id=False):
         """Create (or re-link) the employee's EMS user for the corporate account.
 
@@ -623,7 +631,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
 
         if emp.user_id:
             # Already linked: only backfill the Google sign-in if missing.
-            self._ems_link_google_signin(emp.user_id, google_id)
+            emp.user_id._ems_link_google_signin(google_id)
             return emp.user_id
 
         login = emp.work_email.lower()
@@ -669,7 +677,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
             })
             created = True
 
-        signin_linked = self._ems_link_google_signin(user, google_id)
+        signin_linked = user._ems_link_google_signin(google_id)
         emp.write({'user_id': user.id})
         # The write() trigger only syncs role/job groups on role_ids/job_id
         # changes, so apply them explicitly now that the user exists.
@@ -813,6 +821,20 @@ class HrEmployeeGoogleWorkspace(models.Model):
             "Google Workspace account reactivated: %(email)s (moved to OU %(ou)s).") % {
                 'email': emp.work_email, 'ou': ou})
 
+    def action_sync_google_account_name(self):
+        """Copy the employee's current name onto their Google account.
+
+        Triggered when the name changes. Suspended accounts are renamed too, so a
+        reactivated account comes back with the right name.
+        """
+        self.ensure_one()
+        if not self.env.company.google_ws_enabled:
+            return
+        emp = self.sudo()
+        if emp.employee_type not in ('teacher', 'asp') or not emp.work_email:
+            return
+        self._gw()._gw_sync_account_name(emp, emp.work_email, *self._gw_split_name())
+
     # ------------------------------------------------------------------
     # CRUD overrides (triggers)
     # ------------------------------------------------------------------
@@ -825,6 +847,8 @@ class HrEmployeeGoogleWorkspace(models.Model):
     def write(self, vals):
         res = super().write(vals)
         self._gw_enqueue_if_ready()
+        if 'name' in vals:
+            self._gw_enqueue_rename()
         if 'active' in vals:
             if vals.get('active'):
                 # Back before the deadline: nothing was ever changed in Google, so the

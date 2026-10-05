@@ -17,13 +17,13 @@ def _regenerate_attendance_templates_from_calendars(env):
     Rather than trying to detect which teachers were actually hit (a targeted detection would risk
     fragmenting a co-taught template if it missed one side of it - a real teacher who splits a
     reconstructed group differently from before), this reuses the exact same
-    `regenerate_all_from_calendars()` full rebuild already used by `migrations/18.0.0.22.0` for the
+    `_regenerate_all_from_calendars()` full rebuild already used by `migrations/18.0.0.22.0` for the
     original calendar-driven-templates rollout: archive every active template, rebuild an
     equivalent set from each teacher's CURRENT (correct) calendar. Safe to run again - archiving
     never touches real attendance-session history (see that method's own docstring) - at the cost
     of every already-correct template also getting a new id/color even though nothing about it
     actually changes."""
-    skipped = env['ems.attendance_template'].regenerate_all_from_calendars()
+    skipped = env['ems.attendance_template']._regenerate_all_from_calendars()
     _logger.info(
         "Migration 18.0.0.23.5: archived every pre-existing ems.attendance_template and "
         "regenerated a fresh, calendar-backed set from each teacher's current working schedule "

@@ -39,9 +39,13 @@ class EmsGradeSession(models.Model):
         for session in self:
             session.planning_id = False
             if session.group_id.study_id and session.subject_id:
+                # Live grade sessions only ever target the current course (issue #503) - once
+                # ems.planning is course-scoped, an unscoped search could pick up a different
+                # year's ponderations for the same study+subject.
                 session.planning_id = self.env["ems.planning"].search([
                     ("study_id", "=", session.group_id.study_id.id),
-                    ("subject_id", "=", session.subject_id.id)
+                    ("subject_id", "=", session.subject_id.id),
+                    ("course_id", "=", session.env.company.current_course_id.id),
                 ], limit=1) or False
 
     @api.depends("planning_id")
@@ -148,7 +152,12 @@ class EmsGradeSession(models.Model):
                 vals["is_scored"] = True
             outcome_cmds.append((0, 0, vals))
 
-        self.grade_subject_line_ids = [(0, 0, {"student_id": student.id})]
+        convalidation_grade = self.env["ems.convalidation.line"]._ems_convalidation_grade(student, self.subject_id)
+        self.grade_subject_line_ids = [(0, 0, {
+            "student_id": student.id,
+            "is_convalidated": convalidation_grade is not None,
+            "convalidation_grade": convalidation_grade or 0,
+        })]
         self.grade_outcome_line_ids = outcome_cmds
 
     @api.model
@@ -165,7 +174,7 @@ class EmsGradeSession(models.Model):
         # the ones its caller happens to be allowed to read - a teacher only sees their own
         # sessions (rule_grade_session_teacher_own, security/rules/grading.xml), which would let
         # a secretary-who-also-teaches delete an enrollment already carrying another teacher's
-        # grades. Same reasoning as ems.enrollment._ems_matching_attendance_schedules().
+        # grades. Same reasoning as ems.enrollment._ems_attended_lines().
         if self.env["ems.grade_outcome_line"].sudo().search_count(domain + [("is_scored", "=", True)]):
             return True
         return bool(self.env["ems.grade_subject_line"].sudo().search_count(domain + [("external_is_scored", "=", True)]))

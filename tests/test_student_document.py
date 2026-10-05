@@ -255,6 +255,56 @@ class TestStudentDocument(TransactionCase):
         document = self._create(doc_type='medical')
         self.assertEqual(document._doc_label(), 'Medical card (TIS)')
 
+    # --- Labels follow the reader's language ------------------------------------
+
+    def _translate_selection(self, xmlid, label):
+        # Set on purpose rather than relying on i18n/ca_ES.po, so a test database loaded without
+        # the Catalan translations still proves the label goes through the translation layer.
+        self.env['res.lang']._activate_lang('ca_ES')
+        self.env.ref(xmlid).with_context(lang='ca_ES').name = label
+
+    def test_doc_label_follows_language(self):
+        self._translate_selection('ems.selection__ems_student_document__doc_type__medical', 'Targeta TIS')
+        document = self._create(doc_type='medical')
+        self.assertEqual(document.with_context(lang='ca_ES')._doc_label(), 'Targeta TIS')
+        self.assertEqual(document.with_context(lang='en_US')._doc_label(), 'Medical card (TIS)')
+
+    def test_name_follows_reader_language(self):
+        """Not stored: the same record reads in each reader's own language."""
+        self._translate_selection('ems.selection__ems_student_document__doc_type__benefit', 'Bonificació')
+        self._translate_selection('ems.selection__ems_student_benefit__benefit_type__disability', 'Discapacitat')
+        document = self._create(doc_type='benefit', benefit_type='disability')
+        catalan = document.with_context(lang='ca_ES').name
+        self.assertIn('Bonificació', catalan)
+        self.assertIn('Discapacitat', catalan)
+        self.assertIn('Disability (>33%)', document.with_context(lang='en_US').name)
+
+    def test_benefit_type_shows_translated_label(self):
+        """benefit_type offers the same (translated) choices as ems.student.benefit, so lists
+        and forms show the label instead of the internal key."""
+        self._translate_selection('ems.selection__ems_student_benefit__benefit_type__large_family_gen',
+                                  'Família nombrosa (prova)')
+        field = self.env['ems.student.document']._fields['benefit_type']
+        catalan = dict(field._description_selection(self.env(context={'lang': 'ca_ES'})))
+        self.assertEqual(catalan['large_family_gen'], 'Família nombrosa (prova)')
+
+    def test_name_search_finds_document_by_student(self):
+        document = self._create(doc_type='dni')
+        found = self.env['ems.student.document'].name_search(self.student.name)
+        self.assertIn(document.id, [record_id for record_id, _name in found])
+
+    def test_messages_and_task_use_translated_label(self):
+        self._translate_selection('ems.selection__ems_student_document__doc_type__passport', 'Passaport')
+        reviewer = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Doc Reviewer', 'login': 'test_doc_reviewer_lang',
+        })
+        self.env.ref('ems.mail_activity_student_document_review').ems_assignee_ids = [(6, 0, reviewer.ids)]
+        Document = self.env['ems.student.document'].with_context(lang='ca_ES')
+        document = Document.create({'partner_id': self.student.id, 'doc_type': 'passport'})
+        self.assertIn('Passaport', document.activity_ids.summary)
+        document.action_approve()
+        self.assertIn('Passaport', document.message_ids.sorted('id')[-1].body)
+
 
 class TestStudentDocumentPortalAccess(TransactionCase):
     """Regression: portal ACL used to grant unrestricted write (see CLAUDE.md DTON
@@ -367,6 +417,34 @@ class TestStudentDocumentTutorAccess(TransactionCase):
     def test_academic_admin_sees_every_document(self):
         admin = create_role_user(self, 'academic_admin', 'test_admin_student_document')
         self.assertEqual(len(self._documents_seen_by(admin)), 3)
+
+    def test_documentation_section_only_for_who_can_read_some_document(self):
+        # The student form's Documentation section hides itself instead of showing an empty list
+        # to someone the rules let read nothing of this student (issue #511 follow-up).
+        teacher = create_role_user(self, 'teacher', 'test_teacher_student_document')
+        secretary = create_role_user(self, 'secretary', 'test_secretary_student_document')
+        tac = create_role_user(self, 'tac', 'test_tac_section_student_document')
+        for user, student, expected in (
+                (self.tutor_user, self.student, True), (self.tutor_user, self.other_student, False),
+                (teacher, self.student, False), (secretary, self.other_student, True),
+                (tac, self.other_student, True)):
+            self.assertEqual(student.with_user(user).can_see_documents, expected, (user.login, student.name))
+
+    def test_download_entry_only_for_readable_credentials(self):
+        # The form's "Download Google credentials" entry is only offered when there is a
+        # credentials PDF the user may read; a plain teacher has no ACL on documents at all.
+        teacher = create_role_user(self, 'teacher', 'test_teacher_credentials_entry')
+        tac = create_role_user(self, 'tac', 'test_tac_credentials_entry')
+        admin = create_role_user(self, 'academic_admin', 'test_admin_credentials_entry')
+        no_credentials = self.env['res.partner'].create({
+            'name': 'TSD No Credentials', 'contact_type': 'student', 'student_id': next_student_id(),
+        })
+        for user, student, expected in (
+                (self.tutor_user, self.student, True), (self.tutor_user, self.other_student, False),
+                (teacher, self.student, False), (tac, self.other_student, True),
+                (admin, no_credentials, False)):
+            self.assertEqual(student.with_user(user).can_download_google_credentials, expected,
+                             (user.login, student.name))
 
 
 class TestStudentDocumentTacAccess(TransactionCase):

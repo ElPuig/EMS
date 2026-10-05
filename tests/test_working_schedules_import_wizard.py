@@ -1120,7 +1120,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         'import_planner_data()' - which is where the actual failure happened. '_apply_import' has
         its OWN separate self-conflict safety net ('find_self_conflicts', called from
         '_apply_import' directly, not through the wizard screen) that reads 'ems.attendance_schedule'
-        - a model only brought in sync with the calendar by 'sync_from_schedule_batch', which runs
+        - a model only brought in sync with the calendar by '_sync_from_schedule_batch', which runs
         AFTER this check, not before. In 'replace' mode this means the check always sees the
         teacher's now-stale PRE-import 'ems.attendance_schedule' rows (the calendar itself was
         already correctly rewritten earlier in the same call), producing the exact same false
@@ -2087,6 +2087,27 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertIn(wizard.internal_conflict_line_ids.left_label, str(capture.exception))
         self.assertEqual(wizard.state, 'internal_conflicts')
 
+    def test_unresolved_conflict_list_is_translated_into_catalan(self):
+        """Each conflict in the list is built inside a generator expression, where a plain '_' can't
+        find the user's language - it came out as 'A vs. B' even in Catalan, on every Python version."""
+        second_teacher = self._second_teacher()
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_two_teachers_same_slot(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
+                second_teacher.work_email,
+                f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/><Students name="{self.group.name} Group"/>',
+            )),
+        })
+        for _step in range(4):  # intro -> groups -> subjects -> teachers -> internal_conflicts
+            wizard.action_continue()
+        wizard.internal_conflict_line_ids.resolution = 'co_teaching'  # invalid for a plain_conflict
+
+        with self.assertRaises(ValidationError) as capture:
+            wizard.with_context(lang='ca_ES').action_continue()
+
+        self.assertIn(' davant de ', str(capture.exception))
+
     def test_continue_from_internal_conflicts_raises_for_reassign_rooms_same_room(self):
         second_teacher = self._second_teacher()
         wizard = self.env['ems.working_schedules_import_wizard'].create({
@@ -2341,6 +2362,42 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         existing_schedule.invalidate_recordset()
         self.assertTrue(existing_schedule.active)
         self.assertFalse(second_teacher.resource_calendar_id.attendance_ids)
+
+    def test_db_conflict_resolution_is_only_applied_on_import(self):
+        # Nothing may be written before Import: "New prevails" used to archive the existing session
+        # (deleting its session-less template, and with it the conflict line the summary counts)
+        # and "Reassign rooms" to move it as soon as Continue left this screen, so Cancel on the
+        # summary could no longer undo either.
+        self._import({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                'test.wizard.teacher.import.wizard@example.com Someone',
+                f'<Subject name="{self.subject.code} {self.subject.name}"/><Students name="{self.group.name} Group"/>',
+            )),
+        })
+        existing_schedule = self.env['ems.attendance_schedule'].search([
+            ('attendance_template_id.teacher_ids', 'in', self.teacher.id),
+        ])
+        second_teacher = self._second_teacher()
+        wizard = self.env['ems.working_schedules_import_wizard'].create({
+            'attachment_ids': self._attachment_ids(self._xml_file_with_hour_node(
+                second_teacher.work_email,
+                f'<Subject name="{self.other_subject.code} {self.other_subject.name}"/><Students name="{self.group.name} Group"/>',
+            )),
+        })
+        while wizard.state != 'db_conflicts':
+            wizard.action_continue()
+        wizard.external_conflict_line_ids.resolution = 'prevail_left'
+
+        wizard.action_continue()  # db_conflicts -> summary
+
+        self.assertEqual(wizard.state, 'summary')
+        self.assertTrue(existing_schedule.exists() and existing_schedule.active)
+        self.assertEqual(len(wizard.external_conflict_line_ids), 1)
+        self.assertIn(">1 existing schedule conflict(s) resolved<", wizard.overall_summary_html)
+
+        wizard.import_planner_data()
+
+        self.assertFalse(existing_schedule.exists() and existing_schedule.active)
 
     def test_continue_from_db_conflicts_reassign_rooms_without_has_sessions_writes_in_place(self):
         self._import({

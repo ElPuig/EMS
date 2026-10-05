@@ -29,6 +29,8 @@ Your own groups are the ones on your timetable plus any group you are the tutor 
 is listed when that group is their main group, or when they are enrolled in one of your
 subjects in it — reinforcement groups and *desdobles* included.
 
+![The Students list with both filters applied, showing only a student of the teacher's own group](../../assets/teachers/alumnat-01-els-meus-grups.png)
+
 ---
 
 ## Seeing every student

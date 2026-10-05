@@ -63,6 +63,26 @@ sudo -u odoo bash -c "psql -d ems -c \"UPDATE hr_employee SET work_email = rp.em
 sudo -u odoo bash -c "psql -d ems -c \"UPDATE res_company SET email = rp.email FROM res_partner rp WHERE rp.id = res_company.partner_id AND rp.email IS NOT NULL AND res_company.email IS DISTINCT FROM rp.email;\""
 echo "<< hr.employee.work_email and res.company.email refreshed."
 
+echo ">> Pointing the PDF renderer (report.url) at this server:"
+# wkhtmltopdf loads a report's stylesheets, logo and fonts from 'report.url'. A database restored from
+# production carries production's own value, http://127.0.0.1 - the reverse proxy that listens on port
+# 80 in front of Odoo there. Here Odoo listens directly on its own port, so the connection is refused
+# and every PDF comes out unstyled, without header or footer ("wkhtmltopdf: Exit with code 1 due to
+# network error: ConnectionRefusedError" in the log).
+odoo_port=$(sed -n 's/^[[:space:]]*http_port[[:space:]]*=[[:space:]]*\([0-9]*\).*/\1/p' /etc/odoo/odoo.conf | head -1)
+odoo_port="${odoo_port:-8069}"
+sudo -u odoo bash -c "psql -d ems -c \"INSERT INTO ir_config_parameter (key, value) VALUES ('report.url', 'http://127.0.0.1:${odoo_port}') ON CONFLICT (key) DO UPDATE SET value = 'http://127.0.0.1:${odoo_port}';\""
+echo "<< PDF renderer pointed at http://127.0.0.1:${odoo_port}."
+
+echo ">> Forcing the Google Workspace integration into dry-run mode:"
+# A database restored from production carries production's live Google Workspace service account.
+# The address rewrite above keeps every corporate address on the centre's own domain, so without
+# dry-run any account creation (by hand, or automatic once a student/employee is complete) would
+# create a real account in the centre's real Google Workspace, and suspend/rename/reset calls would
+# reach it too. Dry-run only logs the payloads.
+sudo -u odoo bash -c "psql -d ems -c \"UPDATE res_company SET google_ws_dry_run = TRUE;\""
+echo "<< Google Workspace in dry-run mode."
+
 echo ">> Declaring this environment as 'dev' (see CLAUDE.md's 'Development vs. production environment declaration'):"
 sudo -u odoo bash -c "psql -d ems -c \"INSERT INTO ir_config_parameter (key, value) VALUES ('ems.environment_type', 'dev') ON CONFLICT (key) DO UPDATE SET value = 'dev';\""
 echo "<< Declared."

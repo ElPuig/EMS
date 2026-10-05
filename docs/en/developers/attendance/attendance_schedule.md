@@ -11,7 +11,7 @@ for "Maths, group A" might have two schedule rows: Monday 9:00–10:00 and Wedne
 
 **This doc covers the model's own fields/logic.** The pipeline that creates, archives and
 rewrites these rows from a teacher's live-edited or imported timetable
-(`sync_from_schedule`/`sync_from_schedule_batch`) is documented in
+(`_sync_from_schedule`/`_sync_from_schedule_batch`) is documented in
 [`attendance_template.md`](attendance_template.md) — not repeated here.
 
 **Module file:** `models/attendance/attendance_schedule.py` (`EmsAttendanceSchedule`)
@@ -23,7 +23,9 @@ rewrites these rows from a teacher's live-edited or imported timetable
 | Field | Type | Notes |
 |-------|------|-------|
 | `weekday` | `Selection` ("0"=Monday…"6"=Sunday) | **Do not renumber** — matches Python's `date.weekday()` values exactly, several computes rely on this. |
-| `name` | computed + stored | `"{template} \| {weekday} \| {time_range}"`, purely for the session form's dropdown sort order (SQL sort on a non-stored field wouldn't work). |
+| `name` | computed + stored | `"{template} \| {weekday} \| {time_range}"`, weekday in English. Stored so the session pickers can search it by text; not shown to users (see `display_name`). |
+| `template_label` | related `attendance_template_id.display_name`, stored | Only to sort by: `_order = 'template_label, weekday, start_time, id'` - grouped by subject (and groups) alphabetically, then by weekday **number**, so Monday comes before Friday in every language (sorting by `name` put Friday first). |
+| `display_name` | computed, per language (`@api.depends_context('lang')`) | Same text as `name`, but with the weekday in the reader's language (`_weekday_label`). `name` is stored, so it can only hold one language (English); it stays the sort key, and `_search_display_name` also matches a weekday typed in the reader's language. |
 | `start_time`/`end_time` | `Float` | Hours as a decimal (e.g. `9.5` = 9:30). |
 | `start_date`/`end_date` | `Datetime`, computed + stored | The template's own `start_date`/`end_date` (a plain date) combined with this schedule's `start_time`/`end_time`, converted local→UTC via `ems.datetime_utils` — stored as full datetimes because timezone-correct comparisons need a real date, not a bare time-of-day float. |
 | `time_range` | `Char`, computed + stored | `"HH:MM - HH:MM"`, derived from `start_date`/`end_date` converted back to local time. |
@@ -34,7 +36,7 @@ rewrites these rows from a teacher's live-edited or imported timetable
 
 ## Locking (the manual "Edit" button was removed 2026-08-11; extended to an unconditional field lock the same day)
 
-**As of 2026-08-11, every field on this model except `student_ids` is unconditionally locked** via
+**As of 2026-08-11, every field on this model except `student_ids` is unconditionally locked** (and `student_ids` itself is sync-only since 18.0.0.33.0, see below) via
 a `write()` guard (`_LOCKED_FIELDS = {'active', 'weekday', 'start_time', 'end_time', 'space_id',
 'attendance_template_id', 'notes'}`) - the same `EMS_BYPASS_TEMPLATE_LOCK_KEY` mechanism
 `ems.attendance_template` uses (see that doc's "Access control" section). `security/
@@ -78,23 +80,35 @@ full picture.
 
 ## `student_ids`: the roster, and who keeps it current
 
-The roster is this specific weekly slot's own (a given day/time can genuinely differ - someone
-sitting in, someone excused), which is why it lives here rather than on the template. Three things
-write it, and only the third is manual:
+The roster is this specific weekly slot's own, which is why it lives here rather than on the
+template. It always follows the students' enrollments, custom schedules included
+(`ems.enrollment._ems_attends`, issue #534 - see
+[`../contacts/enrollment_slot.md`](../contacts/enrollment_slot.md)): a student split across two
+groups, or not attending a subject in person, is expressed on their own form, not on the session.
 
-- `fill_students()` - resets the line from the current `(subject_id, group_ids)` enrollments of its
-  template. Called by the calendar sync for genuinely **new** slots only (see
-  [`attendance_template.md`](attendance_template.md)); a slot that already existed keeps whatever
-  roster it has, so a per-line customization survives a resync.
-- `ems.enrollment.create()`/`unlink()` - incremental add/remove of a single student across every
-  matching line, without touching anybody else's roster (see
-  [`../contacts/enrollment.md`](../contacts/enrollment.md#createunlink--keeping-two-side-systems-in-sync)).
-  **This cascade runs under `sudo()` since issue #435**: the models involved are access-restricted
-  in ways `ems.enrollment` is not, so before that fix the roster was only updated when an academic
-  admin happened to be the one making the enrollment change.
-- The **"Reload students"** button (`reload_students()`) - the manual escape hatch: wipes the line's
-  roster and refills it from current enrollments. It is what an admin/teacher reaches for when a
-  roster has drifted, and the only supported way to discard a per-line customization.
+**It is not editable by hand, admin included.** `write()` rejects `student_ids` with a `UserError`
+unless the write runs under `sudo()` or with `EMS_ROSTER_SYNC_KEY` in the context, and the line's
+form shows the list read-only. A hand edit used to contradict the student's enrollment without any
+trace on the student's form, and was silently lost on the next reload. A one-off change for a
+single day (a student who doesn't sit that day's exam) is still made on that day's roll-call
+(`ems.attendance_session_line`), which is a different model. Writers:
+
+- `fill_students()` - rebuilds the line from `_ems_expected_students()`. Called by the calendar sync
+  for genuinely **new** slots (see [`attendance_template.md`](attendance_template.md)), so a resync
+  honours custom schedules with no hook of its own.
+- `ems.enrollment._ems_resync_student_lines()` - incremental add/remove of a single student on
+  every enrollment or slot change, without touching anybody else's roster, under `sudo()` (issue
+  #435: the models involved are access-restricted in ways `ems.enrollment` is not).
+- A student's withdrawal (`res.partner._ems_clear_operational_records`, `sudo()`).
+- The **"Reload students"** button (`reload_students()`) - an academic-admin repair tool only
+  (button `groups=`, and an `AccessError` for anybody else): it just runs `fill_students()`, so it
+  can only put a roster back in line with the enrollments.
+
+Hand edits made before this (18.0.0.33.0) were turned into custom schedules by
+`migrations/18.0.0.33.0/post-migrate.py`, so nobody's sessions changed with the upgrade: a student
+taken out of every session of a subject became "not in person", one moved between groups got
+slots for exactly the sessions they were in. The same migration removed the non-student partners
+some rosters carried (Odoo's own archived "Default User Template", added by hand by mistake).
 
 ---
 
@@ -118,10 +132,11 @@ that originally scheduled it being archived - `test_action_archive_does_not_casc
 `test_action_archive_on_template_does_not_cascade_to_sessions`
 (`tests/test_attendance_template.py`) pin this down going forward. Sessions are never `unlink()`'d
 either (see `unlink()` below) - they're an independent historical record, managed on their own
-terms, not a dependent of either model. See
-[`plans/course_transition_teacher_schedule_archival.md`](../../../../plans/course_transition_teacher_schedule_archival.md)
-for the still-open question of how a teacher's session views should end up showing only the
-current course's sessions, if that's still wanted - not via this cascade.
+terms, not a dependent of either model. A teacher's session views are therefore not scoped to
+the current course: past courses' sessions stay listed, and archived ones are reached through the
+list's own "Archived" filter (see [`attendance_session.md`](attendance_session.md)'s "Search
+view" section). Scoping them to the current course, if ever wanted, must be a view filter, not
+this cascade.
 
 ---
 
@@ -211,7 +226,7 @@ reason `ems.attendance_template.teacher_ids` is a Many2many rather than one temp
 (see [`attendance_template.md`](attendance_template.md)'s "Co-teaching" section).
 
 **Captured by `ems.attendance_template._link_calendar_attendance(teacher_entries)`**, called at
-the end of `sync_from_schedule_batch` (right
+the end of `_sync_from_schedule_batch` (right
 after `_run_schedule_sync_plans` finishes writing the schedule lines for this same call — see
 `attendance_template.md`'s "CRUD flow"). For every `(teacher, entries)` pair, it matches each
 entry's own `(dayofweek, hour_from, hour_to)` against that teacher's own `resource_calendar_id.
@@ -236,7 +251,7 @@ retroactively would have meant re-running the exact broad, ambiguity-prone infer
 to stop needing, on data that had already had time to drift. The bottom-up sync redesign's own
 design invariant (every active line always has a real calendar block behind it, see
 [`attendance_template.md`](attendance_template.md)) made that acceptable to finally do: the
-migration reruns `ems.attendance_template.regenerate_all_from_calendars()` (already existing since
+migration reruns `ems.attendance_template._regenerate_all_from_calendars()` (already existing since
 2026-08-11) once more, which rebuilds every active template/line straight from each teacher's
 current calendar and links the FK as a natural consequence - no new matching logic needed, and no
 unresolved room conflicts turned up doing it. Every calendar write since goes through the automatic

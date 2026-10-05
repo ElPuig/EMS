@@ -5,7 +5,7 @@ from datetime import timedelta
 from markupsafe import Markup
 
 from odoo import _, api, fields, models, Command
-from odoo.exceptions import AccessError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools import format_date
 
 # The Apps Script this replaces rounded every partial absence to quarters of an hour; the
@@ -39,6 +39,18 @@ APPROVAL_ACTIVITY_CA_NAMES = {
 }
 
 RESPONSIBLE_GROUP_XMLID = 'hr_holidays.group_hr_holidays_responsible'
+
+# Where the Head's side of a request stands once they have acknowledged it, while its supporting
+# document is still outstanding. Any other document state means the Head is done with it.
+HEAD_STATE_BY_DOCUMENT = {'awaiting': 'pending_document', 'submitted': 'pending_validation'}
+
+# The one activity each stage waits on, and whose it is - see _ems_update_activities().
+ACTIVITY_BY_STATUS = {
+    'pending_document': 'ems.mail_activity_absence_document_upload',
+    'pending_validation': 'ems.mail_activity_absence_document_validate',
+    'pending_direction': 'ems.mail_activity_absence_direction_review',
+}
+OVERDUE_ACTIVITY_XMLID = 'ems.mail_activity_absence_document_overdue'
 
 TIME_OFF_GROUP_XMLIDS = (
     'hr.group_hr_manager',
@@ -202,12 +214,58 @@ class EmsAbsenceLeave(models.Model):
         help="I declare, under my own responsibility, that the details and the reason given for "
              "this absence are true.")
     ems_direction_state = fields.Selection(
-        string="Direction check",
-        selection=[('not_done', 'Not done'), ('missing_doc', 'Missing document'), ('done', 'Done')],
+        string="Direction status",
+        selection=[('not_done', 'Pending'), ('done', 'Done'), ('refused', 'Refused')],
         default='not_done', required=True, copy=False, tracking=True,
-        help="Direction's own check of the supporting document and, for ATRI absences, of the "
-             "request having really been filed on the portal. Independent of the approval: a "
-             "request can be approved and still be waiting for its document.")
+        help="Direction's own approval, the last step: once the Head has validated the request "
+             "and its supporting document, Direction checks it too (for ATRI absences, that it "
+             "was really filed on the portal). Refusing it refuses the whole request.")
+    ems_document_state = fields.Selection(
+        string="Supporting document status",
+        selection=[
+            ('not_required', 'Not required'),
+            ('awaiting', 'Awaiting documentation'),
+            ('submitted', 'Pending validation'),
+            ('validated', 'Validated'),
+        ],
+        copy=False, tracking=True, readonly=True,
+        help="Set when the Head acknowledges the request: absence types that require a "
+             "supporting document wait for it, and attaching it sends the request back to the "
+             "Head for validation.")
+    ems_document_reminder_date = fields.Date(
+        string="Last document reminder", copy=False, readonly=True,
+        help="The last day the employee was reminded that the supporting document is missing.")
+    ems_document_escalated = fields.Boolean(
+        string="Missing document reported to the Head", copy=False, readonly=True)
+    ems_head_state = fields.Selection(
+        string="Head status",
+        selection=[
+            ('pending', 'Pending'),
+            ('pending_document', 'Awaiting documentation'),
+            ('pending_validation', 'Pending validation'),
+            ('approved', 'Approved'),
+            ('refused', 'Refused'),
+        ],
+        compute="_compute_ems_head_state", store=True, copy=False,
+        help="The Head's side of the request: the Area Manager who approves this employee's "
+             "absences acknowledges it, waits for the supporting document when its type "
+             "requires one, and validates it.")
+    ems_status = fields.Selection(
+        string="Overall status",
+        selection=[
+            ('pending', 'Pending'),
+            ('pending_document', 'Awaiting documentation'),
+            ('pending_validation', 'Pending validation'),
+            ('pending_direction', 'Pending Direction'),
+            ('approved', 'Approved'),
+            ('refused', 'Refused'),
+            ('cancel', 'Cancelled'),
+        ],
+        compute="_compute_ems_status", store=True, copy=False,
+        help="Where the request stands: the Head acknowledges it, the employee attaches the "
+             "supporting document when its type requires one, the Head validates it and "
+             "Direction validates it last. The absence takes effect (calendar, hour balance, "
+             "guard duty board) as soon as the Head acknowledges it.")
     ems_health_hours_used = fields.Float(
         string="Health hours used", compute="_compute_ems_health_allowance",
         help="Hours this employee has already used from their health allowance this course, "
@@ -215,6 +273,10 @@ class EmsAbsenceLeave(models.Model):
     ems_health_allowance_exceeded = fields.Boolean(
         string="Over the health allowance", compute="_compute_ems_health_allowance")
 
+    is_absence_head = fields.Boolean(
+        string="Current user is the Head", compute="_compute_is_absence_manager",
+        help="Whether the user reading this request acts as its Head: the employee's approver, "
+             "or an officer other than Direction.")
     is_absence_manager = fields.Boolean(
         string="Current user manages this absence", compute="_compute_is_absence_manager",
         help="Whether the user reading this request is the one who approves it, or an officer. "
@@ -236,6 +298,38 @@ class EmsAbsenceLeave(models.Model):
         help="This absence's hours when it consumes the health allowance, zero otherwise. A "
              "column of its own so a report grouped by employee can total it - which is the "
              "figure that has to stay under the yearly allowance.")
+
+    @api.depends('state', 'ems_document_state')
+    def _compute_ems_head_state(self):
+        """Odoo's own state is the Head's acknowledgement, and the supporting document's state
+        is how far they still are from validating it - with two exceptions Odoo's state cannot
+        tell apart on its own, where the column keeps whatever the Head had decided before: a
+        refusal that was Direction's ('ems_direction_state' is already 'refused' by the time the
+        state changes, see action_ems_direction_refuse), and the employee cancelling their own
+        request.
+
+        Deliberately not depending on 'ems_direction_state': the Head's column must not move
+        when only Direction acts. A request approved with no document state at all (created
+        directly as approved) counts as validated."""
+        for leave in self:
+            if leave.state in ('validate', 'validate1'):
+                leave.ems_head_state = HEAD_STATE_BY_DOCUMENT.get(leave.ems_document_state, 'approved')
+            elif leave.state == 'refuse' and leave.ems_direction_state != 'refused':
+                leave.ems_head_state = 'refused'
+            elif leave.state == 'confirm' or not leave.ems_head_state:
+                leave.ems_head_state = 'pending'
+
+    @api.depends('state', 'ems_head_state', 'ems_direction_state')
+    def _compute_ems_status(self):
+        for leave in self:
+            if leave.state in ('refuse', 'cancel'):
+                leave.ems_status = 'refused' if leave.state == 'refuse' else 'cancel'
+            elif leave.ems_head_state == 'approved':
+                leave.ems_status = 'approved' if leave.ems_direction_state == 'done' else 'pending_direction'
+            elif leave.ems_head_state in ('pending_document', 'pending_validation'):
+                leave.ems_status = leave.ems_head_state
+            else:
+                leave.ems_status = 'pending'
 
     @api.depends('request_date_from')
     def _compute_ems_course_id(self):
@@ -305,9 +399,30 @@ class EmsAbsenceLeave(models.Model):
         on the approval state, would prevent."""
         is_officer = self.env.user.has_group('hr_holidays.group_hr_holidays_user')
         is_direction = self._ems_can_set_direction_state()
+        is_director = self.env.user.has_group('ems.group_director')
         for leave in self:
-            leave.is_absence_manager = is_officer or leave.employee_id.leave_manager_id == self.env.user
+            is_approver = leave.employee_id.leave_manager_id == self.env.user
+            leave.is_absence_manager = is_officer or is_approver
+            # The same line _compute_can_approve draws: Direction is the Head only of the Area
+            # Managers' own absences.
+            leave.is_absence_head = is_approver or (is_officer and not is_director)
             leave.is_absence_direction = is_direction
+
+    def _compute_can_approve(self):
+        """Direction does not approve on the Head's behalf.
+
+        Direction holds the officer group through Head of Studies, so Odoo would offer it the
+        Approve and Refuse buttons on every request - right beside the Head's column, where
+        clicking them decides for the Head instead of recording Direction's own review, which
+        has its own buttons. They stay only where Direction really is the approver: an Area
+        Manager's own absence (see _compute_leave_manager). The server-side rights are left
+        alone; this is what the screens offer."""
+        super()._compute_can_approve()
+        if self.env.su or not self.env.user.has_group('ems.group_director'):
+            return
+        for leave in self:
+            if leave.employee_id.leave_manager_id != self.env.user:
+                leave.can_approve = False
 
     @api.model
     def default_get(self, fields_list):
@@ -463,13 +578,26 @@ class EmsAbsenceLeave(models.Model):
         if not self._ems_can_set_direction_state():
             for vals in vals_list:
                 vals.pop('ems_direction_state', None)
+        # Only ever set by the Head's own steps, never filed with the request.
+        if not self.env.su:
+            for vals in vals_list:
+                vals.pop('ems_document_state', None)
         return super().create(vals_list)
 
     def write(self, vals):
         if 'ems_direction_state' in vals and not self._ems_can_set_direction_state():
             raise AccessError(_("Only Direction can change the Direction check on an absence."))
+        if 'ems_document_state' in vals and not self.env.su and not all(
+                leave.is_absence_head or leave.is_absence_direction for leave in self):
+            raise AccessError(_("Only the Head or Direction can change the supporting document "
+                                "status of an absence."))
         self._ems_check_own_approved_write(vals)
-        return super().write(vals)
+        result = super().write(vals)
+        if vals.keys() & ATTACHMENT_FIELDS:
+            self._ems_submit_document()
+        if vals.keys() & {'state', 'ems_document_state', 'ems_direction_state'}:
+            self._ems_update_activities()
+        return result
 
     def _ems_check_own_approved_write(self, vals):
         """The field-level half of 'rule_absence_own_request_write'.
@@ -520,13 +648,38 @@ class EmsAbsenceLeave(models.Model):
                 partners |= chief.user_id.partner_id or chief.work_contact_id
         return partners
 
-    def _ems_inform_department_chief(self):
+    def _ems_direction_partners(self):
+        """Direction, told of every approval: its own review of the supporting document starts
+        there. Not when Direction is the absent employee or is itself approving."""
+        partners = self.env['res.partner']
+        for leave in self:
+            director = leave.employee_id.company_id.director_id or self.env.company.director_id
+            if not director or director == leave.employee_id or director.user_id == self.env.user:
+                continue
+            partners |= director.user_id.partner_id or director.work_contact_id
+        return partners
+
+    def _ems_inform_department_chief(self, with_direction=False):
         for leave in self:
             partners = leave._ems_notify_partners()
+            if with_direction:
+                partners |= leave._ems_direction_partners()
             if partners:
                 # Subscribed just before the state change, so the summary below is the first
                 # thing they receive - they are told the outcome, not every draft.
                 leave.message_subscribe(partner_ids=partners.ids)
+
+    def _ems_when(self):
+        """The absence's dates as a sentence fragment, for the messages about it."""
+        self.ensure_one()
+        when = format_date(self.env, self.request_date_from)
+        if self.request_date_to and self.request_date_to != self.request_date_from:
+            return _("%(start)s to %(end)s", start=when, end=format_date(self.env, self.request_date_to))
+        if not self.ems_full_day:
+            return _("%(date)s, from %(start)s to %(end)s", date=when,
+                     start=format_time_float(self.request_hour_from),
+                     end=format_time_float(self.request_hour_to))
+        return when
 
     def _ems_post_outcome(self):
         """A summary of what was decided, for everyone following the request.
@@ -539,13 +692,7 @@ class EmsAbsenceLeave(models.Model):
         and of what kind, not why - the same line 'hr.leave.private_name' draws in the interface.
         """
         for leave in self:
-            when = format_date(self.env, leave.request_date_from)
-            if leave.request_date_to and leave.request_date_to != leave.request_date_from:
-                when = _("%(start)s to %(end)s", start=when, end=format_date(self.env, leave.request_date_to))
-            elif not leave.ems_full_day:
-                when = _("%(date)s, from %(start)s to %(end)s", date=when,
-                         start=format_time_float(leave.request_hour_from),
-                         end=format_time_float(leave.request_hour_to))
+            when = leave._ems_when()
             # Called on the mixin rather than inherited: 'ems.base' would also add its own
             # fields to hr.leave, 'active' among them. This is the shared escaping-safe
             # list builder (see EmsBase.build_html_list), not a hand-rolled copy of it.
@@ -555,7 +702,7 @@ class EmsAbsenceLeave(models.Model):
                 _("Dates: %(when)s", when=when),
                 _("Duration: %(hours).2f h", hours=leave.number_of_hours),
                 _("Status: %(state)s", state=dict(
-                    leave._fields['state']._description_selection(leave.env))[leave.state]),
+                    leave._fields['ems_status']._description_selection(leave.env))[leave.ems_status]),
             ])
             leave.message_post(
                 body=Markup("<p>%s</p>%s") % (
@@ -611,7 +758,20 @@ class EmsAbsenceLeave(models.Model):
         return result
 
     def action_approve(self, check_state=True):
-        self._ems_inform_department_chief()
+        """The Head's acknowledgement. It takes effect straight away, as Odoo's own approval
+        always has (calendar, hour balance, guard duty board), but it is not yet the Head's
+        validation when the absence type requires a supporting document: the request then waits
+        for it, or goes straight to validation if it was attached with the request."""
+        for leave in self.filtered(lambda leave: leave.state == 'confirm'):
+            if not leave.leave_type_support_document:
+                document_state = 'not_required'
+            elif leave.attachment_ids:
+                document_state = 'submitted'
+            else:
+                document_state = 'awaiting'
+            # sudo: the Head's right to acknowledge it is Odoo's own approval check, below.
+            leave.sudo().ems_document_state = document_state
+        self._ems_inform_department_chief(with_direction=True)
         result = super().action_approve(check_state=check_state)
         self._ems_post_outcome()
         return result
@@ -620,6 +780,174 @@ class EmsAbsenceLeave(models.Model):
         self._ems_inform_department_chief()
         result = super().action_refuse()
         self._ems_post_outcome()
+        return result
+
+    # --- The supporting document ------------------------------------------------------------
+
+    def _ems_submit_document(self):
+        """Attaching the supporting document to a request awaiting it hands it back to the Head,
+        with no button for the employee to forget. sudo: the employee cannot set the status
+        themselves (see write()), only cause it by attaching the file."""
+        submitted = self.filtered(
+            lambda leave: leave.ems_document_state == 'awaiting' and leave.attachment_ids)
+        if submitted:
+            submitted.sudo().write({'ems_document_state': 'submitted'})
+
+    def _ems_check_is_head(self):
+        if not self.env.su and not all(leave.is_absence_head for leave in self):
+            raise AccessError(_("Only the Head who approves this absence can validate its "
+                                "supporting document."))
+
+    def _ems_check_status(self, status, message):
+        if any(leave.ems_status != status for leave in self):
+            raise UserError(message)
+
+    def action_ems_document_validate(self):
+        """The Head's validation of the supporting document, after which the request goes to
+        Direction."""
+        self._ems_check_is_head()
+        self._ems_check_status('pending_validation', _(
+            "Only a request whose supporting document is pending validation can be validated."))
+        self.write({'ems_document_state': 'validated'})
+        return True
+
+    def action_ems_document_insufficient(self):
+        """Sends the request back to the employee for a valid supporting document, from the Head
+        (validating it) or from Direction (reviewing it). The reminders start over."""
+        for leave in self:
+            if leave.ems_status == 'pending_validation':
+                leave._ems_check_is_head()
+            elif leave.ems_status == 'pending_direction':
+                if not leave.is_absence_direction:
+                    raise AccessError(_("Only Direction can change the Direction check on an absence."))
+            else:
+                raise UserError(_("Only a request under validation can be sent back for its "
+                                  "supporting document."))
+        self.write({'ems_document_state': 'awaiting'})
+        self.sudo().write({'ems_document_reminder_date': False, 'ems_document_escalated': False})
+        for leave in self:
+            leave._ems_notify(leave.employee_id.user_id.partner_id, _(
+                "The supporting document for your absence of %(when)s is not sufficient. Please "
+                "attach a valid one to the request.", when=leave._ems_when()))
+        return True
+
+    def _ems_notify(self, partners, message):
+        """A note addressed to these partners only: unlike a comment, it is not sent to every
+        follower of the request - the department chief and Direction do not need each
+        reminder."""
+        self.ensure_one()
+        if partners:
+            self.message_post(body=message, partner_ids=partners.ids, subtype_xmlid='mail.mt_note')
+
+    def _ems_head_users(self):
+        """Who acts as this request's Head: the employee's approver, or, when they have none,
+        whoever Odoo would route the approval to."""
+        self.ensure_one()
+        return self.sudo()._get_responsible_for_approval()
+
+    def _ems_direction_users(self):
+        self.ensure_one()
+        director = self.employee_id.company_id.director_id or self.env.company.director_id
+        return director.user_id if director != self.employee_id else self.env['res.users']
+
+    def _ems_update_activities(self):
+        """Keeps exactly one activity open on each request: the next step and whose it is -
+        the employee attaching the document, the Head validating it, Direction reviewing it.
+        The previous step's is marked done; a refused or cancelled request keeps none. The
+        activity is what reaches each person's own to-do list, and the employee's turns red
+        on its own once the absence is over and the document is still missing."""
+        today = self.env['ems.datetime_utils'].get_local_today()
+        stale_xmlids = [*ACTIVITY_BY_STATUS.values(), OVERDUE_ACTIVITY_XMLID]
+        for leave in self.sudo():
+            target = ACTIVITY_BY_STATUS.get(leave.ems_status)
+            stale = [xmlid for xmlid in stale_xmlids if xmlid != target]
+            if leave.ems_status in ('refused', 'cancel'):
+                leave.activity_unlink(stale)
+            else:
+                leave.activity_feedback(stale)
+            if not target or leave.activity_ids.filtered(
+                    lambda activity: activity.activity_type_id == self.env.ref(target)):
+                continue
+            if leave.ems_status == 'pending_document':
+                users = leave.employee_id.user_id
+                deadline = max(today, (leave.request_date_to or today) + timedelta(days=1))
+            elif leave.ems_status == 'pending_validation':
+                users, deadline = leave._ems_head_users(), today
+            else:
+                users, deadline = leave._ems_direction_users(), today
+            for user in users:
+                leave.activity_schedule(target, date_deadline=deadline, user_id=user.id)
+
+    @api.model
+    def _cron_ems_document_reminder(self):
+        """Reminds every employee whose absence is over and whose supporting document is still
+        missing, every day by default, and reports it to their Head once, a few days after the
+        absence (both configurable in the settings). Calendar days, in the centre's own
+        timezone."""
+        company = self.env.company
+        today = self.env['ems.datetime_utils'].get_local_today()
+        interval = company._ems_absence_document_reminder_days()
+        escalation = company._ems_absence_document_escalation_days()
+        leaves = self.search([('ems_status', '=', 'pending_document'), ('request_date_to', '<', today)])
+        for leave in leaves:
+            last = leave.ems_document_reminder_date
+            if not last or (today - last).days >= interval:
+                leave._ems_notify(leave.employee_id.user_id.partner_id, _(
+                    "Reminder: the supporting document for your absence of %(when)s is still "
+                    "missing. Please attach it to the request so it can be validated.",
+                    when=leave._ems_when()))
+                leave.ems_document_reminder_date = today
+            if not leave.ems_document_escalated and (today - leave.request_date_to).days >= escalation:
+                heads = leave._ems_head_users()
+                leave._ems_notify(heads.partner_id, _(
+                    "%(name)s has still not attached the supporting document for the absence of "
+                    "%(when)s.", name=leave.employee_id.display_name, when=leave._ems_when()))
+                for head in heads:
+                    leave.activity_schedule(OVERDUE_ACTIVITY_XMLID, date_deadline=today, user_id=head.id)
+                leave.ems_document_escalated = True
+
+    # --- Direction's own approval -----------------------------------------------------------
+    # Plain writes: hr.leave.write() is what keeps them Direction's alone, for these buttons and
+    # for any other way in.
+
+    def _ems_set_direction_state(self, value):
+        self.write({'ems_direction_state': value})
+        return True
+
+    def action_ems_direction_done(self):
+        """Direction validates last, once the Head has validated the request and its document."""
+        self._ems_check_status('pending_direction', _(
+            "Direction validates a request once the Head has validated it and its supporting "
+            "document."))
+        return self._ems_set_direction_state('done')
+
+    def action_ems_direction_reset(self):
+        return self._ems_set_direction_state('not_done')
+
+    def action_ems_direction_refuse(self):
+        """Refuses the whole request, as final as the Head's refusal. Direction's column is set
+        first, so _compute_ems_head_state knows the refusal about to happen is not the Head's."""
+        self._ems_set_direction_state('refused')
+        return self.action_refuse()
+
+    def action_reset_confirm(self):
+        """Odoo's own reset only ever touches 'state' - left alone, a Direction refusal would
+        strand 'ems_direction_state' on 'refused' after the request is reopened, with nothing
+        left on screen to explain why the overall status still won't move. Direction's own
+        review has to be redone, exactly like the Head's already is by
+        '_compute_ems_head_state' reacting to 'state' alone.
+
+        'sudo()' on the write: reaching this method at all already requires the Time Off
+        Manager group (Odoo's own 'hr.leave._check_approval_update', called from 'write()' for
+        every non-superuser), a strictly wider right than '_ems_can_set_direction_state()' asks
+        for - so clearing a now-stale refusal as a side effect of that reset is not a fresh
+        Direction decision needing its own check."""
+        refused_by_direction = self.filtered(lambda leave: leave.ems_direction_state == 'refused')
+        result = super().action_reset_confirm()
+        refused_by_direction.sudo()._ems_set_direction_state('not_done')
+        # Same for the supporting document: the Head acknowledges the reopened request afresh.
+        self.sudo().write({'ems_document_state': False, 'ems_document_reminder_date': False,
+                           'ems_document_escalated': False})
         return result
 
     @api.constrains('ems_submitted', 'ems_responsible_declaration')

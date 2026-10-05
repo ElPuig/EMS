@@ -13,19 +13,23 @@ Esta sección contiene los manuales para los **tutores de grupo**.
 | Manual | Descripción |
 |--------|------------|
 | [Cambiar el grupo de un alumno](change-student-group.md) | Mover a un alumno tutorizado de un grupo a otro, con sus matrículas por asignatura siguiéndolo automáticamente |
+| [Horario personalizado de un alumno](custom-schedule.md) | Indicar a qué sesiones asiste un alumno: repartir una asignatura entre grupos, marcarla como no presencial o volver a seguir al grupo |
 | [Histórico académico de su alumnado](academic-history.md) | Consultar el registro permanente por curso de sus tutorizados: módulos, notas por RA y asistencia |
 | [Poner la nota de las prácticas de empresa (EM)](work-placement-grade.md) | Poner la nota de las prácticas a un estudiante cuando las termina: completa la nota final de todos los módulos con peso de prácticas, incluidas las finales pendientes de cursos anteriores |
 | [Junta de evaluación: revisar las calificaciones por alumno](junta-avaluacio.md) | Revisar y ajustar las calificaciones de cada alumno del grupo, asignatura por asignatura, para la junta de evaluación |
 | [Cómo generar propuestas de matrícula](propostes-matricula.md) | Proponer la matrícula del curso siguiente para los alumnos aprobados, incluyendo matrículas especiales |
 | [Autorizaciones: enviarlas a vuestro alumnado y hacer el seguimiento](authorizations.md) | Enviar autorizaciones del catálogo a vuestro alumnado o a vuestros grupos y hacer el seguimiento de las respuestas |
+| [Solicitudes de datos de contacto: pedir a las familias que actualicen los datos](contact-data-requests.md) | Pedir al alumnado y a las familias que revisen los datos de contacto desde el portal, hacer el seguimiento de las respuestas y aprobar los cambios |
 | [Cómo gestionar el acceso al portal](acces-portal.md) | Dar de alta, dar de baja o reenviar las invitaciones de acceso al portal para alumnos y familias |
 | [Strikes: consultar los registros de tu grupo](strike.md) | Consultar los strikes puestos a tus alumnos tutorizados y los que has puesto tú mismo/a |
 | [Gestionar los contactos familiares de tu alumnado](family-contacts.md) | Añadir y quitar los familiares (padre, madre, tutor legal…) de los alumnos que tutorizas |
-| [Consultar las credenciales de Google de tu alumnado](google-credentials.md) | Descargar el PDF con el usuario y la contraseña de la cuenta de Google de los alumnos que tutorizas, uno a uno o de varios alumnos a la vez en un ZIP |
+| [Credenciales de Google de tu alumnado](google-credentials.md) | Descargar el PDF con el usuario y la contraseña de la cuenta de Google de los alumnos que tutorizas, uno a uno o de varios alumnos a la vez en un ZIP, crearles la cuenta si aún no la tienen, y restablecerles la contraseña |
 | [Justificar las faltas de tu alumnado](attendance-justifications.md) | Registrar un justificante (por ejemplo, un informe médico) para que las faltas de un alumno tutorizado pasen a falta justificada, y adjuntar el documento |
 | [Informes de asistencia](attendance-reports.md) | Imprimir los 3 informes PDF de asistencia (por grupo/alumno/asignatura) y explorar los datos tú mismo con la pantalla de Análisis de asistencia |
+| [Informe de incidencias de asistencia de tus alumnos](attendance-issues-report.md) | El correo con las faltas y los retrasos de tus alumnos, y cómo elegir cuándo lo recibes |
 | [El horario semanal de un grupo](../admin/group-schedule.md) | Consultar el horario agregado de un grupo (asignaturas, docentes, aulas, patios) y exportarlo a PDF |
 | [El horario semanal de un alumno](../admin/student-schedule.md) | Consultar el horario propio de uno de tus tutorandos (asignaturas, docentes, aulas, patios), incluyendo clases solapadas, y exportarlo a PDF |
+| [Notas públicas y notas privadas del alumno](../teachers/student-notes.md) | Dónde todo el profesorado lee las notas públicas de un alumno, y quién puede leer y escribir las privadas de tutoría |
 
 ---
 

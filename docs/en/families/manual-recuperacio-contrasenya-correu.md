@@ -8,6 +8,8 @@ This guide explains step by step how to recover the password of the school email
 
 The school email account is a **Google (Gmail)** account, so recovery is done through Google's official assistant.
 
+Students can also use this account to open the student portal, with the **Log in with Google** button on the portal's sign-in page (see [Student portal access and activation guide](manual-portal-alumne.md#signing-in-afterwards-personal-email-or-school-account)).
+
 > **Important:** to recover the password you must have a **recovery phone number** associated with the account. This is the phone number you provided when the account was created. If you do not have access to that phone, contact the school office.
 
 ---

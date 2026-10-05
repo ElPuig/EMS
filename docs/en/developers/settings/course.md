@@ -23,11 +23,13 @@ from a list left it out of step with `current_course_id`). The list and form vie
 serve the selectors — "Search more…" and "Create and edit…", the latter being the only way to
 create a new academic year from the UI.
 
-The seed file `data/custom/ems.course.csv` still pre-creates the courses (`2025-2026` through
-`2028-2029`), but it only carries `start` and `end`. **Neither flag is a column of it**, and
-that is deliberate: both are live application state the instance moves on its own, so a synced
-column would revert an admin's change on the next upgrade — see "Why the flags are not in the
-CSV" below.
+There is no seed data file for `ems.course`: a fresh install gets its first course from
+`post_init_hook` (see "Seeding `current_course_id` itself on a fresh install" below), and every
+later one is created from the UI through "Create and edit…" on a course selector. Courses an
+installation already has are `__import__`-owned, so they are unaffected by the absence of a file.
+**Neither flag may ever be seeded from a data file**: both are live application state the
+instance moves on its own, so a synced column would revert an admin's change on the next
+upgrade — see "Why the flags are never in a data file" below.
 
 Until this issue there was no UI at all: `is_current` could only be reached indirectly through
 `current_course_id` in Settings, and `is_enrollment_default` had no path whatsoever, which made
@@ -105,7 +107,7 @@ No record-level rules exist for this model. Administrators exercise create throu
 | Form | `views/settings/course.xml` | Used by "Create and edit…"; both flags readonly |
 | Settings selectors | `views/settings/form.xml` | `current_course_id` and `enrollment_course_id`, the only write paths |
 
-### Why the flags are not in the CSV
+### Why the flags are never in a data file
 
 `is_current` and `is_enrollment_default` are **live application state**, not configuration:
 `res.company._sync_current_course_flag()` moves the first whenever the "Current course" setting
@@ -113,7 +115,33 @@ changes, and the centre moves the second by hand when it opens the following yea
 campaign. A synced CSV column would reapply the file's value on every upgrade and silently undo
 either move — with new enrollments then landing on the wrong course.
 
-`is_current` was already out of the file. `is_enrollment_default` was a column until 18.0.0.22.0;
-it was removed, and its initial value is seeded once by `ems.course._ems_seed_enrollment_default()`
-from `post_init_hook` (fresh installs) and the 18.0.0.22.0 post-migrate (existing ones). The
+The initial value of `is_enrollment_default` is seeded once by
+`ems.course._ems_seed_enrollment_default()` from `post_init_hook` (fresh installs) and the
+18.0.0.22.0 post-migrate (existing ones). The
 helper only acts when no course carries the flag, so it can never override a deliberate move.
+
+### Seeding `current_course_id` itself on a fresh install
+
+A fresh install gets an operational course without an admin having to pick one first:
+`__init__.py::_ems_seed_current_course`, called from `post_init_hook` **before**
+`_ems_seed_enrollment_default()` (that method's own "course after the operational one" logic
+depends on `is_current` already being meaningful):
+
+```python
+def _ems_seed_current_course(env):
+    year = datetime.now().year
+    course = env['ems.course'].search([('start', '=', year)], limit=1) \
+        or env['ems.course'].create({'start': year, 'end': year + 1})
+    env['res.company'].search([]).write({'current_course_id': course.id})
+```
+
+Deliberately a plain calendar year, no September/August academic-year cutover logic — decided
+against for now (not worth the complexity yet). Reuses an existing course for that year instead
+of creating a duplicate if that course already exists (`unique_course_name` would
+block a real duplicate anyway). `migrations/18.0.0.28.0/post-migrate.py::_backfill_current_course_id`
+covers the equivalent for an already-existing install that somehow never configured one — a no-op
+for an install that already has (this box's own DB included).
+
+This is also what makes [`ems.planning.course_id`](../planning/planning.md) safe to leave
+non-required at the DB level: any real, UI-driven planning creation can always default to a
+properly-seeded `current_course_id`.

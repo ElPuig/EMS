@@ -28,9 +28,9 @@ Permission levels form a hierarchy — each level includes all the permissions o
 | TAC coordinator | *(TAC block — see note below)* | Manual — added to the **Roles** field on the teacher's own record |
 | Guidance coordinator | *(Guidance block — see note below)* | Manual — added to the **Roles** field on the teacher's own record |
 
-> Department Chief currently grants the same permissions as Tutor, plus the ability to create, edit and delete Class Groups (Contacts → Groups). It exists as its own level so it can be extended independently in the future. Seminar leader is granted the same permission level.
+> Department Chief currently grants the same permissions as Tutor, plus the ability to create, edit and delete Class Groups (Contacts → Groups). It exists as its own level so it can be extended independently in the future. Seminar leader is granted the same permission level. Both can also see, read-only, the identity document and social security number of the staff in their own chain of command (**Private Information** tab, **Identification** group).
 >
-> **Secretary is not part of this ladder.** It grants access to a completely separate permission block (Secretary: Manager/Administrator), unrelated to the Teacher→...→Director chain above — even though it's configured the same way (as an "Area Manager" on a top-level department's form), it does not sit at any particular rung of this ladder.
+> **Secretary is not part of this ladder.** It grants access to a completely separate permission block (Secretary: Manager/Administrator), unrelated to the Teacher→...→Director chain above — even though it's configured the same way (as an "Area Manager" on a top-level department's form), it does not sit at any particular rung of this ladder. The Secretary also holds Odoo's HR permissions: they can create and edit every staff member's record, ASP and teachers alike, private information included, but not delete it.
 >
 > **Guidance coordinator is not part of this ladder either.** It grants its own separate permission block (Guidance: Manager/Administrator) and, like the TAC coordinator, it is assigned by hand from the teacher's own **Roles** field. It is not unipersonal: the post is normally held by a team. It grants read-only access to every student's data centre-wide - grades, academic history, daily attendance and its issues, strikes, contacts, enrolments and authorizations - and, as its only write access, setting the special educational needs (NEE) of any student or applicant. It gives no access to invoices or payments. **The Coexistence coordinator grants the same read access**, without the NEE, plus every strike in the centre. The academic history needs no role at all: every teacher can read it. See [Consulting a Student's Academic Data](../teachers/student-academic-data.md).
 >
@@ -66,6 +66,8 @@ The badge automatically shows the color you picked with readable text, whatever 
 2. In the **Roles** field, add the role that matches the permission level to grant (e.g. **Department chieff**).
 3. Click **Save** (or navigate away — Odoo saves automatically).
 
+![Roles field on a teacher's record, with two roles assigned shown as colored badges](../../assets/admin/admin-teacher-roles-employee.png)
+
 The teacher's user account is updated immediately: the security group tied to the role is granted, together with everything it implies (e.g. assigning **Department chieff** also grants Tutor and Teacher access).
 
 > The **Tutor**, **Department chieff**, **Seminar leader**, **Head of studies**, **Deputy head of studies**, **Secretary** and **Director** roles cannot be added or removed manually — neither from here, nor from the role's own **Assigned to** list (**Educational Community → Configuration → Teachers/ASP → Roles**), nor through any bulk edit or import. Trying any of these shows a message naming exactly where the change actually has to be made instead. Tutor is managed automatically based on whether the teacher is set as the tutor of a Class Group; the next five are managed automatically from a department's own form; Director is managed automatically from Settings (see below).
@@ -80,6 +82,8 @@ The teacher's user account is updated immediately: the security group tied to th
 
 The corresponding security group (and anything only that role justified) is revoked from the teacher's user account.
 
+> **Permissions granted directly on the user account are kept.** If a permission was given by hand in **Settings → Users** (for example, Secretary access for a teacher who isn't the Secretary's Area Manager), changing the teacher's roles or updating EMS does not remove it. The one exception: if the teacher later loses a role that grants that same permission, it goes with the role, since there is no way to tell the two apart. In that case, grant it again by hand.
+
 ---
 
 ## Assigning a Department Chief / Seminar Chief
@@ -89,6 +93,8 @@ Unlike the other roles above, **Department chieff** and **Seminar leader** are n
 1. Navigate to **Employees → Departments** and open the department.
 2. Set **Department Chief** (the department's `Manager` field) and, optionally, **Seminar Chief**. Only teachers and administrative/services staff appear in this field — a technical or system account is never a valid choice.
 3. Click **Save**.
+
+![A department's form with its Department Chief and Seminar Chief](../../assets/admin/admin-teacher-roles-department.png)
 
 This has an immediate, automatic effect on every teacher in that department:
 

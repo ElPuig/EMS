@@ -25,6 +25,27 @@ registry.category("web_tour.tours").add("ems_working_schedule_split_period", {
             run: "click",
         },
         {
+            // Typing before the switch has settled loses the text: the control panel re-renders.
+            trigger: ".o_list_view .o_data_row",
+            content: "List view rendered",
+        },
+        {
+            // Search rather than expect the teacher on the list's first page: a database with
+            // more than 80 teachers (like a real centre's) pushes it off that page.
+            trigger: ".o_searchview_input",
+            content: "Search for the tour's own teacher",
+            run: "edit Split Period Tour Teacher",
+        },
+        {
+            trigger: ".o_searchview_input",
+            content: "Confirm the search",
+            run: "press Enter",
+        },
+        {
+            trigger: ".o_searchview_facet",
+            content: "Search applied",
+        },
+        {
             trigger: ".o_list_view .o_data_row .o_data_cell:contains('Split Period Tour Teacher')",
             content: "Open the tour's own teacher",
             run: "click",
@@ -160,6 +181,35 @@ registry.category("web_tour.tours").add("ems_working_schedule_split_period", {
         {
             trigger: ".o_schedule_grid_entry:contains('Split Tour Subject B')",
             content: "...and the second card's own block, side by side rather than hidden underneath it",
+        },
+        // Editing again must show each card's saved date range, and saving must keep it: the save
+        // rewrites every block from the cards, so a range the cards never loaded would be lost.
+        {
+            trigger: ".o_schedule_grid_toolbar button:contains('Edit')",
+            content: "Edit the schedule again",
+            run: "click",
+        },
+        {
+            trigger: ".o_schedule_grid_day_column[data-day='0'] .o_schedule_grid_card_date",
+            content: "Both cards show their own saved date range",
+            run: function () {
+                const values = Array.from(document.querySelectorAll(
+                    ".o_schedule_grid_day_column[data-day='0'] .o_schedule_grid_card_date"
+                )).map((input) => input.value).filter(Boolean).sort();
+                const expected = ["2026-09-01", "2027-02-28", "2027-03-01", "2027-07-01"];
+                if (JSON.stringify(values) !== JSON.stringify(expected)) {
+                    throw new Error(`Card dates not loaded: ${JSON.stringify(values)}`);
+                }
+            },
+        },
+        {
+            trigger: ".o_schedule_grid_toolbar button:contains('Save')",
+            content: "Save again, without touching anything",
+            run: "click",
+        },
+        {
+            trigger: ".o_schedule_grid_toolbar button:contains('Edit')",
+            content: "Back to the read-only grid",
         },
     ],
 });

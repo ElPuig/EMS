@@ -18,6 +18,8 @@ en pot veure l'horari.
 
 Navega fins a: **Alumnat → [un alumne] → pestanya Horari**
 
+![Pestanya Horari de la fitxa d'un alumne, amb les classes de la setmana i la llegenda assignatura-docent](../../assets/admin/admin-student-schedule.png)
+
 ---
 
 ## Llegir l'horari

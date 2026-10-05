@@ -72,5 +72,5 @@ New templates get a color automatically when `_write_schedule_sync()` creates th
 
 ## Known limitations
 
-- `ems.attendance_template`'s color-rotation counter (`search_count`) is recomputed once per `_write_schedule_sync()` call, not cached across the whole `sync_from_schedule_batch()` run — correct (each plan's `create()` is visible to the next plan's count within the same transaction) but means a very large single batch does one extra query per plan.
+- `ems.attendance_template`'s color-rotation counter (`search_count`) is recomputed once per `_write_schedule_sync()` call, not cached across the whole `_sync_from_schedule_batch()` run — correct (each plan's `create()` is visible to the next plan's count within the same transaction) but means a very large single batch does one extra query per plan.
 - `hr.department`'s native `color`/`highlight_color` kanban tint is left exactly as it was — an admin can still (confusingly) find the old fixed-palette picker in the kanban's "..." menu pointing at a field (`color`) that no EMS view surfaces elsewhere. It is deliberately not removed (see "Why hr.department has two color fields" above), but a future pass could hide it from that menu too if the duplication proves confusing in practice.

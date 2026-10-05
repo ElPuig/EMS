@@ -6,12 +6,16 @@
             <field name="arch" type="xml">
                 <form string="Schedule">
                     <header>
+                        <!-- Admin-only repair tool (issue #534): the list always follows the students'
+                             enrollments (custom schedules included), so rebuilding it from them can
+                             only put it back in line. -->
                         <button string="Reload students"
                             name="reload_students"
                             type="object"
                             icon="fa-refresh"
-                            confirm="This action will remove any manual change to the student list and reassign the students according to their current enrollments. It cannot be undone. Do you wish to continue?"
-                            invisible="not id or read_only_user"
+                            confirm="The student list will be rebuilt from the students' current enrollments, custom schedules included. Do you wish to continue?"
+                            invisible="not id"
+                            groups="ems.group_academic_admin"
                         />
                     </header>
                     <sheet>
@@ -41,7 +45,10 @@
 
                         <notebook>
                             <page string="Students">
-                                <field name="student_ids" widget="many2many" readonly="read_only_user">
+                                <!-- Read-only for everybody (issue #534): who attends a session comes from
+                                     their enrollments - a custom schedule on the student's form for anything
+                                     else. A one-off change for a single day is made on that day's roll-call. -->
+                                <field name="student_ids" widget="many2many" readonly="1">
                                     <list default_order="name asc">
                                         <field name="image_1920" widget="image" />
                                         <field name="name" class="align-middle"/>

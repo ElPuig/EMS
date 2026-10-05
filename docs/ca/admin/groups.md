@@ -34,6 +34,8 @@ Navega a: **Comunitat Educativa → Grups**
    - **Torn**, **Aula de referència**, **ID extern** (codi Esfera/SAGA) segons calgui.
 4. Fes clic a **Desa**.
 
+![Fitxa d'un grup principal: nivell, estudi, curs, acrònim, tutor i delegat, amb els seus alumnes](../../assets/admin/admin-groups-form.png)
+
 Els alumnes no s'afegeixen des d'aquí — consulta la pestanya **Alumnes** per revisar qui està assignat, però és el propi registre de l'alumne (o el procés de matrícula) el que realment l'assigna a un grup.
 
 **Canviar el grup d'un alumne també mou les seves matrícules per assignatura.** Editar el camp **Grup principal** de l'alumne (a la seva pròpia fitxa, pestanya Estudis) — això inclou el tutor/a del grup, que ara pot fer-ho directament per als seus propis alumnes tutoritzats, vegeu [Canviar el grup d'un alumne](../tutors/change-student-group.md) — mou automàticament qualsevol matrícula que estigués al grup antic cap al grup nou; una assignatura ja matriculada a través d'un grup diferent (per exemple, un grup de reforç) es manté igual. El canvi es rebutja si alguna assignatura del grup antic ja té notes registrades per a aquest alumne.
@@ -59,6 +61,10 @@ Pots canviar un grup existent entre Principal i Reforç, però:
 ---
 
 ## Canviar l'Aula de Referència d'un Grup
+
+EMS manté l'**Aula de referència** al dia automàticament: cada cop que canvia l'horari del grup, passa a ser l'aula de la tutoria del grup o, si l'horari no té tutoria (per exemple, un grup de reforç), l'aula on el grup fa més hores de classe. Aquesta actualització no mou cap classe. Un grup que encara no té horari conserva l'aula que li assigneu, i la importació d'horaris la fa servir per a les classes que s'importen sense aula.
+
+També la podeu canviar a mà:
 
 Canviar l'**Aula de referència** d'un grup (la seva aula per defecte) mou automàticament totes les classes d'aquest grup que encara usaven l'aula antiga a la nova. Si la nova aula ja està ocupada per algú altre exactament el mateix dia i hora que una d'aquestes classes, aquesta classe concreta es queda a la seva aula actual en comptes de fer fallar tot el desat — vegeu "Resoldre un Conflicte d'Aula Pendent" a sota.
 

@@ -54,6 +54,8 @@ Open the wizard, check the incoming course and the studies, and click **Preview*
 
 You get a red box if something blocks the run, a blue box with everything worth knowing, a counter panel, and the **list of students one by one** with the action each will receive:
 
+![Course transition preview: the warnings box, the counters of what will happen and the list of students with the action each one will receive](../../assets/admin/admin-course-transition-preview.png)
+
 | Action | Meaning |
 |---|---|
 | **Graduates and leaves** | Marked as graduated with no enrollment at all: becomes a former student and is archived |

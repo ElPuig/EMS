@@ -18,6 +18,8 @@ alumno puede ver su horario.
 
 Navega hasta: **Alumnado → [un alumno] → pestaña Horario**
 
+![Pestaña Horario de la ficha de un alumno, con las clases de la semana y la leyenda asignatura-docente](../../assets/admin/admin-student-schedule.png)
+
 ---
 
 ## Leer el horario

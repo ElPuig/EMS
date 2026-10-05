@@ -13,8 +13,12 @@ Pots afegir i treure els familiars (pare, mare, tutor legal…) dels alumnes del
 ## Afegir un familiar
 
 1. Obre la fitxa de l'alumne i ves a la pestanya **Contactes i adreces**.
+
+   ![Pestanya Contactes i adreces amb el botó Afegir contacte i els familiars, cadascun amb la seva paperera](../../assets/tutors/contactes-familia-01-pestanya.png)
 2. Clica **Afegir contacte**.
 3. Tria la **relació** (Pare, Mare, Tutor legal…).
+
+   ![Finestra Nou contacte d'alumne/a, triant la relació](../../assets/tutors/contactes-familia-02-afegir.png)
 4. Tria un contacte **ja existent** o omple les dades d'un de **nou**: com a mínim un nom o cognom, un document d'identitat (DNI/NIE o passaport) i un telèfon, mòbil o correu.
 5. Desa. El familiar apareix a la llista de contactes de l'alumne.
 

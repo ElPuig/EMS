@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
+
 from psycopg2.extras import Json
 
 from . import controllers
@@ -26,10 +28,26 @@ def post_init_hook(env):
     """)
     _backfill_default_schedule_framework(env)
     _enable_unaccent_extension(env)
+    _disable_login_presence_control(env)
+    _fix_native_presence_translations(env)
+    # Must run before _ems_seed_enrollment_default() below: that method's own "course after the
+    # operational one" logic already reads is_current to decide, and would otherwise always find
+    # it empty on a fresh install.
+    _ems_seed_current_course(env)
+    # ems.planning.course_id (issue #503) can't have a DB-level default resolved at the time the
+    # centre's own data/custom/ccff/*.csv rows are created (current_course_id isn't set until
+    # the line above runs, strictly after all data has loaded) - backfill any still-empty one
+    # now that it is.
+    current_course = env.company.current_course_id
+    if current_course:
+        env['ems.planning'].search([('course_id', '=', False)]).write({'course_id': current_course.id})
     # is_enrollment_default is not a CSV column (it is live state the centre moves when it
     # opens the next campaign), so a fresh install needs it seeded once.
     env['ems.course']._ems_seed_enrollment_default()
     _backfill_missing_teacher_calendars(env)
+    # Every partner, employee and calendar created while the data loaded got its 'tz' from the
+    # installer's browser: align them all with the company's (docs/en/developers/shared/timezones.md).
+    env['res.company']._ems_align_timezones()
     # Installing hr_holidays hands its Administrator group to every existing user via
     # 'base.default_user'; take it back from everyone EMS does not actually grant it to.
     env['res.users']._ems_sync_time_off_groups()
@@ -42,6 +60,23 @@ def post_init_hook(env):
     _default_strike_family_notification_kicked_out(env)
     _seed_notice_email_signature_default(env)
     _apply_icu_collation_to_sort_fields(env)
+
+
+def _ems_seed_current_course(env):
+    """res.company.current_course_id is never auto-seeded on a fresh install (the code itself
+    already documents this gap - see res.company.get_current_course_or_raise()) - nothing sets
+    it, so a freshly installed instance runs with no operational course at all until an admin
+    configures one by hand. Seeds a real course for the actual installation year (no Sept-Aug
+    academic-year cutover logic - not worth it yet, per the developer) and sets it as current, so
+    a fresh install starts in a sane state. See plans/current_course_auto_seed.md.
+
+    Reuses an existing course for that year if one already exists (e.g. an existing
+    installation's __import__-owned courses already cover it) instead of creating a
+    duplicate - ems.course's own unique_course_name constraint would block that anyway."""
+    year = datetime.now().year
+    course = env['ems.course'].search([('start', '=', year)], limit=1) \
+        or env['ems.course'].create({'start': year, 'end': year + 1})
+    env['res.company'].search([]).write({'current_course_id': course.id})
 
 
 def _backfill_default_schedule_framework(env):
@@ -125,6 +160,43 @@ def _enable_unaccent_extension(env):
     here; existing installs upgrading to this version get it via
     migrations/18.0.0.22.0/post-migrate.py."""
     env.cr.execute("CREATE EXTENSION IF NOT EXISTS unaccent;")
+
+
+def _disable_login_presence_control(env):
+    """The presence dot on the Teachers/ASP screens must follow the attendance check-in/out
+    only (issue #555): hr's login-based control (on by default) shows as Present anyone who just
+    has EMS open in a browser, checked in or not, and as Absent once they leave it idle. Fresh
+    installs get it here; existing installs via migrations/18.0.0.33.0/post-migrate.py."""
+    env['res.company'].with_context(active_test=False).search([]).write({'hr_presence_control_login': False})
+
+
+# The presence dot's labels (the tooltip, and the record's selection value) as hr/hr_holidays ship
+# them in Catalan/Spanish, where they are missing or wrong (issue #555): 'Out of Working hours' has
+# no Catalan translation at all, 'On leave' is "En sortir" in Catalan, and 'Present but on leave'
+# is "...de vacaciones" in Spanish although the leave can be of any type.
+_NATIVE_PRESENCE_TRANSLATIONS = {
+    'presence_out_of_working_hour': {'ca_ES': "Fora de l'horari laboral"},
+    'out_of_working_hour': {'ca_ES': "Fora de l'horari laboral"},
+    'presence_holiday_absent': {'ca_ES': "De permís"},
+    'presence_holiday_present': {'es_ES': "Presente pero con permiso"},
+}
+
+
+def _fix_native_presence_translations(env):
+    """Written straight into the selection values: loading a .po never overwrites a translation
+    that already exists, so EMS's own i18n files can't correct hr's/hr_holidays' ones - and, for the
+    same reason, a later upgrade of those modules leaves these alone. Fresh installs get it here;
+    existing installs via migrations/18.0.0.33.0/post-migrate.py."""
+    for value, translations in _NATIVE_PRESENCE_TRANSLATIONS.items():
+        env.cr.execute("""
+            UPDATE ir_model_fields_selection selection
+               SET name = selection.name || %s::jsonb
+              FROM ir_model_fields field
+             WHERE field.id = selection.field_id
+               AND field.model IN ('hr.employee', 'hr.employee.base', 'hr.employee.public')
+               AND field.name IN ('hr_icon_display', 'hr_presence_state')
+               AND selection.value = %s
+        """, (Json(translations), value))
 
 
 def _apply_icu_collation_to_sort_fields(env):

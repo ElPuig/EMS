@@ -84,7 +84,8 @@ class TestAuthorizationSendWizardTour(HttpCase):
         self.start_tour("/odoo", "ems_authorization_tutor_follow_up", login="test_tutor_auth_tour")
 
     def test_tutor_send_wizard_tour(self):
-        """Issue #443 testing: tutors send forms from the catalogue to their own groups."""
+        """Issue #443 testing: tutors send forms from the catalogue to their own groups, and the
+        student picker offers only their own students (issue #550)."""
         self._tutor_fixtures()
         self.start_tour("/odoo", "ems_authorization_tutor_send", login="test_tutor_auth_tour")
         authorization = self.env['ems.authorization'].search([

@@ -1,9 +1,10 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { checkActions, clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
-// Covers google_ws_state on the employee form header (views/community/employee/form.xml):
-// exactly one Google Workspace / EMS user button must be visible per state, never two at
+// Covers google_ws_state on the employee form's Actions dropdown (views/community/employee/
+// form.xml): exactly one Google Workspace / EMS user entry must be offered per state, never two at
 // once — the original bug report this consolidation fixes (Create + Suspend both showing
 // for a teacher whose account was adopted from pre-integration/migrated data).
 // The single exception is "Re-link Google sign-in" (issue #420), a repair driven by its
@@ -27,14 +28,13 @@ registry.category("web_tour.tours").add("ems_employee_google_workspace_state", {
             content: "Open the 'none' state teacher",
             run: "click",
         },
-        {
-            trigger:
-                ".o_statusbar_buttons:has(button[name='action_create_google_account'])"
-                + ":not(:has(button[name='action_create_ems_user']))"
-                + ":not(:has(button[name='action_suspend_google_account']))"
-                + ":not(:has(button[name='action_reactivate_google_account']))",
-            content: "Only 'Create Google account' is visible",
-        },
+        ...checkActions(
+            {
+                offered: ["action_create_google_account"],
+                notOffered: ["action_create_ems_user", "action_suspend_google_account", "action_reactivate_google_account"],
+            },
+            "Only 'Create Google account' is visible",
+        ),
         {
             trigger: ".o_breadcrumb a",
             content: "Back to list",
@@ -46,15 +46,14 @@ registry.category("web_tour.tours").add("ems_employee_google_workspace_state", {
             content: "Open the 'pending_user' state teacher",
             run: "click",
         },
-        {
-            trigger:
-                ".o_statusbar_buttons:has(button[name='action_create_ems_user'])"
-                + ":not(:has(button[name='action_create_google_account']))"
-                + ":not(:has(button[name='action_suspend_google_account']))"
-                + ":not(:has(button[name='action_reactivate_google_account']))",
-            content: "Only 'Create EMS User' is visible — Suspend is NOT offered "
+        ...checkActions(
+            {
+                offered: ["action_create_ems_user"],
+                notOffered: ["action_create_google_account", "action_suspend_google_account", "action_reactivate_google_account"],
+            },
+            "Only 'Create EMS User' is visible — Suspend is NOT offered "
                 + "before the account is adopted (the bug this consolidation fixes)",
-        },
+        ),
         {
             trigger: ".o_breadcrumb a",
             content: "Back to list",
@@ -66,16 +65,14 @@ registry.category("web_tour.tours").add("ems_employee_google_workspace_state", {
             content: "Open the 'active' state teacher",
             run: "click",
         },
-        {
-            trigger:
-                ".o_statusbar_buttons:has(button[name='action_suspend_google_account'])"
-                + ":not(:has(button[name='action_create_google_account']))"
-                + ":not(:has(button[name='action_create_ems_user']))"
-                + ":not(:has(button[name='action_relink_google_signin']))"
-                + ":not(:has(button[name='action_reactivate_google_account']))",
-            content: "Only 'Suspend Google account' is visible: this user's Google "
+        ...checkActions(
+            {
+                offered: ["action_suspend_google_account"],
+                notOffered: ["action_create_google_account", "action_create_ems_user", "action_relink_google_signin", "action_reactivate_google_account"],
+            },
+            "Only 'Suspend Google account' is visible: this user's Google "
                 + "sign-in is linked, so no repair is offered",
-        },
+        ),
         {
             trigger: ".o_breadcrumb a",
             content: "Back to list",
@@ -90,25 +87,18 @@ registry.category("web_tour.tours").add("ems_employee_google_workspace_state", {
             content: "Open the teacher whose user lost its OAuth data",
             run: "click",
         },
-        {
-            trigger:
-                ".o_statusbar_buttons:has(button[name='action_relink_google_signin'])"
-                + ":has(button[name='action_suspend_google_account'])"
-                + ":not(:has(button[name='action_create_google_account']))"
-                + ":not(:has(button[name='action_create_ems_user']))"
-                + ":not(:has(button[name='action_reactivate_google_account']))",
-            content: "'Re-link Google sign-in' shows alongside Suspend",
-        },
-        {
-            trigger: "button[name='action_relink_google_signin']",
-            content: "Repair the Google sign-in link",
-            run: "click",
-        },
-        {
-            trigger: ".o_form_view:not(:has(button[name='action_relink_google_signin']))"
-                + ":has(button[name='action_suspend_google_account'])",
-            content: "The repair button is gone once the link is back; Suspend stays",
-        },
+        ...checkActions(
+            {
+                offered: ["action_relink_google_signin", "action_suspend_google_account"],
+                notOffered: ["action_create_google_account", "action_create_ems_user", "action_reactivate_google_account"],
+            },
+            "'Re-link Google sign-in' shows alongside Suspend",
+        ),
+        ...clickAction("action_relink_google_signin", "Repair the Google sign-in link"),
+        ...checkActions(
+            { offered: ["action_suspend_google_account"], notOffered: ["action_relink_google_signin"] },
+            "The repair entry is gone once the link is back; Suspend stays",
+        ),
         {
             trigger: ".o_breadcrumb a",
             content: "Back to list",
@@ -120,14 +110,13 @@ registry.category("web_tour.tours").add("ems_employee_google_workspace_state", {
             content: "Open the 'suspended' state teacher",
             run: "click",
         },
-        {
-            trigger:
-                ".o_statusbar_buttons:has(button[name='action_reactivate_google_account'])"
-                + ":not(:has(button[name='action_create_google_account']))"
-                + ":not(:has(button[name='action_create_ems_user']))"
-                + ":not(:has(button[name='action_suspend_google_account']))",
-            content: "Only 'Reactivate Google account' is visible",
-        },
+        ...checkActions(
+            {
+                offered: ["action_reactivate_google_account"],
+                notOffered: ["action_create_google_account", "action_create_ems_user", "action_suspend_google_account"],
+            },
+            "Only 'Reactivate Google account' is visible",
+        ),
         {
             trigger: ".o_breadcrumb a",
             content: "Back to list",
@@ -155,16 +144,15 @@ registry.category("web_tour.tours").add("ems_employee_google_workspace_state", {
             trigger: ".alert-warning:contains('scheduled to be deactivated')",
             content: "The grace-period banner shows the pending deactivation",
         },
+        ...clickAction("action_cancel_scheduled_deactivation", "Call off the scheduled deactivation"),
         {
-            trigger: "button[name='action_cancel_scheduled_deactivation']",
-            content: "Call off the scheduled deactivation",
-            run: "click",
+            trigger: ".o_form_view:not(:has(.alert-warning:contains('scheduled to be deactivated')))",
+            content: "The banner is gone: the account is kept",
         },
-        {
-            trigger: ".o_form_view:not(:has(.alert-warning:contains('scheduled to be deactivated')))"
-                + ":not(:has(button[name='action_cancel_scheduled_deactivation']))",
-            content: "Banner and button are both gone: the account is kept",
-        },
+        ...checkActions(
+            { offered: ["action_create_ems_user"], notOffered: ["action_cancel_scheduled_deactivation"] },
+            "Nothing left to call off: only the account's own state entry is offered",
+        ),
         {
             trigger: ".o_breadcrumb a",
             content: "Back to list",
@@ -196,20 +184,19 @@ registry.category("web_tour.tours").add("ems_employee_google_workspace_state", {
             trigger: ".row.justify-content-between > .oe_title + .o_employee_avatar",
             content: "The avatar sits right next to the title, not pushed onto its own line",
         },
-        {
-            trigger: "button[name='action_mark_as_identified']",
-            content: "Click 'Mark as identified'",
-            run: "click",
-        },
+        ...clickAction("action_mark_as_identified", "Click 'Mark as identified'"),
         {
             trigger: ".modal-footer .btn-primary",
             content: "Confirm the action in the dialog",
             run: "click",
         },
         {
-            trigger: ".o_form_view:not(:has(.ribbon:contains('Pending identification')))"
-                + ":not(:has(button[name='action_mark_as_identified']))",
-            content: "The ribbon and the button are both gone: no longer pending",
+            trigger: ".o_form_view:not(:has(.ribbon:contains('Pending identification')))",
+            content: "The ribbon is gone: no longer pending",
         },
+        ...checkActions(
+            { offered: ["action_create_google_account"], notOffered: ["action_mark_as_identified"] },
+            "Nothing left to mark: the entry is gone too",
+        ),
     ],
 });

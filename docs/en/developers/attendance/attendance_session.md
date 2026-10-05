@@ -77,7 +77,7 @@ flowchart TD
     A["line.status_id becomes notifiable\n(status_id.notifiable = True, e.g. 'miss')"] --> B["collect_issue_status_data()\nbuild {tutor: [{line, student, send_to}]}"]
     B --> C["create_notification_entries()"]
     C --> D["_get_or_create_issue_tutor (per day+tutor)\n-> _get_or_create_issue_student\n-> _get_or_create_issue_status"]
-    D --> E["_schedule_daily_assistance_notification\n(tutor digest, with_delay/queue_job)"]
+    D --> E["issue_tutor._schedule_tutor_report()\n(one pending job per tutor, with_delay/queue_job)"]
     D --> F["_schedule_family_assistance_notification\n(per issue_status, with_delay/queue_job)"]
     E --> G["ems.attendance_issue_tutor/_student/_status\n— models/attendance/attendance_issue.py"]
     F --> G
@@ -108,12 +108,96 @@ student_id.student_email else []`.
 
 ---
 
+## Automatic check-in of the session's teacher (`_auto_checkin_teacher()`)
+
+`create()` also checks the session's teacher in (`hr.attendance` with `in_mode='auto_check_in'`)
+as a side effect of taking attendance, driven by `res.company.auto_checkin_mode`:
+
+| Mode | Check-in time |
+|------|---------------|
+| `disabled` (default) | No automatic check-in |
+| `first` | The teacher's first working hour that weekday |
+| `start` | The session's own start time |
+| `current` | Now |
+
+It only happens when all of these hold:
+
+- the session's teacher is the user taking the roll-call (an admin starting a colleague's slot on
+  their behalf never checks that colleague in);
+- the session is for today, and the teacher has no attendance yet today;
+- "now" falls inside one of the teacher's expected working intervals for today
+  (`hr.attendance._is_within_working_hours()`, `models/employees/employee_autocheckout.py`, built on
+  the same `_get_expected_intervals()` the auto-checkout uses, so approved absences are already
+  subtracted). A teacher with no working schedule has none, so is never checked in automatically.
+  Guard duty is inside the teacher's own schedule, and a substitute works on a copy of the absent
+  teacher's schedule, so neither needs special-casing.
+
+The check-in is capped at `fields.Datetime.now()` (naive UTC, no microseconds), never later.
+Native `hr.employee.last_attendance_id` is a **stored** compute searching `check_in <= now` and
+depending only on `attendance_ids`: a check-in even a fraction of a second in the future is left
+out of it and never picked up afterwards, so the kiosk sees the teacher as checked out and tries a
+second check-in instead of the check-out, which `hr.attendance._check_validity()` rejects
+("hasn't checked out since..."). This is what `current` mode's microsecond-precision timestamps
+used to cause, and what `start` mode could cause for a roll-call opened before the session starts.
+
+Any failure creating the attendance is isolated in a savepoint and reported to academic admins
+through an activity (`_notify_auto_checkin_failure()`): the roll-call itself is never blocked.
+
+---
+
 ## `copy()` / `unlink()`
 
 `copy()` is blocked outright (`UserError`) — a session is a historical record of a specific
 day's roll-call, duplicating it makes no sense. `unlink()` cascades (native `ondelete` on the
 lines/issue tables) and additionally calls `remove_if_empty()` on any `ems.attendance_issue_tutor`
 for that date, cleaning up now-orphaned notification-tracking rows.
+
+## Enlarged student photo on hover (`useAvatarZoom`, issue #538)
+
+The roll-call row's 44px thumbnail (`image_128`) opens an enlarged, 132px copy (`image_512`, sharp
+on HiDPI screens) with the student's name as a caption, after a 150ms hover delay (so sweeping the
+mouse down the list doesn't flash one per row), and closes on mouse leave. A click/tap toggles it,
+for touch screens with no hover. It is a reusable hook, `useAvatarZoom()`
+(`static/src/js/backend/avatar_zoom.js`), not roll-call specific: it takes the partner as the
+`[id, display_name]` many2one pair the widget already has.
+
+It is rendered through Odoo's popover service (`usePopover`), not a CSS `transform: scale()` on the
+thumbnail: the roll-call table lives inside `.ems-av-body { overflow-y: auto }` under a sticky
+header (`z-index: 9`), which would clip the scaled image and hide it under the header on the first
+rows. The popover is mounted in the webclient's overlay container, outside both. Odoo's own
+popover animation is disabled; `avatar_zoom.css` animates the photo growing out of the thumbnail
+(disabled under `prefers-reduced-motion`). Covered by the `ems_attendance_session_avatar_zoom`
+tour (hover, leave, tap, tap again; teacher login).
+
+## Removing a student from the roll-call (`active`, issue #537)
+
+A line can be removed from a session's roll-call when the student isn't required to attend it
+(e.g. an exam only part of the group sits): it counts neither as attended nor as absent. This is
+the line's own `active` field, not a status and not an `unlink()`, so it can be undone from the
+same screen.
+
+| Where | What removing a line (`active=False`) does |
+|-------|--------------------------------------------|
+| Reports | `search`/`read_group` skip archived records, so the line is out of every count and of `absence_rate`'s average with no extra code. |
+| Notifications | `status_is_notificable()` returns `False` for an archived line, so `_update_notification()` handles removal like a switch to a non-notifiable status: a pending `ems.attendance_issue_status` is deleted (and its queue job cancelled), an already-sent one gets a rectification. Restoring the line with a notifiable status notifies again. |
+| Rectification | `_get_or_create_issue_status()` reads the line with `browse()` (a `search()` would skip it) and leaves `attendance_status_id` empty for an archived line; `mail_attendance_issue_rectification` and the tutor digest (`mail_attendance_issue_tutor`) render an empty status as "Not required to attend (removed from the roll-call)". |
+| Continuation | `_auto_populate_lines()` reads the previous period's lines with `active_test=False` and copies each line's `active`, so a student removed from the first period of a double period stays removed (and restorable) in the second. |
+| Strikes | `write()` refuses to archive a line with `strike_ids` (`UserError`): a student with a strike was in class. |
+| Roll-call widget | `_loadLines()` reads with `active_test: false`; archived rows sort last, greyed out (`ems-av-line--removed`) with their status/notes/strike buttons disabled, and a remove/restore button per row. The write goes through `_writeSessionLine()`, i.e. `write_guard_session_line()` in Guard mode, like any other line edit. |
+| History form | Uses `all_attendance_session_line_ids`, a second One2many over the same lines declared with `context={'active_test': False}`, so archived lines are listed (muted). A view-level `context` isn't enough: the header's own read of `attendance_session_line_ids` already filters archived lines out before the sub-read. `attendance_session_line_ids` keeps Odoo's default filtering for every other caller. |
+
+```mermaid
+flowchart TD
+    A["Teacher clicks remove\n(write active=False)"] --> B{"line has strikes?"}
+    B -- yes --> X["UserError"]
+    B -- no --> C["_update_notification()\nstatus_is_notificable() = False"]
+    C --> D{"previous issue_status?"}
+    D -- none --> E["nothing to do"]
+    D -- pending --> F["delete issue_status\n(cancel queue job)\nremove_if_empty()"]
+    D -- already sent --> G["rectification issue_status\nattendance_status_id = empty"]
+```
+
+---
 
 ## Guard mode (`get_guard_sessions`/`get_guard_planned`/`get_normal_sessions_and_planned`/`create_scheduled_session`/`write_guard_session_line`)
 
@@ -123,7 +207,9 @@ for that date, cleaning up now-orphaned notification-tracking rows.
 needs to see/edit sessions they don't personally own). `get_guard_sessions` returns today's
 sessions **excluding** the caller's own (already shown in normal mode); `get_guard_planned`
 returns not-yet-created schedules for **other** teachers today. `create_scheduled_session`
-is the click-to-start-a-session entry point, returning whether the new session is a
+is the click-to-start-a-session entry point (when the caller has no teaching employee, e.g. an
+admin, who sees every slot, the session's teacher is the slot's own first template teacher instead
+of the caller - `teacher_ids` is required on the template, so there always is one), returning whether the new session is a
 same-day continuation (mirroring `_auto_populate_lines`' own check, so the client can decide
 whether to show a "continuing from period 1" hint before the roll-call even loads).
 
@@ -133,6 +219,7 @@ whether to show a "continuing from period 1" hint before the roll-call even load
 
 | Field | Notes |
 |-------|-------|
+| `active` | `False` = removed from this roll-call (not required to attend) — see "Removing a student from the roll-call" above. |
 | `is_auto_generated` | Distinguishes a line the system created (from `_auto_populate_lines`) from one a teacher manually added — a manually-added line can be re-targeted to a different student (`_onchange_student_id`), an auto-generated one can't (would silently break the "no duplicate student per session" expectation the view enforces). |
 | `absence_rate` | `0`/`100`, not a boolean — lets the "Attendance reports" pivot/graph's default `avg` measure resolve directly to a percentage. |
 | `group_ids`/`study_ids` | `related` (from the header's own `group_ids`/`study_ids`), each with an explicit custom `relation`/`column1`/`column2` — a `related` M2M field doesn't auto-derive a relation table the way a compute-based one does; the explicit names here also keep them under PostgreSQL's 63-character identifier limit. |

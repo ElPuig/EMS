@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study, force_user_language_to_english
+from .common import create_level_study, create_level_study_group, create_role_employee, create_role_user, force_user_language_to_english
 
 
 @tagged('post_install', '-at_install')
@@ -36,3 +36,78 @@ class TestPlanningTour(HttpCase):
         self.assertEqual(len(planning.planning_outcome_ids), 1)
         self.assertEqual(planning.planning_outcome_ids.outcome_id, self.outcome)
         self.assertEqual(planning.planning_outcome_ids.ponderation, 100.0)
+
+    def test_only_mine_filter_tour(self):
+        # Issue #503: the list defaults to "Show only mine" (subjects the logged-in user
+        # personally teaches), removable to see every planning - see planning_tour.js.
+        level, study, group = create_level_study_group(
+            self, 'PLNTM',
+            level={'name': 'Test Level (Planning Only Mine Tour)'},
+            study={'code': 'PLNTM001', 'name': 'Test Study (Planning Only Mine Tour)', 'date': date.today()},
+        )
+        subject_taught = self.env['ems.subject'].create({
+            'code': 'PLNTM01', 'acronym': 'PLTA', 'name': 'Only Mine Taught Subject',
+            'study_ids': [(4, study.id)],
+        })
+        subject_other = self.env['ems.subject'].create({
+            'code': 'PLNTM02', 'acronym': 'PLTO', 'name': 'Only Mine Other Subject',
+            'study_ids': [(4, study.id)],
+        })
+        outcome_taught = self.env['ems.outcome'].create({
+            'code': 'PLNTM01_01RA', 'acronym': 'RA1', 'name': 'Outcome', 'subject_id': subject_taught.id,
+        })
+        outcome_other = self.env['ems.outcome'].create({
+            'code': 'PLNTM02_01RA', 'acronym': 'RA1', 'name': 'Outcome', 'subject_id': subject_other.id,
+        })
+        self.env['ems.planning'].create({
+            'study_id': study.id, 'subject_id': subject_taught.id,
+            'planning_outcome_ids': [(0, 0, {'outcome_id': outcome_taught.id, 'ponderation': 100.0})],
+        })
+        self.env['ems.planning'].create({
+            'study_id': study.id, 'subject_id': subject_other.id,
+            'planning_outcome_ids': [(0, 0, {'outcome_id': outcome_other.id, 'ponderation': 100.0})],
+        })
+
+        # Head of Studies, not a plain teacher: a teacher's OWN read access
+        # (rule_planning_teacher_own_subjects) is already limited to taught subjects, so
+        # removing the UI filter would change nothing for them. The point of this filter is
+        # rule_planning_hos_all's wider access (issue #503) - HOS/DHOS can see every planning,
+        # defaulted down to their own taught ones, with an easy way back to everything.
+        hos_user = create_role_user(self, 'head_of_studies', 'test_hos_planning_only_mine')
+        hos_employee = create_role_employee(self, hos_user)
+        self.env['ems.teaching'].create({
+            'teacher_id': hos_employee.id, 'group_id': group.id, 'subject_id': subject_taught.id,
+        })
+
+        self.start_tour("/odoo", "ems_planning_only_mine_filter", login="test_hos_planning_only_mine")
+
+    def test_only_current_course_filter_tour(self):
+        # The list also defaults to "Show only current course", removable to reach any other
+        # academic year's planning - see planning_tour.js. Logged in as the plain teacher who
+        # teaches the subject, so "Show only mine" (also on by default) doesn't hide it.
+        level, study, group = create_level_study_group(
+            self, 'PLNTC',
+            level={'name': 'Test Level (Planning Current Course Tour)'},
+            study={'code': 'PLNTC001', 'name': 'Test Study (Planning Current Course Tour)', 'date': date.today()},
+        )
+        subject = self.env['ems.subject'].create({
+            'code': 'PLNTC01', 'acronym': 'PLTC', 'name': 'Current Course Filter Subject',
+            'study_ids': [(4, study.id)],
+        })
+        outcome = self.env['ems.outcome'].create({
+            'code': 'PLNTC01_01RA', 'acronym': 'RA1', 'name': 'Outcome', 'subject_id': subject.id,
+        })
+        past_course = self.env['ems.course'].create({'start': 2001, 'end': 2002})
+        for course in (self.env.company.current_course_id, past_course):
+            self.env['ems.planning'].create({
+                'study_id': study.id, 'subject_id': subject.id, 'course_id': course.id,
+                'planning_outcome_ids': [(0, 0, {'outcome_id': outcome.id, 'ponderation': 100.0})],
+            })
+
+        teacher_user = create_role_user(self, 'teacher', 'test_teacher_planning_current_course')
+        teacher_employee = create_role_employee(self, teacher_user)
+        self.env['ems.teaching'].create({
+            'teacher_id': teacher_employee.id, 'group_id': group.id, 'subject_id': subject.id,
+        })
+
+        self.start_tour("/odoo", "ems_planning_only_current_course_filter", login="test_teacher_planning_current_course")

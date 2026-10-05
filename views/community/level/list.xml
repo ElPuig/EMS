@@ -7,7 +7,8 @@
             <field name="arch" type="xml">
                 <list expand="True" default_order="acronym asc" duplicate="0">
                     <field name="acronym" class="w-25"/>
-                    <field name="name"/>                    
+                    <field name="name"/>
+                    <field name="allows_convalidation" optional="hide"/>
                 </list>
             </field>
         </record>   

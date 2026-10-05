@@ -111,6 +111,18 @@ class TestAttendanceCorrection(TransactionCase):
             'day_period': 'morning',
         })
 
+    def _set_framework(self, dayofweek, hour_from, hour_to):
+        # 'attendance_ids' passed explicitly: resource.calendar's own default would otherwise add
+        # a standard 40h week to the framework.
+        self.teacher_employee.resource_calendar_id.source_framework_id = self.env['resource.calendar'].create({
+            'name': 'Test Framework (Attendance Correction)',
+            'is_framework': True,
+            'attendance_ids': [(0, 0, {
+                'name': 'Test Period', 'dayofweek': dayofweek, 'day_period': 'morning',
+                'hour_from': hour_from, 'hour_to': hour_to,
+            })],
+        })
+
     def _create_correction(self, user, **values):
         vals = {
             'attendance_id': self.attendance.id,
@@ -271,15 +283,40 @@ class TestAttendanceCorrection(TransactionCase):
             self.assertEqual(correction.requested_check_out, 0.02)
 
     def test_is_check_out_requestable_true_when_open_and_no_schedule_that_day(self):
-        # No slot added at all - the teacher's personal calendar has zero attendance_ids.
+        # A day off with no framework period either (e.g. a weekend): nothing left to be
+        # "still within". Same fixed-reference reasoning as
+        # test_is_check_out_requestable_false_when_open_and_within_schedule.
+        frozen_now = datetime(2026, 1, 12, 10, 0)
+        check_in = frozen_now - timedelta(hours=2)
+        other_weekday = str((check_in.weekday() + 1) % 7)
+        self._add_slot(self.teacher_employee, 8.0, 14.0, dayofweek=other_weekday)
+        self._set_framework(other_weekday, 8.0, 14.0)
         open_attendance = self.env['hr.attendance'].create({
             'employee_id': self.teacher_employee.id,
-            'check_in': datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=2),
+            'check_in': check_in,
         })
-        correction = self.env['ems.attendance_correction'].with_context(
-            default_attendance_id=open_attendance.id
-        ).with_user(self.teacher_user).new({})
-        self.assertTrue(correction.is_check_out_requestable)
+        with patch.object(fields.Datetime, 'now', return_value=frozen_now):
+            correction = self.env['ems.attendance_correction'].with_context(
+                default_attendance_id=open_attendance.id
+            ).with_user(self.teacher_user).new({})
+            self.assertTrue(correction.is_check_out_requestable)
+
+    def test_is_check_out_requestable_false_when_nothing_expected_but_within_framework_day(self):
+        # A day nothing was expected of the teacher ends where their framework's does - the
+        # same hour the auto check-out closes it at. Same fixed-reference reasoning as
+        # test_is_check_out_requestable_false_when_open_and_within_schedule.
+        frozen_now = datetime(2026, 1, 12, 10, 0)
+        check_in = frozen_now - timedelta(hours=2)
+        self._set_framework(str(check_in.weekday()), 0.0, 23.9)
+        open_attendance = self.env['hr.attendance'].create({
+            'employee_id': self.teacher_employee.id,
+            'check_in': check_in,
+        })
+        with patch.object(fields.Datetime, 'now', return_value=frozen_now):
+            correction = self.env['ems.attendance_correction'].with_context(
+                default_attendance_id=open_attendance.id
+            ).with_user(self.teacher_user).new({})
+            self.assertFalse(correction.is_check_out_requestable)
 
     def test_create_strips_requested_check_out_when_not_requestable(self):
         # Fixed reference moment - see test_is_check_out_requestable_false_when_open_and_within_schedule.
@@ -384,9 +421,20 @@ class TestAttendanceCorrection(TransactionCase):
         ])
         self.assertEqual(activities.user_id, self.hos_user)
         # Deadline must not default to "today" (see attendance_correction.py's
-        # APPROVAL_ACTIVITY_DEADLINE_DAYS) or the notification email reads as if
-        # the request were already overdue on the day it was submitted.
+        # APPROVAL_ACTIVITY_DEADLINE_DAYS) or the task reads as if the request were
+        # already overdue on the day it was submitted.
         self.assertGreater(activities.date_deadline, fields.Date.context_today(correction))
+
+    def test_no_assignment_email_on_create(self):
+        """Not urgent: the approver learns of it from the task itself and the daily digest
+        (models/shared/task_digest.py), not from Odoo's "X assigned you an activity" email."""
+        correction = self._create_correction(self.teacher_user)
+        notices = self.env['mail.message'].search([
+            ('model', '=', 'ems.attendance_correction'),
+            ('res_id', '=', correction.id),
+            ('message_type', '=', 'user_notification'),
+        ])
+        self.assertFalse(notices)
 
     def test_requester_notified_on_decision(self):
         correction = self._create_correction(self.teacher_user)

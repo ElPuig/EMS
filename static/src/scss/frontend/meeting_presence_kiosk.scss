@@ -1,0 +1,340 @@
+// The kiosk of a meeting attendance (issue #521): a full-screen page meant to be read from a few
+// metres away while people queue at the door. The result of each scan is a colour before it is a
+// word, and the two lists show every name without scrolling: their font size and number of columns
+// are set by the component (--ems-font, --ems-columns, --ems-rows), from how many names there are.
+
+body.o_ems_meeting_presence,
+#wrapwrap.o_ems_meeting_presence {
+    background: #f4f5f7;
+}
+
+.o_ems_presence_kiosk {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 0.75rem 1rem;
+    color: #212529;
+
+    .o_ems_presence_header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .o_ems_presence_title {
+        margin: 0;
+        font-size: 1.6rem;
+    }
+
+    .o_ems_presence_window {
+        margin-left: 0.6rem;
+        font-size: 1.1rem;
+        font-weight: 400;
+        color: #6c757d;
+        white-space: nowrap;
+    }
+
+    // Who is still to come on the left, the card in the middle (narrow: it only has to be seen),
+    // who is in on the right. The lists get the room.
+    .o_ems_presence_body {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.75fr) minmax(0, 1.5fr);
+        gap: 0.75rem;
+        padding-top: 0.5rem;
+    }
+
+    .o_ems_presence_stage {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 0;
+    }
+
+    .o_ems_presence_list {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        padding: 0.6rem 0.9rem;
+        overflow: hidden;
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 0.75rem;
+
+        h2 {
+            display: flex;
+            flex: 0 0 auto;
+            align-items: baseline;
+            justify-content: space-between;
+            margin: 0 0 0.4rem;
+            font-size: 1.1rem;
+        }
+
+        .o_ems_presence_list_count {
+            font-weight: 700;
+        }
+
+        // The names: a grid filled column after column, sized by the component.
+        .o_ems_presence_names {
+            flex: 1 1 auto;
+            min-height: 0;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            grid-auto-flow: column;
+            grid-template-columns: repeat(var(--ems-columns, 1), minmax(0, 1fr));
+            grid-template-rows: repeat(var(--ems-rows, 1), min-content);
+            align-content: start;
+            column-gap: 16px;
+            font-size: var(--ems-font, 1rem);
+            list-style: none;
+            overflow: hidden;
+
+            // An enormous meeting, past the smallest readable size: scrolls, as a last resort.
+            &.o_ems_presence_names_scroll {
+                overflow-y: auto;
+            }
+
+            li {
+                min-width: 0;
+                padding: 0.05em 0;
+                overflow: hidden;
+                line-height: 1.2;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+        }
+    }
+
+    .o_ems_presence_convened {
+        .o_ems_presence_list_count {
+            color: #6c757d;
+        }
+
+        .o_ems_presence_all_in {
+            margin: 0.5rem 0 0;
+            color: #198754;
+            font-size: 1.1rem;
+        }
+    }
+
+    .o_ems_presence_attendees {
+        .o_ems_presence_list_count {
+            color: #198754;
+        }
+
+        .o_ems_presence_names li {
+            display: flex;
+            align-items: baseline;
+            gap: 0.4em;
+        }
+
+        // The latest arrival.
+        .o_ems_presence_names li:first-child .o_ems_presence_person {
+            font-weight: 700;
+        }
+
+        .o_ems_presence_person {
+            flex: 1 1 auto;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        small {
+            flex: 0 0 auto;
+            font-size: 0.8em;
+            color: #6c757d;
+        }
+
+        .o_ems_presence_not_convened small:not(.o_ems_presence_time) {
+            color: #e88a1a;
+        }
+    }
+
+    .o_ems_presence_card {
+        max-width: 100%;
+        padding: 1.25rem 1.25rem;
+        border-radius: 1rem;
+        text-align: center;
+        color: #fff;
+
+        .o_ems_presence_avatar {
+            width: 6.5rem;
+            height: 6.5rem;
+            margin-bottom: 0.75rem;
+            border: 0.3rem solid rgba(255, 255, 255, 0.85);
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .o_ems_presence_card_title {
+            font-size: 1.7rem;
+            font-weight: 600;
+            line-height: 1.15;
+            overflow-wrap: anywhere;
+        }
+
+        .o_ems_presence_card_subtitle {
+            margin-top: 0.4rem;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+    }
+
+    .o_ems_presence_card_success { background: #198754; }
+    .o_ems_presence_card_info { background: #0d6efd; }
+    .o_ems_presence_card_warning { background: #e88a1a; }
+    .o_ems_presence_card_danger { background: #dc3545; }
+    .o_ems_presence_card_muted { background: #6c757d; }
+
+    @media (max-width: 1000px) {
+        height: auto;
+        min-height: 100vh;
+
+        .o_ems_presence_body {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .o_ems_presence_stage {
+            order: -1;
+            padding: 1rem 0;
+        }
+
+        .o_ems_presence_list {
+            height: 60vh;
+        }
+    }
+}
+
+// What the kiosk and the meetings page share: the prompt to pass a tag and the code box.
+.o_ems_presence_kiosk,
+.o_ems_presence_hub {
+    .o_ems_presence_prompt {
+        text-align: center;
+        color: #6c757d;
+
+        .o_ems_presence_prompt_title {
+            margin-top: 0.75rem;
+            font-size: 1.6rem;
+        }
+    }
+
+    .o_ems_presence_form {
+        display: flex;
+        flex: 0 0 auto;
+        justify-content: center;
+        padding-top: 0.5rem;
+    }
+
+    .o_ems_presence_input {
+        width: 100%;
+        max-width: 20rem;
+        padding: 0.3rem 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        text-align: center;
+    }
+}
+
+// The meetings page (issue #526): a card per meeting whose owner just passed their tag, big enough
+// to pick from across a desk.
+.o_ems_presence_hub {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 60rem;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    color: #212529;
+
+    .o_ems_presence_hub_title {
+        margin: 0;
+        font-size: 2rem;
+    }
+
+    .o_ems_presence_prompt,
+    .o_ems_presence_hub_message {
+        margin: auto 0;
+    }
+
+    .o_ems_presence_hub_message {
+        text-align: center;
+        font-size: 1.6rem;
+        color: #6c757d;
+
+        strong {
+            display: block;
+            color: #212529;
+        }
+    }
+
+    .o_ems_presence_hub_who {
+        font-size: 1.3rem;
+    }
+
+    .o_ems_presence_hub_list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .o_ems_presence_hub_meeting {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas: "name status" "details status";
+        gap: 0.25rem 1rem;
+        padding: 1.25rem 1.5rem;
+        border-left: 0.5rem solid #0d6efd;
+        border-radius: 0.5rem;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        color: inherit;
+        text-decoration: none;
+
+        &:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+    }
+
+    .o_ems_presence_hub_not_open {
+        border-left-color: #adb5bd;
+    }
+
+    .o_ems_presence_hub_name {
+        grid-area: name;
+        font-size: 1.5rem;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .o_ems_presence_hub_details {
+        grid-area: details;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0 1.5rem;
+        color: #6c757d;
+    }
+
+    .o_ems_presence_hub_status {
+        grid-area: status;
+        align-self: center;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #0d6efd;
+    }
+
+    .o_ems_presence_hub_not_open .o_ems_presence_hub_status {
+        color: #6c757d;
+    }
+}
+
+.o_ems_presence_kiosk .o_ems_presence_back {
+    font-size: 1.1rem;
+    white-space: nowrap;
+}

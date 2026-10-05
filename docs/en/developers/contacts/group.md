@@ -35,14 +35,13 @@ graph TD
 | `study_id` | `Many2one → ems.study` | `main` only | Yes | — |
 | `tutor_id` | `Many2one → hr.employee` | No (`main` only, never on `reinforcement`) | Yes | Domain restricted to `employee_type = 'teacher'`; see the create/write sync below |
 | `delegate_id` | `Many2one → res.partner` | No (`main` only) | Yes | Domain restricted to students of this same group |
-| `space_id` | `Many2one → ems.space` | No | Yes | Labeled "Reference classroom" in the UI - the group's usual classroom; shown in the group schedule PDF header, see `group_schedule.md` |
+| `space_id` | `Many2one → ems.space` | No | Yes | Labeled "Reference classroom" in the UI - the room of the group's tutorship (or where it spends the most hours), kept up to date from the schedule, see "Reference classroom follows the schedule" below; shown in the group schedule PDF header, see `group_schedule.md` |
 | `shift` | `Selection` (`morning`/`afternoon`) | No | Yes | Feeds `ems.schedule_report_mixin`'s `SHIFT_HOURS` window - see `group_schedule.md` |
 | `main_student_ids` | `One2many → res.partner` | — | No | Inverse of `contact.main_group_id`, filtered to students. Always empty for a `reinforcement` group |
 | `enrolled_student_ids` | `Many2many → res.partner` (computed) | — | No | See below. For a `reinforcement` group, this is that group's only notion of "membership" — see the removal note below |
 | `enrollment_view_ids` | `One2many → ems.enrollment_view` (computed) | — | No | See below |
 | `notes` | `Text` | No | Yes | — |
 | `pending_classroom_conflict_count` | `Integer` (computed) | — | No | See "Classroom change propagation to the schedule" below |
-| `suggested_space_id` | `Many2one → ems.space` (computed, `search=`) | — | No | See "Classroom drift suggestion" below |
 
 ### `_compute_name`
 
@@ -337,7 +336,7 @@ flowchart TD
     flagging is done by `ems.attendance_template._flag_room_change_pending()`: the calendar block(s)
     behind the entry are found by matching **calendar + weekday/hour + subject** (not
     `attendance_schedule_id`, which is only linked at the very end of the whole sync -
-    `sync_from_schedule_batch`'s own `_link_calendar_attendance` call), reverted to the line's own
+    `_sync_from_schedule_batch`'s own `_link_calendar_attendance` call), reverted to the line's own
     still-current room, and flagged (`space_pending_group_sync = True`,
     **`pending_new_space_id`** = the room actually requested).
 
@@ -376,51 +375,56 @@ row still flagged pending for the identical subject/dayofweek/hour_from/hour_to 
 same outcome (`resolved_space`, whichever resolution was chosen) to it too - regardless of which
 wizard (group-scoped or employee-scoped) the resolution came from.
 
-### Classroom drift suggestion (last deferred follow-up of issue #405, 2026-09-09)
+### Reference classroom follows the schedule (issue #458)
 
-`space_id` can silently drift from reality even without ever hitting a collision: a room change
-gets resolved elsewhere (the wizard above, or a teacher editing their own calendar directly) by
-moving the group's actual classes to a different room, but nobody goes back and updates the
-group's own `space_id` to match. `suggested_space_id` (computed, non-stored,
-`search="_search_suggested_space_id"`) surfaces this: it looks at the group's active teaching
-blocks (`resource.calendar.attendance`: `group_ids` contains the group, `subject_id` set, owning
-`calendar_id.active` — the same domain `_propagate_classroom_change` already uses above) and, if
-the group's CURRENT `space_id` (including unset — a group with no room at all is drift too, and
-arguably the most useful case to flag) accounts for zero of those hours, suggests the room with
-the most total hours. Ties are broken by room name, then id, so the result is always deterministic.
-`False` when the group has no active teaching blocks at all (nothing to suggest — an unused group,
-not drift) or its current room already accounts for at least some of its real hours (drift is
-specifically "zero hours in the CURRENT room", not "not the majority room").
+A group's reference classroom (`space_id`) is, by definition, the room of its tutorship. A group
+whose schedule has no tutorship (a reinforcement group, for instance) belongs to the room where it
+spends the most teaching hours. EMS keeps `space_id` in line with that rule on its own:
 
-Non-stored with `search=` rather than `store=True`/`@api.depends`, same reasoning as
-`pending_classroom_conflict_count` above and the same pattern already used by
-`ems.study.uses_enrollment_flow` (`models/curriculum/study.py`) — the real dependency runs through
-`resource.calendar.attendance.group_ids`, a reverse M2M `@api.depends` can't express cleanly. It
-does still declare `@api.depends('space_id')` — not because that's the *whole* dependency, but
-because it's the one part Odoo's own cache invalidation CAN track, and skipping it left this
-field's cached value stale within the same transaction right after applying a suggestion (found via
-`tests/test_group_classroom_suggestion.py::test_apply_suggestion_updates_space_and_propagates`). A
-caller that changes the calendar elsewhere and needs a fresh read without reloading the record
-still needs an explicit `invalidate_recordset()`, same as `pending_classroom_conflict_count`.
+- `_get_reference_space()` reads the group's active teaching blocks (`resource.calendar.attendance`
+  with the group in `group_ids`, `subject_id` and `space_id` set, owning `calendar_id.active`, not
+  flagged `space_pending_group_sync`) and keeps only the tutorship ones (`subject_id.is_tutorship`)
+  when there are any. The room with the most hours among them wins, ties broken by room name then
+  id. Empty when the group has no such block.
+- `_sync_reference_space()` writes that room on every group whose `space_id` differs. It never
+  clears `space_id`: a group with no schedule keeps the room it was given by hand, which the
+  working-schedules import wizard needs as its fallback for blocks imported without a room.
 
-Surfaced two ways:
-- A banner on the group form (`views/community/group/form.xml`, `alert-info` — deliberately
-  distinct from the pending-conflict banner's `alert-warning` above: this is a suggestion, not an
-  unresolved error) with a one-click "Apply suggested classroom" button
-  (`action_apply_suggested_space`).
-- A "Classroom drift" filter (`views/community/group/search.xml` — the first dedicated search view
-  this model has ever had; before this it relied on Odoo's auto-generated default) and an optional
-  `suggested_space_id` column on the group list (`views/community/group/list.xml`), for reviewing
-  several groups at once instead of one at a time.
+```mermaid
+flowchart TD
+    A["resource.calendar.attendance\ncreate / write of a sync field / unlink"] --> S
+    B["resource.calendar\nwrite of 'active'"] --> S
+    C["working-schedules import wizard\nonce, after the whole import"] --> S
+    S["ems.group._sync_reference_space()\n(sudo, cascade flag set)"] --> R{"_get_reference_space()"}
+    R -->|tutorship blocks| T["room with most tutorship hours"]
+    R -->|no tutorship| H["room with most teaching hours"]
+    R -->|no blocks| K["keep current space_id"]
+    T --> W["space_id written - classes NOT moved"]
+    H --> W
+```
 
-**Applying is provably conflict-free, not just usually fine.** `action_apply_suggested_space()`
-does a plain `self.space_id = self.suggested_space_id` — a field assignment on a persisted record
-goes through `write()` the same way an external caller's `write()` call does — relying entirely on
-`write()`'s own `_propagate_classroom_change` (above) to do the real work.
-`_propagate_classroom_change` only ever moves blocks currently sitting in the group's OLD room; by
-construction, `suggested_space_id` is only ever set when that old room already has zero blocks to
-move. This can never reach `_resolve_or_flag_pending_block`'s own conflict branch — no new
-conflict-handling logic was needed for this feature at all.
+**Triggers.** `resource.calendar.attendance`'s `create()`, `unlink()` and any `write()` touching
+`_SYNC_TRIGGER_FIELDS` recompute every group the block belonged to before and after the change.
+`resource.calendar.write()` does the same for every group a calendar teaches when its `active`
+changes, since only blocks on active calendars count. The write runs with `sudo()`, because
+whoever edits a schedule may have no write access to `ems.group` (same as
+`_mark_public_schedule_dirty`).
+
+**The two directions never cascade into each other** (`EMS_SKIP_GROUP_CLASSROOM_CASCADE`,
+`models/shared/attendance_mixin.py`):
+- The automatic write does not run `_propagate_classroom_change`. The schedule is the source here:
+  moving a tutorship to room B must not drag every other class still in room A along with it.
+- A manual edit of `space_id` still moves the group's classes (issue #405, above), and those moves
+  don't recompute `space_id` halfway through. The edit is the user's call and the schedule follows
+  it, so the tutorship ends up in the new room and the rule agrees. A block left behind by a room
+  collision is flagged `space_pending_group_sync` and ignored by the rule, so it can't pull
+  `space_id` back to the old room while the conflict is pending.
+- The import wizard (`import_planner_data`) sets the flag around its whole write phase (database
+  conflict resolutions and calendar writes) and recomputes every group it touched once at the end:
+  a block imported without its own room takes its group's `space_id`, so recomputing it after one
+  teacher's write would change the room the next teacher's blocks get.
+
+There is no migration: existing groups are recomputed the next time their schedule changes.
 
 ### Tutor role sync — `create()`/`write()` share `_sync_tutor_role()`
 
@@ -490,7 +494,7 @@ Note: the admin-equivalent group here is `group_department_chief`, not `group_ac
 |------|------|-------|
 | List | `views/community/group/list.xml` | — |
 | Form | `views/community/group/form.xml` | Main data (radio `group_type`) + Students (`main` only) / Enrolled (both types) / Schedule / Notes tabs + chatter (`mail.thread`/`mail.activity.mixin`, added 2026-09-12) |
-| Search | `views/community/group/search.xml` | "Classroom drift" filter — see "Classroom drift suggestion" above |
+| Search | `views/community/group/search.xml` | Search by group name |
 | Action + Menu | `views/community/group/menu.xml` | `action_group_tree`, "Groups (for students)" |
 | Classroom change wizard | `views/community/group/classroom_change_wizard.xml` | Opened from the group form's pending-conflicts banner — see "Classroom change propagation to the schedule" above |
 

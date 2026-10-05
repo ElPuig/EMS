@@ -23,6 +23,8 @@ Spaces are the centre's physical rooms (classrooms, labs, workshops...), each as
 2. Fill in the **Name** (e.g. "Classroom", "Computer Lab").
 3. Click **Save**.
 
+![List of space types](../../assets/admin/admin-space-types-list.png)
+
 ---
 
 ## Create a Space
@@ -34,6 +36,8 @@ Spaces are the centre's physical rooms (classrooms, labs, workshops...), each as
    - **Type** *(required)*: pick a Space Type.
    - **Location** *(required)*: which site/building this space belongs to.
 3. Click **Save**.
+
+![A classroom's form, with its weekly occupation in the Schedule tab](../../assets/admin/admin-space-schedule.png)
 
 A **Schedule** tab and a chatter (for internal notes, messages and activities) are available once the space is created.
 

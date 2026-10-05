@@ -5,7 +5,6 @@ import csv
 import io
 import logging
 import re
-from datetime import datetime
 
 from markupsafe import Markup
 from odoo import models, fields, api, _
@@ -71,7 +70,7 @@ class EmsGradeImportWizard(models.TransientModel):
         self._apply_rows(rows, context, stats)
 
         self.log_file = self._build_log_csv(stats["log"])
-        self.log_file_name = "import_grades_%s.csv" % datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.log_file_name = "import_grades_%s.csv" % self.env['ems.datetime_utils'].get_local_datetime().strftime("%Y%m%d_%H%M%S")
         self.result_html = self._build_result_html(stats)
         return {
             "type": "ir.actions.act_window",

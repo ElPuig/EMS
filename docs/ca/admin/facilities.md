@@ -23,6 +23,8 @@ Els espais són les aules físiques del centre (aules, laboratoris, tallers...),
 2. Omple el **Nom** (p. ex., "Aula", "Laboratori d'informàtica").
 3. Fes clic a **Desa**.
 
+![Llista de tipus d'espai](../../assets/admin/admin-space-types-list.png)
+
 ---
 
 ## Crear un espai
@@ -34,6 +36,8 @@ Els espais són les aules físiques del centre (aules, laboratoris, tallers...),
    - **Tipus** *(obligatori)*: tria un Tipus d'espai.
    - **Ubicació** *(obligatori)*: a quina seu/edifici pertany aquest espai.
 3. Fes clic a **Desa**.
+
+![Fitxa d'una aula, amb la seva ocupació setmanal a la pestanya Horari](../../assets/admin/admin-space-schedule.png)
 
 Un cop creat l'espai, hi ha disponibles una pestanya **Horari** i un xat (per a notes internes, missatges i activitats).
 

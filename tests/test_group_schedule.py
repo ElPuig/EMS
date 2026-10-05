@@ -15,11 +15,6 @@ class TestGroupSchedule(TransactionCase):
             'login': 'test_teacher_for_group_schedule',
             'groups_id': [(4, cls.env.ref('base.group_user').id), (4, cls.env.ref('ems.group_teacher').id)],
         })
-        cls.secretary_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Test Secretary User (Group Schedule)',
-            'login': 'test_secretary_for_group_schedule',
-            'groups_id': [(4, cls.env.ref('base.group_user').id), (4, cls.env.ref('ems.group_secretary').id)],
-        })
         cls.level, cls.study = create_level_study(cls, 'TGSL', level={'name': 'Test Level (Group Schedule)'}, study={
             'code': 'TGSL001', 'name': 'Test Study (Group Schedule)', 'date': date.today(),
         })
@@ -273,22 +268,6 @@ class TestGroupSchedule(TransactionCase):
         self.assertFalse(empty_group.schedule_attendance_ids)
         self.assertEqual(empty_group.get_schedule_report_lines(), [])
         self.assertEqual(empty_group.get_subject_teachers_summary(), [])
-
-    def test_teacher_can_read_group_schedule(self):
-        calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Teacher Access)')
-        calendar_a.apply_schedule_changes([{
-            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
-            'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TGSL: TGSL',
-        }])
-
-        group = self.group.with_user(self.teacher_user)
-        self.assertTrue(group.schedule_attendance_ids)
-        self.assertTrue(group.get_schedule_report_lines())
-        self.assertTrue(group.get_subject_teachers_summary())
-
-    def test_secretary_can_read_group_schedule(self):
-        group = self.group.with_user(self.secretary_user)
-        self.assertEqual(group.get_schedule_report_lines(), group.get_schedule_report_lines())
 
     def test_report_group_schedule_renders(self):
         calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (PDF)')

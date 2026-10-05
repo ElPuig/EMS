@@ -27,7 +27,7 @@ En desar també es crea l'horari setmanal propi del professor o professora, prec
 
 ### Per què el correu personal és obligatori
 
-És l'adreça on s'envien les credencials del compte de Google nou. Sense ella el compte corporatiu simplement no es crea: la fitxa es desa, però no passa res més i queda una nota a l'historial de missatges explicant què falta. Demaneu una adreça personal abans de crear la fitxa: no és cap formalitat, és l'única manera que la persona rebi la seva contrasenya. El camp surt dues vegades a la fitxa: a la pantalla principal, perquè res obligatori quedi amagat darrere d'una pestanya mentre la creeu, i al seu lloc habitual dins la pestanya **Informació privada**. És el mateix camp: si n'ompliu un, s'omple l'altre.
+És l'adreça on s'envien les credencials del compte de Google nou. Sense ella el compte corporatiu simplement no es crea: la fitxa es desa, però no passa res més i queda una nota a l'historial de missatges explicant què falta. Demaneu una adreça personal abans de crear la fitxa: no és cap formalitat, és l'única manera que la persona rebi la seva contrasenya. El camp surt dues vegades a la fitxa: a la pantalla principal, perquè res obligatori quedi amagat darrere d'una pestanya mentre la creeu, i al seu lloc habitual dins la pestanya **Informació privada**. És el mateix camp: si n'ompliu un, s'omple l'altre. Tampoc pot ser una adreça del domini del centre: EMS no la deixa desar, perquè també és l'adreça de recuperació del compte corporatiu.
 
 ---
 
@@ -38,9 +38,17 @@ En desar també es crea l'horari setmanal propi del professor o professora, prec
 
 ---
 
+## Document d'identitat i número de la Seguretat Social
+
+La pestanya **Informació privada** de la fitxa d'un docent comença amb un grup **Identificació** amb el **Document d'identitat** (DNI/NIE) i el **Núm. de la Seguretat Social**. Vosaltres, l'adjunt/a, el Director i el coordinador TAC els podeu editar a les fitxes del professorat; la Secretaria els manté al dia per a tot el personal, PAS inclòs.
+
+El Cap de departament i el Cap de seminari d'un docent també poden veure aquests dos camps, només de lectura, a les fitxes del personal del seu propi departament (només la seva pròpia cadena de comandament, no la d'altres departaments). Per a ells la pestanya només mostra el grup **Identificació**: la resta de la informació privada queda amagada.
+
+---
+
 ## Crear el compte corporatiu de Google
 
-Els botons que gestionen el compte corporatiu són a la barra superior de la fitxa. Quin apareix depèn de l'estat del compte: només se n'ofereix un cada vegada.
+Les accions que gestionen el compte corporatiu són al menú **Accions** de la barra superior de la fitxa. Quin apareix depèn de l'estat del compte: només se n'ofereix un cada vegada.
 
 | Botó | Quan apareix | Què fa |
 |------|--------------|--------|
@@ -50,7 +58,7 @@ Els botons que gestionen el compte corporatiu són a la barra superior de la fit
 | **Reactiva el compte de Google** | El compte està suspès | El torna a activar |
 | **Marca com a identificat** | La fitxa prové d'una importació d'horaris i encara és un marcador | Treu l'estat de pendent d'identificació sense crear cap compte |
 
-![Botó Crea el compte de Google en una fitxa de professorat sense compte encara](../../assets/head_of_studies/hos-staff-management-create-account.png)
+![Menú Accions amb Crea el compte de Google en una fitxa de professorat sense compte encara](../../assets/head_of_studies/hos-staff-management-create-account.png)
 
 Quan el compte es crea, les credencials viatgen per dues vies: s'adjunta un PDF a la fitxa i s'envia un correu de benvinguda amb la contrasenya a l'adreça personal. Si el compte no es pot crear perquè falten dades obligatòries, es publica una nota a l'historial de missatges de la fitxa que indica exactament quins camps falten.
 

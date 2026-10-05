@@ -34,6 +34,8 @@ Navega a: **Comunidad Educativa → Grupos**
    - **Turno**, **Aula de referencia**, **ID externo** (código Esfera/SAGA) según se necesite.
 4. Haz clic en **Guardar**.
 
+![Ficha de un grupo principal: nivel, estudio, curso, acrónimo, tutor y delegado, con sus alumnos](../../assets/admin/admin-groups-form.png)
+
 Los alumnos no se añaden desde aquí — consulta la pestaña **Alumnos** para revisar quién está asignado, pero es el propio registro del alumno (o el proceso de matrícula) el que realmente lo asigna a un grupo.
 
 **Cambiar el grupo de un alumno también mueve sus matrículas por asignatura.** Editar el campo **Grupo principal** del alumno (en su propia ficha, pestaña Estudios) — esto incluye al tutor/a del grupo, que ahora puede hacerlo directamente para sus propios alumnos tutorizados, ver [Cambiar el grupo de un alumno](../tutors/change-student-group.md) — mueve automáticamente cualquier matrícula que estuviera en el grupo antiguo al grupo nuevo; una asignatura ya matriculada a través de un grupo distinto (por ejemplo, un grupo de refuerzo) se mantiene igual. El cambio se rechaza si alguna asignatura del grupo antiguo ya tiene notas registradas para ese alumno.
@@ -59,6 +61,10 @@ Puedes cambiar un grupo existente entre Principal y Refuerzo, pero:
 ---
 
 ## Cambiar el Aula de Referencia de un Grupo
+
+EMS mantiene el **Aula de referencia** al día automáticamente: cada vez que cambia el horario del grupo, pasa a ser el aula de la tutoría del grupo o, si el horario no tiene tutoría (por ejemplo, un grupo de refuerzo), el aula donde el grupo pasa más horas de clase. Esta actualización no mueve ninguna clase. Un grupo que todavía no tiene horario conserva el aula que le asignes, y la importación de horarios la usa para las clases que se importan sin aula.
+
+También puedes cambiarla a mano:
 
 Cambiar el **Aula de referencia** de un grupo (su aula por defecto) mueve automáticamente todas las clases de ese grupo que todavía usaban el aula antigua a la nueva. Si el aula nueva ya está ocupada por otra persona exactamente el mismo día y hora que una de esas clases, esa clase concreta se queda en su aula actual en vez de hacer fallar todo el guardado — ver "Resolver un Conflicto de Aula Pendiente" abajo.
 

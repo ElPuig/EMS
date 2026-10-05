@@ -17,7 +17,8 @@
 5. [Supporting document](#supporting-document)
 6. [Sending the request](#sending-the-request)
 7. [Checking its status](#checking-its-status)
-8. [Health absence allowance](#health-absence-allowance)
+8. [Reminders of a missing document](#reminders-of-a-missing-document)
+9. [Health absence allowance](#health-absence-allowance)
 
 ---
 
@@ -50,7 +51,7 @@ Choosing the **ATRI** type shows the portal links on the form. The request has t
 - [My requests - leave and absences](https://atriportal.gencat.cat/ATRI-ng/#/meves-sollicituds/permisos-absencies)
 - [ATRI leave and absences manual (PDF)](https://atriportal.gencat.cat/ATRI-web/gestor-continguts/2011.pdf)
 
-Direction checks that you filed it on the portal before setting the check to `Done`.
+Direction checks that you filed it on the portal before approving it on its side (**Direction status** `Done`).
 
 Each option shows the full wording of the leave. Read it before choosing: ticking it declares that it applies to you.
 
@@ -81,11 +82,13 @@ To request more than one day, tick it and change the end date. For a single day 
 
 ## Supporting document
 
-**You can attach one to any absence, of any type, at any time.** Three types *require* one: **Sick leave**, **Medical appointment** and **Invasive medical test**; for the rest it is optional, and it is worth attaching whenever you have it.
+**You can attach one to any absence, of any type, at any time.** Every type *requires* one except **Health** and **ATRI** (ATRI is justified on the Generalitat's portal itself); for those two it is optional.
 
 For a medical appointment, the document must expressly state the patient's first name and surname and the time of entry to and exit from the centre or medical practice.
 
-**A certificate that arrives later is filed on the same request.** Open the absence, even one already approved, attach the file and save. That is what clears a **Direction check** left at *Missing document*: you do not have to request the absence again.
+**A certificate that arrives later is filed on the same request.** You do not need to have it when you request the absence: your Head marks the request as received and it waits for the document (**Awaiting documentation**). Once you have it, open the absence, attach the file in **Supporting document** and save. That is all: the request goes back to your Head on its own to validate it, you do not have to request the absence again or press anything else.
+
+If your Head or Direction find the document is not valid, the request goes back to **Awaiting documentation** and you receive a message: attach a valid one the same way.
 
 To remove one, click the cross on the file and confirm.
 
@@ -107,24 +110,31 @@ If you leave the form without sending it, EMS tells you and lets you discard it.
 
 ## Checking its status
 
-**Absences** shows your own list, with two columns:
+**Absences** shows your own list. Your absence goes first to your Head (Deputy Head of Studies, Head of Studies or Secretary) and then to Direction.
 
 **Status**
 
 | Value | Means |
 |---|---|
-| Pending | Not decided yet |
-| Approved | Granted |
+| Pending | Your Head has not seen it yet |
+| Awaiting documentation | Your Head has received it and it is waiting for your supporting document: attach it to the same request |
+| Pending validation | You have attached the document and your Head has to validate it |
+| Pending Direction | Your Head has validated it, Direction has not reviewed it yet |
+| Approved | Granted by both |
 | Refused | Denied. This is final: to insist, file a new request |
 | Cancelled | Withdrawn |
 
-**Direction check** — whether Direction has checked the supporting document:
+The **My pending supporting documents** filter lists the requests waiting for a document from you.
 
-| Value | Colour | What you have to do |
-|---|---|---|
-| Not done | grey | Nothing, it has not been reviewed yet |
-| Missing document | red | Attach the supporting document to the same request, even if it is already approved |
-| Done | green | Nothing |
+Once your Head receives it, the absence already counts in the absence calendar and the guard duty board, even while the document is still missing.
+
+---
+
+## Reminders of a missing document
+
+If the absence is over and it is still **Awaiting documentation**, EMS reminds you by message every day until you attach the document. You also have a pending activity ("Attach the absence's supporting document") that turns red the day after the absence.
+
+A few days after the absence (three, unless the centre has set otherwise), your Head is told as well that the document is still missing.
 
 ---
 

@@ -28,7 +28,7 @@ Rellenad:
 - **Autorizaciones a enviar**: uno o más formularios del catálogo. Todos van en el mismo correo. Los formularios los crean secretaría y la jefatura de estudios; pedídselo si no encontráis el que necesitáis.
 - **Año académico**: el curso al que pertenecen las autorizaciones.
 - **Enviar a**:
-  - **Alumnos seleccionados**: los alumnos que añadáis en la lista de abajo.
+  - **Alumnos seleccionados**: los alumnos que añadáis en la lista de abajo. Solo se ofrecen vuestros alumnos; si abrís el asistente desde el menú ⚙ de la lista de estudiantes, solo se añaden los vuestros de entre los seleccionados.
   - **Grupos / estudios / niveles**: todo el alumnado matriculado este curso en los grupos que elijáis. Solo se ofrecen vuestros grupos.
 - **Enviar correo de notificación**: dejadlo activado para avisar por correo. Desactivadlo para que las autorizaciones aparezcan en el portal sin enviar ningún correo.
 
@@ -36,7 +36,6 @@ Rellenad:
 
 - *Ya solicitada*: el alumno ya tiene ese formulario este curso. Se salta.
 - *Fuera del ámbito de estas autorizaciones*: el formulario no se aplica a los estudios de ese alumno. Se salta.
-- *No es uno de vuestros alumnos*: el alumno no es de un grupo que tutoricéis. Se salta.
 - *No se encontró contacto familiar* o *Destinatario sin correo electrónico*: la autorización se crea, pero no se puede enviar ningún correo.
 
 Haced clic en **Enviar**. Un resumen indica cuántas autorizaciones se han enviado, cuántos correos se han encolado y cuántos alumnos se han saltado.

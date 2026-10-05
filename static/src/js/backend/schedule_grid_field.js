@@ -6,6 +6,7 @@ import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { useRecordObserver } from "@web/model/relational_model/utils";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
+import { serializeDate } from "@web/core/l10n/dates";
 import { AutoComplete } from "@web/core/autocomplete/autocomplete";
 import { PX_PER_HOUR, DEFAULT_START, WEEKDAYS, MIN_ENTRY_HEIGHT, dayLabels, computeBounds, formatHour, formatHourMinutes, buildColorMap } from "./schedule_grid_geometry";
 
@@ -305,7 +306,13 @@ export class ScheduleGridField extends Component {
         return key ? this.colorByKey.get(key) : null;
     }
 
+    // A non-teaching entry by its type's own (translated) name, like blockLabel() on the read-only
+    // grid: its stored 'name' is frozen in whatever language it was saved in (a centre framework's
+    // breaks read "BR: Break" for everyone).
     entryLabel(entry) {
+        if (entry.data.non_teaching) {
+            return entry.data.non_teaching[1];
+        }
         return entry.data.name || "";
     }
 
@@ -335,6 +342,15 @@ export class ScheduleGridField extends Component {
         return `${String(hour).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
     }
 
+    // A record holds dates as luxon DateTimes, a search_read dict as "YYYY-MM-DD" strings: the date
+    // inputs and the save both want the string.
+    _serializeDate(value) {
+        if (!value) {
+            return false;
+        }
+        return typeof value === "string" ? value : serializeDate(value);
+    }
+
     cardsForDay(dayIndex) {
         return this.buffer[dayIndex];
     }
@@ -357,8 +373,8 @@ export class ScheduleGridField extends Component {
             // "YYYY-MM-DD" string or false - each card's own date range (2026-08-11 card redesign;
             // previously carried on a shared "period" row). Reads core Odoo's own 'date_from'/
             // 'date_to' (not EMS-specific fields).
-            startDate: data.date_from || false,
-            endDate: data.date_to || false,
+            startDate: this._serializeDate(data.date_from),
+            endDate: this._serializeDate(data.date_to),
         };
     }
 

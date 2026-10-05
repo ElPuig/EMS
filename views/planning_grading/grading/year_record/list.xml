@@ -4,9 +4,10 @@
             <field name="name">ems.student.year_record.list</field>
             <field name="model">ems.student.year_record</field>
             <field name="arch" type="xml">
-                <list create="0" default_order="course_id desc, study_name asc, group_name asc">
+                <list create="0" default_order="course_id desc, study_name asc, group_name asc" decoration-info="is_provisional">
                     <field name="student_id"/>
                     <field name="course_id"/>
+                    <field name="is_provisional"/>
                     <field name="study_name"/>
                     <field name="level_name" optional="hide"/>
                     <field name="group_name"/>
@@ -19,6 +20,26 @@
                     <field name="attendance_rate" optional="show"/>
                     <field name="exit_type" optional="hide"/>
                     <field name="exit_date" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Standalone list of the subject lines: what the "Search more..." dialog of the grade
+             review wizard's subject picker renders. Without it Odoo falls back to a generated
+             single-column view, and the reader has to pick a module out of a list of ids. -->
+        <record model="ir.ui.view" id="view_year_record_subject_list">
+            <field name="name">ems.student.year_record.subject.list</field>
+            <field name="model">ems.student.year_record.subject</field>
+            <field name="arch" type="xml">
+                <list create="0" delete="0">
+                    <field name="subject_name"/>
+                    <field name="state" widget="badge"
+                           decoration-success="state == 'passed'"
+                           decoration-danger="state == 'failed'"/>
+                    <field name="internal_grade"/>
+                    <field name="final_grade"/>
+                    <field name="final_pending" optional="show"/>
+                    <field name="review_date" optional="hide"/>
                 </list>
             </field>
         </record>

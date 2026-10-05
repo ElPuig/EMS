@@ -29,7 +29,7 @@ Aquesta guia explica com, després de la junta de la 3a avaluació, el tutor pot
 
 Al panell esquerre **(1)**, selecciona el grup d'estudiants amb el qual vols treballar (per exemple, SMX1A).
 
-A la llista, marca amb la casella de verificació tots els alumnes que han superat el curs i als quals vols proposar la matrícula del curs següent. Els alumnes que ja tenen una matrícula activa apareixen amb el número de matrícula a la columna **Matrícula actual**.
+A la llista, marca amb la casella de verificació tots els alumnes que han superat el curs i als quals vols proposar la matrícula del curs següent. Els alumnes que ja tenen una matrícula activa apareixen amb el número de matrícula a la columna **Matrícula**.
 
 Un cop feta la selecció, fes clic al botó **Propostes de matrícula** a la barra superior **(2)**.
 

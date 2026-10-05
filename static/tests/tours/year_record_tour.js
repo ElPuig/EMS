@@ -74,8 +74,8 @@ registry.category("web_tour.tours").add("ems_year_record_partner_tab", {
             run: "click",
         },
         {
-            trigger: ".o_notebook .nav-link:contains('Academic history')",
-            content: "Open the Academic history tab",
+            trigger: ".o_notebook .nav-link[name='studies']",
+            content: "Open the Studies tab, home of the academic history section",
             run: "click",
         },
         {

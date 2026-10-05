@@ -4,7 +4,7 @@
 
 An `ems.attendance_template` answers "who teaches what, where and for whom": one record groups a teacher-set + subject + set of groups into a weekly schedule, its `attendance_schedule_ids` — the actual weekday/start_time/end_time slots, each carrying its **own** enrolled-student roster (`student_ids`, moved here from the template 2026-08-11 - see [`attendance_schedule.md`](attendance_schedule.md), and `plans/calendar_driven_attendance_templates.md`, point 1). Templates are the backbone that turns a raw weekly schedule (imported from an XML planner file, or edited live from a teacher's own "Schedule" tab) into what the attendance roll-call screens actually check students against.
 
-**Templates are NOT creatable or archivable directly by anyone, admin included** (`plans/calendar_driven_attendance_templates.md`, point 3, 2026-08-11) — they only ever come into existence, or go away, as a consequence of `sync_from_schedule_batch()` reconciling a teacher's calendar (or a course transition archiving one). See "Access control" below for the actual enforcement mechanism. The form/list views exist purely for inspecting the result and correcting non-identity fields (color, etc.) - never for creating or archiving one by hand.
+**Templates are NOT creatable or archivable directly by anyone, admin included** (`plans/calendar_driven_attendance_templates.md`, point 3, 2026-08-11) — they only ever come into existence, or go away, as a consequence of `_sync_from_schedule_batch()` reconciling a teacher's calendar (or a course transition archiving one). See "Access control" below for the actual enforcement mechanism. The form/list views exist purely for inspecting the result and correcting non-identity fields (color, etc.) - never for creating or archiving one by hand.
 
 `ems.attendance_template` also carries `mail.thread`/`mail.activity.mixin` (chatter) — every archive/clone the sync pipeline performs, and any manual non-identity-field edit, is tracked there.
 
@@ -116,11 +116,13 @@ original first, so it would immediately self-collide via `check_overlap`.
 
 ## CRUD flow
 
-The entry points are `sync_from_schedule()` (single teacher, e.g. the employee "Schedule" tab's live editor) and `sync_from_schedule_batch()` (several teachers at once, e.g. the XML planner importer) — both funnel through the same three-stage pipeline, so a solo live edit and a multi-teacher import share identical co-teaching/conflict logic:
+All three entry points (`_sync_from_schedule()`, `_sync_from_schedule_batch()` and `_regenerate_all_from_calendars()`) are private on purpose (issue #531): they trust the caller to have written the calendar with its own rights already, and they `sudo()` through derived data, so they must not be callable over RPC by any user who can merely read this model. `tests/test_schedule_edit_roles.py` checks this with Odoo's own `get_public_method()`.
+
+The entry points are `_sync_from_schedule()` (single teacher, e.g. the employee "Schedule" tab's live editor) and `_sync_from_schedule_batch()` (several teachers at once, e.g. the XML planner importer) — both funnel through the same three-stage pipeline, so a solo live edit and a multi-teacher import share identical co-teaching/conflict logic:
 
 ```mermaid
 flowchart TD
-    A["sync_from_schedule(teacher, entries)"] --> B["sync_from_schedule_batch([(teacher, entries)])"]
+    A["_sync_from_schedule(teacher, entries)"] --> B["_sync_from_schedule_batch([(teacher, entries)])"]
     C["XML importer: several teachers"] --> B
     B --> D["_reconcile_teacher_groups(): merge submitted entries against\nwhat's already in the DB for the same subject+group-set,\nat the exact weekday/time slot level"]
     D --> E["vacated.action_archive(): templates fully superseded, no surviving teacher"]
@@ -148,14 +150,14 @@ flowchart TD
     subgraph sync["One trigger, every caller routes through the calendar"]
         direction TB
         RCA["resource.calendar.attendance\ncreate / write / unlink"] --> HOOK["automatic hook\n(_ems_sync_schedule_from_calendar_unless_suppressed)"]
-        HOOK --> SYNC["sync_from_schedule_batch()\n(_decide_schedule_line_changes →\narchive/write passes → _link_calendar_attendance)"]
+        HOOK --> SYNC["_sync_from_schedule_batch()\n(_decide_schedule_line_changes →\narchive/write passes → _link_calendar_attendance)"]
         SYNC --> MODEL["ems.attendance_template /\nems.attendance_schedule\n(always in sync, FK always set)"]
 
         ST["Schedule tab edit"] -->|writes the calendar| RCA
         IMP["Import wizard"] -->|writes the calendar\n(suppresses + resyncs once,\nto batch cross-teacher checks)| RCA
         GCW["Group classroom-change wizard /\nems.group / import wizard's\nown conflict resolution"] -->|"_relocate_via_calendar_blocks() /\n_archive_via_calendar_blocks()"| RCA
         CTW["course_transition_wizard.py"] -->|archives migrating blocks| RCA
-        MIG["regenerate_all_from_calendars()"] -->|"reads the calendar,\nwrites the schedule directly\n(the ONE legitimate exception -\nit IS part of the sync mechanism)"| MODEL
+        MIG["_regenerate_all_from_calendars()"] -->|"reads the calendar,\nwrites the schedule directly\n(the ONE legitimate exception -\nit IS part of the sync mechanism)"| MODEL
     end
 ```
 
@@ -165,7 +167,7 @@ Built bottom-up, one small piece at a time, each tested in isolation before the 
 `_apply_schedule_line_write_pass`) → a per-teacher sync step
 (`hr.employee._ems_sync_schedule_from_calendar()`) → the automatic hook itself. Every existing
 caller (`apply_schedule_changes`, the working-schedules import wizard) was unified onto this same
-mechanism in the same pass; `regenerate_all_from_calendars()` needed no change - it already read
+mechanism in the same pass; `_regenerate_all_from_calendars()` needed no change - it already read
 straight from the calendar and already ended in the same `_link_calendar_attendance` linking step.
 
 The automatic hook itself is gated by the `EMS_SKIP_AUTO_SCHEDULE_SYNC` context flag - see
@@ -183,7 +185,7 @@ or archive a session's room does so by touching only `resource.calendar.attendan
 `ems.group._resolve_or_flag_pending_block`'s own automatic, no-collision path) and lets the hook
 keep this model in sync as a consequence. A one-time migration
 (`migrations/18.0.0.24.0/post-migrate.py`'s `_backfill_calendar_to_schedule_link`, re-running
-`regenerate_all_from_calendars()`) backfilled
+`_regenerate_all_from_calendars()`) backfilled
 every legacy calendar block that predated the `attendance_schedule_id` FK or the automatic hook
 itself.
 
@@ -206,7 +208,7 @@ went - see `plans/attendance_template_archive_or_delete_course_transition.md` fo
 already-tracked follow-up this redesign happened to resolve as a side effect); and a final,
 full unscoped `./test.sh` run before considering the whole redesign closed.
 - **Duplicate consolidation:** more than one active template can share the same (subject, group-set, teacher-set) key, a pre-existing data-quality artifact of repeated past imports. Only `templates[0]` (the "survivor") gets refreshed; every other duplicate sharing that key is archived outright. Since `_check_unique_teaching_assignment` (2026-08-11) rejects a literal duplicate `create()`/`write()` outright, this path is now effectively legacy-data-only — a duplicate can no longer be created going forward, only inherited from data older than that constraint (see `tests/test_attendance_template.py::test_resync_consolidates_duplicate_templates_for_same_key`, whose fixture now constructs the duplicate via raw SQL for exactly this reason).
-- **Archive-or-delete (changed 2026-09-07):** every template-level "this is stale/superseded/a duplicate" call site (`vacated` above, `_archive_stale_schedule_sync`'s two template-level branches, `regenerate_all_from_calendars`'s scope-wide archive step, and the import wizard's own `db_conflicts` "prevail_left" resolution in `working_schedule.py`) goes through `_archive_or_delete()` rather than a bare `action_archive()`: a template with **no real session anywhere in its lines** (checked with `active_test=False`, so an already-archived line with real history still counts — see `_has_real_sessions()`) is deleted outright (`sudo().unlink()`); one that has real history is still archived exactly as before. Before this, EVERY superseded template was archived forever regardless of whether it was ever actually used — found from a real complaint: repeatedly re-importing working schedules to fix small details (several times in one day) left hundreds of never-used archived templates behind, pure clutter with no history worth keeping. `unlink()` itself still refuses outright once any of a template's schedule lines (active OR archived) has a real `attendance_session_ids` entry — a real roll-call was taken against it — so `_archive_or_delete()` can never accidentally destroy real history; it's a safe, additive convenience on top of that same guarantee, not a relaxation of it. A second safety net exists below the ORM layer too: `ems_attendance_session_header.attendance_schedule_id` is a DB-level `ON DELETE RESTRICT` foreign key, so even a bypassed/bug in the Python check would still have Postgres itself refuse the delete outright rather than silently losing a session's own link. Not applied (yet) to `course_transition_wizard`'s own two template-archival call sites — a deliberate, smaller-scope decision for this pass, see `plans/attendance_template_archive_or_delete_course_transition.md`.
+- **Archive-or-delete (changed 2026-09-07):** every template-level "this is stale/superseded/a duplicate" call site (`vacated` above, `_archive_stale_schedule_sync`'s two template-level branches, `_regenerate_all_from_calendars`'s scope-wide archive step, and the import wizard's own `db_conflicts` "prevail_left" resolution in `working_schedule.py`) goes through `_archive_or_delete()` rather than a bare `action_archive()`: a template with **no real session anywhere in its lines** (checked with `active_test=False`, so an already-archived line with real history still counts — see `_has_real_sessions()`) is deleted outright (`sudo().unlink()`); one that has real history is still archived exactly as before. Before this, EVERY superseded template was archived forever regardless of whether it was ever actually used — found from a real complaint: repeatedly re-importing working schedules to fix small details (several times in one day) left hundreds of never-used archived templates behind, pure clutter with no history worth keeping. `unlink()` itself still refuses outright once any of a template's schedule lines (active OR archived) has a real `attendance_session_ids` entry — a real roll-call was taken against it — so `_archive_or_delete()` can never accidentally destroy real history; it's a safe, additive convenience on top of that same guarantee, not a relaxation of it. A second safety net exists below the ORM layer too: `ems_attendance_session_header.attendance_schedule_id` is a DB-level `ON DELETE RESTRICT` foreign key, so even a bypassed/bug in the Python check would still have Postgres itself refuse the delete outright rather than silently losing a session's own link. Not applied (yet) to `course_transition_wizard`'s own two template-archival call sites — a deliberate, smaller-scope decision for this pass, see `plans/attendance_template_archive_or_delete_course_transition.md`.
 - **`find_external_conflicts()`** is a read-only helper (used by the import wizard's preview and by the import itself) that finds active schedule lines belonging to teachers **outside** the current batch that would collide on room+time — a batch only cleans up its own teachers' stale data, so an external teacher's now-conflicting line needs separate handling.
 
 ### Room changes for ONE class, from a teacher's own calendar (issue #444's follow-up, 2026-09-12)
@@ -257,11 +259,11 @@ for the resolution side (the generalized `ems.group_classroom_change_wizard`, th
 `pending_new_space_id` field, and the teacher-facing entry point on `hr.employee`) - this file
 only covers the sync-pipeline half.
 
-### `regenerate_all_from_calendars(teachers=None)` — full archive-and-rebuild (2026-08-11)
+### `_regenerate_all_from_calendars(teachers=None)` — full archive-and-rebuild (2026-08-11)
 
 Not part of the normal sync entry points above — a separate, coarser operation: archives every
 active template outright (or just the ones belonging to `teachers`, if given), then rebuilds an
-equivalent set from scratch via `sync_from_schedule_batch()`, reading every teacher's CURRENT
+equivalent set from scratch via `_sync_from_schedule_batch()`, reading every teacher's CURRENT
 `resource.calendar.attendance` rows directly as the batch's `teacher_entries`. See
 `plans/calendar_driven_attendance_templates.md`'s "Production migration sequencing" section for
 the full design reasoning — in short, this is what makes a stale/duplicate/orphaned template moot
@@ -348,7 +350,7 @@ no per-list-view declarative attribute to suppress just that one action the way 
 `archivable="false"` does) - clicking it always raises the explanatory error above, but it isn't
 hidden from view the same clean way "New" is.
 
-`ems.attendance_template.sync_from_schedule_batch*`'s own internal `create()` calls (and
+`ems.attendance_template._sync_from_schedule_batch*`'s own internal `create()` calls (and
 `_write_or_new_version`'s `copy()`, which is a `create()` under the hood) additionally need
 `.sudo()` - CSV `create=0` blocks the calling **user's** own permission regardless of group, so a
 sync triggered by an admin saving the Schedule tab or running the import wizard would otherwise

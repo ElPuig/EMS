@@ -10,20 +10,23 @@
                     <attribute name="invisible">1</attribute>
                 </xpath>
 
-                <xpath expr="//sheet" position="before">
-                    <header>
-                        <field name="google_ws_state" invisible="1"/>
-                        <field name="google_signin_missing" invisible="1"/>
-                        <field name="pending_identification" invisible="1"/>
+                <!-- Into the native <header>, not a second one: a form has one status bar, and
+                     every action on this employee sits in its "Actions" dropdown, never loose in
+                     the header (see docs/en/developers/shared/actions_dropdown.md). Native
+                     buttons join it too: hr_holidays_attendance's "Deduct Extra Hours" is moved
+                     in by view_employee_form_native_actions, which has to run after it. -->
+                <xpath expr="//header" position="inside">
+                    <field name="google_ws_state" invisible="1"/>
+                    <field name="google_signin_missing" invisible="1"/>
+                    <field name="pending_identification" invisible="1"/>
+                    <div name="ems_actions" string="Actions">
                         <button name="action_mark_as_identified" type="object"
                                 string="Mark as identified"
-                                class="btn-secondary"
                                 invisible="not pending_identification"
                                 confirm="This clears the pending-identification placeholder without creating any Google/EMS account. Use it only once you are sure this employee will not need one created from this record (e.g. already has one elsewhere). Continue?"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <button name="action_create_google_account" type="object"
                                 string="Create Google account"
-                                class="btn-secondary"
                                 invisible="google_ws_state != 'none'"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <!-- Corporate email already exists but no EMS user is linked yet
@@ -32,12 +35,10 @@
                              Workspace API call. -->
                         <button name="action_create_ems_user" type="object"
                                 string="Create EMS User"
-                                class="btn-secondary"
                                 invisible="google_ws_state != 'pending_user'"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <button name="action_suspend_google_account" type="object"
                                 string="Suspend Google account"
-                                class="btn-secondary"
                                 invisible="google_ws_state != 'active'"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <!-- Repair, not a state of its own: the account is active and
@@ -46,12 +47,10 @@
                              than replacing it. Hidden as soon as the link is back. -->
                         <button name="action_relink_google_signin" type="object"
                                 string="Re-link Google sign-in"
-                                class="btn-secondary"
                                 invisible="not google_signin_missing"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <button name="action_reactivate_google_account" type="object"
                                 string="Reactivate Google account"
-                                class="btn-secondary"
                                 invisible="google_ws_state != 'suspended'"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <!-- Grace period (issue #388): archiving only schedules the
@@ -60,10 +59,12 @@
                              the date field itself. -->
                         <button name="action_cancel_scheduled_deactivation" type="object"
                                 string="Cancel scheduled deactivation"
-                                class="btn-secondary"
                                 invisible="not google_ws_deactivation_date"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
-                    </header>
+                    </div>
+                </xpath>
+
+                <xpath expr="//sheet" position="before">
                     <!-- Same groups as the buttons above, for the same reason as on the
                          student form: whoever cannot act on the account has no business
                          reading its schedule either. -->
@@ -141,6 +142,7 @@
                      only enforced on new records: most legacy employees lack it. -->
                 <field name="private_email" position="attributes">
                     <attribute name="required">not id and employee_type in ('teacher', 'asp')</attribute>
+                    <attribute name="help">Personal address, also used as the Google account's recovery email. It can't be the centre's corporate account.</attribute>
                 </field>
 
                 <!-- Second occurrence of private_email, on the main screen, last in the right-hand
@@ -163,7 +165,8 @@
                      can see it. -->
                 <xpath expr="//field[@name='coach_id']" position="after">
                     <field name="private_email"
-                           required="not id and employee_type in ('teacher', 'asp')"/>
+                           required="not id and employee_type in ('teacher', 'asp')"
+                           help="Personal address, also used as the Google account's recovery email. It can't be the centre's corporate account."/>
                 </xpath>
 
                 <xpath expr="//page[@name='personal_information']/group/group[2]" position="attributes">
@@ -178,12 +181,44 @@
                     <attribute name="invisible">True</attribute>
                 </xpath>               
 
-                <xpath expr="//page[@name='personal_information']/group" position="inside">
-                    <group string="Emergency">
+                <!-- Private Contact: HR officers only, so the Department Chief (who gets the tab
+                     for the Identification group alone) sees nothing else. Must stay before the
+                     insertion below, while it is still group[1]. -->
+                <xpath expr="//page[@name='personal_information']/group/group[1]" position="attributes">
+                    <attribute name="groups">hr.group_hr_user</attribute>
+                </xpath>
+
+                <!-- Identification first, Emergency beside it in the right-hand column, and
+                     the native Private Contact after both (the Citizenship/Family/Education groups
+                     in between are hidden, so they take no column). -->
+                <xpath expr="//page[@name='personal_information']/group/group[1]" position="before">
+                    <!-- Identity document and social security number. The HR officers (Head of
+                         Studies and above, TAC, the secretariat) edit the native fields - a
+                         duplicate of the ones in the hidden "Citizenship" group, bound to
+                         the same field. A Department Chief, who lacks hr.group_hr_user, gets the
+                         read-only scoped_* copies instead: filled in only for the employees of
+                         their own chain of command (see employee.py). -->
+                    <group string="Identification" name="identity">
+                        <field name="can_view_identity" invisible="1"/>
+                        <field name="identification_id" string="Identity document" groups="hr.group_hr_user"/>
+                        <field name="ssnid" string="Social Security No" groups="hr.group_hr_user"/>
+                        <field name="scoped_identification_id" groups="!hr.group_hr_user"/>
+                        <field name="scoped_ssnid" groups="!hr.group_hr_user"/>
+                    </group>
+                    <group string="Emergency" groups="hr.group_hr_user">
                         <field name="emergency_contact"/>
                         <field name="emergency_phone" class="o_force_ltr"/>
                     </group>
-                </xpath>  
+                </xpath>
+
+                <!-- Opened to the Department Chief for the "Identification" group alone: every
+                     other group of the tab is hr.group_hr_user-only, and the tab itself only
+                     shows on the employees of the viewer's chain of command (can_view_identity,
+                     always True for an HR officer). -->
+                <xpath expr="//page[@name='personal_information']" position="attributes">
+                    <attribute name="groups">hr.group_hr_user,ems.group_department_chief</attribute>
+                    <attribute name="invisible">not can_view_identity</attribute>
+                </xpath>
 
                 <field name="job_title" position="replace">
                     <field name="job_id" placeholder="Job Position" />
@@ -304,6 +339,10 @@
                 <field name="work_location_id" position="after">
                     <field name="tz" position="move"/>
                 </field>
+                <!-- Always the company's timezone (models/settings/timezone.py). -->
+                <field name="tz" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </field>
 
                 <xpath expr="//group[field[@name='resource_calendar_id']]" position="attributes">
                     <attribute name="invisible">1</attribute>
@@ -325,6 +364,8 @@
                                 <field name="group_ids"/>
                                 <field name="non_teaching"/>
                                 <field name="non_teaching_is_break"/>
+                                <field name="date_from"/>
+                                <field name="date_to"/>
                                 <field name="space_id"/>
                             </list>
                         </field>
@@ -350,7 +391,16 @@
                         </group>
                     </page>
                 </xpath>
-            </field>		      
+
+                <!-- Schedule is the first tab, which also makes it the default active one (the
+                     notebook activates its first visible page; for an ASP employee, where it is
+                     hidden, the next one takes over). Moved before whichever page comes first by
+                     now (hr_skills' Resume, inserted before Work Information), same as the
+                     My Profile screen (user_profile_form.xml). -->
+                <xpath expr="//notebook/page[1]" position="before">
+                    <xpath expr="//page[@name='schedule']" position="move"/>
+                </xpath>
+            </field>
         </record>  
 
         <!-- Hiding the attendace aprovers section -->
@@ -362,6 +412,22 @@
                 <xpath expr="//group[@name='managers']" position="attributes">
                     <attribute name="invisible">True</attribute>
                 </xpath>          
+            </field>
+        </record>
+
+        <!-- Native header buttons into the Actions dropdown (view_employee_form above). A
+             separate view because hr_holidays_attendance adds "Deduct Extra Hours" at priority
+             120, after view_employee_form: this one must run later still to find it. Matched on
+             its context, not its string (translatable) or name (a %(xmlid)d action id). -->
+        <record model="ir.ui.view" id="view_employee_form_native_actions">
+            <field name="name">ems.employee.form.native.actions</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="priority">130</field>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='ems_actions']" position="inside">
+                    <xpath expr="//header/button[contains(@context, 'deduct_extra_hours')]" position="move"/>
+                </xpath>
             </field>
         </record>
     </data>

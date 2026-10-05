@@ -52,9 +52,11 @@ registry.category("web_tour.tours").add("ems_strike_issue", {
             content: "'Attention notice' is the default kick-out option",
         },
         {
+            // Issue #554: a double click used to issue the strike twice (checked by the session
+            // history tour below, which expects exactly 2 strikes after the second one).
             trigger: ".ems-av-strike-send-btn",
-            content: "Send the strike with no extra notes",
-            run: "click",
+            content: "Send the strike with no extra notes, double-clicking by mistake",
+            run: "dblclick",
         },
         {
             trigger: ".ems-av-strike-btn.ems-av-strike-btn--has-strikes:contains('1')",
@@ -82,6 +84,34 @@ registry.category("web_tour.tours").add("ems_strike_issue", {
         {
             trigger: ".ems-av-strike-send-btn",
             content: "Send the second strike",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-body:contains('Strike Tour Student')",
+            content: "Same teacher and student a moment ago: it asks whether this is a duplicate",
+        },
+        {
+            trigger: ".modal .modal-footer .btn-secondary",
+            content: "Go back to the strike instead",
+            run: "click",
+        },
+        {
+            trigger: ".ems-av-strike-dialog[open] .ems-av-strike-notes-textarea",
+            content: "The strike dialog is back, with what was typed",
+            run: function () {
+                if (this.anchor.value !== "Kicked out of class for disruption") {
+                    throw new Error("The strike's notes were lost after declining the duplicate warning");
+                }
+            },
+        },
+        {
+            trigger: ".ems-av-strike-send-btn",
+            content: "Send the second strike again",
+            run: "click",
+        },
+        {
+            trigger: ".modal .modal-footer .btn-primary",
+            content: "It is not a duplicate: send it anyway",
             run: "click",
         },
         {
@@ -136,15 +166,15 @@ registry.category("web_tour.tours").add("ems_strike_session_history", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='attendance_session_line_ids'] .o_data_row td[name='student_id']:contains('Strike Tour Student')",
+            trigger: ".o_form_view .o_field_widget[name='all_attendance_session_line_ids'] .o_data_row td[name='student_id']:contains('Strike Tour Student')",
             content: "Student row loaded in the session's Statuses list",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='attendance_session_line_ids'] .o_data_row td[name='strike_count']:contains('2')",
+            trigger: ".o_form_view .o_field_widget[name='all_attendance_session_line_ids'] .o_data_row td[name='strike_count']:contains('2')",
             content: "The two strikes issued during this session are now visible in the Statuses list",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='attendance_session_line_ids'] .o_data_row button[name='action_view_strikes']",
+            trigger: ".o_form_view .o_field_widget[name='all_attendance_session_line_ids'] .o_data_row button[name='action_view_strikes']",
             content: "Click through to the full strike details for this student",
             run: "click",
         },

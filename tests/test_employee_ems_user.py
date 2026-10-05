@@ -66,6 +66,25 @@ class TestEmployeeEmsUser(TransactionCase):
         self._create_account(teacher)
         self.assertEqual(teacher.user_id.image_1920, teacher.image_1920)
 
+    # --- name sync (issue #542) -----------------------------------------
+    def test_renaming_the_employee_renames_the_user(self):
+        # The pending-identification case: a placeholder name replaced by the real one.
+        teacher = self._new_employee(name='X1 (half-time admin)')
+        self._create_account(teacher)
+        teacher.name = 'Berta Cackleworth Quibble'
+        self.assertEqual(teacher.user_id.name, 'Berta Cackleworth Quibble')
+        self.assertEqual(teacher.user_id.firstname, 'Berta')
+        self.assertEqual(teacher.user_id.lastname, 'Cackleworth Quibble')
+        self.assertEqual(teacher.name, 'Berta Cackleworth Quibble')
+
+    def test_renaming_the_user_still_renames_the_employee(self):
+        # Native hr sync, the other direction, must keep working alongside ours.
+        teacher = self._new_employee()
+        self._create_account(teacher)
+        teacher.user_id.name = 'Berta Quibble'
+        self.assertEqual(teacher.name, 'Berta Quibble')
+        self.assertEqual(teacher.user_id.name, 'Berta Quibble')
+
     def test_teacher_user_groups(self):
         teacher = self._new_employee()
         self._create_account(teacher)

@@ -30,6 +30,10 @@ acotar la lista a un solo grupo.
 
 ---
 
+> El día y la hora que usa esta pantalla (qué franja es la "actual", qué día es "hoy") son siempre
+> los del centro, hora de España, tomados del servidor: un ordenador con el reloj o la zona horaria
+> mal configurados no los cambia.
+
 ## Sesiones vs. franjas previstas
 
 El selector de la derecha lista lo disponible para la fecha elegida, separado en dos bloques:
@@ -74,8 +78,11 @@ Guardar.
   ya que es la justificación la que lo decide.
 - Usa el desplegable de **ordenación** (arriba a la derecha) para reordenar la lista por apellido o
   nombre, ascendente o descendente.
+- Pasa el ratón por encima de la foto de un alumno para verla ampliada, con su nombre debajo; se
+  cierra al apartar el ratón. En una tableta o pantalla táctil, toca la foto para ampliarla y vuelve
+  a tocarla para cerrarla.
 
-![Sesión actual con los botones de estado, una nota y un alumno con ausencia justificada (escudo)](../../assets/teachers/passlist-01-assistencia-actual.png)
+![Sesión actual con los botones de estado, una nota y un alumno con ausencia justificada (escudo) y uno quitado de la lista (última fila)](../../assets/teachers/passlist-01-assistencia-actual.png)
 
 ---
 
@@ -96,6 +103,25 @@ icono de strike (⚠) en su fila — consulta el [manual de strikes](strike.md) 
 
 ---
 
+## Quitar a un alumno de la lista
+
+A veces un alumno no tiene que asistir a una sesión concreta, por ejemplo un examen que solo hace
+una parte del grupo. En lugar de marcarlo como presente o ausente, haz clic en el icono de quitar
+(una persona con una cruz) al final de su fila y confirma (mira la última fila de la captura de "Marcar la asistencia"). La fila se queda en la lista, en gris y
+con los botones bloqueados, y el alumno **no cuenta ni como asistencia ni como ausencia**: queda
+fuera de los informes y de los porcentajes de asistencia, y no se avisa a la familia.
+
+- Si ya lo habías marcado ausente y la familia todavía **no** había recibido el aviso, el aviso se
+  anula. Si ya se había enviado, la familia recibe el correo de rectificación habitual indicando
+  que el alumno no tenía que asistir.
+- Si la materia continúa en la franja siguiente (doble período), el alumno también queda fuera de
+  la lista en esa sesión.
+- ¿Te has equivocado? Haz clic en el icono de restaurar (una flecha curvada) en la fila en gris y
+  el alumno vuelve a la lista con el estado que tenía.
+- No se puede quitar a un alumno que ha recibido un strike en esa sesión: estaba en clase.
+
+---
+
 ## Modo guardia
 
 Cambia el selector de modo a **Guardia** cuando cubras una clase que no es la tuya (una
@@ -111,6 +137,16 @@ sustitución). Muestra, solo para el día de hoy:
 Marcar estados, añadir notas y poner strikes funciona exactamente igual que en tus propias
 sesiones. El botón **Eliminar sesión** no está disponible en modo Guardia — solo el docente titular
 de la franja (o un administrador) puede eliminar una sesión cubierta en guardia.
+
+---
+
+## Fichaje de entrada automático
+
+Si el centro lo tiene activado, iniciar una sesión también te ficha la entrada automáticamente,
+siempre que hoy todavía no hayas fichado y estés pasando lista **dentro de tu horario laboral**. Si
+pasas lista fuera de horario (desde casa, antes de que empiece tu jornada), la asistencia se
+registra igualmente pero no se te ficha la entrada. Cuando te vayas, ficha la salida en el quiosco
+como siempre.
 
 ---
 
@@ -135,11 +171,17 @@ alumno, cuántos strikes se pusieron durante esa sesión, con un botón para ver
 > en modo **Manual** y selecciona esa sesión desde el selector — la lista del Historial no permite
 > editar.
 
+Los alumnos que se han quitado de la lista de una sesión también aparecen en ella, en gris.
+
 ---
 
 ## Para Administradores
 
-Un administrador usa exactamente esta misma pantalla, sin nada propio añadido — lo que determina
+Un administrador que no es docente ve todas las sesiones y franjas del día, no solo las suyas, y
+puede iniciar el pase de lista de cualquier franja en nombre de su docente: la sesión queda a
+nombre de ese docente y no se hace ningún fichaje automático.
+
+Por lo demás, es la misma pantalla que usa un docente — lo que determina
 su contenido es pura configuración, cubierta en los manuales del Administrador:
 
 - [Horarios de los docentes y marcos horarios](../admin/working-schedules.md) configura los

@@ -6,6 +6,8 @@
 
 Bienvenidos a la documentación de **EMS** (Educational Management System), la aplicación de gestión del Institut Puig Castellar.
 
+Puedes volver a esta página en cualquier momento desde el EMS: haz clic en tu foto (arriba a la derecha) y elige **Documentación**.
+
 Selecciona tu perfil para acceder a los manuales correspondientes:
 
 ---

@@ -1,0 +1,23 @@
+<odoo>
+    <data>
+        <record id="view_meeting_presence_list" model="ir.ui.view">
+            <field name="name">ems.meeting.presence.list</field>
+            <field name="model">ems.meeting.presence</field>
+            <field name="arch" type="xml">
+                <list default_order="date desc" decoration-info="state == 'open'" decoration-muted="state == 'closed'">
+                    <field name="date"/>
+                    <field name="date_end" optional="hide"/>
+                    <field name="name"/>
+                    <field name="convener_id" optional="show"/>
+                    <field name="space_id" optional="show"/>
+                    <field name="scope" optional="hide"/>
+                    <field name="convened_count" optional="show"/>
+                    <field name="present_count" optional="show"/>
+                    <field name="justified_count" optional="hide"/>
+                    <field name="absent_count" optional="hide"/>
+                    <field name="state" widget="badge" decoration-info="state == 'open'" decoration-success="state == 'closed'"/>
+                </list>
+            </field>
+        </record>
+    </data>
+</odoo>

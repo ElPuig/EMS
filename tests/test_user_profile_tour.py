@@ -2,6 +2,8 @@
 
 from odoo.tests.common import HttpCase, tagged
 
+from .common import create_level_study_group
+
 
 @tagged('post_install', '-at_install')
 class TestUserProfileTour(HttpCase):
@@ -70,9 +72,11 @@ class TestUserProfileTour(HttpCase):
         # false conclusion, caused by a flawed reproduction (see docs/en/developers/employees/
         # user_profile.md's "A false bug found and retracted" section) - this tour, with the
         # correct user-menu navigation, is the actual proof it works fine.
-        self._create_teacher_login('Ordinary Profile Tour Teacher', 'test_440_profile_tour_ordinary')
+        teacher = self._create_teacher_login('Ordinary Profile Tour Teacher', 'test_440_profile_tour_ordinary')
         # To watch this tour in a real browser during development, add watch=True below.
         self.start_tour("/odoo", "ems_user_profile_tabs_ordinary_user", login='test_440_profile_tour_ordinary')
+        # The tour turns off their own daily pending-tasks digest (models/shared/task_digest.py).
+        self.assertFalse(teacher.user_id.ems_task_digest)
 
     def test_user_profile_tabs_tour_administrator(self):
         # 'ems.group_academic_admin' is used here rather than 'hr.group_hr_user' directly,
@@ -84,3 +88,13 @@ class TestUserProfileTour(HttpCase):
             'Administrator Profile Tour Teacher', 'test_440_profile_tour_admin',
             extra_group_xmlids=('ems.group_academic_admin',))
         self.start_tour("/odoo", "ems_user_profile_tabs_administrator", login='test_440_profile_tour_admin')
+
+    def test_user_profile_attendance_report_tour_tutor(self):
+        """A group tutor (Tutor role, the least privileged one that tutors) picks when they get
+        their attendance issues report (models/attendance/attendance_report_schedule.py)."""
+        teacher = self._create_teacher_login(
+            'Tutor Profile Tour Teacher', 'test_527_profile_tour_tutor', extra_group_xmlids=('ems.group_tutor',))
+        create_level_study_group(self, 'TUPT', group={'tutor_id': teacher.id})
+        self.start_tour("/odoo", "ems_user_profile_attendance_report_tutor", login='test_527_profile_tour_tutor')
+        self.assertEqual(teacher.user_id.ems_attendance_report_moment, 'fixed_time')
+        self.assertAlmostEqual(teacher.user_id.ems_attendance_report_time, 21 + 20 / 60)

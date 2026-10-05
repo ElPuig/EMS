@@ -2,6 +2,8 @@
 
 import { registry } from "@web/core/registry";
 
+const { DateTime } = luxon;
+
 // Opens the centre-wide guard duty board (Employee Attendances > Guard duty schedule),
 // confirms it defaults to today's own weekday tab and the shift matching the current time (not
 // always Monday/Morning), then switches over to the Monday/Morning fixture data deliberately to
@@ -25,14 +27,15 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
             // Regression check for a real request (2026-09-01, developer feedback: "cuando entro
             // en la sección... por defecto tendría que estar viendo el que toca") - mirrors
             // getDefaultDayAndShift() in guard_duty_board.js exactly, computed independently here
-            // against the browser's own real clock (whatever day/time the test actually runs at),
-            // not a fixed expectation - the board must match, not just happen to default to Monday.
+            // against the real clock in the company's timezone (luxon's default zone, see
+            // company_timezone_service.js), as the board itself does - never the browser's own
+            // timezone, which is UTC on CI - not a fixed expectation: the board must match, not
+            // just happen to default to Monday.
             trigger: ".o_guard_board_tabs .nav-link.active",
             content: "The board defaults to today's own weekday tab, not always Monday",
             run: () => {
-                const now = new Date();
-                const jsDay = now.getDay();
-                const expectedIndex = jsDay >= 1 && jsDay <= 5 ? jsDay - 1 : 0;
+                const now = DateTime.now();
+                const expectedIndex = now.weekday <= 5 ? now.weekday - 1 : 0;
                 const dayLabels = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
                 const activeLink = document.querySelector(".o_guard_board_tabs .nav-link.active");
                 // The tab holds two spans now - the weekday name and the day of the month it
@@ -47,11 +50,11 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
             trigger: ".o_guard_board_shift_select",
             content: "The board defaults to the shift matching the current time (afternoon from 15:00)",
             run: () => {
-                const now = new Date();
-                const expectedShift = now.getHours() >= 15 ? "afternoon" : "morning";
+                const now = DateTime.now();
+                const expectedShift = now.hour >= 15 ? "afternoon" : "morning";
                 const select = document.querySelector(".o_guard_board_shift_select");
                 if (select.value !== expectedShift) {
-                    throw new Error(`Expected the default shift to be '${expectedShift}' (current hour ${now.getHours()}), got '${select.value}'`);
+                    throw new Error(`Expected the default shift to be '${expectedShift}' (current hour ${now.hour}), got '${select.value}'`);
                 }
             },
         },

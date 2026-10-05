@@ -5,7 +5,7 @@ from odoo.exceptions import ValidationError
 
 class EmsPlanningOutcome(models.Model):
     _name = "ems.planning_outcome"
-    _description = "Planning's outcome ponderation: self explanatory."
+    _description = "Teaching planning outcome ponderation"
 
     planning_id = fields.Many2one(string="Planning", comodel_name="ems.planning", required=True, ondelete='cascade')
     outcome_id = fields.Many2one(string="Outcome", comodel_name="ems.outcome", required=True)

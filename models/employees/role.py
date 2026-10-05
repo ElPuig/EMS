@@ -75,7 +75,8 @@ class EmsRole(models.Model):
 		# role's own "Assigned to" list. Both the employees losing the role and the ones gaining
 		# it have to be re-synced, hence capturing the membership on both sides of super().
 		affected = self.employee_ids if 'employee_ids' in vals else None
+		previous_groups = {employee.id: employee._ems_role_job_groups() for employee in affected} if affected else {}
 		res = super().write(vals)
 		if affected is not None:
-			(affected | self.employee_ids).sudo()._sync_security_groups()
+			(affected | self.employee_ids).sudo()._sync_security_groups(previous_groups)
 		return res

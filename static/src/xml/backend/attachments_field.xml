@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- The stock widget's file card, its own download/delete links replaced by three matching
+         icon buttons (EmsAttachmentsField). -->
+    <t t-name="ems.AttachmentsField" t-inherit="web.Many2ManyBinaryField" t-inherit-mode="primary">
+        <xpath expr="//t[@t-call='web.Many2ManyBinaryField.attachment_preview']" position="replace">
+            <t t-call="ems.AttachmentsField.file"/>
+        </xpath>
+    </t>
+
+    <t t-name="ems.AttachmentsField.file">
+        <div name="attachment" class="o_attachment o_attachment_many2many o_ems_attachment" t-att-title="file.name">
+            <div class="o_attachment_wrap d-flex align-items-center gap-2">
+                <span class="o_image flex-shrink-0" t-att-data-mimetype="file.mimetype" t-att-data-ext="getExtension(file)" role="img"/>
+                <span class="o_ems_attachment_name text-truncate flex-grow-1" t-esc="file.name"/>
+                <div class="o_ems_attachment_actions d-flex flex-shrink-0 gap-1">
+                    <button t-if="file.isViewable" type="button" class="btn btn-link btn-sm p-1 fa fa-eye o_ems_attachment_preview"
+                            title="Preview" aria-label="Preview" t-on-click.stop="() => this.onFilePreview(file)"/>
+                    <a class="btn btn-link btn-sm p-1 fa fa-download o_ems_attachment_download"
+                       t-att-href="getUrl(file.id)" download="" title="Download" aria-label="Download"/>
+                    <button t-if="!props.readonly" type="button" class="btn btn-link btn-sm p-1 fa fa-trash o_ems_attachment_delete"
+                            title="Delete" aria-label="Delete" t-on-click.stop="() => this.onFileRemove(file.id)"/>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

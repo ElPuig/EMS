@@ -18,6 +18,9 @@ a task for every single document uploaded in the school.
 Recipients are now an explicit list per activity type, editable at
 **Academic Management → Configuration → Task Assignment**.
 
+Assigning a task sends no email; each recipient is reminded of everything still pending in a
+single morning email instead, see [Daily pending-tasks digest](task_digest.md).
+
 **Module files:** `models/shared/mail_activity_type.py`,
 `data/main/ems.mail_activity_type_task_assignment.xml`,
 `views/academic_management/task_assignment/`, `migrations/18.0.0.20.1/post-migrate.py`

@@ -18,17 +18,21 @@ Working in the secretariat does not grant this: everyone else on the team reques
 
 ## Approving or refusing
 
-**Employee Attendances > Absences > Management > Absences**.
+**Employee Attendances > Absences > Management > Requested absences**.
 
-Only your area's requests appear there, in state **Pending** while they await a decision.
+Only your area's requests appear there, in state **Pending** while they await your acknowledgement.
 
-You have access to the written reason and the supporting document of your own people, and you can adjust **Adds the hours to the monthly report**, **Filed through ATRI** and **Whole day?**, as well as correcting the absence type.
+When the absence type requires a supporting document (every type except `Health` and `ATRI`), your side has two steps: **Received: pending documentation** first, and **Validate documentation** once the employee has attached the document (the request comes back to you on its own). If the document is not valid, **Documentation insufficient** returns it to the employee. For `Health` and `ATRI`, a single **Validate**.
 
-**Refusing is final**, and it asks for confirmation first: nobody can put a refused request back to *Pending*, so the employee would have to file a new one. The supporting document, on the other hand, can be attached at any point, on a request that is already approved included.
+![Absences list, with Approve/Refuse actions on a pending request](../../assets/head_of_studies/hos-absences-list.png)
 
-You can see the **Direction check** but not change it: Direction sets it.
+You have access to the written reason and the supporting document of your own people, and you can adjust **Adds the hours to the monthly report** and **Whole day?**, as well as correcting the absence type.
 
-Those fields and the two reports are covered in the [Head of Studies](../head_of_studies/absences.md) manual, and apply to your area in the same way.
+**Refusing is final**, and it asks for confirmation first: once you refuse a request, neither you nor the employee can put it back to *Pending*, so the employee would have to file a new one. The supporting document, on the other hand, can be attached at any point, on a request that is already received included.
+
+Once you validate it, Direction reviews each absence last, in the **Direction status** column, which you can see but not change. The **Status** column shows where the request stands.
+
+The steps, those fields and the two reports are covered in the [Head of Studies](../head_of_studies/absences.md) manual, and apply to your area in the same way.
 
 ---
 

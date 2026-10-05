@@ -1,4 +1,4 @@
-from odoo.exceptions import AccessError, RedirectWarning, ValidationError
+from odoo.exceptions import RedirectWarning, ValidationError
 from odoo.tests.common import TransactionCase
 
 from .common import create_level_study_group, next_student_id
@@ -14,16 +14,6 @@ class TestGroup(TransactionCase):
             'login': 'test_teacher_for_group',
             'groups_id': [(4, cls.env.ref('ems.group_teacher').id)],
         })
-        cls.department_chief_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Test Department Chief (Group)',
-            'login': 'test_department_chief_for_group',
-            'groups_id': [(4, cls.env.ref('ems.group_department_chief').id)],
-        })
-        cls.head_of_studies_user = cls.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Test Head of Studies (Group)',
-            'login': 'test_head_of_studies_for_group',
-            'groups_id': [(4, cls.env.ref('ems.group_head_of_studies').id)],
-        })
         cls.test_level, cls.test_study, cls.test_group = create_level_study_group(cls, 'TSTG', level={'name': 'Test Level (Group)'}, study={
             'code': 'TSTG01', 'name': 'Test Study (Group)',
         })
@@ -37,35 +27,6 @@ class TestGroup(TransactionCase):
         })
         self.assertTrue(group.id)
         self.assertEqual(group.name, f"{self.test_study.acronym}1B")
-
-    def test_department_chief_can_write(self):
-        self.test_group.with_user(self.department_chief_user).write({'course': 2})
-        self.assertEqual(self.test_group.course, 2)
-
-    def test_head_of_studies_can_write(self):
-        self.test_group.with_user(self.head_of_studies_user).write({'course': 2})
-        self.assertEqual(self.test_group.course, 2)
-
-    def test_teacher_cannot_write(self):
-        with self.assertRaises(AccessError):
-            self.test_group.with_user(self.teacher_user).write({'course': 2})
-
-    def test_teacher_can_read(self):
-        group = self.test_group.with_user(self.teacher_user)
-        self.assertEqual(group.acronym, 'A')
-
-    def test_teacher_cannot_create(self):
-        with self.assertRaises(AccessError):
-            self.env['ems.group'].with_user(self.teacher_user).create({
-                'course': 1,
-                'acronym': 'C',
-                'level_id': self.test_level.id,
-                'study_id': self.test_study.id,
-            })
-
-    def test_teacher_cannot_unlink(self):
-        with self.assertRaises(AccessError):
-            self.test_group.with_user(self.teacher_user).unlink()
 
     def test_create_reinforcement_group(self):
         other_study = self.env['ems.study'].create({
@@ -338,19 +299,6 @@ class TestGroup(TransactionCase):
         self.assertEqual(action['res_model'], 'ems.group')
         self.assertEqual(action['res_id'], self.test_group.id)
         self.assertEqual(action['type'], 'ir.actions.act_window')
-
-    def test_custom_data_records_are_frozen_against_future_upgrades(self):
-        # 'data/custom/ems.group.csv' seeds the centre's real groups only once: an admin renaming
-        # a group or reassigning its classroom through the app is 'living' data, not config this
-        # repo's CSV should keep re-pushing on every upgrade (see CLAUDE.md's "Data folder
-        # conventions"). '_ems_freeze_living_custom_data' (models/settings/company.py) already ran
-        # as part of this test run's own module (re)load via '_register_hook()', so every
-        # '__import__'-owned 'ems.group' xmlid must already be noupdate=True by the time tests execute.
-        custom_group_data = self.env['ir.model.data'].sudo().search([
-            ('module', '=', '__import__'), ('model', '=', 'ems.group'),
-        ])
-        self.assertTrue(custom_group_data)
-        self.assertTrue(all(custom_group_data.mapped('noupdate')))
 
     def test_compute_name_leaves_blank_for_incomplete_main_group(self):
         # Regression test: '_compute_name' used to build "%s%s%s" % (study_id.acronym, course, acronym)

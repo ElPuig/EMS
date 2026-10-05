@@ -27,6 +27,10 @@ registry.category("web_tour.tours").add("ems_employee_form_tabs", {
             run: "click",
         },
         {
+            trigger: ".o_form_view .o_notebook .nav-item:first-child .nav-link.active[name='schedule']",
+            content: "Schedule is the first tab and the one open by default",
+        },
+        {
             trigger: ".o_form_view .o_notebook .nav-link:contains('Schedule')",
             content: "Open the Schedule tab",
             run: "click",

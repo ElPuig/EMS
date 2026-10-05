@@ -1,6 +1,6 @@
 # Role-tour coverage: retrofit backlog for existing admin-only tours
 
-**Status: current as of 2026-09-11.** Backlog, not started - ongoing, opportunistic work, not a
+**Status: current as of 2026-09-24.** Backlog, not started - ongoing, opportunistic work, not a
 dedicated sprint. This is Phase 3 of the role-based tour coverage proposal (issue #434 follow-up;
 Phases 0-2 are done - shared role-user factory in `tests/common.py`, the Development-workflow
 login rule in `CLAUDE.md`, and the 5 generic per-role smoke tours,
@@ -56,6 +56,21 @@ Fill in as each candidate is actually traced and, if warranted, retrofitted (add
       tour(s), least-privileged role, retrofit if needed.
 - [ ] `views/settings/hr_attendance_form.xml` - identify rendering tour(s); this one may
       legitimately be settings/admin-only, confirm before assuming it needs a change.
+
+Added 2026-09-24 (role-permission audit after #500, see `plans/role_permission_test_coverage.md`):
+at that date 72 of 103 tour files logged in as `admin` only. Most are configuration screens that
+are genuinely admin-only, but these are daily screens of teaching roles and go first:
+
+- [ ] `test_grade_session_tour.py`, `test_grade_matrix_tour.py`,
+      `test_grade_session_state_wizard_tour.py` - teacher entering grades.
+- [ ] `test_em_grading_wizard_tour.py` - tutor grading the work placement.
+- [ ] `test_strike_tour.py` - any teacher putting a strike.
+- [ ] `test_notice_tour.py` - teachers/heads sending notices.
+- [ ] `test_attendance_correction_request_tour.py` - any employee requesting a correction.
+- [ ] `test_attendance_issue_tour.py`, `test_attendance_template_tour.py` - teacher's attendance.
+- [ ] `test_enrollment_proposal_tour.py`, `test_portal_access_wizard_tour.py`,
+      `test_family_tour.py` - tutor screens.
+- [ ] `test_year_record_tour.py` - teachers/tutors reading the academic history.
 
 Work this in batches of ~8-12 tours at a time, opportunistically alongside other work that
 already touches the same view/tour - not as a dedicated pass. Re-run the two greps above

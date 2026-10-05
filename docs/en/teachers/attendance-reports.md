@@ -13,8 +13,9 @@ yourself, plus 3 printable PDF reports (by group, by student, by subject) reacha
 
 ## Exploring Attendance Reports
 
-1. Navigate to **Attendance → Reports**. It opens directly on a **pivot table**, showing **only your own
-   groups and subjects** by default.
+1. Navigate to **Attendance → Reports**. It opens directly on a **pivot table** with the **My subjects**
+   filter on, showing only your own groups and subjects. If you are a group tutor, removing that filter also
+   shows your tutees in every subject (see the [tutors manual](../tutors/attendance-reports.md)).
 2. The table groups by **subject, then student**. Click the **Expand all** icon (top-right, next to Flip
    axis) twice: once to unfold the subjects, once more to unfold each subject's students. The main number
    is the **% of absences per student** — **Count** (number of sessions counted) and **Strike count** are
@@ -23,12 +24,22 @@ yourself, plus 3 printable PDF reports (by group, by student, by subject) reacha
 
    ![Attendance reports pivot table, expanded by subject and student](../../assets/teachers/informes-01-taula-dinamica.png)
 3. Use the search bar to filter further (by student, group, subject or status), and **Group By** to change
-   how the table is folded.
+   how the table is folded. The group is the student's own group on the date of each session: a session shared by several groups counts each student only in their own group.
 4. Use the **spreadsheet/download icon** in the header to export the current pivot to Excel.
 5. Switch to the **graph** view (top-right icons) for a visual breakdown — by default it shows the
    **% of absence per subject**, so you can spot which subjects have the highest absenteeism at a glance.
    The graph shows one measure at a time — use the **Measures** dropdown in its header to switch to
    **Strike count** if you want to see disciplinary strikes per subject instead.
+
+---
+
+## From a Student's File
+
+To look at a single student's attendance, open their file and click the **Attendance** button at the top, next to **Meetings** and **Relations**. It opens the same pivot table, already filtered on that student (the **Student** filter in the search bar, which you can remove with its **×**). You'll see the subjects you teach that student (all of them, if you're also their tutor). The graph view and the PDF reports work exactly as described in this manual.
+
+![The Attendance button on a student's file](../../assets/tutors/tutor-informes-02-boto-fitxa.png)
+
+![Attendance pivot table filtered on one student](../../assets/tutors/tutor-informes-03-alumne.png)
 
 ---
 
@@ -46,7 +57,7 @@ to your choice.
 2. The **Tutor** and the **From**/**To** dates fill in automatically from the group and its full session
    range.
 3. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, and any
-   session notes recorded for the period.
+   session notes recorded for the period. It covers the group's students, in the group each one belonged to on the date of each session.
 
 **Attendance report (by student):**
 1. Pick a **Student** — the dropdown only shows students enrolled in a subject **you actually teach**; if a
@@ -54,7 +65,8 @@ to your choice.
 2. The **Tutor** and the **From**/**To** dates fill in automatically from the student and their full
    session range.
 3. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, and any
-   session notes recorded for the period.
+   session notes recorded for the period. It only includes **the sessions you taught** that student. If you
+   are the student's tutor, it includes every subject instead (see the tutors' manual).
 
 **Attendance report (by subject):**
 1. Pick a **Subject** — the dropdown only shows subjects **you actually teach**.
@@ -70,6 +82,8 @@ to your choice.
   statuses only (**Miss**, **Justified Miss**) so the report stays a manageable size; add more and a warning
   appears that the report may become slow to generate or fail for large selections.
 - **Include strikes** (on by default) — adds tables of the disciplinary strikes recorded during the period.
+
+The downloaded PDF is named after the report and the selected student, group or subject (e.g. `Attendance report_ by student_Name_Surname.pdf`), so several downloads can be told apart.
 
 ---
 

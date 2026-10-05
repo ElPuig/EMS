@@ -23,6 +23,8 @@ Los espacios son las aulas físicas del centro (aulas, laboratorios, talleres...
 2. Rellena el **Nombre** (p. ej., "Aula", "Laboratorio de informática").
 3. Haz clic en **Guardar**.
 
+![Lista de tipos de espacio](../../assets/admin/admin-space-types-list.png)
+
 ---
 
 ## Crear un espacio
@@ -34,6 +36,8 @@ Los espacios son las aulas físicas del centro (aulas, laboratorios, talleres...
    - **Tipo** *(obligatorio)*: elige un Tipo de espacio.
    - **Ubicación** *(obligatorio)*: a qué sede/edificio pertenece este espacio.
 3. Haz clic en **Guardar**.
+
+![Ficha de un aula, con su ocupación semanal en la pestaña Horario](../../assets/admin/admin-space-schedule.png)
 
 Una vez creado el espacio, están disponibles una pestaña **Horario** y un chat (para notas internas, mensajes y actividades).
 

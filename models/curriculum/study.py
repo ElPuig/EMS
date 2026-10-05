@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from datetime import date
 from odoo import models, fields, api, _
 
 class EmsStudy(models.Model):
     _name = "ems.study"
+    _inherit = ['ems.attachment_mixin']
     _description = "Study: The concrete type of study (kind of bachelor, concrete university grade, etc.)"
     _order = "code asc"
 
@@ -62,7 +62,7 @@ class EmsStudy(models.Model):
     @api.depends('acronym', 'name')
     def _compute_display_name(self):
         for study in self:
-            year = date.today().year if study.date is False else study.date.year
+            year = self.env['ems.datetime_utils'].get_local_today().year if study.date is False else study.date.year
             study.display_name = "%s (%s): %s" % (study.acronym, year, study.name)
 
     def _ems_last_course(self):
@@ -76,6 +76,11 @@ class EmsStudy(models.Model):
         self.ensure_one()
         courses = self.env['ems.group'].search([('study_id', '=', self.id)]).mapped('course')
         return max(courses) if courses else 0
+
+    def _ems_convalidable_subjects(self):
+        """Subjects of this study a student can ask to convalidate: all of them but the
+        tutorship, which is not an evaluated subject. Tolerates an empty recordset."""
+        return self.subject_ids.filtered(lambda subject: not subject.is_tutorship)
 
     def _subjects_common_to_all(self):
         """Subjects taught in EVERY study in 'self' - the intersection (an empty recordset if

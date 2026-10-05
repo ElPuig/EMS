@@ -32,6 +32,17 @@ memory for the incident this rule comes from, and a second, broader one from 202
 where dev-DB findings were repeatedly mislabeled "production" across an entire session
 before being caught.
 
+**Check a dump's integrity before attempting any restore (2026-09-24).** A dump handed over
+by the developer can be truncated (e.g. an interrupted copy), and `pg_restore -l` is not
+proof otherwise: it only reads the table of contents at the start of the file, so a truncated
+custom-format dump still lists every table. Before `createdb`/`pg_restore`, read the whole
+archive once: `sudo -u odoo pg_restore -f /dev/null <file>` for custom format (must exit 0
+with no "could not read from input file" error), `gzip -t`/`unzip -t` for compressed ones, and
+confirm the file size is stable and in line with previous dumps. If the check fails, stop and
+tell the developer: don't restore a partial copy. A truncated restore can look usable (some
+tables present) while missing others entirely, as happened that day: a dump ~35% smaller than
+its predecessors restored `ems_planning` but left `ir_module_module` empty.
+
 ## Development vs. production environment declaration (2026-08-10)
 
 Any EMS installation — this box included — declares whether it's a development/testing
@@ -93,7 +104,7 @@ and ask the developer whether `devel.sh` needs to run before continuing.
 
 `devel.sh` (interactive, or non-interactive via `./devel.sh <google_account> [domain]`) is the
 script that turns a freshly-restored real backup into a safe local dev environment: among other
-things (enabling the debugger, cancelling stuck queue jobs), it rewrites **every** stored email
+things (enabling the debugger, cancelling stuck queue jobs, pointing `report.url` - the address wkhtmltopdf loads a PDF's stylesheets and logo from - at this box's own Odoo port, since the restored production value, `http://127.0.0.1`, is the reverse proxy that only exists in production and left every PDF unstyled; forcing the Google Workspace integration into dry-run, `res.company.google_ws_dry_run`, so a restored production service account can never create, rename or suspend a real account in the centre's Google Workspace), it rewrites **every** stored email
 address (`res_partner.email`/`email_normalized`/`student_email`, plus the dependent
 `hr_employee.work_email`) to `<google_account>+<original_email, '@' encoded as '_at_'>@<domain>`
 — e.g. `kandilhamza@gmail.com` becomes `porrino.fernando+kandilhamza_at_gmail.com@elpuig.xeill.net`.
@@ -151,7 +162,7 @@ corresponds to one root app menu as it actually appears in the running backend: 
 "Educational Community" (`menu_community`), `academic_management/` ↔ "Academic management"
 (`menu_ems_academic_management`), `planning_grading/` ↔ "Planning and Grading" (`menu_planning`),
 `attendance/` ↔ "Student's Attendances" (`menu_attendance`), `communications/` ↔ "Communications"
-(`menu_communications`), `coexistence/` ↔ "Coexistence" (`menu_coexistence`). A handful of
+(`menu_communications`), `coexistence/` ↔ "Coexistence" (`menu_coexistence`), `minutes_agreements/` ↔ "Meetings" (`menu_minutes`). A handful of
 folders don't map to one of EMS's own root app menus, for a different, legitimate reason each:
 `settings/` (inherits of the native Settings screens — `res.config.settings`, `base.view_users_form`
 — reached from Odoo's own Settings app, not any EMS menu), `portal/` (QWeb website/portal
@@ -181,13 +192,15 @@ Both scripts must be run from the project root (`/root/myModules/ems/`).
 
 `upgrade.sh` and `test.sh` both stop the Odoo service, run their operation as the `odoo` system user, and restart the service. Output is filtered to show only relevant lines (errors, warnings, test results).
 
+`upgrade.sh` (and `deploy.sh`'s rollback, and `/deploy-check`) upgrade not just `ems` but every *installed* module found in a non-core `addons_path` folder (the OCA repos `update.sh` git-pulls), via `ems_modules_to_upgrade` in `scripts/odoo_modules.sh`. `odoo -u ems` alone never upgrades ems' own dependencies: on 2026-09-26 production's `queue_job` code got ahead of its schema that way and its runner paused itself ("schema is outdated, -u queue_job required"), leaving every notice email "Pending" for days. Don't hardcode `-u ems` in any new upgrade path; reuse that helper.
+
 After any change, run `upgrade.sh` and check for WARNING / ERROR / CRITICAL output.
 
-**The full test suite is slow — don't run it more than necessary.** `./test.sh` (no argument) runs every test class and takes several minutes; running it after every small change wastes time without adding useful signal. Prefer `./test.sh TestClassName`, scoped to whatever model(s) you're actually touching, as the normal gate during iterative work (Red/Green/Refactor cycles, DTON phases, bug fixes). Run the full, unscoped `./test.sh` only once — as the final check before considering a piece of work done — not after every intermediate step. If a change plausibly affects other models (e.g. a shared mixin, a migration, a widget used in several views), scope down to the smallest set of `TestClassName` runs that actually covers the blast radius instead of reaching for the full suite by default.
+**The full test suite is slow — don't run it more than necessary.** `./test.sh` (no argument) runs every test class and takes several minutes; running it after every small change wastes time without adding useful signal. Prefer `./test.sh TestClassName`, scoped to whatever model(s) you're actually touching, as the normal gate during iterative work (Red/Green/Refactor cycles, DTON phases, bug fixes). On a development branch, don't run the full, unscoped `./test.sh` at all (see "Never run the full, unscoped `./test.sh` on a development branch" below). If a change plausibly affects other models (e.g. a shared mixin, a migration, a widget used in several views), scope down to the smallest set of `TestClassName` runs that actually covers the blast radius instead of reaching for the full suite by default.
 
 **Optimize for quota, not just wall-clock time (2026-08-06) — the project is only getting bigger, so this compounds.** Before running anything (an upgrade, a test, a screenshot-capture loop), think about whether batching verification to the end of a chunk of work costs less than verifying after every small step, or the other way around — it genuinely depends on the situation (e.g. a single risky change with an uncertain outcome is worth checking immediately, so a mistake doesn't get compounded by several more edits on top of it; several small, independent, low-risk edits are usually cheaper to verify once at the end). Don't default to "run the gate after every edit" out of habit — decide deliberately per task. This is a general planning habit across every kind of tool use (edits, greps, screenshots, test runs), not just about `./test.sh`.
 
-**Ask before launching the full, unscoped `./test.sh` at all — even for that single final-gate run.** There is no downside to asking first: CI already runs the full suite unconditionally before anything merges, so a local full run is pure convenience/early-signal, never the actual safety net. Push it as late as possible and check with whoever's driving (the developer, or an AI agent's user) instead of launching it unprompted once work seems done.
+**Never run the full, unscoped `./test.sh` on a development branch, and don't offer it either (2026-10-03).** CI already runs the full suite unconditionally before anything merges, so a local full run is never the actual safety net, and it is too slow to be worth it: the developers don't run it themselves (developer, 2026-10-03: *"no vamos a lanzar batería completa en ramas de desarrollo. Quizás (y solo quizás) en las ramas de integración y preparación de una PR"*). On an issue branch (`<issue_number>-<slug>`), close the work with scoped `./test.sh TestClassName` runs covering what was touched and leave the rest to CI, without asking whether to run the full suite. The only place a local full run may make sense is a release/integration branch (named after the version that goes into production, e.g. `v18.0.0.33.0`), and even there only after asking whoever's driving.
 
 **If a test run seems to hang with no output, refresh any browser tab you have open on the Odoo backend.** `--test-enable` spins up a real HTTP server for the duration of any `HttpCase`/tour test (e.g. `test_grade_session_tour`, `test_level_tour`, `test_strike_tour` — pulled in by the full, unscoped `./test.sh`, or by name if you target one directly). Odoo's teardown (`_wait_remaining_requests` in `odoo/tests/common.py`) waits for every open HTTP request against that server to finish before the process can exit — including a stray long-polling (bus) connection from an already-open browser tab pointed at the same host/port, which is designed to never close on its own. Refreshing (no need to close) that tab severs the stale connection and lets the run finish. Scoped runs of test classes with no tour/`HttpCase` tests don't hit this specific hang, but closing/refreshing before *any* `./test.sh` run is the standing habit regardless (see the notification trigger below, which fires for every run, not just tour ones).
 
@@ -252,12 +265,22 @@ want the agent to keep making real progress rather than stall on the first decis
 otherwise need a question asked. First used 2026-09-08/09 (bottom-up sync redesign session,
 overnight while the developer slept) and confirmed to work well.
 
-**Must be started and ended explicitly — never assumed, never left open-ended.** This is not a
+**Must be started and ended explicitly — never assumed, never left open-ended.** The same goes for
+any advance authorization of an action that normally needs the developer's confirmation (e.g.
+merging a PR): if it wasn't asked for explicitly, or the wording could be read more than one way,
+don't act on it (developer, 2026-09-27: *"No quiero sustos."*). This is not a
 standing default; it only applies for the exact stretch the developer scoped it to.
 - **Starting it:** the developer says so directly ("te dejo en piloto automático", "activo el
   piloto automático", or similar unambiguous wording) and should say what it's scoped to — e.g.
-  "hasta que termines el gate de tests y seguido de la funcionalidad de grupos". If the scope
-  wasn't stated clearly, ask before assuming what it covers.
+  "hasta que termines el gate de tests y seguido de la funcionalidad de grupos".
+- **Every question goes before the mode starts, never during it** (developer, 2026-09-27: *"la
+  gracia del piloto automático es que el usuario no tenga que intervenir, así que las preguntas
+  sobre temas ambiguos hay que hacerlas ANTES de arrancar el piloto"*). Once it's on, the
+  developer is away and a question just stalls the work. So, right when they announce it and
+  before starting any work, resolve every doubt in one go: an unclear scope, and any
+  authorization the work may need (e.g. "¿puedo fusionar la PR si sale verde?"). Anything
+  still unauthorized once the mode is running is simply not done: leave it for the closing
+  summary instead of asking.
 - **Ending it:** either the developer says so, or the agent finishes everything the mode was
   scoped to and then explicitly declares the mode over as part of its own summary (see below) —
   never trail off and quietly keep making autonomous calls past the point the work was actually
@@ -289,7 +312,19 @@ have been asked live, not optional. State plainly which mode-scoped tasks got fi
 ## Testing conventions
 
 **Backend tests** — `tests/test_<model>.py`, using `odoo.tests.common.TransactionCase`:
-- Cover: valid create, required fields, display_name, admin CRUD, role access restrictions, relation integrity.
+- Cover what EMS itself adds: `create`/`write`/`unlink` overrides, its own `display_name`
+  computations, constraints (`_sql_constraints`, `@api.constrains`), computed fields, role
+  access restrictions, relation integrity. Don't test what is plain Odoo behaviour: a field that
+  is just `required=True` raising when omitted, a `display_name` that is simply `name`, a
+  "create a valid record" test on a model with no `create` override (issue #567 removed 43 of
+  those).
+- **Role access, model level (`ir.model.access`):** add the model's row to `ACCESS_MATRIX` in
+  `tests/test_access_matrix.py` (role → allowed operations, e.g. `'r'` or `'rwcu'`), not one
+  `test_<role>_can/cannot_<op>` method per role and operation in the model's own file (issue #567
+  replaced 141 of those). Record-level rules (`ir.rule`, e.g. "a tutor only edits their own
+  students") still need a real record, so they stay as tests in the model's own file. Don't write
+  "admin can create/write/unlink" tests with `self.env`: tests run as the superuser, which skips
+  every access check, so they only repeat the valid-create test.
 - Use `assertRaises(Exception)` for DB-level violations (Odoo's `assertRaises` does not accept exception tuples).
 - Use unique codes/acronyms in test data that do not conflict with production data (ESO, BTX, CFGM, CFGS, EFPS, CFGB, PFI already exist).
 
@@ -309,8 +344,9 @@ have been asked live, not optional. State plainly which mode-scoped tasks got fi
 now')`-style trigger, an `[title='...']` selector matching a translatable label, a status/
 selection name typed nowhere by the tour itself) only works if the account driving it actually
 renders in English — never assume that's true. `login="admin"` logs in as this box's real,
-pre-existing `admin` account, whose language is whatever this dev box happens to have (this
-box's is `es_ES`) — **not** guaranteed `en_US`, regardless of environment. A freshly created
+pre-existing `admin` account, whose language is whatever this dev box happens to have (it has
+changed over time on this box: `es_ES`, then `ca_ES` as of 2026-09-24) — **not** guaranteed
+`en_US`, regardless of environment. A freshly created
 `res.users` record is not automatically safe either: without an explicit `'lang'` key, it does
 not reliably default to `en_US` on every box (confirmed on this one: it defaults to `ca_ES`).
 Found twice already from the exact same root cause (`TestAttendanceStatusTour`,
@@ -382,6 +418,13 @@ itself would have been caught by this mechanism, per that tour's own comment.
   `department_chief` are skipped as strict subsets of `teacher`'s menu reach; `head_of_studies`/
   `director`/`academic_admin` and the `*_admin` variants are skipped as already
   `hr.group_hr_user`-equivalent in practice.
+- **Admin crawler (`tests/test_role_smoke_admin_tour.py`, issue #566):** a sixth crawler,
+  logged in as a fixture user with every EMS `*_admin` group plus Director and Head of Studies,
+  limited to `ems.*` actions (native Odoo apps are Odoo's to test). It covers every EMS
+  catalog/configuration screen in every view mode, so a screen that only needs "create a
+  record and save it" gets no tour of its own (the 15 that did were removed in #566); write a
+  dedicated tour only when the screen has behaviour of its own (a custom widget, a button, a
+  tab's content, a rule the UI must enforce).
 - **Maintaining the skip-list:** each crawler tour keeps a small, explicit list of action
   xmlids/ids it deliberately does not open (wizards, actions requiring context like
   `active_id` that only make sense launched from a specific record, print/report actions,
@@ -407,11 +450,13 @@ Key rules applied in this project:
 - Model attribute order: private attrs (`_name`, `_description`, `_order`, `_sql_constraints`) → fields → compute/inverse/search methods → constraints/onchange → CRUD overrides → action methods → business methods.
 - Loop variable named after the model, not `rec` (`for level in self:`).
 - **No shadowed builtins** (`list`, `type`, `hash`, `bytes`, `id`, `date`, ...) as local variable or parameter names — this bug class was found by hand several times during the DTON rollout (`LimesurveyApi.count_participants`'s `list`, `ems.base.notify`'s `type` parameter, `datetime_utils`' `datetime` parameters). Check for it with `pylint --disable=all --enable=redefined-builtin models/` (installed via `apt install pylint`) — not wired into a blocking hook, run it by hand after any pass touching several files.
-- **Every EMS-added action bound to a model (`binding_model_id` on an `ir.actions.server`/`ir.actions.act_window`) must declare `binding_view_types` as `list,form`** (Odoo's own default — don't restrict it to `list` by hand), so it is reachable from both the model's list and its form, not just one. Native Odoo actions (or a third-party/OCA module's own actions) are left exactly as that module defines them — this rule is only about actions EMS itself adds. Found 2026-09-17 (issue #482): three `res.partner`-bound server actions (`action_portal_access_bulk`, `action_authorization_send_bulk`, `action_google_credentials_download_bulk`) had `binding_view_types` hand-restricted to `list`, so a student's own form was missing "Portal access (students/families)", "Send authorizations" and "Download Google credentials" from its cog ⚙ menu even though the list view had them — the underlying Python methods already worked fine on a single-record `self`, since Odoo sends `active_ids` (a one-element list) from a form-bound action the same way it does from a list selection. The only legitimate reason to restrict a *new* EMS action to one view type is a genuine functional one (e.g. an action that only makes sense on a multi-record selection) — document it in a comment next to the field when that's the case, the same way `views/community/contact/native_action_bindings.xml` documents its own deliberate exclusions.
+- **A form's actions on its record go in its "Actions" dropdown, never loose in the header (developer, 2026-09-30).** Put every header button inside `<header><div name="ems_actions" string="Actions">...</div></header>` (`static/src/js/backend/actions_dropdown.js`, see `docs/en/developers/shared/actions_dropdown.md`), frequent ones included: *"siempre dentro del desplegable, porque sino en algún momento tendremos muchos otra vez."* Each entry keeps its own `invisible=`/`groups=`/`confirm=`, and the dropdown isn't rendered when none applies, which is what the native ⚙ cog menu can't do (it filters by role only, never per record, and users don't find it). A bulk method run on the form's one record is a `type="object"` button calling it, never `type="action"` (a form sends `active_ids` = the pager's `resIds`, possibly the whole list). A per-record permission is a non-stored `@api.depends_context('uid')` compute read by `invisible=` and re-checked server-side (`can_reset_google_password`). Native header buttons go in too (`position="move"` from a view that runs after the one adding them, see the doc). Applied so far to the contact and employee forms (`views/community/{contact,employee}/form.xml`); other forms still have loose header buttons and move over when next touched.
+- **Every EMS-added action bound to a model (`binding_model_id` on an `ir.actions.server`/`ir.actions.act_window`) must be reachable from both the model's list and its form**, so a user never finds it in one view and not the other. On a form that has an "Actions" dropdown (above), the form side is an entry of that dropdown and the binding is `list` only (binding it to `form` too would show it twice); on a form without one, `binding_view_types` stays `list,form` (Odoo's own default - don't restrict it to `list` by hand). Native Odoo actions (or a third-party/OCA module's own actions) are left exactly as that module defines them - this rule is only about actions EMS itself adds. Found 2026-09-17 (issue #482): three `res.partner`-bound server actions (`action_portal_access_bulk`, `action_authorization_send_bulk`, `action_google_credentials_download_bulk`) had `binding_view_types` hand-restricted to `list`, so a student's own form was missing them entirely even though the list view had them; since 2026-09-30 they are list-only again on purpose, with the student form offering them from its Actions dropdown. The only other legitimate reason to restrict a *new* EMS action to one view type is a genuine functional one (e.g. an action that only makes sense on a multi-record selection) - document it in a comment next to the field when that's the case, the same way `views/community/contact/native_action_bindings.xml` documents its own deliberate exclusions.
 - XML `<record>`: `id` attribute before `model`.
 - f-strings instead of `%s` formatting.
 - **No em dash (—) as a decorative separator in user-facing/translatable text** (`_("...")` in Python, `_t("...")` in JS/OWL, view `string=` labels) — e.g. `"%(teacher)s — %(subject)s"`. Developer feedback (2026-08-10, working_schedules_import_wizard's grouped-conflict labels): use a plain hyphen (`-`) instead. An em dash used as genuine English grammar (setting off a parenthetical/interruptive clause, not just joining two short fields) is fine to keep - the rule is specifically about the decorative "A — B" join pattern, not em dashes in general prose.
-- **Never interpolate a raw Datetime field into a user-facing message without converting it to the reader's own timezone first.** Odoo `Datetime` fields are stored/read as naive datetimes **in UTC**. The backend's list/form views convert UTC → the viewing user's own tz automatically on render, but that conversion is a web-client behavior — it does **not** apply to a plain-text message body built in Python (`message_post()`, `activity_schedule()`'s `note=`, a `mail.template` field populated by code, a `UserError`/`ValidationError` string), because those are just strings by the time they reach the reader. Interpolating `self.some_datetime_field` directly via `%s`/an f-string/`.strftime()` with no prior tz conversion silently shows server/UTC time labeled as if it were the reader's own — wrong by whatever the offset happens to be (2h for Europe/Madrid in CEST). Found 2026-09-17: `_auto_close_attendance()`'s fallback notification (`models/employees/employee_autocheckout.py`) showed check-in/check-out times 2h behind what the same `hr.attendance` record's own backend view showed the same reader. **How to apply:** convert before interpolating — prefer Odoo's own `fields.Datetime.context_timestamp(record, dt)` (already used correctly in `models/contacts/student_import_wizard.py`) when the acting user's/company's context tz is the right target; when the message is addressed to a *specific different* person (an employee, not the acting user — e.g. a notification about someone else's record), resolve *their* tz explicitly instead (`pytz.timezone(employee._get_tz())` + `pytz.utc.localize(dt).astimezone(...)`, the pattern already used by `_get_last_working_hour()`/`_format_local_for_employee()` in the same file) — `ems.datetime_utils.current_tz()` resolves the acting user's/company's tz, which is the wrong target for a message addressed to someone else. A `fields.Date` value has no tz ambiguity and doesn't need this. A value only ever written to a CSV/log (never shown to a human as "this happened at X" in a message/email/activity) is also unaffected.
+- **Never interpolate a raw Datetime field into a user-facing message without converting it to the company's timezone first.** Odoo `Datetime` fields are stored/read as naive datetimes **in UTC**. The web client converts them on render, but a plain-text message body built in Python (`message_post()`, `activity_schedule()`'s `note=`, a `mail.template` field populated by code, a `UserError`/`ValidationError` string) is just a string by the time it reaches the reader, so interpolating `self.some_datetime_field` directly silently shows UTC time labeled as if it were local (2h off for Europe/Madrid in CEST). Found 2026-09-17 in `_auto_close_attendance()`'s fallback notification. **How to apply:** convert with `ems.datetime_utils.utc_datetime_to_local()` before interpolating — every EMS message is read in the company's timezone, whoever it is addressed to (see "Dates, times and timezones" below). A `fields.Date` value has no tz ambiguity. A value only ever written to a CSV/log is unaffected.
+- **Dates, times and timezones: one timezone, the company's — read `docs/en/developers/shared/timezones.md` before any change or bug involving a date or a time** (issue #518, 2026-09-28). The whole centre works from Catalonia, so everything EMS shows, reads or decides with is in the company's timezone (`res.company.partner_id.tz`, `Europe/Madrid`), never the acting user's `tz`, the browser's, or the server's clock read naively. The server itself stays in UTC (Odoo's standard; the Odoo process forces `TZ=UTC` whatever the OS says, so don't touch the OS timezone). In practice: in Python never `datetime.now()`/`datetime.today()`/`date.today()`/`fields.Date.today()` (all UTC in Odoo) — use `ems.datetime_utils.get_local_datetime()`/`get_local_today()`, and its `current_tz()` (always the company's) for every conversion, including the float hours schedules are stored as; in JS never `new Date()`/`DateTime.now()` for "now"/"today" — use `serverNow()` (`static/src/js/backend/server_clock.js`), since a computer's clock can be wrong (a teacher got the wrong roll-call slot that way); the web client already shows every datetime field in the company's timezone (`static/src/js/shared/company_timezone_service.js`); every partner's, employee's and calendar's own `tz` is forced to the company's (`models/settings/timezone.py`), so don't add code that sets or reads a per-user timezone; the one deliberate exception is LimeSurvey, whose server runs in UTC (`LimesurveyApi._limesurvey_now()`); and never trust a date the client sends as "today" without checking it against `get_local_today()` on the server. A report of "the time shown is wrong", "it used my computer's time" or anything similar starts from that doc, not from scratch.
 - **DRY, both server (Python) and client (JS):** never duplicate code. Reuse existing methods, extend them, or extract a new shared method/RPC call instead of copy-pasting logic.
 - **"Odoo way" first:** don't build a custom solution unless strictly necessary. Always check the official Odoo v18 documentation and existing Odoo/EMS patterns for a built-in mechanism before writing bespoke code.
 - **Full-scenario exploration before implementing — never assume, ask when ambiguous.** Before writing or relaxing any validation/constraint/guard, grep and read *every* real write path for the field(s) it touches (every wizard, compute/onchange method, direct ORM call, view `required`/`readonly` attribute) — not just the one test or scenario currently in front of you. Don't guess whether a state that conflicts with a new check is a "legitimate real case" or merely a test fixture bypassing what the real UI/ORM would otherwise enforce — verify it by tracing the actual code paths, every one of them, before deciding which side (the new check, or the conflicting test/code) is wrong. If, after that exploration, genuine ambiguity remains — however small — ask the developer rather than picking a side. Found the hard way (2026-07-30): a new `sale.order` constraint broke an existing test, and the first fix relaxed the constraint on the unverified assumption that the test reflected a real production scenario; only the developer's follow-up question ("¿tiene sentido que esto ocurra? ¿se me escapa algo?") prompted the full write-path audit that should have happened *before* proposing that fix — which then showed the assumption was wrong (no real path can produce that state) and the test's fixture needed fixing instead, not the constraint. A relaxed-on-assumption constraint can silently end up less protective than intended, which is exactly the class of mistake this rule exists to prevent.
@@ -420,6 +465,8 @@ Key rules applied in this project:
 - **All literals must be translatable:** wrap every user-facing string for translation (`_("...")` in Python, `_t("...")` in JS/OWL) so it can be picked up by the i18n files, with English as the default/source language. Wrapping is only step one — it makes a string *translatable*, it does not translate it. Every new feature must also add the actual Catalan/Spanish entries to `i18n/ca_ES.po` and `i18n/es_ES.po` before it's considered done (see the "Close" step of the Development workflow below). To find what's missing: export current terms with `odoo -d ems --i18n-export=<path>.po -l ca_ES --modules=ems --stop-after-init` (repeat for `es_ES`), diff msgids against the checked-in `.po` files, and append translated blocks for the new ones only (don't regenerate/replace the whole file — order doesn't matter to gettext, and the files may already carry unrelated pre-existing gaps that aren't your task's responsibility). Run as the `odoo` user with a path it can write to (not a sandboxed/restricted directory). Do not insert decorative section-header comments between po entries — a comment block with no following `msgid` breaks Odoo's po parser on load.
 
   **A msgid diff alone is not enough — it misses reused labels.** Odoo's po loader binds a block's `msgstr` to the *exact* `#:` reference lines in that block (`model:ir.model.fields,field_description:ems.field_<model>__<field>`, `model:res.groups,name:ems.<xmlid>`, `model:ir.ui.menu,name:ems.<xmlid>`, `model:mail.template,subject/body_html/name:ems.<xmlid>`, etc.) — never by matching msgid text alone. So when a new field/record's label happens to be a common word already translated for a *different* field (`Teacher`, `Name`, `Active`, `Manager`, `Administrator`, `Configuration`, `Sequence`...), a msgid-only diff reports nothing missing — the text isn't new — yet the new field still renders untranslated, because its own `#:` reference was never added to that existing block. For every new field/model/group/menu/template introduced by the feature: search the checked-in `.po` for its exact label text first; if a block already exists, add your new record's `#:` reference to it (same `msgstr`, no translation work needed) instead of assuming it's already covered; only create a brand-new block if the text itself doesn't exist anywhere yet. **Verify, don't just trust the diff:** after `./upgrade.sh`, spot-check a sample of the new fields/records directly in the DB, e.g. `psql -c "SELECT field_description FROM ir_model_fields WHERE model='<model>' AND name='<field>';"` (or the equivalent column for `ir.model.name`, `ir.ui.menu.name`, `res.groups.name`, `mail.template.name`/`subject`/`body_html`, etc.), and confirm the jsonb value actually has `ca_ES`/`es_ES` keys, not just `en_US`. A `.po` entry existing is necessary but not sufficient — only a DB read proves the reference actually matched.
+
+  **`tests/test_i18n_coverage.py` checks all of this automatically (issue #557):** it fails when a `_("…")` string in EMS's Python code or a `_t("…")` in `static/src` has no `ca_ES`/`es_ES` entry (or its block lacks the `#. odoo-python`/`#. odoo-javascript` marker Odoo needs to load it at runtime), and when a field EMS itself defines has no Catalan/Spanish label in the database. Run it (`./test.sh TestI18nCoverage`, after `./upgrade.sh`) as part of the Close step; its failure message lists exactly what is missing. Selection values, help texts and view strings are not covered by it yet.
 
 ## Documentation structure
 
@@ -661,9 +708,13 @@ renamed group or reassigned classroom, `space_id`, was silently reverted by the 
 code (`res.company._ems_freeze_living_custom_data()`, called from `_register_hook()`) — CSV can
 never carry `noupdate=True` via the file itself (see the capability table below). See
 `docs/en/developers/shared/data_loading.md`'s "`data/custom/` living data" section for the full
-mechanism and the test used to tell living data from master config, and
-[[project_data_custom_living_vs_master_audit]] in memory for which other `data/custom/` models
-are suspected of the same gap (audit pending developer review, not yet fixed).
+mechanism and the test used to tell living data from master config. Also frozen since:
+`ems.planning`/`ems.planning_outcome` (2026-09-23) and `ems.space` (2026-09-25, classrooms
+renamed through the app were reverted by every upgrade). A newly-listed model also needs a raw-SQL
+`pre-migrate` freezing its existing xmlids (see `migrations/18.0.0.29.0/pre-migrate.py`), or the
+first upgrade shipping it still reverts the data one last time. The audit of the remaining
+`data/custom/` models (always-sync vs. freeze-after-seed) is pending, planned in
+`plans/data_loading_rearchitecture.md`.
 
 **CSV cannot actually be marked `noupdate=True` in this Odoo version — that's exclusive to XML.** An earlier version of this note claimed the deprecated `init_xml` manifest key gives a CSV file `noupdate=True`; that was wrong and has been corrected after a live test (2026-07-30, `data/custom/res.partner.category-<probe>.csv` listed under `'init_xml': [...]`, ran `./upgrade.sh`) showed the file never even loaded — no "loading ems/..." log line, record never created. Root cause, confirmed by reading the actual installed `odoo/modules/loading.py::load_data._get_files_of_kind`: `keys = ['init_xml', 'update_xml', 'data']` is set inside an `elif kind == 'data':` branch, but the very next line, `if isinstance(kind, str): keys = [kind]`, is a **separate, unconditional `if`, not an `elif`** — since `kind` is always a plain string, this second `if` always fires and silently overwrites `keys` back down to just `['data']`, discarding the `init_xml`/`update_xml` merge entirely. Files listed under `init_xml`/`update_xml` are therefore never read at all during the normal 'data' load phase in this Odoo build, regardless of noupdate — apparent dead code, not a working (if deprecated) mechanism. The only manifest key that actually produces `noupdate=True` is `demo` — semantically wrong for real config (demo data is optional, skipped entirely with `--without-demo`, and conceptually sample data, not a centre's real configuration). **Practical conclusion: if a `data/custom/` (or any EMS) CSV record genuinely needs `noupdate=True` protection, there is no clean file-based way to get it — the only options are (a) keep it XML, or (b) set `ir_model_data.noupdate=True` directly via a migration script**, bypassing the file-loading mechanism's noupdate handling entirely (not something to reach for casually, since it also means the file's own content stops being an honest description of what the record actually does on upgrade).
 
@@ -706,6 +757,8 @@ merely loads the new CSV will not pick the change up either.
 **Load order:** within `data/custom/`, always list files so that referenced records are declared before the files that reference them (e.g. `ems.subject.csv` before `ems.study.csv`).
 
 ## Migrations
+
+**A data fix is a migration, never a query run by hand (developer, 2026-09-28).** Fixing something directly in this dev database (psql, `odoo shell`) fixes nothing that matters: production only changes through what ships with the module, i.e. a `migrations/<version>/{pre,post}-migrate.py` (plus the `post_init_hook` equivalent below, for clean installs). Direct queries are fine for investigating; the fix itself always goes in a migration, tested here with `./upgrade.sh` (which runs it) so it is proven before it reaches production.
 
 **Every change must work on both paths: a brand-new clean install and an upgrade of an already-existing installation.** These are two different Odoo code paths and neither implies the other:
 - **Clean install** (`-i ems` on a database that has never had EMS): manifest `data`/`demo` files load, then `post_init_hook` (defined in `__init__.py`) runs once. Migration scripts under `migrations/` never run on a clean install — there is no "previous version" to migrate from.
@@ -756,7 +809,7 @@ pass to catch up to.
 3. **O — Optimization:** `_order`, `_sql_constraints`, view fixes, computed field guards, refactoring, cleaner and simple code.
 4. **N — Normalization:** Apply Odoo v18 official coding guidelines.
 
-Gate O and N with `./test.sh TestClassName` for the model being cleaned (see "The full test suite is slow" above); ask before running the full, unscoped `./test.sh`, after N rather than after both phases.
+Gate O and N with `./test.sh TestClassName` for the model being cleaned (see "The full test suite is slow" above); leave the full, unscoped `./test.sh` to CI (see "Never run the full, unscoped `./test.sh` on a development branch" above).
 
 ## Development workflow (TDD + DTON)
 
@@ -772,11 +825,11 @@ whether Spec/Red start from a blank file or a diff:
 4. **Refactor — O:** In the same cycle, not as a later pass: add `_order`, `_sql_constraints`, computed field guards, view fixes for *this* model. Also check for **cross-cutting duplication** while you're here — the same shape of code (or test fixture/mock boilerplate) hand-written in more than one file is worth extracting into a shared helper (`ems.base` for production code, `tests/common.py` for test utilities) rather than left copy-pasted; this is exactly how the same escaping bug got independently found and fixed five times before `EmsBase.build_html_list` existed. Don't go looking for unrelated duplication elsewhere in the codebase on every change — but if this change's own work reveals an existing duplicate, fold the extraction into this same cycle instead of deferring it.
 5. **Normalize — N:** Apply the Odoo v18 coding guidelines from the "Coding standards" section above — model attribute order, alphabetical imports, f-strings, loop variable naming, translatable literals, no shadowed builtins. Run `pylint --disable=all --enable=redefined-builtin` on the files you touched (see "Coding standards" above for the full command) — cheap, and this exact bug class (`list`, `type`, `datetime`, `bytes`/`hash` shadowing builtins) has recurred often enough to be worth a mechanical check rather than relying on reading alone.
 6. **Gate:** `./upgrade.sh` and `./test.sh TestClassName` after each Red-Green-Refactor-Normalize cycle (see "The full test suite is slow" above — don't reach for the unscoped `./test.sh` here).
-7. **Close — D:** For every role identified in the Spec step, fill in (or update) the three language versions of that role's user doc (`docs/{en,ca,es}/<role>/<model>.md`) — this is a mandatory deliverable of every change with a user-facing effect, not an optional extra to be requested separately; skipping it because the change "isn't for admins" is the most common way this step gets missed. Also update the role's `index.md` to link the manual if it's new. Add the new/changed strings' real Catalan/Spanish translations to `i18n/ca_ES.po` and `i18n/es_ES.po` (see "All literals must be translatable" above — wrapping in `_()`/`_t()` during Green/Refactor is not enough on its own), and reconcile the developer doc's diagram if the implementation diverged from the initial spec during the cycle. Finish by asking whether to run the full, unscoped `./test.sh` as the final gate for the whole change (see "Ask before launching the full, unscoped `./test.sh`" above — CI runs it anyway before merge). Then deliver the PR changelog summary described below — it's part of Close, not a separate ask.
+7. **Close — D:** For every role identified in the Spec step, fill in (or update) the three language versions of that role's user doc (`docs/{en,ca,es}/<role>/<model>.md`) — this is a mandatory deliverable of every change with a user-facing effect, not an optional extra to be requested separately; skipping it because the change "isn't for admins" is the most common way this step gets missed. Also update the role's `index.md` to link the manual if it's new. Add the new/changed strings' real Catalan/Spanish translations to `i18n/ca_ES.po` and `i18n/es_ES.po` (see "All literals must be translatable" above — wrapping in `_()`/`_t()` during Green/Refactor is not enough on its own), and reconcile the developer doc's diagram if the implementation diverged from the initial spec during the cycle. The full, unscoped `./test.sh` is not part of Close on a development branch: CI runs it before merge (see "Never run the full, unscoped `./test.sh` on a development branch" above). Then deliver the PR changelog summary described below — it's part of Close, not a separate ask.
 
    **Defer the full user-doc pass — and especially screenshots — while the feature is still under active design iteration in the same conversation (developer feedback 2026-08-10):** found while doing exactly this on the working-schedules import wizard — several small, still-evolving design tweaks in a row (a screen's position, its name, its own technical `state` key, then per-screen intro text) each triggered their own full Close step, rewriting the same admin-manual prose repeatedly for what was really one feature the developer hadn't yet confirmed as final. Screenshots are the expensive part to redo (capture, crop, verify no personal data leaked, re-crop); prose is cheaper but still wasted effort when the next message changes the same paragraph again. **How to apply:** keep the Spec-time *stub* current every cycle (already the rule above, and cheap either way), and keep the developer-facing English dev doc (`docs/en/developers/...`) current every cycle too (plain text, no screenshots, and it's the running record of *why*, needed to explain each iteration's own reasoning while it's still fresh) — but hold off writing the *full* three-language user-doc content and any screenshots until the developer actually confirms the feature has reached its final shape (a clear signal like "ya está", or simply moving on to unrelated work without more tweaks), then do one real Close pass covering everything that changed since the stub. If a change is genuinely a one-shot (no back-and-forth expected), there's no "still iterating" state to wait out — do the full Close immediately as before. When unsure whether more iteration is coming, ask rather than guessing which side to default to.
 
-   **Track every deferred Close-step obligation proactively once it's been deferred — don't rely on being reminded (developer feedback 2026-08-11):** deferring the screenshot/full-doc pass above, or pushing the full unscoped `./test.sh` gate to "later, once confirmed," is fine — but once deferred, it must stay tracked as a live, explicit item (e.g. via the `TodoWrite` tool) for the rest of the session, not just left as prose inside this file or a memory/plan file to be re-discovered later. Real incident: after finishing a feature (a new wizard screen, tested and working), the developer asked "¿qué nos queda de este trabajo?" — the answer covered an unrelated plan-file audit but omitted that the full test gate had never been run and the screenshot-inclusive doc close was still outstanding, both already known to be deferred. The developer had to point out both themselves: *"te has olvidado de lo que quedaba pendiente... que esto no vuelva a pasar, por favor. Si te pregunto que queda pendiente, deberías saberlo si esto ya se ha hecho o no."* **How to apply:** the moment a Close-step item is deliberately deferred, add it to the todo list right then, not after the fact. When asked "what's left/pending" in any phrasing, check that tracked state first, before answering from memory/plan files alone — the answer should reflect what you already know is outstanding, not require the developer to notice a gap you already knew about.
+   **Track every deferred Close-step obligation proactively once it's been deferred — don't rely on being reminded (developer feedback 2026-08-11):** deferring the screenshot/full-doc pass above (or, on a release branch, the full unscoped `./test.sh` gate) to "later, once confirmed," is fine — but once deferred, it must stay tracked as a live, explicit item (e.g. via the `TodoWrite` tool) for the rest of the session, not just left as prose inside this file or a memory/plan file to be re-discovered later. Real incident: after finishing a feature (a new wizard screen, tested and working), the developer asked "¿qué nos queda de este trabajo?" — the answer covered an unrelated plan-file audit but omitted that the full test gate had never been run and the screenshot-inclusive doc close was still outstanding, both already known to be deferred. The developer had to point out both themselves: *"te has olvidado de lo que quedaba pendiente... que esto no vuelva a pasar, por favor. Si te pregunto que queda pendiente, deberías saberlo si esto ya se ha hecho o no."* **How to apply:** the moment a Close-step item is deliberately deferred, add it to the todo list right then, not after the fact. When asked "what's left/pending" in any phrasing, check that tracked state first, before answering from memory/plan files alone — the answer should reflect what you already know is outstanding, not require the developer to notice a gap you already knew about.
 
 ## "Revisión del cierre" — pre-production close review across merged branches (2026-09-15)
 
@@ -810,6 +863,136 @@ assume it happened. If every change on the branch was made by the developer dire
 usually decline (they already know whether they closed their own work properly) — but always
 offer when the branch integrates a colleague's changes, since that's precisely the situation where
 the developer can't already know by memory alone.
+
+## "Prepara la release" — integrate every ready branch into the release branch (2026-09-25)
+
+A developer-invoked, end-to-end release-integration routine, triggered by *"prepara la
+release"*, *"integra la release"* or *"integra todos los cambios"* (synonyms, all equally valid).
+The name deliberately avoids "PR": **this is not the same thing as asking for the PR text**
+("dame el texto para la PR", see "PR changelog" below), which only delivers the changelog
+document, while this routine runs the whole sequence below, of which the PR text is just one
+step. "Integra todos los cambios" is the most generic of the three: only treat it as this routine
+when nothing narrower fits the context (e.g. not when a specific branch or a subagent's work was
+just being discussed); if a request's wording could mean something else, ask instead of guessing.
+
+Run it on the current release branch (e.g. `v18.0.0.29.0`), in this order:
+
+1. **Collect the issues** in the "📦 Ready to merge" column of the GitHub project board
+   (<https://github.com/orgs/ElPuig/projects/4>):
+   `gh project item-list 4 --owner ElPuig --format json --limit 1000`, keeping items whose
+   `status` contains "Ready to merge". The `gh` token needs the organization permission
+   **Projects** (fine-grained PAT; Read and write, for the card moves in step 2) or this fails
+   with `Resource not accessible by personal access token`.
+2. **Merge each issue's branch** (`origin/<issue_number>-<slug>`, after `git fetch origin`) into
+   the release branch, **one at a time, in ascending issue-number order**, resolving conflicts per
+   "Resolving merge conflicts" above and the multi-branch rule in "Migrations" (merge
+   same-version `pre/post-migrate.py` bodies into one file). Commit each merge before starting the
+   next one — this routine is an explicit exception to the developer managing commits themselves.
+   If a conflict is still ambiguous after reviewing both sides, stop and ask.
+
+   **Move each issue's card on the board as you go** (added 2026-09-26): right after committing
+   an issue's merge, move it from "📦 Ready to merge" to **"⚙️ Merge in progress"**; if its branch
+   genuinely can't be integrated (a conflict still ambiguous after asking, or the developer decides
+   to leave it out), move it to **"Merge rejected (needs attention)"** instead. Use
+   `gh project item-edit --id <item_id> --project-id <project_id> --field-id <status_field_id>
+   --single-select-option-id <option_id>` (ids from `gh project item-list`/`field-list 4 --owner
+   ElPuig --format json` and `gh project view 4 --owner ElPuig --format json`). This needs the org
+   permission **Projects: Read and write** on the `gh` token, which the developer granted **only for
+   these two moves**: never change any other field, any other column, any other project, or
+   anything else on GitHub — every other GitHub write still needs the developer's explicit go-ahead
+   first.
+3. **Run the "revisión del cierre"** (section above) over everything integrated, and **fix**
+   whatever it finds (docs, translations, tests), not just report it. Commit the fixes.
+4. **Prepare the PR text** exactly as "PR changelog" below describes (every `changelog/` file,
+   reassembled by section, condensed, `Related with` from merge history, delivered as a
+   scratchpad file) and **put it on the release PR itself** (see "Putting the text on the open
+   PR" below).
+5. **Push and get CI green** (added 2026-09-27): push the release branch so CI runs, watch it,
+   and fix and push again until it passes (see "Pushing during this routine" below).
+6. **`/changelog-clean`, then `/deploy-check`** (added 2026-09-27), once CI is green on the
+   newest head. Comment `/changelog-clean` on the PR first: it pushes its own commit removing
+   `changelog/`, which starts a new CI run (changelog-only, so it waits for and inherits the
+   previous one; watch it anyway). Then comment `/deploy-check` on that final head: it is required
+   to merge into `main`, and every new head resets it to pending, so it has to be the last thing
+   to run. A red deploy-check means fixing, pushing and starting over from step 5. Both actions
+   report through a commit status, not a comment: `changelog-clean-run` (on the new head it
+   pushed, or the original one if there was nothing to remove) and `deploy-check` (on the PR
+   head). Watch them with a background loop over
+   `gh api repos/ElPuig/EMS/commits/<sha>/statuses` until the context leaves `pending`, with a
+   timeout; `gh run watch` is awkward here since comment-triggered runs are listed under `main`,
+   not the PR branch. The deploy-check log is uploaded as the `deploy-check-log` artifact. Posting
+   the comments uses the developer's own `gh` token (both workflows only act for members of the
+   Integrators team), which is covered by this routine's grant, like the push.
+
+7. **Ask before merging, then merge and confirm the deploy** (added 2026-09-27). Once everything
+   is green, stop and ask the developer for confirmation (with a notification, trigger 3). Never
+   merge without it. The only exception is an explicit, advance authorization for this specific
+   routine (e.g. "fusiona tú si sale verde, que me voy a dormir"); if the wording is ambiguous or
+   open to interpretation, ask, and under "piloto automático" ask before the mode starts (never
+   during it; without a clear authorization, don't merge and leave it for the summary). With the
+   go-ahead:
+   - Mark the PR ready for review if it is a draft (GraphQL `markPullRequestReadyForReview` via
+     `gh api graphql`, not `gh pr ready`, which may hit the same Projects-classic error as
+     `gh pr edit`).
+   - Squash and merge through the API, never locally:
+     `gh api -X PUT repos/ElPuig/EMS/pulls/<n>/merge -f merge_method=squash -f commit_title=<release-branch> -F commit_message=@<file>`.
+     The title is exactly the branch name/version, without the `(#n)` GitHub adds by default; the
+     message is the PR's current body as is, ending with its "Related with" section (no
+     co-author lines). Read the resulting commit on `main` back to confirm both.
+   - Merging starts the release pipeline on its own: "Release on PR merge" publishes the release
+     from the PR body, which triggers "Deploy on Release" (production, self-hosted runner);
+     "Cleanup issue branches on PR merge" deletes the merged issue branches. Watch the release
+     workflow run and then the deploy run to completion, and report the result. A failed deploy
+     is urgent: tell the developer right away with the log's error, and never try to fix anything
+     in production on your own.
+
+The routine ends once the deploy is confirmed (or the developer decides not to merge) — it does **not** send the staff newsletter email (changed 2026-09-26): the
+newsletter now covers every release deployed since the previous one and is sent only when the
+developer asks for it (see "Staff newsletter email" below).
+
+**Pushing during this routine (2026-09-27, replaces the earlier "never push" rule).** The developer
+granted push permission for this routine only: *"Cuando te pida de preparar la release, podrás
+hacer push [...] Si fallan, lo repararás y volverás a subir los cambios. Esto se repite hasta que
+tengamos las pruebas en verde [...] No tendrás permiso para hacer push en ninguna otra
+circunstancia."* The loop:
+- Push only the current release branch, as a plain fast-forward:
+  `git -c credential.helper='!gh auth git-credential' push origin <release-branch>`. The helper
+  goes on that one command only; never configure git credentials globally (`gh auth setup-git`
+  once hijacked the developer's own VSCode push/pull). Needs the `gh` token's repository
+  permission **Contents: Read and write**.
+- Never `--force`, never push `main` or any other branch. If the push is rejected because the
+  remote branch has commits the local one lacks (e.g. the developer's), stop and ask instead of
+  merging or overwriting.
+- Watch the run with `gh run watch <run-id> --exit-status` as a background command (it notifies on
+  exit; no polling by hand). Green means every check except `changelog-clean`/`verify` (the
+  "Require changelog clean" workflow, red by design until `/changelog-clean`) and `deploy-check`
+  (manual).
+- Only the run of the newest pushed head counts; stop watching any earlier one as soon as a new
+  push lands. Every push starts a new run of this workflow, a docs-only one included (never
+  skipped, so the required check can't hang on "pending"), and older runs are not cancelled (no
+  `concurrency` in the workflow) but no longer count: the PR only shows the newest head's checks.
+  A push touching only `changelog/`, `docs/`, `plans/` or root-level `.md` files makes its run wait
+  for the previous head's run and inherit it (skip the tests if it passed, run the full suite
+  otherwise), so a long wait there is expected, not a hang.
+- On a failure: read the failed jobs' logs, fix, verify locally (a scoped `./test.sh`, or a clean
+  install on a throwaway database when the failure only shows on a clean install), commit, push
+  again. A CI-only failure is often one only a clean install exposes — see the "Local DB never
+  exercises post_init_hook" gotcha and view-inheritance order on clean installs.
+- Stop and ask instead of pushing another attempt when the fix is a judgment call rather than a
+  correction (changing a feature's behavior, relaxing a validation to make a test pass), when the
+  failure is outside the code (GitHub infrastructure, an external service), or after ~3 red cycles.
+- Outside this routine the agent never pushes, unless the developer explicitly grants it for that
+  specific case.
+
+**Hard limits, no exceptions:**
+- **`main` and the repository itself are read-only** (developer's rule, 2026-09-27: *"Nunca jamás
+  debes hacer nada que haga modificaciones en main"*). The single write allowed on `main` is the
+  squash-merge of the release PR through GitHub's merge API in step 7, and only with the
+  developer's authorization for that PR. Never push to `main`, never force-push anything, never
+  delete or rename a branch, tag or release, never change repository, branch-protection or ruleset
+  settings, never rewrite history.
+- **Never touch the `__manifest__.py` version** while doing this — the release branch already
+  carries the right version.
 
 ## PR changelog: persist silently, deliver only on request
 
@@ -936,6 +1119,20 @@ clickable in this client - don't bother with it, the plain-path-plus-Ctrl+O hand
 actually works here. Generating the full combined text as a chat response is also simply slow to
 stream for a multi-thousand-word document - a second, independent reason to prefer the file.
 
+**Putting the text on the open PR (2026-09-27).** Besides the scratchpad file, the text goes
+on the GitHub PR itself, found without asking the developer for a URL: the open PR whose head
+is the current branch (for a release branch its title is also the version),
+`gh pr list --head "$(git branch --show-current)" --base main --state open --json number,title,url`.
+If none or more than one comes back, ask instead of guessing. Read its current body first and
+only replace it when it is the untouched template or an earlier version of this same generated
+text; anything else (notes added by hand) means asking before overwriting. Write it with
+`gh api -X PATCH repos/ElPuig/EMS/pulls/<n> -F body=@<file>` (**not** `gh pr edit`, which fails
+on this `gh` version with a GraphQL "Projects (classic) is being deprecated" error unrelated to
+permissions), then read it back and compare with the file, ignoring trailing newlines. This
+needs the repository permission **Pull requests: Read and write** on the `gh` token, granted for
+exactly this: editing the PR's description, never merging, closing, commenting on or reviewing
+it without asking.
+
 **One file per branch, not one shared file** — deliberate, not just tidiness: every developer's
 own Claude session does the same on their own branch, so `changelog/` ends up with multiple
 independently-named files (one per contributor). A single shared file would conflict on every
@@ -953,34 +1150,46 @@ CI pieces work together:
 - `.github/workflows/changelog-clean.yml`: comment `/changelog-clean` on the PR (same
   Integrators-team authorization as `/deploy-check`) to remove `changelog/` via an automated
   commit pushed to the PR's own branch, right before merging.
-- `.github/workflows/ci-unit-testing.yml`: detects when a push only touched `changelog/` (the
-  cleanup commit above) and skips its own expensive install/test steps for that run, so the
-  cleanup doesn't trigger a full ~6-minute re-run — while still actually running (fast) and
-  reporting a real result, deliberately not using `[skip ci]` or a path-filtered trigger for
-  this, both of which risk GitHub leaving a required check stuck "pending" forever instead of
-  passing.
+- `.github/workflows/ci-unit-testing.yml`: detects when a push only touched paths that can
+  never affect runtime behaviour — `changelog/` (the cleanup commit above), `docs/` (technical
+  + trilingual user manuals and their `docs/assets/` images), `plans/`, or a root-level `.md`
+  file — and skips its own expensive install/test steps for that run, so a docs-only or
+  changelog-cleanup push doesn't trigger a full ~6-minute re-run — while still actually running
+  (fast) and reporting a real result, deliberately not using `[skip ci]` or a path-filtered
+  trigger for this, both of which risk GitHub leaving a required check stuck "pending" forever
+  instead of passing (generalized 2026-09-22 from an earlier version scoped to `changelog/`
+  alone). The skip compares the whole push against the previous head and only applies once that
+  previous head's own CI run has finished successfully (it waits if it's still running), since
+  GitHub shows the PR's checks for the newest head only (2026-09-26, PR #517). `i18n/*.po` is deliberately excluded from this list — a malformed `.po` file can break
+  the module's translation load, which only a real test run would catch.
 
 ## Staff newsletter email
 
-Whenever the developer asks directly for a "correo"/"boletín de novedades", send a formatted HTML
-newsletter email to **ems@elpuig.xeill.net** summarizing the same changes for a general staff
-audience — Catalan, no tecnicismes, condensed and friendly, not a translation of the English PR
-body. Distinct from the PR changelog file: that stays English/technical for GitHub; this email is
-Catalan/audience-facing, for the developer to review and forward to staff themselves — this
-mechanism never broadcasts directly to students/families/staff itself.
+A formatted HTML newsletter email to **ems@elpuig.xeill.net** summarizing, for a general staff
+audience, everything deployed to production since the previous newsletter — Catalan, no
+tecnicismes, condensed and friendly, not a translation of the English PR bodies. Distinct from the
+PR changelog: that stays English/technical for GitHub; this email is Catalan/audience-facing, for
+the developer to review and forward to staff themselves — this mechanism never broadcasts directly
+to students/families/staff itself.
 
-**Corrected 2026-09-15 — offer, don't auto-send, right after the PR changelog text.** This used to
-say to send the email automatically as soon as the PR changelog text was prepared/delivered. Real
-incident (PR #462, branch `v18.0.0.25.0`): the changelog text was delivered and the newsletter
-offer never came — the developer had to point it out afterward ("Como no te lo he pedido, deberías
-haberme ofrecido enviar el correo con las novedades... es importante"). Sending a real email (even
-to this fixed, developer-controlled address) is an externally-visible action — it should be
-offered and confirmed, not fired automatically, matching this project's general standing caution
-around actions with real-world effects (see "Executing actions with care" in the surrounding
-agent instructions). **How to apply:** right after delivering PR changelog text (see "PR
-changelog" below), if the newsletter hasn't already been sent for that PR, **offer** to send it —
-a short question, not silence and not an automatic send. A direct request for the "correo"/
-"boletín" at any point is already a request — send it right away without needing to offer first.
+**On demand, covering every release since the last one (2026-09-26).** The developer sends it
+roughly weekly (mid-week preferred: not Friday, when staff won't touch EMS until Monday; not
+Monday, when it drowns among other scheduled mail), but deliberately on no fixed day/time and with
+no scheduled job — they decide when. Send it **only when the developer asks** ("envía el
+boletín", "prepara el boletín", "envía el correo de novedades" or similar); never offer it after
+PR text and never send it as part of "Prepara la release" (both were earlier versions of this rule,
+replaced because one email per release was too frequent for staff). When asked:
+1. Read the last-covered release tag from memory (`project_newsletter_last_version`; kept in the
+   sending machine's Claude memory, since sending happens from this box).
+2. `git fetch origin --tags`, then list the release tags (`v18.0.*`) reachable from `origin/main`
+   that are newer than that marker. A tag on `main` means the release is deployed, so the email
+   never announces something staff can't use yet. **No new tags → say so and send nothing.**
+3. For each of those releases, read its merged PR body on GitHub (`gh pr list --base main --state
+   merged --json number,title,body,mergeCommit`), which is where the changelog survives after
+   `changelog/` is deleted before merge. Write **one** email for the whole period, grouped by
+   topic rather than by version.
+4. Send it (mechanism below). Once the shell output confirms `state=sent`, update the memory marker
+   to the newest tag included, with the send date.
 
 **Recipient is always the fixed address above, never one read from the database** — same
 principle as this file's "Email safety in tests": an address must be explicit and

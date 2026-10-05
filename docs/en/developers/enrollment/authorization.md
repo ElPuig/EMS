@@ -195,11 +195,17 @@ their own students and follows up the answers:
 - **Sending.** `ems.authorization._ems_sees_every_student()` separates the staff from a
   tutor, and the server is what enforces it: `_resolve_students()` drops every student who is
   not the tutor's, whatever reached the wizard, and `_allowed_scope()` only offers their own
-  groups. Studies and levels are hidden from tutors with `groups=` on the view nodes (a whole
+  groups - the ones they act as tutor of, which includes the groups of the tutors below a chief
+  (`tutor_scope_user_ids`, issue #483). The picking of students (by hand, or by groups, studies
+  and levels) lives in `ems.student.scope.mixin` (`models/shared/student_scope_mixin.py`), shared
+  with the contact data request wizard (issue #507, [contact data requests](../contacts/contact_data_request.md)). Studies and levels are hidden from tutors with `groups=` on the view nodes (a whole
   study or level would reach beyond their groups), so the server strips them rather than an
-  `invisible` expression deciding it in the browser. The student picker keeps its plain domain;
-  someone else's student picked by a tutor is listed in the preview as "Not one of your
-  students" and never sent to. What a tutor can read of the enrollments behind the scope target
+  `invisible` expression deciding it in the browser. Opened from the students list (or, for
+  contact data requests, the groups list), only the selected students and groups the sender acts
+  on are preloaded (issue #550), so selecting the whole list leaves the others out from the start.
+  The student picker offers a tutor only the students they act on: its domain is the assistant's
+  `student_domain` (a default, like `ems.em_grading_wizard.group_domain`), filtering on
+  `tutor_id.tutor_scope_user_ids` for anyone who does not see every student. What a tutor can read of the enrollments behind the scope target
   (`rule_sale_order_teacher`) and what they may create (`rule_ems_authorization_tutor`) say the
   same thing independently.
 
@@ -375,7 +381,7 @@ test_a_pending_required_standalone_does_not_block_action_confirm`.
 | Enrollment form | `views/academic_management/enrollment/enrollment_form.xml` | `ems_authorization_ids` embedded on the enrollment itself. |
 | Contact form | `views/community/contact/form.xml` | Read-only `ems_authorization_ids` tab on the student. |
 | Authorizations list/form/search | `views/academic_management/authorizations/authorization_{view,form,search}.xml` | The follow-up screens on `ems.authorization` itself (`action_ems_authorizations`, Academic Management → Authorizations → Responses), opening flat on the running year. `group_id` (related, non-stored, to `partner_id.main_group_id`) is searchable but deliberately not groupable: that would need `store=True`, which goes stale the moment a student changes group. |
-| Send assistant | `views/academic_management/authorizations/authorization_send_wizard.xml` | The wizard form, its menu action, and the `action_authorization_send_bulk` server action bound to both the students list and a student's own form's cog menu. |
+| Send assistant | `views/academic_management/authorizations/authorization_send_wizard.xml` | The wizard form, its menu action, and the `action_authorization_send_bulk` server action bound to the students list's cog menu (a student's own form has the same method in its Actions dropdown). |
 | Portal | `views/portal/portal_authorizations.xml` | The shared authorizations block, `t-call`ed by `portal_enrollment_draft.xml` and `portal_enrollment_confirmed.xml`. Documented from the user side in `docs/en/families/manual-portal-alumne.md`, "Step 5 — Answering an authorization". |
 | Report | `reports/authorizations/report_authorization_certificate.xml` | The signed-response certificate PDF, rendered by the portal controller and attached as `signed_document`. Reads the student, year and study off the authorization itself, hides the enrollment-code row when there is none, and tells a portal response from a backoffice one by `response_uid.share`. |
 

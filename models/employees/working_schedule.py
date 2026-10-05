@@ -10,9 +10,8 @@ import io
 import json
 import math
 import re
-from datetime import datetime
 
-from ..shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC
+from ..shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC, EMS_SKIP_GROUP_CLASSROOM_CASCADE
 
 
 def _m2m_command_ids(commands):
@@ -74,6 +73,14 @@ class ems_working_schedule(models.Model):
 				vals['name'] = "%s (%s)" % (employee.name, course.name) if course else employee.name
 		return super().create(vals_list)
 
+	def write(self, vals):
+		res = super().write(vals)
+		if 'active' in vals:
+			# Issue #458: only blocks on an active calendar count towards a group's reference
+			# classroom, so (un)archiving a whole calendar changes it for every group it teaches.
+			self.sudo().with_context(active_test=False).attendance_ids.group_ids._sync_reference_space()
+		return res
+
 	def action_archive(self):
 		"""Cascades to every remaining active 'attendance_ids' row - mirrors
 		'ems.attendance_template.action_archive()''s own cascade to its schedule lines. Needed
@@ -123,7 +130,7 @@ class ems_working_schedule(models.Model):
 
 		Bottom-up sync redesign, Phase 5 (2026-09-08): the unlink+write below is a single-teacher
 		operation, so - unlike the import wizard's own per-teacher loop - it never risks the
-		cross-teacher false-collision 'sync_from_schedule_batch' guards against; suppressing the
+		cross-teacher false-collision '_sync_from_schedule_batch' guards against; suppressing the
 		automatic hook here is purely to avoid syncing the SAME teacher redundantly (once per
 		hook-triggered write, once explicitly below) rather than a correctness requirement. The
 		explicit sync at the end now reuses 'hr.employee._ems_sync_schedule_from_calendar()' (Phase
@@ -424,6 +431,7 @@ class ems_working_schedule_assignation(models.Model):
 		# decision is made, regardless of which of the three overrides below reached it.
 		records.mapped('employee_id')._ems_sync_schedule_from_calendar_unless_suppressed()
 		records._get_public_schedule_groups()._mark_public_schedule_dirty()
+		records.sudo().group_ids._sync_reference_space()
 		return records
 
 	def write(self, vals):
@@ -434,9 +442,13 @@ class ems_working_schedule_assignation(models.Model):
 		# rather than only trusting it never happens.
 		before = self.mapped('employee_id') if trigger else self.env['hr.employee']
 		groups_before = self._get_public_schedule_groups() if public_trigger else self.env['ems.group']
+		# Issue #458: the groups a block leaves (a 'group_ids' change) need their reference
+		# classroom recomputed too, not only the ones it ends up in.
+		reference_groups_before = self.sudo().group_ids if trigger else self.env['ems.group']
 		res = super().write(vals)
 		if trigger:
 			(before | self.mapped('employee_id'))._ems_sync_schedule_from_calendar_unless_suppressed()
+			(reference_groups_before | self.sudo().group_ids)._sync_reference_space()
 		if public_trigger:
 			(groups_before | self._get_public_schedule_groups())._mark_public_schedule_dirty()
 		return res
@@ -444,9 +456,11 @@ class ems_working_schedule_assignation(models.Model):
 	def unlink(self):
 		before = self.mapped('employee_id')
 		groups_before = self._get_public_schedule_groups()
+		reference_groups_before = self.sudo().group_ids
 		res = super().unlink()
 		before._ems_sync_schedule_from_calendar_unless_suppressed()
 		groups_before._mark_public_schedule_dirty()
+		reference_groups_before._sync_reference_space()
 		return res
 
 	def _get_public_schedule_groups(self):
@@ -713,7 +727,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		lines = []
 		for conflict in conflicts:
 			template = conflict.attendance_template_id
-			weekday = dict(conflict.weekdays_selection).get(conflict.weekday)
+			weekday = conflict._weekday_label(conflict.weekday)
 			lines.append(_("%(teacher)s - %(subject)s (%(weekday)s %(time)s)") % {
 				'teacher': ", ".join(template.teacher_ids.mapped('display_name')),
 				'subject': template.display_name,
@@ -722,9 +736,23 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			})
 		return lines
 
+	def _raise_if_unresolved(self, conflict_lines):
+		"""Blocks advancing while any of 'conflict_lines' (internal or external) still has no valid
+		resolution, listing them. 'self.env._' rather than '_': the list is built inside a generator
+		expression, where '_' can't find the user's language (it inspects its caller's frame, and a
+		generator runs in its own) - those labels came out untranslated."""
+		invalid_lines = conflict_lines.filtered(lambda line: not line._resolution_is_valid())
+		if invalid_lines:
+			raise ValidationError(_(
+				"Please choose a valid resolution for every conflict before continuing:\n%s"
+			) % "\n".join(
+				self.env._("%(left)s vs. %(right)s") % {'left': line.left_label, 'right': line.right_label}
+				for line in invalid_lines
+			))
+
 	def _space_conflict_lines(self, conflicts):
 		return [
-			_("Room conflict: this import wants the same space and time as %s.") % line
+			self.env._("Room conflict: this import wants the same space and time as %s.") % line
 			for line in self._conflict_lines(conflicts)
 		]
 
@@ -733,7 +761,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		this same batch double-booked against their own, already-existing schedule for a different
 		subject/group (e.g. two departments scheduling them at the same time in separate files)."""
 		return [
-			_("Schedule conflict: this teacher already has an overlapping session, %s.") % line
+			self.env._("Schedule conflict: this teacher already has an overlapping session, %s.") % line
 			for line in self._conflict_lines(conflicts)
 		]
 
@@ -758,7 +786,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	def _missing_space_lines(self, missing_space):
 		"""One bullet line per group missing a classroom — shared by every onchange handler so the
 		message is worded identically wherever it appears."""
-		return [_("Group '%s' has no classroom assigned.") % group.name for group in missing_space]
+		return [self.env._("Group '%s' has no classroom assigned.") % group.name for group in missing_space]
 
 	def _classify_attachments(self):
 		"""Parses every 'attachment_ids' file (without writing anything), building the raw
@@ -1270,7 +1298,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 
 	def _entry_label(self, item, entry):
 		groups = ", ".join(self.env['ems.group'].browse(entry.get('group_ids') or []).mapped('display_name'))
-		weekday = dict(self.env['ems.attendance_schedule'].weekdays_selection).get(entry['dayofweek'])
+		weekday = self.env['ems.attendance_schedule']._weekday_label(entry['dayofweek'])
 		time_range = "%s-%s" % (self._format_hour(entry['hour_from']), self._format_hour(entry['hour_to']))
 		return _("%(teacher)s - %(subject)s (%(groups)s, %(weekday)s %(time)s)") % {
 			'teacher': self._teacher_label_for_item(item),
@@ -1464,14 +1492,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		line's deletion can never shift another still-unprocessed line's stored index within the same
 		item (only relevant for the rare 3+-way collision case - see '_find_internal_conflicts')."""
 		self.ensure_one()
-		invalid_lines = self.internal_conflict_line_ids.filtered(lambda line: not line._resolution_is_valid())
-		if invalid_lines:
-			raise ValidationError(_(
-				"Please choose a valid resolution for every conflict before continuing:\n%s"
-			) % "\n".join(
-				_("%(left)s vs. %(right)s") % {'left': line.left_label, 'right': line.right_label}
-				for line in invalid_lines
-			))
+		self._raise_if_unresolved(self.internal_conflict_line_ids)
 
 		node_cache = json.loads(self.parsed_entries_json or '[]')
 		indices_to_remove = {}
@@ -1512,7 +1533,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		return self.env['hr.employee'].search([('schedule_import_code', '=', identifier)], limit=1)
 
 	def _external_conflict_label(self, candidate):
-		weekday = dict(candidate.weekdays_selection).get(candidate.weekday)
+		weekday = candidate._weekday_label(candidate.weekday)
 		return _("%(teacher)s - %(subject)s (%(groups)s, %(weekday)s %(time)s)") % {
 			'teacher': ", ".join(candidate.attendance_template_id.teacher_ids.mapped('display_name')),
 			'subject': candidate.attendance_template_id.subject_id.display_name,
@@ -1640,54 +1661,25 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 	def _continue_from_db_conflicts(self):
 		"""The 'db_conflicts' step's own 'Continue' handler - mirrors '_continue_from_internal_
 		conflicts' exactly on the left (new-entry) side, but the right side is a real, already-
-		persisted 'ems.attendance_schedule' record instead of another node_cache position:
-		'prevail_left' archives it outright (always allowed regardless of 'has_sessions' - only
-		in-place field edits on a line with real history are locked), 'reassign_rooms' writes its
-		new room through the shared 'ems.attendance_mixin._write_or_new_version()' (archives and
-		clones with the new room if it already has sessions, plain write otherwise) rather than a
-		raw 'write()' - the one piece of forward-planning from an earlier session that made this
-		screen's own Green phase smaller than screen 4's. Also builds the "Overall summary" step's
+		persisted 'ems.attendance_schedule' record instead of another node_cache position, which
+		this step leaves untouched: archiving it ('prevail_left') or moving it ('reassign_rooms')
+		only happens on Import (see '_apply_db_conflict_resolutions'). Also builds the "Overall summary" step's
 		own content before advancing - one block per category, each with its own count header AND
 		concrete detail lines (see '_summary_block_html') - the last screen before Import, so this
 		is the last point anything needs precomputing."""
 		self.ensure_one()
-		invalid_lines = self.external_conflict_line_ids.filtered(lambda line: not line._resolution_is_valid())
-		if invalid_lines:
-			raise ValidationError(_(
-				"Please choose a valid resolution for every conflict before continuing:\n%s"
-			) % "\n".join(
-				_("%(left)s vs. %(right)s") % {'left': line.left_label, 'right': line.right_label}
-				for line in invalid_lines
-			))
+		self._raise_if_unresolved(self.external_conflict_line_ids)
 
 		node_cache = json.loads(self.parsed_entries_json or '[]')
 		indices_to_remove = {}
+		# Only the new entries (the cache) change here: the existing sessions are only touched on
+		# Import, see '_apply_db_conflict_resolutions'.
 		for line in self.external_conflict_line_ids:
-			if line.resolution == 'prevail_left':
-				# NOTE: "archives/trims the existing DB session's template" (the plan's own words)
-				# - archiving just this one line is enough to free the slot ("trims"), but if that
-				# was the template's only active line, the now-empty template is
-				# archived-or-deleted outright too ("archives") rather than left as an orphaned,
-				# lineless record - deleted instead of archived when it has no real sessions
-				# (2026-09-07, see 'ems.attendance_template._archive_or_delete'). Bug fixed
-				# 2026-09-08 (bottom-up sync redesign, Phase 6): this used to archive
-				# 'right_schedule_id' directly, leaving the teacher's own calendar block silently
-				# pointing at a now-archived session - '_archive_via_calendar_blocks' instead
-				# archives the CALENDAR block(s) behind it, and the automatic hook archives the
-				# schedule line (and its template, if left empty) as a natural consequence, exactly
-				# like 'ems.group_classroom_change_wizard''s own equivalent fix the same day.
-				line.right_schedule_id._archive_via_calendar_blocks()
-			elif line.resolution == 'prevail_right':
+			if line.resolution == 'prevail_right':
 				indices_to_remove.setdefault(line.left_item_index, set()).add(line.left_entry_index)
 			elif line.resolution == 'reassign_rooms':
 				node_cache[line.left_item_index]['entries'][line.left_entry_index]['space_id'] = line.left_space_id.id
 				node_cache[line.left_item_index]['attendance_ids'][line.left_entry_index + 1][2]['space_id'] = line.left_space_id.id
-				if line.right_schedule_id.space_id != line.right_space_id:
-					# NOTE: same 2026-09-08 fix as the 'prevail_left' branch above - moves the
-					# CALENDAR block(s) behind 'right_schedule_id', letting the automatic hook keep
-					# the schedule line itself correctly in sync, instead of writing it directly and
-					# leaving the calendar stale.
-					line.right_schedule_id._relocate_via_calendar_blocks(line.right_space_id)
 
 		for item_index, entry_indices in indices_to_remove.items():
 			for entry_index in sorted(entry_indices, reverse=True):
@@ -1698,13 +1690,13 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		existing_items = self._teacher_preview_items(node_cache, ('resolved', 'email_match'))
 		pending_items = self._teacher_preview_items(node_cache, ('create_pending', 'placeholder'))
 		group_lines = [
-			_("%(raw)s resolved to %(group)s") % {'raw': line.raw_name, 'group': line.group_id.display_name}
+			self.env._("%(raw)s resolved to %(group)s") % {'raw': line.raw_name, 'group': line.group_id.display_name}
 			for line in self.group_line_ids
 		]
 		teacher_lines = [
-			_("%(raw)s will be created as a new pending teacher") % {'raw': line.raw_identifier}
+			self.env._("%(raw)s will be created as a new pending teacher") % {'raw': line.raw_identifier}
 			if line.create_new else
-			_("%(raw)s resolved to %(teacher)s") % {'raw': line.raw_identifier, 'teacher': line.employee_id.display_name}
+			self.env._("%(raw)s resolved to %(teacher)s") % {'raw': line.raw_identifier, 'teacher': line.employee_id.display_name}
 			for line in self.teacher_line_ids
 		]
 		sections = [
@@ -1734,7 +1726,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		self.overall_summary_html = self._summary_blocks_html(
 			[self._summary_block_html(title, lines, note=note) for title, lines, note in sections])
 		self.summary_file = self._build_summary_csv(sections)
-		self.summary_file_name = "working_schedules_import_%s.csv" % datetime.now().strftime("%Y%m%d_%H%M%S")
+		self.summary_file_name = "working_schedules_import_%s.csv" % self.env['ems.datetime_utils'].get_local_datetime().strftime("%Y%m%d_%H%M%S")
 		self._advance_state()
 
 	def _get_or_create_pending_teacher(self, identifier, manual_email=False):
@@ -1791,11 +1783,11 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		# ems.attendance_mixin) - this method runs ONCE PER TEACHER in a loop ('_apply_import'
 		# below), and the automatic resource.calendar.attendance hook would otherwise try to
 		# re-sync each one immediately, in isolation - exactly the false cross-teacher room-
-		# collision 'sync_from_schedule_batch's own docstring warns about (a teacher already
+		# collision '_sync_from_schedule_batch's own docstring warns about (a teacher already
 		# resynced here colliding against another teacher's still-stale line, simply because that
 		# other teacher's own turn in this loop hasn't happened yet). Suppressed for this whole
 		# method; '_apply_import' still runs its own explicit, correctly-ordered
-		# 'sync_from_schedule_batch' across every teacher together, unchanged, right after.
+		# '_sync_from_schedule_batch' across every teacher together, unchanged, right after.
 		calendar = teacher.with_context(**{EMS_SKIP_AUTO_SCHEDULE_SYNC: True}).resource_calendar_id
 		existing = calendar.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4'))
 		new_slots = {(entry['dayofweek'], entry['hour_from'], entry['hour_to']) for entry in entries}
@@ -1812,7 +1804,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		re-parsing the XML from scratch (which would also re-resolve teachers/pending-codes against
 		data this same call is about to change)."""
 		# NOTE: attendance_template sync is deferred and batched across every teacher (see
-		# sync_from_schedule_batch, below) — syncing one teacher at a time here would let an
+		# _sync_from_schedule_batch, below) — syncing one teacher at a time here would let an
 		# early teacher's fresh schedule line falsely collide with a later teacher's still-stale one
 		# whenever they share a classroom, since the later teacher hasn't been re-synced yet.
 		teacher_entries = []
@@ -1859,8 +1851,14 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			entries = [e for e in item['entries'] if not e["non_teaching"]]
 			teacher_entries.append((teacher, entries))
 
+		# Issue #458: every group these calendars teach, before and after the write - returned so
+		# their reference classroom is recomputed once at the very end (see 'import_planner_data').
+		imported_calendars = self.env['resource.calendar'].sudo().browse(
+			[teacher.resource_calendar_id.id for teacher, _attendance_ids in teacher_attendance_ids.values()])
+		reference_groups = imported_calendars.attendance_ids.group_ids
 		for teacher, attendance_ids in teacher_attendance_ids.values():
 			self._write_teacher_schedule(teacher, attendance_ids)
+		reference_groups |= imported_calendars.attendance_ids.group_ids
 
 		# NOTE: ems.attendance_schedule.space_id is required, but ems.group.space_id (where it's
 		# taken from) is not — a group missing a classroom would otherwise fail with Odoo's generic
@@ -1878,7 +1876,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		# scope (groups are reused across academic years, but their attendance templates are
 		# archived by the course transition wizard first - see
 		# docs/en/developers/employees/working_schedule.md), so an external overlap found here is
-		# always either legitimate co-teaching (left alone - sync_from_schedule_batch's own
+		# always either legitimate co-teaching (left alone - _sync_from_schedule_batch's own
 		# reconciliation folds the new teacher into the same shared template) or a genuine problem
 		# the onchange preview should already have caught. Raising here too (not just previewing)
 		# is the safety net for a wizard whose cache was built before some other change landed.
@@ -1902,7 +1900,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		# Skipped entirely in 'replace' mode (2026-09-06, found from a real import failing here) -
 		# 'find_self_conflicts' reads 'ems.attendance_schedule', which is only brought in sync with
 		# the calendar (already correctly rewritten by '_write_teacher_schedule' above, for every
-		# teacher in this batch) by 'sync_from_schedule_batch' further BELOW, not yet run at this
+		# teacher in this batch) by '_sync_from_schedule_batch' further BELOW, not yet run at this
 		# point. In 'replace' mode this means any hit here is a guaranteed false positive: a stale
 		# 'ems.attendance_schedule' row for a slot the calendar write already dropped, not yet
 		# reflected because the sync that would clean it up hasn't executed yet - exactly the same
@@ -1931,12 +1929,43 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			(teacher, teacher._teaching_entries_from_calendar()) for teacher, _attendance_ids in teacher_attendance_ids.values()
 		]
 		for teacher, calendar_entries in calendar_teacher_entries:
-			self.env['ems.teaching'].sync_from_schedule(teacher, calendar_entries)
-		self.env['ems.attendance_template'].sync_from_schedule_batch(calendar_teacher_entries)
+			self.env['ems.teaching']._sync_from_schedule(teacher, calendar_entries)
+		self.env['ems.attendance_template']._sync_from_schedule_batch(calendar_teacher_entries)
+		return reference_groups
+
+	def _apply_db_conflict_resolutions(self):
+		"""The 'db_conflicts' resolutions that change an existing session, applied on Import rather
+		than when leaving that screen: nothing may be written before Import (Cancel on the summary
+		must still undo everything), and archiving there also deleted a session-less template
+		together with its conflict line, so the summary counted one conflict fewer. Both go through
+		the CALENDAR block(s) behind 'right_schedule_id' (bottom-up sync redesign, 2026-09-08), so
+		the automatic hook keeps the schedule line, and its template, in sync:
+		- 'prevail_left' archives the existing session, freeing its slot for the new entry (and the
+		  template too if left empty, deleted instead when it has no real sessions - see
+		  'ems.attendance_template._archive_or_delete');
+		- 'reassign_rooms' moves it to the room picked for it.
+		Returns the groups of every session it touched (see 'import_planner_data')."""
+		groups = self.env['ems.group'].sudo()
+		for line in self.external_conflict_line_ids:
+			if line.resolution in ('prevail_left', 'reassign_rooms'):
+				groups |= line.right_schedule_id.sudo().attendance_template_id.group_ids
+			if line.resolution == 'prevail_left':
+				line.right_schedule_id._archive_via_calendar_blocks()
+			elif line.resolution == 'reassign_rooms' and line.right_schedule_id.space_id != line.right_space_id:
+				line.right_schedule_id._relocate_via_calendar_blocks(line.right_space_id)
+		return groups
 
 	def import_planner_data(self):
 		self.ensure_one()
-		self._apply_import(json.loads(self.parsed_entries_json or '[]'))
+		# Issue #458: a block imported without its own room takes its group's 'space_id', so the
+		# groups' reference classroom must not be recomputed while anything is still being written
+		# (EMS_SKIP_GROUP_CLASSROOM_CASCADE) - otherwise moving one block could change the room the
+		# next ones get, and the conflicts already checked would no longer be the real ones. Every
+		# group touched is recomputed once at the end instead.
+		frozen = self.with_context(**{EMS_SKIP_GROUP_CLASSROOM_CASCADE: True})
+		reference_groups = frozen._apply_db_conflict_resolutions()
+		reference_groups |= frozen._apply_import(json.loads(self.parsed_entries_json or '[]'))
+		self.env['ems.group'].browse(reference_groups.ids)._sync_reference_space()
 		return {
 			'type': 'ir.actions.client',
 			'tag': 'soft_reload',

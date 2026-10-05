@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import time
+from datetime import datetime
 from types import SimpleNamespace
+from zoneinfo import ZoneInfo
 from unittest.mock import patch
 
-from odoo.tests.common import TransactionCase
+from odoo.tests import tagged
+from odoo.tests.common import HttpCase, TransactionCase
 
 
 class TestEmsBase(TransactionCase):
@@ -119,6 +123,19 @@ class TestEmsDatetimeUtils(TransactionCase):
         naive = utils.datetime_to_odoo(utc)
         self.assertIsNone(naive.tzinfo)
 
+    def test_current_tz_is_always_the_companys(self):
+        """The whole centre works in the company's timezone: neither the acting user's nor the
+        one the web client sends in the context can change it."""
+        utils = self.env['ems.datetime_utils']
+        self.env.company.partner_id.tz = 'Europe/Madrid'
+        self.assertEqual(utils.with_context(tz='America/Lima').current_tz().key, 'Europe/Madrid')
+        self.assertEqual(utils.with_context(tz='America/Lima').get_local_today(),
+                         datetime.now(ZoneInfo('Europe/Madrid')).date())
+
+    def test_get_server_epoch_ms_is_the_servers_clock(self):
+        utils = self.env['ems.datetime_utils']
+        self.assertAlmostEqual(utils.get_server_epoch_ms() / 1000, time.time(), delta=5)
+
     def test_next_occurrence_utc_returns_a_naive_datetime(self):
         utils = self.env['ems.datetime_utils']
         result = utils.next_occurrence_utc(12.5)
@@ -211,3 +228,42 @@ class TestEmsMultithreading(TransactionCase):
     # is covered by code review here and by every one of those callers' own tests
     # correctly driving the setup/compute/store/callback contract through a mocked
     # run_in_thread.
+
+
+@tagged('post_install', '-at_install')
+class TestEmsSessionInfoTimezone(HttpCase):
+    """models/shared/ir_http.py: the company's timezone handed to the web client, which shows every
+    date/time in it instead of the browser's (static/src/js/shared/company_timezone_service.js)."""
+
+    def test_backend_and_portal_pages_carry_the_company_timezone(self):
+        self.env.company.partner_id.tz = 'Europe/Madrid'
+        # Public (the portal's login page and the attendance kiosk) and logged-in backend.
+        for url, login in (('/web/login', None), ('/odoo', 'admin')):
+            with self.subTest(url=url):
+                if login:
+                    self.authenticate(login, login)
+                self.assertIn('"ems_tz": "Europe/Madrid"', self.url_open(url).text)
+
+    def test_web_client_uses_the_company_timezone_not_the_browsers(self):
+        """static/src/js/shared/company_timezone_service.js, in a real browser (whose own timezone
+        is the test machine's, not the company's): every date/time goes through luxon's default
+        zone, and the 'tz' cookie Odoo reads as "the browser's timezone" says the company's too."""
+        self.env.company.partner_id.tz = 'Europe/Madrid'
+        check = """
+            const deadline = Date.now() + 10000;
+            (function poll() {
+                // The login page loads luxon lazily, after the page itself.
+                const zone = window.luxon && luxon.Settings.defaultZone.name;
+                if (zone === 'Europe/Madrid' && document.cookie.includes('tz=Europe/Madrid')) {
+                    console.log('test successful');
+                } else if (Date.now() < deadline) {
+                    setTimeout(poll, 100);
+                } else {
+                    console.error(`timezone not forced: zone=${zone} cookie=${document.cookie}`);
+                }
+            })();
+        """
+        ready = "document.readyState === 'complete'"
+        # Public (login page: the tz a user gets on their first login comes from here) and backend.
+        self.browser_js('/web/login', check, ready=ready)
+        self.browser_js('/odoo', check, ready=ready, login='admin')

@@ -5,6 +5,7 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
 import { dayLabels } from "./schedule_grid_geometry";
+import { serverNow, syncServerClock } from "./server_clock";
 
 const SHIFTS = [
     { key: "morning", label: _t("Morning") },
@@ -28,15 +29,13 @@ const AFTERNOON_START_HOUR = 15;
 
 // Defaults the board to whichever day/shift the viewer would actually want to see right now
 // (developer feedback, 2026-09-01: "hoy es martes... como ya son las 15h, pues el turno de
-// tarde") — the browser's own local clock, since "now" here means the viewer's own wall-clock
-// time, not the server's. Date.getDay() is 0=Sunday..6=Saturday; our own day index is 0=Monday.
-// ..4=Friday, so a weekend falls outside that range - Monday is as reasonable a fallback as any
-// (the board has no "weekend" concept at all, every table is keyed to a Mon-Fri dayofweek).
-function getDefaultDayAndShift() {
-    const now = new Date();
-    const jsDay = now.getDay();
-    const day = jsDay >= 1 && jsDay <= 5 ? jsDay - 1 : 0;
-    const shift = now.getHours() >= AFTERNOON_START_HOUR ? "afternoon" : "morning";
+// tarde") — the server's clock in the company's timezone, never the computer's (see
+// server_clock.js). luxon's weekday is 1=Monday..7=Sunday; our own day index is 0=Monday..4=Friday,
+// so a weekend falls outside that range - Monday is as reasonable a fallback as any (the board has
+// no "weekend" concept at all, every table is keyed to a Mon-Fri dayofweek).
+function getDefaultDayAndShift(now) {
+    const day = now.weekday <= 5 ? now.weekday - 1 : 0;
+    const shift = now.hour >= AFTERNOON_START_HOUR ? "afternoon" : "morning";
     return { day, shift };
 }
 
@@ -87,10 +86,10 @@ export class GuardDutyBoard extends Component {
     setup() {
         this.orm = useService("orm");
         this.actionService = useService("action");
-        const { day, shift } = getDefaultDayAndShift();
         this.state = useState({
-            activeDay: day,
-            activeShift: shift,
+            // Both set in onWillStart, once the server clock is known.
+            activeDay: 0,
+            activeShift: "morning",
             // Issue #390's level filter: empty = "All levels" (the previous, still-default
             // behaviour) - see guard_duty_board.py's own get_guard_duty_board_lines() docstring.
             activeLevelIds: [],
@@ -98,7 +97,7 @@ export class GuardDutyBoard extends Component {
             // The Monday the weekday tabs hang off. Absences are keyed to real dates while the
             // timetable is keyed to weekdays, so the board needs a concrete week before it can
             // say who is away - see ems.course.get_guard_duty_board_lines()'s 'day' argument.
-            weekStart: toIsoDate(mondayOf(new Date())),
+            weekStart: "",
             activeView: "schedule",
             board: null,
             loading: true,
@@ -109,7 +108,13 @@ export class GuardDutyBoard extends Component {
             const [course, levels] = await Promise.all([
                 this.orm.call("ems.course", "get_current_course_data", []),
                 this.orm.call("ems.course", "get_guard_duty_board_levels", []),
+                syncServerClock(this.orm),
             ]);
+            const now = serverNow();
+            const { day, shift } = getDefaultDayAndShift(now);
+            this.state.activeDay = day;
+            this.state.activeShift = shift;
+            this.state.weekStart = toIsoDate(mondayOf(fromIsoDate(now.toISODate())));
             this.state.courseId = course.id;
             this.state.courseName = course.name;
             this.state.levels = levels;
@@ -183,6 +188,10 @@ export class GuardDutyBoard extends Component {
 
     get wcSuffix() {
         return _t("(WC)");
+    }
+
+    get coveredTitle() {
+        return _t("Co-taught: another teacher is in the class, no guard needed");
     }
 
     // Compact label for the level dropdown's own toggle button - the full checkbox list already

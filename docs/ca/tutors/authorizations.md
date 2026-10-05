@@ -28,7 +28,7 @@ Ompliu:
 - **Autoritzacions a enviar**: un o més formularis del catàleg. Tots van al mateix correu. Els formularis els creen secretaria i la direcció d'estudis; demaneu-los-ho si no hi trobeu el que necessiteu.
 - **Any acadèmic**: el curs al qual pertanyen les autoritzacions.
 - **Enviar a**:
-  - **Alumnes seleccionats**: els alumnes que afegiu a la llista de sota.
+  - **Alumnes seleccionats**: els alumnes que afegiu a la llista de sota. Només s'hi ofereixen els vostres alumnes; si obriu l'assistent des del menú ⚙ de la llista d'estudiants, només s'hi afegeixen els vostres d'entre els seleccionats.
   - **Grups / estudis / nivells**: tot l'alumnat matriculat aquest curs als grups que trieu. Només s'ofereixen els vostres grups.
 - **Enviar correu de notificació**: deixeu-lo activat per avisar per correu. Desactiveu-lo perquè les autoritzacions apareguin al portal sense enviar cap correu.
 
@@ -36,7 +36,6 @@ Ompliu:
 
 - *Ja sol·licitada*: l'alumne ja té aquell formulari aquest curs. Se salta.
 - *Fora de l'àmbit d'aquestes autoritzacions*: el formulari no s'aplica als estudis d'aquest alumne. Se salta.
-- *No és un dels vostres alumnes*: l'alumne no és d'un grup que tutoritzeu. Se salta.
 - *No s'ha trobat contacte familiar* o *Destinatari sense correu electrònic*: l'autorització es crea, però no es pot enviar cap correu.
 
 Feu clic a **Enviar**. Un resum indica quantes autoritzacions s'han enviat, quants correus s'han encuat i quants alumnes s'han saltat.

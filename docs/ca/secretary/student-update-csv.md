@@ -30,6 +30,8 @@ Des de la llista d'**Alumnat**, obriu el menú d'accions (la icona de l'engranat
 
 Un cop carregades les columnes, primer trieu quina conté l'**identificador de l'alumne (IDALU/RALC)** — és obligatori, és com es fa coincidir cada fila amb un alumne. Després mapejeu tants o tan pocs dels altres camps com tingui realment el vostre fitxer (nom, telèfon, correu, adreça, documents…) — tot allò que quedi sense mapejar simplement no es toca.
 
+![Actualitzar alumnes des de CSV, amb les columnes del fitxer assignades a l'ID d'alumne, nom, telèfon, correu i compte bancari](../../assets/secretary/actualitzacio-csv-01-columnes.png)
+
 ## Actualitzar el compte bancari
 
 Si mapegeu una columna d'**IBAN** i una fila té un valor, aquest esdevé el compte bancari actiu de l'alumne (qualsevol altre compte que tingués es desactiva). Deixeu l'IBAN sense mapejar, o deixeu la cel·la buida per a una fila concreta, i les seves dades bancàries queden intactes.
@@ -37,6 +39,8 @@ Si mapegeu una columna d'**IBAN** i una fila té un valor, aquest esdevé el com
 ## Llegir el resultat
 
 Després de fer clic a **Actualitzar alumnat**, veureu quants alumnes s'han actualitzat i quants IDs no s'han trobat, més qualsevol error a nivell de fila (per exemple, una data que no s'ha pogut interpretar). Un **CSV de resultat** descarregable — el vostre fitxer original amb una columna d'estat addicional — mostra exactament què ha passat amb cada fila, útil per a un fitxer gran.
+
+Si la columna del correu conté una adreça del domini del centre (un compte corporatiu), aquest valor no s'escriu: l'alumne conserva el correu personal que tenia, la resta de la fila s'actualitza igualment i el resultat mostra un avís per a aquest alumne.
 
 ---
 

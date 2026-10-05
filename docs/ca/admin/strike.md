@@ -14,9 +14,9 @@ Els motius entre els quals trien els professors en posar un strike es configuren
 
 ![Llistat de motius de strike](../../assets/admin/admin-strike-reasons-list.png)
 
-- Cada motiu té un **Nom** (traduïble) i una **Seqüència** (arrossega per reordenar — el primer de la llista és el que s'utilitza com a motiu preseleccionat per defecte al diàleg de passar llista).
+- Cada motiu té un **Nom** (traduïble) i una **Seqüència** (arrossega per reordenar — el primer actiu de la llista és el motiu preseleccionat als dos diàlegs de strike: passar llista i **Nou strike**).
 - Fes servir l'acció estàndard **Arxivar** (menú ⚙ al formulari, o selecciona files a la llista i fes servir el mateix menú) per retirar un motiu sense esborrar-lo — els strikes existents el continuen referenciant correctament. Els motius arxivats queden amagats per defecte; fes servir **Filtres → Arxivat** a la llista per tornar-los a veure, o per desarxivar-ne un.
-- El motiu inicial "Other / General" (`ems.strike_reason_other`) és el valor per defecte del sistema — mantén-lo actiu (no arxivat), ja que és el que preselecciona el diàleg de passar llista.
+- El motiu inicial "Other / General" (`ems.strike_reason_other`) és el primer de la llista, així que és el que es preselecciona per defecte — mantén-lo actiu i al capdamunt si no vols un altre motiu per defecte.
 
 ---
 
@@ -29,6 +29,12 @@ A **Configuració → Gestió EMS → "Strikes Settings" (Configuració dels str
 ## Configurar la notificació a la família
 
 Al mateix bloc "Strikes Settings" hi ha també una opció **Family notification**: **All strikes** notifica la família a cada strike (segons la regla habitual de minoria d'edat/autorització), **Kicked out only** només la notifica quan el strike també té marcat "Expulsat de classe". L'alumne i el tutor de grup sempre són notificats en qualsevol cas. Les instal·lacions noves comencen amb **Kicked out only**; una instal·lació que actualitza des d'una versió anterior manté **All strikes**.
+
+---
+
+## Configurar l'avís de possible duplicat
+
+El mateix bloc "Strikes Settings" també té l'opció **Avís de possible duplicat**: si un docent ja ha posat un strike al mateix alumne durant aquests minuts (1 per defecte), des de la mateixa sessió del passi de llista o des del diàleg **Nou strike**, se l'avisa i se li demana que ho confirmi abans d'enviar-ne un de nou. Posa-hi 0 per desactivar l'avís.
 
 ---
 

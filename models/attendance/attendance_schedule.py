@@ -1,14 +1,21 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.osv import expression
 
 from ..shared.attendance_mixin import EMS_BYPASS_TEMPLATE_LOCK_KEY
+
+# Context key: this write is the enrollment-driven roster sync itself (see 'write').
+EMS_ROSTER_SYNC_KEY = 'ems_roster_sync'
 
 class EmsAttendanceSchedule(models.Model):
     _name = "ems.attendance_schedule"
     _description = "Attendance schedule: concretes the weekdays data."
-    _order = 'name asc'
+    # NOTE: by weekday NUMBER, not by its name - 'name' sorted Friday before Monday, and a stored
+    # name can't follow each reader's language anyway. 'template_label' keeps sessions grouped by
+    # subject (and groups) alphabetically, as before.
+    _order = 'template_label, weekday, start_time, id'
     _inherit = ['ems.base', 'ems.datetime_utils', 'ems.attendance_mixin']
 
     # Note: today.weekday() returns this values, do not alter!
@@ -22,8 +29,11 @@ class EmsAttendanceSchedule(models.Model):
         ("6", "Sunday"),
     ]
 
-    # Used to sort the dropdown within the session form, otherwise the SQL sort won't work.
+    # Stored so it can be searched by text (the session pickers' autocomplete). What users read is
+    # 'display_name' (weekday translated), and the order is '_order' above.
     name = fields.Char(string="Name", compute="_compute_name", store=True)
+    # Stored only to sort by (see '_order'): a non-stored field can't be used in an SQL ORDER BY.
+    template_label = fields.Char(string="Template name", related="attendance_template_id.display_name", store=True)
     weekday = fields.Selection(string="Weekday", selection=weekdays_selection, default="1", required=True)
 
     start_time = fields.Float(string="Start Time", required=True)
@@ -119,10 +129,46 @@ class EmsAttendanceSchedule(models.Model):
     @api.depends("attendance_template_id", "attendance_template_id.start_date", "attendance_template_id.end_date",
                  "weekday", "start_time", "end_time")
     def _compute_name(self):
+        # NOTE: stored in English on purpose - a stored value can't follow each reader's language.
+        # What people see is 'display_name' below, with the weekday translated.
         for schedule in self:
-            weekday_str = dict(self.weekdays_selection).get(schedule.weekday)
-            schedule.name = "%s | %s | %s" % (schedule.attendance_template_id.display_name, weekday_str, schedule.time_range)
-            schedule.display_name = schedule.name
+            schedule.name = schedule._ems_label(dict(self.weekdays_selection).get(schedule.weekday))
+
+    @api.depends("attendance_template_id", "attendance_template_id.start_date", "attendance_template_id.end_date",
+                 "weekday", "start_time", "end_time")
+    @api.depends_context('lang')
+    def _compute_display_name(self):
+        for schedule in self:
+            schedule.display_name = schedule._ems_label(schedule._weekday_label(schedule.weekday))
+
+    def _ems_label(self, weekday_label):
+        self.ensure_one()
+        return "%s | %s | %s" % (self.attendance_template_id.display_name, weekday_label, self.time_range)
+
+    @api.model
+    def name_search(self, name='', args=None, operator='ilike', limit=100):
+        """The custom-schedule session picker (issue #534, context key set by the student form):
+        a tutor customizing a student's sessions has to pick lines they can't read - another
+        group's - so the search runs under sudo(), always within the picker's own domain
+        (ems.enrollment.slot.allowed_schedule_ids, computed server-side). It only ever reveals
+        the session's name: subject, groups, weekday and time."""
+        if self.env.context.get('ems_enrollment_slot_picker') and args:
+            return super(EmsAttendanceSchedule, self.sudo()).name_search(name, args, operator, limit)
+        return super().name_search(name, args, operator, limit)
+
+    @api.model
+    def _search_display_name(self, operator, value):
+        """Also match the weekday as the user reads it: 'name' is stored in English, so typing
+        'Dimecres' in a session picker would otherwise find nothing."""
+        domain = super()._search_display_name(operator, value)
+        if operator in ('ilike', 'like', '=ilike', '=like') and isinstance(value, str) and value.strip():
+            weekdays = [
+                code for code, label in self._fields['weekday']._description_selection(self.env)
+                if value.strip().lower() in label.lower()
+            ]
+            if weekdays:
+                domain = expression.OR([domain, [('weekday', 'in', weekdays)]])
+        return domain
 
     @api.constrains('weekday', 'start_time', 'end_time', 'space_id')
     def check_overlap(self):
@@ -141,9 +187,14 @@ class EmsAttendanceSchedule(models.Model):
                     other_teacher=", ".join(other.teacher_ids.mapped('display_name')),
                     other_space=other.space_id.display_name,
                     other_time=other.time_range,
-                    weekday=dict(schedule.weekdays_selection).get(schedule.weekday),
+                    weekday=schedule._weekday_label(schedule.weekday),
                     reason=reason,
                 ))
+
+    def _weekday_label(self, weekday):
+        """The weekday's name in the current language, for a message: 'weekdays_selection' itself is
+        the untranslated English list."""
+        return dict(self._fields['weekday']._description_selection(self.env)).get(weekday)
 
     def find_room_conflicts(self, new_space_id):
         """Every already-active 'ems.attendance_schedule' line that would collide with 'self' if it
@@ -248,30 +299,37 @@ class EmsAttendanceSchedule(models.Model):
         )
 
     def fill_students(self):
-        """Reset 'student_ids' from this line's own template's current (subject_id, group_ids)
-        enrollments - moved here from 'ems.attendance_template' 2026-08-11 (see
-        plans/calendar_driven_attendance_templates.md, point 1). Subject/groups still live on the
-        template (co-teaching/room stay template- and line-level concerns respectively - only the
-        roster itself became per-line), so this reads them via 'attendance_template_id' rather than
-        duplicating them here."""
+        """Reset 'student_ids' from the enrollments that make their student attend this line - moved
+        here from 'ems.attendance_template' 2026-08-11 (see plans/calendar_driven_attendance_templates.md,
+        point 1). Every calendar resync fills its new lines through here, so a custom enrollment's
+        slots (issue #534) are honoured with no hook of their own in the sync pipeline."""
         for schedule in self:
-            template = schedule.attendance_template_id
-            students = self.env['ems.enrollment'].search([
-                ('group_id', 'in', template.group_ids.ids),
-                ('subject_id', '=', template.subject_id.id)
-            ]).mapped('student_id')
-            schedule.student_ids = [(6, 0, students.ids)]
+            schedule.with_context(**{EMS_ROSTER_SYNC_KEY: True}).student_ids = [(6, 0, schedule._ems_expected_students().ids)]
+
+    def _ems_expected_students(self):
+        """The students whose enrollments make them attend this line ('ems.enrollment._ems_attends'):
+        enrolled in its subject through one of its template's groups and following that group, or
+        holding a custom slot that matches it, whatever their enrollment's own group."""
+        self.ensure_one()
+        template = self.attendance_template_id
+        enrollments = self.env['ems.enrollment'].search([
+            ('subject_id', '=', template.subject_id.id),
+            '|', ('group_id', 'in', template.group_ids.ids), ('slot_ids.group_id', 'in', template.group_ids.ids),
+        ])
+        return enrollments.filtered(lambda enrollment: enrollment._ems_attends_line(self)).student_id
 
     def reload_students(self):
-        self.student_ids = [(5)]
+        """Admin repair tool (the form's "Reload students"): rebuild the roster from the enrollments."""
+        if not (self.env.su or self.get_user_is_admin()):
+            raise AccessError(_("Only administrators can reload the students of a session."))
         self.fill_students()
 
-    # NOTE: every field here except 'student_ids' is an identity/logistics concern that only ever
-    # comes from the teacher's calendar (see plans/calendar_driven_attendance_templates.md, point 3
-    # and its 2026-08-11 refinement) - a line's own weekday/time/room/template must never change by
-    # hand, admin included; only the roster (add/remove students) is a genuine per-line, teacher-
-    # editable concern. 'name' is a compute+store field with no inverse (already not writable via a
-    # plain vals dict), so it isn't listed here.
+    # NOTE: every field here is an identity/logistics concern that only ever comes from the teacher's
+    # calendar (see plans/calendar_driven_attendance_templates.md, point 3 and its 2026-08-11
+    # refinement) - a line's own weekday/time/room/template must never change by hand, admin included.
+    # The roster ('student_ids') isn't hand-editable either, but for a different reason: it comes from
+    # the enrollments, not the calendar (see 'write'). 'name' is a compute+store field with no
+    # inverse (already not writable via a plain vals dict), so it isn't listed here.
     _LOCKED_FIELDS = {'active', 'weekday', 'start_time', 'end_time', 'space_id', 'attendance_template_id', 'notes'}
 
     def write(self, vals):
@@ -279,6 +337,15 @@ class EmsAttendanceSchedule(models.Model):
             raise UserError(_(
                 "This can only change as a consequence of editing the teacher's working "
                 "schedule - update the schedule instead of editing this session directly."
+            ))
+        # Issue #534: the roster follows the students' enrollments, custom schedules included - it is
+        # only ever written by that sync ('fill_students', the enrollment/slot resync, both under
+        # sudo() or EMS_ROSTER_SYNC_KEY), never by hand: a hand edit contradicted the student's
+        # enrollment and was lost on the next reload anyway.
+        if 'student_ids' in vals and not (self.env.su or self.env.context.get(EMS_ROSTER_SYNC_KEY)):
+            raise UserError(_(
+                "The students of a session come from their enrollments. To change which sessions a "
+                "student attends, use the custom schedule on the student's form."
             ))
         return super().write(vals)
 

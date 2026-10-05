@@ -58,7 +58,8 @@ Idempotent; everything runs `sudo()` (callers are queue jobs or buttons limited 
    inherits res.partner, which uses OCA `partner_firstname`), `mobile`, `tz`,
    explicit `company_id`/`company_ids` and groups, all under
    `no_reset_password=True`.
-5. `_ems_link_google_signin(user, google_id)` sets `oauth_uid` + `oauth_provider_id`
+5. `user._ems_link_google_signin(google_id)` (`res.users`, `models/shared/google_signin.py`,
+   shared with the student portal sign-in) sets `oauth_uid` + `oauth_provider_id`
    when the id is known and not taken by another user (auth_oauth unique constraint).
 6. Link `employee.user_id`, call `_sync_security_groups()` so role/job-mapped
    groups apply immediately (the `write()` trigger only fires on
@@ -77,7 +78,7 @@ Call sites inside `action_create_google_account()`:
 ### `action_create_ems_user()`
 
 Public action (no Google API call): `_ems_create_user(google_id=self._gw_google_user_id())`,
-guarded by the same `employee_type`/`work_email` checks. This is the header button shown
+guarded by the same `employee_type`/`work_email` checks. This is the Actions dropdown entry shown
 in the `pending_user` state (below) — a corporate account already exists but no `res.users`
 is linked yet — and it is what `action_create_google_account()`'s adopt path now calls
 internally, so there is a single implementation either way.
@@ -97,7 +98,7 @@ no e-mail-based fallback.
 
 The action resolves the numeric Google id through the Directory API
 (`_gw_google_user_id(raise_on_error=True)`) and hands it to the same
-`_ems_link_google_signin()` used by the creation paths, so there is one implementation
+`res.users._ems_link_google_signin()` used by the creation paths, so there is one implementation
 of the link itself. It never overwrites a link that is already there — the button is
 hidden in that case — and it never touches the Google account.
 
@@ -137,6 +138,7 @@ flowchart LR
 | Unarchived before the deactivation date | schedule cancelled; the account was never touched | unarchived |
 | Unarchived while suspended | reactivated (queued) | unarchived |
 | Deleted (`unlink`) | suspended synchronously | archived |
+| Renamed (`name` written) | name patched to `_gw_split_name()` (queued), suspended accounts included | renamed (`_sync_user_name`, synchronous) |
 
 Unlike the student side, staff accounts are **never deleted** — the issue only asks for
 deletion of student accounts. `GW_DELETION_DELAY_DAYS` and `action_delete_google_account()`
@@ -144,6 +146,26 @@ exist only on `res.partner`.
 
 The delay is a fixed constant in `models/shared/google_workspace_mixin.py`
 (`GW_DEACTIVATION_DELAY_DAYS`, 30), not a company setting.
+
+### Renaming (`action_sync_google_account_name`)
+
+Writing `name` on a teacher/ASP whose `work_email` is in the company's Google domain
+enqueues `action_sync_google_account_name()` (`_gw_enqueue_rename`, deduplicated by
+`identity_key`), which patches the Google user's `givenName`/`familyName` with the same
+`_gw_split_name()` heuristic used at creation time, through the mixin's
+`_gw_sync_account_name()` (shared with students). The corporate address itself is never
+changed. A non-corporate `work_email` is skipped (not an account EMS manages). A 403/404
+answer (account deleted, or outside the managed OUs) posts a chatter note instead of
+failing the job, since a retry could never succeed; any other error is raised so the job
+shows as failed.
+
+The linked EMS user is renamed too, synchronously and regardless of the Google integration
+(`hr.employee._sync_user_name()`, `models/employees/employee.py`): native hr only syncs the
+other way (renaming a `res.users` renames its employees), so a fixed employee name - typically
+a pending-identification placeholder replaced by the real teacher - used to leave the user
+with the old one. It writes `firstname`/`lastname`, never `name`, so the native sync does not
+bounce it back. `migrations/18.0.0.33.0/post-migrate.py` aligned every user that had already
+drifted, employee name winning, and queued the Google rename for them.
 
 ### The daily cron
 
@@ -176,14 +198,15 @@ The user archiving is deliberately **synchronous and independent** of
 immediately even if the Google integration is disabled or the queue is down.
 `_ems_sync_user_active` skips `self.env.user` and the superuser.
 
-## Header button state (`google_ws_state`)
+## Actions dropdown state (`google_ws_state`)
 
-The employee form (`views/community/employee/form.xml`) shows at most **one** of four
-mutually-exclusive header buttons, driven entirely by one computed, stored `Selection`
+The employee form's Actions dropdown (`views/community/employee/form.xml`, see
+[Form "Actions" dropdown](../shared/actions_dropdown.md)) offers at most **one** of four
+mutually-exclusive Google/EMS user entries, driven entirely by one computed, stored `Selection`
 field — `google_ws_state` — instead of each button evaluating its own combination of
 `work_email`/`user_id`/`google_ws_suspended`/`google_ws_manual_email`. This replaced an
 earlier version where two independently-computed `invisible` expressions could disagree
-and show two buttons at once for a teacher whose account was adopted from
+and show two entries at once for a teacher whose account was adopted from
 pre-integration/migrated data (`work_email` set, `user_id` not yet linked) — the bug that
 motivated the consolidation.
 
@@ -199,7 +222,7 @@ stateDiagram-v2
     suspended --> active: action_reactivate_google_account()
 ```
 
-| `google_ws_state` | Header button shown | Meaning |
+| `google_ws_state` | Actions dropdown entry shown | Meaning |
 |---|---|---|
 | `none` | Create Google account | No corporate email yet |
 | `manual_pending` | *(none)* | `google_ws_manual_email` ticked, waiting for the email to be typed in |
@@ -244,7 +267,7 @@ is granted explicitly.
 | Step | Required data |
 |---|---|
 | Plain employee creation | `name` (plus `private_email` at view level for **new** teacher/ASP records) |
-| Google account creation | `name`, `private_email` (recovery + credentials email); phone/NIF optional |
+| Google account creation | `name`, `private_email` (recovery + credentials email, never an address of the centre's own domain, see [Personal email can never be a corporate one](../contacts/google_workspace_student.md#personal-email-can-never-be-a-corporate-one-514)); phone/NIF optional |
 | EMS user creation | corporate `work_email` (produced by the previous step) |
 
 ## Interplay with pending-identification placeholders
@@ -280,7 +303,7 @@ For a pending teacher that will genuinely never get an account through this reco
 duplicate/unmerged employee, or the post never ends up needing one), `hr.employee.action_mark_as_identified()`
 (`models/employees/employee.py`) is a manual, standalone escape hatch: it just clears
 `schedule_import_code` (with the same chatter note) and does nothing else — no Google API call, no
-`res.users` creation. Exposed as the **Mark as identified** header button
+`res.users` creation. Exposed as the **Mark as identified** Actions dropdown entry
 (`views/community/employee/form.xml`), visible only while `pending_identification` is `True`,
 behind a `confirm=` dialog since it can't be undone (the original placeholder code is gone once
 cleared, so this is a one-way action, not a toggle).
@@ -309,9 +332,9 @@ pattern). Google-side behaviour, the `google_ws_state` compute for every state, 
 and backfill tests live in `tests/test_exit_management.py`.
 `tests/test_employee_google_workspace_tour.py` +
 `static/tests/tours/employee_google_workspace_tour.js` open the employee form in a real
-browser for each state and assert exactly one header button renders — the client-side
+browser for each state and assert exactly one Google/EMS user entry is offered in the Actions dropdown — the client-side
 render that a `TransactionCase` cannot exercise. That tour also covers the grace period's banner and its
-"Cancel scheduled deactivation" button on an archived teacher, reached through the search
+"Cancel scheduled deactivation" entry on an archived teacher, reached through the search
 panel's Archived filter.
 
 `TestEmployeeGoogleWorkspaceLifecycle` (same file as the other backend tests) covers the
@@ -319,6 +342,10 @@ grace period itself (#388): scheduling on archive rather than suspending, the wa
 email, the first date winning over a second archive, cancelling on unarchive and via the
 button, the schedule being cleared once the account is actually suspended, the cron's
 date/active guards and idempotence, and `unlink()` still suspending immediately.
+
+The rename sync (#542) is covered in `TestEmployeeGoogleWorkspace` (`test_rename_*`,
+`test_sync_name_*`): which writes enqueue it, the Directory API payload, the 403/404
+report and dry-run.
 
 The student-side integration has its own
 `tests/test_student_google_workspace.py` — see

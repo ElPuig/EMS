@@ -18,6 +18,8 @@ their schedule.
 
 Navigate to: **Students → [a student] → Schedule** tab
 
+![Schedule tab of a student's form, with the weekly classes and the subject-teacher legend](../../assets/admin/admin-student-schedule.png)
+
 ---
 
 ## Reading the Schedule

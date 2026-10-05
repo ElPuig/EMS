@@ -20,32 +20,35 @@
 
         <record model="ir.actions.report" id="action_attendance_report_student">
             <field name="name">Attendance report: by student</field>
-            <field name="model">report.ems.attendance_report_student</field>
+            <field name="model">ems.attendance_report_wizard</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">ems.attendance_report_student</field>
             <field name="report_file">attendance_report_student</field>
-            <field name="binding_model_id" ref="ems.model_report_ems_attendance_report_student"/>
-            <field name="binding_type">report</field>
+            <!-- Printed from the wizard's own Print button only, never from a Print menu. -->
+            <field name="binding_model_id" eval="False"/>
+            <field name="print_report_name">object.get_report_filename()</field>
         </record>
 
         <record model="ir.actions.report" id="action_attendance_report_subject">
             <field name="name">Attendance report: by subject</field>
-            <field name="model">report.ems.attendance_report_subject</field>
+            <field name="model">ems.attendance_report_wizard</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">ems.attendance_report_subject</field>
             <field name="report_file">attendance_report_subject</field>
-            <field name="binding_model_id" ref="ems.model_report_ems_attendance_report_subject"/>
-            <field name="binding_type">report</field>
+            <!-- Printed from the wizard's own Print button only, never from a Print menu. -->
+            <field name="binding_model_id" eval="False"/>
+            <field name="print_report_name">object.get_report_filename()</field>
         </record>
 
         <record model="ir.actions.report" id="action_attendance_report_group">
             <field name="name">Attendance report: by group</field>
-            <field name="model">report.ems.attendance_report_group</field>
+            <field name="model">ems.attendance_report_wizard</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">ems.attendance_report_group</field>
             <field name="report_file">attendance_report_group</field>
-            <field name="binding_model_id" ref="ems.model_report_ems_attendance_report_group"/>
-            <field name="binding_type">report</field>
+            <!-- Printed from the wizard's own Print button only, never from a Print menu. -->
+            <field name="binding_model_id" eval="False"/>
+            <field name="print_report_name">object.get_report_filename()</field>
         </record>
 
         <record model="ir.actions.act_window" id="action_attendance_report_analysis">
@@ -59,15 +62,14 @@
                  (deliberately - see the model's own docstring, "statistical data... should be
                  unaltered"), but its session ALWAYS does, and the course transition wizard
                  archives every outgoing session (see course_transition_wizard.md) - so filtering
-                 on the session's own active state is exactly "this course's sessions only,"
-                 without needing a new field on the line itself. -->
-            <field name="domain">[('attendance_session_id.active', '=', True)]</field>
+                 on the session's own active state is exactly "this course's sessions only". It
+                 goes through the line's stored session_active, not attendance_session_id.active:
+                 the path would apply the header's record rules and hide the other teachers'
+                 sessions a tutor must see. -->
+            <field name="domain">[('session_active', '=', True)]</field>
         </record>
 
-        <!-- Head of Studies/Director/Administrator and Secretariat see the whole centre by
-             default; everyone else (teacher/tutor/department chief) defaults to only their own
-             teaching. A removable default, not a security boundary (ir.rule already grants every
-             teacher unrestricted read on ems.attendance_session_line — see attendance_reports.py). -->
+        <!-- Role-based scoping: see ems.attendance_session_line._get_reports_action(). -->
         <record model="ir.actions.server" id="action_attendance_reports_open">
             <field name="name">Reports</field>
             <field name="model_id" ref="ems.model_ems_attendance_session_line"/>
@@ -83,19 +85,9 @@
                  opening "Reports" hit "not allowed to modify ems.attendance_session_line". -->
             <field name="groups_id" eval="[(6, 0, [ref('ems.group_teacher'), ref('ems.group_secretary'), ref('ems.group_secretary_admin')])]"/>
             <field name="state">code</field>
-            <field name="code">
-action = env.ref('ems.action_attendance_report_analysis').sudo().read()[0]
-action['context'] = {'pivot_measures': ['absence_rate', 'strike_count', '__count'], 'graph_measure': 'absence_rate'}
-# NOTE: 'action['domain']' from .read() above is the base action's domain as a STRING (how
-# ir.actions.act_window.domain is actually stored), not a parsed list - concatenating a list onto
-# it would raise a TypeError, so the current-course filter is set here directly as a real list
-# instead of trying to extend the string. Kept as a literal matching the base action's own XML
-# domain (not read from it) - this action is only ever reached through this server action, never
-# opened directly, so there's no risk of the two silently drifting apart unnoticed.
-action['domain'] = [('attendance_session_id.active', '=', True)]
-if not (env.user.has_group('ems.group_head_of_studies') or env.user.has_group('ems.group_secretary') or env.user.has_group('ems.group_secretary_admin')):
-    action['domain'] += [('template_teacher_ids.user_id', '=', env.uid)]
-            </field>
+            <!-- Logic in ems.attendance_session_line._get_reports_action(), shared with the
+                 'Attendance' button on a student's form. -->
+            <field name="code">action = model._get_reports_action()</field>
         </record>
 
         <menuitem name="Reports" sequence="5" id="menu_attendance_reports" parent="menu_attendance" action="action_attendance_reports_open"/>

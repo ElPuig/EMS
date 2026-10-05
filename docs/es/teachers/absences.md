@@ -17,7 +17,8 @@
 5. [Justificante](#justificante)
 6. [Enviar la solicitud](#enviar-la-solicitud)
 7. [Consultar el estado](#consultar-el-estado)
-8. [Crédito de horas por motivos de salud](#crédito-de-horas-por-motivos-de-salud)
+8. [Recordatorios de un justificante pendiente](#recordatorios-de-un-justificante-pendiente)
+9. [Crédito de horas por motivos de salud](#crédito-de-horas-por-motivos-de-salud)
 
 ---
 
@@ -50,7 +51,7 @@ Al elegir el tipo **ATRI**, el formulario te muestra los enlaces al portal. La s
 - [Mis solicitudes - permisos y ausencias](https://atriportal.gencat.cat/ATRI-ng/#/meves-sollicituds/permisos-absencies)
 - [Manual de permisos y ausencias de ATRI (PDF)](https://atriportal.gencat.cat/ATRI-web/gestor-continguts/2011.pdf)
 
-Dirección comprueba que la hayas tramitado en el portal antes de marcar la verificación como `Hecho`.
+Dirección comprueba que la hayas tramitado en el portal antes de aprobarla por su parte (**Estado Dirección** `Hecho`).
 
 Cada opción muestra el texto completo del permiso. Léelo antes de elegir: al marcarlo, declaras que te encuentras en esa situación.
 
@@ -81,11 +82,13 @@ Para pedir más de un día, márcala y cambia la fecha de fin. Si es un solo dí
 
 ## Justificante
 
-**Puedes adjuntar uno a cualquier ausencia, de cualquier tipo y en cualquier momento.** Tres tipos lo *exigen*: **Baja laboral**, **Asistencia a consulta médica** y **Prueba médica invasiva**; en el resto es opcional, y vale la pena adjuntarlo siempre que lo tengas.
+**Puedes adjuntar uno a cualquier ausencia, de cualquier tipo y en cualquier momento.** Todos los tipos lo *exigen* excepto **Salud** y **ATRI** (la ATRI se justifica en el propio portal de la Generalitat); en esos dos es opcional.
 
 En el caso de consulta médica, el justificante debe hacer constar expresamente el nombre y apellidos del o de la paciente y la hora de entrada y salida del centro o consulta médica.
 
-**Un justificante que llega más tarde se adjunta a la misma solicitud.** Abre la ausencia, aunque ya esté aprobada, adjunta el archivo y guarda. Eso es lo que resuelve una **Comprobación de dirección** en estado *Falta documento*: no hay que volver a solicitar la ausencia.
+**Un justificante que llega más tarde se adjunta a la misma solicitud.** No hace falta tenerlo cuando pides la ausencia: tu jefe marca la solicitud como recibida y queda esperando el justificante (**En espera de documentación**). Cuando lo tengas, abre la ausencia, adjunta el archivo en **Justificante** y guarda. Ya está: la solicitud vuelve sola a tu jefe para que lo valide, no hay que volver a solicitar la ausencia ni pulsar nada más.
+
+Si tu jefe o Dirección consideran que el justificante no es válido, la solicitud vuelve a **En espera de documentación** y recibes un mensaje: adjunta uno válido de la misma manera.
 
 Para borrar uno, haz clic en la cruz del archivo y confirma.
 
@@ -107,24 +110,32 @@ Si sales del formulario sin enviarlo, EMS te avisa y te deja descartarlo.
 
 ## Consultar el estado
 
-En **Ausencias** tienes tu lista, con dos columnas:
+En **Ausencias** tienes tu lista. Tu ausencia pasa primero por tu jefe (jefe de estudios adjunto, jefe de estudios o secretario/a) y después por Dirección.
 
 **Estado**
 
 | Valor | Significa |
 |---|---|
-| Pendiente | Todavía no se ha resuelto |
-| Aprobada | Concedida |
-| Rechazada | Denegada. Es definitivo: si quieres insistir, hay que hacer una solicitud nueva |
-| Cancelada | Anulada |
+| Pendiente | Tu jefe todavía no la ha visto |
+| En espera de documentación | Tu jefe la ha recibido y espera el justificante: adjúntalo a la misma solicitud |
+| Pendiente de validación | Has adjuntado el justificante y tu jefe tiene que validarlo |
+| Pendiente Dirección | Tu jefe la ha validado, Dirección todavía no la ha revisado |
+| Aprobado | Concedida por ambos |
+| Rechazado | Denegada. Es definitivo: si quieres insistir, hay que hacer una solicitud nueva |
+| Cancelado | Anulada |
 
-**Verificación de dirección** — si dirección ya ha comprobado el justificante:
+El filtro **Mis justificantes pendientes** muestra las solicitudes que esperan un justificante tuyo.
 
-| Valor | Color | Qué tienes que hacer |
-|---|---|---|
-| No hecho | gris | Nada, todavía no se ha revisado |
-| Falta documento | rojo | Adjuntar el justificante a la misma solicitud, aunque ya esté aprobada |
-| Hecho | verde | Nada |
+Una vez la recibe tu jefe, la ausencia ya cuenta en el calendario de ausencias y en el cuadrante de guardias, aunque falte el justificante.
+
+
+---
+
+## Recordatorios de un justificante pendiente
+
+Si la ausencia ya ha pasado y sigue **En espera de documentación**, el EMS te lo recuerda con un mensaje cada día hasta que adjuntes el justificante. También tienes una actividad pendiente ("Adjuntar el justificante de la ausencia") que se pone en rojo al día siguiente de la ausencia.
+
+Unos días después de la ausencia (tres, si el centro no lo ha cambiado), también se avisa a tu jefe de que el justificante todavía falta.
 
 ---
 

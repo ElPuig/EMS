@@ -31,12 +31,14 @@ The period can include future days (for example, a planned hospital stay). When 
 ## Attaching the document
 
 1. Open the justification from the **Justifications** list.
-2. In the **Attached files** tab, click **Add a line** and, in the window that opens, **New**.
-3. Click **Upload your file**, choose the file (for example, the medical certificate) and save.
+2. In the **Attached files** tab, click the **Attached files** button and choose the file (for example, the medical certificate). You can choose several at once; each one is named after its file.
+3. Save the justification.
 
 ![Attached files tab of a justification](../../assets/tutors/justificants-03-adjunts.png)
 
-The download icon opens the file; the cross removes it from the justification. Use the **Notes** tab to add a comment.
+The eye icon previews the file without leaving EMS (PDFs, images and text files); the download icon downloads it; the bin deletes it once you save the justification. Use the **Notes** tab to add a comment.
+
+The attached files can be opened by everyone who can see the justification: the teachers of the affected sessions, Head of Studies and the academic administration.
 
 ---
 

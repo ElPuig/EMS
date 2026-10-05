@@ -13,6 +13,8 @@ import { DateTimePicker } from "@web/core/datetime/datetime_picker";
 import { useDateTimePicker } from "@web/core/datetime/datetime_hook";
 import { usePopover } from "@web/core/popover/popover_hook";
 import { useHotkey } from "@web/core/hotkeys/hotkey_hook";
+import { serverNow, syncServerClock } from "./server_clock";
+import { useAvatarZoom } from "./avatar_zoom";
 
 class EmsDatePickerPopover extends Component {
     static components = { DateTimePicker };
@@ -26,7 +28,7 @@ class EmsDatePickerPopover extends Component {
     get todayLabel() { return _t("Today"); }
 
     goToday() {
-        this.props.pickerProps.onSelect?.(DateTime.now(), "date");
+        this.props.pickerProps.onSelect?.(serverNow(), "date");
         this.props.close();
     }
 }
@@ -44,7 +46,7 @@ class EmsDateInput extends Component {
         useDateTimePicker({
             createPopover: (_, options) => usePopover(EmsDatePickerPopover, options),
             get pickerProps() {
-                return { type: "date", value: self.props.value, maxDate: DateTime.now() };
+                return { type: "date", value: self.props.value, maxDate: serverNow() };
             },
             onApply: (value) => self.props.onApply(value),
         });
@@ -61,6 +63,7 @@ class AttendanceSessionView extends Component {
         this.orm = useService("orm");
         this.action = useService("action");
         this.dialog = useService("dialog");
+        this.avatarZoom = useAvatarZoom();
         this.statuses = [];   // populated in onWillStart from model fields_get
 
         this.notesDialog   = useRef("notesDialog");
@@ -75,7 +78,7 @@ class AttendanceSessionView extends Component {
         this.strikeReasons = [];   // populated in onWillStart from ems.strike.reason
 
         this.state = useState({
-            date: this._todayStr(),
+            date: "",           // set in onWillStart, once the server clock is known
             sessions: [],
             planned: [],
             groups: [],          // string[] — group names present in today's sessions/schedules
@@ -89,6 +92,7 @@ class AttendanceSessionView extends Component {
             editingStrikeLineId: null,
             editingStrikeStudentId: null,
             editingStrikeStudentName: "",
+            strikeSending: false,
             sortField: 'lastname',  // 'lastname' | 'name'
             sortDir:   'asc',       // 'asc' | 'desc'
             viewMode: 'current',    // 'current' | 'manual' | 'guard'
@@ -97,16 +101,18 @@ class AttendanceSessionView extends Component {
         });
 
         onWillStart(async () => {
-            await Promise.all([this._loadStatuses(), this._loadStrikeReasons()]);
+            await Promise.all([this._loadStatuses(), this._loadStrikeReasons(), syncServerClock(this.orm)]);
+            this.state.date = this._todayStr();
             await this._loadAll();
         });
     }
 
     // ── Date helpers ─────────────────────────────────────────────────────────
 
+    // "Today" and "now" come from the server's clock, in the company's timezone - never the
+    // computer's (see server_clock.js).
     _todayStr() {
-        const d = new Date();
-        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        return serverNow().toISODate();
     }
 
     _shiftDate(dateStr, days) {
@@ -204,7 +210,9 @@ class AttendanceSessionView extends Component {
         const lines = await this.orm.searchRead(
             "ems.attendance_session_line",
             [["attendance_session_id", "=", sessionId]],
-            ["id", "student_id", "status_id", "notes", "attendance_justification_id", "attendance_prevision_id", "strike_ids"],
+            ["id", "student_id", "status_id", "notes", "attendance_justification_id", "attendance_prevision_id", "strike_ids", "active"],
+            // Removed (archived) lines are still listed, greyed out, so they can be restored.
+            { context: { active_test: false } },
         );
         lines.forEach(l => { l.status_id = l.status_id ? l.status_id[0] : false; });
 
@@ -228,6 +236,8 @@ class AttendanceSessionView extends Component {
         const dir = sortDir === "asc" ? 1 : -1;
         const locale = { sensitivity: "base" };
         return [...lines].sort((a, b) => {
+            // Students removed from the roll-call always go last.
+            if (a.active !== b.active) return a.active ? -1 : 1;
             const va = sortField === "lastname"
                 ? (a.student_id ? (this._lastnameMap[a.student_id[0]] || "") : "")
                 : (a.student_id ? a.student_id[1] : "");
@@ -246,8 +256,8 @@ class AttendanceSessionView extends Component {
     }
 
     _nowAsFloat() {
-        const now = new Date();
-        return now.getHours() + now.getMinutes() / 60;
+        const now = serverNow();
+        return now.hour + now.minute / 60;
     }
 
     _isCurrentSlot(s, now) {
@@ -349,6 +359,10 @@ class AttendanceSessionView extends Component {
             justifiedTitle:          _t("Justified absence — status and notes are locked."),
             deleteSession:          _t("Delete session"),
             deleteSessionConfirm:   _t("Delete this session? This action cannot be undone."),
+            removeLine:             _t("Remove from the roll-call (not required to attend)"),
+            restoreLine:            _t("Restore to the roll-call"),
+            removeLineHasStrikes:   _t("A student with strikes in this session can't be removed from the roll-call."),
+            removeLineConfirm:      (name) => sprintf(_t("Remove %s from this roll-call? They will count neither as attended nor as absent."), name),
         };
     }
 
@@ -451,6 +465,26 @@ class AttendanceSessionView extends Component {
         }
     }
 
+    onRemoveLineClick(lineId, studentName) {
+        this.dialog.add(ConfirmationDialog, {
+            body: this.strings.removeLineConfirm(studentName),
+            confirm: () => this._setLineActive(lineId, false),
+        });
+    }
+
+    async _setLineActive(lineId, active) {
+        if (this.state.saving[lineId]) return;
+        this.state.saving[lineId] = true;
+        try {
+            await this._writeSessionLine(lineId, { active });
+            const line = this.state.lines.find(l => l.id === lineId);
+            if (line) line.active = active;
+            this.state.lines = this._sortedLines(this.state.lines);
+        } finally {
+            this.state.saving[lineId] = false;
+        }
+    }
+
     onNotesClick(lineId, studentName, notes) {
         this.state.editingLineId = lineId;
         this.state.editingStudentName = studentName;
@@ -492,23 +526,50 @@ class AttendanceSessionView extends Component {
     }
 
     async onStrikeSend() {
-        const lineId    = this.state.editingStrikeLineId;
-        const studentId = this.state.editingStrikeStudentId;
-        const reasonId  = parseInt(this.strikeReasonSelect.el.value);
-        const notes     = this.strikeNotesTextarea.el.value.trim();
-        const kickedOut = this.strikeKickoutRadioExpelled.el.checked;
-        const strikeId = await this.orm.create("ems.strike", [{
-            student_id: studentId,
-            reason_id: reasonId,
-            notes: notes || false,
-            kicked_out: kickedOut,
-            attendance_session_line_id: lineId,
-        }]);
-        const line = this.state.lines.find(l => l.id === lineId);
-        if (line) line.strike_ids = [...line.strike_ids, ...strikeId];
+        // Issue #554: create() emails everyone right away, so it takes a few seconds; a second
+        // click meanwhile used to issue the same strike twice.
+        if (this.state.strikeSending) return;
+        this.state.strikeSending = true;
+        try {
+            const lineId    = this.state.editingStrikeLineId;
+            const studentId = this.state.editingStrikeStudentId;
+            const warning = await this.orm.call("ems.strike", "get_duplicate_warning", [studentId], { line_id: lineId });
+            if (warning && !(await this._confirmDuplicateStrike(warning))) return;
+            const reasonId  = parseInt(this.strikeReasonSelect.el.value);
+            const notes     = this.strikeNotesTextarea.el.value.trim();
+            const kickedOut = this.strikeKickoutRadioExpelled.el.checked;
+            const strikeId = await this.orm.create("ems.strike", [{
+                student_id: studentId,
+                reason_id: reasonId,
+                notes: notes || false,
+                kicked_out: kickedOut,
+                attendance_session_line_id: lineId,
+            }]);
+            const line = this.state.lines.find(l => l.id === lineId);
+            if (line) line.strike_ids = [...line.strike_ids, ...strikeId];
+            this.strikeDialog.el.close();
+            this.state.editingStrikeLineId = null;
+            this.state.editingStrikeStudentId = null;
+        } finally {
+            this.state.strikeSending = false;
+        }
+    }
+
+    /** Resolves to whether the teacher still wants to send a possibly duplicated strike. The
+     *  native <dialog> sits in the browser's top layer, above Odoo's dialogs, so it is hidden
+     *  while asking and shown again, with what was typed, if the teacher declines. */
+    async _confirmDuplicateStrike(body) {
         this.strikeDialog.el.close();
-        this.state.editingStrikeLineId = null;
-        this.state.editingStrikeStudentId = null;
+        const confirmed = await new Promise((resolve) => {
+            this.dialog.add(ConfirmationDialog, {
+                body,
+                confirmLabel: this.strings.send,
+                confirm: () => resolve(true),
+                cancel: () => resolve(false),
+            }, { onClose: () => resolve(false) });
+        });
+        if (!confirmed) this.strikeDialog.el.showModal();
+        return confirmed;
     }
 
     onDeleteSession() {

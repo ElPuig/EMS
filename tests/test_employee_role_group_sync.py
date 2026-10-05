@@ -159,3 +159,34 @@ class TestEmployeeRoleGroupSync(TransactionCase):
         self.asp_employee.write({'job_id': self.job_secretary.id})
         self.asp_employee.write({'job_id': False})
         self.assertNotIn(self.group_secretary, self.asp_user.groups_id)
+
+    # Issue #510: a role/job-managed group granted by hand (Settings > Users) used to be wiped by
+    # any sync of that employee - including the one every EMS upgrade triggers by reloading
+    # data/custom/hr.department.csv. Only losing a role/job that granted it may revoke it now.
+    def test_manual_managed_group_survives_unrelated_role_change(self):
+        self.user.write({'groups_id': [(4, self.group_secretary.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(4, self.role_dchieff.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(3, self.role_dchieff.id)]})
+        self.assertIn(self.group_secretary, self.user.groups_id)
+
+    def test_manual_managed_group_survives_resync(self):
+        self.user.write({'groups_id': [(4, self.group_secretary.id)]})
+        self.employee._sync_security_groups()
+        self.assertIn(self.group_secretary, self.user.groups_id)
+
+    def test_group_kept_while_another_role_still_grants_it(self):
+        self.employee.with_context(ems_syncing_roles=True).write(
+            {'role_ids': [(4, self.role_hos.id), (4, self.role_dhos.id)]})
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(3, self.role_hos.id)]})
+        self.assertIn(self.group_head_of_studies, self.user.groups_id)
+
+    def test_archived_employee_loses_group_when_role_removed(self):
+        # A departed teacher's tutorship is usually cleared after archiving them (their teaching
+        # rows go away), which removes role_tutor - the group has to follow even though the
+        # employee is no longer active.
+        role_tutor = self.env.ref('ems.role_tutor')
+        group_tutor = self.env.ref('ems.group_tutor')
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(4, role_tutor.id)]})
+        self.employee.active = False
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(3, role_tutor.id)]})
+        self.assertNotIn(group_tutor, self.user.groups_id)

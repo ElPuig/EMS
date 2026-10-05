@@ -21177,3 +21177,15 @@ msgid ""
 msgstr ""
 "El document controlat segons el qual es redacta aquest tipus. El seu codi es"
 " cita al PDF."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "These sections are required by this type of minute and are still empty: %s"
+msgstr "Aquestes seccions són obligatòries per a aquest tipus d'acta i encara estan buides: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/signed_record.py:0
+msgid "An approved record cannot go back to draft: correct it with a new version instead."
+msgstr "Un registre aprovat no pot tornar a esborrany: corregiu-lo amb una versió nova."

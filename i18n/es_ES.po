@@ -21181,3 +21181,15 @@ msgid ""
 msgstr ""
 "El documento controlado según el cual se redacta este tipo. Su código se "
 "cita en el PDF."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "These sections are required by this type of minute and are still empty: %s"
+msgstr "Estas secciones son obligatorias para este tipo de acta y todavía están vacías: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/signed_record.py:0
+msgid "An approved record cannot go back to draft: correct it with a new version instead."
+msgstr "Un registro aprobado no puede volver a borrador: corregidlo con una versión nueva."

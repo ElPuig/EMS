@@ -2499,6 +2499,7 @@ msgstr "Ciutat"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__space_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__space_id model:ems.space_type,name:ems.space_type_classroom
+#: model:ir.model.fields,field_description:ems.field_ems_strike__space_id
 msgid "Classroom"
 msgstr "Aula"
 
@@ -4144,6 +4145,7 @@ msgstr "Atorgar accés"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__group_id
+#: model:ir.model.fields,field_description:ems.field_ems_strike__group_id
 msgid "Group"
 msgstr "Grup"
 
@@ -7343,6 +7345,7 @@ msgstr "Estudi: El tipus d'estudi concret (tipus de batxillerat, grau universita
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__subject_record_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__subject_id
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model:ir.model.fields,field_description:ems.field_ems_strike__subject_id
 msgid "Subject"
 msgstr "Assignatura"
 

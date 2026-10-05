@@ -11,12 +11,15 @@
                         <group col="2">
                             <group>
                                 <field name="student_id"/>
+                                <field name="group_id"/>
                                 <field name="reason_id"/>
                                 <field name="kicked_out"/>
                             </group>
                             <group>
                                 <field name="teacher_id"/>
                                 <field name="date"/>
+                                <field name="subject_id" invisible="not subject_id"/>
+                                <field name="space_id" invisible="not space_id"/>
                                 <field name="send_to"/>
                             </group>
                         </group>

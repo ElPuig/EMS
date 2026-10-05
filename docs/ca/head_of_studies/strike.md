@@ -14,6 +14,8 @@ Aquesta pàgina cobreix tant l'historial complet de strikes (Cap d'Estudis / Cap
 
 **Convivència → Strikes** mostra tots els strikes posats a tot el centre, independentment de quin professor els hagi posat, a quina branca pertanyi l'alumne, o del teu propi rol de Cap d'Estudis / Cap d'Estudis Adjunt/a / Direcció — aquesta vista centralitzada no està limitada per departament. Si a més tens el rol de Convivència, veus exactament la mateixa llista completa.
 
+Cada fila mostra el grup de l'alumne i l'assignatura i l'aula de la sessió on es va posar el strike. Un strike posat fora de classe (amb **Nou strike**) mostra el grup principal de l'alumne, sense assignatura ni aula.
+
 A la fitxa del propi alumne, apareix un botó de **Strikes** a la capçalera que mostra el recompte acumulat. En obrir qualsevol strike concret es mostra una casella **Expulsat de classe**, per saber d'un cop d'ull si aquella incidència va acabar amb l'alumne fora de l'aula.
 
 ![Fitxa d'un strike amb la casella Expulsat de classe marcada](../../assets/head_of_studies/hos-strike-kicked-out.png)

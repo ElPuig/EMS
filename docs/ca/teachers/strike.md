@@ -66,6 +66,8 @@ Mentre s'envia un strike, el seu botó **Enviar** queda desactivat, de manera qu
 ## Consultar els strikes
 
 - **Convivència → Strikes** mostra tots els strikes que has posat.
+
+  Cada fila mostra el grup de l'alumne i l'assignatura i l'aula de la sessió on es va posar el strike. Un strike posat fora de classe (amb **Nou strike**) mostra el grup principal de l'alumne, sense assignatura ni aula.
 - A la fitxa del propi alumne, apareix un botó de **Strikes** a la capçalera que mostra el recompte acumulat (0 si encara no en té cap) — clica'l per veure l'historial complet d'aquell alumne i, des d'allà, posar-li'n un de nou amb **Nou strike**.
 - Des de **Assistència → Historial**, en obrir una de les teves sessions anteriors ara també es mostra, per cada fila d'alumne, quants strikes es van posar durant aquella sessió concreta, amb un botó per veure'n el detall complet.
 

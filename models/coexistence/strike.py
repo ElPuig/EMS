@@ -15,6 +15,12 @@ class ems_strike(models.Model):
     student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]", required=True, ondelete="cascade", default=lambda self: self.env.context.get("strike_student_id"))
     teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", required=True, default=lambda self: self.env.user.employee_id)
     attendance_session_line_id = fields.Many2one(string="Session line", comodel_name="ems.attendance_session_line", ondelete="set null", index=True)
+    # Where the incident happened (issues #546, #570), frozen when the strike is issued: only
+    # depends on student_id/attendance_session_line_id, so a later group change or session edit
+    # never rewrites an old strike. A strike issued outside a class has no subject nor classroom.
+    group_id = fields.Many2one(string="Group", comodel_name="ems.group", compute="_compute_session_data", store=True, index=True)
+    subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", compute="_compute_session_data", store=True)
+    space_id = fields.Many2one(string="Classroom", comodel_name="ems.space", compute="_compute_session_data", store=True)
     reason_id = fields.Many2one(string="Reason", comodel_name="ems.strike.reason", required=True, default=lambda self: self._default_reason_id())
     date = fields.Datetime(string="Date and time", default=fields.Datetime.now, required=True)
     notes = fields.Text(string="Details")
@@ -33,6 +39,15 @@ class ems_strike(models.Model):
     def _compute_display_name(self):
         for strike in self:
             strike.display_name = f"{strike.student_id.display_name} | {strike.date} | {strike.reason_id.name}"
+
+    @api.depends("student_id", "attendance_session_line_id")
+    def _compute_session_data(self):
+        for strike in self:
+            line = strike.attendance_session_line_id
+            # The student's group when the roll-call was taken, as the attendance reports use it.
+            strike.group_id = line.student_group_id if line else strike.student_id.main_group_id
+            strike.subject_id = line.subject_id
+            strike.space_id = line.attendance_session_id.space_id
 
     @api.depends("student_id")
     def _compute_strike_count(self):

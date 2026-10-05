@@ -40,7 +40,7 @@ class TestGroupClassroomChangeTour(HttpCase):
         })
         group = self.env['ems.group'].create({
             'course': 1, 'acronym': 'A', 'level_id': level.id, 'study_id': study.id,
-            'space_id': new_space.id, 'name': 'Tour Classroom Change Group',
+            'space_id': old_space.id, 'name': 'Tour Classroom Change Group',
         })
         other_group = self.env['ems.group'].create({
             'course': 2, 'acronym': 'B', 'level_id': level.id, 'study_id': study.id,
@@ -73,17 +73,19 @@ class TestGroupClassroomChangeTour(HttpCase):
                 'attendance_schedule_id': schedule.id,
             }), schedule
 
-        # Two pending blocks for the SAME teacher/subject (different weekdays), each colliding with
-        # its own already-active session in 'new_space' - lands in the same card sub-group (grouped
-        # by teacher+subject), so the tour can exercise the bulk classroom picker added to that
-        # sub-group's header, not just the per-row one. This group's own classroom already moved to
-        # 'new_space' (as write() would do), but neither block could follow automatically - seeded
-        # directly as already-pending, since the write()-time propagation itself is covered by
-        # test_group_classroom_change.py.
+        # Two blocks for the SAME teacher/subject (different weekdays), each colliding with its own
+        # already-active session in 'new_space' - lands in the same card sub-group (grouped by
+        # teacher+subject), so the tour can exercise the bulk classroom picker added to that
+        # sub-group's header, not just the per-row one. The group's classroom is then moved to
+        # 'new_space' through a real write(), so both blocks get flagged pending exactly as in
+        # production (issue #458: seeding them in 'old_space' while the group already says
+        # 'new_space' would make the group's reference classroom follow them back to 'old_space').
         block_monday, _schedule_monday = create_synced_block(teacher, group, old_space, weekday='0')
         block_tuesday, _schedule_tuesday = create_synced_block(teacher, group, old_space, weekday='1')
-        (block_monday + block_tuesday).write({'space_pending_group_sync': True})
         create_synced_block(other_teacher, other_group, new_space, weekday='0')
         create_synced_block(other_teacher, other_group, new_space, weekday='1')
+        group.space_id = new_space
+        self.assertTrue(all((block_monday + block_tuesday).mapped('space_pending_group_sync')))
+        self.assertEqual(group.space_id, new_space)
 
         self.start_tour("/odoo", "ems_group_classroom_change_wizard", login="admin")

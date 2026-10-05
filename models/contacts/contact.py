@@ -4,7 +4,6 @@ from odoo import models, fields, api, _
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools import email_normalize
 from ..shared import base
-import datetime
 import re
 from dateutil.relativedelta import relativedelta
 from markupsafe import Markup
@@ -12,6 +11,13 @@ from markupsafe import Markup
 # The only fields guidance (Orientació) may write on a student or applicant it could not edit
 # otherwise - see rule_contact_orientation_special_needs and _ems_check_orientation_write() (issue #465).
 ORIENTATION_WRITABLE_FIELDS = {'special_needs'}
+# Read and write every student's private notes (issue #511); the student's tutor and the chiefs
+# above them do too, through hr.employee.tutor_scope_user_ids - see _ems_can_access_private_notes().
+PRIVATE_NOTES_GROUPS = ('ems.group_academic_admin', 'ems.group_orientation', 'ems.group_coexistence')
+
+# Contact types whose 'email' is a personal address, so it can never be a corporate one (issue
+# #514). Staff work contacts (no contact_type) are left out: their email IS the corporate account.
+PERSONAL_EMAIL_CONTACT_TYPES = ('student', 'family', 'applicant', 'alumni', 'withdrawal', 'expelled')
 
 class EmsStudentBenefit(models.Model):
     _name = 'ems.student.benefit'
@@ -56,7 +62,7 @@ class EmsStudentBenefit(models.Model):
     @api.onchange('benefit_type')
     def _onchange_benefit_type(self):
         if self.benefit_type:
-            today = fields.Date.today()
+            today = self.env['ems.datetime_utils'].get_local_today()
             
             # Scholarship case: 9 months
             if self.benefit_type == 'scholarship':
@@ -93,9 +99,13 @@ class ResPartner(models.Model):
     
     # model-data fields:
     main_group_id = fields.Many2one(string='Main Group', comodel_name='ems.group')
+    # Domain helper for main_group_id on the form - see _compute_allowed_main_group_ids.
+    allowed_main_group_ids = fields.Many2many(string='Allowed main groups', comodel_name='ems.group',
+                                              compute='_compute_allowed_main_group_ids')
     enrollment_ids = fields.One2many(string='Enrollment', comodel_name='ems.enrollment', inverse_name='student_id')
     strike_ids = fields.One2many(string='Strikes', comodel_name='ems.strike', inverse_name='student_id')
     strike_count = fields.Integer(string='Strike count', compute='_compute_strike_count')
+    convalidation_count = fields.Integer(string='Convalidation count', compute='_compute_convalidation_count')
     # Study granted at pre-enrollment (GEDAC), for a student the centre already has:
     # the internal continuer changing studies next course (ESO4 -> SMX1). Only active
     # students use it -- an applicant's destination already lives in study_id, which is
@@ -194,6 +204,13 @@ class ResPartner(models.Model):
                 raise ValidationError(_("%(email)s is not a valid email address.", email=partner.email))
             if partner.student_email and not email_normalize(partner.student_email):
                 raise ValidationError(_("%(email)s is not a valid student email address.", email=partner.student_email))
+
+    @api.constrains('email')
+    def _check_email_not_corporate(self):
+        # Only on 'email' itself, not 'contact_type': a legacy corporate address must not block
+        # a type change (applicant -> student, graduation...) that doesn't touch the email.
+        for partner in self.filtered(lambda p: p.contact_type in PERSONAL_EMAIL_CONTACT_TYPES):
+            (partner.company_id or self.env.company)._ems_check_personal_email(partner.email)
     student_id = fields.Char(string="Student ID", copy=False)
     medical_id = fields.Char(string="Medical ID")
     nuss = fields.Char(string="NUSS")
@@ -216,6 +233,23 @@ class ResPartner(models.Model):
     wpi_enrolled = fields.Boolean(string="WPI enrolled")
 
     document_ids = fields.One2many('ems.student.document', 'partner_id', string='Documents')
+    # Shows the Secretary tab's Documentation section only to whoever the ems.student.document rules
+    # let read something of this student - admin/secretary (all), TAC (credentials), the student's
+    # tutor scope (credentials) - so nobody else gets an empty list that looks as if there were none.
+    can_see_documents = fields.Boolean(string='Can see documents', compute='_compute_can_see_documents')
+    # Same for the Bonifications & Exemptions section: mirrors the ems.student.benefit record rules
+    # (security/rules/contacts.xml) - admin, secretary, Head of Studies, guidance, coexistence, and
+    # the student's tutor scope.
+    can_see_benefits = fields.Boolean(string='Can see benefits', compute='_compute_can_see_benefits')
+    # Which of the form's Actions dropdown entries apply to this student for the current user, with
+    # the same rule each assistant applies on its own (it drops someone else's student anyway, so
+    # offering the entry there only opened an assistant with nothing to do). Portal access: the
+    # portal wizard's _user_can_manage (admin, secretary, tutor scope); authorizations and contact
+    # data requests: ems.student.scope.mixin's _scope_acts_on_student (also Head of Studies).
+    can_manage_portal_access = fields.Boolean(
+        string='Can manage portal access', compute='_compute_student_action_rights')
+    can_send_student_requests = fields.Boolean(
+        string='Can send authorizations and data requests', compute='_compute_student_action_rights')
 
     selected_student_id = fields.Many2one(
         'res.partner',
@@ -265,6 +299,21 @@ class ResPartner(models.Model):
     # on-screen, not-yet-saved edit of main_group_id, so it needs a real compute/depends,
     # not the default()-only idiom (which only ever evaluates once, at load time).
     main_group_pending_change = fields.Boolean(compute='_compute_main_group_pending_change', store=False)
+
+    # Public notes (teachers), issue #511: the native field, restricted to internal users - a
+    # portal student or family can read their own partner record, and the form's own note under
+    # the tab promises them these notes are never visible to them.
+    comment = fields.Html(groups='base.group_user')
+
+    # Private notes (tutoring), issue #511: stored in ems.student.private_note, which only the
+    # academic admin can reach directly. Unlike the public notes (comment, read by every teacher),
+    # this field is empty for anyone _ems_can_access_private_notes() rejects, and writing it is
+    # handled by create()/write() themselves (_ems_store_private_notes) - not an inverse - so
+    # guidance and coexistence can write it on students whose partner record they cannot write.
+    private_notes = fields.Html(
+        string='Private notes (tutoring)', compute='_compute_private_notes', readonly=False, store=False)
+    can_access_private_notes = fields.Boolean(
+        string='Can access private notes', compute='_compute_private_notes', store=False)
 
     def _ems_enrollment_in_force(self):
         """The student's enrollment that governs what may be done with them now.
@@ -396,11 +445,33 @@ class ResPartner(models.Model):
             'target': 'current',
         }
 
+    def action_view_convalidations(self):
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_convalidation')
+        action['domain'] = [('student_id', '=', self.id)]
+        action['context'] = {'default_student_id': self.id}
+        return action
+
     def action_view_strikes(self):
         self.ensure_one()
         action = self.env['ir.actions.act_window']._for_xml_id('ems.action_strike_list')
         action['domain'] = [('student_id', '=', self.id)]
-        action['context'] = {}
+        # Not default_student_id: the web client drops default_* keys from the list's context
+        # before running its "New strike" header button (action_service.js), so the dialog
+        # would open with no student. ems.strike reads this key for its default and to lock it.
+        action['context'] = {'strike_student_id': self.id}
+        return action
+
+    def action_view_attendance_reports(self):
+        """The attendance 'Reports' screen, with the same role-based scope as its menu, filtered on
+        this student (removable facet). Without "My subjects": every subject of the student the
+        user can see, e.g. all of them for their tutor."""
+        self.ensure_one()
+        action = self.env['ems.attendance_session_line']._get_reports_action()
+        # display_name too: read() returns it and the breadcrumb shows it over 'name'.
+        action['name'] = action['display_name'] = _("Attendance - %(student)s", student=self.display_name)
+        action['context'].pop('search_default_my_subjects', None)
+        action['context']['search_default_student_id'] = self.id
         return action
 
     def action_new_enrollment(self):
@@ -654,6 +725,14 @@ class ResPartner(models.Model):
                 else:
                     partner.benefit_status = 'none'
 
+    def _compute_convalidation_count(self):
+        # sudo: the student form is open to roles with no access to convalidations; the button
+        # that uses the count is only shown to the ones that do.
+        counts = dict(self.env['ems.convalidation'].sudo()._read_group(
+            [('student_id', 'in', self._origin.ids)], ['student_id'], ['__count']))
+        for partner in self:
+            partner.convalidation_count = counts.get(partner._origin, 0)
+
     @api.depends('strike_ids')
     def _compute_strike_count(self):
         for partner in self:
@@ -663,7 +742,7 @@ class ResPartner(models.Model):
     def _compute_is_adult(self):
         for partner in self:
             partner.is_adult = bool(partner.birth_date) and (
-                relativedelta(datetime.date.today(), partner.birth_date).years >= 18)
+                relativedelta(self.env['ems.datetime_utils'].get_local_today(), partner.birth_date).years >= 18)
 
     @api.depends('main_group_id')
     def _compute_main_group_pending_change(self):
@@ -754,6 +833,7 @@ class ResPartner(models.Model):
         # two remaining exclusions as write(): not self.env.su (system flows) and a
         # non-'student' contact_type (applicant_import_wizard). student_import_wizard stays
         # excluded too, since it never sets study_id in the first place.
+        private_notes = [entry.pop('private_notes', False) for entry in values]
         is_su = self.env.su
         study_refresh_flags = []
         for entry in values:
@@ -785,6 +865,9 @@ class ResPartner(models.Model):
 
         contact = super(ResPartner, self).create(values)
         contact._sync_category()
+        for record, notes in zip(contact, private_notes):
+            if notes:
+                record._ems_store_private_notes(notes)
 
         # zip() relies on api.model_create_multi's guaranteed order-preservation between the
         # input values and the returned recordset.
@@ -804,6 +887,13 @@ class ResPartner(models.Model):
     def write(self, values):
         # Fired when the model is updated (Source: https://www.cybrosys.com/blog/how-to-override-create-write-and-unlink-methods-in-odoo-17)
         # Note: values is a dict (method fired once per entry)
+        # Private notes first, and without going through super(): they are checked on their own
+        # (_ems_can_access_private_notes), so they must not need write access on the partner.
+        if 'private_notes' in values:
+            values = dict(values)
+            self._ems_store_private_notes(values.pop('private_notes'))
+            if not values:
+                return True
         self._ems_normalize_student_id(values)
         self._ems_check_student_id_on_write(values)
         self._ems_check_orientation_write(values)
@@ -827,6 +917,8 @@ class ResPartner(models.Model):
         # outgoing group's enrollments - those are the ending year's history, not something
         # to repoint. Same env.su vs. env.user distinction already used for the same reason
         # in ems.enrollment.default_get().
+        if 'main_group_id' in values and not self.env.su:
+            self._ems_check_main_group_change(values['main_group_id'])
         old_main_groups = {}
         if 'main_group_id' in values and not self.env.su:
             old_main_groups = {partner.id: partner.main_group_id for partner in self}
@@ -896,6 +988,10 @@ class ResPartner(models.Model):
         if 'birth_date' in values:
             self._gw_enqueue_relocate()
 
+        # Google Workspace: a name fixed in EMS is fixed on the Google account too (#542).
+        if {'name', 'firstname', 'lastname'} & set(values):
+            self._gw_enqueue_rename()
+
         # Google Workspace: archive -> schedule the suspension after a grace period
         # (issue #388); unarchive -> call it off, or reactivate if the cron got there
         # first and the account is already suspended.
@@ -907,6 +1003,12 @@ class ResPartner(models.Model):
                 self._gw_schedule_deactivation()
 
         return contact
+
+    @api.model
+    def fields_get(self, allfields=None, attributes=None):
+        # No Archive/Unarchive for a plain teacher: see EmsBase.fields_get_active_readonly_for_teachers.
+        return base.EmsBase.fields_get_active_readonly_for_teachers(
+            self, super().fields_get(allfields, attributes))
 
     def toggle_active(self):
         """Archiving one or several students opens the withdrawal wizard instead
@@ -1142,6 +1244,48 @@ class ResPartner(models.Model):
         partners = self.search([('contact_type', 'in', ('applicant', 'alumni', 'withdrawal', 'expelled'))])
         partners._sync_category()
 
+    def _ems_check_main_group_change(self, new_group_id):
+        """Issue #534: moving a student to another main group moves their enrollments with them, and
+        only the secretary's office and academic administration change enrollments freely. Anybody
+        else allowed to edit the student (the tutor and the chiefs above them) may only move them
+        between equivalent groups - same study, course and shift (SMX1A <-> SMX1B, not SMX1C nor
+        DAM2B) - the choices '_compute_allowed_main_group_ids' offers them."""
+        # Clearing the group (a withdrawal or graduation detaching the student) moves no enrollment.
+        if not new_group_id or self.env['ems.base'].get_user_can_edit_enrollments():
+            return
+        new_group = self.env['ems.group'].browse(new_group_id)
+        for partner in self:
+            if new_group != partner.main_group_id and new_group not in partner._ems_equivalent_main_groups():
+                raise UserError(_(
+                    "You can only move %(student)s to a group of the same study, course and shift as "
+                    "%(group)s. Ask the secretary's office for any other change.",
+                    student=partner.display_name, group=partner.main_group_id.display_name or _("(none)"),
+                ))
+
+    def _ems_equivalent_main_groups(self):
+        """The groups equivalent to this student's current (saved) main group: same study, course
+        and shift."""
+        self.ensure_one()
+        current = self._origin.main_group_id if self._origin else self.main_group_id
+        if not current:
+            return self.env['ems.group']
+        return self.env['ems.group'].sudo().search([
+            ('group_type', '=', 'main'), ('study_id', '=', current.study_id.id),
+            ('course', '=', current.course), ('shift', '=', current.shift),
+        ])
+
+    @api.depends('study_id')
+    @api.depends_context('uid')
+    def _compute_allowed_main_group_ids(self):
+        """The main groups the form offers: every group of the student's study to whoever edits
+        enrollments, the equivalent ones only to anybody else (see '_ems_check_main_group_change')."""
+        can_edit = self.env['ems.base'].get_user_can_edit_enrollments()
+        for partner in self:
+            if can_edit:
+                partner.allowed_main_group_ids = self.env['ems.group'].search([('study_id', '=', partner.study_id.id)])
+            else:
+                partner.allowed_main_group_ids = partner._ems_equivalent_main_groups()
+
     def _migrate_enrollments_on_group_change(self, old_main_groups):
         """For each partner whose main group actually changed (old_main_groups maps
         partner id -> its previous main_group_id, captured before write()), moves its
@@ -1184,10 +1328,7 @@ class ResPartner(models.Model):
             for subject in self.env['ems.subject'].sudo().search([
                 ('product_id', 'in', template.sale_order_template_line_ids.product_id.ids)
             ]):
-                subject_course = student.study_id._ems_subject_course(subject.product_id)
-                subject_group = group
-                if subject_course and subject_course != group.course:
-                    subject_group = group._ems_equivalent_for_course(subject_course) or group
+                subject_group = group._ems_group_for_subject(subject)
                 new_pairs.add((subject_group.id, subject.id))
                 if not Enrollment.search_count([
                     ('student_id', '=', student.id), ('group_id', '=', subject_group.id), ('subject_id', '=', subject.id)
@@ -1239,6 +1380,66 @@ class ResPartner(models.Model):
         is_secretary = base.EmsBase.get_user_is_secretary(self)
         is_head_of_studies = base.EmsBase.get_user_is_head_of_studies(self)
         return not (is_admin or is_secretary or is_head_of_studies or self._user_is_tutor_of_record())
+
+    @api.depends('tutor_id')
+    @api.depends_context('uid')
+    def _compute_can_see_benefits(self):
+        user = self.env.user
+        sees_all = any(user.has_group(group) for group in (
+            'ems.group_academic_admin', 'ems.group_secretary', 'ems.group_head_of_studies',
+            'ems.group_student_data_reader'))
+        for partner in self:
+            partner.can_see_benefits = sees_all or base.EmsBase.user_acts_as_tutor(partner, partner.tutor_id)
+
+    @api.depends('contact_type', 'tutor_id')
+    @api.depends_context('uid')
+    def _compute_student_action_rights(self):
+        portal = self.env['ems.portal.access.wizard']
+        scope = self.env['ems.student.scope.mixin']
+        for partner in self:
+            is_student = partner.contact_type in ('student', 'applicant')
+            partner.can_manage_portal_access = is_student and portal._user_can_manage(partner)
+            partner.can_send_student_requests = is_student and scope._scope_acts_on_student(partner)
+
+    @api.depends('tutor_id')
+    @api.depends_context('uid')
+    def _compute_can_see_documents(self):
+        user = self.env.user
+        sees_all = any(user.has_group(group) for group in (
+            'ems.group_academic_admin', 'ems.group_secretary', 'ems.group_tac'))
+        for partner in self:
+            partner.can_see_documents = sees_all or base.EmsBase.user_acts_as_tutor(partner, partner.tutor_id)
+
+    @api.depends('tutor_id')
+    @api.depends_context('uid')
+    def _compute_private_notes(self):
+        notes = {note.partner_id.id: note.notes for note in self.env['ems.student.private_note'].sudo().search(
+            [('partner_id', 'in', self._origin.ids)])}
+        for partner in self:
+            partner.can_access_private_notes = partner._ems_can_access_private_notes()
+            partner.private_notes = partner.can_access_private_notes and notes.get(partner._origin.id, False)
+
+    def _ems_can_access_private_notes(self):
+        self.ensure_one()
+        user = self.env.user
+        return (self.env.su or any(user.has_group(group) for group in PRIVATE_NOTES_GROUPS)
+                or base.EmsBase.user_acts_as_tutor(self, self.tutor_id))
+
+    def _ems_store_private_notes(self, notes):
+        PrivateNote = self.env['ems.student.private_note'].sudo()
+        for partner in self:
+            if not partner._ems_can_access_private_notes():
+                raise AccessError(_(
+                    "Only the student's tutor, the chiefs above them, the guidance and coexistence teams "
+                    "and the academic administrators can change the private notes of %(name)s.",
+                    name=partner.display_name))
+            note = PrivateNote.search([('partner_id', '=', partner.id)])
+            if note:
+                note.notes = notes
+            elif notes:
+                PrivateNote.create({'partner_id': partner.id, 'notes': notes})
+        # Stored outside res.partner, so nothing else tells the ORM this compute is stale.
+        self.invalidate_recordset(['private_notes'])
 
     def _get_special_needs_readonly(self):
         return self._get_read_only_user() and not self.env.user.has_group('ems.group_orientation')
@@ -1300,7 +1501,7 @@ class ResPartner(models.Model):
             'country_id': self.country_id.id,
         })
         return {
-            'name': 'New student contact',
+            'name': _('New student contact'),
             'type': 'ir.actions.act_window',
             'res_model': 'ems.contact.relation.wizard',
             'res_id': wizard.id,

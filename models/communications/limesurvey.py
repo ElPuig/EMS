@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import requests, json, html, re, base64, time, traceback, io, csv
-from datetime import datetime
+from datetime import datetime, timezone
 from odoo import models, fields, api, Command, _
 from odoo.exceptions import UserError, RedirectWarning, ValidationError
 from odoo.tools import email_normalize
@@ -421,6 +421,13 @@ class LimesurveyApi():
         self.limesurvey_pwd = env.company.limesurvey_pwd
         self.limesurvey_gid = env.company.limesurvey_gid
 
+    @staticmethod
+    def _limesurvey_now():
+        """Now, as LimeSurvey reads its survey dates: our LimeSurvey server runs in UTC with no time
+        adjustment ("Temps corregit" equals "Horari del servidor"), so these are UTC, unlike every
+        other date EMS handles (see docs/en/developers/shared/timezones.md)."""
+        return datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+
     def create_survey(self, raw_tsv):
         data = base64.b64encode(raw_tsv.encode('utf-8')).decode('utf-8')
         result = self._run_api_request("import_survey", [data, "txt"])
@@ -488,7 +495,7 @@ class LimesurveyApi():
     def activate_survey(self, survey_id):
         error = _("Unable to activate the survey")
         try:
-            self._run_api_request("set_survey_properties", [survey_id, {"expires": None, "startdate": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}])
+            self._run_api_request("set_survey_properties", [survey_id, {"expires": None, "startdate": self._limesurvey_now()}])
             result = self._run_api_request("activate_survey", [survey_id])
             if "status" not in result:
                 raise Exception(f"{error}: {result}")
@@ -500,7 +507,7 @@ class LimesurveyApi():
     def deactivate_survey(self, survey_id):
         error = _("Unable to deactivate the survey")
         try:
-            result = self._run_api_request("set_survey_properties", [survey_id, {"expires": datetime.now().strftime('%Y-%m-%d %H:%M:%S')}])
+            result = self._run_api_request("set_survey_properties", [survey_id, {"expires": self._limesurvey_now()}])
             if not isinstance(result, dict) or not result.get("expires"):
                 raise Exception(f"{error}: {result}")
         except Exception as e:
@@ -811,7 +818,7 @@ class EmsLimesurveyHeader(models.Model):
             if persistent_data.get("success"):
                 csv_content = _build_csv(self.env, persistent_data.get("all_responses", []))
                 self.csv_data = base64.b64encode(csv_content.encode("utf-8")).decode("utf-8")
-                self.csv_filename = f"survey_results_{fields.Date.today()}.csv"
+                self.csv_filename = f"survey_results_{self.env['ems.datetime_utils'].get_local_today()}.csv"
 
         return run_action(self, _("LimeSurvey: download surveys"), _("Download"), "downloading", "closed", "closed", compute, persistent_data, post_store=post_store)
 

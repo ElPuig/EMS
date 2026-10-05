@@ -7,10 +7,14 @@ class ems_contact_portal(models.Model):
     _inherit = 'res.partner'
 
     def get_portal_students(self):
-        """Returns all student partners related to this family contact.
+        """Returns the student partners this family contact may see on the portal.
 
-        - If this partner is a family contact, returns all related students
-          via the partner_multi_relation system.
+        - If this partner is a family contact, returns its related students
+          via the partner_multi_relation system, except the adult ones that
+          have not authorized sharing with the family (auth_share). A family
+          loses its child from the portal the day he turns 18, and gets him
+          back, only to consult (_ems_portal_can_act_for), once he authorizes it.
+          This is the single point every portal page reads the students from.
         - Otherwise, returns self as a single-element recordset.
 
         Uses sudo() because portal users don't have direct access to
@@ -25,7 +29,8 @@ class ems_contact_portal(models.Model):
                 ('this_partner_id', '=', self.id),
                 ('other_partner_id.contact_type', '=', 'student'),
             ])
-            return relations.mapped('other_partner_id').sorted('id')
+            return relations.mapped('other_partner_id').filtered(
+                lambda student: not student.is_adult or student.auth_share).sorted('id')
         return self
 
     def _ems_revoke_student_portal(self):
@@ -112,6 +117,72 @@ class ems_contact_portal(models.Model):
         if family or self.contact_type != 'applicant':
             return family
         return self
+
+    def _ems_portal_access_recipients(self):
+        """Partners that get a portal account for this student: whoever acts on his behalf
+        (_ems_notification_recipients) plus the student himself. A minor gets an account of his
+        own too, to look at his schedule and the messages addressed to him, while his family
+        keeps managing everything else (_ems_portal_is_view_only)."""
+        self.ensure_one()
+        return self._ems_notification_recipients() | self
+
+    def _ems_portal_is_view_only(self):
+        """Whether this portal partner may only consult the student he is looking at
+        (get_portal_student) rather than act for him (_ems_portal_can_act_for): a minor on his
+        own account, a family looking at an adult child who authorized sharing with it, or a
+        family with no child left to see. Enrollment, authorizations, convalidations and
+        documentation are hidden and refused to him (controllers/portal_view_only.py)."""
+        self.ensure_one()
+        return not self._ems_portal_can_act_for(self.get_portal_student())
+
+    def _ems_portal_can_act_for(self, student):
+        """Whether this portal partner may act on the student's behalf: whoever the centre
+        contacts on his behalf (_ems_notification_recipients) - the student himself when adult,
+        or the minor applicant with no family on file; the family while he is a minor.
+        A student with no birth date counts as a minor. A family never acts for itself, which
+        is what get_portal_student() returns when it has no child left to see."""
+        self.ensure_one()
+        if not student:
+            return False
+        if student == self:
+            if self.contact_type == 'family':
+                return False
+            return self.contact_type not in ('student', 'applicant') \
+                or self in self._ems_notification_recipients()
+        return student in self.get_portal_students() \
+            and self in student._ems_notification_recipients()
+
+    def _ems_convalidation_can_request(self, student):
+        """Whether this portal partner may file (and follow up) convalidation requests for the
+        student - a rule of its own, narrower and wider than _ems_portal_can_act_for (issue #529):
+
+        - a minor never files them himself, only his family; a minor with no family contact on
+          file cannot have any filed until someone fills that contact in;
+        - an adult files them himself, and so does his family when he authorized sharing with
+          it (auth_share), which is exactly when get_portal_students() shows him to it."""
+        self.ensure_one()
+        if not student or student.contact_type not in ('student', 'applicant'):
+            return False
+        if student.is_adult:
+            return self == student or (self.contact_type == 'family' and student in self.get_portal_students())
+        return self != student and self in student._ems_family_contacts()
+
+    def _ems_convalidation_portal_visible(self):
+        """Whether the portal shows this partner the Convalidations page for the student he is
+        looking at: whoever may request them, and the student himself, who at least reads his
+        own requests (and is told why he cannot file one when he is a minor)."""
+        self.ensure_one()
+        student = self.get_portal_student()
+        return student.contact_type in ('student', 'applicant') \
+            and (student == self or self._ems_convalidation_can_request(student))
+
+    def _ems_convalidation_recipients(self):
+        """Whoever hears about this student's convalidations (issue #529): the student always,
+        and his family too while he is a minor or when he authorized sharing with it."""
+        self.ensure_one()
+        if self.is_adult and not self.auth_share:
+            return self
+        return self | self._ems_family_contacts()
 
     def get_portal_student(self, student_id=None):
         """Returns the student partner for this partner.

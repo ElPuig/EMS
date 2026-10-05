@@ -45,6 +45,8 @@ La columna **Guàrdia**, a la dreta, llista tots els docents de guàrdia en aque
 
 Una fila la franja horària de la qual coincideix amb el pati d'algun nivell — sense cap classe programada en ella per a ningú — mostra una petita etiqueta **"Pati"** al costat de l'hora, a més d'una vora marró al costat esquerre d'aquella mateixa cel·la, perquè una franja que sembla buida no es llegeixi com un forat a l'horari.
 
+![Horari de guàrdies d'una franja horària: la classe d'un grup, una guàrdia normal, una guàrdia de WC, una fila de Pati amb la seva pròpia guàrdia, i un docent marcat com a absent en vermell i negreta](../../assets/teachers/guard-duty-01-horari.png)
+
 ---
 
 ## Filtrar per nivell
@@ -67,6 +69,10 @@ Cada fila és una franja horària del torn que tens a la pantalla:
 
 Una franja on no falta ningú té la columna d'absències buida.
 
+En una classe amb codocència (dos docents a la mateixa aula) on només en falta un, la seva línia surt **ratllada**: hi continua perquè sàpigues qui falta, però no cal guàrdia perquè l'altre docent es fa càrrec de la classe. Si hi passes el ratolí per sobre, t'ho indica. Si falten tots dos, o cada docent té mig grup en una aula diferent, la línia no surt ratllada i sí que cal cobrir la classe.
+
+![Taula d'absències de la mateixa franja horària: el docent absent i què cal cobrir, davant de qui està de guàrdia](../../assets/teachers/guard-duty-02-absencies.png)
+
 ---
 
 ## Absències
@@ -77,6 +83,8 @@ Un docent que falta apareix en vermell allà on surti el seu nom — a la seva p
 - **Vermell més suau i cursiva** — l'absència s'ha sol·licitat i encara està pendent d'aprovació.
 
 Les sol·licituds denegades i cancel·lades no es mostren.
+
+Una absència que Prefectura d'Estudis ja coneix però que el docent encara no ha sol·licitat també es mostra com a pendent d'aprovar.
 
 Un docent de guàrdia que falta queda marcat a la columna de guàrdia i no genera cap línia a la columna d'absències: no té cap classe pròpia que ningú hagi de cobrir.
 

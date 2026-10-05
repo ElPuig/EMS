@@ -1,4 +1,5 @@
 import base64
+from ast import literal_eval
 from datetime import date
 
 from dateutil.relativedelta import relativedelta
@@ -135,6 +136,13 @@ class TestAuthorizationSendWizard(TransactionCase):
         ).create({'template_ids': [(6, 0, self.template.ids)]})
         self.assertEqual(wizard.target, 'students')
         self.assertEqual(wizard.student_ids, self.adult | self.minor)
+
+    def test_a_tutor_selecting_the_whole_list_gets_only_their_own_students(self):
+        # Issue #550: someone else's student selected in the list is not even preloaded.
+        wizard = self.env['ems.authorization.send.wizard'].with_user(self.tutor).with_context(
+            active_ids=(self.adult | self.other_student).ids, active_model='res.partner',
+        ).create({'template_ids': [(6, 0, self.template.ids)]})
+        self.assertEqual(wizard.student_ids, self.adult)
 
     def test_scope_resolves_enrolled_students_of_a_group(self):
         wizard = self._wizard(target='scope', group_ids=[(6, 0, self.group.ids)])
@@ -322,13 +330,16 @@ class TestAuthorizationSendWizard(TransactionCase):
         self.assertTrue(Authorization.with_user(self.head)._ems_sees_every_student())
         self.assertFalse(Authorization.with_user(self.tutor)._ems_sees_every_student())
 
-    def test_a_tutor_sees_why_someone_elses_student_is_left_out(self):
-        wizard = self._wizard(user=self.tutor,
-                              student_ids=[(6, 0, (self.adult | self.other_student).ids)])
-        wizard._onchange_selection()
-        notes = {line.student_id: line.note for line in wizard.line_ids}
-        self.assertIn('Not one of your students', notes[self.other_student])
-        self.assertNotIn('Not one of your students', notes[self.adult] or '')
+    def test_a_tutor_is_offered_only_their_own_students(self):
+        # Issue #550: the student picker's domain (student_domain); staff are offered everyone.
+        candidates = (self.adult | self.other_student).ids
+
+        def offered(user):
+            domain = literal_eval(self._wizard(user=user).student_domain) + [('id', 'in', candidates)]
+            return self.env['res.partner'].with_user(user).search(domain)
+
+        self.assertEqual(offered(self.tutor), self.adult)
+        self.assertEqual(offered(self.sender), self.adult | self.other_student)
 
     def test_a_tutor_can_send_to_their_own_group(self):
         self._wizard(user=self.tutor, target='scope', group_ids=[(6, 0, self.group.ids)]).action_apply()

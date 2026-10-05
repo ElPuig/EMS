@@ -3,7 +3,6 @@
 import base64
 import csv
 import io
-from datetime import datetime
 
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
@@ -826,18 +825,52 @@ class ems_course_transition_wizard(models.TransientModel):
         part of their old schedule). Mirrors 'ems.attendance_template.regenerate_all_from_
         calendars()' 's own calendar-as-source-of-truth resync, but scoped and lightweight - never
         touches templates, so it is safe to call from this interactive wizard action (unlike
-        'regenerate_all_from_calendars()', whose own docstring restricts it to an offline
+        '_regenerate_all_from_calendars()', whose own docstring restricts it to an offline
         migration window).
 
         This is the ONLY place 'ems.teaching' ever gets reconciled as a consequence of a course
         transition - before this, a departed/reassigned teacher's stale teaching links (and, via
         'ems.teaching.unlink()' 's own cleanup, their group's stale 'tutor_id') survived
         indefinitely, since neither the calendar archival above nor the working-schedule
-        importer's own call to 'ems.teaching.sync_from_schedule(..., replace=False)' (deliberately
+        importer's own call to 'ems.teaching._sync_from_schedule(..., replace=False)' (deliberately
         additive-only, by design - one imported file is only ever one slice of the centre's
         schedule) ever remove a stale entry outright."""
         for teacher in teachers:
-            self.env['ems.teaching'].sync_from_schedule(teacher, teacher._teaching_entries_from_calendar())
+            self.env['ems.teaching']._sync_from_schedule(teacher, teacher._teaching_entries_from_calendar())
+
+    def _apply_planning_rollover(self):
+        """Step - copies every ems.planning (and its planning_outcome_ids) of the studies in
+        scope from the outgoing course to the incoming one, so grading configuration is never
+        missing when the new course starts (issue #503). Scoped to self.study_ids, same as
+        every other _apply_* step here, since studies transition at different times. Idempotent:
+        skips a study+subject that already has a target-course planning, so relaunching a
+        transition never duplicates one (also backstopped by the model's own
+        unique_study_subject_course SQL constraint)."""
+        source = self.env['ems.planning'].search([
+            ('study_id', 'in', self.study_ids.ids),
+            ('course_id', '=', self.source_course_id.id),
+        ])
+        existing_keys = {
+            (planning.study_id.id, planning.subject_id.id)
+            for planning in self.env['ems.planning'].search([
+                ('study_id', 'in', self.study_ids.ids),
+                ('course_id', '=', self.target_course_id.id),
+            ])
+        }
+        for planning in source:
+            if (planning.study_id.id, planning.subject_id.id) in existing_keys:
+                continue
+            # planning_outcome_ids is a plain one2many, copy=False by default (confirmed
+            # empirically 2026-09-23: Odoo does NOT duplicate a one2many's children unless the
+            # field is explicitly copy=True) - copy() alone silently drops them, so they must be
+            # rebuilt explicitly here.
+            planning.copy({
+                'course_id': self.target_course_id.id,
+                'planning_outcome_ids': [(0, 0, {
+                    'outcome_id': outcome.outcome_id.id,
+                    'ponderation': outcome.ponderation,
+                }) for outcome in planning.planning_outcome_ids],
+            })
 
     def _apply_attendance_records_archival(self):
         """Archives every ems.attendance_justification / ems.attendance_issue_status (+ its
@@ -1033,7 +1066,7 @@ Called from `_apply_cleanup()` **last**, after `students._ems_clear_operational_
         follower about an operation that only concerns the staff.
         """
         self.ensure_one()
-        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        stamp = self.env['ems.datetime_utils'].get_local_datetime().strftime("%Y%m%d_%H%M%S")
         self.audit_file = self._build_audit_csv()
         self.audit_file_name = "course_transition_%s.csv" % stamp
 
@@ -1084,6 +1117,7 @@ Called from `_apply_cleanup()` **last**, after `students._ems_clear_operational_
         pending = self._pending_graduates(order_index)
 
         self._apply_history(students)
+        self._apply_planning_rollover()
         issues = self._apply_graduates(graduates)
         self._apply_continuing_graduates(continuing)
         self._apply_pending_graduates(pending, order_index)

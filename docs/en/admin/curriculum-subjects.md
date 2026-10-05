@@ -38,6 +38,8 @@ Opening the menu shows a list of all subjects sorted by code. Each row shows the
 6. Optionally, add free-form notes in the **Notes** tab.
 7. Click **Save** (or use the breadcrumb to navigate away — Odoo saves automatically).
 
+![A subject's form, with its learning outcomes in the Learning Outcome tab](../../assets/admin/admin-subject-outcomes.png)
+
 ### Adding Learning Outcomes
 
 Learning outcomes only exist inside a subject — there is no separate "Outcomes" menu.

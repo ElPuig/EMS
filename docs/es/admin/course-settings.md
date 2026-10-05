@@ -14,6 +14,8 @@ El ajuste **Curso actual** controla qué año académico (p. ej., `2025-2026`) s
 
 Navega a: **Ajustes → Gestión EMS → Ajustes de gestión de cursos**
 
+![Configuración de la gestión de cursos: los selectores Curso actual y Curso de matriculación, con el enlace Preparar el curso siguiente](../../assets/admin/admin-course-settings.png)
+
 ---
 
 ## Cambiar el curso actual

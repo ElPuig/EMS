@@ -12,8 +12,9 @@
 #   ./test.sh '-/ems:A,-/ems:B'        - same, but as an exclusion list (everything except A/B)
 #
 # The no-argument form parallelizes across the same shard split CI uses
-# (scripts/testing/compute_test_shards.py: one "fast" shard + N "tour" shards, self-maintaining
-# - discovers tests/*_tour.py at run time, no script edit needed when a new tour file appears).
+# (scripts/testing/compute_test_shards.py: "backend-N" + "tours-N" shards balanced by measured
+# duration, self-maintaining - discovers tests/test_*.py at run time, no script edit needed when
+# a new test file appears).
 # See scripts/testing/run_sharded_tests.py for how each shard gets its own throwaway database
 # clone and HTTP port. A scoped run (single class or an
 # explicit tag expression) always stays sequential and unsharded, straight against the real ems
@@ -34,7 +35,8 @@ else
         /*|-*) TAG="$1" ;;      # already a full --test-tags expression - pass through as-is
         *)     TAG="/ems:$1" ;; # bare class name - existing single-class shorthand
     esac
-    sudo -u odoo bash -c "odoo -d ems -u ems --test-enable --test-tags=${TAG} --stop-after-init -c /etc/odoo/odoo.conf 2>&1"
+    # as_odoo.sh: the environment Chrome needs to start in tour tests (issue #563).
+    "$SCRIPT_DIR/scripts/testing/as_odoo.sh" bash -c "odoo -d ems -u ems --test-enable --test-tags=${TAG} --stop-after-init -c /etc/odoo/odoo.conf 2>&1"
     EXIT_CODE=$?
 fi
 

@@ -1,0 +1,81 @@
+[Català](../../ca/tutors/contact-data-requests.md) | [Castellano](contact-data-requests.md) | [English](../../en/tutors/contact-data-requests.md)
+
+---
+
+# Solicitudes de datos de contacto: pedir a las familias que actualicen los datos
+
+Cómo pedir al alumnado y a las familias que revisen los datos de contacto desde el portal, hacer el seguimiento de quién ha respondido y aprobar los cambios.
+
+Disponible para los tutores de grupo (para su alumnado), la secretaría y la jefatura de estudios (para todo el alumnado).
+
+---
+
+## Contenido
+
+1. [Enviar una solicitud](#enviar-una-solicitud)
+2. [Hacer el seguimiento de las respuestas](#hacer-el-seguimiento-de-las-respuestas)
+3. [Aprobar los cambios](#aprobar-los-cambios)
+4. [Devolver una respuesta a la familia](#devolver-una-respuesta-a-la-familia)
+5. [Enviar un recordatorio](#enviar-un-recordatorio)
+
+---
+
+## Enviar una solicitud
+
+![Menú Comunidad educativa con la sección Estudiantes abierta: Estudiantes y Solicitud de datos](../../assets/tutors/dades-contacte-01-menu.png)
+
+1. Id a **Comunidad educativa → Estudiantes (1) → Solicitud de datos (2)** y haced clic en **Solicitar datos de contacto**. También podéis abrirlo desde el menú ⚙ de la lista de estudiantes, de la lista de grupos o de la ficha de un grupo, y desde el menú **Acciones** de la cabecera de la ficha de un estudiante. Si lo abrís desde una lista, solo se añaden vuestros alumnos y grupos de entre los seleccionados.
+2. Elegid quién la recibe:
+   - **Grupos / estudios / niveles**: elegid los grupos. Los tutores solo pueden elegir sus grupos.
+   - **Alumnos seleccionados**: elegid los alumnos uno a uno. Solo se ofrecen vuestros alumnos.
+3. Dejad marcado **Solo alumnos con datos incompletos** para omitir los alumnos que ya tienen todos los datos obligatorios.
+4. Dejad marcado **Dar acceso al portal a quien no lo tenga**: la solicitud se responde desde el portal.
+5. Revisad los **Destinatarios (vista previa)**: qué falta y quién recibe el correo. Un alumno marcado con **Nadie localizable por correo** no tiene a nadie con correo: llamad a la familia.
+6. Haced clic en **Enviar** y esperad: el mensaje *Procesando las solicitudes…* se queda en pantalla hasta que se ha enviado todo. No cerréis la ventana.
+
+![Asistente de solicitud de datos de contacto con el grupo elegido y la vista previa de quién la recibe y qué falta](../../assets/tutors/dades-contacte-02-assistent.png)
+
+Cada alumno, o la familia de un menor, recibe un correo con un enlace al portal. La cuenta de portal de un menor solo sirve para consultar, así que la solicitud va a su familia, que es quien la responde.
+
+## Hacer el seguimiento de las respuestas
+
+![Lista de seguimiento de las solicitudes, con los estados Pendiente de respuesta, Por revisar y Hecho](../../assets/tutors/dades-contacte-03-seguiment.png)
+
+En **Comunidad educativa → Estudiantes → Solicitud de datos**:
+
+- **Pendiente de respuesta**: enviada, todavía sin respuesta.
+- **Por revisar**: la familia ha respondido.
+- **Hecho**: aprobada, o la familia ha confirmado los datos tal como estaban.
+
+Usad los filtros **Pendiente de respuesta**, **Por revisar**, **Pendientes desde hace más de una semana** y **Posible duplicado**, y agrupad por **Grupo**.
+
+## Aprobar los cambios
+
+![Solicitud por revisar: los cambios propuestos por la familia, con los botones Aprobar y Devolver a la familia](../../assets/tutors/dades-contacte-04-revisio.png)
+
+1. Abrid una solicitud **Por revisar**. La lista de **Cambios** muestra, para cada persona, el valor que consta y el propuesto.
+2. Si la solicitud muestra el aviso de **posible duplicado**, comprobad en **Familias** si el familiar nuevo es la persona que indica **Posible duplicado de**.
+3. Haced clic en **Aprobar** (1).
+
+Si un cambio añade un familiar, la columna **También vinculado a** indica los otros hijos de la familia a los que también se vincula: al aprobarlo se hace.
+
+Si la familia ha enviado una foto nueva del alumno, la fila **Foto** muestra la **Foto actual** y la **Foto propuesta**. Pasad el ratón por encima de una foto para verla más grande.
+
+![Una foto de la lista de cambios, ampliada al pasar el ratón por encima](../../assets/tutors/dades-contacte-05-foto-ampliada.png)
+
+Haced clic en la fila para compararlas una al lado de la otra, a tamaño grande. Al aprobar la solicitud, la foto propuesta pasa a la ficha del alumno.
+
+![La foto actual y la propuesta una al lado de la otra](../../assets/tutors/dades-contacte-06-foto.png)
+
+Para aprobar varias a la vez, seleccionadlas en la lista y haced clic en **Aprobar**.
+
+## Devolver una respuesta a la familia
+
+1. Abrid la solicitud y haced clic en **Devolver a la familia** (2).
+2. Escribid qué deben corregir y haced clic en **Devolver**.
+
+La familia recibe un correo con el motivo y puede volver a enviar los datos desde el portal.
+
+## Enviar un recordatorio
+
+Seleccionad las solicitudes **Pendiente de respuesta** y haced clic en **Enviar recordatorio**. La columna **Recordatorios** cuenta cuántos se han enviado.

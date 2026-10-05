@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <!-- The first staff-facing screen of the quality work. It exists from this phase on, and not
-             earlier, so nobody meets a half-built application: phase 1 shipped only the coordination
-             side under its own root menu. -->
-        <menuitem name="Minutes and agreements" sequence="4" id="menu_minutes" groups="ems.group_teacher,ems.group_secretary"/>
+        <!-- The root menu of everything about meetings: the quality work's minutes and agreements
+             (the first staff-facing screen of it, so every teacher sees it) and the meeting
+             attendance kiosk records, which keep their own narrower groups on their menu item. -->
+        <menuitem name="Minutes and agreements" sequence="4" id="menu_minutes"
+                  groups="ems.group_teacher,ems.group_secretary,ems.group_head_of_studies,ems.group_academic_admin"/>
 
         <menuitem name="Configuration" sequence="90" id="menu_minutes_config" parent="menu_minutes"
                   groups="ems.group_quality_admin,ems.group_director"/>

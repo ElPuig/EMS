@@ -19,30 +19,35 @@
                             Dear tutor,
                         </p>
                         <p>
-                            This is your students daily report, in order to inform you about today's attendance statuses:
+                            These are your students' attendance issues recorded since your previous report:
                             <ul>
-                                <li>
-                                    <strong>Date: </strong><span t-field="object.issue_date"/>
-                                    <ul>
-                                        <t t-foreach="object.attendance_issue_student_ids" t-as="student">
-                                            <li>
-                                                <strong>Student: </strong><span t-field="student.student_id"/>
-                                                <ul>
-                                                    <t t-foreach="student.attendance_issue_status_ids" t-as="status">
-                                                        <li t-att-style="'text-decoration: line-through;' if status.rectified_by.id != False else ''">
-                                                            <span t-field="status.attendance_session_id.attendance_schedule_id.attendance_template_id"/> | from <span t-field="status.attendance_session_id.start_time" t-options="{'widget': 'float_time'}"/> to <span t-field="status.attendance_session_id.end_time" t-options="{'widget': 'float_time'}"/> | <span t-field="status.attendance_status_id"/>
-                                                            <t t-if="status.notes">
-                                                                | <span t-field="status.notes"/>
-                                                            </t>
-                                                        </li>                                                        
-                                                    </t>
-                                                </ul>
-                                            </li>                                                                               
-                                        </t>
-                                    </ul>
-                                </li>
+                                <t t-foreach="object._tutor_report_days()" t-as="day">
+                                    <li>
+                                        <strong>Date: </strong><span t-field="day['issue'].issue_date"/>
+                                        <ul>
+                                            <t t-foreach="day['students']" t-as="student">
+                                                <li>
+                                                    <strong>Student: </strong><span t-out="student['student'].display_name"/>
+                                                    <ul>
+                                                        <t t-foreach="student['statuses']" t-as="status">
+                                                            <li t-att-style="'text-decoration: line-through;' if status.rectified_by.id != False else ''">
+                                                                <span t-field="status.attendance_session_id.attendance_schedule_id.attendance_template_id"/> | from <span t-field="status.attendance_session_id.start_time" t-options="{'widget': 'float_time'}"/> to <span t-field="status.attendance_session_id.end_time" t-options="{'widget': 'float_time'}"/> | <span t-if="status.attendance_status_id" t-field="status.attendance_status_id"/><t t-else="">Not required to attend (removed from the roll-call)</t>
+                                                                <t t-if="status.notes">
+                                                                    | <span t-field="status.notes"/>
+                                                                </t>
+                                                            </li>
+                                                        </t>
+                                                    </ul>
+                                                </li>
+                                            </t>
+                                        </ul>
+                                    </li>
+                                </t>
                             </ul>
-                        </p>                        
+                        </p>
+                        <p>
+                            You can choose when you receive this report from your profile (My Profile, Preferences tab).
+                        </p>
                         <p>
                             Kind regards,<br>
                             <t t-out="object.create_uid.company_id.name"/>

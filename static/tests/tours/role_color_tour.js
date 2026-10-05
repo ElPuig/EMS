@@ -104,7 +104,9 @@ registry.category("web_tour.tours").add("ems_role_hierarchy_lock_smoke", {
             content: "Roles list view loaded",
         },
         {
-            trigger: ".o_data_row td:contains('Head of studies')",
+            // :text (exact match), not :contains: "Deputy head of studies" contains "head of
+            // studies" too, and which of the two comes first depends on the database.
+            trigger: ".o_data_row td:text('Head of studies')",
             content: "Open the Head of Studies role",
             run: "click",
         },
@@ -123,7 +125,7 @@ registry.category("web_tour.tours").add("ems_role_hierarchy_lock_smoke", {
             run: "click",
         },
         {
-            trigger: ".o_data_row td:contains('Quality coordinator')",
+            trigger: ".o_data_row td:text('Quality coordinator')",
             content: "Open a minor (non-hierarchy-managed) role for contrast",
             run: "click",
         },

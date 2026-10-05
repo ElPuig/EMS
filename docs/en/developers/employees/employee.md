@@ -106,11 +106,53 @@ not just this addon's own inherited views.
 
 ---
 
+## Presence dot (`hr_presence_state` / `hr_icon_display`)
+
+The coloured dot on the Teachers/ASP kanban cards and at the top of the employee form is Odoo's own
+presence icon (`hr`, `hr_attendance`, `hr_holidays`; not stored, recomputed on every read). EMS
+changes two of its inputs so it follows **only the attendance check-in/out and the employee's own
+schedule** (issue #555):
+
+- **"Should be working now" is the current instant, not the next hour.** hr's
+  `_get_employee_working_now()` asks the calendar for work intervals in `[now, now + 1h]`, so a
+  checked-out teacher showed as Absent up to an hour before their first class and in every gap
+  shorter than an hour between two slots. `ems_employee_base._get_employee_working_now()`
+  (`models/employees/employee.py`) asks for `[now, now + 1s]` instead, in the company's timezone
+  (see `docs/en/developers/shared/timezones.md`), still with `compute_leaves` so public holidays
+  count as not working. Its only callers are the presence computes (`hr`, `hr_attendance`;
+  `hr_presence` isn't installed).
+- **Login-based presence is off.** `res.company.hr_presence_control_login` (on by default in hr)
+  showed as Present anyone with EMS open in a browser (`im_status == 'online'`), checked in or
+  not, and flipped them to Absent after 30 minutes idle. `_disable_login_presence_control()`
+  (`__init__.py`) switches it off for every company: from `post_init_hook` on fresh installs and
+  from a `migrations/18.0.0.33.0/post-migrate.py` on upgrades. `hr_presence_control_attendance` stays on.
+
+- **Native labels fixed in Catalan/Spanish.** hr ships 'Out of Working hours' with no Catalan
+  translation, hr_holidays ships 'On leave' as "En sortir" (ca) and 'Present but on leave' as
+  "...de vacaciones" (es). Loading a `.po` never overwrites a translation that already exists, so
+  EMS's own i18n files can't correct them: `_fix_native_presence_translations()` (`__init__.py`)
+  writes them straight into `ir_model_fields_selection.name` (same `post_init_hook` +
+  `post-migrate.py` pair), and later hr/hr_holidays upgrades leave them alone for the same reason.
+
+```mermaid
+flowchart TD
+    A[hr_presence_state] --> B{Approved leave today?}
+    B -- yes --> L[Plane icon]
+    B -- no --> C{Checked in?}
+    C -- yes --> P[Present - green]
+    C -- no --> D{A schedule slot covers this instant?}
+    D -- yes --> X[Absent - yellow]
+    D -- no --> O[Out of working hours - grey]
+```
+
+Covered by `tests/test_employee_presence_state.py` (before the first slot, inside a slot, in a gap,
+after the last slot, checked in, online but not checked in, the company flag and the labels).
+
 ## Views
 
 | View | File | Notes |
 |------|------|-------|
-| Form | `views/community/employee/form.xml` | Heavily inherits `hr.view_employee_form`; adds the Google Workspace header buttons, the Schedule tab (`schedule_grid` widget), the Teaching tab (tutorships/coordination/subjects) |
+| Form | `views/community/employee/form.xml` | Heavily inherits `hr.view_employee_form`; adds the Actions dropdown to the native header (the Google Workspace/EMS user actions, plus hr_holidays_attendance's "Deduct Extra Hours" moved in by `view_employee_form_native_actions`, see [Form "Actions" dropdown](../shared/actions_dropdown.md)), the Schedule tab (`schedule_grid` widget), the Teaching tab (tutorships/coordination/subjects) |
 | Kanban | `views/community/employee/kanban.xml` | Renders `roles`/`tutorships`; also splits the presence icon's widget per group - see [absence.md](absence.md)'s "hr_holidays leaks a restricted field into the Teachers screen through a widget" |
 | List | `views/community/employee/list.xml` | — |
 | Menu | `views/community/employee/menu.xml` | `action_employee_kanban`, already covered by `employee_google_workspace_tour.js`'s navigation, but that tour never opens the employee's own **form** — see the new `employee_tour.js` added in this pass for that gap |
@@ -128,3 +170,58 @@ Defined in `security/ir.model.access.csv` (lines 2–3).
 | Teacher | — | ✓ | — | — | `ems.group_teacher` |
 
 Plus Odoo's own `hr.group_hr_user`/`hr.group_hr_manager` access, unchanged by EMS. Several individual fields carry their own `groups=` restriction (e.g. `activity_*` fields limited to `hr.group_hr_user,ems.group_teacher`) rather than being gated at the model level.
+
+### Work email and work mobile of an employee linked to a user
+
+`work_email` and `mobile_phone` are stored on the employee's work contact, which for an employee linked to an EMS user is that user's own partner (hr's `_inverse_work_contact_details`). Odoo's `res.partner.write()` demands write access on `res.users` whenever the partner belongs to another internal user, and only "Access Rights" (`base.group_erp_manager`) has it. So natively, whoever may edit the employee (Head of Studies/Deputy, TAC, the secretariat) could still not change or remove those two fields, e.g. a manual corporate email (issue #552).
+
+EMS overrides `_inverse_work_contact_details` to write the linked user's partner as superuser. It runs after the employee's own write check, so it adds nothing to who can edit which employee (`security/rules/employees.xml` still decides that). One exception keeps the native guard: when the linked user holds `base.group_erp_manager`, the write goes through unchanged, since changing that user's email would also redirect their password reset.
+
+### Every field EMS adds to `hr.employee` must declare `groups=`
+
+Not a style preference - it is the rule stated in Odoo's own `hr.employee` class docstring, and breaking it produces an `AccessError` far away from the field that caused it.
+
+A user without `hr.group_hr_user` (and without the `base.group_system` read ACL) has no access to `hr.employee` at all: `hr.employee.fetch()` redirects the read to the `hr.employee.public` mirror and raises over any requested field that mirror does not have. Reading one field in Python does not request one field - `_fetch_field()` prefetches every field of the same prefetch group that the user *may* access, so a private field with no `groups=` is silently added to that batch and fails the whole read:
+
+```
+AccessError: The fields “…”, which you are trying to read,
+             are not available for employee public profiles.
+```
+
+Views are not affected (the web client requests an explicit field list, which never expands), which is why this only ever surfaces server-side, in an unrelated feature. Issue #492 is the worked example: eight EMS fields (`schedule_import_code`, `pending_identification` and the six stored `google_ws_*` ones) had no `groups=`, and a secretary registering a student's withdrawal hit the error through `ems.student.year_record._generate_one()`'s `group.tutor_id.name` - a screen with no connection to Google Workspace or schedule imports.
+
+| | |
+|---|---|
+| **Applies to** | every field declared on `hr.employee` and not on `hr.employee.public`. A field added to `hr.employee.base` instead (`models/employees/employee.py`'s first class) lands on both models and needs nothing. |
+| **Value to use** | `base.group_system,hr.group_hr_user,ems.group_teacher` - the trio already used by `employee_type`. Every EMS role that can read `hr.employee` holds one of them, and `base.group_system` carries its own read ACL (`hr/security/ir.model.access.csv`), so it never reaches the public profile. |
+| **Enforced by** | `tests/test_employee_staff_permissions.py::test_ems_hr_employee_only_fields_declare_groups`, which fails listing any EMS field that regresses. |
+
+Keep the field's `groups=` consistent with the `groups=` of any view element whose `invisible`/`readonly` expression reads it, or `./upgrade.sh` reports an "Access Rights Inconsistency" warning for that element.
+
+### Identity document and social security number for the chain of command
+
+Both live in an "Identification" group of the "Private Information" tab, and who gets what depends on `hr.group_hr_user`:
+
+| Viewer | What they get |
+|--------|---------------|
+| HR officers: Head of Studies/Deputy and above, TAC, the secretariat (all imply `hr.group_hr_user`) | The native `identification_id` and `ssnid`, editable, on any employee they can read. Writing follows `security/rules/employees.xml`: the Head of Studies and TAC write teachers only (issue #391), the secretariat writes every staff member, nobody but the administrators deletes. |
+| Department Chief (and Seminar Chief), who lack `hr.group_hr_user` | Read-only copies (`scoped_identification_id`, `scoped_ssnid`) of the employees in their own chain of command. No tab at all on anyone else. |
+| Anyone else with the teacher form (plain teachers, tutors) | No tab. |
+
+Why copies for the Department Chief: the native fields carry `groups="hr.group_hr_user"`, which is a per-field gate, not a per-record one. Giving that group to a Department Chief would open every employee's private data centre-wide. Instead, three computed fields on `hr.employee` scope the data by record:
+
+| Field | Value |
+|-------|-------|
+| `can_view_identity` | True when the viewer is in the employee's `tutor_scope_user_ids` (the employee, every chief above them through `parent_id` and the Director - see [role_hierarchy.md](role_hierarchy.md#tutor-scope-permissions-escalate-along-the-chain-of-command-issue-483)) or holds `hr.group_hr_user`. It is the tab's `invisible` condition. |
+| `scoped_identification_id` | `identification_id` when `can_view_identity`, blank otherwise. |
+| `scoped_ssnid` | `ssnid` when `can_view_identity`, blank otherwise. |
+
+View mechanics (`view_employee_form`):
+
+- Layout of the tab: "Identification" first, EMS's "Emergency" beside it in the right-hand column, the native "Private Contact" below both. The native Citizenship/Family/Education groups stay hidden and take no column.
+- The tab's `groups` becomes `hr.group_hr_user,ems.group_department_chief`, and its "Private Contact" and EMS "Emergency" groups get `groups="hr.group_hr_user"`, so a Department Chief sees the "Identification" group alone.
+- Inside that group, the native fields carry `groups="hr.group_hr_user"` and the copies `groups="!hr.group_hr_user"`, so each viewer gets exactly one pair. The native pair duplicates the fields of the hidden "Citizenship" group; both nodes are bound to the same field.
+- Both pairs carry the same labels ("Identity document", "Social Security No").
+- `compute_sudo=True` reads the native fields as superuser, and `@api.depends_context('uid')` keeps the value per viewer. The compute checks `self.env.user`, which is still the real viewer under `compute_sudo`.
+- A Department Chief has no write access to `hr.employee`, so the whole form, copies included, is read-only for them.
+- Tests: `tests/test_employee_identity_visibility.py` (scope per viewer, and who may write) and `tests/test_employee_identity_visibility_tour.py` (a Department Chief's browser, and a secretariat edit on an ASP).

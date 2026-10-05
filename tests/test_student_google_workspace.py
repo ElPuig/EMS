@@ -11,7 +11,10 @@ from odoo.addons.ems.models.shared.google_workspace_mixin import (
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
 
-from .common import create_role_user, mock_outgoing_email, next_student_id
+from .common import (
+    create_head_of_studies_branch, create_level_study_group, create_role_employee, create_role_user,
+    mock_outgoing_email, next_student_id,
+)
 
 
 class TestStudentGoogleWorkspace(TransactionCase):
@@ -217,6 +220,43 @@ class TestStudentGoogleWorkspace(TransactionCase):
         self.assertEqual(kwargs['userKey'], 'laia@elpuig.xeill.net')
         self.assertEqual(kwargs['body']['orgUnitPath'], '/alumnos/+18')
 
+    # --- rename (issue #542) -----------------------------------------------
+
+    def _rename_calls(self, student, vals):
+        """Write `vals` with the queue run synchronously; return the rename job's mock."""
+        with patch.object(type(student), 'action_sync_google_account_name', autospec=True) as sync:
+            student.with_context(queue_job__no_delay=True).write(vals)
+        return sync
+
+    def test_fixing_the_surnames_syncs_the_google_account_name(self):
+        student = self._new_student(student_email='laia@elpuig.xeill.net')
+        self._rename_calls(student, {'lastname': 'Puig Rovira'}).assert_called_once_with(student)
+
+    def test_fixing_the_first_name_syncs_the_google_account_name(self):
+        student = self._new_student(student_email='laia@elpuig.xeill.net')
+        self._rename_calls(student, {'firstname': 'Laila'}).assert_called_once_with(student)
+
+    def test_rename_without_account_does_not_sync(self):
+        # No IDALU: not ready, so the write cannot create the account first.
+        student = self._new_student(student_id=False)
+        self._rename_calls(student, {'lastname': 'Puig Rovira'}).assert_not_called()
+
+    def test_other_writes_do_not_sync_the_name(self):
+        student = self._new_student(student_email='laia@elpuig.xeill.net')
+        self._rename_calls(student, {'mobile': '600000000'}).assert_not_called()
+
+    def test_sync_name_patches_first_name_and_surnames(self):
+        student = self._new_student(student_email='laia@elpuig.xeill.net')
+        mock_service = Mock()
+        self.company.google_ws_dry_run = False
+        with patch('odoo.addons.ems.models.shared.google_workspace_mixin.'
+                   'GoogleWorkspaceMixin._gw_get_service', return_value=mock_service):
+            student.action_sync_google_account_name()
+        __, kwargs = mock_service.users.return_value.patch.call_args
+        self.assertEqual(kwargs['userKey'], 'laia@elpuig.xeill.net')
+        self.assertEqual(kwargs['body'], {
+            'name': {'givenName': 'Laia', 'familyName': 'Puig Roca'}})
+
     # --- unlink ------------------------------------------------------------
 
     def test_unlink_suspends_google_account(self):
@@ -239,6 +279,11 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
     Everything runs in dry-run so no real Google API call is performed, and the
     warning email is patched out at the transport level.
     """
+
+    def _today(self):
+        """The company-local day the code schedules lifecycle dates from (context_today), not
+        date.today(), which is UTC in Odoo and is a day behind right after local midnight."""
+        return self.env['ems.datetime_utils'].get_local_today()
 
     @classmethod
     def setUpClass(cls):
@@ -275,7 +320,7 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
         student.write({'active': False})
         self.assertEqual(
             student.google_ws_deactivation_date,
-            date.today() + relativedelta(days=GW_DEACTIVATION_DELAY_DAYS))
+            self._today() + relativedelta(days=GW_DEACTIVATION_DELAY_DAYS))
         self.assertFalse(student.google_ws_suspended)
         self.assertFalse(student.google_ws_deletion_date)
 
@@ -304,7 +349,7 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
         student.action_suspend_google_account()
         self.assertEqual(
             student.google_ws_deletion_date,
-            date.today() + relativedelta(days=GW_DELETION_DELAY_DAYS))
+            self._today() + relativedelta(days=GW_DELETION_DELAY_DAYS))
         self.assertFalse(student.google_ws_deactivation_date)
 
     def test_reactivating_cancels_the_deletion(self):
@@ -342,7 +387,7 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
         student = self._new_student()
         student.action_suspend_google_account()
         student.action_delete_google_account()
-        student.google_ws_deletion_date = date.today()
+        student.google_ws_deletion_date = self._today()
         student.action_delete_google_account()
         self.assertTrue(student.google_ws_deleted)
 
@@ -392,21 +437,21 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
     def test_cron_suspends_once_the_deactivation_date_is_reached(self):
         student = self._new_student()
         student.write({'active': False})
-        student.google_ws_deactivation_date = date.today()
+        student.google_ws_deactivation_date = self._today()
         self.env['res.partner'].with_context(
             queue_job__no_delay=True)._gw_cron_process_lifecycle()
         self.assertTrue(student.google_ws_suspended)
         self.assertEqual(
             student.google_ws_deletion_date,
-            date.today() + relativedelta(days=GW_DELETION_DELAY_DAYS))
+            self._today() + relativedelta(days=GW_DELETION_DELAY_DAYS))
 
     def test_cron_deletes_once_the_deletion_date_is_reached(self):
         student = self._new_student()
         student.write({'active': False})
-        student.google_ws_deactivation_date = date.today()
+        student.google_ws_deactivation_date = self._today()
         self.env['res.partner'].with_context(
             queue_job__no_delay=True)._gw_cron_process_lifecycle()
-        student.google_ws_deletion_date = date.today()
+        student.google_ws_deletion_date = self._today()
         self.env['res.partner'].with_context(
             queue_job__no_delay=True)._gw_cron_process_lifecycle()
         self.assertTrue(student.google_ws_deleted)
@@ -422,7 +467,7 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
 
     def test_cron_ignores_active_students(self):
         student = self._new_student()
-        student.google_ws_deactivation_date = date.today()
+        student.google_ws_deactivation_date = self._today()
         self.env['res.partner'].with_context(
             queue_job__no_delay=True)._gw_cron_process_lifecycle()
         self.assertFalse(student.google_ws_suspended)
@@ -490,9 +535,10 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
         suspend.assert_called_once()
 
 
-class TestStudentGooglePasswordReset(TransactionCase):
-    """Issue #478: "Reset Google password" on the student form, for academic admin and TAC only.
-    Dry-run unless a test switches it off, and the credentials delivery (PDF + email) is patched."""
+class GoogleAccountTutorScopeCase(TransactionCase):
+    """Shared fixture for the header actions a student's tutor scope may use (reset, create): a
+    tutor with a full chain of chiefs above them and a second, unrelated branch, their group, and
+    the TAC team. Dry-run; outgoing email mocked. No tests of its own."""
 
     @classmethod
     def setUpClass(cls):
@@ -501,15 +547,44 @@ class TestStudentGooglePasswordReset(TransactionCase):
         cls.company = cls.env.company
         cls.company.write({
             'google_ws_enabled': True, 'google_ws_dry_run': True, 'google_ws_domain': 'elpuig.xeill.net',
+            'google_ws_ou_minor': '/alumnos', 'google_ws_ou_adult': '/alumnos/+18',
         })
+        cls.tutor_user = create_role_user(cls, 'tutor', 'test_tutor_gw_scope', name='GWR Tutor')
+        cls.tutor = create_role_employee(cls, cls.tutor_user)
+        create_head_of_studies_branch(cls, 'GWR', cls.tutor)
+        __, __, cls.group = create_level_study_group(cls, 'GWR', group={'tutor_id': cls.tutor.id})
+        cls.tac = create_role_user(cls, 'tac', 'test_tac_gw_scope')
+
+    def _director(self):
+        director = create_role_user(self, 'director', 'test_director_gw_scope')
+        self.env.company.director_id = create_role_employee(self, director)
+        return director
+
+    def _outsiders(self):
+        """Users who must not act on the student: a tutor of some other group (as unrelated to
+        this student as a plain teacher), the chiefs of another branch, and a plain teacher."""
+        other_tutor = create_role_user(self, 'tutor', 'test_other_tutor_gw_scope')
+        create_role_employee(self, other_tutor)
+        return (other_tutor, self.other_department_chief, self.other_head_of_studies,
+                create_role_user(self, 'teacher', 'test_teacher_gw_scope'))
+
+
+class TestStudentGooglePasswordReset(GoogleAccountTutorScopeCase):
+    """Issue #478: "Reset Google password" on the student form, for academic admin and TAC - and,
+    since issue #490, the student's own tutor and the chiefs above that tutor (tutor_scope_user_ids).
+    Dry-run unless a test switches it off, and the credentials delivery (PDF + email) is patched."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
         cls.student = cls.env['res.partner'].create({
             'name': 'Reset Password Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'student_email': 'reset.student@elpuig.xeill.net', 'email': 'reset.personal@example.com',
+            'main_group_id': cls.group.id,
         })
         cls.old_credentials = cls.env['ems.student.document'].create({
             'partner_id': cls.student.id, 'doc_type': 'google_credentials', 'status': 'approved',
         })
-        cls.tac = create_role_user(cls, 'tac', 'test_tac_gw_reset')
 
     def _reset(self, user):
         student = self.student.with_user(user)
@@ -534,10 +609,48 @@ class TestStudentGooglePasswordReset(TransactionCase):
         self._reset(admin).assert_called_once()
 
     def test_other_roles_cannot_reset(self):
-        for role in ('secretary', 'tutor', 'teacher'):
-            with self.subTest(role=role), self.assertRaises(AccessError):
-                self._reset(create_role_user(self, role, f'test_{role}_gw_reset'))
+        # A tutor of some other group is as unrelated to this student as a plain teacher.
+        other_tutor = create_role_user(self, 'tutor', 'test_other_tutor_gw_reset')
+        create_role_employee(self, other_tutor)
+        for user in (create_role_user(self, 'secretary', 'test_secretary_gw_reset'),
+                     create_role_user(self, 'teacher', 'test_teacher_gw_reset'),
+                     other_tutor):
+            with self.subTest(user=user.login), self.assertRaises(AccessError):
+                self._reset(user)
         self.assertEqual(self.old_credentials.status, 'approved')
+
+    def test_the_students_own_tutor_can_reset(self):
+        deliver = self._reset(self.tutor_user)
+        deliver.assert_called_once()
+        self.assertEqual(self.old_credentials.status, 'cancelled')
+        self.assertEqual(self.student.message_ids[:1].author_id, self.tutor_user.partner_id)
+
+    def test_chiefs_above_the_tutor_inherit_the_reset(self):
+        for user in (self.department_chief, self.head_of_studies, self._director()):
+            with self.subTest(user=user.login):
+                self._reset(user).assert_called_once()
+
+    def test_chiefs_of_another_branch_do_not_inherit_the_reset(self):
+        for user in (self.other_department_chief, self.other_head_of_studies):
+            with self.subTest(user=user.login), self.assertRaises(AccessError):
+                self._reset(user)
+        self.assertEqual(self.old_credentials.status, 'approved')
+
+    def test_a_student_without_tutor_stays_with_admin_and_tac(self):
+        self.group.tutor_id = False
+        for user in (self.tutor_user, self.department_chief, self.head_of_studies):
+            with self.subTest(user=user.login), self.assertRaises(AccessError):
+                self._reset(user)
+        self._reset(self.tac).assert_called_once()
+
+    def test_can_reset_google_password_matches_the_check(self):
+        for user, expected in ((self.tac, True), (self.tutor_user, True),
+                               (self.department_chief, True), (self.head_of_studies, True),
+                               (self.other_department_chief, False), (self.other_head_of_studies, False),
+                               (create_role_user(self, 'teacher', 'test_teacher_gw_reset_flag'), False)):
+            with self.subTest(user=user.login):
+                self.assertEqual(
+                    self.student.with_user(user).can_reset_google_password, expected)
 
     def test_reset_requires_an_active_account(self):
         self.student.google_ws_suspended = True
@@ -567,6 +680,86 @@ class TestStudentGooglePasswordReset(TransactionCase):
                 self.assertRaises(UserError):
             self._reset(self.tac)
         self.assertEqual(self.old_credentials.status, 'approved')
+
+
+class TestStudentGoogleAccountCreationByTutor(GoogleAccountTutorScopeCase):
+    """Issue #513: "Create Google account" on the student form for the student's own tutor scope
+    too (the tutor, the chiefs above them, the Director), besides the secretary, academic admin
+    and TAC. Same per-record rule as the password reset; the automatic creation paths keep
+    running with no check. Credentials delivery patched."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.student = cls.env['res.partner'].create({
+            'name': 'Create Account Student', 'firstname': 'Create', 'lastname': 'Account Student',
+            'contact_type': 'student', 'student_id': next_student_id(),
+            'email': 'create.account@example.com', 'main_group_id': cls.group.id,
+            'birth_date': date.today() - relativedelta(years=15),
+        })
+
+    def _create(self, user):
+        with patch.object(type(self.student), '_gw_deliver_credentials', autospec=True,
+                          return_value=(True, True)) as deliver:
+            self.student.with_user(user).action_create_google_account()
+        return deliver
+
+    def test_the_students_own_tutor_creates_the_account(self):
+        self._create(self.tutor_user).assert_called_once()
+        self.assertTrue(self.student.student_email)
+        self.assertEqual(self.student.google_ws_state, 'active')
+        self.assertEqual(self.student.message_ids[:1].author_id, self.tutor_user.partner_id)
+
+    def test_chiefs_above_the_tutor_inherit_the_creation(self):
+        for user in (self.department_chief, self.head_of_studies, self._director()):
+            with self.subTest(user=user.login):
+                self.student.student_email = False
+                self._create(user).assert_called_once()
+                self.assertTrue(self.student.student_email)
+
+    def test_secretary_admin_and_tac_keep_creating(self):
+        admin = create_role_user(self, 'academic_admin', 'test_admin_gw_create')
+        for user in (create_role_user(self, 'secretary', 'test_secretary_gw_create'), admin, self.tac):
+            with self.subTest(user=user.login):
+                self.student.student_email = False
+                self._create(user).assert_called_once()
+                self.assertTrue(self.student.student_email)
+
+    def test_outsiders_cannot_create(self):
+        for user in self._outsiders():
+            with self.subTest(user=user.login), self.assertRaises(AccessError):
+                self._create(user)
+        self.assertFalse(self.student.student_email)
+
+    def test_a_student_without_tutor_stays_with_the_other_roles(self):
+        self.group.tutor_id = False
+        with self.assertRaises(AccessError):
+            self._create(self.tutor_user)
+        self._create(self.tac).assert_called_once()
+
+    def test_can_create_google_account_matches_the_check(self):
+        expectations = [(self.tac, True), (self.tutor_user, True), (self.department_chief, True),
+                        (self.head_of_studies, True),
+                        (create_role_user(self, 'secretary', 'test_secretary_gw_create_flag'), True)]
+        expectations += [(user, False) for user in self._outsiders()]
+        for user, expected in expectations:
+            with self.subTest(user=user.login):
+                self.assertEqual(self.student.with_user(user).can_create_google_account, expected)
+
+    def test_the_automatic_creation_does_not_check_the_user(self):
+        # The queue job enqueued by _gw_enqueue_if_ready() runs as whoever triggered it - a
+        # family submitting an enrolment from the portal, say - so it must not go through the
+        # button's permission check.
+        teacher = create_role_user(self, 'teacher', 'test_teacher_gw_create_auto')
+        with patch.object(type(self.student), '_gw_deliver_credentials', return_value=(True, True)):
+            self.student.with_user(teacher)._gw_create_account()
+        self.assertTrue(self.student.student_email)
+
+    def test_the_tutor_sees_the_create_button(self):
+        arch = self.env['res.partner'].with_user(self.tutor_user).get_view(
+            self.env.ref('ems.view_contact_form').id, 'form')['arch']
+        self.assertIn('action_create_google_account', arch)
+        self.assertNotIn('action_suspend_google_account', arch)
 
 
 class TestStudentGoogleWorkspaceTac(TransactionCase):

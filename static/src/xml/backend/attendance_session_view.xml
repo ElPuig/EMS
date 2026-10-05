@@ -153,14 +153,23 @@
                                     <th class="ems-av-th-preview"></th>
                                     <th class="ems-av-th-strike"></th>
                                     <th class="ems-av-th-notes"></th>
+                                    <th class="ems-av-th-remove"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <t t-foreach="state.lines" t-as="line" t-key="line.id">
                                     <t t-set="isJustified" t-value="!!(line.attendance_justification_id || line.attendance_prevision_id)"/>
-                                    <tr t-att-class="isJustified ? 'ems-av-line ems-av-line--justified' : 'ems-av-line'">
+                                    <t t-set="isRemoved" t-value="!line.active"/>
+                                    <tr t-att-class="{
+                                            'ems-av-line': true,
+                                            'ems-av-line--justified': isJustified,
+                                            'ems-av-line--removed': isRemoved,
+                                        }">
                                         <td class="ems-av-td-student">
-                                            <img class="ems-av-avatar" t-att-src="avatarUrl(line)" alt=""/>
+                                            <img class="ems-av-avatar" t-att-src="avatarUrl(line)" alt=""
+                                                 t-on-mouseenter="(ev) => avatarZoom.onEnter(ev, line.student_id)"
+                                                 t-on-mouseleave="avatarZoom.onLeave"
+                                                 t-on-click="(ev) => avatarZoom.onClick(ev, line.student_id)"/>
                                             <span class="ems-av-name"
                                                   t-att-title="line.student_id ? line.student_id[1] : ''"
                                                   t-esc="line.student_id ? line.student_id[1] : '—'"/>
@@ -173,7 +182,7 @@
                                                 <button class="ems-av-status-btn"
                                                         t-att-class="line.status_id === s.key ? 'ems-av-status-btn--active' : ''"
                                                         t-att-title="s.title"
-                                                        t-att-disabled="state.saving[line.id] || isJustified"
+                                                        t-att-disabled="state.saving[line.id] || isJustified || isRemoved"
                                                         t-on-click="() => this.onStatusClick(line.id, s.key)">
                                                     <t t-esc="s.label"/>
                                                 </button>
@@ -188,7 +197,7 @@
                                             <button class="ems-av-strike-btn"
                                                     t-att-class="line.strike_ids.length ? 'ems-av-strike-btn--has-strikes' : ''"
                                                     t-att-title="line.strike_ids.length ? strings.strikeCount(line.strike_ids.length) : strings.addStrike"
-                                                    t-att-disabled="!line.student_id"
+                                                    t-att-disabled="!line.student_id || isRemoved"
                                                     t-on-click="() => this.onStrikeClick(line.id, line.student_id[0], line.student_id[1])">
                                                 <t t-if="line.strike_ids.length" t-esc="line.strike_ids.length"/>
                                                 <i t-else="" class="fa fa-exclamation-triangle"/>
@@ -198,9 +207,23 @@
                                             <button class="ems-av-notes-btn"
                                                     t-att-class="line.notes ? 'ems-av-notes-btn--has-notes' : ''"
                                                     t-att-title="line.notes || strings.addNotes"
-                                                    t-att-disabled="isJustified"
+                                                    t-att-disabled="isJustified || isRemoved"
                                                     t-on-click="() => this.onNotesClick(line.id, line.student_id ? line.student_id[1] : '', line.notes)">
                                                 <i class="fa fa-pencil"/>
+                                            </button>
+                                        </td>
+                                        <td class="ems-av-td-remove">
+                                            <button t-if="isRemoved" class="ems-av-restore-btn"
+                                                    t-att-title="strings.restoreLine"
+                                                    t-att-disabled="state.saving[line.id]"
+                                                    t-on-click="() => this._setLineActive(line.id, true)">
+                                                <i class="fa fa-undo"/>
+                                            </button>
+                                            <button t-else="" class="ems-av-remove-btn"
+                                                    t-att-title="line.strike_ids.length ? strings.removeLineHasStrikes : strings.removeLine"
+                                                    t-att-disabled="state.saving[line.id] || line.strike_ids.length"
+                                                    t-on-click="() => this.onRemoveLineClick(line.id, line.student_id ? line.student_id[1] : '')">
+                                                <i class="fa fa-user-times"/>
                                             </button>
                                         </td>
                                     </tr>
@@ -269,7 +292,7 @@
                     <button class="ems-av-strike-cancel-btn" t-on-click="onStrikeCancel">
                         <t t-esc="strings.cancel"/>
                     </button>
-                    <button class="ems-av-strike-send-btn" t-on-click="onStrikeSend">
+                    <button class="ems-av-strike-send-btn" t-on-click="onStrikeSend" t-att-disabled="state.strikeSending">
                         <t t-esc="strings.send"/>
                     </button>
                 </div>

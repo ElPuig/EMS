@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_absence_pending_list" model="ir.ui.view">
+            <field name="name">ems.absence_pending.list</field>
+            <field name="model">ems.absence_pending</field>
+            <field name="arch" type="xml">
+                <list string="Expected absences">
+                    <field name="employee_id" widget="many2one_avatar_employee"/>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                    <field name="note" optional="hidden"/>
+                    <field name="leave_id" optional="show"/>
+                    <field name="state" widget="badge"
+                           decoration-warning="state == 'pending'"
+                           decoration-success="state == 'linked'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_absence_pending_form" model="ir.ui.view">
+            <field name="name">ems.absence_pending.form</field>
+            <field name="model">ems.absence_pending</field>
+            <field name="arch" type="xml">
+                <form string="Expected absences">
+                    <header>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="employee_id" readonly="state == 'linked'"
+                                       options="{'no_create': True, 'no_open': True}"/>
+                                <field name="leave_id" invisible="not leave_id"/>
+                            </group>
+                            <group>
+                                <field name="date_from" readonly="state == 'linked'"/>
+                                <field name="date_to" readonly="state == 'linked'"/>
+                            </group>
+                        </group>
+                        <field name="note" placeholder="Why the teacher will be absent, for your own reference"/>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_absence_pending_search" model="ir.ui.view">
+            <field name="name">ems.absence_pending.search</field>
+            <field name="model">ems.absence_pending</field>
+            <field name="arch" type="xml">
+                <search string="Expected absences">
+                    <field name="employee_id"/>
+                    <filter name="pending" string="Expected" domain="[('state', '=', 'pending')]"/>
+                    <filter name="linked" string="Requested" domain="[('state', '=', 'linked')]"/>
+                    <separator/>
+                    <filter name="date_from" string="Date" date="date_from"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_employee" string="Teacher" context="{'group_by': 'employee_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_absence_pending" model="ir.actions.act_window">
+            <field name="name">Expected absences</field>
+            <field name="res_model">ems.absence_pending</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'search_default_pending': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Announce an absence a teacher has not requested yet
+                </p>
+                <p>
+                    It shows on the guard duty schedule as a pending absence until the teacher
+                    requests it, and from then on only their own request counts.
+                </p>
+            </field>
+        </record>
+
+        <!-- Only the Head of Studies, their Deputy and the Director (who implies the group),
+             each narrowed to their own branch by 'rule_absence_pending_hierarchy', plus technical
+             administrators, who see every teacher ('rule_absence_pending_system'). -->
+        <menuitem id="menu_absence_pending" name="Expected absences" sequence="6"
+                  parent="hr_holidays.menu_hr_holidays_management"
+                  action="action_absence_pending"
+                  groups="ems.group_head_of_studies,base.group_system"/>
+
+    </data>
+</odoo>

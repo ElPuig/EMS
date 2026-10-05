@@ -24,6 +24,8 @@ Navega a: **Comunitat Educativa → Configuració → Professorat → Grups de t
 4. Opcionalment, afegeix notes lliures a la pestanya **Notes**.
 5. Fes clic a **Desa**.
 
+![Fitxa d'un grup de treball, amb els seus membres a la pestanya Assignat a](../../assets/admin/admin-workgroup-form.png)
+
 ---
 
 ## Editar o eliminar un grup de treball

@@ -43,6 +43,7 @@ Technical reference for developers working on the EMS module.
 | [ems.group](contacts/group.md) | The core class-group model — one of the most widely-referenced in EMS; `group_type` switching, the tutor-role sync bug fix, the side-effecting `enrollment_view_ids` compute |
 | [Group schedule (read-only aggregation)](contacts/group_schedule.md) | The group form's "Schedule" tab: aggregating teachers' `resource.calendar.attendance` rows by `group_ids`, deriving the break period from the level's schedule framework, the "Subject → Teacher(s)" co-teaching summary, and the PDF export |
 | [Student schedule (read-only aggregation)](contacts/student_schedule.md) | The student form's own "Schedule" tab: the same read-only mechanism as the group's, reused via the shared `readonly_schedule_grid` widget, but scoped per `(subject_id, group_id)` enrollment pair instead of a whole group — and the overlap-aware column-split layout that scoping makes necessary |
+| [ems.contact.data.request](contacts/contact_data_request.md) | Contact data update requests: sending them from the backend (individually or by group, study or level), the portal page students and families answer on, family-contact recognition and linking, and the review/approval flow that applies the staged changes |
 
 ---
 
@@ -55,7 +56,7 @@ Technical reference for developers working on the EMS module.
 | [Department Chief / Seminar Chief / Head of Studies / Director cascade](employees/department.md) | `hr.department.manager_id`/`seminar_chief_id`/`is_top_level`/`top_level_role` (Head of Studies/Deputy/Secretary) plus `res.company.director_id` driving `hr.employee.parent_id` (between departments and up to the Director) and the `role_dchieff`/`role_seminar`/`role_hos`/`role_dhos`/`role_secretary`/`role_director` roles automatically |
 | [hr.job (EMS extension)](employees/job.md) | Two fields only (`employee_type`, `group_id`) — the security-group auto-grant is consumed and already tested from `hr.employee`'s side |
 | [ems.workgroup](employees/workgroup.md) | Simple free-form employee grouping (project teams, committees) — no business logic |
-| [ems.teaching](employees/teaching.md) | Ternary teacher/group/subject relation, derived from and kept in sync with the schedule via `sync_from_schedule()` |
+| [ems.teaching](employees/teaching.md) | Ternary teacher/group/subject relation, derived from and kept in sync with the schedule via `_sync_from_schedule()` |
 | [ems.non_teaching_type](employees/non_teaching_type.md) | Catalogue of non-subject schedule period types (breaks, guard duties); note the admin group is `group_department_chief`, not the usual `group_academic_admin` |
 | [hr.attendance auto-checkout (EMS extension)](employees/attendance_autocheckout.md) | Closing stale open attendances on check-in, and the EMS nightly cron mode using the employee's real schedule instead of fixed hours |
 | [res.users (EMS extension)](employees/user.md) | `_sync_ems_implied_groups()` — compensates for Odoo's own implied-group grants being permanent/never auto-revoked |
@@ -84,6 +85,14 @@ Technical reference for developers working on the EMS module.
 
 ---
 
+## Meetings
+
+| Model | Description |
+|-------|-------------|
+| [ems.meeting.presence](meetings/meeting_presence.md) | Meeting attendance confirmed with the NFC tag at a public token-protected kiosk: convened list by scope, scan outcomes, closing, access control, and how it joins the quality work's minutes |
+
+---
+
 ## Enrollment
 
 | Model | Description |
@@ -106,12 +115,17 @@ Technical reference for developers working on the EMS module.
 | Topic | Description |
 |-------|-------------|
 | [Free-pick color widget](shared/color_widget.md) | `widget="color"` + the `ems_color_swatch` styling, the `role_color_tags` badge widget, and `ems.hex_color_mixin` — used by `ems.role`, `ems.attendance_template`, and `hr.department`'s `custom_color` |
+| [A record's own files](shared/attachments.md) | `ems.attachment_mixin` + the `ems_attachments` widget: direct upload, preview/download/delete, files tied to their record and deleted when removed - used by `ems.attendance_justification` and `ems.study` |
+| [Form "Actions" dropdown](shared/actions_dropdown.md) | One header button listing a form's actions on its record, each entry keeping its own `invisible=`/`groups=`/`confirm=` - used instead of loose header buttons or the cog menu on the contact form |
 | [Task assignment](shared/task_assignment.md) | `mail.activity.type`'s `ems_task_assignment`/`ems_assignee_ids` — an explicit, config-driven recipient list decoupled from security groups |
+| [Daily pending-tasks digest](shared/task_digest.md) | `res.users`' morning email listing each person's open activities, sent at the start of their working day (own schedule, else the default framework) |
 | [`ems.base`](shared/base.md) | Chatter/notification helpers (`notify`, `chatter`, `chatter_exception`), permission checks (`get_user_is_admin`/`_tutor`), `persistent_hash` — the foundational mixin inherited by most business models |
 | [`ems.datetime_utils`](shared/datetime_utils.md) | Timezone-aware ↔ naive-UTC ↔ float-hour conversions shared by every attendance/schedule model |
+| [Dates, times and timezones](shared/timezones.md) | The one-timezone policy (always the company's): server-side helpers, the web client's company-timezone service and `serverNow()`, and the record-level `tz` alignment |
 | [`ems.multithreading`](shared/multithreading.md) | The `run_in_thread()` setup/compute/store/callback engine behind the LimeSurvey integration's long-running actions |
 | [`ems.schedule_report_mixin`](shared/schedule_report_mixin.md) | The shared weekly-schedule aggregation-to-report pipeline (report-line building, break derivation, colour/time-label helpers) behind both the group's and the student's own read-only Schedule tab |
 | [`google.workspace.mixin`](shared/google_workspace_mixin.md) | The Directory API client, password policy, and text/phone normalization shared by the staff and student Google Workspace integrations |
+| [User menu "Documentation" entry](shared/user_menu_documentation.md) | Points the avatar dropdown's native "Documentation" entry at EMS's own user manuals, in the user's language, instead of Odoo's developer docs |
 | [Shared test utilities](shared/testing.md) | `tests/common.py`: `create_level_study(_group)`, `mock_outgoing_email`, `make_synchronous_run_in_thread` — fixture/mock boilerplate extracted after it was found duplicated across dozens of test files |
 
 ---

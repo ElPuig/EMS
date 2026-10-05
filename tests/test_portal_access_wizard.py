@@ -222,10 +222,27 @@ class TestPortalAccessWizard(TransactionCase):
         self.assertEqual(wizard.line_ids.recipient_id, self.adult_student)
 
     def test_build_lines_no_family_contact_note(self):
+        """A minor with no family on file still gets his own view-only account: the missing
+        family is flagged on his line."""
+        self.orphan_minor.email = 'orphan.minor.pw@example.com'
         wizard = self._wizard(students=self.orphan_minor)
         line = wizard.line_ids
-        self.assertFalse(line.recipient_id)
+        self.assertEqual(line.recipient_id, self.orphan_minor)
         self.assertEqual(line.note, 'No family contact found')
+
+    def test_build_lines_minor_gets_family_and_himself(self):
+        self.minor_student.email = 'minor.student.pw@example.com'
+        wizard = self._wizard(students=self.minor_student)
+        self.assertEqual(wizard.line_ids.recipient_id, self.family_contact | self.minor_student)
+        self.assertFalse(any(wizard.line_ids.mapped('note')))
+
+    def test_portal_access_recipients_add_the_student_only(self):
+        """Only portal access adds the student: whatever is addressed to him on his behalf
+        (authorizations, convalidation notices) still goes to his family."""
+        self.assertEqual(self.minor_student._ems_portal_access_recipients(),
+                         self.family_contact | self.minor_student)
+        self.assertEqual(self.adult_student._ems_portal_access_recipients(), self.adult_student)
+        self.assertEqual(self.minor_student._ems_notification_recipients(), self.family_contact)
 
     def test_build_lines_no_email_note(self):
         no_email_adult = self.env['res.partner'].create({
@@ -272,6 +289,20 @@ class TestPortalAccessWizard(TransactionCase):
         user = self.adult_student.user_ids
         self.assertTrue(user)
         self.assertTrue(user._is_portal())
+
+    def test_action_apply_grant_minor_and_family(self):
+        self.minor_student.email = 'minor.student.grant.pw@example.com'
+        result = self._wizard(students=self.minor_student).action_apply()
+        self.assertIn('2 access(es) granted', result['params']['message'])
+        self.assertTrue(self.minor_student.user_ids._is_portal())
+        self.assertTrue(self.family_contact.user_ids._is_portal())
+        self.assertTrue(self.minor_student._ems_portal_is_view_only())
+
+    def test_action_apply_grant_minor_without_email_still_grants_family(self):
+        result = self._wizard(students=self.minor_student).action_apply()
+        self.assertIn('has no email', result['params']['message'])
+        self.assertFalse(self.minor_student.user_ids)
+        self.assertTrue(self.family_contact.user_ids._is_portal())
 
     def test_action_apply_revoke_archives_portal_user(self):
         portal_user = self.env['res.users'].with_context(no_reset_password=True).create({

@@ -11,17 +11,23 @@ Aquesta secció conté els manuals per a **Cap d'Estudis, Cap d'Estudis Adjunt/a
 ## Manuals disponibles
 
 - [Històric acadèmic: consultes de cohort](academic-history.md)
+- [Convalidacions: revisar i resoldre les sol·licituds](convalidations.md) — Revisar cada mòdul i fer-ne la proposta (Cap d'Estudis), resoldre-la oficialment (Direcció) o tramitar-la amb el Ministeri.
+- [Assistència a reunions amb la targeta NFC](../secretary/meeting-attendance.md) — Confirmar l'assistència a un claustre o a una reunió amb el lector NFC de l'entrada (manual compartit amb secretaria).
+- [Programacions docents: definir les ponderacions de la qualificació](planning.md)
 - [Gestió de contactes d'alumnes i famílies](../secretary/student-contacts.md) — tens el mateix accés complet de lectura/escriptura que secretaria aquí, per a qualsevol alumne de tot el centre.
-- [Consultar les credencials de Google de l'alumnat](../tutors/google-credentials.md) — els mateixos passos que els tutors, per a l'alumnat dels tutors de la teva àrea.
+- [Tramitar una baixa o una expulsió](../secretary/graduation-withdrawal.md) — pots tramitar la baixa o l'expulsió d'un alumne, amb els mateixos passos que secretaria (manual compartit).
+- [Credencials de Google de l'alumnat](../tutors/google-credentials.md) — consultar-les, crear el compte i restablir la contrasenya, els mateixos passos que els tutors, per a l'alumnat dels tutors de la teva àrea.
 - [Decidir sobre sol·licituds de correcció de fitxatges](attendance-corrections.md)
 - [Strikes: menú Convivència i correus d'escalat](strike.md)
 - [L'horari setmanal d'un grup](../admin/group-schedule.md)
 - [Informes d'assistència](attendance-reports.md)
-- [Gestionar les absències del personal](absences.md) — Aprovar les absències de la teva àrea, ajustar-ne el còmput, la verificació de direcció i els dos informes.
+- [Gestionar les absències del personal](absences.md) — Aprovar les absències de la teva àrea, ajustar-ne el còmput, l'aprovació de Direcció i els dos informes.
 - [Crear i editar professorat](staff-management.md)
 - [Autoritzacions: crear-les, enviar-les i fer-ne el seguiment](../secretary/authorizations.md) — Crear formularis d'autorització, enviar-los a l'alumnat durant el curs i fer el seguiment de les respostes (manual compartit amb secretaria).
+- [Sol·licituds de dades de contacte: demanar a les famílies que actualitzin les dades](../tutors/contact-data-requests.md) — Demanar a l'alumnat i a les famílies que revisin les dades de contacte des del portal, fer el seguiment de les respostes i aprovar els canvis (manual compartit amb els tutors).
 - [Comunicats: enviar els vostres propis correus massius](notice.md)
 - [Horari de guàrdies](../teachers/guard-duty-schedule.md) — Qui falta a cada franja horària, i qui està de guàrdia per cobrir-ho.
+- [Notes públiques i notes privades de l'alumne](../teachers/student-notes.md) — On tot el professorat llegeix les notes públiques d'un alumne, i qui pot llegir i escriure les privades de tutoria.
 
 ---
 

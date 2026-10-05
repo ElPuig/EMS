@@ -27,7 +27,7 @@ Saving also creates the teacher's own weekly schedule, prefilled from the centre
 
 ### Why the personal email is required
 
-It is the address the credentials of the new Google account are sent to. Without it the corporate account is simply not created: the record saves, but nothing else happens and a note is left in the record's message history explaining what is missing. Ask for a personal address before creating the record — it is not a formality, it is the only way the new teacher receives their password. The field appears twice on the record — on the main screen, so that nothing required is hidden behind a tab while you are creating it, and in its usual place inside the **Private Information** tab. They are the same field: filling in one fills in the other.
+It is the address the credentials of the new Google account are sent to. Without it the corporate account is simply not created: the record saves, but nothing else happens and a note is left in the record's message history explaining what is missing. Ask for a personal address before creating the record — it is not a formality, it is the only way the new teacher receives their password. The field appears twice on the record — on the main screen, so that nothing required is hidden behind a tab while you are creating it, and in its usual place inside the **Private Information** tab. They are the same field: filling in one fills in the other. It can't be an address of the centre's own domain either: EMS refuses to save it, because it is also the recovery address of the corporate account.
 
 ---
 
@@ -38,9 +38,17 @@ It is the address the credentials of the new Google account are sent to. Without
 
 ---
 
+## Identity Document and Social Security Number
+
+The **Private Information** tab of a teacher's record opens with an **Identification** group holding the **Identity document** (DNI/NIE) and the **Social Security No**. You, the Deputy, the Director and the TAC coordinator can edit them on teachers' records; the Secretariat keeps them up to date for every staff member, ASP included.
+
+A teacher's Department Chief and Seminar Chief can also see these two fields, read-only, on the records of the staff in their own department (only their own chain of command, not other departments). For them the tab shows the **Identification** group alone: the rest of the private information stays hidden.
+
+---
+
 ## Creating the Corporate Google Account
 
-The buttons that manage the teacher's corporate account are on the top bar of their record. Which one appears depends on the state the account is in — only one is ever offered at a time:
+The actions that manage the teacher's corporate account are in the **Actions** menu on the top bar of their record. Which one appears depends on the state the account is in — only one is ever offered at a time:
 
 | Button | When it appears | What it does |
 |--------|-----------------|--------------|
@@ -50,7 +58,7 @@ The buttons that manage the teacher's corporate account are on the top bar of th
 | **Reactivate Google account** | The account is suspended | Reactivates it |
 | **Mark as identified** | The record came from a schedule import and is still a placeholder | Clears the pending-identification state without creating any account |
 
-![Create Google account button on a teacher's record with no account yet](../../assets/head_of_studies/hos-staff-management-create-account.png)
+![Actions menu with Create Google account on a teacher's record with no account yet](../../assets/head_of_studies/hos-staff-management-create-account.png)
 
 When the account is created, the credentials travel two ways: a PDF is attached to the teacher's own record, and a welcome email with the password is sent to their personal address. If the account cannot be created because some required data is missing, a note is posted in the record's message history explaining exactly which fields are missing.
 

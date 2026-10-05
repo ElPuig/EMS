@@ -4,7 +4,6 @@ import base64
 import csv
 import io
 import logging
-from datetime import datetime
 
 from markupsafe import Markup
 
@@ -77,7 +76,7 @@ class EmsApplicantImportWizard(models.TransientModel):
             ))
 
         stats = {'created': 0, 'updated': 0, 'skipped': 0, 'students': 0,
-                 'errors': [], 'log': [], 'student_rows': []}
+                 'errors': [], 'warnings': [], 'log': [], 'student_rows': []}
 
         for row in data_rows:
             if not any(row):
@@ -89,7 +88,7 @@ class EmsApplicantImportWizard(models.TransientModel):
                 _logger.warning("Error processing GEDAC row: %s", e)
                 stats['errors'].append(str(e))
 
-        stamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        stamp = self.env['ems.datetime_utils'].get_local_datetime().strftime('%Y%m%d_%H%M%S')
         self.log_file = self._build_log_csv(stats['log'])
         self.log_file_name = f'import_gedac_{stamp}.csv'
         if stats['student_rows']:
@@ -195,7 +194,7 @@ class EmsApplicantImportWizard(models.TransientModel):
             stats['skipped'] += 1
             stats['log'].append({
                 'accio': 'Omès', 'ralc': ralc, 'name': name, 'partner_id': False,
-                'motiu': _("Not assigned to this center"), 'ts': datetime.now(),
+                'motiu': _("Not assigned to this center"), 'ts': self.env['ems.datetime_utils'].get_local_datetime(),
             })
             return
 
@@ -208,13 +207,14 @@ class EmsApplicantImportWizard(models.TransientModel):
                     "Study not found: %(code)s / %(name)s",
                     code=study_code, name=study_name,
                 ),
-                'ts': datetime.now(),
+                'ts': self.env['ems.datetime_utils'].get_local_datetime(),
             })
             return
 
         raw_phone = get('Telèfon')
         phone, mobile = self._split_phone_mobile(self._norm_code(raw_phone))
-        email = get('Correu electrònic')
+        email = self.env.company._ems_drop_corporate_email(
+            get('Correu electrònic'), name, stats['warnings'])
         shift = self._SHIFT_MAP.get((get('Torn assignat') or '').lower())
         special_needs = self._SEN_MAP.get((get('Tipus alumne') or '').lower())
         course = self._norm_code(get('Curs'))
@@ -297,7 +297,7 @@ class EmsApplicantImportWizard(models.TransientModel):
 
         if not lines:
             return False
-        header = Markup("[{} {}]").format(_("Import GEDAC"), datetime.now().strftime('%Y-%m-%d'))
+        header = Markup("[{} {}]").format(_("Import GEDAC"), self.env['ems.datetime_utils'].get_local_datetime().strftime('%Y-%m-%d'))
         return Markup('<br/>').join([header] + lines)
 
     def _get_or_create_applicant(self, ralc, existing, applicant_data, stats):
@@ -308,14 +308,14 @@ class EmsApplicantImportWizard(models.TransientModel):
             stats['updated'] += 1
             stats['log'].append({
                 'accio': 'Actualitzat', 'ralc': ralc, 'name': existing.name,
-                'partner_id': existing.id, 'motiu': '', 'ts': datetime.now(),
+                'partner_id': existing.id, 'motiu': '', 'ts': self.env['ems.datetime_utils'].get_local_datetime(),
             })
             return existing
         applicant = self.env['res.partner'].create(applicant_data)
         stats['created'] += 1
         stats['log'].append({
             'accio': 'Creat', 'ralc': ralc, 'name': applicant.name,
-            'partner_id': applicant.id, 'motiu': '', 'ts': datetime.now(),
+            'partner_id': applicant.id, 'motiu': '', 'ts': self.env['ems.datetime_utils'].get_local_datetime(),
         })
         return applicant
 
@@ -330,7 +330,8 @@ class EmsApplicantImportWizard(models.TransientModel):
         """
         gedac_name = ' '.join(filter(None, [
             get('Nom'), get('Primer cognom'), get('Segon cognom')]))
-        shift_label = dict(self.env['res.partner']._fields['preinscription_shift'].selection).get(shift, '')
+        shift_label = dict(self.env['res.partner']._fields['preinscription_shift']
+                           ._description_selection(self.env)).get(shift, '')
         student.write({
             'preinscription_study_id': study.id,
             'preinscription_shift': shift,
@@ -354,7 +355,7 @@ class EmsApplicantImportWizard(models.TransientModel):
             'name': student.name, 'partner_id': student.id,
             'motiu': _("Already an active student (internal continuer, pending course "
                        "transition): granted destination recorded"),
-            'ts': datetime.now(),
+            'ts': self.env['ems.datetime_utils'].get_local_datetime(),
         })
 
     def _build_students_csv(self, student_rows):
@@ -454,6 +455,13 @@ class EmsApplicantImportWizard(models.TransientModel):
                 self.env['ems.base'].build_html_list(stats['errors']),
             )
 
+        warnings_html = ''
+        if stats['warnings']:
+            warnings_html = Markup('<p><strong>{}</strong></p>{}').format(
+                _("Warnings (%(count)s):", count=len(stats['warnings'])),
+                self.env['ems.base'].build_html_list(stats['warnings']),
+            )
+
         students_html = ''
         if stats['student_rows']:
             rows = [f"{r['current_name']} → {r['assigned_study']} ({r['current_group']})" for r in stats['student_rows']]
@@ -475,11 +483,12 @@ class EmsApplicantImportWizard(models.TransientModel):
             '<p>✅ <strong>{}</strong> {}</p>'
             '<p>🔄 <strong>{}</strong> {}</p>'
             '<p>⏭️ <strong>{}</strong> {}</p>'
-            '{}{}'
+            '{}{}{}'
         ).format(
             _("Applicants created:"), stats['created'],
             _("Applicants updated:"), stats['updated'],
             _("Rows skipped (not assigned to this center):"), stats['skipped'],
             students_html,
+            warnings_html,
             errors_html,
         )

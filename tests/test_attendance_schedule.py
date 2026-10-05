@@ -128,13 +128,12 @@ class TestAttendanceScheduleAccess(TransactionCase):
         self.assertEqual(session.attendance_schedule_id, self.schedule)
 
     def test_substitute_teacher_cannot_write_schedule(self):
-        # 'student_ids', not 'notes': 'notes' is now a locked field (2026-08-11 refinement) that
-        # raises UserError for everyone regardless of record rules, which would no longer exercise
-        # the ir.rule behavior this test is actually about - 'student_ids' stays writable in
-        # principle, so the record rule is still what's on trial here.
+        # The record rule itself, checked directly: every field of a line is now locked against hand
+        # edits (the calendar-owned ones since 2026-08-11, the roster since issue #534), and those
+        # locks raise UserError for everyone before any record rule would be reached.
         schedule = self.schedule.with_user(self.substitute_user)
         with self.assertRaises(AccessError):
-            schedule.write({'student_ids': [(5, 0, 0)]})
+            schedule.check_access('write')
 
     def test_admin_reads_all_schedules(self):
         schedule = self.env['ems.attendance_schedule'].with_user(self.admin_user).search(

@@ -7,24 +7,29 @@ on:
 
 jobs:
   # Computes two things once, shared by every shard below: whether this push only touched
-  # changelog/ (see the "Detect changelog-only push" step) and the dynamic test-shard matrix
-  # (scripts/testing/compute_test_shards.py - self-maintaining, discovers tests/*_tour.py at
-  # run time so a new tour file is picked up automatically, no workflow edit needed).
+  # non-code paths (see the "Detect non-code-only push" step) and the dynamic test-shard
+  # matrix (scripts/testing/compute_test_shards.py - self-maintaining, discovers
+  # tests/*_tour.py at run time so a new tour file is picked up automatically, no workflow
+  # edit needed).
   plan:
     name: Plan test shards
     runs-on: ubuntu-24.04
+    # actions: read lets "Detect non-code-only push" look up the previous head's own CI run.
+    permissions:
+      contents: read
+      actions: read
     outputs:
       matrix: ${{ steps.shards.outputs.matrix }}
-      changelog_only: ${{ steps.diff.outputs.changelog_only }}
+      skip_tests: ${{ steps.diff.outputs.skip_tests }}
     steps:
       # ref: pinned to the PR branch's own head commit - NOT the default for a pull_request
       # event, which is refs/pull/<pr>/merge (a synthetic 2-parent commit GitHub regenerates
-      # on every push, merging the PR branch into main). The "Detect changelog-only push" step
-      # below relies on HEAD~1 being the previous commit *on this branch*; against the merge
-      # ref, HEAD~1 is main's own tip instead, so the diff silently covers the whole PR against
-      # main rather than just the latest push - confirmed 2026-09-05 (issue #401's own
-      # /changelog-clean commit), where this caused the full test matrix to run anyway despite
-      # the commit only touching changelog/. Empty-string-safe for workflow_dispatch (no
+      # on every push, merging the PR branch into main). The "Detect non-code-only push" step
+      # below diffs this push's range against the branch's own head; against the merge ref the
+      # diff silently covers the whole PR against main rather than just the latest push -
+      # confirmed 2026-09-05 (issue #401's own /changelog-clean commit), where this caused the
+      # full test matrix to run anyway despite the commit only touching changelog/.
+      # Empty-string-safe for workflow_dispatch (no
       # github.event.pull_request context there): actions/checkout treats an empty `ref` as
       # "use the default", same as omitting it.
       - name: Checkout EMS
@@ -37,25 +42,60 @@ jobs:
       # GitHub's own path filtering), or it risks getting stuck "pending" forever and
       # blocking merges even when everything is fine - see require-changelog-clean.yml's own
       # comment for the same gotcha. So instead of filtering this workflow's trigger, detect
-      # here whether the push that triggered this specific run only touched changelog/
-      # (the working-draft PR notes folder - see CLAUDE.md's "PR changelog" section, cleaned
-      # up via the "/changelog-clean" comment command right before merging) and skip the
-      # expensive steps below for that one case, while still letting every job succeed.
-      - name: Detect changelog-only push
+      # here whether the push that triggered this specific run only touched paths that can
+      # never affect runtime behaviour: changelog/ (the working-draft PR notes folder - see
+      # CLAUDE.md's "PR changelog" section), docs/ (technical + trilingual user manuals and
+      # their docs/assets/ images), plans/ (design notes for not-yet-implemented work) and any
+      # root-level .md file (README.md, CLAUDE.md...). i18n/*.po is deliberately NOT included -
+      # a malformed .po file can break the module's translation load, which the real test run
+      # would actually catch. Skip the expensive steps below for that one case, while still
+      # letting every job succeed.
+      - name: Detect non-code-only push
         id: diff
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          if [ "${{ github.event_name }}" != "pull_request" ]; then
-            echo "changelog_only=false" >> "$GITHUB_OUTPUT"
-          elif git rev-parse HEAD~1 >/dev/null 2>&1; then
-            CHANGED=$(git diff --name-only HEAD~1 HEAD)
-            if [ -n "$CHANGED" ] && ! echo "$CHANGED" | grep -qv '^changelog/'; then
-              echo "changelog_only=true" >> "$GITHUB_OUTPUT"
-              echo "This push only touches changelog/ - skipping the full test suite for this run."
-            else
-              echo "changelog_only=false" >> "$GITHUB_OUTPUT"
+          # Diff the whole push (github.event.before..HEAD), never just HEAD~1: a push of several
+          # commits whose *last* one only touches docs used to skip the suite for all of them -
+          # confirmed 2026-09-26 on PR #517, a release integrating six code branches followed by
+          # a docs-only close-review commit. Only a "synchronize" event has a previous head to
+          # compare with; opening/reopening a PR, or a force-push whose old head can't be
+          # fetched any more, always runs the full suite.
+          #
+          # Skipping is only safe if the previous head's code actually passed: GitHub shows the
+          # PR's checks for the newest head only, so a docs-only push landing while the previous
+          # head's run is still going (or after it failed) would otherwise turn the PR green on a
+          # run that tested nothing - confirmed 2026-09-26 on PR #517 ("fix for updates" still
+          # running when a CLAUDE.md-only commit was pushed on top). So wait for the previous
+          # head's own run of this workflow to finish, and skip only if it succeeded; anything
+          # else (failed, cancelled, no run found, timed out waiting) runs the full suite.
+          BEFORE="${{ github.event.before }}"
+          skip=false
+          if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.action }}" = "synchronize" ] \
+             && [ -n "$BEFORE" ] && git fetch --no-tags --depth=1 origin "$BEFORE" >/dev/null 2>&1; then
+            CHANGED=$(git diff --name-only "$BEFORE" HEAD)
+            if [ -n "$CHANGED" ] && ! echo "$CHANGED" | grep -qvE '^(changelog|docs|plans)/|^[^/]+\.md$'; then
+              echo "This push only touches changelog/, docs/, plans/ or root-level .md files - checking the previous head's CI run ($BEFORE)."
+              deadline=$(( $(date +%s) + 120 * 60 ))
+              while :; do
+                prev=$(gh run list --repo "${{ github.repository }}" --workflow ci-unit-testing.yml \
+                  --commit "$BEFORE" --event pull_request --limit 1 --json status,conclusion \
+                  --jq 'if length == 0 then "none" else .[0] | "\(.status) \(.conclusion)" end' 2>/dev/null || true)
+                case "$prev" in
+                  "completed success") skip=true; break ;;
+                  completed*|none|"") echo "Previous head's run: '${prev:-lookup failed}' - running the full suite."; break ;;
+                esac
+                if [ "$(date +%s)" -ge "$deadline" ]; then
+                  echo "Timed out waiting for the previous head's run - running the full suite."; break
+                fi
+                echo "Previous head's run is '$prev' - waiting for it to finish..."
+                sleep 60
+              done
             fi
-          else
-            echo "changelog_only=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "skip_tests=$skip" >> "$GITHUB_OUTPUT"
+          if [ "$skip" = true ]; then
+            echo "Previous head's run passed - skipping the full test suite for this run."
           fi
 
       - name: Compute test shards
@@ -64,8 +104,8 @@ jobs:
 
   # One shard = one full "install Odoo + EMS" runner running a subset of test classes, in
   # parallel with every other shard - see scripts/testing/compute_test_shards.py for how the
-  # subsets are chosen (one "fast" shard with everything except browser tours, split evenly
-  # across N "tour-*" shards). Each shard duplicates the install/setup cost (unavoidable on
+  # subsets are chosen ("backend-N" shards with everything except browser tours, "tours-N"
+  # shards with the tours, both balanced by measured duration - issue #565). Each shard duplicates the install/setup cost (unavoidable on
   # GitHub-hosted runners without a shared filesystem between jobs), but that cost runs
   # concurrently across shards instead of stacking sequentially - this repo's GitHub repo is
   # public, so the extra Actions minutes this duplication uses are free (see CLAUDE.md/chat
@@ -73,7 +113,7 @@ jobs:
   test:
     name: "Test (${{ matrix.name }})"
     needs: plan
-    if: needs.plan.outputs.changelog_only != 'true'
+    if: needs.plan.outputs.skip_tests != 'true'
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
@@ -98,104 +138,14 @@ jobs:
       - name: Checkout EMS
         uses: actions/checkout@v7
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y wget gnupg python3-pip \
-            $(grep -v '^#' apt-requirements.txt)
+      - name: Set up Odoo and install EMS
+        uses: ./.github/actions/setup-odoo
+        with:
+          needs_chrome: ${{ matrix.needs_chrome }}
 
-      # Required to run the browser (tour) tests — mirrors the "Only under development
-      # environments" section of README.md, so CI exercises the same tours a developer
-      # would run locally instead of silently skipping them for missing dependencies. Skipped
-      # entirely for the "fast" shard, which runs zero tour/HttpCase tests and so never
-      # touches a browser - a real, if modest, extra speedup this matrix split makes possible
-      # that the old single-job workflow couldn't have (every test used to share one process,
-      # so Chrome always had to be installed regardless of which tests actually needed it).
-      - name: Install browser test dependencies (websocket-client, Chrome)
-        if: matrix.needs_chrome
-        run: |
-          sudo pip install --break-system-packages websocket-client
-          sudo mkdir -p /etc/apt/keyrings
-          curl -fsSL https://dl.google.com/linux/linux_signing_key.pub \
-            | sudo gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg
-          echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
-            | sudo tee /etc/apt/sources.list.d/google-chrome.list
-          sudo apt-get update -qq
-          sudo apt-get install -y google-chrome-stable
-
-      # Ubuntu 24.04 runner images restrict unprivileged user namespaces via AppArmor
-      # by default, which breaks Chrome's crashpad_handler even with --no-sandbox
-      # (Odoo already passes --no-sandbox itself): it fails with
-      # "crashpad/util/linux/socket.cc: recvmsg: Connection reset by peer" and the
-      # tour test then times out waiting for the devtools port. See
-      # https://github.com/actions/runner-images/issues/9491.
-      - name: Allow unprivileged user namespaces for Chrome sandboxing
-        if: matrix.needs_chrome
-        run: echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
-
-      - name: Install Odoo v18 from official repository
-        run: |
-          wget -q -O - https://nightly.odoo.com/odoo.key \
-            | sudo gpg --dearmor -o /usr/share/keyrings/odoo-archive-keyring.gpg
-          echo "deb [signed-by=/usr/share/keyrings/odoo-archive-keyring.gpg] \
-            https://nightly.odoo.com/18.0/nightly/deb/ ./" \
-            | sudo tee /etc/apt/sources.list.d/odoo.list
-          sudo apt-get update -qq && sudo apt-get install -y odoo
-
-      - name: Stop and disable Odoo system service
-        run: |
-          sudo systemctl stop odoo || true
-          sudo systemctl disable odoo || true
-
-      - name: Copy EMS module and set permissions
-        run: |
-          sudo mkdir -p /opt/modules
-          sudo cp -r "$GITHUB_WORKSPACE" /opt/modules/ems
-          sudo chown -R odoo:odoo /opt/modules
-
-      - name: Configure Odoo
-        run: |
-          # 'secret' is required by EmsCompany._get_fernet_key() (models/settings/company.py)
-          # to encrypt/decrypt company-level credentials (LimeSurvey password, Google
-          # Workspace service account JSON) - any test touching those fields raises
-          # "Unable to locate a 'secret' value within odoo.conf" without it (confirmed via a
-          # real CI run, 2026-07-31 - TestCompanySettings and TestLimesurveyApi's whole
-          # setUpClass both failed on this). A fresh random Fernet key is fine here since
-          # this database is thrown away at the end of the job - it only needs to stay the
-          # same *within* this one run, not match production's or persist across runs.
-          SECRET=$(python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
-          sudo tee /etc/odoo/odoo.conf > /dev/null <<EOF
-          [options]
-          addons_path = /usr/lib/python3/dist-packages/odoo/addons,/opt/modules,/opt/modules/queue,/opt/modules/partner-contact
-          db_host = localhost
-          db_port = 5432
-          db_user = odoo
-          db_password = odoo
-          server_wide_modules = web,queue_job
-          secret = ${SECRET}
-          EOF
-
-      - name: Install EMS module
-        run: |
-          set -o pipefail
-          # 'dev' is required - install.sh interactively prompts for prod/dev when called with
-          # no argument (see CLAUDE.md's "Development vs. production environment declaration"),
-          # and a GitHub Actions runner has no stdin/TTY to answer that prompt with. Without this,
-          # every shard hangs forever on this exact step (confirmed 2026-08-12: every one of 9
-          # parallel shards stuck here for 20+ minutes, and an earlier run had to be manually
-          # cancelled after running 6 hours on 2026-08-11, the day the prompt was introduced) - a
-          # CI database, thrown away at the end of the job, is always 'dev', never 'prod'.
-          sudo /opt/modules/ems/install.sh dev 2>&1 | tee /tmp/odoo-install.log
-
-      - name: Update external dependencies
-        run: |
-          sudo /opt/modules/ems/update.sh
-
-      - name: Upgrade EMS module
-        run: |
-          set -o pipefail
-          sudo /opt/modules/ems/upgrade.sh 2>&1 | tee /tmp/odoo-upgrade.log
-
+      # No update.sh/upgrade.sh here: test.sh's own '-u ems' (which is what runs the 2900+
+      # at_install tests) already reloads the module on top of the fresh install. Those two
+      # scripts are checked once, by the "scripts" job below, in parallel (issue #564).
       - name: Run EMS tests (${{ matrix.name }})
         env:
           # Raises Chrome's own internal log verbosity (odoo/tests/common.py passes this as
@@ -209,6 +159,12 @@ jobs:
         run: |
           set -o pipefail
           sudo /opt/modules/ems/test.sh "${{ matrix.tags }}" 2>&1 | tee /tmp/odoo-test.log
+
+      # A skipped tour still ends in "0 failed, 0 error(s)", so a green test step alone
+      # doesn't prove the tours ran (issue #563).
+      - name: Fail if any tour was skipped
+        if: matrix.needs_chrome
+        run: scripts/testing/check_no_skipped_tours.sh /tmp/odoo-test.log
 
       - name: Collect Chrome/system logs for failed tour tests
         if: always() && matrix.needs_chrome
@@ -233,13 +189,62 @@ jobs:
           name: odoo-logs-${{ matrix.name }}
           path: |
             /tmp/odoo-install.log
-            /tmp/odoo-upgrade.log
             /tmp/odoo-test.log
             /tmp/odoo-chrome-logs
             /tmp/dmesg-tail.log
           if-no-files-found: ignore
 
-  # A matrix job's own check name changes per matrix value (e.g. "Test (tour-2)"), which
+  # Checks the deployment scripts themselves on a fresh install: install.sh (through the shared
+  # setup action), then update.sh and upgrade.sh, the same sequence production runs. No tests:
+  # it runs in parallel with the shards and finishes before them, so it adds no wall-clock time
+  # (issue #564). The upgrade path on real production-like data is /deploy-check's job.
+  scripts:
+    name: "Scripts (install, update, upgrade)"
+    needs: plan
+    if: needs.plan.outputs.skip_tests != 'true'
+    runs-on: ubuntu-24.04
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout EMS
+        uses: actions/checkout@v7
+
+      - name: Set up Odoo and install EMS
+        uses: ./.github/actions/setup-odoo
+
+      - name: Update external dependencies
+        run: sudo /opt/modules/ems/update.sh
+
+      - name: Upgrade EMS module
+        run: |
+          set -o pipefail
+          sudo /opt/modules/ems/upgrade.sh 2>&1 | tee /tmp/odoo-upgrade.log
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: odoo-logs-scripts
+          path: |
+            /tmp/odoo-install.log
+            /tmp/odoo-upgrade.log
+          if-no-files-found: ignore
+
+  # A matrix job's own check name changes per matrix value (e.g. "Test (tours-2)"), which
   # branch protection would treat as a brand-new, never-configured check per shard - this
   # lightweight aggregator exists so there's a single, stable check reflecting "did the whole
   # matrix pass," with the real work split into parallel shards underneath it.
@@ -254,15 +259,17 @@ jobs:
   # and fixed earlier this session.
   ci:
     name: "Test (all)"
-    needs: test
+    needs: [test, scripts]
     if: always()
     runs-on: ubuntu-24.04
     steps:
       - name: Check all shards passed
         run: |
-          result="${{ needs.test.result }}"
-          if [ "$result" != "success" ] && [ "$result" != "skipped" ]; then
-            echo "::error::One or more test shards failed (aggregate result: $result) - see the 'Test (...)' jobs above."
-            exit 1
-          fi
-          echo "All test shards passed (aggregate result: $result)."
+          for job in "test=${{ needs.test.result }}" "scripts=${{ needs.scripts.result }}"; do
+            result="${job#*=}"
+            if [ "$result" != "success" ] && [ "$result" != "skipped" ]; then
+              echo "::error::The ${job%%=*} job failed (result: $result) - see its jobs above."
+              exit 1
+            fi
+          done
+          echo "All test shards and the scripts job passed."

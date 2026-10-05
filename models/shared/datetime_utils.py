@@ -3,20 +3,22 @@ from pytz import UTC
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo # requires Python >= 3.9
 
-from odoo import models
+from odoo import api, models
 
 class EmsDatetimeUtils(models.AbstractModel):
+    """Every EMS date/time conversion goes through here. The whole centre works in a single timezone,
+    the company's own (its partner's 'tz'), never the acting user's nor the browser's - see
+    docs/en/developers/shared/timezones.md."""
     _name = 'ems.datetime_utils'
     _description = 'EMS datetime utils'
 
+    def company_tz_name(self):
+        # sudo: anyone, the public user of the portal and kiosks included, works in this timezone,
+        # while only some can read the company's own partner.
+        return self.env.company.sudo().partner_id.tz or 'UTC'
+
     def current_tz(self):
-        try:
-            return ZoneInfo(self.env.context["tz"])
-        except Exception:
-            if self.env.company.partner_id.tz != False:
-                return ZoneInfo(self.env.company.partner_id.tz)
-            else:
-                return ZoneInfo("UTC")
+        return ZoneInfo(self.company_tz_name())
 
     def time_float_to_local_datetime(self, date, time_float):
         split_time = math.modf(time_float)
@@ -37,6 +39,15 @@ class EmsDatetimeUtils(models.AbstractModel):
 
     def get_local_datetime(self):
         return datetime.now(self.current_tz())
+
+    def get_local_today(self):
+        return self.get_local_datetime().date()
+
+    @api.model
+    def get_server_epoch_ms(self):
+        """The server's clock, for the web client to measure how far off the browser's own is:
+        a computer with a wrong clock must never decide what "now" or "today" is."""
+        return int(datetime.now(UTC).timestamp() * 1000)
 
     def time_to_float(self, time):
         return time.hour + time.minute / 60.0

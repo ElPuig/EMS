@@ -28,6 +28,8 @@ from dateutil.relativedelta import relativedelta
 
 from odoo.tests.common import HttpCase, tagged
 
+from .test_convalidation import (close_convalidation_period, open_convalidation_period,
+                                 set_convalidation_period)
 from .common import (
     DocsScreenshotMixin, create_level_study_group, create_role_employee, create_role_user,
     mock_outgoing_email, next_student_id,
@@ -298,7 +300,7 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             login='doc_shot_tutor',
             wait_for='.o_form_sheet .o_notebook',
             click='.o_notebook .nav-item:nth-child(3) .nav-link',
-            wait_after=".o_field_widget[name='attachment_ids'] .o_data_row",
+            wait_after=".o_field_widget[name='attachment_ids'] .o_ems_attachment",
         )
 
     def test_capture_tutor_google_credentials_screenshots(self):
@@ -306,8 +308,8 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             '/odoo/action-%d/%d' % (self.student_list_action.id, self.students[0].id),
             '.o_notebook', 'credencials-google-01-documentacio.png',
             login='doc_shot_tutor',
-            wait_for=".o_notebook .nav-link[name='documentation']",
-            click=".o_notebook .nav-link[name='documentation']",
+            wait_for=".o_notebook .nav-link[name='secretary']",
+            click=".o_notebook .nav-link[name='secretary']",
             wait_after=".o_field_widget[name='document_ids'] .o_data_row a",
         )
         # The Actions dropdown is an overlay outside the list's own container, hence the body.
@@ -318,11 +320,183 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             tour='ems_doc_shot_tutor_google_credentials',
             max_height=380,
         )
+        # The form's Actions dropdown, open. Its menu is an overlay outside the form, hence the
+        # body; beyond_viewport=False because the dropdown closes when Chrome resizes the page.
         # Written to the same folder; this one goes to docs/assets/admin/.
         self._capture(
             '/odoo/action-%d/%d' % (self.student_list_action.id, self.students[0].id),
-            '.o_form_view', 'compte-google-alumne-capcalera.png',
+            'body', 'compte-google-alumne-capcalera.png',
             login='doc_shot_tac',
-            wait_for=".o_form_statusbar button[name='action_reset_google_password']",
-            max_height=200,
+            wait_for='.o_form_statusbar .o_ems_actions_toggle',
+            click='.o_form_statusbar .o_ems_actions_toggle',
+            wait_after=".o_ems_actions_menu button[name='action_reset_google_password']",
+            max_height=420, beyond_viewport=False,
+        )
+        # The same dropdown seen by the group's tutor: the reset, but no account lifecycle (#490).
+        self._capture(
+            '/odoo/action-%d/%d' % (self.student_list_action.id, self.students[0].id),
+            'body', 'credencials-google-03-restablir.png',
+            login='doc_shot_tutor',
+            wait_for='.o_form_statusbar .o_ems_actions_toggle',
+            click='.o_form_statusbar .o_ems_actions_toggle',
+            wait_after=".o_ems_actions_menu button[name='action_reset_google_password']",
+            max_height=420, beyond_viewport=False,
+        )
+        # Pau has no Google account yet: the tutor gets the create entry instead (#513).
+        self._capture(
+            '/odoo/action-%d/%d' % (self.student_list_action.id, self.students[1].id),
+            'body', 'credencials-google-04-crear.png',
+            login='doc_shot_tutor',
+            wait_for='.o_form_statusbar .o_ems_actions_toggle',
+            click='.o_form_statusbar .o_ems_actions_toggle',
+            wait_after=".o_ems_actions_menu button[name='action_create_google_account']",
+            max_height=420, beyond_viewport=False,
+        )
+
+    def test_capture_convalidation_screenshots(self):
+        """Issues #276 and #529 - every step of the convalidation circuit: the Head of Studies'
+        list and review form, a request at the Ministry, the Director's proposal and the
+        resolution it issues, the secretariat's registration, the portal page and the settings."""
+        self.level.allows_convalidation = True
+        subjects = self.subject | self.env['ems.subject'].create([{
+            'code': code, 'acronym': acronym, 'name': name, 'study_ids': [(6, 0, self.study.ids)],
+        } for code, acronym, name in (
+            ('DOCSUB2', 'DSP', 'Programació'),
+            ('DOCSUB3', 'DSI', 'Sistemes informàtics'),
+            ('DOCSUB4', 'DFO', 'Formació i orientació laboral'),
+        )])
+        head_of_studies = create_role_user(self, 'head_of_studies', 'doc_shot_hos', lang='ca_ES',
+                                           name="Cap d'estudis", email='capestudis@example.com')
+        create_role_employee(self, head_of_studies, name="0000 Cap d'estudis")
+        director = create_role_user(self, 'director', 'doc_shot_director', lang='ca_ES',
+                                    name='Directora Exemple', email='directora@example.com')
+        create_role_employee(self, director, name='Directora Exemple')
+        # The positions the tasks go to and whose holder signs the resolution, held by these
+        # invented people rather than whoever holds them in the database (roles are
+        # hierarchy-managed; written through the sync's own context, as tests/test_absence.py does).
+        for role, user in (('ems.role_dhos', head_of_studies), ('ems.role_director', director)):
+            self.env.ref(role).sudo().with_context(ems_syncing_roles=True).write(
+                {'employee_ids': [(6, 0, user.employee_ids.ids)]})
+
+        def new_request(student, subject_set, **vals):
+            return self.env['ems.convalidation'].create({
+                'student_id': student.id, 'requester_id': student.id,
+                'study_id': self.study.id, 'course_id': self.course.id, 'basis': 'prior_studies',
+                'line_ids': [(0, 0, {'subject_id': subject.id}) for subject in subject_set],
+                **vals,
+            })
+
+        def decide(request):
+            request.line_ids[0].sudo().write({'state': 'granted', 'grade': 8})
+            request.line_ids[1:].sudo().write({
+                'state': 'rejected', 'rejection_reason': "Els continguts no són equivalents."})
+
+        # The Head of Studies' review: subjects decided, one refused with its reason.
+        review = new_request(self.students[0], subjects[1:], attachment_ids=[(0, 0, {
+            'name': 'Certificat_academic_SMX.pdf', 'datas': base64.b64encode(b'%PDF-1.4 x')})],
+            student_notes="Vaig cursar el CFGM de Sistemes microinformàtics i xarxes.")
+        decide(review)
+        at_ministry = new_request(self.students[1], subjects[1:2], basis='other')
+        at_ministry.sudo().action_send_to_ministry()
+        proposed = new_request(self.students[2], subjects[1:])
+        decide(proposed)
+        proposed.with_user(head_of_studies).action_propose()
+        resolved = new_request(self.portal_student, subjects[1:])
+        decide(resolved)
+        resolved.with_user(head_of_studies).action_propose()
+        resolved.with_user(director).action_resolve()
+
+        list_action = self.env['ir.actions.act_window'].create({
+            'name': 'Convalidacions',
+            'res_model': 'ems.convalidation',
+            'view_mode': 'list,form',
+            'domain': [('id', 'in', (review | at_ministry | proposed | resolved).ids)],
+        })
+        self._capture(
+            '/odoo/action-%d' % list_action.id,
+            '.o_content', 'convalidations-list.png',
+            login='doc_shot_hos',
+            wait_for='.o_list_renderer .o_data_row',
+        )
+        self._capture(
+            '/odoo/action-ems.action_convalidation/%d' % review.id,
+            '.o_form_view', 'convalidations-form.png',
+            login='doc_shot_hos',
+            wait_for=".o_form_sheet div[name='line_ids'] .o_data_row",
+            max_height=740,
+        )
+        self._capture(
+            '/odoo/action-ems.action_convalidation/%d' % at_ministry.id,
+            '.o_form_view', 'convalidations-ministry.png',
+            login='doc_shot_hos',
+            wait_for=".o_form_statusbar button[name='action_ministry_resolved']",
+            max_height=420,
+        )
+        self._capture(
+            '/odoo/action-ems.action_convalidation/%d' % proposed.id,
+            '.o_form_view', 'convalidations-director.png',
+            login='doc_shot_director',
+            wait_for=".o_form_statusbar button[name='action_resolve']",
+            max_height=660,
+        )
+        self._capture(
+            '/report/html/ems.report_convalidation_resolution/%d' % resolved.id,
+            '.o_ems_convalidation_resolution', 'convalidations-resolution.png',
+            login='doc_shot_director',
+        )
+        # The secretariat, on a request already resolved (goes to docs/assets/secretary/).
+        self._capture(
+            '/odoo/action-ems.action_convalidation/%d' % resolved.id,
+            '.o_form_view', 'convalidations-secretary.png',
+            login='doc_shot_secretary',
+            wait_for=".o_form_statusbar button[name='action_complete']",
+            max_height=420,
+        )
+
+        # The portal (goes to docs/assets/families/): the resolved request, completed; a new one
+        # the centre has asked documentation for; and the request period, open while the form is
+        # captured (the default one may well be closed the day this runs), then closed for the
+        # notice that replaces it.
+        resolved.sudo().action_complete()
+        open_convalidation_period(self.env)
+        pending = new_request(self.portal_student, subjects[3:])
+        self.env['ems.convalidation.info_wizard'].create({
+            'convalidation_id': pending.id,
+            'message': "Per resoldre la sol·licitud ens cal el certificat acadèmic dels estudis previs.",
+        }).action_send()
+        self._capture(
+            '/my/convalidaciones?new=1', '.o_ems_convalidation_new',
+            'convalidations-portal-new.png',
+            login='doc_shot_portal',
+            wait_for='#convalidation_new_body.show',
+        )
+        self._capture(
+            '/my/convalidaciones', '.o_ems_convalidation_request:has(.o_ems_convalidation_info_request)',
+            'convalidations-portal-info.png',
+            login='doc_shot_portal',
+        )
+        self._capture(
+            '/my/convalidaciones', '.o_ems_convalidation_request:has(.o_ems_convalidation_resolution)',
+            'convalidations-portal-request.png',
+            login='doc_shot_portal',
+        )
+        close_convalidation_period(self.env)
+        self._capture(
+            '/my/convalidaciones', '.o_ems_convalidation_closed',
+            'convalidations-portal-closed.png',
+            login='doc_shot_portal',
+        )
+        # The settings (go to docs/assets/admin/).
+        create_role_user(self, 'settings_admin', 'doc_shot_settings_admin', lang='ca_ES',
+                         name='Administrador')
+        set_convalidation_period(self.env, (1, 10, 8.0), (31, 3, 23 + 59 / 60))
+        self._capture(
+            '/odoo/action-ems.action_settings', '#convalidation_period',
+            'convalidations-settings.png',
+            login='doc_shot_settings_admin',
+        )
+        self._capture(
+            '/odoo/action-ems.action_settings', '#convalidation_legal_grounds',
+            'convalidations-settings-resolution.png',
+            login='doc_shot_settings_admin',
         )

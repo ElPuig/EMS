@@ -6,7 +6,7 @@
 
 L'**històric acadèmic** conserva un registre permanent per alumne/a i curs: estudi, grup, mòduls amb les notes per resultat d'aprenentatge, assistència i resultat acadèmic. Es genera automàticament (a cada baixa i a la transició de curs) com una **còpia congelada** del subsistema de notes, de manera que sobreviu a la neteja anual de les dades operatives.
 
-Com a cap d'estudis o director/a teniu **accés de lectura a tot l'històric**, per a consultes a nivell de cohort.
+Com a cap d'estudis o director/a teniu **accés a tot l'històric**: consultes a nivell de cohort i aplicació de revisions de qualificacions a un curs ja tancat.
 
 ---
 
@@ -16,7 +16,7 @@ Com a cap d'estudis o director/a teniu **accés de lectura a tot l'històric**, 
 
 ![Llistat de l'històric acadèmic, agrupat per curs, amb el resultat acadèmic de cada registre](../../assets/head_of_studies/hos-academic-history-list.png)
 
-A més, a la fitxa de qualsevol alumne/a, la pestanya **Històric acadèmic** mostra els seus registres — també per a l'**antic alumnat** (graduats/des i baixes), la pestanya del qual es manté com a registre permanent.
+A més, a la fitxa de qualsevol alumne/a, la secció **Històric acadèmic**, al final de la pestanya **Estudis**, mostra els seus registres — també per a l'**antic alumnat** (graduats/des i baixes), per als quals la pestanya Estudis només mostra aquesta secció, com a registre permanent.
 
 ## Consultes útils
 
@@ -30,6 +30,14 @@ A més, a la fitxa de qualsevol alumne/a, la pestanya **Històric acadèmic** mo
 - L'**estat del mòdul** (Superat / No superat) el decideixen **només els resultats d'aprenentatge**: una estada pendent o suspesa mai no suspèn un mòdul, només deixa la nota final buida fins que s'aprovi una nova estada.
 - Les **ponderacions** desades (interna/EM i per RA) són les vigents aquell curs: l'històric és autocontingut i conserva el seu significat encara que una programació posterior canviï els pesos.
 - El **resultat acadèmic** es proposa automàticament a partir de les notes i de la matrícula de destinació; secretaria/administració pot haver-lo ajustat a mà.
+- Un registre marcat com a **Curs actual** és d'un curs que encara no s'ha tancat: només conté les assignatures convalidades fins ara, sense resultat acadèmic. Els filtres **Curs actual** i **Cursos tancats** els separen a les consultes.
+- Una assignatura **convalidada** porta la nota de la convalidació, la marca **CV** i el seu **expedient de convalidació** (número CONV).
+
+## Aplicar una revisió de qualificacions
+
+Una revisió de qualificacions corregeix l'històric acadèmic d'un curs ja tancat: la nota d'un mòdul a través dels seus resultats d'aprenentatge, un mòdul que falta en un registre o un mòdul que no hi hauria de ser.
+
+Obriu el registre de l'alumne/a d'aquell curs i feu clic a **Revisió de qualificacions**. Teniu el pas a pas complet al [manual de secretaria](../secretary/academic-history.md#aplicar-una-revisió-de-qualificacions) — la pantalla i les regles són les mateixes per als dos rols.
 
 ---
 

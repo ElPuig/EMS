@@ -5,6 +5,13 @@
             <field name="model">ems.strike</field>
             <field name="arch" type="xml">
                 <list default_order="date desc" create="0">
+                    <header>
+                        <!-- Issue #402: create="0" stays so the standard "New" never opens the
+                             autosaving full-page form; see views/coexistence/strike/issue.xml. -->
+                        <button name="%(ems.action_strike_issue)d" type="action" string="New strike"
+                                class="btn-primary o_list_button_add_strike" display="always"
+                                groups="ems.group_teacher"/>
+                    </header>
                     <field name="date"/>
                     <field name="student_id"/>
                     <field name="teacher_id"/>

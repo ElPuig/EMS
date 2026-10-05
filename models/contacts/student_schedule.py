@@ -30,6 +30,23 @@ class ems_student_schedule(models.Model):
     # an invisible view field" pattern already used for 'hr.employee.can_edit_schedule'.
     shift = fields.Selection(related="main_group_id.shift", string="Shift", readonly=True)
 
+    # Issue #534: a student attending a subject split across several groups. The toggle only shows
+    # the custom-schedule tools on the form; switching it off makes every enrollment follow its group
+    # again, in person (see 'write'). The slots themselves live on ems.enrollment.slot.
+    custom_schedule = fields.Boolean(string="Custom schedule",
+        help="Attend some subjects only in specific sessions, possibly with other groups of the same level.")
+    enrollment_slot_ids = fields.One2many(string="Slots", comodel_name="ems.enrollment.slot", inverse_name="student_id")
+    enrollment_slot_broken_count = fields.Integer(string="Slots no longer in the schedule",
+        compute="_compute_enrollment_slot_broken_count")
+    enrollment_is_customized = fields.Boolean(string="Has customized subjects",
+        compute="_compute_enrollment_is_customized")
+    # Issue #534 permissions, for the Studies tab: adding/removing enrollments is the secretary's
+    # office and academic administration's only; customizing which sessions a student attends is
+    # theirs too, plus the tutor's and every chief above them (tutor_scope_user_ids). The server
+    # enforces the same split (ACL, rule_enrollment_tutor, ems.enrollment.write()).
+    can_edit_enrollments = fields.Boolean(string="Can edit enrollments", compute="_compute_enrollment_permissions")
+    can_customize_schedule = fields.Boolean(string="Can customize the schedule", compute="_compute_enrollment_permissions")
+
     # A real dependency on 'resource.calendar.attendance' itself can't be expressed (it's a
     # cross-model search, same structural limitation ems.group._compute_schedule_attendance_ids
     # already has) - a web client request always computes this fresh anyway (a new transaction,
@@ -40,11 +57,14 @@ class ems_student_schedule(models.Model):
     # TestStudentSchedule's own break-derivation test: setUpClass creates the student, THEN its
     # enrollments, and an unrelated earlier field read on the student had already cached this field
     # as empty in between the two - with no @api.depends, the later enrollments never invalidated it).
-    @api.depends('contact_type', 'main_group_id', 'enrollment_ids.subject_id', 'enrollment_ids.group_id')
+    @api.depends('contact_type', 'main_group_id', 'enrollment_ids.subject_id', 'enrollment_ids.group_id',
+                 'enrollment_ids.slot_ids.group_id', 'enrollment_ids.slot_ids.weekday',
+                 'enrollment_ids.slot_ids.start_time', 'enrollment_ids.slot_ids.end_time')
     def _compute_schedule_attendance_ids(self):
-        # 'active_test=True' forced explicitly, not left to the ORM's own default: this tab is
-        # opened from ems.action_student_kanban, whose own context sets active_test=False so
-        # archived/withdrawn students still show up in that list - a context that then leaks into
+        # 'active_test=True' forced explicitly in _ems_teaching_attendances(), not left to the
+        # ORM's own default: this tab is opened from ems.action_student_kanban, whose own context
+        # sets active_test=False so archived/withdrawn students still show up in that list - a
+        # context that then leaks into
         # this compute too, since it's the same request. Without forcing it back on here, a stale/
         # archived calendar's own leftover attendance rows (never deleted, only archived, by course
         # transition's calendar rollover) resurface as if they were still part of the student's
@@ -54,18 +74,60 @@ class ems_student_schedule(models.Model):
         # one - traced to exactly this, not a data problem. See the identical fix on
         # ems.group._compute_schedule_attendance_ids and
         # ems.schedule_report_mixin._get_level_break_entries.
-        Attendance = self.env['resource.calendar.attendance'].with_context(active_test=True)
         for student in self:
             if student.contact_type != 'student':
                 student.schedule_attendance_ids = self.env['resource.calendar.attendance']
                 continue
-            teaching = self.env['resource.calendar.attendance']
-            for enrollment in student.enrollment_ids:
-                teaching |= Attendance.search([
-                    ('subject_id', '=', enrollment.subject_id.id),
-                    ('group_ids', '=', enrollment.group_id.id),
-                ])
-            student.schedule_attendance_ids = teaching | student._get_break_entries()
+            student.schedule_attendance_ids = student._ems_teaching_attendances() | student._get_break_entries()
+
+    def _compute_enrollment_slot_broken_count(self):
+        for student in self:
+            student.enrollment_slot_broken_count = len(
+                student.enrollment_slot_ids.filtered(lambda slot: slot.state == 'broken'))
+
+    @api.depends('tutor_id')
+    @api.depends_context('uid')
+    def _compute_enrollment_permissions(self):
+        can_edit = self.env['ems.base'].get_user_can_edit_enrollments()
+        for student in self:
+            student.can_edit_enrollments = can_edit
+            student.can_customize_schedule = can_edit or self.env['ems.base'].user_acts_as_tutor(student.tutor_id)
+
+    @api.depends('enrollment_ids.slot_ids', 'enrollment_ids.is_remote')
+    def _compute_enrollment_is_customized(self):
+        for student in self:
+            student.enrollment_is_customized = any(
+                enrollment.slot_ids or enrollment.is_remote for enrollment in student.enrollment_ids)
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'custom_schedule' in vals and not vals['custom_schedule']:
+            self.enrollment_ids.action_follow_group()
+        return res
+
+    def action_drop_custom_schedule(self):
+        self.write({'custom_schedule': False})
+
+    def _ems_teaching_attendances(self):
+        """The teaching periods of the student's own schedule (breaks excluded): every period of
+        a subject they are enrolled in, in the group they are enrolled through - so a student
+        taking a subject in another group (e.g. a 2nd-year one repeating a 1st-year subject)
+        gets that group's period, not their main group's. Also used by the tutor's attendance
+        report to know when their students' day ends (attendance_report_schedule.py). A custom
+        enrollment (issue #534) only contributes its own slots, possibly from other groups -
+        'ems.enrollment._ems_attends' decides, the same rule the attendance rosters follow."""
+        self.ensure_one()
+        Attendance = self.env['resource.calendar.attendance'].with_context(active_test=True)
+        teaching = Attendance
+        for enrollment in self.enrollment_ids:
+            teaching |= Attendance.search([
+                ('subject_id', '=', enrollment.subject_id.id),
+                ('group_ids', 'in', (enrollment.group_id | enrollment.slot_ids.group_id).ids),
+            ]).filtered(lambda block, enrollment=enrollment: any(
+                enrollment._ems_attends(group, block.dayofweek, block.hour_from, block.hour_to)
+                for group in block.group_ids
+            ))
+        return teaching
 
     def _get_break_entries(self):
         """The student's break/patio period, derived from their MAIN group's level/shift — a

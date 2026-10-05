@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // Issue #443's backend side: the follow-up list of every authorization requested, and the
 // assistant that sends new ones to students during the course.
@@ -87,16 +88,7 @@ registry.category("web_tour.tours").add("ems_authorization_send_wizard", {
 registry.category("web_tour.tours").add("ems_authorization_send_wizard_form_action", {
     test: true,
     steps: () => [
-        {
-            trigger: ".o_form_view .o_cp_action_menus button",
-            content: "Open the form's Actions (cog) menu",
-            run: "click",
-        },
-        {
-            trigger: ".o_menu_item:contains('Send authorizations')",
-            content: "'Send authorizations' is also offered from the form",
-            run: "click",
-        },
+        ...clickAction("action_authorization_send_bulk", "'Send authorizations' is also offered from the form"),
         {
             trigger: ".o_dialog div[name='student_ids'] .o_tag:contains('Tour Send Wizard Student')",
             content: "The wizard opened preloaded with this student, same as from the list",
@@ -139,6 +131,26 @@ registry.category("web_tour.tours").add("ems_authorization_tutor_send", {
             // and a tour trigger has to be visible.
             trigger: ".o_dialog .modal-content:not(:has(div[name='ems_study_ids'])):not(:has(div[name='ems_level_ids']))",
             content: "No studies or levels to pick for a tutor",
+        },
+        {
+            trigger: ".o_dialog div[name='target'] input[data-value='students']",
+            content: "Switch to students picked by hand",
+            run: "click",
+        },
+        {
+            trigger: ".o_dialog div[name='student_ids'] input",
+            content: "Look for students: both fixtures' names start with 'Tour'",
+            run: "edit Tour",
+        },
+        {
+            // Issue #550: the picker offers the tutor's own student, never someone else's.
+            trigger: ".o-autocomplete--dropdown-menu:has(a:contains(Tour Send Wizard Student)):not(:has(a:contains(Tour Other Student)))",
+            content: "Only the tutor's own student is offered",
+        },
+        {
+            trigger: ".o_dialog div[name='target'] input[data-value='scope']",
+            content: "Back to groups",
+            run: "click",
         },
         {
             trigger: ".o_dialog div[name='template_ids'] input",

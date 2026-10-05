@@ -95,11 +95,11 @@ context - that decides whether an existing record is written.
 | Salut | no | yes | Self-declared health absence; the only type consuming the 15 h/course allowance |
 | Assistència a consulta mèdica | yes | yes | |
 | Prova mèdica invasiva | yes | yes | Whole day by default |
-| Flexibilitat per menstruació o climateri | no | yes | Its own legal cap (8 h/month) is out of scope |
-| Formació | no | yes | Courses, Erasmus+ |
-| Absència justificada | no | yes | |
-| Encàrrec de serveis | no | yes | Field trips, official travel |
-| ATRI | no | yes | Filed by the employee on the Generalitat portal; Direction confirms it |
+| Flexibilitat per menstruació o climateri | yes | yes | Its own legal cap (8 h/month) is out of scope |
+| Formació | yes | yes | Courses, Erasmus+ |
+| Absència justificada | yes | yes | |
+| Encàrrec de serveis | yes | yes | Field trips, official travel |
+| ATRI | no | yes | Filed by the employee on the Generalitat portal, where it is justified; Direction confirms it |
 
 All nine share `request_unit = 'hour'`, `requires_allocation = 'no'` (the 15 h cap warns, it
 never blocks — see the plan) and `leave_validation_type = 'manager'`, which routes approval to
@@ -115,9 +115,13 @@ unrelated to leave requests) is a stored compute that always mirrors this same
 |---|---|---|
 | `ems_full_day` "Whole day" | `hr.leave.type.ems_full_day_default` | Employee, while the request is unapproved |
 | `ems_counts_hours` "Adds the hours to the monthly report" | `hr.leave.type.ems_counts_hours` | The approver only |
-| `ems_needs_atri` "Filed through ATRI" | `hr.leave.type.ems_needs_atri` | Employee, while unapproved |
+| `ems_needs_atri` "Filed through ATRI" | `hr.leave.type.ems_needs_atri` | Nobody: not shown on the form, only read by an invisible node that shows the ATRI portal notice |
 | `ems_responsible_declaration` | — | Employee; required when the type demands it |
-| `ems_direction_state` "Direction check" | — | Read by everyone, set by Direction only; hidden until the request exists |
+| `ems_document_state` "Supporting document status" | set when the Head acknowledges the request | The Head's and Direction's buttons, and the employee attaching the document; never written directly by the employee |
+| `ems_document_reminder_date` / `ems_document_escalated` | — | The reminder scheduled action only |
+| `ems_direction_state` "Direction status" | — | Read by everyone, set by Direction only (its own buttons); hidden until the request exists |
+| `ems_head_state` "Head status" | computed from `state` and `ems_document_state` | read-only |
+| `ems_status` "Overall status" | computed | read-only |
 | `ems_health_hours_used` / `ems_health_allowance_exceeded` | computed | read-only |
 
 The first three are **stored editable computes**: picking an absence type proposes a value and
@@ -125,25 +129,172 @@ any later manual change survives. That is deliberate, and it reproduces what the
 — it ticked `Suma Hores?` on submit and left the manager free to correct it afterwards, which
 they do, because employees miscategorise their own absences.
 
-`ems_direction_state` (`Not done` / `Missing document` / `Done`) is **independent of the approval
-workflow**, not a second validation step: a request can be approved and still be waiting for its
-document. For ATRI absences it is also where Direction confirms the request was really filed on
-the Generalitat's portal.
-
-The Direction check is hidden on a request still being written (`invisible="not id"`): Direction
-cannot have verified a justification for something that does not exist yet.
-
-**The Direction check shows in every absence list** - the employee's own included, so they can
-see their justification is still pending - decorated like the state column beside it: grey for
-*Not done*, red for *Missing document*, green for *Done*. Because it is now readable by
-everyone, hiding the field in a view stops being a barrier: `hr.leave.write()` rejects any
-change to it from outside `ems.group_director`, and `create()` drops it, so the form's readonly
-is only the UI half of a rule that also exists server-side.
+The status fields are the steps of the approval and where the request stands between them - see
+[The approval, step by step](#the-approval-step-by-step) below.
 
 **The employee never picks the ATRI flag or the monthly-report flag.** Both are derived from the
-absence type and shown only to the approver, who corrects them when the employee chose the wrong
-type - which is also why `holiday_status_id` itself stays editable for the approver after
-approval, overriding Odoo's own readonly (`is_absence_manager` drives that).
+absence type. The monthly-report flag is shown to the approver, who can override it per request.
+The ATRI flag is shown to nobody: its only use is the ATRI portal notice on the form, and when the
+employee chose the wrong type the approver changes the type itself, which recomputes both. That
+is also why `holiday_status_id` stays editable for the approver after approval, overriding
+Odoo's own readonly (`is_absence_manager` drives that).
+
+## The approval, step by step
+
+Every absence goes through the **Head** - the Area Manager who is the employee's
+`leave_manager_id` (see above) - and then **Direction** (`ems.group_director`), always in that
+order. The Head's side has two steps whenever the absence type requires a supporting document
+(`hr.leave.type.support_document`): the document often only exists after the absence, so the
+Head first **acknowledges** the request ("Received: pending documentation") and **validates** the
+document later, once the employee has attached it. Direction reviews last (for ATRI absences,
+that the request was really filed on the Generalitat's portal).
+
+```mermaid
+stateDiagram-v2
+    [*] --> Pending
+    Pending --> AwaitingDocumentation: Head - received (type requires a document)
+    Pending --> PendingValidation: Head - received (document already attached)
+    Pending --> PendingDirection: Head - validate (type requires no document)
+    AwaitingDocumentation --> PendingValidation: employee attaches the document
+    PendingValidation --> PendingDirection: Head - validate documentation
+    PendingValidation --> AwaitingDocumentation: Head - documentation insufficient
+    PendingDirection --> AwaitingDocumentation: Direction - documentation insufficient
+    PendingDirection --> Approved: Direction done
+    Pending --> Refused: Head or Direction refuses
+    AwaitingDocumentation --> Refused
+    PendingValidation --> Refused
+    PendingDirection --> Refused
+    Pending --> Cancelled: employee cancels
+```
+
+Which types require a document is `support_document` in `data/cat/hr.leave.type.csv`: every one
+except "Health" (self-declared) and ATRI (justified on the Generalitat's portal). Being `data/cat/`
+(`noupdate=False`), the CSV is the source of truth: a change made from the type's own form is
+reverted by the next upgrade.
+
+Four fields, three of them a column of the managers' list. The employee sees only the overall
+status: their own list (`hr_leave_view_tree_my`) hides the Head's and Direction's columns
+(`column_invisible`, so the fields stay loaded), and the form hides the three step badges unless
+the reader `is_absence_manager` or `is_absence_direction` - the status bar says it all.
+
+| Field | Values | Source |
+|---|---|---|
+| `ems_document_state` "Supporting document status" | Not required / Awaiting documentation / Pending validation / Validated | Set by `action_approve()` from the type and the attachments; moved by attaching the document and by the buttons |
+| `ems_head_state` "Head status" | Pending / Awaiting documentation / Pending validation / Approved / Refused | Stored compute over Odoo's `state` and `ems_document_state` |
+| `ems_direction_state` "Direction status" | Pending / Done / Refused | Direction's buttons |
+| `ems_status` "Overall status" | Pending / Awaiting documentation / Pending validation / Pending Direction / Approved / Refused / Cancelled | Stored compute over the other two and `state` |
+
+`ems_status` is the Head's column until the Head is done (Pending, Awaiting documentation,
+Pending validation), then Pending Direction until Direction marks it done, then Approved. Plus
+**Refused** whenever `state == 'refuse'`, whoever refused, and **Cancelled** when the employee
+cancelled their own request.
+
+**Odoo's own `state` is left exactly as it is, and stays the Head's decision.** No values are
+added to it: `hr_holidays` hangs everything off it - `validate` creates the
+`resource.calendar.leaves` that the hour balance, the auto check-out and the guard duty board all
+read, and `validate1` already means a second approval with a fixed order (manager first, then an
+officer), which is not this. So **an absence takes effect when the Head acknowledges it** (both
+"Received: pending documentation" and "Validate" are Odoo's own `action_approve()`, only labelled
+differently); neither the document nor Direction's review holds back the calendar. The status
+columns are built on top of it.
+
+`ems_head_state` follows `state` (`confirm` → Pending, `validate`/`validate1` → the document's
+stage while it is awaited or submitted, Approved otherwise, `refuse` → Refused), with two
+exceptions where it keeps the value it had: a refusal that was Direction's, and the employee
+cancelling. Direction's refusal is recognised because `action_ems_direction_refuse()` sets
+`ems_direction_state = 'refused'` *before* calling the native `action_refuse()`, and the compute
+reads it without depending on it (the Head's column must not move when only Direction acts).
+
+**The Head's buttons.** On a pending request, Odoo's Approve is relabelled "Validate" for a type
+requiring no document, and a second button on the same `action_approve` reads "Received: pending
+documentation" for the others (form header, list row as an inbox icon, kanban). `action_approve()`
+then sets `ems_document_state`: `not_required`, `submitted` when a file was already attached with
+the request, or `awaiting`. Once the document is attached, `action_ems_document_validate` (form
+header, list row) moves it to `validated`; `action_ems_document_insufficient` sends it back to
+`awaiting`, with a note to the employee. Who counts as the Head is `is_absence_head`: the
+employee's `leave_manager_id`, or an officer other than Direction - the same line
+`_compute_can_approve()` draws.
+
+**Attaching the document is the employee's step, with no button.** `hr.leave.write()` hands a
+request from `awaiting` to `submitted` as soon as its attachment fields are written and it has an
+attachment (`_ems_submit_document()`, sudo: the employee may cause the change but never write
+`ems_document_state` themselves, which `write()` and `create()` refuse). A file dropped into the
+chatter's own attachment box is not a write on the request and does not count - the form's
+"Supporting document" field is the place.
+
+**Direction's buttons** are `action_ems_direction_done` (only while Pending Direction:
+`UserError` otherwise), `_reset` (back to Pending), `_refuse`, and the same
+`action_ems_document_insufficient` as the Head, which sends a request Direction is reviewing back
+to the employee. All through plain `write()`s: the existing guard in `hr.leave.write()` is what
+keeps them Direction's, for these buttons and any other way in. They sit in the form header and,
+as icons with their label as tooltip, beside the Direction column in the list; they are hidden in
+the employee's own list.
+
+**One activity per step.** `_ems_update_activities()`, called from `write()` whenever `state`,
+`ems_document_state` or `ems_direction_state` changes, keeps exactly one EMS activity open on the
+request, for whoever acts next: "Attach the absence's supporting document" for the employee (due
+the day after the absence, so it turns overdue on its own), "Validate the absence's supporting
+document" for the Head (`_get_responsible_for_approval()`), "Direction review of the absence" for
+the company's Director. The previous step's is marked done; a refused or cancelled request keeps
+none. The four activity types live in `data/main/mail.activity.type.csv`.
+
+**Reminders.** The daily scheduled action `ems.ir_cron_absence_document_reminder` runs
+`_cron_ems_document_reminder()` over every request still awaiting its document whose last day is
+past (`ems.datetime_utils.get_local_today()`, the centre's timezone). It posts a note to the
+employee every `ems_absence_document_reminder_days` days (default 1: every day;
+`ems_document_reminder_date` keeps it to once per interval) and, once
+`ems_absence_document_escalation_days` calendar days have passed since the absence (default 3),
+a note and an overdue activity to the Head, once (`ems_document_escalated`). Both are company
+settings under Settings > Staff Absence Settings, with the same fallback-to-default helpers as the
+health allowance. The notes are `mail.mt_note` addressed to their recipients only, so the
+department chief and Direction following the request are not sent every reminder. Sending the
+request back as insufficient resets both markers.
+
+**Upgrade.** `migrations/18.0.0.31.0/post-migrate.py` marks every request the Head had already
+approved as `validated` (that is what the approval meant until then), turns Direction's former
+"Missing document" into "Awaiting documentation" (Direction back to Pending), recomputes both
+stored status columns, and gives the employee the upload activity on those requests.
+
+**A decision taken from the form goes back to the list.** The form is `js_class="ems_absence_form"`
+(`static/src/js/backend/absence_form.js`): after any of the Head's or Direction's decision
+buttons, its `afterExecuteActionButton()` calls the web client's own `historyBack()` - the same
+call Odoo makes after deleting a record. That hook runs whether or not the button raised, so
+success is read from the record instead: `state`, `ems_document_state` and `ems_direction_state` are captured before
+the click and compared after the reload, and only a change goes back. A refused confirmation or an
+error leaves the reader on the form, as does a form opened on its own (no breadcrumb to return
+to, where `historyBack()` would load the home screen). Refusing is final - the whole request,
+exactly like the Head's refusal - and confirms first.
+
+**Direction does not approve on the Head's behalf.** Direction holds the officer group through
+Head of Studies, so Odoo would offer it Approve/Refuse on every request - right beside the Head's
+column, where clicking decides for the Head instead of recording Direction's review.
+`_compute_can_approve()` is overridden to be `False` for `ems.group_director` except where the
+Director is the employee's `leave_manager_id` (an Area Manager's own absence). The list and kanban
+Approve/Refuse buttons, which natively look at `state` only, now also require `can_approve`; the
+form's already did. It is a screen rule only: server-side, Direction keeps its officer rights.
+
+**"Waiting For Me".** Odoo's own two filters only know the acknowledgement (`state = 'confirm'`),
+so both are re-scoped to the Head's two steps (`ems_status` Pending or Pending validation): the
+approver's `waiting_for_me` and the officers' `waiting_for_me_manager`. Direction's own
+(`ems_waiting_for_direction`, `groups="ems.group_director"`) lists what is Pending Direction, plus
+the Head's two steps on the requests Direction handles as the Head (`leave_manager_id = uid`).
+The officers' filter, which Direction would otherwise get and which lists the Head's pending work,
+is hidden from it (`groups="hr_holidays.group_hr_holidays_user,!ems.group_director"`). The
+Management action (`hr_leave_action_action_approve_department`) opens with all three
+`search_default_`s set; a filter the reader's groups hide is simply not applied, so each role
+lands on its own. "My pending supporting documents" (`ems_my_pending_documents`) is the
+employee's. The search panel on the left filters on `ems_status` instead of `state`.
+
+Covered by `TestAbsenceRequest` (the whole sequence, each type family's first step, the document
+filed with the request, attaching it, insufficient from the Head and from Direction, Direction
+blocked before its turn, the activities, the reminders and the escalation with their settings,
+refusals and resets, `can_approve`/`is_absence_head` for Director / Head of Studies /
+Director-as-approver, who gets subscribed, and the filters' domains) and by three tours:
+`ems_absence_direction_review` (Direction's default list, sending a document back from the row,
+validating from the header, kanban), `ems_absence_head_approval` (Head of Studies acknowledging
+from the row, validating a document from the form, kanban), `ems_absence_request` (the form's
+columns, and no Direction button before the Head) and `ems_absence_employee_view` (the employee's
+own list and form, without the approvers' columns and badges).
 
 ## The request form
 
@@ -251,6 +402,8 @@ being archived.
 | My Time Off | `group_hr_holidays_responsible` | Only a manager needs it as an entry: for them the parent is a dropdown header, not a link |
 | Overview | `group_hr_holidays_responsible` | The centre-wide absence calendar: what an absence manager uses to see who is missing. Meaningless to an employee, whose record rules would empty it anyway |
 | Management, Reporting, Configuration | native groups | Unchanged |
+| Management > Requested absences | native groups | EMS entry on Odoo's own `hr_leave_action_action_approve_department`, replacing `hr_holidays.menu_open_department_leave_approve` ("Time Off"), which is archived: next to the expected absences, the name has to say which of the two kinds it lists |
+| Management > Expected absences | `ems.group_head_of_studies` | Added by EMS, see *Expected absences* |
 
 The action behind My Time Off also drops Odoo's default `search_default_group_date_from`: the
 centre's own list is short and already sorted by date, so grouping it by month only buries a
@@ -269,10 +422,9 @@ the request is `confirm` or `validate1`. EMS drops both conditions from the inhe
 - **By type.** The flag says which types *require* a justification, not which ones accept one.
   The centre files whatever the employee has for any absence: somebody who can document a
   "Justified absence" or a training day had nowhere to attach it.
-- **By state.** Direction's own check (`ems_direction_state`) happens *after* the approval, and
-  a medical certificate is usually handed in days after the absence itself. With the field
-  hidden from the moment a request was approved, the `Missing document` state could never be
-  cleared by anybody.
+- **By state.** The document is attached *after* the Head's acknowledgement - a medical
+  certificate is usually handed in days after the absence itself. With the field hidden from the
+  moment a request was approved, a request awaiting its document could never leave that state.
 
 The second one needed a matching change in security, because two different mechanisms were
 hiding it:
@@ -338,14 +490,27 @@ appears at all, and that cancelling it really leaves the file alone. It runs on 
 is approved *and* of a type requiring no document, so it doubles as the browser-side proof that
 neither condition hides the field any more.
 
-## Refusing asks first too, because nobody can undo it
+## Refusing asks first too, because almost nobody can undo it
 
 `action_reset_confirm` puts a refused request back to `Pending`, but Odoo reserves that to its
-Time Off Administrator group: `_check_approval_update` raises *"Only a Time Off Manager can
-reset a refused leave"* for anybody else, an officer included. Nobody at the centre holds that
-group - `res.users._ems_sync_time_off_groups()` takes it back from everyone, deliberately, since
-it also grants read access to every colleague's absence reason and attachment. **A refused
-request is therefore final: the employee has to file a new one.**
+Time Off Manager group: `_check_approval_update` raises *"Only a Time Off Manager can reset a
+refused leave"* for anybody else, an officer included. `res.users._ems_sync_time_off_groups()`
+takes that group back from everyone, deliberately, since it also grants read access to every
+colleague's absence reason and attachment - with one explicit exception, `base.user_admin`
+itself, kept out of the revocation (`protected` in that method) because the account needs to
+stay a genuine Time Off Administrator. **In practice a refused request is final for the Head,
+for Direction and for the employee: only that one administrator account can reopen it, and the
+employee should normally expect to file a new request instead.** The confirmation dialogs say
+exactly that, rather than claiming the button doesn't exist at all - it does, for that one
+account, right there on the same screen (found 2026-09-22, issue #501).
+
+`EmsAbsenceLeave.action_reset_confirm()` overrides the native method so that reset actually
+leaves the request clean: on its own, Odoo's version only ever touches `state`, so a request
+Direction had refused (`ems_direction_state = 'refused'`) would come back as `Pending` overall
+while Direction's own column kept showing `Refused`, with `ems_status` stuck unable to reflect
+either. The override clears `ems_direction_state` back to `not_done` for exactly those leaves,
+via `sudo()` - reaching this method at all already required the wider Time Off Manager group, so
+clearing a now-stale refusal is not a fresh Direction decision needing its own check.
 
 The button that causes it sits next to Approve on three different screens, and on two of them it
 is a bare icon in a row. All three confirm first, through Odoo's own `confirm` attribute rather
@@ -362,9 +527,14 @@ than any code:
 unconstrained here), and its `button` definition allows `confirm` but neither `confirm-title`
 nor `confirm-label`. Adding them makes the whole view invalid and the module upgrade fails.
 
+Direction's own Refuse (`action_ems_direction_refuse`, see *The approval, step by step*) carries the same
+confirmation, in the list and in the form header.
+
 Covered by the `ems_absence_refuse_confirm` tour, which cancels the dialog from the list button
-and confirms it from the form one, and by
-`test_refusing_is_not_reversible_at_the_centre`, which asserts the rule the wording rests on.
+and confirms it from the form one, and by `test_refusing_is_not_reversible_at_the_centre`, which
+asserts the rule the wording rests on for a regular officer. `test_resetting_a_head_refusal_
+clears_it` and `test_resetting_a_direction_refusal_also_clears_the_direction_check` cover what
+the one account that *can* reach `action_reset_confirm` actually gets back.
 
 ## Allocations and accrual plans are hidden
 
@@ -379,6 +549,68 @@ same file renames the dashboard's create button from a bare "New" to "Absence re
 
 Both changes are covered by the `ems_absence_dashboard` tour: an OWL template inheritance error
 surfaces only in a browser, never in `./upgrade.sh`, which merely checks the XML parses.
+
+## Expected absences
+
+The Head of Studies or their Deputy often knows a teacher will be away before the teacher files
+anything (a phone call first thing in the morning, a training day agreed in a meeting). The guard
+duty board has to plan around it all the same, so `ems.absence_pending`
+(`models/employees/absence_pending.py`) lets them enter it on the teacher's behalf. It is not an
+`hr.leave`: it has no type, no approval and no hours to count, and it is invisible to the teacher.
+
+```mermaid
+erDiagram
+    HR_EMPLOYEE ||--o{ EMS_ABSENCE_PENDING : "employee_id (teachers only)"
+    HR_LEAVE |o--o{ EMS_ABSENCE_PENDING : "leave_id (set once, for good)"
+    EMS_ABSENCE_PENDING {
+        datetime date_from
+        datetime date_to
+        text note
+        selection state "pending / linked"
+    }
+```
+
+| Field | Notes |
+|---|---|
+| `employee_id` | Required. The picker's domain (`_domain_employee_id`) offers only teachers in the user's own branch, the same domain the record rule enforces |
+| `date_from`, `date_to` | Required `Datetime` range (UTC in the database, like every datetime). Default: today 08:00-15:00 in the company's timezone. `date_to > date_from` |
+| `note` | Optional, for the Head's own reference |
+| `state` | `pending` (labelled *Expected*) until linked, then `linked` (*Requested*) for good. Stored, not computed from `leave_id` |
+| `leave_id` | The teacher's own request it was linked to. `ondelete='set null'` |
+
+**Linking is automatic and final.** `hr.leave.create()` and, when its dates, hours, employee or
+state change, `hr.leave.write()` call `ems.absence_pending._link_to_leaves()`: every `pending`
+entry of the same employee that overlaps the absence becomes `linked` to it. The absence's range
+is read by `hr.leave._ems_utc_range()` exactly as the guard duty board reads it (the requested
+hours of a partial one-day absence, whole days in the company's timezone otherwise), not from
+Odoo's own `date_from`/`date_to`, which clip a whole day to the employee's working hours. It runs
+under `sudo()`, since the teacher filing the absence has no access to the model at all.
+
+Only absences in a state the board plans around (`confirm`, `validate1`, `validate`) link. Once
+linked, the entry has done its job and stays as history: refusing, cancelling, moving or deleting
+the teacher's absence never sends it back to `pending`, and its employee and dates can no longer
+be edited (`write()` raises). From then on only the real absence counts.
+
+**On the guard duty board**, `ems.course._get_guard_duty_absence_intervals()` adds every
+`pending` entry touching the requested day as a `pending` interval, clipped to that day in the
+company's timezone (`_get_local_hours()`). Linked entries are ignored. See
+[guard_duty_board.md](../attendance/guard_duty_board.md).
+
+**Access.** Only `ems.group_head_of_studies` has an ACL on the model (full CRUD). The Director
+implies that group. `rule_absence_pending_hierarchy` (`security/rules/attendance.xml`) narrows it
+to `[('employee_id', 'child_of', user.employee_ids.ids), ('employee_id.employee_type', '=',
+'teacher')]`: the teachers below the user through `parent_id`, i.e. their own branch of the real
+hierarchy, not every teacher centre-wide. The Director sits above every Area Manager, so the same
+domain gives them the whole centre. Department Chiefs, tutors and teachers have no access at all.
+
+Technical administrators (`base.group_system`, e.g. `admin`) usually have no place in the org
+chart, so the hierarchy rule alone would leave them no teacher to choose. They get their own ACL
+and `rule_absence_pending_system`, `[('employee_id.employee_type', '=', 'teacher')]`; rules of
+different groups are OR-ed, so it widens their reach to every teacher without touching anyone
+else's. The teacher picker's domain (`_domain_employee_id`) mirrors both rules.
+
+The menu entry, **Absences > Management > Expected absences**, carries
+`groups="ems.group_head_of_studies,base.group_system"`.
 
 ## Hour computation
 
@@ -491,7 +723,8 @@ Most of this is Odoo's, and deliberately left alone:
 | A request is sent | The approver | Native activity scheduled on the request (`activity_update` → `_get_responsible_for_approval`) |
 | Approved or refused | The employee | Native message on the request |
 | Approved or refused | The employee's **own department chief** | EMS: `_ems_inform_department_chief()` subscribes them just before the state change |
-| Approved or refused | Everyone following the request | EMS: `_ems_post_outcome()` posts a summary - who, which type, the dates, the hours, the outcome |
+| Approved by the Head | **Direction** (the company's `director_id`) | EMS: `_ems_direction_partners()` subscribes it in `action_approve()` - its own review starts there. Not when the Director is the absent employee or is the one approving |
+| Approved or refused | Everyone following the request | EMS: `_ems_post_outcome()` posts a summary - who, which type, the dates, the hours, and the overall status (`ems_status`, e.g. *Pending Direction*) |
 
 Odoo's own note on validation ("Your `<type>` planned on `<date>` has been accepted", with the
 type's full legal wording dropped mid-sentence and nothing else) is **suppressed** and replaced
@@ -514,13 +747,70 @@ Mail leaves through the company's configured server, which is the other half of 
 replaces: the Apps Script sent from the personal Google account of whoever last ran its
 "Identificar-me com a remitent d'emails" menu entry, and stopped working when that person left.
 
+## Public holidays
+
+Public holidays are native `resource.calendar.leaves` rows with no `resource_id`, managed from
+**Employee Attendances > Absences > Configuration > Public Holidays** (Time Off Administrator,
+which in practice is only `admin`, see *Access control*). Odoo does not ship any holiday
+calendar: national, Catalan, local and the centre's own closing days (free-disposal days,
+Christmas, Easter...) are all entered by hand. EMS extends the model in
+`models/employees/public_holiday.py`.
+
+```mermaid
+flowchart TD
+    A[Public holiday created or edited] --> B{resource_id set?}
+    B -- no --> C[calendar_id forced empty:<br/>applies to every schedule]
+    B -- yes --> D[personal leave, calendar kept]
+    C --> E[native: overtime recomputed<br/>for every affected employee/day]
+    D --> E
+    E --> F[EMS: technical attendances on days<br/>left with no expected hours are deleted]
+```
+
+### A public holiday always applies to every schedule
+
+Natively, a public holiday may be tied to one working schedule (`calendar_id`, "Working Hours")
+and then only applies to employees on exactly that schedule. That never fits EMS: every teacher
+has a personal schedule (one `resource.calendar` per employee, recreated at every course
+transition), so a holiday tied to one of them misses everybody else. The trap is easy to fall
+into, because the "Public Time Off" smart button on a schedule's form opens the list with
+`default_calendar_id` set to that schedule: the first Diada entered this way was tied to the
+default schedule framework, which has no employees, and applied to nobody.
+
+So `create()` and `write()` always leave `calendar_id` empty on a row without `resource_id`
+(defaults from the context included), and the "Working Hours" column is hidden from the Public
+Holidays list (`view_public_holiday_list_ems`). Personal leaves (`resource_id` set, e.g. an
+approved `hr.leave`) keep their calendar untouched.
+
+### Cleaning up the "absence" attendances a holiday makes obsolete
+
+With `res.company.absence_management` on, Odoo's `hr.attendance._cron_absence_detection()`
+creates every night a one-second *technical* attendance (`in_mode`/`out_mode` `'technical'`,
+shown in red) for each employee who didn't check in the day before, so the missed hours count as
+negative overtime. It deletes it right away when that day had no expected hours - a holiday
+entered in advance therefore never produces one.
+
+A holiday (or absence) entered *afterwards* is only half handled natively: creating, editing or
+deleting a `resource.calendar.leaves` recomputes the overtime of the affected employees and days
+(`hr_attendance/models/resource_calendar_leaves.py`), but the red technical attendance stays.
+EMS's `_unlink_technical_attendances_without_expected_hours()`, run after `create()` and
+`write()`, deletes the technical attendances on the affected days that are now left with no
+expected hours (`hr.employee._get_expected_attendances()`, the same computation the native cron
+uses). It only ever touches technical attendances, and only on days nothing is expected any more:
+a real check-in on a holiday, or a technical attendance on a partial holiday, is kept. The same
+applies to a personal leave, so approving a whole-day absence after the fact also clears that
+day's red row.
+
+`migrations/18.0.0.30.1/post-migrate.py` detaches the public holidays already tied to a schedule
+through the same `write()`, which also clears the technical attendances they had left behind.
+
 ## Access control
 
 | Group | `hr.leave` records visible | Reason and attachment | Can |
 |---|---|---|---|
 | Any employee | Own requests; colleagues' via the native calendar/dashboard | Own only — `private_name` renders as `*****` for everyone else | Create, edit and cancel their own while unapproved; file the supporting document at any time, approved included |
 | Area Manager (`hr_holidays.group_hr_holidays_responsible`) | Only employees whose `leave_manager_id` is them, via the native rule `[('employee_id.leave_manager_id', '=', user.id)]` | Yes, for those employees | Approve, refuse |
-| Head of Studies, Director, academic admin (`hr_holidays.group_hr_holidays_user`) | All, centre-wide | Yes | Approve, refuse, manage the catalogue |
+| Head of Studies, academic admin (`hr_holidays.group_hr_holidays_user`) | All, centre-wide | Yes | Approve, refuse, manage the catalogue |
+| Director (`ems.group_director`, implies the row above) | All, centre-wide | Yes | Direction's own approval (done / documentation insufficient / pending / refuse) on any request the Head has validated; acknowledge/validate/refuse as the Head only where it is the employee's `leave_manager_id` (screens only, see *The approval, step by step*) |
 
 Two native mechanisms carry most of this:
 
@@ -532,7 +822,8 @@ Two native mechanisms carry most of this:
   `leave_manager_id`.
 
 EMS adds exactly one record rule of its own here, `rule_absence_own_request_write` (see the
-supporting document section above), paired with a field-level check in `write()`.
+supporting document section above), paired with a field-level check in `write()`. The
+expected absences have their own model and rule, see *Expected absences* above.
 
   **Who holds it is derived from the approval relation, not from a group chain.** The three
   approvers sit in two different EMS chains (`group_head_of_studies` for VET and ESO/BTX, the

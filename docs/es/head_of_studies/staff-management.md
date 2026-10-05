@@ -27,7 +27,7 @@ Al guardar también se crea el horario semanal propio del profesor o profesora, 
 
 ### Por qué el correo personal es obligatorio
 
-Es la dirección donde se envían las credenciales de la nueva cuenta de Google. Sin ella la cuenta corporativa simplemente no se crea: la ficha se guarda, pero no pasa nada más y queda una nota en el historial de mensajes explicando qué falta. Pedid una dirección personal antes de crear la ficha: no es una formalidad, es la única manera de que la persona reciba su contraseña. El campo sale dos veces en la ficha: en la pantalla principal, para que nada obligatorio quede escondido detrás de una pestaña mientras la creáis, y en su sitio habitual dentro de la pestaña **Información privada**. Es el mismo campo: si rellenáis uno, se rellena el otro.
+Es la dirección donde se envían las credenciales de la nueva cuenta de Google. Sin ella la cuenta corporativa simplemente no se crea: la ficha se guarda, pero no pasa nada más y queda una nota en el historial de mensajes explicando qué falta. Pedid una dirección personal antes de crear la ficha: no es una formalidad, es la única manera de que la persona reciba su contraseña. El campo sale dos veces en la ficha: en la pantalla principal, para que nada obligatorio quede escondido detrás de una pestaña mientras la creáis, y en su sitio habitual dentro de la pestaña **Información privada**. Es el mismo campo: si rellenáis uno, se rellena el otro. Tampoco puede ser una dirección del dominio del centro: EMS no permite guardarla, porque también es la dirección de recuperación de la cuenta corporativa.
 
 ---
 
@@ -38,9 +38,17 @@ Es la dirección donde se envían las credenciales de la nueva cuenta de Google.
 
 ---
 
+## Documento de identidad y número de la Seguridad Social
+
+La pestaña **Información privada** de la ficha de un docente empieza con un grupo **Identificación** con el **Documento de identidad** (DNI/NIE) y el **Núm. de la Seguridad Social**. Vosotros, el adjunto/a, el Director y el coordinador TAC podéis editarlos en las fichas del profesorado; la Secretaría los mantiene al día para todo el personal, PAS incluido.
+
+El Jefe de departamento y el Jefe de seminario de un docente también pueden ver estos dos campos, solo de lectura, en las fichas del personal de su propio departamento (solo su propia cadena de mando, no la de otros departamentos). Para ellos la pestaña solo muestra el grupo **Identificación**: el resto de la información privada queda oculta.
+
+---
+
 ## Crear la cuenta corporativa de Google
 
-Los botones que gestionan la cuenta corporativa están en la barra superior de la ficha. Cuál aparece depende del estado de la cuenta: solo se ofrece uno cada vez.
+Las acciones que gestionan la cuenta corporativa están en el menú **Acciones** de la barra superior de la ficha. Cuál aparece depende del estado de la cuenta: solo se ofrece uno cada vez.
 
 | Botón | Cuándo aparece | Qué hace |
 |-------|----------------|----------|
@@ -50,7 +58,7 @@ Los botones que gestionan la cuenta corporativa están en la barra superior de l
 | **Reactivar cuenta de Google** | La cuenta está suspendida | La vuelve a activar |
 | **Marcar como identificado** | La ficha proviene de una importación de horarios y todavía es un marcador | Quita el estado de pendiente de identificación sin crear ninguna cuenta |
 
-![Botón Crear cuenta de Google en una ficha de profesorado sin cuenta todavía](../../assets/head_of_studies/hos-staff-management-create-account.png)
+![Menú Acciones con Crear cuenta de Google en una ficha de profesorado sin cuenta todavía](../../assets/head_of_studies/hos-staff-management-create-account.png)
 
 Cuando la cuenta se crea, las credenciales viajan por dos vías: se adjunta un PDF a la ficha y se envía un correo de bienvenida con la contraseña a la dirección personal. Si la cuenta no se puede crear porque faltan datos obligatorios, se publica una nota en el historial de mensajes de la ficha indicando exactamente qué campos faltan.
 

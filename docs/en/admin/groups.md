@@ -34,6 +34,8 @@ Navigate to: **Educational Community → Groups**
    - **Shift**, **Reference classroom**, **External ID** (Esfera/SAGA code) as needed.
 4. Click **Save**.
 
+![A main group's form: level, study, course, acronym, tutor and delegate, with its students](../../assets/admin/admin-groups-form.png)
+
 Students aren't added from here — see the **Students** tab to review who's assigned, but a student's own record (or the enrolment flow) is what actually assigns them to a group.
 
 **Changing a student's group moves their subject enrollments too.** Editing a student's **Main Group** field (on their own form, Studies tab) — this includes the group tutor, who can now do this directly for their own tutored students, see [Changing a student's group](../tutors/change-student-group.md) — automatically moves any subject enrollment that was in the old group over to the new one; a subject already enrolled through a different group (e.g. a reinforcement group) is left as-is. The change is rejected if a subject in the old group already has grades recorded for that student.
@@ -59,6 +61,10 @@ You can switch an existing group between Main and Reinforcement, but:
 ---
 
 ## Changing a Group's Reference Classroom
+
+EMS keeps the **Reference classroom** up to date on its own: whenever the group's schedule changes, it becomes the classroom of the group's tutorship or, if the schedule has no tutorship (a reinforcement group, for instance), the classroom where the group spends the most teaching hours. This update never moves any class. A group with no schedule yet keeps the classroom you give it, which the schedule import uses for classes imported without a classroom.
+
+You can still change it by hand:
 
 Changing a group's **Reference classroom** (the group's own default room) automatically moves every one of that group's classes still using the old room to the new one. If the new room is already taken by someone else at the exact same day/time as one of those classes, that one specific class is left in its current room instead of failing the whole save — see "Resolving a Pending Classroom Conflict" below.
 

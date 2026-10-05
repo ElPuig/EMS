@@ -229,17 +229,22 @@ class EmsAttendanceTemplate(models.Model):
 		if unused:
 			unused.sudo().unlink()
 
-	def sync_from_schedule(self, teacher, entries, start_date=None):
+	def _sync_from_schedule(self, teacher, entries, start_date=None):
 		"""Sync a single teacher's schedule from 'entries' — the employee 'Schedule' tab's grid
 		widget (a live mid-course edit) is the main caller, always with this teacher's ENTIRE
-		current schedule. Internally delegates to sync_from_schedule_batch() wrapping its single
+		current schedule. Internally delegates to _sync_from_schedule_batch() wrapping its single
 		(teacher, entries) pair, so a solo edit goes through the exact same co-teaching
-		reconciliation as any other caller of that method (see '_reconcile_teacher_groups')."""
-		self.sync_from_schedule_batch([(teacher, entries)], start_date=start_date)
+		reconciliation as any other caller of that method (see '_reconcile_teacher_groups').
 
-	def sync_from_schedule_batch(self, teacher_entries, start_date=None):
+		This method, '_sync_from_schedule_batch' and '_regenerate_all_from_calendars' are private
+		(issue #531): they trust their caller to have written the calendar with its own rights
+		already, and they sudo() through derived data (ems.teaching, template deletion), so none
+		of them may be callable over RPC by any user who can merely read this model."""
+		self._sync_from_schedule_batch([(teacher, entries)], start_date=start_date)
+
+	def _sync_from_schedule_batch(self, teacher_entries, start_date=None):
 		"""Sync one or several teachers at once **assuming each submitting teacher's entries describe
-		their ENTIRE schedule right now**. Used by sync_from_schedule() for the Schedule tab's live,
+		their ENTIRE schedule right now**. Used by _sync_from_schedule() for the Schedule tab's live,
 		single-teacher edit, and by the XML importer
 		(`ems.working_schedules_import_wizard._apply_import`) once it has finished writing this
 		batch's calendar rows: `_write_teacher_schedule` writes each affected teacher's CORRECT
@@ -291,7 +296,7 @@ class EmsAttendanceTemplate(models.Model):
 		resource.calendar.attendance hook has no such moment, so silently not creating/rewriting an
 		incomplete schedule line is the only sane default). Called per (subject, group-set) key,
 		once 'existing_lines' (the survivor template's own CURRENT lines, before this sync) is
-		known - NOT earlier, before reconciliation (see 'sync_from_schedule_batch's own note on why
+		known - NOT earlier, before reconciliation (see '_sync_from_schedule_batch's own note on why
 		an earlier version of this fix, filtering before '_reconcile_teacher_groups' ever ran,
 		wrongly looked like "nobody teaches this anymore" and vacated/deleted an already-correctly-
 		roomed template).
@@ -314,7 +319,7 @@ class EmsAttendanceTemplate(models.Model):
 				resolved.append({**entry, 'space_id': existing_line.space_id.id})
 		return resolved
 
-	def regenerate_all_from_calendars(self, teachers=None):
+	def _regenerate_all_from_calendars(self, teachers=None):
 		"""Archive every active template outright, then rebuild an equivalent, fully calendar-backed
 		set from scratch out of every teacher's CURRENT resource.calendar.attendance rows - see
 		plans/calendar_driven_attendance_templates.md's "Production migration sequencing" section,
@@ -323,7 +328,7 @@ class EmsAttendanceTemplate(models.Model):
 		that, one exact-duplicate pair at a time, and hit a real double-booking conflict on its
 		first production-snapshot test) - once the calendar is authoritative (points 1-4), archiving
 		everything and resyncing from the same source of truth naturally reconstructs a clean,
-		non-duplicated set, since 'sync_from_schedule_batch' groups by (subject, group-set,
+		non-duplicated set, since '_sync_from_schedule_batch' groups by (subject, group-set,
 		teacher-set) and can never produce two templates for the same exact combination by
 		construction. A calendar row with a genuine, unresolved conflict (e.g. two different teachers
 		double-booked in the same room) still raises via 'check_overlap', exactly like any other
@@ -389,13 +394,13 @@ class EmsAttendanceTemplate(models.Model):
 		teacher_entries = []
 		for teacher in teachers:
 			entries = teacher._teaching_entries_from_calendar()
-			self.env['ems.teaching'].sync_from_schedule(teacher, entries)
+			self.env['ems.teaching']._sync_from_schedule(teacher, entries)
 			if entries:
 				teacher_entries.append((teacher, entries))
 
 		teacher_entries, skipped = self._drop_unresolved_conflicts(teacher_entries)
 		if teacher_entries:
-			self.sync_from_schedule_batch(teacher_entries, start_date=fields.Date.today())
+			self._sync_from_schedule_batch(teacher_entries, start_date=self.env['ems.datetime_utils'].get_local_today())
 
 		# NOTE: scoped the same way as the archive step above - every currently active line
 		# belonging to one of 'teachers' was, by construction, JUST created by the sync above (this
@@ -417,7 +422,7 @@ class EmsAttendanceTemplate(models.Model):
 		either, so '_drop_unresolved_conflicts' must not treat them as a conflict. Falls back to the
 		same full-course-year default '_plan_schedule_sync' itself uses when an entry carries no
 		explicit dates, so an unset date range still compares consistently against an explicit one."""
-		now = datetime.now()
+		now = self.env['ems.datetime_utils'].get_local_datetime()
 		default_start, default_end = date(now.year, 9, 1), date(now.year + 1, 7, 1)
 		start_a = entry_a.get('date_from') or default_start
 		end_a = entry_a.get('date_to') or default_end
@@ -427,7 +432,7 @@ class EmsAttendanceTemplate(models.Model):
 
 	def _drop_unresolved_conflicts(self, teacher_entries):
 		"""Finds every pair of teaching entries in 'teacher_entries' (same shape
-		'regenerate_all_from_calendars' builds: [(teacher, entries), ...]) that would collide - same
+		'_regenerate_all_from_calendars' builds: [(teacher, entries), ...]) that would collide - same
 		room+weekday+overlapping time, different teacher - and are NOT legitimate co-teaching under
 		'ems.attendance_schedule.is_co_teaching_with's own definition (same subject_id AND a shared
 		group): a real, recurring pattern in this centre's data is a support/reinforcement teacher
@@ -438,7 +443,7 @@ class EmsAttendanceTemplate(models.Model):
 		(used by the general-purpose 'check_overlap', not just this one-time regeneration) - that
 		would blunt its ability to catch the far more common REAL double-booking mistake (two
 		unrelated teachers accidentally sharing a room/slot for the same group). Instead, since
-		leaving BOTH sides in would make 'sync_from_schedule_batch' abort the whole batch on
+		leaving BOTH sides in would make '_sync_from_schedule_batch' abort the whole batch on
 		'check_overlap', one side of each unresolved pair is dropped here BEFORE the sync ever runs,
 		so the batch completes and every OTHER entry still regenerates cleanly.
 
@@ -492,7 +497,7 @@ class EmsAttendanceTemplate(models.Model):
 
 	def _run_schedule_sync_plans(self, merged_groups, start_date=None):
 		"""Shared archive-then-write pass for both batch sync entry points above - see
-		'sync_from_schedule_batch' for why the archive phase must run for every group before the write
+		'_sync_from_schedule_batch' for why the archive phase must run for every group before the write
 		phase for any of them."""
 		plans = [self._plan_schedule_sync(teachers, entries, start_date=start_date) for teachers, entries in merged_groups]
 		for plan in plans:
@@ -519,7 +524,7 @@ class EmsAttendanceTemplate(models.Model):
 		can be, since '_run_schedule_sync_plans' just consolidated/archived every stale or
 		duplicate line for these exact entries, so there's nothing left to be ambiguous about. If a
 		match is still ambiguous ('!= 1' line, or no calendar row at all - e.g. a test that calls
-		sync_from_schedule* directly without first writing anything onto the calendar, see
+		_sync_from_schedule* directly without first writing anything onto the calendar, see
 		tests/test_attendance_template.py) the FK is simply left as-is rather than guessed - same
 		"leave it blank rather than guess" convention '_backfill_calendar_employee_and_course'
 		(migrations/18.0.0.22.0/post-migrate.py) already established for this same model."""
@@ -630,7 +635,7 @@ class EmsAttendanceTemplate(models.Model):
 						# whenever that default happens to agree, but wrong (and, if the group has no
 						# default at all, a NOT NULL crash) whenever the line's own room had legitimately
 						# diverged from it. Never exercised before this redesign: nothing called
-						# sync_from_schedule_batch for an "untouched" bystander teacher like this until
+						# _sync_from_schedule_batch for an "untouched" bystander teacher like this until
 						# the automatic resource.calendar.attendance hook started doing so.
 						'space_id': line.space_id.id,
 					}})
@@ -670,7 +675,7 @@ class EmsAttendanceTemplate(models.Model):
 		return merged, vacated
 
 	def classify_external_conflicts(self, teacher_entries):
-		"""Given [(teacher, entries), ...] (same shape as sync_from_schedule_batch), find every
+		"""Given [(teacher, entries), ...] (same shape as _sync_from_schedule_batch), find every
 		currently active ems.attendance_schedule belonging to a teacher NOT part of this batch that
 		overlaps (same space, weekday, time) with one of the new entries, and split the results into
 		(co_teaching, space_conflicts):
@@ -678,7 +683,7 @@ class EmsAttendanceTemplate(models.Model):
 		- co_teaching: same subject, sharing at least one group with the new entry (see
 		  ems.attendance_schedule.is_co_teaching_with) — the SAME class session, now taught by more
 		  than one teacher. Not an error: the batch importer leaves these alone and lets
-		  sync_from_schedule_batch's own reconciliation (_reconcile_teacher_groups) fold the new
+		  _sync_from_schedule_batch's own reconciliation (_reconcile_teacher_groups) fold the new
 		  teacher into the same shared template, since it already merges any (subject, group-set)
 		  combination touched by a submitting teacher against the full current DB state.
 		- space_conflicts: anything else sharing the same space/time — a genuine double-booking the
@@ -785,11 +790,11 @@ class EmsAttendanceTemplate(models.Model):
 		anything yet: which currently active templates sharing this exact (subject, group-set,
 		teacher-set) combination are stale (gone, or persisting with different lines) and what the
 		freshly reconciled entries, grouped by (subject, group-set) key, look like. Consumed by
-		'_archive_stale_schedule_sync'/'_write_schedule_sync' — split out so 'sync_from_schedule_batch'
+		'_archive_stale_schedule_sync'/'_write_schedule_sync' — split out so '_sync_from_schedule_batch'
 		can run the archive phase for every group before the write phase for any of them.
 
 		'entries' is already reconciled for a single (subject, group-set, teacher-set) key at this
-		point (see 'sync_from_schedule_batch*'), so every entry in it shares the same identity - an
+		point (see '_sync_from_schedule_batch*'), so every entry in it shares the same identity - an
 		explicit 'date_from'/'date_to' on the FIRST entry (core Odoo's own field names on
 		'resource.calendar.attendance', see that model's own NOTE; plans/
 		calendar_driven_attendance_templates.md's "Mid-course subject handoff" refinement) wins over
@@ -800,10 +805,10 @@ class EmsAttendanceTemplate(models.Model):
 		from its own candidates). Entry dict key matches the raw cell/DB field name directly, same
 		convention already used for 'dayofweek'/'hour_from'/'hour_to'/'space_id' - not a separate
 		'start_date'/'end_date' naming, so a live-edit entry (built straight from the JS grid's own
-		cell dicts, see 'apply_schedule_changes') and a regenerate_all_from_calendars() entry (read
+		cell dicts, see 'apply_schedule_changes') and a _regenerate_all_from_calendars() entry (read
         straight off an 'ems.attendance_schedule' ORM record) both carry the SAME key without either
 		needing a translation step."""
-		now = datetime.now()
+		now = self.env['ems.datetime_utils'].get_local_datetime()
 		entry_dates = entries[0] if entries else {}
 		start_date = entry_dates.get('date_from') or start_date or datetime(now.year, 9, 1)
 		end_date = entry_dates.get('date_to') or datetime(now.year + 1, 7, 1)
@@ -960,7 +965,7 @@ class EmsAttendanceTemplate(models.Model):
 		Must run, for every template in a whole sync batch, BEFORE any template's write pass -
 		archiving one template's stale line while a DIFFERENT template's still-active stale line
 		shares its room would otherwise trip a false 'check_overlap' collision (see
-		'_archive_stale_schedule_sync'/'sync_from_schedule_batch' for the batch-level orchestration
+		'_archive_stale_schedule_sync'/'_sync_from_schedule_batch' for the batch-level orchestration
 		this pairs with). No duplicate-template consolidation, no batch looping here - that
 		orchestration stays at the caller. Extracted unchanged from that method's own per-key
 		body, only renamed."""
@@ -1054,7 +1059,7 @@ class EmsAttendanceTemplate(models.Model):
 		'apply_schedule_changes()' (models/employees/working_schedule.py) always writes the
 		calendar BEFORE this sync ever runs. They're matched here by calendar+slot, not by
 		'attendance_schedule_id', since that FK is only ever linked at the very end of this whole
-		sync ('sync_from_schedule_batch's own '_link_calendar_attendance' call, after this write
+		sync ('_sync_from_schedule_batch's own '_link_calendar_attendance' call, after this write
 		pass has already run). Developer decision (2026-09-12): revert them to 'line's own current
 		room while pending, exactly like the group-wide flow already does - the calendar must
 		never show a room that isn't genuinely in use yet, and 'pending_new_space_id' is what
@@ -1070,7 +1075,7 @@ class EmsAttendanceTemplate(models.Model):
 	def _find_calendar_blocks_for_entry(self, entry, teachers):
 		"""The real 'resource.calendar.attendance' block(s) behind 'entry', for every teacher in
 		'teachers' - matched by calendar+slot+subject, not by 'attendance_schedule_id', since that
-		FK is only ever linked at the very end of the whole sync ('sync_from_schedule_batch's own
+		FK is only ever linked at the very end of the whole sync ('_sync_from_schedule_batch's own
 		'_link_calendar_attendance' call, which runs after this template's own write pass) - see
 		'_flag_room_change_pending's own docstring for the fuller reasoning. Shared by that method
 		and '_apply_schedule_line_write_pass's own co-teacher room-propagation step below (issue
@@ -1086,7 +1091,7 @@ class EmsAttendanceTemplate(models.Model):
 	def _archive_stale_schedule_sync(self, plan):
 		"""First pass: archive every schedule line about to be removed or replaced by '_write_schedule_sync'.
 		Must run for every plan in a batch before any plan's '_write_schedule_sync' — see
-		'sync_from_schedule_batch' for why."""
+		'_sync_from_schedule_batch' for why."""
 		for key, templates in plan['old_items'].items():
 			if key not in plan['grouped_entries']:
 				# NOTE: archived (or deleted outright if never really used, see

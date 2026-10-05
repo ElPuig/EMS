@@ -31,6 +31,8 @@ La importación acepta los dos formatos que genera Esfera (la hoja plana `Notes 
 3. Decide si marcas **Crear las matrículas que falten** (véase más abajo).
 4. Haz clic en **Importar notas**.
 
+![Ventana Importar notas: evaluación, archivo xlsx de Esfera y Crear las matrículas que falten](../../assets/admin/admin-grade-import.png)
+
 Al terminar obtendrás un resumen de lo aplicado y un **registro CSV** que puedes descargar, con todas las notas una a una y las que no se han podido aplicar con su motivo. Guarda ese registro: es la constancia de lo que ha cambiado la importación.
 
 ---

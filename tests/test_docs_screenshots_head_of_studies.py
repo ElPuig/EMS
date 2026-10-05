@@ -10,8 +10,10 @@ Writes PNGs to /tmp/ems_doc_screenshots (override with EMS_SCREENSHOT_DIR); copy
 docs/assets/head_of_studies/ by hand afterwards. See test_docs_screenshots.py's own module
 docstring for the full rationale (rolled-back transaction, made-up people, one element per shot).
 """
+import base64
 from datetime import datetime
 
+from odoo import Command
 from odoo.tests.common import HttpCase, tagged
 
 from .common import (
@@ -47,11 +49,32 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
             'ems_submitted': True, 'ems_responsible_declaration': True,
         })
         cls.leave_health.sudo().action_approve()
+        # Two more, so the list shows every stage: pending, awaiting its supporting document,
+        # pending Direction (a type that needs no document) and approved by both.
+        cls.leave_awaiting = cls.env['hr.leave'].create({
+            'employee_id': cls.other_employee.id, 'holiday_status_id': cls.leave_type_justified.id,
+            'request_date_from': datetime(2027, 3, 22).date(), 'request_date_to': datetime(2027, 3, 22).date(),
+            'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
+        })
+        cls.leave_awaiting.sudo().action_approve()
+        cls.leave_done = cls.env['hr.leave'].create({
+            'employee_id': cls.other_employee.id, 'holiday_status_id': cls.leave_type_justified.id,
+            'request_date_from': datetime(2027, 3, 1).date(), 'request_date_to': datetime(2027, 3, 1).date(),
+            'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
+        })
+        cls.leave_done.sudo().action_approve()
+        cls.leave_done.sudo().supported_attachment_ids = [Command.link(cls.env['ir.attachment'].create({
+            'name': 'justificant.pdf', 'datas': base64.b64encode(b'justificant'),
+            'res_model': 'hr.leave', 'res_id': cls.leave_done.id,
+        }).id)]
+        cls.leave_done.sudo().action_ems_document_validate()
+        cls.leave_done.sudo().action_ems_direction_done()
         cls.absence_action = cls.env['ir.actions.act_window'].create({
             'name': 'Absències',
             'res_model': 'hr.leave',
             'view_mode': 'list,form',
-            'domain': [('id', 'in', [cls.leave_pending.id, cls.leave_health.id])],
+            'domain': [('id', 'in', [cls.leave_pending.id, cls.leave_health.id, cls.leave_awaiting.id,
+                                     cls.leave_done.id])],
             'context': {'hide_employee_name': 0},
         })
 
@@ -135,6 +158,26 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
             'domain': [('id', 'in', cls.report_lines.ids)],
         })
 
+        # --- Plannings (Planning and Grading > Plannings) ---
+        outcomes = cls.env['ems.outcome'].create([
+            {'code': f'DHOS01_0{n}RA', 'acronym': f'RA{n}', 'name': f'Resultat d\'aprenentatge {n}',
+             'subject_id': cls.subject.id}
+            for n in (1, 2, 3)
+        ])
+        cls.planning = cls.env['ems.planning'].create({
+            'study_id': cls.study.id, 'subject_id': cls.subject.id,
+            'internal_ponderation': 90.0, 'external_ponderation': 10.0,
+            'planning_outcome_ids': [(0, 0, {'outcome_id': outcome.id, 'ponderation': weight})
+                                     for outcome, weight in zip(outcomes, (30.0, 40.0, 30.0))],
+        })
+        # Scoped to the fixture: the real action would list every real planning of the centre.
+        cls.planning_action = cls.env['ir.actions.act_window'].create({
+            'name': 'Planificacions',
+            'res_model': 'ems.planning',
+            'view_mode': 'list,form',
+            'domain': [('id', '=', cls.planning.id)],
+        })
+
         # --- Notices ---
         cls.notice_a = cls.env['ems.notice'].with_user(cls.hos_user).create({
             'subject': 'Reunió de nivell', 'message': '<p>Recordatori de la reunió de nivell.</p>',
@@ -170,6 +213,39 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
             'main_group_id': cls.group.id,
         })
 
+    def test_capture_expected_absences(self):
+        # Two teachers below this Head of Studies (the model only lets them pick their own branch):
+        # one still expected, one whose own request has since been filed and linked the entry.
+        expected_teacher, requested_teacher = self.env['hr.employee'].create([{
+            'name': name, 'employee_type': 'teacher', 'parent_id': self.hos_employee.id,
+        } for name in ('0000 Joan Exemple', '0000 Núria Mostra')])
+        Pending = self.env['ems.absence_pending']
+        expected = Pending.create([{
+            'employee_id': teacher.id, 'date_from': start, 'date_to': stop,
+        } for teacher, (start, stop) in (
+            (expected_teacher, Pending._utc_bounds(datetime(2027, 4, 12).date(), 8.0, 15.0)),
+            (requested_teacher, Pending._utc_bounds(datetime(2027, 4, 14).date(), 8.0, 11.0)),
+        )])
+        self.env['hr.leave'].create({
+            'employee_id': requested_teacher.id, 'holiday_status_id': self.leave_type_justified.id,
+            'request_date_from': datetime(2027, 4, 14).date(), 'request_date_to': datetime(2027, 4, 14).date(),
+            'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
+        })
+        self.assertEqual(expected.mapped('state'), ['pending', 'linked'])
+        # Scoped to the fixture, and without the action's default "Expected" filter, so both
+        # states show.
+        action = self.env['ir.actions.act_window'].create({
+            'name': 'Absències previstes',
+            'res_model': 'ems.absence_pending',
+            'view_mode': 'list,form',
+            'domain': [('id', 'in', expected.ids)],
+        })
+        self._capture(
+            '/odoo/action-%d' % action.id,
+            '.o_list_table', 'hos-expected-absences-list.png',
+            login='doc_shot_hos', wait_for='.o_list_renderer .o_data_row + .o_data_row',
+        )
+
     def test_capture_head_of_studies_screenshots(self):
         self._capture(
             '/odoo/action-%d' % self.absence_action.id,
@@ -182,6 +258,8 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
             # left for _trim to even need to do. Same fix applied to academic-history below.
             '.o_list_table', 'hos-absences-list.png',
             login='doc_shot_hos', wait_for='.o_list_renderer .o_data_row',
+            # Wide enough for the Direction column, the last one, to be in the shot.
+            viewport_width=1700,
         )
         self._capture(
             '/odoo/action-%d' % self.year_record_action.id,
@@ -224,16 +302,27 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
         )
         self._capture(
             '/odoo/action-ems.action_employee_kanban/%d' % self.new_teacher.id,
-            # Not '.o_form_statusbar' alone: the employee form has two <header> blocks (the
-            # native one, its own button hidden via xpath, plus EMS's own with the real
-            # buttons) so plain querySelector('.o_form_statusbar') grabs the first (empty,
-            # near-zero-height) one instead of ours - target the button itself instead.
-            '.o_form_statusbar button[name="action_create_google_account"]',
-            'hos-staff-management-create-account.png',
-            login='doc_shot_hos', wait_for='.o_form_statusbar button[name="action_create_google_account"]',
+            # The form's Actions dropdown, open. Its menu is an overlay outside the form, hence
+            # the body; beyond_viewport=False because the dropdown closes when Chrome resizes the
+            # page.
+            'body', 'hos-staff-management-create-account.png',
+            login='doc_shot_hos', wait_for='.o_form_statusbar .o_ems_actions_toggle',
+            click='.o_form_statusbar .o_ems_actions_toggle',
+            wait_after='.o_ems_actions_menu button[name="action_create_google_account"]',
+            max_height=420, beyond_viewport=False,
         )
         self._capture(
             '/odoo/action-ems.action_strike_list/%d' % self.strike.id,
             '.o_form_sheet', 'hos-strike-kicked-out.png',
             login='doc_shot_hos', wait_for=".o_form_sheet div[name='kicked_out']",
+        )
+        self._capture(
+            '/odoo/action-%d' % self.planning_action.id,
+            '.o_list_table', 'hos-planning-list.png',
+            login='doc_shot_hos', wait_for='.o_list_renderer .o_data_row',
+        )
+        self._capture(
+            '/odoo/action-%d/%d' % (self.planning_action.id, self.planning.id),
+            '.o_form_sheet', 'hos-planning-form.png',
+            login='doc_shot_hos', wait_for=".o_form_sheet div[name='planning_outcome_ids'] .o_data_row",
         )

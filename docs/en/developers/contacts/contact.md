@@ -59,6 +59,34 @@ This **must be a real compute, not a plain `related=`**, unlike `hr.employee`'s 
 
 ---
 
+## Student notes: public and private (issue #511)
+
+A student's form shows two notes tabs instead of the native "Internal Notes" one (which every other contact type keeps as is):
+
+| Tab | Field | Who reads it | Who writes it |
+|-----|-------|--------------|---------------|
+| Public notes (teachers) | `comment` (native `res.partner` field) | Every teacher (`rule_contact_teacher`) | Whoever may write the partner and is not `read_only_user` (academic admin, secretary, Head of Studies, the student's tutor scope) |
+| Private notes (tutoring) | `private_notes` (non-stored compute) | The student's tutor, every chief above them (`hr.employee.tutor_scope_user_ids`: Seminar/Department Chief, their Head of Studies, the Director), guidance (`group_orientation`), coexistence (`group_coexistence`), academic admin | The same people |
+
+```mermaid
+flowchart LR
+    Form["Student form<br/>private_notes"] -->|"read: _compute_private_notes"| Check{"_ems_can_access_private_notes()"}
+    Form -->|"create()/write() pop the value"| Store["_ems_store_private_notes()"]
+    Store --> Check
+    Check -->|"yes, as sudo"| Note[("ems.student.private_note<br/>one per student")]
+    Check -->|"no"| Empty["read: empty<br/>write: AccessError"]
+```
+
+- **Storage** is `ems.student.private_note` (`partner_id` unique, `ondelete='cascade'`; `notes` Html), not a column on `res.partner`: every teacher reads every student, so a plain partner field would leak to all of them. Only the academic admin has access rights on the model; everyone else reaches it only through `res.partner.private_notes`, read and written as superuser once `_ems_can_access_private_notes()` has accepted the current user for *that* student.
+- **`_ems_can_access_private_notes()`** is the single source of truth: `PRIVATE_NOTES_GROUPS` (`group_academic_admin`, `group_orientation`, `group_coexistence`) or `ems.base.user_acts_as_tutor(self, self.tutor_id)`, so the tutor side follows the real chain of command (see "Tutor scope" in [role_hierarchy.md](../employees/role_hierarchy.md)) — another Department Chief or Head of Studies outside the tutor's branch is rejected even though their group can write the partner. The scope follows the student's *current* tutor: when the group's tutor changes, the new tutor takes over and the old one loses access.
+- **Writes bypass `res.partner.write()`'s own access check on purpose**: `write()` pops `private_notes` first and stores it through `_ems_store_private_notes()`, calling `super()` only if other values remain. That is what lets guidance and coexistence write the private notes of a student whose partner record they cannot write (`rule_contact_tutor` only covers their own tutorands). `create()` does the same after the partner exists. Since the value lives outside `res.partner`, `_ems_store_private_notes()` invalidates the compute's cache itself.
+- **`comment` is restricted to internal users** (`groups='base.group_user'`, redefined on `res.partner`): a portal student or family can read their own partner record (native portal rule), so without it they could read their own public notes over RPC. Nothing on the portal renders it. Each tab carries a short muted line above the editor stating who can see those notes, which is what this restriction backs up.
+- `can_access_private_notes` (same compute) hides the tab for everyone else; the field is also empty for them, so neither `read()` nor an export exposes it. Neither field is tracked, so nothing reaches the chatter.
+
+Tests: `tests/test_student_private_note.py` (access matrix, create/write, direct model access denied, tutor change) and `tests/test_student_private_note_tour.py` (tutor edits the private tab; a plain teacher reads the public tab and never gets the private one).
+
+---
+
 ## Key computed/derived fields on `res.partner`
 
 | Field | Depends on | Notes |
@@ -325,19 +353,21 @@ Archiving one or more **active students** does not flip `active` directly: it op
 
 `res.partner.relation.all` (from the third-party `partner_multi_relation` module) is extended (`ResPartnerRelationAll`) with read-only related columns (`other_partner_phone/mobile/email`, relation labels) purely for display in the student/family form's relation list — no new logic.
 
-`ems.contact.relation.wizard` (`action_open_relation_wizard`, opened from the student's "Contacts & Addresses" tab) either links an **existing** `family`-typed partner or creates a **new** one, then always creates one `res.partner.relation` between it and the student:
+`ems.contact.relation.wizard` (`action_open_relation_wizard`, opened from the student's "Contacts & Addresses" tab) either links an **existing** `family`-typed partner or creates a **new** one, then relates it to the student (`res.partner._ems_link_family()`, which skips a relation that already exists). A "new" contact that is already on file - same document, or same mobile under a compatible first name, as for a sibling - is linked instead of duplicated (`res.partner._ems_find_family()`, issue #507, see [contact data requests](contact_data_request.md#recognising-a-family-contact)):
 
 ```mermaid
 flowchart TD
     A["action_save()"] --> B{"type_selection_id set?"}
     B -- no --> X1["ValidationError"]
     B -- yes --> C{"partner_id (existing) set?"}
-    C -- yes --> F["res.partner.relation.create(left=partner_id, right=student_id)"]
+    C -- yes --> F["_ems_link_family(partner, relation type)"]
     C -- no --> D{"firstname or lastname?"}
     D -- no --> X2["ValidationError"]
-    D -- yes --> E{"document_id/passport_id AND\nphone/mobile/email present?"}
+    D -- yes --> E{"phone/mobile/email present?"}
     E -- no --> X3["ValidationError"]
-    E -- yes --> G["res.partner.create(contact_type='family', ...)"] --> F
+    E -- yes --> H{"_ems_find_family(document, mobile, firstname)<br/>finds it?"}
+    H -- yes --> F
+    H -- no --> G["_ems_create_family_contact(vals, relation type)<br/>(sudo: create + relation)"]
 ```
 
 The three roles `action_save()`'s own guard clears (`_get_read_only_user()`: academic admin, secretary, or a tutor of that student) must each hold create rights on the wizard model too — the guard runs *inside* the wizard, so a role missing from `ir.model.access.csv` fails earlier, on opening it. That mismatch was issue #423: secretary cleared the guard and saw the "Add contact" button, but the wizard granted access to academic admin and teacher only, so only the one secretary who also happens to be a teacher could use it.
@@ -381,7 +411,8 @@ restricts `unlink` on `res.partner`, so it would let every tutor delete any cont
 | `res.partner` | Teacher | — | ✓ | — | — |
 | `ems.student.benefit` | Academic admin | ✓ | ✓ | ✓ | ✓ |
 | `ems.student.benefit` | Secretary | ✓ | ✓ | ✓ | ✓ |
-| `ems.student.benefit` | Teacher | ✓ | — | — | — |
+| `ems.student.benefit` | Teacher | — | ✓ (narrowed by rules, see below) | — | — |
+| `ems.student.private_note` | Academic admin | ✓ | ✓ | ✓ | ✓ |
 | `ems.contact.relation.wizard` | Academic admin | ✓ | ✓ | ✓ | ✓ |
 | `ems.contact.relation.wizard` | Secretary | ✓ | ✓ | ✓ | ✓ |
 | `ems.contact.relation.wizard` | Teacher | ✓ | ✓ | ✓ | ✓ |
@@ -395,6 +426,8 @@ restricts `unlink` on `res.partner`, so it would let every tutor delete any cont
 | `rule_contact_teacher` | Teacher | `[]` (read-only, no write/create/unlink) | — |
 | `rule_contact_tutor` | Teacher (tutor subset) | Own tutorands **or** their family (`relation_all_ids.other_partner_id.tutor_id`) | ✓ (no create/unlink) |
 
+**`ems.student.benefit` record rules (issue #511 follow-up)** - bonifications and exemptions are family economic data: `rule_student_benefit_manager` (academic admin, secretary: every student, full), `rule_student_benefit_reader` (Head of Studies, `group_student_data_reader` - guidance and coexistence: every student, read) and `rule_student_benefit_tutor` (every teacher: only `student_id.tutor_id.tutor_scope_user_ids`, read). Any other teacher reads none; the benefits badge stays visible to them because `benefit_status` is stored. `res.partner.can_see_benefits` mirrors these rules to hide the Secretary tab's section, and `can_see_documents` does the same for the Documentation section (admin, secretary, TAC, the student's tutor scope), so nobody gets an empty list that looks as if there were none.
+
 The **field-level** editing surface for tutors is narrower than the record rule allows: `read_only_user`/`is_tutor_readonly` (computed on load, not stored) drive `readonly=`/`invisible=` attributes across the view, so a tutor's ORM write access to their own tutorands is real but the form only exposes a subset of fields as actually editable (`_get_read_only_user`/`_get_is_tutor_readonly`, `_user_is_tutor_of_record`). **`main_group_id` is the one exception (issue #395):** every other tutor-locked field on the "Studies"/"Secretary" pages stays behind `is_tutor_readonly`, but `main_group_id` deliberately excludes it — a tutor can move their own tutorand to another group of the same study (`study_id`'s own domain still scopes the choice, and `study_id` itself stays locked) — see `_migrate_enrollments_on_group_change` above for what happens to the student's subject enrollments when they do.
 
 ---
@@ -405,12 +438,56 @@ The **field-level** editing surface for tutors is narrower than the record rule 
 |------|------|-------|
 | List | `views/community/contact/list.xml` | `js_class="student_list"`; columns conditional on `default_contact_type` context |
 | Kanban | `views/community/contact/kanban.xml` | Default view for the Students menu |
-| Form | `views/community/contact/form.xml` | Inherits `base.view_partner_form`; `js_class="studentpopup_expand_button"`; conditional pages per `contact_type` (`student`, `applicant`, `former_student`, `academic_history`, base `contact_addresses`) |
+| Form | `views/community/contact/form.xml` | Inherits `base.view_partner_form`; `js_class="studentpopup_expand_button"`; conditional pages per `contact_type` - see "Student form pages" below |
 | Search | `views/community/contact/search.xml` | `view_student_search` carries the `students_only` default facet and the `my_students` one (issue #421, see above) |
 | Relation wizard | `views/community/contact/relation_wizard.xml` | `action_contact_relation_wizard` |
 | Menu | `views/community/contact/menu.xml` + `views/community/menu.xml` | `action_student_kanban` (top-level "Educational Community" entry), `action_family_list`, `action_provider_kanban` |
 
+### Student form button box
+
+Next to the native smart buttons, a student's form adds **Strikes** (`action_view_strikes`, only when there is at least one), **Convalidations** (`action_view_convalidations`) and **Attendance** (`action_view_attendance_reports`, teacher/secretary/secretary admin, always shown for a student). The last one opens the attendance **Reports** pivot filtered on the student, with the menu's own role-based scope - see "Student form entry point" in `docs/en/developers/attendance/attendance_reports.md`.
+
+### Student form pages
+
+A student's form has its own header instead of the native contact block (hidden for students), laid out to fit above the tabs:
+
+| Band | Contents | Notes |
+|------|----------|-------|
+| Name row (`ems_name_row`, `view_contact_form_firstname`) | First name + personal email · Last name + corporate email | Two columns inside the title area (left of the avatar), so the name and email rows line up. `partner_firstname`'s own group is hidden and its fields are moved (`position="move"`) into the columns, since an inner group always lays out one field per row whatever its `col`. First/last name are hidden for `read_only_user` (they can't edit them, and the full name is the form's title) - for every non-company contact. The emails only show for students: read-only for `read_only_user`, and the corporate one also for the tutor. The native `<label for="email">` gets an explicit `string`: Odoo 18's form compiler binds a label to the first field compiled with that name (even one with its own `id`), which is now the student's personal email, so every other contact's email row would otherwise read "Personal email" |
+| `student_header` (3 columns) | **Contact** (address, phone, mobile, language) · **Identification** (DNI/NIE, passport, Student ID, medical ID, NUSS, car plate) · **Personal data** (birth date, adult Yes/No badge, birth country, citizenship, benefits badge, special educational needs) | Contact is hidden for `read_only_user`, like the native block (the family phones are in the Contacts & Addresses tab); so are the personal identifiers and the birth date (the adult badge is enough); `class="justify-content-start"` because Odoo's `.o_group` spreads its columns (`space-between`), which would otherwise leave a gap in the middle for them |
+| `student_authorizations` (4 columns) | Yes/No summary of image rights, school trips, health data, sharing with family | Scoped to the academic year in force; the list itself is in the Secretary tab |
+
+The contact fields therefore appear twice in the combined arch (native block + header), which Odoo 18 supports. A teacher who is not the tutor (`read_only_user`) sees both emails, the Student ID, the adult and benefits badges and the authorizations, all read-only.
+
+Below it, six pages grouped by task so related data never needs a tab switch. A student's file opens on **Schedule**; `schedule` and `studies` are inserted before the native `contact_addresses` page, and since they are invisible for every other contact type, those keep their usual tab order:
+
+| Page (`name`) | Contents | Visible to |
+|---------------|----------|------------|
+| Schedule (`schedule`) | Read-only weekly timetable | Every teacher |
+| Studies (`studies`) | Group data and subject enrollments (active students only) + **Academic history** (`year_record_ids`) | Every teacher; also shown to alumni/withdrawals/expelled, with only the history section |
+| Contacts & Addresses (`contact_addresses`, native) | Family relations | Every teacher |
+| Secretary (`secretary`) | Authorizations list · Bonifications & Exemptions · **Documentation** (`document_ids`) · **Bank Accounts** (`bank_ids`) | Every teacher for the first two sections; each of the other two keeps the `groups=` its old tab had (documentation: admin, secretary, tutor, TAC; bank accounts: admin, secretary, accounting) |
+| Public notes (teachers) (`public_notes`) | `comment` | Every teacher |
+| Private notes (tutoring) (`private_notes`) | `private_notes` | Tutoring team only (see above) |
+
+Student data, Documentation, Academic history and the native Invoicing tab used to be separate pages. The native `accounting` page is still there for every other contact type; for a student it is hidden (`view_partner_billing_tab_cleanup`) because `bank_ids` is shown again inside Secretary - the same field twice in the combined arch, which Odoo 18 supports. The former-student page (`former_student`) now follows `secretary`.
+
 Other student-related popups — [portal access](portal_access_wizard.md), [documents](student_document.md), [graduation/withdrawal](exit_wizards.md) — live in the same `views/community/contact/` folder but are documented separately. The import wizards (`student_import`, `student_update`, `applicant_import`) are not yet DTON'd (see the roadmap). The Form's own `schedule` page (a student's read-only weekly timetable) is likewise documented separately — see [Student schedule](student_schedule.md).
+
+### Student form actions: Actions dropdown, cog menu or smart button
+
+Where an action goes on a student's form depends on what it acts on:
+
+| Placement | Use it for | Current entries |
+|-----------|------------|-----------------|
+| **Actions** dropdown in the header (`<div name="ems_actions">`, see [Form "Actions" dropdown](../shared/actions_dropdown.md)) | Every action on this student. Each entry is a `type="object"` button with its own `invisible=`/`groups=`/`confirm=`, so the dropdown only lists what applies to this student and this user, and isn't shown when nothing does. No action is left loose in the header | The Google account lifecycle (create, suspend, reset password, reactivate, cancel scheduled deactivation, delete) and download of its credentials (`can_download_google_credentials`: only when there is a credentials PDF the user may read), plus Portal access (students/families), Send authorizations and Request contact data (the students list's bulk methods, run on this student alone), each offered only on a student the user may act on, with the same rule its assistant applies: `can_manage_portal_access` (the portal wizard's `_user_can_manage`: admin, secretary, the student's tutor scope) and `can_send_student_requests` (`ems.student.scope.mixin._scope_acts_on_student`: admin, secretary, Head of Studies, the student's tutor scope). A tutor opening another group's student is offered none of them |
+| ⚙ cog menu: `binding_model_id` = `res.partner` actions | On the **students list**, the bulk actions on the selection (`binding_view_types` = `list`: on the form the same methods are in the Actions dropdown, so a `form` binding would duplicate them). On the form, only Odoo's native entries remain (archive, duplicate, export, print, and native/OCA bindings) | Portal access, Send authorizations, Request contact data, Download Google credentials (list only) |
+| Smart button (`button_box`, `oe_stat_button`) | A count or status of related records, opening them | Strikes, Convalidations, Contact data |
+| Button inside a page | An action tied to the data shown on that page | "Add contact" in Contacts & Addresses |
+
+**Archive/Unarchive** (native cog entries) are only offered to users who can actually archive: the web client shows them whenever `active` isn't readonly in `fields_get()`, without checking write access, so `res.partner` and `hr.employee` override `fields_get()` to report `active` readonly for anyone whose write access to the model comes only from `ems.group_teacher` (record-rule-scoped to a tutor's own students/families, and archiving a student is a withdrawal, secretary/Head of Studies/admin only) or who has none - see `EmsBase.fields_get_active_readonly_for_teachers()`. TAC keeps it on employees (it implies `hr.group_hr_user`).
+
+Graduation and withdrawal are not on the student form: they are header buttons of the tutor's enrollment list (`views/academic_management/enrollment/list_tutor.xml`), acting on the students selected there.
 
 ### List view columns (2026-09-03)
 

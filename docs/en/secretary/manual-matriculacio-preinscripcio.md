@@ -55,6 +55,8 @@ To run the import:
 
 When it finishes, the wizard shows an **import summary**: how many applicants were created, how many were updated and how many rows were skipped. You can also **download the log (CSV)** and, if there are any, the `gedac_alumnes_actius_<date>.csv` file with the internal continuers.
 
+If an applicant's email in the file belongs to the centre's own domain (a corporate account), the applicant is still created or updated, but without that email, and the summary lists a warning for them.
+
 ![Import result summary](../../assets/secretary/preinscrpcio-Secretaria-03.png)
 
 ---
@@ -119,6 +121,8 @@ For the families to be able to confirm the enrollment later, they need **portal 
 ![Actions menu with the portal access option](../../assets/secretary/preinscrpcio-Secretaria-07.png)
 
 > This option generates or activates the educational portal access for the students and their families, so that when they receive the proposal email they can log in to answer the authorizations and confirm the enrollment. Students already belonging to the centre usually have it active.
+>
+> A minor student also receives their own access, next to the family's, but it is view-only (schedule, their communications and profile): the family is the one who confirms the enrollment. See [How to manage portal access](../tutors/acces-portal.md#who-receives-access-students-and-families).
 
 ---
 
@@ -178,6 +182,21 @@ If the student was entitled to the benefit but uploaded it and it was approved *
 4. The system cancels the issued invoice, recomputes the fee lines with the student's current benefit status and generates and posts a new invoice. The operation is logged in the enrollment chatter.
 
 > If the invoice already has **payments registered**, the button is blocked with an error: in that case a **credit note** must be issued manually from Accounting.
+
+---
+
+## Registered payments are visible in the portal
+
+When you register the payment of an installment of an enrollment invoice (from **Accounting**, or through the SEPA batch), the family's portal updates on its own:
+
+* In the **Enrollment** section, inside the **Payment** block, the installment goes from **Pending** to **Paid**. With a two-installment plan, each installment has its own status.
+* In the **Communications** block of that same page, and in the portal's **Communications** section, a notice appears with the installment collected, the amount and the due date.
+
+This is how the family sees the payment schedule in their portal:
+
+![Payment schedule as the family sees it in the portal](../../assets/families/Matricula-confirmacio-09-CalendariPagaments.png)
+
+The notice is not emailed: it is only published in the portal. A partial payment of an installment neither marks it as paid nor produces a notice; the installment has to be covered in full.
 
 ---
 

@@ -51,9 +51,9 @@ On the onboarding form:
 
 ## Step 3 — Fill in the Private Email
 
-Go to the **Private Information** tab and fill in the **Private Email** field (1). This personal email address is where the password for the new corporate email will be sent.
+Fill in the **Private Email** field (1), in the right-hand column of the main screen, under **Manager** (the same field is also in the **Private Information** tab). This personal email address is where the password for the new corporate email will be sent. It must be a genuinely personal address: EMS won't accept one of the centre's own domain.
 
-![Private Information tab with the private email field](../../assets/admin/alta-professor-03-correu-privat.png)
+![Onboarding form with the private email field under Manager](../../assets/admin/alta-professor-03-correu-privat.png)
 
 > **Important:** this **Private Email** field is **required** for the Google account to be created — the form will not let you save a **new** teacher/ASP record without it. On records created before this rule, it may still be missing: in that case no account is created automatically and the reason is recorded in the record's message log (chatter).
 
@@ -73,19 +73,20 @@ When the record is saved, if all the required data is present (name and private 
 - Sends the credentials by email to the private address provided in step 3 (the message also explains how to enter EMS).
 - Attaches a PDF with the credentials to the teacher's record.
 
-The **Create Google account** button, at the top of the record, lets you force this process instantly without waiting for the background processing.
+The **Create Google account** entry, in the record's **Actions** menu (header), lets you force this process instantly without waiting for the background processing.
 
 ---
 
 ## Special Cases
 
-- **The teacher already had a corporate email:** if the work email field already contained an `@elpuig.xeill.net` address, the system adopts it as-is and does not create a new one. If that teacher has no EMS user yet, a **Create EMS User** button appears at the top of the record instead of **Create Google account** — it only links/creates the EMS user, without touching the Google account.
+- **The teacher already had a corporate email:** if the work email field already contained an `@elpuig.xeill.net` address, the system adopts it as-is and does not create a new one. If that teacher has no EMS user yet, a **Create EMS User** entry appears in the record's **Actions** menu instead of **Create Google account** — it only links/creates the EMS user, without touching the Google account.
 - **The teacher has a work email from another domain:** the system does not overwrite it automatically; a notice is posted in the record's message log for manual review.
 - **Manual email assignment:** the **Assign corporate email manually** checkbox, on the teacher's record, lets Human Resources enter the work email by hand, for exceptional cases. **When checked, the system does not generate any account automatically.** After typing a corporate address, the **Create EMS User** button appears to create/link the EMS user for it.
-- **Departure (archiving the record):** archiving the employee **immediately deactivates their EMS user**, so they can no longer sign in. The Google account is not suspended at once: EMS emails the employee (personal and corporate address) telling them the account will be suspended in 30 days, and shows the date on the record. Unarchiving the employee before that date restores the EMS user and calls off the suspension. To keep the Google account while the employee stays archived, press **Cancel scheduled deactivation** at the top of the record. To suspend it straight away without waiting, press **Suspend Google account**.
+- **Correcting the name:** if the teacher's name was entered wrong, fix it on the record and save. EMS updates the name on their Google account by itself in the background (first word as the first name, the rest as surnames), so the corrected name is the one colleagues see in Gmail, Classroom and the rest of Google. Their EMS user takes the new name at once. The record's message log confirms the change. The corporate email address is **not** changed.
+- **Departure (archiving the record):** archiving the employee **immediately deactivates their EMS user**, so they can no longer sign in. The Google account is not suspended at once: EMS emails the employee (personal and corporate address) telling them the account will be suspended in 30 days, and shows the date on the record. Unarchiving the employee before that date restores the EMS user and calls off the suspension. To keep the Google account while the employee stays archived, use **Cancel scheduled deactivation** in the record's **Actions** menu. To suspend it straight away without waiting, press **Suspend Google account**.
 - **The record already existed as a "Pending identification" placeholder:** if a working-schedule import created this teacher automatically before their identity was known (see "Teachers Not Yet Hired (Pending Identification)" in [Teacher Working Schedules & Schedule Frameworks](working-schedules.md)), the record already has a schedule, subjects and attendance lists set up — only **Step 2** and **Step 3** above are needed (replace the placeholder name, fill in the private email), then **Create Google account**. That single click also clears the "Pending identification" badge; nothing about the already-imported schedule needs to be redone.
 
-- **The teacher has an EMS user but cannot sign in with Google:** if the connection between the EMS user and their Google account is lost, Google accepts the login but EMS answers *Access Denied*, and no password reset fixes it. A **Re-link Google sign-in** button then appears at the top of the record, next to **Suspend Google account**. Pressing it asks Google for the account identifier again and restores the connection; the teacher can log in straight away. It changes nothing else — not the Google account, the password or the corporate address — and it does not appear while the connection is working.
+- **The teacher has an EMS user but cannot sign in with Google:** if the connection between the EMS user and their Google account is lost, Google accepts the login but EMS answers *Access Denied*, and no password reset fixes it. A **Re-link Google sign-in** entry then appears in the record's **Actions** menu, next to **Suspend Google account**. Pressing it asks Google for the account identifier again and restores the connection; the teacher can log in straight away. It changes nothing else — not the Google account, the password or the corporate address — and it does not appear while the connection is working.
 
 ---
 

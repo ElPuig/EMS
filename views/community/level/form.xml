@@ -10,6 +10,7 @@
                         <group string="Main data" col="4">
                             <group>
                                 <field name="acronym"/>
+                                <field name="allows_convalidation"/>
                             </group>
                             <group colspan="3">
                                 <field name="name"/>    

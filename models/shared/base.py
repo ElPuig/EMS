@@ -25,10 +25,24 @@ class EmsBase(models.AbstractModel):
     def get_user_is_secretary(self):
         return self.env.user.has_group('ems.group_secretary')
 
+    # The current user may add, change or remove a student's enrollments (issue #534): academic
+    # admin and the secretary's office only - a tutor only customizes which sessions are attended.
+    def get_user_can_edit_enrollments(self):
+        return self.get_user_is_admin() or self.get_user_is_secretary()
+
     # The current user is Head of Studies, Deputy Head of Studies or Director - all three
     # share the single ems.group_head_of_studies group (Director implies it).
     def get_user_is_head_of_studies(self):
         return self.env.user.has_group('ems.group_head_of_studies')
+
+    # The current user works with every student (secretary's office, academic administration,
+    # Head of Studies/Deputy/Director); anyone else who reaches students - a tutor - only with the
+    # ones of the groups they tutor. Called unbound (base.EmsBase.get_user_sees_every_student(self))
+    # from models that don't inherit ems.base.
+    def get_user_sees_every_student(self):
+        user = self.env.user
+        return any(user.has_group(xmlid) for xmlid in (
+            'ems.group_academic_admin', 'ems.group_secretary', 'ems.group_head_of_studies'))
 
     # The current user acts as tutor of some group: its tutor, or a chief above the tutor (issue #483).
     def get_user_is_tutor(self):
@@ -45,6 +59,30 @@ class EmsBase(models.AbstractModel):
     def get_user_is_tutor_of_self(self):
         if 'tutor_id' in self.env[self._name]._fields:
             return EmsBase.user_acts_as_tutor(self, self.tutor_id)
+
+    # The web client offers Archive/Unarchive (cog menu, form and list) whenever the model's
+    # `active` field isn't readonly - it never checks whether the user may write the record. A
+    # teacher's write access to a model comes from ems.group_teacher, whose record rules narrow it
+    # to a tutor's own students/families (and archiving a student is a withdrawal, which only the
+    # secretary, the Head of Studies or an admin may register), so a plain teacher got the entry
+    # only to hit an error.
+    # Called from a model's fields_get() override, unbound
+    # (base.EmsBase.fields_get_active_readonly_for_teachers(self, res)), since res.partner and
+    # hr.employee don't inherit ems.base.
+    def fields_get_active_readonly_for_teachers(self, res):
+        if 'readonly' in res.get('active', {}) and not EmsBase.user_can_archive(self):
+            res['active']['readonly'] = True
+        return res
+
+    # The current user holds write access to the current model through some group other than
+    # ems.group_teacher (or through an ACL granted to everyone).
+    def user_can_archive(self):
+        accesses = self.env['ir.model.access'].sudo().search([
+            ('model_id.model', '=', self._name), ('perm_write', '=', True)])
+        if any(not access.group_id for access in accesses):
+            return True
+        writers = accesses.group_id - self.env.ref('ems.group_teacher')
+        return bool(writers & self.env.user.groups_id)
 
     # Returns a hashcode which is persistent between execution (not like the Python's native one).
     def persistent_hash(self, data):

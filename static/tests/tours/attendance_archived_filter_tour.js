@@ -16,6 +16,14 @@ registry.category("web_tour.tours").add("ems_attendance_template_archived_filter
             trigger: ".o_list_view",
             content: "Templates list loaded",
         },
+        {
+            // The action opens with the default "Show only mine" filter (added after this tour),
+            // which hides this fixture: its teacher is not the logged-in user. Removed by
+            // structure (the filter facet), not by its label, so the tour works in any language.
+            trigger: ".o_searchview_facet:has(.fa-filter) .o_facet_remove",
+            content: "Remove the default 'Show only mine' filter",
+            run: "click",
+        },
         // Narrows to just the seeded record first (this is a shared dev DB that can already have
         // other archived templates from unrelated fixtures/pagination) - the Archived filter's
         // own effect is then checked against this single, unambiguous result.

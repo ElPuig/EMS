@@ -22,12 +22,14 @@ Esta guía explica cómo sale filtrada la lista de alumnado al abrirla, y cómo 
 
 Abre **Comunidad Educativa → Alumnado**. En la barra de búsqueda ya hay dos filtros aplicados:
 
-- **Alumnado** — oculta al alumnado antiguo (exalumnado, bajas y expulsiones).
+- **Estudiantes** — oculta al alumnado antiguo (exalumnado, bajas y expulsiones).
 - **Mi alumnado** — muestra solo el alumnado de tus grupos.
 
 Tus grupos son los de tu horario más cualquier grupo del que seas tutor o tutora. Un alumno
 aparece en la lista cuando ese grupo es su grupo principal, o cuando está matriculado en él
 en alguna de tus materias — incluidos grupos de refuerzo y desdobles.
+
+![La lista de Alumnado con los dos filtros aplicados, mostrando solo un alumno del propio grupo del profesor](../../assets/teachers/alumnat-01-els-meus-grups.png)
 
 ---
 

@@ -14,7 +14,8 @@ Esta guía explica el **histórico académico**: un resumen permanente por curso
 2. [Cuándo se crean los registros](#cuándo-se-crean-los-registros)
 3. [Consultar el histórico](#consultar-el-histórico)
 4. [Ajustar el resultado académico](#ajustar-el-resultado-académico)
-5. [Finales pendientes de la estancia](#finales-pendientes-de-la-estancia)
+5. [Aplicar una revisión de calificaciones](#aplicar-una-revisión-de-calificaciones)
+6. [Finales pendientes de la estancia](#finales-pendientes-de-la-estancia)
 
 ---
 
@@ -34,6 +35,7 @@ El estado de un módulo depende **solo de los RA**: un alumno con todos los RA a
 
 - **En una baja:** el [asistente de baja](graduation-withdrawal.md) congela el histórico del alumno/a **en ese momento**, antes de desvincularlo de su grupo. Quien deja el centro a mitad de curso conserva el registro de todo lo que hizo hasta ese día (módulos, notas, asistencia), con el resultado **Baja**. Una vez congelado el histórico, la baja **saca al alumno/a de todo lo operativo**: sus inscripciones a módulos, las líneas de notas de las sesiones vivas, las líneas y plantillas de asistencia, y el delegado del grupo si lo era. A partir de ese momento ya no aparece en el grupo, ni en la matriz de evaluación, ni en las sesiones de asistencia, ni en la calificación de las prácticas — solo en su histórico académico.
 - **En la transición de curso:** el asistente de transición (ejecutado por el administrador al final del curso) genera los registros de todo el alumnado activo antes de limpiar los datos operativos.
+- **Al completar una convalidación:** si el curso de la convalidación todavía no tiene registro, se abre uno marcado como **Curso actual**, con solo las asignaturas convalidadas (nota, marca **CV** y número de registro CONV). Así el profesorado ve la nota desde el primer día. Al cerrar el curso (transición, baja o graduación) el registro se completa con el resto de asignaturas y el resultado, y pierde la marca. Sobre un registro del curso actual no se puede aplicar una revisión de calificaciones: las notas del curso en marcha se corrigen en las sesiones de evaluación.
 
 Volver a ejecutar la generación nunca duplica un registro: el que ya existe se actualiza.
 
@@ -41,12 +43,40 @@ Volver a ejecutar la generación nunca duplica un registro: el que ya existe se 
 
 Dos puntos de entrada:
 
-- **Por alumno/a:** abra la ficha del alumno/a — la pestaña **Histórico académico** lista sus registros, ordenados por estudio y curso. La pestaña sigue visible para el **antiguo alumnado** (graduados/as y bajas): es su registro permanente.
+- **Por alumno/a:** abra la ficha del alumno/a — la sección **Histórico académico**, al final de la pestaña **Estudios**, lista sus registros, ordenados por estudio y curso. Para el **antiguo alumnado** (graduados/as y bajas) la pestaña Estudios sigue visible, solo con esta sección: es su registro permanente.
 - **Consultas de cohorte:** **Planificación y evaluación → Notas → Histórico académico** lista todos los registros. Filtre o agrupe por curso, estudio, grupo o resultado académico — p. ej. "todo el alumnado del estudio X en el curso Y", o todos los registros con la marca **Título obtenido**.
+
+![Registro de un curso del histórico académico, con la pestaña de módulos y sus notas](../../assets/secretary/academic-history-record.png)
 
 ## Ajustar el resultado académico
 
 El **resultado académico** (*Superado íntegramente*, *Superado parcialmente*, *Repite curso*, *Baja*) se propone automáticamente a partir de las notas y de la matrícula de destino, pero es un campo normal: secretaría y administradores pueden **ajustarlo a mano** en el registro cuando la propuesta automática no coincide con la realidad (p. ej. un estudio sin flujo de matrícula resuelto en septiembre).
+
+## Aplicar una revisión de calificaciones
+
+Una revisión de calificaciones corrige el histórico académico de un curso ya cerrado. Pueden aplicarla secretaría, administración, jefatura de estudios y dirección.
+
+1. Abrid **Planificación y evaluación → Notas → Histórico académico** y abrid el registro del alumno/a del curso que hay que corregir.
+2. Haced clic en **Revisión de calificaciones**.
+3. Elegid qué hace la revisión:
+   - **Corregir un módulo:** elegid el módulo y poned la **Nota resuelta** de cada resultado de aprendizaje que resuelve la revisión.
+   - **Añadir un módulo que falta:** elegid el módulo. Las ponderaciones y los resultados de aprendizaje se proponen a partir de la programación del estudio **del mismo curso que se está corrigiendo** — no de la programación actual, así que una corrección de un curso antiguo usa siempre los pesos que estaban vigentes entonces; poned sus notas.
+   - **Eliminar un módulo:** elegid el módulo que hay que quitar del registro.
+4. Leed **Resultado de la revisión**: la nota interna (nota del centro), el estado y la nota final que da la corrección.
+5. Leed **Resultado del curso**: el resultado propuesto se escribe en el registro mientras **Actualizar el resultado del curso** esté marcado. Desmarcadlo para conservar el actual.
+6. Escribid la **Resolución** y haced clic en **Aplicar revisión**.
+
+Un módulo queda superado cuando todos los resultados de aprendizaje se resuelven con 5 o más. Un módulo con la estancia (EM) todavía sin calificar queda superado con la nota final pendiente; calificad la estancia desde la pantalla de estancia. *Repite curso* y *Baja* no los propone una revisión de calificaciones: ajustadlos a mano en el registro.
+
+### Forzar la nota del centro manualmente
+
+A veces Esfera registra un número ligeramente distinto al que da el cálculo de los resultados de aprendizaje (una diferencia de redondeo, típicamente). En vez de tener que inventar notas de RA que casualmente den ese número, **Resultado de la revisión** muestra la nota del centro en dos campos uno junto al otro: **Nota del centro (calculada)**, siempre de solo lectura, y **Nota del centro (aplicada)**, siempre editable y que empieza siendo igual a la calculada — escribid directamente el valor que consta en Esfera en el campo aplicada.
+
+La nota final se recalcula automáticamente a partir de ese valor forzado (igual que siempre, combinándolo con la nota de la estancia si el módulo la tiene). El estado (superado/no superado) **nunca cambia** por forzar la nota: sigue dependiendo solo de los resultados de aprendizaje. Por eso el sistema no deja forzar una nota de 5 o más si algún RA está suspenso, ni una nota por debajo de 5 si todos los RA están aprobados — solo se puede ajustar el número dentro del lado que los RA ya determinan.
+
+El módulo conserva la fecha, el autor/a y el texto de la última revisión que se le ha aplicado, y el filtro **Corregido por una revisión de calificaciones** de la lista del histórico muestra los registros que tienen alguna. El detalle de cada cambio queda registrado en el registro del alumno/a.
+
+![Asistente de revisión de calificaciones, con la rejilla de resultados de aprendizaje y el resultado que se obtiene](../../assets/secretary/academic-history-grade-review.png)
 
 ## Finales pendientes de la estancia
 

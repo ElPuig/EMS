@@ -111,6 +111,7 @@ Los cambios se guardan en un **borrador local** y no se guardan hasta que pulsas
 - **Nota del centro:** media ponderada de los RA **evaluados** según sus pesos (0–10). Si falta alguno, es **provisional**; si algún RA evaluado está suspenso, queda **limitada a 4**.
 - **Nota de prácticas en empresa:** se informa en la columna **Empresa**.
 - **Nota final:** combina la nota del centro y la de empresa según los porcentajes de la planificación. Para aprobar hay que **aprobar ambas partes**; si una está suspensa, la final queda limitada a 4.
+- **CV** (tras la nota): el módulo está convalidado para el alumno. Cuenta como aprobado con la nota de la convalidación y no necesita notas. Cuando se completa una convalidación, recibes una actividad **Asignatura convalidada** en la bandeja (🕒) y el alumno deja de cursar el módulo.
 - **Sobrescribir la nota del centro:** marcando la casilla **Sobr.** puedes fijar manualmente la nota del centro en lugar de dejar que se calcule a partir de los RA.
 
 ---

@@ -36,47 +36,63 @@ flowchart TD
     D -- no --> E["raise UserError"]
 ```
 
-Only users in `ems.group_academic_admin` or `ems.group_secretary` may open a blank `ems.enrollment` form at all — tutors are expected to enroll a student in a subject from the **student's own form** (the embedded one2many on `res.partner`, see [`contact.md`](contact.md)), not from this model's standalone list/menu. The check happens in `default_get` rather than via `ir.model.access.csv`/`ir.rule` because the "New" button itself can't easily be hidden per-role from the standalone action (see the method's own `TODO`) — tutors do have model-level create rights (needed for the embedded one2many to work), so the guard has to fire when the blank form actually loads.
+Only users in `ems.group_academic_admin` or `ems.group_secretary` may open a blank `ems.enrollment` form at all. Since 18.0.0.33.0 that is also all the model's access rights allow (see [Access Control](#access-control)): nobody else holds create rights any more, so this guard is now a friendlier message in front of the ACL rather than the only barrier. It stays in `default_get` because the standalone action's "New" button can't easily be hidden per role (see the method's own `TODO`).
 
-**Extended to secretary 2026-09-07 (secretary report: could delete a manually-added line from a student's form but never create one).** The guard originally only exempted `user_is_admin` (`ems.group_academic_admin`); the error message itself had always claimed a tutor could also enroll from the student's form, which was never actually true for this guard (tutors have never been exempted here — `ems.base.get_user_is_tutor()` is checked nowhere in this method). Fixed by adding `ems.base.get_user_is_secretary()` (a new companion to `get_user_is_admin()`, replacing the inline `self.env.user.has_group('ems.group_secretary')` already duplicated twice in `contact.py`) and rewording the message to no longer promise tutor access. Tutors remain unaffected — see "Deliberately excluded" note in [`contact.md`](contact.md) for why the embedded one2many is actually `readonly` for a tutor of the student being edited anyway.
+**Extended to secretary 2026-09-07 (secretary report: could delete a manually-added line from a student's form but never create one).** The guard originally only exempted `user_is_admin` (`ems.group_academic_admin`); the error message itself had always claimed a tutor could also enroll from the student's form, which was never actually true for this guard (tutors have never been exempted here — `ems.base.get_user_is_tutor()` is checked nowhere in this method). Fixed by adding `ems.base.get_user_is_secretary()` (a new companion to `get_user_is_admin()`, replacing the inline `self.env.user.has_group('ems.group_secretary')` already duplicated twice in `contact.py`) and rewording the message to no longer promise tutor access. 
 
 **The `env.su` escape hatch — added 2026-09-01, after the guard broke enrollment confirmation in production.** `create()` builds its values through `_add_missing_default_values()`, which calls `default_get()`, so a guard living there fires on **every** creation, not only on the ones a human starts from a form. That is exactly what happened once the 26-27 transition flipped the current course: from that moment `sale.order._ems_placement_is_individual()` is true for every pending enrollment, so confirming one runs `_ems_apply_destination_placement()` — which creates the subject enrollments — and the confirmation died with *"Only admins can create manual enrollments"* instead of placing the student.
 
 The placement already ran the creation under `sudo()`, which was believed to be enough. It is not: **`sudo()` does not turn `env.user` into the superuser, it only sets `env.su`**. `get_user_is_admin()` reads `self.env.user.has_group(...)`, so under `sudo()` it still answers for the real user behind the request — a student confirming from the portal (`controllers/portal_enrollment.py`, `enrollment.sudo().action_confirm()`), or the secretary confirming from the backend. Neither is an academic admin, and neither was ever meant to be blocked here.
 
-`env.su` is what tells the two situations apart, and it is the only signal that does: a form opened from the UI never carries it, a placement running on somebody's behalf always does. Covered by `tests/test_enrollment_placement.py::test_placement_runs_for_whoever_confirms` (portal user and secretary) and `::test_manual_enrollment_is_still_blocked_for_a_tutor` (the guard itself, unchanged for manual creation).
+`env.su` is what tells the two situations apart, and it is the only signal that does: a form opened from the UI never carries it, a placement running on somebody's behalf always does. Covered by `tests/test_enrollment_placement.py::test_placement_runs_for_whoever_confirms` (portal user and secretary) and `::test_manual_enrollment_is_still_blocked_for_a_tutor` (a tutor creating one by hand: refused by the ACL since 18.0.0.33.0).
 
 ### `_compute_inuse_subject_ids` / `_compute_display_name`
 
 `inuse_subject_ids` is recomputed from `student_id.enrollment_ids.subject_id` — every subject the student is already enrolled in *anywhere*, including the row currently being edited (a mild self-inclusion quirk with no practical effect: the domain that consumes this field only need exclude subjects other than the one already chosen on the same line). `display_name` is just the subject's own `display_name` — enrollment rows have no meaningful name of their own, so lists/references show the subject instead of a generic `"ems.enrollment,123"`.
 
-### `create()`/`unlink()` — keeping two side systems in sync
+### Manual lines on the student's form — subject domain and default group
 
-An enrollment row is the trigger that adds/removes a student from whichever `ems.attendance_template`s and `ems.grade_session`s already exist for that subject/group:
+The embedded `enrollment_ids` list on the student's Studies tab (`views/community/contact/form.xml`) restricts `subject_id` to `[('id', 'not in', inuse_subject_ids), ('study_ids', 'in', parent.study_id)]`: only the student's own study subjects, minus the ones already enrolled. A new line starts on the student's main group (`default_group_id` context), and `_onchange_subject_id()` then moves it to `student_id.main_group_id._ems_group_for_subject(subject)`:
 
 ```mermaid
 flowchart TD
-    A["create()"] --> B["_ems_sync_attendance_template_add()"]
+    A["subject_id picked"] --> B{"group is reinforcement?"}
+    B -- yes --> Z["keep the group"]
+    B -- no --> C["study._ems_subject_course(subject.product_id)"]
+    C --> D{"single course, different from the main group's?"}
+    D -- no --> E["main group"]
+    D -- yes --> F["main_group._ems_equivalent_for_course(course)\n(same acronym/shift, else first group of that course)"]
+```
+
+`ems.group._ems_group_for_subject()` is the single resolution shared by every flow that enrolls a student in a subject — this onchange, `sale.order._ems_apply_destination_placement()` and `res.partner._ems_refresh_enrollments_from_template()` — so a manual line lands in the same group the enrollment placement would have picked. The course comes from the study's enrollment templates (`sale.order.template.study_year`): a subject sold by no template, or by more than one course's, stays in the main group. Covered by `tests/test_enrollment_subject_group.py` and `tests/test_enrollment_subject_group_tour.py` (secretary).
+
+### `create()`/`unlink()` — keeping two side systems in sync
+
+An enrollment row is the trigger that adds/removes a student from whichever attendance schedule lines and `ems.grade_session`s already exist for that subject/group:
+
+```mermaid
+flowchart TD
+    A["create()"] --> B["_ems_resync_student_lines(student, subject)"]
     A --> C["_ems_sync_grade_session_add() — only 'open' sessions"]
+    W["write() changing group_id"] --> B2["_ems_resync_student_lines(..., lines attended before)"]
     D["unlink()"] --> E{"ems_bypass_grade_guard in context?"}
     E -- no --> F{"student already has scored grades\nfor this group+subject?"}
     F -- yes --> G["raise UserError"]
     F -- no --> H[proceed]
     E -- yes --> H
-    H --> I["super().unlink()"]
-    I --> J["_ems_sync_attendance_template_remove()"]
+    H --> I["delete the slots, super().unlink()"]
+    I --> J["_ems_resync_student_lines(..., lines attended before)"]
     I --> K["_ems_sync_grade_session_remove() — only 'open' sessions"]
 ```
 
-- **Attendance template add:** every `ems.attendance_template` matching `(subject_id, group_id in group_ids)` gets the student added — `group_ids` can cover several groups (co-teaching), so `group_id in group_ids` rather than `=`.
-- **`_ems_still_enrolled(student_id, subject_id, group_ids)` — added 2026-07-30:** shared `@api.model` helper (`True` if an `ems.enrollment` row still exists for that student+subject in any of the given `group_ids`), extracted so the two `_remove` hooks below can't drift apart on what "still enrolled" means, and reusable by any future caller needing the same check.
-- **Attendance template remove:** only drops the student if `_ems_still_enrolled` says **no** other remaining enrollment keeps them within that same template's scope (checked over `group_id in template.group_ids`) — otherwise a co-teaching student would be wrongly dropped from a template still covering one of their other groups.
+- **Attendance rosters:** which schedule lines an enrollment makes its student attend is decided by `_ems_attends()`: every line of its own group's templates for the subject (`group_ids` can cover several groups, co-teaching), or only its custom slots (issue #534). `_ems_resync_student_lines(student, subject, previous_lines)` adds the student to every line their enrollments in that subject attend now, and removes them from the lines they attended before (`previous_lines`) that no longer apply - so a co-teaching student enrolled through two groups of the same template stays in it when one enrollment goes. The whole mechanism, custom slots included, is documented in [`enrollment_slot.md`](enrollment_slot.md).
+- **`_ems_still_enrolled(student_id, subject_id, group_ids)` — added 2026-07-30:** shared `@api.model` helper (`True` if an `ems.enrollment` row still exists for that student+subject in any of the given `group_ids`), the guard of the grade-session remove hook below.
 - **Grade session add/remove:** only touches sessions in `state = 'open'` — `board`/`final` sessions are frozen and must not gain or lose lines from a later enrollment change. `_ems_sync_grade_session_remove` now also checks `_ems_still_enrolled` (for the exact `group_id` being removed) before deleting grade lines — added for symmetry with the attendance-template guard above; the only historical trigger (a duplicate `ems.enrollment` row for the same triple) is itself now prevented by the `_sql_constraints` above, so this is defensive rather than currently reachable through normal use.
 - **`ems_bypass_grade_guard`** (context flag): the withdrawal flow (`res.partner._ems_clear_operational_records`, see [`contact.md`](contact.md)) unlinks enrollments with `sudo().with_context(ems_bypass_grade_guard=True)` — it runs *after* the academic history has already frozen the grades, so the normal "has scored grades" guard would otherwise block exactly the cleanup it needs to do.
 
 #### Both cascades run under `sudo()` (issue #435)
 
-`_ems_matching_attendance_schedules()`, `_ems_still_enrolled()`, both `_ems_sync_grade_session_*` searches and `ems.grade_session._ems_has_scored_grades()` all `sudo()` their own reads/writes. They are system-level consequences of an enrollment change that was *already* authorized when the row was created or deleted — not separate actions the acting user must independently be entitled to perform on the attendance/grading side. This is the same reasoning `_ems_move_group()` documents for its own `sudo()` below.
+`_ems_attended_lines()`, `_ems_student_subject_enrollments()`, `_ems_still_enrolled()`, both `_ems_sync_grade_session_*` searches and `ems.grade_session._ems_has_scored_grades()` all `sudo()` their own reads/writes. They are system-level consequences of an enrollment change that was *already* authorized when the row was created or deleted — not separate actions the acting user must independently be entitled to perform on the attendance/grading side. This is the same reasoning `_ems_move_group()` documents for its own `sudo()` below.
 
 Without it, **who** created the enrollment silently decided how much of the cascade happened, because both side systems are access-restricted in ways `ems.enrollment` is not:
 
@@ -108,7 +124,7 @@ flowchart TD
     C -- no --> D["create() a new_group row\n(same subject)"] --> E
 ```
 
-Implemented as `unlink()` + `create()` (never a direct `group_id` write) specifically so the row-level side effects documented above — the attendance-template roster sync and the open-grade-session line sync — fire exactly as they already do for any other enrollment change, instead of needing a second, parallel sync path. The "already exists" check avoids a duplicate-key error when the student happens to already have that same subject enrolled in the destination group before the move (e.g. from an earlier reinforcement enrollment).
+Implemented as `unlink()` + `create()` (never a direct `group_id` write) specifically so the row-level side effects documented above — the attendance roster resync and the open-grade-session line sync — fire exactly as they already do for any other enrollment change, instead of needing a second, parallel sync path. The "already exists" check avoids a duplicate-key error when the student happens to already have that same subject enrolled in the destination group before the move (e.g. from an earlier reinforcement enrollment).
 
 **Runs entirely under `sudo()`.** By the time this runs, `student.main_group_id` already equals `new_group` (the caller writes it via `super().write()` first) — so a caller whose own ORM access to the student/enrollment came from being the tutor of the *old* group (`rule_contact_tutor`/`rule_enrollment_tutor`, both keyed off the student's current `tutor_id`, itself `related="main_group_id.tutor_id"`) can lose that access mid-transaction the instant the group differs, most obviously when the destination group has a different tutor. The group change itself was already authorized at the point `main_group_id` was written; this cascade is a system-level consequence of that authorized action, not a separate action needing its own re-check — the same reasoning `sale.order._ems_apply_destination_placement()` already applies to its own `sudo()`'d `create()` (see [`../enrollment/enrollment.md`](../enrollment/enrollment.md)). `sudo()` only bypasses ACL/record rules, never this model's own Python-level guards: `unlink()`'s scored-grades check still runs, and still aborts the **whole** group change (nothing is repointed) with the same `UserError` a manual delete would raise, if any of the old group's subjects already has scored grades.
 
@@ -120,10 +136,41 @@ Covered by `tests/test_enrollment.py` (`_ems_move_group` directly: repoint, unto
 
 ## Access Control
 
+**Who does what (issue #534, 18.0.0.33.0):** adding, removing or changing an enrollment (its subject or group: what the student studies and where they are graded) is the secretary's office and academic administration's only. The tutor, and every chief above them in the hierarchy (`hr.employee.tutor_scope_user_ids`: department/seminar chief, Head or Deputy Head of Studies of that branch, Director), customizes which sessions their students attend: the `is_remote` flag here and the `ems.enrollment.slot` rows (see [`enrollment_slot.md`](enrollment_slot.md)).
+
+> **Note:** until 18.0.0.32.0 a tutor could add and remove their students' enrollments through the server (the student's form already showed them read-only), and Head of Studies/Deputy/Director could do it for every student (issue #466). Both are restricted since 18.0.0.33.0.
+
 ### `ir.model.access.csv`
 
 | Role | Read | Write | Create | Delete |
 |------|:----:|:-----:|:------:|:------:|
+| Academic admin | ✓ | ✓ | ✓ | ✓ |
+| Secretary | ✓ | ✓ | ✓ | ✓ |
+| Teacher (and every role implying it: tutor, chiefs, Head of Studies, Director) | ✓ | ✓ | — | — |
+| Student data reader | ✓ | — | — | — |
+
+Create/delete are taken away at the ACL level on purpose: a record rule can't remove a right, a rule with `perm_create` off is simply ignored for create (and if no rule is left, nothing restricts it).
+
+### `security/rules/contacts.xml` record rules
+
+| Rule | Groups | Domain | Write |
+|------|--------|--------|:-----:|
+| `rule_enrollment_admin` | Academic admin | `[]` (unrestricted) | ✓ |
+| `rule_enrollment_secretary` | Secretary | `[]` (unrestricted) | ✓ |
+| `rule_enrollment_teacher` | Teacher | `[]` (read-only) | — |
+| `rule_enrollment_tutor` | Teacher (tutor scope) | `student_id.tutor_id.tutor_scope_user_ids = user.id` | ✓ (customization only, see below) |
+| `rule_enrollment_head_of_studies` | Head of Studies | `[]` (read-only) | — |
+
+### Python-level checks
+
+- `write()`: anybody who isn't academic admin or secretary (`ems.base.get_user_can_edit_enrollments()`) may only write `_CUSTOMIZATION_FIELDS` (`is_remote`), else `UserError`. `sudo()` cascades (main group change, study change, placement, withdrawal, convalidation) are unaffected.
+- `default_get()`: the manual-creation guard (above) now lets through academic admin and secretary only.
+- `res.partner._ems_check_main_group_change()`: changing a student's main group moves their enrollments (`_ems_move_group`), so anybody else may only move them to an equivalent group - same study, course and shift (SMX1A ↔ SMX1B, not SMX1C nor DAM2B); the form offers only those (`allowed_main_group_ids`). Clearing the group (withdrawal, graduation) is not a move and isn't checked.
+- `res.partner.can_edit_enrollments` / `can_customize_schedule` (non-stored, `depends_context('uid')`) drive the Studies tab: the enrollment list is read-only without the first, the custom-schedule tools (toggle, row buttons, slot list) need the second. The row buttons stay clickable on a read-only list.
+
+Tests: `tests/test_enrollment.py` (Head of Studies blocked), `tests/test_enrollment_slot.py::TestEnrollmentSlotAccess` (tutor customizes but doesn't enroll, another tutor's student, plain teacher, secretary, equivalent main groups), `tests/test_enrollment_slot_tour.py::test_tutor_customizes_without_editing_enrollments_tour`.
+
+------|:----:|:-----:|:------:|:------:|
 | Academic admin | ✓ | ✓ | ✓ | ✓ |
 | Teacher | ✓ | ✓ | ✓ | ✓ |
 | Secretary | ✓ | ✓ | ✓ | ✓ |

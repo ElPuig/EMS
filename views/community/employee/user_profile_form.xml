@@ -21,6 +21,17 @@
                     <group name="ems_photo_visibility" string="Photo">
                         <field name="image_disabled"/>
                     </group>
+                    <!-- Daily pending-tasks digest (models/shared/task_digest.py): on by
+                         default, everybody can turn their own off. The attendance issues
+                         report (models/attendance/attendance_report_schedule.py) only concerns
+                         whoever actually tutors a group (ems_is_tutor), not the whole tutor role. -->
+                    <group name="ems_notifications" string="Notifications">
+                        <field name="ems_task_digest"/>
+                        <field name="ems_is_tutor" invisible="1"/>
+                        <field name="ems_attendance_report_moment" invisible="not ems_is_tutor"/>
+                        <field name="ems_attendance_report_time" widget="float_time"
+                               invisible="not ems_is_tutor or ems_attendance_report_moment != 'fixed_time'"/>
+                    </group>
                 </group>
                 <!-- Preferences tab: for an ordinary self-viewing user, only "Disable profile
                      picture" (above) and "Language" stay visible/editable - everything else
@@ -42,6 +53,8 @@
                 </xpath>
                 <field name="tz" position="attributes">
                     <attribute name="invisible">not can_edit</attribute>
+                    <!-- Always the company's timezone (models/settings/timezone.py). -->
+                    <attribute name="readonly">1</attribute>
                 </field>
                 <group name="signature" position="attributes">
                     <attribute name="invisible">not can_edit</attribute>
@@ -126,6 +139,7 @@
                 </field>
                 <field name="private_email" position="attributes">
                     <attribute name="readonly">0</attribute>
+                    <attribute name="help">Personal address, also used as the Google account's recovery email. It can't be the centre's corporate account.</attribute>
                 </field>
                 <field name="private_phone" position="attributes">
                     <attribute name="readonly">0</attribute>
@@ -267,6 +281,8 @@
                                 <field name="group_ids"/>
                                 <field name="non_teaching"/>
                                 <field name="non_teaching_is_break"/>
+                                <field name="date_from"/>
+                                <field name="date_to"/>
                                 <field name="space_id"/>
                             </list>
                         </field>
@@ -302,6 +318,20 @@
                 </xpath>
                 <xpath expr="//page[@name='skills_resume']" position="after">
                     <xpath expr="//page[@name='preferences_page']" position="move"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- "Request Allocation" (header button): hidden for everybody - EMS doesn't use time-off
+             allocations requested by the employee. Targeted directly on the hr_holidays view that
+             declares it, same reasoning as the calendar privacy one above. -->
+        <record model="ir.ui.view" id="hr_holidays_res_users_view_form_allocation_hide">
+            <field name="name">ems.res.users.preferences.form.allocation.hide</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="hr_holidays.res_users_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header/button[@name='%(hr_holidays.hr_leave_allocation_action_my)d']" position="attributes">
+                    <attribute name="invisible">1</attribute>
                 </xpath>
             </field>
         </record>

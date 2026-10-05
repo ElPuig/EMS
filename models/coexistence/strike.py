@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from datetime import timedelta, timezone
+
 from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class ems_strike(models.Model):
@@ -9,15 +12,22 @@ class ems_strike(models.Model):
     _inherit = ["ems.base"]
     _order = "date desc, id desc"
 
-    student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]", required=True, ondelete="cascade")
+    student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]", required=True, ondelete="cascade", default=lambda self: self.env.context.get("strike_student_id"))
     teacher_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", required=True, default=lambda self: self.env.user.employee_id)
     attendance_session_line_id = fields.Many2one(string="Session line", comodel_name="ems.attendance_session_line", ondelete="set null", index=True)
-    reason_id = fields.Many2one(string="Reason", comodel_name="ems.strike.reason", required=True, default=lambda self: self.env.ref("ems.strike_reason_other", raise_if_not_found=False))
+    reason_id = fields.Many2one(string="Reason", comodel_name="ems.strike.reason", required=True, default=lambda self: self._default_reason_id())
     date = fields.Datetime(string="Date and time", default=fields.Datetime.now, required=True)
     notes = fields.Text(string="Details")
     kicked_out = fields.Boolean(string="Kicked out of class", default=False)
     send_to = fields.Char(string="Sent to", readonly=True, copy=False)
     strike_count = fields.Integer(string="Strike count", compute="_compute_strike_count")
+    duplicate_warning = fields.Char(string="Possible duplicate", compute="_compute_duplicate_warning")
+
+    @api.model
+    def _default_reason_id(self):
+        """First active reason by its own order, the same one the roll-call dialog preselects
+        (attendance_session_view.js), so both ways of issuing a strike agree."""
+        return self.env["ems.strike.reason"].search([], limit=1)
 
     @api.depends("student_id", "date", "reason_id")
     def _compute_display_name(self):
@@ -31,6 +41,22 @@ class ems_strike(models.Model):
                 ("student_id", "=", strike.student_id.id), ("id", "<=", strike.id),
             ]) if strike.id else 0
 
+    @api.depends("student_id", "teacher_id", "attendance_session_line_id")
+    def _compute_duplicate_warning(self):
+        # Only while issuing a new one (the New strike dialog's onchange): a saved strike would
+        # find itself. A new record's NewId is falsy.
+        for strike in self:
+            strike.duplicate_warning = False if strike.id else self.get_duplicate_warning(
+                strike.student_id.id, strike.teacher_id.id, strike.attendance_session_line_id.id)
+
+    @api.constrains("date")
+    def _check_date_not_in_future(self):
+        # Both sides are naive UTC (how Odoo stores and returns Datetime), so no tz conversion.
+        now = fields.Datetime.now()
+        for strike in self:
+            if strike.date > now:
+                raise ValidationError(_("A strike can't be dated in the future."))
+
     @api.model_create_multi
     def create(self, vals_list):
         strikes = super().create(vals_list)
@@ -39,6 +65,33 @@ class ems_strike(models.Model):
             strike._notify()
             strike._check_escalation()
         return strikes
+
+    @api.model
+    def get_duplicate_warning(self, student_id, teacher_id=False, line_id=False):
+        """Issue #554: the same strike was sometimes sent twice a few seconds apart. Returns a
+        warning if the teacher (the current user's employee by default) already issued a strike
+        to this student, on the same roll-call line (or on none, for the New strike dialog),
+        within the last strike_duplicate_window minutes, False otherwise. Both
+        ways of issuing a strike ask for confirmation when there is one: the New strike dialog
+        (duplicate_warning) and the roll-call view (attendance_session_view.js)."""
+        window = self.env.company.strike_duplicate_window
+        teacher_id = teacher_id or self.env.user.employee_id.id
+        if window <= 0 or not student_id or not teacher_id:
+            return False
+        # create_date rather than date, which can be backdated; it is set from cr.now().
+        latest = self.search([
+            ("student_id", "=", student_id), ("teacher_id", "=", teacher_id),
+            ("attendance_session_line_id", "=", line_id or False),
+            ("create_date", ">=", self.env.cr.now() - timedelta(minutes=window)),
+        ], order="create_date desc, id desc", limit=1)
+        if not latest:
+            return False
+        local = self.env["ems.datetime_utils"].utc_datetime_to_local(latest.create_date.replace(tzinfo=timezone.utc))
+        return _(
+            "%(teacher)s already issued a strike to %(student)s at %(time)s (%(reason)s). Make sure this one is not a duplicate.",
+            teacher=latest.teacher_id.display_name, student=latest.student_id.display_name,
+            time=local.strftime("%H:%M:%S"), reason=latest.reason_id.name,
+        )
 
     def _collect_recipients_by_kind(self):
         """Returns {"student": [(email, lang), ...], "family": [...], "tutor": [...]}

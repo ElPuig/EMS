@@ -18,6 +18,7 @@ flowchart LR
     T2["Teacher B: resource.calendar.attendance (guard)"] --> AGG
     AGG --> LINES["ems.course.get_guard_duty_board_lines(weekday, shift, day) -- rows = time blocks, columns = groups, + guards list"]
     ABS["hr.leave (approved or pending, covering 'day')"] --> LINES
+    PTR["ems.absence_pending (state pending, covering 'day')"] --> LINES
     LINES --> DATA["ems.course.get_guard_duty_board_data(weekday, shift, day) -- same, JSON-safe, @api.model"]
     LINES --> PDF["QWeb PDF: ems.report_guard_duty_board (model = ems.course)"]
     DATA --> W["ir.actions.client 'ems_guard_duty_board' -- week picker + weekday tabs (Mon-Fri) x shift dropdown x two views (timetable / guard duty table)"]
@@ -176,6 +177,25 @@ second" changes nothing here. Refused and cancelled requests are not in the mapp
 which is what keeps them off the board entirely. When the same teacher has both an approved and
 a pending absence overlapping one period, approved wins: the period needs covering either way,
 and reporting it as merely requested would understate it.
+
+**Co-taught classes: listed, but marked as covered.** Every row of `line['absences']` carries
+`covered`, from `_guard_duty_is_co_taught(cell_entries, teacher, absences)`: true when another
+teacher of the same cell (same group, same period) is not away and teaches in the same room as
+the absent one. The row is still there, so the board says who is missing, but it is struck
+through (`.o_guard_board_absence_covered` on screen, `.gdb-absence-covered` in the PDF, with a
+tooltip on screen) because nobody needs to cover it. The room check is what keeps a group split
+across two rooms (each teacher with half of it) from being marked covered: the absent teacher's
+half has nobody. On this centre's data every shared slot is same room and same subject, i.e.
+genuine co-teaching. A co-teacher away for any part of the period does not cover, the same
+overlap test `_guard_duty_absence_state` uses.
+
+**Expected absences are pending absences too.** An `ems.absence_pending` entry the
+Head of Studies or their Deputy entered on a teacher's behalf (see
+[Expected absences](../employees/absence.md#expected-absences)) is added as a
+`'pending'` interval while its own state is `pending`, clipped to the requested day in the
+company's timezone by `_get_local_hours()`. Once the teacher files the real absence the entry is
+linked to it and ignored here for good: only the teacher's own request counts, with its own range
+and state, whatever becomes of it.
 
 **Whole day vs part of one.** The interval is read from `request_unit_hours` rather than
 `ems_full_day`: it is the field that actually decides whether `request_hour_from`/`_to` carry

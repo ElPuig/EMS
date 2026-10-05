@@ -5,6 +5,7 @@ import logging
 from odoo import models, fields, api, _
 from odoo.exceptions import AccessError, UserError
 
+from ..shared import base
 from ..shared.google_workspace_mixin import (
     GW_DEACTIVATION_DELAY_DAYS,
     GW_DELETION_DELAY_DAYS,
@@ -45,6 +46,21 @@ class ResPartnerGoogleWorkspace(models.Model):
         string="Google account status", compute='_compute_google_ws_state', store=True,
         help="Single source of truth for the header buttons: which Google Workspace "
              "action, if any, applies to this student right now.")
+    can_reset_google_password = fields.Boolean(
+        string="Can reset the Google password", compute='_compute_can_reset_google_password',
+        compute_sudo=True, store=False,
+        help="Whether the user looking at this student may reset their Google password: the "
+             "academic admin, the TAC team, or the student's own tutor scope.")
+    can_create_google_account = fields.Boolean(
+        string="Can create the Google account", compute='_compute_can_reset_google_password',
+        compute_sudo=True, store=False,
+        help="Whether the user looking at this student may create their Google account: the "
+             "secretary, plus everyone who may reset the password.")
+    can_download_google_credentials = fields.Boolean(
+        string="Can download the Google credentials",
+        compute='_compute_can_download_google_credentials', store=False,
+        help="Whether the student has a Google credentials PDF the user looking at them may "
+             "read, so the form only offers the download when there is something to download.")
 
     # ------------------------------------------------------------------
     # Compute
@@ -58,6 +74,34 @@ class ResPartnerGoogleWorkspace(models.Model):
                 partner.google_ws_state = 'suspended'
             else:
                 partner.google_ws_state = 'active'
+
+    # NOTE (issue #490, #513): drives the "Reset Google password" and "Create Google account"
+    # buttons' own invisible, since a teacher reads every student (rule_contact_teacher) and the
+    # buttons' groups alone would offer them on students the user cannot act on. compute_sudo so
+    # a tutor can resolve the chain at all; sudo() keeps env.uid, so env.user is still the real
+    # reader.
+    @api.depends('tutor_id')
+    @api.depends_context('uid')
+    def _compute_can_reset_google_password(self):
+        user = self.env.user
+        privileged = user.has_group('ems.group_academic_admin') or user.has_group('ems.group_tac')
+        secretary = user.has_group('ems.group_secretary')
+        for partner in self:
+            partner.can_reset_google_password = privileged or base.EmsBase.user_acts_as_tutor(
+                partner, partner.tutor_id)
+            partner.can_create_google_account = secretary or partner.can_reset_google_password
+
+    # Not compute_sudo: the document ACL and record rules are what decide whose credentials the
+    # user may read (a tutor only their own students'), same as the download itself. A plain
+    # teacher has no ACL on the documents at all, hence the has_access() guard.
+    @api.depends('document_ids.doc_type', 'document_ids.doc_file_name')
+    @api.depends_context('uid')
+    def _compute_can_download_google_credentials(self):
+        readable = self.env['res.partner']
+        if self.env['ems.student.document'].has_access('read'):
+            readable = self._origin._get_google_credentials_documents().partner_id
+        for partner in self:
+            partner.can_download_google_credentials = partner._origin in readable
 
     # ------------------------------------------------------------------
     # Helpers
@@ -173,7 +217,7 @@ class ResPartnerGoogleWorkspace(models.Model):
                 partner.with_delay(
                     identity_key='gw_create_account_%s' % partner.id,
                     description="Create Google Workspace account: %s" % partner.name,
-                ).action_create_google_account()
+                )._gw_create_account()
 
     def _gw_enqueue_relocate(self):
         """Enqueue an OU relocation for students that already have an account, used
@@ -189,6 +233,19 @@ class ResPartnerGoogleWorkspace(models.Model):
                 identity_key='gw_relocate_%s' % partner.id,
                 description="Relocate Google Workspace account: %s" % partner.name,
             ).action_relocate_google_account()
+
+    def _gw_enqueue_rename(self):
+        """Enqueue the Google account name sync for students that already have an
+        account (deduplicated), so fixing a name in EMS also fixes it in Google (#542)."""
+        if not self.env.company.google_ws_enabled:
+            return
+        for partner in self.filtered(
+            lambda r: r.contact_type == 'student' and r.student_email
+        ):
+            partner.with_delay(
+                identity_key='gw_rename_%s' % partner.id,
+                description="Rename Google Workspace account: %s" % partner.name,
+            ).action_sync_google_account_name()
 
     def _gw_schedule_deactivation(self):
         """Open the grace period instead of suspending the account right away.
@@ -302,10 +359,24 @@ class ResPartnerGoogleWorkspace(models.Model):
     # Main action (queue_job target / manual button)
     # ------------------------------------------------------------------
     def action_create_google_account(self):
+        """"Create Google account" header button: the secretary, academic admin, TAC and - since
+        issue #513 - the student's own tutor scope (the same rule as the password reset). The
+        button's invisible only hides it, so the same check is repeated here. The automatic paths
+        call _gw_create_account() directly: their queue jobs run as whoever triggered them, portal
+        families included."""
+        self.ensure_one()
+        if not self.can_create_google_account:
+            raise AccessError(_(
+                "Only the secretary's office, administrators, the TAC team and the student's own "
+                "tutor can create a Google account."))
+        self._gw_create_account()
+
+    def _gw_create_account(self):
         """Create the student's Google Workspace account and deliver credentials.
 
         Idempotent: does nothing if the student already has a corporate email. Chatter notes go
-        through sudo() because the TAC team, who may press the button, only reads students.
+        through sudo() because the TAC team and tutors, who may press the button, only read
+        students.
         """
         self.ensure_one()
         company = self.env.company
@@ -406,12 +477,15 @@ class ResPartnerGoogleWorkspace(models.Model):
 
     def action_reset_google_password(self):
         """Give the student's Google account a new random password and deliver it like a new
-        account's (issue #478). Academic admin and TAC only: the button's groups only hide it,
-        so the check is repeated here. TAC merely reads students, hence the sudo() writes."""
+        account's (issue #478). Academic admin, TAC and the student's own tutor scope - the
+        tutor, the chiefs above them and the Director (issue #490, hr.employee.tutor_scope_user_ids):
+        the button's invisible only hides it, so the same check is repeated here. Neither TAC nor
+        a tutor writes on students, hence the sudo() writes."""
         self.ensure_one()
-        user = self.env.user
-        if not (user.has_group('ems.group_academic_admin') or user.has_group('ems.group_tac')):
-            raise AccessError(_("Only administrators and the TAC team can reset a Google password."))
+        if not self.can_reset_google_password:
+            raise AccessError(_(
+                "Only administrators, the TAC team and the student's own tutor can reset a "
+                "Google password."))
         if self.google_ws_state != 'active':
             raise UserError(_("%s has no active Google account.") % self.name)
         company = self.env.company
@@ -651,6 +725,20 @@ class ResPartnerGoogleWorkspace(models.Model):
         self.message_post(body=_(
             "Google Workspace account moved to OU %(ou)s.") % {'ou': ou})
 
+    def action_sync_google_account_name(self):
+        """Copy the student's current first name and surnames onto their Google account.
+
+        Triggered when the name changes. Suspended accounts are renamed too, so a
+        reactivated account comes back with the right name.
+        """
+        self.ensure_one()
+        if not self.env.company.google_ws_enabled:
+            return
+        if self.contact_type != 'student' or not self.student_email:
+            return
+        self._gw()._gw_sync_account_name(
+            self, self.student_email, self.firstname, self.lastname)
+
     def action_reactivate_google_account(self):
         """Reactivate a suspended account; if it was deleted in Admin, recreate it.
 
@@ -672,7 +760,7 @@ class ResPartnerGoogleWorkspace(models.Model):
                 'student_email': False, 'google_ws_suspended': False,
                 'google_ws_deleted': False, 'google_ws_deletion_date': False,
             })
-            self.action_create_google_account()
+            self._gw_create_account()
             return
 
         ou = company.google_ws_ou_adult if self.is_adult else company.google_ws_ou_minor
@@ -701,7 +789,7 @@ class ResPartnerGoogleWorkspace(models.Model):
                     'student_email': False, 'google_ws_suspended': False,
                     'google_ws_deletion_date': False,
                 })
-                self.action_create_google_account()
+                self._gw_create_account()
                 return
             _logger.exception("Could not reactivate Google account for %s", self.name)
             raise

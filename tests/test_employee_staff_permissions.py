@@ -136,6 +136,45 @@ class TestEmployeeStaffPermissions(TransactionCase):
         self.assertEqual(self.teacher._gw_missing_fields(), [])
 
     # ------------------------------------------------------------------
+    # Work contact details of a teacher linked to an EMS user (issue #552)
+    # ------------------------------------------------------------------
+    def _linked_teacher(self, user_group):
+        """A teacher whose work_email/mobile_phone live on its EMS user's partner: hr's inverse
+        writes them there, and res.partner.write() demands write access on res.users for any
+        partner of another internal user."""
+        user = self._create_user(f'test_552_linked_{user_group.id}', user_group)
+        return self.env['hr.employee'].create({
+            'name': 'Test 552 Linked Teacher',
+            'employee_type': 'teacher',
+            'user_id': user.id,
+            'google_ws_manual_email': True,
+            'work_email': 'temporary.552@example.com',
+        })
+
+    def test_head_of_studies_can_remove_manual_work_email(self):
+        teacher = self._linked_teacher(self.group_teacher)
+        teacher.with_user(self.hos_user).write({'work_email': False})
+        self.assertFalse(teacher.work_email)
+        self.assertFalse(teacher.user_id.partner_id.email)
+
+    def test_head_of_studies_can_change_manual_work_email(self):
+        teacher = self._linked_teacher(self.group_teacher)
+        teacher.with_user(self.hos_user).write({'work_email': 'fixed.552@example.com'})
+        self.assertEqual(teacher.user_id.partner_id.email, 'fixed.552@example.com')
+
+    def test_head_of_studies_can_change_work_mobile(self):
+        teacher = self._linked_teacher(self.group_teacher)
+        teacher.with_user(self.hos_user).write({'mobile_phone': '600000552'})
+        self.assertEqual(teacher.user_id.partner_id.mobile, '600000552')
+
+    def test_head_of_studies_cannot_change_an_access_rights_admin_email(self):
+        """The native guard stays for users who manage access rights: redirecting their email
+        would redirect their password reset too."""
+        teacher = self._linked_teacher(self.env.ref('base.group_erp_manager'))
+        with self.assertRaises(AccessError):
+            teacher.with_user(self.hos_user).write({'work_email': False})
+
+    # ------------------------------------------------------------------
     # TAC coordinator
     # ------------------------------------------------------------------
     def test_tac_can_create_teacher(self):
@@ -256,3 +295,36 @@ class TestEmployeeStaffPermissions(TransactionCase):
         employee.write({'role_ids': [(4, self.role_tac.id)]})
         employee.write({'role_ids': [(3, self.role_tac.id)]})
         self.assertNotIn(self.group_tac_admin, user.groups_id)
+
+    # --- hr.employee-only fields must be group-restricted (issue #492) -------
+
+    def test_ems_hr_employee_only_fields_declare_groups(self):
+        """Structural guard over the rule stated in Odoo's own hr.employee docstring:
+        every field that exists on hr.employee but not on hr.employee.public must declare
+        groups=, or the ORM prefetches it for users who only reach the employee through
+        hr.employee.public (no hr.group_hr_user, e.g. ems.group_secretary) and
+        hr.employee.fetch() raises AccessError over it.
+
+        The failure surfaces far from its cause - any Python attribute read of an
+        employee field is enough - which is how it reached production as a secretary
+        being unable to register a student's withdrawal (year_record._generate_one's
+        group.tutor_id.name, covered in test_exit_management.py).
+        """
+        public_fields = set(self.env['hr.employee.public']._fields)
+        employee_fields = self.env['hr.employee']._fields
+        # Which hr.employee fields EMS declares, read from the module's own xmlids and not
+        # from ir.model.fields.modules: that compute only counts modules already flagged
+        # 'installed', and an at_install test runs while ems is still 'to upgrade', which
+        # would leave this test silently checking nothing.
+        ems_field_ids = self.env['ir.model.data'].search([
+            ('module', '=', 'ems'), ('model', '=', 'ir.model.fields')]).mapped('res_id')
+        ems_fields = self.env['ir.model.fields'].browse(ems_field_ids).filtered(
+            lambda field: field.model == 'hr.employee')
+        self.assertTrue(ems_fields, "No hr.employee field is reported as declared by ems")
+        offenders = sorted(
+            field.name for field in ems_fields
+            if field.name not in public_fields
+            and not employee_fields[field.name].groups)
+        self.assertFalse(offenders, (
+            "These hr.employee-only fields are added by EMS without groups=, so they are "
+            f"prefetched for users without hr.group_hr_user: {', '.join(offenders)}"))

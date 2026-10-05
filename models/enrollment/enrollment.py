@@ -5,6 +5,7 @@ from psycopg2 import IntegrityError
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools import format_date
 from odoo.addons.mail.tools.discuss import Store
 
 class SaleOrder(models.Model):
@@ -151,23 +152,23 @@ class SaleOrder(models.Model):
             order.ems_first_installment = order.ems_non_fee_amount + order.ems_fee_amount * 0.5
             order.ems_second_installment = order.ems_fee_amount * 0.5
 
-    ems_enrollment_status_label = fields.Char(
+    # The order's own state, relabelled in enrollment terms. A selection rather than a text
+    # field so the labels are translated (through ir.model.fields.selection) like any other.
+    ems_enrollment_status_label = fields.Selection(
+        selection=[
+            ('draft', 'Pre-enrollment'),
+            ('sent', 'Enrollment sent'),
+            ('sale', 'Enrollment confirmed'),
+            ('cancel', 'Enrollment cancelled'),
+        ],
         string='Enrollment Status',
         compute='_compute_enrollment_status_label',
-        store=False,
-    )    
+    )
 
     @api.depends('state')
     def _compute_enrollment_status_label(self):
-        labels = {
-            'draft': 'Pre-enrollment',
-            'sent': 'Sent to student',
-            'sale': 'Confirmed',
-            'cancel': 'Cancelled',
-            'done': 'Locked',
-        }
         for order in self:
-            order.ems_enrollment_status_label = labels.get(order.state, order.state)
+            order.ems_enrollment_status_label = order.state
 
     def _get_dynamic_enrollment_name(self):
         """Build the enrollment code dynamically using acronyms and shortening the year."""
@@ -823,6 +824,11 @@ class SaleOrder(models.Model):
         Enrollment = self.env['ems.enrollment'].sudo()
         subjects = self.env['ems.subject'].sudo().search([
             ('product_id', 'in', self.order_line.product_id.ids)])
+        # A convalidated subject is never taken again (issue #276): completing the convalidation
+        # already withdrew the student from it, and a placement confirmed afterwards must not
+        # enrol them back.
+        ConvalidationLine = self.env['ems.convalidation.line']
+        subjects = subjects.filtered(lambda subject: not ConvalidationLine._ems_is_convalidated(student, subject))
         for subject in subjects:
             # A subject the student is retaking from an earlier course (a repeater's
             # pending module, mixed into the same order as the current course's own
@@ -830,10 +836,7 @@ class SaleOrder(models.Model):
             # group - resolved only when the study's own templates sell it for exactly
             # one course other than this one; ambiguous or unknown stays on `group`,
             # today's behaviour.
-            subject_group = group
-            course = self.ems_study_id._ems_subject_course(subject.product_id)
-            if course and course != group.course:
-                subject_group = group._ems_equivalent_for_course(course) or group
+            subject_group = group._ems_group_for_subject(subject)
             exists = Enrollment.search_count([
                 ('student_id', '=', student.id),
                 ('group_id', '=', subject_group.id),
@@ -980,3 +983,68 @@ class SaleOrder(models.Model):
         inv.write(vals)
         inv.action_post()
         return inv
+
+    # ------------------------------------------------------------------
+    # Portal: payment status (issue #491)
+    # ------------------------------------------------------------------
+    def _ems_enrollment_invoice(self):
+        """The enrollment's live posted invoice, read as superuser.
+
+        A portal user cannot read account.move at all, so every portal-facing reader of the
+        invoice goes through here and hands out plain values instead of the record itself.
+        """
+        self.ensure_one()
+        return self.sudo().invoice_ids.filtered(
+            lambda move: move.move_type == 'out_invoice' and move.state == 'posted')[:1]
+
+    def _ems_portal_installments(self):
+        """One plain dict per installment of the enrollment invoice, for the portal.
+
+        An installment counts as paid once its receivable line is fully reconciled, so a
+        deferred plan correctly reads "first paid, second pending" while the invoice as a
+        whole is still 'partial'. Returns [] when there is no posted invoice yet, which is
+        what makes the portal fall back to the payment plan's own description.
+        """
+        self.ensure_one()
+        invoice = self._ems_enrollment_invoice()
+        if not invoice:
+            return []
+        lines = invoice._ems_installment_lines()
+        return [{
+            'number': number,
+            'count': len(lines),
+            'due_date': line.date_maturity,
+            # Built here rather than in the template: a label assembled out of QWeb text nodes
+            # is exported as separate word fragments ("Payment", "of", "(due"), which cannot be
+            # translated properly.
+            'label': self._ems_installment_label(number, len(lines), line.date_maturity),
+            'amount': abs(line.amount_currency),
+            'residual': abs(line.amount_residual_currency),
+            'paid': line.reconciled or invoice.currency_id.is_zero(line.amount_residual),
+            'currency': invoice.currency_id,
+        } for number, line in enumerate(lines, start=1)]
+
+    def _ems_installment_label(self, number, count, due_date):
+        """'Payment 1 of 2 (due 15/07/2026)', in the reader's own language."""
+        period = _("Payment %(number)s of %(count)s", number=number, count=count) if count > 1 \
+            else _("Single payment")
+        if not due_date:
+            return period
+        return _("%(period)s (due %(due_date)s)",
+                 period=period, due_date=format_date(self.env, due_date))
+
+    def _ems_portal_message_domain(self):
+        """The messages the enrollment page shows in its own communications block.
+
+        Deliberately narrower than /my/comunicaciones (which takes any non-note message on the
+        student's enrollments): the conversation with the secretary's office, plus the payment
+        notifications posted by account.move._ems_notify_enrollment_payment().
+        """
+        self.ensure_one()
+        subtypes = self.env.ref('mail.mt_comment') | self.env.ref('ems.mt_enrollment_payment')
+        return [
+            ('model', '=', 'sale.order'),
+            ('res_id', '=', self.id),
+            ('message_type', '=', 'comment'),
+            ('subtype_id', 'in', subtypes.ids),
+        ]

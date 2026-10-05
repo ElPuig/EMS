@@ -1,0 +1,105 @@
+name: Set up Odoo and install EMS
+description: >-
+  Installs the system packages, Odoo (and Chrome for browser tours), configures Odoo and installs
+  EMS with install.sh on a fresh database. Shared by the test shards and the scripts job of
+  ci-unit-testing.yml (issue #564). Expects a PostgreSQL service on localhost:5432 (user and
+  password "odoo") and the EMS repository checked out in the workspace.
+
+inputs:
+  needs_chrome:
+    description: Also install Chrome and websocket-client, and check that Chrome starts.
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    # One apt transaction for everything: the system packages from apt-requirements.txt, Odoo
+    # from its nightly repository and, only when browser tours run, Chrome plus websocket-client.
+    # Adding every repository first and running a single 'apt-get update' saves the two extra
+    # index refreshes separate steps used to pay.
+    - name: Install system packages, Odoo and Chrome
+      shell: bash
+      env:
+        NEEDS_CHROME: ${{ inputs.needs_chrome }}
+      run: |
+        sudo mkdir -p /etc/apt/keyrings
+        curl -fsSL https://nightly.odoo.com/odoo.key \
+          | sudo gpg --dearmor -o /usr/share/keyrings/odoo-archive-keyring.gpg
+        echo "deb [signed-by=/usr/share/keyrings/odoo-archive-keyring.gpg] https://nightly.odoo.com/18.0/nightly/deb/ ./" \
+          | sudo tee /etc/apt/sources.list.d/odoo.list
+        PACKAGES="python3-pip $(grep -v '^#' apt-requirements.txt | tr '\n' ' ') odoo"
+        if [ "$NEEDS_CHROME" = "true" ]; then
+          curl -fsSL https://dl.google.com/linux/linux_signing_key.pub \
+            | sudo gpg --dearmor -o /etc/apt/keyrings/google-chrome.gpg
+          echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" \
+            | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          # wkhtmltopdf: tours that print a report from the browser need it; without it Odoo
+          # doesn't produce the PDF and the screen flow differs from production's (issue #565).
+          PACKAGES="$PACKAGES google-chrome-stable wkhtmltopdf"
+        fi
+        sudo apt-get update -qq
+        sudo apt-get install -y $PACKAGES
+        if [ "$NEEDS_CHROME" = "true" ]; then
+          sudo pip install --break-system-packages websocket-client
+        fi
+
+    # Ubuntu 24.04 runner images restrict unprivileged user namespaces via AppArmor by default
+    # (https://github.com/actions/runner-images/issues/9491). This was added for the
+    # "crashpad ... recvmsg: Connection reset by peer" failure but didn't fix it: the real cause
+    # was the environment Chrome inherited (issue #563, see scripts/testing/as_odoo.sh). Kept as
+    # a precaution; whether Chrome still needs it here hasn't been checked.
+    - name: Allow unprivileged user namespaces for Chrome sandboxing
+      if: inputs.needs_chrome == 'true'
+      shell: bash
+      run: echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
+
+    # Odoo skips a tour instead of failing it when Chrome doesn't start, so this checks Chrome
+    # directly, as the odoo user and with Odoo's own switches, and fails right away with
+    # Chrome's output (issue #563).
+    - name: Check Chrome starts
+      if: inputs.needs_chrome == 'true'
+      shell: bash
+      run: sudo scripts/testing/check_chrome_starts.sh
+
+    - name: Stop and disable Odoo system service
+      shell: bash
+      run: |
+        sudo systemctl stop odoo || true
+        sudo systemctl disable odoo || true
+
+    - name: Copy EMS module and set permissions
+      shell: bash
+      run: |
+        sudo mkdir -p /opt/modules
+        sudo cp -r "$GITHUB_WORKSPACE" /opt/modules/ems
+        sudo chown -R odoo:odoo /opt/modules
+
+    # 'secret' is required by EmsCompany._get_fernet_key() (models/settings/company.py) to
+    # encrypt/decrypt company-level credentials (LimeSurvey password, Google Workspace service
+    # account JSON) - any test touching those fields raises "Unable to locate a 'secret' value
+    # within odoo.conf" without it (confirmed via a real CI run, 2026-07-31). A fresh random
+    # Fernet key is fine: this database is thrown away at the end of the job.
+    - name: Configure Odoo
+      shell: bash
+      run: |
+        SECRET=$(python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+        sudo tee /etc/odoo/odoo.conf > /dev/null <<EOF
+        [options]
+        addons_path = /usr/lib/python3/dist-packages/odoo/addons,/opt/modules,/opt/modules/queue,/opt/modules/partner-contact
+        db_host = localhost
+        db_port = 5432
+        db_user = odoo
+        db_password = odoo
+        server_wide_modules = web,queue_job
+        secret = ${SECRET}
+        EOF
+
+    # 'dev' is required: install.sh interactively prompts for prod/dev when called with no
+    # argument (see CLAUDE.md's "Development vs. production environment declaration"), and a
+    # runner has no stdin/TTY to answer it - without it every job hangs on this step (confirmed
+    # 2026-08-12). A CI database, thrown away at the end of the job, is always 'dev'.
+    - name: Install EMS module
+      shell: bash
+      run: |
+        set -o pipefail
+        sudo /opt/modules/ems/install.sh dev 2>&1 | tee /tmp/odoo-install.log

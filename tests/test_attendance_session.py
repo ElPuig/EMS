@@ -1,6 +1,9 @@
-from datetime import date, datetime
+from datetime import date, datetime, time, timedelta
 from unittest.mock import patch
 
+import pytz
+
+from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
@@ -24,8 +27,11 @@ class TestAttendanceSessionHeader(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # The company's day, which the code works with: date.today() is UTC in Odoo, a day behind
+        # right after local midnight (weekday and session date would then disagree with it).
+        cls.today = cls.env['ems.datetime_utils'].get_local_today()
         cls.level, cls.study = create_level_study(cls, 'TAS', level={'name': 'Test Level (Attendance Session)'}, study={
-            'code': 'TAS001', 'name': 'Test Study (Attendance Session)', 'date': date.today(),
+            'code': 'TAS001', 'name': 'Test Study (Attendance Session)', 'date': cls.today,
         })
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TAS001', 'acronym': 'TAS', 'name': 'Test Subject (Attendance Session)',
@@ -45,8 +51,17 @@ class TestAttendanceSessionHeader(TransactionCase):
         })
         cls.teacher = cls.env['hr.employee'].create({
             'name': 'Test Teacher (Attendance Session)', 'employee_type': 'teacher',
-            'user_id': cls.teacher_user.id,
+            'user_id': cls.teacher_user.id, 'tz': 'Europe/Madrid',
         })
+        # Today: 8-14 and 16-20 (Europe/Madrid), on the personal calendar employee.create()
+        # already gave the teacher, so a roll-call can be taken both inside and outside their
+        # working hours.
+        cls.teacher.resource_calendar_id.flexible_hours = False
+        cls.env['resource.calendar.attendance'].create([{
+            'calendar_id': cls.teacher.resource_calendar_id.id, 'name': 'Test Slot',
+            'dayofweek': str(cls.today.weekday()), 'hour_from': hour_from, 'hour_to': hour_to,
+            'day_period': period,
+        } for hour_from, hour_to, period in ((8.0, 14.0, 'morning'), (16.0, 20.0, 'afternoon'))])
         cls.student1 = cls.env['res.partner'].create({'name': 'Session Student 1', 'contact_type': 'student', 'student_id': next_student_id()})
         cls.student2 = cls.env['res.partner'].create({'name': 'Session Student 2', 'contact_type': 'student', 'student_id': next_student_id()})
         cls.template = cls.env['ems.attendance_template'].create({
@@ -57,12 +72,12 @@ class TestAttendanceSessionHeader(TransactionCase):
         # student_ids lives on the schedule line, not the template (see
         # plans/calendar_driven_attendance_templates.md, point 1).
         cls.schedule = cls.env['ems.attendance_schedule'].create({
-            'attendance_template_id': cls.template.id, 'weekday': str(date.today().weekday()),
+            'attendance_template_id': cls.template.id, 'weekday': str(cls.today.weekday()),
             'start_time': 8.0, 'end_time': 9.0, 'space_id': cls.space.id,
             'student_ids': [(6, 0, [cls.student1.id, cls.student2.id])],
         })
         cls.schedule2 = cls.env['ems.attendance_schedule'].create({
-            'attendance_template_id': cls.template.id, 'weekday': str(date.today().weekday()),
+            'attendance_template_id': cls.template.id, 'weekday': str(cls.today.weekday()),
             'start_time': 9.0, 'end_time': 10.0, 'space_id': cls.space.id,
             'student_ids': [(6, 0, [cls.student1.id, cls.student2.id])],
         })
@@ -71,7 +86,7 @@ class TestAttendanceSessionHeader(TransactionCase):
 
     def test_computed_fields_derive_from_schedule_and_template(self):
         session = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': self.schedule.id, 'date': date.today(),
+            'attendance_schedule_id': self.schedule.id, 'date': self.today,
             'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
         })
         self.assertEqual(session.weekday, self.schedule.weekday)
@@ -86,6 +101,24 @@ class TestAttendanceSessionHeader(TransactionCase):
         self.assertEqual(session.template_teacher_ids, self.teacher)
 
     # --- auto check-in of the session's own teacher -----------------------------------
+
+    def _today_at(self, local_hour, local_minute=0):
+        """Naive UTC for today at the given Europe/Madrid wall-clock time (the ORM's own
+        convention, and what fields.Datetime.now() returns)."""
+        local = pytz.timezone('Europe/Madrid').localize(
+            datetime.combine(self.today, time(local_hour, local_minute)))
+        return local.astimezone(pytz.utc).replace(tzinfo=None)
+
+    def _take_roll_call_at(self, now, schedule=None):
+        # As the teacher: only whoever actually takes the roll-call gets checked in.
+        with patch.object(fields.Datetime, 'now', return_value=now):
+            return self.env['ems.attendance_session_header'].with_user(self.teacher_user).create({
+                'attendance_schedule_id': (schedule or self.schedule).id, 'date': self.today,
+                'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+            })
+
+    def _teacher_attendances(self):
+        return self.env['hr.attendance'].search([('employee_id', '=', self.teacher.id)])
 
     def test_auto_checkin_failure_does_not_block_the_session(self):
         """A failure auto-checking-in the teacher (e.g. an issue #422-class collision on a
@@ -102,30 +135,79 @@ class TestAttendanceSessionHeader(TransactionCase):
         with patch.object(type(self.env['hr.attendance']), 'create', _boom), \
              patch.object(type(self.env['ems.attendance_session_header']),
                           '_notify_auto_checkin_failure', autospec=True) as notify_mock:
-            session = self.env['ems.attendance_session_header'].create({
-                'attendance_schedule_id': self.schedule.id, 'date': date.today(),
-                'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
-            })
+            session = self._take_roll_call_at(self._today_at(10))
 
         self.assertTrue(session.exists(), "the session itself must still be created")
         notify_mock.assert_called_once()
-        self.assertFalse(
-            self.env['hr.attendance'].search([('employee_id', '=', self.teacher.id)]),
-            "the failed check-in must not leave a half-written record behind")
+        self.assertFalse(self._teacher_attendances(),
+                         "the failed check-in must not leave a half-written record behind")
 
     def test_auto_checkin_creates_a_real_attendance_on_success(self):
         """The success path, so the failure-isolation test above isn't the only proof this
         still actually checks the teacher in when nothing goes wrong."""
         self.env.company.auto_checkin_mode = 'current'
+        now = self._today_at(10)
 
-        self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': self.schedule.id, 'date': date.today(),
-            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
-        })
+        self._take_roll_call_at(now)
 
-        attendance = self.env['hr.attendance'].search([('employee_id', '=', self.teacher.id)])
+        attendance = self._teacher_attendances()
         self.assertEqual(len(attendance), 1)
         self.assertEqual(attendance.in_mode, 'auto_check_in')
+        self.assertEqual(attendance.check_in, now)
+
+    def test_auto_checkin_is_the_employees_last_attendance(self):
+        """Regression (2026-09-28): the automatic check-in used to be stored with microseconds,
+        so it was a fraction of a second later than the "now" hr.employee's stored
+        last_attendance_id is computed against and never became it. The kiosk then saw the
+        teacher as checked out and tried a second check-in instead of the check-out, rejected
+        by hr.attendance's own "hasn't checked out since" validation."""
+        self.env.company.auto_checkin_mode = 'current'
+        self._take_roll_call_at(self._today_at(10))
+        attendance = self._teacher_attendances()
+
+        teacher = self.teacher.sudo()
+        self.assertEqual(teacher.last_attendance_id, attendance)
+        self.assertEqual(teacher.attendance_state, 'checked_in')
+
+        # What the kiosk does when the teacher leaves: must check out, not check in again.
+        with patch.object(fields.Datetime, 'now', return_value=self._today_at(13)):
+            teacher._attendance_action_change()
+        self.assertEqual(self._teacher_attendances(), attendance)
+        self.assertEqual(attendance.check_out, self._today_at(13))
+
+    def test_auto_checkin_is_never_in_the_future(self):
+        """'start' mode, roll-call opened before the session starts: the check-in is capped at
+        the current time, for the same last_attendance_id reason as the test above."""
+        self.env.company.auto_checkin_mode = 'start'
+        now = self._today_at(8, 50)
+
+        self._take_roll_call_at(now, schedule=self.schedule2)  # starts at 9:00
+
+        attendance = self._teacher_attendances()
+        self.assertEqual(attendance.check_in, now)
+        self.assertEqual(self.teacher.sudo().last_attendance_id, attendance)
+
+    def test_no_auto_checkin_outside_working_hours(self):
+        """A roll-call taken outside the teacher's working hours (e.g. from home, before their
+        shift starts) takes attendance but doesn't check the teacher in (2026-09-28)."""
+        self.env.company.auto_checkin_mode = 'current'
+
+        for local_hour in (7, 15, 21):
+            with self.subTest(local_hour=local_hour):
+                session = self._take_roll_call_at(self._today_at(local_hour))
+                self.assertTrue(session.exists())
+                self.assertFalse(self._teacher_attendances())
+                session.unlink()
+
+    def test_no_auto_checkin_without_working_schedule(self):
+        """A teacher with no working schedule has no working hours, so is never checked in
+        automatically."""
+        self.env.company.auto_checkin_mode = 'current'
+        self.teacher.resource_calendar_id = False
+
+        self._take_roll_call_at(self._today_at(10))
+
+        self.assertFalse(self._teacher_attendances())
 
     def test_space_id_comes_from_schedule_line_not_template(self):
         # Regression guard for the 2026-08-01 room-granularity change: a schedule line's own room
@@ -146,7 +228,7 @@ class TestAttendanceSessionHeader(TransactionCase):
         self.schedule.with_context(ems_bypass_template_lock=True).write({'space_id': other_space.id})
 
         session = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': self.schedule.id, 'date': date.today(),
+            'attendance_schedule_id': self.schedule.id, 'date': self.today,
             'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
         })
 
@@ -157,12 +239,12 @@ class TestAttendanceSessionHeader(TransactionCase):
 
     def test_duplicate_session_same_schedule_and_date_raises(self):
         self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': self.schedule.id, 'date': date.today(),
+            'attendance_schedule_id': self.schedule.id, 'date': self.today,
             'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
         })
         with self.assertRaises(ValidationError):
             self.env['ems.attendance_session_header'].create({
-                'attendance_schedule_id': self.schedule.id, 'date': date.today(),
+                'attendance_schedule_id': self.schedule.id, 'date': self.today,
                 'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
             })
 
@@ -170,7 +252,7 @@ class TestAttendanceSessionHeader(TransactionCase):
 
     def test_fresh_session_populates_one_line_per_template_student(self):
         session = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': self.schedule.id, 'date': date.today(),
+            'attendance_schedule_id': self.schedule.id, 'date': self.today,
             'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
         })
         self.assertEqual(len(session.attendance_session_line_ids), 2)
@@ -182,7 +264,7 @@ class TestAttendanceSessionHeader(TransactionCase):
 
     def test_continuation_session_carries_over_previous_status(self):
         first = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': self.schedule.id, 'date': date.today(),
+            'attendance_schedule_id': self.schedule.id, 'date': self.today,
             'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
         })
         delayed = self.env.ref('ems.attendance_status_delayed')
@@ -190,7 +272,7 @@ class TestAttendanceSessionHeader(TransactionCase):
         first_line.status_id = delayed
 
         second = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': self.schedule2.id, 'date': date.today(),
+            'attendance_schedule_id': self.schedule2.id, 'date': self.today,
             'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
         })
         second_line = second.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student1)
@@ -199,7 +281,7 @@ class TestAttendanceSessionHeader(TransactionCase):
 
     def test_continuation_session_carries_over_previous_status_severe_delay(self):
         first = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': self.schedule.id, 'date': date.today(),
+            'attendance_schedule_id': self.schedule.id, 'date': self.today,
             'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
         })
         delayed_severe = self.env.ref('ems.attendance_status_delayed_severe')
@@ -207,7 +289,7 @@ class TestAttendanceSessionHeader(TransactionCase):
         first_line.status_id = delayed_severe
 
         second = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': self.schedule2.id, 'date': date.today(),
+            'attendance_schedule_id': self.schedule2.id, 'date': self.today,
             'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
         })
         second_line = second.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student1)
@@ -217,7 +299,7 @@ class TestAttendanceSessionHeader(TransactionCase):
 
     def test_continuation_session_justified_becomes_miss(self):
         first = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': self.schedule.id, 'date': date.today(),
+            'attendance_schedule_id': self.schedule.id, 'date': self.today,
             'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
         })
         justified = self.env.ref('ems.attendance_status_justified')
@@ -225,17 +307,35 @@ class TestAttendanceSessionHeader(TransactionCase):
         first_line.status_id = justified
 
         second = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': self.schedule2.id, 'date': date.today(),
+            'attendance_schedule_id': self.schedule2.id, 'date': self.today,
             'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
         })
         second_line = second.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student1)
         self.assertEqual(second_line.status_id, self.env.ref('ems.attendance_status_miss'))
 
+    def test_continuation_session_keeps_removed_students_removed(self):
+        """Issue #537: a student removed from the first period's roll-call (e.g. not sitting an
+        exam spanning both periods) stays removed, and restorable, in the continuation."""
+        first = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': self.schedule.id, 'date': self.today,
+            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+        })
+        first.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student1).active = False
+
+        second = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': self.schedule2.id, 'date': self.today,
+            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+        })
+        lines = second.with_context(active_test=False).attendance_session_line_ids
+        self.assertEqual(len(lines), 2)
+        self.assertFalse(lines.filtered(lambda l: l.student_id == self.student1).active)
+        self.assertTrue(lines.filtered(lambda l: l.student_id == self.student2).active)
+
     # --- copy / unlink -------------------------------------------------------------------
 
     def test_copy_is_blocked(self):
         session = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': self.schedule.id, 'date': date.today(),
+            'attendance_schedule_id': self.schedule.id, 'date': self.today,
             'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
         })
         with self.assertRaises(UserError):
@@ -243,7 +343,7 @@ class TestAttendanceSessionHeader(TransactionCase):
 
     def test_unlink_without_issues_succeeds(self):
         session = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': self.schedule.id, 'date': date.today(),
+            'attendance_schedule_id': self.schedule.id, 'date': self.today,
             'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
         })
         session.unlink()
@@ -258,7 +358,7 @@ class TestAttendanceSessionHeader(TransactionCase):
         })
         with self.assertRaises(AccessError):
             self.env['ems.attendance_session_header'].with_user(portal_user).get_guard_sessions(
-                date.today().isoformat())
+                self.today.isoformat())
 
     def test_guard_sessions_returns_other_teachers_sessions(self):
         other_teacher_user = self.env['res.users'].with_context(no_reset_password=True).create({
@@ -270,24 +370,64 @@ class TestAttendanceSessionHeader(TransactionCase):
             'user_id': other_teacher_user.id,
         })
         session = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': self.schedule.id, 'date': date.today(),
+            'attendance_schedule_id': self.schedule.id, 'date': self.today,
             'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
         })
         result = self.env['ems.attendance_session_header'].with_user(other_teacher_user).get_guard_sessions(
-            date.today().isoformat())
+            self.today.isoformat())
         # Asserting an exact system-wide count is fragile: whatever real data the test DB was
         # seeded from may already have another session dated today (found 2026-09-02 - the dev
         # DB had a genuine session for that same date). Only assert our own session is in there.
         self.assertIn(session.id, [entry['id'] for entry in result])
 
+    def test_guard_teacher_can_remove_a_line(self):
+        other_teacher_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Guard Teacher User (Attendance Session)', 'login': 'test_guard_teacher_tas',
+            'groups_id': [(4, self.env.ref('ems.group_teacher').id), (4, self.env.ref('base.group_user').id)],
+        })
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': self.schedule.id, 'date': self.today,
+            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+        })
+        line = session.attendance_session_line_ids[:1]
+        self.env['ems.attendance_session_header'].with_user(other_teacher_user).write_guard_session_line(
+            line.id, {'active': False})
+        self.assertFalse(line.active)
+
     def test_create_scheduled_session_marks_continuation(self):
         first = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': self.schedule.id, 'date': date.today(),
+            'attendance_schedule_id': self.schedule.id, 'date': self.today,
             'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
         })
         result = self.env['ems.attendance_session_header'].with_user(self.teacher_user).create_scheduled_session(
-            date.today().isoformat(), self.schedule2.id)
+            self.today.isoformat(), self.schedule2.id)
         self.assertTrue(result['is_continuation'])
+
+    def test_admin_without_teaching_employee_starts_a_session_for_its_teacher(self):
+        """An admin sees every slot in the roll-call screen; starting one on the teacher's behalf
+        makes the slot's teacher the session's teacher, without checking them in."""
+        admin_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Admin User (Attendance Session)', 'login': 'test_admin_tas',
+            'groups_id': [(4, self.env.ref('ems.group_academic_admin').id), (4, self.env.ref('base.group_user').id)],
+        })
+        self.env['hr.employee'].create({
+            'name': 'Admin Employee (Attendance Session)', 'employee_type': 'employee', 'user_id': admin_user.id,
+        })
+        self.env.company.auto_checkin_mode = 'current'
+        with patch.object(fields.Datetime, 'now', return_value=self._today_at(9)):
+            result = self.env['ems.attendance_session_header'].with_user(admin_user).create_scheduled_session(
+                self.today.isoformat(), self.schedule.id)
+        session = self.env['ems.attendance_session_header'].browse(result['id'])
+        self.assertEqual(session.session_teacher_id, self.teacher)
+        self.assertFalse(self._teacher_attendances())
+
+    def test_create_scheduled_session_rejects_a_future_date(self):
+        """The date comes from the web client, whose clock can be wrong: the server never takes a
+        roll-call for a day after its own (company-timezone) today."""
+        tomorrow = self.env['ems.datetime_utils'].get_local_today() + timedelta(days=1)
+        with self.assertRaises(ValidationError):
+            self.env['ems.attendance_session_header'].with_user(self.teacher_user).create_scheduled_session(
+                tomorrow.isoformat(), self.schedule.id)
 
 
 class TestAttendanceSessionLine(TransactionCase):
@@ -392,3 +532,56 @@ class TestAttendanceSessionLine(TransactionCase):
         if issue_tutor:
             self.assertFalse(issue_tutor.attendance_issue_student_ids)
 
+    # --- removal from the roll-call (issue #537) ------------------------------------------
+
+    def _issue_statuses(self, line):
+        return self.env['ems.attendance_issue_status'].search([('attendance_session_line_id', '=', line.id)])
+
+    def test_removed_line_is_left_out_of_reports(self):
+        line = self._line()
+        line.status_id = self.env.ref('ems.attendance_status_miss')
+        line.active = False
+        domain = [('attendance_session_id', '=', self.session.id)]
+        self.assertFalse(self.env['ems.attendance_session_line'].search(domain))
+        groups = self.env['ems.attendance_session_line'].read_group(domain, ['absence_rate:avg'], [])
+        self.assertFalse(groups[0]['__count'])
+
+    def test_removing_a_line_cancels_its_pending_notification(self):
+        line = self._line()
+        line.status_id = self.env.ref('ems.attendance_status_miss')
+        self.assertTrue(self._issue_statuses(line))
+        line.active = False
+        self.assertFalse(self._issue_statuses(line))
+
+    def test_removing_an_already_notified_line_sends_a_rectification(self):
+        # Without a recipient no family notification is ever queued, so nothing is "already notified".
+        self.student.student_email = 'session.line.student@example.com'
+        line = self._line()
+        line.status_id = self.env.ref('ems.attendance_status_miss')
+        original = self._issue_statuses(line)
+        original.notification_id.sudo().state = 'done'
+        line.active = False
+
+        statuses = self._issue_statuses(line)
+        rectification = statuses.filtered('rectification')
+        self.assertEqual(len(rectification), 1)
+        # No status: the student simply wasn't required to attend.
+        self.assertFalse(rectification.attendance_status_id)
+        self.assertEqual(original.rectified_by, rectification)
+
+    def test_restoring_a_removed_line_notifies_again(self):
+        line = self._line()
+        line.active = False
+        line.status_id = self.env.ref('ems.attendance_status_miss')
+        self.assertFalse(self._issue_statuses(line))
+        line.active = True
+        self.assertTrue(self._issue_statuses(line))
+
+    def test_a_line_with_strikes_cannot_be_removed(self):
+        line = self._line()
+        self.env['ems.strike'].create({
+            'student_id': self.student.id, 'teacher_id': self.teacher.id,
+            'attendance_session_line_id': line.id,
+        })
+        with self.assertRaises(UserError):
+            line.active = False

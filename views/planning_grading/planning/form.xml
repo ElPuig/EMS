@@ -6,7 +6,10 @@
             <field name="arch" type="xml">				
                 <form string="planning">                   
                     <sheet>                        
-                        <group string="Main data" col="4">
+                        <group string="Main data" col="6">
+                            <group colspan="2">
+                                <field name="course_id" readonly="1" />
+                            </group>
                             <group colspan="2">            
                                 <!-- TODO: hide already in use subject? Maybe not needed...  -->
                                 <field name="study_id" />
@@ -35,7 +38,8 @@
                                 </field>
                             </page>
                         </notebook>
-                    </sheet>	
+                    </sheet>
+                    <chatter/>
                 </form>
             </field>			
         </record>

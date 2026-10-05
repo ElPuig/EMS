@@ -20567,6 +20567,11 @@ msgstr ""
 "con Editar."
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course__short_code
+msgid "Short code"
+msgstr "Código corto"
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__approval_date
 msgid "Approved on"
 msgstr "Aprobado el"

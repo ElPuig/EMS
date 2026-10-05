@@ -24,7 +24,7 @@ Aquesta guia explica l'**històric acadèmic**: un resum permanent per curs de c
 Un registre per **alumne/a i curs**, amb tres nivells:
 
 - **Resum del curs:** estudi, nivell, grup, tutor/a i torn d'aquell curs, percentatge global d'assistència, nombre de notificacions d'assistència enviades a la família, resultat acadèmic i si va obtenir el títol aquell any.
-- **Mòduls:** una línia per mòdul cursat, amb la nota interna, la nota de l'estada (EM), la nota final, l'estat (**Superat / No superat**) i les ponderacions congelades vigents aquell curs.
+- **Mòduls:** una línia per mòdul cursat, amb el grup on es va cursar (per a una optativa d'ESO, la mateixa optativa, p. ex. *Mediació (2n ESO)*), la nota interna, la nota de l'estada (EM), la nota final, l'estat (**Superat / No superat**) i les ponderacions congelades vigents aquell curs.
 - **Resultats d'aprenentatge (RA):** dins de cada mòdul, la nota de cada RA convocatòria a convocatòria, amb el seu pes.
 
 > L'històric és una **còpia, mai no es recalcula**: els valors són els que el subsistema de notes va calcular durant el curs, congelats amb les ponderacions de la programació d'aquell any. Les notes conserven el seu significat encara que la programació canviï en anys posteriors.

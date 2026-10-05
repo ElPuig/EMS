@@ -261,6 +261,7 @@ class EmsStudentYearRecord(models.Model):
             vals_list.append({
                 'subject_id': subject.id,
                 'subject_name': subject.display_name,
+                'group_name': last.grade_session_id.group_id.name,
                 'internal_weight': last.internal_ponderation,
                 'external_weight': last.external_ponderation,
                 'internal_grade': last.internal_score,
@@ -382,6 +383,10 @@ class EmsStudentYearRecordSubject(models.Model):
                                 required=True, ondelete='cascade')
     subject_id = fields.Many2one(string="Subject", comodel_name='ems.subject', ondelete='set null')
     subject_name = fields.Char(string="Subject name")
+    # Group the subject was graded in. For an ESO optative shared by several offers (a generic
+    # "Optativa 1r ESO" subject, one group per optative) it is the only trace of which one the
+    # student took.
+    group_name = fields.Char(string="Group name")
     # Weights frozen from the planning in force when the record was generated.
     internal_weight = fields.Float(string="Internal weight (%)")
     external_weight = fields.Float(string="External weight (%)")

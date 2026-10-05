@@ -24,7 +24,7 @@ This guide explains the **academic history**: a permanent, per-course summary of
 One record per **student and course**, with three levels:
 
 - **Course summary:** study, level, group, tutor and shift of that course, global attendance rate, number of attendance notifications sent to the family, academic result and whether the title was obtained that year.
-- **Subjects:** one line per subject taken, with the internal grade, the work placement (EM) grade, the final grade, the state (**Passed / Not passed**) and the frozen grading weights in force that course.
+- **Subjects:** one line per subject taken, with the group it was taken in (for an ESO optative, the optative itself, e.g. *Mediació (2n ESO)*), the internal grade, the work placement (EM) grade, the final grade, the state (**Passed / Not passed**) and the frozen grading weights in force that course.
 - **Learning outcomes (RA):** inside each subject, the grade of every RA round by round, with its weight.
 
 > The history is a **copy, never recalculated**: the values are the ones the grades subsystem computed while the course was running, frozen with the weights of that year's teaching plan. Grades keep their meaning even if the plan changes in later years.

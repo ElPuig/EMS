@@ -11384,6 +11384,7 @@ msgstr "Nota de l'última avaluació informada."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__group_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__group_name
 msgid "Group name"
 msgstr "Nom del grup"
 

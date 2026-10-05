@@ -66,3 +66,7 @@ __import__.subject_171_2022_REL2,"171_2022_REL2","REL2","Religió II",11,0,0,fal
 __import__.subject_171_2022_REAC,"171_2022_REAC","REAC","Reaccions químiques quotidianes",11,0,0,false
 __import__.subject_171_2022_CAUD,"171_2022_CAUD","CAUD","Cultura Audiovisual",11,0,0,false
 __import__.subject_171_2022_DRET,"171_2022_DRET","DRET","Dret",11,0,0,false
+__import__.subject_171_2022_LITC,"171_2022_LITC","LITC","Literatura Catalana",132,0,0,false
+__import__.subject_171_2022_FOR,"171_2022_FOR","FOR","Formació i Orientació",66,0,0,false
+__import__.subject_171_2022_MCL,"171_2022_MCL","MCL","Món Clàssic",66,0,0,false
+__import__.subject_171_2022_BIOM,"171_2022_BIOM","BIOM","Biomedicina",66,0,0,false

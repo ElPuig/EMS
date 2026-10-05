@@ -24,7 +24,7 @@ Esta guía explica el **histórico académico**: un resumen permanente por curso
 Un registro por **alumno/a y curso**, con tres niveles:
 
 - **Resumen del curso:** estudio, nivel, grupo, tutor/a y turno de ese curso, porcentaje global de asistencia, número de notificaciones de asistencia enviadas a la familia, resultado académico y si obtuvo el título ese año.
-- **Módulos:** una línea por módulo cursado, con la nota interna, la nota de la estancia (EM), la nota final, el estado (**Superado / No superado**) y las ponderaciones congeladas vigentes ese curso.
+- **Módulos:** una línea por módulo cursado, con el grupo en el que se cursó (para una optativa de ESO, la propia optativa, p. ej. *Mediació (2n ESO)*), la nota interna, la nota de la estancia (EM), la nota final, el estado (**Superado / No superado**) y las ponderaciones congeladas vigentes ese curso.
 - **Resultados de aprendizaje (RA):** dentro de cada módulo, la nota de cada RA convocatoria a convocatoria, con su peso.
 
 > El histórico es una **copia, nunca se recalcula**: los valores son los que el subsistema de notas calculó durante el curso, congelados con las ponderaciones de la programación de ese año. Las notas conservan su significado aunque la programación cambie en años posteriores.

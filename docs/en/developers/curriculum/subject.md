@@ -231,3 +231,15 @@ No record-level rules exist for this model. No portal access — subjects aren't
 |------|---------|
 | `data/cat/ems.subject.csv` | Production catalog: Catalan VET/Baccalaureate subjects |
 | `data/custom/btx/ems.subject.csv`, `data/custom/ccff/ems.subject.csv`, `data/custom/eso/ems.subject.csv` | Centre-specific subject catalogs |
+
+## ESO optatives
+
+Every optative class gathers students from all the groups of a course (1A, 1B...), so each one is an `ems.group` (reinforcement type, living data managed from the UI). A student keeps their main group and is also enrolled in (optative group, subject); the attendance roster and the grade session come from that enrollment. Which subject depends on the case:
+
+| Case | Subject | Example |
+|---|---|---|
+| 1r-3r, the centre's own optatives | One generic subject per course: `175_2022_OPT1`/`OPT2`/`OPT3`, *Optativa (1r)*/*(2n)*/*(3r)*, shared by every optative of that course | Mediació (2n ESO) -> `OPT2` |
+| 1r-3r, optatives Esfera lists under their own name | Their own subject | Francès (1r ESO) -> `FRA1`; Robòtica I and II (2n ESO) -> `ROB2` |
+| 4t (all curricular) | Their own subject; a subject taught in two classes is one subject with two groups | Física i Química I and II (4t ESO) -> `FIQ4` |
+
+So the centre's own offer changes every year with groups alone, without touching the repository. The generic subjects' codes must never **start** with `OPT`: the Esfera grade importer (`ems.grade_import_wizard`) treats such a subject as "the student's only optative in the study". Since the subject's name does not say which optative it was, the academic history copies the group's name onto each subject line (`ems.student.year_record.subject.group_name`, see [`year_record.md`](../grades/year_record.md)).

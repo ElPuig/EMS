@@ -52,6 +52,7 @@
                                 <field name="subject_record_ids" readonly="1">
                                     <list decoration-danger="state == 'failed'">
                                         <field name="subject_name"/>
+                                        <field name="group_name" optional="show"/>
                                         <field name="state" widget="badge"
                                                decoration-success="state == 'passed'"
                                                decoration-danger="state == 'failed'"/>
@@ -86,6 +87,7 @@
                         <group cols="2">
                             <group>
                                 <field name="subject_name" readonly="1"/>
+                                <field name="group_name" readonly="1"/>
                                 <field name="state" readonly="1"/>
                                 <field name="final_pending" readonly="1"/>
                                 <field name="is_convalidated" readonly="1"/>

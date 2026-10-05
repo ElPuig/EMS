@@ -20479,3 +20479,8 @@ msgid "This record has no document to show yet. Add its link with Edit."
 msgstr ""
 "Este registro aún no tiene ningún documento que mostrar. Añadid su enlace "
 "con Editar."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course__short_code
+msgid "Short code"
+msgstr "Código corto"

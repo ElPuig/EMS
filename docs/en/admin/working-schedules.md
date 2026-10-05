@@ -220,21 +220,24 @@ If any of the teachers found across the files already has a schedule, it's updat
 
 New timetables sometimes arrive before every post is staffed — your planner tool names those rows with a placeholder code (`X1`, `X2`...) instead of a real teacher's e-mail. Importing such a file no longer fails on those rows:
 
-> The same pending-identification mechanism also covers a genuine e-mail that doesn't match any existing teacher — tick **New** for that row on the **Resolve teachers** screen instead of picking one (see step 5 of "Import Working Schedules From a File" above). The only difference from a placeholder code is that the file's e-mail is kept, pre-filled as an editable **Work email** (**Assign corporate email manually** ticked), rather than left for a later "Generate Google account" to assign automatically.
+> The same pending-identification mechanism also covers a genuine e-mail that doesn't match any existing teacher — tick **New** for that row on the **Resolve teachers** screen instead of picking one (see step 5 of "Import Working Schedules From a File" above). The only difference from a placeholder code is that the file's e-mail is kept, pre-filled as an editable **Work email** (**Assign corporate email manually** ticked), rather than generated automatically once the teacher is identified.
 
 1. Attach the file and click through the wizard as usual (see "Import Working Schedules From a File" above) — a placeholder code isn't treated as a problem at any step.
-2. Click **Import** on the final step. A new employee record is created for each not-yet-identified code, already named e.g. "Pending teacher (X1)", with **their schedule, subjects and attendance lists already set up** exactly as if they were a known teacher.
+2. Click **Import** on the final step. A new employee record is created for each not-yet-identified code, named after its code (e.g. "X1"), with **their schedule, subjects and attendance lists already set up** exactly as if they were a known teacher.
 3. These records show a **"Pending identification"** badge in the Teachers list/kanban and a ribbon on their own form, so they're easy to find (use the **Pending identification** filter/group-by in the Teachers list) and easy to tell apart from a real, already-identified teacher.
+
+These records are vacancies pending identification, the same kind a Head of Studies can also create by hand from the Teachers form (see [Creating and Editing Teachers](../head_of_studies/staff-management.md)): they get no Google account and no EMS user while they stay pending.
 
 When the post is filled:
 
 1. Open the pending teacher's employee record.
-2. Replace the placeholder **Name** with the real teacher's name, and fill in their **Personal email**.
-3. Click **Generate Google account**, exactly as you would for any new teacher.
+2. Set **Staffing type** to **Named teacher**.
+3. Replace the placeholder **Name** with the real teacher's name, and fill in their **Personal email**.
+4. Click **Save**.
 
-That single click both creates the teacher's Google Workspace account/EMS login **and** confirms their identity — the "Pending identification" badge disappears, and nothing about their already-imported schedule, subjects or attendance lists needs to be redone.
+The teacher's Google Workspace account and EMS login are created automatically in a few moments, the "Pending identification" badge disappears, and nothing about their already-imported schedule, subjects or attendance lists needs to be redone.
 
-If this pending teacher will never get a Google Workspace/EMS account created from this record (e.g. they already have an account under a different, unmerged record, or the post turns out not to need one), open their record and choose **Mark as identified** in the **Actions** menu of its header instead. After confirming, it clears the "Pending identification" badge on its own, without creating any account — use it only as a manual override for cases **Generate Google account** doesn't cover.
+If the person already has a corporate account (e.g. on a different, unmerged record), set **Staffing type** to **Named teacher**, tick **Assign corporate email manually** and type that address instead: no new account is created, and **Create EMS User** in the **Actions** menu links their EMS login.
 
 Re-importing an updated file for a post that's still unstaffed (same placeholder code) updates that same pending teacher's schedule in place, the same way re-importing an already-identified teacher's file does — it never creates a second, duplicate record for the same code.
 

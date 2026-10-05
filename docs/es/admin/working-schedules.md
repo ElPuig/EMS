@@ -220,21 +220,24 @@ Si alguno de los docentes encontrados en los archivos ya tiene un horario, se ac
 
 A veces llegan horarios nuevos antes de que todos los puestos estén cubiertos — tu herramienta de planificación nombra esas filas con un código provisional (`X1`, `X2`...) en lugar del correo real de un docente. Importar un archivo así ya no falla en esas filas:
 
-> Este mismo mecanismo de pendiente de identificar también cubre un correo real que no coincide con ningún docente existente — marca **Nuevo** para esa fila en la pantalla de **Resolver profesores** en lugar de elegir uno (ver el paso 5 de "Importar horarios de trabajo desde un archivo" más arriba). La única diferencia respecto a un código provisional es que se conserva el correo del archivo, precargado como **Correo de trabajo** editable (**Asignar correo corporativo manualmente** marcado), en lugar de dejarlo para que un futuro "Generar cuenta de Google" lo asigne automáticamente.
+> Este mismo mecanismo de pendiente de identificar también cubre un correo real que no coincide con ningún docente existente — marca **Nuevo** para esa fila en la pantalla de **Resolver profesores** en lugar de elegir uno (ver el paso 5 de "Importar horarios de trabajo desde un archivo" más arriba). La única diferencia respecto a un código provisional es que se conserva el correo del archivo, precargado como **Correo de trabajo** editable (**Asignar correo corporativo manualmente** marcado), en lugar de generarlo automáticamente cuando se identifique al docente.
 
 1. Adjunta el archivo y haz clic a través del asistente como de costumbre (ver "Importar horarios de trabajo desde un archivo" más arriba) — un código provisional no se trata como un problema en ningún paso.
-2. Haz clic en **Importar** en el paso final. Se crea un nuevo registro de empleado para cada código aún no identificado, ya nombrado p. ej. "Profesor pendiente (X1)", con **su horario, asignaturas y listas de asistencia ya configurados** exactamente como si fuera un docente conocido.
+2. Haz clic en **Importar** en el paso final. Se crea un nuevo registro de empleado para cada código aún no identificado, con el código como nombre (p. ej. "X1"), con **su horario, asignaturas y listas de asistencia ya configurados** exactamente como si fuera un docente conocido.
 3. Estos registros muestran una etiqueta **"Pendiente de identificar"** en la lista/kanban de docentes y una cinta en su propia ficha, para que sean fáciles de encontrar (usa el filtro/agrupación **Pendiente de identificar** en la lista de docentes) y fáciles de distinguir de un docente real ya identificado.
+
+Estos registros son plazas pendientes de identificar, las mismas que el jefe de estudios también puede crear a mano desde la ficha de profesorado (ver [Crear y editar profesorado](../head_of_studies/staff-management.md)): mientras siguen pendientes no tienen cuenta de Google ni usuario de EMS.
 
 Cuando se cubre el puesto:
 
 1. Abre la ficha del empleado pendiente.
-2. Sustituye el **Nombre** provisional por el nombre real del docente, y rellena su **Correo personal**.
-3. Haz clic en **Generar cuenta Google**, exactamente igual que para cualquier docente nuevo.
+2. En **Tipo de alta**, marca **Docente nominal**.
+3. Sustituye el **Nombre** provisional por el nombre real del docente, y rellena su **Correo personal**.
+4. Haz clic en **Guardar**.
 
-Ese único clic crea la cuenta Google Workspace/el acceso a EMS del docente **y** confirma su identidad — la etiqueta "Pendiente de identificar" desaparece, y no hace falta rehacer nada del horario, las asignaturas o las listas de asistencia ya importados.
+En unos momentos se crean automáticamente la cuenta Google Workspace y el acceso a EMS del docente, la etiqueta "Pendiente de identificar" desaparece, y no hace falta rehacer nada del horario, las asignaturas o las listas de asistencia ya importados.
 
-Si este docente pendiente nunca va a tener una cuenta de Google Workspace/EMS creada desde este registro (por ejemplo, ya tiene una cuenta en otro registro no fusionado, o el puesto resulta que no necesita ninguna), abre su ficha y haz clic en **Marcar como identificado** en el menú **Acciones** de la cabecera. Tras confirmar, quita la etiqueta "Pendiente de identificar" por sí solo, sin crear ninguna cuenta —úsalo solo como alternativa manual para los casos que **Generar cuenta Google** no cubre.
+Si la persona ya tiene una cuenta corporativa (por ejemplo, en otro registro no fusionado), marca **Docente nominal**, activa **Asignar correo corporativo manualmente** y escribe esa dirección: no se crea ninguna cuenta nueva, y **Crear usuario EMS** en el menú **Acciones** le vincula el acceso a EMS.
 
 Reimportar un archivo actualizado para un puesto todavía sin cubrir (el mismo código provisional) actualiza el horario de ese mismo docente pendiente en el mismo registro, igual que reimportar el archivo de un docente ya identificado — nunca crea un segundo registro duplicado para el mismo código.
 

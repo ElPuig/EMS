@@ -1,7 +1,9 @@
 # ISO 9001 quality management inside EMS
 
-**Status: design, current as of 2026-09-21. Phase 1 and phase 2 implemented on their branches, not yet
-merged; phase 1's scope was reduced on 2026-09-21 (see "One owner per piece of information" below).** Every open design question was
+**Status: design, current as of 2026-10-05. Phase 1 and phase 2 implemented on their branches, not yet
+merged into `main`; phase 1's scope was reduced on 2026-09-21 (see "One owner per piece of information" below).
+Both branches were brought up to date with `main` v18.0.0.33.0 on 2026-10-05 (see "State of the branches"
+at the end of this file).** Every open design question was
 closed with the developer between 2026-09-19 and 2026-09-20; this file is the design of record for the
 work and should be kept current as each phase lands, then deleted once the last one ships (its contents
 folded into `docs/en/developers/quality/` and the role manuals).
@@ -748,3 +750,24 @@ implementation:
   F3.
 - Supplier homologation criteria to be confirmed against the current procedure before F7.
 - Whether the improvement-team **closure** minute also prints the DNI, as the constitution one does.
+
+## 12. State of the branches (2026-10-05)
+
+- `496-quality-phase-1` and `497-quality-phase-2` (which contains 496) were merged with `main`
+  v18.0.0.33.0 and pushed. Scoped tests green: quality, minutes, meeting attendance, i18n coverage,
+  access matrix and the teacher/secretary/admin smoke tours.
+- **Shared root menu.** Meeting attendance (#521) shipped first with the same `menu_minutes` root, as
+  **Meetings** (`Reunions`). Decided with the developer: keep that name (not *Minutes and agreements*).
+  The root's groups are the union of both features; *Attendance* carries its own groups (Head of
+  Studies, secretary, academic admin), so teachers see the minutes entries but not the attendance
+  sessions. Section 5's tree and the teacher manuals already use the name.
+- **Integration with meeting attendance still to do**: steps 2-6 of
+  `plans/meeting_presence_minute_integration.md` (a minute's `presence_id` and the button creating the
+  session, attendee/absentee lists derived from it, one preloading implementation instead of two,
+  quality roles as session managers, tests). Step 1, the menu, is done.
+- **Translations to review.** A `.po` has one translation per English text, and three texts are shared
+  with features already in `main`, whose wording won: *Closed* = *Tancada*, *Attendees* = *Assistents*
+  (the minute template says *Persones assistents*), *Room* = *Sala* (the minute said *Espai*). If the
+  minutes must keep the template's wording, those fields need their own English label.
+- Phase 2 was left in progress at commit f94b79cd ("WIP: load agreement menu after quality action
+  views, drop test_minute"), now merged in; nothing else in flight.

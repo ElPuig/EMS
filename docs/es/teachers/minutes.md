@@ -4,7 +4,7 @@
 
 # Actas de reunión
 
-Las actas se redactan en **Actas y acuerdos → Actas y registros**. La pantalla se abre con las vuestras:
+Las actas se redactan en **Reuniones → Actas y registros**. La pantalla se abre con las vuestras:
 las que habéis redactado, las de reuniones donde constáis como asistente y las que esperan vuestro visto
 bueno, del curso actual. Quitando una faceta de la barra de búsqueda veis más.
 

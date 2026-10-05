@@ -390,7 +390,7 @@ Two root menus, and **as few entries as possible**: with many menus users get lo
 click.
 
 ```
-Minutes and agreements                       [seq 4 · all staff]
+Meetings                                     [seq 9 · all staff]
 ├── Minutes and records
 ├── My proposals          → own improvement proposals, simplified view
 ├── Agreements
@@ -675,7 +675,7 @@ Execution notes, all phases:
   CSVs, the step-by-step import procedure and its data files outside the repository, the loader for
   anything a CSV cannot carry, and the post-deploy verification checklist.
 - **Root menus are created by the phase that makes them useful, not earlier.** F1 creates only *Quality*,
-  visible to quality coordination and management; *Minutes and agreements*, which the whole staff sees,
+  visible to quality coordination and management; *Meetings* (shared with the meeting attendance sessions of #521), which the whole staff sees,
   does not exist until F2. Merging a phase deploys it, so no half-built application should ever be
   visible to the staff.
 - `TransactionCase` per model and a tour per screen, including the per-role smoke tours. Tours log in as

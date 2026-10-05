@@ -17814,6 +17814,7 @@ msgstr "Línea de asistencia a reunión"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/meetings/presence.py:0
+#: model:ir.ui.menu,name:ems.menu_minutes
 msgid "Meetings"
 msgstr "Reuniones"
 
@@ -20886,11 +20887,6 @@ msgstr "Sección de un tipo de acta, en su lugar."
 #: model:ir.ui.menu,name:ems.menu_minute_types
 msgid "Minute types"
 msgstr "Tipos de acta"
-
-#. module: ems
-#: model:ir.ui.menu,name:ems.menu_minutes
-msgid "Minutes and agreements"
-msgstr "Actas y acuerdos"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_minute

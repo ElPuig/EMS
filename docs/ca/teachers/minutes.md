@@ -4,7 +4,7 @@
 
 # Actes de reunió
 
-Les actes es redacten a **Actes i acords → Actes i registres**. La pantalla s'obre amb les vostres: les
+Les actes es redacten a **Reunions → Actes i registres**. La pantalla s'obre amb les vostres: les
 que heu redactat, les de reunions on consteu com a assistent i les que esperen el vostre vistiplau, del
 curs actual. Traient una faceta de la barra de cerca veieu més.
 

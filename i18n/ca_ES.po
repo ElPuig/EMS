@@ -17812,6 +17812,7 @@ msgstr "Línia d'assistència a reunió"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/meetings/presence.py:0
+#: model:ir.ui.menu,name:ems.menu_minutes
 msgid "Meetings"
 msgstr "Reunions"
 
@@ -20882,11 +20883,6 @@ msgstr "Secció d'un tipus d'acta, al seu lloc."
 #: model:ir.ui.menu,name:ems.menu_minute_types
 msgid "Minute types"
 msgstr "Tipus d'acta"
-
-#. module: ems
-#: model:ir.ui.menu,name:ems.menu_minutes
-msgid "Minutes and agreements"
-msgstr "Actes i acords"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_minute

@@ -3,8 +3,8 @@
     <data>
         <!-- The root menu of everything about meetings: the quality work's minutes and agreements
              (the first staff-facing screen of it, so every teacher sees it) and the meeting
-             attendance kiosk records, which keep their own narrower groups on their menu item. -->
-        <menuitem name="Minutes and agreements" sequence="4" id="menu_minutes"
+             attendance sessions (#521), which keep their own narrower groups on their menu item. -->
+        <menuitem name="Meetings" sequence="9" id="menu_minutes"
                   groups="ems.group_teacher,ems.group_secretary,ems.group_head_of_studies,ems.group_academic_admin"/>
 
         <menuitem name="Configuration" sequence="90" id="menu_minutes_config" parent="menu_minutes"

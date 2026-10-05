@@ -4,7 +4,7 @@
 
 # Meeting minutes
 
-Minutes are written in **Minutes and agreements → Minutes and records**. The screen opens on yours: the
+Minutes are written in **Meetings → Minutes and records**. The screen opens on yours: the
 ones you wrote, the ones of meetings you attended and the ones awaiting your approval, for the current
 year. Removing a facet in the search bar shows more.
 

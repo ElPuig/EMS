@@ -9,11 +9,11 @@ were merged. Re-verify against the merged code before starting: `ems.minute`'s f
 `ems.meeting.presence` (a session: who was convened, who passed the NFC tag) was built
 independently of `ems.minute`, on purpose aligned with it. What is left to do once #497 is merged:
 
-1. **One root menu.** Both branches add `views/minutes_agreements/menu.xml` with the root
+1. **One root menu.** *Done 2026-10-05, when main was merged into `497-quality-phase-2`.* Both branches add `views/minutes_agreements/menu.xml` with the root
    `menu_minutes`. Keep a single record: the root is named **Meetings** (`Reunions`), the minutes
    entries (*Minutes and records*, *Agreements*, ...) hang off it next to *Attendance*, and its
    `groups` is the union of both (#497: teacher + secretary; #521: Head of Studies, secretary,
-   academic admin). Each entry keeps its own groups, so a teacher sees *Minutes and agreements*
+   academic admin). Each entry keeps its own groups, so a teacher sees the minutes entries
    but not *Attendance*.
 2. **Link a minute to its attendance.** Add `presence_id` (`Many2one → ems.meeting.presence`,
    `copy=False`) on `ems.minute`, and a form button *Attendance control* that creates the session

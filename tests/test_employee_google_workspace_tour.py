@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 
 from odoo.tests import tagged, HttpCase
 
-from .common import force_user_language_to_english, mock_outgoing_email
+from .common import cancel_google_account_creation, force_user_language_to_english, mock_outgoing_email
 
 
 @tagged('post_install', '-at_install')
@@ -38,7 +38,7 @@ class TestEmployeeGoogleWorkspaceTour(HttpCase):
         # the invisible expressions (e.g. two buttons showing at once, the original bug).
         # To watch this tour in a real browser during development:
         #   self.start_tour("/odoo", "ems_employee_google_workspace_state", login="admin", watch=True)
-        self._seed_teacher('GW Tour None')
+        cancel_google_account_creation(self._seed_teacher('GW Tour None'))
         self._seed_teacher('GW Tour Pending', work_email='gw.tour.pending@elpuig.xeill.net')
         active = self._seed_teacher('GW Tour Active', work_email='gw.tour.active@elpuig.xeill.net')
         relink = self._seed_teacher('GW Tour Relink', work_email='gw.tour.relink@elpuig.xeill.net')

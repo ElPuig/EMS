@@ -5,9 +5,11 @@ from dateutil.relativedelta import relativedelta
 
 from odoo.tests import tagged, HttpCase
 
+from odoo.addons.queue_job.job import Job
+
 from .common import (
-    create_level_study_group, create_role_employee, create_role_user, force_user_language_to_english,
-    next_student_id,
+    cancel_google_account_creation, create_level_study_group, create_role_employee, create_role_user,
+    force_user_language_to_english, next_student_id,
 )
 
 
@@ -123,8 +125,18 @@ class TestStudentGoogleWorkspaceTour(HttpCase):
         student = self._seed_student(
             'GW Student Create Tutor', firstname='GW Student', lastname='Create Tutor',
             main_group_id=group.id, birth_date=date.today() - relativedelta(years=15))
+        # Seeded with every field it needs, so its automatic creation is already queued and the
+        # button hidden (#582): cancelled here so the tutor gets to press it.
+        cancel_google_account_creation(student)
+        self.start_tour(f"/odoo/res.partner/{student.id}",
+                        "ems_student_google_account_create_tutor", login=tutor_user.login)
+        # The press queued exactly one job, run as the tutor; running it creates the account.
+        jobs = self.env['queue.job'].search([
+            ('identity_key', '=', student._gw_create_job_key()), ('state', '=', 'pending')])
+        self.assertEqual(len(jobs), 1)
+        self.assertEqual(jobs.user_id, tutor_user)
+        self.assertFalse(student.student_email)
         with patch.object(type(self.env['ir.actions.report']), '_render_qweb_pdf',
                           return_value=(b'%PDF-1.4 x', 'pdf')):
-            self.start_tour(f"/odoo/res.partner/{student.id}",
-                            "ems_student_google_account_create_tutor", login=tutor_user.login)
+            Job.load(self.env, jobs.uuid).perform()
         self.assertTrue(student.student_email)

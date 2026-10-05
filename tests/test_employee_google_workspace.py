@@ -3,6 +3,7 @@ import os
 from unittest.mock import MagicMock, Mock, patch
 
 from dateutil.relativedelta import relativedelta
+from psycopg2.errors import LockNotAvailable
 
 from odoo.addons.ems.models.shared.google_workspace_mixin import (
     GW_DEACTIVATION_DELAY_DAYS,
@@ -10,6 +11,7 @@ from odoo.addons.ems.models.shared.google_workspace_mixin import (
 )
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
+from odoo.tools import mute_logger
 from .common import next_student_id
 
 
@@ -146,13 +148,13 @@ class TestEmployeeGoogleWorkspace(TransactionCase):
         teacher = self._new_teacher(
             private_email='ada@example.com', google_ws_login='jdoe')
         with patch.object(type(teacher), '_gw_deliver_credentials', return_value=(True, True)):
-            teacher.action_create_google_account()
+            teacher._gw_create_account()
         self.assertEqual(teacher.work_email, 'jdoe@elpuig.xeill.net')
 
     def test_create_dry_run_fallback_email(self):
         teacher = self._new_teacher(name='Ada Lovelace', private_email='ada@example.com')
         with patch.object(type(teacher), '_gw_deliver_credentials', return_value=(True, True)):
-            teacher.action_create_google_account()
+            teacher._gw_create_account()
         self.assertEqual(teacher.work_email, 'alovelace@elpuig.xeill.net')
 
     def test_create_google_account_clears_pending_identification(self):
@@ -165,7 +167,7 @@ class TestEmployeeGoogleWorkspace(TransactionCase):
 
         teacher.write({'name': 'Ada Lovelace King', 'private_email': 'ada@example.com'})
         with patch.object(type(teacher), '_gw_deliver_credentials', return_value=(True, True)):
-            teacher.action_create_google_account()
+            teacher._gw_create_account()
 
         self.assertFalse(teacher.schedule_import_code)
         self.assertFalse(teacher.pending_identification)
@@ -211,6 +213,55 @@ class TestEmployeeGoogleWorkspace(TransactionCase):
         self.assertFalse(teacher.schedule_import_code)
         self.assertFalse(teacher.pending_identification)
         self.assertTrue(any('X11' in body for body in teacher.message_ids.mapped('body')))
+
+    # --- button vs automatic creation (#582) ----------------------------
+    # The button used to create the account itself while the automatic job did the same, and
+    # both ended up creating one each. Now there is one job, a hidden button while it lasts,
+    # and a row lock before Google.
+    def _creation_jobs(self, teacher):
+        return self.env['queue.job'].search([('identity_key', '=', teacher._gw_create_job_key())])
+
+    def test_button_queues_the_same_job_instead_of_creating(self):
+        teacher = self._new_teacher(private_email='ada@example.com')
+        self.assertEqual(len(self._creation_jobs(teacher)), 1)  # the automatic creation
+        with patch.object(type(teacher), '_gw_deliver_credentials') as deliver:
+            action = teacher.action_create_google_account()
+            teacher.action_create_google_account()
+        deliver.assert_not_called()
+        self.assertFalse(teacher.work_email)
+        self.assertEqual(len(self._creation_jobs(teacher)), 1)
+        self.assertEqual(action['tag'], 'display_notification')
+
+    def test_button_hidden_while_the_creation_is_queued_or_running(self):
+        teacher = self._new_teacher(private_email='ada@example.com')
+        job = self._creation_jobs(teacher)
+        self.assertTrue(teacher.google_ws_creation_pending)
+        # queue_job's own deduplication ignores a started job: the flag must not.
+        for state, pending in (('started', True), ('failed', False), ('done', False)):
+            with self.subTest(state=state):
+                self.env.cr.execute("UPDATE queue_job SET state = %s WHERE id = %s", [state, job.id])
+                teacher.invalidate_recordset(['google_ws_creation_pending'])
+                self.assertEqual(teacher.google_ws_creation_pending, pending)
+
+    def test_creation_stops_before_google_when_the_record_is_locked(self):
+        teacher = self._new_teacher(private_email='ada@example.com')
+        self.company.google_ws_dry_run = False
+        mixin = type(self.env['google.workspace.mixin'])
+        with patch.object(mixin, '_gw_lock_for_creation', side_effect=LockNotAvailable), \
+                patch.object(mixin, '_gw_get_service') as service, \
+                self.assertRaises(LockNotAvailable):
+            teacher._gw_create_account()
+        service.assert_not_called()
+        self.assertFalse(teacher.work_email)
+
+    def test_lock_for_creation_holds_the_row(self):
+        # A committed row nothing else in this transaction touches, so a second connection
+        # sees it and can only fail on the lock taken here.
+        user = self.env.ref('base.public_user')
+        self.env['google.workspace.mixin']._gw_lock_for_creation(user)
+        with self.registry.cursor() as other_cr, mute_logger('odoo.sql_db'), \
+                self.assertRaises(LockNotAvailable):
+            other_cr.execute("SELECT 1 FROM res_users WHERE id = %s FOR UPDATE NOWAIT", [user.id])
 
     # --- manual "mark as identified" ------------------------------------
     def test_mark_as_identified_clears_pending(self):

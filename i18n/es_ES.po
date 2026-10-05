@@ -19825,3 +19825,23 @@ msgstr "Ubicación de trabajo"
 #: model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__student_domain
 msgid "Student domain"
 msgstr "Dominio del alumno"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_ws_creation_pending
+#: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_creation_pending
+#: model:ir.model.fields,field_description:ems.field_res_users__google_ws_creation_pending
+msgid "Google account being created"
+msgstr "Cuenta de Google en creación"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__google_ws_creation_pending
+#: model:ir.model.fields,help:ems.field_res_partner__google_ws_creation_pending
+#: model:ir.model.fields,help:ems.field_res_users__google_ws_creation_pending
+msgid "True while the account-creation job waits in the queue or runs: the \"Create Google account\" button stays hidden meanwhile."
+msgstr "Verdadero mientras la creación de la cuenta espera en la cola o se está ejecutando: mientras tanto, el botón \"Crear cuenta de Google\" queda oculto."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/google_workspace_mixin.py:0
+msgid "The Google account is being created. The result will appear in the record's history in a few moments."
+msgstr "Se está creando la cuenta de Google. En unos momentos verá el resultado en el historial de la ficha."

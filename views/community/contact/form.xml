@@ -57,6 +57,7 @@
                         <field name="google_ws_state" invisible="1"/>
                         <field name="can_reset_google_password" invisible="1"/>
                         <field name="can_create_google_account" invisible="1"/>
+                        <field name="google_ws_creation_pending" invisible="1"/>
                         <field name="can_download_google_credentials" invisible="1"/>
                         <field name="can_manage_portal_access" invisible="1"/>
                         <field name="can_send_student_requests" invisible="1"/>
@@ -70,7 +71,7 @@
                                  same per-record rule as the password reset below. -->
                             <button name="action_create_google_account" type="object"
                                     string="Create Google account"
-                                    invisible="google_ws_state != 'none' or not can_create_google_account"
+                                    invisible="google_ws_state != 'none' or not can_create_google_account or google_ws_creation_pending"
                                     groups="ems.group_secretary,ems.group_academic_admin,ems.group_tac,ems.group_tutor"/>
                             <button name="action_suspend_google_account" type="object"
                                     string="Suspend Google account"

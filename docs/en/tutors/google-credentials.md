@@ -32,9 +32,9 @@ The account is normally created automatically when the student is enrolled. If a
 
 ![Create Google account in the Actions menu of the student form](../../assets/tutors/credencials-google-04-crear.png)
 
-The student receives the credentials at their personal email address and the credentials PDF is saved in the **Documentation** tab. The first time they sign in to Google, the student has to change the password.
+The account is created in a few moments, and the student's message history shows the result. The student receives the credentials at their personal email address and the credentials PDF is saved in the **Documentation** tab. The first time they sign in to Google, the student has to change the password.
 
-The button is only shown while the student has no Google account. If the student's IDALU, first name, surname or personal email is missing, a message tells you which data is missing and the account is not created: ask the secretary's office to complete it.
+The button is only shown while the student has no Google account and none is being created. If the student's IDALU, first name, surname or personal email is missing, a message tells you which data is missing and the account is not created: ask the secretary's office to complete it.
 
 ---
 

@@ -51,7 +51,7 @@ Ahí tienes las solicitudes de tu área, y se abre con **Esperándome**: las que
 1. **Recibida: pendiente de documentación** (icono de bandeja en el listado, o el botón de arriba del formulario). Das por recibida la solicitud sin haber visto todavía el justificante. Pasa a **En espera de documentación** y se pide el justificante a la persona. Si ya lo había adjuntado con la solicitud, pasa directamente a **Pendiente de validación**.
 2. Cuando la persona adjunta el justificante, la solicitud vuelve sola a ti como **Pendiente de validación**. Ábrela, revisa el justificante y usa **Validar documentación** (también un icono de validación en el listado). Entonces pasa a Dirección.
 
-Si el justificante no es válido, **Documentación insuficiente** te pide el motivo (obligatorio) y devuelve la solicitud a la persona (En espera de documentación) con un mensaje que lo incluye. La persona también lo ve arriba de la solicitud hasta que adjunta un justificante nuevo.
+Si el justificante no es válido, **Documentación insuficiente** te pide el motivo (obligatorio) y devuelve la solicitud a la persona (En espera de documentación) con un mensaje que lo incluye. La persona también lo ve arriba de la solicitud hasta que adjunta un justificante nuevo. Si el nuevo tampoco es válido, el diálogo se abre con el motivo anterior para que puedas modificarlo; cuando validas un justificante, el motivo se borra.
 
 Para `Salud` y `ATRI` hay un solo paso: **Validar** (el pulgar en el listado), que la envía directamente a Dirección.
 

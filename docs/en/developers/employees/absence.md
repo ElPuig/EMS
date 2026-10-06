@@ -215,8 +215,11 @@ header, list row) moves it to `validated`; `action_ems_document_insufficient` op
 (`_ems_return_document()`) sends the request back to `awaiting`, stores the reason in
 `ems_document_return_reason` and sends the employee a note with it. The reason is shown to the
 employee as a warning at the top of the form while the request is Awaiting documentation, and it
-is also the note of their new "Attach the absence's supporting document" activity. Resetting the
-request clears it. Who counts as the Head is `is_absence_head`: the
+is also the note of their new "Attach the absence's supporting document" activity. If the new
+document is sent back again before it is validated, the dialog opens with the previous reason
+(`default_reason`) to edit. Validating the document (`action_ems_document_validate`) clears the
+reason, so a later send-back by Direction starts from an empty one; resetting the request clears
+it too. Who counts as the Head is `is_absence_head`: the
 employee's `leave_manager_id`, or an officer other than Direction - the same line
 `_compute_can_approve()` draws.
 

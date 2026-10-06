@@ -737,6 +737,11 @@ class TestAbsenceRequest(TransactionCase):
         with self.assertRaises(UserError):
             leave.action_ems_document_validate()
 
+    def _return_wizard(self, leave):
+        """The dialog the button opens, with the defaults it is opened with."""
+        action = leave.action_ems_document_insufficient()
+        return self.env[action['res_model']].with_context(action['context']).new({})
+
     def _return_document(self, leave, reason="Test unreadable scan"):
         """Through the button and its dialog, as the Head or Direction would."""
         action = leave.action_ems_document_insufficient()
@@ -770,6 +775,24 @@ class TestAbsenceRequest(TransactionCase):
         self.assertEqual(leave.ems_status, 'pending_document', "Direction's review sends it back too")
         self.assertEqual(leave.ems_document_return_reason, "Test wrong dates")
         self.assertEqual(leave.ems_direction_state, 'not_done')
+
+    def test_the_previous_reason_is_offered_when_sending_it_back_again(self):
+        """The Head looks at the new document and it is still wrong: the reason they wrote last
+        time is the starting point. Validating the document clears it, so a later send-back
+        (Direction's) starts from an empty one."""
+        owner = self._employee_user('Test Absence Resent', 'absence_resent@absence.test')
+        leave = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True)
+        leave.action_approve()
+        self._attach(leave)
+        self.assertFalse(self._return_wizard(leave).reason, 'nothing to offer the first time')
+        self._return_document(leave, "Test the stamp is missing")
+
+        self._attach(leave, owner, name='justificant2.pdf')
+        self.assertEqual(self._return_wizard(leave).reason, "Test the stamp is missing")
+
+        leave.action_ems_document_validate()
+        self.assertFalse(leave.ems_document_return_reason, 'validating the document clears it')
+        self.assertFalse(self._return_wizard(leave).reason)
 
     def test_sending_a_document_back_requires_a_reason(self):
         leave = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True)

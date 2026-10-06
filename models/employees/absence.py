@@ -827,17 +827,20 @@ class EmsAbsenceLeave(models.Model):
 
     def action_ems_document_validate(self):
         """The Head's validation of the supporting document, after which the request goes to
-        Direction."""
+        Direction. A reason it was sent back earlier no longer applies to the document now
+        validated."""
         self._ems_check_is_head()
         self._ems_check_status('pending_validation', _(
             "Only a request whose supporting document is pending validation can be validated."))
         self.write({'ems_document_state': 'validated'})
+        self.sudo().write({'ems_document_return_reason': False})
         return True
 
     def action_ems_document_insufficient(self):
         """Asks the Head (validating the document) or Direction (reviewing it) why it is not
         sufficient before sending the request back: the employee needs to know what to attach
-        instead."""
+        instead. When the new document is sent back again, the previous reason is offered for
+        editing rather than written from scratch."""
         self.ensure_one()
         self._ems_check_can_return_document()
         return {
@@ -846,7 +849,7 @@ class EmsAbsenceLeave(models.Model):
             'res_model': 'ems.absence.document_return_wizard',
             'view_mode': 'form',
             'target': 'new',
-            'context': {'default_leave_id': self.id},
+            'context': {'default_leave_id': self.id, 'default_reason': self.ems_document_return_reason},
         }
 
     def _ems_check_can_return_document(self):

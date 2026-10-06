@@ -33,18 +33,19 @@ registry.category("web_tour.tours").add("ems_convalidation_resolve", {
             content: "The dialog proposes the default 5",
         },
         {
-            trigger: ".modal .o_field_widget[name='without_grade'] input",
+            // Selection values are JSON-encoded in the <select>, hence the quotes.
+            trigger: ".modal .o_field_widget[name='mode'] select",
             content: "Convalidate it without a grade...",
-            run: "click",
+            run: 'select "without_grade"',
         },
         {
             trigger: ".modal .o_form_view:not(:has(.o_field_widget[name='grade']))",
             content: "...which hides the grade",
         },
         {
-            trigger: ".modal .o_field_widget[name='without_grade'] input",
+            trigger: ".modal .o_field_widget[name='mode'] select",
             content: "...or rather with the grade the previous studies hold",
-            run: "click",
+            run: 'select "grade"',
         },
         {
             trigger: ".modal .o_field_widget[name='grade'] input",
@@ -103,19 +104,28 @@ registry.category("web_tour.tours").add("ems_convalidation_ministry", {
             content: "The Ministry's resolution can be attached",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row button[name='action_reject']",
+            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row button[name='action_open_reject']",
             content: "The Ministry refused the subject",
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row td[name='rejection_reason']",
-            content: "Write the reason for refusing it",
+            // Issue #580: refusing asks for the reason, the most usual one preselected.
+            trigger: ".modal .o_field_widget[name='reason_id'] input:not(:value(''))",
+            content: "A reason comes preselected",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='details'] textarea",
+            content: "Add the details",
+            run: "edit Refused by the Ministry",
+        },
+        {
+            trigger: ".modal footer button[name='action_reject']",
+            content: "Reject",
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row td[name='rejection_reason'] textarea",
-            content: "The reason",
-            run: "edit Refused by the Ministry",
+            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='line_ids'] .o_data_row td[name='rejection_reason']:contains('Refused by the Ministry')",
+            content: "The subject is refused with its reason",
         },
         ...clickAction("action_ministry_resolved", "Record the Ministry's resolution"),
         {

@@ -392,7 +392,8 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
         def decide(request):
             request.line_ids[0].sudo().write({'state': 'granted', 'grade': 8})
             request.line_ids[1:].sudo().write({
-                'state': 'rejected', 'rejection_reason': "Els continguts no són equivalents."})
+                'state': 'rejected',
+                'rejection_reason_id': self.env.ref('ems.convalidation_rejection_reason_contents').id})
 
         # The Head of Studies' review: subjects decided, one refused with its reason.
         review = new_request(self.students[0], subjects[1:], attachment_ids=[(0, 0, {
@@ -400,7 +401,7 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             student_notes="Vaig cursar el CFGM de Sistemes microinformàtics i xarxes.")
         decide(review)
         # Issue #580: a module convalidated without a grade.
-        review.line_ids[1].sudo().write({'state': 'granted', 'without_grade': True, 'rejection_reason': False})
+        review.line_ids[1].sudo().write({'state': 'granted', 'without_grade': True, 'rejection_reason_id': False})
         at_ministry = new_request(self.students[1], subjects[1:2], basis='other')
         at_ministry.sudo().action_send_to_ministry()
         proposed = new_request(self.students[2], subjects[1:])
@@ -429,6 +430,15 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             login='doc_shot_hos',
             wait_for=".o_form_sheet div[name='line_ids'] .o_data_row",
             max_height=740,
+        )
+        # Issue #580: refusing a module asks for its reason.
+        self._capture(
+            '/odoo/action-ems.action_convalidation/%d' % at_ministry.id,
+            '.modal-content', 'convalidations-reject.png',
+            login='doc_shot_hos',
+            wait_for=".o_form_sheet div[name='line_ids'] .o_data_row button[name='action_open_reject']",
+            click=".o_form_sheet div[name='line_ids'] .o_data_row button[name='action_open_reject']",
+            wait_after=".modal .o_field_widget[name='reason_id'] input",
         )
         # Issue #580: convalidating a module asks for its grade.
         self._capture(

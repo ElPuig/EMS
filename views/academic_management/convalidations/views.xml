@@ -141,7 +141,11 @@
                                         <field name="without_grade" optional="show"
                                                invisible="state != 'granted'"
                                                readonly="request_state not in ('pending', 'documentation', 'ministry')"/>
-                                        <field name="rejection_reason"
+                                        <field name="rejection_reason_id"
+                                               invisible="state != 'rejected'"
+                                               options="{'no_create': True, 'no_open': True}"
+                                               readonly="request_state not in ('pending', 'documentation', 'ministry')"/>
+                                        <field name="rejection_reason" optional="show"
                                                invisible="state != 'rejected'"
                                                readonly="request_state not in ('pending', 'documentation', 'ministry')"/>
                                         <field name="resolution_notes" optional="hide"
@@ -150,7 +154,7 @@
                                                 icon="fa-check" class="text-success"
                                                 invisible="state == 'granted' or request_state not in ('pending', 'documentation', 'ministry')"
                                                 groups="ems.group_head_of_studies,ems.group_academic_admin"/>
-                                        <button name="action_reject" type="object" title="Reject"
+                                        <button name="action_open_reject" type="object" title="Reject"
                                                 icon="fa-times" class="text-danger"
                                                 invisible="state == 'rejected' or request_state not in ('pending', 'documentation', 'ministry')"
                                                 groups="ems.group_head_of_studies,ems.group_academic_admin"/>
@@ -253,15 +257,33 @@
                 <form string="Convalidate">
                     <field name="line_id" invisible="1"/>
                     <group>
-                        <field name="grade" invisible="without_grade" required="not without_grade"/>
-                        <field name="without_grade"/>
+                        <field name="mode"/>
+                        <field name="grade" invisible="mode != 'grade'" required="mode == 'grade'"/>
                     </group>
-                    <div class="text-muted">
+                    <div class="text-muted" invisible="mode != 'without_grade'">
                         <i class="fa fa-info-circle me-1"/>Without a grade, the resolution and the student's grades
                         show the subject as "Convalidated" (CV), and it does not count towards the average.
                     </div>
                     <footer>
                         <button name="action_grant" type="object" string="Convalidate" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_convalidation_reject_wizard_form" model="ir.ui.view">
+            <field name="name">ems.convalidation.reject_wizard.form</field>
+            <field name="model">ems.convalidation.reject_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Reject">
+                    <field name="line_id" invisible="1"/>
+                    <group>
+                        <field name="reason_id" options="{'no_create': True, 'no_open': True}"/>
+                    </group>
+                    <field name="details" placeholder="Anything to add to the reason, stated with it on the resolution..."/>
+                    <footer>
+                        <button name="action_reject" type="object" string="Reject" class="btn-primary"/>
                         <button string="Cancel" class="btn-secondary" special="cancel"/>
                     </footer>
                 </form>

@@ -337,6 +337,9 @@
             'views/academic_management/convalidation_info_reason/list.xml',
             'views/academic_management/convalidation_info_reason/form.xml',
             'views/academic_management/convalidation_info_reason/menu.xml',
+            'views/academic_management/convalidation_rejection_reason/list.xml',
+            'views/academic_management/convalidation_rejection_reason/form.xml',
+            'views/academic_management/convalidation_rejection_reason/menu.xml',
 
         'views/sales/product_view.xml',
         'views/accounting/payment_term_views.xml',
@@ -408,6 +411,7 @@
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
         'data/main/ems.convalidation.info_reason.csv',
+        'data/main/ems.convalidation.rejection_reason.csv',
         'data/main/ems.attendance_status.csv',
         'data/main/ems.non_teaching_type.csv',
         'data/main/ems.teaching_reduction_type.csv',

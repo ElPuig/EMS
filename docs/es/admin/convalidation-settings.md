@@ -68,10 +68,24 @@ Cuando Jefatura de Estudios pide más documentación a un solicitante, elige un 
 
 **Rol necesario:** Administrador del EMS
 
-Navega a: **Gestión académica → Configuración → Motivos de petición de documentación**
+Navega a: **Gestión académica → Configuración → Convalidaciones → Motivos de petición de documentación**
 
 - **Nombre:** el texto que el solicitante lee en el correo y en el portal. Escríbelo en cada idioma con el botón de idioma junto al campo.
 - **Orden:** arrastra las filas para ordenarlas. La primera aparece seleccionada cuando se pide documentación, así que pon primero el motivo más habitual (por defecto, **Falta el certificado de notas oficial del centro de procedencia**).
+- Para dejar de ofrecer un motivo sin perder las solicitudes que lo han usado, archívalo.
+
+---
+
+## Motivos de denegación por módulo
+
+Cuando Jefatura de Estudios deniega la convalidación de un módulo, elige el motivo de una lista. Tú mantienes esa lista.
+
+**Rol necesario:** Administrador del EMS
+
+Navega a: **Gestión académica → Configuración → Convalidaciones → Motivos de denegación por módulo**
+
+- **Nombre:** el texto que la resolución y el portal muestran para el módulo denegado. Escríbelo en cada idioma con el botón de idioma junto al campo.
+- **Orden:** arrastra las filas para ordenarlas. La primera aparece seleccionada cuando se deniega un módulo, así que pon primero el motivo más habitual (por defecto, **Los contenidos no son equivalentes**).
 - Para dejar de ofrecer un motivo sin perder las solicitudes que lo han usado, archívalo.
 
 ---

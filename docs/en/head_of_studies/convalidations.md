@@ -75,13 +75,15 @@ On each line of the **Subjects** tab, use the buttons on the right:
 | Button | Result |
 |--------|--------|
 | ✔ (Convalidate) | Asks for the module's grade, then convalidates it. |
-| ✖ (Reject) | The module is not convalidated. |
+| ✖ (Reject) | Asks for the reason, then refuses the module. |
 | ↺ (Back to pending) | Undoes the line's decision. |
 
-- **Grade:** each module is checked and graded one by one. When you click ✔, a dialog asks for the grade: 5 by default, or the one the previous studies hold (from 5 to 10). Tick **Without grade** when the module is convalidated with no grade: the resolution shows it as **Convalidat**, the grades as **CV**, and it does not count towards the average. Until you send the proposal, you can still change the **Grade** and **Without grade** columns on the line.
-- **Reason for refusal:** every rejected module needs its reason, which appears on the resolution. Without it, the proposal cannot be sent.
+- **Grade:** each module is checked and graded one by one. When you click ✔, a dialog asks for it: with **Mode** set to **With grade** (the default), write the grade, 5 by default or the one the previous studies hold (from 5 to 10). Choose **Without grade** when the module is convalidated with no grade: the resolution shows it as **Convalidat**, the grades as **CV**, and it does not count towards the average. Until you send the proposal, you can still change the **Grade** and **Without grade** columns on the line.
+- **Reason for refusal:** when you click ✖, a dialog asks for the **Reason**, with the most usual one already selected, and optional **Details**. Both appear on the resolution. They can still be changed on the line until you send the proposal. The list of reasons is maintained by the EMS administrator (see [Convalidation settings](../admin/convalidation-settings.md)).
 
 ![Convalidating a module: its grade](../../assets/head_of_studies/convalidations-grant.png)
+
+![Refusing a module: its reason](../../assets/head_of_studies/convalidations-reject.png)
 
 ### Asking for documentation
 

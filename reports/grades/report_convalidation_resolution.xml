@@ -104,7 +104,7 @@
                                                 <t t-else="" t-esc="line.grade"/>
                                             </t>
                                         </td>
-                                        <td t-esc="line.rejection_reason if line.state != 'granted' else ''"/>
+                                        <td t-esc="line._ems_rejection_text() if line.state != 'granted' else ''"/>
                                     </tr>
                                 </tbody>
                             </table>

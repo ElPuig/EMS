@@ -68,10 +68,24 @@ When the Head of Studies asks an applicant for more documentation, they pick a r
 
 **Required role:** EMS administrator
 
-Navigate to: **Academic management → Configuration → Documentation request reasons**
+Navigate to: **Academic management → Configuration → Convalidations → Documentation request reasons**
 
 - **Name:** the text the applicant reads in the email and on the portal. Write it in each language with the language button next to the field.
 - **Order:** drag the rows to sort them. The first one comes selected when documentation is requested, so put the most usual reason first (by default, **Missing official grade certificate from the previous centre**).
+- To stop offering a reason without losing the requests that used it, archive it.
+
+---
+
+## Refusal reasons per subject
+
+When the Head of Studies refuses to convalidate a module, they pick the reason from a list. You maintain that list.
+
+**Required role:** EMS administrator
+
+Navigate to: **Academic management → Configuration → Convalidations → Refusal reasons per subject**
+
+- **Name:** the text the resolution and the portal show for the refused module. Write it in each language with the language button next to the field.
+- **Order:** drag the rows to sort them. The first one comes selected when a module is refused, so put the most usual reason first (by default, **The contents are not equivalent**).
 - To stop offering a reason without losing the requests that used it, archive it.
 
 ---

@@ -68,10 +68,24 @@ Quan Cap d'Estudis demana més documentació a un sol·licitant, tria un motiu d
 
 **Rol necessari:** Administrador de l'EMS
 
-Navega a: **Gestió acadèmica → Configuració → Motius de petició de documentació**
+Navega a: **Gestió acadèmica → Configuració → Convalidacions → Motius de petició de documentació**
 
 - **Nom:** el text que el sol·licitant llegeix al correu i al portal. Escriu-lo en cada idioma amb el botó d'idioma al costat del camp.
 - **Ordre:** arrossega les files per ordenar-les. La primera surt seleccionada quan es demana documentació, així que posa-hi primer el motiu més habitual (per defecte, **Falta el certificat de notes oficial del centre de procedència**).
+- Per deixar d'oferir un motiu sense perdre les sol·licituds que l'han fet servir, arxiva'l.
+
+---
+
+## Motius de denegació per mòdul
+
+Quan Cap d'Estudis denega la convalidació d'un mòdul, tria el motiu d'una llista. Tu mantens aquesta llista.
+
+**Rol necessari:** Administrador de l'EMS
+
+Navega a: **Gestió acadèmica → Configuració → Convalidacions → Motius de denegació per mòdul**
+
+- **Nom:** el text que la resolució i el portal mostren per al mòdul denegat. Escriu-lo en cada idioma amb el botó d'idioma al costat del camp.
+- **Ordre:** arrossega les files per ordenar-les. La primera surt seleccionada quan es denega un mòdul, així que posa-hi primer el motiu més habitual (per defecte, **Els continguts no són equivalents**).
 - Per deixar d'oferir un motiu sense perdre les sol·licituds que l'han fet servir, arxiva'l.
 
 ---

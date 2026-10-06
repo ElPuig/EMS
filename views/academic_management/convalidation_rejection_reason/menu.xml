@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.actions.act_window" id="action_convalidation_rejection_reason_list">
+            <field name="name">Refusal reasons per subject</field>
+            <field name="res_model">ems.convalidation.rejection_reason</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <!-- The catalog the Head of Studies picks from when refusing to convalidate a subject;
+             maintained by the EMS administrator, like the documentation request reasons. -->
+        <menuitem id="menu_ems_convalidation_rejection_reasons"
+                  name="Refusal reasons per subject"
+                  parent="menu_ems_configuration_convalidations"
+                  action="action_convalidation_rejection_reason_list"
+                  groups="ems.group_academic_admin"
+                  sequence="20"/>
+    </data>
+</odoo>

@@ -1385,6 +1385,7 @@ msgstr "Acción Necesária"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__active
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__active
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_reason__active
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_rejection_reason__active
 msgid "Active"
 msgstr "Activo"
 
@@ -1792,6 +1793,7 @@ msgstr "Aprobado"
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search model_terms:ir.ui.view,arch_db:ems.view_notice_search model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_search
 #: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_reason_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_rejection_reason_form
 msgid "Archived"
 msgstr "Archivado"
 
@@ -2375,6 +2377,7 @@ msgstr "Puede editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_grant_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
 #: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_reject_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -3105,6 +3108,7 @@ msgstr "Descripción y notas"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__notes model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__message
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_reject_wizard__details
 msgid "Details"
 msgstr "Detalles"
 
@@ -5199,6 +5203,7 @@ msgstr "Modalidad"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__mode model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__mode model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__mode model:ir.model.fields,field_description:ems.field_hr_attendance__in_mode
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_grant_wizard__mode
 msgid "Mode"
 msgstr "Modo"
 
@@ -5250,6 +5255,7 @@ msgstr "NUSS"
 #: code:addons/ems/models/employees/google_workspace_integration.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__label
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_reason__name
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_rejection_reason__name
 msgid "Name"
 msgstr "Nombre"
 
@@ -5685,6 +5691,7 @@ msgstr "Ruta de la unidad organizativa donde se crean los estudiantes menores de
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_document__doc_type__other
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__basis__other
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+#: model:ems.convalidation.rejection_reason,name:ems.convalidation_rejection_reason_other
 msgid "Other"
 msgstr "Otro"
 
@@ -6286,6 +6293,7 @@ msgstr "Rectificado per"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_student_document_form model_terms:ir.ui.view,arch_db:ems.view_student_document_list
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_reject_wizard_form
 msgid "Reject"
 msgstr "Rechazar"
 
@@ -6886,6 +6894,7 @@ msgstr "Enviado el"
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_field__sequence model:ir.model.fields,field_description:ems.field_ems_csv_column__sequence model:ir.model.fields,field_description:ems.field_ems_strike_reason__sequence model:ir.model.fields,field_description:ems.field_ems_attendance_status__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_reason__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_rejection_reason__sequence
 msgid "Sequence"
 msgstr "Secuencia"
 
@@ -7376,6 +7385,7 @@ msgstr "Estudio: El tipo concreto de estudio (tipo de licenciatura, titulación 
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model:ir.model.fields,field_description:ems.field_ems_strike__subject_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_grant_wizard__line_id
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_reject_wizard__line_id
 msgid "Subject"
 msgstr "Asignatura"
 
@@ -9347,6 +9357,7 @@ msgstr "Salida original"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__reason
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__reason_id
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_reject_wizard__reason_id
 msgid "Reason"
 msgstr "Motivo"
 
@@ -15017,6 +15028,7 @@ msgstr "Solicitud de convalidación: un alumno pide convalidar algunos módulos 
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model:ir.ui.menu,name:ems.menu_ems_configuration_convalidations
 msgid "Convalidations"
 msgstr "Convalidaciones"
 
@@ -18221,11 +18233,6 @@ msgid "Proposed by"
 msgstr "Propuesta por"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__rejection_reason
-msgid "Reason for refusal"
-msgstr "Motivo de la denegación"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 msgid ""
 "Record the Ministry's outcome for every subject: the request goes straight "
@@ -18500,15 +18507,6 @@ msgstr ""
 #: model:ir.model.fields,help:ems.field_ems_convalidation__return_reason
 msgid "Why the Director sent the last proposal back for review."
 msgstr "Por qué la dirección devolvió la última propuesta para revisarla."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_convalidation_line__rejection_reason
-msgid ""
-"Why the subject is not convalidated. Required to refuse it: the resolution "
-"states it."
-msgstr ""
-"Por qué no se convalida el módulo. Es necesario para denegarlo: la "
-"resolución lo indica."
 
 #. module: ems
 #. odoo-python
@@ -20348,13 +20346,11 @@ msgstr "<i class=\"fa fa-info-circle me-1\"/>Sin nota, la resolución y las nota
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__without_grade
-#: model:ir.model.fields,field_description:ems.field_ems_convalidation_grant_wizard__without_grade
 msgid "Without grade"
 msgstr "Sin nota"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_convalidation_line__without_grade
-#: model:ir.model.fields,help:ems.field_ems_convalidation_grant_wizard__without_grade
 msgid "Convalidated with no grade: the resolution and the grades show it as \"Convalidated\" (CV), and it does not count towards the average."
 msgstr "Convalidado sin nota: la resolución y las notas lo muestran como «Convalidado» (CV), y no cuenta para la media."
 
@@ -20380,3 +20376,95 @@ msgstr "Convalidar %s"
 #: code:addons/ems/models/grades/convalidation.py:0
 msgid "%(student)s no longer takes %(subject)s: it has been convalidated without a grade (registration %(number)s). They are no longer in its attendance lists or grades."
 msgstr "%(student)s ya no cursa %(subject)s: se ha convalidado sin nota (registro %(number)s). Ya no aparece en sus listas de asistencia ni en las notas."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__rejection_reason_id
+msgid "Reason for refusal"
+msgstr "Motivo de la denegación"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_line__rejection_reason_id
+msgid "Why the subject is not convalidated. Required to refuse it: the resolution states it."
+msgstr "Por qué no se convalida el módulo. Es necesario para denegarlo: la resolución lo indica."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__rejection_reason
+msgid "Refusal details"
+msgstr "Detalles de la denegación"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_line__rejection_reason
+msgid "Optional details after the reason for refusal, stated with it on the resolution."
+msgstr "Detalles opcionales tras el motivo de la denegación, que la resolución indica con él."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_grant_wizard__mode__grade
+msgid "With grade"
+msgstr "Con nota"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_grant_wizard__mode__without_grade
+msgid "Without grade"
+msgstr "Sin nota"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_grant_wizard__mode
+msgid "Without grade, the resolution and the grades show the subject as \"Convalidated\" (CV), and it does not count towards the average."
+msgstr "Sin nota, la resolución y las notas lo muestran como «Convalidado» (CV), y no cuenta para la media."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_reject_wizard__details
+msgid "Stated on the resolution after the reason."
+msgstr "La resolución lo indica tras el motivo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_reject_wizard_form
+msgid "Anything to add to the reason, stated with it on the resolution..."
+msgstr "Cualquier cosa a añadir al motivo, que la resolución indicará con él..."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_convalidation_rejection_reason
+msgid "Convalidation refusal reason: predefined reasons why a subject is not convalidated."
+msgstr "Motivo de denegación de una convalidación: motivos predefinidos por los que no se convalida un módulo."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_convalidation_reject_wizard
+msgid "The Head of Studies refuses to convalidate a subject of a request, stating why."
+msgstr "Jefatura de estudios deniega la convalidación de un módulo de una solicitud, indicando el motivo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_rejection_reason_form
+msgid "Refusal reason"
+msgstr "Motivo de denegación"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_convalidation_rejection_reason_list
+#: model:ir.ui.menu,name:ems.menu_ems_convalidation_rejection_reasons
+msgid "Refusal reasons per subject"
+msgstr "Motivos de denegación por módulo"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Reject %s"
+msgstr "Rechazar %s"
+
+#. module: ems
+#: model:ems.convalidation.rejection_reason,name:ems.convalidation_rejection_reason_contents
+msgid "The contents are not equivalent"
+msgstr "Los contenidos no son equivalentes"
+
+#. module: ems
+#: model:ems.convalidation.rejection_reason,name:ems.convalidation_rejection_reason_hours
+msgid "The duration of the previous studies is shorter"
+msgstr "La duración de los estudios previos es inferior"
+
+#. module: ems
+#: model:ems.convalidation.rejection_reason,name:ems.convalidation_rejection_reason_not_passed
+msgid "The previous studies are not passed or accredited"
+msgstr "Los estudios previos no están superados o acreditados"
+
+#. module: ems
+#: model:ems.convalidation.rejection_reason,name:ems.convalidation_rejection_reason_not_convalidable
+msgid "The subject cannot be convalidated (it must be taken)"
+msgstr "El módulo no es convalidable (se debe cursar)"

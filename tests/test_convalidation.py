@@ -526,7 +526,7 @@ class TestConvalidation(TransactionCase):
         line = self._line(self._request())
         wizard = self._grant_dialog(line)
         self.assertEqual(wizard.grade, 5)
-        self.assertFalse(wizard.without_grade)
+        self.assertEqual(wizard.mode, 'grade')
         wizard.action_grant()
         self.assertEqual(line.state, 'granted')
         self.assertEqual(line.grade, 5)
@@ -539,7 +539,7 @@ class TestConvalidation(TransactionCase):
 
     def test_convalidating_without_a_grade(self):
         line = self._line(self._request())
-        self._grant_dialog(line, without_grade=True).action_grant()
+        self._grant_dialog(line, mode='without_grade').action_grant()
         self.assertEqual(line.state, 'granted')
         self.assertTrue(line.without_grade)
 
@@ -551,13 +551,54 @@ class TestConvalidation(TransactionCase):
     def test_the_dialog_starts_from_the_line_grade(self):
         """A subject sent back to pending keeps what it was graded with."""
         line = self._line(self._request())
-        self._grant_dialog(line, without_grade=True).action_grant()
+        self._grant_dialog(line, mode='without_grade').action_grant()
         line.with_user(self.head_of_studies).action_reset()
-        self.assertTrue(self._grant_dialog(line).without_grade)
+        self.assertEqual(self._grant_dialog(line).mode, 'without_grade')
 
     def test_secretary_cannot_open_the_dialog(self):
         with self.assertRaises(UserError):
             self._line(self._request()).with_user(self.secretary).action_open_grant()
+
+    # --- refusing asks for the reason (issue #580) ----------------------------
+
+    def _reject_dialog(self, line, **vals):
+        action = line.with_user(self.head_of_studies).action_open_reject()
+        return self.env[action['res_model']].with_user(self.head_of_studies).with_context(
+            action['context']).create(vals)
+
+    def test_refusing_preselects_the_most_usual_reason(self):
+        line = self._line(self._request())
+        wizard = self._reject_dialog(line)
+        self.assertEqual(wizard.reason_id, self.env.ref('ems.convalidation_rejection_reason_contents'))
+        wizard.action_reject()
+        self.assertEqual(line.state, 'rejected')
+        self.assertEqual(line.rejection_reason_id, wizard.reason_id)
+        self.assertFalse(line.rejection_reason)
+
+    def test_the_reason_alone_explains_a_refusal(self):
+        request = self._request()
+        self._reject_dialog(self._line(request)).action_reject()
+        request.with_user(self.head_of_studies).action_propose()
+        self.assertEqual(request.state, 'direction')
+
+    def test_the_resolution_states_the_reason_and_its_details(self):
+        request = self._request()
+        reason = self.env['ems.convalidation.rejection_reason'].create({'name': 'Test refusal reason'})
+        self._reject_dialog(self._line(request), reason_id=reason.id, details="Only 40 hours.").action_reject()
+        self.assertEqual(self._line(request)._ems_rejection_text(), "Test refusal reason. Only 40 hours.")
+        self.assertIn("Test refusal reason. Only 40 hours.", self._resolution_html(request, 'en_US'))
+
+    def test_the_reject_dialog_starts_from_the_line(self):
+        line = self._line(self._request())
+        reason = self.env.ref('ems.convalidation_rejection_reason_hours')
+        self._reject_dialog(line, reason_id=reason.id, details="Fewer hours").action_reject()
+        line.with_user(self.head_of_studies).action_reset()
+        wizard = self._reject_dialog(line)
+        self.assertEqual((wizard.reason_id, wizard.details), (reason, "Fewer hours"))
+
+    def test_secretary_cannot_open_the_reject_dialog(self):
+        with self.assertRaises(UserError):
+            self._line(self._request()).with_user(self.secretary).action_open_reject()
 
     def test_grade_must_be_a_passing_one(self):
         request = self._request()

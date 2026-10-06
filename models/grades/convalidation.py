@@ -287,7 +287,7 @@ class EmsConvalidation(models.Model):
             if convalidation.pending_count:
                 raise UserError(_("Convalidate or reject every subject of the request first."))
             unexplained = convalidation.line_ids.filtered(
-                lambda line: line.state == 'rejected' and not (line.rejection_reason or '').strip())
+                lambda line: line.state == 'rejected' and not line._ems_rejection_text())
             if unexplained:
                 raise UserError(_("Write the reason for refusing: %s")
                                 % ", ".join(unexplained.subject_id.mapped('display_name')))
@@ -806,9 +806,13 @@ class EmsConvalidationLine(models.Model):
     resolution_notes = fields.Char(string="Remarks",
                                    help="Where the resolution comes from, e.g. \"Granted by the Department, "
                                         "file no. 1234\". Shown to the student with the resolution.")
-    rejection_reason = fields.Text(string="Reason for refusal",
-                                   help="Why the subject is not convalidated. Required to refuse it: the "
-                                        "resolution states it.")
+    rejection_reason_id = fields.Many2one(string="Reason for refusal",
+                                          comodel_name='ems.convalidation.rejection_reason', ondelete='restrict',
+                                          help="Why the subject is not convalidated. Required to refuse it: "
+                                               "the resolution states it.")
+    rejection_reason = fields.Text(string="Refusal details",
+                                   help="Optional details after the reason for refusal, stated with it on "
+                                        "the resolution.")
 
     @api.depends('subject_id')
     def _compute_display_name(self):
@@ -846,7 +850,8 @@ class EmsConvalidationLine(models.Model):
     def write(self, vals):
         # The grade and the reason for refusing belong to the decision itself: nobody touches
         # them once the resolution exists.
-        if not {'state', 'subject_id', 'grade', 'without_grade', 'rejection_reason'} & set(vals):
+        if not {'state', 'subject_id', 'grade', 'without_grade', 'rejection_reason_id',
+                'rejection_reason'} & set(vals):
             return super().write(vals)
         self._ems_check_can_decide()
         # A changed subject leaves its previous one to be re-evaluated too.
@@ -891,7 +896,23 @@ class EmsConvalidationLine(models.Model):
             'target': 'new',
             'context': {'default_line_id': self.id,
                         'default_grade': self.grade,
-                        'default_without_grade': self.without_grade},
+                        'default_mode': 'without_grade' if self.without_grade else 'grade'},
+        }
+
+    def action_open_reject(self):
+        """The Head of Studies refuses the subject: a dialog asks for the reason first."""
+        self.ensure_one()
+        self._ems_check_can_decide()
+        context = {'default_line_id': self.id, 'default_details': self.rejection_reason}
+        if self.rejection_reason_id:
+            context['default_reason_id'] = self.rejection_reason_id.id
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Reject %s") % self.subject_id.display_name,
+            'res_model': 'ems.convalidation.reject_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': context,
         }
 
     def action_grant(self):
@@ -902,6 +923,16 @@ class EmsConvalidationLine(models.Model):
 
     def action_reset(self):
         self.write({'state': 'pending'})
+
+    def _ems_rejection_text(self):
+        """Why the subject is refused, in the current language: the reason followed by the
+        details. Empty when nothing explains it."""
+        self.ensure_one()
+        reason = (self.rejection_reason_id.name or '').strip()
+        details = (self.rejection_reason or '').strip()
+        if reason and details:
+            return f"{reason.rstrip('.')}. {details}"
+        return reason or details
 
     def _ems_resolved_grade(self):
         """The grade the subject reaches the student's grades with: 0 when convalidated without

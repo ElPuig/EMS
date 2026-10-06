@@ -104,6 +104,51 @@ def next_student_id():
     return f"TEST{next(_test_student_id_sequence):06d}"
 
 
+def build_academic_record_pdf(student_identifier, study_token, courses, student_name='Inventat , Alumne'):
+    """An invented Esfera academic record ("Expedient acadèmic") PDF, laid out in columns like the
+    real one so pdftotext reads it the same way (issue #585). Never use a real certificate in a
+    test: it carries a real student's name, document number and signatures.
+
+    courses: list of (centre_code, centre_name, 'YYYY/YYYY', rows), each row a tuple
+    (code, name, type, qualification[, hours]) - type 'MP', 'RA', 'EM' or 'MP_' (an optional
+    module of the issuing centre)."""
+    from reportlab.pdfgen import canvas
+
+    lines = [
+        f"Expedient acadèmic{' ' * 40}CFPM    {study_token}",
+        "Dades de l'alumne/a",
+        f"{'Cognoms i nom':<36}{'Identificador de l' + chr(39) + 'alumne/a':<32}Tipus i número de document",
+        f"{student_name:<36}{student_identifier:<32}X0000000X",
+    ]
+    for centre_code, centre_name, course, rows in courses:
+        lines += [
+            "Centre que avalua",
+            f"{'Codi':<30}Nom",
+            f"{centre_code:<30}{centre_name}",
+            f"{'Curs acadèmic':<30}{'Nivell':<33}Ensenyament",
+            f"{course:<30}{'1':<33}Estudi Inventat",
+            "Resultats de l'avaluació",
+            " Nivell   Codi                   Nom                             Tipus  Qualificació",
+        ]
+        for code, name, kind, qualification, *hours in rows:
+            indent = '   ' if kind in ('RA', 'EM') else ''
+            wrapped = qualification == 'Pendent de qualificar'
+            shown = 'Pendent de' if wrapped else qualification
+            hours_column = f"{hours[0]:>8}" if hours else ''
+            lines.append(f"   1      {indent}{code:<{23 - len(indent)}}{name:<32}{kind:<7}{shown:<14}1{hours_column}")
+            if wrapped:
+                lines.append(f"{'':<72}qualificar")
+        lines += ["Observacions", "Accedeix al curs següent"]
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer)
+    pdf.setFont('Courier', 7)
+    top = 800
+    for index, line in enumerate(lines):
+        pdf.drawString(20, top - 10 * index, line)
+    pdf.save()
+    return buffer.getvalue()
+
+
 def create_level_study(cls, prefix, **overrides):
     """Creates a level+study pair with `prefix`-derived unique codes.
     overrides: optional 'level'/'study' sub-dicts to override any field."""

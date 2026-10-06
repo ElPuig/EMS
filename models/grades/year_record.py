@@ -69,6 +69,16 @@ class EmsStudentYearRecord(models.Model):
                                     help="The course is still running: the record only holds the subjects "
                                          "convalidated so far, and gets the rest, and its result, when the "
                                          "course is closed.")
+    # A course the student took at another centre, typed in from that centre's academic
+    # certificate (issue #585) instead of generated from this centre's grade sessions. It has no
+    # group, tutor or attendance of ours, and the generator never rewrites it.
+    is_external = fields.Boolean(string="Previous record", default=False, readonly=True, index=True,
+                                 help="Typed in from an academic certificate (another centre's, or this "
+                                      "centre's from before EMS) instead of generated from the grade sessions.")
+    origin_centre_name = fields.Char(string="Origin centre", readonly=True)
+    origin_centre_code = fields.Char(string="Origin centre code", readonly=True)
+    certificate_file = fields.Binary(string="Academic certificate", attachment=True)
+    certificate_filename = fields.Char(string="Certificate file name")
     subject_record_ids = fields.One2many(string="Subjects",
                                          comodel_name='ems.student.year_record.subject',
                                          inverse_name='record_id')
@@ -148,7 +158,9 @@ class EmsStudentYearRecord(models.Model):
         # regenerates on every exit, and the manual tells the operator to register the
         # leavers AFTER applying the transition.
         existing = self.search([('student_id', '=', student.id), ('course_id', '=', course.id)])
-        if existing and not group:
+        # A course taken at another centre (issue #585) is not this centre's to regenerate:
+        # nothing here holds its grades but the record itself.
+        if existing and (existing.is_external or not group):
             return existing
         attendance_rate, subject_rates = self._attendance_rates(student)
         subject_vals = self._subject_vals(student, subject_rates)
@@ -368,6 +380,20 @@ class EmsStudentYearRecord(models.Model):
         return 'full' if all(subject_record.state == 'passed'
                              for subject_record in self.subject_record_ids) else 'partial'
 
+    def action_grade_review_add(self, resolution=None, review_date=None):
+        """The grade review wizard, set to add a module to this record: how a record from another
+        centre gets its modules (issue #585), one after another."""
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_grade_review_wizard')
+        context = {'dialog_size': 'extra-large', 'default_record_id': self.id,
+                   'default_operation': 'add'}
+        if resolution:
+            context['default_resolution'] = resolution
+        if review_date:
+            context['default_review_date'] = review_date
+        action['context'] = context
+        return action
+
 
 class EmsStudentYearRecordSubject(models.Model):
     _name = 'ems.student.year_record.subject'
@@ -416,6 +442,12 @@ class EmsStudentYearRecordSubject(models.Model):
     convalidation_number = fields.Char(string="Convalidation file", readonly=True,
                                        help="Registration number of the convalidation request the subject "
                                             "was passed through, e.g. CONV-2026-27-0001.")
+    # An optional module of this centre passed through the optional modules of a previous
+    # record's certificate (issue #585): their hours cover this one's, and its grade is their
+    # hours-weighted average. Like a convalidated subject, it has no learning outcomes of its own.
+    is_recognized = fields.Boolean(string="Recognised", default=False, readonly=True,
+                                   help="Optional module passed through the optional modules of the "
+                                        "academic certificate of a previous record.")
     # Trace of the last grade review applied to this subject (issue #493). A grade review is a
     # formal, signed resolution taken once the academic file is already closed, so the
     # record keeps who applied it, when and what it resolved; the detail of every change
@@ -507,7 +539,10 @@ class EmsStudentYearRecordSubject(models.Model):
         A convalidated subject is left alone (issue #276): its grade comes from a convalidation
         resolution, not from the RAs of a course the student never took here, so recomputing it
         would silently wipe the resolution."""
-        for subject_record in self.filtered(lambda record: not record.is_convalidated):
+        # A recognised optional module (issue #585) has no outcomes either: its grade comes from
+        # the certificate's optional modules.
+        for subject_record in self.filtered(lambda record: not record.is_convalidated
+                                            and not record.is_recognized):
             outcomes = subject_record.outcome_record_ids
             subject_record.write(self._values_from_outcomes(
                 [(outcome.final_score, outcome.weight)
@@ -540,6 +575,22 @@ class EmsStudentYearRecordSubject(models.Model):
             'final_grade': final_grade,
             'has_final': has_final,
         }
+
+    def _force_internal_grade(self, grade):
+        """Overwrite the internal grade with a value typed by hand instead of the one the outcomes
+        yield (issue #503: to match the grade Esfera or a certificate records), completing the
+        final grade with the weights frozen in the record. The state is never touched: the caller
+        guarantees the forced value is on the same side of 5 as the outcomes."""
+        for subject_record in self:
+            final_grade, has_final = self.env['ems.grade_subject_line']._final_from_parts(
+                grade, True, subject_record.external_grade, subject_record.external_is_scored,
+                subject_record.internal_weight, subject_record.external_weight)
+            subject_record.write({
+                'internal_grade': grade,
+                'is_overridden': True,
+                'final_grade': final_grade,
+                'has_final': has_final,
+            })
 
     def apply_external_grade(self, score):
         """Write the work placement (EM) grade on an archived subject (called by the EM

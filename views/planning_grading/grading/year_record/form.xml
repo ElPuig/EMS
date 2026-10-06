@@ -19,6 +19,9 @@
                         <field name="is_provisional" invisible="1"/>
                         <widget name="web_ribbon" title="Current course" bg_color="text-bg-info"
                                 invisible="not is_provisional"/>
+                        <field name="is_external" invisible="1"/>
+                        <widget name="web_ribbon" title="Previous record" bg_color="text-bg-warning"
+                                invisible="not is_external"/>
                         <div class="alert alert-info" role="alert" invisible="not is_provisional">
                             The course is still running: this record only holds the subjects
                             convalidated so far. The rest of the subjects, and the course result,
@@ -47,6 +50,16 @@
                                 <field name="exit_date" readonly="1"/>
                             </group>
                         </group>
+                        <group string="Previous record" invisible="not is_external">
+                            <group>
+                                <field name="origin_centre_name"/>
+                                <field name="origin_centre_code"/>
+                            </group>
+                            <group>
+                                <field name="certificate_file" filename="certificate_filename"/>
+                                <field name="certificate_filename" invisible="1"/>
+                            </group>
+                        </group>
                         <notebook>
                             <page name="subjects" string="Subjects">
                                 <field name="subject_record_ids" readonly="1">
@@ -60,6 +73,7 @@
                                         <field name="final_grade"/>
                                         <field name="final_pending" optional="show"/>
                                         <field name="is_convalidated" optional="show"/>
+                                        <field name="is_recognized" optional="show"/>
                                         <field name="convalidation_number" optional="show"/>
                                         <field name="internal_weight" optional="hide"/>
                                         <field name="external_weight" optional="hide"/>
@@ -89,6 +103,7 @@
                                 <field name="state" readonly="1"/>
                                 <field name="final_pending" readonly="1"/>
                                 <field name="is_convalidated" readonly="1"/>
+                                <field name="is_recognized" readonly="1" invisible="not is_recognized"/>
                                 <field name="convalidation_number" readonly="1" invisible="not convalidation_number"/>
                                 <field name="attendance_rate" readonly="1"/>
                             </group>

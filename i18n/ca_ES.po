@@ -19915,6 +19915,7 @@ msgstr "Identitat confirmada: aquest docent es va crear com a plaça pendent d'i
 msgid "%s is a vacancy pending identification. Switch it to a named teacher, with their personal email, and the Google account will be created."
 msgstr "%s és una plaça pendent d'identificar. Passeu-la a docent nominal, amb el seu correu personal, i es crearà el compte de Google."
 
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__certificate_file
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__certificate_file
 msgid "Academic certificate"

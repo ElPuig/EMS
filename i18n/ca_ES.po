@@ -20466,3 +20466,8 @@ msgstr "Els estudis previs no estan superats o acreditats"
 #: model:ems.convalidation.rejection_reason,name:ems.convalidation_rejection_reason_not_convalidable
 msgid "The subject cannot be convalidated (it must be taken)"
 msgstr "El mòdul no és convalidable (s'ha de cursar)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_grant_wizard__grade
+msgid "The grade the previous studies hold, from 5 to 10."
+msgstr "La nota que tenen els estudis previs, de 5 a 10."

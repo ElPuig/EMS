@@ -58,6 +58,7 @@ Crear una tasca no envia cap correu. En canvi, cada dia laborable, a l'inici de 
 Obre la sol·licitud des de la llista. El formulari mostra:
 
 - El **número de registre** (per exemple CONV-2026-27-0001), a sobre del nom de l'alumne.
+- L'**IDALU** de l'alumne, sota el seu nom, amb un botó que el copia per enganxar-lo a Esfera i consultar-ne l'expedient acadèmic. També pots escriure un IDALU al cercador de la llista, a *Alumne*, per trobar-ne les sol·licituds.
 - **Estudi**, **Curs** i **Motiu**. Aquestes dades, l'alumne i les observacions del sol·licitant són les de la sol·licitud i no es poden modificar.
 - Sota el nom de l'alumne, l'avís **Té una titulació obtinguda al centre** quan a l'històric acadèmic hi consta un títol obtingut aquí.
 - Pestanya **Assignatures**: una línia per cada mòdul sol·licitat.

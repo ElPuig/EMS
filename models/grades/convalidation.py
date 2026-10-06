@@ -37,6 +37,8 @@ class EmsConvalidation(models.Model):
     student_id = fields.Many2one(string="Student", comodel_name='res.partner', required=True,
                                  ondelete='restrict', index=True, tracking=True,
                                  domain="[('contact_type', 'in', ('student', 'applicant'))]")
+    student_idalu = fields.Char(string="Student ID", related='student_id.student_id',
+                                help="The student's IDALU, to look up their academic record in Esfera.")
     requester_id = fields.Many2one(string="Requested by", comodel_name='res.partner', ondelete='set null',
                                    help="Portal user who submitted the request: the student or a family contact.")
     course_id = fields.Many2one(string="Course", comodel_name='ems.course', required=True,

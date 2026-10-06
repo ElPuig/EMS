@@ -58,6 +58,7 @@ Creating a task sends no email. Instead, every working day at the start of your 
 Open the request from the list. The form shows:
 
 - The **registration number** (e.g. CONV-2026-27-0001), above the student's name.
+- The student's **IDALU**, under their name, with a button that copies it so you can paste it into Esfera to look up their academic record. You can also type an IDALU in the list's search bar, under *Student*, to find their requests.
 - **Study**, **Course** and **Grounds**. These, the student and the applicant's comments come from the request and cannot be changed.
 - Under the student's name, the notice **Holds a title obtained at this centre** when the academic history records a title obtained here.
 - **Subjects** tab: one line for each module requested.

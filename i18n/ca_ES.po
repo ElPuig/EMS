@@ -7217,6 +7217,7 @@ msgid "Student Documents"
 msgstr "Documents d'alumnes"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__student_idalu
 #: model:ir.model.fields,field_description:ems.field_res_partner__student_id model:ir.model.fields,field_description:ems.field_res_users__student_id
 msgid "Student ID"
 msgstr "Identificador d'estudiant"
@@ -20471,3 +20472,8 @@ msgstr "El mòdul no és convalidable (s'ha de cursar)"
 #: model:ir.model.fields,help:ems.field_ems_convalidation_grant_wizard__grade
 msgid "The grade the previous studies hold, from 5 to 10."
 msgstr "La nota que tenen els estudis previs, de 5 a 10."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation__student_idalu
+msgid "The student's IDALU, to look up their academic record in Esfera."
+msgstr "L'IDALU de l'alumne, per consultar el seu expedient acadèmic a Esfera."

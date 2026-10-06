@@ -58,6 +58,7 @@ Crear una tarea no envía ningún correo. En su lugar, cada día laborable, al i
 Abre la solicitud desde la lista. El formulario muestra:
 
 - El **número de registro** (por ejemplo CONV-2026-27-0001), encima del nombre del alumno.
+- El **IDALU** del alumno, bajo su nombre, con un botón que lo copia para pegarlo en Esfera y consultar su expediente académico. También puedes escribir un IDALU en el buscador de la lista, en *Alumno*, para encontrar sus solicitudes.
 - **Estudio**, **Curso** y **Motivo**. Estos datos, el alumno y las observaciones del solicitante son los de la solicitud y no se pueden modificar.
 - Bajo el nombre del alumno, el aviso **Tiene una titulación obtenida en el centro** cuando en el historial académico consta un título obtenido aquí.
 - Pestaña **Asignaturas**: una línea por cada módulo solicitado.

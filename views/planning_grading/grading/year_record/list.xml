@@ -8,6 +8,7 @@
                     <field name="student_id"/>
                     <field name="course_id"/>
                     <field name="is_provisional"/>
+                    <field name="is_external" optional="show"/>
                     <field name="study_name"/>
                     <field name="level_name" optional="hide"/>
                     <field name="group_name"/>

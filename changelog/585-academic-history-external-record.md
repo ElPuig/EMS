@@ -1,0 +1,11 @@
+# What's new
+
+## Academic history: add a student's record from another centre (issue #585):
+
+- Students who come to take the second year of a VET study after doing the first one at another centre can now have that first year in their academic history, typed in from the other centre's academic certificate.
+- New "Add record from another centre" entry in the student form's Actions dropdown (secretariat, academic administration, Head of Studies, Director): `ems.external_record_wizard` asks for the course (courses before the current one the student has no record for), the study (studies with a teaching plan of learning outcomes that course, i.e. VET only for now), the origin centre name and code, an optional certificate PDF and notes, creates the `ems.student.year_record` marked `is_external` (sudo, after `ems.base.get_user_can_edit_history()`) and logs it in the student's chatter.
+- The modules are entered per learning outcome (RA) through the existing grade review wizard's "Add a missing subject" operation, opened straight away by the new wizard: RAs and weights from the teaching plan of that study and course, grades from the shared grading formulas, and the internal grade override (issue #503) to match the certificate when the other centre weighed its RAs differently. A new "Apply and add another module" button applies and reopens the wizard on the same record with the same date and resolution; on an external record only the modules with a teaching plan that course are offered.
+- A module whose work placement (EM) grade is not on the certificate yet is saved passed with its final pending, so the EM grading wizard offers it to the tutor of the student's current group like any other pending final.
+- External records show an "Another centre" ribbon with the origin centre and certificate, a column in the history lists and an "Another centre" search filter. The history generator never rewrites them, and a title obtained elsewhere does not count as a title of this centre for convalidations.
+- The role check shared by the grade review and the new wizard moved to `ems.base.get_user_can_edit_history()`.
+- Catalan/Spanish translations, secretariat and Head of Studies manuals (three languages) and the `year_record` developer doc updated; new `TestExternalRecord` and `TestExternalRecordTour` (driven as the secretariat).

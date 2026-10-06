@@ -125,6 +125,12 @@
                                     string="Download Google credentials"
                                     invisible="not can_download_google_credentials"
                                     groups="ems.group_academic_admin,ems.group_secretary,ems.group_tutor,ems.group_tac"/>
+                            <!-- Issue #585: the roles that sign grade reviews, the only other
+                                 write path into the academic history. -->
+                            <button name="action_external_record_wizard" type="object"
+                                    string="Add record from another centre"
+                                    invisible="contact_type != 'student'"
+                                    groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"/>
                         </div>
                     </header>
                     <!-- Same groups as the buttons above: the teacher role has read
@@ -587,8 +593,10 @@
                                   decoration-info="is_provisional">
                                 <field name="course_id"/>
                                 <field name="is_provisional"/>
+                                <field name="is_external" optional="show"/>
                                 <field name="study_name"/>
                                 <field name="group_name"/>
+                                <field name="origin_centre_name" optional="hide"/>
                                 <field name="tutor_name" optional="hide"/>
                                 <field name="academic_result" widget="badge"
                                        decoration-success="academic_result == 'full'"

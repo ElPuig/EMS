@@ -39,6 +39,10 @@ A grade review corrects the academic history of a course already closed: the gra
 
 Open the student's record for that course and click **Grade review**. The full step-by-step is in the [secretariat manual](../secretary/academic-history.md#applying-a-grade-review) — the screen and the rules are the same for both roles.
 
+## Adding a record from another centre
+
+The course a student took at another centre is added to the history from their form, in the **Actions → Add record from another centre** dropdown, with the grades per learning outcome from the academic certificate. The full step by step is in the [secretariat manual](../secretary/academic-history.md#adding-a-record-from-another-centre). These records carry the **Another centre** ribbon, and the filter of the same name sets them apart in queries.
+
 ---
 
 [← Back to main index](index.md)

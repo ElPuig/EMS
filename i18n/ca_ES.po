@@ -2371,6 +2371,7 @@ msgstr "Pot editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_reject_wizard_form model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_return_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -2773,6 +2774,7 @@ msgstr "País"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__course_id
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__course_id model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__course_id
 msgid "Course"
 msgstr "Curs"
 
@@ -2842,6 +2844,7 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -2856,6 +2859,7 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3132,6 +3136,7 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -4334,6 +4339,7 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__id
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__id
 msgid "ID"
 msgstr "ID"
 
@@ -4767,6 +4773,7 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -4781,6 +4788,7 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -5393,6 +5401,8 @@ msgstr "Nota"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__notes model_terms:ir.ui.view,arch_db:ems.report_meeting_presence_section
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__note
 #: model:ir.model.fields,field_description:ems.field_res_partner__comment
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__notes
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
 msgid "Notes"
 msgstr "Notes"
 
@@ -7164,6 +7174,7 @@ msgstr "Carrer 2"
 #: model:ir.model.fields,field_description:ems.field_ems_student_private_note__partner_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__student_id
 msgid "Student"
 msgstr "Estudiant"
 
@@ -7316,6 +7327,7 @@ msgstr "Estudis per a matrícula"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__study_name
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__study_id
 msgid "Study"
 msgstr "Estudi"
 
@@ -19822,3 +19834,117 @@ msgstr "Ubicació de la feina"
 #: model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__student_domain
 msgid "Student domain"
 msgstr "Domini de l'alumne"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "%(student)s already has an academic record for %(course)s."
+msgstr "%(student)s ja té un expedient acadèmic del curs %(course)s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__certificate_file
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__certificate_file
+msgid "Academic certificate"
+msgstr "Certificat acadèmic"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Academic certificate of %s"
+msgstr "Certificat acadèmic de %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Academic record of %(course)s (%(study)s) added from another centre by %(user)s: %(centre)s"
+msgstr "Expedient del curs %(course)s (%(study)s) d'un altre centre afegit per %(user)s: %(centre)s"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_external_record_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+msgid "Add record from another centre"
+msgstr "Afegeix un expedient d'un altre centre"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+msgid ""
+"Adds to the academic history a course the student took at another\n"
+"                            centre. Once the record is created, add its modules one by one with\n"
+"                            the grades of each learning outcome (RA) shown on the academic\n"
+"                            certificate."
+msgstr "Afegeix a l'històric acadèmic un curs que l'alumne va fer en un altre centre. Un cop creat l'expedient, afegiu-ne els mòduls un per un amb la nota de cada resultat d'aprenentatge (RA) que consta al certificat acadèmic."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__is_external
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__is_external
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_form
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Another centre"
+msgstr "Altre centre"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
+msgid "Apply and add another module"
+msgstr "Aplica i afegeix un altre mòdul"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__available_course_ids
+msgid "Available courses"
+msgstr "Cursos disponibles"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__available_study_ids
+msgid "Available studies"
+msgstr "Estudis disponibles"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__certificate_filename
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__certificate_filename
+msgid "Certificate file name"
+msgstr "Nom del fitxer del certificat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+msgid "Create and add modules"
+msgstr "Crea i afegeix els mòduls"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_external_record_wizard
+msgid "External record wizard: academic history of a course taken at another centre."
+msgstr "Assistent d'expedient extern: històric acadèmic d'un curs fet en un altre centre."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Only the secretariat, the academic administration, the Head of Studies and the Director may add a record from another centre."
+msgstr "Només secretaria, l'administració acadèmica, el cap d'estudis i la direcció poden afegir un expedient d'un altre centre."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__origin_centre_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__origin_centre_name
+msgid "Origin centre"
+msgstr "Centre de procedència"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__origin_centre_code
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__origin_centre_code
+msgid "Origin centre code"
+msgstr "Codi del centre de procedència"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_review_wizard__is_external
+#: model:ir.model.fields,help:ems.field_ems_student_year_record__is_external
+msgid "The course was taken at another centre: its grades come from that centre's academic certificate."
+msgstr "El curs es va fer en un altre centre: les notes provenen del certificat acadèmic d'aquell centre."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
+msgid ""
+"This course was taken at another centre. Add each module with the\n"
+"                            grade of every learning outcome (RA) shown on the academic\n"
+"                            certificate; if the internal grade the outcomes give differs from the\n"
+"                            certificate's, type the certificate's in the applied internal grade.\n"
+"                            Leave the work placement grade out when the certificate does not\n"
+"                            have it yet: the module stays with its final grade pending."
+msgstr "Aquest curs es va fer en un altre centre. Afegiu cada mòdul amb la nota de cada resultat d'aprenentatge (RA) que consta al certificat acadèmic; si la nota del centre que en resulta no coincideix amb la del certificat, escriviu la del certificat a la nota del centre aplicada. Deixeu fora la nota de l'estada quan el certificat encara no la té: el mòdul queda amb la nota final pendent."

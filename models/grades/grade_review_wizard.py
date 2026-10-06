@@ -27,6 +27,7 @@ class EmsGradeReviewWizard(models.TransientModel):
     student_id = fields.Many2one(string="Student", related='record_id.student_id')
     course_id = fields.Many2one(string="Course", related='record_id.course_id')
     study_name = fields.Char(string="Study", related='record_id.study_name')
+    is_external = fields.Boolean(string="Another centre", related='record_id.is_external')
     operation = fields.Selection(string="Operation", required=True, default='correct', selection=[
         ('correct', 'Correct a subject'),
         ('add', 'Add a missing subject'),
@@ -103,6 +104,12 @@ class EmsGradeReviewWizard(models.TransientModel):
             domain = [('id', 'not in', taken.ids)]
             if wizard.record_id.study_id:
                 domain.append(('study_ids', '=', wizard.record_id.study_id.id))
+            # A record from another centre (issue #585) is typed in per learning outcome, so only
+            # the modules with a teaching plan for that course have a grid to type into.
+            if wizard.record_id.is_external:
+                domain.append(('id', 'in', self.env['ems.planning'].sudo().search([
+                    ('study_id', '=', wizard.record_id.study_id.id),
+                    ('course_id', '=', wizard.record_id.course_id.id)]).subject_id.ids))
             wizard.available_subject_ids = self.env['ems.subject'].search(domain)
 
     @api.depends('record_id', 'operation', 'subject_record_id', 'subject_id', 'line_ids.score',
@@ -297,14 +304,21 @@ class EmsGradeReviewWizard(models.TransientModel):
         self._log_review(changes)
         return {'type': 'ir.actions.act_window_close'}
 
+    def action_apply_and_add(self):
+        """Apply the review and reopen the wizard on the same record to add another module, with
+        the same date and resolution: a record from another centre (issue #585) is filled in
+        module after module from a single certificate."""
+        self.ensure_one()
+        self.action_apply()
+        return self.record_id.action_grade_review_add(resolution=self.resolution,
+                                                      review_date=self.review_date)
+
     def _check_can_review(self):
         """Secretariat, academic administration, Head of Studies and Director sign grade reviews.
         Besides restricting the button in the view, this is what gates the elevated writes of
         _history(): the wizard is the only door to a closed history."""
         self.ensure_one()
-        ems_base = self.env['ems.base']
-        if not (ems_base.get_user_is_secretary() or ems_base.get_user_is_admin()
-                or ems_base.get_user_is_head_of_studies()):
+        if not self.env['ems.base'].get_user_can_edit_history():
             raise UserError(_("Only the secretariat, the academic administration, the Head of "
                               "Studies and the Director may apply a grade review."))
 

@@ -15,7 +15,8 @@ Esta guía explica el **histórico académico**: un resumen permanente por curso
 3. [Consultar el histórico](#consultar-el-histórico)
 4. [Ajustar el resultado académico](#ajustar-el-resultado-académico)
 5. [Aplicar una revisión de calificaciones](#aplicar-una-revisión-de-calificaciones)
-6. [Finales pendientes de la estancia](#finales-pendientes-de-la-estancia)
+6. [Añadir un expediente de otro centro](#añadir-un-expediente-de-otro-centro)
+7. [Finales pendientes de la estancia](#finales-pendientes-de-la-estancia)
 
 ---
 
@@ -36,6 +37,7 @@ El estado de un módulo depende **solo de los RA**: un alumno con todos los RA a
 - **En una baja:** el [asistente de baja](graduation-withdrawal.md) congela el histórico del alumno/a **en ese momento**, antes de desvincularlo de su grupo. Quien deja el centro a mitad de curso conserva el registro de todo lo que hizo hasta ese día (módulos, notas, asistencia), con el resultado **Baja**. Una vez congelado el histórico, la baja **saca al alumno/a de todo lo operativo**: sus inscripciones a módulos, las líneas de notas de las sesiones vivas, las líneas y plantillas de asistencia, y el delegado del grupo si lo era. A partir de ese momento ya no aparece en el grupo, ni en la matriz de evaluación, ni en las sesiones de asistencia, ni en la calificación de las prácticas — solo en su histórico académico.
 - **En la transición de curso:** el asistente de transición (ejecutado por el administrador al final del curso) genera los registros de todo el alumnado activo antes de limpiar los datos operativos.
 - **Al completar una convalidación:** si el curso de la convalidación todavía no tiene registro, se abre uno marcado como **Curso actual**, con solo las asignaturas convalidadas (nota, marca **CV** y número de registro CONV). Así el profesorado ve la nota desde el primer día. Al cerrar el curso (transición, baja o graduación) el registro se completa con el resto de asignaturas y el resultado, y pierde la marca. Sobre un registro del curso actual no se puede aplicar una revisión de calificaciones: las notas del curso en marcha se corrigen en las sesiones de evaluación.
+- **Desde el certificado de otro centro:** el curso que el alumno/a hizo en otro centro se añade a mano, ved [Añadir un expediente de otro centro](#añadir-un-expediente-de-otro-centro).
 
 Volver a ejecutar la generación nunca duplica un registro: el que ya existe se actualiza.
 
@@ -77,6 +79,25 @@ La nota final se recalcula automáticamente a partir de ese valor forzado (igual
 El módulo conserva la fecha, el autor/a y el texto de la última revisión que se le ha aplicado, y el filtro **Corregido por una revisión de calificaciones** de la lista del histórico muestra los registros que tienen alguna. El detalle de cada cambio queda registrado en el registro del alumno/a.
 
 ![Asistente de revisión de calificaciones, con la rejilla de resultados de aprendizaje y el resultado que se obtiene](../../assets/secretary/academic-history-grade-review.png)
+
+## Añadir un expediente de otro centro
+
+Cuando un alumno/a viene a hacer segundo curso después de haber hecho primero en otro centro, su expediente de primero se añade al histórico a partir del certificado académico. Pueden hacerlo secretaría, administración, jefatura de estudios y dirección, de momento solo en estudios de FP.
+
+1. Abrid la ficha del alumno/a y, en el desplegable **Acciones**, haced clic en **Añadir expediente de otro centro**.
+2. Rellenad los datos del certificado:
+   - **Curso:** el curso que hizo en el otro centro. Solo se ofrecen cursos anteriores al actual que el alumno/a todavía no tiene en el histórico.
+   - **Estudio:** el estudio equivalente del centro. Solo se ofrecen los que tienen programación de resultados de aprendizaje ese curso.
+   - **Centro de procedencia** y, si lo tenéis, el **Código del centro de procedencia**.
+   - **Certificado académico:** opcionalmente, el PDF del certificado.
+   - **Notas:** opcional.
+3. Haced clic en **Crear y añadir los módulos**. Se abre la **Revisión de calificaciones** para añadir el primer módulo.
+4. Elegid el módulo y poned la nota de cada resultado de aprendizaje tal como consta en el certificado. Si la **Nota del centro (calculada)** no coincide con la del certificado, escribid la del certificado en **Nota del centro (aplicada)** (ved [Forzar la nota del centro manualmente](#forzar-la-nota-del-centro-manualmente)).
+5. Haced clic en **Aplicar y añadir otro módulo** para pasar al módulo siguiente, con la misma resolución y fecha. En el último módulo, haced clic en **Aplicar revisión**.
+
+Si el certificado todavía no tiene la nota de la estancia (EM) de un módulo, dejadla fuera: el módulo queda superado con la **nota final pendiente** y el tutor/a del grupo actual del alumno/a la califica desde la pantalla de estancia.
+
+El registro se muestra con la cinta **Otro centro**, el centro de procedencia y el certificado. El filtro **Otro centro** de la lista del histórico los muestra todos. Para corregirlo más adelante, usad la revisión de calificaciones como en cualquier otro registro.
 
 ## Finales pendientes de la estancia
 

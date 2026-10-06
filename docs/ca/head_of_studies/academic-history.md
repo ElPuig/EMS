@@ -39,6 +39,10 @@ Una revisió de qualificacions corregeix l'històric acadèmic d'un curs ja tanc
 
 Obriu el registre de l'alumne/a d'aquell curs i feu clic a **Revisió de qualificacions**. Teniu el pas a pas complet al [manual de secretaria](../secretary/academic-history.md#aplicar-una-revisió-de-qualificacions) — la pantalla i les regles són les mateixes per als dos rols.
 
+## Afegir un expedient d'un altre centre
+
+El curs que un alumne/a va fer en un altre centre s'afegeix a l'històric des de la seva fitxa, al desplegable **Accions → Afegeix un expedient d'un altre centre**, amb les notes per resultat d'aprenentatge del certificat acadèmic. Teniu el pas a pas complet al [manual de secretaria](../secretary/academic-history.md#afegir-un-expedient-dun-altre-centre). Aquests registres porten la cinta **Altre centre** i el filtre del mateix nom els separa a les consultes.
+
 ---
 
 [← Torna a l'índex principal](index.md)

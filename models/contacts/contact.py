@@ -569,6 +569,13 @@ class ResPartner(models.Model):
             'context': {'active_ids': students.ids},
         }
 
+    def action_external_record_wizard(self):
+        """Add to the student's academic history a course taken at another centre (issue #585)."""
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_external_record_wizard')
+        action['context'] = {'default_student_id': self.id}
+        return action
+
     def action_suggest_destination_group(self):
         """Fill the destination group on the selected students' next-course
         enrollments that still have none. Students without an enrollment are

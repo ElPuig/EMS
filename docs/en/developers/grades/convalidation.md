@@ -63,7 +63,7 @@ erDiagram
 | `resolution_pdf_link` | Html compute | The file name as a link to `/web/content/<id>` opening in a new tab, which the form shows instead of the many2one (that one would open the attachment's own form). |
 | `resolution_date`, `resolved_by_id` | Date, M2o | *Registration date / Registered by*: stamped by the secretariat's `action_complete`. |
 | `granted_count`, `pending_count` | Integer compute | List columns. `pending_count` is what a proposal requires to be zero. |
-| `has_centre_title` | Boolean compute | True when the student's academic history holds a `title_obtained` record: a hint that their previous grades can be looked up here. Its absence proves nothing (only recent years are in EMS), so nothing is shown in that case. |
+| `has_centre_title` | Boolean compute | True when the student's academic history holds a `title_obtained` record of this centre (records from another centre, `is_external`, do not count): a hint that their previous grades can be looked up here. Its absence proves nothing (only recent years are in EMS), so nothing is shown in that case. |
 
 ### `ems.convalidation.line` (subject)
 

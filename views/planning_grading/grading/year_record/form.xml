@@ -19,6 +19,9 @@
                         <field name="is_provisional" invisible="1"/>
                         <widget name="web_ribbon" title="Current course" bg_color="text-bg-info"
                                 invisible="not is_provisional"/>
+                        <field name="is_external" invisible="1"/>
+                        <widget name="web_ribbon" title="Another centre" bg_color="text-bg-warning"
+                                invisible="not is_external"/>
                         <div class="alert alert-info" role="alert" invisible="not is_provisional">
                             The course is still running: this record only holds the subjects
                             convalidated so far. The rest of the subjects, and the course result,
@@ -45,6 +48,16 @@
                             <group>
                                 <field name="exit_type" readonly="1"/>
                                 <field name="exit_date" readonly="1"/>
+                            </group>
+                        </group>
+                        <group string="Another centre" invisible="not is_external">
+                            <group>
+                                <field name="origin_centre_name"/>
+                                <field name="origin_centre_code"/>
+                            </group>
+                            <group>
+                                <field name="certificate_file" filename="certificate_filename"/>
+                                <field name="certificate_filename" invisible="1"/>
                             </group>
                         </group>
                         <notebook>

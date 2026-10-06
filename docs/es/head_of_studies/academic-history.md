@@ -39,6 +39,10 @@ Una revisión de calificaciones corrige el histórico académico de un curso ya 
 
 Abra el registro del alumno/a de ese curso y haga clic en **Revisión de calificaciones**. Tiene el paso a paso completo en el [manual de secretaría](../secretary/academic-history.md#aplicar-una-revisión-de-calificaciones) — la pantalla y las reglas son las mismas para ambos roles.
 
+## Añadir un expediente de otro centro
+
+El curso que un alumno/a hizo en otro centro se añade al histórico desde su ficha, en el desplegable **Acciones → Añadir expediente de otro centro**, con las notas por resultado de aprendizaje del certificado académico. Tenéis el paso a paso completo en el [manual de secretaría](../secretary/academic-history.md#añadir-un-expediente-de-otro-centro). Estos registros llevan la cinta **Otro centro** y el filtro del mismo nombre los separa en las consultas.
+
 ---
 
 [← Volver al índice principal](index.md)

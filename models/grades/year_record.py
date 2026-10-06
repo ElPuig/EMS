@@ -69,6 +69,16 @@ class EmsStudentYearRecord(models.Model):
                                     help="The course is still running: the record only holds the subjects "
                                          "convalidated so far, and gets the rest, and its result, when the "
                                          "course is closed.")
+    # A course the student took at another centre, typed in from that centre's academic
+    # certificate (issue #585) instead of generated from this centre's grade sessions. It has no
+    # group, tutor or attendance of ours, and the generator never rewrites it.
+    is_external = fields.Boolean(string="Another centre", default=False, readonly=True, index=True,
+                                 help="The course was taken at another centre: its grades come from "
+                                      "that centre's academic certificate.")
+    origin_centre_name = fields.Char(string="Origin centre", readonly=True)
+    origin_centre_code = fields.Char(string="Origin centre code", readonly=True)
+    certificate_file = fields.Binary(string="Academic certificate", attachment=True)
+    certificate_filename = fields.Char(string="Certificate file name")
     subject_record_ids = fields.One2many(string="Subjects",
                                          comodel_name='ems.student.year_record.subject',
                                          inverse_name='record_id')
@@ -148,7 +158,9 @@ class EmsStudentYearRecord(models.Model):
         # regenerates on every exit, and the manual tells the operator to register the
         # leavers AFTER applying the transition.
         existing = self.search([('student_id', '=', student.id), ('course_id', '=', course.id)])
-        if existing and not group:
+        # A course taken at another centre (issue #585) is not this centre's to regenerate:
+        # nothing here holds its grades but the record itself.
+        if existing and (existing.is_external or not group):
             return existing
         attendance_rate, subject_rates = self._attendance_rates(student)
         subject_vals = self._subject_vals(student, subject_rates)
@@ -367,6 +379,20 @@ class EmsStudentYearRecord(models.Model):
             return self.academic_result
         return 'full' if all(subject_record.state == 'passed'
                              for subject_record in self.subject_record_ids) else 'partial'
+
+    def action_grade_review_add(self, resolution=None, review_date=None):
+        """The grade review wizard, set to add a module to this record: how a record from another
+        centre gets its modules (issue #585), one after another."""
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_grade_review_wizard')
+        context = {'dialog_size': 'extra-large', 'default_record_id': self.id,
+                   'default_operation': 'add'}
+        if resolution:
+            context['default_resolution'] = resolution
+        if review_date:
+            context['default_review_date'] = review_date
+        action['context'] = context
+        return action
 
 
 class EmsStudentYearRecordSubject(models.Model):

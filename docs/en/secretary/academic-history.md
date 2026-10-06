@@ -15,7 +15,8 @@ This guide explains the **academic history**: a permanent, per-course summary of
 3. [Consulting the history](#consulting-the-history)
 4. [Adjusting the academic result](#adjusting-the-academic-result)
 5. [Applying a grade review](#applying-a-grade-review)
-6. [Finals pending the work placement](#finals-pending-the-work-placement)
+6. [Adding a record from another centre](#adding-a-record-from-another-centre)
+7. [Finals pending the work placement](#finals-pending-the-work-placement)
 
 ---
 
@@ -36,6 +37,7 @@ The state of a subject depends **only on the RAs**: a student with every RA pass
 - **On a withdrawal:** the [withdrawal wizard](graduation-withdrawal.md) freezes the student's history **at that moment**, before detaching them from their group. A student leaving mid-course keeps the record of everything done until that day (subjects, grades, attendance), with the result **Withdrawn**. Once the history is frozen, the withdrawal **removes the student from everything operational**: their subject enrollments, the grade lines of the live sessions, the attendance lines and templates, and the group's delegate if it was them. From that moment they no longer appear in the group, in the evaluation matrix, in the attendance sessions or in the work placement grading — only in their academic history.
 - **On the course transition:** the transition wizard (run by the administrator at the end of the course) generates the records of every active student before cleaning up the operational data.
 - **When a convalidation is completed:** if the convalidation's course has no record yet, one is opened marked as **Current course**, holding only the convalidated subjects (grade, **CV** mark and CONV registration number), so teachers see the grade from day one. When the course is closed (transition, withdrawal or graduation) the record is completed with the rest of the subjects and the result, and loses the mark. A grade review cannot be applied to a current-course record: grades of the running course are corrected in the grade sessions.
+- **From another centre's certificate:** the course the student took at another centre is added by hand, see [Adding a record from another centre](#adding-a-record-from-another-centre).
 
 Re-running the generation never duplicates a record: the existing one is refreshed.
 
@@ -77,6 +79,25 @@ The final grade recomputes automatically from that forced value (same as always,
 The subject keeps the date, the author and the text of the last review applied to it, and the **Corrected by a grade review** filter of the history list shows the records with at least one. The detail of every change is recorded in the student's log.
 
 ![The grade review wizard, with the learning-outcome grid and the result it yields](../../assets/secretary/academic-history-grade-review.png)
+
+## Adding a record from another centre
+
+When a student comes to take the second year after doing the first one at another centre, their first-year record is added to the history from the academic certificate. Secretariat, administration, Head of Studies and Director can do it, for now only on VET studies.
+
+1. Open the student's form and, in the **Actions** dropdown, click **Add record from another centre**.
+2. Fill in the certificate's details:
+   - **Course:** the course taken at the other centre. Only courses before the current one that the student does not have in the history yet are offered.
+   - **Study:** the equivalent study of the centre. Only the ones with a teaching plan of learning outcomes that course are offered.
+   - **Origin centre** and, if you have it, the **Origin centre code**.
+   - **Academic certificate:** optionally, the certificate's PDF.
+   - **Notes:** optional.
+3. Click **Create and add modules**. The **Grade review** opens to add the first module.
+4. Pick the module and type the grade of each learning outcome as shown on the certificate. If **Internal grade (calculated)** differs from the certificate's, type the certificate's in **Internal grade (applied)** (see [Forcing the internal grade manually](#forcing-the-internal-grade-manually)).
+5. Click **Apply and add another module** to go on to the next module, with the same resolution and date. On the last module, click **Apply review**.
+
+If the certificate does not have a module's work placement (EM) grade yet, leave it out: the module stays passed with its **final grade pending**, and the tutor of the student's current group grades it from the work placement screen.
+
+The record shows with the **Another centre** ribbon, the origin centre and the certificate. The **Another centre** filter of the history list shows all of them. To correct it later, use the grade review as on any other record.
 
 ## Finals pending the work placement
 

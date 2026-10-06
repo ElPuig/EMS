@@ -100,7 +100,7 @@
                                         </td>
                                         <td>
                                             <t t-if="line.state == 'granted'">
-                                                <t t-if="line._ems_is_default_grade()">Convalidated</t>
+                                                <t t-if="line.without_grade">Convalidated</t>
                                                 <t t-else="" t-esc="line.grade"/>
                                             </t>
                                         </td>

@@ -3,7 +3,6 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 
-from .convalidation import CONVALIDATED_GRADE
 
 class EmsGradeSubjectLine(models.Model):
     _name = "ems.grade_subject_line"
@@ -37,8 +36,8 @@ class EmsGradeSubjectLine(models.Model):
     is_convalidated = fields.Boolean(string="Convalidated", default=False, readonly=True,
                                      help="The subject is convalidated for this student.")
     convalidation_grade = fields.Integer(string="Convalidation grade", default=0, readonly=True,
-                                         help="Grade the convalidation was resolved with. Only meaningful "
-                                              "while 'Convalidated' is set.")
+                                         help="Grade the convalidation was resolved with, 0 when it has none. "
+                                              "Only meaningful while 'Convalidated' is set.")
 
     # Used only for access-rule filtering.
     teacher_id = fields.Many2one(string="Teacher", related="grade_session_id.teacher_id", store=False)
@@ -151,8 +150,8 @@ class EmsGradeSubjectLine(models.Model):
     def _compute_computed_score(self):
         for subject_line in self:
             if subject_line.is_convalidated:
-                subject_line.computed_score = subject_line.final_score = \
-                    subject_line.convalidation_grade or CONVALIDATED_GRADE
+                # 0 when convalidated without a grade: the grade views read it as a plain CV.
+                subject_line.computed_score = subject_line.final_score = subject_line.convalidation_grade
                 subject_line.computed_is_scored = True
                 continue
             planning = subject_line.grade_session_id.planning_id

@@ -74,14 +74,14 @@ On each line of the **Subjects** tab, use the buttons on the right:
 
 | Button | Result |
 |--------|--------|
-| ✔ (Convalidate) | The module is convalidated. |
+| ✔ (Convalidate) | Asks for the module's grade, then convalidates it. |
 | ✖ (Reject) | The module is not convalidated. |
 | ↺ (Back to pending) | Undoes the line's decision. |
 
-To convalidate every pending module at once, choose **Convalidate pending subjects** in **Actions**.
-
-- **Grade:** each convalidated module gets a 5 by default, which the resolution shows as **Convalidat**. If the previous studies hold a different grade, write it in the **Grade** column: the resolution will show that grade.
+- **Grade:** each module is checked and graded one by one. When you click ✔, a dialog asks for the grade: 5 by default, or the one the previous studies hold (from 5 to 10). Tick **Without grade** when the module is convalidated with no grade: the resolution shows it as **Convalidat**, the grades as **CV**, and it does not count towards the average. Until you send the proposal, you can still change the **Grade** and **Without grade** columns on the line.
 - **Reason for refusal:** every rejected module needs its reason, which appears on the resolution. Without it, the proposal cannot be sent.
+
+![Convalidating a module: its grade](../../assets/head_of_studies/convalidations-grant.png)
 
 ### Asking for documentation
 

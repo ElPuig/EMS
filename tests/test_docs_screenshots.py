@@ -399,6 +399,8 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             'name': 'Certificat_academic_SMX.pdf', 'datas': base64.b64encode(b'%PDF-1.4 x')})],
             student_notes="Vaig cursar el CFGM de Sistemes microinformàtics i xarxes.")
         decide(review)
+        # Issue #580: a module convalidated without a grade.
+        review.line_ids[1].sudo().write({'state': 'granted', 'without_grade': True, 'rejection_reason': False})
         at_ministry = new_request(self.students[1], subjects[1:2], basis='other')
         at_ministry.sudo().action_send_to_ministry()
         proposed = new_request(self.students[2], subjects[1:])
@@ -427,6 +429,15 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             login='doc_shot_hos',
             wait_for=".o_form_sheet div[name='line_ids'] .o_data_row",
             max_height=740,
+        )
+        # Issue #580: convalidating a module asks for its grade.
+        self._capture(
+            '/odoo/action-ems.action_convalidation/%d' % at_ministry.id,
+            '.modal-content', 'convalidations-grant.png',
+            login='doc_shot_hos',
+            wait_for=".o_form_sheet div[name='line_ids'] .o_data_row button[name='action_open_grant']",
+            click=".o_form_sheet div[name='line_ids'] .o_data_row button[name='action_open_grant']",
+            wait_after=".modal .o_field_widget[name='grade'] input",
         )
         self._capture(
             '/odoo/action-ems.action_convalidation/%d' % at_ministry.id,

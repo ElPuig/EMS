@@ -23,21 +23,42 @@ registry.category("web_tour.tours").add("ems_convalidation_resolve", {
             content: "The request opens as pending",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row button[name='action_grant']",
+            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row button[name='action_open_grant']",
             content: "Convalidate the requested subject",
             run: "click",
         },
         {
-            // The grade only shows on a granted line: waiting for the default 5 means the grant
-            // has been saved and the row re-rendered, so the click below is not lost to it.
-            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row td[name='grade']:contains('5')",
-            content: "Write the grade the previous studies hold",
+            // Issue #580: convalidating asks for the grade, 5 by default.
+            trigger: ".modal .o_field_widget[name='grade'] input:value(5)",
+            content: "The dialog proposes the default 5",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='without_grade'] input",
+            content: "Convalidate it without a grade...",
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row td[name='grade'] input",
+            trigger: ".modal .o_form_view:not(:has(.o_field_widget[name='grade']))",
+            content: "...which hides the grade",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='without_grade'] input",
+            content: "...or rather with the grade the previous studies hold",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='grade'] input",
             content: "Replace the default 5",
             run: "edit 8",
+        },
+        {
+            trigger: ".modal footer button[name='action_grant']",
+            content: "Convalidate",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='line_ids'] .o_data_row td[name='grade']:contains('8')",
+            content: "The subject is convalidated with an 8",
         },
         ...clickAction("action_propose", "Send the proposal to the Director"),
         {
@@ -274,6 +295,23 @@ registry.category("web_tour.tours").add("ems_convalidation_grade_tutor_matrix", 
             content: "The convalidated subject's final grade reads CV",
         },
     ],
+});
+
+// Convalidated without a grade (issue #580), both views read CV alone, as a passed subject.
+const gradelessCvStep = (table) => ({
+    trigger: `${table} tbody tr td.o_grade_matrix_final.o_grade_cell_pass:text(CV)`,
+    content: "The subject convalidated without a grade reads CV alone, passed",
+});
+
+registry.category("web_tour.tours").add("ems_convalidation_grade_matrix_without_grade", {
+    test: true,
+    steps: () => [gradelessCvStep(".o_grade_matrix")],
+});
+
+registry.category("web_tour.tours").add("ems_convalidation_grade_tutor_matrix_without_grade", {
+    test: true,
+    url: "/odoo/action-ems.action_grade_tutor_matrix",
+    steps: () => [gradelessCvStep(".o_grade_tutor")],
 });
 
 // A portal student files a request.

@@ -180,7 +180,10 @@
                                                     }" t-esc="line_state_labels.get(line.state)"/>
                                                 </td>
                                                 <td t-if="convalidation.state == 'completed'">
-                                                    <strong t-if="line.state == 'granted'" t-esc="line.grade"/>
+                                                    <t t-if="line.state == 'granted'">
+                                                        <strong t-if="line.without_grade">Convalidated</strong>
+                                                        <strong t-else="" t-esc="line.grade"/>
+                                                    </t>
                                                 </td>
                                                 <td class="pe-3 text-muted small">
                                                     <t t-if="line.state == 'rejected' and line.rejection_reason" t-esc="line.rejection_reason"/>

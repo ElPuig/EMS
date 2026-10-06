@@ -82,7 +82,7 @@ Each request appears below the form, with its registration number (e.g. CONV-202
 | **Rejected** | Registered, with no module convalidated. |
 | **Cancelled** | The request was cancelled. |
 
-The table shows each module's resolution (**Pending**, **Convalidated** or **Rejected**) and, under **Remarks**, the reason for the rejected ones. Once the request is **Completed**, the **Grade** column appears too.
+The table shows each module's resolution (**Pending**, **Convalidated** or **Rejected**) and, under **Remarks**, the reason for the rejected ones. Once the request is **Completed**, the **Grade** column appears too: a module convalidated without a grade shows **Convalidated** there.
 
 When the request becomes **Completed** or **Rejected**, you get an email with the official resolution as a PDF. You can also download it from the portal with the **Official resolution** button.
 

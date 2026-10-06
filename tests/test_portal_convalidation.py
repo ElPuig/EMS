@@ -191,11 +191,12 @@ class TestPortalConvalidation(HttpCase):
         request.action_resolve()
         request.action_complete()
 
-    def _resolved_request(self, grade=7):
+    def _resolved_request(self, grade=7, without_grade=False):
         request = self.env['ems.convalidation'].create({
             'student_id': self.student.id, 'study_id': self.study.id, 'course_id': self.course.id,
             'resolution_notes': 'Bring the original certificate',
             'line_ids': [(0, 0, {'subject_id': self.subject.id, 'state': 'granted', 'grade': grade,
+                                 'without_grade': without_grade,
                                  'resolution_notes': 'Same module in SMX'})],
         })
         request.sudo().action_propose()
@@ -226,6 +227,15 @@ class TestPortalConvalidation(HttpCase):
         self.assertIn(f'/my/convalidaciones/resolution/{request.id}', page)
         response = self.url_open(f'/my/convalidaciones/resolution/{request.id}')
         self.assertEqual(response.content, request.resolution_pdf_id.raw)
+
+    def test_completed_subject_without_grade_reads_convalidated(self):
+        """Issue #580: no grade to show, only the word."""
+        request = self._resolved_request(without_grade=True)
+        request.sudo().action_complete()
+        self._login(self.student_user)
+        page = self.url_open('/my/convalidaciones').text
+        self.assertIn('<strong>Convalidated</strong>', page)
+        self.assertNotIn('<strong>7</strong>', page)
 
     def test_resolution_is_not_downloadable_before_it_is_registered(self):
         request = self._resolved_request()

@@ -10,7 +10,8 @@ from odoo.exceptions import UserError, ValidationError
 _logger = logging.getLogger(__name__)
 
 # Grade a convalidated subject gets when nobody says otherwise. The Head of Studies (or the
-# secretariat afterwards) can replace it with the one the previous studies actually hold.
+# secretariat afterwards) can replace it with the one the previous studies actually hold, or
+# convalidate it without any grade at all (see ems.convalidation.line.without_grade).
 CONVALIDATED_GRADE = 5
 
 # States a request can no longer move on from.
@@ -533,11 +534,6 @@ class EmsConvalidation(models.Model):
                 _("The request has been reopened by %s.") % self.env.user.name)
         self._ems_schedule_task('ems.mail_activity_convalidation_review')
 
-    def action_grant_pending(self):
-        """Convalidate every subject still undecided, with the default grade: the usual case,
-        where the whole request is accepted as filed."""
-        self.line_ids.filtered(lambda line: line.state == 'pending').action_grant()
-
     def action_send_to_ministry(self):
         """The Head of Studies has filed the request with the Ministry, which resolves it. It
         stays theirs - their task included - until the Ministry's answer arrives."""
@@ -687,12 +683,15 @@ class EmsConvalidation(models.Model):
             return
         student = line.student_id.sudo().with_context(mail_activity_quick_update=True)
         followers = student.message_partner_ids
-        note = Markup("<p>{}</p>").format(
-            _("%(student)s no longer takes %(subject)s: it has been convalidated with a %(grade)s "
-              "(registration %(number)s). They are no longer in its attendance lists or grades.") % {
-                'student': student.name, 'subject': line.subject_id.display_name,
-                'grade': line.grade, 'number': self.name,
-            })
+        values = {'student': student.name, 'subject': line.subject_id.display_name,
+                  'grade': line.grade, 'number': self.name}
+        if line.without_grade:
+            text = _("%(student)s no longer takes %(subject)s: it has been convalidated without a grade "
+                     "(registration %(number)s). They are no longer in its attendance lists or grades.") % values
+        else:
+            text = _("%(student)s no longer takes %(subject)s: it has been convalidated with a %(grade)s "
+                     "(registration %(number)s). They are no longer in its attendance lists or grades.") % values
+        note = Markup("<p>{}</p>").format(text)
         for user in users:
             student.activity_schedule(
                 act_type_xmlid='ems.mail_activity_convalidation_notice',
@@ -801,6 +800,9 @@ class EmsConvalidationLine(models.Model):
     grade = fields.Integer(string="Grade", default=CONVALIDATED_GRADE,
                            help="Grade the convalidated subject is recorded with. It only reaches the "
                                 "student's grades once the secretariat completes the request.")
+    without_grade = fields.Boolean(string="Without grade",
+                                   help="Convalidated with no grade: the resolution and the grades show it "
+                                        "as \"Convalidated\" (CV), and it does not count towards the average.")
     resolution_notes = fields.Char(string="Remarks",
                                    help="Where the resolution comes from, e.g. \"Granted by the Department, "
                                         "file no. 1234\". Shown to the student with the resolution.")
@@ -822,9 +824,9 @@ class EmsConvalidationLine(models.Model):
                     'study': line.convalidation_id.study_id.display_name,
                 })
 
-    @api.constrains('grade')
+    @api.constrains('grade', 'without_grade')
     def _check_grade(self):
-        for line in self:
+        for line in self.filtered(lambda line: not line.without_grade):
             if not CONVALIDATED_GRADE <= line.grade <= 10:
                 raise ValidationError(_("A convalidated subject's grade must be between %(min)s and 10.")
                                       % {'min': CONVALIDATED_GRADE})
@@ -844,7 +846,7 @@ class EmsConvalidationLine(models.Model):
     def write(self, vals):
         # The grade and the reason for refusing belong to the decision itself: nobody touches
         # them once the resolution exists.
-        if not {'state', 'subject_id', 'grade', 'rejection_reason'} & set(vals):
+        if not {'state', 'subject_id', 'grade', 'without_grade', 'rejection_reason'} & set(vals):
             return super().write(vals)
         self._ems_check_can_decide()
         # A changed subject leaves its previous one to be re-evaluated too.
@@ -877,6 +879,21 @@ class EmsConvalidationLine(models.Model):
 
     # --- actions -------------------------------------------------------------
 
+    def action_open_grant(self):
+        """The Head of Studies convalidates the subject: a dialog asks for its grade first."""
+        self.ensure_one()
+        self._ems_check_can_decide()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Convalidate %s") % self.subject_id.display_name,
+            'res_model': 'ems.convalidation.grant_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_line_id': self.id,
+                        'default_grade': self.grade,
+                        'default_without_grade': self.without_grade},
+        }
+
     def action_grant(self):
         self.write({'state': 'granted'})
 
@@ -886,11 +903,11 @@ class EmsConvalidationLine(models.Model):
     def action_reset(self):
         self.write({'state': 'pending'})
 
-    def _ems_is_default_grade(self):
-        """Whether the subject keeps the default grade, which the resolution reads as a plain
-        "Convalidated" rather than a number."""
+    def _ems_resolved_grade(self):
+        """The grade the subject reaches the student's grades with: 0 when convalidated without
+        a grade, which the grades read as a plain CV."""
         self.ensure_one()
-        return self.grade == CONVALIDATED_GRADE
+        return 0 if self.without_grade else self.grade
 
     # --- grades sync ---------------------------------------------------------
 
@@ -909,9 +926,10 @@ class EmsConvalidationLine(models.Model):
 
     @api.model
     def _ems_convalidation_grade(self, student, subject):
-        """The grade 'subject' is convalidated with for 'student', or None when it is not."""
+        """The grade 'subject' is convalidated with for 'student' (0 when without a grade), or None
+        when it is not convalidated."""
         line = self._ems_convalidation_line(student, subject)
-        return line.grade if line else None
+        return line._ems_resolved_grade() if line else None
 
     @api.model
     def _ems_is_convalidated(self, student, subject):
@@ -935,7 +953,7 @@ class EmsConvalidationLine(models.Model):
         YearRecord = self.env['ems.student.year_record'].sudo()
         for student, subject in pairs:
             line = self._ems_convalidation_line(student, subject)
-            grade = line.grade if line else None
+            grade = line._ems_resolved_grade() if line else None
             convalidated = grade is not None
             GradeLine.search([
                 ('student_id', '=', student.id),
@@ -957,8 +975,7 @@ class EmsConvalidationLine(models.Model):
                 records = dropped.record_id
                 dropped.unlink()
                 records.filtered(lambda record: not record.subject_record_ids).unlink()
-            (changed - dropped)._ems_set_convalidated(
-                convalidated, grade or CONVALIDATED_GRADE, line.convalidation_id)
+            (changed - dropped)._ems_set_convalidated(convalidated, grade or 0, line.convalidation_id)
             # The convalidation's own course records the subject, whether its history is frozen
             # already (the student was withdrawn before any round was graded) or not generated
             # yet: then a provisional record is opened, so the grade shows in the history - the

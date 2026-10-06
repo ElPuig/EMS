@@ -74,14 +74,14 @@ En cada línea de la pestaña **Asignaturas**, usa los botones de la derecha:
 
 | Botón | Resultado |
 |-------|-----------|
-| ✔ (Convalidar) | El módulo queda convalidado. |
+| ✔ (Convalidar) | Pide la nota del módulo y lo convalida. |
 | ✖ (Rechazar) | El módulo no se convalida. |
 | ↺ (Volver a pendiente) | Deshace la decisión de la línea. |
 
-Para convalidar de una vez todos los módulos pendientes, elige **Convalidar los módulos pendientes** en **Acciones**.
-
-- **Nota:** cada módulo convalidado tiene un 5 por defecto, que la resolución muestra como **Convalidat**. Si los estudios previos tienen otra nota, escríbela en la columna **Nota**: la resolución mostrará esa nota.
+- **Nota:** cada módulo se revisa y se califica de uno en uno. Al pulsar ✔, un diálogo pide la nota: 5 por defecto, o la que tienen los estudios previos (de 5 a 10). Marca **Sin nota** cuando el módulo se convalida sin nota: la resolución lo muestra como **Convalidat**, las notas como **CV**, y no cuenta para la media. Hasta que no envíes la propuesta, aún puedes cambiar las columnas **Nota** y **Sin nota** de la línea.
 - **Motivo de la denegación:** cada módulo rechazado necesita su motivo, que sale en la resolución. Sin motivo, la propuesta no se puede enviar.
+
+![Convalidar un módulo: la nota](../../assets/head_of_studies/convalidations-grant.png)
 
 ### Pedir documentación
 

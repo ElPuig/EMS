@@ -82,7 +82,7 @@ Cada solicitud aparece bajo el formulario, con su número de registro (por ejemp
 | **Rechazada** | Registrada, sin ningún módulo convalidado. |
 | **Anulada** | La solicitud se ha anulado. |
 
-La tabla muestra la resolución de cada módulo (**Pendiente**, **Convalidado** o **Rechazado**) y, en **Observaciones**, el motivo de los módulos rechazados. Cuando la solicitud está **Completada**, aparece también la columna **Nota**.
+La tabla muestra la resolución de cada módulo (**Pendiente**, **Convalidado** o **Rechazado**) y, en **Observaciones**, el motivo de los módulos rechazados. Cuando la solicitud está **Completada**, aparece también la columna **Nota**: un módulo convalidado sin nota muestra ahí **Convalidado**.
 
 Cuando la solicitud queda **Completada** o **Rechazada**, recibirás un correo con la resolución oficial en PDF. También puedes descargarla desde el portal con el botón **Resolución oficial**.
 

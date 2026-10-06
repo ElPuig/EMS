@@ -74,14 +74,14 @@ A cada línia de la pestanya **Assignatures**, fes servir els botons de la dreta
 
 | Botó | Resultat |
 |------|----------|
-| ✔ (Convalida) | El mòdul queda convalidat. |
+| ✔ (Convalida) | Demana la nota del mòdul i el convalida. |
 | ✖ (Rebutjar) | El mòdul no es convalida. |
 | ↺ (Torna a pendent) | Desfà la decisió de la línia. |
 
-Per convalidar d'un sol cop tots els mòduls pendents, tria **Convalida els mòduls pendents** a **Accions**.
-
-- **Nota:** cada mòdul convalidat té un 5 per defecte, que la resolució mostra com a **Convalidat**. Si els estudis previs tenen una altra nota, escriu-la a la columna **Nota**: la resolució mostrarà aquesta nota.
+- **Nota:** cada mòdul es revisa i es qualifica d'un en un. En clicar ✔, un diàleg demana la nota: 5 per defecte, o la que tenen els estudis previs (de 5 a 10). Marca **Sense nota** quan el mòdul es convalida sense nota: la resolució el mostra com a **Convalidat**, les notes com a **CV**, i no compta per a la mitjana. Fins que no enviïs la proposta, encara pots canviar les columnes **Nota** i **Sense nota** de la línia.
 - **Motiu de la denegació:** cada mòdul rebutjat necessita el seu motiu, que surt a la resolució. Sense motiu, la proposta no es pot enviar.
+
+![Convalidar un mòdul: la nota](../../assets/head_of_studies/convalidations-grant.png)
 
 ### Demanar documentació
 

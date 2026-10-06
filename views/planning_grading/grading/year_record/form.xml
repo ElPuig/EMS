@@ -70,7 +70,8 @@
                                                decoration-danger="state == 'failed'"/>
                                         <field name="internal_grade"/>
                                         <field name="external_grade" string="EM" optional="show"/>
-                                        <field name="final_grade"/>
+                                        <field name="convalidation_grade" column_invisible="1"/>
+                                        <field name="final_grade" invisible="is_convalidated and not convalidation_grade"/>
                                         <field name="final_pending" optional="show"/>
                                         <field name="is_convalidated" optional="show"/>
                                         <field name="is_recognized" optional="show"/>
@@ -113,7 +114,8 @@
                                 <field name="external_grade" readonly="1"/>
                                 <field name="external_weight" readonly="1"/>
                                 <field name="external_is_scored" readonly="1"/>
-                                <field name="final_grade" readonly="1"/>
+                                <field name="convalidation_grade" invisible="1"/>
+                                <field name="final_grade" readonly="1" invisible="is_convalidated and not convalidation_grade"/>
                                 <field name="has_final" readonly="1"/>
                             </group>
                         </group>

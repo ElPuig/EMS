@@ -35,9 +35,6 @@
                 <form string="Convalidation">
                     <header>
                         <div name="ems_actions" string="Actions">
-                            <button name="action_grant_pending" type="object" string="Convalidate pending subjects"
-                                    invisible="state not in ('pending', 'documentation', 'ministry') or pending_count == 0"
-                                    groups="ems.group_head_of_studies,ems.group_academic_admin"/>
                             <button name="action_propose" type="object" string="Send proposal to the Director"
                                     class="btn-primary"
                                     invisible="state != 'pending'"
@@ -139,6 +136,9 @@
                                                decoration-success="state == 'granted'"
                                                decoration-danger="state == 'rejected'"/>
                                         <field name="grade"
+                                               invisible="state != 'granted' or without_grade"
+                                               readonly="request_state not in ('pending', 'documentation', 'ministry')"/>
+                                        <field name="without_grade" optional="show"
                                                invisible="state != 'granted'"
                                                readonly="request_state not in ('pending', 'documentation', 'ministry')"/>
                                         <field name="rejection_reason"
@@ -146,7 +146,7 @@
                                                readonly="request_state not in ('pending', 'documentation', 'ministry')"/>
                                         <field name="resolution_notes" optional="hide"
                                                readonly="request_state not in ('pending', 'documentation', 'ministry')"/>
-                                        <button name="action_grant" type="object" title="Convalidate"
+                                        <button name="action_open_grant" type="object" title="Convalidate"
                                                 icon="fa-check" class="text-success"
                                                 invisible="state == 'granted' or request_state not in ('pending', 'documentation', 'ministry')"
                                                 groups="ems.group_head_of_studies,ems.group_academic_admin"/>
@@ -161,8 +161,9 @@
                                     </list>
                                 </field>
                                 <div class="text-muted mt-2" invisible="state not in ('pending', 'documentation', 'ministry')">
-                                    <i class="fa fa-info-circle me-1"/>The grade defaults to 5, which the resolution
-                                    shows as "Convalidated". Write the one the previous studies hold when it is known.
+                                    <i class="fa fa-info-circle me-1"/>Convalidating a subject asks for its grade: 5 by
+                                    default, or the one the previous studies hold, or none at all ("Convalidated", which
+                                    does not count towards the average). It can still be changed here afterwards.
                                     Every refused subject needs its reason, which the resolution states.
                                 </div>
                             </page>
@@ -239,6 +240,28 @@
                     </div>
                     <footer>
                         <button name="action_send" type="object" string="Send" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_convalidation_grant_wizard_form" model="ir.ui.view">
+            <field name="name">ems.convalidation.grant_wizard.form</field>
+            <field name="model">ems.convalidation.grant_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Convalidate">
+                    <field name="line_id" invisible="1"/>
+                    <group>
+                        <field name="grade" invisible="without_grade" required="not without_grade"/>
+                        <field name="without_grade"/>
+                    </group>
+                    <div class="text-muted">
+                        <i class="fa fa-info-circle me-1"/>Without a grade, the resolution and the student's grades
+                        show the subject as "Convalidated" (CV), and it does not count towards the average.
+                    </div>
+                    <footer>
+                        <button name="action_grant" type="object" string="Convalidate" class="btn-primary"/>
                         <button string="Cancel" class="btn-secondary" special="cancel"/>
                     </footer>
                 </form>

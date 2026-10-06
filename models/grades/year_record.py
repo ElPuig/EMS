@@ -2,7 +2,6 @@
 
 from odoo import api, fields, models
 
-from .convalidation import CONVALIDATED_GRADE
 
 # The year record is a frozen COPY of the grades subsystem output — never recalculated
 # here. The single source of truth for grade computation is ems.grade_subject_line /
@@ -435,8 +434,8 @@ class EmsStudentYearRecordSubject(models.Model):
     # once the year is already frozen (see _ems_set_convalidated).
     is_convalidated = fields.Boolean(string="Convalidated", default=False)
     convalidation_grade = fields.Integer(string="Convalidation grade", default=0,
-                                         help="Grade the convalidation was resolved with. Only meaningful "
-                                              "while 'Convalidated' is set.")
+                                         help="Grade the convalidation was resolved with, 0 when it has none. "
+                                              "Only meaningful while 'Convalidated' is set.")
     # Frozen as text, like the rest of the history (subject_name, tutor_name...): the record must
     # read the same for everyone, and most of its readers (teachers) cannot open a request.
     convalidation_number = fields.Char(string="Convalidation file", readonly=True,
@@ -486,16 +485,16 @@ class EmsStudentYearRecordSubject(models.Model):
             'internal_weight': planning.internal_ponderation if planning else 100.0,
             'external_weight': planning.external_ponderation if planning else 0.0,
             'is_convalidated': True,
-            'convalidation_grade': line.grade,
+            'convalidation_grade': line._ems_resolved_grade(),
             'convalidation_number': line.convalidation_id.name or False,
             'state': 'passed',
-            'final_grade': line.grade,
+            'final_grade': line._ems_resolved_grade(),
             'has_final': True,
         }
 
-    def _ems_set_convalidated(self, convalidated, grade=CONVALIDATED_GRADE, convalidation=None):
+    def _ems_set_convalidated(self, convalidated, grade=0, convalidation=None):
         """Apply a convalidation completed after this subject was frozen. Granting it passes the
-        subject with the grade the resolution carries; revoking it rebuilds state and final from
+        subject with the grade the resolution carries (0 without a grade); revoking it rebuilds state and final from
         what the record itself holds (its RAs, internal and external grades), exactly as the
         generator and apply_external_grade() derive them."""
         for subject_record in self:

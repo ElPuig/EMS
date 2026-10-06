@@ -82,7 +82,7 @@ Cada sol·licitud apareix sota el formulari, amb el seu número de registre (per
 | **Rebutjada** | Registrada, sense cap mòdul convalidat. |
 | **Anul·lada** | La sol·licitud s'ha anul·lat. |
 
-La taula mostra la resolució de cada mòdul (**Pendent**, **Convalidat** o **Rebutjat**) i, a **Observacions**, el motiu dels mòduls rebutjats. Quan la sol·licitud està **Completada**, hi apareix també la columna **Nota**.
+La taula mostra la resolució de cada mòdul (**Pendent**, **Convalidat** o **Rebutjat**) i, a **Observacions**, el motiu dels mòduls rebutjats. Quan la sol·licitud està **Completada**, hi apareix també la columna **Nota**: un mòdul convalidat sense nota hi mostra **Convalidat**.
 
 Quan la sol·licitud queda **Completada** o **Rebutjada**, rebràs un correu amb la resolució oficial en PDF. També la pots descarregar des del portal amb el botó **Resolució oficial**.
 

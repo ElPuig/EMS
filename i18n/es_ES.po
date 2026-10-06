@@ -2372,6 +2372,7 @@ msgstr "Puede editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_reject_wizard_form model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_return_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_grant_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
 #: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
 msgid "Cancel"
@@ -7374,6 +7375,7 @@ msgstr "Estudio: El tipo concreto de estudio (tipo de licenciatura, titulación 
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__subject_id
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model:ir.model.fields,field_description:ems.field_ems_strike__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_grant_wizard__line_id
 msgid "Subject"
 msgstr "Asignatura"
 
@@ -14966,13 +14968,9 @@ msgstr "Observaciones del alumno o de la familia..."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_grant_wizard_form
 msgid "Convalidate"
 msgstr "Convalidar"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
-msgid "Convalidate pending subjects"
-msgstr "Convalidar los módulos pendientes"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__granted_count
@@ -14980,6 +14978,7 @@ msgstr "Convalidar los módulos pendientes"
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__is_convalidated
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_line__state__granted
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
 msgid "Convalidated"
 msgstr "Convalidado"
 
@@ -15896,6 +15895,7 @@ msgstr "EMS: Convalidación, documentación solicitada"
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__score
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_grant_wizard__grade
 msgid "Grade"
 msgstr "Nota"
 
@@ -15907,16 +15907,6 @@ msgid ""
 msgstr ""
 "Nota con la que se registra el módulo convalidado. No llega a las "
 "calificaciones del alumno hasta que secretaría completa la solicitud."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_grade_subject_line__convalidation_grade
-#: model:ir.model.fields,help:ems.field_ems_student_year_record_subject__convalidation_grade
-msgid ""
-"Grade the convalidation was resolved with. Only meaningful while "
-"'Convalidated' is set."
-msgstr ""
-"Nota con la que se resolvió la convalidación. Solo tiene sentido mientras "
-"está marcado «Convalidado»."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__has_centre_title
@@ -17985,18 +17975,6 @@ msgstr ""
 "<i class=\"fa fa-info-circle me-1\"/> Las convalidaciones del alumnado menor"
 " de 18 años las solicita la familia, desde su propia cuenta del portal. Aquí"
 " podéis hacer el seguimiento."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
-msgid ""
-"<i class=\"fa fa-info-circle me-1\"/>The grade defaults to 5, which the resolution\n"
-"                                    shows as \"Convalidated\". Write the one the previous studies hold when it is known.\n"
-"                                    Every refused subject needs its reason, which the resolution states."
-msgstr ""
-"<i class=\"fa fa-info-circle me-1\"/>La nota por defecto es 5, que la "
-"resolución muestra como \"Convalidado\". Escribid la de los estudios previos"
-" cuando se sepa. Cada módulo denegado necesita su motivo, que la resolución "
-"indica."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
@@ -20351,3 +20329,54 @@ msgstr ""
 #: model:ir.model.fields,help:ems.field_ems_convalidation__info_request_reason_id
 msgid "Why the applicant was last asked for more documentation."
 msgstr "Por qué se pidió más documentación al solicitante la última vez."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>Convalidating a subject asks for its grade: 5 by\n"
+"                                    default, or the one the previous studies hold, or none at all (\"Convalidated\", which\n"
+"                                    does not count towards the average). It can still be changed here afterwards.\n"
+"                                    Every refused subject needs its reason, which the resolution states."
+msgstr "<i class=\"fa fa-info-circle me-1\"/>Al convalidar un módulo se pide su nota: 5 por defecto, la de los estudios previos o ninguna («Convalidado», que no cuenta para la media). Después aún se puede cambiar aquí. Cada módulo denegado necesita su motivo, que la resolución indica."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_grant_wizard_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>Without a grade, the resolution and the student's grades\n"
+"                        show the subject as \"Convalidated\" (CV), and it does not count towards the average."
+msgstr "<i class=\"fa fa-info-circle me-1\"/>Sin nota, la resolución y las notas del alumno muestran el módulo como «Convalidado» (CV), y no cuenta para la media."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__without_grade
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_grant_wizard__without_grade
+msgid "Without grade"
+msgstr "Sin nota"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_line__without_grade
+#: model:ir.model.fields,help:ems.field_ems_convalidation_grant_wizard__without_grade
+msgid "Convalidated with no grade: the resolution and the grades show it as \"Convalidated\" (CV), and it does not count towards the average."
+msgstr "Convalidado sin nota: la resolución y las notas lo muestran como «Convalidado» (CV), y no cuenta para la media."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_subject_line__convalidation_grade
+#: model:ir.model.fields,help:ems.field_ems_student_year_record_subject__convalidation_grade
+msgid "Grade the convalidation was resolved with, 0 when it has none. Only meaningful while 'Convalidated' is set."
+msgstr "Nota con la que se resolvió la convalidación, 0 si no tiene. Solo tiene sentido mientras está marcado «Convalidado»."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_convalidation_grant_wizard
+msgid "The Head of Studies convalidates a subject of a request, with its grade or without one."
+msgstr "Jefatura de estudios convalida un módulo de una solicitud, con su nota o sin ella."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Convalidate %s"
+msgstr "Convalidar %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "%(student)s no longer takes %(subject)s: it has been convalidated without a grade (registration %(number)s). They are no longer in its attendance lists or grades."
+msgstr "%(student)s ya no cursa %(subject)s: se ha convalidado sin nota (registro %(number)s). Ya no aparece en sus listas de asistencia ni en las notas."

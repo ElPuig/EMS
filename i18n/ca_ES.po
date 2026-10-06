@@ -19822,3 +19822,15 @@ msgstr "Ubicació de la feina"
 #: model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__student_domain
 msgid "Student domain"
 msgstr "Domini de l'alumne"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/mail_guard.py:0
+msgid "Email blocked: this is a development machine and this database has not been prepared with devel.sh, so its addresses may be real people's."
+msgstr "Correu bloquejat: aquesta és una màquina de desenvolupament i aquesta base de dades no s'ha preparat amb devel.sh, així que les seves adreces poden ser de persones reals."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/mail_guard.py:0
+msgid "Email blocked: this is a development machine and these recipients are neither redirected by devel.sh nor in the allowlist: %(recipients)s"
+msgstr "Correu bloquejat: aquesta és una màquina de desenvolupament i aquests destinataris no estan desviats per devel.sh ni a la llista d'adreces permeses: %(recipients)s"

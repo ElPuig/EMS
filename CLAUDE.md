@@ -141,6 +141,18 @@ actually needed is **automated tests**, a different mechanism for a different sc
 "Email safety in tests" below, which mocks `IrMailServer.send_email` directly, since a test run
 never goes through `devel.sh`'s database rewrite at all.
 
+**The machine itself is guarded too, since 2026-10-06 (issue #590).** The address rewrite only
+protects the `ems` database `devel.sh` ran on; a production dump restored into any other database
+on the box kept production's mail servers and pending jobs, and sent 412 real notifications (see
+"Lock a restored production copy" above). `devel.sh` now also pins the Odoo service to `ems`
+(`db_name`/`dbfilter` in `odoo.conf`) and declares the machine with `ems_server_role = dev`; on
+such a machine EMS refuses every email unless the database went through `devel.sh` and every
+recipient is the developer's redirect account (or one of its `+` aliases) or in the
+`ems.dev_mail_allowlist` parameter (`ems@elpuig.xeill.net` by default, for the staff
+newsletter). A refused email ends in "Delivery failed" with the reason. Details:
+`docs/en/developers/shared/dev_mail_guard.md`. If a send you expected fails on a dev machine with
+"Email blocked", that's the guard: add the address to the allowlist only if the developer says so.
+
 ## Module structure
 
 ```

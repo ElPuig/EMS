@@ -106,6 +106,8 @@ El botó està desactivat mentre falti alguna cosa. Passa-hi el ratolí per sobr
 
 Si surts del formulari sense enviar-lo, l'EMS t'avisa i et deixa descartar-lo.
 
+Quan l'envies, el teu cap de departament i, si el teu departament en té, el teu cap de seminari reben un correu amb el tipus d'absència, les dates i les hores, però no el motiu. A partir d'aleshores en són seguidors, així que també reben tot el que s'escrigui al seu historial de missatges.
+
 ---
 
 ## Consultar l'estat

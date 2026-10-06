@@ -1353,6 +1353,69 @@ class TestAbsenceRequest(TransactionCase):
 
         self.assertFalse(leave._ems_notify_partners())
 
+    def _chiefed_department(self, label, seminar=False):
+        """A department for 'self.employee' with a Department Chief and, optionally, a Seminar
+        Chief, each with a user of their own."""
+        def chief(kind):
+            user = create_role_user(self, 'department_chief', f'{kind}_{label.lower()}@absence.test'.replace(' ', '_'))
+            return create_role_employee(self, user, name=f'Test {kind} {label}').id
+
+        department = self.env['hr.department'].create({'name': f'Test Department ({label})'})
+        department.manager_id = chief('Chief')
+        if seminar:
+            department.seminar_chief_id = chief('Seminar')
+        self.employee.department_id = department.id
+        return department
+
+    def test_the_chiefs_are_informed_when_an_absence_is_requested(self):
+        """Covering the department is planned ahead: the chiefs hear of it when it is filed,
+        not only once it has been decided."""
+        department = self._chiefed_department('Requested', seminar=True)
+        chiefs = (department.manager_id | department.seminar_chief_id).user_id.partner_id
+        user = self._employee_user('Test Absence Requester', 'absence_requester@absence.test')
+
+        leave = self.env['hr.leave'].with_user(user).create({
+            'employee_id': self.employee.id, 'holiday_status_id': self.type_justified.id,
+            'request_date_from': self._monday(), 'request_date_to': self._monday(),
+            'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
+            'name': 'A private matter nobody else should read',
+        })
+
+        self.assertEqual(leave.state, 'confirm')
+        self.assertLessEqual(chiefs, leave.message_partner_ids, 'they follow the request from now on')
+        summary = leave.message_ids.filtered(lambda message: chiefs <= message.partner_ids)
+        self.assertEqual(len(summary), 1)
+        self.assertIn(self.employee.display_name, summary.body)
+        self.assertIn(self.type_justified.name, summary.body)
+        self.assertNotIn('private matter', summary.body)
+
+    def test_the_request_summary_goes_to_the_chiefs_alone(self):
+        """The approver already has the approval activity and the employee filed it themselves."""
+        department = self._chiefed_department('Alone')
+        self.employee.leave_manager_id = create_role_user(
+            self, 'head_of_studies', 'absence_alone_head@absence.test').id
+
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+
+        summary = leave.message_ids.filtered(lambda message: message.partner_ids)
+        self.assertEqual(summary.partner_ids, department.manager_id.user_id.partner_id)
+        self.assertEqual(summary.subtype_id, self.env.ref('mail.mt_note'))
+
+    def test_the_seminar_chief_is_informed_of_the_outcome_too(self):
+        department = self._chiefed_department('Outcome', seminar=True)
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+
+        self.assertEqual(leave._ems_notify_partners(),
+                         (department.manager_id | department.seminar_chief_id).user_id.partner_id)
+
+    def test_a_seminar_chief_is_not_informed_of_their_own_absence(self):
+        department = self._chiefed_department('Own Seminar')
+        department.seminar_chief_id = self.employee.id
+
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+
+        self.assertEqual(leave._ems_notify_partners(), department.manager_id.user_id.partner_id)
+
     # --- Per-employee report ---------------------------------------------------------------
 
     def test_absence_carries_the_school_year_it_falls_in(self):

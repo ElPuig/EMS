@@ -106,6 +106,8 @@ El botón está desactivado mientras falte algo. Pasa el ratón por encima y te 
 
 Si sales del formulario sin enviarlo, EMS te avisa y te deja descartarlo.
 
+Al enviarla, tu jefe de departamento y, si tu departamento lo tiene, tu jefe de seminario reciben un correo con el tipo de ausencia, las fechas y las horas, pero no el motivo. A partir de entonces son seguidores de la solicitud, así que también reciben todo lo que se escriba en su historial de mensajes.
+
 ---
 
 ## Consultar el estado

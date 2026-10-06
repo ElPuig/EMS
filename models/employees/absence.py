@@ -582,7 +582,9 @@ class EmsAbsenceLeave(models.Model):
         if not self.env.su:
             for vals in vals_list:
                 vals.pop('ems_document_state', None)
-        return super().create(vals_list)
+        leaves = super().create(vals_list)
+        leaves._ems_announce_request()
+        return leaves
 
     def write(self, vals):
         if 'ems_direction_state' in vals and not self._ems_can_set_direction_state():
@@ -629,22 +631,23 @@ class EmsAbsenceLeave(models.Model):
 
     def _ems_notify_partners(self):
         """The people the centre wants informed about an absence, beyond the employee and the
-        approver Odoo already handles.
+        approver Odoo already handles: the chiefs of the employee's own department, its
+        Department Chief and, when it has one, its Seminar Chief.
 
         The Google form asked every employee which department they belonged to for exactly one
         reason: to look up who to copy, the 'Informat d'absencies' rows of its Config tab. EMS
-        already knows the employee's own department chief, so the question disappeared from the
-        form and the answer is derived here instead.
+        already knows the employee's own chiefs, so the question disappeared from the form and
+        the answer is derived here instead.
 
-        The chief is informed, not given access: 'hr.leave.private_name' still masks the written
+        A chief is informed, not given access: 'hr.leave.private_name' still masks the written
         reason for anyone who is not the employee, their approver or an officer, so they learn
         that a colleague is away and of what kind - which is what covering the department needs -
         without the reason behind it.
         """
         partners = self.env['res.partner']
         for leave in self:
-            chief = leave.employee_id.department_id.manager_id
-            if chief and chief != leave.employee_id:
+            department = leave.employee_id.department_id
+            for chief in (department.manager_id | department.seminar_chief_id) - leave.employee_id:
                 partners |= chief.user_id.partner_id or chief.work_contact_id
         return partners
 
@@ -659,15 +662,30 @@ class EmsAbsenceLeave(models.Model):
             partners |= director.user_id.partner_id or director.work_contact_id
         return partners
 
-    def _ems_inform_department_chief(self, with_direction=False):
+    def _ems_inform_chiefs(self, with_direction=False):
+        """Subscribes the chiefs (and Direction, on approval) just before the state change, so
+        the outcome summary reaches them. The chiefs already follow a request filed through
+        '_ems_announce_request'; this covers the ones filed before it existed."""
         for leave in self:
             partners = leave._ems_notify_partners()
             if with_direction:
                 partners |= leave._ems_direction_partners()
             if partners:
-                # Subscribed just before the state change, so the summary below is the first
-                # thing they receive - they are told the outcome, not every draft.
                 leave.message_subscribe(partner_ids=partners.ids)
+
+    def _ems_announce_request(self):
+        """Tells the chiefs a request has been filed, so they can plan the department's cover
+        ahead instead of learning of it once decided. They follow it from then on, like anyone
+        else involved, and receive whatever is posted on it.
+
+        A note addressed to them alone: the approver already has the approval activity and the
+        employee filed it themselves. 'sudo' because the employee filing it cannot subscribe
+        anybody else - Odoo's own create subscribes the approver the same way."""
+        for leave in self.sudo():
+            partners = leave._ems_notify_partners()
+            if partners:
+                leave.message_subscribe(partner_ids=partners.ids)
+                leave._ems_notify(partners, leave._ems_summary())
 
     def _ems_when(self):
         """The absence's dates as a sentence fragment, for the messages about it."""
@@ -681,33 +699,34 @@ class EmsAbsenceLeave(models.Model):
                      end=format_time_float(self.request_hour_to))
         return when
 
-    def _ems_post_outcome(self):
-        """A summary of what was decided, for everyone following the request.
+    def _ems_summary(self):
+        """Who, what and when, for the messages the chiefs receive about a request.
 
         Odoo's own notification is a single line and the tracking entry is just
         'Status: Pending → Approved', which tells a department chief nothing they can act on.
-        This spells out who, what and when.
 
         The written reason is deliberately absent: a chief is informed that a colleague is away
         and of what kind, not why - the same line 'hr.leave.private_name' draws in the interface.
         """
+        self.ensure_one()
+        # Called on the mixin rather than inherited: 'ems.base' would also add its own
+        # fields to hr.leave, 'active' among them. This is the shared escaping-safe
+        # list builder (see EmsBase.build_html_list), not a hand-rolled copy of it.
+        details = self.env['ems.base'].build_html_list([
+            _("Employee: %(name)s", name=self.employee_id.display_name),
+            _("Absence type: %(type)s", type=self.holiday_status_id.display_name),
+            _("Dates: %(when)s", when=self._ems_when()),
+            _("Duration: %(hours).2f h", hours=self.number_of_hours),
+            _("Status: %(state)s", state=dict(
+                self._fields['ems_status']._description_selection(self.env))[self.ems_status]),
+        ])
+        return Markup("<p>%s</p>%s") % (
+            _("Absence request of %(name)s", name=self.employee_id.display_name), details)
+
+    def _ems_post_outcome(self):
+        """The summary of what was decided, for everyone following the request."""
         for leave in self:
-            when = leave._ems_when()
-            # Called on the mixin rather than inherited: 'ems.base' would also add its own
-            # fields to hr.leave, 'active' among them. This is the shared escaping-safe
-            # list builder (see EmsBase.build_html_list), not a hand-rolled copy of it.
-            details = self.env['ems.base'].build_html_list([
-                _("Employee: %(name)s", name=leave.employee_id.display_name),
-                _("Absence type: %(type)s", type=leave.holiday_status_id.display_name),
-                _("Dates: %(when)s", when=when),
-                _("Duration: %(hours).2f h", hours=leave.number_of_hours),
-                _("Status: %(state)s", state=dict(
-                    leave._fields['ems_status']._description_selection(leave.env))[leave.ems_status]),
-            ])
-            leave.message_post(
-                body=Markup("<p>%s</p>%s") % (
-                    _("Absence request of %(name)s", name=leave.employee_id.display_name), details),
-                subtype_xmlid='mail.mt_comment')
+            leave.message_post(body=leave._ems_summary(), subtype_xmlid='mail.mt_comment')
 
     def _validate_leave_request(self):
         """Suppresses Odoo's own one-line note, because '_ems_post_outcome' replaces it.
@@ -771,13 +790,13 @@ class EmsAbsenceLeave(models.Model):
                 document_state = 'awaiting'
             # sudo: the Head's right to acknowledge it is Odoo's own approval check, below.
             leave.sudo().ems_document_state = document_state
-        self._ems_inform_department_chief(with_direction=True)
+        self._ems_inform_chiefs(with_direction=True)
         result = super().action_approve(check_state=check_state)
         self._ems_post_outcome()
         return result
 
     def action_refuse(self):
-        self._ems_inform_department_chief()
+        self._ems_inform_chiefs()
         result = super().action_refuse()
         self._ems_post_outcome()
         return result

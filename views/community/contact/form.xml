@@ -57,6 +57,7 @@
                         <field name="google_ws_state" invisible="1"/>
                         <field name="can_reset_google_password" invisible="1"/>
                         <field name="can_create_google_account" invisible="1"/>
+                        <field name="google_ws_creation_pending" invisible="1"/>
                         <field name="can_download_google_credentials" invisible="1"/>
                         <field name="can_manage_portal_access" invisible="1"/>
                         <field name="can_send_student_requests" invisible="1"/>
@@ -70,7 +71,7 @@
                                  same per-record rule as the password reset below. -->
                             <button name="action_create_google_account" type="object"
                                     string="Create Google account"
-                                    invisible="google_ws_state != 'none' or not can_create_google_account"
+                                    invisible="google_ws_state != 'none' or not can_create_google_account or google_ws_creation_pending"
                                     groups="ems.group_secretary,ems.group_academic_admin,ems.group_tac,ems.group_tutor"/>
                             <button name="action_suspend_google_account" type="object"
                                     string="Suspend Google account"
@@ -125,6 +126,12 @@
                                     string="Download Google credentials"
                                     invisible="not can_download_google_credentials"
                                     groups="ems.group_academic_admin,ems.group_secretary,ems.group_tutor,ems.group_tac"/>
+                            <!-- Issue #585: the roles that sign grade reviews, the only other
+                                 write path into the academic history. -->
+                            <button name="action_external_record_wizard" type="object"
+                                    string="Add a previous record"
+                                    invisible="contact_type != 'student'"
+                                    groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"/>
                         </div>
                     </header>
                     <!-- Same groups as the buttons above: the teacher role has read
@@ -587,8 +594,10 @@
                                   decoration-info="is_provisional">
                                 <field name="course_id"/>
                                 <field name="is_provisional"/>
+                                <field name="is_external" optional="show"/>
                                 <field name="study_name"/>
                                 <field name="group_name"/>
+                                <field name="origin_centre_name" optional="hide"/>
                                 <field name="tutor_name" optional="hide"/>
                                 <field name="academic_result" widget="badge"
                                        decoration-success="academic_result == 'full'"

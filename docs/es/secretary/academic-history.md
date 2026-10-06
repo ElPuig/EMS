@@ -15,7 +15,8 @@ Esta guía explica el **histórico académico**: un resumen permanente por curso
 3. [Consultar el histórico](#consultar-el-histórico)
 4. [Ajustar el resultado académico](#ajustar-el-resultado-académico)
 5. [Aplicar una revisión de calificaciones](#aplicar-una-revisión-de-calificaciones)
-6. [Finales pendientes de la estancia](#finales-pendientes-de-la-estancia)
+6. [Añadir un expediente anterior](#añadir-un-expediente-anterior)
+7. [Finales pendientes de la estancia](#finales-pendientes-de-la-estancia)
 
 ---
 
@@ -36,6 +37,7 @@ El estado de un módulo depende **solo de los RA**: un alumno con todos los RA a
 - **En una baja:** el [asistente de baja](graduation-withdrawal.md) congela el histórico del alumno/a **en ese momento**, antes de desvincularlo de su grupo. Quien deja el centro a mitad de curso conserva el registro de todo lo que hizo hasta ese día (módulos, notas, asistencia), con el resultado **Baja**. Una vez congelado el histórico, la baja **saca al alumno/a de todo lo operativo**: sus inscripciones a módulos, las líneas de notas de las sesiones vivas, las líneas y plantillas de asistencia, y el delegado del grupo si lo era. A partir de ese momento ya no aparece en el grupo, ni en la matriz de evaluación, ni en las sesiones de asistencia, ni en la calificación de las prácticas — solo en su histórico académico.
 - **En la transición de curso:** el asistente de transición (ejecutado por el administrador al final del curso) genera los registros de todo el alumnado activo antes de limpiar los datos operativos.
 - **Al completar una convalidación:** si el curso de la convalidación todavía no tiene registro, se abre uno marcado como **Curso actual**, con solo las asignaturas convalidadas (nota, marca **CV** y número de registro CONV). Así el profesorado ve la nota desde el primer día. Al cerrar el curso (transición, baja o graduación) el registro se completa con el resto de asignaturas y el resultado, y pierde la marca. Sobre un registro del curso actual no se puede aplicar una revisión de calificaciones: las notas del curso en marcha se corrigen en las sesiones de evaluación.
+- **Desde un certificado académico:** un curso de antes de EMS, de este centro o de otro, se añade a mano, ved [Añadir un expediente anterior](#añadir-un-expediente-anterior).
 
 Volver a ejecutar la generación nunca duplica un registro: el que ya existe se actualiza.
 
@@ -77,6 +79,41 @@ La nota final se recalcula automáticamente a partir de ese valor forzado (igual
 El módulo conserva la fecha, el autor/a y el texto de la última revisión que se le ha aplicado, y el filtro **Corregido por una revisión de calificaciones** de la lista del histórico muestra los registros que tienen alguna. El detalle de cada cambio queda registrado en el registro del alumno/a.
 
 ![Asistente de revisión de calificaciones, con la rejilla de resultados de aprendizaje y el resultado que se obtiene](../../assets/secretary/academic-history-grade-review.png)
+
+## Añadir un expediente anterior
+
+Cuando un alumno/a tiene cursos hechos antes de que el histórico se llevara en EMS, ya sea en otro centro (p. ej. viene a hacer segundo después de haber hecho primero en otro instituto) o en este mismo (un antiguo alumno/a de antes de EMS), esos cursos se añaden al histórico a partir del certificado académico. Pueden hacerlo secretaría, administración, jefatura de estudios y dirección, de momento solo en estudios de FP.
+
+Abrid la ficha del alumno/a y, en el desplegable **Acciones**, haced clic en **Añadir un expediente anterior**.
+
+### Con el expediente académico de Esfera (PDF)
+
+1. En **Certificado académico**, subid el PDF del expediente académico de Esfera.
+2. Se rellenan solos el centro de procedencia, su código, el estudio y una rejilla con todos los módulos, resultados de aprendizaje (RA) y estancias del certificado. Los cursos que el alumno/a ya tiene en el histórico no se incluyen; si el certificado tiene cursos de más de un centro, cada curso conserva el suyo.
+3. Revisad la rejilla:
+   - **Calificación del certificado** es lo que dice el PDF; **Nota** y **Calificado** es lo que se guardará. Corregidlas si hace falta. Un RA *No assolit* o *Pendent* queda sin nota, y el módulo, no superado.
+   - Las líneas con **Aviso** necesitan atención: un curso que no existe en EMS no se importa (la administración académica tiene que crearlo antes); un módulo que no es del estudio no se importa; si hay uno equivalente, elegidlo en **Módulo** y marcad **Importar**.
+   - Las optativas propias del otro centro no se importan como tales. Si hay alguna aprobada y sus horas suman al menos las de la optativa del centro, aparece una línea **Optativa reconocida** que la aprueba con la media de sus notas ponderada por horas; si no llegan, la línea queda con aviso y no se importa. La optativa reconocida queda en el histórico con la marca **Reconocido** y sin resultados de aprendizaje.
+   - Cuando la nota del módulo del certificado no coincide con la que dan los RA con las ponderaciones del centro, se aplica la del certificado, siempre que ambas coincidan en superado o no superado.
+4. Comprobad que **Alumno del certificado** es el alumno/a: si el identificador no coincide con su IDALU, el expediente no se crea.
+5. Haced clic en **Crear el expediente**. Se crean el registro y todos los módulos marcados a la vez, con el PDF adjunto.
+
+![Asistente de expediente anterior con la rejilla de revisión leída del PDF: módulos, resultados de aprendizaje, estancia pendiente y optativa reconocida](../../assets/secretary/academic-history-previous-record-review.png)
+
+### Con cualquier otro certificado
+
+1. Rellenad **Curso** (solo se ofrecen cursos anteriores al actual que el alumno/a todavía no tiene en el histórico), **Estudio**, **Centro de procedencia** y, si lo tenéis, el **Código del centro de procedencia**. Podéis adjuntar el certificado en **Certificado académico**.
+2. Haced clic en **Crear y añadir los módulos**. Se abre la **Revisión de calificaciones** para añadir el primer módulo.
+3. Elegid el módulo y poned la nota de cada RA tal como consta en el certificado. Si la **Nota del centro (calculada)** no coincide con la del certificado, escribid la del certificado en **Nota del centro (aplicada)** (ved [Forzar la nota del centro manualmente](#forzar-la-nota-del-centro-manualmente)).
+4. Haced clic en **Aplicar y añadir otro módulo** para pasar al módulo siguiente, con la misma resolución y fecha. En el último módulo, haced clic en **Aplicar revisión**.
+
+### Después
+
+Si el certificado todavía no tiene la nota de la estancia (EM) de un módulo, el módulo queda superado con la **nota final pendiente** y el tutor/a del grupo actual del alumno/a la califica desde la pantalla de estancia.
+
+![Expediente anterior creado en el histórico, con la cinta Expediente anterior, el centro de procedencia, el certificado y los módulos](../../assets/secretary/academic-history-previous-record.png)
+
+El registro se muestra con la cinta **Expediente anterior**, el centro de procedencia y el certificado. El filtro **Expedientes anteriores** de la lista del histórico los muestra todos. Para corregirlo más adelante, usad la revisión de calificaciones como en cualquier otro registro.
 
 ## Finales pendientes de la estancia
 

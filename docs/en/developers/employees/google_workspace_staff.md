@@ -29,7 +29,9 @@ sequenceDiagram
     alt missing name / personal email
         EMP-->>HR: one-off chatter note (missing data)
     else ready
-        EMP->>Q: with_delay(action_create_google_account)
+        EMP->>Q: _gw_enqueue_create(): with_delay(_gw_create_account, identity_key)
+        Note over HR,Q: the "Create Google account" button queues this same job (#582)
+        Q->>EMP: SELECT ... FOR UPDATE NOWAIT (_gw_lock_for_creation)
         Q->>G: users().insert(primaryEmail=candidate)
         G-->>Q: 200 {id: <google_id>} (409 → next candidate)
         Q->>EMP: work_email = chosen address
@@ -66,7 +68,7 @@ Idempotent; everything runs `sudo()` (callers are queue jobs or buttons limited 
    `role_ids`/`job_id`/`tutorship_ids`), and post a chatter summary
    (created/re-linked + whether Google sign-in was pre-linked).
 
-Call sites inside `action_create_google_account()`:
+Call sites inside `_gw_create_account()`:
 
 - **Success path** — right after `work_email` is written, before
   `_gw_deliver_credentials()`, with the `id` from the `users().insert` response.
@@ -80,11 +82,40 @@ Call sites inside `action_create_google_account()`:
 Public action (no Google API call): `_ems_create_user(google_id=self._gw_google_user_id())`,
 guarded by the same `employee_type`/`work_email` checks. This is the Actions dropdown entry shown
 in the `pending_user` state (below) — a corporate account already exists but no `res.users`
-is linked yet — and it is what `action_create_google_account()`'s adopt path now calls
+is linked yet — and it is what `_gw_create_account()`'s adopt path now calls
 internally, so there is a single implementation either way.
 
 In **dry-run** (`company.google_ws_dry_run`) no API call is made, so there is no
 Google id: the EMS user is created without OAuth fields.
+
+### One creation at a time (#582)
+
+The automatic creation and the **Create Google account** entry used to be two independent paths
+into Google: the job queued at save time called the creation, and so did the button, directly in
+the web request. Pressed right after saving, both ran side by side, both saw no `work_email`, and
+the loser got a 409 for the address the winner had just created, moved on to the next candidate
+and created it, then rolled back on the database: an orphan second account in Google, invisible
+in EMS. Three pieces close it, the same on `res.partner`:
+
+- **One job.** `_gw_enqueue_create()` queues `_gw_create_account()` with the identity key
+  `_gw_create_job_key()` (`gw_emp_create_<id>`). `_gw_enqueue_if_ready()` and the button
+  (`action_create_google_account()`) both go through it, so queue_job's identity check keeps a
+  second press, or a press after the automatic queuing, from adding a job. The button answers
+  with a notification and reloads the form. When the employee isn't ready (missing data, an
+  existing corporate or non-corporate address) the button still calls `_gw_create_account()`
+  directly: those paths explain themselves or adopt the address, without creating anything in
+  Google.
+- **A hidden button while it lasts.** queue_job's identity check only covers waiting jobs, not a
+  started one. `google_ws_creation_pending` (non-stored) is `True` while a job with that key is
+  `wait_dependencies`/`pending`/`enqueued`/`started` (`google.workspace.mixin._gw_creation_job_running()`,
+  `sudo()` since queue.job is admin-only), and the button's `invisible` includes it.
+- **A row lock before Google.** `_gw_create_account()` starts with
+  `google.workspace.mixin._gw_lock_for_creation()`: `SELECT ... FOR UPDATE NOWAIT` on the
+  employee's row, then a cache invalidation. Whatever else is creating the same account at that
+  moment holds the row, so this one fails before calling Google, with `LockNotAvailable` (or a
+  serialization failure if the row changed since the snapshot), which queue_job and Odoo's HTTP
+  layer both retry; the retry sees the address the first one saved and adopts it. This covers any
+  other path into `_gw_create_account()` too, e.g. the reactivation fallback below.
 
 ### `action_relink_google_signin()`
 
@@ -216,7 +247,7 @@ stateDiagram-v2
     none --> manual_pending: google_ws_manual_email ticked
     none --> pending_user: work_email set, no user_id\n(adopt / migration gap)
     manual_pending --> pending_user: work_email filled in manually
-    none --> active: action_create_google_account()\n(work_email + user_id both set)
+    none --> active: _gw_create_account() (queued job)\n(work_email + user_id both set)
     pending_user --> active: action_create_ems_user()
     active --> suspended: action_suspend_google_account()
     suspended --> active: action_reactivate_google_account()
@@ -224,7 +255,7 @@ stateDiagram-v2
 
 | `google_ws_state` | Actions dropdown entry shown | Meaning |
 |---|---|---|
-| `none` | Create Google account | No corporate email yet |
+| `none` | Create Google account (hidden while `google_ws_creation_pending`) | No corporate email yet |
 | `manual_pending` | *(none)* | `google_ws_manual_email` ticked, waiting for the email to be typed in |
 | `pending_user` | Create EMS User | Corporate email exists, no `res.users` linked (adopt / migration gap) |
 | `active` | Suspend Google account (+ Re-link Google sign-in when `google_signin_missing`) | Fully set up |
@@ -266,47 +297,74 @@ is granted explicitly.
 
 | Step | Required data |
 |---|---|
-| Plain employee creation | `name` (plus `private_email` at view level for **new** teacher/ASP records) |
+| Plain employee creation | `name` (plus `private_email` at view level for **new** teacher/ASP records, except a vacancy, which needs its `schedule_import_code` instead) |
 | Google account creation | `name`, `private_email` (recovery + credentials email, never an address of the centre's own domain, see [Personal email can never be a corporate one](../contacts/google_workspace_student.md#personal-email-can-never-be-a-corporate-one-514)); phone/NIF optional |
 | EMS user creation | corporate `work_email` (produced by the previous step) |
 
-## Interplay with pending-identification placeholders
+## Vacancies pending identification (#584)
 
-A teacher created by the working-schedule importer from a not-yet-staffed post's code
-(`hr.employee.schedule_import_code` set, `pending_identification` computed `True` — see
-`docs/en/developers/employees/working_schedule.md`'s "Pending-identification teachers"
-section) is just a normal `employee_type='teacher'` record with `name`/`private_email`
-still blank. `_gw_missing_fields()` already requires both, so `action_create_google_account()`
-raises its existing `UserError` for a still-unidentified placeholder exactly like it would
-for any other incomplete employee — **no special-casing was needed for this integration
-itself.**
+A vacancy is a teacher record with `schedule_import_code` set (`pending_identification` computed
+`True`): a post with its department, schedule and so on, but nobody filling it yet. The
+working-schedule importer creates them from a placeholder code (see
+`docs/en/developers/employees/working_schedule.md`'s "Pending-identification teachers"), and a Head
+of Studies creates them by hand from the form.
 
-The clearing itself lives in `_ems_create_user()`'s shared helper, `_gw_clear_pending_identification()`
-— called once a real `res.users` is actually linked, right after `emp.write({'user_id': user.id})`.
-It posts a chatter note naming the original code, then clears the field
-(`emp.write({'schedule_import_code': False})`). Since `_ems_create_user()` is the single method
-both `action_create_google_account()` (full creation) and `action_create_ems_user()` (adopt an
-existing corporate account) end up calling, this is what lets an admin's normal flow — open the
-placeholder record, fill in the real `name` + `private_email`, click **Generate Google account**
-(or, for the adopt path, **Create EMS User**) — double as the "confirm this teacher's real
-identity" step, with no separate action needed. The schedule/`ems.teaching`/`ems.attendance_template`
-rows created at import time are untouched; they were already attached to this same `hr.employee` id.
+```mermaid
+stateDiagram-v2
+    [*] --> named: form, staffing type "Named teacher" (default)
+    [*] --> vacancy: form, staffing type "Vacancy" + code
+    [*] --> vacancy: schedule importer, placeholder code
+    vacancy --> named: staffing type switched to "Named teacher" (+ name, private email)
+    vacancy --> named: adopt an existing corporate account (Create EMS User)
+    named --> [*]
+```
 
-**Bug fixed while investigating #378 (2026-09-01):** this used to live as a few lines at the very
-end of `action_create_google_account()`'s success path only — the adopt branch (`work_email`
-already corporate) returned via `action_create_ems_user()` *before* ever reaching that code, so a
-pending teacher whose corporate account already existed (adopted, not freshly created) stayed
-stuck "pending" forever even after getting a working EMS login. Moving the clear into
-`_ems_create_user()` itself (the one place both callers converge on) fixes both paths at once.
+**`staffing_type`** (`models/employees/employee.py`) is what the form shows as "Staffing type":
+`named` / `vacancy`, only on teachers. It has no column of its own. The compute reads
+`schedule_import_code` (vacancy while it is set), so the selector and the code never disagree and
+the importer's placeholders read as vacancies without a migration. The inverse:
 
-For a pending teacher that will genuinely never get an account through this record at all (e.g.
-duplicate/unmerged employee, or the post never ends up needing one), `hr.employee.action_mark_as_identified()`
-(`models/employees/employee.py`) is a manual, standalone escape hatch: it just clears
-`schedule_import_code` (with the same chatter note) and does nothing else — no Google API call, no
-`res.users` creation. Exposed as the **Mark as identified** Actions dropdown entry
-(`views/community/employee/form.xml`), visible only while `pending_identification` is `True`,
-behind a `confirm=` dialog since it can't be undone (the original placeholder code is gone once
-cleared, so this is a one-way action, not a toggle).
+- `vacancy`: requires a code and a teacher (`ValidationError` otherwise);
+- `named`: calls `_ems_confirm_identity()`, which posts a chatter note with the code and clears it.
+
+The transition is one-way: `write()` refuses to turn a named teacher (no code) into a vacancy,
+whether through `staffing_type` or by setting `schedule_import_code` (`ValidationError`). Only
+`create()` (the form or the schedule importer) makes a vacancy.
+
+On the form, the selector is shown only while creating the record or while it is still a vacancy;
+a saved named teacher doesn't show it at all.
+Choosing "Vacancy" shows the required **Vacancy code** and hides the personal email (no longer
+required), the suggested Google username and "Assign corporate email manually". Switching a saved
+vacancy back to "Named teacher" makes the personal email required again (`not id or
+pending_identification`; `pending_identification` only changes on save), since that save is what
+creates the account.
+
+**No account while it is a vacancy.** `_gw_ready()` is `False` while `schedule_import_code` is set,
+so no creation job is queued whatever data the record has (a personal email typed in through
+another path included). `_gw_notify_missing_fields()` stays silent too, since missing data is
+expected on a vacancy. `_gw_create_account()` refuses it with a `UserError` before its missing-data
+check, and the "Create Google account" button is hidden while `pending_identification`.
+
+**Identifying the person** is switching the staffing type to "Named teacher" with their real name
+and personal email, and saving. The inverse runs inside the base `write()`, after the stored
+fields, so the code is already gone when this integration's `write()` calls
+`_gw_enqueue_if_ready()`, which then queues the creation like for any new teacher (the single job
+of #582). The schedule/`ems.teaching`/`ems.attendance_template` rows are untouched: they belong to
+this same `hr.employee` id.
+
+The **adopt path** confirms the identity too: a vacancy given a corporate address by hand
+("Assign corporate email manually") and linked with **Create EMS User** ends up in
+`_ems_create_user()`, which calls the same `_ems_confirm_identity()` once the user is linked. That
+is also the way out for a person who already has a corporate account elsewhere, since the vacancy
+must never get a new one.
+
+**Unique code.** `_check_schedule_import_code_unique` (an `@api.constrains`, not a SQL
+constraint, so existing duplicates never block an upgrade) rejects two **active** employees with
+the same code. An archived vacancy doesn't block its code. Codes are stored stripped and compared
+ignoring case through `hr.employee._search_by_schedule_import_code()`, which the importer uses too
+(`_get_or_create_pending_teacher`, `_get_teacher`): "x1" typed on the form and "X1" in a file are
+the same vacancy. Codes are not upper-cased, because the importer also stores real e-mail addresses
+there (the "create new" path for an unknown e-mail).
 
 ## Pitfalls (native hr v18)
 
@@ -320,6 +378,11 @@ cleared, so this is a one-way action, not a toggle).
   `False` once `work_email` is set.
 
 ## Tests
+
+`tests/test_employee_google_workspace.py` also covers #582: the button queues the same job
+instead of creating (one job after two presses), `google_ws_creation_pending` while the job is
+pending/started and not once it failed or finished, and `_gw_create_account()` stopping before
+any Google call when the row lock fails (plus the lock itself, checked from a second cursor).
 
 `tests/test_employee_ems_user.py` (`TestEmployeeEmsUser`) — user creation, groups per
 type, OAuth capture/backfill, idempotence, re-link of archived users, `work_email`

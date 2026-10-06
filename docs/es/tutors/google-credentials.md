@@ -32,9 +32,9 @@ Normalmente la cuenta se crea automáticamente al matricular al alumno. Si algun
 
 ![Crear cuenta de Google en el menú Acciones de la ficha](../../assets/tutors/credencials-google-04-crear.png)
 
-El alumno recibe las credenciales en su dirección de correo personal y el PDF con las credenciales se guarda en la pestaña **Documentación**. La primera vez que entre en Google, el alumno tendrá que cambiar la contraseña.
+La cuenta se crea en unos momentos, y el historial de mensajes del alumno muestra el resultado. El alumno recibe las credenciales en su dirección de correo personal y el PDF con las credenciales se guarda en la pestaña **Documentación**. La primera vez que entre en Google, el alumno tendrá que cambiar la contraseña.
 
-El botón solo aparece mientras el alumno no tiene cuenta de Google. Si al alumno le falta el IDALU, el nombre, los apellidos o el correo personal, un mensaje te indica qué dato falta y la cuenta no se crea: pide a secretaría que lo complete.
+El botón solo aparece mientras el alumno no tiene cuenta de Google y no se está creando ninguna. Si al alumno le falta el IDALU, el nombre, los apellidos o el correo personal, un mensaje te indica qué dato falta y la cuenta no se crea: pide a secretaría que lo complete.
 
 ---
 

@@ -30,7 +30,9 @@ sequenceDiagram
     alt missing IDALU / names / personal email
         Note over P: no chatter note posted (unlike staff) — GEDAC\nimport usually supplies this already
     else ready
-        P->>Q: with_delay(_gw_create_account)
+        P->>Q: _gw_enqueue_create(): with_delay(_gw_create_account, identity_key)
+        Note over U,Q: the "Create Google account" button queues this same job (#582)
+        Q->>P: SELECT ... FOR UPDATE NOWAIT (_gw_lock_for_creation)
         Q->>G: users().insert(primaryEmail=candidate, orgUnitPath=minor/adult OU)
         G-->>Q: 200 (409 → next candidate)
         Q->>P: student_email = chosen address
@@ -61,8 +63,16 @@ any candidate already claimed by another student record in EMS itself.
 ### Manual creation from the form
 
 The **Create Google account** entry of the form's Actions dropdown calls `action_create_google_account()`, the public
-entry point: it checks `can_create_google_account` (raising `AccessError` otherwise) and then runs
-`_gw_create_account()`, which holds the whole creation flow above. Every automatic path (the
+entry point: it checks `can_create_google_account` (raising `AccessError` otherwise). A student
+ready for an account then gets the same queued job as the automatic creation
+(`_gw_enqueue_create()`, identity key `gw_create_account_<id>`), and the button answers with a
+notification; otherwise it runs `_gw_create_account()` directly, which raises for missing data or
+does nothing for an existing address. `_gw_create_account()` holds the whole creation flow above and
+starts with a row lock. Why the button no longer creates directly, and why it is hidden while
+`google_ws_creation_pending`, is explained on the staff side:
+[One creation at a time (#582)](../employees/google_workspace_staff.md#one-creation-at-a-time-582).
+The queued job runs as whoever pressed the button, so a tutor's or TAC member's creation keeps the
+author they had. Every automatic path (the
 queue job enqueued by `_gw_enqueue_if_ready()`, and the re-creation of a deleted account inside
 `action_reactivate_google_account()`) calls `_gw_create_account()` directly, with no permission
 check: those jobs run as whoever triggered them, which includes portal users (families
@@ -224,7 +234,7 @@ stateDiagram-v2
 
 | `google_ws_state` | Actions dropdown entry shown (`views/community/contact/form.xml`) | Meaning |
 |---|---|---|
-| `none` | Create Google account (also needs `can_create_google_account`) | Not a student, or no corporate email yet |
+| `none` | Create Google account (also needs `can_create_google_account`; hidden while `google_ws_creation_pending`) | Not a student, or no corporate email yet |
 | `active` | Suspend Google account, Reset Google password (the latter also needs `can_reset_google_password`) | Fully set up |
 | `suspended` | Reactivate Google account | `google_ws_suspended = True` |
 
@@ -393,6 +403,11 @@ wizards' own test files cover the drop-with-warning path, and
 `TestContactTour.test_student_personal_email_not_corporate_tour` the validation dialog on the
 student form (secretary). Tests call `enforce_corporate_email_policy()` (`tests/common.py`),
 since this dev box is declared `'dev'`.
+
+`tests/test_student_google_workspace.py` also covers #582: the button queues the same job instead
+of creating, `google_ws_creation_pending` per job state, and `_gw_create_account()` stopping before
+any Google call when the row lock fails. The role tests press the button with
+`queue_job__no_delay`, so the queued job runs at once as that user.
 
 `tests/test_student_google_workspace.py` (`TestStudentGoogleWorkspace`) — readiness,
 email-candidate strategy, creation (dry-run, both OUs, idempotence, missing-data

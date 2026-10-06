@@ -721,10 +721,11 @@ Most of this is Odoo's, and deliberately left alone:
 | When | Who | Mechanism |
 |---|---|---|
 | A request is sent | The approver | Native activity scheduled on the request (`activity_update` → `_get_responsible_for_approval`) |
+| A request is sent | The **chiefs of the employee's own department**: its Department Chief and, when it has one, its Seminar Chief (`_ems_notify_partners()`) | EMS: `_ems_announce_request()`, called from `create()`, subscribes them and sends them the summary as a note addressed to them alone (the approver already has the activity, the employee filed it). From then on they follow the request and receive everything posted on it |
 | Approved or refused | The employee | Native message on the request |
-| Approved or refused | The employee's **own department chief** | EMS: `_ems_inform_department_chief()` subscribes them just before the state change |
+| Approved or refused | The employee's **own chiefs** | EMS: `_ems_inform_chiefs()` subscribes them just before the state change (they already follow requests filed through `_ems_announce_request()`; this covers older ones) |
 | Approved by the Head | **Direction** (the company's `director_id`) | EMS: `_ems_direction_partners()` subscribes it in `action_approve()` - its own review starts there. Not when the Director is the absent employee or is the one approving |
-| Approved or refused | Everyone following the request | EMS: `_ems_post_outcome()` posts a summary - who, which type, the dates, the hours, and the overall status (`ems_status`, e.g. *Pending Direction*) |
+| Approved or refused | Everyone following the request | EMS: `_ems_post_outcome()` posts the summary (`_ems_summary()`) - who, which type, the dates, the hours, and the overall status (`ems_status`, e.g. *Pending Direction*) |
 
 Odoo's own note on validation ("Your `<type>` planned on `<date>` has been accepted", with the
 type's full legal wording dropped mid-sentence and nothing else) is **suppressed** and replaced
@@ -734,14 +735,17 @@ the string is emitted from, so an entry in EMS's catalogue is never consulted fo
 calendar-meeting logic, so instead the note alone is stopped, through a context flag read by a
 `message_post` override and set only for the duration of that one call.
 
-The department chief is the one piece Odoo has no notion of. It is also the reason the Google
-form asked every employee which department they belonged to: purely to look up who to copy, the
-`Informat d'absencies` rows of its `Config` tab. EMS already knows the employee's chief, so the
-question left the form and the answer is derived.
+The department's chiefs are the one piece Odoo has no notion of. They are also the reason the
+Google form asked every employee which department they belonged to: purely to look up who to
+copy, the `Informat d'absencies` rows of its `Config` tab. EMS already knows the employee's
+chiefs, so the question left the form and the answer is derived. Neither chief is informed of
+their own absence.
 
 They are **informed, not given access**: `private_name` still masks the written reason for
-anyone who is not the employee, their approver or an officer. The chief learns that a colleague
-is away and of what kind - what covering a department needs - without the reason behind it.
+anyone who is not the employee, their approver or an officer, and the summary leaves it out. A
+chief learns that a colleague is away and of what kind - what covering a department needs -
+without the reason behind it. As followers, though, they do receive anything posted on the
+request's chatter, the same as everyone else following it.
 
 Mail leaves through the company's configured server, which is the other half of what this
 replaces: the Apps Script sent from the personal Google account of whoever last ran its

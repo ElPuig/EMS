@@ -2371,6 +2371,7 @@ msgstr "Pot editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_reject_wizard_form model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_return_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -2499,6 +2500,7 @@ msgstr "Ciutat"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__space_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__space_id model:ems.space_type,name:ems.space_type_classroom
+#: model:ir.model.fields,field_description:ems.field_ems_strike__space_id
 msgid "Classroom"
 msgstr "Aula"
 
@@ -2773,6 +2775,8 @@ msgstr "País"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__course_id
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__course_id model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__course_id
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__course_id
 msgid "Course"
 msgstr "Curs"
 
@@ -2842,6 +2846,8 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -2856,6 +2862,8 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3132,6 +3140,8 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -4144,6 +4154,7 @@ msgstr "Atorgar accés"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__group_id
+#: model:ir.model.fields,field_description:ems.field_ems_strike__group_id
 msgid "Group"
 msgstr "Grup"
 
@@ -4334,6 +4345,8 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__id
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__id
 msgid "ID"
 msgstr "ID"
 
@@ -4455,6 +4468,7 @@ msgstr "Drets d'imatge"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 model_terms:ir.ui.view,arch_db:ems.report_enrollment model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__to_import
 msgid "Import"
 msgstr "Importa"
 
@@ -4767,6 +4781,8 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -4781,6 +4797,8 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -5226,6 +5244,7 @@ msgstr "NUSS"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__name model:ir.model.fields,field_description:ems.field_ems_content__name model:ir.model.fields,field_description:ems.field_ems_course__name model:ir.model.fields,field_description:ems.field_ems_criteria__name model:ir.model.fields,field_description:ems.field_ems_csv_column__name model:ir.model.fields,field_description:ems.field_ems_group__name model:ir.model.fields,field_description:ems.field_ems_level__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__name model:ir.model.fields,field_description:ems.field_ems_outcome__name model:ir.model.fields,field_description:ems.field_ems_planning__name model:ir.model.fields,field_description:ems.field_ems_role__name model:ir.model.fields,field_description:ems.field_ems_space__name model:ir.model.fields,field_description:ems.field_ems_space_type__name model:ir.model.fields,field_description:ems.field_ems_strike_reason__name model:ir.model.fields,field_description:ems.field_ems_student_document__name model:ir.model.fields,field_description:ems.field_ems_study__name model:ir.model.fields,field_description:ems.field_ems_subject__name model:ir.model.fields,field_description:ems.field_ems_workgroup__name model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__name model:ir.model.fields,field_description:ems.field_ems_attendance_status__name model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__name
 #: model_terms:ir.ui.view,arch_db:ems.report_meeting_presence_section
 #: code:addons/ems/models/employees/google_workspace_integration.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__label
 msgid "Name"
 msgstr "Nom"
 
@@ -5393,6 +5412,8 @@ msgstr "Nota"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__notes model_terms:ir.ui.view,arch_db:ems.report_meeting_presence_section
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__note
 #: model:ir.model.fields,field_description:ems.field_res_partner__comment
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__notes
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
 msgid "Notes"
 msgstr "Notes"
 
@@ -6857,6 +6878,7 @@ msgstr "Enviat el"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_field__sequence model:ir.model.fields,field_description:ems.field_ems_csv_column__sequence model:ir.model.fields,field_description:ems.field_ems_strike_reason__sequence model:ir.model.fields,field_description:ems.field_ems_attendance_status__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__sequence
 msgid "Sequence"
 msgstr "Seqüència"
 
@@ -7164,6 +7186,7 @@ msgstr "Carrer 2"
 #: model:ir.model.fields,field_description:ems.field_ems_student_private_note__partner_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__student_id
 msgid "Student"
 msgstr "Estudiant"
 
@@ -7316,6 +7339,7 @@ msgstr "Estudis per a matrícula"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__study_name
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__study_id
 msgid "Study"
 msgstr "Estudi"
 
@@ -7343,6 +7367,7 @@ msgstr "Estudi: El tipus d'estudi concret (tipus de batxillerat, grau universita
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__subject_record_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__subject_id
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model:ir.model.fields,field_description:ems.field_ems_strike__subject_id
 msgid "Subject"
 msgstr "Assignatura"
 
@@ -8065,6 +8090,7 @@ msgstr "Tutories"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_field__field_type model:ir.model.fields,field_description:ems.field_ems_minute__type model:ir.model.fields,field_description:ems.field_ems_notice_line__recipient_type model:ir.model.fields,field_description:ems.field_ems_space__space_type_id model:ir.model.fields,field_description:ems.field_ems_student_benefit__benefit_type model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_space_search model_terms:ir.ui.view,arch_db:ems.view_student_document_search
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__kind
 msgid "Type"
 msgstr "Tipus"
 
@@ -8415,6 +8441,7 @@ msgstr "Indica si hi ha nota final (la nota calculada està disponible)."
 #: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__wizard_id
 #: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard_conflict_line__wizard_id
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__wizard_id
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__wizard_id
 msgid "Wizard"
 msgstr "Assistent"
 
@@ -10034,6 +10061,7 @@ msgstr "Utilitza flux de matrícula"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__warning
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__warning
 msgid "Warning"
 msgstr "Avís"
 
@@ -13037,28 +13065,6 @@ msgid ""
 msgstr "Aquestes sessions existents ocupen el mateix espai i horari que el que esteu important, per a un grup/assignatura diferent - solucioneu el conflicte d'aula i torneu-ho a provar: %s"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/google_workspace_integration.py:0
-msgid "Identity confirmed: this employee was created as a pending-identification placeholder from schedule-import code '%s'."
-msgstr "Identitat confirmada: aquest empleat es va crear com a marcador de posició pendent d'identificar a partir del codi d'importació d'horari '%s'."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/employee.py:0
-msgid "Identity confirmed manually: this employee was created as a pending-identification placeholder from schedule-import code '%s'."
-msgstr "Identitat confirmada manualment: aquest empleat es va crear com a marcador de posició pendent d'identificar a partir del codi d'importació d'horari '%s'."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
-msgid "Mark as identified"
-msgstr "Marcar com a identificat"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
-msgid "This clears the pending-identification placeholder without creating any Google/EMS account. Use it only once you are sure this employee will not need one created from this record (e.g. already has one elsewhere). Continue?"
-msgstr "Això elimina el marcador de posició pendent d'identificar sense crear cap compte de Google/EMS. Utilitza'l només quan estiguis segur que aquest empleat no en necessitarà cap creat des d'aquest registre (p. ex. ja en té un a un altre registre). Continuar?"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__create_missing_enrollments
 msgid "Create missing enrollments"
 msgstr "Crear les matrícules que faltin"
@@ -15497,11 +15503,13 @@ msgstr "Assistent de revisió de qualificacions: la nota resolta d'un resultat d
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__is_scored
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__is_scored
 msgid "Graded"
 msgstr "Qualificat"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__outcome_name
+#: model:ir.model.fields.selection,name:ems.selection__ems_external_record_wizard_line__kind__outcome
 msgid "Learning outcome"
 msgstr "Resultat d'aprenentatge"
 
@@ -15888,6 +15896,7 @@ msgstr "EMS: Convalidació, documentació sol·licitada"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__grade
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__score
 msgid "Grade"
 msgstr "Nota"
 
@@ -18166,6 +18175,8 @@ msgstr "Resolució del Ministeri.pdf"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__subject_id
+#: model:ir.model.fields.selection,name:ems.selection__ems_external_record_wizard_line__kind__module
 msgid "Module"
 msgstr "Mòdul"
 
@@ -19822,3 +19833,452 @@ msgstr "Ubicació de la feina"
 #: model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__student_domain
 msgid "Student domain"
 msgstr "Domini de l'alumne"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_ws_creation_pending
+#: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_creation_pending
+#: model:ir.model.fields,field_description:ems.field_res_users__google_ws_creation_pending
+msgid "Google account being created"
+msgstr "Compte de Google en creació"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__google_ws_creation_pending
+#: model:ir.model.fields,help:ems.field_res_partner__google_ws_creation_pending
+#: model:ir.model.fields,help:ems.field_res_users__google_ws_creation_pending
+msgid "True while the account-creation job waits in the queue or runs: the \"Create Google account\" button stays hidden meanwhile."
+msgstr "Cert mentre la creació del compte espera a la cua o s'està executant: mentrestant, el botó \"Crear compte de Google\" queda amagat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/google_workspace_mixin.py:0
+msgid "The Google account is being created. The result will appear in the record's history in a few moments."
+msgstr "S'està creant el compte de Google. D'aquí a uns moments en veureu el resultat a l'historial de la fitxa."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__staffing_type
+msgid "Staffing type"
+msgstr "Tipus d'alta"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__staffing_type
+msgid "A vacancy has its department, schedule and so on, but nobody filling it yet: it gets no Google account and no EMS user. Switching it to a named teacher, with their real name and personal email, creates them."
+msgstr "Una plaça té el seu departament, horari, etc., però encara no hi ha ningú que la cobreixi: no té compte de Google ni usuari d'EMS. En passar-la a docent nominal, amb el nom real i el correu personal, es creen."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__staffing_type__named
+msgid "Named teacher"
+msgstr "Docent nominal"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__staffing_type__vacancy
+msgid "Vacancy pending identification"
+msgstr "Plaça pendent d'identificar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Vacancy code"
+msgstr "Codi de plaça"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "A named teacher can't be turned back into a vacancy."
+msgstr "Un docent nominal no es pot tornar a convertir en plaça."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Only teachers can be created as a vacancy."
+msgstr "Només el professorat es pot donar d'alta com a plaça."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "A vacancy needs its vacancy code (e.g. X1)."
+msgstr "Una plaça necessita el seu codi de plaça (p. ex. X1)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Another active teacher already has the vacancy code %s."
+msgstr "Un altre docent actiu ja té el codi de plaça %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Identity confirmed: this teacher was created as a vacancy pending identification, with code '%s'."
+msgstr "Identitat confirmada: aquest docent es va crear com a plaça pendent d'identificar, amb el codi '%s'."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "%s is a vacancy pending identification. Switch it to a named teacher, with their personal email, and the Google account will be created."
+msgstr "%s és una plaça pendent d'identificar. Passeu-la a docent nominal, amb el seu correu personal, i es crearà el compte de Google."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__certificate_file
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__certificate_file
+msgid "Academic certificate"
+msgstr "Certificat acadèmic"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Academic certificate of %s"
+msgstr "Certificat acadèmic de %s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
+msgid "Apply and add another module"
+msgstr "Aplica i afegeix un altre mòdul"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__available_course_ids
+msgid "Available courses"
+msgstr "Cursos disponibles"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__available_study_ids
+msgid "Available studies"
+msgstr "Estudis disponibles"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__certificate_filename
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__certificate_filename
+msgid "Certificate file name"
+msgstr "Nom del fitxer del certificat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+msgid "Create and add modules"
+msgstr "Crea i afegeix els mòduls"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__origin_centre_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__origin_centre_name
+msgid "Origin centre"
+msgstr "Centre de procedència"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__origin_centre_code
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__origin_centre_code
+msgid "Origin centre code"
+msgstr "Codi del centre de procedència"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "%(module)s has no module of this study with a teaching plan that course: pick one or untick it."
+msgstr "%(module)s no té cap mòdul d'aquest estudi amb programació aquell curs: trieu-ne un o desmarqueu-lo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "%(student)s already has an academic record for %(course)s, or the course is not over yet."
+msgstr "%(student)s ja té un expedient acadèmic del curs %(course)s, o el curs encara no ha acabat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "%(subject)s: %(state)s, grade %(grade)s"
+msgstr "%(subject)s: %(state)s, nota %(grade)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "%s learning outcomes of the teaching plan are not on the certificate."
+msgstr "%s resultats d'aprenentatge de la programació no consten al certificat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Another student's certificate"
+msgstr "Certificat d'un altre alumne"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__certificate_code
+msgid "Certificate code"
+msgstr "Codi del certificat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__certificate_text
+msgid "Certificate grade"
+msgstr "Qualificació del certificat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__line_ids
+msgid "Certificate grades"
+msgstr "Qualificacions del certificat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__certificate_message
+msgid "Certificate reading"
+msgstr "Lectura del certificat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__certificate_student_name
+msgid "Certificate student"
+msgstr "Alumne del certificat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__certificate_student_identifier
+msgid "Certificate student ID"
+msgstr "Identificador de l'alumne del certificat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+msgid ""
+"Check the grades read from the certificate before creating the record:\n"
+"                            correct any grade, pick the module of a line that was not recognised,\n"
+"                            and untick the modules not to import."
+msgstr "Reviseu les notes llegides del certificat abans de crear l'expedient: corregiu qualsevol nota, trieu el mòdul de les línies que no s'han reconegut i desmarqueu els mòduls que no s'han d'importar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+msgid "Create record"
+msgstr "Crea l'expedient"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_external_record_wizard_line
+msgid "External record wizard: one module, learning outcome or work placement of the certificate."
+msgstr "Assistent d'expedient extern: un mòdul, resultat d'aprenentatge o estada del certificat."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__module_key
+msgid "Module key"
+msgstr "Clau del mòdul"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "No teaching plan for this module that course."
+msgstr "Aquest mòdul no té programació aquell curs."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Not a module of this study: not imported."
+msgstr "No és un mòdul d'aquest estudi: no s'importa."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__outcome_number
+msgid "Outcome number"
+msgstr "Número del resultat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "The certificate belongs to %(name)s (%(identifier)s), not to this student (%(own)s)."
+msgstr "El certificat és de %(name)s (%(identifier)s), no d'aquest alumne (%(own)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "The file is not an Esfera academic record: fill in the record by hand and add its modules one by one."
+msgstr "El fitxer no és un expedient acadèmic d'Esfera: ompliu l'expedient a mà i afegiu-ne els mòduls un per un."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "The learning outcomes give %(grade)s: the certificate's %(certificate)s is applied."
+msgstr "Els resultats d'aprenentatge donen %(grade)s: s'aplica el %(certificate)s del certificat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "The learning outcomes give %s on the other side of 5: the module grade cannot be applied."
+msgstr "Els resultats d'aprenentatge donen %s, a l'altre costat del 5: no es pot aplicar la nota del mòdul."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+#: model:ir.model.fields.selection,name:ems.selection__ems_external_record_wizard_line__kind__placement
+msgid "Work placement"
+msgstr "Estada a l'empresa"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_external_record_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+msgid "Add a previous record"
+msgstr "Afegeix un expedient anterior"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+msgid ""
+"Adds to the academic history a course the student took before it was\n"
+"                            kept in EMS, at this centre or at another one. Upload the Esfera\n"
+"                            academic record (PDF) to fill everything in from it; with any other\n"
+"                            certificate, fill in the record and then add its modules one by one\n"
+"                            with the grades of each learning outcome (RA)."
+msgstr "Afegeix a l'històric acadèmic un curs que l'alumne va fer abans que es portés a EMS, en aquest centre o en un altre. Pugeu l'expedient acadèmic d'Esfera (PDF) per omplir-ho tot a partir d'ell; amb qualsevol altre certificat, ompliu l'expedient i després afegiu-ne els mòduls un per un amb la nota de cada resultat d'aprenentatge (RA)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__centre_code
+msgid "Centre code"
+msgstr "Codi del centre"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__centre_name
+msgid "Centre name"
+msgstr "Nom del centre"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__certificate_course
+msgid "Certificate course"
+msgstr "Curs del certificat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Every course of the certificate is already in the student's academic history."
+msgstr "Tots els cursos del certificat ja són a l'històric acadèmic de l'alumne."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Only the secretariat, the academic administration, the Head of Studies and the Director may add a previous record."
+msgstr "Només secretaria, l'administració acadèmica, el cap d'estudis i la direcció poden afegir un expedient anterior."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Pick the course of the record."
+msgstr "Trieu el curs de l'expedient."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Previous academic record of %(course)s (%(study)s) added by %(user)s: %(centre)s"
+msgstr "Expedient anterior del curs %(course)s (%(study)s) afegit per %(user)s: %(centre)s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__is_external
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__is_external
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_form
+msgid "Previous record"
+msgstr "Expedient anterior"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_external_record_wizard
+msgid "Previous record wizard: academic history of a course typed in from an academic certificate."
+msgstr "Assistent d'expedient anterior: històric acadèmic d'un curs introduït a partir d'un certificat acadèmic."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Previous records"
+msgstr "Expedients anteriors"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "The course %s does not exist in EMS: not imported."
+msgstr "El curs %s no existeix a EMS: no s'importa."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "The course %s is not over yet: not imported."
+msgstr "El curs %s encara no ha acabat: no s'importa."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
+msgid ""
+"This record is typed in from an academic certificate. Add each module with the\n"
+"                            grade of every learning outcome (RA) shown on the academic\n"
+"                            certificate; if the internal grade the outcomes give differs from the\n"
+"                            certificate's, type the certificate's in the applied internal grade.\n"
+"                            Leave the work placement grade out when the certificate does not\n"
+"                            have it yet: the module stays with its final grade pending."
+msgstr "Aquest expedient s'introdueix a partir d'un certificat acadèmic. Afegiu cada mòdul amb la nota de cada resultat d'aprenentatge (RA) que consta al certificat; si la nota del centre que en resulta no coincideix amb la del certificat, escriviu la del certificat a la nota del centre aplicada. Deixeu fora la nota de l'estada quan el certificat encara no la té: el mòdul queda amb la nota final pendent."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Tick at least one module to import."
+msgstr "Marqueu almenys un mòdul per importar."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_review_wizard__is_external
+#: model:ir.model.fields,help:ems.field_ems_student_year_record__is_external
+msgid "Typed in from an academic certificate (another centre's, or this centre's from before EMS) instead of generated from the grade sessions."
+msgstr "Introduït a partir d'un certificat acadèmic (d'un altre centre, o d'aquest d'abans d'EMS) en lloc de generat a partir de les sessions d'avaluació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "%(subject)s: recognised from %(modules)s, grade %(grade)s"
+msgstr "%(subject)s: reconegut a partir de %(modules)s, nota %(grade)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "%s was recognised from the optional modules of a previous record and has no learning outcomes to review: remove it and add it again."
+msgstr "%s es va reconèixer a partir de les optatives d'un expedient anterior i no té resultats d'aprenentatge per revisar: elimineu-lo i torneu-lo a afegir."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__hours
+msgid "Hours"
+msgstr "Hores"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__is_optional
+msgid "Optional module"
+msgstr "Optativa"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Optional module of the certificate: it only counts towards this centre's own optional module, when passed."
+msgstr "Optativa del certificat: només compta per a l'optativa del centre, si està aprovada."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_year_record_subject__is_recognized
+msgid "Optional module passed through the optional modules of the academic certificate of a previous record."
+msgstr "Optativa aprovada a partir de les optatives del certificat acadèmic d'un expedient anterior."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Pick this centre's optional module the certificate's optional modules are recognised as."
+msgstr "Trieu l'optativa del centre com a la qual es reconeixen les optatives del certificat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Pick this centre's optional module."
+msgstr "Trieu l'optativa del centre."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__is_recognized
+msgid "Recognised"
+msgstr "Reconegut"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Recognised from: %s"
+msgstr "Reconegut a partir de: %s"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_external_record_wizard_line__kind__optional
+msgid "Recognised optional module"
+msgstr "Optativa reconeguda"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "The passed optional modules add up to %(hours)s h of the %(needed)s h of %(subject)s: not imported."
+msgstr "Les optatives aprovades sumen %(hours)s h de les %(needed)s h de %(subject)s: no s'importa."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/mail_guard.py:0
+msgid "Email blocked: this is a development machine and this database has not been prepared with devel.sh, so its addresses may be real people's."
+msgstr "Correu bloquejat: aquesta és una màquina de desenvolupament i aquesta base de dades no s'ha preparat amb devel.sh, així que les seves adreces poden ser de persones reals."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/mail_guard.py:0
+msgid "Email blocked: this is a development machine and these recipients are neither redirected by devel.sh nor in the allowlist: %(recipients)s"
+msgstr "Correu bloquejat: aquesta és una màquina de desenvolupament i aquests destinataris no estan desviats per devel.sh ni a la llista d'adreces permeses: %(recipients)s"

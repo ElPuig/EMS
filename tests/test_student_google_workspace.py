@@ -2,6 +2,7 @@ from datetime import date
 from unittest.mock import Mock, patch
 
 from dateutil.relativedelta import relativedelta
+from psycopg2.errors import LockNotAvailable
 
 from odoo.addons.ems.models.shared.google_workspace_mixin import (
     GW_DEACTIVATION_DELAY_DAYS,
@@ -116,21 +117,21 @@ class TestStudentGoogleWorkspace(TransactionCase):
     def test_create_dry_run_sets_student_email(self):
         student = self._new_student()
         with patch.object(type(student), '_gw_deliver_credentials', return_value=(True, True)):
-            student.action_create_google_account()
+            student._gw_create_account()
         self.assertTrue(student.student_email)
         self.assertTrue(student.student_email.endswith('@elpuig.xeill.net'))
 
     def test_create_minor_uses_minor_ou(self):
         student = self._new_student(birth_date=date.today() - relativedelta(years=15))
         with patch.object(type(student), '_gw_deliver_credentials', return_value=(True, True)):
-            student.action_create_google_account()
+            student._gw_create_account()
         last_message = student.message_ids.sorted('id')[-1].body
         self.assertIn('/alumnos', last_message)
 
     def test_create_adult_uses_adult_ou(self):
         student = self._new_student(birth_date=date.today() - relativedelta(years=19))
         with patch.object(type(student), '_gw_deliver_credentials', return_value=(True, True)):
-            student.action_create_google_account()
+            student._gw_create_account()
         last_message = student.message_ids.sorted('id')[-1].body
         self.assertIn('/alumnos/+18', last_message)
 
@@ -152,6 +153,46 @@ class TestStudentGoogleWorkspace(TransactionCase):
             applicant.action_create_google_account()
         deliver.assert_not_called()
         self.assertFalse(applicant.student_email)
+
+    # --- button vs automatic creation (#582) -------------------------------
+    # The button used to create the account itself while the automatic job did the same, and
+    # both ended up creating one each. Now there is one job, a hidden button while it lasts,
+    # and a row lock before Google.
+    def _creation_jobs(self, student):
+        return self.env['queue.job'].search([('identity_key', '=', student._gw_create_job_key())])
+
+    def test_button_queues_the_same_job_instead_of_creating(self):
+        student = self._new_student()
+        self.assertEqual(len(self._creation_jobs(student)), 1)  # the automatic creation
+        with patch.object(type(student), '_gw_deliver_credentials') as deliver:
+            action = student.action_create_google_account()
+            student.action_create_google_account()
+        deliver.assert_not_called()
+        self.assertFalse(student.student_email)
+        self.assertEqual(len(self._creation_jobs(student)), 1)
+        self.assertEqual(action['tag'], 'display_notification')
+
+    def test_button_hidden_while_the_creation_is_queued_or_running(self):
+        student = self._new_student()
+        job = self._creation_jobs(student)
+        self.assertTrue(student.google_ws_creation_pending)
+        # queue_job's own deduplication ignores a started job: the flag must not.
+        for state, pending in (('started', True), ('failed', False), ('done', False)):
+            with self.subTest(state=state):
+                self.env.cr.execute("UPDATE queue_job SET state = %s WHERE id = %s", [state, job.id])
+                student.invalidate_recordset(['google_ws_creation_pending'])
+                self.assertEqual(student.google_ws_creation_pending, pending)
+
+    def test_creation_stops_before_google_when_the_record_is_locked(self):
+        student = self._new_student()
+        self.company.google_ws_dry_run = False
+        mixin = type(self.env['google.workspace.mixin'])
+        with patch.object(mixin, '_gw_lock_for_creation', side_effect=LockNotAvailable), \
+                patch.object(mixin, '_gw_get_service') as service, \
+                self.assertRaises(LockNotAvailable):
+            student._gw_create_account()
+        service.assert_not_called()
+        self.assertFalse(student.student_email)
 
     # --- suspend / reactivate --------------------------------------------
 
@@ -701,7 +742,9 @@ class TestStudentGoogleAccountCreationByTutor(GoogleAccountTutorScopeCase):
     def _create(self, user):
         with patch.object(type(self.student), '_gw_deliver_credentials', autospec=True,
                           return_value=(True, True)) as deliver:
-            self.student.with_user(user).action_create_google_account()
+            # no_delay: the button queues the creation (#582) and the job runs right away, as the
+            # user who pressed it, so the whole path is exercised.
+            self.student.with_user(user).with_context(queue_job__no_delay=True).action_create_google_account()
         return deliver
 
     def test_the_students_own_tutor_creates_the_account(self):
@@ -784,7 +827,8 @@ class TestStudentGoogleWorkspaceTac(TransactionCase):
 
     def test_tac_creates_the_account(self):
         with patch.object(type(self.student), '_gw_deliver_credentials', return_value=(True, True)):
-            self.student.with_user(self.tac).action_create_google_account()
+            self.student.with_user(self.tac).with_context(
+                queue_job__no_delay=True).action_create_google_account()
         self.assertTrue(self.student.student_email)
         self.assertEqual(self.student.message_ids[:1].author_id, self.tac.partner_id)
 

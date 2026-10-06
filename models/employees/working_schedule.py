@@ -1530,7 +1530,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		identifier = item['identifier']
 		if self._is_email_like(identifier):
 			return self.env['hr.employee'].search([('work_email', '=', identifier)], limit=1)
-		return self.env['hr.employee'].search([('schedule_import_code', '=', identifier)], limit=1)
+		return self.env['hr.employee']._search_by_schedule_import_code(identifier)[:1]
 
 	def _external_conflict_label(self, candidate):
 		weekday = candidate._weekday_label(candidate.weekday)
@@ -1743,11 +1743,11 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		for this case: *"esa dirección de correo no se puede dar por buena... pero me gustaría
 		intentarlo"* - worth trying, but never silently treated as confirmed/auto-generated the way
 		a normal corporate email would be."""
-		teacher = self.env["hr.employee"].search([("schedule_import_code", "=", identifier)])
+		teacher = self.env["hr.employee"]._search_by_schedule_import_code(identifier)[:1]
 		if teacher.id:
 			return teacher
+		# No name: hr.employee.create() names a vacancy after its code (issue #584).
 		vals = {
-			"name": _("Pending teacher (%s)") % identifier,
 			"employee_type": "teacher",
 			"schedule_import_code": identifier,
 		}

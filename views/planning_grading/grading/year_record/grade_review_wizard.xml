@@ -7,13 +7,22 @@
             <field name="arch" type="xml">
                 <form string="Grade review" class="o_ems_wrap_list_headers">
                     <sheet>
-                        <div class="alert alert-info" role="alert">
+                        <field name="is_external" invisible="1"/>
+                        <div class="alert alert-info" role="alert" invisible="is_external">
                             A grade review corrects the academic history of a course already closed.
                             A subject is corrected through its learning outcomes (RA): set the
                             resolved grade of the ones the review resolves and the internal
                             grade, the state and the final grade of the subject are recomputed
                             with the weights frozen that course. Everything applied here is
                             recorded on the subject and posted in the student's chatter.
+                        </div>
+                        <div class="alert alert-info" role="alert" invisible="not is_external">
+                            This record is typed in from an academic certificate. Add each module with the
+                            grade of every learning outcome (RA) shown on the academic
+                            certificate; if the internal grade the outcomes give differs from the
+                            certificate's, type the certificate's in the applied internal grade.
+                            Leave the work placement grade out when the certificate does not
+                            have it yet: the module stays with its final grade pending.
                         </div>
                         <group>
                             <group>
@@ -96,6 +105,9 @@
                     <footer>
                         <button name="action_apply" type="object" string="Apply review"
                                 class="btn-primary" data-hotkey="q"/>
+                        <button name="action_apply_and_add" type="object"
+                                string="Apply and add another module" class="btn-primary"
+                                invisible="operation != 'add'" data-hotkey="w"/>
                         <button string="Cancel" class="btn-secondary" special="cancel"
                                 data-hotkey="x"/>
                     </footer>

@@ -106,10 +106,38 @@ class TestAttendanceReportSchedule(TransactionCase):
         self.assertEqual(self.tutor_user.ems_attendance_report_moment, 'teacher_end')
         self.assertEqual(self._eta(10.0), self._utc(14.0))
 
-    def test_end_of_day_already_past_is_now(self):
-        """A roll-call taken after that day's moment (or for a past day) is reported straight away."""
-        self.assertEqual(self._eta(16.0), self._utc(16.0))
-        self.assertEqual(self._eta(10.0, issue_date=REPORT_DAY - timedelta(days=7)), self._utc(10.0))
+    def test_end_of_day_already_past_waits_for_next_moment(self):
+        """A roll-call taken after that day's moment (or for a past day) goes in the next report,
+        never straight away (issue #588: one email per click). Wednesday at 16:00, the tutor's
+        day ended at 14:00 and they don't work on Thursday: Friday's end."""
+        friday = REPORT_DAY + timedelta(days=2)
+        self.assertEqual(self._eta(16.0), self._utc(13.0, friday))
+        self.assertEqual(self._eta(10.0, issue_date=REPORT_DAY - timedelta(days=7)), self._utc(14.0))
+
+    def test_students_end_already_past_waits_for_next_moment(self):
+        self._choose('students_end')
+        self._teach(self.group, self.subject, WEDNESDAY, 9.0, 13.0)
+        self._teach(self.first_year_group, self.first_year_subject, THURSDAY, 15.0, 20.0)
+        self.assertEqual(self._eta(16.0), self._utc(20.0, REPORT_DAY + timedelta(days=1)))
+
+    def test_fallback_already_past_waits_for_next_moment(self):
+        """Thursday at 22:00: the tutor doesn't work that day and the centre's day ended at 21:30,
+        so the issue waits for the tutor's next working day end (Friday)."""
+        thursday = REPORT_DAY + timedelta(days=1)
+        self.assertEqual(self._eta(22.0, thursday, thursday), self._utc(13.0, thursday + timedelta(days=1)))
+
+    def test_issues_after_the_moment_share_one_report(self):
+        """Issue #588: every roll-call click after the tutor's day had ended queued a job due
+        now, so each issue went out in its own email (42 for one tutor in an afternoon)."""
+        IssueTutor = self.env['ems.attendance_issue_tutor']
+        issues = IssueTutor.browse()
+        with patch.object(fields.Datetime, 'now', return_value=self._utc(16.0)):
+            for day in (REPORT_DAY, REPORT_DAY - timedelta(days=1)):
+                issue = IssueTutor.create({'tutor_id': self.tutor.id, 'issue_date': day})
+                issue._schedule_tutor_report()
+                issues |= issue
+        self.assertEqual(len(issues.notification_id), 1)
+        self.assertEqual(issues.notification_id.eta, self._utc(13.0, REPORT_DAY + timedelta(days=2)))
 
     def test_without_working_day_falls_back_to_end_of_centre_day(self):
         """Thursday: the tutor doesn't work, the centre does (until 21:30)."""

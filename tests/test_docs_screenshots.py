@@ -31,8 +31,8 @@ from odoo.tests.common import HttpCase, tagged
 from .test_convalidation import (close_convalidation_period, open_convalidation_period,
                                  set_convalidation_period)
 from .common import (
-    DocsScreenshotMixin, create_level_study_group, create_role_employee, create_role_user,
-    mock_outgoing_email, next_student_id,
+    DocsScreenshotMixin, cancel_google_account_creation, create_level_study_group, create_role_employee,
+    create_role_user, mock_outgoing_email, next_student_id,
 )
 
 
@@ -83,6 +83,9 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
         cls.students = cls.env['res.partner']
         for name in ('Marina Exemple', 'Pau Mostra', 'Nerea Prova'):
             cls.students |= cls._student(name)
+        # Pau's screenshot shows the "Create Google account" entry, hidden while the automatic
+        # creation queued at seeding lasts (#582): that job never runs in a test anyway.
+        cancel_google_account_creation(cls.students[1])
 
         # A tutor of that same invented group, for the tutors' manual.
         cls.tutor = create_role_user(cls, 'tutor', 'doc_shot_tutor', lang='ca_ES',

@@ -71,7 +71,7 @@ Cuando Jefatura de Estudios pide más documentación a un solicitante, elige un 
 Navega a: **Gestión académica → Configuración → Motivos de petición de documentación**
 
 - **Nombre:** el texto que el solicitante lee en el correo y en el portal. Escríbelo en cada idioma con el botón de idioma junto al campo.
-- **Orden:** arrastra las filas para ordenarlas. La primera aparece seleccionada cuando se pide documentación, así que pon primero el motivo más habitual (por defecto, **Faltan los datos del centro de procedencia**).
+- **Orden:** arrastra las filas para ordenarlas. La primera aparece seleccionada cuando se pide documentación, así que pon primero el motivo más habitual (por defecto, **Falta el certificado de notas oficial del centro de procedencia**).
 - Para dejar de ofrecer un motivo sin perder las solicitudes que lo han usado, archívalo.
 
 ---

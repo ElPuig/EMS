@@ -71,7 +71,7 @@ When the Head of Studies asks an applicant for more documentation, they pick a r
 Navigate to: **Academic management → Configuration → Documentation request reasons**
 
 - **Name:** the text the applicant reads in the email and on the portal. Write it in each language with the language button next to the field.
-- **Order:** drag the rows to sort them. The first one comes selected when documentation is requested, so put the most usual reason first (by default, **Missing data from the previous centre**).
+- **Order:** drag the rows to sort them. The first one comes selected when documentation is requested, so put the most usual reason first (by default, **Missing official grade certificate from the previous centre**).
 - To stop offering a reason without losing the requests that used it, archive it.
 
 ---

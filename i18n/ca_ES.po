@@ -20299,8 +20299,8 @@ msgstr "Motius de petició de documentació"
 
 #. module: ems
 #: model:ems.convalidation.info_reason,name:ems.convalidation_info_reason_previous_centre
-msgid "Missing data from the previous centre"
-msgstr "Falten les dades del centre de procedència"
+msgid "Missing official grade certificate from the previous centre"
+msgstr "Falta el certificat de notes oficial del centre de procedència"
 
 #. module: ems
 #: model:ems.convalidation.info_reason,name:ems.convalidation_info_reason_certificate

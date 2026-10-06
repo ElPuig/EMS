@@ -465,7 +465,7 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
         pending = new_request(self.portal_student, subjects[3:])
         self.env['ems.convalidation.info_wizard'].create({
             'convalidation_id': pending.id,
-            'message': "Indica el nom i el codi del centre on vas cursar el CFGM.",
+            'message': "Adjunta el certificat de notes del CFGM, segellat pel centre on el vas cursar.",
         }).action_send()
         self._capture(
             '/my/convalidaciones?new=1', '.o_ems_convalidation_new',

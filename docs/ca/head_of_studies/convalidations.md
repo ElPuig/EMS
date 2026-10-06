@@ -86,7 +86,7 @@ Per convalidar d'un sol cop tots els mòduls pendents, tria **Convalida els mòd
 ### Demanar documentació
 
 1. A **Accions**, tria **Demana informació**.
-2. Tria el **Motiu**. El més habitual, **Falten les dades del centre de procedència**, ja surt seleccionat.
+2. Tria el **Motiu**. El més habitual, **Falta el certificat de notes oficial del centre de procedència**, ja surt seleccionat.
 3. Si cal, escriu a **Detalls** què falta exactament.
 4. Fes clic a **Enviar**.
 

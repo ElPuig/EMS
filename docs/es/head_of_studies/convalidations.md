@@ -86,7 +86,7 @@ Para convalidar de una vez todos los módulos pendientes, elige **Convalidar los
 ### Pedir documentación
 
 1. En **Acciones**, elige **Pedir información**.
-2. Elige el **Motivo**. El más habitual, **Faltan los datos del centro de procedencia**, ya aparece seleccionado.
+2. Elige el **Motivo**. El más habitual, **Falta el certificado de notas oficial del centro de procedencia**, ya aparece seleccionado.
 3. Si hace falta, escribe en **Detalles** qué falta exactamente.
 4. Haz clic en **Enviar**.
 

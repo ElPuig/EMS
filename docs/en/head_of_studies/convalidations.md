@@ -86,7 +86,7 @@ To convalidate every pending module at once, choose **Convalidate pending subjec
 ### Asking for documentation
 
 1. In **Actions**, choose **Request information**.
-2. Choose the **Reason**. The most usual one, **Missing data from the previous centre**, comes selected.
+2. Choose the **Reason**. The most usual one, **Missing official grade certificate from the previous centre**, comes selected.
 3. If needed, write in **Details** exactly what is missing.
 4. Click **Send**.
 

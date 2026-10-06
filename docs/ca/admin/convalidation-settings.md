@@ -71,7 +71,7 @@ Quan Cap d'Estudis demana més documentació a un sol·licitant, tria un motiu d
 Navega a: **Gestió acadèmica → Configuració → Motius de petició de documentació**
 
 - **Nom:** el text que el sol·licitant llegeix al correu i al portal. Escriu-lo en cada idioma amb el botó d'idioma al costat del camp.
-- **Ordre:** arrossega les files per ordenar-les. La primera surt seleccionada quan es demana documentació, així que posa-hi primer el motiu més habitual (per defecte, **Falten les dades del centre de procedència**).
+- **Ordre:** arrossega les files per ordenar-les. La primera surt seleccionada quan es demana documentació, així que posa-hi primer el motiu més habitual (per defecte, **Falta el certificat de notes oficial del centre de procedència**).
 - Per deixar d'oferir un motiu sense perdre les sol·licituds que l'han fet servir, arxiva'l.
 
 ---

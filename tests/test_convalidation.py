@@ -650,8 +650,8 @@ class TestConvalidation(TransactionCase):
             lambda message: 'academic certificate' in (message.body or '')))
 
     def test_the_most_usual_reason_is_preselected(self):
-        """Like the strike reasons: the first by its own order, the missing data of the previous
-        centre - almost always the reason."""
+        """Like the strike reasons: the first by its own order, the missing official grade certificate of the
+        previous centre - almost always the reason."""
         reason = self.env.ref('ems.convalidation_info_reason_previous_centre')
         wizard = self.env['ems.convalidation.info_wizard'].with_user(self.head_of_studies).create({
             'convalidation_id': self._request().id})

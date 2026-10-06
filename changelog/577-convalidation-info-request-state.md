@@ -13,7 +13,7 @@
 - The "Request information" wizard now takes a required reason from a configurable catalog
   (Academic management > Configuration > Documentation request reasons), working like the strike
   reasons: translatable name, drag-to-order, archivable, first one preselected. Seeded with
-  "Missing official grade certificate from the previous centre" (first, the usual case), missing academic certificate,
+  "Missing official grade certificate from the previous centre" (first, the usual case), missing title of the previous studies,
   missing syllabus and other. The free text becomes optional "Details". The email and the portal
   show the reason, in the reader's language, followed by the details.
 - New list filter "Pending documentation". It is not part of the default filters: those requests

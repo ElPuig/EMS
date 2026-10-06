@@ -20306,9 +20306,9 @@ msgid "Missing official grade certificate from the previous centre"
 msgstr "Falta el certificado de notas oficial del centro de procedencia"
 
 #. module: ems
-#: model:ems.convalidation.info_reason,name:ems.convalidation_info_reason_certificate
-msgid "Missing academic certificate of the previous studies"
-msgstr "Falta el certificado académico de los estudios previos"
+#: model:ems.convalidation.info_reason,name:ems.convalidation_info_reason_title
+msgid "Missing title (or title receipt) of the previous studies"
+msgstr "Falta el título (o el resguardo del título) de los estudios previos"
 
 #. module: ems
 #: model:ems.convalidation.info_reason,name:ems.convalidation_info_reason_syllabus

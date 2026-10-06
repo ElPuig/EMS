@@ -69,7 +69,7 @@ erDiagram
 
 ### `ems.convalidation.info_reason` (documentation request reason)
 
-A catalog like `ems.strike.reason`: `name` (translatable), `sequence`, `active`; ordered by `sequence, name`. The information wizard preselects the first active one, so the most usual reason goes first. Seeded in `data/main/ems.convalidation.info_reason.csv` (`noupdate=False`, EMS's own data): missing official grade certificate from the previous centre (first), missing academic certificate, missing syllabus, other. Maintained by the academic administrator from Academic management → Configuration → Documentation request reasons.
+A catalog like `ems.strike.reason`: `name` (translatable), `sequence`, `active`; ordered by `sequence, name`. The information wizard preselects the first active one, so the most usual reason goes first. Seeded in `data/main/ems.convalidation.info_reason.csv` (`noupdate=False`, EMS's own data): missing official grade certificate from the previous centre (first), missing title of the previous studies, missing syllabus, other. Maintained by the academic administrator from Academic management → Configuration → Documentation request reasons.
 
 ### `ems.convalidation.line` (subject)
 

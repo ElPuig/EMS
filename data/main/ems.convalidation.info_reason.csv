@@ -1,5 +1,5 @@
 id,name,sequence
 "ems.convalidation_info_reason_previous_centre","Missing official grade certificate from the previous centre",1
-"ems.convalidation_info_reason_certificate","Missing academic certificate of the previous studies",10
+"ems.convalidation_info_reason_title","Missing title (or title receipt) of the previous studies",10
 "ems.convalidation_info_reason_syllabus","Missing syllabus of the subjects studied",20
 "ems.convalidation_info_reason_other","Other / General",30

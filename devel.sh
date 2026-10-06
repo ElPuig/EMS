@@ -87,6 +87,22 @@ echo ">> Declaring this environment as 'dev' (see CLAUDE.md's 'Development vs. p
 sudo -u odoo bash -c "psql -d ems -c \"INSERT INTO ir_config_parameter (key, value) VALUES ('ems.environment_type', 'dev') ON CONFLICT (key) DO UPDATE SET value = 'dev';\""
 echo "<< Declared."
 
+echo ">> Guarding outgoing email on this machine (issue #590):"
+# A development machine only ever sends to the developer's own inbox (every address redirected
+# above) and to an explicit allowlist; EMS refuses anything else, and everything from a database
+# that didn't go through this script (see models/settings/mail_guard.py). The allowlist is only
+# seeded once: edit it in Settings > Technical > System Parameters.
+sudo -u odoo bash -c "psql -d ems -c \"INSERT INTO ir_config_parameter (key, value) VALUES ('ems.dev_mail_redirect', '${google_account}@${domain}') ON CONFLICT (key) DO UPDATE SET value = '${google_account}@${domain}';\""
+sudo -u odoo bash -c "psql -d ems -c \"INSERT INTO ir_config_parameter (key, value) VALUES ('ems.dev_mail_allowlist', 'ems@elpuig.xeill.net') ON CONFLICT (key) DO NOTHING;\""
+# The machine itself, not just this database: a production dump restored into any other database
+# on this box carries production's live mail servers and pending jobs. db_name/dbfilter keep the
+# Odoo service (queue_job runner, crons, web) on 'ems' only, so such a copy stays inert, and
+# ems_server_role makes EMS block its email if it is ever opened anyway. On 2026-10-06 a copy
+# restored here sent 412 real notifications to students and families.
+sudo sed -i '/^[[:space:]]*\(db_name\|dbfilter\|ems_server_role\)[[:space:]]*=/d' /etc/odoo/odoo.conf
+sudo sed -i '/^\[options\]/a db_name = ems\ndbfilter = ^ems$\nems_server_role = dev' /etc/odoo/odoo.conf
+echo "<< Email guarded: only ${google_account}+...@${domain} and the allowlist; the Odoo service only serves 'ems'."
+
 echo ">> Starting the Odoo service..."
 sudo service odoo start
 echo "<< Odoo service started."

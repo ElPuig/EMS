@@ -20273,3 +20273,15 @@ msgstr "Optativa reconocida"
 #: code:addons/ems/models/grades/external_record_wizard.py:0
 msgid "The passed optional modules add up to %(hours)s h of the %(needed)s h of %(subject)s: not imported."
 msgstr "Las optativas aprobadas suman %(hours)s h de las %(needed)s h de %(subject)s: no se importa."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/mail_guard.py:0
+msgid "Email blocked: this is a development machine and this database has not been prepared with devel.sh, so its addresses may be real people's."
+msgstr "Correo bloqueado: esta es una máquina de desarrollo y esta base de datos no se ha preparado con devel.sh, así que sus direcciones pueden ser de personas reales."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/mail_guard.py:0
+msgid "Email blocked: this is a development machine and these recipients are neither redirected by devel.sh nor in the allowlist: %(recipients)s"
+msgstr "Correo bloqueado: esta es una máquina de desarrollo y estos destinatarios no están desviados por devel.sh ni en la lista de direcciones permitidas: %(recipients)s"

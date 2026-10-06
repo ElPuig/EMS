@@ -142,6 +142,16 @@ def mock_outgoing_email(cls):
     return mock
 
 
+def cancel_google_account_creation(record):
+    """Cancel the automatic Google account creation queued when `record` (an employee or a
+    student) was seeded with every field it needs. A queued or running creation hides the
+    "Create Google account" button (#582), and the job never runs during a test anyway, so a
+    test that needs the button offered calls this first. No-op when the integration is off."""
+    record.env['queue.job'].sudo().search([
+        ('identity_key', '=', record._gw_create_job_key()),
+    ]).button_cancelled()
+
+
 def force_user_language_to_english(test, user):
     """Force `user`'s language to en_US for the duration of the current test only, restored
     via test.addCleanup() (on top of the test's own transaction rollback, for clarity since

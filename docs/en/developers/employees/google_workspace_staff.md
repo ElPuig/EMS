@@ -29,7 +29,9 @@ sequenceDiagram
     alt missing name / personal email
         EMP-->>HR: one-off chatter note (missing data)
     else ready
-        EMP->>Q: with_delay(action_create_google_account)
+        EMP->>Q: _gw_enqueue_create(): with_delay(_gw_create_account, identity_key)
+        Note over HR,Q: the "Create Google account" button queues this same job (#582)
+        Q->>EMP: SELECT ... FOR UPDATE NOWAIT (_gw_lock_for_creation)
         Q->>G: users().insert(primaryEmail=candidate)
         G-->>Q: 200 {id: <google_id>} (409 → next candidate)
         Q->>EMP: work_email = chosen address
@@ -66,7 +68,7 @@ Idempotent; everything runs `sudo()` (callers are queue jobs or buttons limited 
    `role_ids`/`job_id`/`tutorship_ids`), and post a chatter summary
    (created/re-linked + whether Google sign-in was pre-linked).
 
-Call sites inside `action_create_google_account()`:
+Call sites inside `_gw_create_account()`:
 
 - **Success path** — right after `work_email` is written, before
   `_gw_deliver_credentials()`, with the `id` from the `users().insert` response.
@@ -80,11 +82,40 @@ Call sites inside `action_create_google_account()`:
 Public action (no Google API call): `_ems_create_user(google_id=self._gw_google_user_id())`,
 guarded by the same `employee_type`/`work_email` checks. This is the Actions dropdown entry shown
 in the `pending_user` state (below) — a corporate account already exists but no `res.users`
-is linked yet — and it is what `action_create_google_account()`'s adopt path now calls
+is linked yet — and it is what `_gw_create_account()`'s adopt path now calls
 internally, so there is a single implementation either way.
 
 In **dry-run** (`company.google_ws_dry_run`) no API call is made, so there is no
 Google id: the EMS user is created without OAuth fields.
+
+### One creation at a time (#582)
+
+The automatic creation and the **Create Google account** entry used to be two independent paths
+into Google: the job queued at save time called the creation, and so did the button, directly in
+the web request. Pressed right after saving, both ran side by side, both saw no `work_email`, and
+the loser got a 409 for the address the winner had just created, moved on to the next candidate
+and created it, then rolled back on the database: an orphan second account in Google, invisible
+in EMS. Three pieces close it, the same on `res.partner`:
+
+- **One job.** `_gw_enqueue_create()` queues `_gw_create_account()` with the identity key
+  `_gw_create_job_key()` (`gw_emp_create_<id>`). `_gw_enqueue_if_ready()` and the button
+  (`action_create_google_account()`) both go through it, so queue_job's identity check keeps a
+  second press, or a press after the automatic queuing, from adding a job. The button answers
+  with a notification and reloads the form. When the employee isn't ready (missing data, an
+  existing corporate or non-corporate address) the button still calls `_gw_create_account()`
+  directly: those paths explain themselves or adopt the address, without creating anything in
+  Google.
+- **A hidden button while it lasts.** queue_job's identity check only covers waiting jobs, not a
+  started one. `google_ws_creation_pending` (non-stored) is `True` while a job with that key is
+  `wait_dependencies`/`pending`/`enqueued`/`started` (`google.workspace.mixin._gw_creation_job_running()`,
+  `sudo()` since queue.job is admin-only), and the button's `invisible` includes it.
+- **A row lock before Google.** `_gw_create_account()` starts with
+  `google.workspace.mixin._gw_lock_for_creation()`: `SELECT ... FOR UPDATE NOWAIT` on the
+  employee's row, then a cache invalidation. Whatever else is creating the same account at that
+  moment holds the row, so this one fails before calling Google, with `LockNotAvailable` (or a
+  serialization failure if the row changed since the snapshot), which queue_job and Odoo's HTTP
+  layer both retry; the retry sees the address the first one saved and adopts it. This covers any
+  other path into `_gw_create_account()` too, e.g. the reactivation fallback below.
 
 ### `action_relink_google_signin()`
 
@@ -216,7 +247,7 @@ stateDiagram-v2
     none --> manual_pending: google_ws_manual_email ticked
     none --> pending_user: work_email set, no user_id\n(adopt / migration gap)
     manual_pending --> pending_user: work_email filled in manually
-    none --> active: action_create_google_account()\n(work_email + user_id both set)
+    none --> active: _gw_create_account() (queued job)\n(work_email + user_id both set)
     pending_user --> active: action_create_ems_user()
     active --> suspended: action_suspend_google_account()
     suspended --> active: action_reactivate_google_account()
@@ -224,7 +255,7 @@ stateDiagram-v2
 
 | `google_ws_state` | Actions dropdown entry shown | Meaning |
 |---|---|---|
-| `none` | Create Google account | No corporate email yet |
+| `none` | Create Google account (hidden while `google_ws_creation_pending`) | No corporate email yet |
 | `manual_pending` | *(none)* | `google_ws_manual_email` ticked, waiting for the email to be typed in |
 | `pending_user` | Create EMS User | Corporate email exists, no `res.users` linked (adopt / migration gap) |
 | `active` | Suspend Google account (+ Re-link Google sign-in when `google_signin_missing`) | Fully set up |
@@ -276,7 +307,7 @@ A teacher created by the working-schedule importer from a not-yet-staffed post's
 (`hr.employee.schedule_import_code` set, `pending_identification` computed `True` — see
 `docs/en/developers/employees/working_schedule.md`'s "Pending-identification teachers"
 section) is just a normal `employee_type='teacher'` record with `name`/`private_email`
-still blank. `_gw_missing_fields()` already requires both, so `action_create_google_account()`
+still blank. `_gw_missing_fields()` already requires both, so `_gw_create_account()`
 raises its existing `UserError` for a still-unidentified placeholder exactly like it would
 for any other incomplete employee — **no special-casing was needed for this integration
 itself.**
@@ -285,10 +316,10 @@ The clearing itself lives in `_ems_create_user()`'s shared helper, `_gw_clear_pe
 — called once a real `res.users` is actually linked, right after `emp.write({'user_id': user.id})`.
 It posts a chatter note naming the original code, then clears the field
 (`emp.write({'schedule_import_code': False})`). Since `_ems_create_user()` is the single method
-both `action_create_google_account()` (full creation) and `action_create_ems_user()` (adopt an
+both `_gw_create_account()` (full creation) and `action_create_ems_user()` (adopt an
 existing corporate account) end up calling, this is what lets an admin's normal flow — open the
-placeholder record, fill in the real `name` + `private_email`, click **Generate Google account**
-(or, for the adopt path, **Create EMS User**) — double as the "confirm this teacher's real
+placeholder record, fill in the real `name` + `private_email` and save, which queues the
+automatic creation (or, for the adopt path, **Create EMS User**) — double as the "confirm this teacher's real
 identity" step, with no separate action needed. The schedule/`ems.teaching`/`ems.attendance_template`
 rows created at import time are untouched; they were already attached to this same `hr.employee` id.
 
@@ -320,6 +351,11 @@ cleared, so this is a one-way action, not a toggle).
   `False` once `work_email` is set.
 
 ## Tests
+
+`tests/test_employee_google_workspace.py` also covers #582: the button queues the same job
+instead of creating (one job after two presses), `google_ws_creation_pending` while the job is
+pending/started and not once it failed or finished, and `_gw_create_account()` stopping before
+any Google call when the row lock fails (plus the lock itself, checked from a second cursor).
 
 `tests/test_employee_ems_user.py` (`TestEmployeeEmsUser`) — user creation, groups per
 type, OAuth capture/backfill, idempotence, re-link of archived users, `work_email`

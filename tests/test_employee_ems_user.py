@@ -46,7 +46,7 @@ class TestEmployeeEmsUser(TransactionCase):
     def _create_account(self, employee):
         with patch.object(type(employee), '_gw_deliver_credentials',
                           return_value=(True, True)):
-            employee.action_create_google_account()
+            employee._gw_create_account()
 
     # --- user creation ---------------------------------------------------
     def test_creation_creates_ems_user(self):

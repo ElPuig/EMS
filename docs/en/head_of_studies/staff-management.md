@@ -48,11 +48,13 @@ A teacher's Department Chief and Seminar Chief can also see these two fields, re
 
 ## Creating the Corporate Google Account
 
+When you save a new teacher's record with the name and personal email filled in, the corporate account is created automatically in a few moments: you don't need to press anything.
+
 The actions that manage the teacher's corporate account are in the **Actions** menu on the top bar of their record. Which one appears depends on the state the account is in — only one is ever offered at a time:
 
 | Button | When it appears | What it does |
 |--------|-----------------|--------------|
-| **Create Google account** | The teacher has no corporate account yet | Creates the Google Workspace account and the EMS user in one step |
+| **Create Google account** | The teacher has no corporate account and none is being created | Creates the Google Workspace account and the EMS user in one step. Only needed when the automatic creation wasn't possible |
 | **Create EMS User** | The corporate email already exists, but there is no EMS user linked to it | Only links or creates the EMS user — it does not touch Google |
 | **Suspend Google account** | The account is active | Suspends it (for example, when the teacher leaves the centre) |
 | **Reactivate Google account** | The account is suspended | Reactivates it |

@@ -18,6 +18,7 @@
                 <xpath expr="//header" position="inside">
                     <field name="google_ws_state" invisible="1"/>
                     <field name="google_signin_missing" invisible="1"/>
+                    <field name="google_ws_creation_pending" invisible="1"/>
                     <field name="pending_identification" invisible="1"/>
                     <div name="ems_actions" string="Actions">
                         <button name="action_mark_as_identified" type="object"
@@ -27,7 +28,7 @@
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <button name="action_create_google_account" type="object"
                                 string="Create Google account"
-                                invisible="google_ws_state != 'none'"
+                                invisible="google_ws_state != 'none' or google_ws_creation_pending"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <!-- Corporate email already exists but no EMS user is linked yet
                              (adopt path: manual email, pre-integration staff, or a

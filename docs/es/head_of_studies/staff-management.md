@@ -48,11 +48,13 @@ El Jefe de departamento y el Jefe de seminario de un docente también pueden ver
 
 ## Crear la cuenta corporativa de Google
 
+Al guardar la ficha de un profesor nuevo con el nombre y el correo personal, la cuenta corporativa se crea automáticamente en unos momentos: no hace falta pulsar nada.
+
 Las acciones que gestionan la cuenta corporativa están en el menú **Acciones** de la barra superior de la ficha. Cuál aparece depende del estado de la cuenta: solo se ofrece uno cada vez.
 
 | Botón | Cuándo aparece | Qué hace |
 |-------|----------------|----------|
-| **Crear cuenta de Google** | El profesorado todavía no tiene cuenta corporativa | Crea la cuenta de Google Workspace y el usuario de EMS en un solo paso |
+| **Crear cuenta de Google** | El profesorado no tiene cuenta corporativa y no se está creando ninguna | Crea la cuenta de Google Workspace y el usuario de EMS en un solo paso. Solo hace falta si no se ha podido crear automáticamente |
 | **Crear usuario de EMS** | El correo corporativo ya existe, pero no hay ningún usuario de EMS vinculado | Solo vincula o crea el usuario de EMS, no toca nada de Google |
 | **Suspender cuenta de Google** | La cuenta está activa | La suspende (por ejemplo, cuando la persona deja el centro) |
 | **Reactivar cuenta de Google** | La cuenta está suspendida | La vuelve a activar |

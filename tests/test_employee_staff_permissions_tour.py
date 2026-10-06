@@ -2,7 +2,7 @@
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_role_user, mock_outgoing_email
+from .common import cancel_google_account_creation, create_role_user, mock_outgoing_email
 
 
 @tagged('post_install', '-at_install')
@@ -30,6 +30,7 @@ class TestEmployeeStaffPermissionsTour(HttpCase):
             'employee_type': 'teacher',
             'private_email': 'staff.perms.teacher@example.com',
         })
+        cancel_google_account_creation(cls.teacher)
 
     def test_employee_staff_permissions_tour(self):
         # To watch this tour in a real browser during development, add watch=True below.

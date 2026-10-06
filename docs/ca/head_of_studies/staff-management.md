@@ -48,11 +48,13 @@ El Cap de departament i el Cap de seminari d'un docent també poden veure aquest
 
 ## Crear el compte corporatiu de Google
 
+Quan deseu la fitxa d'un professor nou amb el nom i el correu personal, el compte corporatiu es crea automàticament en pocs moments: no cal prémer res.
+
 Les accions que gestionen el compte corporatiu són al menú **Accions** de la barra superior de la fitxa. Quin apareix depèn de l'estat del compte: només se n'ofereix un cada vegada.
 
 | Botó | Quan apareix | Què fa |
 |------|--------------|--------|
-| **Crea el compte de Google** | El professorat encara no té compte corporatiu | Crea el compte de Google Workspace i l'usuari d'EMS en un sol pas |
+| **Crea el compte de Google** | El professorat no té compte corporatiu i no se n'està creant cap | Crea el compte de Google Workspace i l'usuari d'EMS en un sol pas. Només cal si no s'ha pogut crear automàticament |
 | **Crea l'usuari d'EMS** | El correu corporatiu ja existeix, però no hi ha cap usuari d'EMS vinculat | Només vincula o crea l'usuari d'EMS, no toca res de Google |
 | **Suspèn el compte de Google** | El compte és actiu | El suspèn (per exemple, quan la persona deixa el centre) |
 | **Reactiva el compte de Google** | El compte està suspès | El torna a activar |

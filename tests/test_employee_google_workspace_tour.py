@@ -32,6 +32,9 @@ class TestEmployeeGoogleWorkspaceTour(HttpCase):
 
     def test_employee_google_workspace_state_tour(self):
         force_user_language_to_english(self, self.env.ref('base.user_admin'))
+        # Identifying the vacancy below queues its account only with the integration on: this
+        # box's database has it, a clean install (CI) doesn't. Dry-run, like every GW test.
+        self.env.company.write({'google_ws_enabled': True, 'google_ws_dry_run': True})
         # google_ws_state (models/employees/google_workspace_integration.py) drives
         # which header button(s) show — a TransactionCase can assert the compute is
         # right, but only a real browser render catches an OWL/view-arch mistake in

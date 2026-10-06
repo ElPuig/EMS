@@ -529,3 +529,54 @@ class TestStrike(TransactionCase):
         self.assertFalse(self._duplicate_warning(self.teacher_a_user, line_id=other_line.id))
         # The New strike dialog sets no line: a roll-call strike is not its duplicate.
         self.assertFalse(self._duplicate_warning(self.teacher_a_user))
+
+    # --- group, subject and classroom (issues #546, #570) -------------------------------
+
+    def _create_session_line(self):
+        subject = self.env['ems.subject'].create({
+            'code': 'TSTK001', 'acronym': 'TSTK', 'name': 'Test Subject (Strike)',
+            'study_ids': [(6, 0, [self.study.id])],
+        })
+        space = self.env['ems.space'].create({
+            'code': 'TSTK-A', 'name': 'Test Space (Strike)',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        template = self.env['ems.attendance_template'].create({
+            'teacher_ids': [(6, 0, [self.teacher_a_employee.id])], 'study_ids': [(6, 0, [self.study.id])],
+            'subject_id': subject.id, 'group_ids': [(6, 0, [self.group_record.id])],
+            'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
+        })
+        schedule = self.env['ems.attendance_schedule'].create({
+            'attendance_template_id': template.id, 'weekday': '1',
+            'start_time': 8.0, 'end_time': 9.0, 'space_id': space.id,
+        })
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': schedule.id, 'date': self.env['ems.datetime_utils'].get_local_today(),
+            'mode': 'manual', 'session_teacher_id': self.teacher_a_employee.id,
+        })
+        line = self.env['ems.attendance_session_line'].create({
+            'student_id': self.minor_student.id, 'attendance_session_id': session.id,
+        })
+        return line, subject, space
+
+    def test_roll_call_strike_takes_group_subject_and_classroom_from_session(self):
+        line, subject, space = self._create_session_line()
+        strike = self._create_strike(self.teacher_a_user, attendance_session_line_id=line.id)
+        self.assertEqual(strike.group_id, self.group_record)
+        self.assertEqual(strike.subject_id, subject)
+        self.assertEqual(strike.space_id, space)
+
+    def test_strike_outside_class_takes_main_group_without_subject_nor_classroom(self):
+        strike = self._create_strike(self.teacher_a_user)
+        self.assertEqual(strike.group_id, self.group_record)
+        self.assertFalse(strike.subject_id)
+        self.assertFalse(strike.space_id)
+
+    def test_strike_group_frozen_when_student_changes_group(self):
+        strike = self._create_strike(self.teacher_a_user)
+        _level, _study, other_group = create_level_study_group(self, 'TSTK2', level={'name': 'Test Level 2 (Strike)'}, study={
+            'code': 'TSTK002', 'name': 'Test Study 2 (Strike)',
+        }, group={'name': 'Test Group 2 (Strike)'})
+        self.minor_student.main_group_id = other_group
+        self.assertEqual(strike.group_id, self.group_record)

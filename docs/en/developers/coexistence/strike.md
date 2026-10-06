@@ -33,6 +33,11 @@ Every strike notifies the student's own email always, and the group tutor always
 | `send_to` | `Char` (readonly) | — | Resolved recipient addresses, semicolon-separated (bookkeeping) |
 | `strike_count` | `Integer` (computed, not stored) | — | Student's cumulative strike count up to and including this one; not shown in any view (redundant with the list itself) — used internally by `_check_escalation()` and by the escalation email's "Total strikes" line |
 | `attendance_session_line_id` | `Many2one → ems.attendance_session_line` | No | Optional; set only when issued from the roll-call view, `ondelete='set null'` — the strike record is never deleted just because its session/line is |
+| `group_id` | `Many2one → ems.group` (computed, stored) | — | The student's group when the strike was issued: the session line's `student_group_id` (same as the attendance reports), or the student's `main_group_id` for a strike issued outside class |
+| `subject_id` | `Many2one → ems.subject` (computed, stored) | — | The session line's subject; empty for a strike issued outside class |
+| `space_id` | `Many2one → ems.space` (computed, stored, "Classroom") | — | The session's classroom (`attendance_session_id.space_id`); empty for a strike issued outside class |
+
+`group_id`/`subject_id`/`space_id` (issues #546, #570) share one compute, `_compute_session_data()`, which only depends on `student_id` and `attendance_session_line_id`: they are frozen when the strike is issued, so a later group change or session edit never rewrites an old strike. They are shown in the Coexistence → Strikes list (subject and classroom as optional columns) and on the strike's form (subject and classroom only when set). Existing strikes got them computed when the stored columns were created on upgrade; for a strike issued outside class that means the student's main group at upgrade time.
 
 `display_name` is computed as `"{student} | {date} | {reason}"`.
 

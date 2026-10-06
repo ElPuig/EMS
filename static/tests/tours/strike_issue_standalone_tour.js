@@ -60,6 +60,10 @@ registry.category("web_tour.tours").add("ems_strike_issue_standalone", {
             trigger: ".o_list_view .o_data_row td[name='notes']:contains('Caught running in the corridor')",
             content: "The new strike is listed without reloading the page",
         },
+        {
+            trigger: ".o_list_view .o_data_row:has(td[name='notes']:contains('Caught running in the corridor')) td[name='group_id']:contains('TSSG1A')",
+            content: "Issue #570: it shows the student's main group, issued outside class",
+        },
         // Issue #554: another strike for the same student a moment later is flagged as a
         // possible duplicate and only sent once confirmed.
         {

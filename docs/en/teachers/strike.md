@@ -66,6 +66,8 @@ While a strike is being sent, its **Send** button stays disabled, so clicking it
 ## Consulting Strikes
 
 - **Convivencia → Strikes** lists every strike you have issued.
+
+  Each row shows the student's group, and the subject and classroom of the session where the strike was issued. A strike issued outside class (with **New strike**) shows the student's main group, with no subject or classroom.
 - From a student's own form, a **Strikes** button appears in the header showing their accumulated count (0 if they have none yet) — click it to see the full history for that student and, from there, issue a new one for them with **New strike**.
 - From **Attendance → History**, opening one of your past sessions now also shows, per student row, how many strikes were issued during that specific session, with a button to see their full detail.
 

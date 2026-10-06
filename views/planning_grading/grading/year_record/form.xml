@@ -73,6 +73,7 @@
                                         <field name="final_grade"/>
                                         <field name="final_pending" optional="show"/>
                                         <field name="is_convalidated" optional="show"/>
+                                        <field name="is_recognized" optional="show"/>
                                         <field name="convalidation_number" optional="show"/>
                                         <field name="internal_weight" optional="hide"/>
                                         <field name="external_weight" optional="hide"/>
@@ -102,6 +103,7 @@
                                 <field name="state" readonly="1"/>
                                 <field name="final_pending" readonly="1"/>
                                 <field name="is_convalidated" readonly="1"/>
+                                <field name="is_recognized" readonly="1" invisible="not is_recognized"/>
                                 <field name="convalidation_number" readonly="1" invisible="not convalidation_number"/>
                                 <field name="attendance_rate" readonly="1"/>
                             </group>

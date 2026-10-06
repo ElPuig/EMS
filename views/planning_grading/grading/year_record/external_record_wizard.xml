@@ -47,8 +47,8 @@
                         </group>
                         <field name="line_ids" nolabel="1" invisible="not line_ids">
                             <list editable="bottom" create="0" delete="0"
-                                  decoration-bf="kind == 'module'"
-                                  decoration-muted="kind == 'module' and not to_import"
+                                  decoration-bf="kind in ('module', 'optional')"
+                                  decoration-muted="kind in ('module', 'optional') and not to_import"
                                   decoration-warning="warning">
                                 <field name="sequence" column_invisible="1"/>
                                 <field name="kind" column_invisible="1"/>
@@ -57,6 +57,7 @@
                                 <field name="certificate_course" column_invisible="1"/>
                                 <field name="centre_code" column_invisible="1"/>
                                 <field name="centre_name" column_invisible="1"/>
+                                <field name="is_optional" column_invisible="1"/>
                                 <field name="course_id" optional="hide" readonly="1" force_save="1"/>
                                 <field name="certificate_code" force_save="1" width="170px"/>
                                 <field name="label" force_save="1"/>
@@ -66,11 +67,13 @@
                                      without the codes and courses it was read with. -->
                                 <field name="subject_id" options="{'no_create': True, 'no_open': True}"
                                        domain="[('study_ids', '=', parent.study_id)]"
-                                       readonly="kind != 'module'"/>
+                                       readonly="kind not in ('module', 'optional')"/>
+                                <field name="hours" optional="show" readonly="1" force_save="1"
+                                       invisible="kind not in ('module', 'optional')"/>
                                 <field name="score" class="fw-bold"/>
                                 <field name="is_scored" width="80px"/>
-                                <field name="to_import" width="80px" readonly="kind != 'module'"
-                                       invisible="kind != 'module'"/>
+                                <field name="to_import" width="80px" readonly="kind not in ('module', 'optional')"
+                                       invisible="kind not in ('module', 'optional')"/>
                                 <field name="warning"/>
                             </list>
                         </field>

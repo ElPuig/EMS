@@ -155,8 +155,10 @@ class EmsExternalRecordWizard(models.TransientModel):
                     'certificate_code': module['code'],
                     'label': module['name'], 'certificate_text': module['text'],
                     'subject_id': subject.id, 'score': module['grade'],
-                    'is_scored': module['has_grade'],
-                    'to_import': bool(planning) and self._course_available(ems_course),
+                    'is_scored': module['has_grade'], 'hours': module['hours'],
+                    'is_optional': module['is_optional'],
+                    'to_import': bool(planning) and self._course_available(ems_course)
+                    and not module['is_optional'],
                 }))
                 for outcome in module['outcomes']:
                     sequence += 1
@@ -170,7 +172,41 @@ class EmsExternalRecordWizard(models.TransientModel):
                         'certificate_text': outcome['text'],
                         'score': outcome['score'], 'is_scored': outcome['is_scored'],
                     }))
+            recognition = self._recognition_vals(course, ems_course)
+            if recognition:
+                sequence += 1
+                commands.append((0, 0, dict(recognition, sequence=sequence)))
         return commands
+
+    def _recognition_vals(self, course, ems_course):
+        """The line that passes this centre's optional module through the certificate's own
+        optional modules: only the passed ones count, their hours must cover this centre's
+        optional module and its grade is their hours-weighted average."""
+        passed = [module for module in course['modules']
+                  if module['is_optional'] and module['has_grade'] and module['grade'] >= 5]
+        if not passed:
+            return {}
+        hours = sum(module['hours'] for module in passed)
+        grade = int(sum(module['grade'] * module['hours'] for module in passed) / hours + 0.5) \
+            if hours else max(module['grade'] for module in passed)
+        optional = self._own_optional_subject()
+        return {
+            'kind': 'optional', 'module_key': f"{course['course']}/optional",
+            'course_id': ems_course.id, 'certificate_course': course['course'],
+            'centre_code': course['centre_code'], 'centre_name': course['centre_name'],
+            'certificate_code': " + ".join(module['code'] for module in passed),
+            'label': ", ".join(f"{module['code']} {module['name']} ({module['hours']} h)" for module in passed),
+            'certificate_text': f"{hours} h", 'hours': hours,
+            'subject_id': optional.id, 'score': grade, 'is_scored': True,
+            'to_import': bool(optional) and hours >= optional.total_hours
+            and self._course_available(ems_course),
+        }
+
+    def _own_optional_subject(self):
+        """This study's optional module, coded "OPT..." (the Esfera grade import's own rule), when
+        it has exactly one."""
+        optional = self.study_id.subject_ids.filtered(lambda subject: (subject.code or '').upper().startswith('OPT'))
+        return optional if len(optional) == 1 else self.env['ems.subject']
 
     def _subject_from_code(self, module_code, study_code):
         """A certificate module code ("0156_IC10") is this centre's subject code plus the study's
@@ -213,7 +249,11 @@ class EmsExternalRecordWizard(models.TransientModel):
 
     def _remap_lines(self):
         self.ensure_one()
-        for line in self.line_ids.filtered(lambda line: line.kind == 'module'):
+        for line in self.line_ids.filtered(lambda line: line.kind == 'optional'):
+            line.subject_id = self._own_optional_subject()
+            line.to_import = bool(line.subject_id) and line.hours >= line.subject_id.total_hours \
+                and self._course_available(line.course_id)
+        for line in self.line_ids.filtered(lambda line: line.kind == 'module' and not line.is_optional):
             study_code = (self.study_id.code or '').rsplit('_', 1)[-1]
             line.subject_id = self._subject_from_code(line.certificate_code, study_code)
             line.to_import = bool(self._planning(line.subject_id, line.course_id)) \
@@ -264,10 +304,10 @@ class EmsExternalRecordWizard(models.TransientModel):
         identifier = self.certificate_student_identifier
         if identifier and self.student_id.student_id and identifier != self.student_id.student_id:
             raise UserError(self._certificate_warning()['warning']['message'])
-        modules = self.line_ids.filtered(lambda line: line.kind == 'module' and line.to_import)
+        modules = self.line_ids.filtered(lambda line: line.kind in ('module', 'optional') and line.to_import)
         if not modules:
             raise UserError(_("Tick at least one module to import."))
-        for module in modules:
+        for module in modules.filtered(lambda line: line.kind == 'module'):
             if not module.subject_id or not self._planning(module.subject_id, module.course_id):
                 raise UserError(_("%(module)s has no module of this study with a teaching plan that "
                                   "course: pick one or untick it.", module=module.certificate_code))
@@ -287,6 +327,8 @@ class EmsExternalRecordWizard(models.TransientModel):
     def _create_subject(self, record, module):
         """The subject record of one certificate module: its outcomes graded as the review grid
         says, through the very same helpers the grade review writes with."""
+        if module.kind == 'optional':
+            return self._create_recognized_subject(record, module)
         planning = self._planning(module.subject_id, module.course_id)
         siblings = self.line_ids.filtered(lambda line: line.module_key == module.module_key)
         graded = {line.outcome_number: line for line in siblings if line.kind == 'outcome'}
@@ -326,6 +368,35 @@ class EmsExternalRecordWizard(models.TransientModel):
                      subject_record.state),
                  grade=subject_record.internal_grade)
 
+    def _create_recognized_subject(self, record, line):
+        """This centre's optional module, passed through the certificate's optional modules: no
+        learning outcomes, the grid's grade as internal and final grade (like a convalidated subject,
+        without being one)."""
+        if not line.subject_id:
+            raise UserError(_("Pick this centre's optional module the certificate's optional modules "
+                              "are recognised as."))
+        planning = self._planning(line.subject_id, line.course_id)
+        passed = line.score >= 5
+        subject_record = self.env['ems.student.year_record.subject'].sudo().create({
+            'record_id': record.id,
+            'subject_id': line.subject_id.id,
+            'subject_name': line.subject_id.display_name,
+            'internal_weight': planning.internal_ponderation if planning else 100.0,
+            'external_weight': planning.external_ponderation if planning else 0.0,
+            'internal_grade': line.score,
+            'final_grade': line.score,
+            'has_final': True,
+            'state': 'passed' if passed else 'failed',
+            'is_recognized': True,
+            'notes': _("Recognised from: %s", line.label),
+            'review_date': fields.Date.context_today(self),
+            'review_user_id': self.env.user.id,
+            'review_note': self._resolution(),
+        })
+        return _("%(subject)s: recognised from %(modules)s, grade %(grade)s",
+                 subject=subject_record.subject_name, modules=line.certificate_code,
+                 grade=subject_record.final_grade)
+
     def _log_creation(self, record, changes=None):
         centre = self.origin_centre_name
         if self.origin_centre_code:
@@ -354,6 +425,7 @@ class EmsExternalRecordWizardLine(models.TransientModel):
         ('module', 'Module'),
         ('outcome', 'Learning outcome'),
         ('placement', 'Work placement'),
+        ('optional', 'Recognised optional module'),
     ])
     # The certificate's course and module this line belongs to: what ties an outcome to its module.
     module_key = fields.Char(string="Module key")
@@ -368,17 +440,21 @@ class EmsExternalRecordWizardLine(models.TransientModel):
     label = fields.Char(string="Name", readonly=True)
     certificate_text = fields.Char(string="Certificate grade", readonly=True)
     outcome_number = fields.Char(string="Outcome number")
+    hours = fields.Integer(string="Hours")
+    # An optional module of the centre that issued the certificate (type MP_OP_CEN): never imported
+    # as such, it counts towards this centre's own optional module (kind 'optional').
+    is_optional = fields.Boolean(string="Optional module")
     subject_id = fields.Many2one(string="Module", comodel_name='ems.subject', ondelete='cascade')
     score = fields.Integer(string="Grade")
     is_scored = fields.Boolean(string="Graded")
     to_import = fields.Boolean(string="Import")
     warning = fields.Char(string="Warning", compute='_compute_warning')
 
-    @api.depends('subject_id', 'to_import', 'score', 'is_scored', 'wizard_id.study_id',
+    @api.depends('subject_id', 'to_import', 'score', 'is_scored', 'hours', 'wizard_id.study_id',
                  'wizard_id.line_ids.score', 'wizard_id.line_ids.is_scored')
     def _compute_warning(self):
         for line in self:
-            line.warning = line._module_warning() if line.kind == 'module' else False
+            line.warning = line._module_warning() if line.kind in ('module', 'optional') else False
 
     def _module_warning(self):
         wizard = self.wizard_id
@@ -386,6 +462,17 @@ class EmsExternalRecordWizardLine(models.TransientModel):
             return _("The course %s does not exist in EMS: not imported.", self.certificate_course)
         if not wizard._course_available(self.course_id):
             return _("The course %s is not over yet: not imported.", self.course_id.name)
+        if self.is_optional:
+            return _("Optional module of the certificate: it only counts towards this centre's own "
+                     "optional module, when passed.")
+        if self.kind == 'optional':
+            if not self.subject_id:
+                return _("Pick this centre's optional module.")
+            if self.hours < self.subject_id.total_hours:
+                return _("The passed optional modules add up to %(hours)s h of the %(needed)s h of "
+                         "%(subject)s: not imported.", hours=self.hours,
+                         needed=self.subject_id.total_hours, subject=self.subject_id.display_name)
+            return False
         if not self.subject_id:
             return _("Not a module of this study: not imported.")
         planning = wizard._planning(self.subject_id, self.course_id)

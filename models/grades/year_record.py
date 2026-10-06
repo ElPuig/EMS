@@ -442,6 +442,12 @@ class EmsStudentYearRecordSubject(models.Model):
     convalidation_number = fields.Char(string="Convalidation file", readonly=True,
                                        help="Registration number of the convalidation request the subject "
                                             "was passed through, e.g. CONV-2026-27-0001.")
+    # An optional module of this centre passed through the optional modules of a previous
+    # record's certificate (issue #585): their hours cover this one's, and its grade is their
+    # hours-weighted average. Like a convalidated subject, it has no learning outcomes of its own.
+    is_recognized = fields.Boolean(string="Recognised", default=False, readonly=True,
+                                   help="Optional module passed through the optional modules of the "
+                                        "academic certificate of a previous record.")
     # Trace of the last grade review applied to this subject (issue #493). A grade review is a
     # formal, signed resolution taken once the academic file is already closed, so the
     # record keeps who applied it, when and what it resolved; the detail of every change
@@ -533,7 +539,10 @@ class EmsStudentYearRecordSubject(models.Model):
         A convalidated subject is left alone (issue #276): its grade comes from a convalidation
         resolution, not from the RAs of a course the student never took here, so recomputing it
         would silently wipe the resolution."""
-        for subject_record in self.filtered(lambda record: not record.is_convalidated):
+        # A recognised optional module (issue #585) has no outcomes either: its grade comes from
+        # the certificate's optional modules.
+        for subject_record in self.filtered(lambda record: not record.is_convalidated
+                                            and not record.is_recognized):
             outcomes = subject_record.outcome_record_ids
             subject_record.write(self._values_from_outcomes(
                 [(outcome.final_score, outcome.weight)

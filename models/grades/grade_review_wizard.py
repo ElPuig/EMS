@@ -363,6 +363,10 @@ class EmsGradeReviewWizard(models.TransientModel):
         if self.subject_record_id.is_convalidated:
             raise UserError(_("%s is convalidated: change the convalidation resolution instead of "
                               "reviewing its learning outcomes.") % self.subject_record_id.subject_name)
+        if self.subject_record_id.is_recognized:
+            raise UserError(_("%s was recognised from the optional modules of a previous record and has "
+                              "no learning outcomes to review: remove it and add it again.")
+                            % self.subject_record_id.subject_name)
         changes = []
         for line in self.line_ids:
             if line.score == line.previous_score and line.is_scored == line.previous_is_scored:

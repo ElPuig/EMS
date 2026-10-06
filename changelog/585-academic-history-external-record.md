@@ -24,3 +24,9 @@
 - The wizard is now "Add a previous record" (Catalan "Afegeix un expedient anterior"): the course may have been taken at another centre or at this one before EMS (a former student). Ribbon, filter and field labels follow ("Previous record(s)").
 - Course blocks are no longer skipped by centre code: only courses the student already has in the history are left out. A block whose course does not exist in EMS or is not over yet is flagged and not importable. When a certificate holds courses of several centres, each record keeps the centre that graded it.
 - A title in a previous record of this centre (origin centre code = `res.company.center_code`) counts as a title of this centre for convalidations.
+
+## Academic history: the certificate's passed optional modules recognise this centre's optional module (issue #585):
+
+- The issuing centre's own optional modules (type `MP_OP_CEN`) are never imported as such. When some are passed and their hours add up to at least this study's optional module (`OPT...`), a "Recognised optional module" line in the review grid passes it with their hours-weighted average grade; when they fall short, the line is flagged and not imported.
+- The recognised optional module is stored without learning outcomes (internal = final grade), marked "Recognised" (`is_recognized`) with the source modules in its comments; recomputing from outcomes leaves it alone and the grade review refuses to correct it.
+- The PDF reader now also reads each module's hours and whether it is an optional module of the issuing centre.

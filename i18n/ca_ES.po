@@ -20141,3 +20141,70 @@ msgstr "Marqueu almenys un mòdul per importar."
 #: model:ir.model.fields,help:ems.field_ems_student_year_record__is_external
 msgid "Typed in from an academic certificate (another centre's, or this centre's from before EMS) instead of generated from the grade sessions."
 msgstr "Introduït a partir d'un certificat acadèmic (d'un altre centre, o d'aquest d'abans d'EMS) en lloc de generat a partir de les sessions d'avaluació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "%(subject)s: recognised from %(modules)s, grade %(grade)s"
+msgstr "%(subject)s: reconegut a partir de %(modules)s, nota %(grade)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "%s was recognised from the optional modules of a previous record and has no learning outcomes to review: remove it and add it again."
+msgstr "%s es va reconèixer a partir de les optatives d'un expedient anterior i no té resultats d'aprenentatge per revisar: elimineu-lo i torneu-lo a afegir."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__hours
+msgid "Hours"
+msgstr "Hores"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__is_optional
+msgid "Optional module"
+msgstr "Optativa"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Optional module of the certificate: it only counts towards this centre's own optional module, when passed."
+msgstr "Optativa del certificat: només compta per a l'optativa del centre, si està aprovada."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_year_record_subject__is_recognized
+msgid "Optional module passed through the optional modules of the academic certificate of a previous record."
+msgstr "Optativa aprovada a partir de les optatives del certificat acadèmic d'un expedient anterior."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Pick this centre's optional module the certificate's optional modules are recognised as."
+msgstr "Trieu l'optativa del centre com a la qual es reconeixen les optatives del certificat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Pick this centre's optional module."
+msgstr "Trieu l'optativa del centre."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__is_recognized
+msgid "Recognised"
+msgstr "Reconegut"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Recognised from: %s"
+msgstr "Reconegut a partir de: %s"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_external_record_wizard_line__kind__optional
+msgid "Recognised optional module"
+msgstr "Optativa reconeguda"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "The passed optional modules add up to %(hours)s h of the %(needed)s h of %(subject)s: not imported."
+msgstr "Les optatives aprovades sumen %(hours)s h de les %(needed)s h de %(subject)s: no s'importa."

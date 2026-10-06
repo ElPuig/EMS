@@ -110,7 +110,8 @@ def build_academic_record_pdf(student_identifier, study_token, courses):
     test: it carries a real student's name, document number and signatures.
 
     courses: list of (centre_code, centre_name, 'YYYY/YYYY', rows), each row a tuple
-    (code, name, type, qualification) - type 'MP', 'RA', 'EM' or 'MP_'."""
+    (code, name, type, qualification[, hours]) - type 'MP', 'RA', 'EM' or 'MP_' (an optional
+    module of the issuing centre)."""
     from reportlab.pdfgen import canvas
 
     lines = [
@@ -129,11 +130,12 @@ def build_academic_record_pdf(student_identifier, study_token, courses):
             "Resultats de l'avaluació",
             " Nivell   Codi                   Nom                          Tipus  Qualificació",
         ]
-        for code, name, kind, qualification in rows:
+        for code, name, kind, qualification, *hours in rows:
             indent = '   ' if kind in ('RA', 'EM') else ''
             wrapped = qualification == 'Pendent de qualificar'
             shown = 'Pendent de' if wrapped else qualification
-            lines.append(f"   1      {indent}{code:<{23 - len(indent)}}{name:<29}{kind:<7}{shown:<14}1")
+            hours_column = f"{hours[0]:>8}" if hours else ''
+            lines.append(f"   1      {indent}{code:<{23 - len(indent)}}{name:<29}{kind:<7}{shown:<14}1{hours_column}")
             if wrapped:
                 lines.append(f"{'':<69}qualificar")
         lines += ["Observacions", "Accedeix al curs següent"]

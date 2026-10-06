@@ -20,7 +20,9 @@ _ROW_RE = re.compile(r"^\s*(?P<level>\d)\s+(?P<code>[A-Z0-9][A-Z0-9_]*)\s{2,}(?P
 # The code of a learning outcome or of a work placement: "<module>_<NN>RA" / "<module>_<NN>EM".
 _OUTCOME_CODE_RE = re.compile(r"^(?P<module>.+)_(?P<number>\d{2})(?P<kind>RA|EM)$")
 # The qualification column, read from the type column onwards (the name may hold anything).
-_TYPE_RE = re.compile(r"\s(?:MP|RA|EM)\S*\s+(?P<after>.*)$")
+# A module's type is "MP", or "MP_OP_CEN" (wrapped over three lines as "MP_" / "OP_C" / "EN") for
+# an optional module of the centre that issued it.
+_TYPE_RE = re.compile(r"\s(?P<type>(?:MP|RA|EM)\S*)\s+(?P<after>.*)$")
 _QUALIFICATION_RE = re.compile(
     r"(?P<text>Assolit-\d+|No assolit|Pendent de qualificar|Pendent de|Pendent|No presentat"
     r"|Convalidat|Exempt|No apte|Apte|\d{1,2}(?:[.,]\d+)?)(?:\s|$)")
@@ -122,6 +124,9 @@ def parse_academic_record_text(text):
         type_match = _TYPE_RE.search(' ' + match.group('rest'))
         qualification = _QUALIFICATION_RE.match(type_match.group('after')) if type_match else None
         text_value = qualification.group('text') if qualification else ''
+        # After the qualification come the sitting (convocatòria) and, on a module, its hours.
+        numbers = re.findall(r"\b\d+\b", type_match.group('after')[qualification.end():]) \
+            if qualification else []
         outcome_match = _OUTCOME_CODE_RE.match(code)
         if outcome_match and course['modules'] \
                 and course['modules'][-1]['code'] == outcome_match.group('module'):
@@ -132,7 +137,9 @@ def parse_academic_record_text(text):
             course['modules'][-1]['outcomes'].append(last_row)
         else:
             name = re.split(r"\s{2,}", match.group('rest').strip(), maxsplit=1)[0]
-            last_row = {'code': code, 'name': name, 'text': text_value, 'outcomes': []}
+            last_row = {'code': code, 'name': name, 'text': text_value, 'outcomes': [],
+                        'is_optional': type_match is not None and type_match.group('type').startswith('MP_'),
+                        'hours': int(numbers[-1]) if len(numbers) > 1 else 0}
             course['modules'].append(last_row)
     for module in (module for course in record['courses'] for module in course['modules']):
         module['grade'], module['has_grade'] = _grade(module['text'])

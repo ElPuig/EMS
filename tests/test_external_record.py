@@ -41,6 +41,10 @@ class TestExternalRecord(TransactionCase):
             'code': f'EXRSUB{suffix}', 'acronym': f'EXR{suffix}',
             'name': f'External Record Subject {suffix}', 'study_ids': [(4, cls.study.id)],
         }) for suffix in 'ABC']
+        # The study's own optional module, coded "OPT..." like the real ones, 99 hours long.
+        cls.subject_opt = cls.env['ems.subject'].create({
+            'code': 'OPTEXR', 'acronym': 'OPTEXR', 'name': 'External Record Optional',
+            'internal_hours': 99, 'study_ids': [(4, cls.study.id)]})
         cls.outcomes_a = [cls.env['ems.outcome'].create({
             'code': f'EXRSUBA_0{index}RA', 'acronym': f'RA{index}', 'name': f'Outcome A{index}',
             'subject_id': cls.subject_a.id}) for index in (1, 2)]
@@ -416,3 +420,58 @@ class TestExternalRecord(TransactionCase):
         form = self._read(buffer.getvalue())
         self.assertTrue(form.certificate_message)
         self.assertFalse(form.line_ids)
+
+    # --- the other centre's optional modules -----------------------------------
+
+    def _optional_certificate(self, second_qualification):
+        return self._certificate(rows=[
+            ('EXRSUBB_EXR1', 'Module B', 'MP', '8', 66),
+            ('EXRSUBB_EXR1_01RA', 'Outcome one', 'RA', 'Assolit-8'),
+            ('M_OP_01', 'Other optional one', 'MP_', '7', 66),
+            ('M_OP_02', 'Other optional two', 'MP_', second_qualification, 33),
+        ])
+
+    def _recognition_line(self, wizard):
+        return wizard.line_ids.filtered(lambda line: line.kind == 'optional')
+
+    def test_passed_optional_modules_covering_the_hours_pass_this_centres_one(self):
+        wizard = self._read(self._optional_certificate('9')).save()
+        line = self._recognition_line(wizard)
+        self.assertEqual(line.subject_id, self.subject_opt)
+        self.assertEqual(line.hours, 99)
+        # (7 * 66 + 9 * 33) / 99 = 7.67, hours-weighted and rounded.
+        self.assertEqual(line.score, 8)
+        self.assertTrue(line.to_import)
+        # The other centre's optional modules are never imported as such.
+        self.assertFalse(self._module_line(wizard, 'M_OP_01').to_import)
+        self.assertTrue(self._module_line(wizard, 'M_OP_01').warning)
+        wizard.action_create()
+        recognized = self.student.year_record_ids.subject_record_ids.filtered('is_recognized')
+        self.assertEqual(recognized.subject_id, self.subject_opt)
+        self.assertEqual((recognized.state, recognized.internal_grade, recognized.final_grade),
+                         ('passed', 8, 8))
+        self.assertFalse(recognized.outcome_record_ids)
+        self.assertIn('M_OP_01', recognized.notes)
+        # A recognised module has no learning outcomes for a grade review to correct...
+        review = self.env['ems.grade_review_wizard'].create({
+            'record_id': recognized.record_id.id, 'operation': 'correct',
+            'subject_record_id': recognized.id, 'resolution': 'Test'})
+        with self.assertRaises(UserError):
+            review.action_apply()
+        # ...and recomputing the record's subjects from their outcomes leaves it alone.
+        recognized._recompute_from_outcomes()
+        self.assertEqual(recognized.state, 'passed')
+
+    def test_passed_optional_modules_short_of_the_hours_are_not_imported(self):
+        wizard = self._read(self._optional_certificate('No presentat')).save()
+        line = self._recognition_line(wizard)
+        self.assertEqual(line.hours, 66)
+        self.assertFalse(line.to_import)
+        self.assertIn('66', line.warning)
+        wizard.action_create()
+        self.assertFalse(self.student.year_record_ids.subject_record_ids.filtered('is_recognized'))
+
+    def test_no_passed_optional_module_no_recognition(self):
+        # The default certificate's only optional module (M_OP_09) was not sat.
+        wizard = self._read(self._certificate()).save()
+        self.assertFalse(self._recognition_line(wizard))

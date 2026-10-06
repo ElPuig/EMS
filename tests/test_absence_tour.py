@@ -48,6 +48,7 @@ class TestAbsenceTour(HttpCase):
         day = window[0] + timedelta(days=30)
         while day.weekday() != 0:
             day += timedelta(days=1)
+        cls.absent_employee, cls.day = employee, day
         cls.env['hr.leave'].create({
             'employee_id': employee.id,
             'holiday_status_id': cls.env.ref('ems.leave_type_justified').id,
@@ -118,6 +119,26 @@ class TestAbsenceTour(HttpCase):
 
     def test_absence_direction_review_tour(self):
         self.start_tour("/odoo", "ems_absence_direction_review", login="absence_tour_direction")
+
+    def test_absence_document_returned_tour(self):
+        leave = self.env['hr.leave'].create({
+            'employee_id': self.absent_employee.id,
+            'holiday_status_id': self.env.ref('ems.leave_type_sick_leave').id,
+            'request_date_from': self.day + timedelta(days=28),
+            'request_date_to': self.day + timedelta(days=28),
+            'ems_full_day': True,
+            'ems_submitted': True,
+            'ems_responsible_declaration': True,
+        })
+        leave.action_approve()
+        leave.supported_attachment_ids = [Command.link(self.env['ir.attachment'].create({
+            'name': 'baixa.txt',
+            'datas': base64.b64encode(b'sick leave certificate'),
+            'res_model': 'hr.leave',
+            'res_id': leave.id,
+        }).id)]
+        leave._ems_return_document("Tour the stamp is missing")
+        self.start_tour("/odoo", "ems_absence_document_returned", login="absence_tour_employee")
 
     def test_absence_head_approval_tour(self):
         self.start_tour("/odoo", "ems_absence_head_approval", login="absence_tour_hos")

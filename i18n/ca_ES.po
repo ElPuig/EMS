@@ -1229,6 +1229,7 @@ msgstr "Nom del PAS"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_status__category__absence
+#: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__leave_id
 msgid "Absence"
 msgstr "Absència"
 
@@ -2372,6 +2373,7 @@ msgstr "Pot editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_return_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
 #: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -3426,6 +3428,7 @@ msgstr "Emergència"
 #: model:ir.model,name:ems.model_hr_employee model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__employee_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__employee_id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__employee_id
 msgid "Employee"
 msgstr "Empleat"
 
@@ -9338,6 +9341,7 @@ msgstr "Sortida original"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__reason
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__reason
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__reason
 msgid "Reason"
 msgstr "Motiu"
 
@@ -18706,8 +18710,11 @@ msgstr ""
 " tota la sol·licitud."
 
 #. module: ems
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+#: code:addons/ems/models/employees/absence.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
 msgid "Documentation insufficient"
 msgstr "Documentació insuficient"
 
@@ -18839,24 +18846,14 @@ msgstr ""
 "L'últim dia que es va recordar al treballador que falta el justificant."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
-#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
-msgid ""
-"The request goes back to the employee, who is asked to attach a valid "
-"supporting document. Continue?"
-msgstr ""
-"La sol·licitud torna al treballador, a qui es demana que adjunti un "
-"justificant vàlid. Voleu continuar?"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/absence.py:0
 msgid ""
 "The supporting document for your absence of %(when)s is not sufficient. "
-"Please attach a valid one to the request."
+"Reason: %(reason)s. Please attach a valid one to the request."
 msgstr ""
-"El justificant de la teva absència del %(when)s no és suficient. Adjunta'n "
-"un de vàlid a la sol·licitud."
+"El justificant de la teva absència del %(when)s no és suficient. Motiu: "
+"%(reason)s. Adjunta'n un de vàlid a la sol·licitud."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -20282,3 +20279,43 @@ msgstr "Correu bloquejat: aquesta és una màquina de desenvolupament i aquesta 
 #: code:addons/ems/models/settings/mail_guard.py:0
 msgid "Email blocked: this is a development machine and these recipients are neither redirected by devel.sh nor in the allowlist: %(recipients)s"
 msgstr "Correu bloquejat: aquesta és una màquina de desenvolupament i aquests destinataris no estan desviats per devel.sh ni a la llista d'adreces permeses: %(recipients)s"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_absence_document_return_wizard
+msgid "The Head or Direction sends an absence's supporting document back to the employee."
+msgstr "El responsable o la Direcció retornen el justificant d'una absència al treballador."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_document_return_reason
+msgid "Why the document was sent back"
+msgstr "Motiu pel qual es va retornar el justificant"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_document_return_reason
+msgid "Written by the Head or Direction when the supporting document is not sufficient. Shown to the employee until they attach a new one."
+msgstr "L'escriu el responsable o la Direcció quan el justificant no és suficient. El treballador el veu fins que n'adjunta un de nou."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_absence_document_return_wizard__reason
+msgid "What is wrong with the document and what the employee has to attach instead. The employee is told, and it stays on the request until they attach a new one."
+msgstr "Què falla del justificant i què ha d'adjuntar el treballador en el seu lloc. Se li comunica, i queda a la sol·licitud fins que n'adjunta un de nou."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
+msgid "What is wrong with the document and what the employee has to attach instead..."
+msgstr "Què falla del justificant i què ha d'adjuntar el treballador en el seu lloc..."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
+msgid "<i class=\"fa fa-info-circle me-1\"/>The request goes back to the employee, who is told the reason and asked to attach a valid supporting document."
+msgstr "<i class=\"fa fa-info-circle me-1\"/>La sol·licitud torna al treballador, a qui es comunica el motiu i es demana que adjunti un justificant vàlid."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
+msgid "Send back"
+msgstr "Retorna"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "<strong>The supporting document was not sufficient:</strong>"
+msgstr "<strong>El justificant no era suficient:</strong>"

@@ -98,6 +98,8 @@ Open the student's form and, in the **Actions** dropdown, click **Add a previous
 4. Check that **Certificate student** is the student: if the identifier does not match their IDALU, the record is not created.
 5. Click **Create record**. The record and every ticked module are created at once, with the PDF attached.
 
+![Previous record wizard with the review grid read from the PDF: modules, learning outcomes, pending work placement and recognised optional module](../../assets/secretary/academic-history-previous-record-review.png)
+
 ### From any other certificate
 
 1. Fill in **Course** (only courses before the current one that the student does not have in the history yet are offered), **Study**, **Origin centre** and, if you have it, the **Origin centre code**. You can attach the certificate in **Academic certificate**.
@@ -108,6 +110,8 @@ Open the student's form and, in the **Actions** dropdown, click **Add a previous
 ### Afterwards
 
 If the certificate does not have a module's work placement (EM) grade yet, the module stays passed with its **final grade pending**, and the tutor of the student's current group grades it from the work placement screen.
+
+![Previous record created in the history, with the Previous record ribbon, the origin centre, the certificate and the modules](../../assets/secretary/academic-history-previous-record.png)
 
 The record shows with the **Previous record** ribbon, the origin centre and the certificate. The **Previous records** filter of the history list shows all of them. To correct it later, use the grade review as on any other record.
 

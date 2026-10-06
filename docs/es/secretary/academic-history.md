@@ -98,6 +98,8 @@ Abrid la ficha del alumno/a y, en el desplegable **Acciones**, haced clic en **A
 4. Comprobad que **Alumno del certificado** es el alumno/a: si el identificador no coincide con su IDALU, el expediente no se crea.
 5. Haced clic en **Crear el expediente**. Se crean el registro y todos los módulos marcados a la vez, con el PDF adjunto.
 
+![Asistente de expediente anterior con la rejilla de revisión leída del PDF: módulos, resultados de aprendizaje, estancia pendiente y optativa reconocida](../../assets/secretary/academic-history-previous-record-review.png)
+
 ### Con cualquier otro certificado
 
 1. Rellenad **Curso** (solo se ofrecen cursos anteriores al actual que el alumno/a todavía no tiene en el histórico), **Estudio**, **Centro de procedencia** y, si lo tenéis, el **Código del centro de procedencia**. Podéis adjuntar el certificado en **Certificado académico**.
@@ -108,6 +110,8 @@ Abrid la ficha del alumno/a y, en el desplegable **Acciones**, haced clic en **A
 ### Después
 
 Si el certificado todavía no tiene la nota de la estancia (EM) de un módulo, el módulo queda superado con la **nota final pendiente** y el tutor/a del grupo actual del alumno/a la califica desde la pantalla de estancia.
+
+![Expediente anterior creado en el histórico, con la cinta Expediente anterior, el centro de procedencia, el certificado y los módulos](../../assets/secretary/academic-history-previous-record.png)
 
 El registro se muestra con la cinta **Expediente anterior**, el centro de procedencia y el certificado. El filtro **Expedientes anteriores** de la lista del histórico los muestra todos. Para corregirlo más adelante, usad la revisión de calificaciones como en cualquier otro registro.
 

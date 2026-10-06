@@ -98,6 +98,8 @@ Obriu la fitxa de l'alumne/a i, al desplegable **Accions**, feu clic a **Afegeix
 4. Comproveu que **Alumne del certificat** és l'alumne/a: si l'identificador no coincideix amb el seu IDALU, l'expedient no es crea.
 5. Feu clic a **Crea l'expedient**. Es creen el registre i tots els mòduls marcats alhora, amb el PDF adjunt.
 
+![Assistent d'expedient anterior amb la graella de revisió llegida del PDF: mòduls, resultats d'aprenentatge, estada pendent i optativa reconeguda](../../assets/secretary/academic-history-previous-record-review.png)
+
 ### Amb qualsevol altre certificat
 
 1. Ompliu **Curs** (només s'ofereixen cursos anteriors a l'actual que l'alumne/a encara no té a l'històric), **Estudi**, **Centre de procedència** i, si el teniu, el **Codi del centre de procedència**. Podeu adjuntar el certificat a **Certificat acadèmic**.
@@ -108,6 +110,8 @@ Obriu la fitxa de l'alumne/a i, al desplegable **Accions**, feu clic a **Afegeix
 ### Després
 
 Si el certificat encara no té la nota de l'estada (EM) d'un mòdul, el mòdul queda superat amb la **nota final pendent** i el tutor/a del grup actual de l'alumne/a la qualifica des de la pantalla d'estada.
+
+![Expedient anterior creat a l'històric, amb la cinta Expedient anterior, el centre de procedència, el certificat i els mòduls](../../assets/secretary/academic-history-previous-record.png)
 
 El registre es mostra amb la cinta **Expedient anterior**, el centre de procedència i el certificat. El filtre **Expedients anteriors** de la llista de l'històric els mostra tots. Per corregir-lo més endavant, feu servir la revisió de qualificacions com en qualsevol altre registre.
 

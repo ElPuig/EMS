@@ -2,6 +2,7 @@
 
 import { registry } from "@web/core/registry";
 import { clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
+import { uploadCertificate } from "@ems/../tests/tours/external_record_helpers";
 
 // A previous record (issue #585) - a course taken at another centre, or at this one before EMS - added to the academic history, driven as the
 // secretariat - who processes academic file transfers and is the least-privileged role allowed.
@@ -136,23 +137,7 @@ registry.category("web_tour.tours").add("ems_external_record_certificate", {
             content: "The student form is loaded",
         },
         ...clickAction("action_external_record_wizard", "Add a previous record"),
-        {
-            // The file input itself is hidden behind the widget's Upload button, and a tour only
-            // triggers on visible elements: wait for the field, set the input's files in run().
-            trigger: ".modal div[name='certificate_file']",
-            content: "Upload the academic record PDF",
-            async run() {
-                const response = await fetch("/web/content/ems.tour_external_record_certificate");
-                const file = new File([await response.blob()], "certificate.pdf",
-                                      { type: "application/pdf" });
-                const transfer = new DataTransfer();
-                transfer.items.add(file);
-                const input = document.querySelector(
-                    ".modal div[name='certificate_file'] input[type='file']");
-                input.files = transfer.files;
-                input.dispatchEvent(new Event("change", { bubbles: true }));
-            },
-        },
+        uploadCertificate("ems.tour_external_record_certificate"),
         {
             trigger: ".modal div[name='origin_centre_name'] input:value(Institut Inventat Tour)",
             content: "The origin centre was read from the certificate",

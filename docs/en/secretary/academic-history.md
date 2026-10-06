@@ -15,7 +15,7 @@ This guide explains the **academic history**: a permanent, per-course summary of
 3. [Consulting the history](#consulting-the-history)
 4. [Adjusting the academic result](#adjusting-the-academic-result)
 5. [Applying a grade review](#applying-a-grade-review)
-6. [Adding a record from another centre](#adding-a-record-from-another-centre)
+6. [Adding a previous record](#adding-a-previous-record)
 7. [Finals pending the work placement](#finals-pending-the-work-placement)
 
 ---
@@ -37,7 +37,7 @@ The state of a subject depends **only on the RAs**: a student with every RA pass
 - **On a withdrawal:** the [withdrawal wizard](graduation-withdrawal.md) freezes the student's history **at that moment**, before detaching them from their group. A student leaving mid-course keeps the record of everything done until that day (subjects, grades, attendance), with the result **Withdrawn**. Once the history is frozen, the withdrawal **removes the student from everything operational**: their subject enrollments, the grade lines of the live sessions, the attendance lines and templates, and the group's delegate if it was them. From that moment they no longer appear in the group, in the evaluation matrix, in the attendance sessions or in the work placement grading — only in their academic history.
 - **On the course transition:** the transition wizard (run by the administrator at the end of the course) generates the records of every active student before cleaning up the operational data.
 - **When a convalidation is completed:** if the convalidation's course has no record yet, one is opened marked as **Current course**, holding only the convalidated subjects (grade, **CV** mark and CONV registration number), so teachers see the grade from day one. When the course is closed (transition, withdrawal or graduation) the record is completed with the rest of the subjects and the result, and loses the mark. A grade review cannot be applied to a current-course record: grades of the running course are corrected in the grade sessions.
-- **From another centre's certificate:** the course the student took at another centre is added by hand, see [Adding a record from another centre](#adding-a-record-from-another-centre).
+- **From an academic certificate:** a course from before EMS, of this centre or another one, is added by hand, see [Adding a previous record](#adding-a-previous-record).
 
 Re-running the generation never duplicates a record: the existing one is refreshed.
 
@@ -80,19 +80,19 @@ The subject keeps the date, the author and the text of the last review applied t
 
 ![The grade review wizard, with the learning-outcome grid and the result it yields](../../assets/secretary/academic-history-grade-review.png)
 
-## Adding a record from another centre
+## Adding a previous record
 
-When a student comes to take the second year after doing the first one at another centre, their first-year record is added to the history from the academic certificate. Secretariat, administration, Head of Studies and Director can do it, for now only on VET studies.
+When a student has courses taken before the history was kept in EMS, either at another centre (e.g. they come to take the second year after doing the first one at another school) or at this one (a former student from before EMS), those courses are added to the history from the academic certificate. Secretariat, administration, Head of Studies and Director can do it, for now only on VET studies.
 
-Open the student's form and, in the **Actions** dropdown, click **Add record from another centre**.
+Open the student's form and, in the **Actions** dropdown, click **Add a previous record**.
 
 ### From the Esfera academic record (PDF)
 
-1. In **Academic certificate**, upload the academic record PDF the other centre issued.
-2. The origin centre, its code, the study and a grid with every module, learning outcome (RA) and work placement of the certificate are filled in. Courses taken at this centre are left out.
+1. In **Academic certificate**, upload the Esfera academic record PDF.
+2. The origin centre, its code, the study and a grid with every module, learning outcome (RA) and work placement of the certificate are filled in. Courses the student already has in the history are left out; if the certificate holds courses of more than one centre, each course keeps its own.
 3. Check the grid:
    - **Certificate grade** is what the PDF says; **Grade** and **Graded** are what will be saved. Correct them if needed. An RA *No assolit* or *Pendent* is left without a grade, and its module not passed.
-   - Lines with a **Warning** need attention: a module that is not part of the study (e.g. an optional module of the other centre) is not imported; if there is an equivalent one, pick it in **Module** and tick **Import**.
+   - Lines with a **Warning** need attention: a course that does not exist in EMS is not imported (the academic administration has to create it first); a module that is not part of the study (e.g. an optional module of the other centre) is not imported; if there is an equivalent one, pick it in **Module** and tick **Import**.
    - When the certificate's module grade differs from the one the RAs give with this centre's weights, the certificate's is applied, as long as both agree on passed or not passed.
 4. Check that **Certificate student** is the student: if the identifier does not match their IDALU, the record is not created.
 5. Click **Create record**. The record and every ticked module are created at once, with the PDF attached.
@@ -108,7 +108,7 @@ Open the student's form and, in the **Actions** dropdown, click **Add record fro
 
 If the certificate does not have a module's work placement (EM) grade yet, the module stays passed with its **final grade pending**, and the tutor of the student's current group grades it from the work placement screen.
 
-The record shows with the **Another centre** ribbon, the origin centre and the certificate. The **Another centre** filter of the history list shows all of them. To correct it later, use the grade review as on any other record.
+The record shows with the **Previous record** ribbon, the origin centre and the certificate. The **Previous records** filter of the history list shows all of them. To correct it later, use the grade review as on any other record.
 
 ## Finals pending the work placement
 

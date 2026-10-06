@@ -18,3 +18,9 @@
 - Text extraction uses poppler's `pdftotext -layout` (Odoo's PyPDF2 merges the table columns): `poppler-utils` added to `apt-requirements.txt`, installed by `install.sh`/`upgrade.sh`.
 - The internal grade override is now a shared `ems.student.year_record.subject._force_internal_grade()`, used by the grade review and the certificate import.
 - Tests with an invented certificate PDF (`build_academic_record_pdf` in `tests/common.py`) plus a second tour that uploads it and creates the record from the review grid.
+
+## Academic history: "Add a previous record" (covers this centre's own records from before EMS) (issue #585):
+
+- The wizard is now "Add a previous record" (Catalan "Afegeix un expedient anterior"): the course may have been taken at another centre or at this one before EMS (a former student). Ribbon, filter and field labels follow ("Previous record(s)").
+- Course blocks are no longer skipped by centre code: only courses the student already has in the history are left out. A block whose course does not exist in EMS or is not over yet is flagged and not importable. When a certificate holds courses of several centres, each record keeps the centre that graded it.
+- A title in a previous record of this centre (origin centre code = `res.company.center_code`) counts as a title of this centre for convalidations.

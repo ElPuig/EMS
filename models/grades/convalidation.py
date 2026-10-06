@@ -143,8 +143,9 @@ class EmsConvalidation(models.Model):
         # sudo: the academic history is not readable by everyone who resolves convalidations.
         records = self.env['ems.student.year_record'].sudo().search([
             ('student_id', 'in', self.student_id.ids), ('title_obtained', '=', True),
-            # A title obtained at another centre (issue #585) is not this centre's title.
-            ('is_external', '=', False)])
+            # A previous record (issue #585) counts only when this centre granted the title.
+            '|', ('is_external', '=', False),
+            ('origin_centre_code', '=', self.env.company.center_code or False)])
         with_title = set(records.mapped('student_id').ids)
         for convalidation in self:
             convalidation.has_centre_title = convalidation.student_id.id in with_title

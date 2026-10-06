@@ -178,9 +178,9 @@ is already right, only the weighted average disagrees with Esfera).
 
 `review_date`, `review_user_id` and `review_note` on `ems.student.year_record.subject` keep the **last** grade review applied to that subject. The full sequence is auditable in the student's chatter: `_log_review()` posts one note per review (through `_message_log`, so it needs no email address on whoever signed it) listing every outcome changed with its before → after, the resulting subject state and, when it changed, the course result.
 
-## Records from another centre (issue #585)
+## Previous records (issue #585)
 
-A student who comes to take the second year of a study after doing the first one at another centre brings that year's grades on the other centre's academic certificate, per learning outcome (RA). The record of that course is typed in from it instead of generated from this centre's grade sessions, and is marked `is_external`, with `origin_centre_name`, `origin_centre_code` and an optional `certificate_file`. It has no group, tutor or attendance. There are two ways in: reading the Esfera academic record PDF, or typing any other certificate in module by module.
+A course a student took before the history was kept in EMS - at another centre (typically the first year of a study whose second year they come here to take) or at this one (a former student from before EMS) - is typed in from the academic certificate, per learning outcome (RA), instead of generated from this centre's grade sessions. Such a record is marked `is_external`, with `origin_centre_name`, `origin_centre_code` and an optional `certificate_file`. It has no group, tutor or attendance. There are two ways in: reading the Esfera academic record PDF, or typing any other certificate in module by module.
 
 ### Manual way (any certificate)
 
@@ -191,7 +191,7 @@ sequenceDiagram
     participant X as ems.external_record_wizard
     participant R as ems.grade_review_wizard (add)
     participant YR as ems.student.year_record
-    S->>P: Add record from another centre
+    S->>P: Add a previous record
     P->>X: action_external_record_wizard()
     S->>X: course, study, origin centre, certificate
     X->>YR: create(is_external=True) via sudo
@@ -219,7 +219,7 @@ flowchart LR
 ```
 
 - **Reading** (`academic_record_pdf.py`, plain functions, no ORM): Odoo's PyPDF2 glues the table columns together, so the text comes from poppler's `pdftotext -layout` (`poppler-utils` in `apt-requirements.txt`, installed by `install.sh`/`upgrade.sh` and therefore by CI and every deploy). A row is a line starting with the level and a code; a wrapped "Pendent de / qualificar" is joined. Grades: `Assolit-N` or a plain number is scored; `No assolit` and `Pendent` are left unscored (the module stays not passed); a module's `Pendent de qualificar` means its work placement is pending.
-- **Mapping by code**, the same rule as the Esfera grade import: the study is the one whose code ends with the certificate's token (`CFPM IC10` → `CFGM_IC10`), a module `0156_IC10` is subject `0156` of that study, an outcome `0156_IC10_03RA` is the planning outcome whose code ends in `_03RA`. Course blocks of this centre (`res.company.center_code`) and empty ones are skipped.
+- **Mapping by code**, the same rule as the Esfera grade import: the study is the one whose code ends with the certificate's token (`CFPM IC10` → `CFGM_IC10`), a module `0156_IC10` is subject `0156` of that study, an outcome `0156_IC10_03RA` is the planning outcome whose code ends in `_03RA`. Courses the student already has in the history and empty blocks are skipped; a block whose course does not exist in EMS or is not over yet is shown but cannot be imported. When the certificate holds courses of several centres, each record keeps the centre that graded its course.
 - **Review grid**: one line per module, RA and EM, in the certificate's order (`module_key` ties them). Module lines carry the mapped subject (editable), an *Import* flag (off when the subject is unknown, e.g. the other centre's own optional modules, or has no teaching plan that course) and a computed warning, which also previews when the certificate's module grade will override the RA-derived internal grade. Read-only columns are `force_save`, or the client would not send them back.
 - **Creation**: refused when the certificate's student identifier is not the student's IDALU. Per course, the record is created as in the manual flow; per ticked module, the subject record is built from the planning's outcomes graded as the grid says, then `_recompute_from_outcomes()`, `apply_external_grade()` when the EM is graded, and `_force_internal_grade()` (shared with the grade review, issue #503) when the certificate's module grade differs but agrees on passed / not passed. The academic result is `grade_based_result()`.
 
@@ -227,7 +227,7 @@ flowchart LR
 
 - **Choices are limited to what can be typed per RA:** `course_id` offers courses before the company's current one that the student has no record for yet (the record is a course already taken elsewhere, and a current-course record would block the generator); `study_id` offers studies with an `ems.planning` with outcomes that course, which today means VET only; on an external record, the review's `available_subject_ids` keeps only the modules with a teaching plan that course.
 - **A missing work placement grade stays pending:** a module with an external weight whose EM grade is not on the certificate is saved passed with `has_final = False`, so `final_pending` puts it on the work list of the EM grading wizard (`_pending_subject_records()` searches by student), where the tutor of the student's current group completes it.
-- **The rest of EMS leaves it alone:** `_generate_one()` returns an external record untouched, and `ems.convalidation._compute_has_centre_title` ignores it (a title obtained elsewhere is not a title of this centre).
+- **The rest of EMS leaves it alone:** `_generate_one()` returns an external record untouched, and `ems.convalidation._compute_has_centre_title` only counts it when its origin centre is this one (`res.company.center_code`): a title obtained elsewhere is not a title of this centre, one granted here before EMS is.
 - **Traceability:** the creation is logged in the student's chatter (centre, code, notes, author); every module added is stamped and logged like any grade review.
 
 ## CRUD flow

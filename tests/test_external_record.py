@@ -27,6 +27,8 @@ class TestExternalRecord(TransactionCase):
         cls.current_course = Course.create({'start': 2082, 'end': 2083})
         cls.future_course = Course.create({'start': 2083, 'end': 2084})
         cls.env.company.current_course_id = cls.current_course
+        # Fixed, so the "this centre" blocks of the certificates below do not depend on the database.
+        cls.env.company.center_code = '08000777'
 
         cls.level, cls.study = create_level_study(cls, 'EXR', level={'name': 'External Record Level'},
                                                   study={'code': 'CFGM_EXR1', 'acronym': 'EXR',
@@ -52,6 +54,12 @@ class TestExternalRecord(TransactionCase):
                                      for outcome in cls.outcomes_a],
         }, {
             'study_id': cls.study.id, 'subject_id': cls.subject_b.id, 'course_id': cls.past_course.id,
+            'internal_ponderation': 100.0, 'external_ponderation': 0.0,
+            'planning_outcome_ids': [(0, 0, {'outcome_id': cls.outcome_b.id, 'ponderation': 100.0})],
+        }, {
+            # Module B is planned the next course too: a record of this centre from before EMS.
+            'study_id': cls.study.id, 'subject_id': cls.subject_b.id,
+            'course_id': cls.other_past_course.id,
             'internal_ponderation': 100.0, 'external_ponderation': 0.0,
             'planning_outcome_ids': [(0, 0, {'outcome_id': cls.outcome_b.id, 'ponderation': 100.0})],
         }])
@@ -276,7 +284,10 @@ class TestExternalRecord(TransactionCase):
         ]
         courses = [('08999999', 'Institut Inventat', '2080/2081', rows)]
         if own_centre_block:
-            courses.append((self.env.company.center_code, 'This centre', '2081/2082', rows[:3]))
+            courses.append(('08000777', 'This centre', '2081/2082', [
+                ('EXRSUBB_EXR1', 'Module B', 'MP', '7'),
+                ('EXRSUBB_EXR1_01RA', 'Outcome one', 'RA', 'Assolit-7'),
+            ]))
         return build_academic_record_pdf(identifier or self.student.student_id, 'EXR1', courses)
 
     def _read(self, pdf, user=None):
@@ -351,9 +362,37 @@ class TestExternalRecord(TransactionCase):
         self.assertIn('Institut Inventat', body)
         self.assertIn(module_b.subject_name, body)
 
-    def test_courses_taken_here_are_skipped(self):
+    def test_a_course_already_in_the_history_is_left_out(self):
+        self.env['ems.student.year_record'].create({
+            'student_id': self.student.id, 'course_id': self.other_past_course.id})
         wizard = self._read(self._certificate(own_centre_block=True)).save()
         self.assertEqual(wizard.line_ids.course_id, self.past_course)
+
+    def test_a_record_of_this_centre_from_before_ems_is_offered_too(self):
+        # A former student from before EMS: the certificate's course was graded here.
+        wizard = self._read(self._certificate(own_centre_block=True)).save()
+        self.assertEqual(wizard.line_ids.course_id, self.past_course | self.other_past_course)
+        wizard.action_create()
+        own = self.student.year_record_ids.filtered(lambda record: record.course_id == self.other_past_course)
+        self.assertEqual(own.origin_centre_code, '08000777')
+        other = self.student.year_record_ids - own
+        self.assertEqual(other.origin_centre_code, '08999999')
+        # A title this centre granted before EMS is this centre's title.
+        own.title_obtained = True
+        self.assertTrue(self.env['ems.convalidation'].new({'student_id': self.student.id}).has_centre_title)
+
+    def test_a_course_missing_from_ems_is_flagged_and_not_imported(self):
+        pdf = build_academic_record_pdf(self.student.student_id, 'EXR1', [(
+            '08999999', 'Institut Inventat', '2070/2071', [
+                ('EXRSUBB_EXR1', 'Module B', 'MP', '9'),
+                ('EXRSUBB_EXR1_01RA', 'Outcome one', 'RA', 'Assolit-8'),
+            ])])
+        wizard = self._read(pdf).save()
+        module_b = self._module_line(wizard, 'EXRSUBB_EXR1')
+        self.assertFalse(module_b.to_import)
+        self.assertIn('2070-2071', module_b.warning)
+        with self.assertRaises(UserError):
+            wizard.action_create()
 
     def test_another_students_certificate_is_rejected(self):
         form = self._form()

@@ -3,12 +3,12 @@
 import { registry } from "@web/core/registry";
 import { clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
-// A course taken at another centre added to the academic history (issue #585), driven as the
+// A previous record (issue #585) - a course taken at another centre, or at this one before EMS - added to the academic history, driven as the
 // secretariat - who processes academic file transfers and is the least-privileged role allowed.
 //
 // Covers every rendering the feature adds or reuses: the entry in the student form's Actions
 // dropdown, the wizard that opens the record, the grade review dialog it hands over to (with its
-// "another centre" notice and its "Apply and add another module" button, which reopens it), and
+// "previous record" notice and its "Apply and add another module" button, which reopens it), and
 // the new record landing in the Academic history tab of the student form.
 
 function pickModule(name) {
@@ -48,7 +48,7 @@ registry.category("web_tour.tours").add("ems_external_record", {
             trigger: ".o_form_view .o_field_widget[name='name']:contains('External Record Tour Student'), .o_form_view .o_field_widget[name='name'] input",
             content: "The student form is loaded",
         },
-        ...clickAction("action_external_record_wizard", "Add a record from another centre"),
+        ...clickAction("action_external_record_wizard", "Add a previous record"),
         {
             trigger: ".modal div[name='course_id'] input",
             content: "Pick the course taken elsewhere",
@@ -80,8 +80,8 @@ registry.category("web_tour.tours").add("ems_external_record", {
             run: "click",
         },
         {
-            trigger: ".modal .alert-info:not(.d-none):contains('another centre')",
-            content: "The grade review opened with the another-centre notice",
+            trigger: ".modal .alert-info:not(.d-none):contains('typed in from an academic certificate')",
+            content: "The grade review opened with the previous-record notice",
         },
         ...pickModule("External Record Tour Subject B"),
         {
@@ -135,7 +135,7 @@ registry.category("web_tour.tours").add("ems_external_record_certificate", {
             trigger: ".o_form_view .o_field_widget[name='name']:contains('External Record Tour Student'), .o_form_view .o_field_widget[name='name'] input",
             content: "The student form is loaded",
         },
-        ...clickAction("action_external_record_wizard", "Add a record from another centre"),
+        ...clickAction("action_external_record_wizard", "Add a previous record"),
         {
             // The file input itself is hidden behind the widget's Upload button, and a tour only
             // triggers on visible elements: wait for the field, set the input's files in run().

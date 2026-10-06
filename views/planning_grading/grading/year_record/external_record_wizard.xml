@@ -5,13 +5,14 @@
             <field name="name">ems.external_record_wizard.form</field>
             <field name="model">ems.external_record_wizard</field>
             <field name="arch" type="xml">
-                <form string="Add record from another centre" class="o_ems_wrap_list_headers">
+                <form string="Add a previous record" class="o_ems_wrap_list_headers">
                     <sheet>
                         <div class="alert alert-info" role="alert" invisible="line_ids">
-                            Adds to the academic history a course the student took at another
-                            centre. Upload the Esfera academic record (PDF) to fill everything in
-                            from it; with any other certificate, fill in the record and then add
-                            its modules one by one with the grades of each learning outcome (RA).
+                            Adds to the academic history a course the student took before it was
+                            kept in EMS, at this centre or at another one. Upload the Esfera
+                            academic record (PDF) to fill everything in from it; with any other
+                            certificate, fill in the record and then add its modules one by one
+                            with the grades of each learning outcome (RA).
                         </div>
                         <div class="alert alert-info" role="alert" invisible="not line_ids">
                             Check the grades read from the certificate before creating the record:
@@ -53,6 +54,9 @@
                                 <field name="kind" column_invisible="1"/>
                                 <field name="module_key" column_invisible="1"/>
                                 <field name="outcome_number" column_invisible="1"/>
+                                <field name="certificate_course" column_invisible="1"/>
+                                <field name="centre_code" column_invisible="1"/>
+                                <field name="centre_name" column_invisible="1"/>
                                 <field name="course_id" optional="hide" readonly="1" force_save="1"/>
                                 <field name="certificate_code" force_save="1" width="170px"/>
                                 <field name="label" force_save="1"/>
@@ -87,7 +91,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_external_record_wizard">
-            <field name="name">Add record from another centre</field>
+            <field name="name">Add a previous record</field>
             <field name="res_model">ems.external_record_wizard</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>

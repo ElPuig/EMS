@@ -22,7 +22,7 @@
                             domain="[('subject_record_ids.final_pending', '=', True)]"/>
                     <filter name="reviewed" string="Corrected by a grade review"
                             domain="[('subject_record_ids.review_date', '!=', False)]"/>
-                    <filter name="external" string="Another centre"
+                    <filter name="external" string="Previous records"
                             domain="[('is_external', '=', True)]"/>
                     <separator/>
                     <filter name="result_full" string="Fully passed"

@@ -39,9 +39,9 @@ Una revisión de calificaciones corrige el histórico académico de un curso ya 
 
 Abra el registro del alumno/a de ese curso y haga clic en **Revisión de calificaciones**. Tiene el paso a paso completo en el [manual de secretaría](../secretary/academic-history.md#aplicar-una-revisión-de-calificaciones) — la pantalla y las reglas son las mismas para ambos roles.
 
-## Añadir un expediente de otro centro
+## Añadir un expediente anterior
 
-El curso que un alumno/a hizo en otro centro se añade al histórico desde su ficha, en el desplegable **Acciones → Añadir expediente de otro centro**, a partir del expediente académico de Esfera (PDF) o, con cualquier otro certificado, módulo a módulo. Tenéis el paso a paso completo en el [manual de secretaría](../secretary/academic-history.md#añadir-un-expediente-de-otro-centro). Estos registros llevan la cinta **Otro centro** y el filtro del mismo nombre los separa en las consultas.
+Un curso de antes de EMS, hecho en otro centro o en este, se añade al histórico desde la ficha del alumno/a, en el desplegable **Acciones → Añadir un expediente anterior**, a partir del expediente académico de Esfera (PDF) o, con cualquier otro certificado, módulo a módulo. Tenéis el paso a paso completo en el [manual de secretaría](../secretary/academic-history.md#añadir-un-expediente-anterior). Estos registros llevan la cinta **Expediente anterior** y el filtro **Expedientes anteriores** los separa en las consultas.
 
 ---
 

@@ -72,9 +72,9 @@ class EmsStudentYearRecord(models.Model):
     # A course the student took at another centre, typed in from that centre's academic
     # certificate (issue #585) instead of generated from this centre's grade sessions. It has no
     # group, tutor or attendance of ours, and the generator never rewrites it.
-    is_external = fields.Boolean(string="Another centre", default=False, readonly=True, index=True,
-                                 help="The course was taken at another centre: its grades come from "
-                                      "that centre's academic certificate.")
+    is_external = fields.Boolean(string="Previous record", default=False, readonly=True, index=True,
+                                 help="Typed in from an academic certificate (another centre's, or this "
+                                      "centre's from before EMS) instead of generated from the grade sessions.")
     origin_centre_name = fields.Char(string="Origin centre", readonly=True)
     origin_centre_code = fields.Char(string="Origin centre code", readonly=True)
     certificate_file = fields.Binary(string="Academic certificate", attachment=True)

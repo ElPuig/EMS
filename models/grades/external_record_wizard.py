@@ -33,7 +33,7 @@ _PLAN_OUTCOME_NUMBER_RE = re.compile(r"_(\d{2})RA$")
 
 class EmsExternalRecordWizard(models.TransientModel):
     _name = 'ems.external_record_wizard'
-    _description = 'External record wizard: academic history of a course taken at another centre.'
+    _description = 'Previous record wizard: academic history of a course typed in from an academic certificate.'
 
     student_id = fields.Many2one(string="Student", comodel_name='res.partner', required=True,
                                  ondelete='cascade')
@@ -105,11 +105,14 @@ class EmsExternalRecordWizard(models.TransientModel):
             self.certificate_message = _("The file is not an Esfera academic record: fill in the "
                                          "record by hand and add its modules one by one.")
             return None
-        own_code = (self.env.company.center_code or '').strip()
-        # The certificate also lists courses taken here: those are this centre's own history.
-        courses = [course for course in certificate['courses'] if course['centre_code'] != own_code]
+        # A course the history already holds (generated here by EMS, or added before) is left out;
+        # anything else may be a record of this very centre from before EMS, or another centre's.
+        taken = set(self.env['ems.student.year_record'].sudo().search(
+            [('student_id', '=', self.student_id.id)]).course_id.mapped('name'))
+        courses = [course for course in certificate['courses'] if course['course'] not in taken]
         if not courses:
-            self.certificate_message = _("The certificate grades no course taken at another centre.")
+            self.certificate_message = _("Every course of the certificate is already in the student's "
+                                         "academic history.")
             return None
         self.certificate_student_identifier = certificate['student_identifier']
         self.certificate_student_name = certificate['student_name']
@@ -119,6 +122,10 @@ class EmsExternalRecordWizard(models.TransientModel):
         self.line_ids = self._line_commands(courses, certificate['study_code'])
         self.course_id = self.line_ids.course_id[:1]
         return self._certificate_warning()
+
+    def _course_available(self, course):
+        # By id: inside an onchange both sides may be new records wrapping the real ones.
+        return bool(course) and course._origin.id in self.available_course_ids._origin.ids
 
     def _study_from_code(self, study_code):
         """The study whose EMS code ends with the certificate's (CFPM IC10 -> CFGM_IC10)."""
@@ -143,10 +150,13 @@ class EmsExternalRecordWizard(models.TransientModel):
                 sequence += 1
                 commands.append((0, 0, {
                     'sequence': sequence, 'kind': 'module', 'module_key': module_key,
-                    'course_id': ems_course.id, 'certificate_code': module['code'],
+                    'course_id': ems_course.id, 'certificate_course': course['course'],
+                    'centre_code': course['centre_code'], 'centre_name': course['centre_name'],
+                    'certificate_code': module['code'],
                     'label': module['name'], 'certificate_text': module['text'],
                     'subject_id': subject.id, 'score': module['grade'],
-                    'is_scored': module['has_grade'], 'to_import': bool(planning),
+                    'is_scored': module['has_grade'],
+                    'to_import': bool(planning) and self._course_available(ems_course),
                 }))
                 for outcome in module['outcomes']:
                     sequence += 1
@@ -206,7 +216,8 @@ class EmsExternalRecordWizard(models.TransientModel):
         for line in self.line_ids.filtered(lambda line: line.kind == 'module'):
             study_code = (self.study_id.code or '').rsplit('_', 1)[-1]
             line.subject_id = self._subject_from_code(line.certificate_code, study_code)
-            line.to_import = bool(self._planning(line.subject_id, line.course_id))
+            line.to_import = bool(self._planning(line.subject_id, line.course_id)) \
+                and self._course_available(line.course_id)
 
     # --- creating the record ----------------------------------------------------
 
@@ -216,11 +227,11 @@ class EmsExternalRecordWizard(models.TransientModel):
         self.ensure_one()
         if not self.env['ems.base'].get_user_can_edit_history():
             raise UserError(_("Only the secretariat, the academic administration, the Head of "
-                              "Studies and the Director may add a record from another centre."))
+                              "Studies and the Director may add a previous record."))
         if self.line_ids:
             return self._create_from_certificate()
         if not self.course_id:
-            raise UserError(_("Pick the course taken at the other centre."))
+            raise UserError(_("Pick the course of the record."))
         record = self._create_record(self.course_id)
         self._log_creation(record)
         return record.with_env(self.env).action_grade_review_add(resolution=self._resolution())
@@ -228,8 +239,8 @@ class EmsExternalRecordWizard(models.TransientModel):
     def _resolution(self):
         return _("Academic certificate of %s", self.origin_centre_name)
 
-    def _create_record(self, course):
-        if course not in self.available_course_ids:
+    def _create_record(self, course, centre_code=None, centre_name=None):
+        if not self._course_available(course):
             raise UserError(_("%(student)s already has an academic record for %(course)s, or the "
                               "course is not over yet.",
                               student=self.student_id.display_name, course=course.name))
@@ -243,8 +254,8 @@ class EmsExternalRecordWizard(models.TransientModel):
             'level_id': self.study_id.level_id.id,
             'level_name': self.study_id.level_id.display_name,
             'is_external': True,
-            'origin_centre_name': self.origin_centre_name,
-            'origin_centre_code': self.origin_centre_code,
+            'origin_centre_name': centre_name or self.origin_centre_name,
+            'origin_centre_code': centre_code or self.origin_centre_code,
             'certificate_file': self.certificate_file,
             'certificate_filename': self.certificate_filename,
         })
@@ -253,16 +264,20 @@ class EmsExternalRecordWizard(models.TransientModel):
         identifier = self.certificate_student_identifier
         if identifier and self.student_id.student_id and identifier != self.student_id.student_id:
             raise UserError(self._certificate_warning()['warning']['message'])
-        if self.line_ids.filtered(lambda line: not line.course_id):
-            raise UserError(_("A course of the certificate does not exist in EMS: ask the academic "
-                              "administration to create it."))
         modules = self.line_ids.filtered(lambda line: line.kind == 'module' and line.to_import)
+        if not modules:
+            raise UserError(_("Tick at least one module to import."))
         for module in modules:
             if not module.subject_id or not self._planning(module.subject_id, module.course_id):
                 raise UserError(_("%(module)s has no module of this study with a teaching plan that "
                                   "course: pick one or untick it.", module=module.certificate_code))
-        for course in self.line_ids.course_id:
-            record = self._create_record(course)
+        # One centre (the usual case): the header, which the user may have corrected. Several (e.g.
+        # this centre before EMS, then another one): each course keeps the centre that graded it.
+        several_centres = len(set(modules.mapped('centre_code'))) > 1
+        for course in modules.course_id:
+            block = modules.filtered(lambda line: line.course_id == course)[:1] if several_centres \
+                else self.env['ems.external_record_wizard.line']
+            record = self._create_record(course, block.centre_code, block.centre_name)
             changes = [self._create_subject(record, module)
                        for module in modules.filtered(lambda line: line.course_id == course)]
             record.academic_result = record.grade_based_result()
@@ -316,7 +331,7 @@ class EmsExternalRecordWizard(models.TransientModel):
         if self.origin_centre_code:
             centre = f"{centre} ({self.origin_centre_code})"
         body = Markup("<p>{}</p>").format(_(
-            "Academic record of %(course)s (%(study)s) added from another centre by %(user)s: %(centre)s",
+            "Previous academic record of %(course)s (%(study)s) added by %(user)s: %(centre)s",
             course=record.course_id.name, study=self.study_id.display_name,
             user=self.env.user.name, centre=centre))
         if self.notes:
@@ -343,6 +358,12 @@ class EmsExternalRecordWizardLine(models.TransientModel):
     # The certificate's course and module this line belongs to: what ties an outcome to its module.
     module_key = fields.Char(string="Module key")
     course_id = fields.Many2one(string="Course", comodel_name='ems.course', ondelete='cascade')
+    # As printed on the certificate: what the warning names when the course is not in EMS.
+    certificate_course = fields.Char(string="Certificate course")
+    # The centre that graded this course: a certificate can hold courses of several centres
+    # (this one before EMS included), and each record keeps its own.
+    centre_code = fields.Char(string="Centre code")
+    centre_name = fields.Char(string="Centre name")
     certificate_code = fields.Char(string="Certificate code", readonly=True)
     label = fields.Char(string="Name", readonly=True)
     certificate_text = fields.Char(string="Certificate grade", readonly=True)
@@ -361,6 +382,10 @@ class EmsExternalRecordWizardLine(models.TransientModel):
 
     def _module_warning(self):
         wizard = self.wizard_id
+        if not self.course_id:
+            return _("The course %s does not exist in EMS: not imported.", self.certificate_course)
+        if not wizard._course_available(self.course_id):
+            return _("The course %s is not over yet: not imported.", self.course_id.name)
         if not self.subject_id:
             return _("Not a module of this study: not imported.")
         planning = wizard._planning(self.subject_id, self.course_id)

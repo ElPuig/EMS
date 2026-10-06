@@ -27,7 +27,7 @@ class EmsGradeReviewWizard(models.TransientModel):
     student_id = fields.Many2one(string="Student", related='record_id.student_id')
     course_id = fields.Many2one(string="Course", related='record_id.course_id')
     study_name = fields.Char(string="Study", related='record_id.study_name')
-    is_external = fields.Boolean(string="Another centre", related='record_id.is_external')
+    is_external = fields.Boolean(string="Previous record", related='record_id.is_external')
     operation = fields.Selection(string="Operation", required=True, default='correct', selection=[
         ('correct', 'Correct a subject'),
         ('add', 'Add a missing subject'),

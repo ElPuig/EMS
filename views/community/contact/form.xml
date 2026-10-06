@@ -128,7 +128,7 @@
                             <!-- Issue #585: the roles that sign grade reviews, the only other
                                  write path into the academic history. -->
                             <button name="action_external_record_wizard" type="object"
-                                    string="Add record from another centre"
+                                    string="Add a previous record"
                                     invisible="contact_type != 'student'"
                                     groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"/>
                         </div>

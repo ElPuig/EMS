@@ -19869,27 +19869,6 @@ msgid "Academic certificate of %s"
 msgstr "Certificado académico de %s"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/grades/external_record_wizard.py:0
-msgid "Academic record of %(course)s (%(study)s) added from another centre by %(user)s: %(centre)s"
-msgstr "Expediente del curso %(course)s (%(study)s) de otro centro añadido por %(user)s: %(centre)s"
-
-#. module: ems
-#: model:ir.actions.act_window,name:ems.action_external_record_wizard
-#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
-#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
-msgid "Add record from another centre"
-msgstr "Añadir expediente de otro centro"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__is_external
-#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__is_external
-#: model_terms:ir.ui.view,arch_db:ems.view_year_record_form
-#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
-msgid "Another centre"
-msgstr "Otro centro"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
 msgid "Apply and add another module"
 msgstr "Aplicar y añadir otro módulo"
@@ -19916,17 +19895,6 @@ msgid "Create and add modules"
 msgstr "Crear y añadir los módulos"
 
 #. module: ems
-#: model:ir.model,name:ems.model_ems_external_record_wizard
-msgid "External record wizard: academic history of a course taken at another centre."
-msgstr "Asistente de expediente externo: histórico académico de un curso hecho en otro centro."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/grades/external_record_wizard.py:0
-msgid "Only the secretariat, the academic administration, the Head of Studies and the Director may add a record from another centre."
-msgstr "Solo secretaría, la administración académica, la jefatura de estudios y la dirección pueden añadir un expediente de otro centro."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__origin_centre_name
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__origin_centre_name
 msgid "Origin centre"
@@ -19937,23 +19905,6 @@ msgstr "Centro de procedencia"
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__origin_centre_code
 msgid "Origin centre code"
 msgstr "Código del centro de procedencia"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_grade_review_wizard__is_external
-#: model:ir.model.fields,help:ems.field_ems_student_year_record__is_external
-msgid "The course was taken at another centre: its grades come from that centre's academic certificate."
-msgstr "El curso se hizo en otro centro: las notas provienen del certificado académico de ese centro."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
-msgid ""
-"This course was taken at another centre. Add each module with the\n"
-"                            grade of every learning outcome (RA) shown on the academic\n"
-"                            certificate; if the internal grade the outcomes give differs from the\n"
-"                            certificate's, type the certificate's in the applied internal grade.\n"
-"                            Leave the work placement grade out when the certificate does not\n"
-"                            have it yet: the module stays with its final grade pending."
-msgstr "Este curso se hizo en otro centro. Añadid cada módulo con la nota de cada resultado de aprendizaje (RA) que consta en el certificado académico; si la nota del centro resultante no coincide con la del certificado, escribid la del certificado en la nota del centro aplicada. Dejad fuera la nota de la estancia cuando el certificado aún no la tenga: el módulo queda con la nota final pendiente."
 
 #. module: ems
 #. odoo-python
@@ -19978,21 +19929,6 @@ msgstr "%(subject)s: %(state)s, nota %(grade)s"
 #: code:addons/ems/models/grades/external_record_wizard.py:0
 msgid "%s learning outcomes of the teaching plan are not on the certificate."
 msgstr "%s resultados de aprendizaje de la programación no constan en el certificado."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/grades/external_record_wizard.py:0
-msgid "A course of the certificate does not exist in EMS: ask the academic administration to create it."
-msgstr "Un curso del certificado no existe en EMS: pedid a la administración académica que lo cree."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
-msgid ""
-"Adds to the academic history a course the student took at another\n"
-"                            centre. Upload the Esfera academic record (PDF) to fill everything in\n"
-"                            from it; with any other certificate, fill in the record and then add\n"
-"                            its modules one by one with the grades of each learning outcome (RA)."
-msgstr "Añade al histórico académico un curso que el alumno hizo en otro centro. Subid el expediente académico de Esfera (PDF) para rellenarlo todo a partir de él; con cualquier otro certificado, rellenad el expediente y después añadid sus módulos uno a uno con la nota de cada resultado de aprendizaje (RA)."
 
 #. module: ems
 #. odoo-python
@@ -20073,20 +20009,8 @@ msgstr "Número del resultado"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/external_record_wizard.py:0
-msgid "Pick the course taken at the other centre."
-msgstr "Elegid el curso hecho en el otro centro."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/grades/external_record_wizard.py:0
 msgid "The certificate belongs to %(name)s (%(identifier)s), not to this student (%(own)s)."
 msgstr "El certificado es de %(name)s (%(identifier)s), no de este alumno (%(own)s)."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/grades/external_record_wizard.py:0
-msgid "The certificate grades no course taken at another centre."
-msgstr "El certificado no califica ningún curso hecho en otro centro."
 
 #. module: ems
 #. odoo-python
@@ -20112,3 +20036,111 @@ msgstr "Los resultados de aprendizaje dan %s, al otro lado del 5: no se puede ap
 #: model:ir.model.fields.selection,name:ems.selection__ems_external_record_wizard_line__kind__placement
 msgid "Work placement"
 msgstr "Estancia en la empresa"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_external_record_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+msgid "Add a previous record"
+msgstr "Añadir un expediente anterior"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+msgid ""
+"Adds to the academic history a course the student took before it was\n"
+"                            kept in EMS, at this centre or at another one. Upload the Esfera\n"
+"                            academic record (PDF) to fill everything in from it; with any other\n"
+"                            certificate, fill in the record and then add its modules one by one\n"
+"                            with the grades of each learning outcome (RA)."
+msgstr "Añade al histórico académico un curso que el alumno hizo antes de que se llevara en EMS, en este centro o en otro. Subid el expediente académico de Esfera (PDF) para rellenarlo todo a partir de él; con cualquier otro certificado, rellenad el expediente y después añadid sus módulos uno a uno con la nota de cada resultado de aprendizaje (RA)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__centre_code
+msgid "Centre code"
+msgstr "Código del centro"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__centre_name
+msgid "Centre name"
+msgstr "Nombre del centro"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__certificate_course
+msgid "Certificate course"
+msgstr "Curso del certificado"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Every course of the certificate is already in the student's academic history."
+msgstr "Todos los cursos del certificado ya están en el histórico académico del alumno."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Only the secretariat, the academic administration, the Head of Studies and the Director may add a previous record."
+msgstr "Solo secretaría, la administración académica, la jefatura de estudios y la dirección pueden añadir un expediente anterior."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Pick the course of the record."
+msgstr "Elegid el curso del expediente."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Previous academic record of %(course)s (%(study)s) added by %(user)s: %(centre)s"
+msgstr "Expediente anterior del curso %(course)s (%(study)s) añadido por %(user)s: %(centre)s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__is_external
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__is_external
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_form
+msgid "Previous record"
+msgstr "Expediente anterior"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_external_record_wizard
+msgid "Previous record wizard: academic history of a course typed in from an academic certificate."
+msgstr "Asistente de expediente anterior: histórico académico de un curso introducido a partir de un certificado académico."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Previous records"
+msgstr "Expedientes anteriores"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "The course %s does not exist in EMS: not imported."
+msgstr "El curso %s no existe en EMS: no se importa."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "The course %s is not over yet: not imported."
+msgstr "El curso %s todavía no ha terminado: no se importa."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
+msgid ""
+"This record is typed in from an academic certificate. Add each module with the\n"
+"                            grade of every learning outcome (RA) shown on the academic\n"
+"                            certificate; if the internal grade the outcomes give differs from the\n"
+"                            certificate's, type the certificate's in the applied internal grade.\n"
+"                            Leave the work placement grade out when the certificate does not\n"
+"                            have it yet: the module stays with its final grade pending."
+msgstr "Este expediente se introduce a partir de un certificado académico. Añadid cada módulo con la nota de cada resultado de aprendizaje (RA) que consta en el certificado; si la nota del centro resultante no coincide con la del certificado, escribid la del certificado en la nota del centro aplicada. Dejad fuera la nota de la estancia cuando el certificado aún no la tenga: el módulo queda con la nota final pendiente."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Tick at least one module to import."
+msgstr "Marcad al menos un módulo para importar."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_review_wizard__is_external
+#: model:ir.model.fields,help:ems.field_ems_student_year_record__is_external
+msgid "Typed in from an academic certificate (another centre's, or this centre's from before EMS) instead of generated from the grade sessions."
+msgstr "Introducido a partir de un certificado académico (de otro centro, o de este de antes de EMS) en lugar de generado a partir de las sesiones de evaluación."

@@ -39,9 +39,9 @@ A grade review corrects the academic history of a course already closed: the gra
 
 Open the student's record for that course and click **Grade review**. The full step-by-step is in the [secretariat manual](../secretary/academic-history.md#applying-a-grade-review) — the screen and the rules are the same for both roles.
 
-## Adding a record from another centre
+## Adding a previous record
 
-The course a student took at another centre is added to the history from their form, in the **Actions → Add record from another centre** dropdown, from the Esfera academic record (PDF) or, with any other certificate, module by module. The full step by step is in the [secretariat manual](../secretary/academic-history.md#adding-a-record-from-another-centre). These records carry the **Another centre** ribbon, and the filter of the same name sets them apart in queries.
+A course from before EMS, taken at another centre or at this one, is added to the history from the student's form, in the **Actions → Add a previous record** dropdown, from the Esfera academic record (PDF) or, with any other certificate, module by module. The full step by step is in the [secretariat manual](../secretary/academic-history.md#adding-a-previous-record). These records carry the **Previous record** ribbon, and the **Previous records** filter sets them apart in queries.
 
 ---
 

@@ -43,6 +43,20 @@ tell the developer: don't restore a partial copy. A truncated restore can look u
 tables present) while missing others entirely, as happened that day: a dump ~35% smaller than
 its predecessors restored `ems_planning` but left `ir_module_module` empty.
 
+**Lock a restored production copy away from the Odoo service, right after `pg_restore` and
+before anything else (2026-10-06).** Without `db_name`/`dbfilter` in `odoo.conf`, the running
+Odoo service serves **every** database on the box: on its next restart (any `./test.sh` or
+`./upgrade.sh`), the queue_job runner (`get_db_names()` → `list_dbs()`) attaches to the copy and
+runs every job still pending in production when the dump was taken, and the cron threads then
+process its registry too. A production copy still has production's active `ir.mail_server`s
+(`devel.sh` only ever neutralizes the `ems` database it runs on), so those jobs send real email:
+on 2026-10-06 a copy restored to investigate issue #588 sent **412 real attendance
+notifications** to students and families (duplicates of production's own) within six minutes of
+the next test run restarting the service. **How to apply:** immediately after restoring, run
+`sudo -u postgres psql -c "REVOKE CONNECT ON DATABASE <db> FROM PUBLIC, odoo;"`, and query the
+copy only as `sudo -u postgres psql -d <db>` (a superuser still connects; the service can't).
+Never open it with `odoo shell`/`-d <db>`, and drop it as soon as the investigation ends.
+
 ## Development vs. production environment declaration (2026-08-10)
 
 Any EMS installation — this box included — declares whether it's a development/testing

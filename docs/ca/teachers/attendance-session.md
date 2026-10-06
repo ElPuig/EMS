@@ -76,6 +76,10 @@ Desar.
 - Una icona d'escut al costat del nom de l'alumne indica que la seva absència ja està
   **justificada** (una justificació aprovada o una previsió cobreix aquesta sessió) — el seu estat
   i les notes queden bloquejats, ja que és la justificació la que ho decideix.
+- El botó **Falta justificada** no es pot clicar si el centre no ho permet: només el tutor de
+  l'alumne justifica una falta, registrant-ne una justificació. Passa-hi el ratolí per sobre per
+  veure'n el motiu. Marca l'alumne com a **Falta** i la justificació del tutor la convertirà en
+  Falta justificada.
 - Fes servir el desplegable d'**ordenació** (a dalt a la dreta) per reordenar la llista per cognom
   o nom, ascendent o descendent.
 - Passa el ratolí per sobre de la foto d'un alumne per veure-la ampliada, amb el nom a sota; es

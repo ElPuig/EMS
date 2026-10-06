@@ -15,6 +15,8 @@ class TestAttendanceSessionTour(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # The tour checks the "Justified" status can't be picked by hand (issue #587).
+        cls.env.company.attendance_manual_justified = False
         cls.level, cls.study = create_level_study(
             cls, 'TASG', level={'name': 'Test Level (Attendance Session Guard Tour)'},
             study={'code': 'TASG001', 'name': 'Test Study (Attendance Session Guard Tour)', 'date': date.today()},

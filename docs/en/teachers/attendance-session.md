@@ -74,6 +74,9 @@ status for that session — it's saved immediately, no need to click a separate 
 - A shield icon next to a student's name means their absence is **already justified** (an approved
   justification or a prevision covers this session) — their status and notes are locked, since the
   justification is what decides it.
+- The **Justified Miss** button can't be clicked unless the centre allows it: only the student's
+  tutor justifies an absence, by registering a justification. Hover over it to see why. Mark the
+  student as **Miss** and the tutor's justification will turn it into a Justified Miss.
 - Use the **sort** dropdown (top-right) to reorder the list by lastname or first name, ascending or
   descending.
 - Hover over a student's photo to see it enlarged, with their name underneath; it closes when you

@@ -105,8 +105,9 @@
                                 <field name="attendance_issue_tutor_default" widget="float_time" />
                             </setting>
 
-
-
+                            <setting string="Justify absences when taking the roll-call" help="If marked, teachers can mark a student as justified directly when taking the roll-call. Otherwise, only the student's tutor can justify an absence, by registering a justification." id="attendance_manual_justified">
+                                <field name="attendance_manual_justified"/>
+                            </setting>
                         </block>
 
                          <block title="Strikes Settings" name="ems_strike_settings">

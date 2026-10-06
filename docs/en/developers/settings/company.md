@@ -43,6 +43,7 @@ This doc is primarily a **map**: most of these fields already have their own det
 | `auto_checkout_retry_until` | `Float`, default `6.0` | Same as above |
 | `attendance_issue_status_delay` | `Integer` (minutes), default `15` | Used by `ems.attendance_session_header.time_float_to_utc_datetime`-based deadline computation (`models/attendance/attendance_session.py`) — governs how long a session stays "pending" before a status is required |
 | `attendance_issue_tutor_default` | `Float`, default `21.0` | Same file — the fallback time-of-day used for the tutor notification ETA |
+| `attendance_manual_justified` | `Boolean`, default `False` (settings: "Justify absences when taking the roll-call") | Whether a teacher can mark a line as Justified Miss by hand in the roll-call. Off means only a tutor's justification does it; read through `ems.attendance_status.roll_call_selectable` (see [attendance_status.md](../attendance/attendance_status.md)). No migration: an upgraded company reads the new column's NULL as `False` |
 
 ### GEDAC / centre identity
 

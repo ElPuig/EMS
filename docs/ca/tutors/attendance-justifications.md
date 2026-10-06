@@ -6,6 +6,8 @@
 
 Un justificant cobreix un període (data i hora d'inici i de fi) d'un alumne del teu grup. Totes les faltes d'aquell període passen a **Falta justificada**, les hagi posat qualsevol docent.
 
+Llevat que el centre ho permeti a la seva configuració, una justificació és l'única manera de justificar una falta: el professorat no pot marcar un alumne com a Falta justificada en passar llista.
+
 **Rol necessari:** Tutor
 
 ---

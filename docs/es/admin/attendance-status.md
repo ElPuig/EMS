@@ -30,6 +30,8 @@ Cada estado tiene:
 
 **Retraso leve vs. Retraso grave:** el centro distingue dos niveles de retraso. "Retraso leve" tiene categoría `Asistencia` y no notifica a la familia — nunca cuenta como falta. "Retraso grave" tiene categoría `Ausencia` y notifica a la familia, exactamente igual que una Falta — un alumno marcado así cuenta como ausente en las tasas e informes de asistencia. Un profesor elige directamente cuál aplica al pasar lista; no hay ningún escalado automático de varios retrasos leves hacia uno grave. Ambos se reinician a "Asistió" en la línea del periodo siguiente — un retraso, sea del tipo que sea, solo se aplica al periodo en que se marcó.
 
+**Falta justificada al pasar lista:** por defecto, un profesor no puede marcar a un alumno como **Falta justificada** al pasar lista. El botón se sigue mostrando, pero deshabilitado, y al pasar el ratón por encima se explica que solo el tutor del alumno puede justificar una falta, registrando una justificación (ver el manual de tutores). Para que el profesorado la pueda elegir directamente, marca **Justificar faltas al pasar lista** en **Ajustes → Gestión del EMS → "Configuración de asistencia del alumno/a"**. Si la vuelves a desmarcar, las faltas que ya se habían marcado así se quedan como estaban.
+
 ---
 
 [← Volver a los manuales de Administrador](index.md)

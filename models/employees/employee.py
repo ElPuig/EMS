@@ -7,6 +7,7 @@ from pytz import UTC
 
 from odoo import SUPERUSER_ID, models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools.sql import escape_psql
 
 from ..shared import base
 from ..shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC
@@ -698,6 +699,18 @@ class ems_employee(models.AbstractModel):
         string="Pending identification", compute="_compute_pending_identification", store=True,
         groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="A schedule was imported for this teacher before their real identity was known.")
+    # Issue #584: the form's choice between a named teacher and a vacancy nobody fills yet. Not a
+    # column of its own: a teacher is a vacancy exactly while schedule_import_code is set, which is
+    # also what the schedule importer sets, so the two can never disagree and the importer's
+    # placeholders show up as vacancies without a migration.
+    staffing_type = fields.Selection(
+        selection=[('named', "Named teacher"), ('vacancy', "Vacancy pending identification")],
+        string="Staffing type", compute="_compute_staffing_type", inverse="_inverse_staffing_type",
+        readonly=False,
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
+        help="A vacancy has its department, schedule and so on, but nobody filling it yet: it gets "
+             "no Google account and no EMS user. Switching it to a named teacher, with their real "
+             "name and personal email, creates them.")
 
     # Feeds the shared 'ems_archived_reason_ribbon' field widget (form + kanban, same widget
     # used by res.partner - see static/src/js/backend/archived_reason_ribbon_field.js). Every
@@ -743,6 +756,20 @@ class ems_employee(models.AbstractModel):
     def _compute_pending_identification(self):
         for employee in self:
             employee.pending_identification = bool(employee.schedule_import_code)
+
+    @api.depends("schedule_import_code")
+    def _compute_staffing_type(self):
+        for employee in self:
+            employee.staffing_type = 'vacancy' if employee.schedule_import_code else 'named'
+
+    def _inverse_staffing_type(self):
+        for employee in self:
+            if employee.staffing_type == 'named':
+                employee._ems_confirm_identity()
+            elif employee.employee_type != 'teacher':
+                raise ValidationError(_("Only teachers can be created as a vacancy."))
+            elif not employee.schedule_import_code:
+                raise ValidationError(_("A vacancy needs its vacancy code (e.g. X1)."))
 
     @api.depends_context('uid')
     @api.depends('identification_id', 'ssnid', 'parent_id', 'user_id')
@@ -798,6 +825,15 @@ class ems_employee(models.AbstractModel):
         super(ems_employee, linked.sudo())._inverse_work_contact_details()
         super(ems_employee, self - linked)._inverse_work_contact_details()
 
+    @api.constrains('schedule_import_code', 'active')
+    def _check_schedule_import_code_unique(self):
+        # The schedule importer finds a vacancy by this code, so two active ones sharing it would
+        # be ambiguous (issue #584). An archived vacancy no longer blocks its code.
+        for employee in self.filtered(lambda employee: employee.active and employee.schedule_import_code):
+            if self.sudo()._search_by_schedule_import_code(employee.schedule_import_code) - employee:
+                raise ValidationError(_(
+                    "Another active teacher already has the vacancy code %s.") % employee.schedule_import_code)
+
     @api.constrains('private_email')
     def _check_private_email_not_corporate(self):
         # The personal email is the Google Workspace account's recovery address, so it can't be
@@ -807,6 +843,12 @@ class ems_employee(models.AbstractModel):
 
     @api.model_create_multi
     def create(self, vals_list):
+        for vals in vals_list:
+            self._strip_schedule_import_code(vals)
+            # A vacancy may come without a name (the form doesn't require one, issue #584), but
+            # its resource.resource can't: it takes its code, free of any language or gender.
+            if vals.get('schedule_import_code') and not vals.get('name'):
+                vals['name'] = vals['schedule_import_code']
         employees = super().create(vals_list)
         # NOTE: every teacher gets their OWN calendar, always — 'resource_calendar_id' arrives
         # already pre-filled by resource.mixin's client-side default (the company's shared
@@ -856,6 +898,12 @@ class ems_employee(models.AbstractModel):
         if self.env.context.get(EMS_PHOTO_SYNC_CONTEXT_KEY):
             return super().write(vals)
 
+        self._strip_schedule_import_code(vals)
+        # A vacancy only ever turns into a named teacher, never back (issue #584): once it has
+        # a real person, that person's account and history are tied to the record.
+        if (vals.get('staffing_type') == 'vacancy' or vals.get('schedule_import_code')) \
+                and self.sudo().filtered(lambda employee: not employee.schedule_import_code):
+            raise ValidationError(_("A named teacher can't be turned back into a vacancy."))
         photo = vals.pop('image_1920', _UNSET)
         if photo is not _UNSET:
             for employee in self:
@@ -997,26 +1045,33 @@ class ems_employee(models.AbstractModel):
                 calendar.action_unarchive()
         return result
 
-    def action_mark_as_identified(self):
-        """Manually clear the pending-identification placeholder.
+    @api.model
+    def _search_by_schedule_import_code(self, code):
+        """Active employees whose vacancy code is `code`, ignoring case and surrounding spaces, so
+        'x1' typed on the form and 'X1' in a schedule file are the same vacancy (issue #584)."""
+        code = (code or '').strip()
+        if not code:
+            return self.browse()
+        return self.search([('schedule_import_code', '=ilike', escape_psql(code))])
 
-        Covers the case where a teacher was created from a schedule-import
-        placeholder code (X1/X2...) but will never get a Google Workspace/EMS
-        account created through this employee record (e.g. already has one on
-        a different, unmerged record; or genuinely doesn't need one) - the
-        only other way pending_identification is cleared is as a side effect
-        of a Google account actually being created/adopted (see
-        google_workspace_integration.py's _gw_clear_pending_identification).
-        Idempotent: does nothing if the employee is not pending.
-        """
+    @staticmethod
+    def _strip_schedule_import_code(vals):
+        if vals.get('schedule_import_code'):
+            vals['schedule_import_code'] = vals['schedule_import_code'].strip()
+
+    def _ems_confirm_identity(self):
+        """Turn a vacancy into a named teacher: note the code it was created with in the chatter
+        and clear it. Reached by switching the form's staffing type to a named teacher (issue
+        #584) and by linking the EMS user of an adopted corporate account. Clearing the code is
+        what lets the automatic Google account creation run (see _gw_ready())."""
         for employee in self:
-            if not employee.schedule_import_code:
+            code = employee.sudo().schedule_import_code
+            if not code:
                 continue
             employee.message_post(body=_(
-                "Identity confirmed manually: this employee was created as a "
-                "pending-identification placeholder from schedule-import code '%s'."
-            ) % employee.schedule_import_code)
-            employee.schedule_import_code = False
+                "Identity confirmed: this teacher was created as a vacancy pending "
+                "identification, with code '%s'.") % code)
+            employee.sudo().schedule_import_code = False
 
     def get_report_role_lines(self):
         """One display line per role_ids entry for the working-schedule PDF header, appending

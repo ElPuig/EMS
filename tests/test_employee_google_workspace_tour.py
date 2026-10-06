@@ -51,7 +51,7 @@ class TestEmployeeGoogleWorkspaceTour(HttpCase):
             'GW Tour Scheduled', work_email='gw.tour.scheduled@elpuig.xeill.net')
         scheduled.write({'active': False})
         scheduled.google_ws_deactivation_date = date.today() + relativedelta(days=30)
-        self.env['hr.employee'].create({
+        vacancy = self.env['hr.employee'].create({
             'name': '0000 GW Tour Pending Identification',
             'employee_type': 'teacher',
             'schedule_import_code': 'X_TOUR',
@@ -76,3 +76,8 @@ class TestEmployeeGoogleWorkspaceTour(HttpCase):
             self.start_tour("/odoo", "ems_employee_google_workspace_state", login="admin")
 
         self.assertEqual(relink.user_id.oauth_uid, '103000000000000000021')
+        # Switching the vacancy to a named teacher with a personal email identified it and
+        # queued its account (#584).
+        self.assertFalse(vacancy.schedule_import_code)
+        self.assertEqual(vacancy.private_email, 'gw.tour.identified@example.com')
+        self.assertTrue(vacancy.google_ws_creation_pending)

@@ -13040,28 +13040,6 @@ msgid ""
 msgstr "Estas sesiones existentes ocupan el mismo espacio y horario que lo que estás importando, para un grupo/asignatura diferente - soluciona el conflicto de aula e inténtalo de nuevo: %s"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/google_workspace_integration.py:0
-msgid "Identity confirmed: this employee was created as a pending-identification placeholder from schedule-import code '%s'."
-msgstr "Identidad confirmada: este empleado se creó como marcador de posición pendiente de identificar a partir del código de importación de horario '%s'."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/employee.py:0
-msgid "Identity confirmed manually: this employee was created as a pending-identification placeholder from schedule-import code '%s'."
-msgstr "Identidad confirmada manualmente: este empleado se creó como marcador de posición pendiente de identificar a partir del código de importación de horario '%s'."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
-msgid "Mark as identified"
-msgstr "Marcar como identificado"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
-msgid "This clears the pending-identification placeholder without creating any Google/EMS account. Use it only once you are sure this employee will not need one created from this record (e.g. already has one elsewhere). Continue?"
-msgstr "Esto elimina el marcador de posición pendiente de identificar sin crear ninguna cuenta de Google/EMS. Úsalo solo cuando estés seguro de que este empleado no necesitará ninguna creada desde este registro (p. ej. ya tiene una en otro registro). ¿Continuar?"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__create_missing_enrollments
 msgid "Create missing enrollments"
 msgstr "Crear las matrículas que falten"
@@ -19848,3 +19826,64 @@ msgstr "Verdadero mientras la creación de la cuenta espera en la cola o se est�
 #: code:addons/ems/models/shared/google_workspace_mixin.py:0
 msgid "The Google account is being created. The result will appear in the record's history in a few moments."
 msgstr "Se está creando la cuenta de Google. En unos momentos verá el resultado en el historial de la ficha."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__staffing_type
+msgid "Staffing type"
+msgstr "Tipo de alta"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__staffing_type
+msgid "A vacancy has its department, schedule and so on, but nobody filling it yet: it gets no Google account and no EMS user. Switching it to a named teacher, with their real name and personal email, creates them."
+msgstr "Una plaza tiene su departamento, horario, etc., pero todavía no hay nadie que la cubra: no tiene cuenta de Google ni usuario de EMS. Al pasarla a docente nominal, con el nombre real y el correo personal, se crean."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__staffing_type__named
+msgid "Named teacher"
+msgstr "Docente nominal"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__staffing_type__vacancy
+msgid "Vacancy pending identification"
+msgstr "Plaza pendiente de identificar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Vacancy code"
+msgstr "Código de plaza"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "A named teacher can't be turned back into a vacancy."
+msgstr "Un docente nominal no se puede volver a convertir en plaza."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Only teachers can be created as a vacancy."
+msgstr "Solo el profesorado puede darse de alta como plaza."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "A vacancy needs its vacancy code (e.g. X1)."
+msgstr "Una plaza necesita su código de plaza (p. ej. X1)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Another active teacher already has the vacancy code %s."
+msgstr "Otro docente activo ya tiene el código de plaza %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Identity confirmed: this teacher was created as a vacancy pending identification, with code '%s'."
+msgstr "Identidad confirmada: este docente se creó como plaza pendiente de identificar, con el código '%s'."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "%s is a vacancy pending identification. Switch it to a named teacher, with their personal email, and the Google account will be created."
+msgstr "%s es una plaza pendiente de identificar. Pásela a docente nominal, con su correo personal, y se creará la cuenta de Google."

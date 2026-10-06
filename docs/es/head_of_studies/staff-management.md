@@ -20,7 +20,7 @@ Id a: **Comunidad Educativa → Profesorado**
 
 1. Id a **Comunidad Educativa → Profesorado**.
 2. Haced clic en **Nuevo**.
-3. Rellenad el nombre y, en la columna de la derecha bajo **Gestor**, el **Correo electrónico privado**. Este es obligatorio, y el apartado siguiente explica por qué.
+3. Dejad **Tipo de alta** en **Docente nominal**, y rellenad el nombre y, en la columna de la derecha bajo **Gestor**, el **Correo electrónico privado**. Este es obligatorio, y el apartado siguiente explica por qué.
 4. Haced clic en **Guardar**. El resto de datos (puesto de trabajo, departamento, horario) se pueden completar ahora o más adelante.
 
 Al guardar también se crea el horario semanal propio del profesor o profesora, precargado a partir del marco horario del centro. No hace falta crearlo a mano: abrid la pestaña **Horario** de la ficha para ajustarlo.
@@ -28,6 +28,34 @@ Al guardar también se crea el horario semanal propio del profesor o profesora, 
 ### Por qué el correo personal es obligatorio
 
 Es la dirección donde se envían las credenciales de la nueva cuenta de Google. Sin ella la cuenta corporativa simplemente no se crea: la ficha se guarda, pero no pasa nada más y queda una nota en el historial de mensajes explicando qué falta. Pedid una dirección personal antes de crear la ficha: no es una formalidad, es la única manera de que la persona reciba su contraseña. El campo sale dos veces en la ficha: en la pantalla principal, para que nada obligatorio quede escondido detrás de una pestaña mientras la creáis, y en su sitio habitual dentro de la pestaña **Información privada**. Es el mismo campo: si rellenáis uno, se rellena el otro. Tampoco puede ser una dirección del dominio del centro: EMS no permite guardarla, porque también es la dirección de recuperación de la cuenta corporativa.
+
+---
+
+## Crear una plaza pendiente de identificar
+
+Cuando una plaza ya tiene departamento, horario, etc., pero todavía no hay nadie que la cubra, dadla de alta como plaza: no se le crea cuenta de Google ni usuario de EMS.
+
+1. Id a **Comunidad Educativa → Profesorado** y haced clic en **Nuevo**.
+2. Bajo el nombre, en **Tipo de alta**, marcad **Plaza pendiente de identificar**.
+3. Rellenad el **Código de plaza** (p. ej. `X1`). Dos plazas activas no pueden tener el mismo código. Si más adelante un archivo de horarios trae ese mismo código, el horario se importa en esta ficha.
+4. Si queréis, usad el **Nombre** para describir la plaza (p. ej. "Plaza media jornada AAI"); si lo dejáis en blanco, la ficha toma el código de plaza como nombre. No se pide correo personal.
+5. Haced clic en **Guardar**. La ficha muestra la cinta **Pendiente de identificar**.
+
+![Ficha de profesorado dada de alta como plaza: Tipo de alta en Plaza pendiente de identificar, con su código de plaza](../../assets/head_of_studies/hos-staff-management-vacancy.png)
+
+### Cuando se cubre la plaza
+
+1. Abrid la ficha de la plaza.
+2. En **Tipo de alta**, marcad **Docente nominal**.
+
+![La plaza pasada a Docente nominal: aparecen el Correo electrónico privado y el nombre de usuario de Google sugerido](../../assets/head_of_studies/hos-staff-management-vacancy-identify.png)
+
+3. Sustituid el **Nombre** por el nombre real de la persona y rellenad su **Correo electrónico privado**.
+4. Haced clic en **Guardar**. En unos momentos se crean automáticamente la cuenta de Google y el usuario de EMS, la cinta desaparece y el historial de mensajes de la ficha recoge el código de plaza que tenía. El horario, las asignaturas y las listas de asistencia se mantienen.
+
+Una vez guardada como docente nominal, la ficha ya no muestra **Tipo de alta**: no se puede volver a convertir en plaza.
+
+Si la persona ya tiene una cuenta corporativa (por ejemplo, en otra ficha), marcad **Docente nominal**, activad **Asignar correo corporativo manualmente** y escribid su correo corporativo: no se crea ninguna cuenta nueva. Después, usad **Crear usuario EMS** en el menú **Acciones**.
 
 ---
 
@@ -58,7 +86,6 @@ Las acciones que gestionan la cuenta corporativa están en el menú **Acciones**
 | **Crear usuario de EMS** | El correo corporativo ya existe, pero no hay ningún usuario de EMS vinculado | Solo vincula o crea el usuario de EMS, no toca nada de Google |
 | **Suspender cuenta de Google** | La cuenta está activa | La suspende (por ejemplo, cuando la persona deja el centro) |
 | **Reactivar cuenta de Google** | La cuenta está suspendida | La vuelve a activar |
-| **Marcar como identificado** | La ficha proviene de una importación de horarios y todavía es un marcador | Quita el estado de pendiente de identificación sin crear ninguna cuenta |
 
 ![Menú Acciones con Crear cuenta de Google en una ficha de profesorado sin cuenta todavía](../../assets/head_of_studies/hos-staff-management-create-account.png)
 

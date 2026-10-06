@@ -35,3 +35,8 @@ class TestEmployeeStaffPermissionsTour(HttpCase):
     def test_employee_staff_permissions_tour(self):
         # To watch this tour in a real browser during development, add watch=True below.
         self.start_tour("/odoo", "ems_employee_staff_permissions", login='test_391_hos_tour')
+        # The vacancy was saved with no name typed: it took its code as name, and no Google
+        # account was queued (#584).
+        vacancy = self.env['hr.employee'].search([('schedule_import_code', '=', 'XPERMS')])
+        self.assertEqual(vacancy.name, 'XPERMS')
+        self.assertFalse(vacancy.google_ws_creation_pending)

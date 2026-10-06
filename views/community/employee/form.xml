@@ -21,14 +21,9 @@
                     <field name="google_ws_creation_pending" invisible="1"/>
                     <field name="pending_identification" invisible="1"/>
                     <div name="ems_actions" string="Actions">
-                        <button name="action_mark_as_identified" type="object"
-                                string="Mark as identified"
-                                invisible="not pending_identification"
-                                confirm="This clears the pending-identification placeholder without creating any Google/EMS account. Use it only once you are sure this employee will not need one created from this record (e.g. already has one elsewhere). Continue?"
-                                groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <button name="action_create_google_account" type="object"
                                 string="Create Google account"
-                                invisible="google_ws_state != 'none' or google_ws_creation_pending"
+                                invisible="google_ws_state != 'none' or google_ws_creation_pending or pending_identification"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <!-- Corporate email already exists but no EMS user is linked yet
                              (adopt path: manual email, pre-integration staff, or a
@@ -100,13 +95,13 @@
                 <field name="work_email" position="after">
                     <field name="google_ws_domain" invisible="1"/>
                     <field name="google_ws_manual_email"
-                           invisible="employee_type not in ('teacher', 'asp')"
+                           invisible="employee_type not in ('teacher', 'asp') or staffing_type == 'vacancy'"
                            groups="ems.group_academic_admin,hr.group_hr_user"/>
                     <label for="google_ws_login" string="Suggested Google username"
-                           invisible="employee_type not in ('teacher', 'asp') or work_email or google_ws_manual_email"
+                           invisible="employee_type not in ('teacher', 'asp') or work_email or google_ws_manual_email or staffing_type == 'vacancy'"
                            groups="ems.group_academic_admin,hr.group_hr_user"/>
                     <div class="o_row"
-                         invisible="employee_type not in ('teacher', 'asp') or work_email or google_ws_manual_email"
+                         invisible="employee_type not in ('teacher', 'asp') or work_email or google_ws_manual_email or staffing_type == 'vacancy'"
                          groups="ems.group_academic_admin,hr.group_hr_user">
                         <field name="google_ws_login" placeholder="jdoe" nolabel="1"/>
                         <span class="text-muted">@<field name="google_ws_domain" readonly="1" nolabel="1" class="oe_inline"/></span>
@@ -115,8 +110,13 @@
 
                 <field name="name" position="replace">
                     <!-- NOTE: I could'nt find a way to setup the placeholders as a computed field using the 'employee_type'... -->
-                    <field name="name" placeholder="Teacher's Name" invisible="employee_type != 'teacher'"/>
-                    <field name="name" placeholder="ASP's Name"     invisible="employee_type != 'asp'"/>
+                    <!-- required: the native node being replaced carries it (resource.resource's name
+                         is NOT NULL); a vacancy may leave it blank and takes its code as name on
+                         create (issue #584). -->
+                    <field name="name" placeholder="Teacher's Name" invisible="employee_type != 'teacher'"
+                           required="employee_type == 'teacher' and staffing_type != 'vacancy'"/>
+                    <field name="name" placeholder="ASP's Name"     invisible="employee_type != 'asp'"
+                           required="employee_type == 'asp'"/>
                 </field>
                 
                 <xpath expr="//page[@name='skills_resume']" position="attributes">
@@ -140,9 +140,12 @@
                 </xpath>
 
                 <!-- Needed by the Google account (recovery + credentials delivery);
-                     only enforced on new records: most legacy employees lack it. -->
+                     only enforced on new records (most legacy employees lack it) and on a vacancy
+                     being switched to a named teacher, which is when its account gets created. A
+                     vacancy itself (issue #584) has nobody to send it to: neither asked nor shown. -->
                 <field name="private_email" position="attributes">
-                    <attribute name="required">not id and employee_type in ('teacher', 'asp')</attribute>
+                    <attribute name="required">(not id or pending_identification) and employee_type in ('teacher', 'asp') and staffing_type != 'vacancy'</attribute>
+                    <attribute name="invisible">staffing_type == 'vacancy'</attribute>
                     <attribute name="help">Personal address, also used as the Google account's recovery email. It can't be the centre's corporate account.</attribute>
                 </field>
 
@@ -166,7 +169,8 @@
                      can see it. -->
                 <xpath expr="//field[@name='coach_id']" position="after">
                     <field name="private_email"
-                           required="not id and employee_type in ('teacher', 'asp')"
+                           required="(not id or pending_identification) and employee_type in ('teacher', 'asp') and staffing_type != 'vacancy'"
+                           invisible="staffing_type == 'vacancy'"
                            help="Personal address, also used as the Google account's recovery email. It can't be the centre's corporate account."/>
                 </xpath>
 
@@ -317,24 +321,23 @@
                            invisible="active or pending_identification or not archived_reason_label"/>
                 </xpath>
 
-                <!-- pending_identification: never actually rendered (invisible="1"), only kept
-                declared here so the ribbon/button conditions above can reference it. No longer
-                paired with a visible schedule_import_code field (removed 2026-09-01, issue #378
-                follow-up - developer feedback: the raw code adds nothing a user needs, since the
-                same value is already visible in the record's own name until renamed, and stays
-                on the record in chatter, via _gw_clear_pending_identification()/
-                action_mark_as_identified(), after resolution). That field's own former visibility
-                is also what caused the avatar-jump layout bug fixed the same day: a plain <field>
-                inserted "after" oe_title lands INSIDE the title/avatar flex row as a real,
-                space-consuming item (unlike the ribbon widget above, which is position:absolute
-                and never competes for row width) - genuinely reproducible only while
-                pending_identification was True, since that is the only state where it rendered
-                at all. Not a live risk anymore now that the field is gone entirely, but the
-                surrounding "before/after this row" xpath pattern is kept here regardless, since
-                anything genuinely re-added inside this row in the future would hit the exact
-                same class of bug. -->
+                <!-- Staffing type (issue #584): a named teacher, or a vacancy with its code and no
+                person yet. After the title/avatar ROW, never inside it: a plain <field> there is a
+                real, space-consuming flex item and makes the avatar jump (the bug a since-removed
+                visible schedule_import_code caused on 2026-09-01, issue #378 follow-up). Shown
+                only while creating the record or while it is still a vacancy: switching a vacancy
+                to a named teacher is how its identity is confirmed, and a named teacher never goes
+                back to being a vacancy. pending_identification is declared
+                here for the ribbon and the buttons' conditions above. -->
                 <xpath expr="//div[hasclass('oe_title')]/parent::div[hasclass('row')]" position="after">
                     <field name="pending_identification" invisible="1"/>
+                    <group name="staffing_group" invisible="employee_type != 'teacher' or (id and not pending_identification)"
+                           groups="ems.group_academic_admin,hr.group_hr_user">
+                        <field name="staffing_type" widget="radio" options="{'horizontal': true}"/>
+                        <field name="schedule_import_code" string="Vacancy code" placeholder="X1"
+                               invisible="staffing_type != 'vacancy'"
+                               required="staffing_type == 'vacancy'"/>
+                    </group>
                 </xpath>
 
                 <field name="work_location_id" position="after">

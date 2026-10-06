@@ -9,7 +9,7 @@ from odoo.addons.ems.models.shared.google_workspace_mixin import (
     GW_DEACTIVATION_DELAY_DAYS,
     HttpError,
 )
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 from odoo.tools import mute_logger
 from .common import next_student_id
@@ -157,25 +157,24 @@ class TestEmployeeGoogleWorkspace(TransactionCase):
             teacher._gw_create_account()
         self.assertEqual(teacher.work_email, 'alovelace@elpuig.xeill.net')
 
-    def test_create_google_account_clears_pending_identification(self):
-        teacher = self.env['hr.employee'].create({
-            'name': 'Pending teacher (X9)',
-            'employee_type': 'teacher',
-            'schedule_import_code': 'X9',
-        })
-        self.assertTrue(teacher.pending_identification)
+    def test_switching_a_vacancy_to_named_identifies_it_and_queues_the_account(self):
+        teacher = self._new_vacancy('X9')
+        self.assertFalse(self._creation_jobs(teacher))
 
-        teacher.write({'name': 'Ada Lovelace King', 'private_email': 'ada@example.com'})
-        with patch.object(type(teacher), '_gw_deliver_credentials', return_value=(True, True)):
-            teacher._gw_create_account()
+        # What the form saves when the staffing type is switched and the person's data filled in.
+        teacher.write({'staffing_type': 'named', 'name': 'Ada Lovelace King',
+                       'private_email': 'ada@example.com'})
 
         self.assertFalse(teacher.schedule_import_code)
         self.assertFalse(teacher.pending_identification)
-        self.assertTrue(any(
-            'X9' in body for body in teacher.message_ids.mapped('body')
-        ))
+        self.assertEqual(teacher.staffing_type, 'named')
+        self.assertTrue(any('X9' in body for body in teacher.message_ids.mapped('body')))
+        self.assertEqual(len(self._creation_jobs(teacher)), 1)
+        with patch.object(type(teacher), '_gw_deliver_credentials', return_value=(True, True)):
+            teacher._gw_create_account()
+        self.assertTrue(teacher.work_email)
 
-    def test_missing_personal_email_still_raises_for_pending_identification(self):
+    def test_button_refuses_a_vacancy(self):
         teacher = self.env['hr.employee'].create({
             'name': 'Pending teacher (X10)',
             'employee_type': 'teacher',
@@ -263,41 +262,89 @@ class TestEmployeeGoogleWorkspace(TransactionCase):
                 self.assertRaises(LockNotAvailable):
             other_cr.execute("SELECT 1 FROM res_users WHERE id = %s FOR UPDATE NOWAIT", [user.id])
 
-    # --- manual "mark as identified" ------------------------------------
-    def test_mark_as_identified_clears_pending(self):
-        teacher = self.env['hr.employee'].create({
-            'name': 'Pending teacher (X12)',
-            'employee_type': 'teacher',
-            'schedule_import_code': 'X12',
-        })
+    # --- vacancies pending identification (#584) -------------------------
+    def _new_vacancy(self, code, **vals):
+        # What the form creates with the staffing type set to a vacancy.
+        base = {'name': 'Vacancy %s' % code, 'employee_type': 'teacher',
+                'staffing_type': 'vacancy', 'schedule_import_code': code}
+        base.update(vals)
+        return self.env['hr.employee'].create(base)
+
+    def test_vacancy_needs_no_personal_email_and_gets_no_account(self):
+        teacher = self._new_vacancy('X12')
         self.assertTrue(teacher.pending_identification)
+        self.assertEqual(teacher.staffing_type, 'vacancy')
+        self.assertFalse(self._creation_jobs(teacher))
+        # Missing data is expected on a vacancy: no "missing required data" note either.
+        self.assertFalse(teacher.google_ws_missing_notice_sent)
 
-        teacher.action_mark_as_identified()
+    def test_vacancy_without_a_name_takes_its_code(self):
+        # The form doesn't require a name on a vacancy; resource.resource does.
+        teacher = self._new_vacancy(' X19 ', name=False)
+        self.assertEqual(teacher.name, 'X19')
 
-        self.assertFalse(teacher.schedule_import_code)
-        self.assertFalse(teacher.pending_identification)
-        self.assertTrue(any('X12' in body for body in teacher.message_ids.mapped('body')))
+    def test_vacancy_with_a_personal_email_still_gets_no_account(self):
+        teacher = self._new_vacancy('X13', private_email='someone@example.com')
+        self.assertFalse(teacher._gw_ready())
+        self.assertFalse(self._creation_jobs(teacher))
 
-    def test_mark_as_identified_message_is_translated(self):
-        teacher = self.env['hr.employee'].create({
-            'name': 'Pending teacher (X13)',
-            'employee_type': 'teacher',
-            'schedule_import_code': 'X13',
-        })
-        teacher.with_context(lang='ca_ES').action_mark_as_identified()
+    def test_vacancy_needs_its_code(self):
+        with self.assertRaises(ValidationError):
+            self._new_vacancy(False)
+
+    def test_only_teachers_can_be_vacancies(self):
+        with self.assertRaises(ValidationError):
+            self._new_vacancy('X14', employee_type='asp')
+
+    def test_vacancy_code_is_unique_among_active_teachers(self):
+        first = self._new_vacancy('X15')
+        with self.assertRaises(ValidationError):
+            self._new_vacancy(' x15 ')
+        first.write({'active': False})
+        second = self._new_vacancy(' x15 ')
+        self.assertEqual(second.schedule_import_code, 'x15')
+
+    def test_staffing_type_follows_the_code(self):
+        # A schedule importer's placeholder only sets the code, never the staffing type.
+        placeholder = self.env['hr.employee'].create({
+            'name': 'Pending teacher (X16)', 'employee_type': 'teacher',
+            'schedule_import_code': 'X16'})
+        self.assertEqual(placeholder.staffing_type, 'vacancy')
+        self.assertEqual(self._new_teacher().staffing_type, 'named')
+
+    def test_schedule_importer_finds_a_vacancy_created_on_the_form(self):
+        vacancy = self._new_vacancy('x17')
+        importer = self.env['ems.working_schedules_import_wizard']
+        self.assertEqual(importer._get_or_create_pending_teacher('X17'), vacancy)
+
+    def test_identity_confirmation_is_translated(self):
+        teacher = self._new_vacancy('X18')
+        teacher.with_context(lang='ca_ES').write({'staffing_type': 'named'})
         self.assertTrue(any(
-            'Identitat confirmada manualment' in body for body in teacher.message_ids.mapped('body')
-        ))
+            'Identitat confirmada' in body for body in teacher.message_ids.mapped('body')))
 
-    def test_mark_as_identified_noop_when_not_pending(self):
+    def test_switching_a_named_teacher_without_code_posts_nothing(self):
         teacher = self._new_teacher(private_email='ada@example.com')
-        self.assertFalse(teacher.pending_identification)
         count_before = len(teacher.message_ids)
-
-        teacher.action_mark_as_identified()
-
-        self.assertFalse(teacher.pending_identification)
+        teacher.write({'staffing_type': 'named'})
         self.assertEqual(len(teacher.message_ids), count_before)
+
+    def test_named_teacher_cannot_become_a_vacancy(self):
+        # The form hides the selector once the teacher is named; the server refuses it too.
+        teacher = self._new_teacher(private_email='ada@example.com')
+        with self.assertRaises(ValidationError):
+            teacher.write({'staffing_type': 'vacancy', 'schedule_import_code': 'X20'})
+        with self.assertRaises(ValidationError):
+            teacher.write({'schedule_import_code': 'X20'})
+        identified = self._new_vacancy('X21')
+        identified.write({'staffing_type': 'named', 'private_email': 'grace@example.com'})
+        with self.assertRaises(ValidationError):
+            identified.write({'staffing_type': 'vacancy', 'schedule_import_code': 'X21'})
+
+    def test_vacancy_code_can_still_be_changed(self):
+        vacancy = self._new_vacancy('X22')
+        vacancy.write({'schedule_import_code': 'X23'})
+        self.assertEqual(vacancy.schedule_import_code, 'X23')
 
     def test_non_corporate_work_email_not_overwritten(self):
         teacher = self._new_teacher(

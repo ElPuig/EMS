@@ -220,21 +220,24 @@ Si algun dels docents trobats en els fitxers ja té un horari, s'actualitza en f
 
 De vegades arriben horaris nous abans que tots els llocs estiguin coberts — la teva eina de planificació anomena aquestes files amb un codi provisional (`X1`, `X2`...) en lloc del correu real d'un docent. Importar un fitxer així ja no falla en aquestes files:
 
-> Aquest mateix mecanisme de pendent d'identificació també cobreix un correu real que no coincideix amb cap docent existent — marca **Nou** per aquesta fila a la pantalla de **Resoldre professors** en lloc de triar-ne un (vegeu el pas 5 de "Importar horaris de treball des d'un fitxer" més amunt). L'única diferència respecte a un codi provisional és que es conserva el correu del fitxer, precarregat com a **Correu de treball** editable (**Assignar correu corporatiu manualment** marcat), en lloc de deixar-lo perquè un futur "Genera compte de Google" l'assigni automàticament.
+> Aquest mateix mecanisme de pendent d'identificació també cobreix un correu real que no coincideix amb cap docent existent — marca **Nou** per aquesta fila a la pantalla de **Resoldre professors** en lloc de triar-ne un (vegeu el pas 5 de "Importar horaris de treball des d'un fitxer" més amunt). L'única diferència respecte a un codi provisional és que es conserva el correu del fitxer, precarregat com a **Correu de treball** editable (**Assignar correu corporatiu manualment** marcat), en lloc de generar-lo automàticament quan s'identifiqui el docent.
 
 1. Adjunta el fitxer i fes clic a través de l'assistent com de costum (vegeu "Importar horaris de treball des d'un fitxer" més amunt) — un codi provisional no es tracta com un problema en cap pas.
-2. Fes clic a **Importa** al pas final. Es crea un nou registre d'empleat per a cada codi encara no identificat, ja anomenat p. ex. "Professor pendent (X1)", amb **el seu horari, assignatures i llistes d'assistència ja configurats** exactament com si fos un docent conegut.
+2. Fes clic a **Importa** al pas final. Es crea un nou registre d'empleat per a cada codi encara no identificat, amb el codi com a nom (p. ex. "X1"), amb **el seu horari, assignatures i llistes d'assistència ja configurats** exactament com si fos un docent conegut.
 3. Aquests registres mostren una etiqueta **"Pendent d'identificar"** a la llista/kanban de docents i una cinta al seu propi formulari, perquè siguin fàcils de trobar (fes servir el filtre/agrupació **Pendent d'identificar** a la llista de docents) i fàcils de distingir d'un docent real ja identificat.
+
+Aquests registres són places pendents d'identificar, les mateixes que el cap d'estudis també pot crear a mà des de la fitxa de professorat (vegeu [Crear i editar professorat](../head_of_studies/staff-management.md)): mentre continuen pendents no tenen compte de Google ni usuari d'EMS.
 
 Quan es cobreix el lloc:
 
 1. Obre la fitxa de l'empleat pendent.
-2. Substitueix el **Nom** provisional pel nom real del docent, i omple el seu **Correu personal**.
-3. Fes clic a **Generar compte Google**, exactament igual que per a qualsevol docent nou.
+2. A **Tipus d'alta**, marca **Docent nominal**.
+3. Substitueix el **Nom** provisional pel nom real del docent, i omple el seu **Correu personal**.
+4. Fes clic a **Desa**.
 
-Aquest únic clic crea el compte Google Workspace/l'accés a EMS del docent **i** confirma la seva identitat — l'etiqueta "Pendent d'identificar" desapareix, i no cal refer res de l'horari, les assignatures o les llistes d'assistència ja importats.
+En pocs moments es creen automàticament el compte Google Workspace i l'accés a EMS del docent, l'etiqueta "Pendent d'identificar" desapareix, i no cal refer res de l'horari, les assignatures o les llistes d'assistència ja importats.
 
-Si aquest docent pendent no arribarà mai a tenir un compte de Google Workspace/EMS creat des d'aquest registre (per exemple, ja té un compte en un altre registre no fusionat, o el lloc resulta que no en necessita cap), obre la seva fitxa i tria **Marcar com a identificat** al menú **Accions** de la capçalera. Un cop confirmat, treu l'etiqueta "Pendent d'identificar" tot sol, sense crear cap compte — utilitza'l només com a alternativa manual per als casos que **Generar compte Google** no cobreix.
+Si la persona ja té un compte corporatiu (per exemple, en un altre registre no fusionat), marca **Docent nominal**, activa **Assignar correu corporatiu manualment** i escriu aquesta adreça: no es crea cap compte nou, i **Crear usuari EMS** al menú **Accions** li vincula l'accés a EMS.
 
 Reimportar un fitxer actualitzat per a un lloc encara no cobert (el mateix codi provisional) actualitza l'horari d'aquest mateix docent pendent en el mateix registre, igual que reimportar el fitxer d'un docent ja identificat — mai crea un segon registre duplicat per al mateix codi.
 

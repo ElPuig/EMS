@@ -297,47 +297,74 @@ is granted explicitly.
 
 | Step | Required data |
 |---|---|
-| Plain employee creation | `name` (plus `private_email` at view level for **new** teacher/ASP records) |
+| Plain employee creation | `name` (plus `private_email` at view level for **new** teacher/ASP records, except a vacancy, which needs its `schedule_import_code` instead) |
 | Google account creation | `name`, `private_email` (recovery + credentials email, never an address of the centre's own domain, see [Personal email can never be a corporate one](../contacts/google_workspace_student.md#personal-email-can-never-be-a-corporate-one-514)); phone/NIF optional |
 | EMS user creation | corporate `work_email` (produced by the previous step) |
 
-## Interplay with pending-identification placeholders
+## Vacancies pending identification (#584)
 
-A teacher created by the working-schedule importer from a not-yet-staffed post's code
-(`hr.employee.schedule_import_code` set, `pending_identification` computed `True` — see
-`docs/en/developers/employees/working_schedule.md`'s "Pending-identification teachers"
-section) is just a normal `employee_type='teacher'` record with `name`/`private_email`
-still blank. `_gw_missing_fields()` already requires both, so `_gw_create_account()`
-raises its existing `UserError` for a still-unidentified placeholder exactly like it would
-for any other incomplete employee — **no special-casing was needed for this integration
-itself.**
+A vacancy is a teacher record with `schedule_import_code` set (`pending_identification` computed
+`True`): a post with its department, schedule and so on, but nobody filling it yet. The
+working-schedule importer creates them from a placeholder code (see
+`docs/en/developers/employees/working_schedule.md`'s "Pending-identification teachers"), and a Head
+of Studies creates them by hand from the form.
 
-The clearing itself lives in `_ems_create_user()`'s shared helper, `_gw_clear_pending_identification()`
-— called once a real `res.users` is actually linked, right after `emp.write({'user_id': user.id})`.
-It posts a chatter note naming the original code, then clears the field
-(`emp.write({'schedule_import_code': False})`). Since `_ems_create_user()` is the single method
-both `_gw_create_account()` (full creation) and `action_create_ems_user()` (adopt an
-existing corporate account) end up calling, this is what lets an admin's normal flow — open the
-placeholder record, fill in the real `name` + `private_email` and save, which queues the
-automatic creation (or, for the adopt path, **Create EMS User**) — double as the "confirm this teacher's real
-identity" step, with no separate action needed. The schedule/`ems.teaching`/`ems.attendance_template`
-rows created at import time are untouched; they were already attached to this same `hr.employee` id.
+```mermaid
+stateDiagram-v2
+    [*] --> named: form, staffing type "Named teacher" (default)
+    [*] --> vacancy: form, staffing type "Vacancy" + code
+    [*] --> vacancy: schedule importer, placeholder code
+    vacancy --> named: staffing type switched to "Named teacher" (+ name, private email)
+    vacancy --> named: adopt an existing corporate account (Create EMS User)
+    named --> [*]
+```
 
-**Bug fixed while investigating #378 (2026-09-01):** this used to live as a few lines at the very
-end of `action_create_google_account()`'s success path only — the adopt branch (`work_email`
-already corporate) returned via `action_create_ems_user()` *before* ever reaching that code, so a
-pending teacher whose corporate account already existed (adopted, not freshly created) stayed
-stuck "pending" forever even after getting a working EMS login. Moving the clear into
-`_ems_create_user()` itself (the one place both callers converge on) fixes both paths at once.
+**`staffing_type`** (`models/employees/employee.py`) is what the form shows as "Staffing type":
+`named` / `vacancy`, only on teachers. It has no column of its own. The compute reads
+`schedule_import_code` (vacancy while it is set), so the selector and the code never disagree and
+the importer's placeholders read as vacancies without a migration. The inverse:
 
-For a pending teacher that will genuinely never get an account through this record at all (e.g.
-duplicate/unmerged employee, or the post never ends up needing one), `hr.employee.action_mark_as_identified()`
-(`models/employees/employee.py`) is a manual, standalone escape hatch: it just clears
-`schedule_import_code` (with the same chatter note) and does nothing else — no Google API call, no
-`res.users` creation. Exposed as the **Mark as identified** Actions dropdown entry
-(`views/community/employee/form.xml`), visible only while `pending_identification` is `True`,
-behind a `confirm=` dialog since it can't be undone (the original placeholder code is gone once
-cleared, so this is a one-way action, not a toggle).
+- `vacancy`: requires a code and a teacher (`ValidationError` otherwise);
+- `named`: calls `_ems_confirm_identity()`, which posts a chatter note with the code and clears it.
+
+The transition is one-way: `write()` refuses to turn a named teacher (no code) into a vacancy,
+whether through `staffing_type` or by setting `schedule_import_code` (`ValidationError`). Only
+`create()` (the form or the schedule importer) makes a vacancy.
+
+On the form, the selector is shown only while creating the record or while it is still a vacancy;
+a saved named teacher doesn't show it at all.
+Choosing "Vacancy" shows the required **Vacancy code** and hides the personal email (no longer
+required), the suggested Google username and "Assign corporate email manually". Switching a saved
+vacancy back to "Named teacher" makes the personal email required again (`not id or
+pending_identification`; `pending_identification` only changes on save), since that save is what
+creates the account.
+
+**No account while it is a vacancy.** `_gw_ready()` is `False` while `schedule_import_code` is set,
+so no creation job is queued whatever data the record has (a personal email typed in through
+another path included). `_gw_notify_missing_fields()` stays silent too, since missing data is
+expected on a vacancy. `_gw_create_account()` refuses it with a `UserError` before its missing-data
+check, and the "Create Google account" button is hidden while `pending_identification`.
+
+**Identifying the person** is switching the staffing type to "Named teacher" with their real name
+and personal email, and saving. The inverse runs inside the base `write()`, after the stored
+fields, so the code is already gone when this integration's `write()` calls
+`_gw_enqueue_if_ready()`, which then queues the creation like for any new teacher (the single job
+of #582). The schedule/`ems.teaching`/`ems.attendance_template` rows are untouched: they belong to
+this same `hr.employee` id.
+
+The **adopt path** confirms the identity too: a vacancy given a corporate address by hand
+("Assign corporate email manually") and linked with **Create EMS User** ends up in
+`_ems_create_user()`, which calls the same `_ems_confirm_identity()` once the user is linked. That
+is also the way out for a person who already has a corporate account elsewhere, since the vacancy
+must never get a new one.
+
+**Unique code.** `_check_schedule_import_code_unique` (an `@api.constrains`, not a SQL
+constraint, so existing duplicates never block an upgrade) rejects two **active** employees with
+the same code. An archived vacancy doesn't block its code. Codes are stored stripped and compared
+ignoring case through `hr.employee._search_by_schedule_import_code()`, which the importer uses too
+(`_get_or_create_pending_teacher`, `_get_teacher`): "x1" typed on the form and "X1" in a file are
+the same vacancy. Codes are not upper-cased, because the importer also stores real e-mail addresses
+there (the "create new" path for an unknown e-mail).
 
 ## Pitfalls (native hr v18)
 

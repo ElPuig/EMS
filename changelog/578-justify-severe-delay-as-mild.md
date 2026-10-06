@@ -12,3 +12,5 @@
   pre-marked as "Justified Miss".
 - Tutor manuals (ca/es/en) and the developer doc updated; ca/es translation of the new note
   added.
+- The roll-call's lock tooltip on a justified line now reads "Justified: status and notes are
+  locked." (it said "Justified absence", which no longer fits a justified delay).

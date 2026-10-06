@@ -53,6 +53,8 @@ When a post already has its department, schedule and so on but nobody filling it
 3. Replace the **Name** with the person's real name and fill in their **Private Email**.
 4. Click **Save**. The Google account and the EMS user are created automatically in a few moments, the ribbon disappears, and the record's message history notes the vacancy code it had. The schedule, subjects and attendance lists stay as they are.
 
+Once saved as a named teacher, the record no longer shows **Staffing type**: it can't be turned back into a vacancy.
+
 If the person already has a corporate account (for example, on another record), set **Staffing type** to **Named teacher**, tick **Assign corporate email manually** and type their corporate email: no new account is created. Then use **Create EMS User** in the **Actions** menu.
 
 ---

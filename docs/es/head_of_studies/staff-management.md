@@ -53,6 +53,8 @@ Cuando una plaza ya tiene departamento, horario, etc., pero todavía no hay nadi
 3. Sustituid el **Nombre** por el nombre real de la persona y rellenad su **Correo electrónico privado**.
 4. Haced clic en **Guardar**. En unos momentos se crean automáticamente la cuenta de Google y el usuario de EMS, la cinta desaparece y el historial de mensajes de la ficha recoge el código de plaza que tenía. El horario, las asignaturas y las listas de asistencia se mantienen.
 
+Una vez guardada como docente nominal, la ficha ya no muestra **Tipo de alta**: no se puede volver a convertir en plaza.
+
 Si la persona ya tiene una cuenta corporativa (por ejemplo, en otra ficha), marcad **Docente nominal**, activad **Asignar correo corporativo manualmente** y escribid su correo corporativo: no se crea ninguna cuenta nueva. Después, usad **Crear usuario EMS** en el menú **Acciones**.
 
 ---

@@ -16,6 +16,9 @@
   "Mark as identified" action is removed. A person who
   already has a corporate account is linked with "Assign corporate email manually" and "Create
   EMS User", which confirms the identity the same way.
+- The change is one-way: once saved as a named teacher, the form no longer shows the selector,
+  and the server refuses to turn a named teacher back into a vacancy (by the selector or by
+  setting a vacancy code).
 - `_gw_ready()` never holds for a vacancy, `_gw_create_account()` refuses one, and no
   "missing data" note is posted on it.
 - Vacancy codes are unique among active employees, stored stripped and compared ignoring case;

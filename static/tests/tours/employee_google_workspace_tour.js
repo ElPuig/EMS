@@ -205,8 +205,8 @@ registry.category("web_tour.tours").add("ems_employee_google_workspace_state", {
             run: "click",
         },
         {
-            trigger: ".o_form_view:not(:has(.ribbon:contains('Pending identification'))):not(:has(.o_field_widget[name='schedule_import_code']))",
-            content: "The ribbon and the vacancy code are gone: identified",
+            trigger: ".o_form_view:not(:has(.ribbon:contains('Pending identification'))):not(:has(.o_field_widget[name='schedule_import_code'])):not(:has(.o_field_widget[name='staffing_type']))",
+            content: "The ribbon, the vacancy code and the staffing type are gone: identified for good",
         },
     ],
 });

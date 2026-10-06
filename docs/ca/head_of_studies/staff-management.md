@@ -53,6 +53,8 @@ Quan una plaça ja té departament, horari, etc., però encara no hi ha ningú q
 3. Substituïu el **Nom** pel nom real de la persona i ompliu el seu **Correu electrònic privat**.
 4. Feu clic a **Desa**. En pocs moments es creen automàticament el compte de Google i l'usuari d'EMS, la cinta desapareix i l'historial de missatges de la fitxa recull el codi de plaça que tenia. L'horari, les assignatures i les llistes d'assistència es mantenen.
 
+Un cop desada com a docent nominal, la fitxa ja no mostra **Tipus d'alta**: no es pot tornar a convertir en plaça.
+
 Si la persona ja té un compte corporatiu (per exemple, en una altra fitxa), marqueu **Docent nominal**, activeu **Assignar correu corporatiu manualment** i escriviu el seu correu corporatiu: no es crea cap compte nou. Després, feu servir **Crear usuari EMS** al menú **Accions**.
 
 ---

@@ -329,6 +329,23 @@ class TestEmployeeGoogleWorkspace(TransactionCase):
         teacher.write({'staffing_type': 'named'})
         self.assertEqual(len(teacher.message_ids), count_before)
 
+    def test_named_teacher_cannot_become_a_vacancy(self):
+        # The form hides the selector once the teacher is named; the server refuses it too.
+        teacher = self._new_teacher(private_email='ada@example.com')
+        with self.assertRaises(ValidationError):
+            teacher.write({'staffing_type': 'vacancy', 'schedule_import_code': 'X20'})
+        with self.assertRaises(ValidationError):
+            teacher.write({'schedule_import_code': 'X20'})
+        identified = self._new_vacancy('X21')
+        identified.write({'staffing_type': 'named', 'private_email': 'grace@example.com'})
+        with self.assertRaises(ValidationError):
+            identified.write({'staffing_type': 'vacancy', 'schedule_import_code': 'X21'})
+
+    def test_vacancy_code_can_still_be_changed(self):
+        vacancy = self._new_vacancy('X22')
+        vacancy.write({'schedule_import_code': 'X23'})
+        self.assertEqual(vacancy.schedule_import_code, 'X23')
+
     def test_non_corporate_work_email_not_overwritten(self):
         teacher = self._new_teacher(
             private_email='ada@example.com', work_email='ada@gmail.com')

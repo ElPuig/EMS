@@ -899,6 +899,11 @@ class ems_employee(models.AbstractModel):
             return super().write(vals)
 
         self._strip_schedule_import_code(vals)
+        # A vacancy only ever turns into a named teacher, never back (issue #584): once it has
+        # a real person, that person's account and history are tied to the record.
+        if (vals.get('staffing_type') == 'vacancy' or vals.get('schedule_import_code')) \
+                and self.sudo().filtered(lambda employee: not employee.schedule_import_code):
+            raise ValidationError(_("A named teacher can't be turned back into a vacancy."))
         photo = vals.pop('image_1920', _UNSET)
         if photo is not _UNSET:
             for employee in self:

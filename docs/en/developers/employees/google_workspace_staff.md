@@ -327,7 +327,12 @@ the importer's placeholders read as vacancies without a migration. The inverse:
 - `vacancy`: requires a code and a teacher (`ValidationError` otherwise);
 - `named`: calls `_ems_confirm_identity()`, which posts a chatter note with the code and clears it.
 
-On the form, the selector is editable while creating the record or while it is still a vacancy.
+The transition is one-way: `write()` refuses to turn a named teacher (no code) into a vacancy,
+whether through `staffing_type` or by setting `schedule_import_code` (`ValidationError`). Only
+`create()` (the form or the schedule importer) makes a vacancy.
+
+On the form, the selector is shown only while creating the record or while it is still a vacancy;
+a saved named teacher doesn't show it at all.
 Choosing "Vacancy" shows the required **Vacancy code** and hides the personal email (no longer
 required), the suggested Google username and "Assign corporate email manually". Switching a saved
 vacancy back to "Named teacher" makes the personal email required again (`not id or

@@ -19849,6 +19849,12 @@ msgstr "Codi de plaça"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/employee.py:0
+msgid "A named teacher can't be turned back into a vacancy."
+msgstr "Un docent nominal no es pot tornar a convertir en plaça."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
 msgid "Only teachers can be created as a vacancy."
 msgstr "Només el professorat es pot donar d'alta com a plaça."
 

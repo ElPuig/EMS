@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.actions.act_window" id="action_convalidation_info_reason_list">
+            <field name="name">Documentation request reasons</field>
+            <field name="res_model">ems.convalidation.info_reason</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <!-- The catalog the Head of Studies picks from when asking a convalidation applicant for
+             more documentation; maintained by the EMS administrator, like the strike reasons. -->
+        <menuitem id="menu_ems_convalidation_info_reasons"
+                  name="Documentation request reasons"
+                  parent="menu_ems_configuration"
+                  action="action_convalidation_info_reason_list"
+                  groups="ems.group_academic_admin"
+                  sequence="40"/>
+    </data>
+</odoo>

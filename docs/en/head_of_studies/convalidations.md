@@ -23,13 +23,14 @@ Either way, the secretariat then registers the resolution in Esfera and closes t
 |-------|----------|
 | **Pending** | The Head of Studies reviews it. It stays there until it is resolved. |
 | **In process at the Ministry** | The Head of Studies has filed it with the Ministry and is waiting for its answer. |
+| **Pending documentation** | The applicant has been asked for documentation. It goes back to **Pending** (or **In process at the Ministry**) once it arrives. |
 | **Pending the Director** | The Director has to resolve the proposal or send it back. |
 | **Pending the secretariat** | It is resolved; the secretariat has to register it in Esfera. |
 | **Completed** | Registered, with at least one module convalidated. The student can see the grade. |
 | **Rejected** | Registered, with no module convalidated. |
 | **Cancelled** | The student or the family cancelled it from the portal. |
 
-The state only changes through the buttons of each step.
+The state only changes through the actions of each step, in the form's **Actions** menu.
 
 ---
 
@@ -37,7 +38,7 @@ The state only changes through the buttons of each step.
 
 Navigate to: **Academic management → Convalidations**
 
-The list opens with every request in progress: **Pending the Head of Studies**, **In process at the Ministry**, **Pending the Director** and **Pending the secretariat**. Remove the filters to see them all, or use **Completed**, **Rejected** and **Cancelled**.
+The list opens with every request in progress: **Pending the Head of Studies**, **Pending documentation**, **In process at the Ministry**, **Pending the Director** and **Pending the secretariat**. Remove the filters to see them all, or use **Completed**, **Rejected** and **Cancelled**.
 
 ![Convalidation request list](../../assets/head_of_studies/convalidations-list.png)
 
@@ -45,7 +46,7 @@ To see a student's requests, open their record and click the **Convalidations** 
 
 Each step creates a task in the activity tray (🕒) of whoever has to do it:
 
-- Every new request, or one sent back by the Director, for whoever holds the **Deputy Head of Studies** position.
+- Every new request, or one sent back by the Director, for whoever holds the **Deputy Head of Studies** position. While a request waits for the applicant's documentation the task leaves the tray, and it comes back when the documentation arrives.
 - Every proposal, for whoever holds the **Director** position.
 
 Creating a task sends no email. Instead, every working day at the start of your working hours you get a single email listing everything still pending in your tray: see [Daily Summary of Pending Tasks](../teachers/task-digest.md).
@@ -77,27 +78,41 @@ On each line of the **Subjects** tab, use the buttons on the right:
 | ✖ (Reject) | The module is not convalidated. |
 | ↺ (Back to pending) | Undoes the line's decision. |
 
-To convalidate every pending module at once, click **Convalidate pending subjects**.
+To convalidate every pending module at once, choose **Convalidate pending subjects** in **Actions**.
 
 - **Grade:** each convalidated module gets a 5 by default, which the resolution shows as **Convalidat**. If the previous studies hold a different grade, write it in the **Grade** column: the resolution will show that grade.
 - **Reason for refusal:** every rejected module needs its reason, which appears on the resolution. Without it, the proposal cannot be sent.
 
 ### Asking for documentation
 
-Click **Request information**, write what you need and send it. The student gets an email, and so does the family if the student is a minor or has authorized sharing information with it. The text appears on the portal, on the request itself, right above the form to answer and attach documents. The request does not change state.
+1. In **Actions**, choose **Request information**.
+2. Choose the **Reason**. The most usual one, **Missing data from the previous centre**, comes selected.
+3. If needed, write in **Details** exactly what is missing.
+4. Click **Send**.
 
-Documentation can be requested while the request is **Pending** or **In process at the Ministry**.
+The student gets an email with the reason and the details, and so does the family if the student is a minor or has authorized sharing information with it. They also appear on the portal, on the request itself, right above the form to answer and attach documents.
+
+The request moves to **Pending documentation** until the documentation arrives:
+
+- **From the portal:** as soon as the applicant answers, the request goes back to where it was (**Pending** or **In process at the Ministry**).
+- **Some other way** (on paper, by email): in **Actions**, choose **Documentation received**.
+
+Meanwhile you can still decide the modules, but you cannot send the proposal or file the request with the Ministry. The **Documentation requested** tab shows the date, the reason and the details of the last request.
+
+Documentation can be requested while the request is **Pending**, **Pending documentation** or **In process at the Ministry**. The list of reasons is maintained by the EMS administrator (see [Convalidation settings](../admin/convalidation-settings.md)).
 
 ---
 
 ## Resolving it at the centre
 
 1. Decide every module, with the reason for the ones you reject.
-2. Click **Send proposal to the Director**.
+2. In **Actions**, choose **Send proposal to the Director**.
 
 The request moves to **Pending the Director**, and its modules and grades can no longer be changed.
 
 ### Resolving the proposal (Director)
+
+Both options are in the form's **Actions** menu.
 
 ![Proposal pending the Director](../../assets/head_of_studies/convalidations-director.png)
 
@@ -122,10 +137,10 @@ The grounds-of-law and appeal texts, and signing by delegation, are configured i
 ## Resolving it through the Ministry
 
 1. File the request with the Ministry.
-2. On the form, click **In process at the Ministry** and confirm. The request stays in your hands: the student can no longer cancel it, but you can still ask them for documentation.
+2. In **Actions**, choose **In process at the Ministry** and confirm. The request stays in your hands: the student can no longer cancel it, but you can still ask them for documentation.
 3. When the Ministry's answer arrives, decide each module as it resolved, with the reason for the rejected ones.
 4. If you have the Ministry's resolution, upload it to the **Ministry resolution** field. It is optional.
-5. Click **Ministry resolution received**.
+5. In **Actions**, choose **Ministry resolution received**.
 
 The request moves straight to **Pending the secretariat**, without going through the Director. If you uploaded the Ministry's resolution, that is the one the student receives.
 
@@ -159,7 +174,7 @@ You can register a request, and process any request, at any time: the portal's r
 
 ## Cancelling and reopening
 
-- **Cancel request** is available while the request is **Pending**.
+- **Cancel request** is available while the request is **Pending**, or **Pending documentation** if it has not been filed with the Ministry.
 - **Reopen** takes a cancelled request back to **Pending**.
 
 ---

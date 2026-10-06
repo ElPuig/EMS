@@ -148,7 +148,7 @@
                                         'bg-success' if convalidation.state == 'completed' else
                                         'bg-danger' if convalidation.state == 'rejected' else
                                         'bg-secondary' if convalidation.state == 'cancelled' else
-                                        'bg-warning text-dark' if convalidation.state in ('direction', 'in_progress') else 'bg-info text-dark'
+                                        'bg-warning text-dark' if convalidation.state in ('documentation', 'direction', 'in_progress') else 'bg-info text-dark'
                                     }" t-esc="state_labels.get(convalidation.state)"/>
                                 </div>
                                 <div class="card-body p-0">
@@ -191,17 +191,18 @@
                                     </table>
                                 </div>
                                 <!-- What the centre asked for last (issue #529), right above the answer form. -->
-                                <div t-if="convalidation.info_request and convalidation.state in ('pending', 'ministry')"
+                                <div t-if="convalidation.info_request_date and convalidation.state in ('pending', 'documentation', 'ministry')"
                                      class="alert alert-warning mb-0 rounded-0 border-start-0 border-end-0 small o_ems_convalidation_info_request">
                                     <p class="fw-bold mb-1">
                                         <i class="fa fa-exclamation-circle me-1"/>Documentation requested
                                         <span class="fw-normal">(<t t-out="convalidation.info_request_date" t-options="{'widget': 'date'}"/>)</span>
                                     </p>
-                                    <div style="white-space: pre-line;" t-esc="convalidation.info_request"/>
+                                    <div t-if="convalidation.info_request_reason_id" class="fw-bold" t-esc="convalidation.info_request_reason_id.name"/>
+                                    <div t-if="convalidation.info_request" style="white-space: pre-line;" t-esc="convalidation.info_request"/>
                                 </div>
                                 <!-- Answering a request for information: the files join the request's own
                                      documents, so everything about it stays in one place. -->
-                                <div t-if="can_request and convalidation.state in ('pending', 'ministry')" class="card-body border-top">
+                                <div t-if="can_request and convalidation.state in ('pending', 'documentation', 'ministry')" class="card-body border-top">
                                     <form t-attf-action="/my/convalidaciones/reply/#{convalidation.id}"
                                           method="post" enctype="multipart/form-data" class="ems-loading-form o_ems_convalidation_reply">
                                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
@@ -216,14 +217,14 @@
                                     </form>
                                 </div>
                                 <t t-set="official" t-value="convalidation.state in ('completed', 'rejected') and convalidation.resolution_pdf_id"/>
-                                <div t-if="convalidation.resolution_notes or official or (can_request and convalidation.state == 'pending')"
+                                <div t-if="convalidation.resolution_notes or official or (can_request and convalidation._ems_is_cancellable())"
                                      class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-2">
                                     <span class="small" t-esc="convalidation.resolution_notes or ''"/>
                                     <a t-if="official" t-attf-href="/my/convalidaciones/resolution/#{convalidation.id}"
                                        class="btn btn-sm btn-outline-primary o_ems_convalidation_resolution">
                                         <i class="fa fa-download me-1"/>Official resolution
                                     </a>
-                                    <form t-if="can_request and convalidation.state == 'pending'"
+                                    <form t-if="can_request and convalidation._ems_is_cancellable()"
                                           t-attf-action="/my/convalidaciones/cancel/#{convalidation.id}"
                                           method="post" class="mb-0">
                                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>

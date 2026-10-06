@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // Issues #276 and #529 - subject convalidations. Every tour runs against records seeded by
 // tests/test_convalidation_tour.py and uses structural selectors (button names, CSS classes),
@@ -38,11 +39,7 @@ registry.category("web_tour.tours").add("ems_convalidation_resolve", {
             content: "Replace the default 5",
             run: "edit 8",
         },
-        {
-            trigger: ".o_form_view button[name='action_propose']",
-            content: "Send the proposal to the Director",
-            run: "click",
-        },
+        ...clickAction("action_propose", "Send the proposal to the Director"),
         {
             trigger: ".o_form_view .o_statusbar_status button[data-value='direction'].o_arrow_button_current",
             content: "The request is now the Director's",
@@ -70,11 +67,7 @@ registry.category("web_tour.tours").add("ems_convalidation_ministry", {
             content: "Open the pending request",
             run: "click",
         },
-        {
-            trigger: ".o_form_view button[name='action_send_to_ministry']",
-            content: "It has been filed with the Ministry",
-            run: "click",
-        },
+        ...clickAction("action_send_to_ministry", "It has been filed with the Ministry"),
         {
             trigger: ".modal footer button.btn-primary",
             content: "Confirm",
@@ -103,14 +96,53 @@ registry.category("web_tour.tours").add("ems_convalidation_ministry", {
             content: "The reason",
             run: "edit Refused by the Ministry",
         },
-        {
-            trigger: ".o_form_view button[name='action_ministry_resolved']",
-            content: "Record the Ministry's resolution",
-            run: "click",
-        },
+        ...clickAction("action_ministry_resolved", "Record the Ministry's resolution"),
         {
             trigger: ".o_form_view .o_statusbar_status button.o_arrow_button_current[data-value='in_progress']",
             content: "Straight to the secretariat, without the Director",
+        },
+    ],
+});
+
+// The Head of Studies asks the applicant for more documentation (issue #577): the most usual
+// reason comes preselected, and the request waits for it until it arrives - here on paper.
+registry.category("web_tour.tours").add("ems_convalidation_request_info", {
+    test: true,
+    url: "/odoo/action-ems.action_convalidation",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Convalidation Student')",
+            content: "Open the pending request",
+            run: "click",
+        },
+        ...clickAction("action_request_info", "Ask for more documentation"),
+        {
+            trigger: ".modal .o_field_widget[name='reason_id'] input",
+            content: "A reason comes preselected",
+            run() {
+                if (!this.anchor.value) {
+                    throw new Error("No reason preselected");
+                }
+            },
+        },
+        {
+            trigger: ".modal .o_field_widget[name='message'] textarea",
+            content: "Add the details",
+            run: "edit Name and code of the previous centre",
+        },
+        {
+            trigger: ".modal footer button[name='action_send']",
+            content: "Send it",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_statusbar_status button[data-value='documentation'].o_arrow_button_current",
+            content: "The request waits for the documentation",
+        },
+        ...clickAction("action_documentation_received", "It arrived on paper"),
+        {
+            trigger: ".o_form_view .o_statusbar_status button[data-value='pending'].o_arrow_button_current",
+            content: "The request is back under review",
         },
     ],
 });
@@ -129,11 +161,7 @@ registry.category("web_tour.tours").add("ems_convalidation_director_resolves", {
             trigger: ".o_form_view .o_statusbar_status button[data-value='direction'].o_arrow_button_current",
             content: "It is waiting for the Director",
         },
-        {
-            trigger: ".o_form_view button[name='action_resolve']",
-            content: "Resolve it",
-            run: "click",
-        },
+        ...clickAction("action_resolve", "Resolve it"),
         {
             trigger: ".modal footer button.btn-primary",
             content: "Confirm issuing the resolution",
@@ -160,11 +188,7 @@ registry.category("web_tour.tours").add("ems_convalidation_director_returns", {
             content: "Open the proposal",
             run: "click",
         },
-        {
-            trigger: ".o_form_view button[name='action_return']",
-            content: "Return it to the Head of Studies",
-            run: "click",
-        },
+        ...clickAction("action_return", "Return it to the Head of Studies"),
         {
             trigger: ".modal .o_field_widget[name='reason'] textarea",
             content: "Say why",
@@ -200,11 +224,7 @@ registry.category("web_tour.tours").add("ems_convalidation_complete", {
             trigger: ".o_form_view .o_statusbar_status button[data-value='in_progress'].o_arrow_button_current",
             content: "It is waiting for the secretariat",
         },
-        {
-            trigger: ".o_form_view button[name='action_complete']",
-            content: "Complete it",
-            run: "click",
-        },
+        ...clickAction("action_complete", "Complete it"),
         {
             trigger: ".modal footer button.btn-primary",
             content: "Confirm publishing the grades",

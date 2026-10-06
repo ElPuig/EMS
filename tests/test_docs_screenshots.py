@@ -432,14 +432,14 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             '/odoo/action-ems.action_convalidation/%d' % at_ministry.id,
             '.o_form_view', 'convalidations-ministry.png',
             login='doc_shot_hos',
-            wait_for=".o_form_statusbar button[name='action_ministry_resolved']",
+            wait_for=".o_form_statusbar .o_ems_actions_toggle",
             max_height=420,
         )
         self._capture(
             '/odoo/action-ems.action_convalidation/%d' % proposed.id,
             '.o_form_view', 'convalidations-director.png',
             login='doc_shot_director',
-            wait_for=".o_form_statusbar button[name='action_resolve']",
+            wait_for=".o_form_statusbar .o_ems_actions_toggle",
             max_height=660,
         )
         self._capture(
@@ -452,7 +452,7 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             '/odoo/action-ems.action_convalidation/%d' % resolved.id,
             '.o_form_view', 'convalidations-secretary.png',
             login='doc_shot_secretary',
-            wait_for=".o_form_statusbar button[name='action_complete']",
+            wait_for=".o_form_statusbar .o_ems_actions_toggle",
             max_height=420,
         )
 
@@ -465,7 +465,7 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
         pending = new_request(self.portal_student, subjects[3:])
         self.env['ems.convalidation.info_wizard'].create({
             'convalidation_id': pending.id,
-            'message': "Per resoldre la sol·licitud ens cal el certificat acadèmic dels estudis previs.",
+            'message': "Indica el nom i el codi del centre on vas cursar el CFGM.",
         }).action_send()
         self._capture(
             '/my/convalidaciones?new=1', '.o_ems_convalidation_new',

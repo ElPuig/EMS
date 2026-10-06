@@ -4,7 +4,7 @@
 
 # Configuració de convalidacions
 
-Configura quan es poden presentar sol·licituds de convalidació des del portal i els textos de la resolució oficial que emet la direcció.
+Configura quan es poden presentar sol·licituds de convalidació des del portal, els textos de la resolució oficial que emet la direcció i els motius que s'ofereixen quan es demana documentació.
 
 **Rol necessari:** Administrador (Configuració)
 
@@ -59,6 +59,20 @@ Si deixes un text buit, s'utilitza el text estàndard. El text estàndard del re
 2. Desa.
 
 Els canvis s'apliquen a les resolucions que s'emetin a partir d'aquell moment.
+
+---
+
+## Motius de petició de documentació
+
+Quan Cap d'Estudis demana més documentació a un sol·licitant, tria un motiu d'una llista. Tu mantens aquesta llista.
+
+**Rol necessari:** Administrador de l'EMS
+
+Navega a: **Gestió acadèmica → Configuració → Motius de petició de documentació**
+
+- **Nom:** el text que el sol·licitant llegeix al correu i al portal. Escriu-lo en cada idioma amb el botó d'idioma al costat del camp.
+- **Ordre:** arrossega les files per ordenar-les. La primera surt seleccionada quan es demana documentació, així que posa-hi primer el motiu més habitual (per defecte, **Falten les dades del centre de procedència**).
+- Per deixar d'oferir un motiu sense perdre les sol·licituds que l'han fet servir, arxiva'l.
 
 ---
 

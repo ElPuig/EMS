@@ -255,13 +255,19 @@ class TestPortalConvalidation(HttpCase):
         request = self._requests(self.student)
         self.env['ems.convalidation.info_wizard'].create({
             'convalidation_id': request.id, 'message': 'Attach the SMX certificate'}).action_send()
+        self.assertEqual(request.state, 'documentation')
         page = self.url_open('/my/convalidaciones').text
         self.assertIn('o_ems_convalidation_info_request', page)
         self.assertIn('Attach the SMX certificate', page)
+        self.assertIn(request.info_request_reason_id.with_context(lang=self.student_user.lang).name, page)
+        # Still the applicant's to withdraw while the centre waits for them.
+        self.assertIn(f'/my/convalidaciones/cancel/{request.id}', page)
         response = self.url_open(f'/my/convalidaciones/reply/{request.id}', data={
             'csrf_token': Request.csrf_token(self), 'message': 'Here is the certificate',
         }, files=[('documents', ('smx.pdf', PDF, 'application/pdf'))])
         self.assertIn('replied=1', response.url)
+        # The answer puts the request back under review.
+        self.assertEqual(request.state, 'pending')
         self.assertEqual(request.attachment_ids.mapped('name'), ['smx.pdf'])
         self.assertEqual(request.attachment_ids.res_id, request.id)
         self.assertTrue(request.message_ids.filtered(

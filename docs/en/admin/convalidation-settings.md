@@ -4,7 +4,7 @@
 
 # Convalidation settings
 
-Configure when convalidation requests can be submitted from the portal, and the texts of the official resolution the Director issues.
+Configure when convalidation requests can be submitted from the portal, the texts of the official resolution the Director issues and the reasons offered when documentation is requested.
 
 **Required role:** Administrator (Settings)
 
@@ -59,6 +59,20 @@ An empty text means the standard one is used. The standard appeal text names the
 2. Save.
 
 Changes apply to resolutions issued from then on.
+
+---
+
+## Documentation request reasons
+
+When the Head of Studies asks an applicant for more documentation, they pick a reason from a list. You maintain that list.
+
+**Required role:** EMS administrator
+
+Navigate to: **Academic management → Configuration → Documentation request reasons**
+
+- **Name:** the text the applicant reads in the email and on the portal. Write it in each language with the language button next to the field.
+- **Order:** drag the rows to sort them. The first one comes selected when documentation is requested, so put the most usual reason first (by default, **Missing data from the previous centre**).
+- To stop offering a reason without losing the requests that used it, archive it.
 
 ---
 

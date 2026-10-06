@@ -21,7 +21,7 @@ FILED_FIELDS = {'student_id', 'course_id', 'study_id', 'basis', 'student_notes'}
 
 # States in which the Head of Studies still decides the subjects, and in which the applicant can
 # be asked for (and send) more documentation: before the resolution exists.
-REVIEW_STATES = ('pending', 'ministry')
+REVIEW_STATES = ('pending', 'documentation', 'ministry')
 
 
 class EmsConvalidation(models.Model):
@@ -62,10 +62,12 @@ class EmsConvalidation(models.Model):
     # until it is resolved - by the centre, through a proposal the Director turns into the official
     # resolution, or by the Ministry, which the request waits for. Every resolution then goes to
     # the secretariat, who registers it in Esfera and closes the request. Only then does the grade
-    # reach the student's own grades.
+    # reach the student's own grades. While under review it can wait for the applicant's
+    # documentation (issue #577), then goes back to where it was.
     state = fields.Selection(string="State", default='pending', required=True, index=True,
                              copy=False, readonly=True, tracking=True, selection=[
                                  ('pending', 'Pending'),
+                                 ('documentation', 'Pending documentation'),
                                  ('ministry', 'In process at the Ministry'),
                                  ('direction', 'Pending the Director'),
                                  ('in_progress', 'Pending the secretariat'),
@@ -82,9 +84,12 @@ class EmsConvalidation(models.Model):
     ministry_resolution = fields.Binary(string="Ministry resolution", attachment=True, copy=False,
                                         help="The Ministry's own resolution (PDF), when it has arrived.")
     ministry_resolution_filename = fields.Char(string="Ministry resolution file name", copy=False)
+    info_request_reason_id = fields.Many2one(string="Reason for the request", comodel_name='ems.convalidation.info_reason',
+                                             readonly=True, copy=False, ondelete='set null',
+                                             help="Why the applicant was last asked for more documentation.")
     info_request = fields.Text(string="Documentation requested", readonly=True, copy=False,
-                               help="The last request for information sent to the applicant, shown on the "
-                                    "portal next to the answer form while the request is under review.")
+                               help="The details of the last request for information sent to the applicant, "
+                                    "shown on the portal next to the answer form while the request is under review.")
     info_request_date = fields.Date(string="Documentation requested on", readonly=True, copy=False)
     return_reason = fields.Text(string="Returned by the Director", readonly=True, copy=False,
                                 help="Why the Director sent the last proposal back for review.")
@@ -502,8 +507,16 @@ class EmsConvalidation(models.Model):
 
     # --- actions -------------------------------------------------------------
 
+    def _ems_is_cancellable(self):
+        """The applicant can withdraw a request until the Head of Studies proposes a resolution
+        or files it with the Ministry - waiting for their documentation included."""
+        self.ensure_one()
+        return self.state == 'pending' or (self.state == 'documentation' and not self.resolved_by_ministry)
+
     def action_cancel(self):
-        self._ems_check_state(('pending',))
+        for convalidation in self:
+            if not convalidation._ems_is_cancellable():
+                convalidation._ems_check_state(('pending',))
         self.sudo().write({'state': 'cancelled'})
         self._ems_close_tasks()
         for convalidation in self:
@@ -702,6 +715,26 @@ class EmsConvalidation(models.Model):
             'context': {'default_convalidation_id': self.id},
         }
 
+    def _ems_wait_for_documentation(self):
+        """The applicant has been asked for documentation: the request waits for it, and the
+        review task leaves the Head of Studies' to-do list until it arrives."""
+        self.sudo().write({'state': 'documentation'})
+        self._ems_close_tasks()
+
+    def action_documentation_received(self):
+        """The documentation arrived some other way (on paper, by email): back to review."""
+        self._ems_check_head_of_studies()
+        self._ems_check_state(('documentation',))
+        self._ems_resume_review()
+
+    def _ems_resume_review(self):
+        """Back to where the request was when the documentation was asked for - the Ministry's
+        hands, or the Head of Studies' review - with the review task scheduled again."""
+        for convalidation in self.filtered(lambda convalidation: convalidation.state == 'documentation'):
+            convalidation.sudo().write({'state': 'ministry' if convalidation.resolved_by_ministry else 'pending'})
+            convalidation._ems_schedule_task('ems.mail_activity_convalidation_review')
+            convalidation._ems_post_note(_("Documentation received: the request is back under review."))
+
     # --- portal helpers ------------------------------------------------------
 
     @api.model
@@ -742,6 +775,7 @@ class EmsConvalidation(models.Model):
             message or _("New documentation attached."),
             self.env['ems.base'].build_html_list(attachments.mapped('name')) if attachments else Markup(""))
         self._ems_post_communication(_("Documentation added by the applicant"), body)
+        self._ems_resume_review()
 
 
 class EmsConvalidationLine(models.Model):

@@ -15,7 +15,7 @@ Every resolution, a full refusal included, then goes to the **secretariat**, who
 
 Only studies whose **level** has `allows_convalidation` set can receive requests. `data/cat/ems.level.csv` sets it for `CFGM` and `CFGS`, the cycles the centre's secretariat publishes convalidation forms for.
 
-**Module files:** `models/grades/convalidation.py`, `models/grades/convalidation_info_wizard.py`, `models/grades/convalidation_return_wizard.py`, `reports/grades/report_convalidation_resolution.xml`, `models/curriculum/level.py` (`allows_convalidation`), `models/curriculum/study.py` (`_ems_convalidable_subjects`), `models/grades/grade_subject_line.py`, `models/grades/grade_session.py`, `models/grades/year_record.py`, `models/grades/grade_review_wizard.py`, `models/grades/em_grading_wizard.py`, `models/contacts/contact.py` (stat button), `models/settings/company.py` (request period), `models/settings/settings.py`, `views/settings/form.xml`, `models/contacts/portal.py` (`_ems_portal_can_act_for`), `controllers/portal_convalidation.py`, `views/academic_management/convalidations/{views,menu}.xml`, `views/portal/portal_convalidations.xml`, `mails/grades/convalidation_resolved.xml`, `mails/grades/convalidation_info_request.xml`, `data/main/mail.activity.type.csv`, `static/src/js/backend/grade_matrix_field.js`, `static/src/js/backend/grade_tutor_matrix.js`, `tests/test_convalidation.py`, `tests/test_convalidation_period.py`, `tests/test_portal_convalidation.py`, `tests/test_convalidation_tour.py`, `static/tests/tours/convalidation_tour.js`
+**Module files:** `models/grades/convalidation.py`, `models/grades/convalidation_info_wizard.py`, `models/grades/convalidation_info_reason.py`, `models/grades/convalidation_return_wizard.py`, `reports/grades/report_convalidation_resolution.xml`, `models/curriculum/level.py` (`allows_convalidation`), `models/curriculum/study.py` (`_ems_convalidable_subjects`), `models/grades/grade_subject_line.py`, `models/grades/grade_session.py`, `models/grades/year_record.py`, `models/grades/grade_review_wizard.py`, `models/grades/em_grading_wizard.py`, `models/contacts/contact.py` (stat button), `models/settings/company.py` (request period), `models/settings/settings.py`, `views/settings/form.xml`, `models/contacts/portal.py` (`_ems_portal_can_act_for`), `controllers/portal_convalidation.py`, `views/academic_management/convalidations/{views,menu}.xml`, `views/academic_management/convalidation_info_reason/{list,form,menu}.xml`, `data/main/ems.convalidation.info_reason.csv`, `views/portal/portal_convalidations.xml`, `mails/grades/convalidation_resolved.xml`, `mails/grades/convalidation_info_request.xml`, `data/main/mail.activity.type.csv`, `static/src/js/backend/grade_matrix_field.js`, `static/src/js/backend/grade_tutor_matrix.js`, `tests/test_convalidation.py`, `tests/test_convalidation_period.py`, `tests/test_portal_convalidation.py`, `tests/test_convalidation_tour.py`, `static/tests/tours/convalidation_tour.js`
 
 **See also:** [`grade_session.md`](grade_session.md), [`year_record.md`](year_record.md), [`em_grading_wizard.md`](em_grading_wizard.md).
 
@@ -32,6 +32,8 @@ erDiagram
     EMS_SUBJECT ||--o{ EMS_CONVALIDATION_LINE : "subject_id (restrict)"
     EMS_CONVALIDATION }o--o{ IR_ATTACHMENT : "attachment_ids"
     EMS_CONVALIDATION ||--o{ EMS_CONVALIDATION_INFO_WIZARD : "convalidation_id (cascade)"
+    EMS_CONVALIDATION_INFO_REASON |o--o{ EMS_CONVALIDATION : "info_request_reason_id (set null)"
+    EMS_CONVALIDATION_INFO_REASON ||--o{ EMS_CONVALIDATION_INFO_WIZARD : "reason_id"
     EMS_CONVALIDATION ||--o{ EMS_CONVALIDATION_RETURN_WIZARD : "convalidation_id (cascade)"
     EMS_CONVALIDATION |o--o| IR_ATTACHMENT : "resolution_pdf_id (set null)"
     EMS_CONVALIDATION_LINE ..> EMS_GRADE_SUBJECT_LINE : "is_convalidated + grade (sync)"
@@ -52,10 +54,10 @@ erDiagram
 | `attachment_ids` | M2m `ir.attachment` | Supporting documents, optional. Linked to the request (`res_model`/`res_id`) on create/write, so they follow its access rights. The portal's own answers add to this same field. |
 | (what was filed) | | `student_id`, `course_id`, `study_id`, `basis` and `student_notes` (`FILED_FIELDS`) are set on creation — from the portal, or by the secretariat registering a paper request — and cannot be written afterwards, except through `sudo`; the form shows them read-only once saved. |
 | `line_ids` | O2m | At least one (`_check_has_lines`, also triggered by `study_id` since a request created without lines carries no `line_ids` in `vals`). |
-| `state` | Selection, stored | `pending`, `ministry` (*In process at the Ministry*), `direction` (*Pending the Director*), `in_progress` (*Pending the secretariat*), `completed`, `rejected`, `cancelled`. Written by the actions only (with `sudo`; any other write is refused in `write()`), never computed: the circuit is driven by people, not by the lines' own states. |
+| `state` | Selection, stored | `pending`, `documentation` (*Pending documentation*: waiting for the applicant), `ministry` (*In process at the Ministry*), `direction` (*Pending the Director*), `in_progress` (*Pending the secretariat*), `completed`, `rejected`, `cancelled`. Written by the actions only (with `sudo`; any other write is refused in `write()`), never computed: the circuit is driven by people, not by the lines' own states. |
 | `resolved_by_ministry`, `ministry_date` | Boolean, Date | Set by `action_send_to_ministry`. |
 | `ministry_resolution` (+ `_filename`) | Binary (attachment) | The Ministry's own resolution, optional; editable only while `ministry`. |
-| `info_request`, `info_request_date` | Text, Date | The last request for information (`ems.convalidation.info_wizard`), shown on the portal above the answer form while the request is `pending` or `ministry`, and on its own tab in the form. |
+| `info_request_reason_id`, `info_request`, `info_request_date` | M2o `ems.convalidation.info_reason`, Text, Date | The last request for information (`ems.convalidation.info_wizard`): its reason, the optional details and the date. Shown on the portal above the answer form while the request is in `REVIEW_STATES`, and on its own tab in the form. |
 | `return_reason` | Text | The Director's reason for sending the last proposal back; shown on the form while `pending`, cleared by the next proposal. |
 | `validation_date`, `validated_by_id` | Date, M2o | *Proposal date / Proposed by*: stamped by `action_propose` and `action_ministry_resolved`. |
 | `signature_date`, `signed_by_id` | Date, M2o | *Resolution date / Resolved by*: stamped by `action_resolve` (whoever pressed it). |
@@ -64,6 +66,10 @@ erDiagram
 | `resolution_date`, `resolved_by_id` | Date, M2o | *Registration date / Registered by*: stamped by the secretariat's `action_complete`. |
 | `granted_count`, `pending_count` | Integer compute | List columns. `pending_count` is what a proposal requires to be zero. |
 | `has_centre_title` | Boolean compute | True when the student's academic history holds a `title_obtained` record of this centre (a previous record, `is_external`, counts only when its origin centre is this one): a hint that their previous grades can be looked up here. Its absence proves nothing (only recent years are in EMS), so nothing is shown in that case. |
+
+### `ems.convalidation.info_reason` (documentation request reason)
+
+A catalog like `ems.strike.reason`: `name` (translatable), `sequence`, `active`; ordered by `sequence, name`. The information wizard preselects the first active one, so the most usual reason goes first. Seeded in `data/main/ems.convalidation.info_reason.csv` (`noupdate=False`, EMS's own data): missing data from the previous centre (first), missing academic certificate, missing syllabus, other. Maintained by the academic administrator from Academic management → Configuration → Documentation request reasons.
 
 ### `ems.convalidation.line` (subject)
 
@@ -90,7 +96,12 @@ stateDiagram-v2
     ministry --> in_progress: action_ministry_resolved (Head of Studies)
     in_progress --> completed: action_complete (secretariat, something granted)
     in_progress --> rejected: action_complete (secretariat, nothing granted)
+    pending --> documentation: info wizard (Head of Studies / secretariat)
+    ministry --> documentation: info wizard
+    documentation --> pending: portal answer / action_documentation_received
+    documentation --> ministry: same, when resolved_by_ministry
     pending --> cancelled: action_cancel (applicant)
+    documentation --> cancelled: action_cancel (applicant, not resolved_by_ministry)
     cancelled --> pending: action_reopen
     completed --> [*]
     rejected --> [*]
@@ -102,8 +113,9 @@ stateDiagram-v2
 - **`action_resolve`** (Director, `direction`): stamps `signature_date`/`signed_by_id`, renders the resolution (`_ems_generate_resolution_pdf`) and moves on to the secretariat.
 - **`action_return`** (Director, `direction`): opens `ems.convalidation.return_wizard`; `_ems_return(reason)` goes back to `pending`, stores the reason, posts it as an internal note (the student is not told) and re-schedules the review task.
 - **`action_complete`** (secretariat, `in_progress`): the only way out of the circuit, for every resolution. `completed` when at least one line is granted, `rejected` otherwise; stamps the registration, emails the resolution and, for granted subjects, withdraws the student from them (`_ems_withdraw_convalidated_subjects`, see below).
-- **`action_request_info`** opens `ems.convalidation.info_wizard` while `pending` or `ministry` (`REVIEW_STATES`): it emails the applicant and posts the text on the portal without moving the request.
-- **`action_cancel` / `action_reopen`**: the applicant's own, from the portal, while the request is `pending`.
+- **`action_request_info`** opens `ems.convalidation.info_wizard` while in `REVIEW_STATES` (`pending`, `documentation`, `ministry`). The wizard takes a required reason (preselected, see `ems.convalidation.info_reason`) and optional details; it emails the reason in each recipient's language followed by the details, stores both on the request and moves it to `documentation` (`_ems_wait_for_documentation`), closing the review task: there is nothing for the Head of Studies to do until the applicant answers.
+- **Back from `documentation`** (`_ems_resume_review`): automatically when the applicant answers from the portal (`_ems_portal_add_documents`), or with **`action_documentation_received`** (Head of Studies) when it arrives some other way. It returns to `ministry` when `resolved_by_ministry`, else to `pending`, re-schedules the review task and logs an internal note. While waiting, the subjects can still be decided, but nothing can be proposed or sent to the Ministry.
+- **`action_cancel` / `action_reopen`**: the applicant's own, from the portal, while `_ems_is_cancellable()`: `pending`, or `documentation` when the request was not filed with the Ministry.
 
 There is no whole-request "reject" action: a refusal is a resolution like any other, decided line by line, issued by the Director (or the Ministry) and registered by the secretariat.
 
@@ -174,8 +186,8 @@ A student with no birth date counts as a minor. `_ems_convalidation_portal_visib
 |-------|-----------|
 | `GET /my/convalidaciones` | Requests of the student, plus the new-request form when the viewer can file, `_ems_portal_study()` finds a study **and the request period is open**. The form is a Bootstrap collapse, folded by default; it opens with `?new=1` or when the page comes back with a validation `?error=`. It says when the period closes. While closed, a notice with the next opening replaces the form. Otherwise, a notice explains why the viewer cannot file. |
 | `POST /my/convalidaciones/submit` | Only whoever can file. Refused with `?error=closed` outside the request period. Then checks that at least one subject in `_ems_portal_requestable_subjects()` and a valid `basis` are sent, and creates the request and its attachments. Documents are optional: the form says per case which ones are needed, and the Head of Studies can ask for more. |
-| `POST /my/convalidaciones/reply/<id>` | The applicant's answer: files and/or text, while the request is `pending` or `ministry`, whatever the date. The files join `attachment_ids` and the text is posted as a comment (`_ems_portal_add_documents`). |
-| `POST /my/convalidaciones/cancel/<id>` | Only while `pending`, whatever the date. |
+| `POST /my/convalidaciones/reply/<id>` | The applicant's answer: files and/or text, while the request is in `REVIEW_STATES`, whatever the date. The files join `attachment_ids` and the text is posted as a comment (`_ems_portal_add_documents`); a request in `documentation` goes back under review. |
+| `POST /my/convalidaciones/cancel/<id>` | Only while `_ems_is_cancellable()`, whatever the date. |
 | `GET /my/convalidaciones/resolution/<id>` | Downloads `resolution_pdf_id` of a `completed`/`rejected` request, for whoever sees the page. |
 
 ### Request period
@@ -209,5 +221,7 @@ A yearly window, with no year, stored on `res.company` and edited in Settings �
 | Portal | through the controller only, per the table in [Portal](#portal); new requests only during the request period | through the controller only | No | No | No |
 | Settings administrator | Configures the request period and the resolution texts | - | - | - | - |
 
+`ems.convalidation.info_reason`: academic admin CRUD; Head of Studies and secretary read (they pick it in the wizard); nobody else.
+
 - **Student form:** the **Convalidations** stat button is limited to the groups above. Its count is computed with `sudo`, so the form still opens for roles without access.
-- **Menu:** Academic management → Convalidations (`menu_ems_convalidations`). Its default filters show every open state (Head of Studies, Ministry, Director, secretariat).
+- **Menu:** Academic management → Convalidations (`menu_ems_convalidations`). Its default filters show every open state (Head of Studies, pending documentation, Ministry, Director, secretariat). The form's actions are in its **Actions** dropdown ([`actions_dropdown.md`](../shared/actions_dropdown.md)).

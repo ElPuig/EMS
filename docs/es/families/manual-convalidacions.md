@@ -74,6 +74,7 @@ Cada solicitud aparece bajo el formulario, con su número de registro (por ejemp
 | Estado | Significado |
 |--------|-------------|
 | **Pendiente** | El centro la está revisando. |
+| **Pendiente de documentación** | El centro te ha pedido documentación. Cuando respondas, vuelve al centro. |
 | **En proceso Ministerio** | El centro la ha tramitado con el Ministerio, que la resolverá. Ya no se puede anular. |
 | **Pendiente de dirección** | Revisada; falta la resolución oficial de la dirección. |
 | **Pendiente de secretaría** | Ya está resuelta; secretaría la está registrando en el expediente. |
@@ -93,17 +94,17 @@ La solicitud, cada cambio de estado y la resolución también quedan registrados
 
 ## Responder o añadir documentación
 
-Si el centro te pide documentación, recibirás un correo y, en el recuadro de la solicitud, verás el aviso **Documentación solicitada** con lo que te piden. Justo debajo, en **Responde o añade documentación**, escribe la respuesta, adjunta los ficheros y haz clic en **Enviar**. Los documentos se añaden a la solicitud.
+Si el centro te pide documentación, recibirás un correo y, en el recuadro de la solicitud, verás el aviso **Documentación solicitada** con el motivo y lo que te piden. Justo debajo, en **Responde o añade documentación**, escribe la respuesta, adjunta los ficheros y haz clic en **Enviar**. Los documentos se añaden a la solicitud, y la solicitud vuelve al centro para que la revise.
 
 ![Documentación solicitada por el centro](../../assets/families/convalidations-portal-info.png)
 
-Puedes responder mientras la solicitud está **Pendiente** o **En proceso Ministerio**.
+Puedes responder mientras la solicitud está **Pendiente**, **Pendiente de documentación** o **En proceso Ministerio**.
 
 ---
 
 ## Anular una solicitud
 
-Mientras una solicitud está **Pendiente**, haz clic en **Anular la solicitud** en su recuadro.
+Mientras una solicitud está **Pendiente**, o **Pendiente de documentación** si el centro no la ha tramitado con el Ministerio, haz clic en **Anular la solicitud** en su recuadro.
 
 ---
 

@@ -74,6 +74,7 @@ Cada sol·licitud apareix sota el formulari, amb el seu número de registre (per
 | Estat | Significat |
 |-------|------------|
 | **Pendent** | El centre l'està revisant. |
+| **Pendent de documentació** | El centre t'ha demanat documentació. Quan responguis, torna al centre. |
 | **En procés Ministeri** | El centre l'ha tramitat amb el Ministeri, que la resoldrà. Ja no es pot anul·lar. |
 | **Pendent de direcció** | Revisada; falta la resolució oficial de la direcció. |
 | **Pendent de secretaria** | Ja està resolta; secretaria l'està registrant a l'expedient. |
@@ -93,17 +94,17 @@ La sol·licitud, cada canvi d'estat i la resolució també queden registrats a l
 
 ## Respondre o afegir documentació
 
-Si el centre et demana documentació, rebràs un correu i, al requadre de la sol·licitud, veuràs l'avís **Documentació sol·licitada** amb el que et demanen. Just a sota, a **Respon o afegeix documentació**, escriu-hi la resposta, adjunta els fitxers i fes clic a **Envia**. Els documents s'afegeixen a la sol·licitud.
+Si el centre et demana documentació, rebràs un correu i, al requadre de la sol·licitud, veuràs l'avís **Documentació sol·licitada** amb el motiu i el que et demanen. Just a sota, a **Respon o afegeix documentació**, escriu-hi la resposta, adjunta els fitxers i fes clic a **Envia**. Els documents s'afegeixen a la sol·licitud, i la sol·licitud torna al centre perquè la revisi.
 
 ![Documentació sol·licitada pel centre](../../assets/families/convalidations-portal-info.png)
 
-Pots respondre mentre la sol·licitud està **Pendent** o **En procés Ministeri**.
+Pots respondre mentre la sol·licitud està **Pendent**, **Pendent de documentació** o **En procés Ministeri**.
 
 ---
 
 ## Anul·lar una sol·licitud
 
-Mentre una sol·licitud està **Pendent**, fes clic a **Anul·la la sol·licitud** al seu requadre.
+Mentre una sol·licitud està **Pendent**, o **Pendent de documentació** si el centre no l'ha tramitat amb el Ministeri, fes clic a **Anul·la la sol·licitud** al seu requadre.
 
 ---
 

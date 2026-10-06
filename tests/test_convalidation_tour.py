@@ -69,6 +69,13 @@ class TestConvalidationTour(HttpCase):
         self.assertTrue(self.request.resolved_by_ministry)
         self.assertEqual(self.request.line_ids.rejection_reason, 'Refused by the Ministry')
 
+    def test_head_of_studies_requests_documentation(self):
+        self.start_tour("/odoo", "ems_convalidation_request_info", login=self.head_of_studies.login)
+        self.assertEqual(self.request.state, 'pending')
+        self.assertEqual(self.request.info_request_reason_id,
+                         self.env.ref('ems.convalidation_info_reason_previous_centre'))
+        self.assertEqual(self.request.info_request, 'Name and code of the previous centre')
+
     def test_director_resolves(self):
         self._propose()
         self.start_tour("/odoo", "ems_convalidation_director_resolves", login=self.director.login)

@@ -323,6 +323,12 @@ class TestConvalidation(TransactionCase):
             request.action_cancel()
         self.env['ems.convalidation.info_wizard'].with_user(self.head_of_studies).create({
             'convalidation_id': request.id, 'message': "Send the Ministry's form"}).action_send()
+        # Waiting for it, still cancellable by nobody; once it arrives it is back with the Ministry.
+        self.assertEqual(request.state, 'documentation')
+        with self.assertRaises(UserError):
+            request.action_cancel()
+        request.with_user(self.head_of_studies).action_documentation_received()
+        self.assertEqual(request.state, 'ministry')
         self._line(request).with_user(self.head_of_studies).write({'state': 'granted', 'grade': 8})
         request.with_user(self.head_of_studies).write({
             'ministry_resolution': base64.b64encode(b'%PDF-1.4 ministry'),
@@ -620,15 +626,20 @@ class TestConvalidation(TransactionCase):
 
     # --- asking the student for more documentation ---------------------------
 
+    def _ask_for_documentation(self, request, message=None, reason=None):
+        vals = {'convalidation_id': request.id, 'message': message}
+        if reason:
+            vals['reason_id'] = reason.id
+        self.env['ems.convalidation.info_wizard'].with_user(self.head_of_studies).create(vals).action_send()
+
     def test_head_of_studies_asks_for_documentation(self):
         request = self._request()
-        wizard = self.env['ems.convalidation.info_wizard'].with_user(self.head_of_studies).create({
-            'convalidation_id': request.id,
-            'message': "Please attach the academic certificate of your previous studies.",
-        })
-        wizard.action_send()
-        self.assertEqual(request.state, 'pending')
+        self._ask_for_documentation(request, "Please attach the academic certificate of your previous studies.")
+        # The request now waits for the applicant (issue #577).
+        self.assertEqual(request.state, 'documentation')
         # Kept on the request, for the portal to show it next to the answer form.
+        self.assertEqual(request.info_request_reason_id,
+                         self.env.ref('ems.convalidation_info_reason_previous_centre'))
         self.assertEqual(request.info_request, "Please attach the academic certificate of your previous studies.")
         self.assertTrue(request.info_request_date)
         mails = self.env['mail.mail'].sudo().search([
@@ -637,6 +648,65 @@ class TestConvalidation(TransactionCase):
         self.assertEqual(mails.email_to, self.student.email)
         self.assertTrue(request.message_ids.filtered(
             lambda message: 'academic certificate' in (message.body or '')))
+
+    def test_the_most_usual_reason_is_preselected(self):
+        """Like the strike reasons: the first by its own order, the missing data of the previous
+        centre - almost always the reason."""
+        reason = self.env.ref('ems.convalidation_info_reason_previous_centre')
+        wizard = self.env['ems.convalidation.info_wizard'].with_user(self.head_of_studies).create({
+            'convalidation_id': self._request().id})
+        self.assertEqual(wizard.reason_id, reason)
+        reason.sequence = 100
+        wizard = self.env['ems.convalidation.info_wizard'].with_user(self.head_of_studies).create({
+            'convalidation_id': self._request(self.other_subject).id})
+        self.assertNotEqual(wizard.reason_id, reason)
+
+    def test_the_reason_alone_is_enough_and_travels_in_the_email(self):
+        request = self._request()
+        reason = self.env.ref('ems.convalidation_info_reason_syllabus')
+        self._ask_for_documentation(request, reason=reason)
+        self.assertEqual(request.info_request_reason_id, reason)
+        self.assertFalse(request.info_request)
+        mail = self.env['mail.mail'].sudo().search([
+            ('model', '=', 'ems.convalidation'), ('res_id', '=', request.id)])
+        reason_text = reason.with_context(lang=self.student.lang or 'en_US').name
+        self.assertIn(reason_text, mail.body_html)
+
+    def test_the_answer_puts_the_request_back_under_review(self):
+        hold_position(self.env, 'ems.role_dhos', self.head_of_studies)
+        request = self._request()
+        self._ask_for_documentation(request, "Attach the certificate")
+        # Nothing for the Head of Studies to do while the applicant has it.
+        self.assertFalse(self._tasks(request, 'ems.mail_activity_convalidation_review'))
+        request._ems_portal_add_documents(self.env['ir.attachment'], "Here it is")
+        self.assertEqual(request.state, 'pending')
+        self.assertEqual(self._tasks(request, 'ems.mail_activity_convalidation_review').user_id,
+                         self.head_of_studies)
+
+    def test_documentation_received_by_other_means(self):
+        request = self._request()
+        self._ask_for_documentation(request, "Attach the certificate")
+        with self.assertRaises(UserError):
+            request.with_user(self.secretary).action_documentation_received()
+        request.with_user(self.head_of_studies).action_documentation_received()
+        self.assertEqual(request.state, 'pending')
+        with self.assertRaises(UserError):
+            request.with_user(self.head_of_studies).action_documentation_received()
+
+    def test_subjects_can_be_decided_but_not_proposed_while_waiting(self):
+        request = self._request()
+        self._ask_for_documentation(request, "Attach the certificate")
+        self._line(request).with_user(self.head_of_studies).action_grant()
+        with self.assertRaises(UserError):
+            request.with_user(self.head_of_studies).action_propose()
+        with self.assertRaises(UserError):
+            request.with_user(self.head_of_studies).action_send_to_ministry()
+
+    def test_the_applicant_can_cancel_while_waiting(self):
+        request = self._request()
+        self._ask_for_documentation(request, "Attach the certificate")
+        request.action_cancel()
+        self.assertEqual(request.state, 'cancelled')
 
     def test_information_cannot_be_asked_for_once_completed(self):
         request = self._completed()

@@ -23,13 +23,14 @@ En tots dos casos, secretaria registra després la resolució a l'Esfera i tanca
 |-------|--------------|
 | **Pendent** | Cap d'Estudis la revisa. Hi continua fins que es resol. |
 | **En procés Ministeri** | Cap d'Estudis l'ha tramitada amb el Ministeri i n'espera la resposta. |
+| **Pendent de documentació** | S'ha demanat documentació al sol·licitant. Torna a **Pendent** (o a **En procés Ministeri**) quan arriba. |
 | **Pendent de direcció** | Direcció ha de resoldre la proposta o retornar-la. |
 | **Pendent de secretaria** | Ja està resolta; secretaria l'ha de registrar a l'Esfera. |
 | **Completada** | Registrada, amb algun mòdul convalidat. L'alumne ja veu la nota. |
 | **Rebutjada** | Registrada, sense cap mòdul convalidat. |
 | **Anul·lada** | L'alumne o la família l'ha anul·lada des del portal. |
 
-L'estat només canvia amb els botons de cada pas.
+L'estat només canvia amb les accions de cada pas, al menú **Accions** del formulari.
 
 ---
 
@@ -37,7 +38,7 @@ L'estat només canvia amb els botons de cada pas.
 
 Navega a: **Gestió acadèmica → Convalidacions**
 
-La llista s'obre amb totes les sol·licituds en curs: **Pendents del Cap d'Estudis**, **En procés Ministeri**, **Pendent de direcció** i **Pendent de secretaria**. Treu els filtres per veure-les totes, o fes servir **Completades**, **Rebutjades** i **Anul·lades**.
+La llista s'obre amb totes les sol·licituds en curs: **Pendents del Cap d'Estudis**, **Pendent de documentació**, **En procés Ministeri**, **Pendent de direcció** i **Pendent de secretaria**. Treu els filtres per veure-les totes, o fes servir **Completades**, **Rebutjades** i **Anul·lades**.
 
 ![Llista de sol·licituds de convalidació](../../assets/head_of_studies/convalidations-list.png)
 
@@ -45,7 +46,7 @@ Per veure les sol·licituds d'un alumne, obre la seva fitxa i fes clic al botó 
 
 Cada pas genera una tasca a la safata d'activitats (🕒) de qui l'ha de fer:
 
-- Cada sol·licitud nova, o retornada per Direcció, a qui ocupa el càrrec de **Cap d'Estudis Adjunt/a**.
+- Cada sol·licitud nova, o retornada per Direcció, a qui ocupa el càrrec de **Cap d'Estudis Adjunt/a**. Mentre una sol·licitud espera la documentació del sol·licitant, la tasca surt de la safata, i hi torna quan arriba la documentació.
 - Cada proposta, a qui ocupa el càrrec de **Director/a**.
 
 Crear una tasca no envia cap correu. En canvi, cada dia laborable, a l'inici de la teva jornada, reps un únic correu amb tot el que tens pendent a la safata: vegeu [Resum diari de tasques pendents](../teachers/task-digest.md).
@@ -77,27 +78,41 @@ A cada línia de la pestanya **Assignatures**, fes servir els botons de la dreta
 | ✖ (Rebutjar) | El mòdul no es convalida. |
 | ↺ (Torna a pendent) | Desfà la decisió de la línia. |
 
-Per convalidar d'un sol cop tots els mòduls pendents, fes clic a **Convalida els mòduls pendents**.
+Per convalidar d'un sol cop tots els mòduls pendents, tria **Convalida els mòduls pendents** a **Accions**.
 
 - **Nota:** cada mòdul convalidat té un 5 per defecte, que la resolució mostra com a **Convalidat**. Si els estudis previs tenen una altra nota, escriu-la a la columna **Nota**: la resolució mostrarà aquesta nota.
 - **Motiu de la denegació:** cada mòdul rebutjat necessita el seu motiu, que surt a la resolució. Sense motiu, la proposta no es pot enviar.
 
 ### Demanar documentació
 
-Fes clic a **Demana informació**, escriu què necessites i envia-ho. L'alumne rep un correu, i també la família si és menor d'edat o si l'alumne ha autoritzat compartir la informació amb ella. El text surt al portal, a la mateixa sol·licitud, just a sobre del formulari per respondre-hi i adjuntar documents. La sol·licitud no canvia d'estat.
+1. A **Accions**, tria **Demana informació**.
+2. Tria el **Motiu**. El més habitual, **Falten les dades del centre de procedència**, ja surt seleccionat.
+3. Si cal, escriu a **Detalls** què falta exactament.
+4. Fes clic a **Enviar**.
 
-Es pot demanar documentació mentre la sol·licitud és **Pendent** o **En procés Ministeri**.
+L'alumne rep un correu amb el motiu i els detalls, i també la família si és menor d'edat o si l'alumne ha autoritzat compartir la informació amb ella. També surten al portal, a la mateixa sol·licitud, just a sobre del formulari per respondre-hi i adjuntar documents.
+
+La sol·licitud passa a **Pendent de documentació** fins que arriba la documentació:
+
+- **Des del portal:** tan bon punt el sol·licitant respon, la sol·licitud torna on era (**Pendent** o **En procés Ministeri**).
+- **Per una altra via** (en paper, per correu): a **Accions**, tria **Documentació rebuda**.
+
+Mentrestant pots continuar decidint els mòduls, però no pots enviar la proposta ni tramitar-la amb el Ministeri. La pestanya **Documentació sol·licitada** mostra la data, el motiu i els detalls de l'última petició.
+
+Es pot demanar documentació mentre la sol·licitud és **Pendent**, **Pendent de documentació** o **En procés Ministeri**. La llista de motius la manté l'administrador de l'EMS (vegeu [Configuració de convalidacions](../admin/convalidation-settings.md)).
 
 ---
 
 ## Resoldre-la al centre
 
 1. Decideix tots els mòduls, amb el motiu dels que rebutgis.
-2. Fes clic a **Enviar proposta a direcció**.
+2. A **Accions**, tria **Enviar proposta a direcció**.
 
 La sol·licitud passa a **Pendent de direcció** i ja no es poden canviar els mòduls ni les notes.
 
 ### Resoldre la proposta (Direcció)
+
+Les dues opcions són al menú **Accions** del formulari.
 
 ![Proposta pendent de direcció](../../assets/head_of_studies/convalidations-director.png)
 
@@ -122,10 +137,10 @@ Els textos dels fonaments de dret i del recurs, i la signatura per delegació, e
 ## Resoldre-la pel Ministeri
 
 1. Tramita la sol·licitud amb el Ministeri.
-2. Al formulari, fes clic a **En procés Ministeri** i confirma. La sol·licitud continua a les teves mans: l'alumne ja no la pot anul·lar, però li pots continuar demanant documentació.
+2. A **Accions**, tria **En procés Ministeri** i confirma. La sol·licitud continua a les teves mans: l'alumne ja no la pot anul·lar, però li pots continuar demanant documentació.
 3. Quan arribi la resposta del Ministeri, decideix cada mòdul segons el que resolgui, amb el motiu dels rebutjats.
 4. Si tens la resolució del Ministeri, puja-la al camp **Resolució del Ministeri**. És opcional.
-5. Fes clic a **Resolució del Ministeri rebuda**.
+5. A **Accions**, tria **Resolució del Ministeri rebuda**.
 
 La sol·licitud passa directament a **Pendent de secretaria**, sense passar per Direcció. Si has pujat la resolució del Ministeri, és la que rep l'alumne.
 
@@ -159,7 +174,7 @@ Pots registrar una sol·licitud, i tramitar-ne qualsevol, en qualsevol moment: e
 
 ## Anul·lar i reobrir
 
-- **Anul·la la sol·licitud** està disponible mentre la sol·licitud és **Pendent**.
+- **Anul·la la sol·licitud** està disponible mentre la sol·licitud és **Pendent**, o **Pendent de documentació** si no s'ha tramitat amb el Ministeri.
 - **Reobrir** torna una sol·licitud anul·lada a **Pendent**.
 
 ---

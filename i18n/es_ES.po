@@ -1384,6 +1384,7 @@ msgstr "Acción Necesária"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__active
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__active
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__active
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_reason__active
 msgid "Active"
 msgstr "Activo"
 
@@ -1790,6 +1791,7 @@ msgstr "Aprobado"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search model_terms:ir.ui.view,arch_db:ems.view_notice_search model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_search
 #: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_reason_form
 msgid "Archived"
 msgstr "Archivado"
 
@@ -3101,6 +3103,7 @@ msgstr "Descripción y notas"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_strike__notes model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__message
 msgid "Details"
 msgstr "Detalles"
 
@@ -5245,6 +5248,7 @@ msgstr "NUSS"
 #: model_terms:ir.ui.view,arch_db:ems.report_meeting_presence_section
 #: code:addons/ems/models/employees/google_workspace_integration.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__label
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_reason__name
 msgid "Name"
 msgstr "Nombre"
 
@@ -5685,6 +5689,7 @@ msgstr "Otro"
 
 #. module: ems
 #: model:ems.strike.reason,name:ems.strike_reason_other model:ir.model.fields.selection,name:ems.selection__ems_authorization_template__auth_type__other
+#: model:ems.convalidation.info_reason,name:ems.convalidation_info_reason_other
 msgid "Other / General"
 msgstr "Otro / General"
 
@@ -6879,6 +6884,7 @@ msgstr "Enviado el"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_field__sequence model:ir.model.fields,field_description:ems.field_ems_csv_column__sequence model:ir.model.fields,field_description:ems.field_ems_strike_reason__sequence model:ir.model.fields,field_description:ems.field_ems_attendance_status__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_reason__sequence
 msgid "Sequence"
 msgstr "Secuencia"
 
@@ -9338,6 +9344,7 @@ msgstr "Salida original"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__reason
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__reason
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__reason_id
 msgid "Reason"
 msgstr "Motivo"
 
@@ -15774,16 +15781,6 @@ msgstr ""
 "centro"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_wizard_form
-msgid ""
-"<i class=\"fa fa-info-circle me-1\"/>The applicant receives it by email and can answer,\n"
-"                        attaching the documents, from the portal. The request itself stays where it is."
-msgstr ""
-"<i class=\"fa fa-info-circle me-1\"/>El solicitante lo recibe por correo y "
-"puede responder, adjuntando los documentos, desde el portal. La solicitud se"
-" queda donde estaba."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 msgid ""
 "<i class=\"fa fa-info-circle me-1\"/>The grade defaults to 5. Write the one the\n"
@@ -16008,15 +16005,6 @@ msgid ""
 msgstr "Envía la solicitud resuelta a secretaría, que la registra en Esfera."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_convalidation_info_wizard__message
-msgid ""
-"Sent to the student (or the family of a minor) by email, and shown on the "
-"portal, where they can answer and attach the documents asked for."
-msgstr ""
-"Se envía por correo al alumno (o a la familia, si es menor) y se muestra en "
-"el portal, donde puede responder y adjuntar los documentos pedidos."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
 msgid ""
 "Studies passed at another centre: the academic certificate or transcript of "
@@ -16126,11 +16114,6 @@ msgstr "Validada por"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__validation_date
 msgid "Validation date"
 msgstr "Fecha de validación"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__message
-msgid "What is missing"
-msgstr "Qué falta"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_convalidation_line__resolution_notes
@@ -18369,17 +18352,6 @@ msgid "Send proposal to the Director"
 msgstr "Enviar propuesta a dirección"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_convalidation_info_wizard__message
-msgid ""
-"Sent to the student (and their family, when it follows their convalidations)"
-" by email, and shown on the portal, where they can answer and attach the "
-"documents asked for."
-msgstr ""
-"Se envía por correo al alumno (y a su familia, cuando sigue sus "
-"convalidaciones) y se muestra en el portal, donde pueden responder y "
-"adjuntar los documentos pedidos."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Standard text"
 msgstr "Texto estándar"
@@ -18580,16 +18552,6 @@ msgstr "<i class=\"fa fa-exclamation-circle me-1\"/>Documentación solicitada"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__info_request_date
 msgid "Documentation requested on"
 msgstr "Documentación solicitada el"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_convalidation__info_request
-msgid ""
-"The last request for information sent to the applicant, shown on the portal "
-"next to the answer form while the request is under review."
-msgstr ""
-"La última petición de información enviada a la persona solicitante, que se "
-"muestra en el portal junto al formulario de respuesta mientras la solicitud "
-"está en revisión."
 
 #. module: ems
 #. odoo-python
@@ -19170,6 +19132,7 @@ msgstr "No se puede poner un strike con fecha futura."
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 msgid "Actions"
 msgstr "Acciones"
 
@@ -20285,3 +20248,106 @@ msgstr "Correo bloqueado: esta es una máquina de desarrollo y esta base de dato
 #: code:addons/ems/models/settings/mail_guard.py:0
 msgid "Email blocked: this is a development machine and these recipients are neither redirected by devel.sh nor in the allowlist: %(recipients)s"
 msgstr "Correo bloqueado: esta es una máquina de desarrollo y estos destinatarios no están desviados por devel.sh ni en la lista de direcciones permitidas: %(recipients)s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_wizard_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>The applicant receives it by email and can answer,\n"
+"                        attaching the documents, from the portal. The request waits as Pending documentation\n"
+"                        until they answer."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>El solicitante lo recibe por correo y "
+"puede responder, adjuntando los documentos, desde el portal. La solicitud "
+"queda Pendiente de documentación hasta que responda."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid "Documentation received"
+msgstr "Documentación recibida"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid ""
+"The documentation arrived some other way (on paper, by email): the request "
+"goes back under review."
+msgstr ""
+"La documentación ha llegado por otra vía (en papel, por correo): la "
+"solicitud vuelve a revisión."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Documentation received: the request is back under review."
+msgstr "Documentación recibida: la solicitud vuelve a revisión."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_reason_form
+msgid "Documentation request reason"
+msgstr "Motivo de petición de documentación"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_convalidation_info_reason
+msgid ""
+"Documentation request reason: predefined reasons to ask a convalidation "
+"applicant for more documentation."
+msgstr ""
+"Motivo de petición de documentación: motivos predefinidos para pedir más "
+"documentación a quien solicita una convalidación."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_convalidation_info_reason_list
+#: model:ir.ui.menu,name:ems.menu_ems_convalidation_info_reasons
+msgid "Documentation request reasons"
+msgstr "Motivos de petición de documentación"
+
+#. module: ems
+#: model:ems.convalidation.info_reason,name:ems.convalidation_info_reason_previous_centre
+msgid "Missing data from the previous centre"
+msgstr "Faltan los datos del centro de procedencia"
+
+#. module: ems
+#: model:ems.convalidation.info_reason,name:ems.convalidation_info_reason_certificate
+msgid "Missing academic certificate of the previous studies"
+msgstr "Falta el certificado académico de los estudios previos"
+
+#. module: ems
+#: model:ems.convalidation.info_reason,name:ems.convalidation_info_reason_syllabus
+msgid "Missing syllabus of the subjects studied"
+msgstr "Falta el programa de las materias cursadas"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__documentation
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+msgid "Pending documentation"
+msgstr "Pendiente de documentación"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__info_request_reason_id
+msgid "Reason for the request"
+msgstr "Motivo de la petición"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_info_wizard__message
+msgid ""
+"Sent to the student (and their family, when it follows their convalidations)"
+" by email after the reason, and shown on the portal, where they can answer "
+"and attach the documents asked for."
+msgstr ""
+"Se envía al alumno (y a su familia, cuando sigue sus convalidaciones) por "
+"correo después del motivo, y se muestra en el portal, donde pueden responder"
+" y adjuntar los documentos pedidos."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation__info_request
+msgid ""
+"The details of the last request for information sent to the applicant, shown"
+" on the portal next to the answer form while the request is under review."
+msgstr ""
+"El detalle de la última petición de información enviada al solicitante, que "
+"se muestra en el portal junto al formulario de respuesta mientras la "
+"solicitud está en revisión."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation__info_request_reason_id
+msgid "Why the applicant was last asked for more documentation."
+msgstr "Por qué se pidió más documentación al solicitante la última vez."

@@ -23,13 +23,14 @@ En ambos casos, secretaría registra después la resolución en Esfera y cierra 
 |--------|-------------|
 | **Pendiente** | Jefatura de Estudios la revisa. Sigue ahí hasta que se resuelve. |
 | **En proceso Ministerio** | Jefatura de Estudios la ha tramitado con el Ministerio y espera su respuesta. |
+| **Pendiente de documentación** | Se ha pedido documentación al solicitante. Vuelve a **Pendiente** (o a **En proceso Ministerio**) cuando llega. |
 | **Pendiente de dirección** | Dirección tiene que resolver la propuesta o devolverla. |
 | **Pendiente de secretaría** | Ya está resuelta; secretaría tiene que registrarla en Esfera. |
 | **Completada** | Registrada, con algún módulo convalidado. El alumno ya ve la nota. |
 | **Rechazada** | Registrada, sin ningún módulo convalidado. |
 | **Anulada** | El alumno o la familia la ha anulado desde el portal. |
 
-El estado solo cambia con los botones de cada paso.
+El estado solo cambia con las acciones de cada paso, en el menú **Acciones** del formulario.
 
 ---
 
@@ -37,7 +38,7 @@ El estado solo cambia con los botones de cada paso.
 
 Navega a: **Gestión académica → Convalidaciones**
 
-La lista se abre con todas las solicitudes en curso: **Pendientes de Jefatura de Estudios**, **En proceso Ministerio**, **Pendiente de dirección** y **Pendiente de secretaría**. Quita los filtros para verlas todas, o usa **Completadas**, **Rechazadas** y **Anuladas**.
+La lista se abre con todas las solicitudes en curso: **Pendientes de Jefatura de Estudios**, **Pendiente de documentación**, **En proceso Ministerio**, **Pendiente de dirección** y **Pendiente de secretaría**. Quita los filtros para verlas todas, o usa **Completadas**, **Rechazadas** y **Anuladas**.
 
 ![Lista de solicitudes de convalidación](../../assets/head_of_studies/convalidations-list.png)
 
@@ -45,7 +46,7 @@ Para ver las solicitudes de un alumno, abre su ficha y haz clic en el botón **C
 
 Cada paso genera una tarea en la bandeja de actividades (🕒) de quien tiene que hacerlo:
 
-- Cada solicitud nueva, o devuelta por Dirección, a quien ocupa el cargo de **Jefe/a de Estudios Adjunto/a**.
+- Cada solicitud nueva, o devuelta por Dirección, a quien ocupa el cargo de **Jefe/a de Estudios Adjunto/a**. Mientras una solicitud espera la documentación del solicitante, la tarea sale de la bandeja, y vuelve cuando llega la documentación.
 - Cada propuesta, a quien ocupa el cargo de **Director/a**.
 
 Crear una tarea no envía ningún correo. En su lugar, cada día laborable, al inicio de tu jornada, recibes un único correo con todo lo que tienes pendiente en la bandeja: consulta [Resumen diario de tareas pendientes](../teachers/task-digest.md).
@@ -77,27 +78,41 @@ En cada línea de la pestaña **Asignaturas**, usa los botones de la derecha:
 | ✖ (Rechazar) | El módulo no se convalida. |
 | ↺ (Volver a pendiente) | Deshace la decisión de la línea. |
 
-Para convalidar de una vez todos los módulos pendientes, haz clic en **Convalidar los módulos pendientes**.
+Para convalidar de una vez todos los módulos pendientes, elige **Convalidar los módulos pendientes** en **Acciones**.
 
 - **Nota:** cada módulo convalidado tiene un 5 por defecto, que la resolución muestra como **Convalidat**. Si los estudios previos tienen otra nota, escríbela en la columna **Nota**: la resolución mostrará esa nota.
 - **Motivo de la denegación:** cada módulo rechazado necesita su motivo, que sale en la resolución. Sin motivo, la propuesta no se puede enviar.
 
 ### Pedir documentación
 
-Haz clic en **Pedir información**, escribe qué necesitas y envíalo. El alumno recibe un correo, y también la familia si es menor de edad o si el alumno ha autorizado compartir la información con ella. El texto aparece en el portal, en la misma solicitud, justo encima del formulario para responder y adjuntar documentos. La solicitud no cambia de estado.
+1. En **Acciones**, elige **Pedir información**.
+2. Elige el **Motivo**. El más habitual, **Faltan los datos del centro de procedencia**, ya aparece seleccionado.
+3. Si hace falta, escribe en **Detalles** qué falta exactamente.
+4. Haz clic en **Enviar**.
 
-Se puede pedir documentación mientras la solicitud está **Pendiente** o **En proceso Ministerio**.
+El alumno recibe un correo con el motivo y los detalles, y también la familia si es menor de edad o si el alumno ha autorizado compartir la información con ella. También aparecen en el portal, en la misma solicitud, justo encima del formulario para responder y adjuntar documentos.
+
+La solicitud pasa a **Pendiente de documentación** hasta que llega la documentación:
+
+- **Desde el portal:** en cuanto el solicitante responde, la solicitud vuelve a donde estaba (**Pendiente** o **En proceso Ministerio**).
+- **Por otra vía** (en papel, por correo): en **Acciones**, elige **Documentación recibida**.
+
+Mientras tanto puedes seguir decidiendo los módulos, pero no puedes enviar la propuesta ni tramitarla con el Ministerio. La pestaña **Documentación solicitada** muestra la fecha, el motivo y los detalles de la última petición.
+
+Se puede pedir documentación mientras la solicitud está **Pendiente**, **Pendiente de documentación** o **En proceso Ministerio**. La lista de motivos la mantiene el administrador del EMS (ver [Configuración de convalidaciones](../admin/convalidation-settings.md)).
 
 ---
 
 ## Resolverla en el centro
 
 1. Decide todos los módulos, con el motivo de los que rechaces.
-2. Haz clic en **Enviar propuesta a dirección**.
+2. En **Acciones**, elige **Enviar propuesta a dirección**.
 
 La solicitud pasa a **Pendiente de dirección** y ya no se pueden cambiar los módulos ni las notas.
 
 ### Resolver la propuesta (Dirección)
+
+Las dos opciones están en el menú **Acciones** del formulario.
 
 ![Propuesta pendiente de dirección](../../assets/head_of_studies/convalidations-director.png)
 
@@ -122,10 +137,10 @@ Los textos de los fundamentos de derecho y del recurso, y la firma por delegaci�
 ## Resolverla por el Ministerio
 
 1. Tramita la solicitud con el Ministerio.
-2. En el formulario, haz clic en **En proceso Ministerio** y confirma. La solicitud sigue en tus manos: el alumno ya no puede anularla, pero puedes seguir pidiéndole documentación.
+2. En **Acciones**, elige **En proceso Ministerio** y confirma. La solicitud sigue en tus manos: el alumno ya no puede anularla, pero puedes seguir pidiéndole documentación.
 3. Cuando llegue la respuesta del Ministerio, decide cada módulo según lo que resuelva, con el motivo de los rechazados.
 4. Si tienes la resolución del Ministerio, súbela al campo **Resolución del Ministerio**. Es opcional.
-5. Haz clic en **Resolución del Ministerio recibida**.
+5. En **Acciones**, elige **Resolución del Ministerio recibida**.
 
 La solicitud pasa directamente a **Pendiente de secretaría**, sin pasar por Dirección. Si has subido la resolución del Ministerio, es la que recibe el alumno.
 
@@ -159,7 +174,7 @@ Puedes registrar una solicitud, y tramitar cualquiera, en cualquier momento: el 
 
 ## Anular y reabrir
 
-- **Anular la solicitud** está disponible mientras la solicitud está **Pendiente**.
+- **Anular la solicitud** está disponible mientras la solicitud está **Pendiente**, o **Pendiente de documentación** si no se ha tramitado con el Ministerio.
 - **Reabrir** devuelve una solicitud anulada a **Pendiente**.
 
 ---

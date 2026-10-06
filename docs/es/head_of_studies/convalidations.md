@@ -38,7 +38,7 @@ El estado solo cambia con las acciones de cada paso, en el menú **Acciones** de
 
 Navega a: **Gestión académica → Convalidaciones**
 
-La lista se abre con todas las solicitudes en curso: **Pendientes de Jefatura de Estudios**, **Pendiente de documentación**, **En proceso Ministerio**, **Pendiente de dirección** y **Pendiente de secretaría**. Quita los filtros para verlas todas, o usa **Completadas**, **Rechazadas** y **Anuladas**.
+La lista se abre con todas las solicitudes que esperan al centro: **Pendientes de Jefatura de Estudios**, **En proceso Ministerio**, **Pendiente de dirección** y **Pendiente de secretaría**. Las que esperan la documentación del solicitante quedan fuera: usa el filtro **Pendiente de documentación** para verlas. Quita los filtros para verlas todas, o usa **Completadas**, **Rechazadas** y **Anuladas**.
 
 ![Lista de solicitudes de convalidación](../../assets/head_of_studies/convalidations-list.png)
 

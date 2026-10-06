@@ -224,4 +224,4 @@ A yearly window, with no year, stored on `res.company` and edited in Settings �
 `ems.convalidation.info_reason`: academic admin CRUD; Head of Studies and secretary read (they pick it in the wizard); nobody else.
 
 - **Student form:** the **Convalidations** stat button is limited to the groups above. Its count is computed with `sudo`, so the form still opens for roles without access.
-- **Menu:** Academic management → Convalidations (`menu_ems_convalidations`). Its default filters show every open state (Head of Studies, pending documentation, Ministry, Director, secretariat). The form's actions are in its **Actions** dropdown ([`actions_dropdown.md`](../shared/actions_dropdown.md)).
+- **Menu:** Academic management → Convalidations (`menu_ems_convalidations`). Its default filters show every state waiting for the centre (Head of Studies, Ministry, Director, secretariat); `documentation` is left out, since it waits for the applicant, and has its own filter. The form's actions are in its **Actions** dropdown ([`actions_dropdown.md`](../shared/actions_dropdown.md)).

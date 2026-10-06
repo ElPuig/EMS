@@ -16,7 +16,8 @@
   "Missing data from the previous centre" (first, the usual case), missing academic certificate,
   missing syllabus and other. The free text becomes optional "Details". The email and the portal
   show the reason, in the reader's language, followed by the details.
-- New list filter "Pending documentation", included in the default open-states filters.
+- New list filter "Pending documentation". It is not part of the default filters: those requests
+  wait for the applicant, not for the centre.
 
 # Changes:
 

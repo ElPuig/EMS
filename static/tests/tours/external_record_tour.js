@@ -125,3 +125,69 @@ registry.category("web_tour.tours").add("ems_external_record", {
         },
     ],
 });
+
+// The same, from an Esfera academic record PDF (an invented one the test serves through an
+// xmlid): upload it, check and correct the review grid, and create the record in one go.
+registry.category("web_tour.tours").add("ems_external_record_certificate", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_field_widget[name='name']:contains('External Record Tour Student'), .o_form_view .o_field_widget[name='name'] input",
+            content: "The student form is loaded",
+        },
+        ...clickAction("action_external_record_wizard", "Add a record from another centre"),
+        {
+            // The file input itself is hidden behind the widget's Upload button, and a tour only
+            // triggers on visible elements: wait for the field, set the input's files in run().
+            trigger: ".modal div[name='certificate_file']",
+            content: "Upload the academic record PDF",
+            async run() {
+                const response = await fetch("/web/content/ems.tour_external_record_certificate");
+                const file = new File([await response.blob()], "certificate.pdf",
+                                      { type: "application/pdf" });
+                const transfer = new DataTransfer();
+                transfer.items.add(file);
+                const input = document.querySelector(
+                    ".modal div[name='certificate_file'] input[type='file']");
+                input.files = transfer.files;
+                input.dispatchEvent(new Event("change", { bubbles: true }));
+            },
+        },
+        {
+            trigger: ".modal div[name='origin_centre_name'] input:value(Institut Inventat Tour)",
+            content: "The origin centre was read from the certificate",
+        },
+        {
+            trigger: ".modal div[name='line_ids'] .o_data_row:contains('M_OP_09') td[name='warning']:not(:empty)",
+            content: "The other centre's optional module is flagged as not imported",
+        },
+        {
+            trigger: ".modal div[name='line_ids'] .o_data_row:contains('EXRTSUBA_EXRT_02RA') td[name='score']",
+            content: "Open the grade of outcome two",
+            run: "click",
+        },
+        {
+            trigger: ".modal div[name='line_ids'] .o_data_row:contains('EXRTSUBA_EXRT_02RA') td[name='score'] input",
+            content: "Correct it",
+            run: "edit 9",
+        },
+        {
+            trigger: ".modal footer button[name='action_create']",
+            content: "Create the record with every module",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal))",
+            content: "The dialog is closed",
+        },
+        {
+            trigger: ".o_form_view .o_notebook a[name='studies']",
+            content: "Open the Studies tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view div[name='year_record_ids'] .o_data_row:contains('2078-2079')",
+            content: "The record shows in the student's Academic history",
+        },
+    ],
+});

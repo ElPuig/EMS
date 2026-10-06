@@ -84,18 +84,29 @@ El módulo conserva la fecha, el autor/a y el texto de la última revisión que 
 
 Cuando un alumno/a viene a hacer segundo curso después de haber hecho primero en otro centro, su expediente de primero se añade al histórico a partir del certificado académico. Pueden hacerlo secretaría, administración, jefatura de estudios y dirección, de momento solo en estudios de FP.
 
-1. Abrid la ficha del alumno/a y, en el desplegable **Acciones**, haced clic en **Añadir expediente de otro centro**.
-2. Rellenad los datos del certificado:
-   - **Curso:** el curso que hizo en el otro centro. Solo se ofrecen cursos anteriores al actual que el alumno/a todavía no tiene en el histórico.
-   - **Estudio:** el estudio equivalente del centro. Solo se ofrecen los que tienen programación de resultados de aprendizaje ese curso.
-   - **Centro de procedencia** y, si lo tenéis, el **Código del centro de procedencia**.
-   - **Certificado académico:** opcionalmente, el PDF del certificado.
-   - **Notas:** opcional.
-3. Haced clic en **Crear y añadir los módulos**. Se abre la **Revisión de calificaciones** para añadir el primer módulo.
-4. Elegid el módulo y poned la nota de cada resultado de aprendizaje tal como consta en el certificado. Si la **Nota del centro (calculada)** no coincide con la del certificado, escribid la del certificado en **Nota del centro (aplicada)** (ved [Forzar la nota del centro manualmente](#forzar-la-nota-del-centro-manualmente)).
-5. Haced clic en **Aplicar y añadir otro módulo** para pasar al módulo siguiente, con la misma resolución y fecha. En el último módulo, haced clic en **Aplicar revisión**.
+Abrid la ficha del alumno/a y, en el desplegable **Acciones**, haced clic en **Añadir expediente de otro centro**.
 
-Si el certificado todavía no tiene la nota de la estancia (EM) de un módulo, dejadla fuera: el módulo queda superado con la **nota final pendiente** y el tutor/a del grupo actual del alumno/a la califica desde la pantalla de estancia.
+### Con el expediente académico de Esfera (PDF)
+
+1. En **Certificado académico**, subid el PDF del expediente académico que ha emitido el otro centro.
+2. Se rellenan solos el centro de procedencia, su código, el estudio y una rejilla con todos los módulos, resultados de aprendizaje (RA) y estancias del certificado. Los cursos hechos en nuestro centro no se incluyen.
+3. Revisad la rejilla:
+   - **Calificación del certificado** es lo que dice el PDF; **Nota** y **Calificado** es lo que se guardará. Corregidlas si hace falta. Un RA *No assolit* o *Pendent* queda sin nota, y el módulo, no superado.
+   - Las líneas con **Aviso** necesitan atención: un módulo que no es del estudio (p. ej. una optativa propia del otro centro) no se importa; si hay uno equivalente, elegidlo en **Módulo** y marcad **Importar**.
+   - Cuando la nota del módulo del certificado no coincide con la que dan los RA con las ponderaciones del centro, se aplica la del certificado, siempre que ambas coincidan en superado o no superado.
+4. Comprobad que **Alumno del certificado** es el alumno/a: si el identificador no coincide con su IDALU, el expediente no se crea.
+5. Haced clic en **Crear el expediente**. Se crean el registro y todos los módulos marcados a la vez, con el PDF adjunto.
+
+### Con cualquier otro certificado
+
+1. Rellenad **Curso** (solo se ofrecen cursos anteriores al actual que el alumno/a todavía no tiene en el histórico), **Estudio**, **Centro de procedencia** y, si lo tenéis, el **Código del centro de procedencia**. Podéis adjuntar el certificado en **Certificado académico**.
+2. Haced clic en **Crear y añadir los módulos**. Se abre la **Revisión de calificaciones** para añadir el primer módulo.
+3. Elegid el módulo y poned la nota de cada RA tal como consta en el certificado. Si la **Nota del centro (calculada)** no coincide con la del certificado, escribid la del certificado en **Nota del centro (aplicada)** (ved [Forzar la nota del centro manualmente](#forzar-la-nota-del-centro-manualmente)).
+4. Haced clic en **Aplicar y añadir otro módulo** para pasar al módulo siguiente, con la misma resolución y fecha. En el último módulo, haced clic en **Aplicar revisión**.
+
+### Después
+
+Si el certificado todavía no tiene la nota de la estancia (EM) de un módulo, el módulo queda superado con la **nota final pendiente** y el tutor/a del grupo actual del alumno/a la califica desde la pantalla de estancia.
 
 El registro se muestra con la cinta **Otro centro**, el centro de procedencia y el certificado. El filtro **Otro centro** de la lista del histórico los muestra todos. Para corregirlo más adelante, usad la revisión de calificaciones como en cualquier otro registro.
 

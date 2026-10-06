@@ -41,7 +41,7 @@ Open the student's record for that course and click **Grade review**. The full s
 
 ## Adding a record from another centre
 
-The course a student took at another centre is added to the history from their form, in the **Actions → Add record from another centre** dropdown, with the grades per learning outcome from the academic certificate. The full step by step is in the [secretariat manual](../secretary/academic-history.md#adding-a-record-from-another-centre). These records carry the **Another centre** ribbon, and the filter of the same name sets them apart in queries.
+The course a student took at another centre is added to the history from their form, in the **Actions → Add record from another centre** dropdown, from the Esfera academic record (PDF) or, with any other certificate, module by module. The full step by step is in the [secretariat manual](../secretary/academic-history.md#adding-a-record-from-another-centre). These records carry the **Another centre** ribbon, and the filter of the same name sets them apart in queries.
 
 ---
 

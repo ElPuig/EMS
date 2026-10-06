@@ -573,7 +573,7 @@ class ResPartner(models.Model):
         """Add to the student's academic history a course taken at another centre (issue #585)."""
         self.ensure_one()
         action = self.env['ir.actions.act_window']._for_xml_id('ems.action_external_record_wizard')
-        action['context'] = {'default_student_id': self.id}
+        action['context'] = {'dialog_size': 'extra-large', 'default_student_id': self.id}
         return action
 
     def action_suggest_destination_group(self):

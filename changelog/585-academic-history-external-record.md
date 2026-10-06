@@ -9,3 +9,12 @@
 - External records show an "Another centre" ribbon with the origin centre and certificate, a column in the history lists and an "Another centre" search filter. The history generator never rewrites them, and a title obtained elsewhere does not count as a title of this centre for convalidations.
 - The role check shared by the grade review and the new wizard moved to `ems.base.get_user_can_edit_history()`.
 - Catalan/Spanish translations, secretariat and Head of Studies manuals (three languages) and the `year_record` developer doc updated; new `TestExternalRecord` and `TestExternalRecordTour` (driven as the secretariat).
+
+## Academic history: read the other centre's Esfera academic record PDF (issue #585):
+
+- Uploading the Departament d'Educació "Expedient acadèmic" PDF in the "Add record from another centre" wizard fills in the origin centre, its code, the study and a review grid with every module, learning outcome (RA) and work placement of the certificate, mapped by code to this centre's curriculum (same rule as the Esfera grade import: `0156_IC10` → subject `0156`, `CFPM IC10` → study `CFGM_IC10`). Course blocks of this centre are skipped.
+- The user checks and corrects the grid (grades, the module of an unrecognised line such as the other centre's own optional modules, which modules to import) and the record is created with all its modules at once, with the PDF attached. "No assolit" and "Pendent" learning outcomes are left ungraded; a pending work placement leaves the final pending; when the certificate's module grade differs from the RA-derived one with this centre's weights, the certificate's is forced (only if both agree on passed / not passed).
+- The certificate's student identifier must match the student's IDALU or the record is not created.
+- Text extraction uses poppler's `pdftotext -layout` (Odoo's PyPDF2 merges the table columns): `poppler-utils` added to `apt-requirements.txt`, installed by `install.sh`/`upgrade.sh`.
+- The internal grade override is now a shared `ems.student.year_record.subject._force_internal_grade()`, used by the grade review and the certificate import.
+- Tests with an invented certificate PDF (`build_academic_record_pdf` in `tests/common.py`) plus a second tour that uploads it and creates the record from the review grid.

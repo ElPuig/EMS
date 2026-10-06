@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 
+import base64
+import io
 from datetime import date
+
+from reportlab.pdfgen import canvas
 
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import Form, TransactionCase
 
-from .common import create_level_study, create_level_study_group, create_role_user, next_student_id
+from .common import (build_academic_record_pdf, create_level_study, create_level_study_group,
+                     create_role_user, next_student_id)
 
 
 class TestExternalRecord(TransactionCase):
@@ -24,7 +29,7 @@ class TestExternalRecord(TransactionCase):
         cls.env.company.current_course_id = cls.current_course
 
         cls.level, cls.study = create_level_study(cls, 'EXR', level={'name': 'External Record Level'},
-                                                  study={'code': 'EXRSTD', 'acronym': 'EXR',
+                                                  study={'code': 'CFGM_EXR1', 'acronym': 'EXR',
                                                          'name': 'External Record Study'})
         # A study with no teaching plan of learning outcomes (ESO and BTX today).
         cls.level_no_plan, cls.study_no_plan = create_level_study(cls, 'EXRN')
@@ -251,3 +256,124 @@ class TestExternalRecord(TransactionCase):
         record.title_obtained = True
         convalidation = self.env['ems.convalidation'].new({'student_id': self.student.id})
         self.assertFalse(convalidation.has_centre_title)
+
+    # --- reading the Esfera academic record PDF ----------------------------------
+
+    def _certificate(self, identifier=None, rows=None, own_centre_block=False):
+        """An invented certificate of the past course: module A with its placement still pending,
+        module B whose grade differs from what this centre's RA weights give, module C (no
+        teaching plan that course) and an optional module of the other centre."""
+        rows = rows or [
+            ('EXRSUBA_EXR1', 'Module A', 'MP', 'Pendent de qualificar'),
+            ('EXRSUBA_EXR1_01EM', "Estada a l'empresa", 'EM', 'Pendent'),
+            ('EXRSUBA_EXR1_01RA', 'Outcome one', 'RA', 'Assolit-7'),
+            ('EXRSUBA_EXR1_02RA', 'Outcome two', 'RA', 'Assolit-6'),
+            ('EXRSUBB_EXR1', 'Module B', 'MP', '9'),
+            ('EXRSUBB_EXR1_01RA', 'Outcome one', 'RA', 'Assolit-8'),
+            ('EXRSUBC_EXR1', 'Module C', 'MP', '6'),
+            ('EXRSUBC_EXR1_01RA', 'Outcome one', 'RA', 'Assolit-6'),
+            ('M_OP_09', 'Other optional', 'MP_', 'No presentat'),
+        ]
+        courses = [('08999999', 'Institut Inventat', '2080/2081', rows)]
+        if own_centre_block:
+            courses.append((self.env.company.center_code, 'This centre', '2081/2082', rows[:3]))
+        return build_academic_record_pdf(identifier or self.student.student_id, 'EXR1', courses)
+
+    def _read(self, pdf, user=None):
+        form = self._form(user)
+        form.certificate_file = base64.b64encode(pdf)
+        return form
+
+    def _module_line(self, wizard, code):
+        return wizard.line_ids.filtered(lambda line: line.certificate_code == code)
+
+    def test_the_certificate_fills_in_the_record(self):
+        wizard = self._read(self._certificate()).save()
+        self.assertEqual(wizard.origin_centre_name, 'Institut Inventat')
+        self.assertEqual(wizard.origin_centre_code, '08999999')
+        self.assertEqual(wizard.study_id, self.study)
+        self.assertEqual(wizard.course_id, self.past_course)
+        self.assertEqual(wizard.certificate_student_identifier, self.student.student_id)
+        module_a = self._module_line(wizard, 'EXRSUBA_EXR1')
+        self.assertEqual(module_a.subject_id, self.subject_a)
+        self.assertTrue(module_a.to_import)
+        self.assertEqual(module_a.certificate_text, 'Pendent de qualificar')
+        outcome = self._module_line(wizard, 'EXRSUBA_EXR1_01RA')
+        self.assertEqual((outcome.kind, outcome.score, outcome.is_scored), ('outcome', 7, True))
+        self.assertEqual(outcome.label, self.outcomes_a[0].display_name)
+        self.assertEqual(self._module_line(wizard, 'EXRSUBA_EXR1_01EM').kind, 'placement')
+
+    def test_the_review_grid_flags_what_needs_attention(self):
+        wizard = self._read(self._certificate()).save()
+        self.assertFalse(self._module_line(wizard, 'EXRSUBA_EXR1').warning)
+        self.assertIn('9', self._module_line(wizard, 'EXRSUBB_EXR1').warning)
+        module_c = self._module_line(wizard, 'EXRSUBC_EXR1')
+        self.assertEqual(module_c.subject_id, self.subject_c)
+        self.assertFalse(module_c.to_import)
+        self.assertTrue(module_c.warning)
+        optional = self._module_line(wizard, 'M_OP_09')
+        self.assertFalse(optional.subject_id)
+        self.assertFalse(optional.to_import)
+        self.assertTrue(optional.warning)
+
+    def test_a_learning_outcome_not_achieved_is_left_ungraded(self):
+        wizard = self._read(self._certificate(rows=[
+            ('EXRSUBB_EXR1', 'Module B', 'MP', '3'),
+            ('EXRSUBB_EXR1_01RA', 'Outcome one', 'RA', 'No assolit'),
+        ])).save()
+        outcome = self._module_line(wizard, 'EXRSUBB_EXR1_01RA')
+        self.assertEqual((outcome.score, outcome.is_scored), (0, False))
+        wizard.action_create()
+        subject_record = self.student.year_record_ids.subject_record_ids
+        self.assertEqual(subject_record.state, 'failed')
+        self.assertEqual(self.student.year_record_ids.academic_result, 'partial')
+
+    def test_create_from_the_certificate_adds_every_module_at_once(self):
+        self._read(self._certificate(), user=self.secretary).save().action_create()
+        record = self.student.year_record_ids
+        self.assertTrue(record.is_external)
+        self.assertEqual(record.course_id, self.past_course)
+        self.assertEqual(record.subject_record_ids.subject_id, self.subject_a | self.subject_b)
+        self.assertTrue(record.certificate_file)
+        self.assertEqual(record.academic_result, 'full')
+        by_subject = {line.subject_id: line for line in record.subject_record_ids}
+        # Module A: placement still pending, so it waits for the current tutor's EM grade.
+        module_a = by_subject[self.subject_a]
+        self.assertEqual(module_a.state, 'passed')
+        self.assertTrue(module_a.final_pending)
+        self.assertEqual(module_a.outcome_record_ids.mapped('final_score'), [7, 6])
+        self.assertEqual(module_a.review_user_id, self.secretary)
+        # Module B: the certificate's 9 prevails over the 8 this centre's weights give.
+        module_b = by_subject[self.subject_b]
+        self.assertEqual((module_b.internal_grade, module_b.final_grade), (9, 9))
+        self.assertTrue(module_b.is_overridden)
+        body = self.student.message_ids[0].body
+        self.assertIn('Institut Inventat', body)
+        self.assertIn(module_b.subject_name, body)
+
+    def test_courses_taken_here_are_skipped(self):
+        wizard = self._read(self._certificate(own_centre_block=True)).save()
+        self.assertEqual(wizard.line_ids.course_id, self.past_course)
+
+    def test_another_students_certificate_is_rejected(self):
+        form = self._form()
+        form.certificate_file = base64.b64encode(self._certificate(identifier='TEST999999'))
+        wizard = form.save()
+        with self.assertRaises(UserError):
+            wizard.action_create()
+        self.assertFalse(self.student.year_record_ids)
+
+    def test_a_module_ticked_without_a_teaching_plan_is_rejected(self):
+        wizard = self._read(self._certificate()).save()
+        self._module_line(wizard, 'EXRSUBC_EXR1').to_import = True
+        with self.assertRaises(UserError):
+            wizard.action_create()
+
+    def test_a_file_that_is_not_an_academic_record_falls_back_to_the_manual_way(self):
+        buffer = io.BytesIO()
+        pdf = canvas.Canvas(buffer)
+        pdf.drawString(20, 800, 'Any other document')
+        pdf.save()
+        form = self._read(buffer.getvalue())
+        self.assertTrue(form.certificate_message)
+        self.assertFalse(form.line_ids)

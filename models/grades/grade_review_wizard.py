@@ -349,16 +349,7 @@ class EmsGradeReviewWizard(models.TransientModel):
         if self.preview_internal_grade == self.preview_internal_grade_calculated:
             return None
         natural_grade = subject_record.internal_grade
-        final_grade, has_final = self.env['ems.grade_subject_line']._final_from_parts(
-            self.preview_internal_grade, True,
-            subject_record.external_grade, subject_record.external_is_scored,
-            subject_record.internal_weight, subject_record.external_weight)
-        subject_record.write({
-            'internal_grade': self.preview_internal_grade,
-            'is_overridden': True,
-            'final_grade': final_grade,
-            'has_final': has_final,
-        })
+        subject_record._force_internal_grade(self.preview_internal_grade)
         return _("Internal grade forced manually: %(forced)s (the learning outcomes would give %(natural)s)",
                  forced=self.preview_internal_grade, natural=natural_grade)
 

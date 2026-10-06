@@ -84,18 +84,29 @@ El mòdul conserva la data, l'autor/a i el text de l'última revisió que s'hi h
 
 Quan un alumne/a ve a fer segon curs després d'haver fet primer en un altre centre, el seu expedient de primer s'afegeix a l'històric a partir del certificat acadèmic. Ho poden fer secretaria, administració, cap d'estudis i direcció, de moment només en estudis de FP.
 
-1. Obriu la fitxa de l'alumne/a i, al desplegable **Accions**, feu clic a **Afegeix un expedient d'un altre centre**.
-2. Ompliu les dades del certificat:
-   - **Curs:** el curs que va fer a l'altre centre. Només s'ofereixen cursos anteriors a l'actual que l'alumne/a encara no té a l'històric.
-   - **Estudi:** l'estudi equivalent del centre. Només s'ofereixen els que tenen programació de resultats d'aprenentatge aquell curs.
-   - **Centre de procedència** i, si el teniu, el **Codi del centre de procedència**.
-   - **Certificat acadèmic:** opcionalment, el PDF del certificat.
-   - **Notes:** opcional.
-3. Feu clic a **Crea i afegeix els mòduls**. S'obre la **Revisió de qualificacions** per afegir el primer mòdul.
-4. Trieu el mòdul i poseu la nota de cada resultat d'aprenentatge tal com consta al certificat. Si la **Nota del centre (calculada)** no coincideix amb la del certificat, escriviu la del certificat a **Nota del centre (aplicada)** (vegeu [Forçar la nota del centre manualment](#forçar-la-nota-del-centre-manualment)).
-5. Feu clic a **Aplica i afegeix un altre mòdul** per passar al mòdul següent, amb la mateixa resolució i data. Al darrer mòdul, feu clic a **Aplica la revisió**.
+Obriu la fitxa de l'alumne/a i, al desplegable **Accions**, feu clic a **Afegeix un expedient d'un altre centre**.
 
-Si el certificat encara no té la nota de l'estada (EM) d'un mòdul, deixeu-la fora: el mòdul queda superat amb la **nota final pendent** i el tutor/a del grup actual de l'alumne/a la qualifica des de la pantalla d'estada.
+### Amb l'expedient acadèmic d'Esfera (PDF)
+
+1. A **Certificat acadèmic**, pugeu el PDF de l'expedient acadèmic que ha emès l'altre centre.
+2. S'omplen sols el centre de procedència, el seu codi, l'estudi i una graella amb tots els mòduls, resultats d'aprenentatge (RA) i estades del certificat. Els cursos fets al nostre centre no s'hi inclouen.
+3. Reviseu la graella:
+   - **Qualificació del certificat** és el que diu el PDF; **Nota** i **Qualificat** és el que es desarà. Corregiu-les si cal. Un RA *No assolit* o *Pendent* queda sense nota, i el mòdul, no superat.
+   - Les línies amb **Avís** necessiten atenció: un mòdul que no és de l'estudi (p. ex. una optativa pròpia de l'altre centre) no s'importa; si n'hi ha un d'equivalent, trieu-lo a **Mòdul** i marqueu **Importa**.
+   - Quan la nota del mòdul del certificat no coincideix amb la que donen els RA amb les ponderacions del centre, s'aplica la del certificat, sempre que totes dues coincideixin en superat o no superat.
+4. Comproveu que **Alumne del certificat** és l'alumne/a: si l'identificador no coincideix amb el seu IDALU, l'expedient no es crea.
+5. Feu clic a **Crea l'expedient**. Es creen el registre i tots els mòduls marcats alhora, amb el PDF adjunt.
+
+### Amb qualsevol altre certificat
+
+1. Ompliu **Curs** (només s'ofereixen cursos anteriors a l'actual que l'alumne/a encara no té a l'històric), **Estudi**, **Centre de procedència** i, si el teniu, el **Codi del centre de procedència**. Podeu adjuntar el certificat a **Certificat acadèmic**.
+2. Feu clic a **Crea i afegeix els mòduls**. S'obre la **Revisió de qualificacions** per afegir el primer mòdul.
+3. Trieu el mòdul i poseu la nota de cada RA tal com consta al certificat. Si la **Nota del centre (calculada)** no coincideix amb la del certificat, escriviu la del certificat a **Nota del centre (aplicada)** (vegeu [Forçar la nota del centre manualment](#forçar-la-nota-del-centre-manualment)).
+4. Feu clic a **Aplica i afegeix un altre mòdul** per passar al mòdul següent, amb la mateixa resolució i data. Al darrer mòdul, feu clic a **Aplica la revisió**.
+
+### Després
+
+Si el certificat encara no té la nota de l'estada (EM) d'un mòdul, el mòdul queda superat amb la **nota final pendent** i el tutor/a del grup actual de l'alumne/a la qualifica des de la pantalla d'estada.
 
 El registre es mostra amb la cinta **Altre centre**, el centre de procedència i el certificat. El filtre **Altre centre** de la llista de l'històric els mostra tots. Per corregir-lo més endavant, feu servir la revisió de qualificacions com en qualsevol altre registre.
 

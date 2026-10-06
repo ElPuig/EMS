@@ -84,18 +84,29 @@ The subject keeps the date, the author and the text of the last review applied t
 
 When a student comes to take the second year after doing the first one at another centre, their first-year record is added to the history from the academic certificate. Secretariat, administration, Head of Studies and Director can do it, for now only on VET studies.
 
-1. Open the student's form and, in the **Actions** dropdown, click **Add record from another centre**.
-2. Fill in the certificate's details:
-   - **Course:** the course taken at the other centre. Only courses before the current one that the student does not have in the history yet are offered.
-   - **Study:** the equivalent study of the centre. Only the ones with a teaching plan of learning outcomes that course are offered.
-   - **Origin centre** and, if you have it, the **Origin centre code**.
-   - **Academic certificate:** optionally, the certificate's PDF.
-   - **Notes:** optional.
-3. Click **Create and add modules**. The **Grade review** opens to add the first module.
-4. Pick the module and type the grade of each learning outcome as shown on the certificate. If **Internal grade (calculated)** differs from the certificate's, type the certificate's in **Internal grade (applied)** (see [Forcing the internal grade manually](#forcing-the-internal-grade-manually)).
-5. Click **Apply and add another module** to go on to the next module, with the same resolution and date. On the last module, click **Apply review**.
+Open the student's form and, in the **Actions** dropdown, click **Add record from another centre**.
 
-If the certificate does not have a module's work placement (EM) grade yet, leave it out: the module stays passed with its **final grade pending**, and the tutor of the student's current group grades it from the work placement screen.
+### From the Esfera academic record (PDF)
+
+1. In **Academic certificate**, upload the academic record PDF the other centre issued.
+2. The origin centre, its code, the study and a grid with every module, learning outcome (RA) and work placement of the certificate are filled in. Courses taken at this centre are left out.
+3. Check the grid:
+   - **Certificate grade** is what the PDF says; **Grade** and **Graded** are what will be saved. Correct them if needed. An RA *No assolit* or *Pendent* is left without a grade, and its module not passed.
+   - Lines with a **Warning** need attention: a module that is not part of the study (e.g. an optional module of the other centre) is not imported; if there is an equivalent one, pick it in **Module** and tick **Import**.
+   - When the certificate's module grade differs from the one the RAs give with this centre's weights, the certificate's is applied, as long as both agree on passed or not passed.
+4. Check that **Certificate student** is the student: if the identifier does not match their IDALU, the record is not created.
+5. Click **Create record**. The record and every ticked module are created at once, with the PDF attached.
+
+### From any other certificate
+
+1. Fill in **Course** (only courses before the current one that the student does not have in the history yet are offered), **Study**, **Origin centre** and, if you have it, the **Origin centre code**. You can attach the certificate in **Academic certificate**.
+2. Click **Create and add modules**. The **Grade review** opens to add the first module.
+3. Pick the module and type the grade of each RA as shown on the certificate. If **Internal grade (calculated)** differs from the certificate's, type the certificate's in **Internal grade (applied)** (see [Forcing the internal grade manually](#forcing-the-internal-grade-manually)).
+4. Click **Apply and add another module** to go on to the next module, with the same resolution and date. On the last module, click **Apply review**.
+
+### Afterwards
+
+If the certificate does not have a module's work placement (EM) grade yet, the module stays passed with its **final grade pending**, and the tutor of the student's current group grades it from the work placement screen.
 
 The record shows with the **Another centre** ribbon, the origin centre and the certificate. The **Another centre** filter of the history list shows all of them. To correct it later, use the grade review as on any other record.
 

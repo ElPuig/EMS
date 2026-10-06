@@ -567,6 +567,22 @@ class EmsStudentYearRecordSubject(models.Model):
             'has_final': has_final,
         }
 
+    def _force_internal_grade(self, grade):
+        """Overwrite the internal grade with a value typed by hand instead of the one the outcomes
+        yield (issue #503: to match the grade Esfera or a certificate records), completing the
+        final grade with the weights frozen in the record. The state is never touched: the caller
+        guarantees the forced value is on the same side of 5 as the outcomes."""
+        for subject_record in self:
+            final_grade, has_final = self.env['ems.grade_subject_line']._final_from_parts(
+                grade, True, subject_record.external_grade, subject_record.external_is_scored,
+                subject_record.internal_weight, subject_record.external_weight)
+            subject_record.write({
+                'internal_grade': grade,
+                'is_overridden': True,
+                'final_grade': final_grade,
+                'has_final': has_final,
+            })
+
     def apply_external_grade(self, score):
         """Write the work placement (EM) grade on an archived subject (called by the EM
         grading wizard), completing its final grade with the weights frozen in the record.

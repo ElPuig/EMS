@@ -41,7 +41,7 @@ Obriu el registre de l'alumne/a d'aquell curs i feu clic a **Revisió de qualifi
 
 ## Afegir un expedient d'un altre centre
 
-El curs que un alumne/a va fer en un altre centre s'afegeix a l'històric des de la seva fitxa, al desplegable **Accions → Afegeix un expedient d'un altre centre**, amb les notes per resultat d'aprenentatge del certificat acadèmic. Teniu el pas a pas complet al [manual de secretaria](../secretary/academic-history.md#afegir-un-expedient-dun-altre-centre). Aquests registres porten la cinta **Altre centre** i el filtre del mateix nom els separa a les consultes.
+El curs que un alumne/a va fer en un altre centre s'afegeix a l'històric des de la seva fitxa, al desplegable **Accions → Afegeix un expedient d'un altre centre**, a partir de l'expedient acadèmic d'Esfera (PDF) o, amb qualsevol altre certificat, mòdul a mòdul. Teniu el pas a pas complet al [manual de secretaria](../secretary/academic-history.md#afegir-un-expedient-dun-altre-centre). Aquests registres porten la cinta **Altre centre** i el filtre del mateix nom els separa a les consultes.
 
 ---
 

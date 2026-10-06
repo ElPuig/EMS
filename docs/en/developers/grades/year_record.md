@@ -8,7 +8,7 @@ The record is a **frozen copy** of the grades subsystem output — never recalcu
 
 This model replaces the legacy, unused `ems.grade_outcome` (removed in this same issue).
 
-**Module files:** `models/grades/year_record.py`, `models/grades/grade_review_wizard.py`, `models/grades/external_record_wizard.py`, `models/contacts/contact.py` (O2m + history tab), `models/contacts/graduation_wizard.py` (withdrawal wizard generates the record), `views/planning_grading/grading/year_record/{form,list,search,menu,grade_review_wizard,external_record_wizard}.xml`, `views/community/contact/form.xml`, `security/rules/grading.xml`, `security/ir.model.access.csv`, `tests/test_year_record.py`, `tests/test_grade_review.py`, `tests/test_grade_review_tour.py`, `tests/test_external_record.py`, `tests/test_external_record_tour.py`
+**Module files:** `models/grades/year_record.py`, `models/grades/grade_review_wizard.py`, `models/grades/external_record_wizard.py`, `models/grades/academic_record_pdf.py`, `models/contacts/contact.py` (O2m + history tab), `models/contacts/graduation_wizard.py` (withdrawal wizard generates the record), `views/planning_grading/grading/year_record/{form,list,search,menu,grade_review_wizard,external_record_wizard}.xml`, `views/community/contact/form.xml`, `security/rules/grading.xml`, `security/ir.model.access.csv`, `tests/test_year_record.py`, `tests/test_grade_review.py`, `tests/test_grade_review_tour.py`, `tests/test_external_record.py`, `tests/test_external_record_tour.py`
 
 ## Hierarchy and relations
 
@@ -180,7 +180,9 @@ is already right, only the weighted average disagrees with Esfera).
 
 ## Records from another centre (issue #585)
 
-A student who comes to take the second year of a study after doing the first one at another centre brings that year's grades on the other centre's academic certificate, per learning outcome (RA). The record of that course is typed in from it instead of generated from this centre's grade sessions, and is marked `is_external`, with `origin_centre_name`, `origin_centre_code` and an optional `certificate_file`. It has no group, tutor or attendance.
+A student who comes to take the second year of a study after doing the first one at another centre brings that year's grades on the other centre's academic certificate, per learning outcome (RA). The record of that course is typed in from it instead of generated from this centre's grade sessions, and is marked `is_external`, with `origin_centre_name`, `origin_centre_code` and an optional `certificate_file`. It has no group, tutor or attendance. There are two ways in: reading the Esfera academic record PDF, or typing any other certificate in module by module.
+
+### Manual way (any certificate)
 
 ```mermaid
 sequenceDiagram
@@ -202,6 +204,27 @@ sequenceDiagram
 ```
 
 - **The modules go through the grade review's own `add` operation**, nothing parallel: RAs and weights from the `ems.planning` of the record's study and course, grades from `_values_from_outcomes()`, and the internal grade override of issue #503 to match the certificate when the other centre weighed its RAs differently. `action_apply_and_add()` applies and reopens the wizard on the same record (`ems.student.year_record.action_grade_review_add()`), carrying the review date and resolution over.
+
+### From the Esfera academic record PDF
+
+When the certificate is the Departament d'Educació's own "Expedient acadèmic" PDF (issued from Esfera), uploading it in the wizard fills everything in and the record is created with all its modules at once, after the user checks a review grid. Any other certificate goes the manual way below.
+
+```mermaid
+flowchart LR
+    PDF["Expedient acadèmic PDF"] -->|"pdftotext -layout<br/>(poppler-utils)"| TXT[text, one table row per line]
+    TXT -->|parse_academic_record_text| DATA["IDALU, study token,<br/>per course: centre + MP / RA / EM rows"]
+    DATA -->|_line_commands| GRID["ems.external_record_wizard.line<br/>(review grid)"]
+    GRID -->|user checks / corrects| CREATE[_create_from_certificate]
+    CREATE --> YR["year_record + subjects<br/>(_recompute_from_outcomes,<br/>apply_external_grade, _force_internal_grade)"]
+```
+
+- **Reading** (`academic_record_pdf.py`, plain functions, no ORM): Odoo's PyPDF2 glues the table columns together, so the text comes from poppler's `pdftotext -layout` (`poppler-utils` in `apt-requirements.txt`, installed by `install.sh`/`upgrade.sh` and therefore by CI and every deploy). A row is a line starting with the level and a code; a wrapped "Pendent de / qualificar" is joined. Grades: `Assolit-N` or a plain number is scored; `No assolit` and `Pendent` are left unscored (the module stays not passed); a module's `Pendent de qualificar` means its work placement is pending.
+- **Mapping by code**, the same rule as the Esfera grade import: the study is the one whose code ends with the certificate's token (`CFPM IC10` → `CFGM_IC10`), a module `0156_IC10` is subject `0156` of that study, an outcome `0156_IC10_03RA` is the planning outcome whose code ends in `_03RA`. Course blocks of this centre (`res.company.center_code`) and empty ones are skipped.
+- **Review grid**: one line per module, RA and EM, in the certificate's order (`module_key` ties them). Module lines carry the mapped subject (editable), an *Import* flag (off when the subject is unknown, e.g. the other centre's own optional modules, or has no teaching plan that course) and a computed warning, which also previews when the certificate's module grade will override the RA-derived internal grade. Read-only columns are `force_save`, or the client would not send them back.
+- **Creation**: refused when the certificate's student identifier is not the student's IDALU. Per course, the record is created as in the manual flow; per ticked module, the subject record is built from the planning's outcomes graded as the grid says, then `_recompute_from_outcomes()`, `apply_external_grade()` when the EM is graded, and `_force_internal_grade()` (shared with the grade review, issue #503) when the certificate's module grade differs but agrees on passed / not passed. The academic result is `grade_based_result()`.
+
+### Rules for both ways
+
 - **Choices are limited to what can be typed per RA:** `course_id` offers courses before the company's current one that the student has no record for yet (the record is a course already taken elsewhere, and a current-course record would block the generator); `study_id` offers studies with an `ems.planning` with outcomes that course, which today means VET only; on an external record, the review's `available_subject_ids` keeps only the modules with a teaching plan that course.
 - **A missing work placement grade stays pending:** a module with an external weight whose EM grade is not on the certificate is saved passed with `has_final = False`, so `final_pending` puts it on the work list of the EM grading wizard (`_pending_subject_records()` searches by student), where the tutor of the student's current group completes it.
 - **The rest of EMS leaves it alone:** `_generate_one()` returns an external record untouched, and `ems.convalidation._compute_has_centre_title` ignores it (a title obtained elsewhere is not a title of this centre).

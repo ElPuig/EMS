@@ -25,7 +25,19 @@ class TestAbsencePending(TransactionCase):
         })
         cls.director = create_role_user(cls, 'director', 'test_director_tap', name='TAP Director')
         director_employee = create_role_employee(cls, cls.director)
+        # Issue #569: a member of the management team (e.g. the Secretary) reports to the Director,
+        # but teaches in a department of the Head of Studies' area: the Head of Studies reaches
+        # them through that department, the other Head of Studies doesn't. Created before the
+        # hierarchy below is set: an area's manager is re-parented by the department cascade.
+        area = cls.env['hr.department'].create({
+            'name': 'TAP Area', 'manager_id': cls.head_of_studies.employee_ids.id})
+        teaching_department = cls.env['hr.department'].create({'name': 'TAP Teaching Department', 'parent_id': area.id})
+        cls.management_teacher = cls.env['hr.employee'].create({
+            'name': 'TAP Management Team Teacher', 'employee_type': 'teacher',
+            'department_id': teaching_department.id,
+        })
         (cls.head_of_studies | cls.other_head_of_studies).employee_ids.parent_id = director_employee
+        cls.management_teacher.parent_id = director_employee
         cls.leave_type = cls.env.ref('ems.leave_type_justified')
         cls.Pending = cls.env['ems.absence_pending']
         cls.monday = cls.Pending.get_local_today() + timedelta(days=7)
@@ -77,6 +89,17 @@ class TestAbsencePending(TransactionCase):
         self.assertFalse(self.Pending.with_user(self.other_head_of_studies).search([('id', '=', pending.id)]))
         with self.assertRaises(AccessError):
             self._pending(user=self.head_of_studies, employee=self.other_teacher)
+
+    def test_head_of_studies_reaches_a_teacher_of_their_area_reporting_elsewhere(self):
+        """Issue #569: the hierarchy alone never reached the management team, who report to the
+        Director: the department they teach in, under an area the user manages, does."""
+        self.assertEqual(self.management_teacher.parent_id, self.director.employee_ids)
+        pending = self._pending(user=self.head_of_studies, employee=self.management_teacher)
+
+        self.assertEqual(self.Pending.with_user(self.head_of_studies).search([('id', '=', pending.id)]), pending)
+        self.assertFalse(self.Pending.with_user(self.other_head_of_studies).search([('id', '=', pending.id)]))
+        with self.assertRaises(AccessError):
+            self._pending(user=self.other_head_of_studies, employee=self.management_teacher)
 
     def test_director_reaches_every_branch(self):
         mine, theirs = self._pending(), self._pending(employee=self.other_teacher)
@@ -213,4 +236,5 @@ class TestAbsencePending(TransactionCase):
         offered = self.env['hr.employee'].with_user(self.head_of_studies).search(Pending._domain_employee_id())
 
         self.assertIn(self.teacher, offered)
+        self.assertIn(self.management_teacher, offered)
         self.assertNotIn(self.other_teacher, offered)

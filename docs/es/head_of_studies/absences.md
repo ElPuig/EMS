@@ -145,7 +145,7 @@ Para cambiar el periodo, quita el filtro **Curso actual** y elige el que necesit
 Cuando ya sabes que un docente faltará pero todavía no ha solicitado la ausencia (ha llamado esta mañana, o se ha acordado en una reunión), regístrala aquí para que las guardias se puedan planificar enseguida.
 
 1. Haz clic en **Nuevo**.
-2. Elige el **Profesor**. Solo aparecen los docentes de tu área: la Jefatura de Estudios o la Jefatura de Estudios Adjunta ve a sus docentes, y Dirección los ve a todos.
+2. Elige el **Profesor**. Solo aparecen los docentes de tu área: la Jefatura de Estudios o la Jefatura de Estudios Adjunta ve a sus docentes, y Dirección los ve a todos. Los miembros del equipo directivo (como el Secretario) cuentan como docentes del área a la que pertenece su departamento: el Secretario, que da clase en un departamento de FP, aparece a la Jefatura de Estudios o Jefatura de Estudios Adjunta responsable de FP.
 3. Indica **De** y **A**, con fecha y hora. Por defecto, hoy de 08:00 a 15:00. Una ausencia puede abarcar varios días.
 4. Si quieres, añade **Notas** para ti. El docente nunca ve esta entrada.
 5. Guarda.

@@ -598,10 +598,22 @@ company's timezone (`_get_local_hours()`). Linked entries are ignored. See
 
 **Access.** Only `ems.group_head_of_studies` has an ACL on the model (full CRUD). The Director
 implies that group. `rule_absence_pending_hierarchy` (`security/rules/attendance.xml`) narrows it
-to `[('employee_id', 'child_of', user.employee_ids.ids), ('employee_id.employee_type', '=',
-'teacher')]`: the teachers below the user through `parent_id`, i.e. their own branch of the real
-hierarchy, not every teacher centre-wide. The Director sits above every Area Manager, so the same
-domain gives them the whole centre. Department Chiefs, tutors and teachers have no access at all.
+to the teachers (`employee_type = 'teacher'`) the user reaches in either of two ways:
+
+- **Hierarchy:** `('employee_id', 'child_of', user.employee_ids.ids)`, the teachers below the user
+  through `parent_id`, i.e. their own branch of the real hierarchy, not every teacher centre-wide.
+  The Director sits above every Area Manager, so this alone gives them the whole centre.
+- **Department (issue #569):** `('employee_id.department_id', 'child_of',
+  user.employee_ids.headed_department_ids.ids)`, the teachers whose own department hangs from a
+  department the user manages, typically their area (ESO/BTX, VET). This is what reaches the
+  management team: the Area Managers (Head of Studies, Deputy, Secretary) report to the Director
+  through `parent_id`, so no other branch contains them, yet each one teaches in a department of
+  some area. The Secretary teaching in a VET department is reached by VET's Area Manager; the
+  Director teaching in an ESO/BTX department, by ESO/BTX's.
+
+For every other teacher both ways give the same answer (their `parent_id` chain runs through
+their department chief up to their area's manager). Department Chiefs, tutors and teachers have
+no access at all.
 
 Technical administrators (`base.group_system`, e.g. `admin`) usually have no place in the org
 chart, so the hierarchy rule alone would leave them no teacher to choose. They get their own ACL

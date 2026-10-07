@@ -256,10 +256,15 @@ registry.category("web_tour.tours").add("ems_convalidation_grade_tutor_matrix", 
     ],
 });
 
-function assertDocumentsRequired(expected) {
+// Whether the documents are required, and that only the guidance for these grounds is shown.
+function assertGuidance(basis, origin, required) {
     const input = document.querySelector(".o_ems_convalidation_new input[name='documents']");
-    if (input.required !== expected) {
-        throw new Error(`Supporting documents should${expected ? "" : " not"} be required`);
+    if (input.required !== required) {
+        throw new Error(`Supporting documents should${required ? "" : " not"} be required`);
+    }
+    const shown = [...document.querySelectorAll(".o_ems_convalidation_new .o_ems_convalidation_guidance:not(.d-none)")];
+    if (shown.length !== 1 || shown[0].dataset.basis !== basis || shown[0].dataset.origin !== origin) {
+        throw new Error(`Only the guidance for ${basis}/${origin} should be shown`);
     }
 }
 
@@ -286,6 +291,10 @@ registry.category("web_tour.tours").add("ems_portal_convalidation_submit", {
             run: "selectByIndex 0",
         },
         {
+            trigger: ".o_ems_convalidation_new .o_ems_convalidation_guidance[data-origin='']:not(.d-none)",
+            content: "Until they say where, the guidance asks for it",
+        },
+        {
             trigger: ".o_ems_convalidation_new .o_ems_convalidation_origin:not(.d-none) select[name='prior_studies_origin']",
             content: "Prior studies ask where they were passed: at this centre",
             run: "selectByIndex 1",
@@ -293,7 +302,7 @@ registry.category("web_tour.tours").add("ems_portal_convalidation_submit", {
         {
             trigger: ".o_ems_convalidation_new .o_ems_convalidation_documents_optional:not(.d-none)",
             content: "Studies passed here need no documents",
-            run: () => assertDocumentsRequired(false),
+            run: () => assertGuidance("prior_studies", "centre", false),
         },
         {
             trigger: ".o_ems_convalidation_new select[name='prior_studies_origin']",
@@ -303,7 +312,7 @@ registry.category("web_tour.tours").add("ems_portal_convalidation_submit", {
         {
             trigger: ".o_ems_convalidation_new .o_ems_convalidation_documents_required:not(.d-none)",
             content: "Studies passed elsewhere need their documents",
-            run: () => assertDocumentsRequired(true),
+            run: () => assertGuidance("prior_studies", "elsewhere", true),
         },
         {
             trigger: ".o_ems_convalidation_new select[name='basis']",
@@ -317,7 +326,7 @@ registry.category("web_tour.tours").add("ems_portal_convalidation_submit", {
                 if (!document.querySelector(".o_ems_convalidation_new .o_ems_convalidation_origin").classList.contains("d-none")) {
                     throw new Error("Where the studies were passed is only asked for prior studies");
                 }
-                assertDocumentsRequired(true);
+                assertGuidance("certificate", undefined, true);
             },
         },
         {

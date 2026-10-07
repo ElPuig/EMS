@@ -115,16 +115,16 @@
                                             <div class="mb-3">
                                                 <label class="form-label fw-bold" for="convalidation_documents">Supporting documents
                                                     <span class="text-danger o_ems_convalidation_documents_required">*</span>
-                                                    <span class="text-muted o_ems_convalidation_documents_optional d-none">(optional for studies passed at this centre)</span>
+                                                    <span class="text-muted o_ems_convalidation_documents_optional d-none">(optional)</span>
                                                 </label>
+                                                <!-- Only the guidance matching the chosen grounds (and, for prior studies, where
+                                                     they were passed) is shown, by EmsConvalidationRequestForm. -->
                                                 <div class="alert alert-light border small mb-2">
-                                                    <p class="mb-1">Which documents to attach depends on where you passed the subjects:</p>
-                                                    <ul class="mb-1">
-                                                        <li>Studies passed at this centre: nothing to attach, we look your record up ourselves.</li>
-                                                        <li>Studies passed at another centre: the academic certificate or transcript of the studies passed.</li>
-                                                        <li>Professional certificate or accreditation of competences: the certificate itself.</li>
-                                                        <li>University studies or a Ministry resolution: the academic certificate, or the resolution if you already have it.</li>
-                                                    </ul>
+                                                    <p class="mb-1 o_ems_convalidation_guidance" data-basis="prior_studies" data-origin="">Tell us where you passed the studies and we will tell you what to attach.</p>
+                                                    <p class="mb-1 o_ems_convalidation_guidance d-none" data-basis="prior_studies" data-origin="centre">Nothing to attach: we look your record up ourselves.</p>
+                                                    <p class="mb-1 o_ems_convalidation_guidance d-none" data-basis="prior_studies" data-origin="elsewhere">Attach the academic certificate or transcript of the studies passed. For university studies, the academic certificate, or the Ministry resolution if you already have it.</p>
+                                                    <p class="mb-1 o_ems_convalidation_guidance d-none" data-basis="certificate">Attach the professional certificate or the accreditation of competences.</p>
+                                                    <p class="mb-1 o_ems_convalidation_guidance d-none" data-basis="other">Attach the documents that support your request.</p>
                                                     <p class="mb-0">If anything else is needed, we will ask you for it and you can answer from this same page.</p>
                                                 </div>
                                                 <input id="convalidation_documents" type="file" name="documents" class="form-control"

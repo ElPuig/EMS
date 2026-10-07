@@ -9,6 +9,7 @@
   and the form marks the file field as required (or optional) as the grounds change.
 - The backend is not restricted: the secretariat or the Head of Studies can still register a
   request without documents and ask for them afterwards.
-- The portal's guidance for university studies now asks for the academic certificate (or the
-  Ministry resolution if already available), and the families, secretary and Head of Studies
-  manuals describe the new rule.
+- The portal form shows only the guidance on which documents to attach for the grounds chosen
+  (and, for prior studies, where they were passed), instead of the same list for every case; for
+  university studies it asks for the academic certificate (or the Ministry resolution if already
+  available). The families, secretary and Head of Studies manuals describe the new rule.

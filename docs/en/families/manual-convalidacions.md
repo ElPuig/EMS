@@ -46,7 +46,7 @@ Requests already submitted are not affected: you can keep checking them, answeri
 
 1. Click **New convalidation request** to open the form, and tick the modules you want to convalidate.
 2. Choose the **Grounds**. For prior studies, also say **where you passed them**: at this centre, or at another centre or university.
-3. Under **Supporting documents**, attach the documents needed. You can select several files at once. They are mandatory, except for studies passed at this centre: the request can't be submitted without them.
+3. Under **Supporting documents**, attach the documents needed. You can select several files at once. They are mandatory, except for studies passed at this centre: the request can't be submitted without them. Right above the file field, the form tells you which documents to attach for the grounds you chose (and, for prior studies, where you passed them).
 4. If you want, write some comments.
 5. Click **Submit request**.
 

@@ -7,7 +7,8 @@ import publicWidget from "@web/legacy/js/public/public_widget";
  * pass the studies?" is only asked for prior studies, and the supporting documents are required
  * unless the studies were passed at this centre - the same rule the server enforces
  * (ems.convalidation._ems_documents_required) whatever the browser sends. Every word shown is in
- * the QWeb template, so it is translated there; this only shows, hides and marks as required.
+ * the QWeb template, so it is translated there; this only shows, hides and marks as required,
+ * including which documents to attach for the chosen grounds.
  */
 publicWidget.registry.EmsConvalidationRequestForm = publicWidget.Widget.extend({
     selector: ".o_ems_convalidation_new form",
@@ -32,5 +33,11 @@ publicWidget.registry.EmsConvalidationRequestForm = publicWidget.Widget.extend({
         this.documents.required = required;
         this.el.querySelector(".o_ems_convalidation_documents_required").classList.toggle("d-none", !required);
         this.el.querySelector(".o_ems_convalidation_documents_optional").classList.toggle("d-none", required);
+        // Which documents to attach: only the guidance for these grounds (and origin) is shown.
+        for (const guidance of this.el.querySelectorAll(".o_ems_convalidation_guidance")) {
+            const matches = guidance.dataset.basis === this.basis.value
+                && (guidance.dataset.origin === undefined || guidance.dataset.origin === this.origin.value);
+            guidance.classList.toggle("d-none", !matches);
+        }
     },
 });

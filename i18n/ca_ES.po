@@ -15969,15 +15969,6 @@ msgid "Pending the secretariat"
 msgstr "Pendent de secretaria"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
-msgid ""
-"Professional certificate or accreditation of competences: the certificate "
-"itself."
-msgstr ""
-"Certificat de professionalitat o acreditació de competències: el certificat "
-"mateix."
-
-#. module: ems
 #: model:mail.activity.type,name:ems.mail_activity_convalidation_registration
 msgid "Register convalidation in Esfera"
 msgstr "Registrar la convalidació a l'Esfera"
@@ -16015,24 +16006,6 @@ msgid ""
 msgstr ""
 "S'envia per correu a l'alumne (o a la família, si és menor) i es mostra al "
 "portal, on pot respondre i adjuntar els documents demanats."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
-msgid ""
-"Studies passed at another centre: the academic certificate or transcript of "
-"the studies passed."
-msgstr ""
-"Estudis superats en un altre centre: el certificat acadèmic o l'expedient "
-"dels estudis superats."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
-msgid ""
-"Studies passed at this centre: nothing to attach, we look your record up "
-"ourselves."
-msgstr ""
-"Estudis superats en aquest centre: no cal adjuntar res, consultem el teu "
-"expedient."
 
 #. module: ems
 #. odoo-python
@@ -16105,11 +16078,6 @@ msgstr ""
 "\n"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
-msgid "University studies or a Ministry resolution: the academic certificate, or the resolution if you already have it."
-msgstr "Estudis universitaris o resolució del Ministeri: el certificat acadèmic, o la resolució si ja la teniu."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__validated_by_id
 msgid "Validated by"
 msgstr "Validada per"
@@ -16132,11 +16100,6 @@ msgid ""
 msgstr ""
 "D'on surt la resolució, per exemple «Aprovada pel Departament d'Educació amb"
 " expedient núm. 1234». Es mostra a l'alumne amb la resolució."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
-msgid "Which documents to attach depends on where you passed the subjects:"
-msgstr "La documentació que cal adjuntar depèn d'on vau superar els mòduls:"
 
 #. module: ems
 #. odoo-python
@@ -20292,16 +20255,16 @@ msgstr "<option value=\"\">Tria...</option>"
 msgid ""
 "Supporting documents\n"
 "                                                    <span class=\"text-danger o_ems_convalidation_documents_required\">*</span>\n"
-"                                                    <span class=\"text-muted o_ems_convalidation_documents_optional d-none\">(optional for studies passed at this centre)</span>"
+"                                                    <span class=\"text-muted o_ems_convalidation_documents_optional d-none\">(optional)</span>"
 msgstr ""
 "Documentació justificativa\n"
 "                                                    <span class=\"text-danger o_ems_convalidation_documents_required\">*</span>\n"
-"                                                    <span class=\"text-muted o_ems_convalidation_documents_optional d-none\">(opcional per a estudis superats en aquest centre)</span>"
+"                                                    <span class=\"text-muted o_ems_convalidation_documents_optional d-none\">(opcional)</span>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
 msgid "Where did you pass the studies? <span class=\"text-danger\">*</span>"
-msgstr "On vas superar els estudis? <span class=\"text-danger\">*</span>"
+msgstr "On vau superar els estudis? <span class=\"text-danger\">*</span>"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__prior_studies_origin
@@ -20322,3 +20285,28 @@ msgstr "En aquest centre"
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__prior_studies_origin__elsewhere
 msgid "At another centre or university"
 msgstr "En un altre centre o a la universitat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "Tell us where you passed the studies and we will tell you what to attach."
+msgstr "Indiqueu on vau superar els estudis i us direm què cal adjuntar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "Nothing to attach: we look your record up ourselves."
+msgstr "No cal adjuntar res: consultem nosaltres el vostre expedient."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "Attach the academic certificate or transcript of the studies passed. For university studies, the academic certificate, or the Ministry resolution if you already have it."
+msgstr "Adjunteu el certificat acadèmic o l'expedient dels estudis superats. Per a estudis universitaris, el certificat acadèmic, o la resolució del Ministeri si ja la teniu."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "Attach the professional certificate or the accreditation of competences."
+msgstr "Adjunteu el certificat de professionalitat o l'acreditació de competències."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "Attach the documents that support your request."
+msgstr "Adjunteu els documents que justifiquin la sol·licitud."

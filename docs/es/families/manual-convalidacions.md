@@ -46,7 +46,7 @@ Las solicitudes ya presentadas no se ven afectadas: puedes seguir consultándola
 
 1. Haz clic en **Nueva solicitud de convalidación** para abrir el formulario, y marca los módulos que quieres convalidar.
 2. Elige el **Motivo**. Para estudios previos, indica también **dónde los superaste**: en este centro, o en otro centro o en la universidad.
-3. En **Documentación justificativa**, adjunta los documentos necesarios. Puedes seleccionar varios ficheros a la vez. Son obligatorios, salvo para estudios superados en este centro: sin ellos no se puede enviar la solicitud.
+3. En **Documentación justificativa**, adjunta los documentos necesarios. Puedes seleccionar varios ficheros a la vez. Son obligatorios, salvo para estudios superados en este centro: sin ellos no se puede enviar la solicitud. Justo encima del campo de ficheros, el formulario te indica qué documentos adjuntar según el motivo elegido (y, para estudios previos, dónde los superaste).
 4. Si quieres, escribe observaciones.
 5. Haz clic en **Enviar la solicitud**.
 

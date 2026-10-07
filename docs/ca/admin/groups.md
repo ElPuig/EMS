@@ -6,8 +6,8 @@
 
 Un grup és la classe a la qual pertany un alumne. Hi ha dos tipus:
 
-- **Principal**: el grup en què l'alumne està realment matriculat — té un tutor, un delegat, i un únic nivell/estudi/curs/acrònim (p. ex., `DAM1A`).
-- **Reforç**: apareix a l'horari docent com qualsevol altre grup, però no té tutor ni delegat, i pot barrejar alumnes de diferents grups principals i estudis (p. ex., una classe de reforç d'anglès compartida).
+- **Principal**: el grup en què l'alumne està realment matriculat — té un tutor, un delegat i un sotsdelegat, i un únic nivell/estudi/curs/acrònim (p. ex., `DAM1A`).
+- **Reforç**: apareix a l'horari docent com qualsevol altre grup, però no té tutor, delegat ni sotsdelegat, i pot barrejar alumnes de diferents grups principals i estudis (p. ex., una classe de reforç d'anglès compartida).
 
 Per a l'horari setmanal del grup (agregat a partir dels horaris dels professors) i la seva exportació a PDF, consulta [L'horari setmanal d'un grup](group-schedule.md) — aquesta pàgina cobreix la creació i gestió del grup en si.
 
@@ -31,10 +31,11 @@ Navega a: **Comunitat Educativa → Grups**
    - **Acrònim** *(obligatori)*: p. ex., `A`. El nom del grup es construeix automàticament a partir d'Estudi + Curs + Acrònim (p. ex., `DAM1A`) — no s'escriu directament.
    - **Tutor**: el professor responsable d'aquest grup. Assignar-lo aquí concedeix automàticament el rol de Tutor a aquest professor.
    - **Delegat**: un alumne representant (només seleccionable un cop el grup té alumnes).
+   - **Sotsdelegat**: l'alumne que substitueix el delegat. Es tria entre els mateixos alumnes i no pot ser el delegat.
    - **Torn**, **Aula de referència**, **ID extern** (codi Esfera/SAGA) segons calgui.
 4. Fes clic a **Desa**.
 
-![Fitxa d'un grup principal: nivell, estudi, curs, acrònim, tutor i delegat, amb els seus alumnes](../../assets/admin/admin-groups-form.png)
+![Fitxa d'un grup principal: nivell, estudi, curs, acrònim, tutor, delegat i sotsdelegat, amb els seus alumnes](../../assets/admin/admin-groups-form.png)
 
 Els alumnes no s'afegeixen des d'aquí — consulta la pestanya **Alumnes** per revisar qui està assignat, però és el propi registre de l'alumne (o el procés de matrícula) el que realment l'assigna a un grup.
 
@@ -45,7 +46,7 @@ Els alumnes no s'afegeixen des d'aquí — consulta la pestanya **Alumnes** per 
 ## Crear un grup de reforç
 
 1. Fes clic a **Nou**.
-2. Canvia **Tipus de grup** a **Reforç**. Nivell, Estudi, Tutor i Delegat desapareixen — no apliquen.
+2. Canvia **Tipus de grup** a **Reforç**. Nivell, Estudi, Tutor, Delegat i Sotsdelegat desapareixen — no apliquen.
 3. Omple un **Nom** directament (p. ex., `REF-MATES`).
 4. Fes clic a **Desa**.
 5. Afegeix alumnes de la mateixa manera que a qualsevol altre grup: des de la fitxa del propi alumne (o el procés de matrícula), matricula'l en una assignatura amb aquest grup de reforç com a **Grup** — poden venir de qualsevol grup/estudi principal. Apareixeran a la pestanya **Inscrit** d'aquest grup.
@@ -56,7 +57,7 @@ Els alumnes no s'afegeixen des d'aquí — consulta la pestanya **Alumnes** per 
 
 Pots canviar un grup existent entre Principal i Reforç, però:
 - Canviar de **Principal → Reforç** es bloqueja si el grup encara té alumnes matriculats amb aquest com a grup principal — reassigna'ls a un altre grup primer.
-- Canviar de **Principal → Reforç** neteja els camps que ja no apliquen (nivell/estudi/curs/acrònim/tutor/delegat).
+- Canviar de **Principal → Reforç** neteja els camps que ja no apliquen (nivell/estudi/curs/acrònim/tutor/delegat/sotsdelegat).
 
 ---
 

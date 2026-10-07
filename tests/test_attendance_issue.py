@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, mock_outgoing_email, next_student_id
+from .common import create_level_study, shift_ems_clock, mock_outgoing_email, next_student_id
 
 
 class TestAttendanceIssue(TransactionCase):
@@ -19,10 +19,11 @@ class TestAttendanceIssue(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.today = shift_ems_clock(cls).date()
         cls.mail_transport = mock_outgoing_email(cls)
 
         cls.level, cls.study = create_level_study(cls, 'TAI', study={
-            'name': 'Test Study (Attendance Issue)', 'date': date.today(),
+            'name': 'Test Study (Attendance Issue)', 'date': cls.today,
         }, level={'name': 'Test Level (Attendance Issue)'})
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TAI001', 'acronym': 'TAI', 'name': 'Test Subject (Attendance Issue)',
@@ -56,12 +57,12 @@ class TestAttendanceIssue(TransactionCase):
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
         })
         cls.schedule = cls.env['ems.attendance_schedule'].create({
-            'attendance_template_id': cls.template.id, 'weekday': str(date.today().weekday()),
+            'attendance_template_id': cls.template.id, 'weekday': str(cls.today.weekday()),
             'start_time': 8.0, 'end_time': 9.0, 'space_id': cls.space.id,
             'student_ids': [(6, 0, [cls.student1.id, cls.student2.id])],
         })
         cls.session = cls.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': cls.schedule.id, 'date': date.today(),
+            'attendance_schedule_id': cls.schedule.id, 'date': cls.today,
             'mode': 'scheduled', 'session_teacher_id': cls.teacher.id,
         })
 
@@ -83,7 +84,7 @@ class TestAttendanceIssue(TransactionCase):
     def _last_week_session(self):
         """Same class a week earlier: another day of issues for the same tutor."""
         return self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': self.schedule.id, 'date': date.today() - timedelta(days=7),
+            'attendance_schedule_id': self.schedule.id, 'date': self.today - timedelta(days=7),
             'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
         })
 

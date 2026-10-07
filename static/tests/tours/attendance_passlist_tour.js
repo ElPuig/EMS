@@ -29,7 +29,9 @@ registry.category("web_tour.tours").add("ems_attendance_take", {
             run: "select manual",
         },
         {
-            trigger: ".ems-av-session-wrap select",
+            // Waits for the option itself: right after the mode change the dropdown still holds
+            // the previous list.
+            trigger: ".ems-av-session-wrap select:has(option:contains('Take Tour'))",
             content: "Select the seeded planned schedule",
             run: function () {
                 const select = document.querySelector(".ems-av-session-wrap select");

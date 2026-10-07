@@ -3,6 +3,7 @@ from datetime import date
 from odoo.tests import tagged, HttpCase
 
 from .common import (
+    shift_ems_clock,
     create_level_study, create_role_employee, create_role_user, force_user_language_to_english, next_student_id,
 )
 
@@ -11,6 +12,7 @@ from .common import (
 class TestAttendanceReportsTour(HttpCase):
 
     def _seed_session(self):
+        today = shift_ems_clock(self).date()
         level, study = create_level_study(self, 'TART', level={'name': 'Attendance Reports Tour Level'}, study={
             'name': 'Attendance Reports Tour Study',
         })
@@ -50,11 +52,11 @@ class TestAttendanceReportsTour(HttpCase):
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
         })
         schedule = self.env['ems.attendance_schedule'].create({
-            'attendance_template_id': template.id, 'weekday': str(date.today().weekday()),
+            'attendance_template_id': template.id, 'weekday': str(today.weekday()),
             'start_time': 0.0, 'end_time': 23.0, 'space_id': space.id,
         })
         session = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': schedule.id, 'date': date.today(),
+            'attendance_schedule_id': schedule.id, 'date': today,
             'mode': 'manual', 'session_teacher_id': admin_employee.id,
         })
         self.env['ems.attendance_session_line'].create({
@@ -84,6 +86,7 @@ class TestAttendanceReportsTour(HttpCase):
     def _seed_student_scope(self):
         """Issue #500: a student with sessions from two teachers, plus a tutor who teaches neither
         subject. Returns (plain teacher user, tutor user)."""
+        today = shift_ems_clock(self).date()
         level, study = create_level_study(self, 'TARS', level={'name': 'Student Scope Tour Level'}, study={
             'name': 'Student Scope Tour Study',
         })
@@ -118,11 +121,11 @@ class TestAttendanceReportsTour(HttpCase):
                 'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
             })
             schedule = self.env['ems.attendance_schedule'].create({
-                'attendance_template_id': template.id, 'weekday': str(date.today().weekday()),
+                'attendance_template_id': template.id, 'weekday': str(today.weekday()),
                 'start_time': float(index), 'end_time': float(index + 1), 'space_id': space.id,
             })
             session = self.env['ems.attendance_session_header'].create({
-                'attendance_schedule_id': schedule.id, 'date': date.today(),
+                'attendance_schedule_id': schedule.id, 'date': today,
                 'mode': 'manual', 'session_teacher_id': teacher.id,
             })
             self.env['ems.attendance_session_line'].create({

@@ -15,7 +15,7 @@ Manage each teacher's weekly timetable from their own employee record, and set u
 - **Schedule framework**: a reusable weekly bell-schedule template (periods, breaks, coordination meetings) for a level of studies — e.g. one framework for ESO, one for BTX, one shared by the vocational-training levels. Frameworks never carry real subject assignments.
 - **A teacher's schedule**: their own personal calendar, built from a framework and then filled in with their actual subjects/groups. It is never shared between two teachers.
 - **Default schedule framework**: the one framework automatically used to start every new teacher's schedule.
-- **Reinforcement group**: a class group that mixes students from different regular groups (and even different studies) for a specific reinforcement class — it has no tutor or delegate, but still appears in a teacher's schedule like any other group. See "Reinforcement Groups" below.
+- **Reinforcement group**: a class group that mixes students from different regular groups (and even different studies) for a specific reinforcement class — it has no tutor, delegate or sub-delegate, but still appears in a teacher's schedule like any other group. See "Reinforcement Groups" below.
 
 ---
 
@@ -261,7 +261,7 @@ Use this to reset a teacher onto a different framework (e.g. they now teach a di
 A reinforcement group is a class **group** (the same "Groups" record a regular class group is) used for a support/reinforcement class that mixes students from different regular groups, and even different studies — e.g. a small maths reinforcement group with students pulled from three different first-year groups.
 
 1. Go to **Configuration → Students → Groups** and create a new one.
-2. Set its **Group type** to **Reinforcement**. This hides the Level/Study/Course/Acronym/Tutor/Delegate fields (a reinforcement group has none of these) and lets you type the group's **Name** directly — set it to exactly match whatever your external planner exports for this group, since the schedule importer matches by exact name.
+2. Set its **Group type** to **Reinforcement**. This hides the Level/Study/Course/Acronym/Tutor/Delegate/Sub-delegate fields (a reinforcement group has none of these) and lets you type the group's **Name** directly — set it to exactly match whatever your external planner exports for this group, since the schedule importer matches by exact name.
 3. Set its **Classroom**, same as any other group — it's still required for the schedule to import correctly.
 4. On the **Students** tab, add the students who attend this reinforcement class, regardless of which regular group or study they belong to. This does **not** change each student's own main group.
 5. Save.

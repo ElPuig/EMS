@@ -45,8 +45,8 @@ Requests already submitted are not affected: you can keep checking them, answeri
 ## Making a request
 
 1. Click **New convalidation request** to open the form, and tick the modules you want to convalidate.
-2. Choose the **Grounds**.
-3. Under **Supporting documents**, attach the documents needed. You can select several files at once.
+2. Choose the **Grounds**. For prior studies, also say **where you passed them**: at this centre, or at another centre or university.
+3. Under **Supporting documents**, attach the documents needed. You can select several files at once. They are mandatory, except for studies passed at this centre: the request can't be submitted without them. Right above the file field, the form tells you which documents to attach for the grounds you chose (and, for prior studies, where you passed them).
 4. If you want, write some comments.
 5. Click **Submit request**.
 
@@ -59,9 +59,9 @@ Requests already submitted are not affected: you can keep checking them, answeri
 | Studies passed at this centre | None: the centre looks the record up. |
 | Studies passed at another centre | The academic certificate or transcript of the studies passed. |
 | Professional certificate or accreditation of competences | The certificate itself. |
-| University studies or a Ministry resolution | The resolution, if you already have it. |
+| University studies or a Ministry resolution | The academic certificate, or the resolution if you already have it. |
 
-If anything is missing, the centre will ask you for it and you can attach it from this same page.
+If anything else is needed, the centre will ask you for it and you can attach it from this same page.
 
 A message confirms the request has been submitted. Modules already requested no longer appear on the form, unless they were rejected.
 
@@ -74,6 +74,7 @@ Each request appears below the form, with its registration number (e.g. CONV-202
 | State | Meaning |
 |-------|---------|
 | **Pending** | The centre is reviewing it. |
+| **Pending documentation** | The centre has asked you for documentation. Once you answer, it goes back to the centre. |
 | **In process at the Ministry** | The centre has filed it with the Ministry, which will resolve it. It can no longer be cancelled. |
 | **Pending the Director** | Reviewed; the Director's official resolution is missing. |
 | **Pending the secretariat** | Resolved; the secretariat is registering it in the student's record. |
@@ -81,7 +82,7 @@ Each request appears below the form, with its registration number (e.g. CONV-202
 | **Rejected** | Registered, with no module convalidated. |
 | **Cancelled** | The request was cancelled. |
 
-The table shows each module's resolution (**Pending**, **Convalidated** or **Rejected**) and, under **Remarks**, the reason for the rejected ones. Once the request is **Completed**, the **Grade** column appears too.
+The table shows each module's resolution (**Pending**, **Convalidated** or **Rejected**) and, under **Remarks**, the reason for the rejected ones. Once the request is **Completed**, the **Grade** column appears too: a module convalidated without a grade shows **Convalidated** there.
 
 When the request becomes **Completed** or **Rejected**, you get an email with the official resolution as a PDF. You can also download it from the portal with the **Official resolution** button.
 
@@ -93,17 +94,17 @@ The request, each change of state and the resolution are also recorded on the **
 
 ## Answering or adding documentation
 
-If the centre asks you for documentation, you get an email and, on the request's box, you see the **Documentation requested** notice with what they need. Right below it, under **Answer or add documentation**, write your answer, attach the files and click **Send**. The documents are added to the request.
+If the centre asks you for documentation, you get an email and, on the request's box, you see the **Documentation requested** notice with the reason and what they need. Right below it, under **Answer or add documentation**, write your answer, attach the files and click **Send**. The documents are added to the request, and the request goes back to the centre for review.
 
 ![Documentation requested by the centre](../../assets/families/convalidations-portal-info.png)
 
-You can answer while the request is **Pending** or **In process at the Ministry**.
+You can answer while the request is **Pending**, **Pending documentation** or **In process at the Ministry**.
 
 ---
 
 ## Cancelling a request
 
-While a request is **Pending**, click **Cancel request** on its box.
+While a request is **Pending**, or **Pending documentation** if the centre has not filed it with the Ministry, click **Cancel request** on its box.
 
 ---
 

@@ -37,6 +37,13 @@
                                 string="Suspend Google account"
                                 invisible="google_ws_state != 'active'"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
+                        <!-- Issue #595: offered while the account exists in Google, EMS user or
+                             not; action_reset_google_password() re-checks the groups. -->
+                        <button name="action_reset_google_password" type="object"
+                                string="Reset Google password"
+                                invisible="google_ws_state not in ('active', 'pending_user')"
+                                confirm="This gives the teacher's Google account a new password: the current one stops working and new credentials are generated. Continue?"
+                                groups="ems.group_academic_admin,hr.group_hr_user"/>
                         <!-- Repair, not a state of its own: the account is active and
                              fully set up, only its user lost the OAuth data needed to
                              sign in with Google, so this shows next to Suspend rather
@@ -261,6 +268,15 @@
                 <xpath expr="//page[@name='hr_settings']/group" position="inside">
                     <group string="Teaching hour reductions" name="teaching_reduction_group" invisible="employee_type != 'teacher'">
                         <field name="teaching_reduction_ids" widget="many2many_tags" nolabel="1"/>
+                    </group>
+                    <!-- Issue #595: latest credentials PDF (creation or reset), next to the EMS user
+                         in this same tab; it holds the temporary password, hence the same groups
+                         as the Google actions. -->
+                    <group string="Google account" name="google_account_group"
+                           invisible="not google_credentials_pdf"
+                           groups="base.group_system,ems.group_academic_admin,hr.group_hr_user">
+                        <field name="google_credentials_filename" invisible="1"/>
+                        <field name="google_credentials_pdf" filename="google_credentials_filename"/>
                     </group>
                 </xpath>
 

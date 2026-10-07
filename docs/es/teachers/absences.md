@@ -88,7 +88,7 @@ En el caso de consulta médica, el justificante debe hacer constar expresamente 
 
 **Un justificante que llega más tarde se adjunta a la misma solicitud.** No hace falta tenerlo cuando pides la ausencia: tu jefe marca la solicitud como recibida y queda esperando el justificante (**En espera de documentación**). Cuando lo tengas, abre la ausencia, adjunta el archivo en **Justificante** y guarda. Ya está: la solicitud vuelve sola a tu jefe para que lo valide, no hay que volver a solicitar la ausencia ni pulsar nada más.
 
-Si tu jefe o Dirección consideran que el justificante no es válido, la solicitud vuelve a **En espera de documentación** y recibes un mensaje: adjunta uno válido de la misma manera.
+Si tu jefe o Dirección consideran que el justificante no es válido, la solicitud vuelve a **En espera de documentación** y recibes un mensaje con el motivo. El motivo también aparece arriba de la solicitud hasta que adjuntas un justificante nuevo: adjunta uno válido de la misma manera.
 
 Para borrar uno, haz clic en la cruz del archivo y confirma.
 

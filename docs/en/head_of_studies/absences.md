@@ -51,7 +51,7 @@ That lists your area's requests, opening on **Waiting For Me**: the ones pending
 1. **Received: pending documentation** (inbox icon in the list, or the button at the top of the form). You acknowledge the request without having seen the document yet. It becomes **Awaiting documentation** and the employee is asked for the document. If they had already attached it with the request, it goes straight to **Pending validation**.
 2. When the employee attaches the document, the request comes back to you on its own as **Pending validation**. Open it, check the document and use **Validate documentation** (also a tick icon in the list). It then goes to Direction.
 
-If the document is not valid, **Documentation insufficient** sends the request back to the employee (Awaiting documentation) with a message asking for a valid one.
+If the document is not valid, **Documentation insufficient** asks you why (required) and sends the request back to the employee (Awaiting documentation) with a message that includes your reason. The employee also sees it at the top of the request until they attach a new document. If the new document is not valid either, the dialog opens with your previous reason so you can edit it; once you validate a document, the reason is cleared.
 
 For `Health` and `ATRI` there is a single step: **Validate** (the thumb in the list), which sends it straight to Direction.
 
@@ -98,7 +98,7 @@ Review them from the list with the icons beside **Direction status**, or open on
 | Icon | Button | Result |
 |---|---|---|
 | Ticked box | **Direction: done** | Approved |
-| Sheet | **Documentation insufficient** | Back to the employee, Awaiting documentation. It asks for confirmation first |
+| Sheet | **Documentation insufficient** | Back to the employee, Awaiting documentation. It asks for the reason first, which the employee receives |
 | Arrow back | **Direction: pending** | Undoes a *Done* |
 | Cross | **Refuse** | Refused. It refuses the whole request, it asks for confirmation first and it is final |
 
@@ -147,7 +147,7 @@ To change the period, remove the **Current Course** filter and pick the one you 
 When you already know a teacher will be away but they have not requested the absence yet (they phoned in this morning, or it was agreed in a meeting), enter it here so guard duty can be planned around it straight away.
 
 1. Click **New**.
-2. Choose the **Teacher**. Only the teachers in your own area are offered: a Head of Studies or Deputy sees their own teachers, and Direction sees everyone.
+2. Choose the **Teacher**. Only the teachers in your own area are offered: a Head of Studies or Deputy sees their own teachers, and Direction sees everyone. Members of the management team (such as the Secretary) count as teachers of the area their department belongs to: the Secretary, who teaches in a VET department, is offered to the Head of Studies or Deputy in charge of VET.
 3. Set **From** and **To**, date and time. They start out as today, 08:00 to 15:00. An absence can span several days.
 4. Optionally, add **Notes** for your own reference. The teacher never sees this entry.
 5. Save.
@@ -159,3 +159,7 @@ When the teacher requests the absence themselves, the expected absence is linked
 ![Expected absences list, one still expected and one already requested by the teacher](../../assets/head_of_studies/hos-expected-absences-list.png)
 
 If the teacher turns out not to be absent after all, delete the entry.
+
+### Organising the cover
+
+Once an absence is on the guard duty schedule, expected or requested, organise it from the schedule's **Absences table**: send a guard to each class, propose a notice to the families when the students can come in later or leave earlier, and correct what an absence that changed afterwards made unnecessary. Whatever you organise for an expected absence stays when the teacher requests it. See [Organising an absence](../teachers/guard-duty-schedule.md#organising-an-absence).

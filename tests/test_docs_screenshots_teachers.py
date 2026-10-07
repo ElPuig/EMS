@@ -15,6 +15,7 @@ from unittest.mock import patch
 from odoo.tests.common import HttpCase, tagged
 
 from .common import (
+    shift_ems_clock,
     DocsScreenshotMixin, create_level_study_group, create_role_employee, create_role_user,
     mock_outgoing_email, next_student_id,
 )
@@ -185,6 +186,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
 
     def test_capture_attendance_session(self):
         from datetime import date
+        today = shift_ems_clock(self).date()
         level, study, group = create_level_study_group(self, 'DOCSESS', level={
             'name': 'Formació professional',
         }, study={
@@ -204,9 +206,9 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         student_c = self._student(group, 'Nerea Prova')
         student_d = self._student(group, 'Iker Model')
 
-        # Spans the whole day (same trick as test_attendance_session_tour.py): makes the schedule
-        # "current" regardless of what time this capture actually runs at, no time-freezing needed.
-        weekday = str(date.today().weekday())
+        # The clock is set to 10:00 (shift_ems_clock), inside this whole-day slot: the schedule
+        # is the current one whatever time this capture actually runs at.
+        weekday = str(today.weekday())
         template = self.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, self.teacher_employee.ids)], 'study_ids': [(6, 0, [study.id])],
             'subject_id': subject.id, 'group_ids': [(6, 0, [group.id])],
@@ -218,7 +220,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             'student_ids': [(6, 0, (student_a + student_b + student_c + student_d).ids)],
         })
         session = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': schedule.id, 'date': date.today(),
+            'attendance_schedule_id': schedule.id, 'date': today,
             'mode': 'manual', 'session_teacher_id': self.teacher_employee.id,
         })
         status_attended = self.env.ref('ems.attendance_status_attended')
@@ -235,8 +237,8 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         line_c = lines.filtered(lambda line: line.student_id == student_c)
         justification = self.env['ems.attendance_justification'].create({
             'teacher_id': self.teacher_employee.id, 'student_id': student_c.id,
-            'start_date': datetime.combine(date.today(), datetime.min.time()),
-            'end_date': datetime.combine(date.today(), datetime.max.time()),
+            'start_date': datetime.combine(today, datetime.min.time()),
+            'end_date': datetime.combine(today, datetime.max.time()),
             'notes': 'Visita mèdica',
         })
         line_c.write({'status_id': status_miss.id, 'attendance_justification_id': justification.id})
@@ -450,20 +452,113 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             '.o_guard_board_guard_cell .o_guard_board_guard_badge',
         ]
 
+        # The board opens on the absences table (the first of its two views); the timetable is the
+        # second one.
         self._capture(
             '/odoo/action-ems.action_guard_duty_board',
             '.o_guard_board', 'guard-duty-01-horari.png',
             login='doc_shot_teacher', wait_for='.o_guard_board_toolbar',
-            run=force_monday_morning, wait_after=force_monday_morning_wait,
+            run=force_monday_morning + [
+                "document.querySelector('.o_guard_board_view_tabs .nav-item:nth-of-type(2) .nav-link').click();",
+            ],
+            wait_after=force_monday_morning_wait + ['.o_guard_board_table:not(.o_guard_board_duty_table)'],
         )
         self._capture(
             '/odoo/action-ems.action_guard_duty_board',
             '.o_guard_board', 'guard-duty-02-absencies.png',
             login='doc_shot_teacher', wait_for='.o_guard_board_toolbar',
-            run=force_monday_morning + [
-                "document.querySelector('.o_guard_board_view_tabs .nav-item:nth-of-type(2) .nav-link').click();",
-            ],
+            run=force_monday_morning,
             wait_after=force_monday_morning_wait + ['.o_guard_board_duty_table'],
+        )
+
+    def test_capture_guard_duty_management(self):
+        """Organising absences from the absences table (issues #539, #571, #581), as the absent
+        teachers' Department Chief, on next Monday (a past day is read-only): a late entry
+        proposal, two classes covered by two guards (two colours), the guard dialog and the draft
+        notice. Every name and group is invented."""
+        if not self.env.company.current_course_id:
+            self.env.company.current_course_id = self.env['ems.course'].create({'start': 1998, 'end': 1999})
+        mock_outgoing_email(self)
+        level, study, group_a = create_level_study_group(self, 'DOCMGMT', level={
+            'name': 'Formació professional',
+        }, study={
+            'code': 'DOCMGMT01', 'acronym': 'DAM', 'name': "Desenvolupament d'aplicacions multiplataforma",
+        }, group={'acronym': 'A', 'course': 1})
+        group_b, group_c = (self.env['ems.group'].create({
+            'course': 1, 'acronym': acronym, 'level_id': level.id, 'study_id': study.id}) for acronym in ('B', 'C'))
+        subject = self.env['ems.subject'].create({
+            'code': 'DOCMGMTSUB', 'acronym': 'BD', 'name': 'Bases de dades', 'study_ids': [(6, 0, [study.id])]})
+        chief_user = create_role_user(self, 'department_chief', 'doc_shot_chief', lang='ca_ES', name='Cap Exemple')
+        chief = create_role_employee(self, chief_user)
+        department = self.env['hr.department'].create({'name': 'Departament Exemple', 'manager_id': chief.id})
+
+        def teacher(name, periods, group=None, non_teaching=None):
+            employee = self.env['hr.employee'].create({
+                'name': name, 'employee_type': 'teacher', 'department_id': department.id})
+            employee.parent_id = chief
+            calendar = self.env['resource.calendar'].create({
+                'name': f'{name} Calendar', 'employee_id': employee.id, 'attendance_ids': [(5, 0, 0)]})
+            employee.resource_calendar_id = calendar
+            calendar.apply_schedule_changes([{
+                'dayofweek': '0', 'hour_from': hour_from, 'hour_to': hour_to, 'day_period': 'morning',
+                **({'non_teaching': non_teaching.id, 'name': 'Guàrdia'} if non_teaching else
+                   {'subject_id': subject.id, 'group_ids': [group.id], 'name': 'DOCMGMT: BD'}),
+            } for hour_from, hour_to in periods])
+            return employee
+
+        berta = teacher('0000 Berta Exemple', ((8, 9), (9, 10)), group_a)
+        teacher('0000 Jordi Mostra', ((10, 11),), group_a)
+        pau = teacher('0000 Pau Prova', ((9, 10),), group_b)
+        teacher('0000 Anna Fictícia', ((8, 9), (10, 11)), group_b)
+        laura = teacher('0000 Laura Exemple', ((9, 10),), group_c)
+        teacher('0000 Iris Mostra', ((8, 9), (10, 11)), group_c)
+        guard = self.env.ref('ems.non_teaching_g')
+        marti = teacher('0000 Martí Mostra', ((8, 9), (9, 10), (10, 11)), non_teaching=guard)
+        roger = teacher('0000 Roger Fictici', ((8, 9), (9, 10), (10, 11)), non_teaching=guard)
+        teacher('0000 Clara Prova', ((8, 9), (9, 10), (10, 11)), non_teaching=guard)
+
+        day = self.env['ems.datetime_utils'].get_local_today() + timedelta(days=1)
+        while day.weekday() != 0:
+            day += timedelta(days=1)
+        for employee, hours in ((berta, (8, 10)), (pau, (9, 10)), (laura, (9, 10))):
+            self.env['hr.leave'].create({
+                'employee_id': employee.id, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+                'request_date_from': day, 'request_date_to': day, 'ems_full_day': False,
+                'request_hour_from': hours[0], 'request_hour_to': hours[1],
+                'ems_submitted': True, 'ems_responsible_declaration': True,
+            }).action_approve()
+        Cover = self.env['ems.absence_cover']
+        Cover.board_assign(str(day), 9, 10, pau.id, group_b.id, marti.id, "Exercicis de la pàgina 12")
+        Cover.board_assign(str(day), 9, 10, laura.id, group_c.id, roger.id, "Repàs del tema 3")
+
+        # Only this fixture's rows, never the dev DB's real timetable (see test_capture_guard_duty_schedule).
+        fixture_ids = department.member_ids.ids
+        course_model = type(self.env['ems.course'])
+        original = course_model._get_guard_duty_board_attendance_ids
+        patcher = patch.object(course_model, '_get_guard_duty_board_attendance_ids', lambda course: original(course).filtered(
+            lambda attendance: attendance.calendar_id.employee_id.id in fixture_ids))
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+        # The board keeps its day, shift and view in the URL, so it opens straight on next Monday.
+        url = f'/odoo/action-ems.action_guard_duty_board?date={day}&shift=morning&view=table'
+        self._capture(
+            url, '.o_guard_board', 'guard-duty-03-organitzar.png', login='doc_shot_chief',
+            wait_for='.o_guard_board_proposals .o_guard_board_action_option',
+        )
+        self._capture(
+            url, '.modal-content', 'guard-duty-04-enviar-guardia.png', login='doc_shot_chief',
+            wait_for='.o_guard_board_proposals .o_guard_board_action_option',
+            run=["""[...document.querySelectorAll('.o_guard_board_duty_table tr')]
+                    .find((row) => row.textContent.includes('09:00-10:00'))
+                    .querySelector('.o_guard_board_absence_manageable:not(.o_guard_board_absence_struck)').click();"""],
+            wait_after=['.o_guard_cover_guard_select'],
+        )
+        self._capture(
+            url, '.o_form_view .o_form_sheet', 'guard-duty-05-comunicat.png', login='doc_shot_chief',
+            wait_for='.o_guard_board_proposals .o_guard_board_action_option',
+            run=["document.querySelector('.o_guard_board_proposals .o_guard_board_action_button').click();"],
+            wait_after=['.o_form_view .alert-info'], max_height=760,
         )
 
     def test_capture_photo_visibility(self):
@@ -524,6 +619,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
 
     def test_capture_strike(self):
         from datetime import date
+        today = shift_ems_clock(self).date()
 
         level, study, group = create_level_study_group(self, 'DOCSTRIKE', level={
             'name': 'Formació professional',
@@ -541,9 +637,9 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         })
         student = self._student(group, 'Nil Exemple')
 
-        # Spans the whole day (same trick as test_capture_attendance_session) so the schedule is
-        # "current" regardless of when the capture actually runs.
-        weekday = str(date.today().weekday())
+        # Same as test_capture_attendance_session: shifted clock, so the schedule is the current one
+        # whenever the capture runs.
+        weekday = str(today.weekday())
         template = self.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, self.teacher_employee.ids)], 'study_ids': [(6, 0, [study.id])],
             'subject_id': subject.id, 'group_ids': [(6, 0, [group.id])],
@@ -555,7 +651,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             'student_ids': [(6, 0, student.ids)],
         })
         self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': schedule.id, 'date': date.today(),
+            'attendance_schedule_id': schedule.id, 'date': today,
             'mode': 'manual', 'session_teacher_id': self.teacher_employee.id,
         })
 

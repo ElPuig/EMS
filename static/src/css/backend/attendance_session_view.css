@@ -364,6 +364,13 @@
 .ems-av-status-btn:disabled {
     cursor: wait;
 }
+/* A status the teacher can never pick here (issue #587), not one waiting on a save. */
+.ems-av-status-btn--locked:disabled {
+    cursor: not-allowed;
+}
+.ems-av-status-btn--locked:hover {
+    transform: none;
+}
 
 /* --- Notes button ----------------------------------------- */
 .ems-av-notes-btn {

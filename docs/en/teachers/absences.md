@@ -88,7 +88,7 @@ For a medical appointment, the document must expressly state the patient's first
 
 **A certificate that arrives later is filed on the same request.** You do not need to have it when you request the absence: your Head marks the request as received and it waits for the document (**Awaiting documentation**). Once you have it, open the absence, attach the file in **Supporting document** and save. That is all: the request goes back to your Head on its own to validate it, you do not have to request the absence again or press anything else.
 
-If your Head or Direction find the document is not valid, the request goes back to **Awaiting documentation** and you receive a message: attach a valid one the same way.
+If your Head or Direction find the document is not valid, the request goes back to **Awaiting documentation** and you receive a message with the reason. The reason is also shown at the top of the request until you attach a new document: attach a valid one the same way.
 
 To remove one, click the cross on the file and confirm.
 

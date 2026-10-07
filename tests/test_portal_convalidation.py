@@ -1,3 +1,4 @@
+from odoo.exceptions import UserError
 from odoo.http import Request
 from odoo.tests.common import HttpCase, tagged
 
@@ -58,12 +59,15 @@ class TestPortalConvalidation(HttpCase):
     def _login(self, user):
         self.authenticate(user.login, user.login)
 
-    def _submit(self, subjects, basis='prior_studies', with_file=True, **extra):
+    def _submit(self, subjects, basis='prior_studies', with_file=True, origin='centre', **extra):
+        # Prior studies passed at this centre by default: the one case that needs nothing attached
+        # (issue #579), so a test can leave the file out without meaning to test that rule.
         data = {
             'csrf_token': Request.csrf_token(self),
             'subject_ids': [str(subject.id) for subject in subjects],
             'basis': basis,
             'student_notes': 'I passed these in SMX',
+            **({'prior_studies_origin': origin} if origin else {}),
             **extra,
         }
         files = [('documents', ('certificate.pdf', PDF, 'application/pdf'))] if with_file else None
@@ -121,14 +125,72 @@ class TestPortalConvalidation(HttpCase):
         self.assertIn('error=no_subjects', response.url)
         self.assertFalse(self._requests(self.student))
 
-    def test_documents_are_optional(self):
+    def test_studies_passed_here_need_no_documents(self):
         """A student of this centre has nothing to attach: their record is looked up here. The
         Head of Studies asks for documents afterwards when they are actually needed."""
         self._login(self.student_user)
-        response = self._submit(self.subject, with_file=False)
+        response = self._submit(self.subject, with_file=False, origin='centre')
         self.assertIn('submitted=1', response.url)
         request = self._requests(self.student)
         self.assertEqual(request.line_ids.subject_id, self.subject)
+        self.assertEqual(request.prior_studies_origin, 'centre')
+        self.assertFalse(request.attachment_ids)
+
+    def test_studies_passed_elsewhere_need_documents(self):
+        """Issue #579: anything not passed at this centre has to come with its documents."""
+        self._login(self.student_user)
+        response = self._submit(self.subject, with_file=False, origin='elsewhere')
+        self.assertIn('error=no_documents', response.url)
+        self.assertFalse(self._requests(self.student))
+
+        response = self._submit(self.subject, origin='elsewhere')
+        self.assertIn('submitted=1', response.url)
+        request = self._requests(self.student)
+        self.assertEqual(request.prior_studies_origin, 'elsewhere')
+        self.assertTrue(request.attachment_ids)
+
+    def test_other_grounds_need_documents(self):
+        self._login(self.student_user)
+        for basis in ('certificate', 'other'):
+            with self.subTest(basis=basis):
+                response = self._submit(self.subject, basis=basis, with_file=False, origin=None)
+                self.assertIn('error=no_documents', response.url)
+                self.assertFalse(self._requests(self.student))
+
+    def test_other_grounds_ignore_the_origin(self):
+        """Where studies were passed only means something for prior studies."""
+        self._login(self.student_user)
+        self._submit(self.subject, basis='certificate', origin='centre')
+        self.assertFalse(self._requests(self.student).prior_studies_origin)
+
+    def test_prior_studies_must_say_where_they_were_passed(self):
+        self._login(self.student_user)
+        for origin in (None, 'moon'):
+            with self.subTest(origin=origin):
+                response = self._submit(self.subject, origin=origin)
+                self.assertIn('error=no_origin', response.url)
+                self.assertFalse(self._requests(self.student))
+
+    def test_form_opens_after_a_documents_error(self):
+        self._login(self.student_user)
+        page = self.url_open('/my/convalidaciones?error=no_documents').text
+        self.assertIn('o_ems_convalidation_no_documents', page)
+        self.assertIn('id="convalidation_new_body" class="collapse show"', page)
+
+    def test_where_the_studies_were_passed_is_part_of_what_was_filed(self):
+        self._login(self.student_user)
+        self._submit(self.subject, origin='elsewhere')
+        request = self._requests(self.student)
+        with self.assertRaises(UserError):
+            request.with_user(self.env.ref('base.user_admin')).prior_studies_origin = 'centre'
+
+    def test_the_backend_can_register_a_request_without_documents(self):
+        """Only the portal enforces it: the secretariat can register a paper request and ask for
+        the documents afterwards."""
+        request = self.env['ems.convalidation'].create({
+            'student_id': self.student.id, 'study_id': self.study.id, 'basis': 'certificate',
+            'line_ids': [(0, 0, {'subject_id': self.subject.id})],
+        })
         self.assertFalse(request.attachment_ids)
 
     def test_nothing_is_created_with_an_unknown_basis(self):
@@ -191,11 +253,12 @@ class TestPortalConvalidation(HttpCase):
         request.action_resolve()
         request.action_complete()
 
-    def _resolved_request(self, grade=7):
+    def _resolved_request(self, grade=7, without_grade=False):
         request = self.env['ems.convalidation'].create({
             'student_id': self.student.id, 'study_id': self.study.id, 'course_id': self.course.id,
             'resolution_notes': 'Bring the original certificate',
             'line_ids': [(0, 0, {'subject_id': self.subject.id, 'state': 'granted', 'grade': grade,
+                                 'without_grade': without_grade,
                                  'resolution_notes': 'Same module in SMX'})],
         })
         request.sudo().action_propose()
@@ -227,6 +290,15 @@ class TestPortalConvalidation(HttpCase):
         response = self.url_open(f'/my/convalidaciones/resolution/{request.id}')
         self.assertEqual(response.content, request.resolution_pdf_id.raw)
 
+    def test_completed_subject_without_grade_reads_convalidated(self):
+        """Issue #580: no grade to show, only the word."""
+        request = self._resolved_request(without_grade=True)
+        request.sudo().action_complete()
+        self._login(self.student_user)
+        page = self.url_open('/my/convalidaciones').text
+        self.assertIn('<strong>Convalidated</strong>', page)
+        self.assertNotIn('<strong>7</strong>', page)
+
     def test_resolution_is_not_downloadable_before_it_is_registered(self):
         request = self._resolved_request()
         self._login(self.student_user)
@@ -255,13 +327,19 @@ class TestPortalConvalidation(HttpCase):
         request = self._requests(self.student)
         self.env['ems.convalidation.info_wizard'].create({
             'convalidation_id': request.id, 'message': 'Attach the SMX certificate'}).action_send()
+        self.assertEqual(request.state, 'documentation')
         page = self.url_open('/my/convalidaciones').text
         self.assertIn('o_ems_convalidation_info_request', page)
         self.assertIn('Attach the SMX certificate', page)
+        self.assertIn(request.info_request_reason_id.with_context(lang=self.student_user.lang).name, page)
+        # Still the applicant's to withdraw while the centre waits for them.
+        self.assertIn(f'/my/convalidaciones/cancel/{request.id}', page)
         response = self.url_open(f'/my/convalidaciones/reply/{request.id}', data={
             'csrf_token': Request.csrf_token(self), 'message': 'Here is the certificate',
         }, files=[('documents', ('smx.pdf', PDF, 'application/pdf'))])
         self.assertIn('replied=1', response.url)
+        # The answer puts the request back under review.
+        self.assertEqual(request.state, 'pending')
         self.assertEqual(request.attachment_ids.mapped('name'), ['smx.pdf'])
         self.assertEqual(request.attachment_ids.res_id, request.id)
         self.assertTrue(request.message_ids.filtered(

@@ -4,7 +4,9 @@
 
 # Justificar las faltas de tu alumnado
 
-Un justificante cubre un período (fecha y hora de inicio y de fin) de un alumno de tu grupo. Todas las faltas de ese período pasan a **Falta justificada**, las haya puesto cualquier docente.
+Un justificante cubre un período (fecha y hora de inicio y de fin) de un alumno de tu grupo. Todas las faltas de ese período pasan a **Falta justificada**, las haya puesto cualquier docente, y todos los **Retraso grave** (que cuentan como falta) pasan a **Retraso leve**.
+
+Salvo que el centro lo permita en su configuración, una justificación es la única forma de justificar una falta: el profesorado no puede marcar a un alumno como Falta justificada al pasar lista.
 
 **Rol necesario:** Tutor
 
@@ -15,8 +17,10 @@ Un justificante cubre un período (fecha y hora de inicio y de fin) de un alumno
 1. Ve a **Asistencia de los estudiantes → Justificaciones** y pulsa **Nuevo**.
 2. En **Alumno**, elige al alumno. Solo aparecen los alumnos de tu grupo.
 3. En **Período**, indica la fecha y la hora de inicio y de fin.
-4. La pestaña **Sesiones afectadas** muestra las sesiones del período en las que el alumno tiene una falta, de todos los docentes.
-5. Pulsa **Guardar**. Las faltas de la lista pasan a **Falta justificada**.
+4. La pestaña **Sesiones afectadas** muestra las sesiones del período en las que el alumno tiene una falta o un retraso grave, de todos los docentes.
+5. Pulsa **Guardar**. Las faltas de la lista pasan a **Falta justificada**, y los retrasos graves a **Retraso leve**.
+
+En el pase de lista, las líneas justificadas muestran un escudo y el docente ya no puede cambiarlas. Su nota indica quién las ha justificado ("Falta justificada por: ..." o "Retraso grave justificado por: ...").
 
 ![Justificante nuevo con las sesiones afectadas](../../assets/tutors/justificants-02-nou.png)
 
@@ -48,8 +52,8 @@ Los archivos adjuntos los puede abrir cualquiera que pueda ver el justificante: 
 
 ![Lista de justificantes](../../assets/tutors/justificants-01-llista.png)
 
-- **Cambiar el período:** abre el justificante, modifica el **Período** y guarda. Las faltas que queden fuera vuelven a **Falta** y las nuevas pasan a **Falta justificada**.
-- **Borrarlo:** las faltas que cubría vuelven a **Falta**.
+- **Cambiar el período:** abre el justificante, modifica el **Período** y guarda. Las faltas que queden fuera vuelven a **Falta** (o a **Retraso grave**, si lo eran) y las nuevas quedan justificadas.
+- **Borrarlo:** las faltas que cubría vuelven a **Falta**, y los retrasos a **Retraso grave**.
 - El **Alumno** no se puede cambiar una vez guardado: borra el justificante y crea uno nuevo.
 
 ---

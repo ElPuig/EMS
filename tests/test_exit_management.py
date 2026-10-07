@@ -549,3 +549,136 @@ class TestExitManagement(TransactionCase):
         self.assertTrue(withdrawal.google_ws_suspended)
         self.assertFalse(no_email.google_ws_suspended)
         self.assertFalse(active_student.google_ws_suspended)
+
+    # --- undoing a withdrawal registered by mistake (#592) --------------------
+
+    def _withdrawn_with_enrollment(self, name, **vals):
+        """A student of the current course, withdrawn by mistake, whose confirmed enrollment
+        survives the withdrawal (it only cancels draft/sent orders)."""
+        subject = self.env['ems.subject'].create({
+            'code': f'UND{next_student_id()}', 'acronym': 'UND', 'name': f'Undo Subject {name}',
+            'study_ids': [(6, 0, [self.study.id])]})
+        student = self._student(name, **vals)
+        order = self.env['sale.order'].create({
+            'partner_id': student.id, 'ems_course_id': self.current_course.id,
+            'ems_study_id': self.study.id, 'ems_group_id': self.group.id,
+            'order_line': [(0, 0, {'product_id': subject.product_id.id})]})
+        order.state = 'sale'
+        self.env['ems.enrollment'].create({
+            'student_id': student.id, 'group_id': self.group.id, 'subject_id': subject.id})
+        self.env['ems.withdrawal_wizard'].with_context(
+            active_ids=student.ids).create({'exit_reason': 'Mixed up with a sibling'}).action_apply()
+        self.assertEqual(student.exit_type, 'withdrawal')
+        return student, subject
+
+    def test_undo_withdrawal_restores_the_student(self):
+        secretary = create_role_user(self, 'secretary', 'undo_sec@example.com', email='undo_sec@example.com')
+        student, subject = self._withdrawn_with_enrollment('Undo Restore')
+        self.assertTrue(student.with_user(secretary).can_undo_withdrawal)
+
+        student.with_user(secretary).action_undo_withdrawal()
+
+        self.assertTrue(student.active)
+        self.assertEqual(student.contact_type, 'student')
+        self.assertFalse(student.exit_type)
+        self.assertFalse(student.exit_date)
+        self.assertFalse(student.exit_course_id)
+        self.assertEqual(student.main_group_id, self.group)
+        self.assertEqual(student.study_id, self.study)
+        self.assertEqual(student.level_id, self.level)
+        self.assertTrue(self.env['ems.enrollment'].search(
+            [('student_id', '=', student.id), ('subject_id', '=', subject.id)]))
+        self.assertIn(student, self.group.enrolled_student_ids)
+        # The course is running again: no frozen "withdrawn" year is left behind.
+        self.assertFalse(student.year_record_ids.filtered(
+            lambda record: record.course_id == self.current_course))
+        self.assertFalse(student.can_undo_withdrawal)
+        self.assertIn('undone', student.message_ids[0].body)
+
+    def test_undo_withdrawal_grants_the_portal_like_a_new_enrollment(self):
+        """A minor gets the portal back for himself and his family, as when enrolled."""
+        student, _subject = self._withdrawn_with_enrollment(
+            'Undo Portal', email='undo.portal.student@example.com')
+        family = self.env['res.partner'].create({
+            'name': 'Undo Portal Family', 'contact_type': 'family',
+            'email': 'undo.portal.family@example.com'})
+        self.env['res.partner.relation'].create({
+            'left_partner_id': family.id, 'right_partner_id': student.id,
+            'type_id': self.env.ref('ems.relation_type_father').id})
+
+        student.action_undo_withdrawal()
+
+        self.assertTrue(student._has_active_portal_user())
+        self.assertTrue(family._has_active_portal_user())
+
+    def test_undo_withdrawal_notes_the_frozen_grades(self):
+        """The withdrawal deleted the live grade lines; the grades frozen in the year record
+        cannot be rebuilt, so they are left in the chatter for the teachers to enter again."""
+        student, _subject = self._withdrawn_with_enrollment('Undo Grades')
+        record = student.year_record_ids.filtered(lambda r: r.course_id == self.current_course)
+        record.subject_record_ids = [(0, 0, {
+            'subject_name': 'Frozen Subject', 'internal_grade': 7, 'final_grade': 7,
+            'has_final': True, 'state': 'passed'})]
+
+        student.action_undo_withdrawal()
+
+        self.assertFalse(record.exists())
+        note = student.message_ids[0].body
+        self.assertIn('Frozen Subject', note)
+        self.assertIn('7', note)
+
+    def test_undo_withdrawal_keeps_the_convalidations_provisional(self):
+        """Subjects convalidated during the course keep the year record open as a provisional
+        one, holding only them, as before the withdrawal."""
+        student, _subject = self._withdrawn_with_enrollment('Undo Convalidated')
+        record = student.year_record_ids.filtered(lambda r: r.course_id == self.current_course)
+        record.subject_record_ids = [
+            (0, 0, {'subject_name': 'Convalidated Subject', 'is_convalidated': True,
+                    'convalidation_grade': 5, 'final_grade': 5, 'has_final': True, 'state': 'passed'}),
+            (0, 0, {'subject_name': 'Taken Subject', 'internal_grade': 4, 'state': 'failed'}),
+        ]
+
+        student.action_undo_withdrawal()
+
+        self.assertTrue(record.exists())
+        self.assertTrue(record.is_provisional)
+        self.assertFalse(record.exit_type)
+        self.assertFalse(record.academic_result)
+        self.assertEqual(record.subject_record_ids.mapped('subject_name'), ['Convalidated Subject'])
+
+    def test_undo_withdrawal_refused_to_a_tutor(self):
+        tutor = create_role_user(self, 'tutor', 'undo_tutor@example.com')
+        student, _subject = self._withdrawn_with_enrollment('Undo Tutor')
+        self.assertFalse(student.with_user(tutor).can_undo_withdrawal)
+        with self.assertRaises(UserError):
+            student.with_user(tutor).action_undo_withdrawal()
+        self.assertEqual(student.contact_type, 'withdrawal')
+
+    def test_undo_withdrawal_needs_a_confirmed_enrollment(self):
+        student = self._student('Undo No Enrollment')
+        self.env['ems.withdrawal_wizard'].with_context(active_ids=student.ids).create({}).action_apply()
+        self.assertFalse(student.can_undo_withdrawal)
+        with self.assertRaises(UserError):
+            student.action_undo_withdrawal()
+
+    def test_undo_withdrawal_only_for_the_current_course(self):
+        student, _subject = self._withdrawn_with_enrollment('Undo Old Course')
+        student.exit_course_id = self.next_course
+        self.assertFalse(student.can_undo_withdrawal)
+        with self.assertRaises(UserError):
+            student.action_undo_withdrawal()
+
+    def test_undo_withdrawal_not_for_an_expulsion(self):
+        student, _subject = self._withdrawn_with_enrollment('Undo Expulsion')
+        student.write({'contact_type': 'expelled', 'exit_type': 'expulsion'})
+        self.assertFalse(student.can_undo_withdrawal)
+        with self.assertRaises(UserError):
+            student.action_undo_withdrawal()
+
+    def test_undo_withdrawal_of_a_graduate_withdrawn_afterwards(self):
+        """has_graduated sends a withdrawn student to alumni, but it is still a withdrawal."""
+        student, _subject = self._withdrawn_with_enrollment('Undo Graduate', has_graduated=True)
+        self.assertEqual(student.contact_type, 'alumni')
+        student.action_undo_withdrawal()
+        self.assertEqual(student.contact_type, 'student')
+        self.assertTrue(student.has_graduated)

@@ -125,11 +125,14 @@ class AttendanceSessionView extends Component {
 
     async _loadStatuses() {
         const records = await this.orm.searchRead(
-            "ems.attendance_status", [], ["id", "name"], { order: "sequence" }
+            "ems.attendance_status", [], ["id", "name", "roll_call_selectable"], { order: "sequence" }
         );
-        this.statuses = records.map(({ id, name }) => ({
+        this.statuses = records.map(({ id, name, roll_call_selectable }) => ({
             key: id,
             title: name,
+            // Not selectable: still shown (and highlighted when a line has it), never clickable.
+            selectable: roll_call_selectable,
+            lockedTitle: `${name}: ${_t("Only the student's tutor can justify an absence, by registering a justification.")}`,
             label: name.split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase(),
         }));
     }
@@ -356,7 +359,7 @@ class AttendanceSessionView extends Component {
             viewModeGuard:          _t("Guard"),
             continuationBanner:     _t("A previous session for the same subject has been detected for today, so assistance data has been copied from the previous one. You can modify any of those as you please."),
             multipleSessionsWarning: _t("More than one session is scheduled for the current time slot. Please select one manually or switch to 'Manual' mode."),
-            justifiedTitle:          _t("Justified absence — status and notes are locked."),
+            justifiedTitle:          _t("Justified: status and notes are locked."),
             deleteSession:          _t("Delete session"),
             deleteSessionConfirm:   _t("Delete this session? This action cannot be undone."),
             removeLine:             _t("Remove from the roll-call (not required to attend)"),

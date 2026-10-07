@@ -15,7 +15,7 @@ Gestiona el horario semanal de cada docente desde su propia ficha de empleado, y
 - **Marco horario**: una plantilla semanal reutilizable (franjas, patios, reuniones de coordinación) para un nivel de estudios — por ejemplo, un marco para la ESO, otro para BTX, otro compartido por los ciclos formativos. Los marcos nunca llevan asignaturas reales asignadas.
 - **Horario de un docente**: su propio calendario personal, creado a partir de un marco y luego rellenado con sus asignaturas/grupos reales. Nunca se comparte con otro docente.
 - **Marco horario predeterminado**: el marco que se utiliza automáticamente para empezar el horario de cualquier docente nuevo.
-- **Grupo de refuerzo**: un grupo de alumnos que mezcla estudiantes de diferentes grupos habituales (e incluso de diferentes estudios) para una clase de refuerzo concreta — no tiene tutor ni delegado, pero aparece en el horario de un docente como cualquier otro grupo. Ver "Grupos de refuerzo" más abajo.
+- **Grupo de refuerzo**: un grupo de alumnos que mezcla estudiantes de diferentes grupos habituales (e incluso de diferentes estudios) para una clase de refuerzo concreta — no tiene tutor, delegado ni subdelegado, pero aparece en el horario de un docente como cualquier otro grupo. Ver "Grupos de refuerzo" más abajo.
 
 ---
 
@@ -261,7 +261,7 @@ Usa esto para reiniciar a un docente con un marco distinto (p. ej. ahora imparte
 Un grupo de refuerzo es un **grupo** de alumnos (el mismo registro de "Grupos" que un grupo habitual) utilizado para una clase de refuerzo/apoyo que mezcla alumnos de diferentes grupos habituales, e incluso de diferentes estudios — p. ej. un pequeño grupo de refuerzo de matemáticas con alumnos de tres grupos de primer curso distintos.
 
 1. Ve a **Configuración → Alumnado → Grupos** y crea uno nuevo.
-2. Establece su **Tipo de grupo** como **Refuerzo**. Esto oculta los campos Nivel/Estudio/Curso/Acrónimo/Tutor/Delegado (un grupo de refuerzo no tiene ninguno de ellos) y te permite escribir directamente el **Nombre** del grupo — haz que coincida exactamente con lo que exporta tu planificador externo para ese grupo, ya que el importador de horarios lo localiza por nombre exacto.
+2. Establece su **Tipo de grupo** como **Refuerzo**. Esto oculta los campos Nivel/Estudio/Curso/Acrónimo/Tutor/Delegado/Subdelegado (un grupo de refuerzo no tiene ninguno de ellos) y te permite escribir directamente el **Nombre** del grupo — haz que coincida exactamente con lo que exporta tu planificador externo para ese grupo, ya que el importador de horarios lo localiza por nombre exacto.
 3. Establece su **Aula**, igual que cualquier otro grupo — sigue siendo necesaria para que el horario se importe correctamente.
 4. En la pestaña **Alumnos**, añade los alumnos que asisten a esta clase de refuerzo, independientemente del grupo habitual o el estudio al que pertenezcan. Esto **no** cambia el grupo principal de ningún alumno.
 5. Guarda.

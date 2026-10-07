@@ -187,6 +187,76 @@ def mock_outgoing_email(cls):
     return mock
 
 
+class _ShiftedClockMeta(type):
+    """Stands in for datetime.datetime/date inside odoo.fields (see shift_ems_clock): every
+    attribute, call and isinstance() check goes to the real class, except the overridden now()/
+    today(), so every value created is still a real datetime/date."""
+
+    def __getattr__(cls, name):
+        return getattr(cls._real, name)
+
+    def __call__(cls, *args, **kwargs):
+        return cls._real(*args, **kwargs)
+
+    def __instancecheck__(cls, instance):
+        return isinstance(instance, cls._real)
+
+    def __subclasscheck__(cls, subclass):
+        return issubclass(subclass, cls._real)
+
+
+def shift_ems_clock(case, hour=10.0):
+    """Move the clock to `hour` (company time) of the company's day, so a fixture built around the
+    time of day (a slot that must be the current one, a weekday) holds whenever the suite runs,
+    late at night or past local midnight included. The clock keeps running from there, so the
+    browser's (which goes on from what the server told it) and the server's stay together. Returns
+    the shifted "now", an aware datetime in the company's timezone: take the fixtures' date and
+    weekday from it, never from date.today() (UTC in Odoo).
+
+    The shift goes forward to the next `hour` (today's or tomorrow's), never back: what only the
+    real clock dates (PostgreSQL's create_date, cr.now()) then always reads as already past,
+    never as a future the code would refuse.
+
+    Covers every clock EMS reads: ems.datetime_utils' local now and its server epoch (the web
+    client's serverNow() is derived from it, see server_clock.js), and odoo.fields' now/today,
+    defaults declared as default=fields.Datetime.now included. Pass the class from setUpClass
+    (restored at the end of the class) or the test itself (restored after it)."""
+    import datetime as real
+    from odoo import api
+    from odoo.addons.ems.models.shared.datetime_utils import EmsDatetimeUtils
+
+    utils = case.env['ems.datetime_utils']
+    tz = utils.current_tz()
+    real_now = real.datetime.now(tz)
+    target = utils.time_float_to_local_datetime(real_now.date(), hour)
+    if target < real_now:
+        target = utils.time_float_to_local_datetime(real_now.date() + real.timedelta(days=1), hour)
+    delta = target - real_now
+
+    def now(tz=None):
+        return real.datetime.now(tz) + delta
+
+    def utc_naive_now():
+        return now(real.timezone.utc).replace(tzinfo=None)
+
+    shifted_datetime = _ShiftedClockMeta('datetime', (), {
+        '_real': real.datetime, 'now': staticmethod(lambda tz=None: utc_naive_now() if tz is None else now(tz))})
+    shifted_date = _ShiftedClockMeta('date', (), {
+        '_real': real.date, 'today': staticmethod(lambda: utc_naive_now().date())})
+    patchers = [
+        patch.object(EmsDatetimeUtils, 'get_local_datetime', lambda self: now(self.current_tz())),
+        patch.object(EmsDatetimeUtils, 'get_server_epoch_ms',
+                     api.model(lambda self: int(now(real.timezone.utc).timestamp() * 1000))),
+        patch('odoo.fields.datetime', shifted_datetime),
+        patch('odoo.fields.date', shifted_date),
+    ]
+    add_cleanup = case.addClassCleanup if isinstance(case, type) else case.addCleanup
+    for patcher in patchers:
+        patcher.start()
+        add_cleanup(patcher.stop)
+    return target
+
+
 def cancel_google_account_creation(record):
     """Cancel the automatic Google account creation queued when `record` (an employee or a
     student) was seeded with every field it needs. A queued or running creation hides the

@@ -173,6 +173,30 @@ class GoogleWorkspaceMixin(models.AbstractModel):
         return True
 
     @api.model
+    def _gw_reset_password(self, email):
+        """Give the Google account `email` a new random password, to be changed at next login,
+        and return it. Shared by students (#478) and staff (#595). A refusal from Google is
+        raised as a UserError before the caller delivers anything, so the previous credentials
+        stay in place."""
+        password = self._gw_random_password()
+        if self.env.company.google_ws_dry_run:
+            _logger.info("[GW dry-run] reset password of %s", email)
+            return password
+        service = self._gw_get_service()
+        try:
+            service.users().patch(
+                userKey=email,
+                body={'password': password, 'changePasswordAtNextLogin': True},
+            ).execute()
+        except HttpError as e:
+            _logger.exception("Could not reset the Google password of %s", email)
+            raise UserError(_(
+                "Google refused to reset the password of %(email)s. Check that the service "
+                "account's admin role has the \"Reset password\" privilege. Error: %(err)s") % {
+                    'email': email, 'err': str(e)[:200]}) from e
+        return password
+
+    @api.model
     def _gw_sync_account_name(self, record, email, given, family):
         """Copy a name onto the Google account `email` belongs to (issue #542).
 

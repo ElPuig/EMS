@@ -51,7 +51,7 @@ Hi tens les sol·licituds de la teva àrea, i s'obre amb **Pendent de mi**: les 
 1. **Rebuda: pendent de documentació** (icona de safata al llistat, o el botó de dalt del formulari). Dones per rebuda la sol·licitud sense haver vist encara el justificant. Passa a **En espera de documentació** i es demana el justificant a la persona. Si ja l'havia adjuntat amb la sol·licitud, passa directament a **Pendent de validació**.
 2. Quan la persona adjunta el justificant, la sol·licitud et torna sola com a **Pendent de validació**. Obre-la, revisa el justificant i fes servir **Validar documentació** (també una icona de validació al llistat). Llavors passa a Direcció.
 
-Si el justificant no és vàlid, **Documentació insuficient** torna la sol·licitud a la persona (En espera de documentació) amb un missatge que en demana un de vàlid.
+Si el justificant no és vàlid, **Documentació insuficient** et demana el motiu (obligatori) i torna la sol·licitud a la persona (En espera de documentació) amb un missatge que l'inclou. La persona també el veu a dalt de la sol·licitud fins que adjunta un justificant nou. Si el nou tampoc no és vàlid, el diàleg s'obre amb el motiu anterior perquè el puguis modificar; quan valides un justificant, el motiu s'esborra.
 
 Per a `Salut` i `ATRI` hi ha un sol pas: **Validar** (el polze al llistat), que l'envia directament a Direcció.
 
@@ -96,7 +96,7 @@ Revisa-les des del llistat amb les icones del costat d'**Estat Direcció**, o ob
 | Icona | Botó | Resultat |
 |---|---|---|
 | Casella marcada | **Direcció: fet** | Aprovat |
-| Full | **Documentació insuficient** | Torna a la persona, En espera de documentació. Demana confirmació abans |
+| Full | **Documentació insuficient** | Torna a la persona, En espera de documentació. Abans demana el motiu, que la persona rep |
 | Fletxa enrere | **Direcció: pendent** | Desfà un *Fet* |
 | Creu | **Rebutja** | Rebutjat. Rebutja tota la sol·licitud, demana confirmació abans i és definitiu |
 
@@ -145,7 +145,7 @@ Per canviar el període, treu el filtre **Curs actual** i tria el que necessitis
 Quan ja saps que un docent faltarà però encara no ha sol·licitat l'absència (ha trucat aquest matí, o s'ha acordat en una reunió), entra-la aquí perquè les guàrdies es puguin planificar tot seguit.
 
 1. Fes clic a **Nou**.
-2. Tria el **Professor/a**. Només surten els docents de la teva àrea: el Cap d'Estudis o el Cap d'Estudis Adjunt veu els seus docents, i Direcció els veu tots.
+2. Tria el **Professor/a**. Només surten els docents de la teva àrea: el Cap d'Estudis o el Cap d'Estudis Adjunt veu els seus docents, i Direcció els veu tots. Els membres de l'equip directiu (com el Secretari) compten com a docents de l'àrea a què pertany el seu departament: el Secretari, que fa classe en un departament d'FP, surt al Cap d'Estudis o Cap d'Estudis Adjunt responsable d'FP.
 3. Indica **De** i **A**, amb data i hora. Per defecte, avui de 08:00 a 15:00. Una absència pot ocupar diversos dies.
 4. Si vols, afegeix-hi **Notes** per a tu. El docent no veu mai aquesta entrada.
 5. Desa.
@@ -157,3 +157,7 @@ Quan el docent sol·licita l'absència, l'absència prevista s'hi vincula autom�
 ![Llista d'absències previstes, una encara prevista i una ja sol·licitada pel docent](../../assets/head_of_studies/hos-expected-absences-list.png)
 
 Si finalment el docent no falta, esborra l'entrada.
+
+### Organitzar la cobertura
+
+Un cop una absència surt a l'horari de guàrdies, prevista o sol·licitada, organitza-la des de la **Taula d'absències** de l'horari: envia un docent de guàrdia a cada classe, proposa un comunicat a les famílies quan l'alumnat pot entrar més tard o sortir abans, i corregeix el que una absència que ha canviat després ha deixat sense sentit. El que organitzis per a una absència prevista es manté quan el docent la sol·licita. Consulta [Organitzar una absència](../teachers/guard-duty-schedule.md#organitzar-una-absencia).

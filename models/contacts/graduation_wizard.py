@@ -165,10 +165,7 @@ class EmsWithdrawalWizard(models.TransientModel):
         return res
 
     def _can_register_exits(self):
-        """Withdrawals and expulsions: the secretary, the academic admin, and the Head of Studies
-        (the one group shared by Head of Studies, Deputy Head of Studies and Director)."""
-        return any(self.env.user.has_group(xmlid) for xmlid in (
-            'ems.group_academic_admin', 'ems.group_secretary', 'ems.group_head_of_studies'))
+        return self.env['res.partner']._ems_user_can_register_exits()
 
     def _current_course(self):
         return self.env.company.current_course_id \

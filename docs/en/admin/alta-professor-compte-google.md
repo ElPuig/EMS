@@ -71,7 +71,7 @@ When the record is saved, if all the required data is present (name and private 
 - Generates a temporary password (which must be changed on first login).
 - **Creates the teacher's EMS user automatically**, with the corporate email as login and **Sign in with Google already connected**: the teacher enters EMS with the Google button, no separate password is needed and no password email is sent. Teachers get the *Teacher* permissions; ASP staff get a basic internal user (their permissions arrive with their roles/job position).
 - Sends the credentials by email to the private address provided in step 3 (the message also explains how to enter EMS).
-- Attaches a PDF with the credentials to the teacher's record.
+- Saves a PDF with the credentials on the teacher's record, in the **Google account** block of the **Human Resources** tab. Only the roles that manage the account can see it.
 
 You don't need to press anything else. If some required data was missing, complete it and save the record: the account is then created the same way. The **Create Google account** entry, in the record's **Actions** menu (header), only appears while the teacher has no corporate account and none is being created (for example, if the automatic creation failed). Pressing it starts the creation, and the result appears in the record's message log in a few moments.
 
@@ -88,6 +88,8 @@ You don't need to press anything else. If some required data was missing, comple
 - **The record already existed as a "Pending identification" vacancy:** if a working-schedule import or a Head of Studies created it before the person was known (see "Teachers Not Yet Hired (Pending Identification)" in [Teacher Working Schedules & Schedule Frameworks](working-schedules.md)), the record already has a schedule, subjects and attendance lists set up — set **Staffing type** to **Named teacher**, do **Step 2** and **Step 3** above (replace the placeholder name, fill in the private email) and save. The account is created automatically, and that also clears the "Pending identification" badge; nothing about the already-imported schedule needs to be redone.
 
 - **The teacher has an EMS user but cannot sign in with Google:** if the connection between the EMS user and their Google account is lost, Google accepts the login but EMS answers *Access Denied*, and no password reset fixes it. A **Re-link Google sign-in** entry then appears in the record's **Actions** menu, next to **Suspend Google account**. Pressing it asks Google for the account identifier again and restores the connection; the teacher can log in straight away. It changes nothing else — not the Google account, the password or the corporate address — and it does not appear while the connection is working.
+
+- **The teacher has forgotten their password:** choose **Reset Google password** in the record's **Actions** menu and confirm. The account gets a new temporary password, to be changed on first login; the new credentials are emailed to the teacher's private address and the PDF in the **Human Resources** tab is replaced by the new one. Check that the private email is the teacher's current one before resetting: that is where the password goes.
 
 ---
 

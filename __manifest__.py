@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.34.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.35.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -258,6 +258,7 @@
             'views/attendance/guard_duty_board/menu.xml',
 
             'views/attendance/absence/leave.xml',
+            'views/attendance/absence/document_return_wizard.xml',
             'views/attendance/absence/public_holiday.xml',
             'views/attendance/absence/menu.xml',
             'views/attendance/absence/monthly_report.xml',
@@ -334,6 +335,12 @@
             'views/academic_management/task_assignment/menu.xml',
             'views/academic_management/convalidations/views.xml',
             'views/academic_management/convalidations/menu.xml',
+            'views/academic_management/convalidation_info_reason/list.xml',
+            'views/academic_management/convalidation_info_reason/form.xml',
+            'views/academic_management/convalidation_info_reason/menu.xml',
+            'views/academic_management/convalidation_rejection_reason/list.xml',
+            'views/academic_management/convalidation_rejection_reason/form.xml',
+            'views/academic_management/convalidation_rejection_reason/menu.xml',
 
         'views/sales/product_view.xml',
         'views/accounting/payment_term_views.xml',
@@ -404,6 +411,8 @@
         'data/main/ir.cron-task_digest.csv',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
+        'data/main/ems.convalidation.info_reason.csv',
+        'data/main/ems.convalidation.rejection_reason.csv',
         'data/main/ems.attendance_status.csv',
         'data/main/ems.non_teaching_type.csv',
         'data/main/ems.teaching_reduction_type.csv',

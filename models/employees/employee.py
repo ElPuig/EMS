@@ -116,6 +116,17 @@ class ems_employee_base(models.AbstractModel):
     seminar_department_ids = fields.One2many(string="Seminars Led", comodel_name="hr.department", inverse_name="seminar_chief_id")
     directed_company_ids = fields.One2many(string="Companies Directed", comodel_name="res.company", inverse_name="director_id")
 
+    # The presence dot (issue #575) must not depend on who is looking. Its state is a non-stored
+    # compute that reads the employee's last check-in ('last_attendance_id'/'attendance_state',
+    # restricted by hr_attendance to HR and attendance officers); computed as a teacher or a tutor,
+    # those came back empty, so a colleague at work showed "out of working hours" (grey) on their
+    # form while the Teachers kanban, loaded another way, showed them present (green). Computed as
+    # superuser, everyone sees the same state; nothing new is exposed - the dot was already shown
+    # to them, and only says present / absent / on leave / out of working hours.
+    hr_presence_state = fields.Selection(compute_sudo=True)
+    hr_icon_display = fields.Selection(compute_sudo=True)
+    show_hr_icon_display = fields.Boolean(compute_sudo=True)
+
     #This fields are computed in order to display string data within some views.
     roles = fields.Char(string="Role names", compute="_compute_roles_str", store=True)	
     tutorships = fields.Char(string="Tutorship names", compute="_compute_tutorships_str", store=True)	

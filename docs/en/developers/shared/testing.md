@@ -52,6 +52,41 @@ mock_outgoing_email(cls)
 cls.mail_transport = mock_outgoing_email(cls)
 ```
 
+## `shift_ems_clock(case, hour=10.0)`
+
+For any test whose fixtures depend on the time of day: a slot that must be the current one
+(roll-call "Current" and Guard modes, the strike flow, presence), or a weekday/date that has to
+match the company's "today". Without it such a test only passes at some hours: a whole-day slot
+ending at 23:00 fails in the last hour of the day, and `date.today()` (UTC in Odoo) gives the
+wrong weekday between local midnight and 02:00.
+
+It moves every clock the test can read to `hour` (company time) of the company's day and lets it
+run from there:
+
+- `ems.datetime_utils.get_local_datetime()` (and so `get_local_today()`), the server side of EMS;
+- `ems.datetime_utils.get_server_epoch_ms()`, from which the web client's `serverNow()` takes its
+  offset (`server_clock.js`), so a tour's browser sees the same moment;
+- `datetime`/`date` inside `odoo.fields`, so `fields.Datetime.now()`, `fields.Date.today()`,
+  `fields.Date.context_today()` and defaults declared as `default=fields.Datetime.now` follow too.
+
+The shift always goes forward (to today's `hour`, or tomorrow's once it has passed), never back:
+PostgreSQL's own clock (`create_date`, `cr.now()`) can't be moved, so the shifted time must never
+be earlier than it, or code refusing future dates (a strike "can't be dated in the future") would
+reject records stamped by the real clock.
+
+Call it first thing in `setUpClass` (pass `cls`, restored at the end of the class) or in the test
+(pass `self`, restored after it), and take every date and weekday from what it returns:
+
+```python
+cls.today = shift_ems_clock(cls).date()
+schedule = cls.env['ems.attendance_schedule'].create({
+    'weekday': str(cls.today.weekday()), 'start_time': 0.0, 'end_time': 23.0, ...
+})
+```
+
+A test that needs a specific instant (comparing against a cutoff) still patches
+`fields.Datetime.now` itself, as described in CLAUDE.md's "Time-relative fixtures".
+
 ## `make_synchronous_run_in_thread(record)`
 
 Every LimeSurvey test that exercises `run_action()`/action methods needs `run_in_thread`

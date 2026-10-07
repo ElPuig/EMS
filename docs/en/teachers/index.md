@@ -19,6 +19,7 @@ This section contains the manuals for **teachers**.
 | [Strikes: Flagging a Disciplinary Incident](strike.md) | Issue a strike from the roll-call view when a student's behaviour needs to be flagged |
 | [Your Weekly Schedule](working-schedules.md) | View your subjects, groups, classrooms, breaks and meetings on your weekly timetable |
 | [Guard Duty Schedule](guard-duty-schedule.md) | See where every teacher is, and who is on guard duty, in each time block of the week |
+| [Notices: Writing to Your Department's Groups](notice.md) | Send notices to the students and families of the groups your department teaches (Department and Seminar Chiefs) |
 | [Students: Your Own Groups](student-list-my-groups.md) | Open the student list already filtered to the groups you teach or tutor, and widen it when you need everyone |
 | [Disabling Your Profile Picture](photo-visibility.md) | Turn your profile picture on or off |
 | [Daily Summary of Pending Tasks](task-digest.md) | The morning email listing everything still pending in your EMS tray, and how to turn it off |

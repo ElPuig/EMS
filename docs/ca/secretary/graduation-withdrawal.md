@@ -14,6 +14,7 @@ Aquesta guia explica les dues maneres en què un alumne deixa el centre — la *
 2. [Marcar una graduació](#marcar-una-graduació)
 3. [Tramitar una baixa](#tramitar-una-baixa)
 4. [Què fa una baixa, pas a pas](#què-fa-una-baixa-pas-a-pas)
+5. [Desfer una baixa tramitada per error](#desfer-una-baixa-tramitada-per-error)
 
 ---
 
@@ -35,8 +36,8 @@ Heu marcat un alumne per error? **Desmarcar** ho reverteix — excepte el regist
 ## Tramitar una baixa (o una expulsió)
 
 Ho poden tramitar secretaria, cap d'estudis, cap d'estudis adjunt, direcció i admin. Se us demanarà triar entre **Baixa** i
-**Expulsió**, la **data de sortida** i, opcionalment, un **motiu** — després confirmeu. Un cop
-aplicat, no es pot desfer des del propi assistent.
+**Expulsió**, la **data de sortida** i, opcionalment, un **motiu** — després confirmeu. Una baixa
+tramitada per error es pot desfer: vegeu [Desfer una baixa tramitada per error](#desfer-una-baixa-tramitada-per-error).
 
 ![Assistent de baixa amb el tipus (Baixa/Expulsió), la data i el motiu de sortida i la matrícula pendent que cancel·larà](../../assets/secretary/baixa-01-assistent.png)
 
@@ -61,6 +62,37 @@ Arxivar un alumne des de l'acció genèrica d'Arxivar (llista o fitxa) obre auto
 5. Se li revoca l'accés al portal — i també al de la seva família, **tret que** algun membre de la família encara tingui un altre fill/a matriculat/da activament al centre (un germà/na manté l'accés de la família funcionant).
 6. La fitxa de l'alumne s'arxiva.
 7. Es programa la suspensió del seu compte corporatiu de Google: EMS li envia un correu (a l'adreça personal i a la corporativa) avisant-lo que el compte se suspendrà d'aquí a 30 dies i s'eliminarà 30 dies més tard, i mostra les dues dates a la fitxa a mesura que es fixen.
+
+---
+
+## Desfer una baixa tramitada per error
+
+Si s'ha donat de baixa un alumne per error (per exemple, confós amb un germà de nom gairebé igual), secretaria, cap d'estudis, cap d'estudis adjunt, direcció i admin la poden desfer:
+
+1. Obriu la fitxa de l'alumne (a **Comunitat educativa → Alumnes**, amb el filtre **Antic alumnat**).
+2. Feu clic a **Accions → Desfés la baixa** i confirmeu.
+
+L'opció només apareix si es compleixen les tres condicions:
+
+- és una **baixa**, no una expulsió;
+- la baixa és del **curs actual**;
+- l'alumne té la **matrícula del curs actual confirmada** i amb grup.
+
+En desfer-la:
+
+- L'alumne torna a ser alumne actiu, al grup i a les assignatures de la seva matrícula: torna a sortir als passos de llista i a les sessions d'avaluació.
+- S'esborra el resultat **Baixa** del seu [històric acadèmic](academic-history.md) per al curs actual. Les convalidacions del curs es conserven.
+- Es torna a donar accés al portal, igual que en una matrícula nova: a l'alumne i, si és menor d'edat, a la seva família.
+- Es manté el compte corporatiu de Google: s'anul·la la suspensió programada o es reactiva el compte si ja estava suspès.
+- Queda una nota a l'historial de la fitxa. Si l'alumne ja tenia notes posades abans de la baixa, la nota les llista assignatura per assignatura perquè el professorat les torni a introduir.
+
+No es recupera:
+
+- l'assistència anterior a la baixa;
+- els passos de llista fets mentre l'alumne estava de baixa;
+- les matrícules pendents que la baixa va cancel·lar.
+
+Una baixa d'un curs anterior no es desfà: l'alumne es torna a matricular pel circuit habitual de matrícula.
 
 ---
 

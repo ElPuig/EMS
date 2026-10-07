@@ -88,7 +88,7 @@ En el cas de consulta mèdica, el justificant ha de fer constar expressament el 
 
 **Un justificant que arriba més tard s'adjunta a la mateixa sol·licitud.** No cal tenir-lo quan demanes l'absència: el teu cap marca la sol·licitud com a rebuda i queda esperant el justificant (**En espera de documentació**). Quan el tinguis, obre l'absència, adjunta el fitxer a **Justificant** i desa. Ja està: la sol·licitud torna sola al teu cap perquè el validi, no cal tornar a sol·licitar l'absència ni prémer res més.
 
-Si el teu cap o Direcció consideren que el justificant no és vàlid, la sol·licitud torna a **En espera de documentació** i reps un missatge: adjunta'n un de vàlid de la mateixa manera.
+Si el teu cap o Direcció consideren que el justificant no és vàlid, la sol·licitud torna a **En espera de documentació** i reps un missatge amb el motiu. El motiu també apareix a dalt de la sol·licitud fins que adjuntes un justificant nou: adjunta'n un de vàlid de la mateixa manera.
 
 Per esborrar-ne un, fes clic a la creu del fitxer i confirma.
 

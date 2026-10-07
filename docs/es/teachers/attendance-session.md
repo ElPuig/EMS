@@ -76,6 +76,10 @@ Guardar.
 - Un icono de escudo junto al nombre del alumno indica que su ausencia ya está **justificada** (una
   justificación aprobada o una previsión cubre esta sesión) — su estado y notas quedan bloqueados,
   ya que es la justificación la que lo decide.
+- El botón **Falta justificada** no se puede pulsar si el centro no lo permite: solo el tutor del
+  alumno justifica una falta, registrando una justificación. Pasa el ratón por encima para ver el
+  motivo. Marca al alumno como **Falta** y la justificación del tutor la convertirá en Falta
+  justificada.
 - Usa el desplegable de **ordenación** (arriba a la derecha) para reordenar la lista por apellido o
   nombre, ascendente o descendente.
 - Pasa el ratón por encima de la foto de un alumno para verla ampliada, con su nombre debajo; se

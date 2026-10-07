@@ -38,7 +38,9 @@
                            decoration-success="state == 'passed'"
                            decoration-danger="state == 'failed'"/>
                     <field name="internal_grade"/>
-                    <field name="final_grade"/>
+                    <field name="is_convalidated" column_invisible="1"/>
+                    <field name="convalidation_grade" column_invisible="1"/>
+                    <field name="final_grade" invisible="is_convalidated and not convalidation_grade"/>
                     <field name="final_pending" optional="show"/>
                     <field name="review_date" optional="hide"/>
                 </list>

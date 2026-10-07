@@ -78,7 +78,7 @@ A teacher's Department Chief and Seminar Chief can also see these two fields, re
 
 When you save a new teacher's record with the name and personal email filled in, the corporate account is created automatically in a few moments: you don't need to press anything.
 
-The actions that manage the teacher's corporate account are in the **Actions** menu on the top bar of their record. Which one appears depends on the state the account is in — only one is ever offered at a time:
+The actions that manage the teacher's corporate account are in the **Actions** menu on the top bar of their record. Which ones appear depends on the state the account is in:
 
 | Button | When it appears | What it does |
 |--------|-----------------|--------------|
@@ -86,10 +86,11 @@ The actions that manage the teacher's corporate account are in the **Actions** m
 | **Create EMS User** | The corporate email already exists, but there is no EMS user linked to it | Only links or creates the EMS user — it does not touch Google |
 | **Suspend Google account** | The account is active | Suspends it (for example, when the teacher leaves the centre) |
 | **Reactivate Google account** | The account is suspended | Reactivates it |
+| **Reset Google password** | The account exists and is not suspended | Gives the account a new temporary password, to be changed on first login, and delivers new credentials (see below). For a teacher who has forgotten their password |
 
 ![Actions menu with Create Google account on a teacher's record with no account yet](../../assets/head_of_studies/hos-staff-management-create-account.png)
 
-When the account is created, the credentials travel two ways: a PDF is attached to the teacher's own record, and a welcome email with the password is sent to their personal address. If the account cannot be created because some required data is missing, a note is posted in the record's message history explaining exactly which fields are missing.
+When the account is created, or its password is reset, the credentials travel two ways: a PDF is saved on the teacher's record, in the **Google account** block of the **Human Resources** tab, and an email with the password is sent to their personal address. The record only keeps the latest PDF, and only the roles that manage the account can see it. If the account cannot be created because some required data is missing, a note is posted in the record's message history explaining exactly which fields are missing.
 
 ---
 

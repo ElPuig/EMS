@@ -1,5 +1,6 @@
 from odoo.exceptions import RedirectWarning, ValidationError
 from odoo.tests.common import TransactionCase
+from odoo.tools.safe_eval import safe_eval
 
 from .common import create_level_study_group, next_student_id
 
@@ -16,6 +17,12 @@ class TestGroup(TransactionCase):
         })
         cls.test_level, cls.test_study, cls.test_group = create_level_study_group(cls, 'TSTG', level={'name': 'Test Level (Group)'}, study={
             'code': 'TSTG01', 'name': 'Test Study (Group)',
+        })
+
+    def _main_student(self, name, group=None):
+        return self.env['res.partner'].create({
+            'name': name, 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': (group or self.test_group).id,
         })
 
     def test_create_valid(self):
@@ -77,6 +84,43 @@ class TestGroup(TransactionCase):
                 'level_id': self.test_level.id,
             })
 
+    def test_reinforcement_group_with_subdelegate_raises(self):
+        student = self._main_student('Sub-delegate (Reinforcement)')
+        with self.assertRaises(ValidationError):
+            self.env['ems.group'].create({
+                'group_type': 'reinforcement',
+                'name': 'REF-SUBDELEGATE',
+                'subdelegate_id': student.id,
+            })
+
+    def test_delegate_and_subdelegate_must_differ(self):
+        """Issue #574: the sub-delegate stands in for the delegate, so it can't be the same student."""
+        student = self._main_student('Delegate and Sub-delegate')
+        self.test_group.delegate_id = student
+        with self.assertRaises(ValidationError):
+            self.test_group.subdelegate_id = student
+
+    def test_subdelegate_domain_excludes_the_delegate(self):
+        delegate = self._main_student('Delegate (Domain)')
+        other = self._main_student('Classmate (Domain)')
+        self.test_group.delegate_id = delegate
+        domain = safe_eval(self.test_group._fields['subdelegate_id'].domain,
+                           {'id': self.test_group.id, 'delegate_id': delegate.id})
+        candidates = self.env['res.partner'].search(domain)
+        self.assertIn(other, candidates)
+        self.assertNotIn(delegate, candidates)
+
+    def test_clear_stale_delegate_clears_only_the_leaving_students_role(self):
+        """A student who leaves the group stops being its delegate or its sub-delegate, and only that."""
+        delegate = self._main_student('Delegate (Stale)')
+        subdelegate = self._main_student('Sub-delegate (Stale)')
+        self.test_group.write({'delegate_id': delegate.id, 'subdelegate_id': subdelegate.id})
+        subdelegate._ems_clear_stale_delegate(self.test_group)
+        self.assertEqual(self.test_group.delegate_id, delegate)
+        self.assertFalse(self.test_group.subdelegate_id)
+        delegate._ems_clear_stale_delegate(self.test_group)
+        self.assertFalse(self.test_group.delegate_id)
+
     def test_switching_main_group_with_students_to_reinforcement_raises(self):
         self.env['res.partner'].create({
             'name': 'Main Student (Group)', 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': self.test_group.id,
@@ -98,7 +142,14 @@ class TestGroup(TransactionCase):
             'level_id': self.test_level.id,
             'study_id': self.test_study.id,
         })
+        delegate = self._main_student('Delegate (Switch)', group)
+        subdelegate = self._main_student('Sub-delegate (Switch)', group)
+        group.write({'delegate_id': delegate.id, 'subdelegate_id': subdelegate.id})
+        # Students out of the group first: with them still in it the switch is refused (above).
+        (delegate | subdelegate).main_group_id = False
         group.write({'group_type': 'reinforcement', 'name': 'REF-EMPTY'})
+        self.assertFalse(group.delegate_id)
+        self.assertFalse(group.subdelegate_id)
         self.assertEqual(group.group_type, 'reinforcement')
         self.assertFalse(group.level_id)
         self.assertFalse(group.study_id)

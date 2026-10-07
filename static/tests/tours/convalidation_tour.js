@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // Issues #276 and #529 - subject convalidations. Every tour runs against records seeded by
 // tests/test_convalidation_tour.py and uses structural selectors (button names, CSS classes),
@@ -22,27 +23,50 @@ registry.category("web_tour.tours").add("ems_convalidation_resolve", {
             content: "The request opens as pending",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row button[name='action_grant']",
+            // Issue #576: the student's IDALU, with a button to copy it into Esfera.
+            trigger: ".o_form_view .o_field_widget[name='student_idalu']:contains('TEST') .o_clipboard_button",
+            content: "The student's IDALU is shown, ready to copy",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row button[name='action_open_grant']",
             content: "Convalidate the requested subject",
             run: "click",
         },
         {
-            // The grade only shows on a granted line: waiting for the default 5 means the grant
-            // has been saved and the row re-rendered, so the click below is not lost to it.
-            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row td[name='grade']:contains('5')",
-            content: "Write the grade the previous studies hold",
-            run: "click",
+            // Issue #580: convalidating asks for the grade, 5 by default.
+            trigger: ".modal .o_field_widget[name='grade'] input:value(5)",
+            content: "The dialog proposes the default 5",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row td[name='grade'] input",
+            // Selection values are JSON-encoded in the <select>, hence the quotes.
+            trigger: ".modal .o_field_widget[name='mode'] select",
+            content: "Convalidate it without a grade...",
+            run: 'select "without_grade"',
+        },
+        {
+            trigger: ".modal .o_form_view:not(:has(.o_field_widget[name='grade']))",
+            content: "...which hides the grade",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='mode'] select",
+            content: "...or rather with the grade the previous studies hold",
+            run: 'select "grade"',
+        },
+        {
+            trigger: ".modal .o_field_widget[name='grade'] input",
             content: "Replace the default 5",
             run: "edit 8",
         },
         {
-            trigger: ".o_form_view button[name='action_propose']",
-            content: "Send the proposal to the Director",
+            trigger: ".modal footer button[name='action_grant']",
+            content: "Convalidate",
             run: "click",
         },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='line_ids'] .o_data_row td[name='grade']:contains('8')",
+            content: "The subject is convalidated with an 8",
+        },
+        ...clickAction("action_propose", "Send the proposal to the Director"),
         {
             trigger: ".o_form_view .o_statusbar_status button[data-value='direction'].o_arrow_button_current",
             content: "The request is now the Director's",
@@ -70,11 +94,7 @@ registry.category("web_tour.tours").add("ems_convalidation_ministry", {
             content: "Open the pending request",
             run: "click",
         },
-        {
-            trigger: ".o_form_view button[name='action_send_to_ministry']",
-            content: "It has been filed with the Ministry",
-            run: "click",
-        },
+        ...clickAction("action_send_to_ministry", "It has been filed with the Ministry"),
         {
             trigger: ".modal footer button.btn-primary",
             content: "Confirm",
@@ -89,28 +109,76 @@ registry.category("web_tour.tours").add("ems_convalidation_ministry", {
             content: "The Ministry's resolution can be attached",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row button[name='action_reject']",
+            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row button[name='action_open_reject']",
             content: "The Ministry refused the subject",
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row td[name='rejection_reason']",
-            content: "Write the reason for refusing it",
-            run: "click",
+            // Issue #580: refusing asks for the reason, the most usual one preselected.
+            trigger: ".modal .o_field_widget[name='reason_id'] input:not(:value(''))",
+            content: "A reason comes preselected",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row td[name='rejection_reason'] textarea",
-            content: "The reason",
+            trigger: ".modal .o_field_widget[name='details'] textarea",
+            content: "Add the details",
             run: "edit Refused by the Ministry",
         },
         {
-            trigger: ".o_form_view button[name='action_ministry_resolved']",
-            content: "Record the Ministry's resolution",
+            trigger: ".modal footer button[name='action_reject']",
+            content: "Reject",
             run: "click",
         },
         {
+            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='line_ids'] .o_data_row td[name='rejection_reason']:contains('Refused by the Ministry')",
+            content: "The subject is refused with its reason",
+        },
+        ...clickAction("action_ministry_resolved", "Record the Ministry's resolution"),
+        {
             trigger: ".o_form_view .o_statusbar_status button.o_arrow_button_current[data-value='in_progress']",
             content: "Straight to the secretariat, without the Director",
+        },
+    ],
+});
+
+// The Head of Studies asks the applicant for more documentation (issue #577): the most usual
+// reason comes preselected, and the request waits for it until it arrives - here on paper.
+registry.category("web_tour.tours").add("ems_convalidation_request_info", {
+    test: true,
+    url: "/odoo/action-ems.action_convalidation",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Convalidation Student')",
+            content: "Open the pending request",
+            run: "click",
+        },
+        ...clickAction("action_request_info", "Ask for more documentation"),
+        {
+            trigger: ".modal .o_field_widget[name='reason_id'] input",
+            content: "A reason comes preselected",
+            run() {
+                if (!this.anchor.value) {
+                    throw new Error("No reason preselected");
+                }
+            },
+        },
+        {
+            trigger: ".modal .o_field_widget[name='message'] textarea",
+            content: "Add the details",
+            run: "edit Name and code of the previous centre",
+        },
+        {
+            trigger: ".modal footer button[name='action_send']",
+            content: "Send it",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_statusbar_status button[data-value='documentation'].o_arrow_button_current",
+            content: "The request waits for the documentation",
+        },
+        ...clickAction("action_documentation_received", "It arrived on paper"),
+        {
+            trigger: ".o_form_view .o_statusbar_status button[data-value='pending'].o_arrow_button_current",
+            content: "The request is back under review",
         },
     ],
 });
@@ -129,11 +197,7 @@ registry.category("web_tour.tours").add("ems_convalidation_director_resolves", {
             trigger: ".o_form_view .o_statusbar_status button[data-value='direction'].o_arrow_button_current",
             content: "It is waiting for the Director",
         },
-        {
-            trigger: ".o_form_view button[name='action_resolve']",
-            content: "Resolve it",
-            run: "click",
-        },
+        ...clickAction("action_resolve", "Resolve it"),
         {
             trigger: ".modal footer button.btn-primary",
             content: "Confirm issuing the resolution",
@@ -160,11 +224,7 @@ registry.category("web_tour.tours").add("ems_convalidation_director_returns", {
             content: "Open the proposal",
             run: "click",
         },
-        {
-            trigger: ".o_form_view button[name='action_return']",
-            content: "Return it to the Head of Studies",
-            run: "click",
-        },
+        ...clickAction("action_return", "Return it to the Head of Studies"),
         {
             trigger: ".modal .o_field_widget[name='reason'] textarea",
             content: "Say why",
@@ -200,11 +260,7 @@ registry.category("web_tour.tours").add("ems_convalidation_complete", {
             trigger: ".o_form_view .o_statusbar_status button[data-value='in_progress'].o_arrow_button_current",
             content: "It is waiting for the secretariat",
         },
-        {
-            trigger: ".o_form_view button[name='action_complete']",
-            content: "Complete it",
-            run: "click",
-        },
+        ...clickAction("action_complete", "Complete it"),
         {
             trigger: ".modal footer button.btn-primary",
             content: "Confirm publishing the grades",
@@ -256,6 +312,34 @@ registry.category("web_tour.tours").add("ems_convalidation_grade_tutor_matrix", 
     ],
 });
 
+// Convalidated without a grade (issue #580), both views read CV alone, as a passed subject.
+const gradelessCvStep = (table) => ({
+    trigger: `${table} tbody tr td.o_grade_matrix_final.o_grade_cell_pass:text(CV)`,
+    content: "The subject convalidated without a grade reads CV alone, passed",
+});
+
+registry.category("web_tour.tours").add("ems_convalidation_grade_matrix_without_grade", {
+    test: true,
+    steps: () => [gradelessCvStep(".o_grade_matrix")],
+});
+
+registry.category("web_tour.tours").add("ems_convalidation_grade_tutor_matrix_without_grade", {
+    test: true,
+    url: "/odoo/action-ems.action_grade_tutor_matrix",
+    steps: () => [gradelessCvStep(".o_grade_tutor")],
+});
+// Whether the documents are required, and that only the guidance for these grounds is shown.
+function assertGuidance(basis, origin, required) {
+    const input = document.querySelector(".o_ems_convalidation_new input[name='documents']");
+    if (input.required !== required) {
+        throw new Error(`Supporting documents should${required ? "" : " not"} be required`);
+    }
+    const shown = [...document.querySelectorAll(".o_ems_convalidation_new .o_ems_convalidation_guidance:not(.d-none)")];
+    if (shown.length !== 1 || shown[0].dataset.basis !== basis || shown[0].dataset.origin !== origin) {
+        throw new Error(`Only the guidance for ${basis}/${origin} should be shown`);
+    }
+}
+
 // A portal student files a request.
 registry.category("web_tour.tours").add("ems_portal_convalidation_submit", {
     test: true,
@@ -272,10 +356,50 @@ registry.category("web_tour.tours").add("ems_portal_convalidation_submit", {
             content: "Mark the first subject",
             run: "click",
         },
+        // Issue #579: where prior studies were passed decides whether documents are mandatory.
         {
             trigger: ".o_ems_convalidation_new select[name='basis']",
-            content: "Pick the grounds",
+            content: "Prior studies",
+            run: "selectByIndex 0",
+        },
+        {
+            trigger: ".o_ems_convalidation_new .o_ems_convalidation_guidance[data-origin='']:not(.d-none)",
+            content: "Until they say where, the guidance asks for it",
+        },
+        {
+            trigger: ".o_ems_convalidation_new .o_ems_convalidation_origin:not(.d-none) select[name='prior_studies_origin']",
+            content: "Prior studies ask where they were passed: at this centre",
             run: "selectByIndex 1",
+        },
+        {
+            trigger: ".o_ems_convalidation_new .o_ems_convalidation_documents_optional:not(.d-none)",
+            content: "Studies passed here need no documents",
+            run: () => assertGuidance("prior_studies", "centre", false),
+        },
+        {
+            trigger: ".o_ems_convalidation_new select[name='prior_studies_origin']",
+            content: "At another centre",
+            run: "selectByIndex 2",
+        },
+        {
+            trigger: ".o_ems_convalidation_new .o_ems_convalidation_documents_required:not(.d-none)",
+            content: "Studies passed elsewhere need their documents",
+            run: () => assertGuidance("prior_studies", "elsewhere", true),
+        },
+        {
+            trigger: ".o_ems_convalidation_new select[name='basis']",
+            content: "Pick a professional certificate as the grounds",
+            run: "selectByIndex 1",
+        },
+        {
+            trigger: ".o_ems_convalidation_new .o_ems_convalidation_documents_required:not(.d-none)",
+            content: "No question about where, and documents are required",
+            run: () => {
+                if (!document.querySelector(".o_ems_convalidation_new .o_ems_convalidation_origin").classList.contains("d-none")) {
+                    throw new Error("Where the studies were passed is only asked for prior studies");
+                }
+                assertGuidance("certificate", undefined, true);
+            },
         },
         {
             trigger: ".o_ems_convalidation_new input[name='documents']",

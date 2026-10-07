@@ -1589,9 +1589,11 @@ class TestCourseTransition(TransactionCase):
         """A graduate has lost its main_group_id by the time the shared helper runs,
         so the delegate has to be cleared from the group side."""
         delegate = self._graduate('CTW Delegate')
-        self.group2.delegate_id = delegate
+        subdelegate = self._graduate('CTW Sub-delegate')
+        self.group2.write({'delegate_id': delegate.id, 'subdelegate_id': subdelegate.id})
         self._applied()
         self.assertFalse(self.group2.delegate_id)
+        self.assertFalse(self.group2.subdelegate_id)
 
     def test_apply_clears_the_delegate_of_a_stranded_students_group(self):
         """Same cleanup as the graduate case above, applied to '_apply_detach_unplaced()''s own
@@ -1600,9 +1602,11 @@ class TestCourseTransition(TransactionCase):
         rather than going through '_ems_clear_operational_records()'). The group itself is never
         archived (groups are reused across years) - only the now-invalid delegate reference."""
         stranded = self._student('CTW Detach Delegate', group=self.group2)
-        self.group2.delegate_id = stranded
+        stranded_sub = self._student('CTW Detach Sub-delegate', group=self.group2)
+        self.group2.write({'delegate_id': stranded.id, 'subdelegate_id': stranded_sub.id})
         self._applied()
         self.assertFalse(self.group2.delegate_id)
+        self.assertFalse(self.group2.subdelegate_id)
 
     # --- apply step 9: audit -------------------------------------------------
 

@@ -99,6 +99,7 @@ from . import test_grade_session_state_wizard_tour
 from . import test_grade_import_wizard_tour
 from . import test_employee_google_workspace
 from . import test_employee_google_workspace_tour
+from . import test_employee_google_password_reset_tour
 from . import test_student_google_workspace_tour
 from . import test_actions_dropdown_tour
 from . import test_archive_entry
@@ -135,6 +136,9 @@ from . import test_group_public_schedule_tour
 from . import test_portal_schedule
 from . import test_portal_schedule_tour
 from . import test_guard_duty_board
+from . import test_absence_coverage
+from . import test_absence_coverage_tour
+from . import test_notice_department_chief_tour
 from . import test_guard_duty_board_tour
 from . import test_em_grading_wizard
 from . import test_department
@@ -170,6 +174,7 @@ from . import test_no_destination_tour
 from . import test_year_record_tour
 from . import test_grade_review_tour
 from . import test_external_record_tour
+from . import test_undo_withdrawal_tour
 from . import test_docs_screenshots_academic_history
 from . import test_planning_tour
 from . import test_em_grading_wizard_tour
@@ -238,3 +243,4 @@ from . import test_schedule_edit_roles
 from . import test_attendance_report_schedule
 from . import test_i18n_coverage
 from . import test_dev_mail_guard
+from . import test_employee_presence_tour

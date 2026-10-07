@@ -36,6 +36,12 @@
                         <div t-if="error == 'no_basis'" class="alert alert-danger mb-3">
                             <i class="fa fa-exclamation-triangle me-1"/> Select the grounds for the request.
                         </div>
+                        <div t-if="error == 'no_origin'" class="alert alert-danger mb-3">
+                            <i class="fa fa-exclamation-triangle me-1"/> Say where you passed the studies.
+                        </div>
+                        <div t-if="error == 'no_documents'" class="alert alert-danger mb-3 o_ems_convalidation_no_documents">
+                            <i class="fa fa-exclamation-triangle me-1"/> Attach the supporting documents: they are only optional for studies passed at this centre.
+                        </div>
                         <div t-if="error == 'no_reply'" class="alert alert-danger mb-3">
                             <i class="fa fa-exclamation-triangle me-1"/> Write an answer or attach a document before sending.
                         </div>
@@ -49,7 +55,7 @@
                         <!-- New request -->
                         <!-- Folded by default: most visits only check existing requests. Opened when
                              asked for (?new=1) or when a submission came back with a validation error. -->
-                        <t t-set="form_open" t-value="open_new or error in ('no_subjects', 'no_basis')"/>
+                        <t t-set="form_open" t-value="open_new or error in ('no_subjects', 'no_basis', 'no_origin', 'no_documents')"/>
                         <!-- Outside the yearly request period: no new requests, the rest of the page still works. -->
                         <div t-if="study and not period_open" class="alert alert-warning mb-4 o_ems_convalidation_closed">
                             <i class="fa fa-calendar-times-o me-1"/> The period to request convalidations is closed. It will open on
@@ -95,16 +101,30 @@
                                                     </t>
                                                 </select>
                                             </div>
+                                            <!-- Only for prior studies (shown by EmsConvalidationRequestForm): studies
+                                                 passed here need no documents, anywhere else does (issue #579). -->
+                                            <div class="mb-3 o_ems_convalidation_origin">
+                                                <label class="form-label fw-bold" for="convalidation_origin">Where did you pass the studies? <span class="text-danger">*</span></label>
+                                                <select id="convalidation_origin" name="prior_studies_origin" class="form-select">
+                                                    <option value="">Choose...</option>
+                                                    <t t-foreach="origin_options" t-as="option">
+                                                        <option t-att-value="option[0]" t-esc="option[1]"/>
+                                                    </t>
+                                                </select>
+                                            </div>
                                             <div class="mb-3">
-                                                <label class="form-label fw-bold" for="convalidation_documents">Supporting documents <span class="text-muted">(optional)</span></label>
+                                                <label class="form-label fw-bold" for="convalidation_documents">Supporting documents
+                                                    <span class="text-danger o_ems_convalidation_documents_required">*</span>
+                                                    <span class="text-muted o_ems_convalidation_documents_optional d-none">(optional)</span>
+                                                </label>
+                                                <!-- Only the guidance matching the chosen grounds (and, for prior studies, where
+                                                     they were passed) is shown, by EmsConvalidationRequestForm. -->
                                                 <div class="alert alert-light border small mb-2">
-                                                    <p class="mb-1">Which documents to attach depends on where you passed the subjects:</p>
-                                                    <ul class="mb-1">
-                                                        <li>Studies passed at this centre: nothing to attach, we look your record up ourselves.</li>
-                                                        <li>Studies passed at another centre: the academic certificate or transcript of the studies passed.</li>
-                                                        <li>Professional certificate or accreditation of competences: the certificate itself.</li>
-                                                        <li>University studies or a Ministry resolution: attach the resolution if you already have it.</li>
-                                                    </ul>
+                                                    <p class="mb-1 o_ems_convalidation_guidance" data-basis="prior_studies" data-origin="">Tell us where you passed the studies and we will tell you what to attach.</p>
+                                                    <p class="mb-1 o_ems_convalidation_guidance d-none" data-basis="prior_studies" data-origin="centre">Nothing to attach: we look your record up ourselves.</p>
+                                                    <p class="mb-1 o_ems_convalidation_guidance d-none" data-basis="prior_studies" data-origin="elsewhere">Attach the academic certificate or transcript of the studies passed. For university studies, the academic certificate, or the Ministry resolution if you already have it.</p>
+                                                    <p class="mb-1 o_ems_convalidation_guidance d-none" data-basis="certificate">Attach the professional certificate or the accreditation of competences.</p>
+                                                    <p class="mb-1 o_ems_convalidation_guidance d-none" data-basis="other">Attach the documents that support your request.</p>
                                                     <p class="mb-0">If anything else is needed, we will ask you for it and you can answer from this same page.</p>
                                                 </div>
                                                 <input id="convalidation_documents" type="file" name="documents" class="form-control"
@@ -148,7 +168,7 @@
                                         'bg-success' if convalidation.state == 'completed' else
                                         'bg-danger' if convalidation.state == 'rejected' else
                                         'bg-secondary' if convalidation.state == 'cancelled' else
-                                        'bg-warning text-dark' if convalidation.state in ('direction', 'in_progress') else 'bg-info text-dark'
+                                        'bg-warning text-dark' if convalidation.state in ('documentation', 'direction', 'in_progress') else 'bg-info text-dark'
                                     }" t-esc="state_labels.get(convalidation.state)"/>
                                 </div>
                                 <div class="card-body p-0">
@@ -180,10 +200,13 @@
                                                     }" t-esc="line_state_labels.get(line.state)"/>
                                                 </td>
                                                 <td t-if="convalidation.state == 'completed'">
-                                                    <strong t-if="line.state == 'granted'" t-esc="line.grade"/>
+                                                    <t t-if="line.state == 'granted'">
+                                                        <strong t-if="line.without_grade">Convalidated</strong>
+                                                        <strong t-else="" t-esc="line.grade"/>
+                                                    </t>
                                                 </td>
                                                 <td class="pe-3 text-muted small">
-                                                    <t t-if="line.state == 'rejected' and line.rejection_reason" t-esc="line.rejection_reason"/>
+                                                    <t t-if="line.state == 'rejected'" t-esc="line._ems_rejection_text()"/>
                                                     <t t-if="line.resolution_notes" t-esc="line.resolution_notes"/>
                                                 </td>
                                             </tr>
@@ -191,17 +214,18 @@
                                     </table>
                                 </div>
                                 <!-- What the centre asked for last (issue #529), right above the answer form. -->
-                                <div t-if="convalidation.info_request and convalidation.state in ('pending', 'ministry')"
+                                <div t-if="convalidation.info_request_date and convalidation.state in ('pending', 'documentation', 'ministry')"
                                      class="alert alert-warning mb-0 rounded-0 border-start-0 border-end-0 small o_ems_convalidation_info_request">
                                     <p class="fw-bold mb-1">
                                         <i class="fa fa-exclamation-circle me-1"/>Documentation requested
                                         <span class="fw-normal">(<t t-out="convalidation.info_request_date" t-options="{'widget': 'date'}"/>)</span>
                                     </p>
-                                    <div style="white-space: pre-line;" t-esc="convalidation.info_request"/>
+                                    <div t-if="convalidation.info_request_reason_id" class="fw-bold" t-esc="convalidation.info_request_reason_id.name"/>
+                                    <div t-if="convalidation.info_request" style="white-space: pre-line;" t-esc="convalidation.info_request"/>
                                 </div>
                                 <!-- Answering a request for information: the files join the request's own
                                      documents, so everything about it stays in one place. -->
-                                <div t-if="can_request and convalidation.state in ('pending', 'ministry')" class="card-body border-top">
+                                <div t-if="can_request and convalidation.state in ('pending', 'documentation', 'ministry')" class="card-body border-top">
                                     <form t-attf-action="/my/convalidaciones/reply/#{convalidation.id}"
                                           method="post" enctype="multipart/form-data" class="ems-loading-form o_ems_convalidation_reply">
                                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
@@ -216,14 +240,14 @@
                                     </form>
                                 </div>
                                 <t t-set="official" t-value="convalidation.state in ('completed', 'rejected') and convalidation.resolution_pdf_id"/>
-                                <div t-if="convalidation.resolution_notes or official or (can_request and convalidation.state == 'pending')"
+                                <div t-if="convalidation.resolution_notes or official or (can_request and convalidation._ems_is_cancellable())"
                                      class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-2">
                                     <span class="small" t-esc="convalidation.resolution_notes or ''"/>
                                     <a t-if="official" t-attf-href="/my/convalidaciones/resolution/#{convalidation.id}"
                                        class="btn btn-sm btn-outline-primary o_ems_convalidation_resolution">
                                         <i class="fa fa-download me-1"/>Official resolution
                                     </a>
-                                    <form t-if="can_request and convalidation.state == 'pending'"
+                                    <form t-if="can_request and convalidation._ems_is_cancellable()"
                                           t-attf-action="/my/convalidaciones/cancel/#{convalidation.id}"
                                           method="post" class="mb-0">
                                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>

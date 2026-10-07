@@ -5,6 +5,7 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tools.translate import _lt
 
 JUSTIFICATION_CAPTION = _lt("Absence justified by: ")
+SEVERE_DELAY_CAPTION = _lt("Severe delay justified by: ")
 PREVISION_CAPTION = _lt("Absence expected by: ")
 
 class EmsAttendanceJustification(models.Model):
@@ -95,10 +96,14 @@ class EmsAttendanceJustification(models.Model):
                 lines = self.env["ems.attendance_session_line"]
                 if justification._check_permissions():
                     lines = lines.sudo()
+                # A severe delay counts as an absence, so it can be justified too (issue #578); a
+                # mild delay only when it is one already justified (a justified severe delay).
                 statuses = lines.search([
                     '|',
-                    ("status_id", "=", self.env.ref("ems.attendance_status_miss").id),
-                    ("status_id", "=", self.env.ref("ems.attendance_status_justified").id),
+                    ("status_id", "in", [self.env.ref(f"ems.attendance_status_{key}").id for key in ("miss", "delayed_severe", "justified")]),
+                    '&',
+                    ("status_id", "=", self.env.ref("ems.attendance_status_delayed").id),
+                    ("attendance_justification_id", "!=", False),
                     ("student_id", "=", justification.student_id.id),
                     ("attendance_session_id.date", ">=", justification.start_date),
                     ("attendance_session_id.date", "<=", justification.end_date)
@@ -150,11 +155,19 @@ class EmsAttendanceJustification(models.Model):
     def perform_justification(self, vals, prevision=False):
         vals = dict(vals)
 
-        text = PREVISION_CAPTION if prevision else JUSTIFICATION_CAPTION
+        # A severe delay counts as an absence: justifying it turns it into a mild delay, so the
+        # student is still recorded as having attended late (issue #578).
+        severe_delay = not prevision and vals.get("status_id") == self.env.ref("ems.attendance_status_delayed_severe").id
+        if severe_delay:
+            text = SEVERE_DELAY_CAPTION
+            status = self.env.ref("ems.attendance_status_delayed")
+        else:
+            text = PREVISION_CAPTION if prevision else JUSTIFICATION_CAPTION
+            status = self.env.ref("ems.attendance_status_justified")
         notes = "" if vals["notes"] is None or vals["notes"] == False else vals["notes"] + "\n"
 
         # Must ensure that no field is beeing removed, just edited, otherwise line creation could fail if called from attendance_session.
-        vals["status_id"] = self.env.ref("ems.attendance_status_justified").id
+        vals["status_id"] = status.id
         vals["notes"] = notes + text + self.teacher_id.display_name
         vals["attendance_prevision_id" if prevision else "attendance_justification_id"] = self
         return vals
@@ -162,8 +175,10 @@ class EmsAttendanceJustification(models.Model):
     def remove_justification(self, line):
         # Given an attendance_session_line, changes the values to remove a justification (does not write).
         # NOTE: this method uses always line as a model, removing a justification always work with already existing lines.
+        # A justified severe delay (now a mild one) goes back to being a severe delay.
+        delayed = line.status_id == self.env.ref("ems.attendance_status_delayed")
         return {
-            "status_id": self.env.ref("ems.attendance_status_miss").id,
+            "status_id": self.env.ref("ems.attendance_status_delayed_severe" if delayed else "ems.attendance_status_miss").id,
             "notes": False,
             "attendance_justification_id": None,
             "attendance_prevision_id": None
@@ -177,8 +192,9 @@ class EmsAttendanceJustification(models.Model):
             if not justification._check_permissions():
                 raise ValidationError(_("Only the student's tutor can justify its attendances."))
 
+            unjustified = self.env.ref("ems.attendance_status_miss") | self.env.ref("ems.attendance_status_delayed_severe")
             for line in justification.attendance_session_line_ids:
-                if line.status_id == self.env.ref("ems.attendance_status_miss"):
+                if line.status_id in unjustified:
                     line.write(justification.perform_justification(line._justification_vals()))
         return records
 
@@ -221,9 +237,11 @@ class EmsAttendanceJustification(models.Model):
         if not self._check_permissions():
             raise UserError(_("Only the student's tutor can remove its attendance justifications."))
 
+        # A justified severe delay is a mild delay by now.
+        justified = self.env.ref("ems.attendance_status_justified") | self.env.ref("ems.attendance_status_delayed")
         for justification in self:
             for line in justification.attendance_session_line_ids:
-                if line.status_id == self.env.ref("ems.attendance_status_justified"):
+                if line.status_id in justified:
                     line.write(justification.remove_justification(line))
 
         return super().unlink()

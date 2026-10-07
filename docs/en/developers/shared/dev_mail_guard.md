@@ -4,7 +4,26 @@
 
 A development machine works on real data restored from production: real students, families and
 staff, plus production's own outgoing mail servers (`ir.mail_server`) and its pending jobs. Two
-layers keep any of it from reaching a real person.
+layers keep any of it from reaching a real person, after `devel.sh`'s first step has emptied
+every queue.
+
+## 0. Nothing pending survives `devel.sh`
+
+Before rewriting any address, and before the Odoo service can reach the database, `devel.sh`
+cancels, as the `postgres` superuser, everything production left unfinished: every `queue_job`
+not `done`/`cancelled`/`failed` (whatever its state, `wait_dependencies` included), Odoo's own
+outgoing mail queue (`mail_mail` in `outgoing`/`exception`, whose recipients are plain text the
+address rewrite never reaches) and outgoing SMS. Running as `postgres` means it works on a copy
+locked against the `odoo` role right after `pg_restore` (CLAUDE.md, "Lock a restored production
+copy"); only once no job is left pending does it `GRANT CONNECT` back to `odoo`. If the
+cancellation fails, or anything is still pending, it stops there with the service stopped. A
+production dump of 2026-10-06 restored as `ems` the next day carried 366 pending jobs, all
+cancelled by this step.
+
+The restore itself, in order: check the dump reads end to end (`pg_restore -f /dev/null`), stop
+the service, rename the old `ems`, `createdb -O odoo ems` + `pg_restore --no-owner --role=odoo`,
+`REVOKE CONNECT ON DATABASE ems FROM PUBLIC, odoo`, then `./devel.sh <account> <domain>` and only
+then `./upgrade.sh`.
 
 ## 1. The Odoo service only serves `ems`
 

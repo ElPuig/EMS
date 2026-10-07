@@ -157,3 +157,7 @@ Cuando el docente solicita la ausencia, la ausencia prevista se vincula a ella a
 ![Lista de ausencias previstas, una todavía prevista y otra ya solicitada por el docente](../../assets/head_of_studies/hos-expected-absences-list.png)
 
 Si finalmente el docente no falta, borra la entrada.
+
+### Organizar la cobertura
+
+Una vez una ausencia aparece en el horario de guardias, prevista o solicitada, organízala desde la **Tabla de ausencias** del horario: envía un docente de guardia a cada clase, propón un comunicado a las familias cuando el alumnado puede entrar más tarde o salir antes, y corrige lo que una ausencia que ha cambiado después ha dejado sin sentido. Lo que organices para una ausencia prevista se mantiene cuando el docente la solicita. Ver [Organizar una ausencia](../teachers/guard-duty-schedule.md#organizar-una-ausencia).

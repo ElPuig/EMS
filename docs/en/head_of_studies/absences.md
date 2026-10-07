@@ -159,3 +159,7 @@ When the teacher requests the absence themselves, the expected absence is linked
 ![Expected absences list, one still expected and one already requested by the teacher](../../assets/head_of_studies/hos-expected-absences-list.png)
 
 If the teacher turns out not to be absent after all, delete the entry.
+
+### Organising the cover
+
+Once an absence is on the guard duty schedule, expected or requested, organise it from the schedule's **Absences table**: send a guard to each class, propose a notice to the families when the students can come in later or leave earlier, and correct what an absence that changed afterwards made unnecessary. Whatever you organise for an expected absence stays when the teacher requests it. See [Organising an absence](../teachers/guard-duty-schedule.md#organising-an-absence).

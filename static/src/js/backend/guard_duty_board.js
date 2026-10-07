@@ -3,9 +3,30 @@
 import { Component, onWillStart, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
+import { useSetupAction } from "@web/search/action_hook";
 import { _t } from "@web/core/l10n/translation";
 import { dayLabels } from "./schedule_grid_geometry";
 import { serverNow, syncServerClock } from "./server_clock";
+import { GuardCoverDialog } from "./guard_cover_dialog";
+
+// The reason a struck-out line needs no guard, opened by clicking its info icon - the same text
+// its tooltip shows on hover, for whoever doesn't hover (or uses a touchscreen).
+class GuardBoardReasonPopover extends Component {
+    static template = "ems.GuardBoardReasonPopover";
+    static props = {
+        reason: String,
+        // A line struck out because a guard was sent stays editable by whoever organises the
+        // absence: the popover then also offers to change or remove that guard.
+        actionLabel: { type: String, optional: true },
+        onAction: { type: Function, optional: true },
+        close: Function,
+    };
+
+    onAction() {
+        this.props.close();
+        this.props.onAction();
+    }
+}
 
 const SHIFTS = [
     { key: "morning", label: _t("Morning") },
@@ -15,9 +36,11 @@ const SHIFTS = [
 // The two ways of reading the same day: the timetable everyone already knows, with whoever is
 // away struck through it, and the plain "who is missing / who is on guard" list built from the
 // very same payload (see ems.course.get_guard_duty_board_data) - one fetch, two renderings.
+// The absences table comes first and opens by default: it is the one the centre works from day to
+// day (developer feedback, 2026-10-07).
 const VIEWS = [
-    { key: "schedule", label: _t("Guard duty schedule") },
     { key: "table", label: _t("Absences table") },
+    { key: "schedule", label: _t("Guard duty schedule") },
 ];
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -86,6 +109,8 @@ export class GuardDutyBoard extends Component {
     setup() {
         this.orm = useService("orm");
         this.actionService = useService("action");
+        this.dialog = useService("dialog");
+        this.popover = useService("popover");
         this.state = useState({
             // Both set in onWillStart, once the server clock is known.
             activeDay: 0,
@@ -98,7 +123,7 @@ export class GuardDutyBoard extends Component {
             // timetable is keyed to weekdays, so the board needs a concrete week before it can
             // say who is away - see ems.course.get_guard_duty_board_lines()'s 'day' argument.
             weekStart: "",
-            activeView: "schedule",
+            activeView: "table",
             board: null,
             loading: true,
             courseId: null,
@@ -118,8 +143,49 @@ export class GuardDutyBoard extends Component {
             this.state.courseId = course.id;
             this.state.courseName = course.name;
             this.state.levels = levels;
+            this.restoreNavigation(this.props.state || this.props.action?.context?.params || {});
             await this.loadBoard();
         });
+        // Coming back through the breadcrumbs hands this back as props.state (see restoreNavigation).
+        useSetupAction({ getLocalState: () => this.navigationState });
+    }
+
+    // What the planner is looking at - week and day, shift, view and levels - kept in the URL
+    // (?date=...&shift=...&view=...&levels=...) so the browser's back button, the breadcrumbs, a
+    // reload and a shared link all return to it, instead of the default "now" (developer request,
+    // 2026-10-07: back from a notice landed on this morning while organising this afternoon). Opening
+    // the board from the menu carries no such parameters, so it still starts at "now".
+    get navigationState() {
+        return {
+            date: this.activeDate,
+            shift: this.state.activeShift,
+            view: this.state.activeView,
+            levels: this.state.activeLevelIds.join(","),
+        };
+    }
+
+    syncNavigation() {
+        this.props.updateActionState?.(this.navigationState);
+    }
+
+    // Applies a saved navigation state over the defaults, ignoring anything that isn't valid -
+    // a URL can be edited or outlive the levels it named.
+    restoreNavigation(saved) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(saved.date || "")) {
+            const picked = fromIsoDate(saved.date);
+            const jsDay = picked.getDay();
+            this.state.weekStart = toIsoDate(mondayOf(picked));
+            this.state.activeDay = jsDay >= 1 && jsDay <= 5 ? jsDay - 1 : 0;
+        }
+        if (SHIFTS.some((shift) => shift.key === saved.shift)) {
+            this.state.activeShift = saved.shift;
+        }
+        if (VIEWS.some((view) => view.key === saved.view)) {
+            this.state.activeView = saved.view;
+        }
+        const levelIds = this.state.levels.map((level) => level.id);
+        this.state.activeLevelIds = String(saved.levels || "").split(",").map(Number)
+            .filter((id) => levelIds.includes(id));
     }
 
     // Each weekday tab carries its own real date, so the tab strip doubles as the week's
@@ -216,6 +282,7 @@ export class GuardDutyBoard extends Component {
         // Both tabs render the same already-fetched payload, so switching between them never
         // costs a round trip.
         this.state.activeView = key;
+        this.syncNavigation();
     }
 
     async onShiftChange(ev) {
@@ -268,6 +335,7 @@ export class GuardDutyBoard extends Component {
             [String(this.state.activeDay), this.state.activeShift, this.state.activeLevelIds, this.activeDate]
         );
         this.state.loading = false;
+        this.syncNavigation();
     }
 
     // Bold red for an absence that is going to happen, a lighter italic for one still waiting
@@ -277,6 +345,164 @@ export class GuardDutyBoard extends Component {
             return "o_guard_board_absent";
         }
         return absence === "pending" ? "o_guard_board_absent_pending" : "";
+    }
+
+    // Managing absences from the absences table (issues #539, #571, #581). Every action below
+    // is checked again on the server (ems.absence_cover.board_assign/board_release,
+    // ems.notice.board_propose_absence_change): the flags the board sends only decide what is
+    // offered, never what is allowed.
+
+    get actionLabels() {
+        return {
+            proposalsTitle: _t("Late entry, early leave and break proposals"),
+            proposalsHelp: _t("Sending the notice strikes these lessons off the table, so no guard teacher has to cover them. You can choose a shorter change and send a guard to the rest."),
+            releasesTitle: _t("Guards no longer needed"),
+            propose: _t("Propose notice"),
+            rectify: _t("Propose correction"),
+            openDraft: _t("Open draft"),
+            release: _t("Release guard"),
+        };
+    }
+
+    // A row nobody needs to be sent to anymore is struck out: a co-teacher is in the class, a
+    // guard has been assigned (the row then takes that guard's colour), or the families were told
+    // the students can stay at home for it.
+    absenceRowClass(absence) {
+        const classes = {
+            o_guard_board_absence_covered: absence.covered,
+            o_guard_board_absence_struck: !absence.covered && Boolean(absence.cover || absence.authorized),
+            o_guard_board_absence_manageable: this.isAssignable(absence),
+        };
+        if (absence.cover) {
+            classes[`o_guard_board_cover_${absence.cover.color}`] = true;
+        }
+        return classes;
+    }
+
+    // The line's tooltip: why it is struck out (the same as its info icon), or, on a line still
+    // to be covered, how to send a guard to it.
+    absenceRowTooltip(absence) {
+        return this.struckReason(absence) || (this.isAssignable(absence) ? _t("Click to send a guard teacher to this class") : false);
+    }
+
+    // Why a line is struck out, for everyone (not only whoever can organise the absence): shown by
+    // the info icon to its left, on hover and on click.
+    struckReason(absence) {
+        if (absence.covered) {
+            return this.coveredTitle;
+        }
+        if (absence.authorized) {
+            return _t("No guard needed: the families were told \"%s\".", absence.authorized);
+        }
+        if (absence.cover) {
+            return _t("Covered by %s, the guard teacher sent to this class.", absence.cover.guard);
+        }
+        return false;
+    }
+
+    // Clicking a struck-out line (anywhere on it, not only its icon) explains it, anchored to the
+    // icon; clicking a line still to be covered sends a guard to it.
+    onAbsenceClick(ev, line, absence) {
+        const reason = this.struckReason(absence);
+        if (!reason) {
+            this.openCoverDialog(line, absence);
+            return;
+        }
+        const props = { reason };
+        if (absence.cover && this.isAssignable(absence)) {
+            props.actionLabel = _t("Change or remove the guard");
+            props.onAction = () => this.openCoverDialog(line, absence);
+        }
+        const icon = ev.currentTarget.querySelector(".o_guard_board_absence_info") || ev.currentTarget;
+        this.popover.add(icon, GuardBoardReasonPopover, props);
+    }
+
+    // A co-taught class or one the families were told about needs nobody, so it offers nothing.
+    isAssignable(absence) {
+        return absence.can_manage && !absence.covered && !absence.authorized;
+    }
+
+    guardBadgeClass(guard) {
+        const base = this.absenceClass(guard.absence);
+        return guard.color === false ? base : `${base} o_guard_board_cover_${guard.color}`;
+    }
+
+    get proposalActions() {
+        return this.state.board.actions.filter((action) => action.type !== "obsolete_cover");
+    }
+
+    get releaseActions() {
+        return this.state.board.actions.filter((action) => action.type === "obsolete_cover");
+    }
+
+    // Which of the allowed changes the planner picked in the proposal's selector (the largest one
+    // until they choose otherwise) - kept on the action itself, which lives until the next reload.
+    onActionOptionChange(action, ev) {
+        action.default = Number(ev.target.value);
+    }
+
+    actionIcon(action) {
+        if (action.type === "obsolete_cover") {
+            return "fa fa-user-times";
+        }
+        return action.type === "rectification" ? "fa fa-exclamation-triangle" : "fa fa-envelope-o";
+    }
+
+    actionButtonLabel(action) {
+        if (action.type === "obsolete_cover") {
+            return this.actionLabels.release;
+        }
+        if (action.draft_id) {
+            return this.actionLabels.openDraft;
+        }
+        return action.type === "rectification" ? this.actionLabels.rectify : this.actionLabels.propose;
+    }
+
+    openCoverDialog(line, absence) {
+        if (!this.isAssignable(absence)) {
+            return;
+        }
+        this.dialog.add(GuardCoverDialog, {
+            row: absence,
+            line,
+            onAssign: async (guardId, message) => {
+                await this.orm.call("ems.absence_cover", "board_assign", [
+                    this.activeDate, line.hour_from, line.hour_to, absence.teacher_id, absence.group_id,
+                    guardId, message,
+                ]);
+                await this.loadBoard();
+            },
+            onRelease: async () => {
+                await this.orm.call("ems.absence_cover", "board_release", [absence.cover.id]);
+                await this.loadBoard();
+            },
+        });
+    }
+
+    // Proposing (or rectifying) a timetable change opens its draft notice - created on the spot
+    // the first time - for the planner to review and send from the notice's own form; releasing a
+    // guard that is no longer needed notifies them straight away.
+    async onAction(action) {
+        if (action.type === "obsolete_cover") {
+            await this.orm.call("ems.absence_cover", "board_release", [action.cover_id]);
+            await this.loadBoard();
+            return;
+        }
+        if (action.draft_id) {
+            await this.actionService.doAction({
+                type: "ir.actions.act_window",
+                res_model: "ems.notice",
+                res_id: action.draft_id,
+                views: [[false, "form"]],
+                target: "current",
+            });
+            return;
+        }
+        const option = action.options[action.default];
+        const notice = await this.orm.call("ems.notice", "board_propose_absence_change", [
+            this.activeDate, action.group_id, option.change_type, option.hour, option.hour_to,
+        ]);
+        await this.actionService.doAction(notice);
     }
 
     // One PDF per day AND per shift — whichever day tab / shift dropdown is currently active,

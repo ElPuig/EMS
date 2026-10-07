@@ -6,7 +6,7 @@
 
 See where every teacher is, and who is on guard duty, in each time block of the week — not just your own schedule.
 
-**Required role:** Teacher (read-only; schedules are configured by a Department Chief or above from the corresponding teacher's own weekly schedule)
+**Required role:** Teacher (read-only; schedules are configured by a Department Chief or above from the corresponding teacher's own weekly schedule). Organising an absence from the Absences table is up to the absent teacher's Department or Seminar Chief and those above them (see [Organising an absence](#organising-an-absence)).
 
 ---
 
@@ -30,10 +30,10 @@ Morning and afternoon are different shifts — use the dropdown to switch betwee
 
 ## The Two Views
 
-The two buttons on the right of the toolbar switch between the two ways of reading the same day and shift:
+The two buttons on the right of the toolbar switch between the two ways of reading the same day and shift. The board opens on the **Absences table**:
 
-- **Guard duty schedule** — the timetable, with everybody who is away marked on it.
 - **Absences table** — one row per time block: who is missing and what has to be covered, against who is on guard duty to cover it.
+- **Guard duty schedule** — the timetable, with everybody who is away marked on it.
 
 ---
 
@@ -69,7 +69,9 @@ Each row is a time block of the shift on screen:
 
 A time block where nobody is missing has an empty Absences column.
 
-In a co-taught class (two teachers in the same classroom) where only one of them is away, their line is **struck through**: it stays there so you know who is missing, but no guard is needed because the other teacher is taking the class. Hovering over it says so. If both are away, or each teacher has half of the group in a different classroom, the line is not struck through and the class does need covering.
+In a co-taught class (two teachers in the same classroom) where only one of them is away, their line is **struck through**: it stays there so you know who is missing, but no guard is needed because the other teacher is taking the class. Hover over the line or click it to see why; the **ⓘ** icon on its left shows there is an explanation.
+
+Every struck-through line has that icon, whatever the reason: a co-teacher is in the class, a guard teacher has already been sent to it (their name appears next to it), or the families were told the students can stay at home for it (see [Organising an absence](#organising-an-absence)). If both are away, or each teacher has half of the group in a different classroom, the line is not struck through and the class does need covering.
 
 ![Absences table for the same time block: the absent teacher and what needs covering, against who is on guard duty](../../assets/teachers/guard-duty-02-absencies.png)
 
@@ -92,9 +94,67 @@ Only the fact that somebody is away is shown here. The type of absence, its reas
 
 ---
 
+## Organising an absence
+
+Who can do this: the absent teacher's **Seminar Chief** or **Department Chief**, and those above them in the hierarchy (Head of Studies or Deputy, and Direction), as well as the administrator. Everybody else sees the result but cannot change it, and the absent teacher cannot organise their own absence. It makes no difference whether the absence was requested by the teacher or entered by the Head of Studies as an expected absence: both are handled the same way. When the teacher later requests an absence that was expected, whatever was already organised stays as it is, and only the extra days or hours of the request appear as new lines to decide on.
+
+Everything is done from the **Absences table**, and nothing happens on its own: each step waits for you to press its button. A day that is already over can no longer be changed.
+
+![Absences table as a Department Chief: a late entry proposal, and two classes covered by two guards, each in its own colour](../../assets/teachers/guard-duty-03-organitzar.png)
+
+### Sending a guard to a class
+
+1. Click the line of the class to cover (lines you can organise show a hand pointer).
+2. Choose the **Guard teacher**. Only the teachers on guard duty in that time block are offered, except those on a WC guard and those who are away themselves.
+3. Optionally, write a **message**: what the students have to work on, where the materials are...
+4. Click **Assign and notify**.
+
+![Sending a guard teacher to a class: the guards on duty and a message for them](../../assets/teachers/guard-duty-04-enviar-guardia.png)
+
+The guard teacher receives an Odoo message (in their inbox, or by email, depending on their own notification preference) with the date, time, group, subject, classroom, the absent teacher and your message.
+
+The class is then struck through, the guard's name appears next to it, and the line and the guard's box in the Guard duty column share the same colour. When several guards cover classes in the same time block, each guard has their own colour, so you can see at a glance who is covering what. A guard can cover more than one class: all of them take that guard's colour.
+
+To change the guard, click the line and then **Change or remove the guard** (only shown to whoever organises the absence), and choose another one: the previous guard is told they are no longer needed. To write a new message to the same guard, choose them again and click **Assign and notify**. **Remove assignment** takes the guard off the class and tells them so.
+
+### Late entry, early leave or no classes
+
+When the lessons without a teacher are the first ones of the group's day (one, two or more in a row), the students could come in later; when they are the last ones, they could leave earlier; when every lesson of the day is without a teacher, the group could have no classes. A lesson where somebody is with the students (a co-teacher who is not away, the other half of a split group, an optional subject or a guard already sent) breaks the run.
+
+Those lines show a dashed tag such as **Could start at 10:00**, and the **Late entry, early leave and break proposals** box, above the table (only visible to whoever can organise the absence), offers that group's change. Sending the notice strikes those lessons off the table, so no guard teacher has to cover them.
+
+The selector next to each proposal lets you tell the families about less than the absences allow: with two lessons without a teacher, you can choose **Starts at 09:00** instead of **Starts at 10:00**. Only the first lesson is then struck out; the second still needs a guard, sent as usual. Choosing the smaller change is your decision: nothing will ask you to correct it.
+
+**Propose notice** opens a draft notice addressed to that group's students and families, with a suggested text you can change. Send it from that form as any other notice (the groups of a timetable change notice cannot be changed). If you leave it as a draft, the button reads **Open draft** next time.
+
+![Draft notice proposed by the board, with the timetable change and the suggested text](../../assets/teachers/guard-duty-05-comunicat.png)
+
+Once the notice is sent (or scheduled), those lines are struck through with a tag such as **Starts at 10:00**: nobody needs to be sent to them.
+
+### A longer break
+
+When the empty lessons are right before and/or right after a break of the group's level, with class further out on that side, the students could have a longer break instead. With the break at 18:00-18:20 and the 17:00 lesson empty, for example, the break could start at 17:00; with the 18:20 lesson empty, it could end at 19:20. The selector offers every combination (earlier, later, or both, hour by hour), and the notice reads *"…el grup X allargarà el pati de 17:00 a 19:20 el dia …"*. Sending it strikes those lessons off, like any other change.
+
+This is never confused with coming in or leaving: if the empty lessons reach the start of the day, it is a late entry (e.g. coming in after the break, at 18:20); if they reach the end, an early leave (e.g. going home at the break, at 18:00).
+
+### When the absence changes afterwards
+
+If an absence is refused, cancelled or shortened, or a co-teacher turns out to be in, what was organised may no longer be needed. Nothing is undone automatically: the boxes above the table tell you, and you decide.
+
+- **A guard who is no longer needed** (box **Guards no longer needed**): click **Release guard**. They are told they no longer need to cover the class.
+- **A notice that no longer matches** (more was told than the absences now allow): a notice already sent cannot be taken back, so the proposals box offers **Propose correction**, a new draft notice for the same group with the corrected situation (a different time, or back to the usual timetable).
+
+---
+
+## Coming Back to Where You Were
+
+The board's address keeps the week, day, shift, view and levels you are looking at. Going back to it from a notice - with the breadcrumbs or the browser's back button - or reloading the page returns you to the same place, and you can copy the address to send a colleague straight there. Opening it from the menu always starts at today's day and shift.
+
+---
+
 ## Exporting to PDF
 
-Click **PDF** in the toolbar to download the day and shift currently shown (not the whole week) as a printable document — whatever level filter is currently checked is applied to the PDF too. The PDF prints whichever of the two views is on screen: the timetable if **Guard duty schedule** is active, or the Absences table if **Absences table** is active.
+Click **PDF** in the toolbar to download the day and shift currently shown (not the whole week) as a printable document — whatever level filter is currently checked is applied to the PDF too. The PDF prints whichever of the two views is on screen: the timetable if **Guard duty schedule** is active, or the Absences table if **Absences table** is active, with its guards, colours and struck-through lines as on screen.
 
 ---
 

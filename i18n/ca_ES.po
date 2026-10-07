@@ -1375,6 +1375,7 @@ msgstr "Acció"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_needaction
 msgid "Action Needed"
 msgstr "Acció Necessària"
 
@@ -1891,6 +1892,7 @@ msgstr "Adjunt"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_attachment_count
 msgid "Attachment Count"
 msgstr "Quantitat d'adjunts"
 
@@ -2372,6 +2374,7 @@ msgstr "Pot editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_return_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
 #: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -2845,6 +2848,7 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__create_uid
@@ -2861,6 +2865,7 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__create_date
@@ -2966,6 +2971,7 @@ msgstr "Dades descarregades"
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_monthly_list
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__date model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__date
 msgid "Date"
 msgstr "Data"
 
@@ -3139,6 +3145,7 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__display_name
@@ -3875,6 +3882,7 @@ msgstr "Seguiment"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_follower_ids
 msgid "Followers"
 msgstr "Seguidors"
 
@@ -3884,6 +3892,7 @@ msgstr "Seguidors"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "Seguidors (Companys)"
 
@@ -3909,6 +3918,7 @@ msgstr "Divendres"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__from_date model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__date_from
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__hour_from
 msgid "From"
 msgstr "De"
 
@@ -4155,6 +4165,7 @@ msgstr "Atorgar accés"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__group_id
 #: model:ir.model.fields,field_description:ems.field_ems_strike__group_id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__group_id
 msgid "Group"
 msgstr "Grup"
 
@@ -4235,6 +4246,7 @@ msgstr "Té taxes"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__has_message
 msgid "Has Message"
 msgstr "Té missatge"
 
@@ -4344,6 +4356,7 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__id
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__id
@@ -4381,6 +4394,7 @@ msgstr "Si l'IBAN està mapejat i una fila té valor, tots els comptes bancaris 
 #: model:ir.model.fields,help:ems.field_ems_convalidation__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_absence_cover__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr "Si està marcat, nous missatges que requereixen de la vostra atenció. "
 
@@ -4391,7 +4405,9 @@ msgstr "Si està marcat, nous missatges que requereixen de la vostra atenció. "
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__message_has_error
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__message_has_sms_error
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_absence_cover__message_has_error
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_absence_cover__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Si està marcat, alguns missatges han fallat en intentar ser lliurats."
 
@@ -4659,6 +4675,7 @@ msgstr "És taxa de matrícula"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_is_follower
 msgid "Is Follower"
 msgstr "És seguidor"
 
@@ -4780,6 +4797,7 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__write_uid
@@ -4796,6 +4814,7 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__write_date
@@ -5131,6 +5150,7 @@ msgstr "Membres"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_notice__message
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message
 msgid "Message"
 msgstr "Missatge"
 
@@ -5140,6 +5160,7 @@ msgstr "Missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_has_error
 msgid "Message Delivery error"
 msgstr "Error de lliurament del missatge"
 
@@ -5149,6 +5170,7 @@ msgstr "Error de lliurament del missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_ids
 msgid "Messages"
 msgstr "Missatges"
 
@@ -5492,6 +5514,7 @@ msgstr "Número"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_needaction_counter
 msgid "Number of Actions"
 msgstr "Quantitat d'accions"
 
@@ -5501,6 +5524,7 @@ msgstr "Quantitat d'accions"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_has_error_counter
 msgid "Number of errors"
 msgstr "Quantitat d'errors"
 
@@ -5509,6 +5533,7 @@ msgstr "Quantitat d'errors"
 #: model:ir.model.fields,help:ems.field_ems_convalidation__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_absence_cover__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr "Quantitat de missatges que requereixen d'una acció"
 
@@ -5517,6 +5542,7 @@ msgstr "Quantitat de missatges que requereixen d'una acció"
 #: model:ir.model.fields,help:ems.field_ems_convalidation__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_absence_cover__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "Quantitat de missatges amb error de lliurament"
 
@@ -6158,6 +6184,7 @@ msgstr "Plantilla de pressupost"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__rating_ids
 msgid "Ratings"
 msgstr "Qualificacions"
 
@@ -6596,6 +6623,7 @@ msgstr "En execució"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Error de lliurament d'un SMS"
 
@@ -7111,6 +7139,7 @@ msgstr "Iniciant procés en segon pla; rebràs una notificació en finalitzar (p
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__state model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__state model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__state
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__state
 msgid "State"
 msgstr "Estat"
 
@@ -7368,6 +7397,7 @@ msgstr "Estudi: El tipus d'estudi concret (tipus de batxillerat, grau universita
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__subject_id
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model:ir.model.fields,field_description:ems.field_ems_strike__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__subject_id
 msgid "Subject"
 msgstr "Assignatura"
 
@@ -7986,6 +8016,7 @@ msgstr "Avuí"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__to_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__date_to
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__hour_to
 msgid "To"
 msgstr "A"
 
@@ -8374,6 +8405,7 @@ msgstr "Estem treballant en aquesta secció per oferir-te la millor experiència
 #: model:ir.model.fields,field_description:ems.field_ems_planning__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__website_message_ids
 msgid "Website Messages"
 msgstr "Missatges del lloc web"
 
@@ -8382,6 +8414,7 @@ msgstr "Missatges del lloc web"
 #: model:ir.model.fields,help:ems.field_ems_convalidation__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_absence_cover__website_message_ids
 msgid "Website communication history"
 msgstr "Històric de comunicacions del lloc web"
 
@@ -17739,6 +17772,7 @@ msgstr "Registrat, però no és a la llista de convocats"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__space_id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__space_id
 msgid "Room"
 msgstr "Sala"
 
@@ -17782,6 +17816,7 @@ msgstr "Aquesta persona ja és a la llista."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__checkin_time model_terms:ir.ui.view,arch_db:ems.report_meeting_presence_section
+#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_change_hour
 msgid "Time"
 msgstr "Hora"
 
@@ -19821,7 +19856,6 @@ msgstr "Pati"
 msgid "Color field"
 msgstr "Camp de color"
 
-
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_work_location__name
 msgid "Work Location"
@@ -20282,3 +20316,523 @@ msgstr "Correu bloquejat: aquesta és una màquina de desenvolupament i aquesta 
 #: code:addons/ems/models/settings/mail_guard.py:0
 msgid "Email blocked: this is a development machine and these recipients are neither redirected by devel.sh nor in the allowlist: %(recipients)s"
 msgstr "Correu bloquejat: aquesta és una màquina de desenvolupament i aquests destinataris no estan desviats per devel.sh ni a la llista d'adreces permeses: %(recipients)s"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_absence_cover
+msgid "Absence cover: a guard teacher sent to a class left without its teacher"
+msgstr "Cobertura d'absència: un docent de guàrdia enviat a una classe sense el seu docent"
+
+#. module: ems
+#. odoo-javascript
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__absent_employee_id
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Absent teacher"
+msgstr "Docent absent"
+
+#. module: ems
+#. odoo-javascript
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__guard_employee_id
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Guard teacher"
+msgstr "Docent de guàrdia"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__assigned_by_id
+msgid "Assigned by"
+msgstr "Assignat per"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__state__assigned
+msgid "Assigned"
+msgstr "Assignada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__state__released
+msgid "Released"
+msgstr "Alliberada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_date
+msgid "Absence day"
+msgstr "Dia de l'absència"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_group_id
+msgid "Absence group"
+msgstr "Grup de l'absència"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_change_type
+msgid "Timetable change"
+msgstr "Canvi d'horari"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__late_entry
+msgid "Late entry"
+msgstr "Entrada tard"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__early_leave
+msgid "Early leave"
+msgstr "Sortida abans d'hora"
+
+#. module: ems
+#. odoo-python
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__no_classes
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "No classes"
+msgstr "Sense classes"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__normal_entry
+msgid "Usual start time"
+msgstr "Hora d'entrada habitual"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__normal_leave
+msgid "Usual finish time"
+msgstr "Hora de sortida habitual"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_notice_form
+msgid ""
+"<i class=\"fa fa-calendar-times-o me-2\" title=\"Timetable change\"/>\n"
+"                            <span>Timetable change because of a teacher's absence:</span>"
+msgstr ""
+"<i class=\"fa fa-calendar-times-o me-2\" title=\"Canvi d'horari\"/>\n"
+"                            <span>Canvi d'horari per l'absència d'un docent:</span>"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "This class already has a guard teacher assigned."
+msgstr "Aquesta classe ja té un docent de guàrdia assignat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Guard duty cancelled: %(group)s, %(date)s %(time)s"
+msgstr "Guàrdia anul·lada: %(group)s, %(date)s %(time)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "You no longer need to cover this class:"
+msgstr "Ja no cal que cobreixis aquesta classe:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Guard duty: cover %(group)s, %(date)s %(time)s"
+msgstr "Guàrdia: cobrir %(group)s, %(date)s %(time)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "You have been assigned to cover this class:"
+msgstr "Se t'ha assignat per cobrir aquesta classe:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Date: %s"
+msgstr "Data: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Time: %s"
+msgstr "Hora: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Group: %s"
+msgstr "Grup: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Subject: %s"
+msgstr "Assignatura: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Room: %s"
+msgstr "Aula: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Absent teacher: %s"
+msgstr "Docent absent: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "The class or the guard teacher no longer exists."
+msgstr "La classe o el docent de guàrdia ja no existeix."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "This class no longer needs covering: the absence or the class has changed. Reload the board."
+msgstr "Aquesta classe ja no cal cobrir-la: l'absència o la classe han canviat. Torna a carregar el quadrant."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "%s is not on guard duty in this period."
+msgstr "%s no està de guàrdia en aquesta franja."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "This assignment no longer exists. Reload the board."
+msgstr "Aquesta assignació ja no existeix. Torna a carregar el quadrant."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "A timetable change notice can only be sent to the students and families of %s."
+msgstr "Un comunicat de canvi d'horari només es pot enviar a l'alumnat i les famílies de %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Dear students and families,"
+msgstr "Benvolgudes famílies i alumnat,"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Correction: %s"
+msgstr "Rectificació: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "This message corrects the one we sent you earlier about this day."
+msgstr "Aquest missatge rectifica el que us vam enviar abans sobre aquest dia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "This group no longer exists."
+msgstr "Aquest grup ja no existeix."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "The absences of this group have changed since the board was loaded. Reload the board."
+msgstr "Les absències d'aquest grup han canviat des que es va carregar el quadrant. Torna'l a carregar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Only the department chief of the absent teacher, or someone above them, can do this."
+msgstr "Només el cap de departament del docent absent, o algú per sobre seu, pot fer-ho."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Only the department chief of %s, or someone above them, can manage their absences."
+msgstr "Només el cap de departament de %s, o algú per sobre seu, en pot gestionar les absències."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "This day is already over."
+msgstr "Aquest dia ja ha passat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Could start at %s"
+msgstr "Pot entrar a les %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Could leave at %s"
+msgstr "Pot sortir a les %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Could have no classes"
+msgstr "Pot no tenir classes"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Starts at %s"
+msgstr "Entra a les %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Leaves at %s"
+msgstr "Surt a les %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Usual timetable"
+msgstr "Horari habitual"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(guard)s no longer needs to cover %(group)s at %(time)s (%(teacher)s)."
+msgstr "%(guard)s ja no ha de cobrir %(group)s a les %(time)s (%(teacher)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(group)s: %(change)s."
+msgstr "%(group)s: %(change)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(group)s: the families were told \"%(told)s\", which no longer matches the absences (now: %(change)s)."
+msgstr "%(group)s: es va comunicar «%(told)s» a les famílies, però ja no coincideix amb les absències (ara: %(change)s)."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Cover %(group)s (%(time)s)"
+msgstr "Cobrir %(group)s (%(time)s)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Choose a guard teacher..."
+msgstr "Tria un docent de guàrdia..."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Nobody is on guard duty in this period."
+msgstr "No hi ha ningú de guàrdia en aquesta franja."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Message for the guard teacher"
+msgstr "Missatge per al docent de guàrdia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "What the students have to work on, where to find the materials..."
+msgstr "Què ha de treballar l'alumnat, on són els materials..."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Assign and notify"
+msgstr "Assignar i avisar"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Remove assignment"
+msgstr "Treure l'assignació"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Propose notice"
+msgstr "Proposar comunicat"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Propose correction"
+msgstr "Proposar rectificació"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Open draft"
+msgstr "Obrir esborrany"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Release guard"
+msgstr "Alliberar la guàrdia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Click to send a guard teacher to this class"
+msgstr "Fes clic per enviar un docent de guàrdia a aquesta classe"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__department_chief_user_ids
+msgid "Department chiefs"
+msgstr "Caps de departament"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__available_group_ids
+msgid "Available groups"
+msgstr "Grups disponibles"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_department_scope.py:0
+msgid "You can only send notices to the groups your department teaches: %s is not one of them."
+msgstr "Només pots enviar comunicats als grups on fa classe el teu departament: %s no n'és cap."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_department_scope.py:0
+msgid "a recipient outside your groups"
+msgstr "un destinatari de fora dels teus grups"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_department_scope.py:0
+msgid "Unsupported search on department_chief_user_ids"
+msgstr "Cerca no admesa a department_chief_user_ids"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | they can come in later on %(date)s"
+msgstr "%(group)s | el %(date)s podran entrar més tard a l'institut"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | they can leave earlier on %(date)s"
+msgstr "%(group)s | el %(date)s podran sortir abans de l'institut"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | no classes on %(date)s"
+msgstr "%(group)s | el %(date)s no tindran classes"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | usual timetable on %(date)s"
+msgstr "%(group)s | el %(date)s horari habitual"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Due to the justified absence of the assigned teacher, group %(group)s will start classes at %(hour)s on %(date)s."
+msgstr "A causa de l'absència justificada del docent assignat, el grup %(group)s començarà les classes a les %(hour)s el dia %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Due to the justified absence of the assigned teacher, group %(group)s will finish classes at %(hour)s on %(date)s."
+msgstr "A causa de l'absència justificada del docent assignat, el grup %(group)s acabarà les classes a les %(hour)s el dia %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Due to the justified absence of the assigned teacher, group %(group)s will have no classes on %(date)s."
+msgstr "A causa de l'absència justificada del docent assignat, el grup %(group)s no tindrà classes el dia %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Group %(group)s will start classes at the usual time on %(date)s."
+msgstr "El grup %(group)s començarà les classes a l'hora habitual el dia %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Group %(group)s will finish classes at the usual time on %(date)s."
+msgstr "El grup %(group)s acabarà les classes a l'hora habitual el dia %(date)s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Sending the notice strikes these lessons off the table, so no guard teacher has to cover them. You can choose a shorter change and send a guard to the rest."
+msgstr "Enviar el comunicat ratlla aquestes classes de la taula, perquè cap docent de guàrdia les hagi de cobrir. Pots triar un canvi més curt i enviar un docent de guàrdia a la resta."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Guards no longer needed"
+msgstr "Guàrdies que ja no calen"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "No guard needed: the families were told \"%s\"."
+msgstr "No cal cap docent de guàrdia: es va comunicar a les famílies «%s»."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Covered by %s, the guard teacher sent to this class."
+msgstr "Coberta per %s, el docent de guàrdia enviat a aquesta classe."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Change or remove the guard"
+msgstr "Canviar o treure el docent de guàrdia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Late entry, early leave and break proposals"
+msgstr "Propostes d'entrada, sortida i pati"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Could have a break from %(start)s to %(end)s"
+msgstr "Pot fer pati de %(start)s a %(end)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Break from %(start)s to %(end)s"
+msgstr "Pati de %(start)s a %(end)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__normal_break
+msgid "Usual break"
+msgstr "Pati habitual"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__long_break
+msgid "Longer break"
+msgstr "Pati allargat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | longer break on %(date)s"
+msgstr "%(group)s | el %(date)s allargaran el pati"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Due to the justified absence of the assigned teacher, group %(group)s will have a longer break, from %(start)s to %(end)s, on %(date)s."
+msgstr "A causa de l'absència justificada del docent assignat, el grup %(group)s allargarà el pati de %(start)s a %(end)s el dia %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Group %(group)s will have the usual break, from %(start)s to %(end)s, on %(date)s."
+msgstr "El grup %(group)s farà el pati habitual, de %(start)s a %(end)s, el dia %(date)s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_change_hour_to
+msgid "Until"
+msgstr "Fins a"

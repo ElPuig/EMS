@@ -69,7 +69,7 @@ Cada fila és una franja horària del torn que tens a la pantalla:
 
 Una franja on no falta ningú té la columna d'absències buida.
 
-En una classe amb codocència (dos docents a la mateixa aula) on només en falta un, la seva línia surt **ratllada**: hi continua perquè sàpigues qui falta, però no cal guàrdia perquè l'altre docent es fa càrrec de la classe. La icona **ⓘ** de la seva esquerra t'ho indica, quan hi passes el ratolí per sobre o hi fas clic.
+En una classe amb codocència (dos docents a la mateixa aula) on només en falta un, la seva línia surt **ratllada**: hi continua perquè sàpigues qui falta, però no cal guàrdia perquè l'altre docent es fa càrrec de la classe. Passa el ratolí per sobre de la línia o fes-hi clic per veure'n el motiu; la icona **ⓘ** de la seva esquerra indica que hi ha una explicació.
 
 Tota línia ratllada té aquesta icona, sigui quin sigui el motiu: un altre docent és a la classe, ja s'hi ha enviat un docent de guàrdia (el seu nom apareix al costat), o s'ha comunicat a les famílies que l'alumnat no ha de venir a aquella classe (consulta [Organitzar una absència](#organitzar-una-absencia)). Si falten tots dos, o cada docent té mig grup en una aula diferent, la línia no surt ratllada i sí que cal cobrir la classe.
 
@@ -111,7 +111,7 @@ El docent de guàrdia rep un missatge d'Odoo (a la safata d'entrada o per correu
 
 Aleshores la classe queda ratllada, hi apareix el nom del docent de guàrdia, i la línia i la casella del docent a la columna Guàrdia comparteixen el mateix color. Quan diversos docents de guàrdia cobreixen classes a la mateixa franja, cadascun té el seu color, de manera que es veu d'un cop d'ull qui cobreix què. Un docent de guàrdia pot cobrir més d'una classe: totes prenen el seu color.
 
-Per canviar el docent de guàrdia, torna a fer clic a la línia i tria'n un altre: a l'anterior se li comunica que ja no cal. Per enviar un missatge nou al mateix docent, torna'l a triar i fes clic a **Assignar i avisar**. **Treure l'assignació** treu el docent de la classe i l'avisa.
+Per canviar el docent de guàrdia, fes clic a la línia i després a **Canviar o treure el docent de guàrdia** (només ho veu qui organitza l'absència), i tria'n un altre: a l'anterior se li comunica que ja no cal. Per enviar un missatge nou al mateix docent, torna'l a triar i fes clic a **Assignar i avisar**. **Treure l'assignació** treu el docent de la classe i l'avisa.
 
 ### Entrada tard, sortida abans d'hora o sense classes
 

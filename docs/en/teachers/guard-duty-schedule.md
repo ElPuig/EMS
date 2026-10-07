@@ -69,7 +69,7 @@ Each row is a time block of the shift on screen:
 
 A time block where nobody is missing has an empty Absences column.
 
-In a co-taught class (two teachers in the same classroom) where only one of them is away, their line is **struck through**: it stays there so you know who is missing, but no guard is needed because the other teacher is taking the class. The **ⓘ** icon to its left says so, when you hover over it or click it.
+In a co-taught class (two teachers in the same classroom) where only one of them is away, their line is **struck through**: it stays there so you know who is missing, but no guard is needed because the other teacher is taking the class. Hover over the line or click it to see why; the **ⓘ** icon on its left shows there is an explanation.
 
 Every struck-through line has that icon, whatever the reason: a co-teacher is in the class, a guard teacher has already been sent to it (their name appears next to it), or the families were told the students can stay at home for it (see [Organising an absence](#organising-an-absence)). If both are away, or each teacher has half of the group in a different classroom, the line is not struck through and the class does need covering.
 
@@ -111,7 +111,7 @@ The guard teacher receives an Odoo message (in their inbox, or by email, dependi
 
 The class is then struck through, the guard's name appears next to it, and the line and the guard's box in the Guard duty column share the same colour. When several guards cover classes in the same time block, each guard has their own colour, so you can see at a glance who is covering what. A guard can cover more than one class: all of them take that guard's colour.
 
-To change the guard, click the line again and choose another one: the previous guard is told they are no longer needed. To write a new message to the same guard, choose them again and click **Assign and notify**. **Remove assignment** takes the guard off the class and tells them so.
+To change the guard, click the line and then **Change or remove the guard** (only shown to whoever organises the absence), and choose another one: the previous guard is told they are no longer needed. To write a new message to the same guard, choose them again and click **Assign and notify**. **Remove assignment** takes the guard off the class and tells them so.
 
 ### Late entry, early leave or no classes
 

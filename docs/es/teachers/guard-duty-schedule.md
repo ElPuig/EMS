@@ -69,7 +69,7 @@ Cada fila es una franja horaria del turno que tienes en pantalla:
 
 Una franja donde no falta nadie tiene la columna de ausencias vacía.
 
-En una clase con codocencia (dos docentes en la misma aula) en la que solo falta uno, su línea aparece **tachada**: sigue ahí para que sepas quién falta, pero no hace falta guardia porque el otro docente se hace cargo de la clase. El icono **ⓘ** de su izquierda te lo indica, al pasar el ratón por encima o al hacer clic.
+En una clase con codocencia (dos docentes en la misma aula) en la que solo falta uno, su línea aparece **tachada**: sigue ahí para que sepas quién falta, pero no hace falta guardia porque el otro docente se hace cargo de la clase. Pasa el ratón por encima de la línea o haz clic en ella para ver el motivo; el icono **ⓘ** de su izquierda indica que hay una explicación.
 
 Toda línea tachada tiene ese icono, sea cual sea el motivo: otro docente está en la clase, ya se ha enviado un docente de guardia (su nombre aparece al lado), o se ha comunicado a las familias que el alumnado no tiene que venir a esa clase (ver [Organizar una ausencia](#organizar-una-ausencia)). Si faltan los dos, o cada docente tiene medio grupo en un aula distinta, la línea no aparece tachada y sí hay que cubrir la clase.
 
@@ -111,7 +111,7 @@ El docente de guardia recibe un mensaje de Odoo (en su bandeja de entrada o por 
 
 Entonces la clase queda tachada, aparece el nombre del docente de guardia, y la línea y la casilla del docente en la columna Guardia comparten el mismo color. Cuando varios docentes de guardia cubren clases en la misma franja, cada uno tiene su color, de modo que se ve de un vistazo quién cubre qué. Un docente de guardia puede cubrir más de una clase: todas toman su color.
 
-Para cambiar el docente de guardia, vuelve a hacer clic en la línea y elige otro: al anterior se le comunica que ya no hace falta. Para enviar un mensaje nuevo al mismo docente, vuelve a elegirlo y haz clic en **Asignar y avisar**. **Quitar la asignación** saca al docente de la clase y le avisa.
+Para cambiar el docente de guardia, haz clic en la línea y después en **Cambiar o quitar el docente de guardia** (solo lo ve quien organiza la ausencia), y elige otro: al anterior se le comunica que ya no hace falta. Para enviar un mensaje nuevo al mismo docente, vuelve a elegirlo y haz clic en **Asignar y avisar**. **Quitar la asignación** saca al docente de la clase y le avisa.
 
 ### Entrada tarde, salida anticipada o sin clases
 

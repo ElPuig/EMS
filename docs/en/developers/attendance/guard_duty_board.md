@@ -184,9 +184,11 @@ teacher of the same cell (same group, same period) is not away and teaches in th
 the absent one. The row is still there, so the board says who is missing, but it is struck
 through (`.o_guard_board_absence_covered` on screen, `.gdb-absence-covered` in the PDF) because
 nobody needs to cover it. On screen every struck-through line, whatever the reason (co-taught, a
-guard sent, a timetable change communicated), carries an info icon on its left whose reason
+guard sent, a timetable change communicated), carries an info icon on its left, and the whole line answers like it: its reason
 (`struckReason()`) shows as a tooltip on hover and in a popover on click - a plain `title` was only
-found by whoever happened to hover, which most teachers never do. The room check is what keeps a group split
+found by whoever happened to hover, which most teachers never do. A line struck out because a guard
+was sent stays editable by whoever organises the absence: its popover also offers "Change or remove
+the guard", which opens the assignment dialog. The room check is what keeps a group split
 across two rooms (each teacher with half of it) from being marked covered: the absent teacher's
 half has nobody. On this centre's data every shared slot is same room and same subject, i.e.
 genuine co-teaching. A co-teacher away for any part of the period does not cover, the same

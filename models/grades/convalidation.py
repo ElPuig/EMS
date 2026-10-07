@@ -17,7 +17,7 @@ CONVALIDATED_GRADE = 5
 CLOSED_STATES = ('completed', 'rejected', 'cancelled')
 
 # What the applicant filed, fixed once the request exists.
-FILED_FIELDS = {'student_id', 'course_id', 'study_id', 'basis', 'student_notes'}
+FILED_FIELDS = {'student_id', 'course_id', 'study_id', 'basis', 'prior_studies_origin', 'student_notes'}
 
 # States in which the Head of Studies still decides the subjects, and in which the applicant can
 # be asked for (and send) more documentation: before the resolution exists.
@@ -50,6 +50,13 @@ class EmsConvalidation(models.Model):
         ('certificate', 'Professional certificate or accreditation of competences'),
         ('other', 'Other'),
     ])
+    # Where prior studies were passed (issue #579): studies passed here need nothing attached - the
+    # centre looks the record up itself -, anything else has to come with its supporting documents.
+    prior_studies_origin = fields.Selection(string="Studies passed", selection=[
+        ('centre', 'At this centre'),
+        ('elsewhere', 'At another centre or university'),
+    ], help="Only for prior studies. Studies passed at this centre need no supporting documents: the "
+            "centre looks the student's record up itself.")
     student_notes = fields.Text(string="Applicant's comments")
     attachment_ids = fields.Many2many(string="Supporting documents", comodel_name='ir.attachment',
                                       relation='ems_convalidation_attachment_rel',
@@ -109,6 +116,14 @@ class EmsConvalidation(models.Model):
                                       help="The student's academic history records a title obtained here, so "
                                            "their previous grades can be looked up. Its absence proves nothing: "
                                            "only recent years are in EMS.")
+
+    @api.model
+    def _ems_documents_required(self, basis, prior_studies_origin):
+        """Whether a request on these grounds must come with supporting documents (issue #579):
+        always, except for prior studies passed at this centre, whose record is looked up here.
+        Enforced on the portal only: the secretariat or the Head of Studies can still register a
+        request without them from the backend and ask for the documents afterwards."""
+        return not (basis == 'prior_studies' and prior_studies_origin == 'centre')
 
     @api.model
     def _default_course_id(self):
@@ -193,11 +208,12 @@ class EmsConvalidation(models.Model):
 
     def write(self, vals):
         if not self.env.su:
-            # What the applicant filed - who for, which course and study, on what grounds and in
-            # their own words - is the request itself: nobody rewrites it afterwards.
+            # What the applicant filed - who for, which course and study, on what grounds (and where
+            # prior studies were passed) and in their own words - is the request itself: nobody
+            # rewrites it afterwards.
             if FILED_FIELDS & set(vals):
-                raise UserError(_("The student, course, study, grounds and applicant's comments cannot be "
-                                  "changed once the request is submitted."))
+                raise UserError(_("The student, course, study, grounds, where the studies were passed and "
+                                  "applicant's comments cannot be changed once the request is submitted."))
             # The state only moves through the circuit's own actions, which write it with sudo.
             if 'state' in vals:
                 raise UserError(_("The state of a request only changes through its buttons."))

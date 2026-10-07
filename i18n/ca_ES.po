@@ -16035,11 +16035,6 @@ msgstr ""
 "expedient."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
-msgid "Supporting documents <span class=\"text-muted\">(optional)</span>"
-msgstr "Documentació justificativa <span class=\"text-muted\">(opcional)</span>"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/convalidation.py:0
 msgid ""
@@ -16111,12 +16106,8 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
-msgid ""
-"University studies or a Ministry resolution: attach the resolution if you "
-"already have it."
-msgstr ""
-"Estudis universitaris o resolució del Ministeri: adjunteu la resolució, si "
-"ja la teniu."
+msgid "University studies or a Ministry resolution: the academic certificate, or the resolution if you already have it."
+msgstr "Estudis universitaris o resolució del Ministeri: el certificat acadèmic, o la resolució si ja la teniu."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__validated_by_id
@@ -18590,10 +18581,8 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/convalidation.py:0
-msgid ""
-"The student, course, study, grounds and applicant's comments cannot be "
-"changed once the request is submitted."
-msgstr "L'alumne, el curs, l'estudi, el motiu i les observacions del sol·licitant no es poden modificar un cop presentada la sol·licitud."
+msgid "The student, course, study, grounds, where the studies were passed and applicant's comments cannot be changed once the request is submitted."
+msgstr "L'alumne, el curs, l'estudi, el motiu, on es van superar els estudis i les observacions del sol·licitant no es poden modificar un cop presentada la sol·licitud."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
@@ -20282,3 +20271,54 @@ msgstr "Correu bloquejat: aquesta és una màquina de desenvolupament i aquesta 
 #: code:addons/ems/models/settings/mail_guard.py:0
 msgid "Email blocked: this is a development machine and these recipients are neither redirected by devel.sh nor in the allowlist: %(recipients)s"
 msgstr "Correu bloquejat: aquesta és una màquina de desenvolupament i aquests destinataris no estan desviats per devel.sh ni a la llista d'adreces permeses: %(recipients)s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "<i class=\"fa fa-exclamation-triangle me-1\"/> Attach the supporting documents: they are only optional for studies passed at this centre."
+msgstr "<i class=\"fa fa-exclamation-triangle me-1\"/> Adjunta la documentació justificativa: només és opcional per a estudis superats en aquest centre."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "<i class=\"fa fa-exclamation-triangle me-1\"/> Say where you passed the studies."
+msgstr "<i class=\"fa fa-exclamation-triangle me-1\"/> Indica on vas superar els estudis."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "<option value=\"\">Choose...</option>"
+msgstr "<option value=\"\">Tria...</option>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"Supporting documents\n"
+"                                                    <span class=\"text-danger o_ems_convalidation_documents_required\">*</span>\n"
+"                                                    <span class=\"text-muted o_ems_convalidation_documents_optional d-none\">(optional for studies passed at this centre)</span>"
+msgstr ""
+"Documentació justificativa\n"
+"                                                    <span class=\"text-danger o_ems_convalidation_documents_required\">*</span>\n"
+"                                                    <span class=\"text-muted o_ems_convalidation_documents_optional d-none\">(opcional per a estudis superats en aquest centre)</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "Where did you pass the studies? <span class=\"text-danger\">*</span>"
+msgstr "On vas superar els estudis? <span class=\"text-danger\">*</span>"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__prior_studies_origin
+msgid "Studies passed"
+msgstr "Estudis superats"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation__prior_studies_origin
+msgid "Only for prior studies. Studies passed at this centre need no supporting documents: the centre looks the student's record up itself."
+msgstr "Només per a estudis previs. Els estudis superats en aquest centre no necessiten documentació justificativa: el centre consulta l'expedient de l'alumne."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__prior_studies_origin__centre
+msgid "At this centre"
+msgstr "En aquest centre"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__prior_studies_origin__elsewhere
+msgid "At another centre or university"
+msgstr "En un altre centre o a la universitat"

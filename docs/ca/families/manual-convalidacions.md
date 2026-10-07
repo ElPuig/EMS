@@ -45,8 +45,8 @@ Les sol·licituds ja presentades no es veuen afectades: les pots continuar consu
 ## Fer una sol·licitud
 
 1. Fes clic a **Nova sol·licitud de convalidació** per obrir el formulari, i marca els mòduls que vols convalidar.
-2. Tria el **Motiu**.
-3. A **Documentació justificativa**, adjunta els documents que calguin. Pots seleccionar diversos fitxers alhora.
+2. Tria el **Motiu**. Per a estudis previs, indica també **on els vas superar**: en aquest centre, o en un altre centre o a la universitat.
+3. A **Documentació justificativa**, adjunta els documents que calguin. Pots seleccionar diversos fitxers alhora. Són obligatoris, excepte per a estudis superats en aquest centre: sense ells no es pot enviar la sol·licitud.
 4. Si vols, escriu-hi observacions.
 5. Fes clic a **Envia la sol·licitud**.
 
@@ -59,9 +59,9 @@ Les sol·licituds ja presentades no es veuen afectades: les pots continuar consu
 | Estudis superats en aquest centre | Cap: el centre consulta l'expedient. |
 | Estudis superats en un altre centre | El certificat acadèmic o l'expedient dels estudis superats. |
 | Certificat de professionalitat o acreditació de competències | El certificat mateix. |
-| Estudis universitaris o resolució del Ministeri | La resolució, si ja la tens. |
+| Estudis universitaris o resolució del Ministeri | El certificat acadèmic, o la resolució si ja la tens. |
 
-Si falta alguna cosa, el centre t'ho demanarà i ho podràs adjuntar des d'aquesta mateixa pàgina.
+Si cal alguna cosa més, el centre t'ho demanarà i ho podràs adjuntar des d'aquesta mateixa pàgina.
 
 Un missatge confirma que la sol·licitud s'ha enviat. Els mòduls ja sol·licitats deixen d'aparèixer al formulari, llevat que s'hagin rebutjat.
 

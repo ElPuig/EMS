@@ -58,6 +58,7 @@ Obre la sol·licitud des de la llista. El formulari mostra:
 
 - El **número de registre** (per exemple CONV-2026-27-0001), a sobre del nom de l'alumne.
 - **Estudi**, **Curs** i **Motiu**. Aquestes dades, l'alumne i les observacions del sol·licitant són les de la sol·licitud i no es poden modificar.
+- **Estudis superats** (només estudis previs): en aquest centre o en un altre centre o a la universitat. Una sol·licitud del portal per estudis superats en un altre lloc, o per qualsevol altre motiu, sempre arriba amb documentació justificativa; només els estudis superats aquí poden arribar sense.
 - Sota el nom de l'alumne, l'avís **Té una titulació obtinguda al centre** quan a l'històric acadèmic hi consta un títol obtingut aquí.
 - Pestanya **Assignatures**: una línia per cada mòdul sol·licitat.
 - Pestanya **Documentació justificativa**: els fitxers adjuntats.
@@ -146,7 +147,7 @@ Secretaria registra la resolució a l'Esfera (vegeu [Convalidacions: registrar l
 ## Registrar una sol·licitud en paper
 
 1. Fes clic a **Nou**.
-2. Tria l'**Estudiant**, l'**Estudi**, el **Curs** i el **Motiu**, i escriu-hi les observacions del sol·licitant si n'hi ha.
+2. Tria l'**Estudiant**, l'**Estudi**, el **Curs** i el **Motiu** (per a estudis previs, també **Estudis superats**: en aquest centre o en un altre), i escriu-hi les observacions del sol·licitant si n'hi ha. A diferència del portal, una sol·licitud registrada aquí es pot desar sense documentació justificativa, per demanar-la després.
 3. A la pestanya **Assignatures**, fes clic a **Afegir una línia** i tria cada mòdul.
 4. A la pestanya **Documentació justificativa**, puja els documents.
 5. Fes clic a **Desa**.

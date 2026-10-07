@@ -330,7 +330,7 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
         self.assertIn(self.teacher_guard.display_name,
                       [guard['name'] for guard in matching_line['guards']])
         cell = next(cell for cell in matching_line['cells'] if cell['group_id'] == self.group_a.id)
-        self.assertEqual(cell['teachers'], [{'name': self.teacher_a.display_name, 'absence': False, 'is_wc': False}])
+        self.assertEqual(cell['teachers'], [{'id': self.teacher_a.id, 'name': self.teacher_a.display_name, 'absence': False, 'is_wc': False}])
         self.assertEqual(cell['subject'], self.subject.acronym)
 
     def test_get_current_course_data(self):

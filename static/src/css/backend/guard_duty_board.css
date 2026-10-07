@@ -207,7 +207,8 @@
 
 /* A co-taught class whose other teacher is in: still listed so everyone knows who is away, but
    struck through because nobody needs to cover it. */
-.o_guard_board_absence_covered {
+.o_guard_board_absence_covered .o_guard_board_absence_text,
+.o_guard_board_absence_struck .o_guard_board_absence_text {
     text-decoration: line-through;
     opacity: 0.6;
 }
@@ -230,7 +231,7 @@
 }
 
 .o_guard_board_col_absences {
-    width: 420px;
+    width: 600px;
 }
 
 /* Narrower than the timetable tab's own columns: a time block is the same text either way, and
@@ -264,4 +265,82 @@
     margin-left: 6px;
     font-size: 10px;
     opacity: 0.8;
+}
+
+/* Managing absences from the absences table (issues #539, #571, #581). */
+
+/* A row the current user can act on: clicking it sends (or changes) a guard. */
+.o_guard_board_absence_manageable {
+    cursor: pointer;
+}
+
+.o_guard_board_absence_manageable:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Small inline tags after the class: the guard sent to it, or the timetable change that frees the
+   group from it. Kept to the row's own line height, so a row never grows onto a second line. */
+.o_guard_board_absence_tag {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 0 5px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    font-size: 10px;
+    line-height: 1.4;
+    vertical-align: middle;
+}
+
+.o_guard_board_authorized_tag {
+    border-color: #1f7a3a;
+    color: #1f7a3a;
+}
+
+.o_guard_board_proposed_tag {
+    border-style: dashed;
+    color: #6c757d;
+}
+
+/* A guard and every class they cover in the same row share one colour, a different one for each
+   guard - the planner pairs them at a glance even when several guards cover several classes at
+   once. Kept in step with COVER_COLOR_COUNT (models/attendance/guard_duty_board.py) and the PDF's
+   own gdb-cover-N classes (reports/attendance/report_guard_duty_board.xml). */
+.o_guard_board_cover_0 { background-color: #dbeafe; border-left: 4px solid #2563eb; }
+.o_guard_board_cover_1 { background-color: #dcfce7; border-left: 4px solid #16a34a; }
+.o_guard_board_cover_2 { background-color: #fef3c7; border-left: 4px solid #d97706; }
+.o_guard_board_cover_3 { background-color: #f3e8ff; border-left: 4px solid #9333ea; }
+.o_guard_board_cover_4 { background-color: #ffe4e6; border-left: 4px solid #e11d48; }
+.o_guard_board_cover_5 { background-color: #ccfbf1; border-left: 4px solid #0d9488; }
+.o_guard_board_cover_6 { background-color: #ffedd5; border-left: 4px solid #ea580c; }
+.o_guard_board_cover_7 { background-color: #e0e7ff; border-left: 4px solid #4f46e5; }
+
+.o_guard_board_absence_row[class*="o_guard_board_cover_"] {
+    padding-left: 4px;
+}
+
+/* The day's pending actions, above the absences table. */
+.o_guard_board_actions {
+    max-width: 930px;
+    margin: 0 auto 12px auto;
+    padding: 8px 12px;
+    border: 1px solid #f0ad4e;
+    border-left: 4px solid #f0ad4e;
+    border-radius: 3px;
+    background-color: #fffaf0;
+}
+
+.o_guard_board_actions_title {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.o_guard_board_action {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 2px 0;
+}
+
+.o_guard_board_action_label {
+    flex: 1 1 auto;
 }

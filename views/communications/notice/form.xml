@@ -38,11 +38,21 @@
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                         <field name="active" invisible="True"/>
                         <field name="has_families" invisible="True"/>
+                        <!-- A timetable change proposed from the guard duty board's absences table
+                             (issues #539/#581): addressed to that one group only (see
+                             _check_absence_change_recipients), so its groups can't be changed. -->
+                        <div class="alert alert-info" role="status" invisible="not absence_change_type">
+                            <i class="fa fa-calendar-times-o me-2" title="Timetable change"/>
+                            <span>Timetable change because of a teacher's absence:</span>
+                            <field name="absence_group_id" class="fw-bold mx-1"/>
+                            <field name="absence_date" class="mx-1"/>
+                            (<field name="absence_change_type" class="mx-1"/><field name="absence_change_hour" widget="float_time" class="mx-1" invisible="absence_change_type not in ('late_entry', 'early_leave')"/>)
+                        </div>
                         <field name="can_cancel" invisible="True"/>
 
                         <group string="Recipients" col="4">
                             <group>
-                                <field name="group_ids" widget="many2many_tags" readonly="state != 'draft'" options="{'no_create': True}"/>
+                                <field name="group_ids" widget="many2many_tags" readonly="state != 'draft' or absence_change_type" options="{'no_create': True}"/>
                             </group>
                             <group>
                                 <field name="recipient_type" readonly="state != 'draft'"/>

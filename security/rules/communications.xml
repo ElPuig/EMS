@@ -92,6 +92,35 @@
             <field name="perm_unlink" eval="True"/>
         </record>
 
+        <!-- Department chiefs (and Seminar chiefs, the same res.groups) only reach notices
+             through the guard duty board, which proposes a timetable-change notice for a group
+             whose teacher is away (issues #539/#581, see ems.notice's absence_change_* fields):
+             they see, edit, send and delete their own such notices, and nothing else - no other
+             notice is ever theirs to read or send. _check_absence_change_recipients keeps the
+             notice addressed to that group's students and families only. Head of Studies implies
+             this group, so these rules only ever add to what their own rules above grant. -->
+        <record model="ir.rule" id="rule_notice_department_chief_absence_change">
+            <field name="name">Notice: department chief manages own timetable-change notices</field>
+            <field name="model_id" ref="ems.model_ems_notice"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_department_chief')])]"/>
+            <field name="domain_force">[('create_uid', '=', user.id), ('absence_change_type', '!=', False)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record model="ir.rule" id="rule_notice_line_department_chief_absence_change">
+            <field name="name">Notice line: department chief manages own timetable-change notices</field>
+            <field name="model_id" ref="ems.model_ems_notice_line"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_department_chief')])]"/>
+            <field name="domain_force">[('notice_id.create_uid', '=', user.id), ('notice_id.absence_change_type', '!=', False)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
         <!-- ems.limesurvey_header / .block / .recipient / .enrollment
 
              Admins see everything: this also fixes a pre-existing gap where group_academic_admin

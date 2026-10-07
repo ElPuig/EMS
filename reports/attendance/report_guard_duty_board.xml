@@ -123,7 +123,18 @@
                                     .gdb-absent-pending { color: #b52a37; font-style: italic; }
                                     /* Same as the screen's .o_guard_board_absence_covered: a co-taught
                                        class whose other teacher is in needs no guard. */
-                                    .gdb-absence-covered { text-decoration: line-through; opacity: 0.6; }
+                                    .gdb-absence-covered > .gdb-absent, .gdb-absence-covered > .gdb-absent-pending { text-decoration: line-through; opacity: 0.6; }
+                                    .gdb-absence-tag { display: inline-block; margin-left: 4px; padding: 0 3px; border: 1px solid #999; border-radius: 2px; }
+                                    /* Same pairing colours as the screen's o_guard_board_cover_N
+                                       (static/src/css/backend/guard_duty_board.css). */
+                                    .gdb-cover-0 { background-color: #dbeafe; border-left: 3px solid #2563eb; }
+                                    .gdb-cover-1 { background-color: #dcfce7; border-left: 3px solid #16a34a; }
+                                    .gdb-cover-2 { background-color: #fef3c7; border-left: 3px solid #d97706; }
+                                    .gdb-cover-3 { background-color: #f3e8ff; border-left: 3px solid #9333ea; }
+                                    .gdb-cover-4 { background-color: #ffe4e6; border-left: 3px solid #e11d48; }
+                                    .gdb-cover-5 { background-color: #ccfbf1; border-left: 3px solid #0d9488; }
+                                    .gdb-cover-6 { background-color: #ffedd5; border-left: 3px solid #ea580c; }
+                                    .gdb-cover-7 { background-color: #e0e7ff; border-left: 3px solid #4f46e5; }
                                 </style>
 
                                 <h1 class="gdb-title">
@@ -169,17 +180,22 @@
                                                         <td class="gdb-time" t-esc="line['time_label']"/>
                                                         <td>
                                                             <t t-foreach="line['absences']" t-as="absence">
-                                                                <div t-att-class="'gdb-absence-row gdb-absence-covered' if absence['covered'] else 'gdb-absence-row'">
+                                                                <!-- Struck out and paired with its guard's colour exactly like
+                                                                     the screen (issues #571/#581): a co-teacher, a guard sent, or
+                                                                     a timetable change already told to the families. -->
+                                                                <div t-att-class="'gdb-absence-row' + (' gdb-absence-covered' if absence['covered'] or absence['cover'] or absence['authorized'] else '') + (' gdb-cover-%s' % line['guard_colors'].get(absence['cover'].guard_employee_id.id, 0) if absence['cover'] else '')">
                                                                     <span t-att-class="'gdb-absent' if absence['state'] == 'approved' else 'gdb-absent-pending'" t-esc="absence['teacher'].name"/>
                                                                     <span class="gdb-absence-class">
                                                                         <t t-esc="absence['group'].name"/><t t-if="absence['subject']"> · <t t-esc="absence['subject'].acronym"/></t><t t-if="absence['room']"> · <t t-esc="absence['room'].display_name"/></t>
+                                                                        <span t-if="absence['cover']" class="gdb-absence-tag">→ <t t-esc="absence['cover'].guard_employee_id.name"/></span>
+                                                                        <span t-if="absence['authorized']" class="gdb-absence-tag" t-esc="course._absence_change_label(absence['authorized'])"/>
                                                                     </span>
                                                                 </div>
                                                             </t>
                                                         </td>
                                                         <td>
                                                             <t t-foreach="line['guards']" t-as="guard">
-                                                                <span class="gdb-guard-badge" t-att-class="'gdb-absent' if line['guard_absences'].get(guard.employee_id.id) == 'approved' else ('gdb-absent-pending' if line['guard_absences'].get(guard.employee_id.id) else '')">
+                                                                <span class="gdb-guard-badge" t-att-class="('gdb-absent' if line['guard_absences'].get(guard.employee_id.id) == 'approved' else ('gdb-absent-pending' if line['guard_absences'].get(guard.employee_id.id) else '')) + (' gdb-cover-%s' % line['guard_colors'][guard.employee_id.id] if guard.employee_id.id in line['guard_colors'] else '')">
                                                                     <t t-esc="guard.employee_id.name"/>
                                                                     <!-- Same 'GWC' code the screen's own get_guard_duty_board_data() checks
                                                                          (guard_duty_board.py) to set 'is_wc' - the PDF has no such wrapper

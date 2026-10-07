@@ -136,6 +136,22 @@
                     <!-- Tab 2: the same shift read the other way round - one row per time block,
                          what has to be covered against who is available to cover it. -->
                     <div t-else="" class="o_guard_board_table_wrap">
+                        <!-- The day's pending decisions that belong to no single row (issues #539,
+                             #571, #581): a timetable change the absences allow, a notice already
+                             sent that no longer matches them, a guard no longer needed. Nothing
+                             here happens on its own: each one waits for its button. -->
+                        <div t-if="state.board.actions.length" class="o_guard_board_actions">
+                            <div class="o_guard_board_actions_title" t-esc="actionLabels.title"/>
+                            <t t-foreach="state.board.actions" t-as="action" t-key="action_index">
+                                <div class="o_guard_board_action" t-att-class="'o_guard_board_action_' + action.type">
+                                    <i t-att-class="actionIcon(action)"/>
+                                    <span class="o_guard_board_action_label" t-esc="action.label"/>
+                                    <button t-if="action.can_manage" type="button"
+                                            class="btn btn-sm btn-outline-primary o_guard_board_action_button"
+                                            t-on-click="() => this.onAction(action)" t-esc="actionButtonLabel(action)"/>
+                                </div>
+                            </t>
+                        </div>
                         <table class="table table-bordered o_guard_board_table o_guard_board_duty_table">
                             <colgroup>
                                 <col class="o_guard_board_col_time"/>
@@ -158,20 +174,31 @@
                                         </td>
                                         <td class="o_guard_board_absence_cell">
                                             <t t-foreach="line.absences" t-as="absence" t-key="absence.teacher + '-' + absence.group">
+                                                <!-- Struck out once nobody needs to be sent: a co-teacher is in the
+                                                     class, a guard has been assigned (sharing that guard's colour), or
+                                                     the families were told the students can stay at home for it. -->
                                                 <div class="o_guard_board_absence_row"
-                                                     t-att-class="{ o_guard_board_absence_covered: absence.covered }"
-                                                     t-att-title="absence.covered ? coveredTitle : false">
-                                                    <span t-att-class="absenceClass(absence.state)" t-esc="absence.teacher"/>
-                                                    <span class="o_guard_board_absence_class">
-                                                        <t t-esc="absence.group"/><t t-if="absence.subject"> · <t t-esc="absence.subject"/></t><t t-if="absence.room"> · <t t-esc="absence.room"/></t>
+                                                     t-att-class="absenceRowClass(absence)"
+                                                     t-att-title="absenceRowTitle(absence)"
+                                                     t-on-click="() => this.onAbsenceClick(line, absence)">
+                                                    <span class="o_guard_board_absence_text">
+                                                        <span t-att-class="absenceClass(absence.state)" t-esc="absence.teacher"/>
+                                                        <span class="o_guard_board_absence_class">
+                                                            <t t-esc="absence.group"/><t t-if="absence.subject"> · <t t-esc="absence.subject"/></t><t t-if="absence.room"> · <t t-esc="absence.room"/></t>
+                                                        </span>
                                                     </span>
+                                                    <span t-if="absence.cover" class="o_guard_board_absence_tag o_guard_board_cover_tag">
+                                                        <i class="fa fa-user-circle me-1"/><t t-esc="absence.cover.guard"/>
+                                                    </span>
+                                                    <span t-if="absence.authorized" class="o_guard_board_absence_tag o_guard_board_authorized_tag" t-esc="absence.authorized"/>
+                                                    <span t-elif="absence.proposed" class="o_guard_board_absence_tag o_guard_board_proposed_tag" t-esc="absence.proposed"/>
                                                 </div>
                                             </t>
                                         </td>
                                         <td class="o_guard_board_guard_cell">
                                             <t t-foreach="line.guards" t-as="guard" t-key="guard.name">
                                                 <span class="o_guard_board_guard_badge"
-                                                      t-att-class="absenceClass(guard.absence)">
+                                                      t-att-class="guardBadgeClass(guard)">
                                                     <t t-esc="guard.name"/>
                                                     <span t-if="guard.is_wc" class="o_guard_board_guard_wc_tag"> <t t-esc="wcSuffix"/></span>
                                                 </span>
@@ -185,5 +212,39 @@
                 </t>
             </div>
         </div>
+    </t>
+    <!-- Issue #571: send a guard teacher to one class of the absences table. -->
+    <t t-name="ems.GuardCoverDialog">
+        <Dialog title="title" size="'md'">
+            <div class="o_guard_cover_dialog">
+                <p>
+                    <strong t-esc="labels.absent"/>: <t t-esc="props.row.teacher"/>
+                    <span class="text-muted"> - <t t-esc="props.row.group"/><t t-if="props.row.subject"> · <t t-esc="props.row.subject"/></t><t t-if="props.row.room"> · <t t-esc="props.row.room"/></t></span>
+                </p>
+                <div class="mb-3">
+                    <label class="form-label fw-bold" for="o_guard_cover_guard" t-esc="labels.guard"/>
+                    <div t-if="!props.line.guard_candidates.length" class="text-muted" t-esc="labels.noCandidates"/>
+                    <select t-else="" id="o_guard_cover_guard" class="form-select o_guard_cover_guard_select"
+                            t-on-change="(ev) => this.onGuardChange(ev)">
+                        <option value="" t-att-selected="!state.guardId" t-esc="labels.choose"/>
+                        <t t-foreach="props.line.guard_candidates" t-as="candidate" t-key="candidate.id">
+                            <option t-att-value="candidate.id" t-att-selected="candidate.id === state.guardId" t-esc="candidate.name"/>
+                        </t>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label fw-bold" for="o_guard_cover_message" t-esc="labels.message"/>
+                    <textarea id="o_guard_cover_message" class="form-control o_guard_cover_message" rows="5"
+                              t-att-placeholder="labels.placeholder" t-model="state.message"/>
+                </div>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary o_guard_cover_assign" t-att-disabled="!state.guardId or state.saving"
+                        t-on-click="() => this.assign()" t-esc="labels.assign"/>
+                <button t-if="props.row.cover" class="btn btn-outline-danger o_guard_cover_release" t-att-disabled="state.saving"
+                        t-on-click="() => this.release()" t-esc="labels.release"/>
+                <button class="btn btn-secondary" t-on-click="() => this.props.close()" t-esc="labels.cancel"/>
+            </t>
+        </Dialog>
     </t>
 </templates>

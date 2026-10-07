@@ -6,6 +6,7 @@ import { useService } from "@web/core/utils/hooks";
 import { _t } from "@web/core/l10n/translation";
 import { dayLabels } from "./schedule_grid_geometry";
 import { serverNow, syncServerClock } from "./server_clock";
+import { GuardCoverDialog } from "./guard_cover_dialog";
 
 const SHIFTS = [
     { key: "morning", label: _t("Morning") },
@@ -86,6 +87,7 @@ export class GuardDutyBoard extends Component {
     setup() {
         this.orm = useService("orm");
         this.actionService = useService("action");
+        this.dialog = useService("dialog");
         this.state = useState({
             // Both set in onWillStart, once the server clock is known.
             activeDay: 0,
@@ -277,6 +279,106 @@ export class GuardDutyBoard extends Component {
             return "o_guard_board_absent";
         }
         return absence === "pending" ? "o_guard_board_absent_pending" : "";
+    }
+
+    // Managing absences from the absences table (issues #539, #571, #581). Every action below
+    // is checked again on the server (ems.absence_cover.board_assign/board_release,
+    // ems.notice.board_propose_absence_change): the flags the board sends only decide what is
+    // offered, never what is allowed.
+
+    get actionLabels() {
+        return {
+            title: _t("Pending actions for this day"),
+            propose: _t("Propose notice"),
+            rectify: _t("Propose correction"),
+            openDraft: _t("Open draft"),
+            release: _t("Release guard"),
+        };
+    }
+
+    // A row nobody needs to be sent to anymore is struck out: a co-teacher is in the class, a
+    // guard has been assigned (the row then takes that guard's colour), or the families were told
+    // the students can stay at home for it.
+    absenceRowClass(absence) {
+        const classes = {
+            o_guard_board_absence_covered: absence.covered,
+            o_guard_board_absence_struck: !absence.covered && Boolean(absence.cover || absence.authorized),
+            o_guard_board_absence_manageable: this.isAssignable(absence),
+        };
+        if (absence.cover) {
+            classes[`o_guard_board_cover_${absence.cover.color}`] = true;
+        }
+        return classes;
+    }
+
+    absenceRowTitle(absence) {
+        if (absence.covered) {
+            return this.coveredTitle;
+        }
+        return this.isAssignable(absence) ? _t("Click to send a guard teacher to this class") : false;
+    }
+
+    // A co-taught class or one the families were told about needs nobody, so it offers nothing.
+    isAssignable(absence) {
+        return absence.can_manage && !absence.covered && !absence.authorized;
+    }
+
+    guardBadgeClass(guard) {
+        const base = this.absenceClass(guard.absence);
+        return guard.color === false ? base : `${base} o_guard_board_cover_${guard.color}`;
+    }
+
+    actionIcon(action) {
+        if (action.type === "obsolete_cover") {
+            return "fa fa-user-times";
+        }
+        return action.type === "rectification" ? "fa fa-exclamation-triangle" : "fa fa-envelope-o";
+    }
+
+    actionButtonLabel(action) {
+        if (action.type === "obsolete_cover") {
+            return this.actionLabels.release;
+        }
+        if (action.draft_id) {
+            return this.actionLabels.openDraft;
+        }
+        return action.type === "rectification" ? this.actionLabels.rectify : this.actionLabels.propose;
+    }
+
+    onAbsenceClick(line, absence) {
+        if (!this.isAssignable(absence)) {
+            return;
+        }
+        this.dialog.add(GuardCoverDialog, {
+            row: absence,
+            line,
+            onAssign: async (guardId, message) => {
+                await this.orm.call("ems.absence_cover", "board_assign", [
+                    this.activeDate, line.hour_from, line.hour_to, absence.teacher_id, absence.group_id,
+                    guardId, message,
+                ]);
+                await this.loadBoard();
+            },
+            onRelease: async () => {
+                await this.orm.call("ems.absence_cover", "board_release", [absence.cover.id]);
+                await this.loadBoard();
+            },
+        });
+    }
+
+    // Proposing (or rectifying) a timetable change opens its draft notice - created on the spot
+    // the first time - for the planner to review and send from the notice's own form; releasing a
+    // guard that is no longer needed notifies them straight away.
+    async onAction(action) {
+        if (action.type === "obsolete_cover") {
+            await this.orm.call("ems.absence_cover", "board_release", [action.cover_id]);
+            await this.loadBoard();
+            return;
+        }
+        const notice = await this.orm.call("ems.notice", "board_propose_absence_change", [
+            this.activeDate, action.group_id, action.change_type, action.hour,
+        ]);
+        await this.actionService.doAction(notice);
     }
 
     // One PDF per day AND per shift — whichever day tab / shift dropdown is currently active,

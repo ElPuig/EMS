@@ -8,6 +8,13 @@ import { dayLabels } from "./schedule_grid_geometry";
 import { serverNow, syncServerClock } from "./server_clock";
 import { GuardCoverDialog } from "./guard_cover_dialog";
 
+// The reason a struck-out line needs no guard, opened by clicking its info icon - the same text
+// its tooltip shows on hover, for whoever doesn't hover (or uses a touchscreen).
+class GuardBoardReasonPopover extends Component {
+    static template = "ems.GuardBoardReasonPopover";
+    static props = { reason: String, close: Function };
+}
+
 const SHIFTS = [
     { key: "morning", label: _t("Morning") },
     { key: "afternoon", label: _t("Afternoon") },
@@ -88,6 +95,7 @@ export class GuardDutyBoard extends Component {
         this.orm = useService("orm");
         this.actionService = useService("action");
         this.dialog = useService("dialog");
+        this.popover = useService("popover");
         this.state = useState({
             // Both set in onWillStart, once the server clock is known.
             activeDay: 0,
@@ -314,10 +322,26 @@ export class GuardDutyBoard extends Component {
     }
 
     absenceRowTitle(absence) {
+        return this.isAssignable(absence) ? _t("Click to send a guard teacher to this class") : false;
+    }
+
+    // Why a line is struck out, for everyone (not only whoever can organise the absence): shown by
+    // the info icon to its left, on hover and on click.
+    struckReason(absence) {
         if (absence.covered) {
             return this.coveredTitle;
         }
-        return this.isAssignable(absence) ? _t("Click to send a guard teacher to this class") : false;
+        if (absence.authorized) {
+            return _t("No guard needed: the families were told \"%s\".", absence.authorized);
+        }
+        if (absence.cover) {
+            return _t("Covered by %s, the guard teacher sent to this class.", absence.cover.guard);
+        }
+        return false;
+    }
+
+    showStruckReason(ev, absence) {
+        this.popover.add(ev.currentTarget, GuardBoardReasonPopover, { reason: this.struckReason(absence) });
     }
 
     // A co-taught class or one the families were told about needs nobody, so it offers nothing.

@@ -204,6 +204,10 @@
                                                      t-att-class="absenceRowClass(absence)"
                                                      t-att-title="absenceRowTitle(absence)"
                                                      t-on-click="() => this.onAbsenceClick(line, absence)">
+                                                    <i t-if="struckReason(absence)" class="fa fa-info-circle o_guard_board_absence_info"
+                                                       role="button" t-att-aria-label="struckReason(absence)"
+                                                       t-att-data-tooltip="struckReason(absence)"
+                                                       t-on-click.stop="(ev) => this.showStruckReason(ev, absence)"/>
                                                     <span class="o_guard_board_absence_text">
                                                         <span t-att-class="absenceClass(absence.state)" t-esc="absence.teacher"/>
                                                         <span class="o_guard_board_absence_class">
@@ -236,6 +240,11 @@
             </div>
         </div>
     </t>
+    <!-- Why a struck-out line of the absences table needs no guard (its info icon, on click). -->
+    <t t-name="ems.GuardBoardReasonPopover">
+        <div class="o_guard_board_reason_popover p-2" t-esc="props.reason"/>
+    </t>
+
     <!-- Issue #571: send a guard teacher to one class of the absences table. -->
     <t t-name="ems.GuardCoverDialog">
         <Dialog title="title" size="'md'">

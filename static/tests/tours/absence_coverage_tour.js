@@ -79,6 +79,15 @@ registry.category("web_tour.tours").add("ems_absence_coverage", {
             content: "The guard shares that colour",
         },
         {
+            trigger: "tr:has(.o_guard_board_time:contains('09:00-10:00')) .o_guard_board_absence_struck .o_guard_board_absence_info",
+            content: "The struck-out line has an info icon",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_reason_popover:contains('Covered by Tour Cover Guard')",
+            content: "Clicking it says why no other guard is needed",
+        },
+        {
             trigger: ".o_guard_board_action:contains('TABTG'):contains('Could start at 09:00') .o_guard_board_action_button",
             content: "With a guard in the second lesson, only the first one can be skipped now",
             run: "click",

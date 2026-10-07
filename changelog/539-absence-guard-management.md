@@ -30,6 +30,8 @@
   record: what was organised on an expected absence (ems.absence_pending) stays when the teacher
   files the real request, and only the extra days/hours it adds come up as new lines.
 - A day already over can no longer be managed.
+- Every struck-out line carries an info icon on its left explaining why it needs no guard (co-taught,
+  guard sent, or families told), on hover and on click, for every teacher.
 
 ## Communications open to Department and Seminar chiefs:
 - Department and Seminar chiefs now see Communications > Notices and can send notices to the

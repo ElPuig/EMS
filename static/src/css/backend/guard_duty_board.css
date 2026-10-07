@@ -353,3 +353,15 @@
 .o_guard_board_action_option {
     width: auto;
 }
+
+/* The info icon left of a struck-out line: why no guard is needed, on hover and on click. */
+.o_guard_board_absence_info {
+    margin-right: 4px;
+    color: #6c757d;
+    cursor: pointer;
+}
+
+.o_guard_board_reason_popover {
+    max-width: 320px;
+    white-space: normal;
+}

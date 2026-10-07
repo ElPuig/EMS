@@ -20771,3 +20771,15 @@ msgstr "Enviar el comunicat ratlla aquestes classes de la taula, perquè cap doc
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Guards no longer needed"
 msgstr "Guàrdies que ja no calen"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "No guard needed: the families were told \"%s\"."
+msgstr "No cal cap docent de guàrdia: es va comunicar a les famílies «%s»."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Covered by %s, the guard teacher sent to this class."
+msgstr "Coberta per %s, el docent de guàrdia enviat a aquesta classe."

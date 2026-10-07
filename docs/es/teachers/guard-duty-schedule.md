@@ -69,7 +69,9 @@ Cada fila es una franja horaria del turno que tienes en pantalla:
 
 Una franja donde no falta nadie tiene la columna de ausencias vacía.
 
-En una clase con codocencia (dos docentes en la misma aula) en la que solo falta uno, su línea aparece **tachada**: sigue ahí para que sepas quién falta, pero no hace falta guardia porque el otro docente se hace cargo de la clase. Si pasas el ratón por encima, te lo indica. Si faltan los dos, o cada docente tiene medio grupo en un aula distinta, la línea no aparece tachada y sí hay que cubrir la clase.
+En una clase con codocencia (dos docentes en la misma aula) en la que solo falta uno, su línea aparece **tachada**: sigue ahí para que sepas quién falta, pero no hace falta guardia porque el otro docente se hace cargo de la clase. El icono **ⓘ** de su izquierda te lo indica, al pasar el ratón por encima o al hacer clic.
+
+Toda línea tachada tiene ese icono, sea cual sea el motivo: otro docente está en la clase, ya se ha enviado un docente de guardia (su nombre aparece al lado), o se ha comunicado a las familias que el alumnado no tiene que venir a esa clase (ver [Organizar una ausencia](#organizar-una-ausencia)). Si faltan los dos, o cada docente tiene medio grupo en un aula distinta, la línea no aparece tachada y sí hay que cubrir la clase.
 
 ![Tabla de ausencias de la misma franja horaria: el docente ausente y qué hay que cubrir, frente a quién está de guardia](../../assets/teachers/guard-duty-02-absencies.png)
 

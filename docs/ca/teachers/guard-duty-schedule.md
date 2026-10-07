@@ -69,7 +69,9 @@ Cada fila és una franja horària del torn que tens a la pantalla:
 
 Una franja on no falta ningú té la columna d'absències buida.
 
-En una classe amb codocència (dos docents a la mateixa aula) on només en falta un, la seva línia surt **ratllada**: hi continua perquè sàpigues qui falta, però no cal guàrdia perquè l'altre docent es fa càrrec de la classe. Si hi passes el ratolí per sobre, t'ho indica. Si falten tots dos, o cada docent té mig grup en una aula diferent, la línia no surt ratllada i sí que cal cobrir la classe.
+En una classe amb codocència (dos docents a la mateixa aula) on només en falta un, la seva línia surt **ratllada**: hi continua perquè sàpigues qui falta, però no cal guàrdia perquè l'altre docent es fa càrrec de la classe. La icona **ⓘ** de la seva esquerra t'ho indica, quan hi passes el ratolí per sobre o hi fas clic.
+
+Tota línia ratllada té aquesta icona, sigui quin sigui el motiu: un altre docent és a la classe, ja s'hi ha enviat un docent de guàrdia (el seu nom apareix al costat), o s'ha comunicat a les famílies que l'alumnat no ha de venir a aquella classe (consulta [Organitzar una absència](#organitzar-una-absencia)). Si falten tots dos, o cada docent té mig grup en una aula diferent, la línia no surt ratllada i sí que cal cobrir la classe.
 
 ![Taula d'absències de la mateixa franja horària: el docent absent i què cal cobrir, davant de qui està de guàrdia](../../assets/teachers/guard-duty-02-absencies.png)
 

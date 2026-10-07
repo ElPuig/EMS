@@ -182,8 +182,11 @@ and reporting it as merely requested would understate it.
 `covered`, from `_guard_duty_is_co_taught(cell_entries, teacher, absences)`: true when another
 teacher of the same cell (same group, same period) is not away and teaches in the same room as
 the absent one. The row is still there, so the board says who is missing, but it is struck
-through (`.o_guard_board_absence_covered` on screen, `.gdb-absence-covered` in the PDF, with a
-tooltip on screen) because nobody needs to cover it. The room check is what keeps a group split
+through (`.o_guard_board_absence_covered` on screen, `.gdb-absence-covered` in the PDF) because
+nobody needs to cover it. On screen every struck-through line, whatever the reason (co-taught, a
+guard sent, a timetable change communicated), carries an info icon on its left whose reason
+(`struckReason()`) shows as a tooltip on hover and in a popover on click - a plain `title` was only
+found by whoever happened to hover, which most teachers never do. The room check is what keeps a group split
 across two rooms (each teacher with half of it) from being marked covered: the absent teacher's
 half has nobody. On this centre's data every shared slot is same room and same subject, i.e.
 genuine co-teaching. A co-teacher away for any part of the period does not cover, the same

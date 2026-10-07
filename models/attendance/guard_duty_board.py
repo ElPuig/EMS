@@ -228,8 +228,11 @@ class EmsCourseGuardDutyBoard(models.Model):
         chain of command (their Seminar Chief or Department Chief, then up through the Head of
         Studies to the Director), never every holder of those roles centre-wide, and never the
         absent teacher themselves. Same chain 'tutor_scope_user_ids' already resolves for
-        tutor-scoped rights, minus the employee's own user."""
-        if self.env.su:
+        tutor-scoped rights, minus the employee's own user. The administrator always can."""
+        user = self.env.user
+        if self.env.su or user.has_group('base.group_system') or user.has_group('ems.group_academic_admin'):
+            # The administrator sits above the whole hierarchy, Direction included, although they
+            # are not a teacher and so appear nowhere in it.
             return True
         employee = employee.sudo()
         return self.env.user in employee.tutor_scope_user_ids - employee.user_id
@@ -285,22 +288,25 @@ class EmsCourseGuardDutyBoard(models.Model):
         return blocks_by_group
 
     @staticmethod
-    def _expected_absence_changes(blocks):
-        """What the absences allow the group to do with its day: `{'entry': change, 'leave':
-        change}`, each a `(change_type, hour)` tuple or None. The students can come in later when
-        the first lessons of their day are empty, as many in a row as there are (an hour, two...),
-        and leave earlier when the last ones are; a day with every lesson empty has no classes at
-        all. A lesson with anybody in it - a co-teacher who is not away, the other half of a split
-        group, an optional subject, a guard already sent - stops the run there."""
+    def _allowed_absence_changes(blocks):
+        """Every change the absences allow the group's day, per side and from the smallest to the
+        largest: `{'entry': [change, ...], 'leave': [change, ...]}`, each a `(change_type, hour)`
+        tuple. The students can come in later when the first lessons of their day are empty - an
+        hour later, two, as many as there are in a row - and leave earlier when the last ones are;
+        a day with every lesson empty can also have no classes at all. Every option is offered, not
+        only the largest one: whoever plans may tell the families about part of it and send a guard
+        to the rest. A lesson with anybody in it - a co-teacher who is not away, the other half of
+        a split group, an optional subject, a guard already sent - stops the run there."""
         if not blocks:
-            return {'entry': None, 'leave': None}
+            return {'entry': [], 'leave': []}
         if all(block['empty'] for block in blocks):
-            return {'entry': ('no_classes', 0.0), 'leave': None}
+            return {'entry': [('late_entry', block['hour_from']) for block in blocks[1:]] + [('no_classes', 0.0)],
+                    'leave': []}
         leading = next(index for index, block in enumerate(blocks) if not block['empty'])
         trailing = next(index for index, block in enumerate(reversed(blocks)) if not block['empty'])
         return {
-            'entry': ('late_entry', blocks[leading]['hour_from']) if leading else None,
-            'leave': ('early_leave', blocks[-trailing - 1]['hour_to']) if trailing else None,
+            'entry': [('late_entry', blocks[index]['hour_from']) for index in range(1, leading + 1)],
+            'leave': [('early_leave', blocks[-index - 1]['hour_to']) for index in range(1, trailing + 1)],
         }
 
     @staticmethod
@@ -333,23 +339,27 @@ class EmsCourseGuardDutyBoard(models.Model):
 
     def _get_absence_change_states(self, day, groups):
         """`{group.id: {'entry': state, 'leave': state}}` - where each side of each group's day
-        stands between what its absences allow (`'expected'`) and what its families have been told
-        (`'communicated'`, the latest notice on that side that left the draft state). `'status'`:
+        stands between what its absences allow (`'options'`, see _allowed_absence_changes, and
+        `'expected'`, the largest of them) and what its families have been told (`'communicated'`,
+        the latest notice on that side that left the draft state). `'status'`:
         - None: nothing to communicate, nothing communicated.
-        - 'communicated': the families were told exactly what the absences allow.
-        - 'proposal': nothing communicated yet for a change the absences allow.
-        - 'rectification': what was communicated no longer matches (the absence grew, shrank or
-          was cancelled): a sent notice cannot be undone, so a correcting one is proposed.
-        `'target'` is the change to propose (the expected one, or back to normal), `'draft'` the
-        draft notice already prepared for exactly that change, if any, and `'teachers'` the absent
-        teachers whose lessons the change concerns - any of their managers can act on it."""
+        - 'communicated': the families were told one of the allowed changes - the largest one or
+          a smaller one the planner chose, with a guard for the rest: it is their decision, so a
+          smaller one is never nagged about.
+        - 'proposal': nothing communicated yet, and the absences allow a change.
+        - 'rectification': what was communicated is no longer allowed (the absence shrank, was
+          refused or cancelled, or the timetable changed): a sent notice cannot be undone, so a
+          correcting one is proposed, with going back to the usual timetable among its options.
+        `'target'` is the option proposed by default, `'draft'` a draft notice already prepared for
+        one of the options, and `'teachers'` the absent teachers whose lessons the change concerns -
+        any of their managers can act on it."""
         blocks_by_group = self._get_group_day_blocks(day, groups)
         notices = self.env['ems.notice'].sudo().search([
             ('absence_date', '=', day), ('absence_group_id', 'in', groups.ids)], order='id')
         states = {}
         for group in groups:
             blocks = blocks_by_group[group.id]
-            expected = self._expected_absence_changes(blocks)
+            allowed = self._allowed_absence_changes(blocks)
             group_notices = notices.filtered(lambda notice, group=group: notice.absence_group_id == group)
             states[group.id] = {}
             for side in ('entry', 'leave'):
@@ -357,26 +367,29 @@ class EmsCourseGuardDutyBoard(models.Model):
                     lambda notice, side=side: CHANGE_SIDES[notice.absence_change_type] == side)
                 communicated = self._notice_change(
                     side_notices.filtered(lambda notice: notice.state in COMMUNICATED_NOTICE_STATES)[-1:])
-                change = expected[side]
-                if self._same_change(change, communicated):
-                    status, target = ('communicated' if change else None), None
-                elif not communicated:
-                    status, target = 'proposal', change
+                options = allowed[side]
+                expected = options[-1] if options else None
+                if not communicated:
+                    status = 'proposal' if options else None
+                elif any(self._same_change(communicated, option) for option in options):
+                    status, options = 'communicated', []
                 else:
-                    status, target = 'rectification', change or (NORMAL_CHANGE[side], 0.0)
+                    status, options = 'rectification', options + [(NORMAL_CHANGE[side], 0.0)]
+                target = options[-2] if status == 'rectification' and len(options) > 1 else (options[-1] if options else None)
                 draft = side_notices.filtered(
-                    lambda notice, target=target: target and notice.state == 'draft' and self._same_change(
-                        (notice.absence_change_type, notice.absence_change_hour), target))[-1:]
+                    lambda notice, options=options: notice.state == 'draft' and any(self._same_change(
+                        (notice.absence_change_type, notice.absence_change_hour), option) for option in options))[-1:]
                 window = [block for block in blocks if any(
                     self._change_window_contains(other, block['hour_from'], block['hour_to'])
-                    for other in (change, communicated))]
+                    for other in (expected, communicated))]
                 teachers = self.env['hr.employee'].union(*(
                     block['teachers'].filtered(lambda teacher, block=block: teacher.id in block['absences'])
                     for block in window))
                 states[group.id][side] = {
-                    'expected': change,
+                    'expected': expected,
                     'communicated': communicated,
                     'status': status,
+                    'options': options,
                     'target': target,
                     'draft': draft,
                     'teachers': teachers or self.env['hr.employee'].union(*(block['teachers'] for block in blocks)),
@@ -612,6 +625,8 @@ class EmsCourseGuardDutyBoard(models.Model):
                         'group': group,
                         'side': side,
                         'target': state['target'],
+                        'options': state['options'],
+                        'expected': state['expected'],
                         'communicated': state['communicated'],
                         'draft': state['draft'],
                         'can_manage': can_manage(state['teachers']),
@@ -798,7 +813,9 @@ class EmsCourseGuardDutyBoard(models.Model):
                 'is_break': line.get('is_break', False),
             })
         return {'groups': groups, 'lines': lines,
-                'actions': [self._board_action_data(action) for action in data['actions']]}
+                # Only whoever may act on them sees the day's pending decisions: to everybody else
+                # they are noise, and the struck-out rows already say what was decided.
+                'actions': [self._board_action_data(action) for action in data['actions'] if action['can_manage']]}
 
     def _absence_change_label(self, change, proposed=False):
         """Short wording of a timetable change, for a row tag or an action: what the families
@@ -832,15 +849,23 @@ class EmsCourseGuardDutyBoard(models.Model):
             data.update(cover_id=cover.id, label=_(
                 "%(guard)s no longer needs to cover %(group)s at %(time)s (%(teacher)s).", **values))
             return data
-        change_type, hour = action['target']
-        values['change'] = self._absence_change_label(action['target'], proposed=action['type'] == 'proposal')
         if action['type'] == 'proposal':
+            values['change'] = self._absence_change_label(action['expected'], proposed=True)
             label = _("%(group)s: %(change)s.", **values)
         else:
+            values['change'] = self._absence_change_label(action['expected'])
             values['told'] = self._absence_change_label(action['communicated'])
             label = _("%(group)s: the families were told \"%(told)s\", which no longer matches the absences "
                       "(now: %(change)s).", **values)
-        data.update(label=label, change_type=change_type, hour=hour, draft_id=action['draft'].id or False)
+        # Every change that can be communicated, from the smallest to the largest: the planner may
+        # tell the families about part of the empty lessons and send a guard to the rest.
+        options = [{'change_type': change_type, 'hour': hour, 'label': self._absence_change_label((change_type, hour))}
+                   for change_type, hour in action['options']]
+        draft = action['draft']
+        draft_change = (draft.absence_change_type, draft.absence_change_hour) if draft else None
+        data.update(label=label, options=options, default=action['options'].index(action['target']),
+                    draft_id=draft.id or False,
+                    draft_label=self._absence_change_label(draft_change) if draft_change else False)
         return data
 
     @staticmethod

@@ -344,3 +344,12 @@
 .o_guard_board_action_label {
     flex: 1 1 auto;
 }
+
+.o_guard_board_actions_help {
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+.o_guard_board_action_option {
+    width: auto;
+}

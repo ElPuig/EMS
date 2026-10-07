@@ -288,7 +288,9 @@ export class GuardDutyBoard extends Component {
 
     get actionLabels() {
         return {
-            title: _t("Pending actions for this day"),
+            proposalsTitle: _t("Late entry / early leave proposals"),
+            proposalsHelp: _t("Sending the notice strikes these lessons off the table, so no guard teacher has to cover them. You can choose a shorter change and send a guard to the rest."),
+            releasesTitle: _t("Guards no longer needed"),
             propose: _t("Propose notice"),
             rectify: _t("Propose correction"),
             openDraft: _t("Open draft"),
@@ -326,6 +328,20 @@ export class GuardDutyBoard extends Component {
     guardBadgeClass(guard) {
         const base = this.absenceClass(guard.absence);
         return guard.color === false ? base : `${base} o_guard_board_cover_${guard.color}`;
+    }
+
+    get proposalActions() {
+        return this.state.board.actions.filter((action) => action.type !== "obsolete_cover");
+    }
+
+    get releaseActions() {
+        return this.state.board.actions.filter((action) => action.type === "obsolete_cover");
+    }
+
+    // Which of the allowed changes the planner picked in the proposal's selector (the largest one
+    // until they choose otherwise) - kept on the action itself, which lives until the next reload.
+    onActionOptionChange(action, ev) {
+        action.default = Number(ev.target.value);
     }
 
     actionIcon(action) {
@@ -375,8 +391,19 @@ export class GuardDutyBoard extends Component {
             await this.loadBoard();
             return;
         }
+        if (action.draft_id) {
+            await this.actionService.doAction({
+                type: "ir.actions.act_window",
+                res_model: "ems.notice",
+                res_id: action.draft_id,
+                views: [[false, "form"]],
+                target: "current",
+            });
+            return;
+        }
+        const option = action.options[action.default];
         const notice = await this.orm.call("ems.notice", "board_propose_absence_change", [
-            this.activeDate, action.group_id, action.change_type, action.hour,
+            this.activeDate, action.group_id, option.change_type, option.hour,
         ]);
         await this.actionService.doAction(notice);
     }

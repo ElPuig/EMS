@@ -20501,42 +20501,6 @@ msgstr "Un comunicat de canvi d'horari només es pot enviar a l'alumnat i les fa
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/communications/notice_absence_change.py:0
-msgid "On %(date)s, group %(group)s will start classes at %(hour)s."
-msgstr "El %(date)s, el grup %(group)s començarà les classes a les %(hour)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/communications/notice_absence_change.py:0
-msgid "On %(date)s, group %(group)s will finish classes at %(hour)s."
-msgstr "El %(date)s, el grup %(group)s acabarà les classes a les %(hour)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/communications/notice_absence_change.py:0
-msgid "On %(date)s, group %(group)s will have no classes."
-msgstr "El %(date)s, el grup %(group)s no tindrà classes."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/communications/notice_absence_change.py:0
-msgid "On %(date)s, group %(group)s will start classes at the usual time."
-msgstr "El %(date)s, el grup %(group)s començarà les classes a l'hora habitual."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/communications/notice_absence_change.py:0
-msgid "On %(date)s, group %(group)s will finish classes at the usual time."
-msgstr "El %(date)s, el grup %(group)s acabarà les classes a l'hora habitual."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/communications/notice_absence_change.py:0
-msgid "Timetable change for %(group)s on %(date)s"
-msgstr "Canvi d'horari del grup %(group)s el %(date)s"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/communications/notice_absence_change.py:0
 msgid "Dear students and families,"
 msgstr "Benvolgudes famílies i alumnat,"
 
@@ -20551,12 +20515,6 @@ msgstr "Rectificació: %s"
 #: code:addons/ems/models/communications/notice_absence_change.py:0
 msgid "This message corrects the one we sent you earlier about this day."
 msgstr "Aquest missatge rectifica el que us vam enviar abans sobre aquest dia."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/communications/notice_absence_change.py:0
-msgid "This is due to the absence of a teacher."
-msgstr "Es deu a l'absència d'un docent."
 
 #. module: ems
 #. odoo-python
@@ -20687,12 +20645,6 @@ msgstr "Treure l'assignació"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "Pending actions for this day"
-msgstr "Accions pendents del dia"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Propose notice"
 msgstr "Proposar comunicat"
 
@@ -20747,3 +20699,75 @@ msgstr "un destinatari de fora dels teus grups"
 #: code:addons/ems/models/communications/notice_department_scope.py:0
 msgid "Unsupported search on department_chief_user_ids"
 msgstr "Cerca no admesa a department_chief_user_ids"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | they can come in later on %(date)s"
+msgstr "%(group)s | el %(date)s podran entrar més tard a l'institut"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | they can leave earlier on %(date)s"
+msgstr "%(group)s | el %(date)s podran sortir abans de l'institut"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | no classes on %(date)s"
+msgstr "%(group)s | el %(date)s no tindran classes"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | usual timetable on %(date)s"
+msgstr "%(group)s | el %(date)s horari habitual"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Due to the justified absence of the assigned teacher, group %(group)s will start classes at %(hour)s on %(date)s."
+msgstr "A causa de l'absència justificada del docent assignat, el grup %(group)s començarà les classes a les %(hour)s el dia %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Due to the justified absence of the assigned teacher, group %(group)s will finish classes at %(hour)s on %(date)s."
+msgstr "A causa de l'absència justificada del docent assignat, el grup %(group)s acabarà les classes a les %(hour)s el dia %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Due to the justified absence of the assigned teacher, group %(group)s will have no classes on %(date)s."
+msgstr "A causa de l'absència justificada del docent assignat, el grup %(group)s no tindrà classes el dia %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Group %(group)s will start classes at the usual time on %(date)s."
+msgstr "El grup %(group)s començarà les classes a l'hora habitual el dia %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Group %(group)s will finish classes at the usual time on %(date)s."
+msgstr "El grup %(group)s acabarà les classes a l'hora habitual el dia %(date)s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Late entry / early leave proposals"
+msgstr "Propostes d'entrada/sortida"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Sending the notice strikes these lessons off the table, so no guard teacher has to cover them. You can choose a shorter change and send a guard to the rest."
+msgstr "Enviar el comunicat ratlla aquestes classes de la taula, perquè cap docent de guàrdia les hagi de cobrir. Pots triar un canvi més curt i enviar un docent de guàrdia a la resta."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Guards no longer needed"
+msgstr "Guàrdies que ja no calen"

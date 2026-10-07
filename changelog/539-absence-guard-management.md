@@ -2,7 +2,8 @@
 
 ## Managing absences from the guard duty board's absences table (issues #539, #571, #581):
 - The absent teacher's chain of command (their Seminar/Department Chief, then Head of Studies or
-  Deputy, then Direction; never every holder of those roles, never the absent teacher) organises
+  Deputy, then Direction; never every holder of those roles, never the absent teacher) and the
+  administrator organise
   each absence from the absences table. Every other teacher sees the result read-only.
 - Send a guard (#571): clicking an absence line opens a dialog offering only the teachers on
   guard duty in that block (WC guards and absent guards excluded) plus a free-text message. The
@@ -13,14 +14,18 @@
   in the same block gets a different colour (8-colour palette, also in the PDF).
 - Late entry / early leave / no classes (#539, #581): the board detects when the empty lessons
   (every teacher away, no co-teacher, no other half of a split group, no guard sent) are the
-  first or last of the group's whole day, tags those lines ("Could start at 10:00") and offers
-  "Propose notice" in a new "Pending actions for this day" box. It opens a pre-filled draft
-  ems.notice for that group's students and families, sent from the notice's own form; once sent
-  or scheduled, those lines are struck out ("Starts at 10:00") and need no guard.
+  first or last of the group's whole day, tags those lines ("Could start at 10:00") and offers the
+  change in a "Late entry / early leave proposals" box, with a selector to tell the families about
+  less than allowed (e.g. one hour late instead of two) and send a guard to the rest. "Propose
+  notice" opens a pre-filled draft ems.notice for that group's students and families, worded like
+  the centre's own ("Due to the justified absence of the assigned teacher, ..."), sent from the
+  notice's own form; once sent or scheduled, those lines are struck out ("Starts at 10:00") and need
+  no guard. A shorter change than allowed is never flagged for correction.
 - Nothing is automatic. When an absence changes afterwards (refused, cancelled, shortened, or a
-  co-teacher turns out to be in), the pending-actions box offers "Release guard" for a guard no
-  longer needed, and "Propose correction" for a sent notice that no longer matches (a new draft
-  with the corrected time, or back to the usual timetable).
+  co-teacher turns out to be in), a "Guards no longer needed" box offers "Release guard", and the
+  proposals box offers "Propose correction" when the families were told more than the absences now
+  allow (a new draft with the corrected time, or back to the usual timetable). Both boxes are only
+  shown to whoever can act on them.
 - Coverage and communications are keyed by teacher + date + period + group, never by the absence
   record: what was organised on an expected absence (ems.absence_pending) stays when the teacher
   files the real request, and only the extra days/hours it adds come up as new lines.

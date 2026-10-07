@@ -94,7 +94,7 @@ Only the fact that somebody is away is shown here. The type of absence, its reas
 
 ## Organising an absence
 
-Who can do this: the absent teacher's **Seminar Chief** or **Department Chief**, and those above them in the hierarchy (Head of Studies or Deputy, and Direction). Everybody else sees the result but cannot change it, and the absent teacher cannot organise their own absence. It makes no difference whether the absence was requested by the teacher or entered by the Head of Studies as an expected absence: both are handled the same way. When the teacher later requests an absence that was expected, whatever was already organised stays as it is, and only the extra days or hours of the request appear as new lines to decide on.
+Who can do this: the absent teacher's **Seminar Chief** or **Department Chief**, and those above them in the hierarchy (Head of Studies or Deputy, and Direction), as well as the administrator. Everybody else sees the result but cannot change it, and the absent teacher cannot organise their own absence. It makes no difference whether the absence was requested by the teacher or entered by the Head of Studies as an expected absence: both are handled the same way. When the teacher later requests an absence that was expected, whatever was already organised stays as it is, and only the extra days or hours of the request appear as new lines to decide on.
 
 Everything is done from the **Absences table**, and nothing happens on its own: each step waits for you to press its button. A day that is already over can no longer be changed.
 
@@ -115,16 +115,20 @@ To change the guard, click the line again and choose another one: the previous g
 
 When the lessons without a teacher are the first ones of the group's day (one, two or more in a row), the students could come in later; when they are the last ones, they could leave earlier; when every lesson of the day is without a teacher, the group could have no classes. A lesson where somebody is with the students (a co-teacher who is not away, the other half of a split group, an optional subject or a guard already sent) breaks the run.
 
-Those lines show a dashed tag such as **Could start at 10:00**, and the box **Pending actions for this day**, above the table, offers **Propose notice** for that group. It opens a draft notice addressed to that group's students and families, with a suggested text you can change. Send it from that form as any other notice (the groups of a timetable change notice cannot be changed). If you leave it as a draft, the button reads **Open draft** next time.
+Those lines show a dashed tag such as **Could start at 10:00**, and the **Late entry / early leave proposals** box, above the table (only visible to whoever can organise the absence), offers that group's change. Sending the notice strikes those lessons off the table, so no guard teacher has to cover them.
+
+The selector next to each proposal lets you tell the families about less than the absences allow: with two lessons without a teacher, you can choose **Starts at 09:00** instead of **Starts at 10:00**. Only the first lesson is then struck out; the second still needs a guard, sent as usual. Choosing the smaller change is your decision: nothing will ask you to correct it.
+
+**Propose notice** opens a draft notice addressed to that group's students and families, with a suggested text you can change. Send it from that form as any other notice (the groups of a timetable change notice cannot be changed). If you leave it as a draft, the button reads **Open draft** next time.
 
 Once the notice is sent (or scheduled), those lines are struck through with a tag such as **Starts at 10:00**: nobody needs to be sent to them.
 
 ### When the absence changes afterwards
 
-If an absence is refused, cancelled or shortened, or a co-teacher turns out to be in, what was organised may no longer be needed. Nothing is undone automatically: the **Pending actions for this day** box tells you, and you decide.
+If an absence is refused, cancelled or shortened, or a co-teacher turns out to be in, what was organised may no longer be needed. Nothing is undone automatically: the boxes above the table tell you, and you decide.
 
-- **A guard who is no longer needed**: click **Release guard**. They are told they no longer need to cover the class.
-- **A notice that no longer matches**: a notice already sent cannot be taken back, so the box offers **Propose correction**, a new draft notice for the same group with the corrected situation (a different time, or back to the usual timetable).
+- **A guard who is no longer needed** (box **Guards no longer needed**): click **Release guard**. They are told they no longer need to cover the class.
+- **A notice that no longer matches** (more was told than the absences now allow): a notice already sent cannot be taken back, so the proposals box offers **Propose correction**, a new draft notice for the same group with the corrected situation (a different time, or back to the usual timetable).
 
 ---
 

@@ -657,7 +657,7 @@ taken from it, all of them manually (nothing is ever sent or changed on its own)
 flowchart TD
     ABS["hr.leave / ems.absence_pending<br/>(same intervals as the board)"] --> BLK["ems.course._get_group_day_blocks(day, groups)<br/>each group's whole day, block by block:<br/>teachers, who is away, covers, empty?"]
     COV["ems.absence_cover (state assigned)"] --> BLK
-    BLK --> EXP["_expected_absence_changes(blocks)<br/>late_entry / early_leave / no_classes"]
+    BLK --> EXP["_allowed_absence_changes(blocks)<br/>every late_entry / early_leave / no_classes option"]
     NOT["ems.notice with absence_change_type<br/>(scheduled / sent / failed = communicated)"] --> ST
     EXP --> ST["_get_absence_change_states(day, groups)<br/>per side (entry/leave): expected vs communicated<br/>status: proposal / communicated / rectification"]
     ST --> MGT["_get_board_absence_management()<br/>covers + states + day's pending actions"]
@@ -689,30 +689,38 @@ instead (below).
 its first lesson and ends it at its last), one block per period, merged the same way the board's
 rows are. A block is **empty** when every teacher in it is away and no guard covers it: a
 co-teacher who is in, the other half of a split group, an optional subject with its own teacher or
-a guard already sent all mean somebody is with the students. `_expected_absence_changes()` then
-takes the run of empty blocks at the start of the day (the group can start at the first non-empty
-block's `hour_from`) and at the end (it can leave at the last non-empty block's `hour_to`); a day
-with every block empty has no classes. Pending absences count as much as approved ones: the
-planner sees the state on the row and decides.
+a guard already sent all mean somebody is with the students. `_allowed_absence_changes()` then
+lists, per side, every change the run of empty blocks allows, from the smallest to the largest: at
+the start of the day, starting at the `hour_from` of the 2nd, 3rd... block up to the first
+non-empty one; at the end, leaving at the `hour_to` of the block before the last, the one before
+that... up to the last non-empty one; a day with every block empty also allows no classes. The
+largest option is `'expected'` (the dashed row tag and the default); the smaller ones exist because
+the planner may tell the families about only part of it and send a guard to the rest. Pending
+absences count as much as approved ones: the planner sees the state on the row and decides.
 
 ### What was communicated, and the two sides of the day
 
 A change belongs to one side of the day: `late_entry`, `no_classes` and `normal_entry` to the
 start, `early_leave` and `normal_leave` to the end (`CHANGE_SIDES`). Per side,
-`_get_absence_change_states()` compares the expected change with the latest notice of that side
+`_get_absence_change_states()` compares the allowed options with the latest notice of that side
 that left the draft state (`COMMUNICATED_NOTICE_STATES`: a scheduled notice is on its way, a failed
 one reached at least part of its recipients). The `normal_*` types are the correction back to the
 usual timetable, so they communicate "no change".
 
-| Expected | Communicated | Status | Proposed notice |
+| Allowed options | Communicated | Status | Options offered |
 |---|---|---|---|
 | none | none | - | - |
-| X | none | `proposal` | X |
-| X | X | `communicated` | - (rows struck out) |
-| Y or none | X | `rectification` | Y, or `normal_<side>` |
+| some | none | `proposal` | every allowed option, the largest by default |
+| any | one of the allowed options | `communicated` | - (its rows struck out) |
+| any | anything else | `rectification` | every allowed option and `normal_<side>`, the largest allowed (or normal) by default |
 
-A draft notice for exactly the change to propose is reused (`'draft'`), so proposing twice opens
-the same draft. Rows whose period falls inside the communicated window (`_change_window_contains`)
+Communicating a smaller option than the largest is the planner's decision and is never nagged
+about: the lessons beyond it simply stay on the table to be covered. Likewise, an absence that grows
+after the notice keeps the notice valid - the new lesson is one more to cover. Only telling the
+families more than the absences now allow (they shrank, were refused or cancelled, or the timetable
+changed) asks for a correction. `board_propose_absence_change()` accepts any option of the side's
+current state and refuses anything else. A draft notice for one of the options is reused
+(`'draft'`): the box then offers **Open draft** instead of the selector. Rows whose period falls inside the communicated window (`_change_window_contains`)
 carry `authorized` and are struck out; rows inside an expected window nobody has communicated yet
 carry `proposed`, shown as a dashed tag.
 
@@ -733,10 +741,13 @@ teacher and the planner's message. `board_release()` sends the matching "no long
 ### Pending actions
 
 `_get_board_absence_management()` lists the day's decisions that belong to no single row, shown
-above the table: a `proposal` or `rectification` for one of the shift's groups, and an
-`obsolete_cover` for every guard of the shift whose class `_get_needed_absence_block()` no longer
-finds (the absence was refused, cancelled or shrunk, the families were told the students stay at
-home, or a co-teacher is now in). Nothing is released or sent until the planner presses the
+above the table in two boxes, and only sent to whoever can act on them (`can_manage`: to any other
+teacher they are noise, and the struck-out rows already say what was decided): **Late entry / early
+leave proposals** (a `proposal` or `rectification` for one of the shift's groups, with a selector of
+its options and a reminder that sending the notice strikes those lessons off so no guard has to
+cover them) and **Guards no longer needed** (an `obsolete_cover` for every guard of the shift whose
+class `_get_needed_absence_block()` no longer finds: the absence was refused, cancelled or shrunk,
+the families were told the students stay at home, or a co-teacher is now in). Nothing is released or sent until the planner presses the
 button; doing it automatically, behind a setting, is planned in
 `plans/absence_management_automation.md`.
 
@@ -755,9 +766,10 @@ planner must match at a glance, which plain text can't do.
 Department Chief, then up through the Head of Studies to the Director - via
 `hr.employee.tutor_scope_user_ids` minus the employee's own user (see "Permission/approval
 escalation" in `CLAUDE.md`). Never every holder of those roles centre-wide, and never the absent
-teacher. A timetable change concerns several teachers at once; any of their managers may act on it.
-Every teacher still sees all of it (who covers what, what was communicated); rows and actions only
-offer their buttons to whoever may use them (`can_manage`), and the server checks again.
+teacher. The administrator (`base.group_system` or `ems.group_academic_admin`) always can: they sit
+above Direction although, not being a teacher, they appear nowhere in the hierarchy. A timetable change concerns several teachers at once; any of their managers may act on it.
+Every teacher still sees who covers what and what was communicated; rows only offer their click to
+whoever may use them, the action boxes only reach them (`can_manage`), and the server checks again.
 
 | Action | Any teacher | Absent teacher's chain of command |
 |---|:---:|:---:|

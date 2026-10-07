@@ -94,7 +94,7 @@ Aquí solo se muestra que la persona falta. El tipo de ausencia, el motivo y el 
 
 ## Organizar una ausencia
 
-Quién puede hacerlo: el **Jefe de seminario** o el **Jefe de departamento** del docente ausente, y quienes están por encima en la jerarquía (JE o JEA, y Dirección). El resto de docentes ven el resultado pero no pueden cambiarlo, y el docente ausente no puede organizar su propia ausencia. Da igual si la ausencia la ha solicitado el docente o la ha introducido Jefatura de estudios como ausencia prevista: las dos se gestionan igual. Cuando más adelante el docente solicita una ausencia que estaba prevista, lo que ya se había organizado se mantiene tal cual, y solo los días u horas de más de la solicitud aparecen como líneas nuevas por decidir.
+Quién puede hacerlo: el **Jefe de seminario** o el **Jefe de departamento** del docente ausente, y quienes están por encima en la jerarquía (JE o JEA, y Dirección), además del administrador. El resto de docentes ven el resultado pero no pueden cambiarlo, y el docente ausente no puede organizar su propia ausencia. Da igual si la ausencia la ha solicitado el docente o la ha introducido Jefatura de estudios como ausencia prevista: las dos se gestionan igual. Cuando más adelante el docente solicita una ausencia que estaba prevista, lo que ya se había organizado se mantiene tal cual, y solo los días u horas de más de la solicitud aparecen como líneas nuevas por decidir.
 
 Todo se hace desde la **Tabla de ausencias**, y nada ocurre solo: cada paso espera a que pulses su botón. Un día que ya ha pasado no se puede cambiar.
 
@@ -115,16 +115,20 @@ Para cambiar el docente de guardia, vuelve a hacer clic en la línea y elige otr
 
 Cuando las clases sin docente son las primeras del día del grupo (una, dos o más seguidas), el alumnado podría entrar más tarde; cuando son las últimas, podría salir antes; cuando todas las clases del día quedan sin docente, el grupo podría no tener clases. Una clase donde hay alguien con el alumnado (otro docente que no está ausente, la otra mitad de un grupo desdoblado, una optativa o un docente de guardia ya enviado) corta la secuencia.
 
-Esas líneas muestran una etiqueta discontinua como **Puede entrar a las 10:00**, y el recuadro **Acciones pendientes del día**, encima de la tabla, ofrece **Proponer comunicado** para ese grupo. Abre un comunicado en borrador dirigido al alumnado y las familias de ese grupo, con un texto propuesto que puedes cambiar. Envíalo desde ese formulario como cualquier otro comunicado (los grupos de un comunicado de cambio de horario no se pueden cambiar). Si lo dejas en borrador, la próxima vez el botón dice **Abrir borrador**.
+Esas líneas muestran una etiqueta discontinua como **Puede entrar a las 10:00**, y el recuadro **Propuestas de entrada/salida**, encima de la tabla (solo lo ve quien puede organizar la ausencia), ofrece el cambio de ese grupo. Enviar el comunicado tacha esas clases de la tabla, para que ningún docente de guardia tenga que cubrirlas.
+
+El selector de cada propuesta te permite comunicar a las familias menos de lo que permiten las ausencias: con dos clases sin docente, puedes elegir **Entra a las 09:00** en lugar de **Entra a las 10:00**. Entonces solo se tacha la primera clase; la segunda sigue necesitando un docente de guardia, que envías como siempre. Elegir el cambio más corto es decisión tuya: nada te pedirá que lo rectifiques.
+
+**Proponer comunicado** abre un comunicado en borrador dirigido al alumnado y las familias de ese grupo, con un texto propuesto que puedes cambiar. Envíalo desde ese formulario como cualquier otro comunicado (los grupos de un comunicado de cambio de horario no se pueden cambiar). Si lo dejas en borrador, la próxima vez el botón dice **Abrir borrador**.
 
 Una vez enviado (o programado) el comunicado, esas líneas quedan tachadas con una etiqueta como **Entra a las 10:00**: no hace falta enviar a nadie.
 
 ### Cuando la ausencia cambia después
 
-Si una ausencia se rechaza, se anula o se acorta, o resulta que otro docente sí está, lo que se había organizado puede dejar de hacer falta. Nada se deshace automáticamente: el recuadro **Acciones pendientes del día** te lo indica, y tú decides.
+Si una ausencia se rechaza, se anula o se acorta, o resulta que otro docente sí está, lo que se había organizado puede dejar de hacer falta. Nada se deshace automáticamente: los recuadros de encima de la tabla te lo indican, y tú decides.
 
-- **Un docente de guardia que ya no hace falta**: haz clic en **Liberar la guardia**. Se le comunica que ya no hace falta que cubra la clase.
-- **Un comunicado que ya no coincide**: un comunicado ya enviado no se puede deshacer, así que el recuadro ofrece **Proponer rectificación**, un nuevo comunicado en borrador para el mismo grupo con la situación corregida (otra hora, o volver al horario habitual).
+- **Un docente de guardia que ya no hace falta** (recuadro **Guardias que ya no hacen falta**): haz clic en **Liberar la guardia**. Se le comunica que ya no hace falta que cubra la clase.
+- **Un comunicado que ya no coincide** (se comunicó más de lo que ahora permiten las ausencias): un comunicado ya enviado no se puede deshacer, así que el recuadro de propuestas ofrece **Proponer rectificación**, un nuevo comunicado en borrador para el mismo grupo con la situación corregida (otra hora, o volver al horario habitual).
 
 ---
 

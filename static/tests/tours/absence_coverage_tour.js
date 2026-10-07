@@ -36,6 +36,21 @@ registry.category("web_tour.tours").add("ems_absence_coverage", {
             content: "Both empty first lessons let the group start at 10:00",
         },
         {
+            trigger: ".o_guard_board_proposals .o_guard_board_actions_help",
+            content: "The proposals box explains that sending the notice strikes the lessons off",
+        },
+        {
+            trigger: ".o_guard_board_action:contains('TABTG') .o_guard_board_action_option",
+            content: "A shorter change (only an hour late) can be chosen too, the full one by default",
+            run: () => {
+                const select = document.querySelector(".o_guard_board_action_option");
+                const labels = [...select.options].map((option) => option.textContent.trim());
+                if (labels.join("|") !== "Starts at 09:00|Starts at 10:00" || select.selectedIndex !== 1) {
+                    throw new Error(`Unexpected options ${labels} (selected ${select.selectedIndex})`);
+                }
+            },
+        },
+        {
             trigger: "tr:has(.o_guard_board_time:contains('09:00-10:00')) .o_guard_board_absence_manageable:contains('Tour Absent Teacher')",
             content: "Open the second lesson to send a guard",
             run: "click",

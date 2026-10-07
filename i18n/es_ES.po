@@ -20504,42 +20504,6 @@ msgstr "Un comunicado de cambio de horario solo se puede enviar al alumnado y la
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/communications/notice_absence_change.py:0
-msgid "On %(date)s, group %(group)s will start classes at %(hour)s."
-msgstr "El %(date)s, el grupo %(group)s empezará las clases a las %(hour)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/communications/notice_absence_change.py:0
-msgid "On %(date)s, group %(group)s will finish classes at %(hour)s."
-msgstr "El %(date)s, el grupo %(group)s terminará las clases a las %(hour)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/communications/notice_absence_change.py:0
-msgid "On %(date)s, group %(group)s will have no classes."
-msgstr "El %(date)s, el grupo %(group)s no tendrá clases."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/communications/notice_absence_change.py:0
-msgid "On %(date)s, group %(group)s will start classes at the usual time."
-msgstr "El %(date)s, el grupo %(group)s empezará las clases a la hora habitual."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/communications/notice_absence_change.py:0
-msgid "On %(date)s, group %(group)s will finish classes at the usual time."
-msgstr "El %(date)s, el grupo %(group)s terminará las clases a la hora habitual."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/communications/notice_absence_change.py:0
-msgid "Timetable change for %(group)s on %(date)s"
-msgstr "Cambio de horario del grupo %(group)s el %(date)s"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/communications/notice_absence_change.py:0
 msgid "Dear students and families,"
 msgstr "Estimadas familias y alumnado,"
 
@@ -20554,12 +20518,6 @@ msgstr "Rectificación: %s"
 #: code:addons/ems/models/communications/notice_absence_change.py:0
 msgid "This message corrects the one we sent you earlier about this day."
 msgstr "Este mensaje rectifica el que os enviamos antes sobre este día."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/communications/notice_absence_change.py:0
-msgid "This is due to the absence of a teacher."
-msgstr "Se debe a la ausencia de un docente."
 
 #. module: ems
 #. odoo-python
@@ -20690,12 +20648,6 @@ msgstr "Quitar la asignación"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "Pending actions for this day"
-msgstr "Acciones pendientes del día"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Propose notice"
 msgstr "Proponer comunicado"
 
@@ -20750,3 +20702,75 @@ msgstr "un destinatario de fuera de tus grupos"
 #: code:addons/ems/models/communications/notice_department_scope.py:0
 msgid "Unsupported search on department_chief_user_ids"
 msgstr "Búsqueda no admitida en department_chief_user_ids"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | they can come in later on %(date)s"
+msgstr "%(group)s | el %(date)s podrán entrar más tarde al instituto"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | they can leave earlier on %(date)s"
+msgstr "%(group)s | el %(date)s podrán salir antes del instituto"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | no classes on %(date)s"
+msgstr "%(group)s | el %(date)s no tendrán clases"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | usual timetable on %(date)s"
+msgstr "%(group)s | el %(date)s horario habitual"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Due to the justified absence of the assigned teacher, group %(group)s will start classes at %(hour)s on %(date)s."
+msgstr "Debido a la ausencia justificada del docente asignado, el grupo %(group)s empezará las clases a las %(hour)s el día %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Due to the justified absence of the assigned teacher, group %(group)s will finish classes at %(hour)s on %(date)s."
+msgstr "Debido a la ausencia justificada del docente asignado, el grupo %(group)s terminará las clases a las %(hour)s el día %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Due to the justified absence of the assigned teacher, group %(group)s will have no classes on %(date)s."
+msgstr "Debido a la ausencia justificada del docente asignado, el grupo %(group)s no tendrá clases el día %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Group %(group)s will start classes at the usual time on %(date)s."
+msgstr "El grupo %(group)s empezará las clases a la hora habitual el día %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Group %(group)s will finish classes at the usual time on %(date)s."
+msgstr "El grupo %(group)s terminará las clases a la hora habitual el día %(date)s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Late entry / early leave proposals"
+msgstr "Propuestas de entrada/salida"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Sending the notice strikes these lessons off the table, so no guard teacher has to cover them. You can choose a shorter change and send a guard to the rest."
+msgstr "Enviar el comunicado tacha estas clases de la tabla, para que ningún docente de guardia tenga que cubrirlas. Puedes elegir un cambio más corto y enviar un docente de guardia al resto."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Guards no longer needed"
+msgstr "Guardias que ya no hacen falta"

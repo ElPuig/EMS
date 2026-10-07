@@ -36,27 +36,34 @@ class EmsNoticeAbsenceChange(models.Model):
                     notice.absence_group_id.name))
 
     def _absence_change_text(self, change_type, group, day, hour, rectification):
-        """(subject, html message) proposed for a timetable change - only a starting point, the
+        """(subject, html message) proposed for a timetable change, in the wording the centre's
+        own notices already used ("A causa de l'absència justificada del docent assignat, ...",
+        subject "AIF1 | ... podran sortir abans de l'institut") - only a starting point, the
         planner edits the draft before sending it."""
         values = {
             'group': group.name,
             'date': format_date(self.env, day),
             'hour': self.env['ems.course']._format_report_time(hour),
         }
-        sentences = {
-            'late_entry': _("On %(date)s, group %(group)s will start classes at %(hour)s.", **values),
-            'early_leave': _("On %(date)s, group %(group)s will finish classes at %(hour)s.", **values),
-            'no_classes': _("On %(date)s, group %(group)s will have no classes.", **values),
-            'normal_entry': _("On %(date)s, group %(group)s will start classes at the usual time.", **values),
-            'normal_leave': _("On %(date)s, group %(group)s will finish classes at the usual time.", **values),
+        subjects = {
+            'late_entry': _("%(group)s | they can come in later on %(date)s", **values),
+            'early_leave': _("%(group)s | they can leave earlier on %(date)s", **values),
+            'no_classes': _("%(group)s | no classes on %(date)s", **values),
+            'normal_entry': _("%(group)s | usual timetable on %(date)s", **values),
+            'normal_leave': _("%(group)s | usual timetable on %(date)s", **values),
         }
-        subject = _("Timetable change for %(group)s on %(date)s", **values)
+        sentences = {
+            'late_entry': _("Due to the justified absence of the assigned teacher, group %(group)s will start classes at %(hour)s on %(date)s.", **values),
+            'early_leave': _("Due to the justified absence of the assigned teacher, group %(group)s will finish classes at %(hour)s on %(date)s.", **values),
+            'no_classes': _("Due to the justified absence of the assigned teacher, group %(group)s will have no classes on %(date)s.", **values),
+            'normal_entry': _("Group %(group)s will start classes at the usual time on %(date)s.", **values),
+            'normal_leave': _("Group %(group)s will finish classes at the usual time on %(date)s.", **values),
+        }
+        subject = subjects[change_type]
         paragraphs = [_("Dear students and families,"), sentences[change_type]]
         if rectification:
             subject = _("Correction: %s", subject)
             paragraphs.insert(1, _("This message corrects the one we sent you earlier about this day."))
-        if change_type in ('late_entry', 'early_leave', 'no_classes'):
-            paragraphs.append(_("This is due to the absence of a teacher."))
         message = Markup("").join(Markup("<p>{}</p>").format(paragraph) for paragraph in paragraphs)
         return subject, message
 
@@ -72,15 +79,18 @@ class EmsNoticeAbsenceChange(models.Model):
         course = self.env['ems.course']
         course._check_board_day_not_past(day)
         state = course._get_absence_change_states(day, group)[group.id][CHANGE_SIDES[change_type]]
-        target = state['target']
-        if not target or target != (change_type, hour if change_type in ('late_entry', 'early_leave') else 0.0):
+        hour = hour if change_type in ('late_entry', 'early_leave') else 0.0
+        change = next((option for option in state['options']
+                       if course._same_change(option, (change_type, hour))), None)
+        if not change:
             raise UserError(_("The absences of this group have changed since the board was loaded. Reload the board."))
         if not any(course._is_absence_manager(teacher) for teacher in state['teachers']):
             raise AccessError(_("Only the department chief of the absent teacher, or someone above them, can do this."))
-        notice = state['draft']
+        notice = state['draft'].filtered(
+            lambda draft: course._same_change((draft.absence_change_type, draft.absence_change_hour), change))
         if not notice:
             subject, message = self._absence_change_text(
-                change_type, group, day, target[1], rectification=bool(state['communicated']))
+                change_type, group, day, change[1], rectification=bool(state['communicated']))
             draft = self.new({'group_ids': [(6, 0, group.ids)]})
             lines, _skipped = draft._build_auto_lines(group, draft.recipient_type, draft.recipient_email_type, set())
             notice = self.create({
@@ -94,7 +104,7 @@ class EmsNoticeAbsenceChange(models.Model):
                 'absence_date': day,
                 'absence_group_id': group.id,
                 'absence_change_type': change_type,
-                'absence_change_hour': target[1],
+                'absence_change_hour': change[1],
             })
         return {
             'type': 'ir.actions.act_window',

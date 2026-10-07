@@ -396,3 +396,21 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual(state['target'], ('normal_entry', 0.0))
         self._communicate('normal_entry', 0.0)
         self.assertIsNone(self._states()['entry']['status'], "once corrected, nothing is left to do")
+
+    def test_the_proposed_notice_and_the_guard_message_are_translated(self):
+        """The code strings reach their readers in their own language: the draft notice in the
+        planner's, the guard's message in the guard's."""
+        if not self.env['res.lang'].search_count([('code', '=', 'ca_ES'), ('active', '=', True)]):
+            self.skipTest("Catalan is not installed on this database")
+        self.department_chief.lang = 'ca_ES'
+        self.guard_user.lang = 'ca_ES'
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10)
+
+        notice = self.Notice.browse(self.Notice.with_user(self.department_chief).with_context(lang='ca_ES')
+                                    .board_propose_absence_change(str(self.day), self.group_a.id, 'late_entry', 10.0)['res_id'])
+        self._assign()
+
+        self.assertIn('començarà les classes a les 10:00', notice.message)
+        self.assertIn("Canvi d'horari", notice.subject)
+        self.assertIn('Guàrdia: cobrir', self._guard_messages(self.teacher_guard).subject)

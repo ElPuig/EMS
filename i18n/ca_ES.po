@@ -20927,6 +20927,7 @@ msgstr "<i class=\"fa fa-info-circle me-1\"/>Sense nota, la resolució i les not
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__without_grade
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_grant_wizard__mode__without_grade
 msgid "Without grade"
 msgstr "Sense nota"
 
@@ -20982,11 +20983,6 @@ msgstr "Detalls opcionals després del motiu de la denegació, que la resolució
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_grant_wizard__mode__grade
 msgid "With grade"
 msgstr "Amb nota"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_grant_wizard__mode__without_grade
-msgid "Without grade"
-msgstr "Sense nota"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_convalidation_grant_wizard__mode

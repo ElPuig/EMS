@@ -17,8 +17,25 @@ sudo systemctl daemon-reload
 echo "<< Debugger enabled."
 
 echo ">> Cancelling all pending emails and jobs:"
-sudo -u odoo bash -c "psql -d ems -c \"UPDATE queue_job SET state='cancelled' WHERE state IN ('started', 'enqueued', 'pending');\""
-echo "<< Jobs canelled."
+# Run as the postgres superuser, before anything else touches the database: a freshly restored
+# production copy may be locked against the odoo role (REVOKE CONNECT, see CLAUDE.md "Lock a
+# restored production copy") and still carries production's pending work. Everything that has not
+# finished is cancelled, whatever its state: queue jobs (notices, notifications...), including those
+# waiting on another one, Odoo's own outgoing mail queue (its recipients are stored as plain text,
+# so the address rewrite below never reaches them) and outgoing SMS.
+sudo -u postgres psql -d ems -v ON_ERROR_STOP=1 \
+    -c "UPDATE queue_job SET state='cancelled' WHERE state NOT IN ('done', 'cancelled', 'failed');" \
+    -c "UPDATE mail_mail SET state='cancel' WHERE state IN ('outgoing', 'exception');" \
+    -c "DO \$\$ BEGIN IF to_regclass('sms_sms') IS NOT NULL THEN UPDATE sms_sms SET state='canceled' WHERE state='outgoing'; END IF; END \$\$;" \
+    || { echo "!! Could not cancel the pending jobs and emails: stopping here, the Odoo service stays stopped."; exit 1; }
+pending=$(sudo -u postgres psql -d ems -At -c "SELECT count(*) FROM queue_job WHERE state NOT IN ('done', 'cancelled', 'failed');")
+if [ "$pending" != "0" ]; then
+    echo "!! ${pending} jobs are still pending: stopping here, the Odoo service stays stopped."
+    exit 1
+fi
+# Only now may the odoo role (and the service, at the end of this script) reach the database.
+sudo -u postgres psql -c "GRANT CONNECT ON DATABASE ems TO PUBLIC, odoo;"
+echo "<< Jobs and emails cancelled."
 
 echo "Replacing all real email addresses is mandatory in this development environment, to avoid accidentally sending emails to real people."
 google_account="$1"

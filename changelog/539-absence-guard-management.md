@@ -37,6 +37,13 @@
 
 # Internal changes:
 
+## devel.sh cancels everything a production copy left pending:
+- Its first step now runs as the postgres superuser, before the Odoo service can reach the
+  database: it cancels every unfinished queue job (any state, waiting-on-dependency ones included),
+  Odoo's own outgoing mail queue and outgoing SMS, stops with the service down if anything is left,
+  and only then grants the odoo role access back (so it also works on a copy locked right after
+  pg_restore).
+
 ## Department scope for notices:
 - ems.group.department_chief_user_ids (non-stored, searchable; models/communications/
   notice_department_scope.py): Department/Seminar chiefs of the departments, or ancestor

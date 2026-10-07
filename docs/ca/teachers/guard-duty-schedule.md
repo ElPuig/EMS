@@ -30,10 +30,10 @@ El matí i la tarda són torns diferents — fes servir el desplegable per canvi
 
 ## Les dues vistes
 
-Els dos botons de la dreta de la barra d'eines canvien entre les dues maneres de llegir el mateix dia i torn:
+Els dos botons de la dreta de la barra d'eines canvien entre les dues maneres de llegir el mateix dia i torn. L'horari s'obre a la **Taula d'absències**:
 
-- **Horari de guàrdies** — l'horari, amb tothom qui falta marcat a sobre.
 - **Taula d'absències** — una fila per franja horària: qui falta i què s'ha de cobrir, davant de qui està de guàrdia per cobrir-ho.
+- **Horari de guàrdies** — l'horari, amb tothom qui falta marcat a sobre.
 
 ---
 

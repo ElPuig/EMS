@@ -30,10 +30,10 @@ La mañana y la tarde son turnos distintos — usa el desplegable para cambiar e
 
 ## Las dos vistas
 
-Los dos botones de la derecha de la barra de herramientas cambian entre las dos maneras de leer el mismo día y turno:
+Los dos botones de la derecha de la barra de herramientas cambian entre las dos maneras de leer el mismo día y turno. El horario se abre en la **Tabla de ausencias**:
 
-- **Horario de guardias** — el horario, con todo el que falta marcado encima.
 - **Tabla de ausencias** — una fila por franja horaria: quién falta y qué hay que cubrir, frente a quién está de guardia para cubrirlo.
+- **Horario de guardias** — el horario, con todo el que falta marcado encima.
 
 ---
 

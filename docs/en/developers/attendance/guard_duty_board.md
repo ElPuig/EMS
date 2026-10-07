@@ -292,7 +292,8 @@ maps any date onto its week's Monday, with a weekend belonging to the week it cl
 also what makes picking a Saturday in the date input land on a real, showable weekday.
 
 **Two views of the same payload, no extra round trip.** `state.activeView` switches between the
-timetable (`schedule`) and the absences table (`table`, labelled "Absences table" on screen -
+absences table (`table`, first and the default since 2026-10-07: it is the one the centre works from
+day to day) and the timetable (`schedule`). The absences table (`table`, labelled "Absences table" on screen -
 renamed from "Guard duty table" per issue #442, since the tab is about who's missing, not the
 board as a whole), rendered as `nav-pills` in the
 toolbar rather than a second row of `nav-tabs`, so they never compete visually with the weekday

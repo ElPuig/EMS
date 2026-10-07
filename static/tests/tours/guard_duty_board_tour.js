@@ -59,6 +59,15 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
             },
         },
         {
+            trigger: ".o_guard_board_view_tabs .nav-link.active:contains('Absences table')",
+            content: "The board opens on the absences table, the one used day to day",
+        },
+        {
+            trigger: ".o_guard_board_view_tabs .nav-link:contains('Guard duty schedule')",
+            content: "Switch to the timetable for the steps below",
+            run: "click",
+        },
+        {
             // The rest of this tour exercises fixed Monday/Morning fixture data (seeded by
             // TestGuardDutyBoardTour), regardless of which day/shift the smart default above
             // actually landed on today.

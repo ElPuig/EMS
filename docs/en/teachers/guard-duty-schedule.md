@@ -30,10 +30,10 @@ Morning and afternoon are different shifts — use the dropdown to switch betwee
 
 ## The Two Views
 
-The two buttons on the right of the toolbar switch between the two ways of reading the same day and shift:
+The two buttons on the right of the toolbar switch between the two ways of reading the same day and shift. The board opens on the **Absences table**:
 
-- **Guard duty schedule** — the timetable, with everybody who is away marked on it.
 - **Absences table** — one row per time block: who is missing and what has to be covered, against who is on guard duty to cover it.
+- **Guard duty schedule** — the timetable, with everybody who is away marked on it.
 
 ---
 

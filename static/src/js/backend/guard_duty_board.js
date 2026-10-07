@@ -35,9 +35,11 @@ const SHIFTS = [
 // The two ways of reading the same day: the timetable everyone already knows, with whoever is
 // away struck through it, and the plain "who is missing / who is on guard" list built from the
 // very same payload (see ems.course.get_guard_duty_board_data) - one fetch, two renderings.
+// The absences table comes first and opens by default: it is the one the centre works from day to
+// day (developer feedback, 2026-10-07).
 const VIEWS = [
-    { key: "schedule", label: _t("Guard duty schedule") },
     { key: "table", label: _t("Absences table") },
+    { key: "schedule", label: _t("Guard duty schedule") },
 ];
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -120,7 +122,7 @@ export class GuardDutyBoard extends Component {
             // timetable is keyed to weekdays, so the board needs a concrete week before it can
             // say who is away - see ems.course.get_guard_duty_board_lines()'s 'day' argument.
             weekStart: "",
-            activeView: "schedule",
+            activeView: "table",
             board: null,
             loading: true,
             courseId: null,

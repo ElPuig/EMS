@@ -30,6 +30,7 @@
   record: what was organised on an expected absence (ems.absence_pending) stays when the teacher
   files the real request, and only the extra days/hours it adds come up as new lines.
 - A day already over can no longer be managed.
+- The guard duty board opens on the absences table, now the first of its two views.
 - Every struck-out line carries an info icon on its left and explains why it needs no guard
   (co-taught, guard sent, or families told) when hovered or clicked anywhere, for every teacher; for
   a guard already sent, the popover lets whoever organises the absence change or remove it.

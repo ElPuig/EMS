@@ -324,6 +324,15 @@ All three are regression-tested in `guard_duty_board_tour.js`, which asserts the
 narrower than its wrapper, centred within it, and that no absence row wraps onto a second line
 (measured against its own computed `line-height`, not a hardcoded pixel height).
 
+**Where the planner was survives leaving the board (2026-10-07).** `navigationState` (date, shift,
+view, levels) is published with `props.updateActionState()`, so the router keeps it in the URL's
+query string (`?date=...&shift=...&view=...&levels=...`), and handed back through
+`useSetupAction({ getLocalState })`. `restoreNavigation()` applies, over the defaults below, either
+`props.state` (coming back through the breadcrumbs) or `action.context.params` (the URL: browser
+back button, reload, a shared link), ignoring anything invalid. Opening the board from the menu
+carries neither, so it still starts at "now". `absence_coverage_tour.js` checks both ways back from
+a notice (and fails without the restore).
+
 **Opens on today's own day/shift, not always Monday/Morning.** `getDefaultDayAndShift()`
 (top of the file) reads the browser's own `Date()` — "now" here means the *viewer's* wall-clock
 time, not the server's — and maps `Date.getDay()` (0=Sunday..6=Saturday) onto the board's own

@@ -100,5 +100,50 @@ registry.category("web_tour.tours").add("ems_absence_coverage", {
             trigger: ".o_form_view .o_field_widget[name='group_ids']:contains('TABTG')",
             content: "Addressed to that group",
         },
+        // Coming back keeps what the planner was looking at (next Monday, not today), whether
+        // through the breadcrumbs or the browser's back button - see navigationState in
+        // guard_duty_board.js.
+        {
+            trigger: ".o_breadcrumb .o_back_button a, .o_breadcrumb li.breadcrumb-item:first-child a",
+            content: "Back to the board through the breadcrumbs",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_action:contains('TABTG') .o_guard_board_action_button",
+            content: "The board is back on next Monday's absences table",
+            run: () => assertBoardOnNextMonday(),
+        },
+        {
+            trigger: ".o_guard_board_action:contains('TABTG') .o_guard_board_action_button",
+            content: "Open the draft notice again",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .alert-info:contains('TABTG')",
+            content: "The draft notice is open",
+            run: () => window.history.back(),
+        },
+        {
+            trigger: ".o_guard_board_action:contains('TABTG') .o_guard_board_action_button",
+            content: "The browser's back button returns to the same day too",
+            run: () => assertBoardOnNextMonday(),
+        },
     ],
 });
+
+// Next Monday, the day the tour moved the board to - shown on the date input, in the URL, and
+// with the absences table active.
+function assertBoardOnNextMonday() {
+    const value = document.querySelector(".o_guard_board_date_input").value;
+    const picked = new Date(value + "T00:00:00");
+    const days = (picked - new Date(new Date().toDateString())) / 86400000;
+    if (picked.getDay() !== 1 || days < 1 || days > 7) {
+        throw new Error(`Expected next Monday on the board, got ${value}`);
+    }
+    if (!window.location.search.includes(`date=${value}`)) {
+        throw new Error(`The URL does not keep the date: ${window.location.href}`);
+    }
+    if (!document.querySelector(".o_guard_board_view_tabs .nav-link.active")?.textContent.includes("Absences table")) {
+        throw new Error("Expected the absences table to be the active view");
+    }
+}

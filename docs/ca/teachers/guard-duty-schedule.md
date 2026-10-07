@@ -134,6 +134,12 @@ Si una absència es rebutja, s'anul·la o s'escurça, o resulta que un altre doc
 
 ---
 
+## Tornar on eres
+
+L'adreça de l'horari conserva la setmana, el dia, el torn, la vista i els nivells que estàs mirant. Si hi tornes des d'un comunicat (amb les molles de pa o amb el botó enrere del navegador) o recarregues la pàgina, tornes al mateix lloc, i pots copiar l'adreça per enviar-hi directament un company. Si l'obres des del menú, sempre comença al dia i el torn d'avui.
+
+---
+
 ## Exportar a PDF
 
 Fes clic a **PDF** a la barra d'eines per descarregar el dia i el torn que s'estan mostrant (no tota la setmana) com a document imprimible — el filtre de nivell que tinguis marcat s'aplica també al PDF. El PDF imprimeix la vista que tinguis activa a la pantalla: l'horari si està activa **Horari de guàrdies**, o la taula d'absències si està activa **Taula d'absències**.

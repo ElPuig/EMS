@@ -134,6 +134,12 @@ If an absence is refused, cancelled or shortened, or a co-teacher turns out to b
 
 ---
 
+## Coming Back to Where You Were
+
+The board's address keeps the week, day, shift, view and levels you are looking at. Going back to it from a notice - with the breadcrumbs or the browser's back button - or reloading the page returns you to the same place, and you can copy the address to send a colleague straight there. Opening it from the menu always starts at today's day and shift.
+
+---
+
 ## Exporting to PDF
 
 Click **PDF** in the toolbar to download the day and shift currently shown (not the whole week) as a printable document — whatever level filter is currently checked is applied to the PDF too. The PDF prints whichever of the two views is on screen: the timetable if **Guard duty schedule** is active, or the Absences table if **Absences table** is active, with its guards, colours and struck-through lines as on screen.

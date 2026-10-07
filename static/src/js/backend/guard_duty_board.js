@@ -3,6 +3,7 @@
 import { Component, onWillStart, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
+import { useSetupAction } from "@web/search/action_hook";
 import { _t } from "@web/core/l10n/translation";
 import { dayLabels } from "./schedule_grid_geometry";
 import { serverNow, syncServerClock } from "./server_clock";
@@ -142,8 +143,49 @@ export class GuardDutyBoard extends Component {
             this.state.courseId = course.id;
             this.state.courseName = course.name;
             this.state.levels = levels;
+            this.restoreNavigation(this.props.state || this.props.action?.context?.params || {});
             await this.loadBoard();
         });
+        // Coming back through the breadcrumbs hands this back as props.state (see restoreNavigation).
+        useSetupAction({ getLocalState: () => this.navigationState });
+    }
+
+    // What the planner is looking at - week and day, shift, view and levels - kept in the URL
+    // (?date=...&shift=...&view=...&levels=...) so the browser's back button, the breadcrumbs, a
+    // reload and a shared link all return to it, instead of the default "now" (developer request,
+    // 2026-10-07: back from a notice landed on this morning while organising this afternoon). Opening
+    // the board from the menu carries no such parameters, so it still starts at "now".
+    get navigationState() {
+        return {
+            date: this.activeDate,
+            shift: this.state.activeShift,
+            view: this.state.activeView,
+            levels: this.state.activeLevelIds.join(","),
+        };
+    }
+
+    syncNavigation() {
+        this.props.updateActionState?.(this.navigationState);
+    }
+
+    // Applies a saved navigation state over the defaults, ignoring anything that isn't valid -
+    // a URL can be edited or outlive the levels it named.
+    restoreNavigation(saved) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(saved.date || "")) {
+            const picked = fromIsoDate(saved.date);
+            const jsDay = picked.getDay();
+            this.state.weekStart = toIsoDate(mondayOf(picked));
+            this.state.activeDay = jsDay >= 1 && jsDay <= 5 ? jsDay - 1 : 0;
+        }
+        if (SHIFTS.some((shift) => shift.key === saved.shift)) {
+            this.state.activeShift = saved.shift;
+        }
+        if (VIEWS.some((view) => view.key === saved.view)) {
+            this.state.activeView = saved.view;
+        }
+        const levelIds = this.state.levels.map((level) => level.id);
+        this.state.activeLevelIds = String(saved.levels || "").split(",").map(Number)
+            .filter((id) => levelIds.includes(id));
     }
 
     // Each weekday tab carries its own real date, so the tab strip doubles as the week's
@@ -240,6 +282,7 @@ export class GuardDutyBoard extends Component {
         // Both tabs render the same already-fetched payload, so switching between them never
         // costs a round trip.
         this.state.activeView = key;
+        this.syncNavigation();
     }
 
     async onShiftChange(ev) {
@@ -292,6 +335,7 @@ export class GuardDutyBoard extends Component {
             [String(this.state.activeDay), this.state.activeShift, this.state.activeLevelIds, this.activeDate]
         );
         this.state.loading = false;
+        this.syncNavigation();
     }
 
     // Bold red for an absence that is going to happen, a lighter italic for one still waiting

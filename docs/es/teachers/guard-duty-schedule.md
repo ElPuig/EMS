@@ -134,6 +134,12 @@ Si una ausencia se rechaza, se anula o se acorta, o resulta que otro docente sí
 
 ---
 
+## Volver a donde estabas
+
+La dirección del horario conserva la semana, el día, el turno, la vista y los niveles que estás mirando. Si vuelves desde un comunicado (con las migas de pan o con el botón atrás del navegador) o recargas la página, vuelves al mismo sitio, y puedes copiar la dirección para enviar a un compañero directamente ahí. Si lo abres desde el menú, siempre empieza en el día y el turno de hoy.
+
+---
+
 ## Exportar a PDF
 
 Haz clic en **PDF** en la barra de herramientas para descargar el día y el turno que se están mostrando (no toda la semana) como documento imprimible — el filtro de nivel que tengas marcado se aplica también al PDF. El PDF imprime la vista que tengas activa en pantalla: el horario si está activo **Horario de guardias**, o la tabla de ausencias si está activo **Tabla de ausencias**.

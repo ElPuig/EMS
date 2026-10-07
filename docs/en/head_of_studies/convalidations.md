@@ -60,6 +60,7 @@ Open the request from the list. The form shows:
 - The **registration number** (e.g. CONV-2026-27-0001), above the student's name.
 - The student's IDALU (**Student ID**), under *Requested by*, with a button that copies it so you can paste it into Esfera to look up their academic record. You can also type an IDALU in the list's search bar, under *Student*, to find their requests.
 - **Study**, **Course** and **Grounds**. These, the student and the applicant's comments come from the request and cannot be changed.
+- **Studies passed** (prior studies only): at this centre or at another centre or university. A request from the portal for studies passed elsewhere, or on any other grounds, always comes with supporting documents; only studies passed here may come without them.
 - Under the student's name, the notice **Holds a title obtained at this centre** when the academic history records a title obtained here.
 - **Subjects** tab: one line for each module requested.
 - **Supporting documents** tab: the attached files.
@@ -164,7 +165,7 @@ The secretariat registers the resolution in Esfera (see [Convalidations: registe
 ## Registering a paper request
 
 1. Click **New**.
-2. Choose the **Student**, **Study**, **Course** and **Grounds**, and write the applicant's comments if there are any.
+2. Choose the **Student**, **Study**, **Course** and **Grounds** (for prior studies, also **Studies passed**: at this centre or elsewhere), and write the applicant's comments if there are any. Unlike on the portal, a request registered here can be saved without supporting documents, to ask for them afterwards.
 3. On the **Subjects** tab, click **Add a line** and choose each module.
 4. On the **Supporting documents** tab, upload the documents.
 5. Click **Save**.

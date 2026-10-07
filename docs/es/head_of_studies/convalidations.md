@@ -60,6 +60,7 @@ Abre la solicitud desde la lista. El formulario muestra:
 - El **número de registro** (por ejemplo CONV-2026-27-0001), encima del nombre del alumno.
 - El IDALU del alumno (**ID de estudiante**), bajo *Solicitada por*, con un botón que lo copia para pegarlo en Esfera y consultar su expediente académico. También puedes escribir un IDALU en el buscador de la lista, en *Alumno*, para encontrar sus solicitudes.
 - **Estudio**, **Curso** y **Motivo**. Estos datos, el alumno y las observaciones del solicitante son los de la solicitud y no se pueden modificar.
+- **Estudios superados** (solo estudios previos): en este centro o en otro centro o en la universidad. Una solicitud del portal por estudios superados en otro sitio, o por cualquier otro motivo, siempre llega con documentación justificativa; solo los estudios superados aquí pueden llegar sin ella.
 - Bajo el nombre del alumno, el aviso **Tiene una titulación obtenida en el centro** cuando en el historial académico consta un título obtenido aquí.
 - Pestaña **Asignaturas**: una línea por cada módulo solicitado.
 - Pestaña **Documentación justificativa**: los ficheros adjuntados.
@@ -164,7 +165,7 @@ Secretaría registra la resolución en Esfera (ver [Convalidaciones: registrar l
 ## Registrar una solicitud en papel
 
 1. Haz clic en **Nuevo**.
-2. Elige el **Estudiante**, el **Estudio**, el **Curso** y el **Motivo**, y escribe las observaciones del solicitante si las hay.
+2. Elige el **Estudiante**, el **Estudio**, el **Curso** y el **Motivo** (para estudios previos, también **Estudios superados**: en este centro o en otro), y escribe las observaciones del solicitante si las hay. A diferencia del portal, una solicitud registrada aquí se puede guardar sin documentación justificativa, para pedirla después.
 3. En la pestaña **Asignaturas**, haz clic en **Agregar una línea** y elige cada módulo.
 4. En la pestaña **Documentación justificativa**, sube los documentos.
 5. Haz clic en **Guardar**.

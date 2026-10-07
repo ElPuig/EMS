@@ -45,8 +45,8 @@ Requests already submitted are not affected: you can keep checking them, answeri
 ## Making a request
 
 1. Click **New convalidation request** to open the form, and tick the modules you want to convalidate.
-2. Choose the **Grounds**.
-3. Under **Supporting documents**, attach the documents needed. You can select several files at once.
+2. Choose the **Grounds**. For prior studies, also say **where you passed them**: at this centre, or at another centre or university.
+3. Under **Supporting documents**, attach the documents needed. You can select several files at once. They are mandatory, except for studies passed at this centre: the request can't be submitted without them. Right above the file field, the form tells you which documents to attach for the grounds you chose (and, for prior studies, where you passed them).
 4. If you want, write some comments.
 5. Click **Submit request**.
 
@@ -59,9 +59,9 @@ Requests already submitted are not affected: you can keep checking them, answeri
 | Studies passed at this centre | None: the centre looks the record up. |
 | Studies passed at another centre | The academic certificate or transcript of the studies passed. |
 | Professional certificate or accreditation of competences | The certificate itself. |
-| University studies or a Ministry resolution | The resolution, if you already have it. |
+| University studies or a Ministry resolution | The academic certificate, or the resolution if you already have it. |
 
-If anything is missing, the centre will ask you for it and you can attach it from this same page.
+If anything else is needed, the centre will ask you for it and you can attach it from this same page.
 
 A message confirms the request has been submitted. Modules already requested no longer appear on the form, unless they were rejected.
 

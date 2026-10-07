@@ -53,7 +53,7 @@ Al registrarla:
 ## Registrar una solicitud recibida en papel
 
 1. Haz clic en **Nuevo**.
-2. Elige el **Estudiante**, el **Estudio**, el **Curso** y el **Motivo**, y escribe las observaciones del solicitante si las hay.
+2. Elige el **Estudiante**, el **Estudio**, el **Curso** y el **Motivo** (para estudios previos, también **Estudios superados**: en este centro o en otro), y escribe las observaciones del solicitante si las hay. A diferencia del portal, una solicitud registrada aquí se puede guardar sin documentación justificativa, para pedirla después.
 3. En la pestaña **Asignaturas**, añade una línea por cada módulo solicitado.
 4. En la pestaña **Documentación justificativa**, sube los documentos.
 5. Haz clic en **Guardar**.

@@ -102,6 +102,7 @@
                                 <field name="study_id" options="{'no_create': True}" readonly="id"/>
                                 <field name="course_id" options="{'no_create': True}" readonly="id"/>
                                 <field name="basis" readonly="id"/>
+                                <field name="prior_studies_origin" invisible="basis != 'prior_studies'" readonly="id"/>
                             </group>
                             <group>
                                 <field name="submission_date"/>

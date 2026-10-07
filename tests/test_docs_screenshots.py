@@ -385,6 +385,7 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             return self.env['ems.convalidation'].create({
                 'student_id': student.id, 'requester_id': student.id,
                 'study_id': self.study.id, 'course_id': self.course.id, 'basis': 'prior_studies',
+                'prior_studies_origin': 'elsewhere',
                 'line_ids': [(0, 0, {'subject_id': subject.id}) for subject in subject_set],
                 **vals,
             })

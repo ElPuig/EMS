@@ -53,7 +53,7 @@ En registrar-la:
 ## Registrar una sol·licitud rebuda en paper
 
 1. Fes clic a **Nou**.
-2. Tria l'**Estudiant**, l'**Estudi**, el **Curs** i el **Motiu**, i escriu-hi les observacions del sol·licitant si n'hi ha.
+2. Tria l'**Estudiant**, l'**Estudi**, el **Curs** i el **Motiu** (per a estudis previs, també **Estudis superats**: en aquest centre o en un altre), i escriu-hi les observacions del sol·licitant si n'hi ha. A diferència del portal, una sol·licitud registrada aquí es pot desar sense documentació justificativa, per demanar-la després.
 3. A la pestanya **Assignatures**, afegeix una línia per cada mòdul sol·licitat.
 4. A la pestanya **Documentació justificativa**, puja els documents.
 5. Fes clic a **Desa**.

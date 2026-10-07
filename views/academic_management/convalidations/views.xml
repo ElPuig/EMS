@@ -107,7 +107,7 @@
                                 <field name="submission_date"/>
                                 <field name="requester_id" readonly="1" invisible="not requester_id"/>
                                 <!-- Issue #576: one click to copy it into Esfera. -->
-                                <field name="student_idalu" widget="CopyClipboardChar" invisible="not student_idalu"/>
+                                <field name="student_idalu" widget="CopyClipboardChar" class="o_ems_copy_compact" invisible="not student_idalu"/>
                                 <field name="ministry_date" invisible="not resolved_by_ministry"/>
                                 <field name="validation_date" invisible="not validation_date"/>
                                 <field name="validated_by_id" invisible="not validated_by_id"/>

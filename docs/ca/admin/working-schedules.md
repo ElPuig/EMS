@@ -15,7 +15,7 @@ Gestiona l'horari setmanal de cada docent des de la seva pròpia fitxa d'empleat
 - **Marc horari**: una plantilla setmanal reutilitzable (franges, patis, reunions de coordinació) per a un nivell d'estudis — per exemple, un marc per a l'ESO, un altre per a BTX, un altre compartit pels cicles formatius. Els marcs mai porten assignatures reals assignades.
 - **Horari d'un docent**: el seu propi calendari personal, creat a partir d'un marc i després emplenat amb les seves assignatures/grups reals. Mai el comparteix amb un altre docent.
 - **Marc horari predeterminat**: el marc que s'utilitza automàticament per començar l'horari de qualsevol docent nou.
-- **Grup de reforç**: un grup d'alumnes que barreja estudiants de diferents grups habituals (i fins i tot de diferents estudis) per a una classe de reforç concreta — no té ni tutor ni delegat, però apareix a l'horari d'un docent com qualsevol altre grup. Vegeu "Grups de reforç" més avall.
+- **Grup de reforç**: un grup d'alumnes que barreja estudiants de diferents grups habituals (i fins i tot de diferents estudis) per a una classe de reforç concreta — no té ni tutor, ni delegat, ni sotsdelegat, però apareix a l'horari d'un docent com qualsevol altre grup. Vegeu "Grups de reforç" més avall.
 
 ---
 
@@ -261,7 +261,7 @@ Fes servir això per reiniciar un docent amb un marc diferent (p. ex. ara impart
 Un grup de reforç és un **grup** d'alumnes (el mateix registre de "Grups" que un grup habitual) utilitzat per a una classe de reforç/suport que barreja alumnes de diferents grups habituals, i fins i tot de diferents estudis — p. ex. un petit grup de reforç de matemàtiques amb alumnes de tres grups de primer curs diferents.
 
 1. Vés a **Configuració → Alumnat → Grups** i crea'n un de nou.
-2. Estableix el seu **Tipus de grup** com a **Reforç**. Això amaga els camps Nivell/Estudi/Curs/Acrònim/Tutor/Delegat (un grup de reforç no en té cap) i et permet escriure directament el **Nom** del grup — fes que coincideixi exactament amb el que exporta el teu planificador extern per a aquest grup, ja que l'importador d'horaris el localitza per nom exacte.
+2. Estableix el seu **Tipus de grup** com a **Reforç**. Això amaga els camps Nivell/Estudi/Curs/Acrònim/Tutor/Delegat/Sotsdelegat (un grup de reforç no en té cap) i et permet escriure directament el **Nom** del grup — fes que coincideixi exactament amb el que exporta el teu planificador extern per a aquest grup, ja que l'importador d'horaris el localitza per nom exacte.
 3. Estableix la seva **Aula**, igual que qualsevol altre grup — encara és necessària perquè l'horari s'importi correctament.
 4. A la pestanya **Alumnes**, afegeix els alumnes que assisteixen a aquesta classe de reforç, independentment del grup habitual o l'estudi al qual pertanyin. Això **no** canvia el grup principal de cap alumne.
 5. Desa.

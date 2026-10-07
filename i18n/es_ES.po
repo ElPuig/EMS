@@ -3030,7 +3030,7 @@ msgstr "Retraso grave"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__delegate_id
 msgid "Delegate"
-msgstr "Delegar"
+msgstr "Delegado/a"
 
 #. module: ems
 #. odoo-python
@@ -11767,8 +11767,8 @@ msgstr "Alumnos de refuerzo"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_group__group_type
-msgid "Main: the group a student is enrolled in (main_group_id), with a tutor, a delegate and a single study/level. Reinforcement: appears in the teaching schedule like any other group, but has no tutor/delegate and can mix students from different main groups and studies."
-msgstr "Principal: el grupo en el que está matriculado un alumno (main_group_id), con tutor/a, delegado/a y un único estudio/nivel. Refuerzo: aparece en el horario docente como cualquier otro grupo, pero no tiene tutor/a ni delegado/a y puede mezclar alumnos de diferentes grupos principales y estudios."
+msgid "Main: the group a student is enrolled in (main_group_id), with a tutor, a delegate, a sub-delegate and a single study/level. Reinforcement: appears in the teaching schedule like any other group, but has no tutor/delegate/sub-delegate and can mix students from different main groups and studies."
+msgstr "Principal: el grupo en el que está matriculado un alumno (main_group_id), con tutor/a, delegado/a, subdelegado/a y un único estudio/nivel. Refuerzo: aparece en el horario docente como cualquier otro grupo, pero no tiene tutor/a, delegado/a ni subdelegado/a y puede mezclar alumnos de diferentes grupos principales y estudios."
 
 #. module: ems
 #. odoo-python
@@ -11779,8 +11779,8 @@ msgstr "Un grupo principal requiere un nivel, un estudio, un curso y un acrónim
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/group.py:0
-msgid "A reinforcement group cannot have a level, a study, a tutor or a delegate: it is meant to mix students from different main groups and studies."
-msgstr "Un grupo de refuerzo no puede tener nivel, estudio, tutor/a ni delegado/a: está pensado para mezclar alumnos de diferentes grupos principales y estudios."
+msgid "A reinforcement group cannot have a level, a study, a tutor, a delegate or a sub-delegate: it is meant to mix students from different main groups and studies."
+msgstr "Un grupo de refuerzo no puede tener nivel, estudio, tutor/a, delegado/a ni subdelegado/a: está pensado para mezclar alumnos de diferentes grupos principales y estudios."
 
 #. module: ems
 #. odoo-python
@@ -20876,3 +20876,14 @@ msgstr "Devolver"
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
 msgid "<strong>The supporting document was not sufficient:</strong>"
 msgstr "<strong>El justificante no era suficiente:</strong>"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__subdelegate_id
+msgid "Sub-delegate"
+msgstr "Subdelegado/a"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "The delegate and the sub-delegate of a group must be different students."
+msgstr "El delegado/a y el subdelegado/a de un grupo deben ser alumnos diferentes."

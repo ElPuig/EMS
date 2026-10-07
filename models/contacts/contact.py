@@ -1163,7 +1163,7 @@ class ResPartner(models.Model):
         attendance rate, so the live records have nothing left to say. Leaving them behind is
         what makes an ex-student keep showing up where they no longer belong: enrolled in the
         group's subjects, in the evaluation matrix, in the attendance sessions still to be
-        taken, or as the group's delegate.
+        taken, or as the group's delegate or sub-delegate.
 
         sudo: the secretary running the withdrawal has no write rights over grades or
         attendance, but detaching a student who has left is a legitimate system cleanup.
@@ -1206,7 +1206,8 @@ class ResPartner(models.Model):
             partner._ems_clear_stale_delegate(group)
 
     def _ems_clear_stale_delegate(self, group):
-        """Clears 'group.delegate_id' if it still points at one of these partners, who is no
+        """Clears 'group.delegate_id' (and 'subdelegate_id', issue #574) if it still points at one
+        of these partners, who is no
         longer actually a member of it. Shared by '_ems_clear_operational_records()' above (a
         student leaving the centre entirely) and course_transition_wizard._apply_detach_unplaced()
         (a student stranded with no placement target, e.g. the last cohort of a finishing cycle) -
@@ -1215,8 +1216,9 @@ class ResPartner(models.Model):
         clearing, never the group. Must be called with 'group' captured BEFORE 'main_group_id'
         is written away - once cleared, there is nothing left to read it from."""
         for partner in self:
-            if group.delegate_id == partner:
-                group.sudo().delegate_id = False
+            for field in ('delegate_id', 'subdelegate_id'):
+                if group[field] == partner:
+                    group.sudo()[field] = False
 
     def _sync_category(self):
         # The "student" category doubles as the shared student-lifecycle marker: the

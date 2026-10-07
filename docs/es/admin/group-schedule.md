@@ -92,11 +92,11 @@ sin iniciar sesión en EMS — por ejemplo, para enlazar el horario de cada grup
 centro.
 
 1. Abre **Grupos → [un grupo]**.
-2. En el campo **Enlace público del horario** (p. ej. `.../ems/schedule/eso1a.pdf`), haz clic en
+2. En la pestaña **Horario**, bajo el botón **PDF**, en el campo **Enlace público del horario** (p. ej. `.../ems/schedule/eso1a.pdf`), haz clic en
    el enlace para abrir el PDF en una pestaña nueva, o haz clic en el botón de la derecha para
    copiarlo.
 
-![Enlace público del horario en la ficha del grupo](../../assets/admin/group-schedule-public-link.png)
+![Enlace público del horario en la pestaña Horario del grupo](../../assets/admin/group-schedule-public-link.png)
 
 El PDF del enlace se actualiza automáticamente unos segundos después de cualquier cambio en el
 horario del grupo, así que nunca hace falta sustituir el enlace. El enlace se construye a partir

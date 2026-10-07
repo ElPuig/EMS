@@ -38,6 +38,10 @@ registry.category("web_tour.tours").add("ems_group_form_tabs_and_reinforcement_c
             content: "Schedule is the first tab and the one open by default",
         },
         {
+            trigger: ".o_form_view .o_field_widget[name='subdelegate_id']",
+            content: "A main group shows its sub-delegate next to the delegate (issue #574)",
+        },
+        {
             trigger: ".o_form_view .o_notebook .nav-link:contains('Students')",
             content: "Open the Students tab",
             run: "click",

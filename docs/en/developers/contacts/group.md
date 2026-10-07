@@ -15,8 +15,8 @@
 ```mermaid
 graph TD
     GT["group_type"]
-    M["'main' — the group a student is enrolled in\n(main_group_id): has a tutor, a delegate,\na single level/study/course/acronym"]
-    R["'reinforcement' — appears in the teaching\nschedule like any other group, but has no\ntutor/delegate; can mix students from\ndifferent main groups and studies"]
+    M["'main' — the group a student is enrolled in\n(main_group_id): has a tutor, a delegate,\na sub-delegate, a single level/study/course/acronym"]
+    R["'reinforcement' — appears in the teaching\nschedule like any other group, but has no\ntutor/delegate/sub-delegate; can mix students from\ndifferent main groups and studies"]
     GT --> M
     GT --> R
 ```
@@ -35,6 +35,7 @@ graph TD
 | `study_id` | `Many2one → ems.study` | `main` only | Yes | — |
 | `tutor_id` | `Many2one → hr.employee` | No (`main` only, never on `reinforcement`) | Yes | Domain restricted to `employee_type = 'teacher'`; see the create/write sync below |
 | `delegate_id` | `Many2one → res.partner` | No (`main` only) | Yes | Domain restricted to students of this same group |
+| `subdelegate_id` | `Many2one → res.partner` | No (`main` only) | Yes | Stands in for the delegate (issue #574). Same domain, minus the current delegate; `_check_group_type_fields` also refuses the delegate and sub-delegate being the same student |
 | `space_id` | `Many2one → ems.space` | No | Yes | Labeled "Reference classroom" in the UI - the room of the group's tutorship (or where it spends the most hours), kept up to date from the schedule, see "Reference classroom follows the schedule" below; shown in the group schedule PDF header, see `group_schedule.md` |
 | `shift` | `Selection` (`morning`/`afternoon`) | No | Yes | Feeds `ems.schedule_report_mixin`'s `SHIFT_HOURS` window - see `group_schedule.md` |
 | `main_student_ids` | `One2many → res.partner` | — | No | Inverse of `contact.main_group_id`, filtered to students. Always empty for a `reinforcement` group |
@@ -79,7 +80,7 @@ source of truth for group membership regardless of `group_type`.
 
 - **`_onchange_group_type`** (form-only): clears the group's own now-irrelevant fields the moment the radio is toggled, purely so the user sees them clear before Save.
 - **`_sanitize_group_type_vals`** (called from both `create()` and `write()`): the actual guarantee — the onchange never runs for a `write()` that doesn't go through this exact form (RPC, batch action, an import), so this re-does the same clearing at the ORM level, right before `_check_group_type_fields` would otherwise reject the switch.
-- **`_check_group_type_fields`** (`@api.constrains`): the hard validation — `main` requires level+study+course+acronym; `reinforcement` must have none of level/study/tutor/delegate, and blocks the switch entirely if the group still has `main_student_ids` enrolled (they'd otherwise be silently orphaned).
+- **`_check_group_type_fields`** (`@api.constrains`): the hard validation — `main` requires level+study+course+acronym; `reinforcement` must have none of level/study/tutor/delegate/sub-delegate, and blocks the switch entirely if the group still has `main_student_ids` enrolled (they'd otherwise be silently orphaned).
 
 ### Archiving and reactivation
 
@@ -439,8 +440,8 @@ flowchart TD
     F --> G["_sync_tutor_role(old_tutor | new_tutor)"]
 ```
 
-**Who clears a stale `tutor_id`/`delegate_id` (2026-09-01):** neither field is auto-derived by a
-compute — both stay whatever they were last set to (by hand on the group form, or by CSV import)
+**Who clears a stale `tutor_id`/`delegate_id`/`subdelegate_id`:** none of them is auto-derived by a
+compute — they stay whatever they were last set to (by hand on the group form, or by CSV import)
 until something explicitly writes over them. Two independent cleanups now do that, in the two
 situations this actually comes up:
 - `tutor_id` — a group's tutoring is also recorded as an ordinary `ems.teaching` row on the
@@ -448,8 +449,8 @@ situations this actually comes up:
   `tutor_id` whenever that row goes away and `tutor_id` still matches the departing teacher (see
   `docs/en/developers/employees/teaching.md`). No group-emptiness check is involved — the group
   itself is never archived by this.
-- `delegate_id` — `res.partner._ems_clear_stale_delegate(group)` clears it whenever a student who
-  was the delegate stops being a member of `group` (leaving the centre entirely, or a course
+- `delegate_id`/`subdelegate_id` — `res.partner._ems_clear_stale_delegate(group)` clears whichever
+  of the two still points at a student who stops being a member of `group` (leaving the centre entirely, or a course
   transition stranding them with no placement — see `docs/en/developers/settings/
   course_transition_wizard.md`).
 

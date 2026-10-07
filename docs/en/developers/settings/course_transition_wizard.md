@@ -302,7 +302,7 @@ for a plain manual Schedule-tab reset, with no group-emptiness heuristic anywher
 Groups themselves are never archived by any of this (they're reused across academic years) — only
 the now-stale tutoring/teaching references are.
 
-**3. `_apply_detach_unplaced()` now also clears a stranded student's own group delegate**, via
+**3. `_apply_detach_unplaced()` now also clears a stranded student's own group delegate (or sub-delegate)**, via
 the same `res.partner._ems_clear_stale_delegate()` helper `_ems_clear_operational_records()`
 already used for a student leaving the centre entirely — extracted so both paths share one
 implementation instead of the check existing in only one of them.

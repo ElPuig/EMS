@@ -4,7 +4,7 @@
 
 # Configuració de convalidacions
 
-Configura quan es poden presentar sol·licituds de convalidació des del portal i els textos de la resolució oficial que emet la direcció.
+Configura quan es poden presentar sol·licituds de convalidació des del portal, els textos de la resolució oficial que emet la direcció i els motius que s'ofereixen quan es demana documentació.
 
 **Rol necessari:** Administrador (Configuració)
 
@@ -59,6 +59,34 @@ Si deixes un text buit, s'utilitza el text estàndard. El text estàndard del re
 2. Desa.
 
 Els canvis s'apliquen a les resolucions que s'emetin a partir d'aquell moment.
+
+---
+
+## Motius de petició de documentació
+
+Quan Cap d'Estudis demana més documentació a un sol·licitant, tria un motiu d'una llista. Tu mantens aquesta llista.
+
+**Rol necessari:** Administrador de l'EMS
+
+Navega a: **Gestió acadèmica → Configuració → Convalidacions → Motius de petició de documentació**
+
+- **Nom:** el text que el sol·licitant llegeix al correu i al portal. Escriu-lo en cada idioma amb el botó d'idioma al costat del camp.
+- **Ordre:** arrossega les files per ordenar-les. La primera surt seleccionada quan es demana documentació, així que posa-hi primer el motiu més habitual (per defecte, **Falta el certificat de notes oficial del centre de procedència**).
+- Per deixar d'oferir un motiu sense perdre les sol·licituds que l'han fet servir, arxiva'l.
+
+---
+
+## Motius de denegació per mòdul
+
+Quan Cap d'Estudis denega la convalidació d'un mòdul, tria el motiu d'una llista. Tu mantens aquesta llista.
+
+**Rol necessari:** Administrador de l'EMS
+
+Navega a: **Gestió acadèmica → Configuració → Convalidacions → Motius de denegació per mòdul**
+
+- **Nom:** el text que la resolució i el portal mostren per al mòdul denegat. Escriu-lo en cada idioma amb el botó d'idioma al costat del camp.
+- **Ordre:** arrossega les files per ordenar-les. La primera surt seleccionada quan es denega un mòdul, així que posa-hi primer el motiu més habitual (per defecte, **Els continguts no són equivalents**).
+- Per deixar d'oferir un motiu sense perdre les sol·licituds que l'han fet servir, arxiva'l.
 
 ---
 

@@ -2,7 +2,7 @@
 
 from markupsafe import Markup
 
-from odoo import _, api, fields, models
+from odoo import _, fields, models
 
 from .convalidation import REVIEW_STATES
 
@@ -14,33 +14,42 @@ class EmsConvalidationInfoWizard(models.TransientModel):
     convalidation_id = fields.Many2one(string="Request", comodel_name='ems.convalidation', required=True,
                                        ondelete='cascade')
     student_id = fields.Many2one(string="Student", related='convalidation_id.student_id')
-    message = fields.Text(string="What is missing", required=True,
-                          help="Sent to the student (and their family, when it follows their convalidations) by email, and shown on the "
-                               "portal, where they can answer and attach the documents asked for.")
+    reason_id = fields.Many2one(string="Reason", comodel_name='ems.convalidation.info_reason', required=True,
+                                default=lambda self: self._default_reason_id())
+    message = fields.Text(string="Details",
+                          help="Sent to the student (and their family, when it follows their convalidations) by email "
+                               "after the reason, and shown on the portal, where they can answer and attach the "
+                               "documents asked for.")
 
-    @api.model
-    def default_get(self, fields_list):
-        vals = super().default_get(fields_list)
-        if 'message' in fields_list and not vals.get('message'):
-            vals['message'] = _("To resolve your convalidation request we need the following documentation:\n\n")
-        return vals
+    def _default_reason_id(self):
+        """First active reason by its own order: the most usual one, like the strike reasons."""
+        return self.env['ems.convalidation.info_reason'].search([], limit=1)
+
+    def _ems_request_text(self, lang):
+        """The reason, in the reader's language, followed by the details."""
+        reason = self.reason_id.with_context(lang=lang).name
+        return f"{reason}\n\n{self.message}" if (self.message or '').strip() else reason
 
     def action_send(self):
-        """Email the request for information and record it on the portal. The request itself
-        does not move: it stays where it was until the missing documents arrive."""
+        """Email the request for information and record it on the portal. The request then waits
+        for the documentation (state 'documentation') until the applicant answers or the Head of
+        Studies marks it as received."""
         self.ensure_one()
         convalidation = self.convalidation_id
         convalidation._ems_check_state(REVIEW_STATES)
         template = self.env.ref('ems.email_template_convalidation_info_request', raise_if_not_found=False)
         recipients = convalidation.student_id._ems_convalidation_recipients().filtered('email')
-        body = Markup("<p>{}</p>").format(self.message)
         for recipient in recipients:
+            lang = recipient.lang or convalidation.student_id.lang
             template.with_context(
-                lang=recipient.lang or convalidation.student_id.lang,
-                ems_info_request=self.message,
+                lang=lang,
+                ems_info_request=self._ems_request_text(lang),
             ).sudo().send_mail(convalidation.id, force_send=False, email_values={'email_to': recipient.email})
-        convalidation.sudo().write({'info_request': self.message,
+        convalidation.sudo().write({'info_request_reason_id': self.reason_id.id,
+                                    'info_request': self.message,
                                     'info_request_date': fields.Date.context_today(self)})
+        convalidation._ems_wait_for_documentation()
+        body = Markup("<p style=\"white-space: pre-line;\">{}</p>").format(self._ems_request_text(self.env.lang))
         convalidation._ems_post_communication(_("Documentation requested"), body)
         if recipients:
             note = _("Information requested from %s.") % ", ".join(recipients.mapped('email'))

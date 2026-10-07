@@ -34,7 +34,7 @@ Para ver las solicitudes de un alumno, abre su ficha y haz clic en el botón **C
 1. Abre la solicitud.
 2. Haz clic en el nombre del fichero del campo **Resolución** para abrir el PDF en una pestaña nueva, y comprueba en la pestaña **Asignaturas** qué módulos están convalidados y con qué nota.
 3. Registra la resolución en Esfera.
-4. Haz clic en **Registrada en Esfera** y confirma.
+4. En **Acciones**, elige **Registrada en Esfera** y confirma.
 
 ![Solicitud pendiente de secretaría](../../assets/secretary/convalidations-secretary.png)
 

@@ -34,7 +34,7 @@ To see a student's requests, open their record and click the **Convalidations** 
 1. Open the request.
 2. Click the file name in the **Resolution** field to open the PDF in a new tab, and check on the **Subjects** tab which modules are convalidated and with which grade.
 3. Register the resolution in Esfera.
-4. Click **Registered in Esfera** and confirm.
+4. In **Actions**, choose **Registered in Esfera** and confirm.
 
 ![Request pending the secretariat](../../assets/secretary/convalidations-secretary.png)
 

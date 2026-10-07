@@ -10,7 +10,8 @@ from odoo.exceptions import UserError, ValidationError
 _logger = logging.getLogger(__name__)
 
 # Grade a convalidated subject gets when nobody says otherwise. The Head of Studies (or the
-# secretariat afterwards) can replace it with the one the previous studies actually hold.
+# secretariat afterwards) can replace it with the one the previous studies actually hold, or
+# convalidate it without any grade at all (see ems.convalidation.line.without_grade).
 CONVALIDATED_GRADE = 5
 
 # States a request can no longer move on from.
@@ -21,7 +22,7 @@ FILED_FIELDS = {'student_id', 'course_id', 'study_id', 'basis', 'student_notes'}
 
 # States in which the Head of Studies still decides the subjects, and in which the applicant can
 # be asked for (and send) more documentation: before the resolution exists.
-REVIEW_STATES = ('pending', 'ministry')
+REVIEW_STATES = ('pending', 'documentation', 'ministry')
 
 
 class EmsConvalidation(models.Model):
@@ -36,6 +37,8 @@ class EmsConvalidation(models.Model):
     student_id = fields.Many2one(string="Student", comodel_name='res.partner', required=True,
                                  ondelete='restrict', index=True, tracking=True,
                                  domain="[('contact_type', 'in', ('student', 'applicant'))]")
+    student_idalu = fields.Char(string="Student ID", related='student_id.student_id',
+                                help="The student's IDALU, to look up their academic record in Esfera.")
     requester_id = fields.Many2one(string="Requested by", comodel_name='res.partner', ondelete='set null',
                                    help="Portal user who submitted the request: the student or a family contact.")
     course_id = fields.Many2one(string="Course", comodel_name='ems.course', required=True,
@@ -62,10 +65,12 @@ class EmsConvalidation(models.Model):
     # until it is resolved - by the centre, through a proposal the Director turns into the official
     # resolution, or by the Ministry, which the request waits for. Every resolution then goes to
     # the secretariat, who registers it in Esfera and closes the request. Only then does the grade
-    # reach the student's own grades.
+    # reach the student's own grades. While under review it can wait for the applicant's
+    # documentation (issue #577), then goes back to where it was.
     state = fields.Selection(string="State", default='pending', required=True, index=True,
                              copy=False, readonly=True, tracking=True, selection=[
                                  ('pending', 'Pending'),
+                                 ('documentation', 'Pending documentation'),
                                  ('ministry', 'In process at the Ministry'),
                                  ('direction', 'Pending the Director'),
                                  ('in_progress', 'Pending the secretariat'),
@@ -82,9 +87,12 @@ class EmsConvalidation(models.Model):
     ministry_resolution = fields.Binary(string="Ministry resolution", attachment=True, copy=False,
                                         help="The Ministry's own resolution (PDF), when it has arrived.")
     ministry_resolution_filename = fields.Char(string="Ministry resolution file name", copy=False)
+    info_request_reason_id = fields.Many2one(string="Reason for the request", comodel_name='ems.convalidation.info_reason',
+                                             readonly=True, copy=False, ondelete='set null',
+                                             help="Why the applicant was last asked for more documentation.")
     info_request = fields.Text(string="Documentation requested", readonly=True, copy=False,
-                               help="The last request for information sent to the applicant, shown on the "
-                                    "portal next to the answer form while the request is under review.")
+                               help="The details of the last request for information sent to the applicant, "
+                                    "shown on the portal next to the answer form while the request is under review.")
     info_request_date = fields.Date(string="Documentation requested on", readonly=True, copy=False)
     return_reason = fields.Text(string="Returned by the Director", readonly=True, copy=False,
                                 help="Why the Director sent the last proposal back for review.")
@@ -281,7 +289,7 @@ class EmsConvalidation(models.Model):
             if convalidation.pending_count:
                 raise UserError(_("Convalidate or reject every subject of the request first."))
             unexplained = convalidation.line_ids.filtered(
-                lambda line: line.state == 'rejected' and not (line.rejection_reason or '').strip())
+                lambda line: line.state == 'rejected' and not line._ems_rejection_text())
             if unexplained:
                 raise UserError(_("Write the reason for refusing: %s")
                                 % ", ".join(unexplained.subject_id.mapped('display_name')))
@@ -502,8 +510,16 @@ class EmsConvalidation(models.Model):
 
     # --- actions -------------------------------------------------------------
 
+    def _ems_is_cancellable(self):
+        """The applicant can withdraw a request until the Head of Studies proposes a resolution
+        or files it with the Ministry - waiting for their documentation included."""
+        self.ensure_one()
+        return self.state == 'pending' or (self.state == 'documentation' and not self.resolved_by_ministry)
+
     def action_cancel(self):
-        self._ems_check_state(('pending',))
+        for convalidation in self:
+            if not convalidation._ems_is_cancellable():
+                convalidation._ems_check_state(('pending',))
         self.sudo().write({'state': 'cancelled'})
         self._ems_close_tasks()
         for convalidation in self:
@@ -519,11 +535,6 @@ class EmsConvalidation(models.Model):
                 _("Convalidation request reopened"),
                 _("The request has been reopened by %s.") % self.env.user.name)
         self._ems_schedule_task('ems.mail_activity_convalidation_review')
-
-    def action_grant_pending(self):
-        """Convalidate every subject still undecided, with the default grade: the usual case,
-        where the whole request is accepted as filed."""
-        self.line_ids.filtered(lambda line: line.state == 'pending').action_grant()
 
     def action_send_to_ministry(self):
         """The Head of Studies has filed the request with the Ministry, which resolves it. It
@@ -674,12 +685,15 @@ class EmsConvalidation(models.Model):
             return
         student = line.student_id.sudo().with_context(mail_activity_quick_update=True)
         followers = student.message_partner_ids
-        note = Markup("<p>{}</p>").format(
-            _("%(student)s no longer takes %(subject)s: it has been convalidated with a %(grade)s "
-              "(registration %(number)s). They are no longer in its attendance lists or grades.") % {
-                'student': student.name, 'subject': line.subject_id.display_name,
-                'grade': line.grade, 'number': self.name,
-            })
+        values = {'student': student.name, 'subject': line.subject_id.display_name,
+                  'grade': line.grade, 'number': self.name}
+        if line.without_grade:
+            text = _("%(student)s no longer takes %(subject)s: it has been convalidated without a grade "
+                     "(registration %(number)s). They are no longer in its attendance lists or grades.") % values
+        else:
+            text = _("%(student)s no longer takes %(subject)s: it has been convalidated with a %(grade)s "
+                     "(registration %(number)s). They are no longer in its attendance lists or grades.") % values
+        note = Markup("<p>{}</p>").format(text)
         for user in users:
             student.activity_schedule(
                 act_type_xmlid='ems.mail_activity_convalidation_notice',
@@ -701,6 +715,26 @@ class EmsConvalidation(models.Model):
             'target': 'new',
             'context': {'default_convalidation_id': self.id},
         }
+
+    def _ems_wait_for_documentation(self):
+        """The applicant has been asked for documentation: the request waits for it, and the
+        review task leaves the Head of Studies' to-do list until it arrives."""
+        self.sudo().write({'state': 'documentation'})
+        self._ems_close_tasks()
+
+    def action_documentation_received(self):
+        """The documentation arrived some other way (on paper, by email): back to review."""
+        self._ems_check_head_of_studies()
+        self._ems_check_state(('documentation',))
+        self._ems_resume_review()
+
+    def _ems_resume_review(self):
+        """Back to where the request was when the documentation was asked for - the Ministry's
+        hands, or the Head of Studies' review - with the review task scheduled again."""
+        for convalidation in self.filtered(lambda convalidation: convalidation.state == 'documentation'):
+            convalidation.sudo().write({'state': 'ministry' if convalidation.resolved_by_ministry else 'pending'})
+            convalidation._ems_schedule_task('ems.mail_activity_convalidation_review')
+            convalidation._ems_post_note(_("Documentation received: the request is back under review."))
 
     # --- portal helpers ------------------------------------------------------
 
@@ -742,6 +776,7 @@ class EmsConvalidation(models.Model):
             message or _("New documentation attached."),
             self.env['ems.base'].build_html_list(attachments.mapped('name')) if attachments else Markup(""))
         self._ems_post_communication(_("Documentation added by the applicant"), body)
+        self._ems_resume_review()
 
 
 class EmsConvalidationLine(models.Model):
@@ -767,12 +802,19 @@ class EmsConvalidationLine(models.Model):
     grade = fields.Integer(string="Grade", default=CONVALIDATED_GRADE,
                            help="Grade the convalidated subject is recorded with. It only reaches the "
                                 "student's grades once the secretariat completes the request.")
+    without_grade = fields.Boolean(string="Without grade",
+                                   help="Convalidated with no grade: the resolution and the grades show it "
+                                        "as \"Convalidated\" (CV), and it does not count towards the average.")
     resolution_notes = fields.Char(string="Remarks",
                                    help="Where the resolution comes from, e.g. \"Granted by the Department, "
                                         "file no. 1234\". Shown to the student with the resolution.")
-    rejection_reason = fields.Text(string="Reason for refusal",
-                                   help="Why the subject is not convalidated. Required to refuse it: the "
-                                        "resolution states it.")
+    rejection_reason_id = fields.Many2one(string="Reason for refusal",
+                                          comodel_name='ems.convalidation.rejection_reason', ondelete='restrict',
+                                          help="Why the subject is not convalidated. Required to refuse it: "
+                                               "the resolution states it.")
+    rejection_reason = fields.Text(string="Refusal details",
+                                   help="Optional details after the reason for refusal, stated with it on "
+                                        "the resolution.")
 
     @api.depends('subject_id')
     def _compute_display_name(self):
@@ -788,9 +830,9 @@ class EmsConvalidationLine(models.Model):
                     'study': line.convalidation_id.study_id.display_name,
                 })
 
-    @api.constrains('grade')
+    @api.constrains('grade', 'without_grade')
     def _check_grade(self):
-        for line in self:
+        for line in self.filtered(lambda line: not line.without_grade):
             if not CONVALIDATED_GRADE <= line.grade <= 10:
                 raise ValidationError(_("A convalidated subject's grade must be between %(min)s and 10.")
                                       % {'min': CONVALIDATED_GRADE})
@@ -810,7 +852,8 @@ class EmsConvalidationLine(models.Model):
     def write(self, vals):
         # The grade and the reason for refusing belong to the decision itself: nobody touches
         # them once the resolution exists.
-        if not {'state', 'subject_id', 'grade', 'rejection_reason'} & set(vals):
+        if not {'state', 'subject_id', 'grade', 'without_grade', 'rejection_reason_id',
+                'rejection_reason'} & set(vals):
             return super().write(vals)
         self._ems_check_can_decide()
         # A changed subject leaves its previous one to be re-evaluated too.
@@ -843,6 +886,37 @@ class EmsConvalidationLine(models.Model):
 
     # --- actions -------------------------------------------------------------
 
+    def action_open_grant(self):
+        """The Head of Studies convalidates the subject: a dialog asks for its grade first."""
+        self.ensure_one()
+        self._ems_check_can_decide()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Convalidate %s") % self.subject_id.display_name,
+            'res_model': 'ems.convalidation.grant_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_line_id': self.id,
+                        'default_grade': self.grade,
+                        'default_mode': 'without_grade' if self.without_grade else 'grade'},
+        }
+
+    def action_open_reject(self):
+        """The Head of Studies refuses the subject: a dialog asks for the reason first."""
+        self.ensure_one()
+        self._ems_check_can_decide()
+        context = {'default_line_id': self.id, 'default_details': self.rejection_reason}
+        if self.rejection_reason_id:
+            context['default_reason_id'] = self.rejection_reason_id.id
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Reject %s") % self.subject_id.display_name,
+            'res_model': 'ems.convalidation.reject_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': context,
+        }
+
     def action_grant(self):
         self.write({'state': 'granted'})
 
@@ -852,11 +926,21 @@ class EmsConvalidationLine(models.Model):
     def action_reset(self):
         self.write({'state': 'pending'})
 
-    def _ems_is_default_grade(self):
-        """Whether the subject keeps the default grade, which the resolution reads as a plain
-        "Convalidated" rather than a number."""
+    def _ems_rejection_text(self):
+        """Why the subject is refused, in the current language: the reason followed by the
+        details. Empty when nothing explains it."""
         self.ensure_one()
-        return self.grade == CONVALIDATED_GRADE
+        reason = (self.rejection_reason_id.name or '').strip()
+        details = (self.rejection_reason or '').strip()
+        if reason and details:
+            return f"{reason.rstrip('.')}. {details}"
+        return reason or details
+
+    def _ems_resolved_grade(self):
+        """The grade the subject reaches the student's grades with: 0 when convalidated without
+        a grade, which the grades read as a plain CV."""
+        self.ensure_one()
+        return 0 if self.without_grade else self.grade
 
     # --- grades sync ---------------------------------------------------------
 
@@ -875,9 +959,10 @@ class EmsConvalidationLine(models.Model):
 
     @api.model
     def _ems_convalidation_grade(self, student, subject):
-        """The grade 'subject' is convalidated with for 'student', or None when it is not."""
+        """The grade 'subject' is convalidated with for 'student' (0 when without a grade), or None
+        when it is not convalidated."""
         line = self._ems_convalidation_line(student, subject)
-        return line.grade if line else None
+        return line._ems_resolved_grade() if line else None
 
     @api.model
     def _ems_is_convalidated(self, student, subject):
@@ -901,7 +986,7 @@ class EmsConvalidationLine(models.Model):
         YearRecord = self.env['ems.student.year_record'].sudo()
         for student, subject in pairs:
             line = self._ems_convalidation_line(student, subject)
-            grade = line.grade if line else None
+            grade = line._ems_resolved_grade() if line else None
             convalidated = grade is not None
             GradeLine.search([
                 ('student_id', '=', student.id),
@@ -923,8 +1008,7 @@ class EmsConvalidationLine(models.Model):
                 records = dropped.record_id
                 dropped.unlink()
                 records.filtered(lambda record: not record.subject_record_ids).unlink()
-            (changed - dropped)._ems_set_convalidated(
-                convalidated, grade or CONVALIDATED_GRADE, line.convalidation_id)
+            (changed - dropped)._ems_set_convalidated(convalidated, grade or 0, line.convalidation_id)
             # The convalidation's own course records the subject, whether its history is frozen
             # already (the student was withdrawn before any round was graded) or not generated
             # yet: then a provisional record is opened, so the grade shows in the history - the

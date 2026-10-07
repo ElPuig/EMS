@@ -148,7 +148,7 @@ class EmsPortalConvalidationController(CustomerPortal):
         student = self._ems_convalidation_student()
         convalidation = request.env['ems.convalidation'].sudo().browse(convalidation_id)
         if student and convalidation.exists() and convalidation.student_id == student \
-                and convalidation.state == 'pending':
+                and convalidation._ems_is_cancellable():
             convalidation.action_cancel()
         return request.redirect(self._redirect)
 

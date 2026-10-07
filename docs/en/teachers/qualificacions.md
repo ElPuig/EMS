@@ -96,7 +96,7 @@ To the right of the outcome columns are the columns that summarise the subject g
 | **External** | Work-placement grade (external part). Informed manually, like another outcome. |
 | **Override Internal** | Checkbox to **override the internal grade**. When ticked, you can set the internal grade manually instead of letting it be computed from the outcomes. |
 | **Internal** | **Internal grade**, computed automatically from the outcomes according to their weights. |
-| **Final** | **Final grade** of the subject, combining the internal and external grades according to the planning percentages. A grade followed by **CV** means the subject is convalidated for that student: it counts as passed with the convalidation's grade. |
+| **Final** | **Final grade** of the subject, combining the internal and external grades according to the planning percentages. A grade followed by **CV** means the subject is convalidated for that student: it counts as passed with the convalidation's grade. **CV** alone means it was convalidated without a grade: passed, but with no grade to count towards the average. |
 | **Comments** | Free per-student remark (optional). |
 
 ![Subject-grade columns: External, Override Internal, Internal, Final and Comments](../../assets/teachers/teachers-05-columnes-nota.png)

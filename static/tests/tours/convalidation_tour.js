@@ -24,8 +24,8 @@ registry.category("web_tour.tours").add("ems_convalidation_resolve", {
         },
         {
             // Issue #576: the student's IDALU, with a button to copy it into Esfera.
-            trigger: ".o_form_view .oe_title .o_field_widget[name='student_idalu']:contains('TEST') .o_clipboard_button",
-            content: "The student's IDALU is shown under the name, ready to copy",
+            trigger: ".o_form_view .o_field_widget[name='student_idalu']:contains('TEST') .o_clipboard_button",
+            content: "The student's IDALU is shown, ready to copy",
         },
         {
             trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row button[name='action_open_grant']",

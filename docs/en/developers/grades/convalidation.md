@@ -46,7 +46,7 @@ erDiagram
 |-------|------|-------|
 | `name` | Char | Registration number, `CONV-<start>-<end, two digits>-<4-digit counter>` (e.g. `CONV-2026-27-0001`), assigned on creation by `_ems_next_registration_number(course)`. The counter starts again every course: one `ir.sequence` per course (code `ems.convalidation.course.<id>`, the prefix baked in), created the first time that course gets a request, so nothing has to be prepared before a year opens. Leads `display_name`. |
 | `student_id` | M2o `res.partner` | Required. Student or applicant (an applicant enrolling into a cycle is the typical requester). |
-| `student_idalu` | Char, related | The student's IDALU (`student_id.student_id`), shown under the name with a copy button (`CopyClipboardChar`) to paste it into Esfera, as an optional list column, and searchable from the *Student* search field (issue #576). |
+| `student_idalu` | Char, related | The student's IDALU (`student_id.student_id`), shown under *Requested by* with a copy button (`CopyClipboardChar`) to paste it into Esfera, as an optional list column, and searchable from the *Student* search field (issue #576). |
 | `requester_id` | M2o `res.partner` | The portal user who submitted it: the student or a family contact. |
 | `course_id` | M2o `ems.course` | Required. Defaults to the enrollment course (`is_enrollment_default`), else the current one: requests are made while enrolling. |
 | `study_id` | M2o `ems.study` | Required. Its level must allow convalidations (`_check_study_allows_convalidation`). |

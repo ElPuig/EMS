@@ -328,7 +328,18 @@ state (nothing sent yet); once scheduled/sent/failed, `UserError` tells the call
 applies to every group, including admins, since a sent notice has real delivery history
 (`queue.job` records via `notice_line_id.notification_id`) worth preserving.
 
-## Views
+## Typing the Catalan grave accent in the message editor
+
+The message (like every rich-text field) uses Odoo's `html_editor`, whose inline-code plugin turns
+`` `text` `` into code and reacts to every "`" input. The grave accent's dead key (à, è, ò) sends a
+"`" while the composition is still open; the plugin moved the selection on it and the browser
+cancelled the composition, so the accent was lost (confirmed from Firefox's own event log:
+`compositionupdate ""` / `compositionend ""` right after the composing "`"). 
+`static/src/js/backend/html_editor_dead_key.js` patches `InlineCodePlugin.onInput` to ignore input
+still being composed (`isComposing`); `notice_department_chief_tour.js` checks that a composing "`"
+leaves the selection alone (it fails without the patch).
+
+
 
 | View | File |
 |------|------|

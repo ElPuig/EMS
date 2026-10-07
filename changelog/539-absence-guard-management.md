@@ -91,3 +91,10 @@
 - In the PDF, a guard's box combined a static class with a dynamic one, and QWeb replaces the
   static class instead of merging it, so every guard badge printed without its border. Both
   badges (timetable and absences table) now build the whole class list in one expression.
+
+## Rich-text editor: the Catalan grave accent (à, è, ò) could not be typed:
+- In every rich-text field (notices included), the dead key of the grave accent sends a "`" that is
+  still being composed; Odoo's inline-code shortcut reacted to it, moved the selection and the
+  browser cancelled the composition, so the accent never reached the letter (Firefox and Chrome).
+  EMS now patches that shortcut to ignore a character still being composed; a plain backtick still
+  makes inline code.

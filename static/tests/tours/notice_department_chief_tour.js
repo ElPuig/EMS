@@ -44,6 +44,36 @@ registry.category("web_tour.tours").add("ems_notice_department_chief", {
             run: "editor Department message",
         },
         {
+            // Catalan's grave accent is a dead key: a "`" that is still being composed must leave
+            // the selection alone, or the browser cancels the composition and the "à" never
+            // forms (see html_editor_dead_key.js). Odoo's inline-code plugin used to move it.
+            trigger: ".o_form_view .o_field_widget[name='message'] .note-editable",
+            content: "A composing grave accent does not move the selection",
+            run: () => {
+                const editable = document.querySelector(".o_field_widget[name='message'] .note-editable");
+                const moves = [];
+                const proto = Selection.prototype;
+                const originals = {};
+                for (const name of ["setBaseAndExtent", "addRange", "removeAllRanges", "collapse"]) {
+                    originals[name] = proto[name];
+                    proto[name] = function (...args) {
+                        moves.push(name);
+                        return originals[name].apply(this, args);
+                    };
+                }
+                try {
+                    editable.dispatchEvent(new InputEvent("input", {
+                        data: "`", inputType: "insertCompositionText", isComposing: true, bubbles: true,
+                    }));
+                } finally {
+                    Object.assign(proto, originals);
+                }
+                if (moves.length) {
+                    throw new Error(`The composing accent moved the selection: ${moves.join(", ")}`);
+                }
+            },
+        },
+        {
             trigger: ".o_form_button_save",
             content: "Save",
             run: "click",

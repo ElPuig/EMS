@@ -8,5 +8,7 @@
 - The presence state and icon are now computed as superuser: the dot is the same on the card and
   on the form, for everyone. Nothing new is exposed (present / absent / on leave / out of working
   hours was already shown).
-- Tests read the state as a teacher and as a tutor, and a tour as a tutor checks the kanban and
-  the form agree (it fails without the fix).
+- Tests check every colour (present, absent, out of working hours, on leave): the state must be
+  identical read as the system, a teacher and a tutor, and a tour as a plain teacher checks the
+  kanban and the form show the identical icon for one colleague per colour (both fail without the
+  fix).

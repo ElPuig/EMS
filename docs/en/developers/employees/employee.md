@@ -133,8 +133,11 @@ schedule** (issue #555):
   Teachers kanban, loaded another way, showed them present (green). `ems_employee_base` redeclares
   `hr_presence_state`, `hr_icon_display` and `show_hr_icon_display` with `compute_sudo=True`. Nothing
   new is exposed: the dot was already shown to them, and only says present / absent / on leave /
-  out of working hours. Covered by `test_employee_presence_state.py` (read as a teacher and a tutor)
-  and `test_employee_presence_tour.py` (kanban and form, as a tutor).
+  out of working hours. Without it the compute didn't only get the green wrong: read directly with
+  a teacher's or a tutor's rights it failed for every state. Covered by
+  `test_employee_presence_state.py` (every state, read as the system, a teacher and a tutor, must
+  match) and `test_employee_presence_tour.py` (as a plain teacher - the least-privileged role on
+  that screen -, one colleague per colour, kanban and form must show the identical icon).
 
 - **Native labels fixed in Catalan/Spanish.** hr ships 'Out of Working hours' with no Catalan
   translation, hr_holidays ships 'On leave' as "En sortir" (ca) and 'Present but on leave' as

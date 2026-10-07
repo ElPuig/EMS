@@ -6,7 +6,7 @@ from odoo.tests.common import TransactionCase
 
 from odoo.addons.ems import _disable_login_presence_control, _fix_native_presence_translations
 
-from .common import create_role_employee, create_role_user
+from .common import create_role_employee, create_role_user, mock_outgoing_email
 
 # A past Monday (no school holiday): 07:00 UTC is 09:00 in Europe/Madrid (CEST).
 MONDAY = datetime(2026, 9, 28)
@@ -23,6 +23,8 @@ class TestEmployeePresenceState(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # Approving a leave notifies by email - see CLAUDE.md's 'Email safety in tests'.
+        mock_outgoing_email(cls)
         cls.env.company.hr_presence_control_attendance = True
         _disable_login_presence_control(cls.env)
         cls.teacher_user = create_role_user(cls, 'teacher', 'test_teacher_presence_state')
@@ -74,6 +76,29 @@ class TestEmployeePresenceState(TransactionCase):
             viewer = create_role_user(self, role, f'test_{role}_viewer_presence_state')
             with self.subTest(role=role):
                 self.assertEqual(self._presence_at(7, 15, user=viewer), ('present', 'presence_present'))
+
+    def test_every_state_is_the_same_whoever_looks(self):
+        """Every colour of the dot, not only the green one #575 was about: read as the system, a
+        teacher and a tutor, each state and icon must be identical."""
+        viewers = {role: create_role_user(self, role, f'test_{role}_viewer_every_state') for role in ('teacher', 'tutor')}
+
+        def check(expected, utc_hour, utc_minute=0):
+            for role, viewer in viewers.items():
+                with self.subTest(expected=expected, role=role):
+                    self.assertEqual(self._presence_at(utc_hour, utc_minute, user=viewer), expected)
+            self.assertEqual(self._presence_at(utc_hour, utc_minute), expected)
+
+        check(('out_of_working_hour', 'presence_out_of_working_hour'), 6, 30)  # grey: before the first class
+        check(('absent', 'presence_absent'), 7, 15)  # yellow: in class, not checked in
+        leave = self.env['hr.leave'].create({
+            'employee_id': self.teacher.id, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+            'request_date_from': MONDAY.date(), 'request_date_to': MONDAY.date(), 'ems_full_day': True,
+            'ems_submitted': True, 'ems_responsible_declaration': True,
+        })
+        leave.action_approve()
+        check(('absent', 'presence_holiday_absent'), 7, 15)  # plane: on leave
+        self.env['hr.attendance'].create({'employee_id': self.teacher.id, 'check_in': MONDAY.replace(hour=6, minute=55)})
+        check(('present', 'presence_holiday_present'), 7, 15)  # green plane: on leave, but checked in
 
     def test_a_colleague_missing_class_is_absent_whoever_looks(self):
         viewer = create_role_user(self, 'tutor', 'test_tutor_viewer_absent_presence_state')

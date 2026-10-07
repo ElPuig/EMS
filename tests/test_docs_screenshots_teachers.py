@@ -15,6 +15,7 @@ from unittest.mock import patch
 from odoo.tests.common import HttpCase, tagged
 
 from .common import (
+    shift_ems_clock,
     DocsScreenshotMixin, create_level_study_group, create_role_employee, create_role_user,
     mock_outgoing_email, next_student_id,
 )
@@ -185,6 +186,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
 
     def test_capture_attendance_session(self):
         from datetime import date
+        today = shift_ems_clock(self).date()
         level, study, group = create_level_study_group(self, 'DOCSESS', level={
             'name': 'Formació professional',
         }, study={
@@ -204,9 +206,9 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         student_c = self._student(group, 'Nerea Prova')
         student_d = self._student(group, 'Iker Model')
 
-        # Spans the whole day (same trick as test_attendance_session_tour.py): makes the schedule
-        # "current" regardless of what time this capture actually runs at, no time-freezing needed.
-        weekday = str(date.today().weekday())
+        # The clock is set to 10:00 (shift_ems_clock), inside this whole-day slot: the schedule
+        # is the current one whatever time this capture actually runs at.
+        weekday = str(today.weekday())
         template = self.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, self.teacher_employee.ids)], 'study_ids': [(6, 0, [study.id])],
             'subject_id': subject.id, 'group_ids': [(6, 0, [group.id])],
@@ -218,7 +220,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             'student_ids': [(6, 0, (student_a + student_b + student_c + student_d).ids)],
         })
         session = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': schedule.id, 'date': date.today(),
+            'attendance_schedule_id': schedule.id, 'date': today,
             'mode': 'manual', 'session_teacher_id': self.teacher_employee.id,
         })
         status_attended = self.env.ref('ems.attendance_status_attended')
@@ -235,8 +237,8 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         line_c = lines.filtered(lambda line: line.student_id == student_c)
         justification = self.env['ems.attendance_justification'].create({
             'teacher_id': self.teacher_employee.id, 'student_id': student_c.id,
-            'start_date': datetime.combine(date.today(), datetime.min.time()),
-            'end_date': datetime.combine(date.today(), datetime.max.time()),
+            'start_date': datetime.combine(today, datetime.min.time()),
+            'end_date': datetime.combine(today, datetime.max.time()),
             'notes': 'Visita mèdica',
         })
         line_c.write({'status_id': status_miss.id, 'attendance_justification_id': justification.id})
@@ -617,6 +619,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
 
     def test_capture_strike(self):
         from datetime import date
+        today = shift_ems_clock(self).date()
 
         level, study, group = create_level_study_group(self, 'DOCSTRIKE', level={
             'name': 'Formació professional',
@@ -634,9 +637,9 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         })
         student = self._student(group, 'Nil Exemple')
 
-        # Spans the whole day (same trick as test_capture_attendance_session) so the schedule is
-        # "current" regardless of when the capture actually runs.
-        weekday = str(date.today().weekday())
+        # Same as test_capture_attendance_session: shifted clock, so the schedule is the current one
+        # whenever the capture runs.
+        weekday = str(today.weekday())
         template = self.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, self.teacher_employee.ids)], 'study_ids': [(6, 0, [study.id])],
             'subject_id': subject.id, 'group_ids': [(6, 0, [group.id])],
@@ -648,7 +651,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             'student_ids': [(6, 0, student.ids)],
         })
         self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': schedule.id, 'date': date.today(),
+            'attendance_schedule_id': schedule.id, 'date': today,
             'mode': 'manual', 'session_teacher_id': self.teacher_employee.id,
         })
 

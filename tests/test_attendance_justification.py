@@ -4,7 +4,7 @@ from datetime import date, datetime, timedelta
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, create_role_user, mock_outgoing_email, next_student_id
+from .common import create_level_study, create_role_user, shift_ems_clock, mock_outgoing_email, next_student_id
 
 
 class TestAttendanceJustification(TransactionCase):
@@ -105,10 +105,11 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.today = shift_ems_clock(cls).date()
         # Marking a line as a miss queues family notifications.
         mock_outgoing_email(cls)
         cls.level, cls.study = create_level_study(cls, 'TAJ', study={
-            'name': 'Test Study (Attendance Justification)', 'date': date.today(),
+            'name': 'Test Study (Attendance Justification)', 'date': cls.today,
         }, level={'name': 'Test Level (Attendance Justification)'})
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TAJ001', 'acronym': 'TAJ', 'name': 'Test Subject (Attendance Justification)',
@@ -150,12 +151,12 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
         })
         cls.schedule = cls.env['ems.attendance_schedule'].create({
-            'attendance_template_id': cls.template.id, 'weekday': str(date.today().weekday()),
+            'attendance_template_id': cls.template.id, 'weekday': str(cls.today.weekday()),
             'start_time': 8.0, 'end_time': 9.0, 'space_id': cls.space.id,
             'student_ids': [(6, 0, [cls.student.id])],
         })
         cls.session = cls.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': cls.schedule.id, 'date': date.today(),
+            'attendance_schedule_id': cls.schedule.id, 'date': cls.today,
             'mode': 'scheduled', 'session_teacher_id': cls.tutor_employee.id,
         })
 
@@ -164,8 +165,8 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
 
     def _today_range(self):
         return {
-            'start_date': datetime.combine(date.today(), datetime.min.time()),
-            'end_date': datetime.combine(date.today(), datetime.max.time()),
+            'start_date': datetime.combine(self.today, datetime.min.time()),
+            'end_date': datetime.combine(self.today, datetime.max.time()),
         }
 
     def _other_teacher_schedule(self):
@@ -177,7 +178,7 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
         })
         return self.env['ems.attendance_schedule'].create({
-            'attendance_template_id': template.id, 'weekday': str(date.today().weekday()),
+            'attendance_template_id': template.id, 'weekday': str(self.today.weekday()),
             'start_time': 10.0, 'end_time': 11.0, 'space_id': self.space.id,
             'student_ids': [(6, 0, [self.student.id])],
         })
@@ -185,7 +186,7 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
     def _other_teacher_miss_line(self):
         """The student's line, marked as a miss, in a session the tutor cannot read."""
         session = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': self._other_teacher_schedule().id, 'date': date.today(),
+            'attendance_schedule_id': self._other_teacher_schedule().id, 'date': self.today,
             'mode': 'scheduled', 'session_teacher_id': self.other_teacher.id,
         })
         line = session.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student)
@@ -298,7 +299,7 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
     def test_date_change_reverts_dropped_severe_delay(self):
         # The form's onchange sends the new dates together with the lines they now cover.
         line, justification = self._justify_severe_delay()
-        tomorrow = date.today() + timedelta(days=1)
+        tomorrow = self.today + timedelta(days=1)
         justification.write({
             'start_date': datetime.combine(tomorrow, datetime.min.time()),
             'end_date': datetime.combine(tomorrow, datetime.max.time()),
@@ -338,7 +339,7 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
         self.env.invalidate_all()
 
         result = self.env['ems.attendance_session_header'].with_user(
-            self.other_teacher_user).create_scheduled_session(date.today(), schedule.id)
+            self.other_teacher_user).create_scheduled_session(self.today, schedule.id)
         session = self.env['ems.attendance_session_header'].browse(result['id'])
         self.assertTrue(session.exists())
 

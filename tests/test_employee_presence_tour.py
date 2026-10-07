@@ -5,7 +5,7 @@ from odoo.tests import HttpCase, tagged
 
 from odoo.addons.ems import _disable_login_presence_control
 
-from .common import create_role_employee, create_role_user, mock_outgoing_email
+from .common import create_role_employee, create_role_user, shift_ems_clock, mock_outgoing_email
 
 
 @tagged('post_install', '-at_install')
@@ -15,8 +15,8 @@ class TestEmployeePresenceTour(HttpCase):
 
     def _colleague(self, name, working_now):
         employee = create_role_employee(self, create_role_user(self, 'teacher', name.lower().replace(' ', '_')), name=name)
-        # A slot covering the whole of today's weekday makes them "should be working now" at any
-        # hour the test runs; none at all leaves them out of working hours.
+        # A slot covering the whole of today's weekday makes them "should be working now" at the
+        # shifted 10:00 (see the test); none at all leaves them out of working hours.
         weekday = str(self.env['ems.datetime_utils'].get_local_today().weekday())
         employee.resource_calendar_id = self.env['resource.calendar'].create({
             'name': f'{name} Schedule',
@@ -26,6 +26,7 @@ class TestEmployeePresenceTour(HttpCase):
         return employee
 
     def test_employee_presence_tour(self):
+        shift_ems_clock(self)
         mock_outgoing_email(self)
         self.env.company.hr_presence_control_attendance = True
         _disable_login_presence_control(self.env)

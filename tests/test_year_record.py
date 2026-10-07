@@ -3,7 +3,7 @@ from datetime import date
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, next_student_id
+from .common import create_level_study, shift_ems_clock, next_student_id
 
 
 class TestYearRecord(TransactionCase):
@@ -291,6 +291,7 @@ class TestYearRecord(TransactionCase):
     # --- generation: attendance ------------------------------------------------
 
     def test_generate_attendance(self):
+        today = shift_ems_clock(self).date()
         student = self._student('Attendance Student')
         # A graded subject, so the record gets a subject line to carry the per-subject rate.
         self._enroll(student, self.subject1)
@@ -310,11 +311,11 @@ class TestYearRecord(TransactionCase):
             'start_date': date(2020, 1, 1), 'end_date': date(2098, 12, 31),
         })
         schedule = self.env['ems.attendance_schedule'].create({
-            'attendance_template_id': template.id, 'weekday': str(date.today().weekday()),
+            'attendance_template_id': template.id, 'weekday': str(today.weekday()),
             'start_time': 0.0, 'end_time': 23.0, 'space_id': space.id,
         })
         session = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': schedule.id, 'date': date.today(),
+            'attendance_schedule_id': schedule.id, 'date': today,
             'mode': 'manual', 'session_teacher_id': self.tutor_employee.id,
         })
         for xmlid in ('attendance_status_attended', 'attendance_status_delayed', 'attendance_status_issue', 'attendance_status_miss'):

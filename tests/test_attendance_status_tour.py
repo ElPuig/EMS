@@ -2,15 +2,16 @@ from datetime import date
 
 from odoo.tests import tagged, HttpCase
 
-from .common import create_level_study, force_user_language_to_english, next_student_id
+from .common import create_level_study, force_user_language_to_english, shift_ems_clock, next_student_id
 
 
 @tagged('post_install', '-at_install')
 class TestAttendanceStatusTour(HttpCase):
 
     def _seed_session(self):
+        today = shift_ems_clock(self).date()
         level, study = create_level_study(self, 'TAST', level={'name': 'Test Level (Attendance Status Tour)'}, study={
-            'code': 'TAST001', 'name': 'Test Study (Attendance Status Tour)', 'date': date.today(),
+            'code': 'TAST001', 'name': 'Test Study (Attendance Status Tour)', 'date': today,
         })
         subject = self.env['ems.subject'].create({
             'code': 'TAST001', 'acronym': 'TAST', 'name': 'Test Subject (Attendance Status Tour)',
@@ -38,11 +39,11 @@ class TestAttendanceStatusTour(HttpCase):
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
         })
         schedule = self.env['ems.attendance_schedule'].create({
-            'attendance_template_id': template.id, 'weekday': str(date.today().weekday()),
+            'attendance_template_id': template.id, 'weekday': str(today.weekday()),
             'start_time': 0.0, 'end_time': 23.0, 'space_id': space.id,
         })
         session = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': schedule.id, 'date': date.today(),
+            'attendance_schedule_id': schedule.id, 'date': today,
             'mode': 'manual', 'session_teacher_id': admin_employee.id,
         })
         student = self.env['res.partner'].create({

@@ -419,8 +419,21 @@ moment instead: `unittest.mock.patch.object(fields.Datetime, 'now', return_value
 package, not about mocking `now()` at all) wrapping the compute/`create()`/`start_tour()` call,
 with `check_in` derived from that same `frozen_now` rather than a second independent real-time
 read. See `tests/test_attendance_correction.py`/`tests/test_attendance_correction_request_tour.py`
-for the pattern. Fixtures that only pick a weekday/hour-of-day (not compared against a local-day
-cutoff) don't need this — real "now" is still the right choice there, per the existing convention.
+for the pattern.
+
+**Fixtures that pick a weekday, today's date or a slot that must be "current" use
+`shift_ems_clock()` (`tests/common.py`), never the real clock (developer, 2026-10-07: *"No es
+aceptable detener un deploy porque una prueba exige unas horas concretas"*).** Until then they
+relied on the real clock plus a whole-day slot (`start_time 0.0`/`end_time 23.0`) and
+`date.today()`. That failed every roll-call/strike tour after 23:00 local and gave the wrong
+weekday (UTC) between local midnight and 02:00, so a release could not pass CI at night. The
+helper moves every clock a test reads (EMS's own, the browser's `serverNow()`, `odoo.fields`' now/
+today) to 10:00 of the company's day and lets it run. Take dates and weekdays from what it
+returns. Details and why it only shifts forward: `docs/en/developers/shared/testing.md`.
+Verified by running the affected classes under `faketime` (package installed on this box) at
+00:30, 09:30 and 23:30 local, which is also how to check a new time-dependent test:
+`scripts/testing/as_odoo.sh env TZ=UTC faketime '<UTC time>' bash -c "odoo -d ems --test-enable
+--test-tags=/ems:<Class> --stop-after-init -c /etc/odoo/odoo.conf"` with the service stopped.
 
 **Per-role smoke tours (`tests/test_role_smoke_<role>_tour.py`, added 2026-09-11, issue #434
 follow-up):** in addition to feature-specific tours, EMS has one generic "crawler" tour per role

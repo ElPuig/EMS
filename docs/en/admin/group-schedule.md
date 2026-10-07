@@ -88,10 +88,10 @@ Every active group has a public link to its schedule PDF, which anyone can open 
 in to EMS — use it, for example, to link each group's timetable from the centre's website.
 
 1. Open **Groups → [a group]**.
-2. In the **Public schedule link** field (e.g. `.../ems/schedule/eso1a.pdf`), click the link to
+2. On the **Schedule** tab, below the **PDF** button, in the **Public schedule link** field (e.g. `.../ems/schedule/eso1a.pdf`), click the link to
    open the PDF in a new tab, or click the button on its right to copy the link.
 
-![Public schedule link on the group form](../../assets/admin/group-schedule-public-link.png)
+![Public schedule link on the group's Schedule tab](../../assets/admin/group-schedule-public-link.png)
 
 The PDF behind the link is updated automatically a few seconds after any change to the group's
 schedule, so the link never needs to be replaced. The link is built from the group's name: if

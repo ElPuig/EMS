@@ -188,6 +188,11 @@ class TestDocsScreenshotsAdmin(HttpCase, DocsScreenshotMixin):
             self._form_url('ems.group', group), '.o_form_sheet', 'admin-groups-form.png',
             login='doc_shot_admin', wait_for=".o_form_sheet .o_field_widget[name='tutor_id']",
         )
+        # ...and its public schedule link, on the Schedule tab between the buttons and the grid.
+        self._capture(
+            self._form_url('ems.group', group), '.o_schedule_grid', 'group-schedule-public-link.png',
+            login='doc_shot_admin', wait_for='.o_schedule_grid_public_url', max_height=150,
+        )
 
         # --- Teacher roles: a teacher with two roles assigned by hand ---
         teacher = self._teacher('0000 Jordi Mostra Vidal')

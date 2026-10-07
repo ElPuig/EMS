@@ -7,8 +7,9 @@
   a group to reinforcement clears it), and it is cleared automatically when that student leaves the
   group (withdrawal, or a course transition that graduates or strands them).
 - The group form's main data is regrouped: level and study on one row, then reference classroom,
-  course and acronym, then tutor, delegate and sub-delegate.
-- The admin groups and working-schedules manuals mention it, with a refreshed group form screenshot.
+  course and acronym, then tutor, delegate and sub-delegate. The public schedule link moves to the
+  Schedule tab, between its buttons and the grid.
+- The admin groups, working-schedules and group-schedule manuals describe it, with refreshed screenshots.
 
 # Fixes:
 

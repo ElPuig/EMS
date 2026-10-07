@@ -235,6 +235,20 @@ have their own `ir.model.access.csv` rows for `ems.notice`/`ems.notice.line`, al
 | `group_academic_admin`, `group_director` | Every notice | Every notice |
 | `group_head_of_studies` (HOS/DHOS) | Every notice (for supervision) | Only notices they created |
 | `group_quality_admin` (Quality coordinator) | Every notice (for supervision) | Only notices they created |
+| `group_department_chief` (Department/Seminar Chief) | Only timetable-change notices they created | Only timetable-change notices they created |
+
+**Timetable-change notices (issues #539/#581).** A notice with `absence_date`,
+`absence_group_id`, `absence_change_type` and `absence_change_hour` set
+(`models/communications/notice_absence_change.py`) is one the guard duty board proposed: it tells
+a group's students and families they can come in later, leave earlier or have no classes because
+a teacher is away, or corrects an earlier one. It is created as a draft, pre-filled with the group's
+recipients and a suggested text, by `board_propose_absence_change()`, and sent from this same form
+like any other notice. Department chiefs, who otherwise have no access to notices, reach exactly
+these (`rule_notice_department_chief_absence_change` + its line variant); the Communications menu
+stays hidden from them. `_check_absence_change_recipients` keeps such a notice addressed to its
+own group only, and the form shows an information banner and locks its groups. The board reads
+these notices back to know what was communicated: see "Managing absences from the board" in
+[guard_duty_board.md](../attendance/guard_duty_board.md).
 
 Enforced by `security/rules/communications.xml`: `rule_notice_admin`/`rule_notice_line_admin`
 (`domain_force=[(1,'=',1)]`, full CRUD, groups `group_academic_admin` + `group_director`),

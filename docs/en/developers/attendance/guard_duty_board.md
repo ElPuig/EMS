@@ -640,6 +640,146 @@ context key, mirroring `guard_duty_weekday`/`guard_duty_shift`/`guard_duty_date`
 `guard_duty_level_ids` from context the same way as the existing weekday/shift/date keys,
 passed through to `get_guard_duty_board_lines()`.
 
+## Managing absences from the board (issues #539, #571, #581)
+
+The absences table is also where an absence gets organised, not just read. Three decisions are
+taken from it, all of them manually (nothing is ever sent or changed on its own):
+
+1. **Send a guard** to a class left without its teacher, with a message for them (#571).
+2. **Tell the families** that the students can come in later, leave earlier or have no classes,
+   when the empty lessons are at the start or the end of the group's day (#539). Once told, those
+   lessons need no guard and are struck out (#581).
+3. **Undo what an absence that changed afterwards made unnecessary or wrong**: release a guard who
+   is no longer needed, or send a correction for a notice that no longer matches (a sent notice
+   can never be taken back).
+
+```mermaid
+flowchart TD
+    ABS["hr.leave / ems.absence_pending<br/>(same intervals as the board)"] --> BLK["ems.course._get_group_day_blocks(day, groups)<br/>each group's whole day, block by block:<br/>teachers, who is away, covers, empty?"]
+    COV["ems.absence_cover (state assigned)"] --> BLK
+    BLK --> EXP["_expected_absence_changes(blocks)<br/>late_entry / early_leave / no_classes"]
+    NOT["ems.notice with absence_change_type<br/>(scheduled / sent / failed = communicated)"] --> ST
+    EXP --> ST["_get_absence_change_states(day, groups)<br/>per side (entry/leave): expected vs communicated<br/>status: proposal / communicated / rectification"]
+    ST --> MGT["_get_board_absence_management()<br/>covers + states + day's pending actions"]
+    MGT --> ROWS["each absence row: cover, authorized, proposed, can_manage"]
+    MGT --> ACT["actions: proposal / rectification / obsolete_cover"]
+    ROWS --> UI["absences table: colours, strike-through, guard dialog"]
+    ACT --> UI
+    UI -->|"board_assign / board_release"| COV
+    UI -->|"board_propose_absence_change -> draft notice form"| NOT
+```
+
+### Keyed by teacher, date, period and group - never by the absence record
+
+`ems.absence_cover` (`models/attendance/absence_coverage.py`) stores the absent teacher, the date,
+the period (`hour_from`/`hour_to`, the board row's own bounds), the group, the guard and the
+message; the timetable change lives on the `ems.notice` itself (`absence_date`,
+`absence_group_id`, `absence_change_type`, `absence_change_hour`,
+`models/communications/notice_absence_change.py`). Neither points at an `hr.leave` or an
+`ems.absence_pending`. That is what makes an expected absence and the request the teacher files
+afterwards (which takes its place, see [Expected absences](../employees/absence.md#expected-absences))
+behave as one absence: whatever was organised on the expected one still matches the same
+teacher, date, period and group, so nothing is redone, and the days or hours the request adds
+come up as new, uncovered rows. Whatever the request no longer covers shows up as a pending action
+instead (below).
+
+### Late entry, early leave, no classes
+
+`_get_group_day_blocks()` reads each group's **whole day** (both shifts: a group starts its day at
+its first lesson and ends it at its last), one block per period, merged the same way the board's
+rows are. A block is **empty** when every teacher in it is away and no guard covers it: a
+co-teacher who is in, the other half of a split group, an optional subject with its own teacher or
+a guard already sent all mean somebody is with the students. `_expected_absence_changes()` then
+takes the run of empty blocks at the start of the day (the group can start at the first non-empty
+block's `hour_from`) and at the end (it can leave at the last non-empty block's `hour_to`); a day
+with every block empty has no classes. Pending absences count as much as approved ones: the
+planner sees the state on the row and decides.
+
+### What was communicated, and the two sides of the day
+
+A change belongs to one side of the day: `late_entry`, `no_classes` and `normal_entry` to the
+start, `early_leave` and `normal_leave` to the end (`CHANGE_SIDES`). Per side,
+`_get_absence_change_states()` compares the expected change with the latest notice of that side
+that left the draft state (`COMMUNICATED_NOTICE_STATES`: a scheduled notice is on its way, a failed
+one reached at least part of its recipients). The `normal_*` types are the correction back to the
+usual timetable, so they communicate "no change".
+
+| Expected | Communicated | Status | Proposed notice |
+|---|---|---|---|
+| none | none | - | - |
+| X | none | `proposal` | X |
+| X | X | `communicated` | - (rows struck out) |
+| Y or none | X | `rectification` | Y, or `normal_<side>` |
+
+A draft notice for exactly the change to propose is reused (`'draft'`), so proposing twice opens
+the same draft. Rows whose period falls inside the communicated window (`_change_window_contains`)
+carry `authorized` and are struck out; rows inside an expected window nobody has communicated yet
+carry `proposed`, shown as a dashed tag.
+
+### Guard assignment
+
+`board_assign()` re-validates everything on the server: the user manages the absent teacher, the
+day is not over, the class still needs a guard (`_get_needed_absence_block()`: the teacher is away
+then, it is not co-taught, and it is outside every communicated window) and the guard is a
+candidate (`_get_guard_candidates()`: a guard duty overlapping the period, not a WC guard
+(`GWC`) - who is needed where they are - and not away). Assigning someone else releases the
+previous guard; assigning the same guard again updates the message and re-sends it. One assigned
+guard per class (`_check_one_guard_per_class`), but one guard can cover several classes.
+
+The guard is told through `message_notify()` on the cover (Odoo inbox or email, per their own
+notification preference), in their own language, with the date, time, group, subject, room, absent
+teacher and the planner's message. `board_release()` sends the matching "no longer needed" message.
+
+### Pending actions
+
+`_get_board_absence_management()` lists the day's decisions that belong to no single row, shown
+above the table: a `proposal` or `rectification` for one of the shift's groups, and an
+`obsolete_cover` for every guard of the shift whose class `_get_needed_absence_block()` no longer
+finds (the absence was refused, cancelled or shrunk, the families were told the students stay at
+home, or a co-teacher is now in). Nothing is released or sent until the planner presses the
+button; doing it automatically, behind a setting, is planned in
+`plans/absence_management_automation.md`.
+
+### Colours
+
+`_board_cover_colors()` gives each guard covering a class in a row its own colour index
+(`COVER_COLOR_COUNT` = 8, by guard name), shared by the guard's badge and every class they cover in
+that row: two guards covering at the same time never share a colour. The screen uses
+`o_guard_board_cover_N`, the PDF `gdb-cover-N`, with the same palette. This is the board's one
+deliberate use of background colour (see "No cell colouring" above): it pairs two things the
+planner must match at a glance, which plain text can't do.
+
+### Who can manage
+
+`_is_absence_manager(employee)`: the absent teacher's chain of command - their Seminar Chief or
+Department Chief, then up through the Head of Studies to the Director - via
+`hr.employee.tutor_scope_user_ids` minus the employee's own user (see "Permission/approval
+escalation" in `CLAUDE.md`). Never every holder of those roles centre-wide, and never the absent
+teacher. A timetable change concerns several teachers at once; any of their managers may act on it.
+Every teacher still sees all of it (who covers what, what was communicated); rows and actions only
+offer their buttons to whoever may use them (`can_manage`), and the server checks again.
+
+| Action | Any teacher | Absent teacher's chain of command |
+|---|:---:|:---:|
+| See assigned guards, colours, struck rows, pending actions | Yes | Yes |
+| Assign / change / release a guard (`board_assign`, `board_release`) | No | Yes |
+| Propose a timetable change or correction (`board_propose_absence_change`) | No | Yes |
+| Send that notice | No | Yes (own notice) |
+
+Department chiefs could not use notices at all before. `ems.access_ems_notice_department_chief`
+(and its line counterpart) plus `rule_notice_department_chief_absence_change`
+(`security/rules/communications.xml`) let them read, edit, send and delete only the notices they
+created **with** an `absence_change_type`; `_check_absence_change_recipients` keeps such a notice
+addressed to its own group's students and families, and the form locks its groups. The
+Communications menu stays hidden from them. `ems.absence_cover` is read-only to every teacher
+(`ems.access_ems_absence_cover_teacher`): every write goes through the board methods above,
+which check the hierarchy and then write with `sudo()`.
+
+### Dates
+
+The day comes from the board (a calendar date); the server refuses to manage a day before
+`ems.datetime_utils.get_local_today()` - what is over is over.
+
 ## Related docs
 
 - [Non-teaching types](../employees/non_teaching_type.md)

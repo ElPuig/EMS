@@ -713,10 +713,25 @@ largest option is `'expected'` (the dashed row tag and the default); the smaller
 the planner may tell the families about only part of it and send a guard to the rest. Pending
 absences count as much as approved ones: the planner sees the state on the row and decides.
 
-### What was communicated, and the two sides of the day
+### A longer break
+
+`_allowed_absence_changes(blocks, breaks)` also gets the group's level's break periods for that
+weekday (`_get_guard_duty_board_break_periods([level])`; none for a group without a level). A break
+that falls between two of the group's lessons is its own side (`BoardBreakSide.key()`,
+`break@<from>-<to>`), whose options are every `('long_break', start, end)` combination of the break
+itself extended back over the empty lessons right before it and/or forward over those right after
+it - as long as a non-empty lesson remains further out on that side. A run of empty lessons that
+reaches the start or the end of the day is a late entry or an early leave instead, never a longer
+break, so "coming in after the break" and "going home at the break" stay what they are. A break
+change carries its span (`absence_change_hour` / `absence_change_hour_to` on the notice); the
+correction back is `('normal_break', from, to)`. A free lesson in the middle of the day that is not
+next to a break is not proposed (developer decision, 2026-10-07): it is covered with a guard.
+
+### What was communicated, and the sides of the day
 
 A change belongs to one side of the day: `late_entry`, `no_classes` and `normal_entry` to the
-start, `early_leave` and `normal_leave` to the end (`CHANGE_SIDES`). Per side,
+start, `early_leave` and `normal_leave` to the end (`CHANGE_SIDES`), `long_break` and `normal_break`
+to the break they overlap (`_notice_side()`). Per side,
 `_get_absence_change_states()` compares the allowed options with the latest notice of that side
 that left the draft state (`COMMUNICATED_NOTICE_STATES`: a scheduled notice is on its way, a failed
 one reached at least part of its recipients). The `normal_*` types are the correction back to the

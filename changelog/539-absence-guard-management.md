@@ -15,12 +15,16 @@
 - Late entry / early leave / no classes (#539, #581): the board detects when the empty lessons
   (every teacher away, no co-teacher, no other half of a split group, no guard sent) are the
   first or last of the group's whole day, tags those lines ("Could start at 10:00") and offers the
-  change in a "Late entry / early leave proposals" box, with a selector to tell the families about
+  change in a "Late entry, early leave and break proposals" box, with a selector to tell the families about
   less than allowed (e.g. one hour late instead of two) and send a guard to the rest. "Propose
   notice" opens a pre-filled draft ems.notice for that group's students and families, worded like
   the centre's own ("Due to the justified absence of the assigned teacher, ..."), sent from the
   notice's own form; once sent or scheduled, those lines are struck out ("Starts at 10:00") and need
   no guard. A shorter change than allowed is never flagged for correction.
+- Longer break: empty lessons right before and/or after a break of the group's level, with class
+  further out on that side, propose extending the break, with every combination in the selector
+  (earlier, later or both, hour by hour). Runs reaching the start or end of the day stay a late
+  entry or an early leave. Free lessons not next to a break are not proposed.
 - Nothing is automatic. When an absence changes afterwards (refused, cancelled, shortened, or a
   co-teacher turns out to be in), a "Guards no longer needed" box offers "Release guard", and the
   proposals box offers "Propose correction" when the families were told more than the absences now

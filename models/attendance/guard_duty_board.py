@@ -6,7 +6,9 @@ from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
 from ..shared.schedule_report_mixin import HOUR_EPSILON
-from .absence_coverage import CHANGE_SIDES, COMMUNICATED_NOTICE_STATES, NORMAL_CHANGE, WC_GUARD_CODE, overlaps
+from .absence_coverage import (
+    BREAK_CHANGES, CHANGE_SIDES, COMMUNICATED_NOTICE_STATES, NORMAL_CHANGE, WC_GUARD_CODE, overlaps,
+)
 
 WEEKDAYS = ('0', '1', '2', '3', '4')
 # Mirrors ems.group's own SHIFT_HOURS (models/contacts/group_schedule.py) — the guard duty board
@@ -90,6 +92,26 @@ def _merge_absorbed_periods(periods):
     for period in periods:
         members.setdefault(root(period), []).append(period)
     return members
+
+
+class BoardBreakSide:
+    """A break as a "side" of the group's day (like the start and the end): its key in the
+    timetable-change states, and which notices are about it."""
+
+    PREFIX = 'break@'
+
+    @classmethod
+    def key(cls, period):
+        return f"{cls.PREFIX}{period[0]:.4f}-{period[1]:.4f}"
+
+    @classmethod
+    def period(cls, side):
+        start, stop = side[len(cls.PREFIX):].split('-')
+        return float(start), float(stop)
+
+    @classmethod
+    def is_break(cls, side):
+        return side.startswith(cls.PREFIX)
 
 
 class EmsCourseGuardDutyBoard(models.Model):
@@ -288,57 +310,108 @@ class EmsCourseGuardDutyBoard(models.Model):
         return blocks_by_group
 
     @staticmethod
-    def _allowed_absence_changes(blocks):
+    def _allowed_absence_changes(blocks, breaks=()):
         """Every change the absences allow the group's day, per side and from the smallest to the
-        largest: `{'entry': [change, ...], 'leave': [change, ...]}`, each a `(change_type, hour)`
-        tuple. The students can come in later when the first lessons of their day are empty - an
-        hour later, two, as many as there are in a row - and leave earlier when the last ones are;
-        a day with every lesson empty can also have no classes at all. Every option is offered, not
-        only the largest one: whoever plans may tell the families about part of it and send a guard
-        to the rest. A lesson with anybody in it - a co-teacher who is not away, the other half of
-        a split group, an optional subject, a guard already sent - stops the run there."""
+        largest: `{'entry': [...], 'leave': [...], break_side: [...]}`, a `(change_type, hour)`
+        tuple each, or `('long_break', hour_from, hour_to)` for a break. Every option is offered,
+        not only the largest one: whoever plans may tell the families about part of it and send a
+        guard to the rest. A lesson with anybody in it - a co-teacher who is not away, the other
+        half of a split group, an optional subject, a guard already sent - stops a run there.
+
+        - Entry: the students can come in later when the first lessons of their day are empty - an
+          hour later, two, as many as there are in a row; a day with every lesson empty can also
+          have no classes at all.
+        - Leave: they can leave earlier when the last lessons are empty.
+        - Each of the level's `breaks` (`(hour_from, hour_to)`) that falls between two lessons can
+          be made longer by the empty lessons right before and/or after it, in any combination -
+          but only while there is a lesson with somebody in it further out on that side: a run of
+          empty lessons that reaches the start (or the end) of the day is a late entry (or an
+          early leave), never a longer break."""
+        sides = {'entry': [], 'leave': []}
+        sides.update({BoardBreakSide.key(period): [] for period in breaks})
         if not blocks:
-            return {'entry': [], 'leave': []}
+            return sides
         if all(block['empty'] for block in blocks):
-            return {'entry': [('late_entry', block['hour_from']) for block in blocks[1:]] + [('no_classes', 0.0)],
-                    'leave': []}
+            sides['entry'] = [('late_entry', block['hour_from']) for block in blocks[1:]] + [('no_classes', 0.0)]
+            return sides
         leading = next(index for index, block in enumerate(blocks) if not block['empty'])
         trailing = next(index for index, block in enumerate(reversed(blocks)) if not block['empty'])
-        return {
-            'entry': [('late_entry', blocks[index]['hour_from']) for index in range(1, leading + 1)],
-            'leave': [('early_leave', blocks[-index - 1]['hour_to']) for index in range(1, trailing + 1)],
-        }
+        sides['entry'] = [('late_entry', blocks[index]['hour_from']) for index in range(1, leading + 1)]
+        sides['leave'] = [('early_leave', blocks[-index - 1]['hour_to']) for index in range(1, trailing + 1)]
+        for break_from, break_to in breaks:
+            before = next((index for index in range(len(blocks) - 1)
+                           if blocks[index]['hour_to'] <= break_from + HOUR_EPSILON
+                           and blocks[index + 1]['hour_from'] >= break_to - HOUR_EPSILON), None)
+            if before is None:
+                continue  # the break is not between two of the group's lessons that day
+            starts, index = [break_from], before
+            while index >= 0 and blocks[index]['empty']:
+                starts.append(blocks[index]['hour_from'])
+                index -= 1
+            if index < 0:
+                starts = [break_from]  # reaches the start of the day: that is a late entry
+            ends, index = [break_to], before + 1
+            while index < len(blocks) and blocks[index]['empty']:
+                ends.append(blocks[index]['hour_to'])
+                index += 1
+            if index == len(blocks):
+                ends = [break_to]  # reaches the end of the day: that is an early leave
+            options = [('long_break', start, end) for start in starts for end in ends
+                       if (start, end) != (break_from, break_to)]
+            sides[BoardBreakSide.key((break_from, break_to))] = sorted(
+                options, key=lambda change: (change[2] - change[1], -change[1]))
+        return sides
 
     @staticmethod
     def _same_change(change, other):
         if not change or not other:
             return change == other
-        return change[0] == other[0] and abs(change[1] - other[1]) < HOUR_EPSILON
+        return (change[0] == other[0] and len(change) == len(other)
+                and all(abs(value - other_value) < HOUR_EPSILON for value, other_value in zip(change[1:], other[1:])))
 
     @staticmethod
     def _change_window_contains(change, hour_from, hour_to):
         """Whether a period falls inside the part of the day `change` frees the group from."""
         if not change:
             return False
-        change_type, hour = change
+        change_type, hour = change[:2]
         if change_type == 'no_classes':
             return True
         if change_type == 'late_entry':
             return hour_to <= hour + HOUR_EPSILON
         if change_type == 'early_leave':
             return hour_from >= hour - HOUR_EPSILON
+        if change_type == 'long_break':
+            return hour_from >= hour - HOUR_EPSILON and hour_to <= change[2] + HOUR_EPSILON
         return False
 
     @staticmethod
-    def _notice_change(notice):
-        """The change a notice communicates, as a `(change_type, hour)` tuple; None for a
-        rectification back to the usual timetable, which communicates that nothing changes."""
-        if not notice or notice.absence_change_type in NORMAL_CHANGE.values():
-            return None
+    def _notice_tuple(notice):
+        """The change a notice is about, as the same tuple the options use."""
+        if notice.absence_change_type in BREAK_CHANGES:
+            return (notice.absence_change_type, notice.absence_change_hour, notice.absence_change_hour_to)
         return (notice.absence_change_type, notice.absence_change_hour)
 
+    @classmethod
+    def _notice_change(cls, notice):
+        """The change a notice communicates; None for a rectification back to the usual
+        timetable, which communicates that nothing changes."""
+        if not notice or notice.absence_change_type in NORMAL_CHANGE.values():
+            return None
+        return cls._notice_tuple(notice)
+
+    @staticmethod
+    def _notice_side(notice, side):
+        """Whether `notice` is about that side of the day: the start, the end, or the break it
+        overlaps."""
+        if not BoardBreakSide.is_break(side):
+            return CHANGE_SIDES[notice.absence_change_type] == side
+        return notice.absence_change_type in BREAK_CHANGES and overlaps(
+            notice.absence_change_hour, notice.absence_change_hour_to, *BoardBreakSide.period(side))
+
     def _get_absence_change_states(self, day, groups):
-        """`{group.id: {'entry': state, 'leave': state}}` - where each side of each group's day
+        """`{group.id: {'entry': state, 'leave': state, break_side: state...}}` - where each side
+        of each group's day (its start, its end, and each of its level's breaks)
         stands between what its absences allow (`'options'`, see _allowed_absence_changes, and
         `'expected'`, the largest of them) and what its families have been told (`'communicated'`,
         the latest notice on that side that left the draft state). `'status'`:
@@ -356,15 +429,21 @@ class EmsCourseGuardDutyBoard(models.Model):
         blocks_by_group = self._get_group_day_blocks(day, groups)
         notices = self.env['ems.notice'].sudo().search([
             ('absence_date', '=', day), ('absence_group_id', 'in', groups.ids)], order='id')
+        weekday = str(day.weekday())
+        breaks_by_level = {}
         states = {}
         for group in groups:
             blocks = blocks_by_group[group.id]
-            allowed = self._allowed_absence_changes(blocks)
+            level = group.level_id.id
+            if level not in breaks_by_level:
+                breaks_by_level[level] = sorted(self._get_guard_duty_board_break_periods(
+                    [level], weekday, 0, 24)) if level else []
+            allowed = self._allowed_absence_changes(blocks, breaks_by_level[level])
             group_notices = notices.filtered(lambda notice, group=group: notice.absence_group_id == group)
             states[group.id] = {}
-            for side in ('entry', 'leave'):
+            for side in allowed:
                 side_notices = group_notices.filtered(
-                    lambda notice, side=side: CHANGE_SIDES[notice.absence_change_type] == side)
+                    lambda notice, side=side: self._notice_side(notice, side))
                 communicated = self._notice_change(
                     side_notices.filtered(lambda notice: notice.state in COMMUNICATED_NOTICE_STATES)[-1:])
                 options = allowed[side]
@@ -374,11 +453,13 @@ class EmsCourseGuardDutyBoard(models.Model):
                 elif any(self._same_change(communicated, option) for option in options):
                     status, options = 'communicated', []
                 else:
-                    status, options = 'rectification', options + [(NORMAL_CHANGE[side], 0.0)]
+                    normal = (('normal_break', *BoardBreakSide.period(side)) if BoardBreakSide.is_break(side)
+                              else (NORMAL_CHANGE[side], 0.0))
+                    status, options = 'rectification', options + [normal]
                 target = options[-2] if status == 'rectification' and len(options) > 1 else (options[-1] if options else None)
                 draft = side_notices.filtered(
                     lambda notice, options=options: notice.state == 'draft' and any(self._same_change(
-                        (notice.absence_change_type, notice.absence_change_hour), option) for option in options))[-1:]
+                        self._notice_tuple(notice), option) for option in options))[-1:]
                 window = [block for block in blocks if any(
                     self._change_window_contains(other, block['hour_from'], block['hour_to'])
                     for other in (expected, communicated))]
@@ -822,8 +903,14 @@ class EmsCourseGuardDutyBoard(models.Model):
         were told, or (`proposed`) what the absences would allow them to be told."""
         if not change:
             return False
-        change_type, hour = change
-        hour = self._format_report_time(hour)
+        change_type = change[0]
+        hour = self._format_report_time(change[1])
+        if change_type == 'long_break':
+            span = {'start': hour, 'end': self._format_report_time(change[2])}
+            return (_("Could have a break from %(start)s to %(end)s", **span) if proposed
+                    else _("Break from %(start)s to %(end)s", **span))
+        if change_type == 'normal_break':
+            return _("Usual break")
         if proposed:
             labels = {
                 'late_entry': _("Could start at %s", hour),
@@ -859,10 +946,11 @@ class EmsCourseGuardDutyBoard(models.Model):
                       "(now: %(change)s).", **values)
         # Every change that can be communicated, from the smallest to the largest: the planner may
         # tell the families about part of the empty lessons and send a guard to the rest.
-        options = [{'change_type': change_type, 'hour': hour, 'label': self._absence_change_label((change_type, hour))}
-                   for change_type, hour in action['options']]
+        options = [{'change_type': change[0], 'hour': change[1], 'hour_to': change[2] if len(change) > 2 else 0.0,
+                    'label': self._absence_change_label(change)}
+                   for change in action['options']]
         draft = action['draft']
-        draft_change = (draft.absence_change_type, draft.absence_change_hour) if draft else None
+        draft_change = self._notice_tuple(draft) if draft else None
         data.update(label=label, options=options, default=action['options'].index(action['target']),
                     draft_id=draft.id or False,
                     draft_label=self._absence_change_label(draft_change) if draft_change else False)

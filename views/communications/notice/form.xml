@@ -46,7 +46,7 @@
                             <span>Timetable change because of a teacher's absence:</span>
                             <field name="absence_group_id" class="fw-bold mx-1"/>
                             <field name="absence_date" class="mx-1"/>
-                            (<field name="absence_change_type" class="mx-1"/><field name="absence_change_hour" widget="float_time" class="mx-1" invisible="absence_change_type not in ('late_entry', 'early_leave')"/>)
+                            (<field name="absence_change_type" class="mx-1"/><field name="absence_change_hour" widget="float_time" class="mx-1" invisible="absence_change_type not in ('late_entry', 'early_leave', 'long_break')"/><span invisible="absence_change_type != 'long_break'">-</span><field name="absence_change_hour_to" widget="float_time" class="mx-1" invisible="absence_change_type != 'long_break'"/>)
                         </div>
                         <field name="can_cancel" invisible="True"/>
 

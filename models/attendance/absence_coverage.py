@@ -10,15 +10,18 @@ from ..shared.schedule_report_mixin import HOUR_EPSILON
 
 # How a group's day changes because of a teacher's absence (issues #539/#581), as communicated
 # to its students and families through an ems.notice. Each one belongs to one "side" of the day:
-# the start (entry) or the end (leave). 'no_classes' is the start side stretched over the whole
-# day, and the two 'normal_*' values are the rectification that puts a side back to the usual
-# timetable after something was communicated for it.
+# the start (entry), the end (leave), or one of the group's breaks. 'no_classes' is the start side
+# stretched over the whole day, 'long_break' a break stretched over the empty lessons right before
+# and/or after it, and the 'normal_*' values are the rectification that puts a side back to the
+# usual timetable after something was communicated for it.
 CHANGE_TYPES = [
     ('late_entry', 'Late entry'),
     ('early_leave', 'Early leave'),
     ('no_classes', 'No classes'),
+    ('long_break', 'Longer break'),
     ('normal_entry', 'Usual start time'),
     ('normal_leave', 'Usual finish time'),
+    ('normal_break', 'Usual break'),
 ]
 CHANGE_SIDES = {
     'late_entry': 'entry',
@@ -26,8 +29,14 @@ CHANGE_SIDES = {
     'normal_entry': 'entry',
     'early_leave': 'leave',
     'normal_leave': 'leave',
+    'long_break': 'break',
+    'normal_break': 'break',
 }
-NORMAL_CHANGE = {'entry': 'normal_entry', 'leave': 'normal_leave'}
+NORMAL_CHANGE = {'entry': 'normal_entry', 'leave': 'normal_leave', 'break': 'normal_break'}
+# A break change carries its own span - (change_type, hour_from, hour_to) - every other one only
+# its time: (change_type, hour).
+BREAK_CHANGES = ('long_break', 'normal_break')
+
 # A notice already on its way counts as communicated: a scheduled one is going to reach the
 # families, and a failed one reached at least some of them. Only a draft has told nobody yet.
 COMMUNICATED_NOTICE_STATES = ('scheduled', 'sent', 'failed')

@@ -117,13 +117,19 @@ To change the guard, click the line and then **Change or remove the guard** (onl
 
 When the lessons without a teacher are the first ones of the group's day (one, two or more in a row), the students could come in later; when they are the last ones, they could leave earlier; when every lesson of the day is without a teacher, the group could have no classes. A lesson where somebody is with the students (a co-teacher who is not away, the other half of a split group, an optional subject or a guard already sent) breaks the run.
 
-Those lines show a dashed tag such as **Could start at 10:00**, and the **Late entry / early leave proposals** box, above the table (only visible to whoever can organise the absence), offers that group's change. Sending the notice strikes those lessons off the table, so no guard teacher has to cover them.
+Those lines show a dashed tag such as **Could start at 10:00**, and the **Late entry, early leave and break proposals** box, above the table (only visible to whoever can organise the absence), offers that group's change. Sending the notice strikes those lessons off the table, so no guard teacher has to cover them.
 
 The selector next to each proposal lets you tell the families about less than the absences allow: with two lessons without a teacher, you can choose **Starts at 09:00** instead of **Starts at 10:00**. Only the first lesson is then struck out; the second still needs a guard, sent as usual. Choosing the smaller change is your decision: nothing will ask you to correct it.
 
 **Propose notice** opens a draft notice addressed to that group's students and families, with a suggested text you can change. Send it from that form as any other notice (the groups of a timetable change notice cannot be changed). If you leave it as a draft, the button reads **Open draft** next time.
 
 Once the notice is sent (or scheduled), those lines are struck through with a tag such as **Starts at 10:00**: nobody needs to be sent to them.
+
+### A longer break
+
+When the empty lessons are right before and/or right after a break of the group's level, with class further out on that side, the students could have a longer break instead. With the break at 18:00-18:20 and the 17:00 lesson empty, for example, the break could start at 17:00; with the 18:20 lesson empty, it could end at 19:20. The selector offers every combination (earlier, later, or both, hour by hour), and the notice reads *"…el grup X allargarà el pati de 17:00 a 19:20 el dia …"*. Sending it strikes those lessons off, like any other change.
+
+This is never confused with coming in or leaving: if the empty lessons reach the start of the day, it is a late entry (e.g. coming in after the break, at 18:20); if they reach the end, an early leave (e.g. going home at the break, at 18:00).
 
 ### When the absence changes afterwards
 

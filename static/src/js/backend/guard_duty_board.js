@@ -354,7 +354,7 @@ export class GuardDutyBoard extends Component {
 
     get actionLabels() {
         return {
-            proposalsTitle: _t("Late entry / early leave proposals"),
+            proposalsTitle: _t("Late entry, early leave and break proposals"),
             proposalsHelp: _t("Sending the notice strikes these lessons off the table, so no guard teacher has to cover them. You can choose a shorter change and send a guard to the rest."),
             releasesTitle: _t("Guards no longer needed"),
             propose: _t("Propose notice"),
@@ -500,7 +500,7 @@ export class GuardDutyBoard extends Component {
         }
         const option = action.options[action.default];
         const notice = await this.orm.call("ems.notice", "board_propose_absence_change", [
-            this.activeDate, action.group_id, option.change_type, option.hour,
+            this.activeDate, action.group_id, option.change_type, option.hour, option.hour_to,
         ]);
         await this.actionService.doAction(notice);
     }

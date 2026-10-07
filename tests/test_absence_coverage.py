@@ -523,3 +523,81 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertIn('començarà les classes a les 10:00', notice.message)
         self.assertIn("podran entrar més tard", notice.subject)
         self.assertIn('Guàrdia: cobrir', self._guard_messages(self.teacher_guard).subject)
+
+    # Longer breaks
+
+    def _morning_with_break(self):
+        """group_a's Monday: teacher_a 8-9 and 9-10, the level's break 10:00-10:30, teacher_b
+        10:30-11:30 and 11:30-12:30."""
+        framework = self.env['resource.calendar'].create({
+            'name': 'TABC Framework (Break)', 'is_framework': True, 'level_id': self.level.id,
+            'full_time_required_hours': 24})
+        self.env['resource.calendar.attendance'].create({
+            'calendar_id': framework.id, 'name': 'BR: Break', 'dayofweek': '0', 'hour_from': 10, 'hour_to': 10.5,
+            'day_period': 'morning', 'non_teaching': self.non_teaching_break.id})
+        self._schedule_class(self.teacher_a, self.group_a, 'TABC Calendar A (Break)', periods=((8, 9), (9, 10)))
+        self._schedule_class(self.teacher_b, self.group_a, 'TABC Calendar B (Break)', periods=((10.5, 11.5), (11.5, 12.5)))
+        self._guards(self.teacher_guard)
+
+    def _break_state(self):
+        return next(state for side, state in self._states().items() if side.startswith('break@'))
+
+    def test_an_empty_lesson_next_to_the_break_allows_a_longer_break(self):
+        self._morning_with_break()
+        self._absence(self.teacher_a, self.day, hour_from=9, hour_to=10)
+        self._absence(self.teacher_b, self.day, hour_from=10.5, hour_to=11.5)
+
+        state = self._break_state()
+
+        self.assertEqual(state['status'], 'proposal')
+        self.assertEqual(state['options'], [('long_break', 10, 11.5), ('long_break', 9, 10.5), ('long_break', 9, 11.5)])
+        self.assertEqual(state['target'], ('long_break', 9, 11.5))
+
+    def test_empty_lessons_reaching_the_start_of_the_day_are_a_late_entry_not_a_longer_break(self):
+        """They come in after the break (10:30), not have a longer one."""
+        self._morning_with_break()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10)
+
+        states = self._states()
+
+        self.assertEqual(self._break_state()['options'], [])
+        self.assertEqual(states['entry']['options'], [('late_entry', 9), ('late_entry', 10.5)])
+
+    def test_empty_lessons_reaching_the_end_of_the_day_are_an_early_leave(self):
+        self._morning_with_break()
+        self._absence(self.teacher_b, self.day)
+
+        self.assertEqual(self._break_state()['options'], [])
+        self.assertEqual(self._states()['leave']['options'], [('early_leave', 11.5), ('early_leave', 10)])
+
+    def test_a_communicated_longer_break_strikes_out_its_lessons(self):
+        self._morning_with_break()
+        self._absence(self.teacher_a, self.day, hour_from=9, hour_to=10)
+        notice = self.Notice.browse(self.Notice.with_user(self.department_chief).board_propose_absence_change(
+            str(self.day), self.group_a.id, 'long_break', 9.0, 10.5)['res_id'])
+
+        self.assertEqual((notice.absence_change_type, notice.absence_change_hour, notice.absence_change_hour_to),
+                         ('long_break', 9.0, 10.5))
+        self.assertIn('09:00', notice.message)
+        self.assertIn('10:30', notice.message)
+        notice.state = 'scheduled'
+
+        self.assertEqual(self._break_state()['status'], 'communicated')
+        self.assertEqual(self._row(9, 10)['authorized'], ('long_break', 9, 10.5))
+        with self.assertRaises(UserError):
+            self._assign(hour_from=9, hour_to=10)
+
+    def test_a_cancelled_absence_after_a_longer_break_asks_for_the_usual_break(self):
+        self._morning_with_break()
+        leave = self._absence(self.teacher_a, self.day, hour_from=9, hour_to=10, approve=False)
+        self.Notice.browse(self.Notice.with_user(self.department_chief).board_propose_absence_change(
+            str(self.day), self.group_a.id, 'long_break', 9.0, 10.5)['res_id']).state = 'scheduled'
+
+        leave.action_refuse()
+
+        state = self._break_state()
+        self.assertEqual(state['status'], 'rectification')
+        self.assertEqual(state['options'], [('normal_break', 10, 10.5)])
+        notice = self.Notice.browse(self.Notice.with_user(self.department_chief).board_propose_absence_change(
+            str(self.day), self.group_a.id, 'normal_break', 10.0, 10.5)['res_id'])
+        self.assertTrue(notice.subject.startswith('Correction'))

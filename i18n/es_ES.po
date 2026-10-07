@@ -20760,12 +20760,6 @@ msgstr "El grupo %(group)s terminará las clases a la hora habitual el día %(da
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "Late entry / early leave proposals"
-msgstr "Propuestas de entrada/salida"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Sending the notice strikes these lessons off the table, so no guard teacher has to cover them. You can choose a shorter change and send a guard to the rest."
 msgstr "Enviar el comunicado tacha estas clases de la tabla, para que ningún docente de guardia tenga que cubrirlas. Puedes elegir un cambio más corto y enviar un docente de guardia al resto."
 
@@ -20792,3 +20786,56 @@ msgstr "Cubierta por %s, el docente de guardia enviado a esta clase."
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Change or remove the guard"
 msgstr "Cambiar o quitar el docente de guardia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Late entry, early leave and break proposals"
+msgstr "Propuestas de entrada, salida y patio"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Could have a break from %(start)s to %(end)s"
+msgstr "Puede hacer patio de %(start)s a %(end)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Break from %(start)s to %(end)s"
+msgstr "Patio de %(start)s a %(end)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__normal_break
+msgid "Usual break"
+msgstr "Patio habitual"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__long_break
+msgid "Longer break"
+msgstr "Patio alargado"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | longer break on %(date)s"
+msgstr "%(group)s | el %(date)s alargarán el patio"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Due to the justified absence of the assigned teacher, group %(group)s will have a longer break, from %(start)s to %(end)s, on %(date)s."
+msgstr "Debido a la ausencia justificada del docente asignado, el grupo %(group)s alargará el patio de %(start)s a %(end)s el día %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Group %(group)s will have the usual break, from %(start)s to %(end)s, on %(date)s."
+msgstr "El grupo %(group)s hará el patio habitual, de %(start)s a %(end)s, el día %(date)s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_change_hour_to
+msgid "Until"
+msgstr "Hasta"

@@ -117,13 +117,19 @@ Per canviar el docent de guàrdia, fes clic a la línia i després a **Canviar o
 
 Quan les classes sense docent són les primeres del dia del grup (una, dues o més seguides), l'alumnat podria entrar més tard; quan són les últimes, podria sortir abans; quan totes les classes del dia queden sense docent, el grup podria no tenir classes. Una classe on hi ha algú amb l'alumnat (un altre docent que no és absent, l'altra meitat d'un grup desdoblat, una optativa o un docent de guàrdia ja enviat) talla la seqüència.
 
-Aquestes línies mostren una etiqueta discontínua com ara **Pot entrar a les 10:00**, i el quadre **Propostes d'entrada/sortida**, damunt la taula (només el veu qui pot organitzar l'absència), ofereix el canvi d'aquell grup. Enviar el comunicat ratlla aquestes classes de la taula, perquè cap docent de guàrdia les hagi de cobrir.
+Aquestes línies mostren una etiqueta discontínua com ara **Pot entrar a les 10:00**, i el quadre **Propostes d'entrada, sortida i pati**, damunt la taula (només el veu qui pot organitzar l'absència), ofereix el canvi d'aquell grup. Enviar el comunicat ratlla aquestes classes de la taula, perquè cap docent de guàrdia les hagi de cobrir.
 
 El selector de cada proposta et permet comunicar a les famílies menys del que permeten les absències: amb dues classes sense docent, pots triar **Entra a les 09:00** en lloc d'**Entra a les 10:00**. Aleshores només es ratlla la primera classe; la segona encara necessita un docent de guàrdia, que envies com sempre. Triar el canvi més curt és decisió teva: res no et demanarà que el rectifiquis.
 
 **Proposar comunicat** obre un comunicat en esborrany adreçat a l'alumnat i les famílies d'aquell grup, amb un text proposat que pots canviar. Envia'l des d'aquell formulari com qualsevol altre comunicat (els grups d'un comunicat de canvi d'horari no es poden canviar). Si el deixes en esborrany, la propera vegada el botó diu **Obrir esborrany**.
 
 Un cop enviat (o programat) el comunicat, aquestes línies queden ratllades amb una etiqueta com ara **Entra a les 10:00**: no cal enviar-hi ningú.
+
+### Allargar el pati
+
+Quan les classes sense docent són just abans i/o just després d'un pati del nivell del grup, i més enllà hi ha classe, l'alumnat podria allargar el pati. Per exemple, amb el pati de 18:00 a 18:20 i la classe de les 17:00 buida, el pati podria començar a les 17:00; amb la de les 18:20 buida, podria acabar a les 19:20. El selector ofereix totes les combinacions (abans, després o totes dues, hora a hora), i el comunicat diu *"…el grup X allargarà el pati de 17:00 a 19:20 el dia …"*. Enviar-lo ratlla aquestes classes, com qualsevol altre canvi.
+
+No es confon mai amb entrar o sortir: si les classes buides arriben a l'inici del dia, és una entrada tard (per exemple, entrar després del pati, a les 18:20); si arriben al final, una sortida abans d'hora (per exemple, marxar a casa a l'hora del pati, a les 18:00).
 
 ### Quan l'absència canvia després
 

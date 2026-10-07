@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from odoo.exceptions import AccessError, UserError, ValidationError
 
-from .common import create_head_of_studies_branch, create_role_employee, create_role_user
+from .common import create_head_of_studies_branch, create_role_employee, create_role_user, next_student_id
 from .test_guard_duty_board import GuardDutyBoardCase
 
 
@@ -308,6 +308,26 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
 
         with self.assertRaises(ValidationError):
             notice.with_user(self.department_chief).group_ids = self.group_a | self.group_b
+
+    def test_the_department_chief_sends_the_notice_to_the_group(self):
+        """Department chiefs had no notices before: sending one queues an email per recipient
+        exactly like any other notice."""
+        student = self.env['res.partner'].create({
+            'name': 'TABC Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': self.group_a.id, 'email': 'tabc.student@example.com'})
+        # The notice's chatter entry needs a sender address, which every real user has.
+        self.department_chief.email = 'tabc.chief@example.com'
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10)
+        notice = self.Notice.with_user(self.department_chief).browse(
+            self.Notice.with_user(self.department_chief).board_propose_absence_change(
+                str(self.day), self.group_a.id, 'late_entry', 10.0)['res_id'])
+
+        self.assertIn(student, notice.notice_line_ids.partner_id)
+        notice.action_send()
+
+        self.assertEqual(notice.state, 'scheduled')
+        self.assertEqual(self._states()['entry']['status'], 'communicated')
 
     def test_department_chiefs_only_reach_their_own_timetable_change_notices(self):
         other = self.Notice.create({'subject': 'TABC unrelated', 'message': '<p>x</p>'})

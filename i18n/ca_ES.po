@@ -20363,7 +20363,6 @@ msgstr "Grup de l'absència"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_notice__absence_change_type
-#: model_terms:ir.ui.view,arch_db:ems.view_notice_form
 msgid "Timetable change"
 msgstr "Canvi d'horari"
 
@@ -20396,8 +20395,12 @@ msgstr "Hora de sortida habitual"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_notice_form
-msgid "Timetable change because of a teacher's absence:"
-msgstr "Canvi d'horari per l'absència d'un docent:"
+msgid ""
+"<i class=\"fa fa-calendar-times-o me-2\" title=\"Timetable change\"/>\n"
+"                            <span>Timetable change because of a teacher's absence:</span>"
+msgstr ""
+"<i class=\"fa fa-calendar-times-o me-2\" title=\"Canvi d'horari\"/>\n"
+"                            <span>Canvi d'horari per l'absència d'un docent:</span>"
 
 #. module: ems
 #. odoo-python

@@ -20366,7 +20366,6 @@ msgstr "Grupo de la ausencia"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_notice__absence_change_type
-#: model_terms:ir.ui.view,arch_db:ems.view_notice_form
 msgid "Timetable change"
 msgstr "Cambio de horario"
 
@@ -20399,8 +20398,12 @@ msgstr "Hora de salida habitual"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_notice_form
-msgid "Timetable change because of a teacher's absence:"
-msgstr "Cambio de horario por la ausencia de un docente:"
+msgid ""
+"<i class=\"fa fa-calendar-times-o me-2\" title=\"Timetable change\"/>\n"
+"                            <span>Timetable change because of a teacher's absence:</span>"
+msgstr ""
+"<i class=\"fa fa-calendar-times-o me-2\" title=\"Cambio de horario\"/>\n"
+"                            <span>Cambio de horario por la ausencia de un docente:</span>"
 
 #. module: ems
 #. odoo-python

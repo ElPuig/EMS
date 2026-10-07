@@ -6,8 +6,8 @@
 
 Un grupo es la clase a la que pertenece un alumno. Hay dos tipos:
 
-- **Principal**: el grupo en el que el alumno está realmente matriculado — tiene un tutor, un delegado, y un único nivel/estudio/curso/acrónimo (p. ej., `DAM1A`).
-- **Refuerzo**: aparece en el horario docente como cualquier otro grupo, pero no tiene tutor ni delegado, y puede mezclar alumnos de diferentes grupos principales y estudios (p. ej., una clase de refuerzo de inglés compartida).
+- **Principal**: el grupo en el que el alumno está realmente matriculado — tiene un tutor, un delegado y un subdelegado, y un único nivel/estudio/curso/acrónimo (p. ej., `DAM1A`).
+- **Refuerzo**: aparece en el horario docente como cualquier otro grupo, pero no tiene tutor, delegado ni subdelegado, y puede mezclar alumnos de diferentes grupos principales y estudios (p. ej., una clase de refuerzo de inglés compartida).
 
 Para el horario semanal del grupo (agregado a partir de los horarios de los profesores) y su exportación a PDF, consulta [El horario semanal de un grupo](group-schedule.md) — esta página cubre la creación y gestión del grupo en sí.
 
@@ -31,10 +31,11 @@ Navega a: **Comunidad Educativa → Grupos**
    - **Acrónimo** *(obligatorio)*: p. ej., `A`. El nombre del grupo se construye automáticamente a partir de Estudio + Curso + Acrónimo (p. ej., `DAM1A`) — no se escribe directamente.
    - **Tutor**: el profesor responsable de este grupo. Asignarlo aquí concede automáticamente el rol de Tutor a ese profesor.
    - **Delegado**: un alumno representante (solo seleccionable una vez el grupo tiene alumnos).
+   - **Subdelegado**: el alumno que sustituye al delegado. Se elige entre los mismos alumnos y no puede ser el delegado.
    - **Turno**, **Aula de referencia**, **ID externo** (código Esfera/SAGA) según se necesite.
 4. Haz clic en **Guardar**.
 
-![Ficha de un grupo principal: nivel, estudio, curso, acrónimo, tutor y delegado, con sus alumnos](../../assets/admin/admin-groups-form.png)
+![Ficha de un grupo principal: nivel, estudio, curso, acrónimo, tutor, delegado y subdelegado, con sus alumnos](../../assets/admin/admin-groups-form.png)
 
 Los alumnos no se añaden desde aquí — consulta la pestaña **Alumnos** para revisar quién está asignado, pero es el propio registro del alumno (o el proceso de matrícula) el que realmente lo asigna a un grupo.
 
@@ -45,7 +46,7 @@ Los alumnos no se añaden desde aquí — consulta la pestaña **Alumnos** para 
 ## Crear un grupo de refuerzo
 
 1. Haz clic en **Nuevo**.
-2. Cambia **Tipo de grupo** a **Refuerzo**. Nivel, Estudio, Tutor y Delegado desaparecen — no aplican.
+2. Cambia **Tipo de grupo** a **Refuerzo**. Nivel, Estudio, Tutor, Delegado y Subdelegado desaparecen — no aplican.
 3. Rellena un **Nombre** directamente (p. ej., `REF-MATES`).
 4. Haz clic en **Guardar**.
 5. Añade alumnos igual que en cualquier otro grupo: desde la propia ficha del alumno (o el proceso de matrícula), matricúlalo en una asignatura con este grupo de refuerzo como **Grupo** — pueden venir de cualquier grupo/estudio principal. Aparecerán en la pestaña **Inscrito** de este grupo.
@@ -56,7 +57,7 @@ Los alumnos no se añaden desde aquí — consulta la pestaña **Alumnos** para 
 
 Puedes cambiar un grupo existente entre Principal y Refuerzo, pero:
 - Cambiar de **Principal → Refuerzo** se bloquea si el grupo todavía tiene alumnos matriculados con este como grupo principal — reasígnalos a otro grupo primero.
-- Cambiar de **Principal → Refuerzo** limpia los campos que ya no aplican (nivel/estudio/curso/acrónimo/tutor/delegado).
+- Cambiar de **Principal → Refuerzo** limpia los campos que ya no aplican (nivel/estudio/curso/acrónimo/tutor/delegado/subdelegado).
 
 ---
 

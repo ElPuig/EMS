@@ -177,12 +177,13 @@ class TestDocsScreenshotsAdmin(HttpCase, DocsScreenshotMixin):
             click='a.tab[data-key="ems"]', wait_after='#current_course_id',
         )
 
-        # --- Groups: a main group with its tutor, delegate and students ---
+        # --- Groups: a main group with its tutor, delegate, sub-delegate and students ---
         tutor = self._teacher('0000 Laia Prats Coll')
         group.tutor_id = tutor
         students = self.env['res.partner'].browse([
             self._student(name, group).id for name in ('Nil Exemple Serra', 'Aina Mostra Puig')])
         group.delegate_id = students[0]
+        group.subdelegate_id = students[1]
         self._capture(
             self._form_url('ems.group', group), '.o_form_sheet', 'admin-groups-form.png',
             login='doc_shot_admin', wait_for=".o_form_sheet .o_field_widget[name='tutor_id']",

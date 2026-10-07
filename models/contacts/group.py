@@ -17,8 +17,9 @@ class EmsGroup(models.Model):
 	group_type = fields.Selection(
 		selection=[('main', 'Main'), ('reinforcement', 'Reinforcement')],
 		string="Group Type", required=True, default="main",
-		help="Main: the group a student is enrolled in (main_group_id), with a tutor, a delegate and a single study/level. "
-			"Reinforcement: appears in the teaching schedule like any other group, but has no tutor/delegate and can mix "
+		help="Main: the group a student is enrolled in (main_group_id), with a tutor, a delegate, a sub-delegate and a "
+			"single study/level. Reinforcement: appears in the teaching schedule like any other group, but has no "
+			"tutor/delegate/sub-delegate and can mix "
 			"students from different main groups and studies.")
 	course = fields.Integer(string="Course")
 	acronym = fields.Char(string="Acronym")
@@ -31,6 +32,8 @@ class EmsGroup(models.Model):
 	tutor_id = fields.Many2one(string="Tutor", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 
 	delegate_id = fields.Many2one(string="Delegate", comodel_name="res.partner", domain="[('contact_type', '=', 'student'), ('main_group_id', '=', id)]")
+	# Issue #574: stands in for the delegate; same students to pick from, never the delegate themselves.
+	subdelegate_id = fields.Many2one(string="Sub-delegate", comodel_name="res.partner", domain="[('contact_type', '=', 'student'), ('main_group_id', '=', id), ('id', '!=', delegate_id)]")
 	space_id = fields.Many2one(string="Reference classroom", comodel_name="ems.space",
 		help="Updated automatically whenever the group's schedule changes: the classroom of its tutorship or, "
 			"if its schedule has no tutorship, the classroom where it spends the most teaching hours. "
@@ -80,20 +83,23 @@ class EmsGroup(models.Model):
 				group.acronym = False
 				group.tutor_id = False
 				group.delegate_id = False
+				group.subdelegate_id = False
 
-	@api.constrains("group_type", "level_id", "study_id", "course", "acronym", "tutor_id", "delegate_id")
+	@api.constrains("group_type", "level_id", "study_id", "course", "acronym", "tutor_id", "delegate_id", "subdelegate_id")
 	def _check_group_type_fields(self):
 		for group in self:
 			if group.group_type == "main":
 				if not (group.level_id and group.study_id and group.course and group.acronym):
 					raise ValidationError(_("A main group requires a level, a study, a course and an acronym."))
 			elif group.group_type == "reinforcement":
-				if group.level_id or group.study_id or group.tutor_id or group.delegate_id:
-					raise ValidationError(_("A reinforcement group cannot have a level, a study, a tutor or a delegate: "
-						"it is meant to mix students from different main groups and studies."))
+				if group.level_id or group.study_id or group.tutor_id or group.delegate_id or group.subdelegate_id:
+					raise ValidationError(_("A reinforcement group cannot have a level, a study, a tutor, a delegate or a "
+						"sub-delegate: it is meant to mix students from different main groups and studies."))
 				if group.main_student_ids:
 					raise ValidationError(_("This group has %d student(s) enrolled as their main group. Reassign them to "
 						"another group before converting this one to reinforcement.") % len(group.main_student_ids))
+			if group.delegate_id and group.delegate_id == group.subdelegate_id:
+				raise ValidationError(_("The delegate and the sub-delegate of a group must be different students."))
 
 	def _compute_enrolled_student_ids(self):
 		for group in self:
@@ -151,7 +157,7 @@ class EmsGroup(models.Model):
 		# actual guarantee that '_check_group_type_fields' below never rejects a plain group_type switch.
 		group_type = vals.get("group_type")
 		if group_type == "reinforcement":
-			for field in ("level_id", "study_id", "course", "acronym", "tutor_id", "delegate_id"):
+			for field in ("level_id", "study_id", "course", "acronym", "tutor_id", "delegate_id", "subdelegate_id"):
 				vals.setdefault(field, False)
 
 	def _sync_tutor_role(self, employees):

@@ -11730,8 +11730,8 @@ msgstr "Alumnes de reforç"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_group__group_type
-msgid "Main: the group a student is enrolled in (main_group_id), with a tutor, a delegate and a single study/level. Reinforcement: appears in the teaching schedule like any other group, but has no tutor/delegate and can mix students from different main groups and studies."
-msgstr "Principal: el grup en què està matriculat un alumne (main_group_id), amb tutor/a, delegat/da i un únic estudi/nivell. Reforç: apareix a l'horari docent com qualsevol altre grup, però no té tutor/a ni delegat/da i pot barrejar alumnes de diferents grups principals i estudis."
+msgid "Main: the group a student is enrolled in (main_group_id), with a tutor, a delegate, a sub-delegate and a single study/level. Reinforcement: appears in the teaching schedule like any other group, but has no tutor/delegate/sub-delegate and can mix students from different main groups and studies."
+msgstr "Principal: el grup en què està matriculat un alumne (main_group_id), amb tutor/a, delegat/da, sotsdelegat/da i un únic estudi/nivell. Reforç: apareix a l'horari docent com qualsevol altre grup, però no té tutor/a, delegat/da ni sotsdelegat/da i pot barrejar alumnes de diferents grups principals i estudis."
 
 #. module: ems
 #. odoo-python
@@ -11742,8 +11742,8 @@ msgstr "Un grup principal requereix un nivell, un estudi, un curs i un acrònim.
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/group.py:0
-msgid "A reinforcement group cannot have a level, a study, a tutor or a delegate: it is meant to mix students from different main groups and studies."
-msgstr "Un grup de reforç no pot tenir nivell, estudi, tutor/a ni delegat/da: està pensat per barrejar alumnes de diferents grups principals i estudis."
+msgid "A reinforcement group cannot have a level, a study, a tutor, a delegate or a sub-delegate: it is meant to mix students from different main groups and studies."
+msgstr "Un grup de reforç no pot tenir nivell, estudi, tutor/a, delegat/da ni sotsdelegat/da: està pensat per barrejar alumnes de diferents grups principals i estudis."
 
 #. module: ems
 #. odoo-python
@@ -20282,3 +20282,14 @@ msgstr "Correu bloquejat: aquesta és una màquina de desenvolupament i aquesta 
 #: code:addons/ems/models/settings/mail_guard.py:0
 msgid "Email blocked: this is a development machine and these recipients are neither redirected by devel.sh nor in the allowlist: %(recipients)s"
 msgstr "Correu bloquejat: aquesta és una màquina de desenvolupament i aquests destinataris no estan desviats per devel.sh ni a la llista d'adreces permeses: %(recipients)s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__subdelegate_id
+msgid "Sub-delegate"
+msgstr "Sotsdelegat/da"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "The delegate and the sub-delegate of a group must be different students."
+msgstr "El delegat/da i el sotsdelegat/da d'un grup han de ser alumnes diferents."

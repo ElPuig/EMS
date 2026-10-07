@@ -18988,8 +18988,8 @@ msgstr "Aparece en el horario de guardias como ausencia pendiente hasta que el d
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__employee_id
-msgid "Only the teachers below you in the hierarchy."
-msgstr "Solo los docentes que tienes por debajo en la jerarquía."
+msgid "Only the teachers below you in the hierarchy or teaching in your area."
+msgstr "Solo los docentes que tienes por debajo en la jerarquía o que dan clase en tu área."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__linked

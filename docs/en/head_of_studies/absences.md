@@ -147,7 +147,7 @@ To change the period, remove the **Current Course** filter and pick the one you 
 When you already know a teacher will be away but they have not requested the absence yet (they phoned in this morning, or it was agreed in a meeting), enter it here so guard duty can be planned around it straight away.
 
 1. Click **New**.
-2. Choose the **Teacher**. Only the teachers in your own area are offered: a Head of Studies or Deputy sees their own teachers, and Direction sees everyone.
+2. Choose the **Teacher**. Only the teachers in your own area are offered: a Head of Studies or Deputy sees their own teachers, and Direction sees everyone. Members of the management team (such as the Secretary) count as teachers of the area their department belongs to: the Secretary, who teaches in a VET department, is offered to the Head of Studies or Deputy in charge of VET.
 3. Set **From** and **To**, date and time. They start out as today, 08:00 to 15:00. An absence can span several days.
 4. Optionally, add **Notes** for your own reference. The teacher never sees this entry.
 5. Save.

@@ -18985,8 +18985,8 @@ msgstr "Surt a l'horari de guàrdies com a absència pendent fins que el docent 
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__employee_id
-msgid "Only the teachers below you in the hierarchy."
-msgstr "Només els docents que tens per sota a la jerarquia."
+msgid "Only the teachers below you in the hierarchy or teaching in your area."
+msgstr "Només els docents que tens per sota a la jerarquia o que fan classe a la teva àrea."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__linked

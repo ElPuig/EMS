@@ -61,12 +61,21 @@
                         <field name="can_download_google_credentials" invisible="1"/>
                         <field name="can_manage_portal_access" invisible="1"/>
                         <field name="can_send_student_requests" invisible="1"/>
+                        <field name="can_undo_withdrawal" invisible="1"/>
                         <!-- Every action on a contact's form goes in this one "Actions"
                              dropdown, never loose in the header, so the header can't fill up
                              with buttons again (see docs/en/developers/shared/actions_dropdown.md).
                              Each entry keeps its own invisible/groups/confirm, and the dropdown
                              isn't shown when none applies. -->
                         <div name="ems_actions" string="Actions">
+                            <!-- Issue #592: a withdrawal registered by mistake. Same roles as the
+                                 withdrawal wizard; can_undo_withdrawal also checks it is a withdrawal
+                                 of the current course with a confirmed enrollment to go back to. -->
+                            <button name="action_undo_withdrawal" type="object"
+                                    string="Undo withdrawal"
+                                    invisible="not can_undo_withdrawal"
+                                    confirm="The student goes back to the group and subjects of their confirmed enrollment, and the portal access is granted again. Attendance deleted by the withdrawal is not restored. Continue?"
+                                    groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"/>
                             <!-- Tutors create their own students' account too (issue #513), with the
                                  same per-record rule as the password reset below. -->
                             <button name="action_create_google_account" type="object"

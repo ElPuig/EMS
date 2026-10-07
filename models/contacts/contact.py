@@ -2,7 +2,7 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import AccessError, UserError, ValidationError
-from odoo.tools import email_normalize
+from odoo.tools import email_normalize, format_date
 from ..shared import base
 import re
 from dateutil.relativedelta import relativedelta
@@ -250,6 +250,10 @@ class ResPartner(models.Model):
         string='Can manage portal access', compute='_compute_student_action_rights')
     can_send_student_requests = fields.Boolean(
         string='Can send authorizations and data requests', compute='_compute_student_action_rights')
+    # "Undo withdrawal" entry of the same dropdown (issue #592); action_undo_withdrawal()
+    # re-checks the same rule server-side.
+    can_undo_withdrawal = fields.Boolean(
+        string='Can undo withdrawal', compute='_compute_can_undo_withdrawal')
 
     selected_student_id = fields.Many2one(
         'res.partner',
@@ -567,6 +571,84 @@ class ResPartner(models.Model):
             'views': [[False, 'form']],
             'target': 'new',
             'context': {'active_ids': students.ids},
+        }
+
+    @api.model
+    def _ems_user_can_register_exits(self):
+        """Withdrawals and expulsions, and undoing a withdrawal: the secretary, the academic admin
+        and the Head of Studies (the one group shared by Head of Studies, Deputy Head of Studies
+        and Director)."""
+        return any(self.env.user.has_group(xmlid) for xmlid in (
+            'ems.group_academic_admin', 'ems.group_secretary', 'ems.group_head_of_studies'))
+
+    def _ems_withdrawal_undo_order(self):
+        """The confirmed enrollment a withdrawal of this student can be undone from, or an empty
+        recordset (issue #592). Only a withdrawal (never an expulsion) of the running course: one
+        of an earlier course is a new enrollment, not a mistake to undo. The enrollment, confirmed
+        and with a group, is what says where the student was: the withdrawal only cancels the
+        draft/sent ones, so it survives. A graduate withdrawn afterwards is alumni, hence the check
+        on exit_type rather than on contact_type alone. sudo: whoever may register exits may undo
+        them, whatever their own rights over sale.order."""
+        self.ensure_one()
+        course = self.env.company.current_course_id
+        if not (course and self._origin and self.contact_type in ('withdrawal', 'alumni')
+                and self.exit_type == 'withdrawal' and self.exit_course_id == course):
+            return self.env['sale.order']
+        return self.env['sale.order'].sudo().search([
+            ('partner_id', '=', self._origin.id),
+            ('state', '=', 'sale'),
+            ('ems_course_id', '=', course.id),
+            ('ems_group_id', '!=', False),
+        ], order='date_order desc, id desc', limit=1)
+
+    def action_undo_withdrawal(self):
+        """Undo a withdrawal registered by mistake (issue #592): the student goes back to the
+        group and subjects of their confirmed enrollment of the current course, as before the
+        withdrawal. See docs/en/developers/contacts/exit_wizards.md."""
+        self.ensure_one()
+        if not self._ems_user_can_register_exits():
+            raise UserError(_("Only the secretary, the head of studies or an administrator can undo withdrawals."))
+        order = self._ems_withdrawal_undo_order()
+        if not order:
+            raise UserError(_(
+                "Only a withdrawal of the current course can be undone, and only for a student whose "
+                "enrollment of that course is confirmed and has a group."))
+        withdrawal_date = self.exit_date
+        # The year record first: it is found by the exit course, which the conversion clears.
+        frozen_grades = self.env['ems.student.year_record'].sudo().search([
+            ('student_id', '=', self.id), ('course_id', '=', self.exit_course_id.id),
+        ])._ems_reopen_after_undone_withdrawal()
+        self._ems_convert_to_student()
+        order._ems_apply_destination_placement()
+        portal = self._ems_grant_student_portal()
+
+        body = Markup("<p>{}</p>").format(_(
+            "Withdrawal of %(date)s undone by %(user)s: back in %(group)s.",
+            date=format_date(self.env, withdrawal_date), user=self.env.user.name,
+            group=order.ems_group_id.name))
+        if frozen_grades:
+            body += Markup("<p>{}</p>").format(_(
+                "The withdrawal deleted these grades and they cannot be restored: enter them again "
+                "in the evaluation."))
+            body += self.env['ems.base'].build_html_list(frozen_grades)
+        self.message_post(body=body)
+
+        message = _("Withdrawal undone: %(student)s is back in %(group)s.",
+                    student=self.name, group=order.ems_group_id.name)
+        if portal['granted']:
+            message += " " + _("%s access(es) granted") % len(portal['granted'])
+        if portal['issues']:
+            message += "\n" + _("Issues:") + "\n- " + "\n- ".join(portal['issues'])
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _("Undo withdrawal"),
+                'message': message,
+                'type': 'warning' if portal['issues'] else 'success',
+                'sticky': bool(portal['issues']),
+                'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'},
+            },
         }
 
     def action_external_record_wizard(self):
@@ -1407,6 +1489,13 @@ class ResPartner(models.Model):
             is_student = partner.contact_type in ('student', 'applicant')
             partner.can_manage_portal_access = is_student and portal._user_can_manage(partner)
             partner.can_send_student_requests = is_student and scope._scope_acts_on_student(partner)
+
+    @api.depends('contact_type', 'exit_type', 'exit_course_id')
+    @api.depends_context('uid')
+    def _compute_can_undo_withdrawal(self):
+        can_register = self._ems_user_can_register_exits()
+        for partner in self:
+            partner.can_undo_withdrawal = can_register and bool(partner._ems_withdrawal_undo_order())
 
     @api.depends('tutor_id')
     @api.depends_context('uid')

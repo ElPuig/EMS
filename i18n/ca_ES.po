@@ -20282,3 +20282,68 @@ msgstr "Correu bloquejat: aquesta és una màquina de desenvolupament i aquesta 
 #: code:addons/ems/models/settings/mail_guard.py:0
 msgid "Email blocked: this is a development machine and these recipients are neither redirected by devel.sh nor in the allowlist: %(recipients)s"
 msgstr "Correu bloquejat: aquesta és una màquina de desenvolupament i aquests destinataris no estan desviats per devel.sh ni a la llista d'adreces permeses: %(recipients)s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_undo_withdrawal
+#: model:ir.model.fields,field_description:ems.field_res_users__can_undo_withdrawal
+msgid "Can undo withdrawal"
+msgstr "Pot desfer la baixa"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid ""
+"Only a withdrawal of the current course can be undone, and only for a "
+"student whose enrollment of that course is confirmed and has a group."
+msgstr ""
+"Només es pot desfer una baixa del curs actual, i només si la matrícula "
+"d'aquest curs està confirmada i té grup."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid ""
+"Only the secretary, the head of studies or an administrator can undo "
+"withdrawals."
+msgstr ""
+"Només secretaria, el cap d'estudis o administració poden desfer baixes."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"The student goes back to the group and subjects of their confirmed "
+"enrollment, and the portal access is granted again. Attendance deleted by "
+"the withdrawal is not restored. Continue?"
+msgstr ""
+"Es reincorpora al grup i a les assignatures de la matrícula confirmada i es "
+"torna a donar accés al portal. L'assistència esborrada per la baixa no es "
+"recupera. Voleu continuar?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid ""
+"The withdrawal deleted these grades and they cannot be restored: enter them "
+"again in the evaluation."
+msgstr ""
+"La baixa va esborrar aquestes notes i no es poden recuperar: cal tornar-les "
+"a introduir a l'avaluació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Undo withdrawal"
+msgstr "Desfés la baixa"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "Withdrawal of %(date)s undone by %(user)s: back in %(group)s."
+msgstr "Baixa del %(date)s desfeta per %(user)s: torna a %(group)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "Withdrawal undone: %(student)s is back in %(group)s."
+msgstr "Baixa desfeta: %(student)s torna a %(group)s."

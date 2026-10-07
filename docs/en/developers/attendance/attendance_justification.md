@@ -4,7 +4,9 @@
 
 An `ems.attendance_justification` is a tutor-entered proof-of-attendance covering a
 date/time range for one student (e.g. "medical appointment, 2026-03-02 09:00–11:00") — it
-retroactively re-marks any `miss` line within that range as `justified`, and going forward
+retroactively re-marks any `miss` line within that range as `justified` and any
+`delayed_severe` line (a severe delay, which counts as an absence) as `delayed` (a minor
+delay, issue #578), and going forward
 acts as a *prevision*: a new session created within its range gets its line pre-filled as
 justified instead of the usual default status. See
 [`attendance_session.md`](attendance_session.md#_auto_populate_lines-continuation-vs-fresh-roll-call)
@@ -46,7 +48,7 @@ students' ranges never conflict — the domain filters by `student_id`).
 ```mermaid
 flowchart TD
     A["create()"] --> B["_check_permissions() or raise"]
-    B --> C["for each already-miss line in\nattendance_session_line_ids:\nperform_justification()"]
+    B --> C["for each miss / severe-delay line in\nattendance_session_line_ids:\nperform_justification()"]
 
     D["write(vals)"] --> E{"start_date or\nend_date in vals?"}
     E -- no --> Z["no permission check —\ne.g. a session linking itself\nvia attendance_justification_id"]
@@ -55,20 +57,30 @@ flowchart TD
     G --> H["removed lines: remove_justification()\nadded lines: perform_justification()"]
 
     I["unlink()"] --> J["_check_permissions() or raise"]
-    J --> K["every currently-justified line\nreverts to remove_justification()"]
+    J --> K["every justified / minor-delay line\nreverts to remove_justification()"]
     K --> L["super().unlink()"]
 ```
 
-`perform_justification(line, prevision=False)` and `remove_justification(line)` return a
+`perform_justification(vals, prevision=False)` and `remove_justification(line)` return a
 plain **vals dict**, never write directly — callers decide when/how to apply it.
-`perform_justification` has a documented dual calling convention: `line` is a real
-`ems.attendance_session_line` **record** when called from this file's own `create()`/`write()`
-(an actual justification), but a plain **dict** when called from
-`attendance_session.py`'s `_auto_populate_lines()` (building a not-yet-created line's initial
-values as a *prevision*) — `hasattr(line, '_name')` distinguishes the two. The resulting
-`notes` are prefixed with `PREVISION_CAPTION`/`JUSTIFICATION_CAPTION` (`_lt`-lazy-translated
-module constants) plus the acting teacher's name, so the roll-call always shows *who*
-justified/expected the absence and *why* it says so.
+`perform_justification` always takes plain line vals: an existing line is normalized first
+with `ems.attendance_session_line._justification_vals()` (this file's own `create()`/`write()`),
+while `attendance_session.py`'s `_auto_populate_lines()` passes a not-yet-created line's initial
+values as a *prevision*.
+
+| Line status before | After `perform_justification()` | After `remove_justification()` |
+|--------------------|---------------------------------|--------------------------------|
+| `miss` (or any status, for a prevision) | `justified` | `miss` |
+| `delayed_severe` (not a prevision) | `delayed` | `delayed_severe` |
+
+`remove_justification()` tells the two apart by the line's current status (`delayed` means it
+was a justified severe delay). Either way the line keeps `attendance_justification_id`/
+`attendance_prevision_id`, which is what locks it in the roll-call widget. The resulting
+`notes` are prefixed with `PREVISION_CAPTION`/`JUSTIFICATION_CAPTION`/`SEVERE_DELAY_CAPTION`
+(`_lt`-lazy-translated module constants) plus the acting teacher's name, so the roll-call
+always shows *who* justified/expected the absence and *why* it says so. The form's onchange
+lists `miss`, `delayed_severe` and `justified` lines in the range, plus `delayed` lines that
+already carry a justification (so a date change keeps the ones it still covers).
 
 ---
 

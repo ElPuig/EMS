@@ -1209,8 +1209,8 @@ msgstr "Hi ha més d'una sessió programada per a la franja horària actual. Si 
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 #, python-format
-msgid "Justified absence — status and notes are locked."
-msgstr "Absència justificada — l'estat i les notes estan bloquejats."
+msgid "Justified: status and notes are locked."
+msgstr "Justificat: l'estat i les notes estan bloquejats."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -21079,3 +21079,9 @@ msgstr "La nota que tenen els estudis previs, de 5 a 10."
 #: model:ir.model.fields,help:ems.field_ems_convalidation__student_idalu
 msgid "The student's IDALU, to look up their academic record in Esfera."
 msgstr "L'IDALU de l'alumne, per consultar el seu expedient acadèmic a Esfera."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "Severe delay justified by: "
+msgstr "Retard greu justificat per: "

@@ -1,5 +1,5 @@
 import ast
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
@@ -249,6 +249,62 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
         self.assertEqual(line.status_id, self.env.ref('ems.attendance_status_justified'))
         justification.unlink()
         self.assertEqual(line.status_id, self.env.ref('ems.attendance_status_miss'))
+
+    def _justify_severe_delay(self):
+        """The student's line marked as a severe delay, then justified (issue #578)."""
+        line = self._line()
+        line.status_id = self.env.ref('ems.attendance_status_delayed_severe')
+        justification = self.env['ems.attendance_justification'].create({
+            'teacher_id': self.tutor_employee.id, 'student_id': self.student.id,
+            **self._today_range(),
+            'attendance_session_line_ids': [(6, 0, [line.id])],
+        })
+        return line, justification
+
+    def test_create_justifies_severe_delay_as_mild_delay(self):
+        """A severe delay counts as an absence: justifying it turns it into a mild delay, not a
+        justified miss, linked to the justification (which locks it in the roll-call) and noted."""
+        line, justification = self._justify_severe_delay()
+        self.assertEqual(line.status_id, self.env.ref('ems.attendance_status_delayed'))
+        self.assertEqual(line.attendance_justification_id, justification)
+        self.assertIn(self.tutor_employee.display_name, line.notes)
+
+    def test_onchange_finds_severe_delay_lines(self):
+        line = self._line()
+        line.status_id = self.env.ref('ems.attendance_status_delayed_severe')
+        justification = self.env['ems.attendance_justification'].new({
+            'teacher_id': self.tutor_employee.id, 'student_id': self.student.id,
+            **self._today_range(),
+        })
+        justification._onchange_attendance_session_line_ids()
+        self.assertIn(line.id, justification.attendance_session_line_ids.ids)
+
+    def test_onchange_skips_unjustified_mild_delay_lines(self):
+        line = self._line()
+        line.status_id = self.env.ref('ems.attendance_status_delayed')
+        justification = self.env['ems.attendance_justification'].new({
+            'teacher_id': self.tutor_employee.id, 'student_id': self.student.id,
+            **self._today_range(),
+        })
+        justification._onchange_attendance_session_line_ids()
+        self.assertNotIn(line.id, justification.attendance_session_line_ids.ids)
+
+    def test_unlink_reverts_justified_severe_delay(self):
+        line, justification = self._justify_severe_delay()
+        justification.unlink()
+        self.assertEqual(line.status_id, self.env.ref('ems.attendance_status_delayed_severe'))
+        self.assertFalse(line.attendance_justification_id)
+
+    def test_date_change_reverts_dropped_severe_delay(self):
+        # The form's onchange sends the new dates together with the lines they now cover.
+        line, justification = self._justify_severe_delay()
+        tomorrow = date.today() + timedelta(days=1)
+        justification.write({
+            'start_date': datetime.combine(tomorrow, datetime.min.time()),
+            'end_date': datetime.combine(tomorrow, datetime.max.time()),
+            'attendance_session_line_ids': [(6, 0, [])],
+        })
+        self.assertEqual(line.status_id, self.env.ref('ems.attendance_status_delayed_severe'))
 
     def test_compute_session_teacher_ids_includes_template_and_session_teacher(self):
         line = self._line()

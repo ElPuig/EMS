@@ -4,7 +4,7 @@
 
 # Justificar les faltes del teu alumnat
 
-Un justificant cobreix un període (data i hora d'inici i de fi) d'un alumne del teu grup. Totes les faltes d'aquell període passen a **Falta justificada**, les hagi posat qualsevol docent.
+Un justificant cobreix un període (data i hora d'inici i de fi) d'un alumne del teu grup. Totes les faltes d'aquell període passen a **Falta justificada**, les hagi posat qualsevol docent, i tots els **Retard greu** (que compten com a falta) passen a **Retard lleu**.
 
 **Rol necessari:** Tutor
 
@@ -15,8 +15,10 @@ Un justificant cobreix un període (data i hora d'inici i de fi) d'un alumne del
 1. Ves a **Assistència dels estudiants → Justificants** i clica **Nou**.
 2. A **Estudiant**, tria l'alumne. Només hi surten els alumnes del teu grup.
 3. A **Període**, indica la data i l'hora d'inici i de fi.
-4. La pestanya **Sessions afectades** mostra les sessions del període en què l'alumne té una falta, de tots els docents.
-5. Clica **Desar**. Les faltes de la llista passen a **Falta justificada**.
+4. La pestanya **Sessions afectades** mostra les sessions del període en què l'alumne té una falta o un retard greu, de tots els docents.
+5. Clica **Desar**. Les faltes de la llista passen a **Falta justificada**, i els retards greus a **Retard lleu**.
+
+Al passi de llista, les línies justificades mostren un escut i el docent ja no les pot canviar. La seva nota indica qui les ha justificat ("Falta justificada per: ..." o "Retard greu justificat per: ...").
 
 ![Justificant nou amb les sessions afectades](../../assets/tutors/justificants-02-nou.png)
 
@@ -48,8 +50,8 @@ Els fitxers adjunts els pot obrir tothom qui pot veure el justificant: el profes
 
 ![Llista de justificants](../../assets/tutors/justificants-01-llista.png)
 
-- **Canviar el període:** obre el justificant, modifica el **Període** i desa. Les faltes que en queden fora tornen a **Falta** i les noves passen a **Falta justificada**.
-- **Esborrar-lo:** les faltes que cobria tornen a **Falta**.
+- **Canviar el període:** obre el justificant, modifica el **Període** i desa. Les faltes que en queden fora tornen a **Falta** (o a **Retard greu**, si ho eren) i les noves queden justificades.
+- **Esborrar-lo:** les faltes que cobria tornen a **Falta**, i els retards a **Retard greu**.
 - L'**Estudiant** no es pot canviar un cop desat: esborra el justificant i crea'n un de nou.
 
 ---

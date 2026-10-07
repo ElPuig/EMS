@@ -356,7 +356,7 @@ class AttendanceSessionView extends Component {
             viewModeGuard:          _t("Guard"),
             continuationBanner:     _t("A previous session for the same subject has been detected for today, so assistance data has been copied from the previous one. You can modify any of those as you please."),
             multipleSessionsWarning: _t("More than one session is scheduled for the current time slot. Please select one manually or switch to 'Manual' mode."),
-            justifiedTitle:          _t("Justified absence — status and notes are locked."),
+            justifiedTitle:          _t("Justified: status and notes are locked."),
             deleteSession:          _t("Delete session"),
             deleteSessionConfirm:   _t("Delete this session? This action cannot be undone."),
             removeLine:             _t("Remove from the roll-call (not required to attend)"),

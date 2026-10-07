@@ -126,6 +126,15 @@ schedule** (issue #555):
   not, and flipped them to Absent after 30 minutes idle. `_disable_login_presence_control()`
   (`__init__.py`) switches it off for every company: from `post_init_hook` on fresh installs and
   from a `migrations/18.0.0.33.0/post-migrate.py` on upgrades. `hr_presence_control_attendance` stays on.
+- **Computed as superuser, so it doesn't depend on who looks (issue #575).** The state reads the
+  employee's last check-in (`last_attendance_id` / `attendance_state`), which hr_attendance restricts
+  to HR and attendance officers (`groups=`). Computed with a teacher's or a tutor's rights those came
+  back empty, so a checked-in colleague's form showed "Out of working hours" (grey) while the
+  Teachers kanban, loaded another way, showed them present (green). `ems_employee_base` redeclares
+  `hr_presence_state`, `hr_icon_display` and `show_hr_icon_display` with `compute_sudo=True`. Nothing
+  new is exposed: the dot was already shown to them, and only says present / absent / on leave /
+  out of working hours. Covered by `test_employee_presence_state.py` (read as a teacher and a tutor)
+  and `test_employee_presence_tour.py` (kanban and form, as a tutor).
 
 - **Native labels fixed in Catalan/Spanish.** hr ships 'Out of Working hours' with no Catalan
   translation, hr_holidays ships 'On leave' as "En sortir" (ca) and 'Present but on leave' as

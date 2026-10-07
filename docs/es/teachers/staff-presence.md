@@ -42,6 +42,7 @@ Solo cuentan dos cosas: el **fichaje de entrada y salida** y el **horario semana
 - Tener el EMS abierto en el navegador **no** hace que alguien aparezca como presente: solo lo hace fichar la entrada.
 - Quien empieza su primera clase a las 10:00 aparece como fuera de las horas laborables hasta las 10:00, no como ausente.
 - El punto muestra la situación del momento en que se cargó la pantalla: vuelve a cargar la página para ver la actual.
+- El punto es el mismo en la tarjeta y en la ficha de la persona, y el mismo para todos los que lo miran, sea cual sea su rol.
 
 ---
 

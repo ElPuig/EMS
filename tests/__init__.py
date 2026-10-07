@@ -238,3 +238,4 @@ from . import test_schedule_edit_roles
 from . import test_attendance_report_schedule
 from . import test_i18n_coverage
 from . import test_dev_mail_guard
+from . import test_employee_presence_tour

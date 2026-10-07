@@ -42,6 +42,7 @@ Només compten dues coses: el **fitxatge d'entrada i sortida** i l'**horari setm
 - Tenir l'EMS obert al navegador **no** fa que algú surti com a present: només ho fa fitxar l'entrada.
 - Qui comença la primera classe a les 10:00 surt com a fora de l'horari laboral fins a les 10:00, no com a absent.
 - El punt mostra la situació del moment en què s'ha carregat la pantalla: torna a carregar la pàgina per veure l'actual.
+- El punt és el mateix a la targeta i a la fitxa de la persona, i el mateix per a tothom qui el mira, sigui quin sigui el seu rol.
 
 ---
 

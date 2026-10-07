@@ -35,35 +35,53 @@ class TestEmployeePresenceState(TransactionCase):
             ],
         })
 
-    def _presence_at(self, utc_hour, utc_minute=0):
+    def _presence_at(self, utc_hour, utc_minute=0, user=None):
+        teacher = self.teacher.with_user(user) if user else self.teacher
         with patch.object(fields.Datetime, 'now', return_value=MONDAY.replace(hour=utc_hour, minute=utc_minute)):
             self.env.invalidate_all()
-            return self.teacher.hr_presence_state
+            return teacher.hr_presence_state, teacher.hr_icon_display
 
     def test_before_the_first_class_is_out_of_working_hours(self):
         # 08:30 local, half an hour before the first class: hr's one-hour look-ahead said Absent.
-        self.assertEqual(self._presence_at(6, 30), 'out_of_working_hour')
+        self.assertEqual(self._presence_at(6, 30)[0], 'out_of_working_hour')
 
     def test_during_a_class_without_checking_in_is_absent(self):
-        self.assertEqual(self._presence_at(7, 15), 'absent')
+        self.assertEqual(self._presence_at(7, 15)[0], 'absent')
 
     def test_gap_between_classes_is_out_of_working_hours(self):
         # 10:15 local, between the 09:00-10:00 and 10:30-11:30 classes.
-        self.assertEqual(self._presence_at(8, 15), 'out_of_working_hour')
+        self.assertEqual(self._presence_at(8, 15)[0], 'out_of_working_hour')
 
     def test_after_the_last_class_is_out_of_working_hours(self):
-        self.assertEqual(self._presence_at(9, 45), 'out_of_working_hour')
+        self.assertEqual(self._presence_at(9, 45)[0], 'out_of_working_hour')
 
     def test_checked_in_is_present(self):
         self.env['hr.attendance'].create({
             'employee_id': self.teacher.id,
             'check_in': MONDAY.replace(hour=6, minute=55),
         })
-        self.assertEqual(self._presence_at(7, 15), 'present')
+        self.assertEqual(self._presence_at(7, 15)[0], 'present')
+
+    def test_a_checked_in_colleague_is_present_whoever_looks(self):
+        """Issue #575: the state reads the last check-in, a field restricted to HR and attendance
+        officers; computed as a teacher or a tutor it came back empty, so their colleague's form
+        showed "out of working hours" (grey) while the Teachers kanban showed them present."""
+        self.env['hr.attendance'].create({
+            'employee_id': self.teacher.id,
+            'check_in': MONDAY.replace(hour=6, minute=55),
+        })
+        for role in ('teacher', 'tutor'):
+            viewer = create_role_user(self, role, f'test_{role}_viewer_presence_state')
+            with self.subTest(role=role):
+                self.assertEqual(self._presence_at(7, 15, user=viewer), ('present', 'presence_present'))
+
+    def test_a_colleague_missing_class_is_absent_whoever_looks(self):
+        viewer = create_role_user(self, 'tutor', 'test_tutor_viewer_absent_presence_state')
+        self.assertEqual(self._presence_at(7, 15, user=viewer), ('absent', 'presence_absent'))
 
     def test_being_online_without_checking_in_is_not_present(self):
         with patch.object(type(self.env['res.users']), '_is_user_available', return_value=True):
-            self.assertEqual(self._presence_at(7, 15), 'absent')
+            self.assertEqual(self._presence_at(7, 15)[0], 'absent')
 
     def test_login_presence_control_is_disabled_for_every_company(self):
         # Reuses the current company's calendar: Odoo would otherwise create a "Standard 40

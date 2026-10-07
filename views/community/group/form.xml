@@ -42,20 +42,25 @@
                             <group>
                                 <field name="external_id" />
                             </group>
-                            <group colspan="3" invisible="group_type != 'main'">
+                            <!-- Rows of the 4-column grid: level | study (under shift + external id);
+                            classroom | course | acronym; tutor | delegate | sub-delegate. -->
+                            <group colspan="2" invisible="group_type != 'main'">
                                 <field name="level_id" required="group_type == 'main'" />
                             </group>
                             <group colspan="2" invisible="group_type != 'main'">
                                 <field name="study_id" readonly="level_id == False" domain="[('level_id','=', level_id)]" required="group_type == 'main'" />
+                            </group>
+                            <group colspan="4" invisible="group_type != 'reinforcement'">
+                                <field name="name" />
+                            </group>
+                            <group colspan="2">
+                                <field name="space_id" />
                             </group>
                             <group invisible="group_type != 'main'">
                                 <field name="course" required="group_type == 'main'" />
                             </group>
                             <group invisible="group_type != 'main'">
                                 <field name="acronym" required="group_type == 'main'" />
-                            </group>
-                            <group colspan="4" invisible="group_type != 'reinforcement'">
-                                <field name="name" />
                             </group>
                             <group colspan="2" invisible="group_type != 'main'">
                                 <field name="tutor_id" widget="many2one_avatar_employee" />
@@ -65,9 +70,6 @@
                             </group>
                             <group invisible="group_type != 'main'">
                                 <field name="subdelegate_id" widget="many2one_avatar" />
-                            </group>
-                            <group>
-                                <field name="space_id" />
                             </group>
                             <!-- Issue #453 - public, no-login link to the group's pre-rendered schedule PDF.
                             CopyClipboardURL: a real link (opens in a new tab) plus Odoo's copy button, which the

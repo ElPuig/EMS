@@ -6,6 +6,8 @@
 - Like the delegate, it only exists for main groups (a reinforcement group refuses it, and switching
   a group to reinforcement clears it), and it is cleared automatically when that student leaves the
   group (withdrawal, or a course transition that graduates or strands them).
+- The group form's main data is regrouped: level and study on one row, then reference classroom,
+  course and acronym, then tutor, delegate and sub-delegate.
 - The admin groups and working-schedules manuals mention it, with a refreshed group form screenshot.
 
 # Fixes:

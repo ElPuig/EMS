@@ -238,6 +238,44 @@ class EmsStudentYearRecord(models.Model):
             'is_provisional': True,
         })
 
+    def _ems_reopen_after_undone_withdrawal(self):
+        """Undo the freeze a withdrawal applied to the running course (issue #592).
+
+        The course is running again, so its record goes back to what it was before: a
+        provisional one holding only the subjects convalidated during it, or nothing at all.
+        The grades it froze cannot become grade lines again (the withdrawal deleted those), so
+        they are returned as text, one item per graded subject, for the caller to leave in the
+        student's chatter."""
+        frozen_grades = []
+        for record in self:
+            convalidated = record.subject_record_ids.filtered('is_convalidated')
+            for subject_record in record.subject_record_ids - convalidated:
+                outcomes = subject_record.outcome_record_ids.filtered('final_is_scored')
+                if not (subject_record.has_final or subject_record.internal_grade
+                        or subject_record.external_is_scored or outcomes):
+                    continue
+                grade = subject_record.final_grade if subject_record.has_final \
+                    else subject_record.internal_grade
+                item = f"{subject_record.subject_name}: {grade}"
+                if outcomes:
+                    item += " (" + ", ".join(
+                        f"{outcome.outcome_name}: {outcome.final_score}" for outcome in outcomes) + ")"
+                frozen_grades.append(item)
+            if convalidated:
+                (record.subject_record_ids - convalidated).unlink()
+                record.write({
+                    'is_provisional': True,
+                    'exit_type': False,
+                    'exit_date': False,
+                    'academic_result': False,
+                    'title_obtained': False,
+                    'attendance_rate': 0.0,
+                    'attendance_issue_count': 0,
+                })
+            else:
+                record.unlink()
+        return frozen_grades
+
     @api.model
     def _convalidated_subject_vals(self, student, course, study, taken_subject_ids):
         """One dict per subject convalidated for `course` that no grade line accounts for.

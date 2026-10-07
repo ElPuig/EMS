@@ -977,7 +977,11 @@ class TestAbsenceRequest(TransactionCase):
         self.employee.leave_manager_id = head.id
         leave = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True)
 
-        leave.action_approve()
+        # Approved on the day of the absence: once that day is past the deadline is today instead
+        # (max(today, day after)), which a fixed Monday of the course would reach as the year goes on.
+        with patch.object(type(self.env['ems.datetime_utils']), 'get_local_today',
+                          return_value=leave.request_date_from):
+            leave.action_approve()
         self.assertEqual(self._activity_users(leave, 'ems.mail_activity_absence_document_upload'), owner)
         self.assertEqual(leave.activity_ids.date_deadline, leave.request_date_to + timedelta(days=1),
                          'due the day after the absence')

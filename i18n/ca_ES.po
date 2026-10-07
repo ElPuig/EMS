@@ -21262,3 +21262,24 @@ msgstr "Això assigna una contrasenya nova al compte de Google del professor o p
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Google account"
 msgstr "Compte de Google"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__hr_presence_state
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__hr_presence_state
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__hr_presence_state
+msgid "Hr Presence State"
+msgstr "Estat de presència de recursos humans"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__hr_icon_display
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__hr_icon_display
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__hr_icon_display
+msgid "Hr Icon Display"
+msgstr "Visualització d'icones de recursos humans"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__show_hr_icon_display
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__show_hr_icon_display
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__show_hr_icon_display
+msgid "Show Hr Icon Display"
+msgstr "Mostra la icona de recursos humans"

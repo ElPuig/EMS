@@ -21263,3 +21263,24 @@ msgstr "Esto asigna una contraseña nueva a la cuenta de Google del profesor o p
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Google account"
 msgstr "Cuenta de Google"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__hr_presence_state
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__hr_presence_state
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__hr_presence_state
+msgid "Hr Presence State"
+msgstr "Estado de presencia de RR. HH."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__hr_icon_display
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__hr_icon_display
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__hr_icon_display
+msgid "Hr Icon Display"
+msgstr "Visualización del icono RR. HH."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__show_hr_icon_display
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__show_hr_icon_display
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__show_hr_icon_display
+msgid "Show Hr Icon Display"
+msgstr "Mostrar icono de RR. HH."

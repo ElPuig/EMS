@@ -100,12 +100,16 @@ Who can do this: the absent teacher's **Seminar Chief** or **Department Chief**,
 
 Everything is done from the **Absences table**, and nothing happens on its own: each step waits for you to press its button. A day that is already over can no longer be changed.
 
+![Absences table as a Department Chief: a late entry proposal, and two classes covered by two guards, each in its own colour](../../assets/teachers/guard-duty-03-organitzar.png)
+
 ### Sending a guard to a class
 
 1. Click the line of the class to cover (lines you can organise show a hand pointer).
 2. Choose the **Guard teacher**. Only the teachers on guard duty in that time block are offered, except those on a WC guard and those who are away themselves.
 3. Optionally, write a **message**: what the students have to work on, where the materials are...
 4. Click **Assign and notify**.
+
+![Sending a guard teacher to a class: the guards on duty and a message for them](../../assets/teachers/guard-duty-04-enviar-guardia.png)
 
 The guard teacher receives an Odoo message (in their inbox, or by email, depending on their own notification preference) with the date, time, group, subject, classroom, the absent teacher and your message.
 
@@ -122,6 +126,8 @@ Those lines show a dashed tag such as **Could start at 10:00**, and the **Late e
 The selector next to each proposal lets you tell the families about less than the absences allow: with two lessons without a teacher, you can choose **Starts at 09:00** instead of **Starts at 10:00**. Only the first lesson is then struck out; the second still needs a guard, sent as usual. Choosing the smaller change is your decision: nothing will ask you to correct it.
 
 **Propose notice** opens a draft notice addressed to that group's students and families, with a suggested text you can change. Send it from that form as any other notice (the groups of a timetable change notice cannot be changed). If you leave it as a draft, the button reads **Open draft** next time.
+
+![Draft notice proposed by the board, with the timetable change and the suggested text](../../assets/teachers/guard-duty-05-comunicat.png)
 
 Once the notice is sent (or scheduled), those lines are struck through with a tag such as **Starts at 10:00**: nobody needs to be sent to them.
 

@@ -100,12 +100,16 @@ Quién puede hacerlo: el **Jefe de seminario** o el **Jefe de departamento** del
 
 Todo se hace desde la **Tabla de ausencias**, y nada ocurre solo: cada paso espera a que pulses su botón. Un día que ya ha pasado no se puede cambiar.
 
+![Tabla de ausencias como Jefe de departamento: una propuesta de entrada tarde y dos clases cubiertas por dos docentes de guardia, cada uno con su color](../../assets/teachers/guard-duty-03-organitzar.png)
+
 ### Enviar un docente de guardia a una clase
 
 1. Haz clic en la línea de la clase que hay que cubrir (las líneas que puedes organizar muestran el cursor de mano).
 2. Elige el **Docente de guardia**. Solo se ofrecen los docentes de guardia en esa franja, salvo los de guardia de WC y los que también están ausentes.
 3. Opcionalmente, escribe un **mensaje**: qué tiene que trabajar el alumnado, dónde están los materiales...
 4. Haz clic en **Asignar y avisar**.
+
+![Enviar un docente de guardia a una clase: los docentes de guardia y un mensaje para ellos](../../assets/teachers/guard-duty-04-enviar-guardia.png)
 
 El docente de guardia recibe un mensaje de Odoo (en su bandeja de entrada o por correo, según su preferencia de notificaciones) con la fecha, la hora, el grupo, la asignatura, el aula, el docente ausente y tu mensaje.
 
@@ -122,6 +126,8 @@ Esas líneas muestran una etiqueta discontinua como **Puede entrar a las 10:00**
 El selector de cada propuesta te permite comunicar a las familias menos de lo que permiten las ausencias: con dos clases sin docente, puedes elegir **Entra a las 09:00** en lugar de **Entra a las 10:00**. Entonces solo se tacha la primera clase; la segunda sigue necesitando un docente de guardia, que envías como siempre. Elegir el cambio más corto es decisión tuya: nada te pedirá que lo rectifiques.
 
 **Proponer comunicado** abre un comunicado en borrador dirigido al alumnado y las familias de ese grupo, con un texto propuesto que puedes cambiar. Envíalo desde ese formulario como cualquier otro comunicado (los grupos de un comunicado de cambio de horario no se pueden cambiar). Si lo dejas en borrador, la próxima vez el botón dice **Abrir borrador**.
+
+![Borrador de comunicado propuesto por el cuadrante, con el cambio de horario y el texto propuesto](../../assets/teachers/guard-duty-05-comunicat.png)
 
 Una vez enviado (o programado) el comunicado, esas líneas quedan tachadas con una etiqueta como **Entra a las 10:00**: no hace falta enviar a nadie.
 

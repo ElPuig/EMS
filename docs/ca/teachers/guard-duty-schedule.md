@@ -100,12 +100,16 @@ Qui ho pot fer: el **Cap de seminari** o el **Cap de departament** del docent ab
 
 Tot es fa des de la **Taula d'absències**, i res no passa sol: cada pas espera que en premis el botó. Un dia que ja ha passat no es pot canviar.
 
+![Taula d'absències com a Cap de departament: una proposta d'entrada tard i dues classes cobertes per dos docents de guàrdia, cadascun amb el seu color](../../assets/teachers/guard-duty-03-organitzar.png)
+
 ### Enviar un docent de guàrdia a una classe
 
 1. Fes clic a la línia de la classe que cal cobrir (les línies que pots organitzar mostren el cursor de mà).
 2. Tria el **Docent de guàrdia**. Només s'ofereixen els docents de guàrdia en aquella franja, excepte els de guàrdia de WC i els que també estan absents.
 3. Opcionalment, escriu un **missatge**: què ha de treballar l'alumnat, on són els materials...
 4. Fes clic a **Assignar i avisar**.
+
+![Enviar un docent de guàrdia a una classe: els docents de guàrdia i un missatge per a ells](../../assets/teachers/guard-duty-04-enviar-guardia.png)
 
 El docent de guàrdia rep un missatge d'Odoo (a la safata d'entrada o per correu, segons la seva preferència de notificacions) amb la data, l'hora, el grup, l'assignatura, l'aula, el docent absent i el teu missatge.
 
@@ -122,6 +126,8 @@ Aquestes línies mostren una etiqueta discontínua com ara **Pot entrar a les 10
 El selector de cada proposta et permet comunicar a les famílies menys del que permeten les absències: amb dues classes sense docent, pots triar **Entra a les 09:00** en lloc d'**Entra a les 10:00**. Aleshores només es ratlla la primera classe; la segona encara necessita un docent de guàrdia, que envies com sempre. Triar el canvi més curt és decisió teva: res no et demanarà que el rectifiquis.
 
 **Proposar comunicat** obre un comunicat en esborrany adreçat a l'alumnat i les famílies d'aquell grup, amb un text proposat que pots canviar. Envia'l des d'aquell formulari com qualsevol altre comunicat (els grups d'un comunicat de canvi d'horari no es poden canviar). Si el deixes en esborrany, la propera vegada el botó diu **Obrir esborrany**.
+
+![Esborrany de comunicat proposat pel quadrant, amb el canvi d'horari i el text proposat](../../assets/teachers/guard-duty-05-comunicat.png)
 
 Un cop enviat (o programat) el comunicat, aquestes línies queden ratllades amb una etiqueta com ara **Entra a les 10:00**: no cal enviar-hi ningú.
 

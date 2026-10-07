@@ -125,11 +125,14 @@ class AttendanceSessionView extends Component {
 
     async _loadStatuses() {
         const records = await this.orm.searchRead(
-            "ems.attendance_status", [], ["id", "name"], { order: "sequence" }
+            "ems.attendance_status", [], ["id", "name", "roll_call_selectable"], { order: "sequence" }
         );
-        this.statuses = records.map(({ id, name }) => ({
+        this.statuses = records.map(({ id, name, roll_call_selectable }) => ({
             key: id,
             title: name,
+            // Not selectable: still shown (and highlighted when a line has it), never clickable.
+            selectable: roll_call_selectable,
+            lockedTitle: `${name}: ${_t("Only the student's tutor can justify an absence, by registering a justification.")}`,
             label: name.split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase(),
         }));
     }

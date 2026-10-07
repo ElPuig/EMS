@@ -6,6 +6,8 @@
 
 A justification covers a period (start and end date and time) for one student of your group. Every absence within that period becomes a **Justified Miss**, whichever teacher recorded it, and every **Severe Delay** (which counts as an absence) becomes a **Minor Delay**.
 
+Unless the centre allows it in its settings, a justification is the only way to justify an absence: teachers can't mark a student as Justified Miss when taking the roll-call.
+
 **Required role:** Tutor
 
 ---

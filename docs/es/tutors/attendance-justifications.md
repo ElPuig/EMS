@@ -6,6 +6,8 @@
 
 Un justificante cubre un período (fecha y hora de inicio y de fin) de un alumno de tu grupo. Todas las faltas de ese período pasan a **Falta justificada**, las haya puesto cualquier docente, y todos los **Retraso grave** (que cuentan como falta) pasan a **Retraso leve**.
 
+Salvo que el centro lo permita en su configuración, una justificación es la única forma de justificar una falta: el profesorado no puede marcar a un alumno como Falta justificada al pasar lista.
+
 **Rol necesario:** Tutor
 
 ---

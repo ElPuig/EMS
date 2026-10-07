@@ -66,6 +66,10 @@ registry.category("web_tour.tours").add("ems_attendance_session_continuation", {
             content: "Minor Delay is now the active status for Zoe Aguilar",
         },
         {
+            trigger: ".ems-av-line:has(.ems-av-name:contains('Zoe Aguilar')) .ems-av-status-btn--locked:disabled",
+            content: "Justified can't be picked by hand: only the tutor justifies (issue #587)",
+        },
+        {
             trigger: ".ems-av-sort-wrap select",
             content: "Sort by first name ascending",
             run: "select name:asc",

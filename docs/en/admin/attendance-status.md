@@ -30,6 +30,8 @@ Each status has:
 
 **Minor Delay vs. Severe Delay:** the centre distinguishes two levels of lateness. "Minor Delay" is `Assistance` category and does not notify the family — it never counts as an absence. "Severe Delay" is `Absence` category and notifies the family, exactly like a Miss — a student marked this way counts as absent in attendance rates and reports. A teacher chooses directly which one applies when passing the roll-call; there is no automatic escalation from repeated minor delays into a severe one. Both reset to "Attended" on the next period's line — a delay of either kind only ever applies to the single period it was marked in.
 
+**Justified Miss in the roll-call:** by default a teacher can't mark a student as **Justified Miss** when taking the roll-call. The button is still shown, but disabled, and hovering over it explains that only the student's tutor can justify an absence, by registering a justification (see the tutors' manual). To let teachers pick it directly, mark **Justify absences when taking the roll-call** under **Settings → EMS Management → "Student's Attendance Settings"**. Turning it off again leaves the absences already marked that way as they are.
+
 ---
 
 [← Back to Admin manuals](index.md)

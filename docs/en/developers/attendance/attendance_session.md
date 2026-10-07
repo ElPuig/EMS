@@ -215,6 +215,23 @@ whether to show a "continuing from period 1" hint before the roll-call even load
 
 ---
 
+## Justified Miss picked by hand (`_check_manual_justified`, issue #587)
+
+A line becomes Justified Miss through a tutor's justification or prevision:
+`ems.attendance_justification.perform_justification()` sets `status_id` and links
+`attendance_justification_id`/`attendance_prevision_id` in the same write. Picking that status by
+hand in the roll-call is only allowed when the company's `attendance_manual_justified` setting is
+on (off by default). `ems.attendance_status.roll_call_selectable` carries that decision to the
+client, which keeps the status column visible but its buttons disabled (class
+`ems-av-status-btn--locked`, with an explanatory tooltip on the button and its cell), so a row
+looks the same whether it is justified or not. The `@api.constrains('status_id')` check is the
+server-side guard (also covering Guard mode's `write_guard_session_line`, which writes under
+`sudo()`): a Justified Miss status with neither link raises `ValidationError`. It only fires when
+`status_id` is written, so lines marked by hand while the setting was on keep their status after
+it is turned off.
+
+---
+
 ## Session line: fields worth noting
 
 | Field | Notes |

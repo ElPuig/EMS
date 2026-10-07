@@ -21145,3 +21145,31 @@ msgstr "Adjunteu el certificat de professionalitat o l'acreditació de competèn
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
 msgid "Attach the documents that support your request."
 msgstr "Adjunteu els documents que justifiquin la sol·licitud."
+
+#. module: ems
+#. odoo-javascript
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Only the student's tutor can justify an absence, by registering a justification."
+msgstr "Només el tutor de l'alumne pot justificar una falta, registrant-ne una justificació."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__attendance_manual_justified model:ir.model.fields,field_description:ems.field_res_config_settings__attendance_manual_justified
+msgid "Attendance Manual Justified"
+msgstr "Justificar faltes en passar llista"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__roll_call_selectable
+msgid "Selectable in the roll-call"
+msgstr "Seleccionable en passar llista"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Justify absences when taking the roll-call"
+msgstr "Justificar faltes en passar llista"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "If marked, teachers can mark a student as justified directly when taking the roll-call. Otherwise, only the student's tutor can justify an absence, by registering a justification."
+msgstr "Si es marca, el professorat pot marcar un alumne com a falta justificada directament en passar llista. Si no, només el tutor de l'alumne pot justificar una falta, registrant-ne una justificació."

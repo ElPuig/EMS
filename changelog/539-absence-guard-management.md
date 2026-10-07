@@ -26,7 +26,25 @@
   files the real request, and only the extra days/hours it adds come up as new lines.
 - A day already over can no longer be managed.
 
+## Communications open to Department and Seminar chiefs:
+- Department and Seminar chiefs now see Communications > Notices and can send notices to the
+  students and families of the groups their department teaches: every group where a teacher of
+  their department (or of a sub-department) has classes, resolved from the teaching assignments
+  that follow the teachers' schedules, so there is nothing to configure.
+- They see their own notices and can read (not edit) other people's notices addressed to those
+  groups; the Groups field only offers those groups and the server refuses any other.
+- The guard duty board's timetable-change notices are ordinary notices of theirs.
+
 # Internal changes:
+
+## Department scope for notices:
+- ems.group.department_chief_user_ids (non-stored, searchable; models/communications/
+  notice_department_scope.py): Department/Seminar chiefs of the departments, or ancestor
+  departments, of the teachers with an ems.teaching for the group. Drives the record rules,
+  ems.notice.available_group_ids (form domain) and _check_department_chief_groups. Users holding
+  academic admin, Director, Head of Studies or Quality admin are not limited.
+- Tests: department scope unit tests and TestNoticeDepartmentChiefTour (as a department chief).
+
 
 ## New model ems.absence_cover and timetable-change fields on ems.notice:
 - ems.absence_cover (mail.thread): one guard per absent teacher's class and period
@@ -37,8 +55,9 @@
   (models/communications/notice_absence_change.py); board_propose_absence_change() creates or
   reopens the draft. A constraint keeps such a notice addressed to its own group only, and the
   form shows a banner and locks its groups.
-- Department chiefs get ems.notice/ems.notice.line ACLs plus record rules limited to their own
-  timetable-change notices; the Communications menu stays hidden from them.
+- Department chiefs get ems.notice/ems.notice.line ACLs and record rules: read their own notices
+  and those addressed to their department's groups, write only their own
+  (rule_notice_department_chief_read/_own + line variants).
 - ems.course gains the day/block logic (_get_group_day_blocks, _expected_absence_changes,
   _get_absence_change_states, _get_needed_absence_block, _get_guard_candidates,
   _get_board_absence_management); get_guard_duty_board_data() now also returns per-row cover /

@@ -44,6 +44,13 @@ class TestAbsenceCoverageTour(HttpCase):
         teacher = self.env['hr.employee'].create({'name': 'Tour Absent Teacher', 'employee_type': 'teacher'})
         guard = self.env['hr.employee'].create({'name': 'Tour Cover Guard', 'employee_type': 'teacher'})
         create_head_of_studies_branch(self, 'TABT', teacher)
+        # The chief heads the teacher's real department, as in production: it is what lets them
+        # write to the groups that department teaches.
+        chief = teacher.parent_id
+        head = chief.parent_id
+        teacher.department_id = self.env['hr.department'].create({'name': 'Tour Absence Department', 'manager_id': chief.id})
+        teacher.parent_id = chief
+        chief.parent_id = head
         self._calendar(teacher, ((8, 9), (9, 10), (10, 11)),
                        subject_id=subject.id, group_ids=[group.id], name='TABTG: TABT')
         self._calendar(guard, ((8, 9), (9, 10), (10, 11)),

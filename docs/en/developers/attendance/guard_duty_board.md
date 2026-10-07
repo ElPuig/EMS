@@ -766,12 +766,11 @@ offer their buttons to whoever may use them (`can_manage`), and the server check
 | Propose a timetable change or correction (`board_propose_absence_change`) | No | Yes |
 | Send that notice | No | Yes (own notice) |
 
-Department chiefs could not use notices at all before. `ems.access_ems_notice_department_chief`
-(and its line counterpart) plus `rule_notice_department_chief_absence_change`
-(`security/rules/communications.xml`) let them read, edit, send and delete only the notices they
-created **with** an `absence_change_type`; `_check_absence_change_recipients` keeps such a notice
-addressed to its own group's students and families, and the form locks its groups. The
-Communications menu stays hidden from them. `ems.absence_cover` is read-only to every teacher
+Department and Seminar chiefs use Communications > Notices limited to the groups their department
+teaches (see the access table in [notice.md](../communications/notice.md)); a timetable-change
+notice is one of those, since the absent teacher belongs to their department.
+`_check_absence_change_recipients` keeps it addressed to its own group's students and families,
+and the form locks its groups. `ems.absence_cover` is read-only to every teacher
 (`ems.access_ems_absence_cover_teacher`): every write goes through the board methods above,
 which check the hierarchy and then write with `sudo()`.
 

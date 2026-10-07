@@ -20719,3 +20719,31 @@ msgstr "Alliberar la guàrdia"
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Click to send a guard teacher to this class"
 msgstr "Fes clic per enviar un docent de guàrdia a aquesta classe"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__department_chief_user_ids
+msgid "Department chiefs"
+msgstr "Caps de departament"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__available_group_ids
+msgid "Available groups"
+msgstr "Grups disponibles"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_department_scope.py:0
+msgid "You can only send notices to the groups your department teaches: %s is not one of them."
+msgstr "Només pots enviar comunicats als grups on fa classe el teu departament: %s no n'és cap."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_department_scope.py:0
+msgid "a recipient outside your groups"
+msgstr "un destinatari de fora dels teus grups"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_department_scope.py:0
+msgid "Unsupported search on department_chief_user_ids"
+msgstr "Cerca no admesa a department_chief_user_ids"

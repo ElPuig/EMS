@@ -235,7 +235,7 @@ have their own `ir.model.access.csv` rows for `ems.notice`/`ems.notice.line`, al
 | `group_academic_admin`, `group_director` | Every notice | Every notice |
 | `group_head_of_studies` (HOS/DHOS) | Every notice (for supervision) | Only notices they created |
 | `group_quality_admin` (Quality coordinator) | Every notice (for supervision) | Only notices they created |
-| `group_department_chief` (Department/Seminar Chief) | Only timetable-change notices they created | Only timetable-change notices they created |
+| `group_department_chief` (Department/Seminar Chief) | Their own, and every notice addressed to a group their department teaches | Only notices they created, and only to groups their department teaches |
 
 **Timetable-change notices (issues #539/#581).** A notice with `absence_date`,
 `absence_group_id`, `absence_change_type` and `absence_change_hour` set
@@ -243,12 +243,30 @@ have their own `ir.model.access.csv` rows for `ems.notice`/`ems.notice.line`, al
 a group's students and families they can come in later, leave earlier or have no classes because
 a teacher is away, or corrects an earlier one. It is created as a draft, pre-filled with the group's
 recipients and a suggested text, by `board_propose_absence_change()`, and sent from this same form
-like any other notice. Department chiefs, who otherwise have no access to notices, reach exactly
-these (`rule_notice_department_chief_absence_change` + its line variant); the Communications menu
-stays hidden from them. `_check_absence_change_recipients` keeps such a notice addressed to its
+like any other notice. `_check_absence_change_recipients` keeps such a notice addressed to its
 own group only, and the form shows an information banner and locks its groups. The board reads
 these notices back to know what was communicated: see "Managing absences from the board" in
 [guard_duty_board.md](../attendance/guard_duty_board.md).
+
+**Department and Seminar chiefs: their department's groups.** Both roles are
+`ems.group_department_chief`, which now sees Communications > Notices. What "their department's
+groups" means is resolved from who teaches, not configured: `ems.group.department_chief_user_ids`
+(`models/communications/notice_department_scope.py`, non-stored, searchable) holds the users who are
+the Department Chief (`hr.department.manager_id`) or Seminar Chief (`seminar_chief_id`) of a
+department - or of an ancestor department - one of whose teachers has an `ems.teaching` for the
+group (kept in step with every teacher's schedule). An ESO/BTX department is by subject, so its
+chief reaches every group where one of its teachers teaches; a VET department reaches its family's
+groups plus any other group its teachers teach.
+
+- Rules (`security/rules/communications.xml`): `rule_notice_department_chief_read` (read: own, or
+  addressed to one of those groups - `group_ids.department_chief_user_ids in user`) and
+  `rule_notice_department_chief_own` (write/create/unlink: own), each with its line variant.
+- `_check_department_chief_groups` refuses a notice of theirs addressed to any other group, or with
+  a recipient line that does not come from one of those groups. The form's Groups field only offers
+  `available_group_ids` (every group for anyone else).
+- A user is limited only when they are a department chief and none of
+  `UNRESTRICTED_NOTICE_GROUPS` (academic admin, Director, Head of Studies - which implies the
+  department chief group -, Quality admin).
 
 Enforced by `security/rules/communications.xml`: `rule_notice_admin`/`rule_notice_line_admin`
 (`domain_force=[(1,'=',1)]`, full CRUD, groups `group_academic_admin` + `group_director`),

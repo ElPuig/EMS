@@ -137,6 +137,7 @@ from . import test_portal_schedule_tour
 from . import test_guard_duty_board
 from . import test_absence_coverage
 from . import test_absence_coverage_tour
+from . import test_notice_department_chief_tour
 from . import test_guard_duty_board_tour
 from . import test_em_grading_wizard
 from . import test_department

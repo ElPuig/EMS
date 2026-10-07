@@ -52,7 +52,8 @@
 
                         <group string="Recipients" col="4">
                             <group>
-                                <field name="group_ids" widget="many2many_tags" readonly="state != 'draft' or absence_change_type" options="{'no_create': True}"/>
+                                <field name="available_group_ids" invisible="True"/>
+                                <field name="group_ids" widget="many2many_tags" readonly="state != 'draft' or absence_change_type" options="{'no_create': True}" domain="[('id', 'in', available_group_ids)]"/>
                             </group>
                             <group>
                                 <field name="recipient_type" readonly="state != 'draft'"/>

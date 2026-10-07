@@ -17,7 +17,13 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         # teacher_a hangs below a Department Chief, below a Head of Studies (see
         # create_head_of_studies_branch for the people deliberately left outside that branch).
         create_head_of_studies_branch(cls, 'TABC', cls.teacher_a)
-        cls.teacher_b.parent_id = cls.teacher_a.parent_id
+        # A real department headed by that Department Chief, as in production: it is what limits
+        # the chief's notices to the groups their department teaches.
+        chief, head = cls.teacher_a.parent_id, cls.teacher_a.parent_id.parent_id
+        cls.department = cls.env['hr.department'].create({'name': 'TABC Department', 'manager_id': chief.id})
+        (cls.teacher_a | cls.teacher_b).department_id = cls.department
+        (cls.teacher_a | cls.teacher_b).parent_id = chief
+        chief.parent_id = head
         cls.teacher_a_user = create_role_user(cls, 'teacher', 'test_teacher_a_tabc', name='TABC Teacher A')
         cls.teacher_a.user_id = cls.teacher_a_user
         cls.guard_user = create_role_user(cls, 'teacher', 'test_guard_tabc', name='TABC Guard')
@@ -341,18 +347,38 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual(notice.state, 'scheduled')
         self.assertEqual(self._states()['entry']['status'], 'communicated')
 
-    def test_department_chiefs_only_reach_their_own_timetable_change_notices(self):
-        other = self.Notice.create({'subject': 'TABC unrelated', 'message': '<p>x</p>'})
+    # Notices for department chiefs: the groups their department teaches
+
+    def test_a_department_chief_writes_to_the_groups_their_department_teaches(self):
+        self._morning()  # teacher_a and teacher_b, both of the department, teach group_a
+
+        Notice = self.Notice.with_user(self.department_chief)
+        notice = Notice.create({'subject': 'TABC plain notice', 'message': '<p>x</p>', 'group_ids': [(6, 0, self.group_a.ids)]})
+
+        self.assertEqual(notice.available_group_ids, self.group_a)
+        with self.assertRaises(ValidationError):
+            Notice.create({'subject': 'TABC other group', 'message': '<p>x</p>', 'group_ids': [(6, 0, self.group_b.ids)]})
+        with self.assertRaises(ValidationError):
+            notice.group_ids = self.group_a | self.group_b
+
+    def test_a_department_chief_reads_the_notices_of_their_groups_but_edits_only_their_own(self):
         self._morning()
-        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10)
-        own = self.Notice.browse(self.Notice.with_user(self.department_chief).board_propose_absence_change(
-            str(self.day), self.group_a.id, 'late_entry', 10.0)['res_id'])
+        to_their_group = self.Notice.create({'subject': 'TABC to group A', 'message': '<p>x</p>', 'group_ids': [(6, 0, self.group_a.ids)]})
+        unrelated = self.Notice.create({'subject': 'TABC to group B', 'message': '<p>x</p>', 'group_ids': [(6, 0, self.group_b.ids)]})
 
-        visible = self.Notice.with_user(self.department_chief).search([('id', 'in', (own | other).ids)])
+        visible = self.Notice.with_user(self.department_chief).search([('id', 'in', (to_their_group | unrelated).ids)])
 
-        self.assertEqual(visible, own)
+        self.assertEqual(visible, to_their_group)
         with self.assertRaises(AccessError):
-            self.Notice.with_user(self.department_chief).create({'subject': 'TABC plain notice', 'message': '<p>x</p>'})
+            to_their_group.with_user(self.department_chief).subject = 'Changed'
+        self.assertFalse(self.Notice.with_user(self.other_department_chief).search([('id', '=', to_their_group.id)]),
+                         "another department's chief does not see it")
+
+    def test_head_of_studies_is_not_limited_to_a_department(self):
+        notice = self.Notice.with_user(self.head_of_studies).create(
+            {'subject': 'TABC HoS notice', 'message': '<p>x</p>', 'group_ids': [(6, 0, self.group_b.ids)]})
+
+        self.assertIn(self.group_b, notice.available_group_ids)
 
     def test_proposing_needs_the_chain_of_command(self):
         self._morning()

@@ -42,6 +42,7 @@ Only two things count: the **check-in/check-out** and the person's own **weekly 
 - Having EMS open in a browser does **not** make someone appear as present: only checking in does.
 - Someone whose first class starts at 10:00 appears as out of working hours until 10:00, not as absent.
 - The dot shows the situation at the moment the screen was loaded: reload the page to see the current one.
+- The dot is the same on the card and on the person's record, and the same for everyone who looks at it, whatever their role.
 
 ---
 

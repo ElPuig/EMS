@@ -1,6 +1,6 @@
 # Guard room display: the absences table on a TV
 
-**Status:** not started, current as of 2026-10-07. Written right after the guard duty board's
+**Status:** not started, current as of 2026-10-07. Tracked in issue #591. Written right after the guard duty board's
 absence management (issues #539, #571, #581, branch `539-absence-guard-management`) and builds on
 it: re-check the board's payload (`ems.course.get_guard_duty_board_data`) before starting, in case
 it changed since.

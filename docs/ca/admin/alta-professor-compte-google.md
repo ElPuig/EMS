@@ -71,7 +71,7 @@ En desar la fitxa, si totes les dades requerides hi són (nom i correu privat), 
 - Genera una contrasenya temporal (que caldrà canviar en el primer inici de sessió).
 - **Crea automàticament l'usuari EMS del professor**, amb el correu corporatiu com a nom d'usuari i l'**inici de sessió amb Google ja connectat**: el professor entra a l'EMS amb el botó de Google, no necessita cap contrasenya separada i no s'envia cap correu de contrasenya. Els professors reben els permisos de *Professor*; el PAS rep un usuari intern bàsic (els seus permisos arriben amb els rols/càrrec).
 - Envia les credencials per correu a l'adreça privada indicada al pas 3 (el missatge també explica com entrar a l'EMS).
-- Adjunta un PDF amb les credencials a la fitxa del professor.
+- Desa un PDF amb les credencials a la fitxa del professor, al bloc **Compte de Google** de la pestanya **Recursos Humans**. Només el veuen els rols que gestionen el compte.
 
 No cal prémer res més. Si faltava alguna dada obligatòria, completeu-la i deseu la fitxa: el compte es crea de la mateixa manera. L'opció **Crear compte de Google**, al menú **Accions** de la capçalera de la fitxa, només apareix mentre el professor no té compte corporatiu i no se n'està creant cap (per exemple, si la creació automàtica ha fallat). En prémer-la s'inicia la creació, i en pocs moments el resultat apareix a l'historial de missatges de la fitxa.
 
@@ -88,6 +88,8 @@ No cal prémer res més. Si faltava alguna dada obligatòria, completeu-la i des
 - **La fitxa ja existia com a plaça "Pendent d'identificar":** si una importació d'horaris o el cap d'estudis la van crear abans de conèixer la persona (vegeu "Docents encara no contractats (pendents d'identificar)" a [Horaris de treball del professorat i marcs d'horari](working-schedules.md)), la fitxa ja té l'horari, les assignatures i les llistes d'assistència configurats — a **Tipus d'alta** marqueu **Docent nominal**, feu els **Pas 2** i **Pas 3** anteriors (substituir el nom provisional, omplir el correu personal) i deseu. El compte es crea automàticament, i això també fa desaparèixer l'etiqueta "Pendent d'identificar"; no cal refer res de l'horari ja importat.
 
 - **El professor té usuari EMS però no pot entrar amb Google:** si es perd la connexió entre l'usuari d'EMS i el seu compte de Google, Google accepta l'accés però EMS respon *Accés denegat*, i no es resol restablint la contrasenya. Llavors apareix l'opció **Tornar a vincular l'accés amb Google** al menú **Accions** de la fitxa, al costat de **Suspendre el compte de Google**. En prémer-lo, es torna a demanar a Google l'identificador del compte i es restableix la connexió; el professor ja pot entrar. No canvia res més — ni el compte de Google, ni la contrasenya, ni el correu corporatiu — i no apareix mentre la connexió funciona.
+
+- **El professor ha oblidat la contrasenya:** trieu **Restablir la contrasenya de Google** al menú **Accions** de la fitxa i confirmeu. El compte rep una contrasenya temporal nova, que cal canviar en el primer inici de sessió; les credencials noves s'envien al correu personal del professor i el PDF de la pestanya **Recursos Humans** se substitueix pel nou. Abans de restablir-la, comproveu que el correu personal és l'actual del professor: és on arriba la contrasenya.
 
 ---
 

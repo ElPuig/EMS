@@ -71,7 +71,7 @@ Al guardar la ficha, si están todos los datos requeridos (nombre y correo priva
 - Genera una contraseña temporal (que habrá que cambiar en el primer inicio de sesión).
 - **Crea automáticamente el usuario EMS del profesor**, con el correo corporativo como nombre de usuario y el **inicio de sesión con Google ya conectado**: el profesor entra en el EMS con el botón de Google, no necesita ninguna contraseña separada y no se envía ningún correo de contraseña. Los profesores reciben los permisos de *Profesor*; el PAS recibe un usuario interno básico (sus permisos llegan con los roles/cargo).
 - Envía las credenciales por correo a la dirección privada indicada en el paso 3 (el mensaje también explica cómo entrar en el EMS).
-- Adjunta un PDF con las credenciales en la ficha del profesor.
+- Guarda un PDF con las credenciales en la ficha del profesor, en el bloque **Cuenta de Google** de la pestaña **Recursos humanos**. Solo lo ven los roles que gestionan la cuenta.
 
 No hace falta pulsar nada más. Si faltaba algún dato obligatorio, complételo y guarde la ficha: la cuenta se crea de la misma manera. La opción **Crear cuenta de Google**, en el menú **Acciones** de la cabecera de la ficha, solo aparece mientras el profesor no tiene cuenta corporativa y no se está creando ninguna (por ejemplo, si la creación automática ha fallado). Al pulsarla se inicia la creación, y en unos momentos el resultado aparece en el historial de mensajes de la ficha.
 
@@ -88,6 +88,8 @@ No hace falta pulsar nada más. Si faltaba algún dato obligatorio, complételo 
 - **La ficha ya existía como plaza "Pendiente de identificar":** si una importación de horarios o el jefe de estudios la crearon antes de conocer a la persona (ver "Docentes aún no contratados (pendientes de identificar)" en [Horarios de trabajo del profesorado y marcos de horario](working-schedules.md)), la ficha ya tiene el horario, las asignaturas y las listas de asistencia configurados — en **Tipo de alta** marque **Docente nominal**, haga los **Paso 2** y **Paso 3** anteriores (sustituir el nombre provisional, rellenar el correo personal) y guarde. La cuenta se crea automáticamente, y eso también hace desaparecer la etiqueta "Pendiente de identificar"; no hace falta rehacer nada del horario ya importado.
 
 - **El profesor tiene usuario EMS pero no puede entrar con Google:** si se pierde la conexión entre el usuario de EMS y su cuenta de Google, Google acepta el acceso pero EMS responde *Acceso denegado*, y no se arregla restableciendo la contraseña. Entonces aparece la opción **Volver a vincular el acceso con Google** en el menú **Acciones** de la ficha, junto a **Suspender la cuenta de Google**. Al pulsarlo, se vuelve a pedir a Google el identificador de la cuenta y se restablece la conexión; el profesor ya puede entrar. No cambia nada más — ni la cuenta de Google, ni la contraseña, ni el correo corporativo — y no aparece mientras la conexión funciona.
+
+- **El profesor ha olvidado la contraseña:** elija **Restablecer contraseña de Google** en el menú **Acciones** de la ficha y confirme. La cuenta recibe una contraseña temporal nueva, que hay que cambiar en el primer inicio de sesión; las credenciales nuevas se envían al correo personal del profesor y el PDF de la pestaña **Recursos humanos** se sustituye por el nuevo. Antes de restablecerla, compruebe que el correo personal es el actual del profesor: es donde llega la contraseña.
 
 ---
 

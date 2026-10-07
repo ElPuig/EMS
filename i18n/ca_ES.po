@@ -9646,12 +9646,6 @@ msgstr "OU per a personal donat de baixa"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/google_workspace_integration.py:0
-msgid "Credentials PDF saved as attachment"
-msgstr "PDF de credencials desat com a adjunt"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/google_workspace_integration.py:0
 msgid "Google Workspace: the employee already has a non-corporate work email (%s); the corporate account was NOT created to avoid overwriting it."
 msgstr "Google Workspace: l'empleat ja té un correu de treball no corporatiu (%s); no s'ha creat el compte corporatiu per evitar sobreescriure'l."
 
@@ -15335,6 +15329,7 @@ msgstr "Cap dels alumnes seleccionats té credencials de Google que puguis desca
 #. module: ems
 #. odoo-python
 #: code:addons/ems/controllers/google_credentials.py:0
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_credentials_pdf
 msgid "Google credentials"
 msgstr "Credencials de Google"
 
@@ -15352,7 +15347,7 @@ msgstr "Contrasenya de Google Workspace restablerta: %(email)s%(dry)s. %(pdf)s%(
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+#: code:addons/ems/models/shared/google_workspace_mixin.py:0
 msgid ""
 "Google refused to reset the password of %(email)s. Check that the service "
 "account's admin role has the \"Reset password\" privilege. Error: %(err)s"
@@ -15376,6 +15371,7 @@ msgstr "Indica si l'usuari que consulta aquest alumne li pot restablir la contra
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Reset Google password"
 msgstr "Restablir la contrasenya de Google"
 
@@ -21238,3 +21234,35 @@ msgstr "Baixa del %(date)s desfeta per %(user)s: torna a %(group)s."
 #: code:addons/ems/models/contacts/contact.py:0
 msgid "Withdrawal undone: %(student)s is back in %(group)s."
 msgstr "Baixa desfeta: %(student)s torna a %(group)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Credentials PDF saved on the employee form"
+msgstr "PDF de credencials desat a la fitxa de l'empleat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "You are not allowed to reset Google passwords of the staff."
+msgstr "No teniu permís per restablir la contrasenya de Google del personal."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_credentials_filename
+msgid "Google Credentials Filename"
+msgstr "Nom del fitxer de credencials de Google"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__google_credentials_pdf
+msgid "Latest Google credentials PDF (account creation or password reset)."
+msgstr "Últim PDF de credencials de Google (creació del compte o restabliment de la contrasenya)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "This gives the teacher's Google account a new password: the current one stops working and new credentials are generated. Continue?"
+msgstr "Això assigna una contrasenya nova al compte de Google del professor o professora: l'actual deixa de funcionar i es generen credencials noves. Voleu continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Google account"
+msgstr "Compte de Google"

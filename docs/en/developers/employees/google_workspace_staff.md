@@ -145,6 +145,38 @@ reliably distinguishable from the response — the message names both causes ins
 by a different `res.users` (the `auth_oauth` unique constraint) is reported naming
 that user, since the fix there is to clear the stale record first.
 
+### `action_reset_google_password()` (#595)
+
+**Reset Google password** in the Actions dropdown gives the corporate account a new random
+password and delivers it exactly like a new account's: `changePasswordAtNextLogin`, the
+credentials PDF (below) and the welcome email to `private_email`, plus a chatter note. It is
+offered while the account exists in Google (`google_ws_state` `active` or `pending_user`) to the
+same groups as every other Google entry on the form (`ems.group_academic_admin`,
+`hr.group_hr_user`), and the method re-checks them, since the button's `groups` only hides it.
+
+The Directory API call is `google.workspace.mixin._gw_reset_password(email)`, shared with the
+student reset ([#478](../contacts/google_workspace_student.md)): random password, `users().patch`,
+dry-run logging, and a Google refusal (typically the service account's role lacking the "Reset
+password" privilege) raised as a `UserError` before anything is saved, so the previous
+credentials stay in place.
+
+### Credentials PDF (#595)
+
+`_gw_deliver_credentials()` stores the PDF in `google_credentials_pdf` (`Binary`,
+`attachment=True`) with its name in `google_credentials_filename`, shown read-only in a "Google account"
+block of the form's Human Resources tab (`hr_settings`), next to the related user, and only
+when there is a PDF. Only the latest PDF is kept: a reset overwrites it, since the old one
+holds a password that no longer works. The PDF contains the temporary password, so both fields
+carry `groups="base.group_system,ems.group_academic_admin,hr.group_hr_user"`: the ORM then
+refuses the field, and `ir.attachment` refuses its file (`res_field` set), to anybody else who
+reads the employee.
+
+Before #595 the PDF was a loose `ir.attachment` on the employee (`res_field` empty, one more per
+creation), shown nowhere on the form and readable by anyone who could read the employee.
+`hr.employee._ems_adopt_loose_credentials_pdfs()`, run by `migrations/18.0.0.35.0/post-migrate.py`,
+moves each employee's latest one into the field and deletes them all. A clean install has none,
+so there is no `post_init_hook` counterpart.
+
 ## Lifecycle
 
 Archiving a member of staff does **not** suspend the Google account straight away. It opens
@@ -257,8 +289,8 @@ stateDiagram-v2
 |---|---|---|
 | `none` | Create Google account (hidden while `google_ws_creation_pending`) | No corporate email yet |
 | `manual_pending` | *(none)* | `google_ws_manual_email` ticked, waiting for the email to be typed in |
-| `pending_user` | Create EMS User | Corporate email exists, no `res.users` linked (adopt / migration gap) |
-| `active` | Suspend Google account (+ Re-link Google sign-in when `google_signin_missing`) | Fully set up |
+| `pending_user` | Create EMS User (+ Reset Google password) | Corporate email exists, no `res.users` linked (adopt / migration gap) |
+| `active` | Suspend Google account (+ Reset Google password, + Re-link Google sign-in when `google_signin_missing`) | Fully set up |
 | `suspended` | Reactivate Google account | `google_ws_suspended = True` |
 
 The one button that is **not** part of that mutually-exclusive set is **Re-link Google
@@ -286,6 +318,8 @@ that were already archived/withdrawn before the field existed (added in 18.0.0.1
 | Action | Who |
 |---|---|
 | Create employee / trigger account creation (buttons, incl. `action_create_ems_user`) | `ems.group_academic_admin`, `hr.group_hr_user` |
+| Reset the Google password (`action_reset_google_password`, re-checked server-side) | `ems.group_academic_admin`, `hr.group_hr_user` |
+| Read / download the credentials PDF (`google_credentials_pdf`) | `base.group_system`, `ems.group_academic_admin`, `hr.group_hr_user` |
 | Auto-created user groups (teacher) | `base.group_user` + `ems.group_teacher` |
 | Auto-created user groups (ASP) | `base.group_user` only (role/job sync adds the rest) |
 | res.users creation itself | `sudo()` inside the flow |
@@ -405,6 +439,10 @@ grace period itself (#388): scheduling on archive rather than suspending, the wa
 email, the first date winning over a second archive, cancelling on unarchive and via the
 button, the schedule being cleared once the account is actually suspended, the cron's
 date/active guards and idempotence, and `unlink()` still suspending immediately.
+
+`TestEmployeeGooglePasswordReset` (same file) covers #595: who may reset, the Directory API
+payload, a Google refusal keeping the old PDF, the PDF replacing the previous one, the field
+being unreadable to other roles, and the migration of loose PDFs.
 
 The rename sync (#542) is covered in `TestEmployeeGoogleWorkspace` (`test_rename_*`,
 `test_sync_name_*`): which writes enqueue it, the Directory API payload, the 403/404

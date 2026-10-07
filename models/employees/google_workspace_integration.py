@@ -3,7 +3,7 @@ import base64
 import logging
 
 from odoo import SUPERUSER_ID, _, api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 
 from ..shared.google_workspace_mixin import (
     GW_DEACTIVATION_DELAY_DAYS,
@@ -80,6 +80,14 @@ class HrEmployeeGoogleWorkspace(models.Model):
         groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="True when the employee has an active account and an EMS user, but that "
              "user has lost its OAuth data and can no longer sign in with Google.")
+    # Issue #595: holds the temporary password, so only the roles that manage the account read
+    # it - the field's groups also guard its ir.attachment (res_field) on /web/content.
+    google_credentials_pdf = fields.Binary(
+        string="Google credentials", attachment=True, copy=False, readonly=True,
+        groups="base.group_system,ems.group_academic_admin,hr.group_hr_user",
+        help="Latest Google credentials PDF (account creation or password reset).")
+    google_credentials_filename = fields.Char(
+        copy=False, groups="base.group_system,ems.group_academic_admin,hr.group_hr_user")
 
     # ------------------------------------------------------------------
     # Compute
@@ -506,31 +514,59 @@ class HrEmployeeGoogleWorkspace(models.Model):
             'email': email,
             'ou': ou,
             'dry': _(" [dry-run]") if dry_run else '',
-            'pdf': _("Credentials PDF saved as attachment")
+            **self._gw_delivery_note(pdf_saved, emailed),
+        })
+
+    def _gw_delivery_note(self, pdf_saved, emailed):
+        """The 'pdf'/'mail' parts of the chatter note that follows a credentials delivery."""
+        return {
+            'pdf': _("Credentials PDF saved on the employee form")
                    if pdf_saved else _("Credentials PDF could NOT be generated (see logs)"),
-            'mail': _("; sent by email to %s") % recovery_email if emailed else _("; no personal email on file"),
+            'mail': _("; sent by email to %s") % self.sudo().private_email
+                    if emailed else _("; no personal email on file"),
+        }
+
+    def action_reset_google_password(self):
+        """Give the employee's Google account a new random password and deliver it like a new
+        account's (issue #595). Same groups as every other Google action on the form: the
+        button's groups only hide it, so they are re-checked here."""
+        self.ensure_one()
+        user = self.env.user
+        if not (user.has_group('ems.group_academic_admin') or user.has_group('hr.group_hr_user')):
+            raise AccessError(_("You are not allowed to reset Google passwords of the staff."))
+        if self.sudo().google_ws_state not in ('active', 'pending_user'):
+            raise UserError(_("%s has no active Google account.") % self.name)
+        company = self.env.company
+        if not company.google_ws_enabled:
+            raise UserError(_("The Google Workspace integration is not enabled."))
+
+        email = self.sudo().work_email
+        password = self._gw()._gw_reset_password(email)
+        pdf_saved, emailed = self._gw_deliver_credentials(email, password)
+        self.sudo().message_post(body=_(
+            "Google Workspace password reset: %(email)s%(dry)s. %(pdf)s%(mail)s.") % {
+                'email': email,
+                'dry': _(" [dry-run]") if company.google_ws_dry_run else '',
+                **self._gw_delivery_note(pdf_saved, emailed),
         })
 
     def _gw_deliver_credentials(self, email, password):
-        """Generate the credentials PDF (attachment) and send the welcome email (if any).
+        """Generate the credentials PDF (always) and send the welcome email (if any).
 
-        Returns (pdf_saved, emailed).
+        The PDF replaces the previous one in google_credentials_pdf: an older one holds a
+        password that no longer works. Returns (pdf_saved, emailed).
         """
         self.ensure_one()
         pdf_saved = False
-        # 1) PDF -> ir.attachment on the employee record
+        # 1) PDF -> google_credentials_pdf on the employee record
         try:
             pdf, _ct = self.env['ir.actions.report'].sudo()._render_qweb_pdf(
                 'ems.report_google_credentials_employee', [self.id],
                 data={'gw_email': email, 'gw_password': password},
             )
-            self.env['ir.attachment'].sudo().create({
-                'name': 'Credencials_Google_%s.pdf' % self.id,
-                'type': 'binary',
-                'datas': base64.b64encode(pdf),
-                'res_model': 'hr.employee',
-                'res_id': self.id,
-                'mimetype': 'application/pdf',
+            self.sudo().write({
+                'google_credentials_pdf': base64.b64encode(pdf),
+                'google_credentials_filename': f'Credencials_Google_{self.id}.pdf',
             })
             pdf_saved = True
         except Exception:
@@ -547,6 +583,27 @@ class HrEmployeeGoogleWorkspace(models.Model):
                 ).send_mail(self.id, force_send=True)
                 emailed = True
         return pdf_saved, emailed
+
+    @api.model
+    def _ems_adopt_loose_credentials_pdfs(self):
+        """Issue #595 migration: before google_credentials_pdf existed, each credentials PDF was a
+        loose ir.attachment on the employee, shown nowhere and readable by anyone reading the
+        employee. Moves each employee's latest one into the field and deletes them all."""
+        Attachment = self.env['ir.attachment'].sudo()
+        loose = Attachment.search([
+            ('res_model', '=', 'hr.employee'), ('res_field', '=', False),
+            ('name', '=like', 'Credencials_Google_%.pdf'),
+        ], order='create_date desc, id desc')
+        employees = self.sudo().with_context(active_test=False).browse(set(loose.mapped('res_id'))).exists()
+        adopted = 0
+        for employee in employees:
+            latest = loose.filtered(lambda attachment: attachment.res_id == employee.id)[:1]
+            # A file missing from the filestore (a database restored without it) has nothing to move.
+            if latest.datas:
+                employee.write({'google_credentials_pdf': latest.datas, 'google_credentials_filename': latest.name})
+                adopted += 1
+        loose.unlink()
+        _logger.info("Issue #595: moved the credentials PDF of %d employees into the protected field.", adopted)
 
     # ------------------------------------------------------------------
     # EMS user (res.users)

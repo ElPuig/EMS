@@ -6,7 +6,7 @@ from markupsafe import Markup
 
 from odoo import _, api, fields, models, Command
 from odoo.exceptions import AccessError, UserError, ValidationError
-from odoo.tools import format_date
+from odoo.tools import format_date, plaintext2html
 
 # The Apps Script this replaces rounded every partial absence to quarters of an hour; the
 # centre's monthly report is still read in those terms.
@@ -237,6 +237,10 @@ class EmsAbsenceLeave(models.Model):
         help="The last day the employee was reminded that the supporting document is missing.")
     ems_document_escalated = fields.Boolean(
         string="Missing document reported to the Head", copy=False, readonly=True)
+    ems_document_return_reason = fields.Text(
+        string="Why the document was sent back", copy=False, readonly=True,
+        help="Written by the Head or Direction when the supporting document is not sufficient. "
+             "Shown to the employee until they attach a new one.")
     ems_head_state = fields.Selection(
         string="Head status",
         selection=[
@@ -823,16 +827,32 @@ class EmsAbsenceLeave(models.Model):
 
     def action_ems_document_validate(self):
         """The Head's validation of the supporting document, after which the request goes to
-        Direction."""
+        Direction. A reason it was sent back earlier no longer applies to the document now
+        validated."""
         self._ems_check_is_head()
         self._ems_check_status('pending_validation', _(
             "Only a request whose supporting document is pending validation can be validated."))
         self.write({'ems_document_state': 'validated'})
+        self.sudo().write({'ems_document_return_reason': False})
         return True
 
     def action_ems_document_insufficient(self):
-        """Sends the request back to the employee for a valid supporting document, from the Head
-        (validating it) or from Direction (reviewing it). The reminders start over."""
+        """Asks the Head (validating the document) or Direction (reviewing it) why it is not
+        sufficient before sending the request back: the employee needs to know what to attach
+        instead. When the new document is sent back again, the previous reason is offered for
+        editing rather than written from scratch."""
+        self.ensure_one()
+        self._ems_check_can_return_document()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Documentation insufficient"),
+            'res_model': 'ems.absence.document_return_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_leave_id': self.id, 'default_reason': self.ems_document_return_reason},
+        }
+
+    def _ems_check_can_return_document(self):
         for leave in self:
             if leave.ems_status == 'pending_validation':
                 leave._ems_check_is_head()
@@ -842,12 +862,20 @@ class EmsAbsenceLeave(models.Model):
             else:
                 raise UserError(_("Only a request under validation can be sent back for its "
                                   "supporting document."))
+
+    def _ems_return_document(self, reason):
+        """Sends the request back to the employee for a valid supporting document, telling them
+        why. The reminders start over. The reason is written first so the employee's new
+        activity, scheduled by write(), carries it."""
+        self._ems_check_can_return_document()
+        self.sudo().write({'ems_document_return_reason': reason, 'ems_document_reminder_date': False,
+                           'ems_document_escalated': False})
         self.write({'ems_document_state': 'awaiting'})
-        self.sudo().write({'ems_document_reminder_date': False, 'ems_document_escalated': False})
         for leave in self:
             leave._ems_notify(leave.employee_id.user_id.partner_id, _(
-                "The supporting document for your absence of %(when)s is not sufficient. Please "
-                "attach a valid one to the request.", when=leave._ems_when()))
+                "The supporting document for your absence of %(when)s is not sufficient. "
+                "Reason: %(reason)s. Please attach a valid one to the request.",
+                when=leave._ems_when(), reason=reason))
         return True
 
     def _ems_notify(self, partners, message):
@@ -887,15 +915,18 @@ class EmsAbsenceLeave(models.Model):
             if not target or leave.activity_ids.filtered(
                     lambda activity: activity.activity_type_id == self.env.ref(target)):
                 continue
+            note = ''
             if leave.ems_status == 'pending_document':
                 users = leave.employee_id.user_id
                 deadline = max(today, (leave.request_date_to or today) + timedelta(days=1))
+                reason = leave.ems_document_return_reason
+                note = plaintext2html(reason) if reason else ''
             elif leave.ems_status == 'pending_validation':
                 users, deadline = leave._ems_head_users(), today
             else:
                 users, deadline = leave._ems_direction_users(), today
             for user in users:
-                leave.activity_schedule(target, date_deadline=deadline, user_id=user.id)
+                leave.activity_schedule(target, date_deadline=deadline, user_id=user.id, note=note)
 
     @api.model
     def _cron_ems_document_reminder(self):
@@ -966,7 +997,7 @@ class EmsAbsenceLeave(models.Model):
         refused_by_direction.sudo()._ems_set_direction_state('not_done')
         # Same for the supporting document: the Head acknowledges the reopened request afresh.
         self.sudo().write({'ems_document_state': False, 'ems_document_reminder_date': False,
-                           'ems_document_escalated': False})
+                           'ems_document_escalated': False, 'ems_document_return_reason': False})
         return result
 
     @api.constrains('ems_submitted', 'ems_responsible_declaration')

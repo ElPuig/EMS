@@ -7,13 +7,13 @@ import { formView } from "@web/views/form/form_view";
 // The decisions on an absence, the Head's (acknowledging it, then validating its supporting
 // document) and Direction's. Whoever takes one is working through
 // a list of requests, so once it is recorded they are taken back to that list instead of being
-// left on a form they are done with.
+// left on a form they are done with. "Documentation insufficient" is left out: it only opens the
+// dialog asking for the reason, and the request is sent back once that dialog is confirmed.
 const DECISION_BUTTONS = new Set([
     "action_approve",
     "action_validate",
     "action_refuse",
     "action_ems_document_validate",
-    "action_ems_document_insufficient",
     "action_ems_direction_done",
     "action_ems_direction_reset",
     "action_ems_direction_refuse",

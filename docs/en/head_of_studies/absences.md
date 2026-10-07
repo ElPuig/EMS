@@ -51,7 +51,7 @@ That lists your area's requests, opening on **Waiting For Me**: the ones pending
 1. **Received: pending documentation** (inbox icon in the list, or the button at the top of the form). You acknowledge the request without having seen the document yet. It becomes **Awaiting documentation** and the employee is asked for the document. If they had already attached it with the request, it goes straight to **Pending validation**.
 2. When the employee attaches the document, the request comes back to you on its own as **Pending validation**. Open it, check the document and use **Validate documentation** (also a tick icon in the list). It then goes to Direction.
 
-If the document is not valid, **Documentation insufficient** sends the request back to the employee (Awaiting documentation) with a message asking for a valid one.
+If the document is not valid, **Documentation insufficient** asks you why (required) and sends the request back to the employee (Awaiting documentation) with a message that includes your reason. The employee also sees it at the top of the request until they attach a new document. If the new document is not valid either, the dialog opens with your previous reason so you can edit it; once you validate a document, the reason is cleared.
 
 For `Health` and `ATRI` there is a single step: **Validate** (the thumb in the list), which sends it straight to Direction.
 
@@ -98,7 +98,7 @@ Review them from the list with the icons beside **Direction status**, or open on
 | Icon | Button | Result |
 |---|---|---|
 | Ticked box | **Direction: done** | Approved |
-| Sheet | **Documentation insufficient** | Back to the employee, Awaiting documentation. It asks for confirmation first |
+| Sheet | **Documentation insufficient** | Back to the employee, Awaiting documentation. It asks for the reason first, which the employee receives |
 | Arrow back | **Direction: pending** | Undoes a *Done* |
 | Cross | **Refuse** | Refused. It refuses the whole request, it asks for confirmation first and it is final |
 

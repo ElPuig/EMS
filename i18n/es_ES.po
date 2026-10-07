@@ -1229,6 +1229,7 @@ msgstr "Nombre del PAS"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_status__category__absence
+#: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__leave_id
 msgid "Absence"
 msgstr "Ausencia"
 
@@ -2375,6 +2376,7 @@ msgstr "Puede editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
 #: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
 #: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -3433,6 +3435,7 @@ msgstr "Emergencia"
 #: model:ir.model,name:ems.model_hr_employee model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__employee_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__employee_id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__employee_id
 msgid "Employee"
 msgstr "Empleado"
 
@@ -9371,6 +9374,7 @@ msgstr "Salida original"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__reason
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__reason
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__reason
 msgid "Reason"
 msgstr "Motivo"
 
@@ -18746,8 +18750,11 @@ msgstr ""
 "rechaza toda la solicitud."
 
 #. module: ems
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+#: code:addons/ems/models/employees/absence.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
 msgid "Documentation insufficient"
 msgstr "Documentación insuficiente"
 
@@ -18877,24 +18884,14 @@ msgid ""
 msgstr "El último día que se recordó al trabajador que falta el justificante."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
-#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
-msgid ""
-"The request goes back to the employee, who is asked to attach a valid "
-"supporting document. Continue?"
-msgstr ""
-"La solicitud vuelve al trabajador, a quien se pide que adjunte un "
-"justificante válido. ¿Continuar?"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/absence.py:0
 msgid ""
 "The supporting document for your absence of %(when)s is not sufficient. "
-"Please attach a valid one to the request."
+"Reason: %(reason)s. Please attach a valid one to the request."
 msgstr ""
-"El justificante de tu ausencia del %(when)s no es suficiente. Adjunta uno "
-"válido a la solicitud."
+"El justificante de tu ausencia del %(when)s no es suficiente. Motivo: "
+"%(reason)s. Adjunta uno válido a la solicitud."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -20839,3 +20836,43 @@ msgstr "El grupo %(group)s hará el patio habitual, de %(start)s a %(end)s, el d
 #: model:ir.model.fields,field_description:ems.field_ems_notice__absence_change_hour_to
 msgid "Until"
 msgstr "Hasta"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_absence_document_return_wizard
+msgid "The Head or Direction sends an absence's supporting document back to the employee."
+msgstr "El responsable o la Dirección devuelven el justificante de una ausencia al trabajador."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_document_return_reason
+msgid "Why the document was sent back"
+msgstr "Motivo por el que se devolvió el justificante"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_document_return_reason
+msgid "Written by the Head or Direction when the supporting document is not sufficient. Shown to the employee until they attach a new one."
+msgstr "Lo escribe el responsable o la Dirección cuando el justificante no es suficiente. El trabajador lo ve hasta que adjunta uno nuevo."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_absence_document_return_wizard__reason
+msgid "What is wrong with the document and what the employee has to attach instead. The employee is told, and it stays on the request until they attach a new one."
+msgstr "Qué falla del justificante y qué debe adjuntar el trabajador en su lugar. Se le comunica, y queda en la solicitud hasta que adjunta uno nuevo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
+msgid "What is wrong with the document and what the employee has to attach instead..."
+msgstr "Qué falla del justificante y qué debe adjuntar el trabajador en su lugar..."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
+msgid "<i class=\"fa fa-info-circle me-1\"/>The request goes back to the employee, who is told the reason and asked to attach a valid supporting document."
+msgstr "<i class=\"fa fa-info-circle me-1\"/>La solicitud vuelve al trabajador, a quien se comunica el motivo y se pide que adjunte un justificante válido."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
+msgid "Send back"
+msgstr "Devolver"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "<strong>The supporting document was not sufficient:</strong>"
+msgstr "<strong>El justificante no era suficiente:</strong>"

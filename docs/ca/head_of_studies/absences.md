@@ -51,7 +51,7 @@ Hi tens les sol·licituds de la teva àrea, i s'obre amb **Pendent de mi**: les 
 1. **Rebuda: pendent de documentació** (icona de safata al llistat, o el botó de dalt del formulari). Dones per rebuda la sol·licitud sense haver vist encara el justificant. Passa a **En espera de documentació** i es demana el justificant a la persona. Si ja l'havia adjuntat amb la sol·licitud, passa directament a **Pendent de validació**.
 2. Quan la persona adjunta el justificant, la sol·licitud et torna sola com a **Pendent de validació**. Obre-la, revisa el justificant i fes servir **Validar documentació** (també una icona de validació al llistat). Llavors passa a Direcció.
 
-Si el justificant no és vàlid, **Documentació insuficient** torna la sol·licitud a la persona (En espera de documentació) amb un missatge que en demana un de vàlid.
+Si el justificant no és vàlid, **Documentació insuficient** et demana el motiu (obligatori) i torna la sol·licitud a la persona (En espera de documentació) amb un missatge que l'inclou. La persona també el veu a dalt de la sol·licitud fins que adjunta un justificant nou. Si el nou tampoc no és vàlid, el diàleg s'obre amb el motiu anterior perquè el puguis modificar; quan valides un justificant, el motiu s'esborra.
 
 Per a `Salut` i `ATRI` hi ha un sol pas: **Validar** (el polze al llistat), que l'envia directament a Direcció.
 
@@ -96,7 +96,7 @@ Revisa-les des del llistat amb les icones del costat d'**Estat Direcció**, o ob
 | Icona | Botó | Resultat |
 |---|---|---|
 | Casella marcada | **Direcció: fet** | Aprovat |
-| Full | **Documentació insuficient** | Torna a la persona, En espera de documentació. Demana confirmació abans |
+| Full | **Documentació insuficient** | Torna a la persona, En espera de documentació. Abans demana el motiu, que la persona rep |
 | Fletxa enrere | **Direcció: pendent** | Desfà un *Fet* |
 | Creu | **Rebutja** | Rebutjat. Rebutja tota la sol·licitud, demana confirmació abans i és definitiu |
 

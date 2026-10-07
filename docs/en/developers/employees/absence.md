@@ -210,8 +210,16 @@ requiring no document, and a second button on the same `action_approve` reads "R
 documentation" for the others (form header, list row as an inbox icon, kanban). `action_approve()`
 then sets `ems_document_state`: `not_required`, `submitted` when a file was already attached with
 the request, or `awaiting`. Once the document is attached, `action_ems_document_validate` (form
-header, list row) moves it to `validated`; `action_ems_document_insufficient` sends it back to
-`awaiting`, with a note to the employee. Who counts as the Head is `is_absence_head`: the
+header, list row) moves it to `validated`; `action_ems_document_insufficient` opens a dialog
+(`ems.absence.document_return_wizard`) asking for the reason, which is required; confirming it
+(`_ems_return_document()`) sends the request back to `awaiting`, stores the reason in
+`ems_document_return_reason` and sends the employee a note with it. The reason is shown to the
+employee as a warning at the top of the form while the request is Awaiting documentation, and it
+is also the note of their new "Attach the absence's supporting document" activity. If the new
+document is sent back again before it is validated, the dialog opens with the previous reason
+(`default_reason`) to edit. Validating the document (`action_ems_document_validate`) clears the
+reason, so a later send-back by Direction starts from an empty one; resetting the request clears
+it too. Who counts as the Head is `is_absence_head`: the
 employee's `leave_manager_id`, or an officer other than Direction - the same line
 `_compute_can_approve()` draws.
 
@@ -286,15 +294,16 @@ lands on its own. "My pending supporting documents" (`ems_my_pending_documents`)
 employee's. The search panel on the left filters on `ems_status` instead of `state`.
 
 Covered by `TestAbsenceRequest` (the whole sequence, each type family's first step, the document
-filed with the request, attaching it, insufficient from the Head and from Direction, Direction
+filed with the request, attaching it, insufficient from the Head and from Direction with its required reason, Direction
 blocked before its turn, the activities, the reminders and the escalation with their settings,
 refusals and resets, `can_approve`/`is_absence_head` for Director / Head of Studies /
-Director-as-approver, who gets subscribed, and the filters' domains) and by three tours:
-`ems_absence_direction_review` (Direction's default list, sending a document back from the row,
+Director-as-approver, who gets subscribed, and the filters' domains) and by these tours:
+`ems_absence_direction_review` (Direction's default list, sending a document back from the row with its reason,
 validating from the header, kanban), `ems_absence_head_approval` (Head of Studies acknowledging
 from the row, validating a document from the form, kanban), `ems_absence_request` (the form's
-columns, and no Direction button before the Head) and `ems_absence_employee_view` (the employee's
-own list and form, without the approvers' columns and badges).
+columns, and no Direction button before the Head), `ems_absence_employee_view` (the employee's
+own list and form, without the approvers' columns and badges) and `ems_absence_document_returned`
+(the employee reading why their document was sent back).
 
 ## The request form
 

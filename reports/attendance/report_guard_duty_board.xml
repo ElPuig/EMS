@@ -195,7 +195,7 @@
                                                         </td>
                                                         <td>
                                                             <t t-foreach="line['guards']" t-as="guard">
-                                                                <span class="gdb-guard-badge" t-att-class="('gdb-absent' if line['guard_absences'].get(guard.employee_id.id) == 'approved' else ('gdb-absent-pending' if line['guard_absences'].get(guard.employee_id.id) else '')) + (' gdb-cover-%s' % line['guard_colors'][guard.employee_id.id] if guard.employee_id.id in line['guard_colors'] else '')">
+                                                                <span t-att-class="'gdb-guard-badge' + (' gdb-absent' if line['guard_absences'].get(guard.employee_id.id) == 'approved' else (' gdb-absent-pending' if line['guard_absences'].get(guard.employee_id.id) else '')) + (' gdb-cover-%s' % line['guard_colors'][guard.employee_id.id] if guard.employee_id.id in line['guard_colors'] else '')">
                                                                     <t t-esc="guard.employee_id.name"/>
                                                                     <!-- Same 'GWC' code the screen's own get_guard_duty_board_data() checks
                                                                          (guard_duty_board.py) to set 'is_wc' - the PDF has no such wrapper
@@ -249,7 +249,7 @@
                                                         </t>
                                                         <td>
                                                             <t t-foreach="line['guards']" t-as="guard">
-                                                                <span class="gdb-guard-badge" t-att-class="'gdb-absent' if line['guard_absences'].get(guard.employee_id.id) == 'approved' else ('gdb-absent-pending' if line['guard_absences'].get(guard.employee_id.id) else '')">
+                                                                <span t-att-class="'gdb-guard-badge' + (' gdb-absent' if line['guard_absences'].get(guard.employee_id.id) == 'approved' else (' gdb-absent-pending' if line['guard_absences'].get(guard.employee_id.id) else ''))">
                                                                     <t t-esc="guard.employee_id.name"/>
                                                                     <!-- See the "Absences table" tab above for why this check is repeated
                                                                          here instead of coming from a shared 'is_wc' flag. -->

@@ -100,6 +100,18 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual(row['cover'].guard_employee_id, self.teacher_guard)
         self.assertEqual(line['guard_colors'], {self.teacher_guard.id: 0})
 
+    def test_the_pdf_prints_the_guard_colour_and_strike(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day)
+        self._assign()
+
+        html, _content_type = self.env['ir.actions.report'].with_context(
+            guard_duty_weekday='0', guard_duty_date=str(self.day), guard_duty_view='table').\
+            _render_qweb_html('ems.report_guard_duty_board', [self.env.company.current_course_id.id])
+
+        self.assertIn(b'gdb-absence-row gdb-absence-covered gdb-cover-0', html)
+        self.assertIn(b'gdb-guard-badge gdb-cover-0', html)
+
     def test_two_guards_covering_at_once_get_different_colours(self):
         self._morning()
         self._schedule_class(self.teacher_b, self.group_b, 'TABC Calendar B (group B)', periods=((8, 9), (11, 12)))

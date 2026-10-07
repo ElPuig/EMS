@@ -50,3 +50,10 @@
   access table, teachers' guard duty manual ("Organising an absence") and a pointer in the Head
   of Studies absences manual, in ca/es/en. Automatic mode planned in
   plans/absence_management_automation.md.
+
+# Fixes:
+
+## Guard duty board PDF: guard boxes lost their border:
+- In the PDF, a guard's box combined a static class with a dynamic one, and QWeb replaces the
+  static class instead of merging it, so every guard badge printed without its border. Both
+  badges (timetable and absences table) now build the whole class list in one expression.

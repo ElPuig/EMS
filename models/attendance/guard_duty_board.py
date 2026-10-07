@@ -595,10 +595,13 @@ class EmsCourseGuardDutyBoard(models.Model):
         shift_covers = covers.filtered(
             lambda cover: cover.hour_from >= shift_start - HOUR_EPSILON and cover.hour_to <= shift_end + HOUR_EPSILON)
         states = self._get_absence_change_states(day, groups | shift_covers.group_id)
+        editable = day >= self.env['ems.datetime_utils'].get_local_today()
         managers = {}
 
         def can_manage(teachers):
-            return any(managers.setdefault(teacher.id, self._is_absence_manager(teacher)) for teacher in teachers)
+            # A day already over is read-only for everybody (see _check_board_day_not_past).
+            return editable and any(
+                managers.setdefault(teacher.id, self._is_absence_manager(teacher)) for teacher in teachers)
 
         actions = []
         for group in groups:
@@ -621,8 +624,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'group': cover.group_id,
                     'can_manage': can_manage(cover.absent_employee_id),
                 })
-        return {'covers': covers, 'states': states, 'actions': actions, 'can_manage': can_manage,
-                'editable': day >= self.env['ems.datetime_utils'].get_local_today()}
+        return {'covers': covers, 'states': states, 'actions': actions, 'can_manage': can_manage}
 
     def _board_absence_row_management(self, management, teacher, group, hour_from, hour_to):
         """The management part of one absences-table row: the guard 'cover' assigned to it (an
@@ -645,7 +647,7 @@ class EmsCourseGuardDutyBoard(models.Model):
             'cover': cover,
             'authorized': authorized,
             'proposed': proposed,
-            'can_manage': management['editable'] and management['can_manage'](teacher),
+            'can_manage': management['can_manage'](teacher),
         }
 
     @staticmethod

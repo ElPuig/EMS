@@ -78,7 +78,7 @@ El Cap de departament i el Cap de seminari d'un docent també poden veure aquest
 
 Quan deseu la fitxa d'un professor nou amb el nom i el correu personal, el compte corporatiu es crea automàticament en pocs moments: no cal prémer res.
 
-Les accions que gestionen el compte corporatiu són al menú **Accions** de la barra superior de la fitxa. Quin apareix depèn de l'estat del compte: només se n'ofereix un cada vegada.
+Les accions que gestionen el compte corporatiu són al menú **Accions** de la barra superior de la fitxa. Quines apareixen depèn de l'estat del compte:
 
 | Botó | Quan apareix | Què fa |
 |------|--------------|--------|
@@ -86,10 +86,11 @@ Les accions que gestionen el compte corporatiu són al menú **Accions** de la b
 | **Crea l'usuari d'EMS** | El correu corporatiu ja existeix, però no hi ha cap usuari d'EMS vinculat | Només vincula o crea l'usuari d'EMS, no toca res de Google |
 | **Suspèn el compte de Google** | El compte és actiu | El suspèn (per exemple, quan la persona deixa el centre) |
 | **Reactiva el compte de Google** | El compte està suspès | El torna a activar |
+| **Restablir la contrasenya de Google** | El compte existeix i no està suspès | Assigna al compte una contrasenya temporal nova, que cal canviar en el primer inici de sessió, i lliura credencials noves (vegeu més avall). Per a qui ha oblidat la contrasenya |
 
 ![Menú Accions amb Crea el compte de Google en una fitxa de professorat sense compte encara](../../assets/head_of_studies/hos-staff-management-create-account.png)
 
-Quan el compte es crea, les credencials viatgen per dues vies: s'adjunta un PDF a la fitxa i s'envia un correu de benvinguda amb la contrasenya a l'adreça personal. Si el compte no es pot crear perquè falten dades obligatòries, es publica una nota a l'historial de missatges de la fitxa que indica exactament quins camps falten.
+Quan el compte es crea, o se'n restableix la contrasenya, les credencials viatgen per dues vies: es desa un PDF a la fitxa, al bloc **Compte de Google** de la pestanya **Recursos Humans**, i s'envia un correu amb la contrasenya a l'adreça personal. La fitxa només conserva l'últim PDF, i només el veuen els rols que gestionen el compte. Si el compte no es pot crear perquè falten dades obligatòries, es publica una nota a l'historial de missatges de la fitxa que indica exactament quins camps falten.
 
 ---
 

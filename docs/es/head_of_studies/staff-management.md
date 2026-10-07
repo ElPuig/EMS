@@ -78,7 +78,7 @@ El Jefe de departamento y el Jefe de seminario de un docente también pueden ver
 
 Al guardar la ficha de un profesor nuevo con el nombre y el correo personal, la cuenta corporativa se crea automáticamente en unos momentos: no hace falta pulsar nada.
 
-Las acciones que gestionan la cuenta corporativa están en el menú **Acciones** de la barra superior de la ficha. Cuál aparece depende del estado de la cuenta: solo se ofrece uno cada vez.
+Las acciones que gestionan la cuenta corporativa están en el menú **Acciones** de la barra superior de la ficha. Cuáles aparecen depende del estado de la cuenta:
 
 | Botón | Cuándo aparece | Qué hace |
 |-------|----------------|----------|
@@ -86,10 +86,11 @@ Las acciones que gestionan la cuenta corporativa están en el menú **Acciones**
 | **Crear usuario de EMS** | El correo corporativo ya existe, pero no hay ningún usuario de EMS vinculado | Solo vincula o crea el usuario de EMS, no toca nada de Google |
 | **Suspender cuenta de Google** | La cuenta está activa | La suspende (por ejemplo, cuando la persona deja el centro) |
 | **Reactivar cuenta de Google** | La cuenta está suspendida | La vuelve a activar |
+| **Restablecer contraseña de Google** | La cuenta existe y no está suspendida | Asigna a la cuenta una contraseña temporal nueva, que hay que cambiar en el primer inicio de sesión, y entrega credenciales nuevas (ver más abajo). Para quien ha olvidado la contraseña |
 
 ![Menú Acciones con Crear cuenta de Google en una ficha de profesorado sin cuenta todavía](../../assets/head_of_studies/hos-staff-management-create-account.png)
 
-Cuando la cuenta se crea, las credenciales viajan por dos vías: se adjunta un PDF a la ficha y se envía un correo de bienvenida con la contraseña a la dirección personal. Si la cuenta no se puede crear porque faltan datos obligatorios, se publica una nota en el historial de mensajes de la ficha indicando exactamente qué campos faltan.
+Cuando la cuenta se crea, o se restablece su contraseña, las credenciales viajan por dos vías: se guarda un PDF en la ficha, en el bloque **Cuenta de Google** de la pestaña **Recursos humanos**, y se envía un correo con la contraseña a la dirección personal. La ficha solo conserva el último PDF, y solo lo ven los roles que gestionan la cuenta. Si la cuenta no se puede crear porque faltan datos obligatorios, se publica una nota en el historial de mensajes de la ficha indicando exactamente qué campos faltan.
 
 ---
 

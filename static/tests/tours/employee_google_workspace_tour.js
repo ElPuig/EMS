@@ -7,8 +7,9 @@ import { checkActions, clickAction } from "@ems/../tests/tours/actions_dropdown_
 // form.xml): exactly one Google Workspace / EMS user entry must be offered per state, never two at
 // once — the original bug report this consolidation fixes (Create + Suspend both showing
 // for a teacher whose account was adopted from pre-integration/migrated data).
-// The single exception is "Re-link Google sign-in" (issue #420), a repair driven by its
-// own google_signin_missing field that shows next to Suspend in the 'active' state.
+// The exceptions are "Re-link Google sign-in" (issue #420), a repair driven by its own
+// google_signin_missing field that shows next to Suspend in the 'active' state, and "Reset Google
+// password" (issue #595), offered whenever the account exists in Google ('pending_user', 'active').
 registry.category("web_tour.tours").add("ems_employee_google_workspace_state", {
     test: true,
     url: "/odoo/action-ems.action_employee_kanban",
@@ -31,7 +32,7 @@ registry.category("web_tour.tours").add("ems_employee_google_workspace_state", {
         ...checkActions(
             {
                 offered: ["action_create_google_account"],
-                notOffered: ["action_create_ems_user", "action_suspend_google_account", "action_reactivate_google_account"],
+                notOffered: ["action_create_ems_user", "action_suspend_google_account", "action_reactivate_google_account", "action_reset_google_password"],
             },
             "Only 'Create Google account' is visible",
         ),
@@ -48,7 +49,7 @@ registry.category("web_tour.tours").add("ems_employee_google_workspace_state", {
         },
         ...checkActions(
             {
-                offered: ["action_create_ems_user"],
+                offered: ["action_create_ems_user", "action_reset_google_password"],
                 notOffered: ["action_create_google_account", "action_suspend_google_account", "action_reactivate_google_account"],
             },
             "Only 'Create EMS User' is visible — Suspend is NOT offered "
@@ -67,7 +68,7 @@ registry.category("web_tour.tours").add("ems_employee_google_workspace_state", {
         },
         ...checkActions(
             {
-                offered: ["action_suspend_google_account"],
+                offered: ["action_suspend_google_account", "action_reset_google_password"],
                 notOffered: ["action_create_google_account", "action_create_ems_user", "action_relink_google_signin", "action_reactivate_google_account"],
             },
             "Only 'Suspend Google account' is visible: this user's Google "
@@ -113,7 +114,7 @@ registry.category("web_tour.tours").add("ems_employee_google_workspace_state", {
         ...checkActions(
             {
                 offered: ["action_reactivate_google_account"],
-                notOffered: ["action_create_google_account", "action_create_ems_user", "action_suspend_google_account"],
+                notOffered: ["action_create_google_account", "action_create_ems_user", "action_suspend_google_account", "action_reset_google_password"],
             },
             "Only 'Reactivate Google account' is visible",
         ),

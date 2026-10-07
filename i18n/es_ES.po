@@ -9588,12 +9588,6 @@ msgstr "OU para personal dado de baja"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/google_workspace_integration.py:0
-msgid "Credentials PDF saved as attachment"
-msgstr "PDF de credenciales guardado como adjunto"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/google_workspace_integration.py:0
 msgid "Google Workspace: the employee already has a non-corporate work email (%s); the corporate account was NOT created to avoid overwriting it."
 msgstr "Google Workspace: el empleado ya tiene un correo de trabajo no corporativo (%s); no se ha creado la cuenta corporativa para evitar sobrescribirlo."
 
@@ -15280,6 +15274,7 @@ msgstr "Ninguno de los alumnos seleccionados tiene credenciales de Google que pu
 #. module: ems
 #. odoo-python
 #: code:addons/ems/controllers/google_credentials.py:0
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_credentials_pdf
 msgid "Google credentials"
 msgstr "Credenciales de Google"
 
@@ -15297,7 +15292,7 @@ msgstr "Contraseña de Google Workspace restablecida: %(email)s%(dry)s. %(pdf)s%
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+#: code:addons/ems/models/shared/google_workspace_mixin.py:0
 msgid ""
 "Google refused to reset the password of %(email)s. Check that the service "
 "account's admin role has the \"Reset password\" privilege. Error: %(err)s"
@@ -15321,6 +15316,7 @@ msgstr "Indica si el usuario que consulta a este alumno puede restablecerle la c
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Reset Google password"
 msgstr "Restablecer contraseña de Google"
 
@@ -20285,3 +20281,35 @@ msgstr "Correo bloqueado: esta es una máquina de desarrollo y esta base de dato
 #: code:addons/ems/models/settings/mail_guard.py:0
 msgid "Email blocked: this is a development machine and these recipients are neither redirected by devel.sh nor in the allowlist: %(recipients)s"
 msgstr "Correo bloqueado: esta es una máquina de desarrollo y estos destinatarios no están desviados por devel.sh ni en la lista de direcciones permitidas: %(recipients)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Credentials PDF saved on the employee form"
+msgstr "PDF de credenciales guardado en la ficha del empleado"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "You are not allowed to reset Google passwords of the staff."
+msgstr "No tiene permiso para restablecer la contraseña de Google del personal."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_credentials_filename
+msgid "Google Credentials Filename"
+msgstr "Nombre del archivo de credenciales de Google"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__google_credentials_pdf
+msgid "Latest Google credentials PDF (account creation or password reset)."
+msgstr "Último PDF de credenciales de Google (creación de la cuenta o restablecimiento de la contraseña)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "This gives the teacher's Google account a new password: the current one stops working and new credentials are generated. Continue?"
+msgstr "Esto asigna una contraseña nueva a la cuenta de Google del profesor o profesora: la actual deja de funcionar y se generan credenciales nuevas. ¿Continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Google account"
+msgstr "Cuenta de Google"

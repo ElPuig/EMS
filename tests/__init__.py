@@ -99,6 +99,7 @@ from . import test_grade_session_state_wizard_tour
 from . import test_grade_import_wizard_tour
 from . import test_employee_google_workspace
 from . import test_employee_google_workspace_tour
+from . import test_employee_google_password_reset_tour
 from . import test_student_google_workspace_tour
 from . import test_actions_dropdown_tour
 from . import test_archive_entry

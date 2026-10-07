@@ -1,3 +1,4 @@
+import base64
 import importlib.util
 import os
 from unittest.mock import MagicMock, Mock, patch
@@ -12,7 +13,7 @@ from odoo.addons.ems.models.shared.google_workspace_mixin import (
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 from odoo.tools import mute_logger
-from .common import next_student_id
+from .common import create_role_user, mock_outgoing_email, next_student_id
 
 
 class TestEmployeeGoogleWorkspace(TransactionCase):
@@ -664,3 +665,150 @@ class TestEmployeeGoogleWorkspaceLifecycle(TransactionCase):
                 type(teacher), 'action_suspend_google_account', autospec=True) as suspend:
             teacher.unlink()
         suspend.assert_called_once()
+
+
+class TestEmployeeGooglePasswordReset(TransactionCase):
+    """Issue #595: "Reset Google password" on the employee form, and the credentials PDF kept on
+    the form (latest only, unreadable outside the roles that manage the account). Dry-run unless a
+    test switches it off; outgoing email mocked."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        mock_outgoing_email(cls)
+        cls.company = cls.env.company
+        cls.company.write({
+            'google_ws_enabled': True, 'google_ws_dry_run': True, 'google_ws_domain': 'elpuig.xeill.net',
+            'google_ws_ou_teacher': '/claustro', 'google_ws_ou_asp': '/pas',
+        })
+        cls.teacher = cls.env['hr.employee'].create({
+            'name': 'Reset Password Teacher', 'employee_type': 'teacher',
+            'private_email': 'reset.teacher@example.com', 'work_email': 'reset.teacher@elpuig.xeill.net',
+        })
+        cls.teacher.action_create_ems_user()
+        cls.tac = create_role_user(cls, 'tac', 'test_tac_emp_gw_reset')
+
+    def _reset(self, user, employee=None):
+        employee = (employee or self.teacher).with_user(user)
+        with patch.object(type(self.teacher), '_gw_deliver_credentials', autospec=True,
+                          return_value=(True, True)) as deliver:
+            employee.action_reset_google_password()
+        return deliver
+
+    def _patch_pdf(self, content):
+        return patch('odoo.addons.base.models.ir_actions_report.IrActionsReport._render_qweb_pdf',
+                     return_value=(content, 'pdf'))
+
+    def test_hr_roles_reset_and_deliver_new_credentials(self):
+        for role in ('tac', 'head_of_studies', 'secretary', 'academic_admin'):
+            user = self.tac if role == 'tac' else create_role_user(self, role, f'test_{role}_emp_gw_reset')
+            with self.subTest(role=role):
+                deliver = self._reset(user)
+                deliver.assert_called_once()
+                __, email, password = deliver.call_args.args
+                self.assertEqual(email, 'reset.teacher@elpuig.xeill.net')
+                self.assertGreaterEqual(len(password), 12)
+                note = self.teacher.message_ids[:1]
+                self.assertIn('reset.teacher@elpuig.xeill.net', note.body)
+                self.assertEqual(note.author_id, user.partner_id)
+
+    def test_other_roles_cannot_reset(self):
+        for role in ('teacher', 'tutor'):
+            user = create_role_user(self, role, f'test_{role}_emp_gw_reset')
+            with self.subTest(role=role), self.assertRaises(AccessError):
+                self._reset(user)
+
+    def test_reset_while_the_ems_user_is_missing(self):
+        pending = self.env['hr.employee'].create({
+            'name': 'Reset Pending Teacher', 'employee_type': 'teacher',
+            'work_email': 'reset.pending@elpuig.xeill.net',
+        })
+        self.assertEqual(pending.google_ws_state, 'pending_user')
+        self._reset(self.tac, pending).assert_called_once()
+
+    def test_reset_requires_an_account_in_google(self):
+        without_account = self.env['hr.employee'].create({
+            'name': 'Reset No Account', 'employee_type': 'teacher', 'private_email': 'no.account@example.com',
+        })
+        suspended = self.env['hr.employee'].create({
+            'name': 'Reset Suspended', 'employee_type': 'teacher',
+            'work_email': 'reset.suspended@elpuig.xeill.net', 'google_ws_suspended': True,
+        })
+        for employee in (without_account, suspended):
+            with self.subTest(employee=employee.name), self.assertRaises(UserError):
+                self._reset(self.tac, employee)
+
+    def test_reset_sends_the_password_to_google(self):
+        mock_service = Mock()
+        self.company.google_ws_dry_run = False
+        with patch('odoo.addons.ems.models.shared.google_workspace_mixin.'
+                   'GoogleWorkspaceMixin._gw_get_service', return_value=mock_service):
+            deliver = self._reset(self.tac)
+        __, kwargs = mock_service.users.return_value.patch.call_args
+        self.assertEqual(kwargs['userKey'], 'reset.teacher@elpuig.xeill.net')
+        self.assertEqual(kwargs['body'], {
+            'password': deliver.call_args.args[2], 'changePasswordAtNextLogin': True,
+        })
+
+    def test_google_refusal_is_reported_and_keeps_the_old_pdf(self):
+        self.teacher.sudo().write({
+            'google_credentials_pdf': base64.b64encode(b'old pdf'),
+            'google_credentials_filename': 'old.pdf',
+        })
+        mock_service = Mock()
+        # HttpError falls back to a plain Exception when the Google libraries are missing.
+        error = HttpError(Mock(status=403), b'Not Authorized') if HttpError is not Exception else HttpError('403')
+        mock_service.users.return_value.patch.return_value.execute.side_effect = error
+        self.company.google_ws_dry_run = False
+        with patch('odoo.addons.ems.models.shared.google_workspace_mixin.'
+                   'GoogleWorkspaceMixin._gw_get_service', return_value=mock_service), \
+                mute_logger('odoo.addons.ems.models.shared.google_workspace_mixin'), \
+                self.assertRaises(UserError):
+            self._reset(self.tac)
+        self.assertEqual(base64.b64decode(self.teacher.google_credentials_pdf), b'old pdf')
+
+    def test_credentials_pdf_replaces_the_previous_one(self):
+        Attachment = self.env['ir.attachment']
+        for content in (b'%PDF first', b'%PDF second'):
+            with self._patch_pdf(content):
+                self.teacher._gw_deliver_credentials('reset.teacher@elpuig.xeill.net', 'Secret123')
+        self.assertEqual(base64.b64decode(self.teacher.google_credentials_pdf), b'%PDF second')
+        self.assertTrue(self.teacher.google_credentials_filename.endswith('.pdf'))
+        stored = Attachment.search([
+            ('res_model', '=', 'hr.employee'), ('res_id', '=', self.teacher.id),
+            ('res_field', '=', 'google_credentials_pdf')])
+        self.assertEqual(len(stored), 1)
+        loose = Attachment.search([
+            ('res_model', '=', 'hr.employee'), ('res_id', '=', self.teacher.id), ('res_field', '=', False)])
+        self.assertFalse(loose, "the PDF must not also be a loose attachment anybody can read")
+
+    def test_credentials_pdf_is_hidden_from_other_roles(self):
+        with self._patch_pdf(b'%PDF secret'):
+            self.teacher._gw_deliver_credentials('reset.teacher@elpuig.xeill.net', 'Secret123')
+        teacher_user = create_role_user(self, 'teacher', 'test_teacher_emp_gw_pdf')
+        with self.assertRaises(AccessError):
+            self.teacher.with_user(teacher_user).read(['google_credentials_pdf'])
+        self.assertTrue(self.teacher.with_user(self.tac).google_credentials_pdf)
+
+    def test_loose_pdfs_are_adopted_into_the_field(self):
+        Attachment = self.env['ir.attachment']
+        other = self.env['hr.employee'].create({'name': 'Adopt Other', 'employee_type': 'teacher'})
+
+        def loose(employee, name, content):
+            return Attachment.create({
+                'name': name, 'res_model': 'hr.employee', 'res_id': employee.id,
+                'datas': base64.b64encode(content), 'mimetype': 'application/pdf',
+            })
+
+        older = loose(self.teacher, f'Credencials_Google_{self.teacher.id}.pdf', b'%PDF older')
+        newer = loose(self.teacher, f'Credencials_Google_{self.teacher.id}.pdf', b'%PDF newer')
+        older.create_date = '2026-09-28 19:09:55'
+        newer.create_date = '2026-10-02 14:55:46'
+        unrelated = loose(self.teacher, 'contract.pdf', b'%PDF contract')
+
+        self.env['hr.employee']._ems_adopt_loose_credentials_pdfs()
+
+        self.assertEqual(base64.b64decode(self.teacher.google_credentials_pdf), b'%PDF newer')
+        self.assertFalse((older | newer).exists())
+        self.assertTrue(unrelated.exists())
+        self.assertFalse(other.google_credentials_pdf)

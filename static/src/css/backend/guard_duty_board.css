@@ -269,12 +269,17 @@
 
 /* Managing absences from the absences table (issues #539, #571, #581). */
 
-/* A row the current user can act on: clicking it sends (or changes) a guard. */
-.o_guard_board_absence_manageable {
+/* A row that answers a click: a struck-out one explains itself, one the current user can act on
+   sends a guard. */
+.o_guard_board_absence_manageable,
+.o_guard_board_absence_covered,
+.o_guard_board_absence_struck {
     cursor: pointer;
 }
 
-.o_guard_board_absence_manageable:hover {
+.o_guard_board_absence_manageable:hover,
+.o_guard_board_absence_covered:hover,
+.o_guard_board_absence_struck:hover {
     background-color: rgba(0, 0, 0, 0.04);
 }
 
@@ -358,7 +363,6 @@
 .o_guard_board_absence_info {
     margin-right: 4px;
     color: #6c757d;
-    cursor: pointer;
 }
 
 .o_guard_board_reason_popover {

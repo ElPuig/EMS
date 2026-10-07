@@ -12,7 +12,19 @@ import { GuardCoverDialog } from "./guard_cover_dialog";
 // its tooltip shows on hover, for whoever doesn't hover (or uses a touchscreen).
 class GuardBoardReasonPopover extends Component {
     static template = "ems.GuardBoardReasonPopover";
-    static props = { reason: String, close: Function };
+    static props = {
+        reason: String,
+        // A line struck out because a guard was sent stays editable by whoever organises the
+        // absence: the popover then also offers to change or remove that guard.
+        actionLabel: { type: String, optional: true },
+        onAction: { type: Function, optional: true },
+        close: Function,
+    };
+
+    onAction() {
+        this.props.close();
+        this.props.onAction();
+    }
 }
 
 const SHIFTS = [
@@ -321,8 +333,10 @@ export class GuardDutyBoard extends Component {
         return classes;
     }
 
-    absenceRowTitle(absence) {
-        return this.isAssignable(absence) ? _t("Click to send a guard teacher to this class") : false;
+    // The line's tooltip: why it is struck out (the same as its info icon), or, on a line still
+    // to be covered, how to send a guard to it.
+    absenceRowTooltip(absence) {
+        return this.struckReason(absence) || (this.isAssignable(absence) ? _t("Click to send a guard teacher to this class") : false);
     }
 
     // Why a line is struck out, for everyone (not only whoever can organise the absence): shown by
@@ -340,8 +354,21 @@ export class GuardDutyBoard extends Component {
         return false;
     }
 
-    showStruckReason(ev, absence) {
-        this.popover.add(ev.currentTarget, GuardBoardReasonPopover, { reason: this.struckReason(absence) });
+    // Clicking a struck-out line (anywhere on it, not only its icon) explains it, anchored to the
+    // icon; clicking a line still to be covered sends a guard to it.
+    onAbsenceClick(ev, line, absence) {
+        const reason = this.struckReason(absence);
+        if (!reason) {
+            this.openCoverDialog(line, absence);
+            return;
+        }
+        const props = { reason };
+        if (absence.cover && this.isAssignable(absence)) {
+            props.actionLabel = _t("Change or remove the guard");
+            props.onAction = () => this.openCoverDialog(line, absence);
+        }
+        const icon = ev.currentTarget.querySelector(".o_guard_board_absence_info") || ev.currentTarget;
+        this.popover.add(icon, GuardBoardReasonPopover, props);
     }
 
     // A co-taught class or one the families were told about needs nobody, so it offers nothing.
@@ -385,7 +412,7 @@ export class GuardDutyBoard extends Component {
         return action.type === "rectification" ? this.actionLabels.rectify : this.actionLabels.propose;
     }
 
-    onAbsenceClick(line, absence) {
+    openCoverDialog(line, absence) {
         if (!this.isAssignable(absence)) {
             return;
         }

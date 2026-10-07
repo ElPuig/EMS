@@ -20786,3 +20786,9 @@ msgstr "No hace falta docente de guardia: se comunicó a las familias «%s»."
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Covered by %s, the guard teacher sent to this class."
 msgstr "Cubierta por %s, el docente de guardia enviado a esta clase."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Change or remove the guard"
+msgstr "Cambiar o quitar el docente de guardia"

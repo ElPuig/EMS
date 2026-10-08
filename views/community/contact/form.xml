@@ -916,6 +916,9 @@
                     <field name="student_email" string="Corporate email" widget="email"
                            readonly="read_only_user or is_tutor_readonly"
                            invisible="contact_type != 'student'"/>
+                    <field name="google_ws_manual_email"
+                           readonly="read_only_user or is_tutor_readonly"
+                           invisible="contact_type != 'student' or student_email"/>
                 </xpath>
             </field>
         </record>

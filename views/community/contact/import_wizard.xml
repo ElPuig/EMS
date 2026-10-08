@@ -5,7 +5,7 @@
             <field name="name">ems.student.import.wizard.form</field>
             <field name="model">ems.student_import_wizard</field>
             <field name="arch" type="xml">
-                <form string="Import students from Esfera (SAGA)">
+                <form string="Import students from Esfera (SAGA)" js_class="ems_student_import_wizard_form">
                     <sheet>
                         <group invisible="result_html">
                             <p style="color: #666; font-size: 13px; margin-bottom: 15px;">
@@ -28,6 +28,7 @@
                             <field name="file" widget="binary" filename="file_name"/>
                             <field name="file_name" invisible="1"/>
                             <field name="overwrite"/>
+                            <field name="create_google_accounts"/>
                         </group>
                         <group invisible="not result_html">
                             <field name="result_html" nolabel="1"/>

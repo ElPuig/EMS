@@ -4077,6 +4077,7 @@ msgstr "Compte de Google sense usuari EMS"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__hr_employee__google_ws_state__manual_pending
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__google_ws_state__manual_pending
 msgid "Waiting for the manual corporate email"
 msgstr "Pendent del correu corporatiu manual"
 
@@ -9605,6 +9606,8 @@ msgstr "Finalitzada"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_employee__google_ws_manual_email
+#: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_manual_email
+#: model:ir.model.fields,field_description:ems.field_res_users__google_ws_manual_email
 msgid "Assign corporate email manually"
 msgstr "Assignar correu corporatiu manualment"
 
@@ -21283,3 +21286,31 @@ msgstr "Visualització d'icones de recursos humans"
 #: model:ir.model.fields,field_description:ems.field_hr_employee_public__show_hr_icon_display
 msgid "Show Hr Icon Display"
 msgstr "Mostra la icona de recursos humans"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__create_google_accounts
+msgid "Create Google accounts"
+msgstr "Crear comptes de Google"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_import_wizard__create_google_accounts
+msgid "Untick it when the imported students already have a Google account created outside EMS: they are marked to have their corporate email assigned manually, so EMS never creates a second account for them."
+msgstr "Desmarqueu-ho quan l'alumnat importat ja tingui un compte de Google creat fora d'EMS: queda marcat per assignar-li el correu corporatiu manualment, i EMS no li crea mai un segon compte."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__google_ws_manual_email
+#: model:ir.model.fields,help:ems.field_res_users__google_ws_manual_email
+msgid "Tick it when the student's Google account was created outside EMS: EMS then never creates one, and the existing address is filled in by hand (or with the student data update wizard) as the corporate email."
+msgstr "Marqueu-ho quan el compte de Google de l'alumne s'hagi creat fora d'EMS: aleshores EMS no en crea cap, i l'adreça existent s'informa a mà (o amb l'assistent d'actualització de dades de l'alumnat) com a correu corporatiu."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/student_import_wizard_form.js:0
+msgid "Importing the students…"
+msgstr "S'estan important els alumnes…"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/student_import_wizard_form.js:0
+msgid "Every row of the file creates or updates the student and their family contacts."
+msgstr "Cada fila del fitxer crea o actualitza l'alumne i els seus contactes familiars."

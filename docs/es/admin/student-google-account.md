@@ -27,6 +27,10 @@ La cuenta se crea en la unidad organizativa de menores o de mayores de edad, seg
 
 Pueden crear cuentas administración, coordinación TAC, secretaría y el tutor o tutora del alumno (y los jefes por encima de ese tutor: jefe de seminario, jefe de departamento, jefe de estudios y dirección).
 
+### Cuentas creadas fuera de EMS
+
+Si la cuenta del alumno se ha creado directamente en Google, marca **Asignar correo corporativo manualmente** en su ficha (junto a **Correo corporativo**) para que EMS no cree una segunda, e informa la dirección que ya tiene en **Correo corporativo**. La [importación desde Esfera](../secretary/student-import-esfera.md) puede marcarlo para todo el alumnado importado.
+
 ---
 
 ## Corregir el nombre

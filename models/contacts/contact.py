@@ -1008,6 +1008,16 @@ class ResPartner(models.Model):
         # in ems.enrollment.default_get().
         if 'main_group_id' in values and not self.env.su:
             self._ems_check_main_group_change(values['main_group_id'])
+        # Only a student actually coming back (out of the archive, or from ex-student to
+        # student) gets their Google account reactivated: writing active=True on an active
+        # student - the Esfera import does it for every existing one, to bring back former
+        # students - must not reach Google at all.
+        returning = self.filtered(lambda partner: (
+            values.get('active') and not partner.active
+        ) or (
+            values.get('contact_type') == 'student'
+            and partner.contact_type in ('alumni', 'withdrawal', 'expelled')
+        ))
         old_main_groups = {}
         if 'main_group_id' in values and not self.env.su:
             old_main_groups = {partner.id: partner.main_group_id for partner in self}
@@ -1082,14 +1092,13 @@ class ResPartner(models.Model):
             self._gw_enqueue_rename()
 
         # Google Workspace: archive -> schedule the suspension after a grace period
-        # (issue #388); unarchive -> call it off, or reactivate if the cron got there
+        # (issue #388); coming back -> call it off, or reactivate if the cron got there
         # first and the account is already suspended.
-        if 'active' in values:
-            if values['active']:
-                self._gw_cancel_scheduled_deactivation()
-                self._gw_enqueue_reactivate()
-            else:
-                self._gw_schedule_deactivation()
+        if returning:
+            returning._gw_cancel_scheduled_deactivation()
+            returning._gw_enqueue_reactivate()
+        if 'active' in values and not values['active']:
+            self._gw_schedule_deactivation()
 
         return contact
 

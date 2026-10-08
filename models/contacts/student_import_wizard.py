@@ -24,6 +24,15 @@ class EmsStudentImportWizard(models.TransientModel):
     # Import control rather than student data: a returning student must be reactivated
     # and restored to the 'student' contact type in both modes, whatever EMS holds now.
     _CONTROL_FIELDS = ('active', 'contact_type')
+    # Yes/no columns: only a "Sí" says something worth noting. Esfera sometimes fills
+    # them with values from a neighbouring column (a street type such as "CR"), and a
+    # per-contact column comes as "No - No - Sí".
+    _YES_NO_COLUMNS = (
+        'Alumne emancipat legalment', 'Alumne tutelat legalment',
+        'Alumne amb custòdia compartida en dos domicilis',
+        'destinatari correspondència', 'persona jurídica', 'contactes: rebre notificacions',
+        'Tutors comparteixen domicili',
+    )
 
     file = fields.Binary(string="Esfera xlsx file", required=True)
     file_name = fields.Char()
@@ -35,6 +44,13 @@ class EmsStudentImportWizard(models.TransientModel):
              "Tick it to let the file's values replace EMS's ones. In both cases a column "
              "that comes empty in the file never erases an existing value, and notes are "
              "always kept.",
+    )
+    create_google_accounts = fields.Boolean(
+        string="Create Google accounts",
+        default=True,
+        help="Untick it when the imported students already have a Google account created "
+             "outside EMS: they are marked to have their corporate email assigned manually, "
+             "so EMS never creates a second account for them.",
     )
     result_html = fields.Html(string="Import result", readonly=True)
     log_file = fields.Binary(string="Import log (CSV)", readonly=True)
@@ -93,7 +109,12 @@ class EmsStudentImportWizard(models.TransientModel):
             return str(s or '').strip().replace('’', "'").replace('‘', "'")
         for idx, row in enumerate(ws.iter_rows(max_row=20, values_only=True), start=1):
             if row and any(normalize(c) == self._STUDENT_ID_COLUMN for c in row):
-                col_map = {normalize(c): i for i, c in enumerate(row) if c}
+                # The first column wins when a header repeats: Esfera exports two
+                # "Número" columns, the address one and, much later, the insurance one.
+                col_map = {}
+                for i, c in enumerate(row):
+                    if c:
+                        col_map.setdefault(normalize(c), i)
                 return idx, col_map
         return None, {}
 
@@ -175,11 +196,11 @@ class EmsStudentImportWizard(models.TransientModel):
         group = self.env['ems.group'].search(
             [('external_id', '=', esfera_code)], limit=1) if esfera_code else self.env['ems.group']
 
-        # Student name
-        firstname = get('Nom') or ''
-        surname1 = get('Primer Cognom') or ''
-        surname2 = get('Segon Cognom') or ''
-        name = ' '.join(filter(None, [firstname, surname1, surname2]))
+        # Student name: Esfera already splits it, so firstname/lastname are written as
+        # they come (partner_firstname would re-split a joined name on its first space,
+        # "Maria José García" -> firstname "Maria").
+        firstname, lastname, name = self._split_name(
+            get('Nom'), get('Primer Cognom'), get('Segon Cognom'))
 
         # Documents
         doc_nums = get('Número de document d\'identitat')
@@ -221,7 +242,8 @@ class EmsStudentImportWizard(models.TransientModel):
             ))
 
         student_data = {
-            'name': name,
+            'firstname': firstname,
+            'lastname': lastname,
             'contact_type': 'student',
             'birth_date': birth_date,
             'document_id': docs.get('DNI') or docs.get('NIE'),
@@ -243,6 +265,8 @@ class EmsStudentImportWizard(models.TransientModel):
             # this, an existing-but-inactive match is written but stays archived.
             'active': True,
         }
+        if not self.create_google_accounts:
+            student_data['google_ws_manual_email'] = True
 
         student = self._get_or_create_student(ralc, student_data, stats, notes=notes)
         if not student:
@@ -276,9 +300,25 @@ class EmsStudentImportWizard(models.TransientModel):
             ('Observacions', 'Observacions'),
         ]:
             val = get(key)
-            if val and val.lower() not in ('no', 'false', ''):
+            if self._is_worth_noting(key, val):
                 lines.append(f"{label}: {val}")
         return '<br/>'.join(lines) if lines else False
+
+    def _is_worth_noting(self, column, value):
+        """Whether an Esfera value carries information for the notes: a yes/no column
+        only when some of its values is "Sí", any other column when not empty or "No"."""
+        if not value:
+            return False
+        if column.endswith(self._YES_NO_COLUMNS):
+            return any(part.strip().lower() in ('sí', 'si') for part in value.split(' - '))
+        return value.lower() not in ('no', 'false')
+
+    @staticmethod
+    def _split_name(firstname, *surnames):
+        """(firstname, lastname, full name) from Esfera's separate name columns."""
+        firstname = firstname or False
+        lastname = ' '.join(filter(None, surnames)) or False
+        return firstname, lastname, ' '.join(filter(None, [firstname, lastname]))
 
     def _get_or_create_student(self, ralc, data, stats, notes=None):
         existing = False
@@ -286,6 +326,10 @@ class EmsStudentImportWizard(models.TransientModel):
             existing = self.env['res.partner'].with_context(active_test=False).search(
                 [('student_id', '=', ralc)], limit=1)
         if existing:
+            if existing.student_email:
+                # The account already exists and is linked: nothing to keep from being created.
+                data = dict(data)
+                data.pop('google_ws_manual_email', None)
             to_write = self._values_to_write(existing, data)
             if to_write:
                 existing.write(to_write)
@@ -294,7 +338,7 @@ class EmsStudentImportWizard(models.TransientModel):
             stats['log'].append({'tipus': 'Alumne', 'accio': 'Actualitzat', 'partner_id': existing.id, 'ts': self.env['ems.datetime_utils'].get_local_datetime()})
             return existing
         vals = {name: value for name, value in data.items() if not self._is_empty(value)}
-        if not vals.get('name'):
+        if not any(vals.get(field) for field in ('name', 'firstname', 'lastname')):
             # res.partner.name is required, and a nameless contact would be unusable
             # anyway — an existing student is unaffected, since their name is never read.
             stats['warnings'].append(_(
@@ -318,9 +362,9 @@ class EmsStudentImportWizard(models.TransientModel):
             return
 
         # Note: Esfera exports '1r cognom ' with trailing space
-        surname1 = get(f'{prefix} - 1r cognom ') or get(f'{prefix} - 1r cognom') or ''
-        surname2 = get(f'{prefix} - 2n cognom') or ''
-        full_name = ' '.join(filter(None, [nom, surname1, surname2]))
+        firstname, lastname, full_name = self._split_name(
+            nom, get(f'{prefix} - 1r cognom ') or get(f'{prefix} - 1r cognom'),
+            get(f'{prefix} - 2n cognom'))
 
         doc_num = get(f'{prefix} - doc. identitat')
         docs = self._parse_documents(doc_num, '')
@@ -330,7 +374,10 @@ class EmsStudentImportWizard(models.TransientModel):
         raw_phone, email = self._parse_contact_value(contact_raw)
         email = self.env.company._ems_drop_corporate_email(email, full_name, stats['warnings'])
         phone, mobile = self._split_phone_mobile(raw_phone)
+        # Esfera joins one observation per contact value, so an empty one comes as " - ".
         observacio = get(f'Contacte {tutor_num} tutor alumne - Observacions')
+        if not any(char.isalnum() for char in observacio or ''):
+            observacio = None
 
         street = self._build_street(
             get(f'{prefix} - tipus via'), get(f'{prefix} - nom via'),
@@ -340,7 +387,8 @@ class EmsStudentImportWizard(models.TransientModel):
         )
         city = get(f'{prefix} - municipi')
         zip_code = get(f'{prefix} - CP')
-        country = self._find_country(get(f'{prefix} - país'))
+        # Esfera exports no "Tutor 1 - país" column: the student's country stands in for it.
+        country = self._find_country(get(f'{prefix} - país')) or student.country_id
         state = self._find_state(get(f'{prefix} - provincia'), country.id if country else False)
 
         # Extra notes for tutor — same Catalan-verbatim rationale as _build_student_notes.
@@ -352,11 +400,11 @@ class EmsStudentImportWizard(models.TransientModel):
             ('Rep notificacions', f'{prefix} - contactes: rebre notificacions'),
         ]:
             val = get(key)
-            if val and val.lower() not in ('no', 'false', ''):
+            if self._is_worth_noting(key, val):
                 tutor_notes.append(f"{label}: {val}")
         if prefix == 'Tutor 2':
             shared = get('Tutors comparteixen domicili')
-            if shared and shared.lower() not in ('no', 'false', ''):
+            if self._is_worth_noting('Tutors comparteixen domicili', shared):
                 tutor_notes.append(f"Comparteix domicili amb Tutor 1: {shared}")
 
         family, accio = self._get_or_create_family(
@@ -365,7 +413,7 @@ class EmsStudentImportWizard(models.TransientModel):
              'country_id': country.id if country else False,
              'state_id': state.id if state else False},
             notes='<br/>'.join(tutor_notes) if tutor_notes else False,
-            firstname=nom, stats=stats, student=student,
+            firstname=firstname, lastname=lastname, stats=stats, student=student,
         )
         if not family:
             return
@@ -387,7 +435,7 @@ class EmsStudentImportWizard(models.TransientModel):
         student._ems_link_family(family, relation_type)
 
     def _get_or_create_family(self, name, doc_num, phone, mobile, email, address_data, notes=None,
-                              firstname=None, stats=None, student=None):
+                              firstname=None, lastname=None, stats=None, student=None):
         """Find or create the family contact for a tutor row.
 
         Values are filtered through _values_to_write, so a family contact follows
@@ -414,8 +462,9 @@ class EmsStudentImportWizard(models.TransientModel):
                 student=student.name if student else '', tutor=name,
                 other=possible_duplicate.name,
             ))
-        family_vals = dict(address_data, **{
-            'name': name,
+        # Name parts when the caller has them (see _process_row), the full name otherwise.
+        name_vals = {'firstname': firstname, 'lastname': lastname} if lastname else {'name': name}
+        family_vals = dict(address_data, **name_vals, **{
             'contact_type': 'family',
             'document_id': doc_num,
             'phone': phone,
@@ -476,11 +525,14 @@ class EmsStudentImportWizard(models.TransientModel):
         return ' '.join(p for p in parts if p and str(p).strip()) or False
 
     def _parse_contact_value(self, raw):
-        if not raw:
-            return None, None
-        parts = [p.strip() for p in raw.split(' - ')]
-        phone = parts[0] if parts else None
-        email = parts[1] if len(parts) > 1 else None
+        """(phone, email) from an Esfera contact value: its first phone and first email.
+
+        The parts come in no fixed order ("phone - email", "email - phone", several of
+        each), so they are told apart by their content rather than their position.
+        """
+        parts = [p.strip() for p in (raw or '').split(' - ') if p.strip()]
+        phone = next((p for p in parts if '@' not in p), None)
+        email = next((p for p in parts if '@' in p), None)
         return phone, email
 
     def _split_phone_mobile(self, number, country_code='ES'):

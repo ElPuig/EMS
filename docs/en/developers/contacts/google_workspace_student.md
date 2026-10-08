@@ -29,6 +29,8 @@ sequenceDiagram
     P->>P: _gw_enqueue_if_ready()
     alt missing IDALU / names / personal email
         Note over P: no chatter note posted (unlike staff) — GEDAC\nimport usually supplies this already
+    else google_ws_manual_email (account created outside EMS)
+        Note over P: never queued — the existing address is\nfilled in as student_email by hand or by the\nstudent data update wizard
     else ready
         P->>Q: _gw_enqueue_create(): with_delay(_gw_create_account, identity_key)
         Note over U,Q: the "Create Google account" button queues this same job (#582)
@@ -220,14 +222,15 @@ only.
 
 ## `google_ws_state`
 
-Same single-source-of-truth pattern as the staff side, but only **3** states (no
-`manual_pending`/`pending_user` — those exist only because staff has a separate EMS-user
-step):
+Same single-source-of-truth pattern as the staff side, with 4 states (no `pending_user`,
+which exists only because staff has a separate EMS-user step):
 
 ```mermaid
 stateDiagram-v2
     [*] --> none: not a student, or no student_email
+    [*] --> manual_pending: google_ws_manual_email, no student_email
     none --> active: account created
+    manual_pending --> active: existing address filled in as student_email
     active --> suspended: action_suspend_google_account()
     suspended --> active: action_reactivate_google_account()
 ```
@@ -235,6 +238,7 @@ stateDiagram-v2
 | `google_ws_state` | Actions dropdown entry shown (`views/community/contact/form.xml`) | Meaning |
 |---|---|---|
 | `none` | Create Google account (also needs `can_create_google_account`; hidden while `google_ws_creation_pending`) | Not a student, or no corporate email yet |
+| `manual_pending` | none | The account was created outside EMS (`google_ws_manual_email`): EMS never creates one (`_gw_ready()` and `_gw_create_account()` both stop on the flag), its address is waiting to be filled in |
 | `active` | Suspend Google account, Reset Google password (the latter also needs `can_reset_google_password`) | Fully set up |
 | `suspended` | Reactivate Google account | `google_ws_suspended = True` |
 

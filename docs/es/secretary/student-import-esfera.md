@@ -29,9 +29,11 @@ Para una actualización más pequeña y puntual desde cualquier otro archivo CSV
 
 ## Ejecutar la importación
 
-Desde la lista de **Alumnado**, abra el menú de acciones (el icono del engranaje ⚙️ junto a la lista) y elija **Importar desde Esfera**. Seleccione el archivo `.xlsx` exportado desde Esfera/SAGA y haga clic en **Importar alumnos**.
+Desde la lista de **Alumnado**, abra el menú de acciones (el icono del engranaje ⚙️ junto a la lista) y elija **Importar desde Esfera**. Seleccione el archivo `.xlsx` exportado desde Esfera/SAGA y haga clic en **Importar alumnos**. Mientras se importa, un mensaje permanece en pantalla hasta que termina; un archivo grande puede tardar unos minutos.
 
 ![Ventana Importar desde Esfera, con la subida del archivo y la opción de sobrescribir](../../assets/secretary/esfera-01-assistent.png)
+
+Si el alumnado del archivo ya tiene una cuenta de Google creada fuera de EMS, desmarque **Crear cuentas de Google** antes de importar. Entonces EMS no les crea ninguna cuenta: en su ficha quedan marcados con **Asignar correo corporativo manualmente**. Informe la dirección que ya tienen en **Correo corporativo**, en la propia ficha o para todos a la vez con [Actualizar datos del alumnado desde un CSV](student-update-csv.md) (columna **Correo electrónico del estudiante**). Consulte [Gestionar la cuenta de Google de un alumno](../admin/student-google-account.md).
 
 ## Qué se crea o se actualiza
 

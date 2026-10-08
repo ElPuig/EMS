@@ -82,6 +82,19 @@ Family contacts follow exactly the same write policy as the student (`_values_to
 
 Up to 2 tutors per row (`Tutor 1`/`Tutor 2` column prefixes). For each: parse name/document/contact/address columns, resolve or create a `contact_type='family'` partner, guess the family relationship from a free-text observation column via keyword matching (`_deduce_relation_type`: mare/madre → mother, pare/padre → father, àvia/avia/abuela → grandmother, etc.), defaulting to the generic "Tutor" relation type when no keyword matches — in that fallback case a note is appended to the **student's** own `comment` field quoting the original free text, so a secretary can review and correct the guess later.
 
+### Esfera export quirks (issue #603)
+
+- **Names.** Esfera already splits them (`Nom`, `Primer Cognom`, `Segon Cognom`, and the same for each tutor), so `_split_name` writes `firstname`/`lastname` directly, like `applicant_import_wizard`. A joined `name` would be re-split by `partner_firstname` on its first space (`"Maria José Garcia"` → firstname `"Maria"`).
+- **Repeated headers.** The export has two `Número` columns: the address one and, much later, the insurance one. `_find_headers` keeps the **first** column of each header.
+- **Tutor contacts.** `Contacte 1er/2on tutor alumne - Valor` joins phones and emails in no fixed order (`"email - phone"` is as common as `"phone - email"`). `_parse_contact_value` takes the first part with an `@` as the email and the first part without one as the phone.
+- **Empty observations.** An observation with no letter or digit (`" - "`, one empty part per contact value) counts as absent: the relation falls back to "Tutor" without the review note on the student.
+- **Yes/no columns** (`_YES_NO_COLUMNS`: emancipated, under guardianship, shared custody, and the tutors' correspondence/legal person/notifications/shared address columns) are only noted when one of their values is `Sí` (`_is_worth_noting`). Esfera sometimes fills `Alumne emancipat legalment` with a street type (`CR`, `AV`...).
+- **Tutor country.** Esfera exports `Tutor 2 - país` but no `Tutor 1 - país`: a tutor without a country takes the student's, so their province can still be found.
+
+### Google accounts — `create_google_accounts`
+
+Creating or updating a student queues their Google Workspace account creation as soon as they have names, IDALU and a personal email (see [Google Workspace (students)](google_workspace_student.md)). When the students in the file already have an account created outside EMS, that would create a second one: the first address candidate is taken in Google (409), so the next one is used. Unticking `create_google_accounts` sets `google_ws_manual_email` on every imported student without a `student_email`, which keeps them out of the automatic creation for good, not only during the import (every later `write()` checks again). Their existing address is then filled in as `student_email` by hand or with the [student data update wizard](student_update_wizard.md), keyed by IDALU.
+
 ---
 
 ## Known limitations (flagged, not fixed in this pass)
@@ -120,5 +133,5 @@ Tested in `tests/test_student_import_wizard.py`: `test_process_row_missing_group
 
 | View | File | Notes |
 |------|------|-------|
-| Form | `views/community/contact/import_wizard.xml` (`view_student_import_wizard_form`) | Explanatory panel → file picker → (after import) result summary + downloadable CSV log via `auto_download_binary` |
+| Form | `views/community/contact/import_wizard.xml` (`view_student_import_wizard_form`) | Explanatory panel → file picker → (after import) result summary + downloadable CSV log via `auto_download_binary`. `js_class="ems_student_import_wizard_form"` (`static/src/js/backend/student_import_wizard_form.js`) blocks the screen with an "Importing the students…" overlay while `action_import` runs (~20 s per class of 120 students), through the shared `blockingActionFormView` |
 | Action | same file | `action_student_import_wizard`, no standalone menu — see the cog-menu entry point above |

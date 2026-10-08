@@ -112,9 +112,23 @@ registry.category("web_tour.tours").add("ems_student_import_wizard_success", {
             run: "click",
         },
         {
-            trigger: ".modal footer button[name='action_import']",
-            content: "Import students",
+            trigger: ".o_field_widget[name='create_google_accounts'] input:checked",
+            content: "Untick 'Create Google accounts'",
             run: "click",
+        },
+        {
+            trigger: ".modal footer button[name='action_import']",
+            content: "Import students, and check the screen says what is happening while it runs",
+            // No step can target the overlay: the tour engine waits for `.o_blockUI` to go away
+            // before it looks for any trigger. The test slows the server down so it is still up.
+            run: async (helpers) => {
+                await helpers.click();
+                await new Promise((resolve) => setTimeout(resolve, 500));
+                const message = document.querySelector(".o_blockUI .o_message");
+                if (!message || !message.textContent.includes("Importing the students")) {
+                    throw new Error("The importing overlay was not shown while importing");
+                }
+            },
         },
         {
             trigger: ".modal .o_field_widget[name='result_html']:contains('Students created')",

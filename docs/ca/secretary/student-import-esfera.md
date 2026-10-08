@@ -29,9 +29,11 @@ Per a una actualització més petita i puntual des de qualsevol altre fitxer CSV
 
 ## Executar la importació
 
-Des de la llista d'**Alumnat**, obriu el menú d'accions (la icona de l'engranatge ⚙️ al costat de la llista) i trieu **Importar des d'Esfera**. Seleccioneu el fitxer `.xlsx` exportat des d'Esfera/SAGA i feu clic a **Importar alumnes**.
+Des de la llista d'**Alumnat**, obriu el menú d'accions (la icona de l'engranatge ⚙️ al costat de la llista) i trieu **Importar des d'Esfera**. Seleccioneu el fitxer `.xlsx` exportat des d'Esfera/SAGA i feu clic a **Importar alumnes**. Mentre s'importa, un missatge es queda a la pantalla fins que acaba; un fitxer gran pot trigar uns minuts.
 
 ![Finestra Importar des d'Esfera, amb la pujada del fitxer i l'opció de sobreescriure](../../assets/secretary/esfera-01-assistent.png)
+
+Si l'alumnat del fitxer ja té un compte de Google creat fora d'EMS, desmarqueu **Crear comptes de Google** abans d'importar. Aleshores EMS no els crea cap compte: a la seva fitxa queden marcats amb **Assignar correu corporatiu manualment**. Informeu l'adreça que ja tenen a **Correu corporatiu**, a la mateixa fitxa o per a tots alhora amb [Actualitzar dades de l'alumnat des d'un CSV](student-update-csv.md) (columna **Correu electrònic de l'estudiant**). Consulteu [Gestionar el compte de Google d'un alumne](../admin/student-google-account.md).
 
 ## Què es crea o s'actualitza
 

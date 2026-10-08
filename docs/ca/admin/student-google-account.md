@@ -27,6 +27,10 @@ El compte es crea a la unitat organitzativa de menors o de majors d'edat, segons
 
 Poden crear comptes administració, coordinació TAC, secretaria i el tutor o tutora de l'alumne (i els caps per sobre d'aquest tutor: cap de seminari, cap de departament, cap d'estudis i direcció).
 
+### Comptes creats fora d'EMS
+
+Si el compte de l'alumne s'ha creat directament a Google, marca **Assignar correu corporatiu manualment** a la seva fitxa (al costat de **Correu corporatiu**) perquè EMS no en creï un segon, i informa l'adreça que ja té a **Correu corporatiu**. La [importació des d'Esfera](../secretary/student-import-esfera.md) pot marcar-ho per a tot l'alumnat importat.
+
 ---
 
 ## Corregir el nom

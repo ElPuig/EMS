@@ -4077,6 +4077,7 @@ msgstr "Cuenta de Google sin usuario EMS"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__hr_employee__google_ws_state__manual_pending
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__google_ws_state__manual_pending
 msgid "Waiting for the manual corporate email"
 msgstr "Pendiente del correo corporativo manual"
 
@@ -9605,6 +9606,8 @@ msgstr "Finalizada"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_employee__google_ws_manual_email
+#: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_manual_email
+#: model:ir.model.fields,field_description:ems.field_res_users__google_ws_manual_email
 msgid "Assign corporate email manually"
 msgstr "Asignar correo corporativo manualmente"
 
@@ -21284,3 +21287,31 @@ msgstr "Visualización del icono RR. HH."
 #: model:ir.model.fields,field_description:ems.field_hr_employee_public__show_hr_icon_display
 msgid "Show Hr Icon Display"
 msgstr "Mostrar icono de RR. HH."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__create_google_accounts
+msgid "Create Google accounts"
+msgstr "Crear cuentas de Google"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_import_wizard__create_google_accounts
+msgid "Untick it when the imported students already have a Google account created outside EMS: they are marked to have their corporate email assigned manually, so EMS never creates a second account for them."
+msgstr "Desmárcalo cuando el alumnado importado ya tenga una cuenta de Google creada fuera de EMS: queda marcado para asignarle el correo corporativo manualmente, y EMS nunca le crea una segunda cuenta."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__google_ws_manual_email
+#: model:ir.model.fields,help:ems.field_res_users__google_ws_manual_email
+msgid "Tick it when the student's Google account was created outside EMS: EMS then never creates one, and the existing address is filled in by hand (or with the student data update wizard) as the corporate email."
+msgstr "Márcalo cuando la cuenta de Google del alumno se haya creado fuera de EMS: entonces EMS no crea ninguna, y la dirección existente se informa a mano (o con el asistente de actualización de datos del alumnado) como correo corporativo."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/student_import_wizard_form.js:0
+msgid "Importing the students…"
+msgstr "Importando el alumnado…"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/student_import_wizard_form.js:0
+msgid "Every row of the file creates or updates the student and their family contacts."
+msgstr "Cada fila del archivo crea o actualiza al alumno y sus contactos familiares."

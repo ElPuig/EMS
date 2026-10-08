@@ -795,8 +795,12 @@ planner must match at a glance, which plain text can't do.
 `_is_absence_manager(employee)`: the absent teacher's chain of command - their Seminar Chief or
 Department Chief, then up through the Head of Studies to the Director - via
 `hr.employee.tutor_scope_user_ids` minus the employee's own user (see "Permission/approval
-escalation" in `CLAUDE.md`). Never every holder of those roles centre-wide, and never the absent
-teacher. The administrator (`base.group_system` or `ems.group_academic_admin`) always can: they sit
+escalation" in `CLAUDE.md`). Or the responsibility for the department the teacher teaches in
+(issue #604): whoever heads it or leads it as Seminar Chief, or heads a department or area it hangs
+from (`headed_department_ids`/`seminar_department_ids`, `child_of`), the same criterion as
+`rule_absence_pending_hierarchy`. That is what reaches the management team (e.g. the Secretary),
+who report to the Director, out of their department's chain. Never every holder of those roles
+centre-wide, and never the absent teacher. The administrator (`base.group_system` or `ems.group_academic_admin`) always can: they sit
 above Direction although, not being a teacher, they appear nowhere in the hierarchy. A timetable change concerns several teachers at once; any of their managers may act on it.
 Every teacher still sees who covers what and what was communicated; rows only offer their click to
 whoever may use them, the action boxes only reach them (`can_manage`), and the server checks again.

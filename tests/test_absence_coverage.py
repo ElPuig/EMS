@@ -175,6 +175,21 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
             with self.subTest(user=outsider.name), self.assertRaises(AccessError):
                 self._assign(user=outsider)
 
+    def test_the_department_chief_manages_a_member_reporting_elsewhere(self):
+        """Issue #604: a member of the management team (e.g. the Secretary) who teaches in the
+        department reports to the Director, out of its chain of command: their department's
+        Chief still organises their absences, a chief of another department doesn't."""
+        secretary_user = create_role_user(self, 'teacher', 'test_secretary_tabc', name='TABC Secretary')
+        secretary = create_role_employee(self, secretary_user, department_id=self.department.id)
+        secretary.parent_id = self.other_head_of_studies.employee_ids
+        self.assertNotIn(self.department_chief, secretary.tutor_scope_user_ids)
+        Course = self.env['ems.course']
+
+        self.assertTrue(Course.with_user(self.department_chief)._is_absence_manager(secretary))
+        for outsider in (self.other_department_chief, secretary_user, self.guard_user):
+            with self.subTest(user=outsider.name):
+                self.assertFalse(Course.with_user(outsider)._is_absence_manager(secretary))
+
     def test_the_administrator_manages_any_absence(self):
         """Above Direction, although not a teacher and so nowhere in the hierarchy."""
         self._morning()

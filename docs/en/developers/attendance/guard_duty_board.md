@@ -754,6 +754,17 @@ current state and refuses anything else. A draft notice for one of the options i
 carry `authorized` and are struck out; rows inside an expected window nobody has communicated yet
 carry `proposed`, shown as a dashed tag.
 
+**Only changes still to come are offered (issue #599).** On the board's own day, an option whose
+time has come (`_change_start()`: the hour a late entry, early leave or longer break starts; the
+group's first lesson for `no_classes`/`normal_entry`; its last one for `normal_leave`) is dropped
+from `options` before anything else, so `expected`, the row tags and the box only ever show what
+can still reach the families in time; with nothing left, the side has no status. A communicated
+change whose time has come is settled (`communicated`, no correction proposed): a correction would
+arrive too late. `_board_day_hour()` gives the company-time hour of `day` (None for a day still to
+come, so nothing is dropped; past every lesson for a day already over), and since
+`board_propose_absence_change()` validates against the same states, it refuses an option that went
+past while the board stayed open.
+
 ### Guard assignment
 
 `board_assign()` re-validates everything on the server: the user manages the absent teacher, the

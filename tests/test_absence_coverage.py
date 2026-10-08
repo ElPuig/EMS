@@ -1,5 +1,7 @@
 from datetime import timedelta
+from unittest.mock import patch
 
+from odoo.addons.ems.models.shared.datetime_utils import EmsDatetimeUtils
 from odoo.exceptions import AccessError, UserError, ValidationError
 
 from .common import create_head_of_studies_branch, create_role_employee, create_role_user, next_student_id
@@ -504,6 +506,73 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual(state['target'], ('normal_entry', 0.0))
         self._communicate('normal_entry', 0.0)
         self.assertIsNone(self._states()['entry']['status'], "once corrected, nothing is left to do")
+
+    # Changes whose time has come (issue #599)
+
+    def _at(self, hour):
+        """The board read on self.day itself, at `hour` (company time)."""
+        now = self.env['ems.datetime_utils'].time_float_to_local_datetime(self.day, hour)
+        return patch.object(EmsDatetimeUtils, 'get_local_datetime', lambda utils: now)
+
+    def test_a_late_entry_whose_time_has_come_is_no_longer_proposed(self):
+        """At 9:30 the students can no longer be told to come in at 9:00, only at 10:00; from
+        10:00 on there is nothing left to propose."""
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10)
+
+        with self._at(9.5):
+            state = self._states()['entry']
+            self.assertEqual(state['options'], [('late_entry', 10)])
+            self.assertEqual(state['expected'], ('late_entry', 10))
+            self.assertEqual(self._row(8, 9)['proposed'], ('late_entry', 10))
+            with self.assertRaises(UserError):
+                self.Notice.with_user(self.department_chief).board_propose_absence_change(
+                    str(self.day), self.group_a.id, 'late_entry', 9.0)
+        with self._at(10):
+            self.assertIsNone(self._states()['entry']['status'])
+            self.assertIsNone(self._row(8, 9)['proposed'])
+            self.assertFalse([action for action in self._actions() if action['type'] == 'proposal'])
+
+    def test_an_early_leave_is_proposed_until_its_time(self):
+        self._morning()
+        self._absence(self.teacher_b, self.day)
+
+        with self._at(10.5):
+            self.assertEqual(self._states()['leave']['status'], 'proposal')
+        with self._at(11):
+            self.assertIsNone(self._states()['leave']['status'])
+
+    def test_no_classes_is_no_longer_proposed_once_the_day_has_started(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day)
+        self._absence(self.teacher_b, self.day)
+
+        with self._at(8):
+            self.assertEqual(self._states()['entry']['options'],
+                             [('late_entry', 9), ('late_entry', 10), ('late_entry', 11)])
+
+    def test_a_longer_break_is_proposed_until_it_would_start(self):
+        self._morning_with_break()
+        self._absence(self.teacher_a, self.day, hour_from=9, hour_to=10)
+        self._absence(self.teacher_b, self.day, hour_from=10.5, hour_to=11.5)
+
+        with self._at(9.5):
+            self.assertEqual(self._break_state()['options'], [('long_break', 10, 11.5)])
+
+    def test_a_correction_is_offered_only_while_it_can_still_reach_the_families(self):
+        """Told to come in at 10:00 and the absence cancelled: going back to the usual 8:00 start
+        is only worth telling before 8:00, and once 10:00 has come what was told is settled."""
+        self._morning()
+        leave = self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10, approve=False)
+        self._communicate('late_entry', 10.0)
+        leave.action_refuse()
+
+        with self._at(7.5):
+            self.assertEqual(self._states()['entry']['target'], ('normal_entry', 0.0))
+        with self._at(8.5):
+            self.assertIsNone(self._states()['entry']['status'])
+        with self._at(10):
+            self.assertEqual(self._states()['entry']['status'], 'communicated')
 
     def test_the_proposed_notice_and_the_guard_message_are_translated(self):
         """The code strings reach their readers in their own language: the draft notice in the

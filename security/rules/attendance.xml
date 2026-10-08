@@ -363,14 +363,14 @@
          their own department; the Head of Studies, their Deputy and the Director imply the group,
          and the Director sits above everyone, so the same domain gives them the whole centre.
          Issue #569: or by the department the teacher teaches in, when it hangs from a department
-         or area the user heads - the management team (e.g. the Secretary) reports to the
-         Director, out of every other branch. Mirrored by
+         or area the user heads, or is the seminar the user leads - the management team (e.g. the
+         Secretary) reports to the Director, out of every other branch. Mirrored by
          ems.absence_pending._domain_employee_id() for the teacher picker. -->
     <record id="rule_absence_pending_hierarchy" model="ir.rule">
         <field name="name">Expected absence: teachers in the user's own hierarchy</field>
         <field name="model_id" ref="ems.model_ems_absence_pending"/>
         <field name="groups" eval="[(6, 0, [ref('ems.group_department_chief')])]"/>
-        <field name="domain_force">['|', ('employee_id', 'child_of', user.employee_ids.ids), ('employee_id.department_id', 'child_of', user.employee_ids.headed_department_ids.ids), ('employee_id.employee_type', '=', 'teacher')]</field>
+        <field name="domain_force">['|', ('employee_id', 'child_of', user.employee_ids.ids), ('employee_id.department_id', 'child_of', user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids), ('employee_id.employee_type', '=', 'teacher')]</field>
     </record>
 
     <!-- A technical administrator (e.g. 'admin') usually has no place in the org chart, so the

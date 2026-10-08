@@ -618,18 +618,19 @@ to the teachers (`employee_type = 'teacher'`) the user reaches in either of two 
   through `parent_id`, i.e. their own branch of the real hierarchy, not every teacher centre-wide.
   The Director sits above every Area Manager, so this alone gives them the whole centre.
 - **Department (issue #569):** `('employee_id.department_id', 'child_of',
-  user.employee_ids.headed_department_ids.ids)`, the teachers whose own department hangs from a
-  department the user manages: their own department for a Department Chief, their area (ESO/BTX,
-  VET) for an Area Manager. This is what reaches the
+  user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids)`,
+  the teachers whose own department hangs from a department the user heads or is the seminar they
+  lead: their own department for a Department or Seminar Chief, their area (ESO/BTX, VET) for an
+  Area Manager. This is what reaches the
   management team: the Area Managers (Head of Studies, Deputy, Secretary) report to the Director
   through `parent_id`, so no other branch contains them, yet each one teaches in a department of
-  some area. The Secretary teaching in a VET department is reached by VET's Area Manager; the
-  Director teaching in an ESO/BTX department, by ESO/BTX's.
+  some area. The Secretary teaching in a VET department is reached by VET's Area Manager and by
+  that department's own Department and Seminar Chief; the Director teaching in an ESO/BTX
+  department, by ESO/BTX's.
 
 For every other teacher both ways give the same answer (their `parent_id` chain runs through
-their Seminar Chief and Department Chief up to their area's manager). So a Seminar Chief reaches
-the members of their seminar (below them through `parent_id`), a Department Chief their whole
-department, and neither reaches another department. Tutors and teachers have no access at all.
+their Seminar Chief and Department Chief up to their area's manager). So a Department or Seminar
+Chief reaches their whole department, and neither reaches another department. Tutors and teachers have no access at all.
 
 Technical administrators (`base.group_system`, e.g. `admin`) usually have no place in the org
 chart, so the hierarchy rule alone would leave them no teacher to choose. They get their own ACL

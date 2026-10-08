@@ -50,14 +50,14 @@ class EmsAbsencePending(models.Model):
     def _domain_employee_id(self):
         """The same reach as the record rules: every teacher for a technical administrator
         (rule_absence_pending_system), otherwise the user's own branch of the hierarchy or the
-        teachers of the departments under the areas they manage (rule_absence_pending_hierarchy,
-        issue #569)."""
+        teachers of the departments they head or lead as Seminar Chief, and of those under the areas
+        they manage (rule_absence_pending_hierarchy, issue #569)."""
         domain = [('employee_type', '=', 'teacher')]
         if self.env.user.has_group('base.group_system'):
             return domain
         employees = self.env.user.employee_ids
-        return domain + ['|', ('id', 'child_of', employees.ids),
-                         ('department_id', 'child_of', employees.headed_department_ids.ids)]
+        departments = employees.headed_department_ids | employees.seminar_department_ids
+        return domain + ['|', ('id', 'child_of', employees.ids), ('department_id', 'child_of', departments.ids)]
 
     def _default_local_hour(self, hour):
         return self.datetime_to_odoo(self.time_float_to_utc_datetime(self.get_local_today(), hour))

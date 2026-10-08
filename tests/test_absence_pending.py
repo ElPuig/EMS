@@ -139,8 +139,9 @@ class TestAbsencePending(TransactionCase):
             self._pending(user=self.department_chief, employee=self.other_teacher)
 
     def test_chiefs_reach_the_teachers_of_their_own_department(self):
-        """Through the department itself, as the department form sets it up: its Seminar Chief
-        reaches the members below them, and its Department Chief the whole department."""
+        """Through the department itself, as the department form sets it up: both its Department
+        Chief and its Seminar Chief reach every teacher of it, a member of the management team who
+        reports to the Director included."""
         chief = create_role_user(self, 'department_chief', 'test_dept_chief_tap', name='TAP Dept Chief')
         seminar_chief = create_role_user(self, 'department_chief', 'test_seminar_chief_tap', name='TAP Seminar Chief')
         department = self.env['hr.department'].create({'name': 'TAP Department'})
@@ -151,12 +152,21 @@ class TestAbsencePending(TransactionCase):
             'seminar_chief_id': create_role_employee(self, seminar_chief, department_id=department.id).id,
         })
         self.assertEqual(member.parent_id, seminar_chief.employee_ids)
+        # A member of the management team (e.g. the Secretary) who teaches in this department
+        # reports to the Director, out of both chiefs' branch: the department still reaches them.
+        director = self.director.employee_ids
+        management_member = self.env['hr.employee'].create({
+            'name': 'TAP Department Secretary', 'employee_type': 'teacher',
+            'department_id': department.id, 'parent_id': director.id})
+        management_member.parent_id = director
 
         for user in (chief, seminar_chief):
+            self._pending(user=user, employee=management_member)
             pending = self._pending(user=user, employee=member)
             self.assertEqual(self.Pending.with_user(user).search([('id', '=', pending.id)]), pending)
             offered = self.env['hr.employee'].with_user(user).search(self.Pending.with_user(user)._domain_employee_id())
             self.assertIn(member, offered)
+            self.assertIn(management_member, offered)
             self.assertNotIn(self.teacher, offered)
             with self.assertRaises(AccessError):
                 self._pending(user=user)

@@ -195,7 +195,7 @@ genuine co-teaching. A co-teacher away for any part of the period does not cover
 overlap test `_guard_duty_absence_state` uses.
 
 **Expected absences are pending absences too.** An `ems.absence_pending` entry the
-Head of Studies or their Deputy entered on a teacher's behalf (see
+teacher's chief, the Head of Studies or their Deputy entered on the teacher's behalf (see
 [Expected absences](../employees/absence.md#expected-absences)) is added as a
 `'pending'` interval while its own state is `pending`, clipped to the requested day in the
 company's timezone by `_get_local_hours()`. Once the teacher files the real absence the entry is

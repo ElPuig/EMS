@@ -2,9 +2,9 @@
 
 import { registry } from "@web/core/registry";
 
-// Expected absences (issue #509), as the Head of Studies who enters them on a
-// teacher's behalf: the list and the form have to render for that role, not only for an
-// officer, and a new entry has to land on the list as pending.
+// Expected absences (issue #509), as the Department Chief who enters them on a teacher of
+// their department's behalf (issue #604): the list and the form have to render for that
+// role, not only for an officer, and a new entry has to land on the list as pending.
 registry.category("web_tour.tours").add("ems_absence_pending", {
     test: true,
     url: "/odoo/action-ems.action_absence_pending",
@@ -24,7 +24,7 @@ registry.category("web_tour.tours").add("ems_absence_pending", {
         },
         {
             trigger: ".o_form_view .o_field_widget[name='employee_id'] input",
-            content: "Search for the teacher, who is below this Head of Studies",
+            content: "Search for the teacher, who is in this chief's department",
             run: "edit Tour Pending Teacher",
         },
         {

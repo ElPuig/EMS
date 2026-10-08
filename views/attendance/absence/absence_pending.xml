@@ -79,13 +79,15 @@
             </field>
         </record>
 
-        <!-- Only the Head of Studies, their Deputy and the Director (who implies the group),
-             each narrowed to their own branch by 'rule_absence_pending_hierarchy', plus technical
-             administrators, who see every teacher ('rule_absence_pending_system'). -->
+        <!-- Department and Seminar Chiefs (issue #604), the Head of Studies, their Deputy and the
+             Director (who all imply the group), each narrowed to their own branch by
+             'rule_absence_pending_hierarchy', plus technical administrators, who see every
+             teacher ('rule_absence_pending_system'). A chief only reaches Management through
+             this entry: see views/attendance/absence/menu.xml. -->
         <menuitem id="menu_absence_pending" name="Expected absences" sequence="6"
                   parent="hr_holidays.menu_hr_holidays_management"
                   action="action_absence_pending"
-                  groups="ems.group_head_of_studies,base.group_system"/>
+                  groups="ems.group_department_chief,base.group_system"/>
 
     </data>
 </odoo>

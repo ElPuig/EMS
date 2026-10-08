@@ -17,8 +17,9 @@ DEFAULT_HOUR_TO = 15.0
 
 
 class EmsAbsencePending(models.Model):
-    """An absence the Head of Studies or their Deputy already knows is coming, entered on the
-    teacher's behalf until the teacher files the real request (issue #509). It only exists so the
+    """An absence the teacher's Department or Seminar Chief (issue #604), the Head of Studies or
+    their Deputy already knows is coming, entered on the teacher's behalf until the teacher files
+    the real request (issue #509). It only exists so the
     guard duty board can plan around it: once the teacher's own absence is filed, the two are
     linked for good and the real one is all that counts from then on."""
     _name = "ems.absence_pending"

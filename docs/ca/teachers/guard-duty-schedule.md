@@ -6,7 +6,7 @@
 
 Consulta on és cada docent, i qui està de guàrdia, a cada franja horària de la setmana — no només el teu propi horari.
 
-**Rol necessari:** Docent (només lectura; els horaris els configura un Cap de departament o superior des de l'horari setmanal propi del docent corresponent). Organitzar una absència des de la Taula d'absències correspon al Cap de departament o de seminari del docent absent i als qui són per sobre seu (consulta [Organitzar una absència](#organitzar-una-absencia)).
+**Rol necessari:** Docent (només lectura; els horaris els configura un Cap de departament o superior des de l'horari setmanal propi del docent corresponent). Organitzar una absència des de la Taula d'absències correspon al Cap de departament o de seminari del docent absent i als qui són per sobre seu (consulta [Organitzar una absència](#organitzar-una-absencia)), que també poden introduir una absència prevista per a un docent del seu departament (consulta [Introduir una absència prevista](#introduir-una-absencia-prevista)).
 
 ---
 
@@ -86,7 +86,7 @@ Un docent que falta apareix en vermell allà on surti el seu nom — a la seva p
 
 Les sol·licituds denegades i cancel·lades no es mostren.
 
-Una absència que Prefectura d'Estudis ja coneix però que el docent encara no ha sol·licitat també es mostra com a pendent d'aprovar.
+Una absència que el seu cap o Prefectura d'Estudis ja coneix però que el docent encara no ha sol·licitat (una *absència prevista*, vegeu més avall) també es mostra com a pendent d'aprovar.
 
 Un docent de guàrdia que falta queda marcat a la columna de guàrdia i no genera cap línia a la columna d'absències: no té cap classe pròpia que ningú hagi de cobrir.
 
@@ -94,9 +94,25 @@ Aquí només es mostra que la persona falta. El tipus d'absència, el motiu i el
 
 ---
 
+## Introduir una absència prevista
+
+Qui ho pot fer: els **Caps de seminari** i els **Caps de departament**, per als docents del seu propi departament, a més del Cap d'estudis o Cap d'estudis adjunt, Direcció i l'administrador.
+
+La via normal sempre és que el docent sol·liciti l'absència ell mateix. Fes servir això només en el cas excepcional d'un docent que truca o escriu per avisar que faltarà i no pot entrar a l'EMS: en introduir-la, les seves classes surten al quadre de seguida i en pots organitzar la cobertura.
+
+1. Ves a **Assistència del personal > Absències > Administració > Absències previstes** i fes clic a **Nou**.
+2. Tria el **Professor/a**. Només surten els docents del teu departament.
+3. Indica **De** i **A**, amb data i hora. Per defecte, avui de 08:00 a 15:00. Una absència pot abastar diversos dies.
+4. Si vols, afegeix-hi **Notes** per a tu. El docent no veu mai aquesta entrada.
+5. Desa.
+
+L'absència surt llavors al quadre com a pendent d'aprovar (vermell clar en cursiva), i la pots organitzar tal com s'explica a continuació. Quan el docent sol·licita l'absència ell mateix, l'absència prevista s'hi vincula sola i el que hagis organitzat es manté tal com estava. Si finalment el docent no falta, esborra l'entrada.
+
+---
+
 ## Organitzar una absència
 
-Qui ho pot fer: el **Cap de seminari** o el **Cap de departament** del docent absent, i els qui són per sobre seu a la jerarquia (Cap d'estudis o Cap d'estudis adjunt, i Direcció), a més de l'administrador. La resta de docents en veuen el resultat però no el poden canviar, i el docent absent no pot organitzar la seva pròpia absència. És igual si l'absència l'ha sol·licitada el docent o l'ha introduïda Cap d'estudis com a absència prevista: totes dues es gestionen igual. Quan més endavant el docent sol·licita una absència que estava prevista, el que ja s'havia organitzat es manté tal com estava, i només els dies o les hores de més de la sol·licitud apareixen com a línies noves per decidir.
+Qui ho pot fer: el **Cap de seminari** o el **Cap de departament** del docent absent, i els qui són per sobre seu a la jerarquia (Cap d'estudis o Cap d'estudis adjunt, i Direcció), a més de l'administrador. La resta de docents en veuen el resultat però no el poden canviar, i el docent absent no pot organitzar la seva pròpia absència. És igual si l'absència l'ha sol·licitada el docent o l'ha introduïda el seu cap o Cap d'estudis com a absència prevista: totes dues es gestionen igual. Quan més endavant el docent sol·licita una absència que estava prevista, el que ja s'havia organitzat es manté tal com estava, i només els dies o les hores de més de la sol·licitud apareixen com a línies noves per decidir.
 
 Tot es fa des de la **Taula d'absències**, i res no passa sol: cada pas espera que en premis el botó. Un dia que ja ha passat no es pot canviar.
 

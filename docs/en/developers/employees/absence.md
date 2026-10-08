@@ -403,16 +403,19 @@ it has no children the reader can see (`web.NavBar.SectionsMenu`,
 `t-if="!section.childrenTree.length"`). So an employee, who can see none of the sub-entries,
 gets a single click straight to their own list; a manager sees the sub-entries and therefore the
 usual dropdown - which is why My Time Off keeps its own entry there, restricted, rather than
-being archived.
+being archived. Department and Seminar Chiefs (`ems.group_department_chief`) see one sub-entry,
+Management > Expected absences, so for them too "Absences" is a dropdown and My Time Off is
+listed for them as well.
 
 | Entry | Who sees it | Why |
 |---|---|---|
 | (the "Absences" entry itself) | everyone | Carries the My Time Off action, so one click lands an employee on their own list |
-| My Time Off | `group_hr_holidays_responsible` | Only a manager needs it as an entry: for them the parent is a dropdown header, not a link |
+| My Time Off | `group_hr_holidays_responsible`, `ems.group_department_chief` | Only someone who sees a sub-entry needs it as an entry: for them the parent is a dropdown header, not a link |
 | Overview | `group_hr_holidays_responsible` | The centre-wide absence calendar: what an absence manager uses to see who is missing. Meaningless to an employee, whose record rules would empty it anyway |
-| Management, Reporting, Configuration | native groups | Unchanged |
-| Management > Requested absences | native groups | EMS entry on Odoo's own `hr_leave_action_action_approve_department`, replacing `hr_holidays.menu_open_department_leave_approve` ("Time Off"), which is archived: next to the expected absences, the name has to say which of the two kinds it lists |
-| Management > Expected absences | `ems.group_head_of_studies` | Added by EMS, see *Expected absences* |
+| Management | native groups + `ems.group_department_chief` | A chief reaches it only for Expected absences: every other entry under it is restricted to absence managers |
+| Reporting, Configuration | native groups | Unchanged |
+| Management > Requested absences | `group_hr_holidays_responsible` | EMS entry on Odoo's own `hr_leave_action_action_approve_department`, replacing `hr_holidays.menu_open_department_leave_approve` ("Time Off"), which is archived: next to the expected absences, the name has to say which of the two kinds it lists. Its group is stated explicitly, since Management itself is now wider |
+| Management > Expected absences | `ems.group_department_chief`, `base.group_system` | Added by EMS, see *Expected absences* |
 
 The action behind My Time Off also drops Odoo's default `search_default_group_date_from`: the
 centre's own list is short and already sorted by date, so grouping it by month only buries a
@@ -561,8 +564,9 @@ surfaces only in a browser, never in `./upgrade.sh`, which merely checks the XML
 
 ## Expected absences
 
-The Head of Studies or their Deputy often knows a teacher will be away before the teacher files
-anything (a phone call first thing in the morning, a training day agreed in a meeting). The guard
+The teacher's Department or Seminar Chief, the Head of Studies or their Deputy often knows a
+teacher will be away before the teacher files anything (a phone call first thing in the morning
+from a teacher who cannot use EMS, a training day agreed in a meeting). The guard
 duty board has to plan around it all the same, so `ems.absence_pending`
 (`models/employees/absence_pending.py`) lets them enter it on the teacher's behalf. It is not an
 `hr.leave`: it has no type, no approval and no hours to count, and it is invisible to the teacher.
@@ -583,7 +587,7 @@ erDiagram
 |---|---|
 | `employee_id` | Required. The picker's domain (`_domain_employee_id`) offers only teachers in the user's own branch, the same domain the record rule enforces |
 | `date_from`, `date_to` | Required `Datetime` range (UTC in the database, like every datetime). Default: today 08:00-15:00 in the company's timezone. `date_to > date_from` |
-| `note` | Optional, for the Head's own reference |
+| `note` | Optional, for the author's own reference; the teacher never sees it |
 | `state` | `pending` (labelled *Expected*) until linked, then `linked` (*Requested*) for good. Stored, not computed from `leave_id` |
 | `leave_id` | The teacher's own request it was linked to. `ondelete='set null'` |
 
@@ -605,8 +609,9 @@ be edited (`write()` raises). From then on only the real absence counts.
 company's timezone (`_get_local_hours()`). Linked entries are ignored. See
 [guard_duty_board.md](../attendance/guard_duty_board.md).
 
-**Access.** Only `ems.group_head_of_studies` has an ACL on the model (full CRUD). The Director
-implies that group. `rule_absence_pending_hierarchy` (`security/rules/attendance.xml`) narrows it
+**Access.** Only `ems.group_department_chief` has an ACL on the model (full CRUD): Department and
+Seminar Chiefs hold it, and the Head of Studies, their Deputy and the Director imply it (issue
+#604; until then it was the Head of Studies' group). `rule_absence_pending_hierarchy` (`security/rules/attendance.xml`) narrows it
 to the teachers (`employee_type = 'teacher'`) the user reaches in either of two ways:
 
 - **Hierarchy:** `('employee_id', 'child_of', user.employee_ids.ids)`, the teachers below the user
@@ -614,15 +619,17 @@ to the teachers (`employee_type = 'teacher'`) the user reaches in either of two 
   The Director sits above every Area Manager, so this alone gives them the whole centre.
 - **Department (issue #569):** `('employee_id.department_id', 'child_of',
   user.employee_ids.headed_department_ids.ids)`, the teachers whose own department hangs from a
-  department the user manages, typically their area (ESO/BTX, VET). This is what reaches the
+  department the user manages: their own department for a Department Chief, their area (ESO/BTX,
+  VET) for an Area Manager. This is what reaches the
   management team: the Area Managers (Head of Studies, Deputy, Secretary) report to the Director
   through `parent_id`, so no other branch contains them, yet each one teaches in a department of
   some area. The Secretary teaching in a VET department is reached by VET's Area Manager; the
   Director teaching in an ESO/BTX department, by ESO/BTX's.
 
 For every other teacher both ways give the same answer (their `parent_id` chain runs through
-their department chief up to their area's manager). Department Chiefs, tutors and teachers have
-no access at all.
+their Seminar Chief and Department Chief up to their area's manager). So a Seminar Chief reaches
+the members of their seminar (below them through `parent_id`), a Department Chief their whole
+department, and neither reaches another department. Tutors and teachers have no access at all.
 
 Technical administrators (`base.group_system`, e.g. `admin`) usually have no place in the org
 chart, so the hierarchy rule alone would leave them no teacher to choose. They get their own ACL
@@ -631,7 +638,8 @@ different groups are OR-ed, so it widens their reach to every teacher without to
 else's. The teacher picker's domain (`_domain_employee_id`) mirrors both rules.
 
 The menu entry, **Absences > Management > Expected absences**, carries
-`groups="ems.group_head_of_studies,base.group_system"`.
+`groups="ems.group_department_chief,base.group_system"`. Management, its parent, opens to
+`ems.group_department_chief` for it (see the menu table above).
 
 ## Hour computation
 

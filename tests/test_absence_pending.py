@@ -7,8 +7,9 @@ from .common import create_head_of_studies_branch, create_role_employee, create_
 
 
 class TestAbsencePending(TransactionCase):
-    """ems.absence_pending (issue #509): absences the Head of Studies or their Deputy enter on a
-    teacher's behalf until the teacher files the real request."""
+    """ems.absence_pending (issue #509): absences the teacher's chiefs (issue #604), the Head of
+    Studies or their Deputy enter on a teacher's behalf until the teacher files the real
+    request."""
 
     @classmethod
     def setUpClass(cls):
@@ -119,13 +120,69 @@ class TestAbsencePending(TransactionCase):
         self.assertIn(self.teacher, offered)
         self.assertIn(self.other_teacher, offered)
 
-    def test_roles_below_head_of_studies_have_no_access(self):
-        self._pending()
-        for user in (self.teacher_user, self.department_chief):
-            with self.assertRaises(AccessError):
-                self.Pending.with_user(user).search([])
+    def test_department_chief_manages_their_own_teachers(self):
+        """Issue #604: a teacher's own Department Chief announces their absences too."""
+        pending = self._pending(user=self.department_chief)
+
+        self.assertEqual(self.Pending.with_user(self.department_chief).search([('id', '=', pending.id)]), pending)
+        pending.with_user(self.department_chief).note = 'Phoned in'
+        pending.with_user(self.department_chief).unlink()
+        self.assertFalse(pending.exists())
+
+    def test_department_chief_cannot_reach_another_department(self):
+        pending = self._pending()
+
+        self.assertFalse(self.Pending.with_user(self.other_department_chief).search([('id', '=', pending.id)]))
+        with self.assertRaises(AccessError):
+            self._pending(user=self.other_department_chief)
+        with self.assertRaises(AccessError):
+            self._pending(user=self.department_chief, employee=self.other_teacher)
+
+    def test_chiefs_reach_the_teachers_of_their_own_department(self):
+        """Through the department itself, as the department form sets it up: its Seminar Chief
+        reaches the members below them, and its Department Chief the whole department."""
+        chief = create_role_user(self, 'department_chief', 'test_dept_chief_tap', name='TAP Dept Chief')
+        seminar_chief = create_role_user(self, 'department_chief', 'test_seminar_chief_tap', name='TAP Seminar Chief')
+        department = self.env['hr.department'].create({'name': 'TAP Department'})
+        member = self.env['hr.employee'].create({
+            'name': 'TAP Department Member', 'employee_type': 'teacher', 'department_id': department.id})
+        department.write({
+            'manager_id': create_role_employee(self, chief).id,
+            'seminar_chief_id': create_role_employee(self, seminar_chief, department_id=department.id).id,
+        })
+        self.assertEqual(member.parent_id, seminar_chief.employee_ids)
+
+        for user in (chief, seminar_chief):
+            pending = self._pending(user=user, employee=member)
+            self.assertEqual(self.Pending.with_user(user).search([('id', '=', pending.id)]), pending)
+            offered = self.env['hr.employee'].with_user(user).search(self.Pending.with_user(user)._domain_employee_id())
+            self.assertIn(member, offered)
+            self.assertNotIn(self.teacher, offered)
             with self.assertRaises(AccessError):
                 self._pending(user=user)
+
+    def test_teachers_have_no_access(self):
+        self._pending()
+        with self.assertRaises(AccessError):
+            self.Pending.with_user(self.teacher_user).search([])
+        with self.assertRaises(AccessError):
+            self._pending(user=self.teacher_user)
+
+    def test_department_chief_menu_shows_only_expected_absences_under_management(self):
+        """Management opens to a chief for Expected absences alone, and "Absences" becoming a
+        dropdown for them must keep their own absences one click away."""
+        # Not self.department_chief: setting the fixture's parent_id directly hands them
+        # hr_holidays' approver group, which the department cascade would take back.
+        chief = self.other_department_chief
+        self.assertFalse(chief.has_group('hr_holidays.group_hr_holidays_responsible'))
+        visible = self.env['ir.ui.menu'].with_user(chief)._visible_menu_ids()
+
+        self.assertIn(self.env.ref('ems.menu_absence_pending').id, visible)
+        self.assertIn(self.env.ref('hr_holidays.menu_hr_holidays_management').id, visible)
+        self.assertIn(self.env.ref('hr_holidays.hr_leave_menu_my').id, visible)
+        self.assertNotIn(self.env.ref('ems.menu_absence_requested').id, visible)
+        self.assertNotIn(self.env.ref('ems.menu_absence_pending').id,
+                         self.env['ir.ui.menu'].with_user(self.teacher_user)._visible_menu_ids())
 
     def test_end_must_come_after_start(self):
         with self.assertRaises(ValidationError):

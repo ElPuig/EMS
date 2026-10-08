@@ -256,6 +256,10 @@ export class GuardDutyBoard extends Component {
         return _t("(WC)");
     }
 
+    get coverCountTitle() {
+        return _t("Classes covered this course");
+    }
+
     get coveredTitle() {
         return _t("Co-taught: another teacher is in the class, no guard needed");
     }

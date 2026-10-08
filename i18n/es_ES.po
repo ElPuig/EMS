@@ -21284,3 +21284,15 @@ msgstr "Visualización del icono RR. HH."
 #: model:ir.model.fields,field_description:ems.field_hr_employee_public__show_hr_icon_display
 msgid "Show Hr Icon Display"
 msgstr "Mostrar icono de RR. HH."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "%(name)s (%(count)s covered this course)"
+msgstr "%(name)s (%(count)s coberturas este curso)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Classes covered this course"
+msgstr "Clases cubiertas este curso"

@@ -43,6 +43,8 @@ The table's columns are the groups with a class in that shift; each row is a tim
 
 The **Guard duty** column on the right lists every teacher on guard duty in that time block, each in a thin-bordered box. A guard-duty teacher has no group of their own at that moment (that's the whole point of guard duty), so they only ever appear here, never in a group's column. A teacher on a **Guard (WC)** duty specifically shows a **"(WC)"** tag right after their name — worth calling out because, unlike a break-time guard (see below), a WC guard duty can fall at any time of day, so there's no other way to tell it apart from a plain guard duty at a glance.
 
+The small number in a circle after each name is how many classes that teacher has been sent to cover this course (including covers already planned for a coming day). It helps share the covers out fairly.
+
 A row whose time block is a break period for some level — with no class scheduled in it for anyone — gets a small **"Break"** label next to its time, plus a thin brown accent on the left edge of that same cell, so an otherwise empty-looking row doesn't read as a gap in the schedule.
 
 ![Guard duty schedule for one time block: a group's class, a plain guard, a Guard (WC), a Break row with its own guard, and a teacher marked absent in bold red](../../assets/teachers/guard-duty-01-horari.png)
@@ -105,7 +107,7 @@ Everything is done from the **Absences table**, and nothing happens on its own: 
 ### Sending a guard to a class
 
 1. Click the line of the class to cover (lines you can organise show a hand pointer).
-2. Choose the **Guard teacher**. Only the teachers on guard duty in that time block are offered, except those on a WC guard and those who are away themselves.
+2. Choose the **Guard teacher**. Only the teachers on guard duty in that time block are offered, except those on a WC guard and those who are away themselves. Next to each name you see how many classes they have covered this course, so you can choose whoever has covered the fewest.
 3. Optionally, write a **message**: what the students have to work on, where the materials are...
 4. Click **Assign and notify**.
 

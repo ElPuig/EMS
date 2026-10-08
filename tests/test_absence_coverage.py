@@ -274,6 +274,106 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertTrue(action['can_manage'])
         self.assertEqual(cover.state, 'assigned', "nothing is released without the planner's say-so")
 
+    # Self-assignment (issue #601)
+
+    def _self_assign(self, user=None, hour_from=8, hour_to=9):
+        return self.Cover.with_user(user or self.guard_user).board_self_assign(
+            str(self.day), hour_from, hour_to, self.teacher_a.id, self.group_a.id)
+
+    def _board_row(self, user, hour_from=8):
+        data = self.env.company.current_course_id.with_user(user).get_guard_duty_board_data(
+            '0', 'morning', day=str(self.day))
+        line = next(line for line in data['lines'] if line['hour_from'] == hour_from)
+        return next(row for row in line['absences'] if row['teacher_id'] == self.teacher_a.id)
+
+    def test_a_guard_takes_a_free_class_without_anybody_being_notified(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day)
+        cover = self.Cover.browse(self._self_assign())
+
+        self.assertEqual(cover.guard_employee_id, self.teacher_guard)
+        self.assertEqual(cover.assigned_by_id, self.guard_user)
+        self.assertTrue(cover.is_self_assigned)
+        self.assertEqual(self._row()['cover'], cover)
+        messages = self.env['mail.message'].search([('model', '=', 'ems.absence_cover'), ('res_id', '=', cover.id)])
+        self.assertFalse(messages.partner_ids, "nobody is notified: the board already shows it")
+
+    def test_the_board_offers_self_assignment_only_to_a_guard_on_duty(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day)
+
+        self.assertTrue(self._board_row(self.guard_user)['can_self_assign'])
+        self.assertFalse(self._board_row(self.guard_user, hour_from=8)['can_self_release'])
+        self.assertFalse(self._board_row(self.teacher_a_user)['can_self_assign'], "the absent teacher is not on guard")
+
+    def test_only_a_guard_on_duty_can_take_a_class(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day)
+
+        with self.assertRaises(UserError):
+            self._self_assign(user=self.teacher_a_user)
+        with self.assertRaises(UserError):
+            self._self_assign(hour_from=11, hour_to=12)
+
+    def test_a_guard_cannot_take_a_class_already_covered(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day)
+        self._assign(guard=self.teacher_guard_2)
+
+        self.assertFalse(self._board_row(self.guard_user)['can_self_assign'])
+        with self.assertRaises(UserError):
+            self._self_assign()
+
+    def test_a_guard_cannot_take_a_class_on_a_past_day(self):
+        self._morning()
+        self.day = self.env['ems.datetime_utils'].get_local_today() - timedelta(days=7)
+        while self.day.weekday() != 0:
+            self.day -= timedelta(days=1)
+        self._absence(self.teacher_a, self.day)
+
+        with self.assertRaises(UserError):
+            self._self_assign()
+
+    def test_a_guard_leaves_a_class_they_took_themselves(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day)
+        cover = self.Cover.browse(self._self_assign())
+        self.assertTrue(self._board_row(self.guard_user)['can_self_release'])
+
+        self.Cover.with_user(self.guard_user).board_self_release(cover.id)
+
+        self.assertEqual(cover.state, 'released')
+        self.assertTrue(self._board_row(self.guard_user)['can_self_assign'])
+
+    def test_a_guard_sent_by_the_planner_cannot_leave_on_their_own(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day)
+        cover = self.Cover.browse(self._assign())
+
+        self.assertFalse(cover.is_self_assigned)
+        self.assertFalse(self._board_row(self.guard_user)['can_self_release'])
+        with self.assertRaises(AccessError):
+            self.Cover.with_user(self.guard_user).board_self_release(cover.id)
+        self.assertEqual(cover.state, 'assigned')
+
+    def test_nobody_else_can_release_a_self_assignment_as_its_guard(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day)
+        cover = self.Cover.browse(self._self_assign())
+
+        with self.assertRaises(AccessError):
+            self.Cover.with_user(self.teacher_guard_2.user_id).board_self_release(cover.id)
+
+    def test_the_planner_can_still_change_a_self_assignment(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day)
+        first = self.Cover.browse(self._self_assign())
+
+        second = self.Cover.browse(self._assign(guard=self.teacher_guard_2))
+
+        self.assertEqual(first.state, 'released')
+        self.assertEqual(second.guard_employee_id, self.teacher_guard_2)
+
     # Timetable changes (issues #539 and #581)
 
     def test_first_lessons_without_teacher_allow_a_late_entry(self):

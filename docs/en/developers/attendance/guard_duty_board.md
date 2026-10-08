@@ -680,7 +680,7 @@ flowchart TD
     MGT --> ACT["actions: proposal / rectification / obsolete_cover"]
     ROWS --> UI["absences table: colours, strike-through, guard dialog"]
     ACT --> UI
-    UI -->|"board_assign / board_release"| COV
+    UI -->|"board_assign / board_release<br/>board_self_assign / board_self_release"| COV
     UI -->|"board_propose_absence_change -> draft notice form"| NOT
 ```
 
@@ -768,6 +768,20 @@ The guard is told through `message_notify()` on the cover (Odoo inbox or email, 
 notification preference), in their own language, with the date, time, group, subject, room, absent
 teacher and the planner's message. `board_release()` sends the matching "no longer needed" message.
 
+### Self-assignment
+
+A teacher on guard duty may take a class still left without anybody themselves (#601), without
+being in the absent teacher's chain of command: `board_self_assign()` runs the same checks as
+`board_assign()` (`_check_board_assignable()`: day not over, class still needed, the current user's
+employee a guard candidate) and also refuses a class that already has a guard - changing someone
+else's assignment stays with the planner. Nobody is notified: the board shows it. The cover's
+`assigned_by_id` is the guard's own user, which is what `is_self_assigned` (non-stored) reads.
+`board_self_release()` lets that same user leave it again, silently, and only a cover they took
+themselves: one a planner sent them to is the planner's to release. The planner can still change
+or release a self-assigned guard as any other. The board sends `can_self_assign` (the user is a
+candidate in the row, which is free and editable) and `can_self_release` per absence row; a
+manager's own dialog takes precedence when both apply.
+
 ### Pending actions
 
 `_get_board_absence_management()` lists the day's decisions that belong to no single row, shown
@@ -805,6 +819,7 @@ whoever may use them, the action boxes only reach them (`can_manage`), and the s
 |---|:---:|:---:|
 | See assigned guards, colours, struck rows, pending actions | Yes | Yes |
 | Assign / change / release a guard (`board_assign`, `board_release`) | No | Yes |
+| Take a free class themselves / leave one they took (`board_self_assign`, `board_self_release`) | Only a guard on duty then | Same |
 | Propose a timetable change or correction (`board_propose_absence_change`) | No | Yes |
 | Send that notice | No | Yes (own notice) |
 

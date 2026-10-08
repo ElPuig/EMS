@@ -21283,3 +21283,68 @@ msgstr "Visualització d'icones de recursos humans"
 #: model:ir.model.fields,field_description:ems.field_hr_employee_public__show_hr_icon_display
 msgid "Show Hr Icon Display"
 msgstr "Mostra la icona de recursos humans"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__is_self_assigned
+msgid "Self-assigned"
+msgstr "Autoassignada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Only a teacher on guard duty can cover a class."
+msgstr "Només un docent de guàrdia pot cobrir una classe."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "This class already has a guard teacher assigned. Reload the board."
+msgstr "Aquesta classe ja té un docent de guàrdia assignat. Torna a carregar el quadrant."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Only the guard teacher who took this class themselves can leave it."
+msgstr "Només el docent de guàrdia que s'ha assignat aquesta classe pot deixar-la."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Click to cover this class yourself"
+msgstr "Fes clic per cobrir tu aquesta classe"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Stop covering this class"
+msgstr "Deixa de cobrir aquesta classe"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Cover this class"
+msgstr "Cobreix aquesta classe"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "You will cover %(group)s (%(time)s) instead of %(teacher)s."
+msgstr "Cobriràs %(group)s (%(time)s) en lloc de %(teacher)s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Cover it"
+msgstr "Cobrir-la"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "%(group)s will be left without a guard teacher again."
+msgstr "%(group)s tornarà a quedar sense docent de guàrdia."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Stop covering"
+msgstr "Deixar de cobrir"

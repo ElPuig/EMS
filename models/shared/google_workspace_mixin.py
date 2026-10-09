@@ -207,25 +207,36 @@ class GoogleWorkspaceMixin(models.AbstractModel):
         retry could never succeed; any other error is raised so the job shows as failed.
         """
         body = {'name': {'givenName': given or '', 'familyName': family or ''}}
+        if self._gw_patch_account(record, email, body, _(
+                "Google Workspace: the account %s could not be renamed because it "
+                "no longer exists or is outside the managed organizational units.") % email):
+            record.sudo().message_post(body=_(
+                "Google Workspace account %(email)s renamed to %(name)s.") % {
+                    'email': email, 'name': record.name})
+
+    @api.model
+    def _gw_patch_account(self, record, email, body, unreachable_note):
+        """Patch the Google account `email` with `body`; True once Google has it.
+
+        Dry-run only logs it. A 403/404 (account deleted, or outside the managed OUs - the
+        OU-scoped role answers 403 for both) posts `unreachable_note` on `record` instead of
+        raising, since a retry could never succeed; any other error is raised so the job
+        shows as failed.
+        """
         if self.env.company.google_ws_dry_run:
-            _logger.info("[GW dry-run] rename %s -> %s", email, body)
-            return
+            _logger.info("[GW dry-run] patch %s -> %s", email, body)
+            return False
         service = self._gw_get_service()
         try:
             service.users().patch(userKey=email, body=body).execute()
         except HttpError as e:
             status = getattr(getattr(e, 'resp', None), 'status', None)
             if status in (404, 403):
-                record.sudo().message_post(body=_(
-                    "Google Workspace: the account %s could not be renamed because it "
-                    "no longer exists or is outside the managed organizational units.")
-                    % email)
-                return
-            _logger.exception("Could not rename Google account %s", email)
+                record.sudo().message_post(body=unreachable_note)
+                return False
+            _logger.exception("Could not patch Google account %s", email)
             raise
-        record.sudo().message_post(body=_(
-            "Google Workspace account %(email)s renamed to %(name)s.") % {
-                'email': email, 'name': record.name})
+        return True
 
     @api.model
     def _gw_format_phone(self, raw):

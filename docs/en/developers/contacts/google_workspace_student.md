@@ -33,7 +33,7 @@ sequenceDiagram
         P->>Q: _gw_enqueue_create(): with_delay(_gw_create_account, identity_key)
         Note over U,Q: the "Create Google account" button queues this same job (#582)
         Q->>P: SELECT ... FOR UPDATE NOWAIT (_gw_lock_for_creation)
-        Q->>G: users().insert(primaryEmail=candidate, orgUnitPath=minor/adult OU)
+        Q->>G: users().insert(primaryEmail=candidate, orgUnitPath=minor/adult OU,<br/>externalIds=IDALU, recoveryEmail, recoveryPhone)
         G-->>Q: 200 (409 → next candidate)
         Q->>P: student_email = chosen address
         Q->>P: _gw_deliver_credentials() (PDF into ems.student.document + welcome mail)
@@ -127,6 +127,22 @@ the mixin's `_gw_sync_account_name()` - the same helper the staff side uses, see
 [its own section](../employees/google_workspace_staff.md#renaming-action_sync_google_account_name)
 for the error handling. Suspended accounts are renamed too. The portal user needs nothing:
 it shares the student's partner, so its name is already the student's.
+
+## IDALU as the Employee ID (`action_sync_google_account_idalu`)
+
+The IDALU is the Google account's **Employee ID**: an `externalIds` entry of type
+`organization` (`_gw_idalu_external_ids()`), the field Google Admin shows and exports as
+"Employee ID" and the one the centre's accounts created outside EMS already use. It is sent
+on `users().insert()` and kept in sync afterwards: writing `student_id` on a student with a
+`student_email` enqueues `action_sync_google_account_idalu()` (`_gw_enqueue_sync_idalu`,
+deduplicated by `identity_key`), which patches it through the mixin's `_gw_patch_account()`
+(the same helper as the rename: dry-run only logs, a 403/404 leaves a chatter note instead
+of failing the job). Suspended accounts are synced too; deleted ones are skipped.
+
+Accounts created by EMS before issue #609 carried the IDALU only in a custom attribute
+(`customSchemas.IDALU.IDALU`), which nobody reads; their Employee ID was filled in once, by
+hand, from a production dump on 2026-10-09 (there is no migration for it). The old
+custom attribute is left as it is.
 
 ## Lifecycle
 

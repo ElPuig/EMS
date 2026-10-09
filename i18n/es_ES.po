@@ -21284,3 +21284,9 @@ msgstr "Visualización del icono RR. HH."
 #: model:ir.model.fields,field_description:ems.field_hr_employee_public__show_hr_icon_display
 msgid "Show Hr Icon Display"
 msgstr "Mostrar icono de RR. HH."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Google Workspace: the IDALU could not be saved on the account %s because it no longer exists or is outside the managed organizational units."
+msgstr "Google Workspace: no se ha podido guardar el IDALU en la cuenta %s porque ya no existe o está fuera de las unidades organizativas gestionadas."

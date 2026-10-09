@@ -298,6 +298,59 @@ class TestStudentGoogleWorkspace(TransactionCase):
         self.assertEqual(kwargs['body'], {
             'name': {'givenName': 'Laia', 'familyName': 'Puig Roca'}})
 
+    # --- IDALU as Employee ID (issue #609) ----------------------------------
+
+    def test_create_sends_the_idalu_as_employee_id(self):
+        student = self._new_student()
+        mock_service = Mock()
+        self.company.google_ws_dry_run = False
+        with patch('odoo.addons.ems.models.shared.google_workspace_mixin.'
+                   'GoogleWorkspaceMixin._gw_get_service', return_value=mock_service), \
+                patch.object(type(student), '_gw_deliver_credentials', return_value=(True, True)):
+            student._gw_create_account()
+        __, kwargs = mock_service.users.return_value.insert.call_args
+        self.assertEqual(kwargs['body']['externalIds'],
+                         [{'type': 'organization', 'value': '1234567890'}])
+        self.assertNotIn('customSchemas', kwargs['body'])
+
+    def _idalu_sync_calls(self, student, vals):
+        """Write `vals` with the queue run synchronously; return the IDALU sync job's mock."""
+        with patch.object(type(student), 'action_sync_google_account_idalu', autospec=True) as sync:
+            student.with_context(queue_job__no_delay=True).write(vals)
+        return sync
+
+    def test_changing_the_idalu_syncs_the_google_account(self):
+        student = self._new_student(student_email='laia@elpuig.xeill.net')
+        self._idalu_sync_calls(student, {'student_id': next_student_id()}) \
+            .assert_called_once_with(student)
+
+    def test_other_writes_do_not_sync_the_idalu(self):
+        student = self._new_student(student_email='laia@elpuig.xeill.net')
+        self._idalu_sync_calls(student, {'mobile': '600000000'}).assert_not_called()
+
+    def test_sync_idalu_patches_the_employee_id(self):
+        student = self._new_student(student_email='laia@elpuig.xeill.net')
+        mock_service = Mock()
+        self.company.google_ws_dry_run = False
+        with patch('odoo.addons.ems.models.shared.google_workspace_mixin.'
+                   'GoogleWorkspaceMixin._gw_get_service', return_value=mock_service):
+            student.action_sync_google_account_idalu()
+        __, kwargs = mock_service.users.return_value.patch.call_args
+        self.assertEqual(kwargs['userKey'], 'laia@elpuig.xeill.net')
+        self.assertEqual(kwargs['body'], {
+            'externalIds': [{'type': 'organization', 'value': '1234567890'}]})
+
+    def test_sync_idalu_reports_an_account_out_of_reach(self):
+        student = self._new_student(student_email='laia@elpuig.xeill.net')
+        mock_service = Mock()
+        error = HttpError(Mock(status=403), b'Not Authorized') if HttpError is not Exception else HttpError('403')
+        mock_service.users.return_value.patch.return_value.execute.side_effect = error
+        self.company.google_ws_dry_run = False
+        with patch('odoo.addons.ems.models.shared.google_workspace_mixin.'
+                   'GoogleWorkspaceMixin._gw_get_service', return_value=mock_service):
+            student.action_sync_google_account_idalu()
+        self.assertIn('laia@elpuig.xeill.net', student.message_ids.sorted('id')[-1].body)
+
     # --- unlink ------------------------------------------------------------
 
     def test_unlink_suspends_google_account(self):

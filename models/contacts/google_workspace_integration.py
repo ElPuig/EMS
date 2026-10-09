@@ -268,6 +268,20 @@ class ResPartnerGoogleWorkspace(models.Model):
                 description="Rename Google Workspace account: %s" % partner.name,
             ).action_sync_google_account_name()
 
+    def _gw_enqueue_sync_idalu(self):
+        """Enqueue the IDALU sync for students that already have an account (deduplicated),
+        so an IDALU filled in or fixed in EMS reaches Google's Employee ID too (#609)."""
+        if not self.env.company.google_ws_enabled:
+            return
+        for partner in self.filtered(
+            lambda r: r.contact_type == 'student' and r.student_email and r.student_id
+            and not r.google_ws_deleted
+        ):
+            partner.with_delay(
+                identity_key='gw_idalu_%s' % partner.id,
+                description="Sync IDALU to Google Workspace account: %s" % partner.name,
+            ).action_sync_google_account_idalu()
+
     def _gw_schedule_deactivation(self):
         """Open the grace period instead of suspending the account right away.
 
@@ -444,8 +458,7 @@ class ResPartnerGoogleWorkspace(models.Model):
             'orgUnitPath': ou,
         }
         if self.student_id:
-            # IDALU stored in the GWS custom schema "IDALU", field "IDALU".
-            base_body['customSchemas'] = {'IDALU': {'IDALU': self.student_id}}
+            base_body['externalIds'] = self._gw_idalu_external_ids()
         recovery_email = self.email or False
         if recovery_email:
             base_body['recoveryEmail'] = recovery_email
@@ -752,6 +765,28 @@ class ResPartnerGoogleWorkspace(models.Model):
             return
         self._gw()._gw_sync_account_name(
             self, self.student_email, self.firstname, self.lastname)
+
+    def _gw_idalu_external_ids(self):
+        """The IDALU as Google's Employee ID (an "organization" external ID)."""
+        self.ensure_one()
+        return [{'type': 'organization', 'value': self.student_id}]
+
+    def action_sync_google_account_idalu(self):
+        """Copy the student's IDALU onto their Google account's Employee ID (#609).
+
+        Suspended accounts get it too. Idempotent: the same value again is a no-op on
+        Google's side, so no chatter note for a successful sync.
+        """
+        self.ensure_one()
+        if not self.env.company.google_ws_enabled:
+            return
+        if self.contact_type != 'student' or not self.student_email or not self.student_id:
+            return
+        self._gw()._gw_patch_account(
+            self, self.student_email, {'externalIds': self._gw_idalu_external_ids()}, _(
+                "Google Workspace: the IDALU could not be saved on the account %s because it "
+                "no longer exists or is outside the managed organizational units.")
+            % self.student_email)
 
     def action_reactivate_google_account(self):
         """Reactivate a suspended account; if it was deleted in Admin, recreate it.

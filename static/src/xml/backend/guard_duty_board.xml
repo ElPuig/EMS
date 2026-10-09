@@ -121,7 +121,7 @@
                                         <td class="o_guard_board_guard_cell">
                                             <t t-foreach="line.guards" t-as="guard" t-key="guard.name">
                                                 <span class="o_guard_board_guard_badge"
-                                                      t-att-class="absenceClass(guard.absence)">
+                                                      t-att-class="absenceClass(guard.absence) + (guard.busy ? ' o_guard_board_guard_busy' : '')" t-att-data-tooltip="guard.busy">
                                                     <t t-esc="guard.name"/>
                                                     <span t-if="guard.is_wc" class="o_guard_board_guard_wc_tag"> <t t-esc="wcSuffix"/></span>
                                                 </span>
@@ -217,6 +217,10 @@
                                                     <span t-if="absence.cover" class="o_guard_board_absence_tag o_guard_board_cover_tag">
                                                         <i class="fa fa-user-circle me-1"/><t t-esc="absence.cover.guard"/>
                                                     </span>
+                                                    <span t-if="absence.arrangement" class="o_guard_board_absence_tag o_guard_board_arrangement_tag"
+                                                          t-att-class="{ o_guard_board_arrangement_pending: absence.arrangement.pending }">
+                                                        <i class="fa fa-exchange me-1"/><t t-esc="absence.arrangement.teacher"/>
+                                                    </span>
                                                     <span t-if="absence.authorized" class="o_guard_board_absence_tag o_guard_board_authorized_tag" t-esc="absence.authorized"/>
                                                     <span t-elif="absence.proposed" class="o_guard_board_absence_tag o_guard_board_proposed_tag" t-esc="absence.proposed"/>
                                                 </div>
@@ -225,7 +229,7 @@
                                         <td class="o_guard_board_guard_cell">
                                             <t t-foreach="line.guards" t-as="guard" t-key="guard.name">
                                                 <span class="o_guard_board_guard_badge"
-                                                      t-att-class="guardBadgeClass(guard)">
+                                                      t-att-class="guardBadgeClass(guard)" t-att-data-tooltip="guard.busy">
                                                     <t t-esc="guard.name"/>
                                                     <span t-if="guard.is_wc" class="o_guard_board_guard_wc_tag"> <t t-esc="wcSuffix"/></span>
                                                 </span>
@@ -249,7 +253,8 @@
         </div>
     </t>
 
-    <!-- Issue #571: send a guard teacher to one class of the absences table. -->
+    <!-- Issue #571: send a guard teacher to one class of the absences table; issue #605: or record
+         that the teachers rearranged themselves and nobody has to cover it. -->
     <t t-name="ems.GuardCoverDialog">
         <Dialog title="title" size="'md'">
             <div class="o_guard_cover_dialog">
@@ -257,27 +262,75 @@
                     <strong t-esc="labels.absent"/>: <t t-esc="props.row.teacher"/>
                     <span class="text-muted"> - <t t-esc="props.row.group"/><t t-if="props.row.subject"> · <t t-esc="props.row.subject"/></t><t t-if="props.row.room"> · <t t-esc="props.row.room"/></t></span>
                 </p>
-                <div class="mb-3">
-                    <label class="form-label fw-bold" for="o_guard_cover_guard" t-esc="labels.guard"/>
-                    <div t-if="!props.line.guard_candidates.length" class="text-muted" t-esc="labels.noCandidates"/>
-                    <select t-else="" id="o_guard_cover_guard" class="form-select o_guard_cover_guard_select"
-                            t-on-change="(ev) => this.onGuardChange(ev)">
-                        <option value="" t-att-selected="!state.guardId" t-esc="labels.choose"/>
-                        <t t-foreach="props.line.guard_candidates" t-as="candidate" t-key="candidate.id">
-                            <option t-att-value="candidate.id" t-att-selected="candidate.id === state.guardId" t-esc="candidate.name"/>
-                        </t>
-                    </select>
+                <div class="mb-3 o_guard_cover_mode">
+                    <div class="form-check">
+                        <input class="form-check-input o_guard_cover_mode_guard" type="radio" name="o_guard_cover_mode" id="o_guard_cover_mode_guard"
+                               t-att-checked="state.mode === 'guard'" t-on-change="() => this.onModeChange('guard')"/>
+                        <label class="form-check-label" for="o_guard_cover_mode_guard" t-esc="labels.modeGuard"/>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input o_guard_cover_mode_arrangement" type="radio" name="o_guard_cover_mode" id="o_guard_cover_mode_arrangement"
+                               t-att-checked="state.mode === 'arrangement'" t-on-change="() => this.onModeChange('arrangement')"/>
+                        <label class="form-check-label" for="o_guard_cover_mode_arrangement" t-esc="labels.modeArrangement"/>
+                    </div>
                 </div>
-                <div>
-                    <label class="form-label fw-bold" for="o_guard_cover_message" t-esc="labels.message"/>
-                    <textarea id="o_guard_cover_message" class="form-control o_guard_cover_message" rows="5"
-                              t-att-placeholder="labels.placeholder" t-model="state.message"/>
-                </div>
+                <t t-if="state.mode === 'guard'">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" for="o_guard_cover_guard" t-esc="labels.guard"/>
+                        <div t-if="!props.line.guard_candidates.length" class="text-muted" t-esc="labels.noCandidates"/>
+                        <select t-else="" id="o_guard_cover_guard" class="form-select o_guard_cover_guard_select"
+                                t-on-change="(ev) => this.onGuardChange(ev)">
+                            <option value="" t-att-selected="!state.guardId" t-esc="labels.choose"/>
+                            <t t-foreach="props.line.guard_candidates" t-as="candidate" t-key="candidate.id">
+                                <option t-att-value="candidate.id" t-att-selected="candidate.id === state.guardId" t-esc="candidate.name"/>
+                            </t>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label fw-bold" for="o_guard_cover_message" t-esc="labels.message"/>
+                        <textarea id="o_guard_cover_message" class="form-control o_guard_cover_message" rows="5"
+                                  t-att-placeholder="labels.placeholder" t-model="state.message"/>
+                    </div>
+                </t>
+                <t t-else="">
+                    <div t-if="props.row.arrangement and props.row.arrangement.pending" class="alert alert-warning py-2 o_guard_cover_pending">
+                        <t t-esc="labels.pending"/>
+                        <button t-if="props.onOpenNotice" type="button" class="btn btn-sm btn-link o_guard_cover_open_notice"
+                                t-on-click="() => this.openNotice()" t-esc="labels.openNotice"/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" for="o_guard_cover_teacher" t-esc="labels.teacher"/>
+                        <div t-if="!state.arrangementCandidates.length" class="text-muted" t-esc="labels.noTeachers"/>
+                        <select t-else="" id="o_guard_cover_teacher" class="form-select o_guard_cover_teacher_select"
+                                t-on-change="(ev) => this.onTeacherChange(ev)">
+                            <option value="" t-att-selected="!state.teacherId" t-esc="labels.chooseTeacher"/>
+                            <t t-foreach="state.arrangementCandidates" t-as="candidate" t-key="candidate.id">
+                                <option t-att-value="candidate.id" t-att-selected="candidate.id === state.teacherId" t-esc="candidateLabel(candidate)"/>
+                            </t>
+                        </select>
+                    </div>
+                    <div t-if="selectedTeacher and selectedTeacher.lessons.length" class="mb-3">
+                        <label class="form-label fw-bold" for="o_guard_cover_vacated" t-esc="labels.vacated"/>
+                        <select id="o_guard_cover_vacated" class="form-select o_guard_cover_vacated_select"
+                                t-on-change="(ev) => this.onVacatedChange(ev)">
+                            <option value="-1" t-att-selected="state.vacatedIndex === -1" t-esc="labels.noVacated"/>
+                            <t t-foreach="selectedTeacher.lessons" t-as="lesson" t-key="lesson_index">
+                                <option t-att-value="lesson_index" t-att-selected="lesson_index === state.vacatedIndex" t-esc="lesson.label"/>
+                            </t>
+                        </select>
+                        <div class="form-text" t-esc="labels.vacatedHelp"/>
+                    </div>
+                    <div>
+                        <label class="form-label fw-bold" for="o_guard_cover_note" t-esc="labels.note"/>
+                        <textarea id="o_guard_cover_note" class="form-control o_guard_cover_note" rows="3"
+                                  t-att-placeholder="labels.notePlaceholder" t-model="state.note"/>
+                    </div>
+                </t>
             </div>
             <t t-set-slot="footer">
-                <button class="btn btn-primary o_guard_cover_assign" t-att-disabled="!state.guardId or state.saving"
-                        t-on-click="() => this.assign()" t-esc="labels.assign"/>
-                <button t-if="props.row.cover" class="btn btn-outline-danger o_guard_cover_release" t-att-disabled="state.saving"
+                <button class="btn btn-primary o_guard_cover_assign" t-att-disabled="!canSave"
+                        t-on-click="() => this.save()" t-esc="state.mode === 'guard' ? labels.assign : labels.arrange"/>
+                <button t-if="props.row.cover or props.row.arrangement" class="btn btn-outline-danger o_guard_cover_release" t-att-disabled="state.saving"
                         t-on-click="() => this.release()" t-esc="labels.release"/>
                 <button class="btn btn-secondary" t-on-click="() => this.props.close()" t-esc="labels.cancel"/>
             </t>

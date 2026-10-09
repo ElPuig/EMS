@@ -362,16 +362,17 @@ export class GuardDutyBoard extends Component {
             rectify: _t("Propose correction"),
             openDraft: _t("Open draft"),
             release: _t("Release guard"),
+            removeArrangement: _t("Remove arrangement"),
         };
     }
 
     // A row nobody needs to be sent to anymore is struck out: a co-teacher is in the class, a
-    // guard has been assigned (the row then takes that guard's colour), or the families were told
-    // the students can stay at home for it.
+    // guard has been assigned (the row then takes that guard's colour), the families were told
+    // the students can stay at home for it, or the teachers rearranged themselves (issue #605).
     absenceRowClass(absence) {
         const classes = {
             o_guard_board_absence_covered: absence.covered,
-            o_guard_board_absence_struck: !absence.covered && Boolean(absence.cover || absence.authorized),
+            o_guard_board_absence_struck: !absence.covered && Boolean(absence.cover || absence.authorized || this.isArranged(absence)),
             o_guard_board_absence_manageable: this.isAssignable(absence) || absence.can_self_assign || absence.can_self_release,
         };
         if (absence.cover) {
@@ -385,6 +386,11 @@ export class GuardDutyBoard extends Component {
     absenceRowTooltip(absence) {
         if (this.struckReason(absence)) {
             return this.struckReason(absence);
+        }
+        if (absence.arrangement) {
+            return _t("Internal arrangement with %(teacher)s (%(note)s): it only counts once its notice to the families is sent.", {
+                teacher: absence.arrangement.teacher, note: absence.arrangement.note,
+            });
         }
         if (this.isAssignable(absence)) {
             return _t("Click to send a guard teacher to this class");
@@ -404,7 +410,17 @@ export class GuardDutyBoard extends Component {
         if (absence.cover) {
             return _t("Covered by %s, the guard teacher sent to this class.", absence.cover.guard);
         }
+        if (this.isArranged(absence)) {
+            return _t("No guard needed, internal arrangement: %(teacher)s is with the group (%(note)s).", {
+                teacher: absence.arrangement.teacher, note: absence.arrangement.note,
+            });
+        }
         return false;
+    }
+
+    // An internal arrangement in effect (issue #605): one still waiting for its notice resolves nothing yet.
+    isArranged(absence) {
+        return Boolean(absence.arrangement && !absence.arrangement.pending);
     }
 
     // Clicking a struck-out line (anywhere on it, not only its icon) explains it, anchored to the
@@ -412,7 +428,10 @@ export class GuardDutyBoard extends Component {
     onAbsenceClick(ev, line, absence) {
         const reason = this.struckReason(absence);
         if (!reason) {
-            if (this.isAssignable(absence)) {
+            if (absence.arrangement && absence.can_manage) {
+                // Waiting for its notice: the planner either sends it or changes their mind.
+                this.openCoverDialog(line, absence);
+            } else if (this.isAssignable(absence)) {
                 this.openCoverDialog(line, absence);
             } else if (absence.can_self_assign) {
                 this.confirmSelfAssign(line, absence);
@@ -422,6 +441,9 @@ export class GuardDutyBoard extends Component {
         const props = { reason };
         if (absence.cover && this.isAssignable(absence)) {
             props.actionLabel = _t("Change or remove the guard");
+            props.onAction = () => this.openCoverDialog(line, absence);
+        } else if (absence.arrangement && this.isAssignable(absence)) {
+            props.actionLabel = _t("Change or remove the arrangement");
             props.onAction = () => this.openCoverDialog(line, absence);
         } else if (absence.can_self_release) {
             props.actionLabel = _t("Stop covering this class");
@@ -437,7 +459,10 @@ export class GuardDutyBoard extends Component {
     }
 
     guardBadgeClass(guard) {
-        const base = this.absenceClass(guard.absence);
+        let base = this.absenceClass(guard.absence);
+        if (guard.busy) {
+            base += " o_guard_board_guard_busy";
+        }
         return guard.color === false ? base : `${base} o_guard_board_cover_${guard.color}`;
     }
 
@@ -459,12 +484,15 @@ export class GuardDutyBoard extends Component {
         if (action.type === "obsolete_cover") {
             return "fa fa-user-times";
         }
+        if (action.type === "pending_arrangement") {
+            return "fa fa-exchange";
+        }
         return action.type === "rectification" ? "fa fa-exclamation-triangle" : "fa fa-envelope-o";
     }
 
     actionButtonLabel(action) {
         if (action.type === "obsolete_cover") {
-            return this.actionLabels.release;
+            return action.cover_type === "arrangement" ? this.actionLabels.removeArrangement : this.actionLabels.release;
         }
         if (action.draft_id) {
             return this.actionLabels.openDraft;
@@ -476,18 +504,38 @@ export class GuardDutyBoard extends Component {
         if (!this.isAssignable(absence)) {
             return;
         }
+        const classArgs = [this.activeDate, line.hour_from, line.hour_to, absence.teacher_id, absence.group_id];
         this.dialog.add(GuardCoverDialog, {
             row: absence,
             line,
             onAssign: async (guardId, message) => {
-                await this.orm.call("ems.absence_cover", "board_assign", [
-                    this.activeDate, line.hour_from, line.hour_to, absence.teacher_id, absence.group_id,
-                    guardId, message,
-                ]);
+                await this.orm.call("ems.absence_cover", "board_assign", [...classArgs, guardId, message]);
                 await this.loadBoard();
             },
+            // Issue #605: the teachers rearranged themselves. When the lesson it leaves free changes
+            // the group's day, the notice for the families is opened straight away: the arrangement
+            // only counts once it is sent.
+            loadArrangementCandidates: () => this.orm.call("ems.course", "get_arrangement_candidates", classArgs),
+            onArrange: async (teacherId, note, vacated) => {
+                const result = await this.orm.call("ems.absence_cover", "board_arrange", [
+                    ...classArgs, teacherId, note, vacated ? vacated.hour_from : 0, vacated ? vacated.hour_to : 0,
+                ]);
+                if (result.notice_action) {
+                    await this.actionService.doAction(result.notice_action);
+                    return;
+                }
+                await this.loadBoard();
+            },
+            onOpenNotice: absence.arrangement && absence.arrangement.pending ? () => this.actionService.doAction({
+                type: "ir.actions.act_window",
+                res_model: "ems.notice",
+                res_id: absence.arrangement.notice_id,
+                views: [[false, "form"]],
+                target: "current",
+            }) : undefined,
             onRelease: async () => {
-                await this.orm.call("ems.absence_cover", "board_release", [absence.cover.id]);
+                const resolved = absence.cover || absence.arrangement;
+                await this.orm.call("ems.absence_cover", "board_release", [resolved.id]);
                 await this.loadBoard();
             },
         });

@@ -701,3 +701,170 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         notice = self.Notice.browse(self.Notice.with_user(self.department_chief).board_propose_absence_change(
             str(self.day), self.group_a.id, 'normal_break', 10.0, 10.5)['res_id'])
         self.assertTrue(notice.subject.startswith('Correction'))
+
+    # Internal arrangements (issue #605): the teachers rearrange themselves and nobody has to
+    # cover the class.
+
+    def _arrange(self, teacher, hour_from=8, hour_to=9, absent=None, vacated=None, user=None,
+                 note='They swap: B teaches at 8, A at 11'):
+        result = self.Cover.with_user(user or self.department_chief).board_arrange(
+            str(self.day), hour_from, hour_to, (absent or self.teacher_a).id, self.group_a.id, teacher.id, note,
+            *(vacated or (0.0, 0.0)))
+        return self.Cover.browse(result['cover_id']), result['notice_action']
+
+    def test_a_swap_resolves_the_class_without_a_guard(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        self.assertEqual(self._states()['entry']['status'], 'proposal', "the group could come in later")
+
+        cover, notice_action = self._arrange(self.teacher_b)
+
+        self.assertFalse(notice_action, "a swap frees no lesson: there is nothing to tell the families")
+        self.assertEqual(cover.cover_type, 'arrangement')
+        self.assertTrue(cover.is_effective)
+        row = self._row()
+        self.assertEqual(row['arrangement'], cover)
+        self.assertFalse(row['cover'], "an arrangement is no guard: no colour, no guard tag")
+        self.assertIsNone(self._states()['entry']['status'], "somebody is with the group: no late entry")
+        self.assertFalse(self._board_row(self.guard_user)['can_self_assign'])
+        with self.assertRaises(UserError):
+            self._self_assign()
+
+    def test_a_guard_who_makes_the_movement_is_struck_out_of_the_guard_column(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+
+        cover, _notice_action = self._arrange(self.teacher_guard)
+
+        line = self._teaching_line(self.day, 8, 9)
+        self.assertEqual(line['guard_busy'], {self.teacher_guard.id: cover})
+        self.assertNotIn(self.teacher_guard, self.env['ems.course']._get_guard_candidates(self.day, 8, 9))
+        data = self.env.company.current_course_id.with_user(self.department_chief).get_guard_duty_board_data(
+            '0', 'morning', day=str(self.day))
+        data_line = next(line for line in data['lines'] if line['hour_from'] == 8)
+        guard = next(guard for guard in data_line['guards'] if guard['id'] == self.teacher_guard.id)
+        self.assertIn(self.group_a.name, guard['busy'])
+        self.assertNotIn(self.teacher_guard.id, [candidate['id'] for candidate in data_line['guard_candidates']])
+        # Only in the period of the arrangement: at 9 they are on guard duty as usual.
+        self.assertFalse(self._teaching_line(self.day, 9, 10)['guard_busy'])
+
+    def test_a_moved_lesson_that_lets_the_group_leave_earlier_counts_once_the_notice_is_sent(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=10, hour_to=11)
+
+        cover, notice_action = self._arrange(self.teacher_b, hour_from=10, hour_to=11, vacated=(11.0, 12.0),
+                                             note='B teaches at 10 the lesson of 11')
+
+        notice = self.Notice.browse(notice_action['res_id'])
+        self.assertEqual(cover.notice_id, notice)
+        self.assertEqual((notice.absence_change_type, notice.absence_change_hour), ('early_leave', 11.0))
+        self.assertEqual(notice.state, 'draft')
+        self.assertFalse(cover.is_effective, "accepting it and telling the families go together")
+        self.assertFalse(self._states()['leave']['status'], "nothing changes until the notice is sent")
+        self.assertIn('pending_arrangement', [action['type'] for action in self._actions()])
+
+        notice.state = 'scheduled'
+
+        self.assertTrue(cover.is_effective)
+        self.assertEqual(self._states()['leave']['status'], 'communicated')
+        self.assertEqual(self._states()['leave']['communicated'], ('early_leave', 11))
+        self.assertNotIn('pending_arrangement', [action['type'] for action in self._actions()])
+
+    def test_deleting_the_draft_notice_discards_the_arrangement(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=10, hour_to=11)
+        cover, notice_action = self._arrange(self.teacher_b, hour_from=10, hour_to=11, vacated=(11.0, 12.0))
+
+        self.Notice.browse(notice_action['res_id']).unlink()
+
+        self.assertFalse(cover.exists())
+        self.assertFalse(self._row(10, 11)['arrangement'])
+
+    def test_a_lesson_left_free_in_the_middle_of_the_day_is_refused(self):
+        self._morning()
+        self._absence(self.teacher_b, self.day, hour_from=11, hour_to=12)
+
+        with self.assertRaises(UserError):
+            self._arrange(self.teacher_a, hour_from=11, hour_to=12, absent=self.teacher_b, vacated=(9.0, 10.0))
+
+    def test_an_arrangement_needs_a_free_teacher_and_a_description(self):
+        self._morning()
+        self._schedule_class(self.teacher_c, self.group_b, 'TABC Calendar C (group B)', periods=((8, 9),))
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+
+        with self.assertRaises(UserError):
+            self._arrange(self.teacher_a)  # away
+        with self.assertRaises(UserError):
+            self._arrange(self.teacher_c)  # has a class of their own
+        with self.assertRaises(UserError):
+            self._arrange(self.teacher_b, note='  ')
+        with self.assertRaises(UserError):
+            self._arrange(self.teacher_b, vacated=(9.0, 10.0))  # not one of B's lessons with the group
+        with self.assertRaises(AccessError):
+            self._arrange(self.teacher_b, user=self.other_department_chief)
+
+    def test_an_arrangement_replaces_a_guard_and_a_guard_replaces_it(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        guard_cover = self.Cover.browse(self._assign())
+
+        arrangement, _notice_action = self._arrange(self.teacher_b)
+
+        self.assertEqual(guard_cover.state, 'released')
+        self.assertIn('no longer need', self._guard_messages(self.teacher_guard)[0].body)
+        self._assign(guard=self.teacher_guard_2)
+        self.assertEqual(arrangement.state, 'released')
+        self.assertEqual(self._row()['cover'].guard_employee_id, self.teacher_guard_2)
+
+    def test_an_arrangement_no_longer_needed_is_offered_for_removal(self):
+        self._morning()
+        leave = self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        cover, _notice_action = self._arrange(self.teacher_b)
+
+        leave.action_refuse()
+
+        action = next(action for action in self._actions() if action['type'] == 'obsolete_cover')
+        self.assertEqual(action['cover'], cover)
+        self.Cover.with_user(self.department_chief).board_release(cover.id)
+        self.assertEqual(cover.state, 'released')
+        self.assertFalse(self._guard_messages(self.teacher_b), "nobody is notified about an arrangement")
+
+    def test_an_arrangement_whose_teacher_falls_away_is_no_longer_valid(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        cover, _notice_action = self._arrange(self.teacher_b)
+
+        self._absence(self.teacher_b, self.day)
+
+        self.assertIn(cover, [action['cover'] for action in self._actions() if action['type'] == 'obsolete_cover'])
+
+    def test_arrangement_candidates_list_the_group_teachers_and_the_guards(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+
+        candidates = self.env['ems.course'].with_user(self.department_chief).get_arrangement_candidates(
+            str(self.day), 8, 9, self.teacher_a.id, self.group_a.id)
+
+        by_id = {candidate['id']: candidate for candidate in candidates}
+        self.assertNotIn(self.teacher_a.id, by_id)
+        self.assertTrue(by_id[self.teacher_b.id]['teaches_group'])
+        self.assertEqual([(lesson['hour_from'], lesson['hour_to']) for lesson in by_id[self.teacher_b.id]['lessons']],
+                         [(11.0, 12.0)])
+        self.assertTrue(by_id[self.teacher_guard.id]['on_guard'])
+        self.assertEqual(candidates[0]['id'], self.teacher_b.id, "the group's own teachers first")
+        with self.assertRaises(AccessError):
+            self.env['ems.course'].with_user(self.other_department_chief).get_arrangement_candidates(
+                str(self.day), 8, 9, self.teacher_a.id, self.group_a.id)
+
+    def test_the_pdf_prints_the_arrangement_and_the_busy_guard(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        self._arrange(self.teacher_guard)
+
+        html, _content_type = self.env['ir.actions.report'].with_context(
+            guard_duty_weekday='0', guard_duty_date=str(self.day), guard_duty_view='table').\
+            _render_qweb_html('ems.report_guard_duty_board', [self.env.company.current_course_id.id])
+
+        self.assertIn(b'gdb-absence-row gdb-absence-covered', html)
+        self.assertIn(b'gdb-guard-busy', html)
+        self.assertIn(b'They swap', html)

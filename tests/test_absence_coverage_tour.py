@@ -96,3 +96,23 @@ class TestAbsenceCoverageTour(HttpCase):
         covers = self.env['ems.absence_cover'].search([('absent_employee_id', '=', teacher.id)], order='hour_from')
         self.assertEqual([(cover.hour_from, cover.state) for cover in covers], [(8, 'released'), (9, 'assigned')])
         self.assertEqual(covers.guard_employee_id, guard)
+
+    def test_absence_arrangement_tour(self):
+        """Issue #605, as the Department Chief: one lesson resolved by the guard on duty moving
+        their own schedule (struck out of the guard column), another by a teacher of the group
+        moving their last lesson forward, which needs the notice for the families."""
+        teacher, guard, group = self._board_fixture()
+        mover = self.env['hr.employee'].create({'name': 'Tour Swap Teacher', 'employee_type': 'teacher'})
+        subject = self.env['ems.subject'].search([('code', '=', 'TABT001')])
+        self._calendar(mover, ((11, 12),), subject_id=subject.id, group_ids=[group.id], name='TABTG: TABT')
+
+        self.start_tour("/odoo", "ems_absence_arrangement", login=self.department_chief.login)
+
+        covers = self.env['ems.absence_cover'].search([('absent_employee_id', '=', teacher.id)], order='hour_from')
+        self.assertEqual(covers.mapped('cover_type'), ['arrangement', 'arrangement'])
+        self.assertEqual(covers.guard_employee_id, guard | mover)
+        self.assertEqual(covers[0].message, 'The guard teaches them instead')
+        notice = covers[1].notice_id
+        self.assertEqual((notice.absence_change_type, notice.absence_change_hour, notice.state), ('early_leave', 11.0, 'draft'))
+        self.assertTrue(covers[0].is_effective)
+        self.assertFalse(covers[1].is_effective)

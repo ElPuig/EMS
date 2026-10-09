@@ -306,6 +306,25 @@
     color: #6c757d;
 }
 
+/* Issue #605: the teacher an internal arrangement puts with the group instead; dashed while the
+   arrangement still waits for its notice to the families. */
+.o_guard_board_arrangement_tag {
+    border-color: #0d6efd;
+    color: #0d6efd;
+}
+
+.o_guard_board_arrangement_tag.o_guard_board_arrangement_pending {
+    border-style: dashed;
+    color: #6c757d;
+}
+
+/* A guard who is with a group through an internal arrangement: struck out of the guard column,
+   nobody can ask them to cover anything else then. */
+.o_guard_board_guard_busy {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
 /* A guard and every class they cover in the same row share one colour, a different one for each
    guard - the planner pairs them at a glance even when several guards cover several classes at
    once. Kept in step with COVER_COLOR_COUNT (models/attendance/guard_duty_board.py) and the PDF's

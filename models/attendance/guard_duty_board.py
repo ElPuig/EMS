@@ -272,16 +272,19 @@ class EmsCourseGuardDutyBoard(models.Model):
         """`{group.id: [block, ...]}`: each group's own lessons on `day`, in chronological order,
         one block per period (a period absorbed by a longer one folds into it, same as the board's
         own rows). A block carries its attendance 'entries', its 'teachers', which of them are away
-        ('absences'), the guard 'covers' already assigned to it, and 'empty' - true when every
-        teacher of the block is away and nobody was sent to cover it, i.e. the group's students
+        ('absences', where a teacher whose lesson an arrangement moved elsewhere counts as away),
+        the 'covers' already resolving it (a guard, or an internal arrangement in effect), and
+        'empty' - true when every teacher of the block is away and nobody covers it, i.e. the group's students
         have nobody with them. The whole day, not one shift: a group starts its day at its first
         lesson and ends it at its last, whichever shift they fall in."""
         weekday = str(day.weekday())
         entries = self._get_guard_duty_board_attendance_ids().filtered(
             lambda attendance: attendance.dayofweek == weekday and attendance.group_ids & groups)
         intervals = self._get_guard_duty_absence_intervals(day, entries.employee_id)
+        # An arrangement still waiting for its notice changes nothing yet (issue #605).
         covers = self.env['ems.absence_cover'].sudo().search([
-            ('date', '=', day), ('state', '=', 'assigned'), ('group_id', 'in', groups.ids)])
+            ('date', '=', day), ('state', '=', 'assigned'), ('group_id', 'in', groups.ids)]).filtered('is_effective')
+        moves = covers.filtered(lambda cover: cover.cover_type == 'arrangement' and cover.vacated_hour_to)
         blocks_by_group = {}
         for group in groups:
             group_entries = entries.filtered(lambda attendance, group=group: group in attendance.group_ids)
@@ -293,7 +296,12 @@ class EmsCourseGuardDutyBoard(models.Model):
                     lambda attendance, periods=members[(hour_from, hour_to)]:
                         (attendance.hour_from, attendance.hour_to) in periods)
                 teachers = block_entries.employee_id
-                absences = self._guard_duty_absence_state(intervals, teachers, hour_from, hour_to)
+                # The lesson an arrangement leaves free has nobody either: its teacher is with the
+                # group at another time instead.
+                moved = {cover.guard_employee_id.id: 'moved' for cover in moves
+                         if cover.group_id == group and cover.guard_employee_id in teachers
+                         and overlaps(cover.vacated_hour_from, cover.vacated_hour_to, hour_from, hour_to)}
+                absences = {**moved, **self._guard_duty_absence_state(intervals, teachers, hour_from, hour_to)}
                 block_covers = covers.filtered(
                     lambda cover, group=group, hour_from=hour_from, hour_to=hour_to:
                         cover.group_id == group and overlaps(cover.hour_from, cover.hour_to, hour_from, hour_to))
@@ -467,6 +475,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                     block['teachers'].filtered(lambda teacher, block=block: teacher.id in block['absences'])
                     for block in window))
                 states[group.id][side] = {
+                    'allowed': allowed[side],
                     'expected': expected,
                     'communicated': communicated,
                     'status': status,
@@ -504,7 +513,107 @@ class EmsCourseGuardDutyBoard(models.Model):
                 and overlaps(attendance.hour_from, attendance.hour_to, hour_from, hour_to)).employee_id
         intervals = self._get_guard_duty_absence_intervals(day, guards)
         absent = self._guard_duty_absence_state(intervals, guards, hour_from, hour_to)
-        return guards.filtered(lambda guard: guard.id not in absent)
+        busy = self._arrangement_busy(self._get_day_covers(day), hour_from, hour_to)
+        return guards.filtered(lambda guard: guard.id not in absent and guard.id not in busy)
+
+    def _get_day_covers(self, day):
+        return self.env['ems.absence_cover'].sudo().search([('date', '=', day), ('state', '=', 'assigned')])
+
+    @staticmethod
+    def _arrangement_busy(covers, hour_from, hour_to):
+        """`{employee.id: cover}`: the teachers an internal arrangement (issue #605) has with a
+        group in the period - in effect or waiting for its notice, the planner has decided it -,
+        who therefore cannot be asked to cover anything else then."""
+        return {cover.guard_employee_id.id: cover for cover in covers
+                if cover.cover_type == 'arrangement' and overlaps(cover.hour_from, cover.hour_to, hour_from, hour_to)}
+
+    def _check_arrangement_teacher(self, day, hour_from, hour_to, teacher, group, vacated, exclude):
+        """Raises unless `teacher` can be with `group` in the period: not away, no class of their
+        own nor another cover then (`exclude`: the covers being replaced), and, when `vacated` is
+        given, it is one of their lessons with the group that day."""
+        weekday = str(day.weekday())
+        entries = self._get_guard_duty_board_attendance_ids().filtered(
+            lambda attendance: attendance.employee_id == teacher and attendance.dayofweek == weekday)
+        intervals = self._get_guard_duty_absence_intervals(day, teacher)
+        if self._guard_duty_absence_state(intervals, teacher, hour_from, hour_to):
+            raise UserError(_("%s is away in this period.", teacher.name))
+        if entries.filtered(lambda attendance: (attendance.subject_id or attendance.group_ids)
+                            and overlaps(attendance.hour_from, attendance.hour_to, hour_from, hour_to)):
+            raise UserError(_("%s has a class of their own in this period.", teacher.name))
+        others = self._get_day_covers(day).filtered(
+            lambda cover: cover.guard_employee_id == teacher and overlaps(cover.hour_from, cover.hour_to, hour_from, hour_to))
+        if others - exclude:
+            raise UserError(_("%s is already covering another class in this period.", teacher.name))
+        if vacated and not entries.filtered(lambda attendance: group in attendance.group_ids
+                                            and overlaps(attendance.hour_from, attendance.hour_to, *vacated)):
+            raise UserError(_("%(teacher)s has no lesson with %(group)s at that time.", teacher=teacher.name, group=group.name))
+
+    def _get_arrangement_change(self, day, group, vacated):
+        """`(change, rectification)`: the timetable change the families must be told about for an
+        internal arrangement that leaves `vacated` free (issue #605), already counted in the
+        group's day - the smallest one that frees the group from that lesson. `(None, False)` when
+        nothing has to be told: somebody else is with the group then, or the families already
+        know. Raises when the free lesson is in the middle of the day, where no timetable change
+        can be offered (a guard covers that, decided 2026-10-07)."""
+        blocks = self._get_group_day_blocks(day, group)[group.id]
+        block = next((block for block in blocks if overlaps(block['hour_from'], block['hour_to'], *vacated)), None)
+        if not block or not block['empty']:
+            return None, False
+        states = self._get_absence_change_states(day, group)[group.id]
+        if any(self._change_window_contains(state['communicated'], block['hour_from'], block['hour_to'])
+               for state in states.values()):
+            return None, False
+        options = [(option, state) for state in states.values() for option in state['allowed']
+                   if self._change_window_contains(option, block['hour_from'], block['hour_to'])]
+        if not options:
+            raise UserError(_(
+                "This arrangement leaves %s without a teacher in the middle of the day: send a guard teacher "
+                "to that lesson instead, or choose another one.", group.name))
+        option, state = min(options, key=lambda candidate: sum(
+            1 for other in blocks
+            if self._change_window_contains(candidate[0], other['hour_from'], other['hour_to'])))
+        return option, bool(state['communicated'])
+
+    @api.model
+    def get_arrangement_candidates(self, day, hour_from, hour_to, absent_employee_id, group_id):
+        """The teachers who could be with `group_id` instead of `absent_employee_id` in the period
+        through an internal arrangement (issue #605), for the board's dialog: in the centre that
+        day, not away, without a class of their own, another cover or a WC guard then. Each one
+        with their other lessons with the group that day (one of them may be the lesson the
+        arrangement leaves free), the group's own teachers first, then whoever is on guard."""
+        day = fields.Date.to_date(day)
+        absent = self.env['hr.employee'].browse(absent_employee_id).exists()
+        group = self.env['ems.group'].browse(group_id).exists()
+        if not (absent and group):
+            raise UserError(_("The class or the guard teacher no longer exists."))
+        self._check_absence_manager(absent)
+        weekday = str(day.weekday())
+        entries = self._get_guard_duty_board_attendance_ids().filtered(lambda attendance: attendance.dayofweek == weekday)
+        teachers = entries.employee_id - absent
+        away = self._guard_duty_absence_state(
+            self._get_guard_duty_absence_intervals(day, teachers), teachers, hour_from, hour_to)
+        current = self.env['ems.absence_cover']._board_current_covers(day, hour_from, hour_to, absent, group)
+        busy = (self._get_day_covers(day) - current).filtered(
+            lambda cover: overlaps(cover.hour_from, cover.hour_to, hour_from, hour_to)).guard_employee_id
+        candidates = []
+        for teacher in teachers:
+            mine = entries.filtered(lambda attendance, teacher=teacher: attendance.employee_id == teacher)
+            now = mine.filtered(lambda attendance: overlaps(attendance.hour_from, attendance.hour_to, hour_from, hour_to))
+            if (teacher.id in away or teacher in busy or now.filtered(lambda attendance: attendance.subject_id or attendance.group_ids)
+                    or now.filtered(lambda attendance: attendance.non_teaching.code == WC_GUARD_CODE)):
+                continue
+            lessons = sorted({(attendance.hour_from, attendance.hour_to) for attendance in mine
+                              if group in attendance.group_ids})
+            candidates.append({
+                'id': teacher.id,
+                'name': teacher.display_name,
+                'teaches_group': bool(lessons),
+                'on_guard': bool(now.filtered('non_teaching_is_guard')),
+                'lessons': [{'hour_from': start, 'hour_to': stop, 'label': "%s-%s" % (
+                    self._format_report_time(start), self._format_report_time(stop))} for start, stop in lessons],
+            })
+        return sorted(candidates, key=lambda candidate: (
+            not candidate['teaches_group'], not candidate['on_guard'], candidate['name']))
 
     def get_guard_duty_board_lines(self, weekday, shift, level_ids=None, day=None):
         """Board rows for one weekday + shift: the ordered list of group columns actually taught in
@@ -663,6 +772,9 @@ class EmsCourseGuardDutyBoard(models.Model):
                 # else's - a subtraction from the guard column, not an addition to the work.
                 'guard_absences': self._guard_duty_absence_state(
                     intervals, guards.mapped('employee_id'), hour_from, hour_to),
+                # Guards with a group through an internal arrangement (issue #605): struck out of
+                # the guard column, nobody can ask them to cover anything else then.
+                'guard_busy': self._arrangement_busy(management['covers'], hour_from, hour_to) if management else {},
                 'absences': covering,
                 'is_break': is_break,
             }))
@@ -685,7 +797,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         longer needed. None without a day, like every other absence structure of the board."""
         if not day:
             return None
-        covers = self.env['ems.absence_cover'].sudo().search([('date', '=', day), ('state', '=', 'assigned')])
+        covers = self._get_day_covers(day)
         shift_covers = covers.filtered(
             lambda cover: cover.hour_from >= shift_start - HOUR_EPSILON and cover.hour_to <= shift_end + HOUR_EPSILON)
         states = self._get_absence_change_states(day, groups | shift_covers.group_id)
@@ -713,26 +825,49 @@ class EmsCourseGuardDutyBoard(models.Model):
                         'can_manage': can_manage(state['teachers']),
                     })
         for cover in shift_covers:
-            if not self._get_needed_absence_block(day, cover.group_id, cover.absent_employee_id, cover.hour_from, cover.hour_to):
+            if not self._is_cover_still_needed(day, cover):
                 actions.append({
                     'type': 'obsolete_cover',
                     'cover': cover,
                     'group': cover.group_id,
                     'can_manage': can_manage(cover.absent_employee_id),
                 })
+            elif not cover.is_effective:
+                # An arrangement waiting for its notice (issue #605): nothing changes until it is sent.
+                actions.append({
+                    'type': 'pending_arrangement',
+                    'cover': cover,
+                    'group': cover.group_id,
+                    'can_manage': can_manage(cover.absent_employee_id),
+                })
         return {'covers': covers, 'states': states, 'actions': actions, 'can_manage': can_manage}
+
+    def _is_cover_still_needed(self, day, cover):
+        """Whether the class `cover` resolves still needs it - and, for an internal arrangement,
+        whether the teacher it relies on is still free to be with the group (issue #605)."""
+        if not self._get_needed_absence_block(day, cover.group_id, cover.absent_employee_id, cover.hour_from, cover.hour_to):
+            return False
+        if cover.cover_type != 'arrangement':
+            return True
+        teacher = cover.guard_employee_id
+        intervals = self._get_guard_duty_absence_intervals(day, teacher)
+        return not self._guard_duty_absence_state(intervals, teacher, cover.hour_from, cover.hour_to)
 
     def _board_absence_row_management(self, management, teacher, group, hour_from, hour_to):
         """The management part of one absences-table row: the guard 'cover' assigned to it (an
         empty recordset if none), the timetable change already communicated for its period
         ('authorized', which makes a guard unnecessary and strikes the row out) or one the
         absences allow but nobody has communicated yet ('proposed'), and whether the current user
-        may act on it ('can_manage')."""
+        may act on it ('can_manage'). An internal arrangement (issue #605) comes as 'arrangement'
+        instead of 'cover', in effect or still waiting for its notice."""
+        no_cover = self.env['ems.absence_cover']
         if not management:
-            return {'cover': self.env['ems.absence_cover'], 'authorized': None, 'proposed': None, 'can_manage': False}
-        cover = management['covers'].filtered(
+            return {'cover': no_cover, 'arrangement': no_cover, 'authorized': None, 'proposed': None, 'can_manage': False}
+        resolved = management['covers'].filtered(
             lambda cover: cover.absent_employee_id == teacher and cover.group_id == group
                 and overlaps(cover.hour_from, cover.hour_to, hour_from, hour_to))[:1]
+        cover = resolved.filtered(lambda cover: cover.cover_type == 'guard')
+        arrangement = resolved - cover
         authorized = proposed = None
         for state in management['states'].get(group.id, {}).values():
             if self._change_window_contains(state['communicated'], hour_from, hour_to):
@@ -741,6 +876,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                 proposed = state['expected']
         return {
             'cover': cover,
+            'arrangement': arrangement,
             'authorized': authorized,
             'proposed': proposed,
             'can_manage': management['can_manage'](teacher),
@@ -822,6 +958,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                 'guards': guards,
                 'guard_absences': self._guard_duty_absence_state(
                     intervals, guards.mapped('employee_id'), hour_from, hour_to),
+                'guard_busy': {},
                 'absences': [],
                 'is_break': True,
             }))
@@ -866,7 +1003,11 @@ class EmsCourseGuardDutyBoard(models.Model):
                 line['guards'].mapped('employee_id'), line['guard_absences'], wc_employee_ids)
             for guard in guards:
                 guard['color'] = line['guard_colors'].get(guard['id'], False)
-            candidate_ids = {guard['id'] for guard in guards if not guard['is_wc'] and not guard['absence']}
+                busy = line['guard_busy'].get(guard['id'])
+                guard['busy'] = _("With %(group)s: %(arrangement)s", group=busy.group_id.name,
+                                  arrangement=busy.message) if busy else False
+            candidate_ids = {guard['id'] for guard in guards
+                             if not guard['is_wc'] and not guard['absence'] and not guard['busy']}
             on_guard = editable and me.id in candidate_ids
             lines.append({
                 'time_label': line['time_label'],
@@ -893,10 +1034,20 @@ class EmsCourseGuardDutyBoard(models.Model):
                         'message': row['cover'].message or '',
                         'color': line['guard_colors'].get(row['cover'].guard_employee_id.id, 0),
                     } if row['cover'] else False,
+                    'arrangement': {
+                        'id': row['arrangement'].id,
+                        'teacher_id': row['arrangement'].guard_employee_id.id,
+                        'teacher': row['arrangement'].guard_employee_id.name,
+                        'note': row['arrangement'].message or '',
+                        'vacated_hour_from': row['arrangement'].vacated_hour_from,
+                        'vacated_hour_to': row['arrangement'].vacated_hour_to,
+                        'pending': not row['arrangement'].is_effective,
+                        'notice_id': row['arrangement'].notice_id.id,
+                    } if row['arrangement'] else False,
                     'authorized': self._absence_change_label(row['authorized']),
                     'proposed': self._absence_change_label(row['proposed'], proposed=True),
                     'can_manage': row['can_manage'],
-                    'can_self_assign': on_guard and not (row['cover'] or row['covered'] or row['authorized']),
+                    'can_self_assign': on_guard and not (row['cover'] or row['arrangement'] or row['covered'] or row['authorized']),
                     'can_self_release': editable and bool(row['cover']) and row['cover'].is_self_assigned
                         and row['cover'].assigned_by_id == self.env.user,
                 } for row in line['absences']],
@@ -939,11 +1090,21 @@ class EmsCourseGuardDutyBoard(models.Model):
         _get_board_absence_management), with the sentence the absences table shows for it."""
         data = {'type': action['type'], 'group_id': action['group'].id, 'can_manage': action['can_manage']}
         values = {'group': action['group'].name}
-        if action['type'] == 'obsolete_cover':
+        if action['type'] in ('obsolete_cover', 'pending_arrangement'):
             cover = action['cover']
             values.update(guard=cover.guard_employee_id.name, time=cover._time_label(), teacher=cover.absent_employee_id.name)
-            data.update(cover_id=cover.id, label=_(
-                "%(guard)s no longer needs to cover %(group)s at %(time)s (%(teacher)s).", **values))
+            data.update(cover_id=cover.id, cover_type=cover.cover_type, notice_id=cover.notice_id.id)
+            if action['type'] == 'pending_arrangement':
+                # Shown with the proposals, as a draft to open and send: same box, same button.
+                data.update(draft_id=cover.notice_id.id, options=[],
+                            draft_label=self._absence_change_label(self._notice_tuple(cover.notice_id)))
+                data['label'] = _("%(group)s at %(time)s (%(teacher)s): the arrangement with %(guard)s only counts "
+                                  "once its notice to the families is sent.", **values)
+            elif cover.cover_type == 'arrangement':
+                data['label'] = _("The arrangement with %(guard)s for %(group)s at %(time)s (%(teacher)s) no longer "
+                                  "applies.", **values)
+            else:
+                data['label'] = _("%(guard)s no longer needs to cover %(group)s at %(time)s (%(teacher)s).", **values)
             return data
         if action['type'] == 'proposal':
             values['change'] = self._absence_change_label(action['expected'], proposed=True)

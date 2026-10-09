@@ -101,27 +101,37 @@ class EmsNoticeAbsenceChange(models.Model):
             raise AccessError(_("Only the department chief of the absent teacher, or someone above them, can do this."))
         notice = state['draft'].filtered(lambda draft: course._same_change(course._notice_tuple(draft), change))
         if not notice:
-            subject, message = self._absence_change_text(change, group, day, rectification=bool(state['communicated']))
-            draft = self.new({'group_ids': [(6, 0, group.ids)]})
-            lines, _skipped = draft._build_auto_lines(group, draft.recipient_type, draft.recipient_email_type, set())
-            notice = self.create({
-                'subject': subject,
-                'message': message,
-                'group_ids': [(6, 0, group.ids)],
-                'notice_line_ids': [(0, 0, {
-                    'partner_id': line.partner_id.id, 'email': line.email, 'student_id': line.student_id.id,
-                    'recipient_type': line.recipient_type, 'source_group_id': line.source_group_id.id,
-                }) for line in lines],
-                'absence_date': day,
-                'absence_group_id': group.id,
-                'absence_change_type': change_type,
-                'absence_change_hour': change[1],
-                'absence_change_hour_to': change[2] if len(change) > 2 else 0.0,
-            })
+            notice = self._create_absence_change_notice(change, group, day, rectification=bool(state['communicated']))
+        return notice._absence_change_form_action()
+
+    @api.model
+    def _create_absence_change_notice(self, change, group, day, rectification):
+        """A draft notice telling `group`'s students and families about `change` on `day`, with the
+        proposed wording and the group's usual recipients. Never sent from here."""
+        subject, message = self._absence_change_text(change, group, day, rectification=rectification)
+        draft = self.new({'group_ids': [(6, 0, group.ids)]})
+        lines, _skipped = draft._build_auto_lines(group, draft.recipient_type, draft.recipient_email_type, set())
+        return self.create({
+            'subject': subject,
+            'message': message,
+            'group_ids': [(6, 0, group.ids)],
+            'notice_line_ids': [(0, 0, {
+                'partner_id': line.partner_id.id, 'email': line.email, 'student_id': line.student_id.id,
+                'recipient_type': line.recipient_type, 'source_group_id': line.source_group_id.id,
+            }) for line in lines],
+            'absence_date': day,
+            'absence_group_id': group.id,
+            'absence_change_type': change[0],
+            'absence_change_hour': change[1],
+            'absence_change_hour_to': change[2] if len(change) > 2 else 0.0,
+        })
+
+    def _absence_change_form_action(self):
+        self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'ems.notice',
-            'res_id': notice.id,
+            'res_id': self.id,
             'views': [(False, 'form')],
             'target': 'current',
         }

@@ -6,7 +6,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools import format_date
 
-from ..attendance.absence_coverage import BREAK_CHANGES, CHANGE_SIDES, CHANGE_TYPES
+from ..attendance.absence_coverage import BREAK_CHANGES, CHANGE_SIDES, CHANGE_TYPES, COMMUNICATED_NOTICE_STATES
 
 
 class EmsNoticeAbsenceChange(models.Model):
@@ -36,6 +36,21 @@ class EmsNoticeAbsenceChange(models.Model):
                 raise ValidationError(_(
                     "A timetable change notice can only be sent to the students and families of %s.",
                     notice.absence_group_id.name))
+
+    def write(self, vals):
+        """A moved lesson (issue #605) only counts once its notice to the families has left the
+        draft state: that is when the teachers involved are told about it - or, if the notice is
+        taken back to draft, that it no longer applies."""
+        if 'state' not in vals:
+            return super().write(vals)
+        before = {notice.id: notice.state in COMMUNICATED_NOTICE_STATES for notice in self}
+        result = super().write(vals)
+        changed = self.filtered(lambda notice: (notice.state in COMMUNICATED_NOTICE_STATES) != before[notice.id])
+        if changed:
+            covers = self.env['ems.absence_cover'].sudo().search([('notice_id', 'in', changed.ids), ('state', '=', 'assigned')])
+            for cover in covers:
+                cover._notify_arrangement(cancelled=not cover.is_effective)
+        return result
 
     def _absence_change_text(self, change, group, day, rectification):
         """(subject, html message) proposed for a timetable change, in the wording the centre's

@@ -318,6 +318,18 @@
     color: #6c757d;
 }
 
+/* Issue #605: arrangements the board detected for a class still left without anybody, and who
+   teaches a lesson instead after one (timetable tab). */
+.o_guard_board_options_tag {
+    border-style: dashed;
+    border-color: #0d6efd;
+    color: #0d6efd;
+}
+
+.o_guard_board_cell_substitute {
+    color: #0d6efd;
+}
+
 /* A guard who is with a group through an internal arrangement: struck out of the guard column,
    nobody can ask them to cover anything else then. */
 .o_guard_board_guard_busy {

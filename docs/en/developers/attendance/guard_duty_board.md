@@ -664,9 +664,9 @@ taken from it, all of them manually (nothing is ever sent or changed on its own)
 2. **Tell the families** that the students can come in later, leave earlier or have no classes,
    when the empty lessons are at the start or the end of the group's day (#539). Once told, those
    lessons need no guard and are struck out (#581).
-3. **Record an internal arrangement** instead of a guard (#605): the teachers rearranged
-   themselves (two of them swap lessons, one moves a lesson forward so the group leaves earlier)
-   and nobody has to cover the class.
+3. **Apply an internal arrangement** instead of a guard (#605): the board detects how the group's
+   teachers could swap or move their lessons so that nobody has to cover the class, and anything
+   else can be recorded by hand.
 4. **Undo what an absence that changed afterwards made unnecessary or wrong**: release a guard who
    is no longer needed, or send a correction for a notice that no longer matches (a sent notice
    can never be taken back).
@@ -788,56 +788,78 @@ manager's own dialog takes precedence when both apply.
 
 ### Internal arrangements (#605)
 
-The other way of resolving a class: no guard is sent because the teachers rearranged themselves.
-It is an `ems.absence_cover` like a guard, with `cover_type = 'arrangement'` (`'guard'` is the
-default, which is what every existing row got when the column was added - no migration):
+The other way of resolving a class: no guard is sent because the teachers rearrange themselves.
+The board **detects** the arrangements the group's own timetable allows and proposes them; what it
+cannot work out is recorded by hand. Priority: the students lose as few lessons as possible.
 
-| Field | Guard | Arrangement |
-|---|---|---|
-| `guard_employee_id` | The guard sent | The teacher who is with the group instead |
-| `message` | Instructions for the guard | Description of the movement (required) |
-| `vacated_hour_from` / `_to` | - | The lesson of that teacher with the group it leaves free, if any |
-| `notice_id` | - | The notice the free lesson needs, if any (`ondelete='cascade'`) |
-| `is_effective` | Always | No notice, or the notice left the draft state |
+| `arrangement_type` | What happens | Lessons lost | Notice to the families |
+|---|---|---|---|
+| `swap` | Another teacher B of the group, free now, teaches now; the absent teacher A teaches B's lesson with the group later that day | None | No |
+| `move` | B, free now, moves into it their lesson at the start or end of the group's day (or next to a break); the group skips that lesson | One (none if nobody was going to teach it anyway) | Yes: late entry, early leave or longer break |
+| `manual` | Anything else, described by hand (two groups joined for the same subject, a teacher of another group...), with the teacher involved if any | - | No |
+
+It is an `ems.absence_cover` like a guard, with `cover_type = 'arrangement'` (`'guard'` is the
+default, which every existing row got when the column was added - no migration):
+
+| Field | Guard | Swap / move | Manual |
+|---|---|---|---|
+| `guard_employee_id` | The guard sent | B, who is with the group instead | The teacher involved (optional) |
+| `vacated_hour_from` / `_to` | - | B's other lesson with the group | - |
+| `message` | Instructions for the guard | Optional note | Description (required) |
+| `notice_id` | - | Move: the notice it needs (`ondelete='cascade'`) | - |
+| `is_effective` | Always | Swap: always; move: once the notice left the draft state | Always |
 
 ```mermaid
 flowchart TD
-    D["Dialog: 'No guard needed: internal arrangement'<br/>teacher (get_arrangement_candidates), note, free lesson?"] --> A["board_arrange()"]
-    A --> CHK["_check_absence_manager + _get_needed_absence_block<br/>+ _check_arrangement_teacher"]
-    CHK --> W["_board_withdraw(current covers)<br/>a guard is released and told"]
+    ROW["Class still without anybody<br/>(row the user can manage)"] --> OPT["_get_arrangement_options()<br/>swaps + moves within the group and the day"]
+    OPT --> BOX["'Possible arrangements' box + row tag + dialog<br/>ordered by lessons lost, swaps first"]
+    BOX -->|Apply| A["board_arrange(type, teacher, lesson)"]
+    MAN["Dialog: other arrangement (by hand)"] --> A
+    A --> CHK["_check_absence_manager + _get_needed_absence_block<br/>swap/move: must still be among the detected options"]
+    CHK --> W["_board_withdraw(current covers)"]
     W --> C["ems.absence_cover (arrangement)"]
-    C -->|free lesson| CH["_get_arrangement_change()<br/>smallest change freeing that lesson"]
-    CH -->|"none: someone else is there, or already told"| E["effective now"]
-    CH -->|"middle of the day"| X["UserError: send a guard"]
-    CH -->|"late entry / early leave / longer break"| N["draft notice (_create_absence_change_notice)<br/>opened on the spot"]
-    N -->|sent| E
+    C -->|"swap / manual"| N1["in effect: _notify_arrangement() to the teachers"]
+    C -->|move| N["draft notice (_create_absence_change_notice), opened on the spot"]
+    N -->|"sent (ems.notice.write)"| N1
     N -->|deleted| DEL["arrangement discarded"]
 ```
 
-- **Accepting it and telling the families go together** (developer decision, 2026-10-09). When
-  the lesson left free changes the group's day, `board_arrange()` creates the arrangement and the
-  draft notice in one call and returns the notice's form; until it is sent the arrangement is not
-  effective: `_get_group_day_blocks()` ignores it, its row is not struck out, and the planner sees
-  it among the proposals (`pending_arrangement`, with an **Open draft** button). Deleting the draft
-  deletes the arrangement. A free lesson in the middle of the day is refused, the same rule as
-  for proposals.
-- **The free lesson** is computed in `_get_group_day_blocks()`: in the block that overlaps it, the
-  teacher counts as away (`'moved'`), so the block can be empty and `_allowed_absence_changes()`
-  offers what it allows like any other absence; a sent notice is then `communicated`, and
-  withdrawing the arrangement afterwards asks for the usual rectification on its own.
-- **Nobody believes a busy teacher is free.** `_arrangement_busy()` lists the teachers an
-  arrangement (in effect or waiting for its notice) has with a group in a period: struck out of
-  the guard column (`line['guard_busy']`, `.o_guard_board_guard_busy` / `.gdb-guard-busy`, with
-  the reason as tooltip), never a guard candidate then, and never offered to take the class
-  themselves.
-- **Who can be chosen** (`get_arrangement_candidates()`, checked again by
-  `_check_arrangement_teacher()`): any teacher with a schedule that day who is not away, has no
-  class of their own, no other cover and no WC guard then; the group's own teachers first (with
-  their other lessons with the group, the possible free lesson), then whoever is on guard duty.
-- **No longer valid**: the class no longer needs covering, or the teacher it relies on becomes
-  absent then (`_is_cover_still_needed()`): it shows under **Guards no longer needed**, with
-  **Remove arrangement**. Removing it notifies nobody; a guard assigned afterwards replaces it.
-- Nobody is notified about an arrangement: the board shows it.
+- **Detection** (`_get_arrangement_options()`, context read once per board load by
+  `_arrangement_context()`): for every other teacher B of the group that day who is free in the
+  period (`_is_free_for_arrangement()`: not away, no class of their own, no WC guard, not covering
+  anything else; a plain guard duty does not stop them), and every other lesson of B's with the
+  group not already part of another arrangement:
+  - a **swap** when the absent teacher is in and equally free at that lesson;
+  - a **move** when `_simulate_moved_lesson()` - the group's day with B moved - leaves that lesson
+    empty and `_allowed_absence_changes()` offers a change containing it (start or end of the day,
+    or next to a break; the middle of the day is covered with a guard, decided 2026-10-07). The
+    smallest such change is the notice. `lost` is 0 when that lesson was empty anyway.
+  Options are ordered by `lost`, then swaps first. Only within the group and the day (developer
+  decision, 2026-10-09: anything wider multiplies the options into noise); all of them are shown.
+- **Where they show**: only to whoever may organise that absence (`can_manage`) and only for a
+  class still left without anybody (`_board_row_arrangement_options()`): as pending actions
+  (`arrangement_option`, "Possible arrangements" box with **Apply**), as a tag on the row, and at
+  the top of the row's dialog, above "send a guard" and the manual arrangement.
+- **Applying** re-checks on the server that the option is still detected
+  (`board_arrange()`), so a stale screen can never apply something no longer possible.
+- **Accepting a move and telling the families go together** (developer decision): the arrangement
+  and its draft notice are created in one call and the notice opens; until it is sent the
+  arrangement is not effective (`_get_group_day_blocks()` ignores it, its row is not struck out)
+  and appears among the proposals (`pending_arrangement`, **Open draft**). Deleting the draft
+  deletes it.
+- **The day as it really is**: in `_get_group_day_blocks()` B counts as away (`'moved'`) at their
+  other lesson; in a swap that block has the absent teacher, so it is not empty. The timetable
+  tab and the PDF show it per cell (`_board_cell_arrangements()`: `moved` struck out,
+  `substitutes` added).
+- **Nobody believes a busy teacher is free**: `_arrangement_busy()` lists B in the period and, in a
+  swap, A at B's lesson: struck out of the guard column there (`guard_busy`), never a guard
+  candidate, and the row cannot be self-assigned.
+- **Notifications** (`_notify_arrangement()`, developer decision): the teachers involved - B and, in
+  a swap or a move, A; the named teacher of a manual one - are told when it takes effect and when
+  it is withdrawn, like a guard.
+- **No longer valid** (`_is_cover_still_needed()`): the class no longer needs covering, B is away
+  then, or in a swap A is away at B's lesson. It shows under **Guards no longer needed** with
+  **Remove arrangement**.
 
 ### Pending actions
 
@@ -877,7 +899,7 @@ whoever may use them, the action boxes only reach them (`can_manage`), and the s
 | See assigned guards, colours, struck rows, pending actions | Yes | Yes |
 | Assign / change / release a guard (`board_assign`, `board_release`) | No | Yes |
 | Take a free class themselves / leave one they took (`board_self_assign`, `board_self_release`) | Only a guard on duty then | Same |
-| Record or remove an internal arrangement (`board_arrange`, `board_release`) | No | Yes |
+| See and apply detected arrangements, record a manual one, remove one (`board_arrange`, `board_release`) | No | Yes |
 | Propose a timetable change or correction (`board_propose_absence_change`) | No | Yes |
 | Send that notice | No | Yes (own notice) |
 

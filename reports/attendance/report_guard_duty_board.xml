@@ -192,7 +192,7 @@
                                                                     <span class="gdb-absence-class">
                                                                         <t t-esc="absence['group'].name"/><t t-if="absence['subject']"> · <t t-esc="absence['subject'].acronym"/></t><t t-if="absence['room']"> · <t t-esc="absence['room'].display_name"/></t>
                                                                         <span t-if="absence['cover']" class="gdb-absence-tag">→ <t t-esc="absence['cover'].guard_employee_id.name"/></span>
-                                                                        <span t-if="absence['arrangement'] and absence['arrangement'].is_effective" class="gdb-absence-tag">⇄ <t t-esc="absence['arrangement'].guard_employee_id.name"/>: <t t-esc="absence['arrangement'].message"/></span>
+                                                                        <span t-if="absence['arrangement'] and absence['arrangement'].is_effective" class="gdb-absence-tag">⇄ <t t-esc="absence['arrangement']._arrangement_label()"/></span>
                                                                         <span t-if="absence['authorized']" class="gdb-absence-tag" t-esc="course._absence_change_label(absence['authorized'])"/>
                                                                     </span>
                                                                 </div>
@@ -245,9 +245,11 @@
                                                                     <span class="gdb-cell-subject" t-esc="cell['entries'][:1].subject_id.acronym"/>
                                                                     <span class="gdb-cell-teacher">
                                                                         <t t-foreach="cell['teachers']" t-as="teacher">
-                                                                            <span t-att-class="'gdb-absent' if cell['absences'].get(teacher.id) == 'approved' else ('gdb-absent-pending' if cell['absences'].get(teacher.id) else '')" t-esc="teacher.name"/><t t-if="not teacher_last">, </t>
+                                                                            <span t-att-class="('gdb-absent' if cell['absences'].get(teacher.id) == 'approved' else ('gdb-absent-pending' if cell['absences'].get(teacher.id) else '')) + (' gdb-guard-busy' if teacher in cell['moved'] else '')" t-esc="teacher.name"/><t t-if="not teacher_last">, </t>
                                                                         </t>
                                                                     </span>
+                                                                    <!-- Issue #605: who teaches it instead, after an internal arrangement. -->
+                                                                    <span t-if="cell['substitutes']" class="gdb-cell-teacher">⇄ <t t-esc="', '.join(cell['substitutes'].mapped('name'))"/></span>
                                                                     <span t-if="cell['entries'][:1].space_id" class="gdb-cell-room" t-esc="cell['entries'][:1].space_id.display_name"/>
                                                                 </t>
                                                             </td>

@@ -363,6 +363,9 @@ export class GuardDutyBoard extends Component {
             openDraft: _t("Open draft"),
             release: _t("Release guard"),
             removeArrangement: _t("Remove arrangement"),
+            arrangementsTitle: _t("Possible arrangements"),
+            arrangementsHelp: _t("Teachers of the group who could rearrange their lessons so that no guard is needed, first those where the students lose no lesson. The teachers involved are notified."),
+            applyArrangement: _t("Apply"),
         };
     }
 
@@ -388,9 +391,10 @@ export class GuardDutyBoard extends Component {
             return this.struckReason(absence);
         }
         if (absence.arrangement) {
-            return _t("Internal arrangement with %(teacher)s (%(note)s): it only counts once its notice to the families is sent.", {
-                teacher: absence.arrangement.teacher, note: absence.arrangement.note,
-            });
+            return _t("%s It only counts once its notice to the families is sent.", absence.arrangement.label);
+        }
+        if (absence.arrangement_options.length && absence.can_manage) {
+            return _t("Click to see the possible arrangements, or to send a guard teacher");
         }
         if (this.isAssignable(absence)) {
             return _t("Click to send a guard teacher to this class");
@@ -411,9 +415,7 @@ export class GuardDutyBoard extends Component {
             return _t("Covered by %s, the guard teacher sent to this class.", absence.cover.guard);
         }
         if (this.isArranged(absence)) {
-            return _t("No guard needed, internal arrangement: %(teacher)s is with the group (%(note)s).", {
-                teacher: absence.arrangement.teacher, note: absence.arrangement.note,
-            });
+            return _t("No guard needed: %s", absence.arrangement.label);
         }
         return false;
     }
@@ -467,7 +469,31 @@ export class GuardDutyBoard extends Component {
     }
 
     get proposalActions() {
-        return this.state.board.actions.filter((action) => action.type !== "obsolete_cover");
+        return this.state.board.actions.filter((action) => !["obsolete_cover", "arrangement_option"].includes(action.type));
+    }
+
+    // Issue #605: the internal arrangements the board detected, swaps first.
+    get arrangementActions() {
+        return this.state.board.actions.filter((action) => action.type === "arrangement_option");
+    }
+
+    arrangementCountLabel(absence) {
+        const count = absence.arrangement_options.length;
+        return count === 1 ? _t("1 possible arrangement") : _t("%s possible arrangements", count);
+    }
+
+    // Applies a detected arrangement (or a manual one). A moved lesson opens its notice for the
+    // families straight away: the arrangement only counts once it is sent.
+    async applyArrangement(classHours, absentId, groupId, type, teacherId, note, option) {
+        const result = await this.orm.call("ems.absence_cover", "board_arrange", [
+            this.activeDate, classHours.hour_from, classHours.hour_to, absentId, groupId, type,
+            teacherId || false, note || false, option ? option.hour_from : 0, option ? option.hour_to : 0,
+        ]);
+        if (result.notice_action) {
+            await this.actionService.doAction(result.notice_action);
+            return;
+        }
+        await this.loadBoard();
     }
 
     get releaseActions() {
@@ -484,6 +510,9 @@ export class GuardDutyBoard extends Component {
         if (action.type === "obsolete_cover") {
             return "fa fa-user-times";
         }
+        if (action.type === "arrangement_option") {
+            return action.option_type === "swap" ? "fa fa-exchange" : "fa fa-arrows-v";
+        }
         if (action.type === "pending_arrangement") {
             return "fa fa-exchange";
         }
@@ -493,6 +522,9 @@ export class GuardDutyBoard extends Component {
     actionButtonLabel(action) {
         if (action.type === "obsolete_cover") {
             return action.cover_type === "arrangement" ? this.actionLabels.removeArrangement : this.actionLabels.release;
+        }
+        if (action.type === "arrangement_option") {
+            return this.actionLabels.applyArrangement;
         }
         if (action.draft_id) {
             return this.actionLabels.openDraft;
@@ -512,20 +544,10 @@ export class GuardDutyBoard extends Component {
                 await this.orm.call("ems.absence_cover", "board_assign", [...classArgs, guardId, message]);
                 await this.loadBoard();
             },
-            // Issue #605: the teachers rearranged themselves. When the lesson it leaves free changes
-            // the group's day, the notice for the families is opened straight away: the arrangement
-            // only counts once it is sent.
+            // Issue #605: an internal arrangement, detected or described by hand.
             loadArrangementCandidates: () => this.orm.call("ems.course", "get_arrangement_candidates", classArgs),
-            onArrange: async (teacherId, note, vacated) => {
-                const result = await this.orm.call("ems.absence_cover", "board_arrange", [
-                    ...classArgs, teacherId, note, vacated ? vacated.hour_from : 0, vacated ? vacated.hour_to : 0,
-                ]);
-                if (result.notice_action) {
-                    await this.actionService.doAction(result.notice_action);
-                    return;
-                }
-                await this.loadBoard();
-            },
+            onArrange: (type, teacherId, note, option) =>
+                this.applyArrangement(line, absence.teacher_id, absence.group_id, type, teacherId, note, option),
             onOpenNotice: absence.arrangement && absence.arrangement.pending ? () => this.actionService.doAction({
                 type: "ir.actions.act_window",
                 res_model: "ems.notice",
@@ -577,6 +599,13 @@ export class GuardDutyBoard extends Component {
     // the first time - for the planner to review and send from the notice's own form; releasing a
     // guard that is no longer needed notifies them straight away.
     async onAction(action) {
+        if (action.type === "arrangement_option") {
+            await this.applyArrangement(
+                { hour_from: action.class_hour_from, hour_to: action.class_hour_to }, action.absent_id,
+                action.group_id, action.option_type, action.teacher_id, false, action
+            );
+            return;
+        }
         if (action.type === "obsolete_cover") {
             await this.orm.call("ems.absence_cover", "board_release", [action.cover_id]);
             await this.loadBoard();

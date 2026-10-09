@@ -1,21 +1,20 @@
 /** @odoo-module **/
 
-import { Component, onWillStart, useState } from "@odoo/owl";
+import { Component, useState } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
 import { _t } from "@web/core/l10n/translation";
 
-// Resolves a class left without its teacher, from a row of the guard duty board's absences table,
-// in one of two ways:
-// - Send a guard teacher to it (issue #571). Only the guards on duty in that row are offered (see
+// Resolves a class left without its teacher, from a row of the guard duty board's absences table:
+// - With one of the internal arrangements the board detected (issue #605, see
+//   ems.course._get_arrangement_options), offered first, swaps before moved lessons: the students
+//   should lose as few lessons as possible. A moved lesson changes the group's day, so saving it
+//   opens the notice for the families, and it only counts once that notice is sent.
+// - By sending a guard teacher (issue #571). Only the guards on duty in that row are offered (see
 //   ems.course._get_guard_candidates, which the server checks again on save), with a free-text
-//   message for them - what the students have to work on, where the materials are... Saving
-//   notifies the guard; removing an assignment tells them they are no longer needed.
-// - Record an internal arrangement (issue #605): the teachers rearranged themselves (two of them
-//   swap lessons, one moves a lesson earlier...) and nobody has to cover it. The planner picks who
-//   is with the group instead (see ems.course.get_arrangement_candidates), describes the movement
-//   and, if it leaves one of that teacher's lessons with the group free, which one: when that
-//   changes the group's day, the notice for the families is prepared on saving and the
-//   arrangement only counts once it is sent.
+//   message for them. Saving notifies the guard; removing an assignment tells them they are no
+//   longer needed.
+// - With an arrangement the board cannot work out (two groups joined for the same subject...),
+//   described by hand so that it is on record, with the teacher involved if there is one.
 export class GuardCoverDialog extends Component {
     static template = "ems.GuardCoverDialog";
     static components = { Dialog };
@@ -31,24 +30,31 @@ export class GuardCoverDialog extends Component {
     };
 
     setup() {
-        const cover = this.props.row.cover;
-        const arrangement = this.props.row.arrangement;
+        const { cover, arrangement } = this.props.row;
         const candidates = this.props.line.guard_candidates;
         this.state = useState({
-            mode: arrangement ? "arrangement" : "guard",
+            mode: this.initialMode(),
             guardId: cover ? cover.guard_id : candidates.length === 1 ? candidates[0].id : false,
             message: cover ? cover.message : "",
-            teacherId: arrangement ? arrangement.teacher_id : false,
-            note: arrangement ? arrangement.note : "",
-            vacatedIndex: -1,
-            arrangementCandidates: [],
+            teacherId: arrangement && arrangement.type === "manual" ? arrangement.teacher_id : false,
+            note: arrangement && arrangement.type === "manual" ? arrangement.note : "",
+            manualCandidates: [],
             saving: false,
         });
-        onWillStart(async () => {
-            if (arrangement) {
-                await this.loadArrangementCandidates();
-            }
-        });
+        if (this.state.mode === "manual") {
+            this.loadManualCandidates();
+        }
+    }
+
+    initialMode() {
+        const { cover, arrangement, arrangement_options: options } = this.props.row;
+        if (arrangement) {
+            return arrangement.type === "manual" ? "manual" : "current";
+        }
+        if (cover || !options.length) {
+            return "guard";
+        }
+        return "option-0";
     }
 
     get title() {
@@ -58,71 +64,68 @@ export class GuardCoverDialog extends Component {
     get labels() {
         return {
             absent: _t("Absent teacher"),
+            options: _t("Possible arrangements"),
+            current: _t("Current arrangement"),
             modeGuard: _t("Send a guard teacher"),
-            modeArrangement: _t("No guard needed: internal arrangement"),
+            modeManual: _t("Other arrangement (described by hand)"),
             guard: _t("Guard teacher"),
             choose: _t("Choose a guard teacher..."),
             noCandidates: _t("Nobody is on guard duty in this period."),
             message: _t("Message for the guard teacher"),
             placeholder: _t("What the students have to work on, where to find the materials..."),
-            teacher: _t("Teacher who will be with the group"),
-            chooseTeacher: _t("Choose a teacher..."),
-            noTeachers: _t("No teacher is free in this period."),
-            teachesGroup: _t("teaches this group"),
-            onGuard: _t("on guard duty"),
+            teacher: _t("Teacher involved (optional)"),
+            noTeacher: _t("Nobody in particular"),
             note: _t("Arrangement"),
-            notePlaceholder: _t("E.g. they swap lessons: the absent teacher teaches the group at 9:00 instead."),
-            vacated: _t("Lesson of theirs with this group left free"),
-            noVacated: _t("None (they swap or the lesson is not moved)"),
-            vacatedHelp: _t("If the free lesson lets the group come in later or leave earlier, the notice for the families is prepared on saving, and the arrangement only counts once it is sent."),
+            notePlaceholder: _t("E.g. groups A and B are joined for this lesson and leave at 13:25."),
             pending: _t("This arrangement is waiting for its notice to the families to be sent."),
             openNotice: _t("Open notice"),
             assign: _t("Assign and notify"),
+            apply: _t("Apply and notify"),
             arrange: _t("Save arrangement"),
             release: this.props.row.arrangement ? _t("Remove arrangement") : _t("Remove assignment"),
             cancel: _t("Cancel"),
         };
     }
 
-    get selectedTeacher() {
-        return this.state.arrangementCandidates.find((candidate) => candidate.id === this.state.teacherId);
+    noticeLabel(option) {
+        return _t("The families will be told: %s", option.change_label);
+    }
+
+    get selectedOption() {
+        const mode = this.state.mode;
+        return mode.startsWith("option-") ? this.props.row.arrangement_options[Number(mode.slice(7))] : null;
+    }
+
+    get saveLabel() {
+        if (this.state.mode === "guard") {
+            return this.labels.assign;
+        }
+        return this.state.mode === "manual" ? this.labels.arrange : this.labels.apply;
     }
 
     get canSave() {
-        if (this.state.saving) {
+        if (this.state.saving || this.state.mode === "current") {
             return false;
         }
         if (this.state.mode === "guard") {
             return Boolean(this.state.guardId);
         }
-        return Boolean(this.state.teacherId && this.state.note.trim());
+        if (this.state.mode === "manual") {
+            return Boolean(this.state.note.trim());
+        }
+        return true;
     }
 
-    candidateLabel(candidate) {
-        const tags = [];
-        if (candidate.teaches_group) {
-            tags.push(this.labels.teachesGroup);
-        }
-        if (candidate.on_guard) {
-            tags.push(this.labels.onGuard);
-        }
-        return tags.length ? `${candidate.name} (${tags.join(", ")})` : candidate.name;
-    }
-
-    async loadArrangementCandidates() {
-        this.state.arrangementCandidates = await this.props.loadArrangementCandidates();
-        const arrangement = this.props.row.arrangement;
-        if (arrangement && this.selectedTeacher) {
-            this.state.vacatedIndex = this.selectedTeacher.lessons.findIndex(
-                (lesson) => Math.abs(lesson.hour_from - arrangement.vacated_hour_from) < 0.01 && arrangement.vacated_hour_to
-            );
+    async loadManualCandidates() {
+        if (!this.state.manualCandidates.length) {
+            this.state.manualCandidates = await this.props.loadArrangementCandidates();
         }
     }
 
     async onModeChange(mode) {
         this.state.mode = mode;
-        if (mode === "arrangement" && !this.state.arrangementCandidates.length) {
-            await this.loadArrangementCandidates();
+        if (mode === "manual") {
+            await this.loadManualCandidates();
         }
     }
 
@@ -132,21 +135,18 @@ export class GuardCoverDialog extends Component {
 
     onTeacherChange(ev) {
         this.state.teacherId = Number(ev.target.value) || false;
-        this.state.vacatedIndex = -1;
-    }
-
-    onVacatedChange(ev) {
-        this.state.vacatedIndex = Number(ev.target.value);
     }
 
     async save() {
         this.state.saving = true;
         try {
+            const option = this.selectedOption;
             if (this.state.mode === "guard") {
                 await this.props.onAssign(this.state.guardId, this.state.message);
+            } else if (option) {
+                await this.props.onArrange(option.type, option.teacher_id, false, option);
             } else {
-                const lessons = this.selectedTeacher ? this.selectedTeacher.lessons : [];
-                await this.props.onArrange(this.state.teacherId, this.state.note, lessons[this.state.vacatedIndex]);
+                await this.props.onArrange("manual", this.state.teacherId, this.state.note, null);
             }
             this.props.close();
         } finally {

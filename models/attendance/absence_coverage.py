@@ -48,6 +48,16 @@ COVER_TYPES = [
     ('guard', 'Guard teacher'),
     ('arrangement', 'Internal arrangement'),
 ]
+# The arrangements: the two lessons of the group swapped between their teachers (nobody loses a
+# lesson), a lesson at the start or end of the group's day moved into the empty one (the group
+# comes in later or leaves earlier, which the families must be told), or anything else the
+# teachers agreed and the board cannot work out by itself (two groups joined for the same subject,
+# for instance), recorded by hand so that it is on record.
+ARRANGEMENT_TYPES = [
+    ('swap', 'Lesson swap'),
+    ('move', 'Lesson moved'),
+    ('manual', 'Other arrangement'),
+]
 
 # Same 'GWC' code get_guard_duty_board_data() checks to flag a WC guard: whoever is watching the
 # toilets cannot also be in a classroom, so they are never offered to cover a class.
@@ -67,12 +77,13 @@ class EmsAbsenceCover(models.Model):
     copied, and only the days or hours the request adds come up as new rows to cover.
 
     An internal arrangement (issue #605) is the other way of resolving the class: no guard is
-    sent because the teachers rearranged themselves. 'guard_employee_id' is then the teacher who
-    is with the group instead (they are busy, so the board never offers them as a guard then),
-    'message' describes the movement, and 'vacated_hour_from'/'vacated_hour_to' the lesson of
-    theirs with the group it leaves free, if any. When that free lesson changes the group's day
-    (it can leave earlier, come in later...) the families have to be told: 'notice_id' is that
-    notice, and the arrangement only counts once it has been sent ('is_effective')."""
+    sent because the teachers rearranged themselves ('arrangement_type'). 'guard_employee_id' is
+    then the teacher who is with the group instead (they are busy, so the board never offers them
+    as a guard then) and 'vacated_hour_from'/'vacated_hour_to' their own lesson with the group:
+    in a swap the absent teacher teaches it, in a moved lesson nobody does, which changes the
+    group's day (it comes in later or leaves earlier) - the families have to be told, 'notice_id'
+    is that notice, and the arrangement only counts once it has been sent ('is_effective'). A
+    manual arrangement is a description ('message'), with the teacher involved if there is one."""
     _name = 'ems.absence_cover'
     _description = "Absence cover: a guard teacher sent to a class left without its teacher"
     _inherit = ['mail.thread']
@@ -87,7 +98,8 @@ class EmsAbsenceCover(models.Model):
     subject_id = fields.Many2one(string="Subject", comodel_name='ems.subject')
     space_id = fields.Many2one(string="Room", comodel_name='ems.space')
     cover_type = fields.Selection(string="Resolved by", selection=COVER_TYPES, default='guard', required=True)
-    guard_employee_id = fields.Many2one(string="Guard teacher", comodel_name='hr.employee', required=True)
+    arrangement_type = fields.Selection(string="Arrangement", selection=ARRANGEMENT_TYPES)
+    guard_employee_id = fields.Many2one(string="Guard teacher", comodel_name='hr.employee')
     message = fields.Text(string="Message")
     vacated_hour_from = fields.Float(string="Lesson left free from")
     vacated_hour_to = fields.Float(string="Lesson left free until")
@@ -119,13 +131,39 @@ class EmsAbsenceCover(models.Model):
             cover.is_effective = (cover.cover_type == 'guard' or not cover.notice_id
                                   or cover.notice_id.state in COMMUNICATED_NOTICE_STATES)
 
-    @api.constrains('cover_type', 'message', 'vacated_hour_from', 'vacated_hour_to')
+    @api.constrains('cover_type', 'arrangement_type', 'guard_employee_id', 'message', 'vacated_hour_from', 'vacated_hour_to')
     def _check_arrangement(self):
-        for cover in self.filtered(lambda cover: cover.cover_type == 'arrangement'):
-            if not (cover.message or '').strip():
+        for cover in self:
+            if cover.cover_type == 'guard' or cover.arrangement_type in ('swap', 'move'):
+                if not cover.guard_employee_id:
+                    raise ValidationError(_("Choose the teacher who will be with the group."))
+            if cover.cover_type != 'arrangement':
+                continue
+            if not cover.arrangement_type:
+                raise ValidationError(_("Choose the kind of arrangement."))
+            if cover.arrangement_type == 'manual' and not (cover.message or '').strip():
                 raise ValidationError(_("Describe the arrangement: who moves which lesson."))
-            if cover.vacated_hour_to and overlaps(cover.vacated_hour_from, cover.vacated_hour_to, cover.hour_from, cover.hour_to):
+            if cover.arrangement_type in ('swap', 'move') and (
+                    not cover.vacated_hour_to
+                    or overlaps(cover.vacated_hour_from, cover.vacated_hour_to, cover.hour_from, cover.hour_to)):
                 raise ValidationError(_("The lesson left free cannot be the one being covered."))
+
+    def _arrangement_label(self):
+        """What the arrangement is, in one sentence, for the board and the PDF."""
+        self.ensure_one()
+        course = self.env['ems.course']
+        values = {
+            'teacher': self.guard_employee_id.name, 'absent': self.absent_employee_id.name,
+            'time': course._format_report_time(self.hour_from),
+            'other_time': course._format_report_time(self.vacated_hour_from),
+        }
+        if self.arrangement_type == 'swap':
+            return _("Swap: %(teacher)s teaches at %(time)s and %(absent)s at %(other_time)s.", **values)
+        if self.arrangement_type == 'move':
+            return _("%(teacher)s moves their %(other_time)s lesson to %(time)s.", **values)
+        if self.guard_employee_id:
+            return _("%(teacher)s: %(note)s", teacher=self.guard_employee_id.name, note=self.message)
+        return self.message
 
     @api.constrains('date', 'hour_from', 'hour_to', 'absent_employee_id', 'group_id', 'state')
     def _check_one_guard_per_class(self):
@@ -180,6 +218,36 @@ class EmsAbsenceCover(models.Model):
             body += plaintext2html(message)
         cover.sudo().message_notify(partner_ids=partner.ids, subject=subject, body=body)
 
+    def _notify_arrangement(self, cancelled=False):
+        """Tells the teachers an internal arrangement involves (issue #605) - whoever is with the
+        group instead and, in a swap or a moved lesson, the absent teacher - what it is, or that it
+        no longer applies. Like a guard, an Odoo message as their own preference says, sent once
+        the arrangement is in effect (a moved lesson waits for its notice to the families)."""
+        self.ensure_one()
+        teachers = self.guard_employee_id
+        if self.arrangement_type in ('swap', 'move'):
+            teachers |= self.absent_employee_id
+        for teacher in teachers:
+            partner = self._guard_partner(teacher)
+            if not partner:
+                continue
+            cover = self.with_context(lang=partner.lang or self.env.lang)
+            values = {'group': cover.group_id.name, 'date': format_date(cover.env, cover.date)}
+            if cancelled:
+                subject = cover.env._("Arrangement cancelled: %(group)s, %(date)s", **values)
+                intro = cover.env._("This arrangement no longer applies, the usual timetable is back:")
+            else:
+                subject = cover.env._("Timetable arrangement: %(group)s, %(date)s", **values)
+                intro = cover.env._("A change in your timetable has been agreed to cover an absence:")
+            details = [
+                cover._arrangement_label(),
+                cover.env._("Date: %s", values['date']),
+                cover.env._("Group: %s", values['group']),
+                cover.env._("Absent teacher: %s", cover.absent_employee_id.name),
+            ]
+            body = Markup("<p>{}</p>{}").format(intro, self.env['ems.base'].build_html_list(details))
+            cover.sudo().message_notify(partner_ids=partner.ids, subject=subject, body=body)
+
     def _board_records(self, absent_employee_id, group_id, guard_employee_id):
         absent = self.env['hr.employee'].browse(absent_employee_id).exists()
         group = self.env['ems.group'].browse(group_id).exists()
@@ -228,6 +296,8 @@ class EmsAbsenceCover(models.Model):
             cover.write({'state': 'released'})
             if cover.cover_type == 'guard':
                 cover._notify_guard(cover.guard_employee_id, released=True, message=message)
+            else:
+                cover._notify_arrangement(cancelled=True)
 
     # Board actions. Called from the guard duty board's absences table
     # (static/src/js/backend/guard_duty_board.js); every one re-checks on the server that the
@@ -257,39 +327,56 @@ class EmsAbsenceCover(models.Model):
         return cover.id
 
     @api.model
-    def board_arrange(self, day, hour_from, hour_to, absent_employee_id, group_id, employee_id, note,
-                      vacated_hour_from=0.0, vacated_hour_to=0.0):
-        """Records that `absent_employee_id`'s class of `group_id` in the period needs no guard
-        because the teachers rearranged themselves (issue #605): `employee_id` is with the group
-        instead, `note` says how, and `vacated_hour_from`/`_to` is the lesson of theirs with the
-        group the movement leaves free, if any. Replaces whatever covered the class (a guard is
-        released and told). When the free lesson changes the group's day, the notice for the
-        families is prepared at once and the arrangement only counts once it is sent: returns
-        `{'cover_id', 'notice_action'}`, the latter the draft notice's form to open (or False)."""
+    def board_arrange(self, day, hour_from, hour_to, absent_employee_id, group_id, arrangement_type,
+                      employee_id=False, note=False, vacated_hour_from=0.0, vacated_hour_to=0.0):
+        """Resolves `absent_employee_id`'s class of `group_id` in the period with an internal
+        arrangement instead of a guard (issue #605), replacing whatever covered it (a guard is
+        released and told). A swap or a moved lesson must be one of the options the board
+        detected (see ems.course._get_arrangement_options): `employee_id` and their lesson with
+        the group at `vacated_hour_from`/`_to`. A moved lesson changes the group's day, so its
+        notice for the families is prepared at once and the arrangement only counts once it is
+        sent. A manual one is `note`, with `employee_id` if a teacher is involved. The teachers
+        involved are told once it is in effect. Returns `{'cover_id', 'notice_action'}`, the
+        latter the draft notice's form to open (or False)."""
         day = fields.Date.to_date(day)
-        absent, group, teacher = self._board_records(absent_employee_id, group_id, employee_id)
+        absent = self.env['hr.employee'].browse(absent_employee_id).exists()
+        group = self.env['ems.group'].browse(group_id).exists()
+        teacher = self.env['hr.employee'].browse(employee_id).exists() if employee_id else self.env['hr.employee']
+        if not (absent and group) or (employee_id and not teacher):
+            raise UserError(_("The class or the guard teacher no longer exists."))
         course = self.env['ems.course']
         course._check_absence_manager(absent)
         course._check_board_day_not_past(day)
-        if not (note or '').strip():
-            raise UserError(_("Describe the arrangement: who moves which lesson."))
         block = course._get_needed_absence_block(day, group, absent, hour_from, hour_to)
         if not block:
             raise UserError(_("This class no longer needs covering: the absence or the class has changed. Reload the board."))
-        vacated = (vacated_hour_from, vacated_hour_to) if vacated_hour_to else None
         current = self._board_current_covers(day, hour_from, hour_to, absent, group)
-        course._check_arrangement_teacher(day, hour_from, hour_to, teacher, group, vacated, exclude=current)
+        values = {'cover_type': 'arrangement', 'arrangement_type': arrangement_type}
+        option = None
+        if arrangement_type == 'manual':
+            if not (note or '').strip():
+                raise UserError(_("Describe the arrangement: who moves which lesson."))
+            if teacher and course._guard_duty_absence_state(
+                    course._get_guard_duty_absence_intervals(day, teacher), teacher, hour_from, hour_to):
+                raise UserError(_("%s is away in this period.", teacher.name))
+        else:
+            option = next((option for option in course._get_arrangement_options(
+                day, group, absent, hour_from, hour_to, exclude=current)
+                if option['type'] == arrangement_type and option['teacher'] == teacher
+                and overlaps(option['hour_from'], option['hour_to'], vacated_hour_from, vacated_hour_to)), None)
+            if not option:
+                raise UserError(_("This arrangement is no longer possible: the absences or the timetable have changed. Reload the board."))
+            values.update(vacated_hour_from=option['hour_from'], vacated_hour_to=option['hour_to'])
         current._board_withdraw()
-        cover = self._board_create_cover(
-            day, hour_from, hour_to, absent, group, teacher, block, note, cover_type='arrangement',
-            vacated_hour_from=vacated[0] if vacated else 0.0, vacated_hour_to=vacated[1] if vacated else 0.0)
+        cover = self._board_create_cover(day, hour_from, hour_to, absent, group, teacher, block, note, **values)
         notice_action = False
-        if vacated:
-            change, rectification = course._get_arrangement_change(day, group, vacated)
-            if change:
-                notice = self.env['ems.notice']._create_absence_change_notice(change, group, day, rectification)
-                cover.notice_id = notice
-                notice_action = notice._absence_change_form_action()
+        if option and option['change']:
+            notice = self.env['ems.notice']._create_absence_change_notice(
+                option['change'], group, day, option['rectification'])
+            cover.notice_id = notice
+            notice_action = notice._absence_change_form_action()
+        else:
+            cover._notify_arrangement()
         return {'cover_id': cover.id, 'notice_action': notice_action}
 
     @api.model

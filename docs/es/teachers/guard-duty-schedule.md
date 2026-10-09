@@ -6,7 +6,7 @@
 
 Consulta dónde está cada docente, y quién está de guardia, en cada franja horaria de la semana — no solo tu propio horario.
 
-**Rol necesario:** Docente (solo lectura; los horarios los configura un Jefe de departamento o superior desde el horario semanal propio del docente correspondiente). Organizar una ausencia desde la Tabla de ausencias corresponde al Jefe de departamento o de seminario del docente ausente y a quienes están por encima (ver [Organizar una ausencia](#organizar-una-ausencia)).
+**Rol necesario:** Docente (solo lectura; los horarios los configura un Jefe de departamento o superior desde el horario semanal propio del docente correspondiente). Organizar una ausencia desde la Tabla de ausencias corresponde al Jefe de departamento o de seminario del docente ausente y a quienes están por encima (ver [Organizar una ausencia](#organizar-una-ausencia)); un docente de guardia también puede cogerse él mismo una clase sin docente (ver [Cubrir tú mismo una clase](#cubrir-tu-mismo-una-clase)).
 
 ---
 
@@ -93,6 +93,19 @@ Una ausencia que Jefatura de Estudios ya conoce pero que el docente todavía no 
 Un docente de guardia que falta queda marcado en la columna de guardia y no genera ninguna línea en la columna de ausencias: no tiene ninguna clase propia que nadie deba cubrir.
 
 Aquí solo se muestra que la persona falta. El tipo de ausencia, el motivo y el justificante, no.
+
+---
+
+## Cubrir tú mismo una clase
+
+Si estás de guardia en una franja, no hace falta que esperes a que alguien te envíe: puedes coger tú mismo una clase que todavía está sin docente.
+
+1. En la **Tabla de ausencias**, haz clic en la línea de la clase (las líneas que puedes coger muestran una mano al pasar por encima y la indicación **Haz clic para cubrir tú esta clase**).
+2. Haz clic en **Cubrirla** para confirmarlo.
+
+La clase queda tachada con tu nombre al lado, igual que cuando te envían. Nadie recibe ningún mensaje: el propio cuadrante muestra quién cubre qué. Solo se puede coger una clase que todavía no tiene ningún docente de guardia, y solo en una franja en la que estás de guardia (no en una guardia de WC, ni mientras tú mismo estás ausente).
+
+Si cambias de idea, vuelve a hacer clic en la línea y después en **Deja de cubrir esta clase**: la clase vuelve a quedarse sin guardia. Solo puedes hacerlo con una clase que te has cogido tú; si alguien te ha enviado, pídele que lo cambie. Quien organiza la ausencia siempre puede cambiar o quitar a un docente de guardia que se haya cogido una clase por su cuenta.
 
 ---
 

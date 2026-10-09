@@ -887,6 +887,10 @@ class EmsCourseGuardDutyBoard(models.Model):
         groups = [{'id': group.id, 'name': group.name} for group in data['groups']]
         cover_counts = course._guard_cover_counts(
             self.env['hr.employee'].union(*(line['guards'].employee_id for line in data['lines'])))
+        # A teacher on guard duty may take a free class themselves (issue #601) - from today on,
+        # like every other board action (see _check_board_day_not_past).
+        editable = bool(day) and fields.Date.to_date(day) >= self.env['ems.datetime_utils'].get_local_today()
+        me = self.env.user.employee_id
         lines = []
         for line in data['lines']:
             cells = []
@@ -908,6 +912,8 @@ class EmsCourseGuardDutyBoard(models.Model):
             for guard in guards:
                 guard['color'] = line['guard_colors'].get(guard['id'], False)
                 guard['cover_count'] = cover_counts.get(guard['id'], 0)
+            candidate_ids = {guard['id'] for guard in guards if not guard['is_wc'] and not guard['absence']}
+            on_guard = editable and me.id in candidate_ids
             lines.append({
                 'time_label': line['time_label'],
                 'hour_from': line['hour_from'],
@@ -916,8 +922,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                 'guards': guards,
                 # Who can be sent to one of this row's classes - see _get_guard_candidates().
                 'guard_candidates': [{'id': guard['id'], 'name': guard['name'], 'cover_count': guard['cover_count']}
-                                     for guard in guards
-                                     if not guard['is_wc'] and not guard['absence']],
+                                     for guard in guards if guard['id'] in candidate_ids],
                 'absences': [{
                     'teacher': row['teacher'].display_name,
                     'teacher_id': row['teacher'].id,
@@ -937,6 +942,9 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'authorized': self._absence_change_label(row['authorized']),
                     'proposed': self._absence_change_label(row['proposed'], proposed=True),
                     'can_manage': row['can_manage'],
+                    'can_self_assign': on_guard and not (row['cover'] or row['covered'] or row['authorized']),
+                    'can_self_release': editable and bool(row['cover']) and row['cover'].is_self_assigned
+                        and row['cover'].assigned_by_id == self.env.user,
                 } for row in line['absences']],
                 'is_break': line.get('is_break', False),
             })

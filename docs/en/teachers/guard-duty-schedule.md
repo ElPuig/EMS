@@ -6,7 +6,7 @@
 
 See where every teacher is, and who is on guard duty, in each time block of the week — not just your own schedule.
 
-**Required role:** Teacher (read-only; schedules are configured by a Department Chief or above from the corresponding teacher's own weekly schedule). Organising an absence from the Absences table is up to the absent teacher's Department or Seminar Chief and those above them (see [Organising an absence](#organising-an-absence)).
+**Required role:** Teacher (read-only; schedules are configured by a Department Chief or above from the corresponding teacher's own weekly schedule). Organising an absence from the Absences table is up to the absent teacher's Department or Seminar Chief and those above them (see [Organising an absence](#organising-an-absence)); a teacher on guard duty can also take a class left without a teacher themselves (see [Covering a class yourself](#covering-a-class-yourself)).
 
 ---
 
@@ -93,6 +93,19 @@ An absence the Head of Studies already knows about, but the teacher has not requ
 A teacher on guard duty who is away is marked in the Guard duty column, and produces no line in the Absences column: they have no class of their own for anyone to cover.
 
 Only the fact that somebody is away is shown here. The type of absence, its reason and any supporting document are not.
+
+---
+
+## Covering a class yourself
+
+If you are on guard duty in a time block, you don't have to wait for somebody to send you: you can take a class that is still left without a teacher yourself.
+
+1. In the **Absences table**, click the line of the class (lines you can take show a hand pointer and the tooltip **Click to cover this class yourself**).
+2. Click **Cover it** to confirm.
+
+The class is then struck through with your name next to it, the same as when you are sent to it. Nobody receives a message: the board itself shows who covers what. Only a class with no guard yet can be taken, and only in a time block you are on guard duty (not a WC guard, and not while you are away yourself).
+
+If you change your mind, click the line again and then **Stop covering this class**: the class is left without a guard again. You can only do this with a class you took yourself; if somebody sent you to it, ask them to change it. Whoever organises the absence can still change or remove a guard who took a class on their own.
 
 ---
 

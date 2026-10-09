@@ -390,10 +390,17 @@ export class GuardDutyBoard extends Component {
         if (this.struckReason(absence)) {
             return this.struckReason(absence);
         }
+        // A row can also be a guard duty that is not regular (WC, break...) left without its
+        // teacher (issue #606): 'duty_id' set, 'group' holding the duty's name.
         if (this.isAssignable(absence)) {
-            return _t("Click to send a guard teacher to this class");
+            return absence.duty_id
+                ? _t("Click to send a guard teacher to this guard duty")
+                : _t("Click to send a guard teacher to this class");
         }
-        return absence.can_self_assign ? _t("Click to cover this class yourself") : false;
+        if (!absence.can_self_assign) {
+            return false;
+        }
+        return absence.duty_id ? _t("Click to cover this guard duty yourself") : _t("Click to cover this class yourself");
     }
 
     // Why a line is struck out, for everyone (not only whoever can organise the absence): shown by
@@ -406,7 +413,9 @@ export class GuardDutyBoard extends Component {
             return _t("No guard needed: the families were told \"%s\".", absence.authorized);
         }
         if (absence.cover) {
-            return _t("Covered by %s, the guard teacher sent to this class.", absence.cover.guard);
+            return absence.duty_id
+                ? _t("Covered by %s, the guard teacher sent to this guard duty.", absence.cover.guard)
+                : _t("Covered by %s, the guard teacher sent to this class.", absence.cover.guard);
         }
         return false;
     }
@@ -487,7 +496,7 @@ export class GuardDutyBoard extends Component {
                 await this.orm.call("ems.absence_cover", "board_assign", [
                     this.activeDate, line.hour_from, line.hour_to, absence.teacher_id, absence.group_id,
                     guardId, message,
-                ]);
+                ], { duty_id: absence.duty_id });
                 await this.loadBoard();
             },
             onRelease: async () => {
@@ -509,7 +518,7 @@ export class GuardDutyBoard extends Component {
             confirm: async () => {
                 await this.orm.call("ems.absence_cover", "board_self_assign", [
                     this.activeDate, line.hour_from, line.hour_to, absence.teacher_id, absence.group_id,
-                ]);
+                ], { duty_id: absence.duty_id });
                 await this.loadBoard();
             },
             cancel: () => {},

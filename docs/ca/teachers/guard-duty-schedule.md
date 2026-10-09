@@ -90,7 +90,7 @@ Les sol·licituds denegades i cancel·lades no es mostren.
 
 Una absència que Prefectura d'Estudis ja coneix però que el docent encara no ha sol·licitat també es mostra com a pendent d'aprovar.
 
-Un docent de guàrdia que falta queda marcat a la columna de guàrdia i no genera cap línia a la columna d'absències: no té cap classe pròpia que ningú hagi de cobrir.
+Un docent de guàrdia ordinària que falta queda marcat a la columna de guàrdia i no genera cap línia a la columna d'absències: no té cap classe pròpia que ningú hagi de cobrir. Una guàrdia que és un lloc fix, com la de WC o la de pati, és diferent: algú hi ha de ser, així que quan en falta el docent té la seva pròpia línia a la columna d'absències, amb el nom de la guàrdia (per exemple **Guàrdia (WC)**) on una classe mostra el grup, i es cobreix com una classe (consulta [Cobrir una guàrdia de WC o de pati](#cobrir-una-guardia-de-wc-o-de-pati)).
 
 Aquí només es mostra que la persona falta. El tipus d'absència, el motiu i el justificant, no.
 
@@ -103,7 +103,7 @@ Si estàs de guàrdia en una franja, no cal que esperis que algú t'hi enviï: p
 1. A la **Taula d'absències**, fes clic a la línia de la classe (les línies que pots agafar mostren una mà en passar-hi per sobre i l'indicació **Fes clic per cobrir tu aquesta classe**).
 2. Fes clic a **Cobrir-la** per confirmar-ho.
 
-La classe queda ratllada amb el teu nom al costat, igual que quan t'hi envien. Ningú no rep cap missatge: el mateix quadrant mostra qui cobreix què. Només es pot agafar una classe que encara no té cap docent de guàrdia, i només en una franja en què estàs de guàrdia (no en una guàrdia de WC, ni mentre tu mateix estàs absent).
+La classe queda ratllada amb el teu nom al costat, igual que quan t'hi envien. Ningú no rep cap missatge: el mateix quadrant mostra qui cobreix què. Només es pot agafar una classe que encara no té cap docent de guàrdia, i només en una franja en què estàs de guàrdia ordinària (no en una guàrdia de WC o de pati, ni mentre tu mateix estàs absent). El mateix val per a la línia d'una guàrdia de WC o de pati el docent de la qual falta: també la pots agafar tu mateix.
 
 Si canvies d'idea, torna a fer clic a la línia i després a **Deixa de cobrir aquesta classe**: la classe torna a quedar sense guàrdia. Només ho pots fer amb una classe que t'has agafat tu; si algú t'hi ha enviat, demana-li que ho canviï. Qui organitza l'absència sempre pot canviar o treure un docent de guàrdia que s'hagi agafat una classe pel seu compte.
 
@@ -120,7 +120,7 @@ Tot es fa des de la **Taula d'absències**, i res no passa sol: cada pas espera 
 ### Enviar un docent de guàrdia a una classe
 
 1. Fes clic a la línia de la classe que cal cobrir (les línies que pots organitzar mostren el cursor de mà).
-2. Tria el **Docent de guàrdia**. Només s'ofereixen els docents de guàrdia en aquella franja, excepte els de guàrdia de WC i els que també estan absents. Al costat de cada nom es veu quantes classes ha cobert aquest curs, per poder triar qui n'ha cobert menys.
+2. Tria el **Docent de guàrdia**. Només s'ofereixen els docents de guàrdia ordinària en aquella franja (mai els de guàrdia de WC o de pati, que són necessaris al seu lloc), excepte els que també estan absents. Al costat de cada nom es veu quantes classes ha cobert aquest curs, per poder triar qui n'ha cobert menys.
 3. Opcionalment, escriu un **missatge**: què ha de treballar l'alumnat, on són els materials...
 4. Fes clic a **Assignar i avisar**.
 
@@ -131,6 +131,10 @@ El docent de guàrdia rep un missatge d'Odoo (a la safata d'entrada o per correu
 Aleshores la classe queda ratllada, hi apareix el nom del docent de guàrdia, i la línia i la casella del docent a la columna Guàrdia comparteixen el mateix color. Quan diversos docents de guàrdia cobreixen classes a la mateixa franja, cadascun té el seu color, de manera que es veu d'un cop d'ull qui cobreix què. Un docent de guàrdia pot cobrir més d'una classe: totes prenen el seu color.
 
 Per canviar el docent de guàrdia, fes clic a la línia i després a **Canviar o treure el docent de guàrdia** (només ho veu qui organitza l'absència), i tria'n un altre: a l'anterior se li comunica que ja no cal. Per enviar un missatge nou al mateix docent, torna'l a triar i fes clic a **Assignar i avisar**. **Treure l'assignació** treu el docent de la classe i l'avisa.
+
+### Cobrir una guàrdia de WC o de pati
+
+Quan falta el docent d'una guàrdia de WC o de pati, la seva guàrdia apareix com una línia de la taula d'absències, amb el nom de la guàrdia en lloc d'un grup. Es cobreix exactament com una classe: fes-hi clic, tria un dels docents de guàrdia ordinària d'aquella franja i fes clic a **Assignar i avisar**. El missatge que rep indica que és una guàrdia el que ha de cobrir. Si després l'absència s'anul·la, se t'ofereix alliberar el docent de guàrdia com qualsevol altre.
 
 ### Entrada tard, sortida abans d'hora o sense classes
 

@@ -537,13 +537,28 @@ class EmsCourseGuardDutyBoard(models.Model):
             ['guard_employee_id'], ['__count'])
         return {guard.id: count for guard, count in counts}
 
+    def _get_needed_duty_entry(self, day, duty, absent, hour_from, hour_to):
+        """`absent`'s own guard duty `duty` in the period, while it still needs covering (issue
+        #606): a duty that is not regular (WC, break...), on their timetable that day, and they are
+        away then. An empty recordset when it no longer does, which is what finds a cover made
+        earlier unnecessary and stops a new one."""
+        weekday = str(day.weekday())
+        entries = self._get_guard_duty_board_attendance_ids().filtered(
+            lambda attendance: attendance.employee_id == absent and attendance.dayofweek == weekday
+                and attendance.non_teaching == duty and not duty.is_regular_guard
+                and overlaps(attendance.hour_from, attendance.hour_to, hour_from, hour_to))
+        intervals = self._get_guard_duty_absence_intervals(day, absent)
+        if not entries or absent.id not in self._guard_duty_absence_state(intervals, absent, hour_from, hour_to):
+            return entries.browse()
+        return entries[:1]
+
     def _get_guard_candidates(self, day, hour_from, hour_to):
-        """The teachers who can be sent to cover a class in the period: on guard duty then (a WC
-        guard excluded - they are needed where they are) and not away themselves."""
+        """The teachers who can be sent to cover a class, or a guard duty that is not regular, in
+        the period: on regular guard duty then (issue #606 - a WC or break guard is needed where
+        they are) and not away themselves."""
         weekday = str(day.weekday())
         guards = self._get_guard_duty_board_attendance_ids().filtered(
-            lambda attendance: attendance.dayofweek == weekday and attendance.non_teaching_is_guard
-                and attendance.non_teaching.code != WC_GUARD_CODE
+            lambda attendance: attendance.dayofweek == weekday and attendance.non_teaching.is_regular_guard
                 and overlaps(attendance.hour_from, attendance.hour_to, hour_from, hour_to)).employee_id
         intervals = self._get_guard_duty_absence_intervals(day, guards)
         absent = self._guard_duty_absence_state(intervals, guards, hour_from, hour_to)
@@ -670,6 +685,8 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'teacher': teacher,
                     'state': cell_absences[teacher.id],
                     'group': group,
+                    'duty': self.env['ems.non_teaching_type'],
+                    'label': group.name,
                     'subject': first.subject_id,
                     'room': first.space_id,
                     'covered': self._guard_duty_is_co_taught(cell_entries, teacher, cell_absences),
@@ -694,6 +711,14 @@ class EmsCourseGuardDutyBoard(models.Model):
             # break windows coexist) as well as under a level filter.
             is_break = not any(cell['entries'] for cell in cells) and any(
                 _period_contains(break_period, (hour_from, hour_to)) for break_period in break_periods)
+            # An absent regular guard has no class of their own for anyone to cover, they are simply
+            # one fewer person available to cover somebody else's - a subtraction from the guard
+            # column, not an addition to the work. A guard duty that is not regular (WC, break...)
+            # is a post somebody has to be at, so its absent teacher's duty is one more row to
+            # cover (issue #606).
+            guard_absences = self._guard_duty_absence_state(
+                intervals, guards.mapped('employee_id'), hour_from, hour_to)
+            covering += self._board_duty_rows(guards, guard_absences, management, hour_from, hour_to)
             dated_lines.append((hour_from, hour_to, {
                 'time_label': "%s-%s" % (self._format_report_time(hour_from), self._format_report_time(hour_to)),
                 'hour_from': hour_from,
@@ -701,18 +726,14 @@ class EmsCourseGuardDutyBoard(models.Model):
                 'cells': cells,
                 'guards': guards,
                 'guard_colors': self._board_cover_colors(covering),
-                # Not folded into 'absences' below: an absent guard has no class of their own for
-                # anyone to cover, they are simply one fewer person available to cover somebody
-                # else's - a subtraction from the guard column, not an addition to the work.
-                'guard_absences': self._guard_duty_absence_state(
-                    intervals, guards.mapped('employee_id'), hour_from, hour_to),
+                'guard_absences': guard_absences,
                 'absences': covering,
                 'is_break': is_break,
             }))
 
         if level_ids:
             dated_lines += self._get_guard_duty_board_break_lines(
-                level_ids, weekday, shift_start, shift_end, groups, remaining_guards, intervals)
+                level_ids, weekday, shift_start, shift_end, groups, remaining_guards, intervals, management)
             dated_lines.sort(key=lambda dated_line: (dated_line[0], dated_line[1]))
         return {
             'groups': groups,
@@ -756,7 +777,10 @@ class EmsCourseGuardDutyBoard(models.Model):
                         'can_manage': can_manage(state['teachers']),
                     })
         for cover in shift_covers:
-            if not self._get_needed_absence_block(day, cover.group_id, cover.absent_employee_id, cover.hour_from, cover.hour_to):
+            needed = (self._get_needed_duty_entry(day, cover.duty_id, cover.absent_employee_id, cover.hour_from, cover.hour_to)
+                      if cover.duty_id else
+                      self._get_needed_absence_block(day, cover.group_id, cover.absent_employee_id, cover.hour_from, cover.hour_to))
+            if not needed:
                 actions.append({
                     'type': 'obsolete_cover',
                     'cover': cover,
@@ -765,19 +789,46 @@ class EmsCourseGuardDutyBoard(models.Model):
                 })
         return {'covers': covers, 'states': states, 'actions': actions, 'can_manage': can_manage}
 
-    def _board_absence_row_management(self, management, teacher, group, hour_from, hour_to):
-        """The management part of one absences-table row: the guard 'cover' assigned to it (an
-        empty recordset if none), the timetable change already communicated for its period
-        ('authorized', which makes a guard unnecessary and strikes the row out) or one the
-        absences allow but nobody has communicated yet ('proposed'), and whether the current user
-        may act on it ('can_manage')."""
+    def _board_duty_rows(self, guards, guard_absences, management, hour_from, hour_to):
+        """Absences-table rows for the guard duties that are not regular (WC, break...) left
+        without their teacher in one board period (issue #606): one per absent guard, keyed by
+        the duty instead of a group, with no subject or room and nothing a timetable change could
+        make unnecessary - only a regular guard sent to it covers it."""
+        rows = []
+        for attendance in guards.filtered(
+                lambda attendance: not attendance.non_teaching.is_regular_guard
+                and attendance.employee_id.id in guard_absences):
+            teacher, duty = attendance.employee_id, attendance.non_teaching
+            if any(row['teacher'] == teacher and row['duty'] == duty for row in rows):
+                continue
+            rows.append({
+                'teacher': teacher,
+                'state': guard_absences[teacher.id],
+                'group': self.env['ems.group'],
+                'duty': duty,
+                'label': duty.name,
+                'subject': self.env['ems.subject'],
+                'room': self.env['ems.space'],
+                'covered': False,
+                **self._board_absence_row_management(management, teacher, self.env['ems.group'], hour_from, hour_to, duty),
+            })
+        return rows
+
+    def _board_absence_row_management(self, management, teacher, group, hour_from, hour_to, duty=None):
+        """The management part of one absences-table row - a class of `group`, or the teacher's
+        guard duty `duty` (issue #606): the guard 'cover' assigned to it (an empty recordset if
+        none), the timetable change already communicated for its period ('authorized', which
+        makes a guard unnecessary and strikes the row out) or one the absences allow but nobody
+        has communicated yet ('proposed') - neither of which ever applies to a guard duty - and
+        whether the current user may act on it ('can_manage')."""
+        duty = duty or self.env['ems.non_teaching_type']
         if not management:
             return {'cover': self.env['ems.absence_cover'], 'authorized': None, 'proposed': None, 'can_manage': False}
         cover = management['covers'].filtered(
-            lambda cover: cover.absent_employee_id == teacher and cover.group_id == group
+            lambda cover: cover.absent_employee_id == teacher and cover.group_id == group and cover.duty_id == duty
                 and overlaps(cover.hour_from, cover.hour_to, hour_from, hour_to))[:1]
         authorized = proposed = None
-        for state in management['states'].get(group.id, {}).values():
+        for state in management['states'].get(group.id, {}).values() if group else ():
             if self._change_window_contains(state['communicated'], hour_from, hour_to):
                 authorized = state['communicated']
             elif state['status'] == 'proposal' and self._change_window_contains(state['expected'], hour_from, hour_to):
@@ -822,7 +873,8 @@ class EmsCourseGuardDutyBoard(models.Model):
             ])
         }
 
-    def _get_guard_duty_board_break_lines(self, level_ids, weekday, shift_start, shift_end, groups, unmatched_guards, intervals):
+    def _get_guard_duty_board_break_lines(self, level_ids, weekday, shift_start, shift_end, groups, unmatched_guards, intervals,
+                                          management=None):
         """Once a level filter is active, that level's own break ("Patio") period has no real
         teaching entry of its own to build a row from (a teacher's own calendar spans one
         continuous block across it - see hr.employee._get_derived_break_entries' own docstring),
@@ -841,7 +893,8 @@ class EmsCourseGuardDutyBoard(models.Model):
 
         'intervals' is forwarded straight from the caller so a guard's own absence still shows up
         on their dedicated break row exactly like it would on any other row - see
-        get_guard_duty_board_lines()'s own 'guard_absences'."""
+        get_guard_duty_board_lines()'s own 'guard_absences' - and an absent break guard's duty is
+        a row to cover there too (issue #606), with 'management' forwarded the same way."""
         break_periods = sorted(self._get_guard_duty_board_break_periods(level_ids, weekday, shift_start, shift_end))
         if not break_periods:
             return []
@@ -854,18 +907,19 @@ class EmsCourseGuardDutyBoard(models.Model):
             if not guards:
                 continue  # nothing to show for this break slot
             unmatched_guards -= guards
+            guard_absences = self._guard_duty_absence_state(intervals, guards.mapped('employee_id'), hour_from, hour_to)
+            covering = self._board_duty_rows(guards, guard_absences, management, hour_from, hour_to)
             dated_lines.append((hour_from, hour_to, {
                 'time_label': "%s-%s" % (self._format_report_time(hour_from), self._format_report_time(hour_to)),
                 'hour_from': hour_from,
                 'hour_to': hour_to,
-                'guard_colors': {},
+                'guard_colors': self._board_cover_colors(covering),
                 'cells': [{
                     'group': group, 'entries': empty_entries, 'teachers': empty_entries.employee_id, 'absences': {},
                 } for group in groups],
                 'guards': guards,
-                'guard_absences': self._guard_duty_absence_state(
-                    intervals, guards.mapped('employee_id'), hour_from, hour_to),
-                'absences': [],
+                'guard_absences': guard_absences,
+                'absences': covering,
                 'is_break': True,
             }))
         return dated_lines
@@ -907,12 +961,16 @@ class EmsCourseGuardDutyBoard(models.Model):
                 })
             wc_employee_ids = set(line['guards'].filtered(
                 lambda attendance: attendance.non_teaching.code == WC_GUARD_CODE).mapped('employee_id').ids)
+            regular_employee_ids = set(line['guards'].filtered(
+                lambda attendance: attendance.non_teaching.is_regular_guard).mapped('employee_id').ids)
             guards = self._guard_duty_teacher_data(
                 line['guards'].mapped('employee_id'), line['guard_absences'], wc_employee_ids)
             for guard in guards:
                 guard['color'] = line['guard_colors'].get(guard['id'], False)
                 guard['cover_count'] = cover_counts.get(guard['id'], 0)
-            candidate_ids = {guard['id'] for guard in guards if not guard['is_wc'] and not guard['absence']}
+            # Only a regular guard covers (issue #606), as _get_guard_candidates() checks again.
+            candidate_ids = {guard['id'] for guard in guards
+                             if guard['id'] in regular_employee_ids and not guard['absence']}
             on_guard = editable and me.id in candidate_ids
             lines.append({
                 'time_label': line['time_label'],
@@ -927,8 +985,9 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'teacher': row['teacher'].display_name,
                     'teacher_id': row['teacher'].id,
                     'state': row['state'],
-                    'group': row['group'].name,
+                    'group': row['label'],
                     'group_id': row['group'].id,
+                    'duty_id': row['duty'].id,
                     'subject': row['subject'].acronym if row['subject'] else False,
                     'room': row['room'].display_name if row['room'] else False,
                     'covered': row['covered'],
@@ -984,7 +1043,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         """JSON-safe version of one of the day's pending actions (see
         _get_board_absence_management), with the sentence the absences table shows for it."""
         data = {'type': action['type'], 'group_id': action['group'].id, 'can_manage': action['can_manage']}
-        values = {'group': action['group'].name}
+        values = {'group': action['cover'].display_name if action['type'] == 'obsolete_cover' else action['group'].name}
         if action['type'] == 'obsolete_cover':
             cover = action['cover']
             values.update(guard=cover.guard_employee_id.name, time=cover._time_label(), teacher=cover.absent_employee_id.name)

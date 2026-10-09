@@ -302,6 +302,135 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertTrue(action['can_manage'])
         self.assertEqual(cover.state, 'assigned', "nothing is released without the planner's say-so")
 
+    # Covering a guard duty that is not regular (issue #606)
+
+    def _wc_morning(self):
+        """_morning() plus a WC guard on duty 8-11 under teacher_a's own chain of command, and
+        away all day: their duty is what needs covering."""
+        self._morning()
+        self.teacher_guard_wc.parent_id = self.teacher_a.parent_id
+        self._guards(self.teacher_guard_wc, non_teaching=self.non_teaching_guard_wc)
+        self._absence(self.teacher_guard_wc, self.day)
+
+    def _duty_row(self, hour_from=8, hour_to=9):
+        return self._absence_row(self._teaching_line(self.day, hour_from, hour_to), self.teacher_guard_wc)
+
+    def _assign_duty(self, guard=None, user=None, message='Stay by the toilets'):
+        return self.Cover.with_user(user or self.department_chief).board_assign(
+            str(self.day), 8, 9, self.teacher_guard_wc.id, False, (guard or self.teacher_guard).id, message,
+            duty_id=self.non_teaching_guard_wc.id)
+
+    def test_only_the_regular_guard_type_is_seeded_as_regular(self):
+        self.assertTrue(self.non_teaching_guard.is_regular_guard)
+        self.assertFalse(self.non_teaching_guard_wc.is_regular_guard)
+        self.assertFalse(self.env.ref('ems.non_teaching_gb').is_regular_guard)
+
+    def test_an_absent_wc_guard_is_a_row_to_cover(self):
+        self._wc_morning()
+
+        row = self._duty_row()
+
+        self.assertEqual(row['duty'], self.non_teaching_guard_wc)
+        self.assertFalse(row['group'])
+        self.assertEqual(row['label'], self.non_teaching_guard_wc.name)
+        payload = next(row for row in self._board_row_data(self.department_chief)['absences']
+                       if row['teacher_id'] == self.teacher_guard_wc.id)
+        self.assertEqual((payload['duty_id'], payload['group_id']), (self.non_teaching_guard_wc.id, False))
+        self.assertEqual(payload['group'], self.non_teaching_guard_wc.name)
+        self.assertTrue(payload['can_manage'])
+
+    def test_an_absent_regular_guard_is_still_not_a_row_to_cover(self):
+        self._morning()
+        self._absence(self.teacher_guard, self.day)
+
+        self.assertFalse([row for row in self._teaching_line(self.day, 8, 9)['absences']
+                          if row['teacher'] == self.teacher_guard])
+
+    def test_the_planner_sends_a_regular_guard_to_the_wc_duty_who_is_notified(self):
+        self._wc_morning()
+
+        cover = self.Cover.browse(self._assign_duty())
+
+        self.assertEqual((cover.duty_id, cover.group_id), (self.non_teaching_guard_wc, self.env['ems.group']))
+        self.assertEqual(cover.display_name, self.non_teaching_guard_wc.name)
+        self.assertFalse(cover.subject_id or cover.space_id)
+        self.assertEqual(self._duty_row()['cover'], cover)
+        self.assertEqual(self._teaching_line(self.day, 8, 9)['guard_colors'], {self.teacher_guard.id: 0})
+        messages = self._guard_messages(self.teacher_guard)
+        self.assertEqual(len(messages), 1)
+        self.assertIn(self.non_teaching_guard_wc.name, messages.subject)
+        self.assertIn('guard duty', messages.body)
+        self.assertIn('Stay by the toilets', messages.body)
+        with self.assertRaises(ValidationError):
+            cover.copy()
+
+    def test_only_a_regular_guard_covers(self):
+        """Neither a WC nor a break guard is ever sent anywhere: they are needed at their post."""
+        self._morning()
+        self._guards(self.teacher_guard_wc, non_teaching=self.non_teaching_guard_wc)
+        break_guard = self.env['hr.employee'].create({'name': 'TABC Break Guard', 'employee_type': 'teacher'})
+        self._guards(break_guard, non_teaching=self.env.ref('ems.non_teaching_gb'))
+        self._absence(self.teacher_a, self.day)
+
+        for guard in (self.teacher_guard_wc, break_guard):
+            with self.subTest(guard=guard.name), self.assertRaises(UserError):
+                self._assign(guard=guard)
+        candidates = [candidate['id'] for candidate in self._board_row_data(self.department_chief)['guard_candidates']]
+        self.assertLessEqual({self.teacher_guard.id, self.teacher_guard_2.id}, set(candidates))
+        self.assertFalse({self.teacher_guard_wc.id, break_guard.id} & set(candidates))
+
+    def test_a_present_wc_guard_needs_no_cover(self):
+        self._morning()
+        self._guards(self.teacher_guard_wc, non_teaching=self.non_teaching_guard_wc)
+        self._absence(self.teacher_a, self.day)
+
+        with self.assertRaises(UserError):
+            self._assign_duty(user=self.env.ref('base.user_admin'))
+
+    def test_a_guard_takes_the_wc_duty_themselves(self):
+        self._wc_morning()
+        row = next(row for row in self._board_row_data(self.guard_user)['absences']
+                   if row['teacher_id'] == self.teacher_guard_wc.id)
+        self.assertTrue(row['can_self_assign'])
+
+        cover = self.Cover.browse(self.Cover.with_user(self.guard_user).board_self_assign(
+            str(self.day), 8, 9, self.teacher_guard_wc.id, False, duty_id=self.non_teaching_guard_wc.id))
+
+        self.assertTrue(cover.is_self_assigned)
+        self.assertEqual(cover.duty_id, self.non_teaching_guard_wc)
+
+    def test_a_wc_cover_no_longer_needed_is_offered_for_release(self):
+        self._morning()
+        self.teacher_guard_wc.parent_id = self.teacher_a.parent_id
+        self._guards(self.teacher_guard_wc, non_teaching=self.non_teaching_guard_wc)
+        leave = self._absence(self.teacher_guard_wc, self.day, approve=False)
+        cover = self.Cover.browse(self._assign_duty())
+
+        leave.action_refuse()
+
+        action = next(action for action in self._actions() if action['type'] == 'obsolete_cover')
+        self.assertEqual(action['cover'], cover)
+        data = self.env['ems.course'].with_user(self.department_chief).get_guard_duty_board_data(
+            '0', 'morning', day=str(self.day))
+        label = next(action['label'] for action in data['actions'] if action['type'] == 'obsolete_cover')
+        self.assertIn(self.non_teaching_guard_wc.name, label)
+
+    def test_the_pdf_prints_a_covered_guard_duty(self):
+        self._wc_morning()
+        self._assign_duty()
+
+        html, _content_type = self.env['ir.actions.report'].with_context(
+            guard_duty_weekday='0', guard_duty_date=str(self.day), guard_duty_view='table').\
+            _render_qweb_html('ems.report_guard_duty_board', [self.env.company.current_course_id.id])
+
+        self.assertIn(self.non_teaching_guard_wc.name.encode(), html)
+        self.assertIn(b'gdb-absence-row gdb-absence-covered gdb-cover-0', html)
+
+    def _board_row_data(self, user, hour_from=8):
+        data = self.env.company.current_course_id.with_user(user).get_guard_duty_board_data(
+            '0', 'morning', day=str(self.day))
+        return next(line for line in data['lines'] if line['hour_from'] == hour_from)
+
     # Self-assignment (issue #601)
 
     def _self_assign(self, user=None, hour_from=8, hour_to=9):

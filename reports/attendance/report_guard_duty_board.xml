@@ -186,7 +186,7 @@
                                                                 <div t-att-class="'gdb-absence-row' + (' gdb-absence-covered' if absence['covered'] or absence['cover'] or absence['authorized'] else '') + (' gdb-cover-%s' % line['guard_colors'].get(absence['cover'].guard_employee_id.id, 0) if absence['cover'] else '')">
                                                                     <span t-att-class="'gdb-absent' if absence['state'] == 'approved' else 'gdb-absent-pending'" t-esc="absence['teacher'].name"/>
                                                                     <span class="gdb-absence-class">
-                                                                        <t t-esc="absence['group'].name"/><t t-if="absence['subject']"> · <t t-esc="absence['subject'].acronym"/></t><t t-if="absence['room']"> · <t t-esc="absence['room'].display_name"/></t>
+                                                                        <t t-esc="absence['label']"/><t t-if="absence['subject']"> · <t t-esc="absence['subject'].acronym"/></t><t t-if="absence['room']"> · <t t-esc="absence['room'].display_name"/></t>
                                                                         <span t-if="absence['cover']" class="gdb-absence-tag">→ <t t-esc="absence['cover'].guard_employee_id.name"/></span>
                                                                         <span t-if="absence['authorized']" class="gdb-absence-tag" t-esc="course._absence_change_label(absence['authorized'])"/>
                                                                     </span>

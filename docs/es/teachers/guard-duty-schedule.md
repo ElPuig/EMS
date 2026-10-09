@@ -90,7 +90,7 @@ Las solicitudes denegadas y canceladas no se muestran.
 
 Una ausencia que Jefatura de Estudios ya conoce pero que el docente todavía no ha solicitado también se muestra como pendiente de aprobar.
 
-Un docente de guardia que falta queda marcado en la columna de guardia y no genera ninguna línea en la columna de ausencias: no tiene ninguna clase propia que nadie deba cubrir.
+Un docente de guardia ordinaria que falta queda marcado en la columna de guardia y no genera ninguna línea en la columna de ausencias: no tiene ninguna clase propia que nadie deba cubrir. Una guardia que es un puesto fijo, como la de WC o la de patio, es distinta: alguien tiene que estar allí, así que cuando falta su docente tiene su propia línea en la columna de ausencias, con el nombre de la guardia (por ejemplo **Guardia (WC)**) donde una clase muestra el grupo, y se cubre como una clase (consulta [Cubrir una guardia de WC o de patio](#cubrir-una-guardia-de-wc-o-de-patio)).
 
 Aquí solo se muestra que la persona falta. El tipo de ausencia, el motivo y el justificante, no.
 
@@ -103,7 +103,7 @@ Si estás de guardia en una franja, no hace falta que esperes a que alguien te e
 1. En la **Tabla de ausencias**, haz clic en la línea de la clase (las líneas que puedes coger muestran una mano al pasar por encima y la indicación **Haz clic para cubrir tú esta clase**).
 2. Haz clic en **Cubrirla** para confirmarlo.
 
-La clase queda tachada con tu nombre al lado, igual que cuando te envían. Nadie recibe ningún mensaje: el propio cuadrante muestra quién cubre qué. Solo se puede coger una clase que todavía no tiene ningún docente de guardia, y solo en una franja en la que estás de guardia (no en una guardia de WC, ni mientras tú mismo estás ausente).
+La clase queda tachada con tu nombre al lado, igual que cuando te envían. Nadie recibe ningún mensaje: el propio cuadrante muestra quién cubre qué. Solo se puede coger una clase que todavía no tiene ningún docente de guardia, y solo en una franja en la que estás de guardia ordinaria (no en una guardia de WC o de patio, ni mientras tú mismo estás ausente). Lo mismo vale para la línea de una guardia de WC o de patio cuyo docente falta: también puedes cogerla tú mismo.
 
 Si cambias de idea, vuelve a hacer clic en la línea y después en **Deja de cubrir esta clase**: la clase vuelve a quedarse sin guardia. Solo puedes hacerlo con una clase que te has cogido tú; si alguien te ha enviado, pídele que lo cambie. Quien organiza la ausencia siempre puede cambiar o quitar a un docente de guardia que se haya cogido una clase por su cuenta.
 
@@ -120,7 +120,7 @@ Todo se hace desde la **Tabla de ausencias**, y nada ocurre solo: cada paso espe
 ### Enviar un docente de guardia a una clase
 
 1. Haz clic en la línea de la clase que hay que cubrir (las líneas que puedes organizar muestran el cursor de mano).
-2. Elige el **Docente de guardia**. Solo se ofrecen los docentes de guardia en esa franja, salvo los de guardia de WC y los que también están ausentes. Junto a cada nombre se ve cuántas clases ha cubierto este curso, para poder elegir a quien menos haya cubierto.
+2. Elige el **Docente de guardia**. Solo se ofrecen los docentes de guardia ordinaria en esa franja (nunca los de guardia de WC o de patio, que son necesarios en su puesto), salvo los que también están ausentes. Junto a cada nombre se ve cuántas clases ha cubierto este curso, para poder elegir a quien menos haya cubierto.
 3. Opcionalmente, escribe un **mensaje**: qué tiene que trabajar el alumnado, dónde están los materiales...
 4. Haz clic en **Asignar y avisar**.
 
@@ -131,6 +131,10 @@ El docente de guardia recibe un mensaje de Odoo (en su bandeja de entrada o por 
 Entonces la clase queda tachada, aparece el nombre del docente de guardia, y la línea y la casilla del docente en la columna Guardia comparten el mismo color. Cuando varios docentes de guardia cubren clases en la misma franja, cada uno tiene su color, de modo que se ve de un vistazo quién cubre qué. Un docente de guardia puede cubrir más de una clase: todas toman su color.
 
 Para cambiar el docente de guardia, haz clic en la línea y después en **Cambiar o quitar el docente de guardia** (solo lo ve quien organiza la ausencia), y elige otro: al anterior se le comunica que ya no hace falta. Para enviar un mensaje nuevo al mismo docente, vuelve a elegirlo y haz clic en **Asignar y avisar**. **Quitar la asignación** saca al docente de la clase y le avisa.
+
+### Cubrir una guardia de WC o de patio
+
+Cuando falta el docente de una guardia de WC o de patio, su guardia aparece como una línea de la tabla de ausencias, con el nombre de la guardia en lugar de un grupo. Se cubre exactamente como una clase: haz clic en ella, elige uno de los docentes de guardia ordinaria de esa franja y haz clic en **Asignar y avisar**. El mensaje que recibe indica que lo que debe cubrir es una guardia. Si después la ausencia se anula, se te ofrece liberar al docente de guardia como cualquier otro.
 
 ### Entrada tarde, salida anticipada o sin clases
 

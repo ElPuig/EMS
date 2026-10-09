@@ -13302,6 +13302,7 @@ msgstr "Tabla de ausencias -"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/guard_duty_board_field.xml:0
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__duty_id
 #: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
 msgid "Guard duty"
 msgstr "Guardia"
@@ -21361,3 +21362,60 @@ msgstr "%(group)s volverá a quedarse sin docente de guardia."
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Stop covering"
 msgstr "Dejar de cubrir"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__is_regular_guard
+msgid "Regular guard"
+msgstr "Guardia ordinaria"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_non_teaching_type__is_regular_guard
+msgid "A teacher on this guard duty can be sent to cover a class, or a guard duty that is not regular (WC, break...), left without its teacher. A guard duty that is not regular has to be covered itself when its teacher is away."
+msgstr "Un docente de esta guardia puede ser enviado a cubrir una clase, o una guardia que no es ordinaria (WC, patio...), que se ha quedado sin su docente. Una guardia que no es ordinaria debe cubrirse ella misma cuando falta su docente."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_absence_cover_class_or_duty
+msgid "A cover is either for a class or for a guard duty."
+msgstr "Una cobertura es de una clase o de una guardia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "This guard duty no longer needs covering: the absence or the timetable has changed. Reload the board."
+msgstr "Esta guardia ya no necesita cubrirse: la ausencia o el horario han cambiado. Vuelve a cargar el cuadrante."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "You no longer need to cover this guard duty:"
+msgstr "Ya no hace falta que cubras esta guardia:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "You have been assigned to cover this guard duty:"
+msgstr "Se te ha asignado para cubrir esta guardia:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Guard duty: %s"
+msgstr "Guardia: %s"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Click to send a guard teacher to this guard duty"
+msgstr "Haz clic para enviar un docente de guardia a esta guardia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Click to cover this guard duty yourself"
+msgstr "Haz clic para cubrir tú esta guardia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Covered by %s, the guard teacher sent to this guard duty."
+msgstr "Cubierta por %s, el docente de guardia enviado a esta guardia."

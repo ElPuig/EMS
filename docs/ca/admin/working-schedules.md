@@ -70,6 +70,7 @@ La llista de motius no lectius (Pati, Guàrdia, Reunió de coordinació...) que 
 1. Vés a **Configuració → Professorat → Tipus d'hora no lectiva**.
 2. Fes clic a **Nou**, estableix un **Codi** curt (ha de coincidir exactament amb el que utilitza el planificador extern per a aquesta activitat) i un **Nom** (el que veuran els docents i els informes).
 3. Opcionalment, marca'l com **És un pati** (es descarta completament del resum d'hores setmanals, igual que el pati) o **Sempre és un compromís d'horari fix** (sempre es compta a la columna "Altres hores en horari fix", com una guàrdia).
+   Si és una guàrdia, marca **És una guàrdia** (apareix al quadrant de guàrdies) i, si qui la fa pot anar a cobrir classes i altres guàrdies, també **Guàrdia ordinària**. Deixa-la desmarcada en una guàrdia que és un lloc fix, com la de WC o la de pati: qui la fa no s'envia a cobrir res, i quan falta, la seva guàrdia és la que s'ha de cobrir.
 4. Desa. El nou tipus queda disponible immediatament al desplegable "no lectiva" en editar un horari, i es reconeix la propera vegada que importis un fitxer del planificador que faci servir el seu codi.
 
 ---

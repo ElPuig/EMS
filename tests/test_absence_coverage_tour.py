@@ -96,3 +96,24 @@ class TestAbsenceCoverageTour(HttpCase):
         covers = self.env['ems.absence_cover'].search([('absent_employee_id', '=', teacher.id)], order='hour_from')
         self.assertEqual([(cover.hour_from, cover.state) for cover in covers], [(8, 'released'), (9, 'assigned')])
         self.assertEqual(covers.guard_employee_id, guard)
+
+    def test_wc_guard_cover_tour(self):
+        """Issue #606, as the Department Chief: the WC guard is away, so their duty is a row of the
+        absences table, and the regular guard on duty is sent to it."""
+        teacher, guard, _group = self._board_fixture()
+        wc_guard = self.env['hr.employee'].create({
+            'name': 'Tour WC Guard', 'employee_type': 'teacher', 'parent_id': teacher.parent_id.id})
+        self._calendar(wc_guard, ((8, 9),), non_teaching=self.env.ref('ems.non_teaching_gwc').id, name='Guard (WC)')
+        day = self.env['hr.leave'].search([('employee_id', '=', teacher.id)]).request_date_from
+        self.env['hr.leave'].create({
+            'employee_id': wc_guard.id,
+            'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+            'request_date_from': day, 'request_date_to': day,
+            'ems_full_day': False, 'request_hour_from': 8, 'request_hour_to': 9,
+            'ems_submitted': True, 'ems_responsible_declaration': True,
+        }).action_approve()
+
+        self.start_tour("/odoo", "ems_wc_guard_cover", login=self.department_chief.login)
+
+        cover = self.env['ems.absence_cover'].search([('absent_employee_id', '=', wc_guard.id)])
+        self.assertEqual((cover.duty_id, cover.guard_employee_id), (self.env.ref('ems.non_teaching_gwc'), guard))

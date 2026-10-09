@@ -19,6 +19,7 @@
 | `is_break` | `Boolean` | No | Yes | Dropped from both hours-summary columns on the working schedule (e.g. lunch/patio break) |
 | `is_fixed` | `Boolean` | No | Yes | Counted in the "Other fixed-schedule hours" column every day (e.g. guard duties) |
 | `is_guard` | `Boolean` | No | Yes | Counted as guard duty on the [guard duty schedule board](../attendance/guard_duty_board.md) |
+| `is_regular_guard` | `Boolean` | No | Yes | A regular guard duty (issue #606): only its teachers can be sent to cover a class, or a guard duty that is not regular, on the [guard duty schedule board](../attendance/guard_duty_board.md#guard-duties-that-are-not-regular-issue-606). A guard duty that is not regular (`is_guard` without it, e.g. WC or break) is a post that must be manned, so its absent teacher's duty is a row to cover. Seeded `True` only on `G` |
 | `active` | `Boolean` (`default=True`) | No | Yes | Standard archive flag |
 
 `_order = "name"`; `unique_code` SQL constraint. Dropped the `sequence` field (2026-09-07,

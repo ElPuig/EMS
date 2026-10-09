@@ -1,15 +1,15 @@
-id,code,name,is_break,is_fixed,is_guard
-ems.non_teaching_ac,AC,Another Coordinations,0,1,0
-ems.non_teaching_br,BR,Break,1,0,0
-ems.non_teaching_cm,CM,Coordination Meeting,0,0,0
-ems.non_teaching_ct,CT,Coordination Time,0,0,0
-ems.non_teaching_g,G,Guard,0,1,1
-ems.non_teaching_gb,GB,Guard (Break),0,1,1
-ems.non_teaching_gwc,GWC,Guard (WC),0,1,1
-ems.non_teaching_mm,MM,Management Meeting,0,0,0
-ems.non_teaching_mt,MT,Management Time,0,0,0
-ems.non_teaching_r,R,Reduction,0,0,0
-ems.non_teaching_s,S,Staying at the center,0,0,0
-ems.non_teaching_sc,SC,School Council,0,0,0
-ems.non_teaching_tt,TT,Tutorship Time,0,0,0
-ems.non_teaching_wic,WIC,Workplace Intership Coordination,0,0,0
+id,code,name,is_break,is_fixed,is_guard,is_regular_guard
+ems.non_teaching_ac,AC,Another Coordinations,0,1,0,0
+ems.non_teaching_br,BR,Break,1,0,0,0
+ems.non_teaching_cm,CM,Coordination Meeting,0,0,0,0
+ems.non_teaching_ct,CT,Coordination Time,0,0,0,0
+ems.non_teaching_g,G,Guard,0,1,1,1
+ems.non_teaching_gb,GB,Guard (Break),0,1,1,0
+ems.non_teaching_gwc,GWC,Guard (WC),0,1,1,0
+ems.non_teaching_mm,MM,Management Meeting,0,0,0,0
+ems.non_teaching_mt,MT,Management Time,0,0,0,0
+ems.non_teaching_r,R,Reduction,0,0,0,0
+ems.non_teaching_s,S,Staying at the center,0,0,0,0
+ems.non_teaching_sc,SC,School Council,0,0,0,0
+ems.non_teaching_tt,TT,Tutorship Time,0,0,0,0
+ems.non_teaching_wic,WIC,Workplace Intership Coordination,0,0,0,0

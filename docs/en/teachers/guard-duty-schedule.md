@@ -90,7 +90,7 @@ Refused and cancelled requests are not shown.
 
 An absence the Head of Studies already knows about, but the teacher has not requested yet, is also shown as awaiting approval.
 
-A teacher on guard duty who is away is marked in the Guard duty column, and produces no line in the Absences column: they have no class of their own for anyone to cover.
+A teacher on an ordinary guard duty who is away is marked in the Guard duty column, and produces no line in the Absences column: they have no class of their own for anyone to cover. A guard duty that is a fixed post, like the WC or the break guard, is different: somebody has to be there, so when its teacher is away it gets its own line in the Absences column, with the guard duty's name (for example **Guard (WC)**) where a class shows its group, to be covered like a class (see [Covering a WC or break guard](#covering-a-wc-or-break-guard)).
 
 Only the fact that somebody is away is shown here. The type of absence, its reason and any supporting document are not.
 
@@ -103,7 +103,7 @@ If you are on guard duty in a time block, you don't have to wait for somebody to
 1. In the **Absences table**, click the line of the class (lines you can take show a hand pointer and the tooltip **Click to cover this class yourself**).
 2. Click **Cover it** to confirm.
 
-The class is then struck through with your name next to it, the same as when you are sent to it. Nobody receives a message: the board itself shows who covers what. Only a class with no guard yet can be taken, and only in a time block you are on guard duty (not a WC guard, and not while you are away yourself).
+The class is then struck through with your name next to it, the same as when you are sent to it. Nobody receives a message: the board itself shows who covers what. Only a class with no guard yet can be taken, and only in a time block you are on an ordinary guard duty (not a WC or break guard, and not while you are away yourself). The same goes for the line of a WC or break guard who is away: you can take it yourself the same way.
 
 If you change your mind, click the line again and then **Stop covering this class**: the class is left without a guard again. You can only do this with a class you took yourself; if somebody sent you to it, ask them to change it. Whoever organises the absence can still change or remove a guard who took a class on their own.
 
@@ -120,7 +120,7 @@ Everything is done from the **Absences table**, and nothing happens on its own: 
 ### Sending a guard to a class
 
 1. Click the line of the class to cover (lines you can organise show a hand pointer).
-2. Choose the **Guard teacher**. Only the teachers on guard duty in that time block are offered, except those on a WC guard and those who are away themselves. Next to each name you see how many classes they have covered this course, so you can choose whoever has covered the fewest.
+2. Choose the **Guard teacher**. Only the teachers on an ordinary guard duty in that time block are offered (never those on a WC or break guard, who are needed at their post), except those who are away themselves. Next to each name you see how many classes they have covered this course, so you can choose whoever has covered the fewest.
 3. Optionally, write a **message**: what the students have to work on, where the materials are...
 4. Click **Assign and notify**.
 
@@ -131,6 +131,10 @@ The guard teacher receives an Odoo message (in their inbox, or by email, dependi
 The class is then struck through, the guard's name appears next to it, and the line and the guard's box in the Guard duty column share the same colour. When several guards cover classes in the same time block, each guard has their own colour, so you can see at a glance who is covering what. A guard can cover more than one class: all of them take that guard's colour.
 
 To change the guard, click the line and then **Change or remove the guard** (only shown to whoever organises the absence), and choose another one: the previous guard is told they are no longer needed. To write a new message to the same guard, choose them again and click **Assign and notify**. **Remove assignment** takes the guard off the class and tells them so.
+
+### Covering a WC or break guard
+
+When the teacher of a WC or break guard is away, their guard duty appears as a line of the Absences table, with the guard duty's name instead of a group. It is covered exactly like a class: click it, choose one of the teachers on an ordinary guard duty in that time block, and click **Assign and notify**. The message they receive says it is a guard duty to cover. If the absence is cancelled afterwards, the guard is offered for release like any other.
 
 ### Late entry, early leave or no classes
 

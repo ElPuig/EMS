@@ -14,6 +14,7 @@
                             <field name="is_break"/>
                             <field name="is_fixed"/>
                             <field name="is_guard"/>
+                            <field name="is_regular_guard" invisible="not is_guard"/>
                         </group>
                     </sheet>
                 </form>

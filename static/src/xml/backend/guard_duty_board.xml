@@ -124,6 +124,7 @@
                                                       t-att-class="absenceClass(guard.absence)">
                                                     <t t-esc="guard.name"/>
                                                     <span t-if="guard.is_wc" class="o_guard_board_guard_wc_tag"> <t t-esc="wcSuffix"/></span>
+                                                    <span class="o_guard_board_guard_count" t-att-title="coverCountTitle" t-esc="guard.cover_count"/>
                                                 </span>
                                             </t>
                                         </td>
@@ -228,6 +229,7 @@
                                                       t-att-class="guardBadgeClass(guard)">
                                                     <t t-esc="guard.name"/>
                                                     <span t-if="guard.is_wc" class="o_guard_board_guard_wc_tag"> <t t-esc="wcSuffix"/></span>
+                                                    <span class="o_guard_board_guard_count" t-att-title="coverCountTitle" t-esc="guard.cover_count"/>
                                                 </span>
                                             </t>
                                         </td>
@@ -264,7 +266,7 @@
                             t-on-change="(ev) => this.onGuardChange(ev)">
                         <option value="" t-att-selected="!state.guardId" t-esc="labels.choose"/>
                         <t t-foreach="props.line.guard_candidates" t-as="candidate" t-key="candidate.id">
-                            <option t-att-value="candidate.id" t-att-selected="candidate.id === state.guardId" t-esc="candidate.name"/>
+                            <option t-att-value="candidate.id" t-att-selected="candidate.id === state.guardId" t-esc="candidateLabel(candidate)"/>
                         </t>
                     </select>
                 </div>

@@ -326,6 +326,14 @@
     color: #0d6efd;
 }
 
+/* An arrangement that changes a teacher's entry or exit time: it must stand out from those that
+   change nobody's working day. */
+.o_guard_board_schedule_tag,
+.o_guard_cover_schedule_change {
+    border-color: #b35c00;
+    color: #b35c00;
+}
+
 .o_guard_board_cell_substitute {
     color: #0d6efd;
 }

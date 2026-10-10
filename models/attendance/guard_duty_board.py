@@ -612,6 +612,39 @@ class EmsCourseGuardDutyBoard(models.Model):
             1 for block in simulated if self._change_window_contains(option[0], block['hour_from'], block['hour_to'])))
         return change, bool(states.get(side, {}).get('communicated')), 0 if already_empty else 1
 
+    def _schedule_shift(self, context, teacher, removed, added):
+        """How `teacher`'s working day that day - from their first period to their last, lessons,
+        guards and any other duty alike - changes if they stop teaching `removed` and teach
+        `added` instead: `[(kind, old, new)]`, `kind` being 'entry' or 'exit', empty when neither
+        moves. None when the day would get longer: coming in earlier is only possible leaving
+        earlier too, and leaving later coming in later (developer decision, 2026-10-10)."""
+        periods = [(attendance.hour_from, attendance.hour_to) for attendance in context['entries']
+                   if attendance.employee_id == teacher]
+        if not periods:
+            return None
+        before = (min(start for start, _stop in periods), max(stop for _start, stop in periods))
+        kept = [period for period in periods if not overlaps(*period, *removed)] + [added]
+        after = (min(start for start, _stop in kept), max(stop for _start, stop in kept))
+        if after[1] - after[0] > before[1] - before[0] + HOUR_EPSILON:
+            return None
+        return [(kind, old, new) for kind, old, new in (('entry', before[0], after[0]), ('exit', before[1], after[1]))
+                if abs(old - new) > HOUR_EPSILON]
+
+    def _arrangement_shifts(self, context, arrangement_type, absent, teacher, hour_from, hour_to, lesson):
+        """`[(teacher, kind, old, new)]`: the entry and exit times an arrangement changes, for
+        every teacher it moves (in a swap both of them, in a moved lesson whoever moves it); None
+        when it would lengthen somebody's day."""
+        moves = [(teacher, lesson, (hour_from, hour_to))]
+        if arrangement_type == 'swap':
+            moves.append((absent, (hour_from, hour_to), lesson))
+        shifts = []
+        for employee, removed, added in moves:
+            shift = self._schedule_shift(context, employee, removed, added)
+            if shift is None:
+                return None
+            shifts += [(employee, *change) for change in shift]
+        return shifts
+
     def _get_arrangement_options(self, day, group, absent, hour_from, hour_to, exclude=None, context=None):
         """The internal arrangements that would leave `absent`'s class of `group` in the period
         without needing a guard (issue #605), swaps first - the priority is that the students lose
@@ -621,11 +654,16 @@ class EmsCourseGuardDutyBoard(models.Model):
         - 'move': another teacher of the group, free now, moves into it their lesson at the start
           or end of the group's day (or next to a break), which the group then skips: it comes in
           later or leaves earlier, so the families must be told (see _simulate_moved_lesson).
+        Nobody's working day may get longer (see _schedule_shift): whoever would come in earlier
+        must leave earlier, and the other way round.
         Each option is `{'type', 'teacher', 'hour_from', 'hour_to', 'change', 'rectification',
-        'lost'}`, the hours being the other lesson's and 'lost' the lessons the students lose,
-        which orders them (a move whose lesson had nobody anyway loses none, like a swap). Only within the group and the day: anything else
-        (two groups joined, a teacher of another group...) is a manual arrangement. `exclude`:
-        covers being replaced, ignored."""
+        'lost', 'shifts'}`, the hours being the other lesson's, 'lost' the lessons the students
+        lose (a move whose lesson had nobody anyway loses none, like a swap) and 'shifts' the
+        entry/exit times it changes (see _arrangement_shifts). Ordered by lessons lost, swaps
+        first, then those that change nobody's entry or exit. Only within the group and the day:
+        anything else (two groups joined, a teacher of another group...) is a manual arrangement.
+        `exclude`: covers being replaced, ignored. A lesson shared with other groups is never moved.
+        """
         context = context or self._arrangement_context(day)
         covers = context['covers'] - (exclude or self.env['ems.absence_cover'])
         group_entries = context['entries'].filtered(lambda attendance: group in attendance.group_ids)
@@ -634,8 +672,10 @@ class EmsCourseGuardDutyBoard(models.Model):
         for teacher in (group_entries.employee_id - absent).sorted('name'):
             if not self._is_free_for_arrangement(context, covers, teacher, hour_from, hour_to):
                 continue
+            # A lesson shared with another group is left out: moving it would change that group's
+            # day too, which nobody asked for (that is a manual arrangement).
             lessons = sorted({(attendance.hour_from, attendance.hour_to) for attendance in group_entries
-                              if attendance.employee_id == teacher
+                              if attendance.employee_id == teacher and attendance.group_ids == group
                               and not overlaps(attendance.hour_from, attendance.hour_to, hour_from, hour_to)})
             for lesson in lessons:
                 if vacated.filtered(lambda cover, lesson=lesson: overlaps(cover.vacated_hour_from, cover.vacated_hour_to, *lesson)):
@@ -643,11 +683,17 @@ class EmsCourseGuardDutyBoard(models.Model):
                 option = {'teacher': teacher, 'hour_from': lesson[0], 'hour_to': lesson[1],
                           'change': None, 'rectification': False, 'lost': 0}
                 if self._is_free_for_arrangement(context, covers, absent, *lesson):
-                    options.append({**option, 'type': 'swap'})
+                    shifts = self._arrangement_shifts(context, 'swap', absent, teacher, hour_from, hour_to, lesson)
+                    if shifts is not None:
+                        options.append({**option, 'type': 'swap', 'shifts': shifts})
                 moved = self._simulate_moved_lesson(context, group, hour_from, hour_to, teacher, lesson)
                 if moved:
-                    options.append({**option, 'type': 'move', 'change': moved[0], 'rectification': moved[1], 'lost': moved[2]})
-        return sorted(options, key=lambda option: (option['lost'], option['type'] != 'swap', option['hour_from'], option['teacher'].name))
+                    shifts = self._arrangement_shifts(context, 'move', absent, teacher, hour_from, hour_to, lesson)
+                    if shifts is not None:
+                        options.append({**option, 'type': 'move', 'change': moved[0], 'rectification': moved[1],
+                                        'lost': moved[2], 'shifts': shifts})
+        return sorted(options, key=lambda option: (
+            option['lost'], option['type'] != 'swap', bool(option['shifts']), option['hour_from'], option['teacher'].name))
 
     @api.model
     def get_arrangement_candidates(self, day, hour_from, hour_to, absent_employee_id, group_id):
@@ -886,7 +932,8 @@ class EmsCourseGuardDutyBoard(models.Model):
         } for _hour_from, _hour_to, line in dated_lines for row in line['absences']
             for option in row.get('arrangement_options', [])]
         return sorted(actions, key=lambda action: (
-            action['option']['lost'], action['option']['type'] != 'swap', action['line']['hour_from']))
+            action['option']['lost'], action['option']['type'] != 'swap', bool(action['option']['shifts']),
+            action['line']['hour_from']))
 
     def _get_board_absence_management(self, day, groups, shift_start, shift_end):
         """Everything the absences table needs to manage the day's absences, resolved once per
@@ -1182,7 +1229,28 @@ class EmsCourseGuardDutyBoard(models.Model):
             'hour_to': option['hour_to'],
             'label': label,
             'change_label': self._absence_change_label(option['change']) if option['change'] else False,
+            'schedule_changes': self._schedule_shift_labels(option['shifts']),
         }
+
+    def _cover_schedule_changes(self, cover):
+        """The entry/exit sentences of an arrangement already applied, for its notifications."""
+        if cover.arrangement_type not in ('swap', 'move'):
+            return []
+        shifts = self._arrangement_shifts(
+            self._arrangement_context(cover.date), cover.arrangement_type, cover.absent_employee_id,
+            cover.guard_employee_id, cover.hour_from, cover.hour_to, (cover.vacated_hour_from, cover.vacated_hour_to))
+        return self._schedule_shift_labels(shifts or [])
+
+    def _schedule_shift_labels(self, shifts):
+        """One sentence per entry or exit time an arrangement changes (see _arrangement_shifts)."""
+        labels = []
+        for teacher, kind, old, new in shifts:
+            values = {'teacher': teacher.name, 'new': self._format_report_time(new), 'old': self._format_report_time(old)}
+            if kind == 'entry':
+                labels.append(_("%(teacher)s comes in at %(new)s instead of %(old)s.", **values))
+            else:
+                labels.append(_("%(teacher)s leaves at %(new)s instead of %(old)s.", **values))
+        return labels
 
     def _absence_change_label(self, change, proposed=False):
         """Short wording of a timetable change, for a row tag or an action: what the families
@@ -1223,6 +1291,8 @@ class EmsCourseGuardDutyBoard(models.Model):
             label = _("%(group)s at %(time)s (%(teacher)s): %(option)s", **values)
             if option['change_label']:
                 label = _("%(label)s The families will be told: %(change)s.", label=label, change=option['change_label'])
+            if option['schedule_changes']:
+                label = f"{label} {' '.join(option['schedule_changes'])}"
             data.update(option, option_type=option['type'], type='arrangement_option', label=label, absent_id=row['teacher'].id,
                         class_hour_from=line['hour_from'], class_hour_to=line['hour_to'])
             return data

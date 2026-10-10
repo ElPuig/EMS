@@ -834,7 +834,16 @@ flowchart TD
     empty and `_allowed_absence_changes()` offers a change containing it (start or end of the day,
     or next to a break; the middle of the day is covered with a guard, decided 2026-10-07). The
     smallest such change is the notice. `lost` is 0 when that lesson was empty anyway.
-  Options are ordered by `lost`, then swaps first. Only within the group and the day (developer
+  - **Nobody's working day gets longer** (`_schedule_shift()`, developer decision 2026-10-10): a
+    teacher's day runs from their first period to their last that day (lessons, guards and any
+    other duty). The option is dropped if, with the change, that span would be longer for B or, in
+    a swap, for A: coming in earlier is only possible leaving earlier too, and leaving later coming
+    in later. Every entry/exit time it does change (`shifts`, `_arrangement_shifts()`) is spelt out
+    in the proposal (and tagged "Changes entry/exit") and in the teachers' notification
+    (`_cover_schedule_changes()`), so a change to somebody's working hours is never hidden.
+  - A lesson shared with another group is never moved or swapped: that group's day would change
+    too (a manual arrangement covers it).
+  Options are ordered by `lost`, then swaps first, then those that change nobody's entry or exit. Only within the group and the day (developer
   decision, 2026-10-09: anything wider multiplies the options into noise); all of them are shown.
 - **Where they show**: only to whoever may organise that absence (`can_manage`) and only for a
   class still left without anybody (`_board_row_arrangement_options()`): as pending actions

@@ -176,6 +176,10 @@
                                 <div class="o_guard_board_action o_guard_board_action_arrangement_option">
                                     <i t-att-class="actionIcon(action)"/>
                                     <span class="o_guard_board_action_label" t-esc="action.label"/>
+                                    <span t-if="action.schedule_changes.length" class="o_guard_board_absence_tag o_guard_board_schedule_tag"
+                                          t-att-data-tooltip="action.schedule_changes.join(' ')">
+                                        <i class="fa fa-clock-o me-1"/><t t-esc="actionLabels.scheduleChange"/>
+                                    </span>
                                     <button type="button" class="btn btn-sm btn-outline-primary o_guard_board_action_button"
                                             t-on-click="() => this.onAction(action)" t-esc="actionButtonLabel(action)"/>
                                 </div>
@@ -309,6 +313,10 @@
                                     <i t-att-class="option.type === 'swap' ? 'fa fa-exchange me-1' : 'fa fa-arrows-v me-1'"/>
                                     <t t-esc="option.label"/>
                                     <span t-if="option.change_label" class="d-block text-muted small" t-esc="noticeLabel(option)"/>
+                                    <!-- Whose entry or exit time it changes, if anybody's: never hidden in the sentence. -->
+                                    <t t-foreach="option.schedule_changes" t-as="change" t-key="change_index">
+                                        <span class="d-block small o_guard_cover_schedule_change"><i class="fa fa-clock-o me-1"/><t t-esc="change"/></span>
+                                    </t>
                                 </label>
                             </div>
                         </t>

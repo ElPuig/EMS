@@ -366,6 +366,7 @@ export class GuardDutyBoard extends Component {
             arrangementsTitle: _t("Possible arrangements"),
             arrangementsHelp: _t("Teachers of the group who could rearrange their lessons so that no guard is needed, first those where the students lose no lesson. The teachers involved are notified."),
             applyArrangement: _t("Apply"),
+            scheduleChange: _t("Changes entry/exit"),
         };
     }
 

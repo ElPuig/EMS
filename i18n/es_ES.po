@@ -21628,3 +21628,21 @@ msgstr "%s reorganizaciones posibles"
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "1 possible arrangement"
 msgstr "1 reorganización posible"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(teacher)s comes in at %(new)s instead of %(old)s."
+msgstr "%(teacher)s entra a las %(new)s en lugar de a las %(old)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(teacher)s leaves at %(new)s instead of %(old)s."
+msgstr "%(teacher)s sale a las %(new)s en lugar de a las %(old)s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Changes entry/exit"
+msgstr "Cambia la entrada/salida"

@@ -245,6 +245,8 @@ class EmsAbsenceCover(models.Model):
                 cover.env._("Group: %s", values['group']),
                 cover.env._("Absent teacher: %s", cover.absent_employee_id.name),
             ]
+            if not cancelled:
+                details += cover.env['ems.course']._cover_schedule_changes(cover)
             body = Markup("<p>{}</p>{}").format(intro, self.env['ems.base'].build_html_list(details))
             cover.sudo().message_notify(partner_ids=partner.ids, subject=subject, body=body)
 

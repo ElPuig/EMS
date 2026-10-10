@@ -749,7 +749,8 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         cell = next(cell for cell in self._teaching_line(self.day, 11, 12)['cells'] if cell['group'] == self.group_a)
         self.assertEqual((cell['substitutes'], cell['moved']), (self.teacher_a, self.teacher_b))
         self.assertTrue(self._messages(self.teacher_a, 'Timetable arrangement'))
-        self.assertTrue(self._messages(self.teacher_b, 'Timetable arrangement'))
+        message = self._messages(self.teacher_b, 'Timetable arrangement')
+        self.assertIn('comes in at 08:00 instead of 11:00', message.body, "the change of entry time is spelt out")
         self.assertFalse(self._board_row(self.guard_user)['can_self_assign'])
 
     def test_a_guard_who_swaps_is_struck_out_of_the_guard_column(self):
@@ -815,7 +816,22 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
 
         self.assertIn(('move', self.teacher_a, 8), options, "the first lesson: the group comes in later")
         self.assertNotIn(('move', self.teacher_a, 9), options, "the middle of the day is covered with a guard")
-        self.assertIn(('swap', self.teacher_a, 9), options, "a swap can be with any lesson")
+
+    def test_an_arrangement_never_lengthens_a_working_day(self):
+        self._morning()
+        self._absence(self.teacher_b, self.day, hour_from=11, hour_to=12)
+
+        options = {(option['type'], option['hour_from']): option for option in self._options(11, 12, absent=self.teacher_b)}
+
+        # teacher_a works 8-11. Swapping their 9:00 lesson for teacher_b's 11:00 one would keep
+        # them until 12 without coming in later: not offered. Swapping the 8:00 one moves their
+        # whole day an hour later and teacher_b's three hours earlier, each as long as before: offered,
+        # saying so.
+        self.assertNotIn(('swap', 9), options)
+        self.assertEqual(set(options[('swap', 8)]['shifts']), {
+            (self.teacher_a, 'entry', 8, 9), (self.teacher_a, 'exit', 11, 12),
+            (self.teacher_b, 'entry', 11, 8), (self.teacher_b, 'exit', 12, 9),
+        })
 
     def test_a_move_that_loses_no_lesson_comes_first(self):
         self._morning()
@@ -830,6 +846,17 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual((lost[('swap', 8)], lost[('move', 8)]), (0, 0))
         self.assertEqual(lost[('move', 9)] if ('move', 9) in lost else 1, 1)
         self.assertEqual([option['lost'] for option in options], sorted(option['lost'] for option in options))
+
+    def test_a_lesson_shared_with_another_group_is_never_moved(self):
+        self._schedule_class(self.teacher_a, self.group_a, 'TABC Calendar A', periods=((8, 9), (9, 10), (10, 11)))
+        calendar = self._new_calendar(self.teacher_b, 'TABC Calendar B (two groups)')
+        calendar.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 11, 'hour_to': 12, 'day_period': 'morning', 'subject_id': self.subject.id,
+            'group_ids': [self.group_a.id, self.group_b.id], 'name': 'TGDBA+B: TGDB',
+        }])
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+
+        self.assertFalse(self._options(), "group_b's day would change too")
 
     def test_only_a_detected_arrangement_can_be_applied(self):
         self._morning()
@@ -891,7 +918,9 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
 
         self.assertFalse(self._board_row(self.guard_user)['arrangement_options'])
-        self.assertEqual(len(self._board_row(self.department_chief)['arrangement_options']), 2)
+        row_options = self._board_row(self.department_chief)['arrangement_options']
+        self.assertEqual(len(row_options), 2)
+        self.assertIn(f'{self.teacher_b.name} comes in at 08:00 instead of 11:00.', row_options[0]['schedule_changes'])
         data = self.env.company.current_course_id.with_user(self.department_chief).get_guard_duty_board_data(
             '0', 'morning', day=str(self.day))
         actions = [action for action in data['actions'] if action['type'] == 'arrangement_option']

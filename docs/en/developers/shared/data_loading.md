@@ -178,65 +178,52 @@ blocking deletion of xmlid-linked rows) — not something `noupdate` was ever go
 
 ---
 
-## `data/custom/` "living" data — a second, distinct case from the decision above
+## `data/custom/` is seeded once, then frozen
 
 Everything above answers "should *EMS's own* future edits to this record keep applying" for
-`data/main/`/`data/cat/`. `data/custom/` is a different situation: this file belongs to the
-centre, not EMS, and its records are meant to be a starting seed, not config EMS or the centre
-itself keeps re-pushing forever. Found 2026-09-06 on `ems.group`: an admin renaming a group or
-reassigning its classroom (`space_id`) through the running app had that edit silently reverted
-by the very next `./upgrade.sh`, because `data/custom/ems.group.csv` (CSV, `__import__.`,
-`noupdate=False` — see the Capability table above) resyncs every listed column on every load,
-exactly as CSV always does. That's not a bug in the CSV mechanism — it's the wrong contract for
-a model whose fields are day-to-day operational data, not centre configuration.
+`data/main/`/`data/cat/`. `data/custom/` is a different situation: its files belong to the
+centre, and their records are a starting seed the centre then maintains **through the running
+app** (renaming a group or a classroom, rebalancing a planning's weights, editing or adding a
+subject of its own). A CSV is always loaded with `noupdate=False` (see the Capability table
+above), so without anything else every upgrade would push the file's values back over those
+edits.
 
-**The test:** does a school administrator change this field *through the app* as a normal part
-of running the centre during the year (renaming a group, reassigning a classroom, correcting an
-employee's phone number), as opposed to a developer changing it *in the file* as part of a code
-change? If the former, the record is "living" data — it must be seeded once, then left alone by
-every future upgrade, exactly like an XML `noupdate="1"` record — regardless of format.
+**The rule:** a `data/custom/` CSV creates each record the first time it is loaded and never
+updates it again. Correcting a record that already exists is done from the app or with a
+migration, never by editing the CSV (the edit only reaches installations created afterwards).
+`data/cat/` is the opposite: the official catalog is re-applied on every upgrade.
 
 **Why this isn't solved by the Capability table's `noupdate=True` row:** that row requires XML,
 and `data/custom/` records require the `__import__.` module prefix (survives their row being
-removed from the file — see the Data folder conventions in `CLAUDE.md`), which XML's loader
+removed from the file - see the Data folder conventions in `CLAUDE.md`), which XML's loader
 rejects outright (`AssertionError: The ID "__import__.xxx" refers to an uninstalled module`).
 Neither format alone gets both properties at once here.
 
-**The fix — freeze `ir_model_data.noupdate` directly, every server start, not via a migration:**
+**The mechanism - freeze `ir_model_data.noupdate` directly, every server start:**
 `res.company._register_hook()` (`models/settings/company.py`) calls
 `_ems_freeze_living_custom_data()`, which sets `noupdate=True` on every `__import__`-owned
-`ir.model.data` row for a model listed in `_EMS_LIVING_CUSTOM_DATA_MODELS` (`ems.group`,
-`ems.planning`, `ems.planning_outcome`, `ems.space`) that isn't frozen yet. `_register_hook()` runs once per server start, always after
-that run's own module data has already (re)loaded — both on a clean install and on every
-upgrade — so this needs no per-version migration bookkeeping: a brand-new group added to the CSV
-in some future PR is still *created* normally the next time it upgrades (`noupdate` only blocks
-*updates* to an already-existing row, never creation), and gets frozen in turn the very next time
-the server starts afterwards. One CSV push still reaches every existing centre installation the
-first time this code ships (the row exists, its stored `noupdate` is still `False`), then it's
-frozen for good.
+`ir.model.data` row that isn't frozen yet, whatever its model. `_register_hook()` runs once per
+server start, always after that run's own module data has already (re)loaded - both on a clean
+install and on every upgrade - so this needs no per-version migration bookkeeping: a brand-new
+row added to a CSV in some future PR is still *created* normally the next time it upgrades
+(`noupdate` only blocks *updates* to an already-existing row, never creation), and gets frozen in
+turn the very next time the server starts afterwards.
 
-**This is a per-record, not per-field, freeze** — `ir_model_data.noupdate` has no field-level
-granularity (see "the actual trap" above), so every column `ems.group.csv` lists
-(`course`/`acronym`/`level_id`/`study_id`/`space_id`/`external_id`) stops syncing together, not
-just the ones an admin happened to change. For `ems.group` this is fine: `course`/`study_id`
-genuinely are fixed identity for a given group record (the course-transition wizard reuses the
-same group across years rather than incrementing its `course`), so nothing legitimately needs
-`ems.group.csv` to keep resyncing an already-created row's fields at all.
+Records imported through the app's own importer are `__import__`-owned too, so they get frozen
+as well. That changes nothing for them: an import from the app updates a record whatever its
+`noupdate` flag (`load()` only honours the flag in a module's `update` mode), which is also the
+way to re-apply a `data/custom/` row on purpose.
 
-**Confirmed 2026-09-23: `ems.planning`/`ems.planning_outcome`** (issue #503 follow-up). Found via
-a real incident: 5 plannings' outcome ponderations were edited through the app to account for a
-6th learning outcome added to the shared curriculum catalog, but the next `./upgrade.sh` resynced
-the other 5 (CSV-declared) outcome lines back to their original file values, leaving the total at
-106% — silently, since the constraint only fires on a real create/write, never on a CSV resync
-under `install_mode`. Both models added to `_EMS_LIVING_CUSTOM_DATA_MODELS`.
+**This is a per-record, not per-field, freeze** - `ir_model_data.noupdate` has no field-level
+granularity (see "the actual trap" above), so every column of the row stops syncing together.
 
-**Confirmed 2026-09-25: `ems.space`** (issue #510). Classrooms renamed or repurposed through the
-app were reverted to their `data/custom/ems.space.csv` values on every upgrade — the same shape
-as `ems.group`. Because `_register_hook()` only freezes *after* an upgrade's data files have
-reloaded, the first upgrade shipping a newly-listed model would still revert it one last time;
-`migrations/18.0.0.29.0/pre-migrate.py` avoids that by setting `noupdate=True` on the existing
-`ems.space` xmlids with raw SQL before the reload. Any model added to the list later on an
-installation with real data should ship the same `pre-migrate` step.
+**Subject-study links live on the subject's side** for the same reason. A many2many column in a
+CSV is loaded as "replace the whole list", so a study row listing its `subject_ids` would unlink,
+on every upgrade, any subject the centre added to that study from the app. Instead each
+`ems.subject.csv` row carries its own `study_ids`: `data/cat/ems.subject.csv` restores the
+official subjects' studies on every upgrade, `data/custom/{eso,btx,ccff}/ems.subject.csv` set
+them once when the centre's subject is created, and nothing touches a subject created by hand.
+`data/cat/ems.study.csv` has no subject column at all.
 
 **A migration must correct a `data/custom/` record in place, never delete and recreate it.**
 Deleting an `__import__`-owned record deletes its `ir.model.data` row too, so on the next upgrade
@@ -245,11 +232,3 @@ put in its place. The 18.0.0.28.0 fix of subject 1665's ponderations first did e
 (unlink every outcome line, recreate six without xmlids), which would have left each of those
 plannings with twelve lines summing 200% one upgrade later; it now updates the CSV-owned line of
 each outcome and only removes duplicates (`_fix_subject_1665_outcome_ponderation`).
-
-**Not yet audited:** whether other `data/custom/` models have the same "living, not master"
-shape is an open question, tracked as a separate follow-up rather than assumed — see
-`plans/data_loading_rearchitecture.md`. `hr.employee.csv` (phone/email/address routinely edited
-by HR) is the strongest remaining candidate, but adding a model to
-`_EMS_LIVING_CUSTOM_DATA_MODELS` should follow the same explicit confirmation this file's
-`noupdate=True`-vs-`False` decision above already requires — not be assumed from a surface
-resemblance to `ems.group`.

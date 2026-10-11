@@ -119,6 +119,37 @@ class TestSpaceSchedule(TransactionCase):
         self.assertIn('09:00-10:00', time_labels)
         self.assertIn('16:00-17:00', time_labels)
 
+    def test_blocks_show_their_groups_instead_of_the_room(self):
+        """Issue #608: on a room's own schedule every block would repeat the room, so it says
+        which group(s) are in it; a co-taught block names each group once."""
+        group_b = self.env['ems.group'].create({
+            'course': 2, 'acronym': 'TSPL', 'level_id': self.level.id, 'study_id': self.study.id, 'shift': 'morning',
+        })
+        block = {'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+                 'subject_id': self.subject_main.id, 'space_id': self.space.id, 'name': 'TSPL: TSPLM'}
+        self._new_calendar(self.teacher_a, 'Test Calendar A (Groups)').apply_schedule_changes([
+            {**block, 'group_ids': [self.group.id]}])
+        self._new_calendar(self.teacher_b, 'Test Calendar B (Groups)').apply_schedule_changes([
+            {**block, 'group_ids': [self.group.id, group_b.id]}])
+
+        monday_block = self.space.get_schedule_report_lines()[0]['cells'][0]['blocks'][0]
+
+        self.assertEqual(monday_block['detail'], ", ".join(sorted([self.group.display_name, group_b.display_name])))
+        html, _content_type = self.env['ir.actions.report']._render_qweb_html('ems.report_space_schedule', [self.space.id])
+        self.assertIn(self.group.display_name.encode(), html)
+        self.assertNotIn(b'gs-cell-room">Test Space (Space Schedule)', html)
+
+    def test_a_group_schedule_still_shows_the_room(self):
+        self._new_calendar(self.teacher_a, 'Test Calendar A (Room)').apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject_main.id, 'group_ids': [self.group.id], 'space_id': self.space.id,
+            'name': 'TSPL: TSPLM',
+        }])
+
+        monday_block = self.group.get_schedule_report_lines()[0]['cells'][0]['blocks'][0]
+
+        self.assertEqual(monday_block['detail'], self.space.display_name)
+
     def test_get_subject_teachers_summary(self):
         calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Summary)')
         calendar_a.apply_schedule_changes([{

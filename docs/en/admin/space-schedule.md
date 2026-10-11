@@ -30,7 +30,8 @@ that books this room, so it is always up to date with whatever is set on the
 - its exact start and end time (periods are not always aligned to the hour),
 - the subject being taught — followed by its **topic**, when the teacher set one on their own
   Schedule tab,
-- which teacher(s) teach it — more than one name for a co-taught class.
+- the group or groups that are in the room at that time (the room itself is not repeated on
+  every block: it is the one you are looking at).
 
 Unlike a group's or a student's own schedule, a room's grid always shows the **whole day**
 (morning and afternoon together), since a classroom is routinely booked in both.

@@ -45,15 +45,16 @@
                     <div class="o_schedule_grid_column" t-att-style="columnStyle()">
                         <t t-foreach="blocksForDay(day.index)" t-as="block" t-key="blockKey(block)">
                             <div class="o_schedule_grid_entry"
-                                 t-att-class="blockIsBreak(block) ? 'o_schedule_grid_entry_break' : ''"
+                                 t-att-class="blockIsBreak(block) ? 'o_schedule_grid_entry_break' : (block.parallelBlocks ? 'o_schedule_grid_entry_parallel' : '')"
                                  t-att-style="blockStyle(block)"
-                                 t-att-title="blockTime(block) + ' ' + blockLabel(block) + (showsGroups and blockGroups(block) ? ' - ' + blockGroups(block) : '')">
+                                 t-att-title="blockTitle(block)">
                                 <t t-if="blockIsBreak(block)">
                                     <span class="o_schedule_grid_entry_compact" t-esc="blockCompactText(block)"/>
                                 </t>
                                 <t t-else="">
                                     <span class="o_schedule_grid_entry_time" t-esc="blockTime(block)"/>
                                     <span class="o_schedule_grid_entry_label" t-esc="blockLabel(block)"/>
+                                    <span t-if="!showsGroups and blockSubgroup(block)" class="o_schedule_grid_entry_room" t-esc="blockSubgroup(block)"/>
                                     <!-- The room; on a room's own schedule, its group(s) instead (issue #608). -->
                                     <span t-if="blockDetail(block)" t-att-class="showsGroups ? 'o_schedule_grid_entry_room o_schedule_grid_entry_group' : 'o_schedule_grid_entry_room'" t-esc="blockDetail(block)"/>
                                 </t>
@@ -77,6 +78,7 @@
                             <div class="o_schedule_grid_card" t-att-data-day="day.index">
                                 <div class="o_schedule_grid_card_row o_schedule_grid_card_readonly" t-esc="card.timeLabel"/>
                                 <div class="o_schedule_grid_card_row o_schedule_grid_card_readonly" t-esc="card.subjectLabel"/>
+                                <div t-if="card.subgroupLabel" class="o_schedule_grid_card_row o_schedule_grid_card_readonly" t-esc="card.subgroupLabel"/>
                                 <div t-if="card.teacherLabel" class="o_schedule_grid_card_row o_schedule_grid_card_readonly text-muted" t-esc="card.teacherLabel"/>
                                 <t t-if="card.editable">
                                     <input type="text" class="o_schedule_grid_card_topic"
@@ -95,6 +97,26 @@
                         </t>
                     </div>
                 </t>
+            </div>
+
+            <!-- Issue #611 - what each "N classes in parallel" block stands for. -->
+            <div t-if="!editing.value and parallelClassesDetail.length" class="o_schedule_grid_summary o_schedule_grid_parallel mt-3">
+                <div class="o_schedule_grid_summary_header">Classes in parallel</div>
+                <table class="o_schedule_grid_summary_table">
+                    <tbody>
+                        <t t-foreach="parallelClassesDetail" t-as="slot" t-key="slot.key">
+                            <t t-foreach="slot.classes" t-as="row" t-key="row.key">
+                                <tr>
+                                    <td class="fw-bold text-nowrap"><t t-if="row_first" t-esc="slot.slot"/></td>
+                                    <td t-esc="row.subgroup"/>
+                                    <td t-esc="row.subject"/>
+                                    <td t-esc="row.teachers"/>
+                                    <td t-esc="row.room"/>
+                                </tr>
+                            </t>
+                        </t>
+                    </tbody>
+                </table>
             </div>
 
             <div t-if="!editing.value and subjectTeachersSummary.length" class="o_schedule_grid_summary mt-3">

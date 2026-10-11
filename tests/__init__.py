@@ -133,6 +133,7 @@ from . import test_group_reference_space
 from . import test_group_reference_space_tour
 from . import test_group_schedule
 from . import test_group_schedule_topic_classroom_edit_tour
+from . import test_group_schedule_subgroups_tour
 from . import test_group_public_schedule
 from . import test_group_public_schedule_tour
 from . import test_portal_schedule

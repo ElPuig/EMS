@@ -104,6 +104,46 @@ either; the whole aggregation-to-report pipeline is identical past the point whe
   bit a test — see the student doc's own version of this note for the concrete incident that
   surfaced it.
 
+## Subgroups: split halves, flexible groups and optatives (issue #611)
+
+A class given to part of a main group is loaded on a group of its own (`group_type =
+'reinforcement'`): the two halves of a split (`ESO1A G1`/`ESO1A G2`), a cross-group flexible or
+reinforcement group (`ESO1 Mates Flex ABC`), every optative of a course (`Francès (1r ESO)`).
+Each of them names its main groups in `ems.group.parent_group_ids` (inverse: `subgroup_ids`), and
+a main group's schedule is the classes of the group **and of its subgroups**:
+
+```mermaid
+flowchart LR
+    M["ESO1A (main)"] -->|subgroup_ids| H1["ESO1A G1"]
+    M -->|subgroup_ids| H2["ESO1A G2"]
+    M -->|subgroup_ids| O["Francès (1r ESO)"]
+    M2["ESO1B (main)"] -->|subgroup_ids| O
+    H1 & H2 & O -->|"resource.calendar.attendance.group_ids"| ATT["classes"]
+    ATT --> SCH["ESO1A.schedule_attendance_ids"]
+```
+
+- `_compute_schedule_attendance_ids` searches `group_ids in (group | group.subgroup_ids)`.
+- `resource.calendar.attendance.subgroup_label` (Char, computed, not stored): the names of the
+  block's reinforcement groups. It is part of the block key on both sides
+  (`ems.schedule_report_mixin._report_block_key`, the widget's `_blockKey`), so the two halves of a
+  split or two optatives sharing a generic subject are separate blocks, each showing its subgroup
+  under the subject. Colours stay per subject (`_report_color_key`/`_subjectKey`).
+- More than `PARALLEL_BLOCKS_LIMIT` (3) classes in the very same slot collapse into one block:
+  `get_schedule_report_lines()` returns it with `'parallel_blocks'` (the blocks it stands for),
+  the widget builds the same in `_collapseParallelBlocks()` (`block.parallelBlocks`). It is drawn
+  as "N classes in parallel", and `get_parallel_classes_detail()` / the widget's
+  `parallelClassesDetail` feed a "Classes in parallel" table (subgroup, subject, teachers, room)
+  under the grid and in the PDF. The edit mode's cards are built from the uncollapsed blocks.
+- Public PDF: a block marks dirty its groups **and their main groups**
+  (`_get_public_schedule_groups`); changing `parent_group_ids` marks the subgroup and the main
+  groups it leaves and joins (`ems.group.write`).
+- The same rules apply wherever the mixin/widget are reused (student, classroom), where more
+  than 3 classes at once does not normally happen.
+
+Tests: `tests/test_group_schedule.py` (aggregation, block separation, the 3/4 threshold, the
+constraint, public PDF invalidation) and `tests/test_group_schedule_subgroups_tour.py` (the
+Schedule tab in a browser, as a plain teacher).
+
 ## OWL widget
 
 `static/src/js/backend/schedule_grid_readonly_field.js` (`ReadonlyScheduleGridField`, field

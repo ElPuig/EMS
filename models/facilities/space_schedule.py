@@ -55,3 +55,8 @@ class ems_space_schedule(models.Model):
         name, which every block of its schedule would repeat. Empty for a block with no group (a
         meeting, a non-teaching duty booked in the room)."""
         return ", ".join(sorted(entries.group_ids.mapped('display_name'))) or False
+
+    def _schedule_report_block_subgroup(self, entries):
+        """Nothing: the detail line above already names every group in the room (issue #608),
+        reinforcement groups (issue #611) included."""
+        return False

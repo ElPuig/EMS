@@ -210,11 +210,12 @@ request is a whole day on each of its days however it was filled in. A whole day
 case anywhere downstream. Arriving an hour late therefore marks the 9-10 lesson and leaves the
 11-12 one alone.
 
-**An absent guard is a subtraction, not an addition.** A teacher who is away during a period
-they were on guard for has no class of their own for anybody to cover — they are simply one
-fewer person available to cover somebody else's. That is why `guard_absences` is reported
-separately from `absences` and never folded into it: the guard column marks them, and no row
-appears in the "what needs covering" list.
+**An absent regular guard is a subtraction, not an addition.** A teacher who is away during a
+period they were on a regular guard duty for has no class of their own for anybody to cover —
+they are simply one fewer person available to cover somebody else's. That is why `guard_absences`
+is reported separately from `absences`: the guard column marks them, and no row appears in the
+"what needs covering" list. A guard duty that is **not** regular (WC, break...) is the exception,
+see "Guard duties that are not regular" below.
 
 **Confidentiality.** The absence search runs `sudo()` — same justification
 `ems.attendance_session_header.get_guard_sessions()` already carries for reading schedules that
@@ -770,8 +771,8 @@ past while the board stayed open.
 `board_assign()` re-validates everything on the server: the user manages the absent teacher, the
 day is not over, the class still needs a guard (`_get_needed_absence_block()`: the teacher is away
 then, it is not co-taught, and it is outside every communicated window) and the guard is a
-candidate (`_get_guard_candidates()`: a guard duty overlapping the period, not a WC guard
-(`GWC`) - who is needed where they are - and not away). Assigning someone else releases the
+candidate (`_get_guard_candidates()`: a regular guard duty overlapping the period - a WC or
+break guard is needed where they are, see "Guard duties that are not regular" - and not away). Assigning someone else releases the
 previous guard; assigning the same guard again updates the message and re-sends it. One assigned
 guard per class (`_check_one_guard_per_class`), but one guard can cover several classes.
 
@@ -793,6 +794,41 @@ no `sudo()` is needed. The screen shows it as a small number after the name on b
 badges (`.o_guard_board_guard_count`, plain like the WC tag) and in the guard dialog's options
 (`"Name (N covered this course)"`). The PDF does not print it: it is a planning aid, not part of
 the timetable posted on the wall.
+
+### Guard duties that are not regular (issue #606)
+
+Not every guard duty is the same: a regular guard (`G`) waits to be sent wherever needed, while a
+WC or break guard (`GWC`, `GB`) is a post that must be manned. `ems.non_teaching_type.is_regular_guard`
+(seeded `True` only on `G`, data-driven like `is_guard`) tells them apart, and decides two things:
+
+- **Who covers.** `_get_guard_candidates()` only returns teachers on a regular guard duty in the
+  period (and not away), and `get_guard_duty_board_data()`'s `guard_candidates` uses the same
+  rule. Before #606 only a WC guard was excluded, by its `GWC` code; a break guard is now excluded
+  too. `WC_GUARD_CODE` is still used, only to tag a WC guard "(WC)" on the board and its PDF.
+- **What needs covering.** When the teacher of a guard duty that is not regular is away in a
+  board period, `_board_duty_rows()` adds one row per absent guard to that period's `absences`
+  (both the main rows and the level filter's dedicated break rows): `group` is empty, `duty` is
+  the `ems.non_teaching_type`, `label` its name (what the screen and the PDF show where a class
+  shows its group), no subject or room, never `covered` (co-teaching does not apply) and never
+  `authorized`/`proposed` (a timetable change notice concerns a group's classes, not a guard
+  post). The JSON payload sends `duty_id` alongside `group_id` (`False` for a duty row).
+
+`ems.absence_cover` therefore covers either a class (`group_id`) or a guard duty (`duty_id`),
+exactly one of the two (`class_or_duty` SQL constraint; both `ondelete='restrict'`, as the former
+required `group_id` was). Its `display_name` is the group's or the duty's name, which the guard's
+notification, the release action's label and the dialog's title use. The duty-specific parts:
+
+- `board_assign()`/`board_self_assign()` take an optional `duty_id` (passed as a keyword by the
+  client) with `group_id` falsy. `_check_board_assignable()` then checks
+  `ems.course._get_needed_duty_entry(day, duty, absent, hour_from, hour_to)`: the absent teacher
+  still has that non-regular guard duty in the period on their timetable that day, and is still
+  away then. The rest (manager check, day not past, guard among the candidates, one guard per
+  duty via `_check_one_guard_per_class`) is shared with classes.
+- `_get_board_absence_management()` uses `_get_needed_duty_entry()` too to find a duty cover that
+  is no longer needed (`obsolete_cover`).
+- The notification says "cover this guard duty" and lists "Guard duty: <name>" instead of the
+  group; the board's tooltips and the struck line's reason say "guard duty" instead of "class".
+- Cover counts (#600) count duty covers like class covers: both are work given to that guard.
 
 ### Self-assignment
 

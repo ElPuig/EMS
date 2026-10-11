@@ -70,6 +70,7 @@ La lista de motivos no lectivos (Patio, Guardia, Reunión de coordinación...) q
 1. Ve a **Configuración → Profesorado → Tipos de hora no lectiva**.
 2. Haz clic en **Nuevo**, establece un **Código** corto (debe coincidir exactamente con el que usa el planificador externo para esa actividad) y un **Nombre** (lo que verán los docentes y los informes).
 3. Opcionalmente, márcalo como **Es un descanso** (se descarta por completo del resumen de horas semanales, igual que el patio) o **Siempre es un compromiso de horario fijo** (siempre se cuenta en la columna "Otras horas en horario fijo", como una guardia).
+   Si es una guardia, marca **Es una guardia** (aparece en el cuadrante de guardias) y, si quien la hace puede ir a cubrir clases y otras guardias, también **Guardia ordinaria**. Déjala desmarcada en una guardia que es un puesto fijo, como la de WC o la de patio: a quien la hace no se le envía a cubrir nada, y cuando falta, su guardia es la que hay que cubrir.
 4. Guarda. El nuevo tipo queda disponible de inmediato en el desplegable "no lectiva" al editar un horario, y se reconoce la próxima vez que importes un fichero del planificador que use su código.
 
 ---

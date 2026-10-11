@@ -232,6 +232,27 @@ export class ReadonlyScheduleGridField extends Component {
         return space ? space[1] : "";
     }
 
+    // A room's own schedule (issue #608) shows which group(s) are in it in each block instead of
+    // the room, which every block would only repeat. Mirrors
+    // ems.space._schedule_report_block_detail() on the Python side (the PDF).
+    get showsGroups() {
+        return this.props.record.resModel === "ems.space";
+    }
+
+    blockGroups(block) {
+        const names = new Set();
+        for (const entry of block.entries) {
+            for (const group of entry.data.group_ids ? entry.data.group_ids.records : []) {
+                names.add(group.data.display_name);
+            }
+        }
+        return [...names].sort().join(", ");
+    }
+
+    blockDetail(block) {
+        return this.showsGroups ? this.blockGroups(block) : this.blockRoom(block);
+    }
+
     blockTime(block) {
         return `${formatHourMinutes(block.hour_from)}-${formatHourMinutes(block.hour_to)}`;
     }

@@ -30,7 +30,8 @@ configurado en la pestaña **Empleados → [profesor] → Horario**. Cada bloque
 - su hora exacta de inicio y fin (los periodos no siempre están alineados con la hora en punto),
 - la asignatura impartida — seguida de su **tema**, cuando el profesor haya indicado uno en su
   propia pestaña de Horario,
-- qué profesor(es) la imparten — más de un nombre si es una clase co-impartida.
+- el grupo o grupos que están en el aula a esa hora (el aula no se repite en cada bloque: es la
+  que estás consultando).
 
 A diferencia del horario de un grupo o de un alumno, la cuadrícula de un aula siempre muestra el
 **día completo** (mañana y tarde juntas), ya que un aula normalmente se utiliza en ambos turnos.

@@ -43,7 +43,7 @@
                                         <span t-attf-class="gs-cell-content #{'gs-break' if not block['entries'][:1].subject_id else ''}"
                                               t-att-style="'background-color:' + block['color'] if block['color'] else ''">
                                             <span class="gs-cell-label" t-esc="block['entries'][:1].non_teaching.name or block['entries'][:1].get_subject_display_label()"/>
-                                            <span t-if="block['entries'][:1].space_id" class="gs-cell-room" t-esc="block['entries'][:1].space_id.display_name"/>
+                                            <span t-if="block['detail']" class="gs-cell-room" t-esc="block['detail']"/>
                                         </span>
                                     </t>
                                 </td>

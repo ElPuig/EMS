@@ -47,14 +47,15 @@
                             <div class="o_schedule_grid_entry"
                                  t-att-class="blockIsBreak(block) ? 'o_schedule_grid_entry_break' : ''"
                                  t-att-style="blockStyle(block)"
-                                 t-att-title="blockTime(block) + ' ' + blockLabel(block)">
+                                 t-att-title="blockTime(block) + ' ' + blockLabel(block) + (showsGroups and blockGroups(block) ? ' - ' + blockGroups(block) : '')">
                                 <t t-if="blockIsBreak(block)">
                                     <span class="o_schedule_grid_entry_compact" t-esc="blockCompactText(block)"/>
                                 </t>
                                 <t t-else="">
                                     <span class="o_schedule_grid_entry_time" t-esc="blockTime(block)"/>
                                     <span class="o_schedule_grid_entry_label" t-esc="blockLabel(block)"/>
-                                    <span t-if="blockRoom(block)" class="o_schedule_grid_entry_room" t-esc="blockRoom(block)"/>
+                                    <!-- The room; on a room's own schedule, its group(s) instead (issue #608). -->
+                                    <span t-if="blockDetail(block)" t-att-class="showsGroups ? 'o_schedule_grid_entry_room o_schedule_grid_entry_group' : 'o_schedule_grid_entry_room'" t-esc="blockDetail(block)"/>
                                 </t>
                             </div>
                         </t>

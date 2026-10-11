@@ -123,13 +123,21 @@ class EmsScheduleReportMixin(models.AbstractModel):
                     key = self._report_color_key(attendance)
                     blocks_by_key[key] = blocks_by_key.get(key, self.env['resource.calendar.attendance']) | attendance
                 cells.append({
-                    'blocks': [{'entries': entries, 'color': color_by_key.get(key)} for key, entries in blocks_by_key.items()],
+                    'blocks': [{'entries': entries, 'color': color_by_key.get(key),
+                                'detail': self._schedule_report_block_detail(entries)}
+                               for key, entries in blocks_by_key.items()],
                 })
             lines.append({
                 'time_label': f"{self._format_report_time(hour_from)}-{self._format_report_time(hour_to)}",
                 'cells': cells,
             })
         return lines
+
+    def _schedule_report_block_detail(self, entries):
+        """The small second line of a block, under its subject: the room it takes place in. A
+        room's own schedule overrides it (see ems.space), since there it would only repeat the
+        room itself on every block."""
+        return entries[:1].space_id.display_name or False
 
     def get_subject_teachers_summary(self):
         """One row per distinct (subject, topic) pair in this schedule, with the sorted,

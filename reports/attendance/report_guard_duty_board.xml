@@ -125,6 +125,9 @@
                                        class whose other teacher is in needs no guard. */
                                     .gdb-absence-covered > .gdb-absent, .gdb-absence-covered > .gdb-absent-pending { text-decoration: line-through; opacity: 0.6; }
                                     .gdb-absence-tag { display: inline-block; margin-left: 4px; padding: 0 3px; border: 1px solid #999; border-radius: 2px; }
+                                    /* Same as the screen's .o_guard_board_guard_busy: a guard who is with a
+                                       group through an internal arrangement (issue #605) cannot cover. */
+                                    .gdb-guard-busy { text-decoration: line-through; opacity: 0.6; }
                                     /* Same pairing colours as the screen's o_guard_board_cover_N
                                        (static/src/css/backend/guard_duty_board.css). */
                                     .gdb-cover-0 { background-color: #dbeafe; border-left: 3px solid #2563eb; }
@@ -182,12 +185,14 @@
                                                             <t t-foreach="line['absences']" t-as="absence">
                                                                 <!-- Struck out and paired with its guard's colour exactly like
                                                                      the screen (issues #571/#581): a co-teacher, a guard sent, or
-                                                                     a timetable change already told to the families. -->
-                                                                <div t-att-class="'gdb-absence-row' + (' gdb-absence-covered' if absence['covered'] or absence['cover'] or absence['authorized'] else '') + (' gdb-cover-%s' % line['guard_colors'].get(absence['cover'].guard_employee_id.id, 0) if absence['cover'] else '')">
+                                                                     a timetable change already told to the families, or an internal
+                                                                     arrangement in effect (#605). -->
+                                                                <div t-att-class="'gdb-absence-row' + (' gdb-absence-covered' if absence['covered'] or absence['cover'] or absence['authorized'] or (absence['arrangement'] and absence['arrangement'].is_effective) else '') + (' gdb-cover-%s' % line['guard_colors'].get(absence['cover'].guard_employee_id.id, 0) if absence['cover'] else '')">
                                                                     <span t-att-class="'gdb-absent' if absence['state'] == 'approved' else 'gdb-absent-pending'" t-esc="absence['teacher'].name"/>
                                                                     <span class="gdb-absence-class">
                                                                         <t t-esc="absence['label']"/><t t-if="absence['subject']"> · <t t-esc="absence['subject'].acronym"/></t><t t-if="absence['room']"> · <t t-esc="absence['room'].display_name"/></t>
                                                                         <span t-if="absence['cover']" class="gdb-absence-tag">→ <t t-esc="absence['cover'].guard_employee_id.name"/></span>
+                                                                        <span t-if="absence['arrangement'] and absence['arrangement'].is_effective" class="gdb-absence-tag">⇄ <t t-esc="absence['arrangement']._arrangement_label()"/></span>
                                                                         <span t-if="absence['authorized']" class="gdb-absence-tag" t-esc="course._absence_change_label(absence['authorized'])"/>
                                                                     </span>
                                                                 </div>
@@ -195,7 +200,7 @@
                                                         </td>
                                                         <td>
                                                             <t t-foreach="line['guards']" t-as="guard">
-                                                                <span t-att-class="'gdb-guard-badge' + (' gdb-absent' if line['guard_absences'].get(guard.employee_id.id) == 'approved' else (' gdb-absent-pending' if line['guard_absences'].get(guard.employee_id.id) else '')) + (' gdb-cover-%s' % line['guard_colors'][guard.employee_id.id] if guard.employee_id.id in line['guard_colors'] else '')">
+                                                                <span t-att-class="'gdb-guard-badge' + (' gdb-absent' if line['guard_absences'].get(guard.employee_id.id) == 'approved' else (' gdb-absent-pending' if line['guard_absences'].get(guard.employee_id.id) else '')) + (' gdb-cover-%s' % line['guard_colors'][guard.employee_id.id] if guard.employee_id.id in line['guard_colors'] else '') + (' gdb-guard-busy' if guard.employee_id.id in line['guard_busy'] else '')">
                                                                     <t t-esc="guard.employee_id.name"/>
                                                                     <!-- Same 'GWC' code the screen's own get_guard_duty_board_data() checks
                                                                          (guard_duty_board.py) to set 'is_wc' - the PDF has no such wrapper
@@ -240,16 +245,18 @@
                                                                     <span class="gdb-cell-subject" t-esc="cell['entries'][:1].subject_id.acronym"/>
                                                                     <span class="gdb-cell-teacher">
                                                                         <t t-foreach="cell['teachers']" t-as="teacher">
-                                                                            <span t-att-class="'gdb-absent' if cell['absences'].get(teacher.id) == 'approved' else ('gdb-absent-pending' if cell['absences'].get(teacher.id) else '')" t-esc="teacher.name"/><t t-if="not teacher_last">, </t>
+                                                                            <span t-att-class="('gdb-absent' if cell['absences'].get(teacher.id) == 'approved' else ('gdb-absent-pending' if cell['absences'].get(teacher.id) else '')) + (' gdb-guard-busy' if teacher in cell['moved'] else '')" t-esc="teacher.name"/><t t-if="not teacher_last">, </t>
                                                                         </t>
                                                                     </span>
+                                                                    <!-- Issue #605: who teaches it instead, after an internal arrangement. -->
+                                                                    <span t-if="cell['substitutes']" class="gdb-cell-teacher">⇄ <t t-esc="', '.join(cell['substitutes'].mapped('name'))"/></span>
                                                                     <span t-if="cell['entries'][:1].space_id" class="gdb-cell-room" t-esc="cell['entries'][:1].space_id.display_name"/>
                                                                 </t>
                                                             </td>
                                                         </t>
                                                         <td>
                                                             <t t-foreach="line['guards']" t-as="guard">
-                                                                <span t-att-class="'gdb-guard-badge' + (' gdb-absent' if line['guard_absences'].get(guard.employee_id.id) == 'approved' else (' gdb-absent-pending' if line['guard_absences'].get(guard.employee_id.id) else ''))">
+                                                                <span t-att-class="'gdb-guard-badge' + (' gdb-absent' if line['guard_absences'].get(guard.employee_id.id) == 'approved' else (' gdb-absent-pending' if line['guard_absences'].get(guard.employee_id.id) else '')) + (' gdb-guard-busy' if guard.employee_id.id in line['guard_busy'] else '')">
                                                                     <t t-esc="guard.employee_id.name"/>
                                                                     <!-- See the "Absences table" tab above for why this check is repeated
                                                                          here instead of coming from a shared 'is_wc' flag. -->

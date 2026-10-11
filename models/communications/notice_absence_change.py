@@ -6,7 +6,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools import format_date
 
-from ..attendance.absence_coverage import BREAK_CHANGES, CHANGE_SIDES, CHANGE_TYPES
+from ..attendance.absence_coverage import BREAK_CHANGES, CHANGE_SIDES, CHANGE_TYPES, COMMUNICATED_NOTICE_STATES
 
 
 class EmsNoticeAbsenceChange(models.Model):
@@ -36,6 +36,21 @@ class EmsNoticeAbsenceChange(models.Model):
                 raise ValidationError(_(
                     "A timetable change notice can only be sent to the students and families of %s.",
                     notice.absence_group_id.name))
+
+    def write(self, vals):
+        """A moved lesson (issue #605) only counts once its notice to the families has left the
+        draft state: that is when the teachers involved are told about it - or, if the notice is
+        taken back to draft, that it no longer applies."""
+        if 'state' not in vals:
+            return super().write(vals)
+        before = {notice.id: notice.state in COMMUNICATED_NOTICE_STATES for notice in self}
+        result = super().write(vals)
+        changed = self.filtered(lambda notice: (notice.state in COMMUNICATED_NOTICE_STATES) != before[notice.id])
+        if changed:
+            covers = self.env['ems.absence_cover'].sudo().search([('notice_id', 'in', changed.ids), ('state', '=', 'assigned')])
+            for cover in covers:
+                cover._notify_arrangement(cancelled=not cover.is_effective)
+        return result
 
     def _absence_change_text(self, change, group, day, rectification):
         """(subject, html message) proposed for a timetable change, in the wording the centre's
@@ -101,27 +116,37 @@ class EmsNoticeAbsenceChange(models.Model):
             raise AccessError(_("Only the department chief of the absent teacher, or someone above them, can do this."))
         notice = state['draft'].filtered(lambda draft: course._same_change(course._notice_tuple(draft), change))
         if not notice:
-            subject, message = self._absence_change_text(change, group, day, rectification=bool(state['communicated']))
-            draft = self.new({'group_ids': [(6, 0, group.ids)]})
-            lines, _skipped = draft._build_auto_lines(group, draft.recipient_type, draft.recipient_email_type, set())
-            notice = self.create({
-                'subject': subject,
-                'message': message,
-                'group_ids': [(6, 0, group.ids)],
-                'notice_line_ids': [(0, 0, {
-                    'partner_id': line.partner_id.id, 'email': line.email, 'student_id': line.student_id.id,
-                    'recipient_type': line.recipient_type, 'source_group_id': line.source_group_id.id,
-                }) for line in lines],
-                'absence_date': day,
-                'absence_group_id': group.id,
-                'absence_change_type': change_type,
-                'absence_change_hour': change[1],
-                'absence_change_hour_to': change[2] if len(change) > 2 else 0.0,
-            })
+            notice = self._create_absence_change_notice(change, group, day, rectification=bool(state['communicated']))
+        return notice._absence_change_form_action()
+
+    @api.model
+    def _create_absence_change_notice(self, change, group, day, rectification):
+        """A draft notice telling `group`'s students and families about `change` on `day`, with the
+        proposed wording and the group's usual recipients. Never sent from here."""
+        subject, message = self._absence_change_text(change, group, day, rectification=rectification)
+        draft = self.new({'group_ids': [(6, 0, group.ids)]})
+        lines, _skipped = draft._build_auto_lines(group, draft.recipient_type, draft.recipient_email_type, set())
+        return self.create({
+            'subject': subject,
+            'message': message,
+            'group_ids': [(6, 0, group.ids)],
+            'notice_line_ids': [(0, 0, {
+                'partner_id': line.partner_id.id, 'email': line.email, 'student_id': line.student_id.id,
+                'recipient_type': line.recipient_type, 'source_group_id': line.source_group_id.id,
+            }) for line in lines],
+            'absence_date': day,
+            'absence_group_id': group.id,
+            'absence_change_type': change[0],
+            'absence_change_hour': change[1],
+            'absence_change_hour_to': change[2] if len(change) > 2 else 0.0,
+        })
+
+    def _absence_change_form_action(self):
+        self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'ems.notice',
-            'res_id': notice.id,
+            'res_id': self.id,
             'views': [(False, 'form')],
             'target': 'current',
         }

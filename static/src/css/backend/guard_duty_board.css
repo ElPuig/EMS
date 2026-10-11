@@ -319,6 +319,49 @@
     color: #6c757d;
 }
 
+/* Issue #605: the teacher an internal arrangement puts with the group instead; dashed while the
+   arrangement still waits for its notice to the families. */
+.o_guard_board_arrangement_tag {
+    border-color: #0d6efd;
+    color: #0d6efd;
+}
+
+.o_guard_board_arrangement_tag.o_guard_board_arrangement_pending {
+    border-style: dashed;
+    color: #6c757d;
+}
+
+/* Issue #605: arrangements the board detected for a class still left without anybody, and who
+   teaches a lesson instead after one (timetable tab). */
+.o_guard_board_options_tag {
+    border-style: dashed;
+    border-color: #0d6efd;
+    color: #0d6efd;
+}
+
+/* An arrangement that changes a teacher's entry or exit time: said on a line of its own under the
+   proposal (and under the option, in the dialog), so it stands out from those that change nobody's
+   working day while every row still ends with just its button. */
+.o_guard_board_action_schedule,
+.o_guard_cover_schedule_change {
+    color: #b35c00;
+}
+
+.o_guard_board_action_schedule {
+    font-size: 12px;
+}
+
+.o_guard_board_cell_substitute {
+    color: #0d6efd;
+}
+
+/* A guard who is with a group through an internal arrangement: struck out of the guard column,
+   nobody can ask them to cover anything else then. */
+.o_guard_board_guard_busy {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
 /* A guard and every class they cover in the same row share one colour, a different one for each
    guard - the planner pairs them at a glance even when several guards cover several classes at
    once. Kept in step with COVER_COLOR_COUNT (models/attendance/guard_duty_board.py) and the PDF's

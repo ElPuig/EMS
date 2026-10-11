@@ -481,10 +481,11 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         )
 
     def test_capture_guard_duty_management(self):
-        """Organising absences from the absences table (issues #539, #571, #581), as the absent
-        teachers' Department Chief, on next Monday (a past day is read-only): a late entry
-        proposal, two classes covered by two guards (two colours), the guard dialog and the draft
-        notice. Every name and group is invented."""
+        """Organising absences from the absences table (issues #539, #571, #581, #605), as the
+        absent teachers' Department Chief, on next Monday (a past day is read-only): a late entry
+        proposal, the possible arrangements, two classes covered by two guards (two colours), the
+        guard dialog, the draft notice and the dialog offering the arrangements. Every name and
+        group is invented."""
         if not self.env.company.current_course_id:
             self.env.company.current_course_id = self.env['ems.course'].create({'start': 1998, 'end': 1999})
         mock_outgoing_email(self)
@@ -551,6 +552,9 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
 
         # The board keeps its day, shift and view in the URL, so it opens straight on next Monday.
         url = f'/odoo/action-ems.action_guard_duty_board?date={day}&shift=morning&view=table'
+        open_class = """[...document.querySelectorAll('.o_guard_board_duty_table tr')]
+            .find((row) => row.textContent.includes('%s'))
+            .querySelector('.o_guard_board_absence_manageable:not(.o_guard_board_absence_struck)').click();"""
         self._capture(
             url, '.o_guard_board', 'guard-duty-03-organitzar.png', login='doc_shot_chief',
             wait_for='.o_guard_board_proposals .o_guard_board_action_option',
@@ -558,9 +562,10 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         self._capture(
             url, '.modal-content', 'guard-duty-04-enviar-guardia.png', login='doc_shot_chief',
             wait_for='.o_guard_board_proposals .o_guard_board_action_option',
-            run=["""[...document.querySelectorAll('.o_guard_board_duty_table tr')]
-                    .find((row) => row.textContent.includes('09:00-10:00'))
-                    .querySelector('.o_guard_board_absence_manageable:not(.o_guard_board_absence_struck)').click();""",
+            run=[open_class % '09:00-10:00',
+                 # The dialog opens on the first arrangement the board detected (issue #605): this
+                 # shot is about sending a guard.
+                 "document.querySelector('.o_guard_cover_mode_guard').click();",
                  # A closed <select> only shows its chosen option: pick the guard who has covered
                  # the fewest classes, so the shot shows the count next to the name (issue #600).
                  """(function () {
@@ -568,13 +573,25 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
                     select.selectedIndex = [...select.options].findIndex((option) => option.textContent.includes('Clara'));
                     select.dispatchEvent(new Event('change'));
                  })();"""],
-            wait_after=['.o_guard_cover_guard_select', '.o_guard_cover_assign:enabled'],
+            wait_after=['.o_guard_cover_mode_guard', '.o_guard_cover_guard_select', '.o_guard_cover_assign:enabled'],
         )
         self._capture(
             url, '.o_form_view .o_form_sheet', 'guard-duty-05-comunicat.png', login='doc_shot_chief',
             wait_for='.o_guard_board_proposals .o_guard_board_action_option',
             run=["document.querySelector('.o_guard_board_proposals .o_guard_board_action_button').click();"],
             wait_after=['.o_form_view .alert-info'], max_height=760,
+        )
+        # Issue #605: the arrangements the board detected for the classes still left without
+        # anybody (0000 Jordi Mostra can swap or move his 10:00 lesson with the group), and the
+        # dialog of one of those classes, which offers them above sending a guard.
+        self._capture(
+            url, '.o_guard_board_arrangements', 'guard-duty-06-reorganitzacions.png', login='doc_shot_chief',
+            wait_for='.o_guard_board_arrangements .o_guard_board_action_button',
+        )
+        self._capture(
+            url, '.modal-content', 'guard-duty-07-aplicar-reorganitzacio.png', login='doc_shot_chief',
+            wait_for='.o_guard_board_arrangements .o_guard_board_action_button',
+            run=[open_class % '08:00-09:00'], wait_after=['.o_guard_cover_option'],
         )
 
     def test_capture_photo_visibility(self):

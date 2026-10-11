@@ -1757,7 +1757,9 @@ msgid "Applies to Studies"
 msgstr "Aplica a los estudios"
 
 #. module: ems
+#. odoo-javascript
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_state_wizard_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__to_apply model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__to_apply
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Apply"
 msgstr "Aplicar"
 
@@ -5471,6 +5473,7 @@ msgstr "Notificar a familia/tutor"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__notice_id model_terms:ir.ui.view,arch_db:ems.view_notice_form
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__notice_id
 msgid "Notice"
 msgstr "Comunicado"
 
@@ -15181,6 +15184,7 @@ msgstr "Resuelta"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__resolved_by_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__signed_by_id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__cover_type
 msgid "Resolved by"
 msgstr "Resuelta por"
 
@@ -20243,6 +20247,7 @@ msgstr "Docente ausente"
 #. odoo-javascript
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__guard_employee_id
 #: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__cover_type__guard
 msgid "Guard teacher"
 msgstr "Docente de guardia"
 
@@ -21454,10 +21459,248 @@ msgid "Guard duty: %s"
 msgstr "Guardia: %s"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__cover_type__arrangement
+msgid "Internal arrangement"
+msgstr "Reorganización interna"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__vacated_hour_from
+msgid "Lesson left free from"
+msgstr "Clase liberada desde"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__vacated_hour_to
+msgid "Lesson left free until"
+msgstr "Clase liberada hasta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__is_effective
+msgid "Effective"
+msgstr "Efectiva"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Describe the arrangement: who moves which lesson."
+msgstr "Describe la reorganización: quién mueve qué clase."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "The lesson left free cannot be the one being covered."
+msgstr "La clase que queda libre no puede ser la que se cubre."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "With %(group)s: %(arrangement)s"
+msgstr "Con %(group)s: %(arrangement)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(group)s at %(time)s (%(teacher)s): the arrangement with %(guard)s only counts once its notice to the families is sent."
+msgstr "%(group)s a las %(time)s (%(teacher)s): la reorganización con %(guard)s solo cuenta cuando se envíe el comunicado a las familias."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "The arrangement with %(guard)s for %(group)s at %(time)s (%(teacher)s) no longer applies."
+msgstr "La reorganización con %(guard)s para %(group)s a las %(time)s (%(teacher)s) ya no es válida."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%s is away in this period."
+msgstr "%s está ausente en esta franja."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Send a guard teacher"
+msgstr "Enviar un docente de guardia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__arrangement_type
+msgid "Arrangement"
+msgstr "Reorganización"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "This arrangement is waiting for its notice to the families to be sent."
+msgstr "Esta reorganización está pendiente de que se envíe el comunicado a las familias."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Open notice"
+msgstr "Abrir el comunicado"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Save arrangement"
+msgstr "Guardar la reorganización"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Remove arrangement"
+msgstr "Quitar la reorganización"
+
+#. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Click to send a guard teacher to this guard duty"
 msgstr "Haz clic para enviar un docente de guardia a esta guardia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Change or remove the arrangement"
+msgstr "Cambiar o quitar la reorganización"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__arrangement_type__swap
+msgid "Lesson swap"
+msgstr "Intercambio de clases"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__arrangement_type__move
+msgid "Lesson moved"
+msgstr "Clase adelantada o retrasada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__arrangement_type__manual
+msgid "Other arrangement"
+msgstr "Otra reorganización"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Choose the teacher who will be with the group."
+msgstr "Elige el docente que estará con el grupo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Choose the kind of arrangement."
+msgstr "Elige el tipo de reorganización."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Swap: %(teacher)s teaches at %(time)s and %(absent)s at %(other_time)s."
+msgstr "Intercambio: %(teacher)s da clase a las %(time)s y %(absent)s a las %(other_time)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(teacher)s moves their %(other_time)s lesson to %(time)s."
+msgstr "%(teacher)s pasa su clase de las %(other_time)s a las %(time)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "%(teacher)s: %(note)s"
+msgstr "%(teacher)s: %(note)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Arrangement cancelled: %(group)s, %(date)s"
+msgstr "Reorganización anulada: %(group)s, %(date)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "This arrangement no longer applies, the usual timetable is back:"
+msgstr "Esta reorganización ya no es válida, se vuelve al horario habitual:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Timetable arrangement: %(group)s, %(date)s"
+msgstr "Reorganización de horario: %(group)s, %(date)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "A change in your timetable has been agreed to cover an absence:"
+msgstr "Se ha acordado un cambio en tu horario para cubrir una ausencia:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "This arrangement is no longer possible: the absences or the timetable have changed. Reload the board."
+msgstr "Esta reorganización ya no es posible: las ausencias o el horario han cambiado. Vuelve a cargar el cuadrante."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(group)s at %(time)s (%(teacher)s): %(option)s"
+msgstr "%(group)s a las %(time)s (%(teacher)s): %(option)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(label)s The families will be told: %(change)s."
+msgstr "%(label)s Se comunicará a las familias: %(change)s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Possible arrangements"
+msgstr "Reorganizaciones posibles"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Current arrangement"
+msgstr "Reorganización actual"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Other arrangement (described by hand)"
+msgstr "Otra reorganización (descrita a mano)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Teacher involved (optional)"
+msgstr "Docente implicado (opcional)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Nobody in particular"
+msgstr "Nadie en concreto"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "E.g. groups A and B are joined for this lesson and leave at 13:25."
+msgstr "Ej.: los grupos A y B se juntan en esta clase y salen a las 13:25."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Apply and notify"
+msgstr "Aplicar y avisar"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "The families will be told: %s"
+msgstr "Se comunicará a las familias: %s"
 
 #. module: ems
 #. odoo-javascript
@@ -21468,5 +21711,53 @@ msgstr "Haz clic para cubrir tú esta guardia"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Teachers of the group who could rearrange their lessons so that no guard is needed, first those where the students lose no lesson. The teachers involved are notified."
+msgstr "Docentes del grupo que podrían reorganizar sus clases para que no haga falta guardia, primero las que no hacen perder ninguna clase al alumnado. Se avisa a los docentes implicados."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Covered by %s, the guard teacher sent to this guard duty."
 msgstr "Cubierta por %s, el docente de guardia enviado a esta guardia."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "%s It only counts once its notice to the families is sent."
+msgstr "%s Solo cuenta cuando se envíe el comunicado a las familias."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Click to see the possible arrangements, or to send a guard teacher"
+msgstr "Haz clic para ver las reorganizaciones posibles o para enviar un docente de guardia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "No guard needed: %s"
+msgstr "No hace falta guardia: %s"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "%s possible arrangements"
+msgstr "%s reorganizaciones posibles"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "1 possible arrangement"
+msgstr "1 reorganización posible"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(teacher)s comes in at %(new)s instead of %(old)s."
+msgstr "%(teacher)s entra a las %(new)s en lugar de a las %(old)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(teacher)s leaves at %(new)s instead of %(old)s."
+msgstr "%(teacher)s sale a las %(new)s en lugar de a las %(old)s."

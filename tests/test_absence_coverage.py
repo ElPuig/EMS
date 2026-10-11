@@ -223,6 +223,32 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         line = self.env['ems.course'].get_guard_duty_board_data('0', 'morning', day=str(self.day))['lines'][0]
         self.assertNotIn(self.teacher_guard_wc.id, [candidate['id'] for candidate in line['guard_candidates']])
 
+    def test_the_board_counts_the_classes_each_guard_has_covered_this_course(self):
+        """Issue #600: every guard on the board, and every candidate of the guard dialog, carries
+        how many classes they have been sent to cover this course - assigned covers only, a
+        planned one for a coming day included, nothing from another course."""
+        self._morning()
+        self._absence(self.teacher_a, self.day)
+        self._assign()
+        start = self.env.company.current_course_id.date_range()[0]
+
+        def cover(guard, day, state='assigned'):
+            self.Cover.create({
+                'date': day, 'hour_from': 8, 'hour_to': 9, 'absent_employee_id': self.teacher_b.id,
+                'group_id': self.group_a.id, 'guard_employee_id': guard.id, 'state': state})
+
+        cover(self.teacher_guard, start)
+        cover(self.teacher_guard, start - timedelta(days=1))
+        cover(self.teacher_guard_2, start, state='released')
+
+        # Any teacher reads the board, so any teacher reads the counts too.
+        line = self.env['ems.course'].with_user(self.guard_user).get_guard_duty_board_data(
+            '0', 'morning', day=str(self.day))['lines'][0]
+        expected = {self.teacher_guard.id: 2, self.teacher_guard_2.id: 0}
+        for key in ('guards', 'guard_candidates'):
+            counts = {guard['id']: guard['cover_count'] for guard in line[key] if guard['id'] in expected}
+            self.assertEqual(counts, expected, key)
+
     def test_an_absent_guard_cannot_be_sent(self):
         self._morning()
         self._absence(self.teacher_a, self.day)

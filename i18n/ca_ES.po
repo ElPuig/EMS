@@ -21303,3 +21303,15 @@ msgstr "Drets d'accés de Cap d'estudis i Cap d'estudis adjunt. Concedeix accés
 #: model:res.groups,comment:ems.group_director
 msgid "Access rights for the Director: those of the Head of Studies, plus every employee's attendance records centre-wide."
 msgstr "Drets d'accés de Direcció: els de Cap d'estudis, més els fitxatges de tots els empleats del centre."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "%(name)s (%(count)s covered this course)"
+msgstr "%(name)s (%(count)s cobertures aquest curs)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Classes covered this course"
+msgstr "Classes cobertes aquest curs"

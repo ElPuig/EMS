@@ -43,6 +43,8 @@ Les columnes de la taula són els grups que tenen classe en aquell torn; cada fi
 
 La columna **Guàrdia**, a la dreta, llista tots els docents de guàrdia en aquella franja horària, cadascun en un requadre de vora fina. Un docent de guàrdia no té cap grup propi en aquell moment (és precisament el sentit de la guàrdia), per això només apareix aquí, mai a la columna d'un grup. Un docent en guàrdia de **WC** en concret mostra l'etiqueta **"(WC)"** just després del seu nom — es destaca perquè, a diferència d'una guàrdia de pati (vegeu més avall), una guàrdia de WC pot caure en qualsevol moment del dia, així que no hi ha cap altra manera de distingir-la d'una guàrdia normal a simple vista.
 
+El número petit encerclat després de cada nom indica quantes classes ha cobert aquell docent aquest curs (incloses les cobertures ja previstes per a un dia vinent). Serveix per repartir les cobertures de manera equitativa.
+
 Una fila la franja horària de la qual coincideix amb el pati d'algun nivell — sense cap classe programada en ella per a ningú — mostra una petita etiqueta **"Pati"** al costat de l'hora, a més d'una vora marró al costat esquerre d'aquella mateixa cel·la, perquè una franja que sembla buida no es llegeixi com un forat a l'horari.
 
 ![Horari de guàrdies d'una franja horària: la classe d'un grup, una guàrdia normal, una guàrdia de WC, una fila de Pati amb la seva pròpia guàrdia, i un docent marcat com a absent en vermell i negreta](../../assets/teachers/guard-duty-01-horari.png)
@@ -105,7 +107,7 @@ Tot es fa des de la **Taula d'absències**, i res no passa sol: cada pas espera 
 ### Enviar un docent de guàrdia a una classe
 
 1. Fes clic a la línia de la classe que cal cobrir (les línies que pots organitzar mostren el cursor de mà).
-2. Tria el **Docent de guàrdia**. Només s'ofereixen els docents de guàrdia en aquella franja, excepte els de guàrdia de WC i els que també estan absents.
+2. Tria el **Docent de guàrdia**. Només s'ofereixen els docents de guàrdia en aquella franja, excepte els de guàrdia de WC i els que també estan absents. Al costat de cada nom es veu quantes classes ha cobert aquest curs, per poder triar qui n'ha cobert menys.
 3. Opcionalment, escriu un **missatge**: què ha de treballar l'alumnat, on són els materials...
 4. Fes clic a **Assignar i avisar**.
 

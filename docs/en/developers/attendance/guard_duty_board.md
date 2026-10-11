@@ -779,6 +779,21 @@ The guard is told through `message_notify()` on the cover (Odoo inbox or email, 
 notification preference), in their own language, with the date, time, group, subject, room, absent
 teacher and the planner's message. `board_release()` sends the matching "no longer needed" message.
 
+### Covers per guard (issue #600)
+
+So whoever plans the guards can share the covers out fairly, every guard in
+`get_guard_duty_board_data()` (`lines[].guards`) and every candidate (`lines[].guard_candidates`)
+carries `cover_count`: how many classes that teacher has been sent to cover during the current
+course. `_guard_cover_counts(guards)` counts it in one `_read_group` over `ems.absence_cover`, for
+every guard of the shown day and shift: `state = 'assigned'` only (a released cover was never
+done), `date` within the course's `date_range()`, covers already planned for a coming day included
+(an assignment for tomorrow is work already given to that guard, and assigning one makes the number
+go up straight away). Every teacher reads the board, and `ems.absence_cover` is readable to them, so
+no `sudo()` is needed. The screen shows it as a small number after the name on both views' guard
+badges (`.o_guard_board_guard_count`, plain like the WC tag) and in the guard dialog's options
+(`"Name (N covered this course)"`). The PDF does not print it: it is a planning aid, not part of
+the timetable posted on the wall.
+
 ### Pending actions
 
 `_get_board_absence_management()` lists the day's decisions that belong to no single row, shown

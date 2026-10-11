@@ -61,6 +61,17 @@ registry.category("web_tour.tours").add("ems_absence_coverage", {
             run: "selectByLabel Tour Cover Guard",
         },
         {
+            trigger: ".o_guard_cover_guard_select",
+            content: "Each candidate says how many classes they have covered this course (issue #600)",
+            run: () => {
+                const select = document.querySelector(".o_guard_cover_guard_select");
+                const label = select.options[select.selectedIndex].textContent.trim();
+                if (label !== "Tour Cover Guard (0 covered this course)") {
+                    throw new Error(`Unexpected candidate label ${label}`);
+                }
+            },
+        },
+        {
             trigger: ".o_guard_cover_message",
             content: "Write what the students have to do",
             run: "edit Exercises on page 12",
@@ -77,6 +88,10 @@ registry.category("web_tour.tours").add("ems_absence_coverage", {
         {
             trigger: "tr:has(.o_guard_board_time:contains('09:00-10:00')) .o_guard_board_guard_badge.o_guard_board_cover_0:contains('Tour Cover Guard')",
             content: "The guard shares that colour",
+        },
+        {
+            trigger: "tr:has(.o_guard_board_time:contains('09:00-10:00')) .o_guard_board_guard_badge:contains('Tour Cover Guard') .o_guard_board_guard_count:contains('1')",
+            content: "Their badge now counts the class they were sent to cover",
         },
         {
             trigger: "tr:has(.o_guard_board_time:contains('09:00-10:00')) .o_guard_board_absence_struck:has(.o_guard_board_absence_info)",

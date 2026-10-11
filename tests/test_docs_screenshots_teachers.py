@@ -381,6 +381,15 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
         }).action_approve()
 
+        # Classes covered earlier this course, so the guard badges show a count other than 0
+        # (issue #600).
+        course_start = self.env.company.current_course_id.date_range()[0]
+        for offset, guard in enumerate((guard_teacher, guard_teacher, guard_teacher, patio_guard_teacher)):
+            self.env['ems.absence_cover'].create({
+                'date': course_start + timedelta(days=offset), 'hour_from': 9, 'hour_to': 10,
+                'absent_employee_id': teaching_teacher.id, 'group_id': group.id,
+                'guard_employee_id': guard.id})
+
         # A second teaching teacher, in another group at the same time, whose absence the Head of
         # Studies has entered as expected (issue #509): it reads as pending, not approved.
         expected_group = self.env['ems.group'].create({
@@ -551,8 +560,15 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             wait_for='.o_guard_board_proposals .o_guard_board_action_option',
             run=["""[...document.querySelectorAll('.o_guard_board_duty_table tr')]
                     .find((row) => row.textContent.includes('09:00-10:00'))
-                    .querySelector('.o_guard_board_absence_manageable:not(.o_guard_board_absence_struck)').click();"""],
-            wait_after=['.o_guard_cover_guard_select'],
+                    .querySelector('.o_guard_board_absence_manageable:not(.o_guard_board_absence_struck)').click();""",
+                 # A closed <select> only shows its chosen option: pick the guard who has covered
+                 # the fewest classes, so the shot shows the count next to the name (issue #600).
+                 """(function () {
+                    var select = document.querySelector('.o_guard_cover_guard_select');
+                    select.selectedIndex = [...select.options].findIndex((option) => option.textContent.includes('Clara'));
+                    select.dispatchEvent(new Event('change'));
+                 })();"""],
+            wait_after=['.o_guard_cover_guard_select', '.o_guard_cover_assign:enabled'],
         )
         self._capture(
             url, '.o_form_view .o_form_sheet', 'guard-duty-05-comunicat.png', login='doc_shot_chief',

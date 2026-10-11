@@ -48,6 +48,12 @@ export class GuardCoverDialog extends Component {
         };
     }
 
+    // How many classes each guard has covered this course (issue #600), so the planner can share
+    // the covers out fairly.
+    candidateLabel(candidate) {
+        return _t("%(name)s (%(count)s covered this course)", { name: candidate.name, count: candidate.cover_count });
+    }
+
     onGuardChange(ev) {
         this.state.guardId = Number(ev.target.value) || false;
     }

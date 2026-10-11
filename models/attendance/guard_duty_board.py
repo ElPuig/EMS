@@ -524,6 +524,19 @@ class EmsCourseGuardDutyBoard(models.Model):
             return None
         return block
 
+    def _guard_cover_counts(self, guards):
+        """How many classes each guard has been sent to cover during this course (issue #600), as
+        {employee id: count}, so whoever plans the guards can share them out fairly. Only assigned
+        covers count, the ones already planned for a coming day included: a released one was never
+        done, and an assignment for tomorrow is work already given to that guard."""
+        self.ensure_one()
+        start, end = self.date_range()
+        counts = self.env['ems.absence_cover']._read_group(
+            [('guard_employee_id', 'in', guards.ids), ('state', '=', 'assigned'),
+             ('date', '>=', start), ('date', '<=', end)],
+            ['guard_employee_id'], ['__count'])
+        return {guard.id: count for guard, count in counts}
+
     def _get_guard_candidates(self, day, hour_from, hour_to):
         """The teachers who can be sent to cover a class in the period: on guard duty then (a WC
         guard excluded - they are needed where they are) and not away themselves."""
@@ -872,6 +885,8 @@ class EmsCourseGuardDutyBoard(models.Model):
         course = self.env.company.get_current_course_or_raise()
         data = course.get_guard_duty_board_lines(weekday, shift, level_ids=level_ids, day=day)
         groups = [{'id': group.id, 'name': group.name} for group in data['groups']]
+        cover_counts = course._guard_cover_counts(
+            self.env['hr.employee'].union(*(line['guards'].employee_id for line in data['lines'])))
         lines = []
         for line in data['lines']:
             cells = []
@@ -892,6 +907,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                 line['guards'].mapped('employee_id'), line['guard_absences'], wc_employee_ids)
             for guard in guards:
                 guard['color'] = line['guard_colors'].get(guard['id'], False)
+                guard['cover_count'] = cover_counts.get(guard['id'], 0)
             lines.append({
                 'time_label': line['time_label'],
                 'hour_from': line['hour_from'],
@@ -899,7 +915,8 @@ class EmsCourseGuardDutyBoard(models.Model):
                 'cells': cells,
                 'guards': guards,
                 # Who can be sent to one of this row's classes - see _get_guard_candidates().
-                'guard_candidates': [{'id': guard['id'], 'name': guard['name']} for guard in guards
+                'guard_candidates': [{'id': guard['id'], 'name': guard['name'], 'cover_count': guard['cover_count']}
+                                     for guard in guards
                                      if not guard['is_wc'] and not guard['absence']],
                 'absences': [{
                     'teacher': row['teacher'].display_name,

@@ -165,6 +165,19 @@
     opacity: 0.85;
 }
 
+/* Classes this guard has covered this course (issue #600): a small number after the name, for
+   sharing the covers out fairly. Plain text like the WC tag, so it never competes with the red of
+   an absence or the colour of a cover. */
+.o_guard_board_guard_count {
+    margin-left: 4px;
+    padding: 0 4px;
+    border-radius: 8px;
+    border: 1px solid currentColor;
+    font-size: 0.8em;
+    font-weight: normal;
+    opacity: 0.75;
+}
+
 /* Week navigation + date picker: the board used to be a pure weekday timetable, and only needs
    a real date now that absences (which happen on dates, not weekdays) are drawn on it. */
 .o_guard_board_date_input {

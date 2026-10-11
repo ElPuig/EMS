@@ -21304,3 +21304,15 @@ msgstr "Derechos de acceso de Jefe de estudios y Jefe de estudios adjunto. Conce
 #: model:res.groups,comment:ems.group_director
 msgid "Access rights for the Director: those of the Head of Studies, plus every employee's attendance records centre-wide."
 msgstr "Derechos de acceso de Dirección: los de Jefe de estudios, más los fichajes de todos los empleados del centro."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "%(name)s (%(count)s covered this course)"
+msgstr "%(name)s (%(count)s coberturas este curso)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Classes covered this course"
+msgstr "Clases cubiertas este curso"

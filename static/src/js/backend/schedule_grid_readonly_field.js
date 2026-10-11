@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { Component, useState, onWillStart } from "@odoo/owl";
+import { _t } from "@web/core/l10n/translation";
 import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { CopyClipboardURLField } from "@web/views/fields/copy_clipboard/copy_clipboard_field";
@@ -16,6 +17,12 @@ const SHIFT_HOURS = {
     morning: { start: 8, end: 15 },
     afternoon: { start: 15, end: 22 },
 };
+
+// Issue #611: up to this many classes at the very same time are drawn side by side; more than that
+// (e.g. the 7 optatives of a course) collapse into one "N classes in parallel" block, detailed in
+// the table below the grid. Kept in sync by hand with PARALLEL_BLOCKS_LIMIT in
+// models/shared/schedule_report_mixin.py.
+const PARALLEL_BLOCKS_LIMIT = 3;
 
 // PDF export action per model this widget is used on (see 'onPdfClick') — the widget itself is
 // otherwise fully generic, so this is the one place a new caller needs to register itself.
@@ -134,6 +141,12 @@ export class ReadonlyScheduleGridField extends Component {
     // group — see 'layoutOverlappingBlocks') are then laid out side by side instead of silently
     // stacking on top of each other.
     blocksForDay(dayIndex) {
+        return layoutOverlappingBlocks(this._collapseParallelBlocks(this._classBlocksForDay(dayIndex)));
+    }
+
+    // One block per class: what 'blocksForDay' draws unless too many share a slot, and what the
+    // edit mode's cards are built from (a collapsed block has nothing of its own to edit).
+    _classBlocksForDay(dayIndex) {
         const blocks = new Map();
         for (const entry of this.entriesForDay(dayIndex)) {
             const key = `${entry.data.hour_from}_${entry.data.hour_to}_${this._blockKey(entry)}`;
@@ -142,7 +155,36 @@ export class ReadonlyScheduleGridField extends Component {
             }
             blocks.get(key).entries.push(entry);
         }
-        return layoutOverlappingBlocks([...blocks.values()]);
+        return [...blocks.values()];
+    }
+
+    // Issue #611: more than PARALLEL_BLOCKS_LIMIT classes in the very same slot become one block
+    // carrying them in 'parallelBlocks' - mirrors get_schedule_report_lines() on the Python side.
+    _collapseParallelBlocks(blocks) {
+        const bySlot = new Map();
+        for (const block of blocks) {
+            const slot = `${block.hour_from}_${block.hour_to}`;
+            if (!bySlot.has(slot)) {
+                bySlot.set(slot, []);
+            }
+            bySlot.get(slot).push(block);
+        }
+        const result = [];
+        for (const slotBlocks of bySlot.values()) {
+            const classes = slotBlocks.filter((block) => !this.blockIsBreak(block));
+            if (classes.length <= PARALLEL_BLOCKS_LIMIT) {
+                result.push(...slotBlocks);
+                continue;
+            }
+            result.push(...slotBlocks.filter((block) => this.blockIsBreak(block)));
+            result.push({
+                hour_from: classes[0].hour_from,
+                hour_to: classes[0].hour_to,
+                entries: classes.flatMap((block) => block.entries),
+                parallelBlocks: classes,
+            });
+        }
+        return result;
     }
 
     // 'topic' (issue #428) is part of the key too: two teachers can genuinely share the exact same
@@ -150,7 +192,13 @@ export class ReadonlyScheduleGridField extends Component {
     // language) - without topic here, 'blocksForDay' would silently merge them into one block
     // showing only one of the two teachers/topics, chosen arbitrarily by entry order. Mirrors
     // '_report_color_key' on the Python side (schedule_report_mixin.py).
+    // The subgroup (issue #611) is part of it as well: the two halves of a split group, or two
+    // optatives sharing a generic subject, are different classes ('_report_block_key').
     _blockKey(entry) {
+        return `${this._subjectKey(entry)}_${entry.data.subgroup_label || ""}`;
+    }
+
+    _subjectKey(entry) {
         return entry.data.non_teaching ? `n_${entry.data.non_teaching[0]}` : `s_${entry.data.subject_id[0]}_${entry.data.topic || ""}`;
     }
 
@@ -184,10 +232,10 @@ export class ReadonlyScheduleGridField extends Component {
     // a break, which already has its own fixed, distinctive look (see the equivalent note in
     // schedule_grid_field.js's own _colorKey).
     _colorKey(block) {
-        if (this.blockIsBreak(block)) {
+        if (this.blockIsBreak(block) || block.parallelBlocks) {
             return null;
         }
-        return this._blockKey(block.entries[0]);
+        return this._subjectKey(block.entries[0]);
     }
 
     get colorByKey() {
@@ -220,6 +268,9 @@ export class ReadonlyScheduleGridField extends Component {
     // is free text typed directly by the teacher, so it's appended as-is, same convention as
     // get_subject_display_label() on the Python side.
     blockLabel(block) {
+        if (block.parallelBlocks) {
+            return _t("%s classes in parallel", block.parallelBlocks.length);
+        }
         const entry = block.entries[0].data;
         if (entry.non_teaching) {
             return entry.non_teaching[1];
@@ -228,8 +279,48 @@ export class ReadonlyScheduleGridField extends Component {
     }
 
     blockRoom(block) {
-        const space = block.entries[0].data.space_id;
+        const space = !block.parallelBlocks && block.entries[0].data.space_id;
         return space ? space[1] : "";
+    }
+
+    // Issue #611 - the reinforcement group(s) the class is given to, empty for a whole main group.
+    blockSubgroup(block) {
+        return block.parallelBlocks ? "" : block.entries[0].data.subgroup_label || "";
+    }
+
+    blockTeachers(block) {
+        return [...new Set(block.entries.map((entry) => entry.data.employee_id?.[1]).filter(Boolean))].sort().join(", ");
+    }
+
+    // Hovering a collapsed block lists the classes it stands for.
+    blockTitle(block) {
+        const title = `${this.blockTime(block)} ${this.blockLabel(block)}`;
+        if (!block.parallelBlocks) {
+            return [title, this.blockSubgroup(block)].filter(Boolean).join(" - ");
+        }
+        const classes = block.parallelBlocks.map((parallel) => [this.blockSubgroup(parallel), this.blockLabel(parallel)].filter(Boolean).join(": "));
+        return [title, ...classes.sort()].join("\n");
+    }
+
+    // "Classes in parallel" table, below the grid: one group of rows per collapsed block - mirrors
+    // get_parallel_classes_detail() on the Python side (schedule_report_mixin.py).
+    get parallelClassesDetail() {
+        const rows = [];
+        for (const day of this.days) {
+            for (const block of this.blocksForDay(day.index).filter((candidate) => candidate.parallelBlocks)) {
+                const classes = block.parallelBlocks
+                    .map((parallel) => ({
+                        key: this.blockKey(parallel),
+                        subject: this.blockLabel(parallel),
+                        subgroup: this.blockSubgroup(parallel),
+                        teachers: this.blockTeachers(parallel),
+                        room: this.blockRoom(parallel),
+                    }))
+                    .sort((a, b) => a.subgroup.localeCompare(b.subgroup) || a.subject.localeCompare(b.subject));
+                rows.push({ key: `${day.index}_${this.blockKey(block)}`, slot: `${day.label} ${this.blockTime(block)}`, classes });
+            }
+        }
+        return rows;
     }
 
     blockTime(block) {
@@ -239,7 +330,7 @@ export class ReadonlyScheduleGridField extends Component {
     // Stable identity for a block - used as the read-view's own t-key and as each edit-mode
     // card's own key (see '_cardFromBlock').
     blockKey(block) {
-        return `${block.hour_from}_${block.hour_to}_${this.blockLabel(block)}`;
+        return `${block.hour_from}_${block.hour_to}_${this.blockLabel(block)}_${this.blockSubgroup(block)}`;
     }
 
     // ── Inline edit (issue #446: topic/classroom only, from the group's own Schedule tab) ────
@@ -258,7 +349,9 @@ export class ReadonlyScheduleGridField extends Component {
     // editing several cards, then a single Save/Cancel for all of them at once.
     startEdit() {
         for (const day of WEEKDAYS) {
-            this.buffer[day] = this.blocksForDay(day).map((block) => this._cardFromBlock(block));
+            this.buffer[day] = this._classBlocksForDay(day)
+                .sort((a, b) => a.hour_from - b.hour_from)
+                .map((block) => this._cardFromBlock(block));
         }
         this.editing.value = true;
     }
@@ -288,7 +381,8 @@ export class ReadonlyScheduleGridField extends Component {
             // calendar only ever has ONE teacher): which teacher(s) teach this block, since a
             // group's schedule aggregates several - lets two cards sharing the same day/time
             // (e.g. a subject split by topic) be told apart at a glance.
-            teacherLabel: [...new Set(block.entries.map((blockEntry) => blockEntry.data.employee_id?.[1]).filter(Boolean))].sort().join(", "),
+            teacherLabel: this.blockTeachers(block),
+            subgroupLabel: this.blockSubgroup(block),
             editable,
             topic: entry.topic || "",
             spaceId: entry.space_id ? entry.space_id[0] : false,

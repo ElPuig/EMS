@@ -2512,6 +2512,7 @@ msgstr "Ciutat"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__space_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__space_id model:ems.space_type,name:ems.space_type_classroom
 #: model:ir.model.fields,field_description:ems.field_ems_strike__space_id
+#: model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 msgid "Classroom"
 msgstr "Aula"
 
@@ -4177,6 +4178,7 @@ msgstr "Atorgar accés"
 #: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__group_id
 #: model:ir.model.fields,field_description:ems.field_ems_strike__group_id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__group_id
+#: model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 msgid "Group"
 msgstr "Grup"
 
@@ -21284,3 +21286,55 @@ msgstr "Visualització d'icones de recursos humans"
 #: model:ir.model.fields,field_description:ems.field_hr_employee_public__show_hr_icon_display
 msgid "Show Hr Icon Display"
 msgstr "Mostra la icona de recursos humans"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_readonly_field.js:0
+msgid "%s classes in parallel"
+msgstr "%s classes en paral·lel"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "Only a reinforcement group can belong to main groups."
+msgstr "Només un grup de reforç pot pertànyer a grups principals."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "A reinforcement group can only belong to main groups."
+msgstr "Un grup de reforç només pot pertànyer a grups principals."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_readonly_field.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
+msgid "Classes in parallel"
+msgstr "Classes en paral·lel"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
+msgid "classes in parallel"
+msgstr "classes en paral·lel"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__parent_group_ids
+msgid "Main groups"
+msgstr "Grups principals"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__subgroup_ids
+msgid "Subgroups"
+msgstr "Subgrups"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__subgroup_label
+msgid "Subgroup"
+msgstr "Subgrup"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_group__parent_group_ids
+msgid ""
+"The main groups whose students attend this group's classes. Its classes are "
+"also shown in the schedule of each of them."
+msgstr "Els grups principals l'alumnat dels quals assisteix a les classes d'aquest grup. Les seves classes també es mostren a l'horari de cadascun."

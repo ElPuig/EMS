@@ -13,6 +13,7 @@ PUBLIC_SCHEDULE_LANG = 'ca_ES'
 # derives from have to be listed too - a write only ever carries the source field, never 'name'.
 PUBLIC_SCHEDULE_GROUP_FIELDS = {
     'name', 'course', 'acronym', 'study_id', 'group_type', 'tutor_id', 'space_id', 'level_id', 'shift', 'active',
+    'parent_group_ids', 'subgroup_ids',
 }
 
 
@@ -24,9 +25,10 @@ class ems_group_schedule(models.Model):
     _inherit = ['ems.group', 'ems.schedule_report_mixin']
 
     # Union of two sources: the group's real teaching slots, aggregated from every teacher's
-    # calendar whose 'group_ids' includes this group, and — when derivable — the group's break
-    # period, taken from its level's schedule framework (see '_get_break_entries'). Not stored,
-    # same pattern already used for 'enrolled_student_ids'.
+    # calendar whose 'group_ids' includes this group or one of its subgroups (issue #611: split
+    # and optative classes are groups of their own, see 'subgroup_ids'), and — when derivable —
+    # the group's break period, taken from its level's schedule framework (see
+    # '_get_break_entries'). Not stored, same pattern already used for 'enrolled_student_ids'.
     schedule_attendance_ids = fields.Many2many(string="Schedule", comodel_name="resource.calendar.attendance",
         compute="_compute_schedule_attendance_ids")
     public_schedule_slug = fields.Char(string="Public schedule slug", compute="_compute_public_schedule_slug",
@@ -41,7 +43,7 @@ class ems_group_schedule(models.Model):
     # search) - see the equivalent note on res.partner (student)._compute_schedule_attendance_ids
     # for why this still matters even so (invalidating a value the SAME transaction cached before
     # 'level_id'/'shift' changed - a fresh web request always recomputes regardless).
-    @api.depends('level_id', 'shift')
+    @api.depends('level_id', 'shift', 'subgroup_ids')
     def _compute_schedule_attendance_ids(self):
         # 'active_test=True' forced explicitly, not left to the ORM's own default: this compute
         # can run under a caller context that already set active_test=False for an unrelated
@@ -53,7 +55,7 @@ class ems_group_schedule(models.Model):
         # group's CURRENT schedule - duplicated against, and often overlapping, the real one.
         Attendance = self.env['resource.calendar.attendance'].with_context(active_test=True)
         for group in self:
-            teaching = Attendance.search([('group_ids', '=', group.id)])
+            teaching = Attendance.search([('group_ids', 'in', (group | group.subgroup_ids).ids)])
             group.schedule_attendance_ids = teaching | group._get_break_entries()
 
     @api.depends('name')
@@ -70,13 +72,17 @@ class ems_group_schedule(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         groups = super().create(vals_list)
-        groups._mark_public_schedule_dirty()
+        (groups | groups.sudo().parent_group_ids)._mark_public_schedule_dirty()
         return groups
 
     def write(self, vals):
+        public_trigger = bool(vals.keys() & PUBLIC_SCHEDULE_GROUP_FIELDS)
+        # Issue #611: a subgroup's classes are printed on its main groups' PDFs too - the ones it
+        # leaves as much as the ones it ends up in.
+        parents_before = self.sudo().parent_group_ids if public_trigger else self.env['ems.group']
         res = super().write(vals)
-        if vals.keys() & PUBLIC_SCHEDULE_GROUP_FIELDS:
-            self._mark_public_schedule_dirty()
+        if public_trigger:
+            (self | parents_before | self.sudo().parent_group_ids)._mark_public_schedule_dirty()
         return res
 
     def _mark_public_schedule_dirty(self):

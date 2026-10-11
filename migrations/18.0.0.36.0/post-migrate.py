@@ -7,13 +7,13 @@ _logger = logging.getLogger(__name__)
 
 def migrate(cr, version):
     env = api.Environment(cr, SUPERUSER_ID, {})
-    _unfollow_administrator_from_contacts(env)
+    _unfollow_contact_creators(env)
 
 
-def _unfollow_administrator_from_contacts(env):
-    """Issue #586: the administrator account followed every contact it had created, so each
-    message on a student's or family's chatter was also emailed to the EMS mailbox. Creating a
-    contact no longer makes anyone follow it; this removes the follows already there. A clean
-    install has none."""
-    count = env['res.partner']._ems_unfollow_administrator()
-    _logger.info("Issue #586: administrator removed as a follower of %s contact(s).", count)
+def _unfollow_contact_creators(env):
+    """Issue #586: creating a contact used to make you follow it, so whoever registered students
+    and families (the administrator account above all) received by email every message later
+    written on their chatter. Creating one no longer does; this removes the follows already
+    there, except those of someone who has written on that contact. A clean install has none."""
+    count = env['res.partner']._ems_unfollow_contact_creators()
+    _logger.info("Issue #586: %s follow(s) of a contact by whoever created it removed.", count)

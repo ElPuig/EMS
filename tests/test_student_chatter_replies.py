@@ -55,14 +55,44 @@ class TestStudentChatterReplies(TransactionCase):
         self.contact.invalidate_recordset(['message_partner_ids'])
         self.assertIn(self.teacher.partner_id, self.contact.message_partner_ids)
 
-    def test_the_administrator_stops_following_contacts(self):
-        self.contact.message_subscribe(partner_ids=(self.admin_partner | self.teacher.partner_id).ids)
+    def _created_by_secretary(self, name):
+        """A contact the secretary created and follows, as before issue #586."""
+        contact = self.env['res.partner'].with_user(self.secretary).create({'name': name, 'contact_type': 'family'}).sudo()
+        contact.message_subscribe(partner_ids=self.secretary.partner_id.ids)
+        return contact
 
-        count = self.env['res.partner']._ems_unfollow_administrator()
+    def test_whoever_only_created_a_contact_stops_following_it(self):
+        contact = self._created_by_secretary('TSCR Only Created')
+        contact.message_subscribe(partner_ids=self.teacher.partner_id.ids)
 
-        self.assertGreaterEqual(count, 1)
+        self.env['res.partner']._ems_unfollow_contact_creators()
+
+        contact.invalidate_recordset(['message_partner_ids'])
+        self.assertNotIn(self.secretary.partner_id, contact.message_partner_ids)
+        # Someone who follows a contact they did not create chose to.
+        self.assertIn(self.teacher.partner_id, contact.message_partner_ids)
+
+    def test_a_creator_who_wrote_on_the_contact_keeps_following_it(self):
+        contact = self._created_by_secretary('TSCR Created And Wrote')
+        contact.with_user(self.secretary).message_post(
+            body='TSCR', message_type='comment', subtype_xmlid='mail.mt_comment')
+
+        self.env['res.partner']._ems_unfollow_contact_creators()
+
+        contact.invalidate_recordset(['message_partner_ids'])
+        self.assertIn(self.secretary.partner_id, contact.message_partner_ids)
+
+    def test_the_administrator_stops_following_every_contact(self):
+        """Even one it wrote on: its mailbox is the EMS one."""
+        admin = self.env.ref('base.user_admin')
+        self.contact.with_user(admin).sudo().message_post(
+            body='TSCR', message_type='comment', subtype_xmlid='mail.mt_comment')
+        self.contact.message_subscribe(partner_ids=self.admin_partner.ids)
+
+        self.env['res.partner']._ems_unfollow_contact_creators()
+
+        self.contact.invalidate_recordset(['message_partner_ids'])
         self.assertNotIn(self.admin_partner, self.contact.message_partner_ids)
-        self.assertIn(self.teacher.partner_id, self.contact.message_partner_ids)
 
     def test_an_emailed_answer_is_filed_on_the_chatter_and_reaches_whoever_wrote(self):
         catchall = self.env.company.catchall_email

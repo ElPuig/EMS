@@ -1307,15 +1307,30 @@ class ResPartner(models.Model):
                     group.sudo()[field] = False
 
     @api.model
-    def _ems_unfollow_administrator(self):
-        """Takes the administrator account off the followers of every contact (issue #586): it
-        followed the ones it had created, back when creating a contact made you follow it, so
-        each message written on a student's or a family's chatter was also emailed to the EMS
-        mailbox. Returns how many contacts it followed."""
-        followers = self.env['mail.followers'].sudo().search([
-            ('res_model', '=', 'res.partner'),
-            ('partner_id', '=', self.env.ref('base.user_admin').partner_id.id),
-        ])
+    def _ems_unfollow_contact_creators(self):
+        """Takes off the followers of every contact whoever follows it only for having created
+        it (issue #586), back when creating a contact made you follow it: they received by email
+        every message a teacher exchanged with that student or family. Someone who has written
+        on the contact's chatter stays, that is a conversation of theirs. The administrator
+        account stops following every contact, whatever it wrote: its mailbox is the EMS one,
+        which nobody reads as a person. Returns how many follows were removed."""
+        self.env['mail.followers'].flush_model()
+        self.env['mail.message'].flush_model()
+        self.env.cr.execute("""
+            SELECT follower.id
+              FROM mail_followers follower
+              JOIN res_partner contact ON contact.id = follower.res_id
+              JOIN res_users creator ON creator.partner_id = follower.partner_id AND creator.share IS NOT TRUE
+             WHERE follower.res_model = 'res.partner'
+               AND (follower.partner_id = %(admin)s
+                    OR (creator.id = contact.create_uid
+                        AND NOT EXISTS (
+                            SELECT 1 FROM mail_message message
+                             WHERE message.model = 'res.partner' AND message.res_id = contact.id
+                               AND message.author_id = follower.partner_id
+                               AND message.message_type = 'comment')))
+        """, {'admin': self.env.ref('base.user_admin').partner_id.id})
+        followers = self.env['mail.followers'].sudo().browse(row[0] for row in self.env.cr.fetchall())
         count = len(followers)
         followers.unlink()
         return count

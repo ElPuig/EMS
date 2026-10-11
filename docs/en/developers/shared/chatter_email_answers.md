@@ -26,9 +26,11 @@ sequenceDiagram
   received every message later exchanged with them.
 - **Writing a message makes you follow it** (Odoo's own behaviour for a comment), which is what
   delivers the answer to you.
-- The administrator account followed every contact it had created, so each of those messages was
-  also emailed to the EMS mailbox. `res.partner._ems_unfollow_administrator()`, run by
-  `migrations/18.0.0.36.0/post-migrate.py`, removes those follows; a clean install has none.
+- `res.partner._ems_unfollow_contact_creators()`, run by `migrations/18.0.0.36.0/post-migrate.py`,
+  removes the follows left from before: whoever follows a contact they created without ever
+  having written on it, and the administrator account from every contact (its mailbox is the EMS
+  one). Someone who wrote on the contact, or who follows one they did not create, stays. A clean
+  install has none.
 
 ## Answers by email
 

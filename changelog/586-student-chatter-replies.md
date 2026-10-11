@@ -2,7 +2,7 @@
 
 ## A conversation on a contact's chatter stays between whoever writes and the contact:
 - Creating a contact no longer makes its creator follow it. Until now whoever registered students and families received by email every message later written on their chatter (issue #586).
-- The administrator account is removed as a follower of every contact (migration): it followed the ones it had created, so those messages also reached the EMS mailbox.
+- A migration removes the follows left from before: whoever follows a contact only for having created it (never wrote on it), and the administrator account from every contact, since those messages also reached the EMS mailbox. Someone who has written on a contact keeps following it.
 - Writing a message on a contact still makes you follow it, which is how you get the answers.
 
 # Internal changes

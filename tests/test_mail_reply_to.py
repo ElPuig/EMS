@@ -50,6 +50,6 @@ class TestMailReplyTo(TransactionCase):
         notices are changed."""
         self.assertTrue(self.catchall, "The test database has no catchall address to fall back to.")
 
-        message = self.record.with_user(self.sender).message_post(body='TMRT', partner_ids=self.recipient.ids)
+        message = self.record.with_user(self.sender).sudo().message_post(body='TMRT', partner_ids=self.recipient.ids)
 
         self.assertIn(self.catchall, message.reply_to)

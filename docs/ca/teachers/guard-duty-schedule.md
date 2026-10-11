@@ -111,7 +111,7 @@ Tot es fa des de la **Taula d'absències**, i res no passa sol: cada pas espera 
 
 ![Enviar un docent de guàrdia a una classe: els docents de guàrdia i un missatge per a ells](../../assets/teachers/guard-duty-04-enviar-guardia.png)
 
-El docent de guàrdia rep un missatge d'Odoo (a la safata d'entrada o per correu, segons la seva preferència de notificacions) amb la data, l'hora, el grup, l'assignatura, l'aula, el docent absent i el teu missatge.
+El docent de guàrdia rep un missatge d'Odoo (a la safata d'entrada o per correu, segons la seva preferència de notificacions) amb la data, l'hora, el grup, l'assignatura, l'aula, el docent absent i el teu missatge. Si respon a aquest correu, la resposta t'arriba a tu.
 
 Aleshores la classe queda ratllada, hi apareix el nom del docent de guàrdia, i la línia i la casella del docent a la columna Guàrdia comparteixen el mateix color. Quan diversos docents de guàrdia cobreixen classes a la mateixa franja, cadascun té el seu color, de manera que es veu d'un cop d'ull qui cobreix què. Un docent de guàrdia pot cobrir més d'una classe: totes prenen el seu color.
 

@@ -111,7 +111,7 @@ Todo se hace desde la **Tabla de ausencias**, y nada ocurre solo: cada paso espe
 
 ![Enviar un docente de guardia a una clase: los docentes de guardia y un mensaje para ellos](../../assets/teachers/guard-duty-04-enviar-guardia.png)
 
-El docente de guardia recibe un mensaje de Odoo (en su bandeja de entrada o por correo, según su preferencia de notificaciones) con la fecha, la hora, el grupo, la asignatura, el aula, el docente ausente y tu mensaje.
+El docente de guardia recibe un mensaje de Odoo (en su bandeja de entrada o por correo, según su preferencia de notificaciones) con la fecha, la hora, el grupo, la asignatura, el aula, el docente ausente y tu mensaje. Si responde a ese correo, la respuesta te llega a ti.
 
 Entonces la clase queda tachada, aparece el nombre del docente de guardia, y la línea y la casilla del docente en la columna Guardia comparten el mismo color. Cuando varios docentes de guardia cubren clases en la misma franja, cada uno tiene su color, de modo que se ve de un vistazo quién cubre qué. Un docente de guardia puede cubrir más de una clase: todas toman su color.
 

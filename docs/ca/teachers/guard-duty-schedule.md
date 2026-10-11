@@ -125,6 +125,8 @@ Aquestes línies mostren una etiqueta discontínua com ara **Pot entrar a les 10
 
 El selector de cada proposta et permet comunicar a les famílies menys del que permeten les absències: amb dues classes sense docent, pots triar **Entra a les 09:00** en lloc d'**Entra a les 10:00**. Aleshores només es ratlla la primera classe; la segona encara necessita un docent de guàrdia, que envies com sempre. Triar el canvi més curt és decisió teva: res no et demanarà que el rectifiquis.
 
+El mateix dia, el quadrant només proposa canvis que encara no han arribat: a partir de les 09:00 ja no ofereix **Entra a les 09:00** (les famílies ho sabrien massa tard), i una proposta o una rectificació l'hora de la qual ja ha passat desapareix. Si fa estona que tens el quadrant obert, recarrega'l per veure les propostes actuals.
+
 **Proposar comunicat** obre un comunicat en esborrany adreçat a l'alumnat i les famílies d'aquell grup, amb un text proposat que pots canviar. Envia'l des d'aquell formulari com qualsevol altre comunicat (els grups d'un comunicat de canvi d'horari no es poden canviar). Si el deixes en esborrany, la propera vegada el botó diu **Obrir esborrany**.
 
 ![Esborrany de comunicat proposat pel quadrant, amb el canvi d'horari i el text proposat](../../assets/teachers/guard-duty-05-comunicat.png)

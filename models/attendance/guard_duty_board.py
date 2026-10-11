@@ -409,6 +409,26 @@ class EmsCourseGuardDutyBoard(models.Model):
         return notice.absence_change_type in BREAK_CHANGES and overlaps(
             notice.absence_change_hour, notice.absence_change_hour_to, *BoardBreakSide.period(side))
 
+    def _board_day_hour(self, day):
+        """How far into `day` the centre's clock is, as a float hour: None for a day still to come,
+        past every lesson for a day already over."""
+        utils = self.env['ems.datetime_utils']
+        local_now = utils.get_local_datetime()
+        if day > local_now.date():
+            return None
+        return utils.time_to_float(local_now) if day == local_now.date() else 24.0
+
+    @staticmethod
+    def _change_start(change, blocks):
+        """The hour `change` takes effect on a group's day (`blocks`, see _get_group_day_blocks):
+        the families must be told before it. A day without classes, or a start back at the usual
+        time, takes effect with the first lesson; a leave back at the usual time, with the last."""
+        if change[0] in ('no_classes', 'normal_entry'):
+            return blocks[0]['hour_from'] if blocks else 0.0
+        if change[0] == 'normal_leave':
+            return blocks[-1]['hour_to'] if blocks else 24.0
+        return change[1]
+
     def _get_absence_change_states(self, day, groups):
         """`{group.id: {'entry': state, 'leave': state, break_side: state...}}` - where each side
         of each group's day (its start, its end, and each of its level's breaks)
@@ -425,15 +445,24 @@ class EmsCourseGuardDutyBoard(models.Model):
           correcting one is proposed, with going back to the usual timetable among its options.
         `'target'` is the option proposed by default, `'draft'` a draft notice already prepared for
         one of the options, and `'teachers'` the absent teachers whose lessons the change concerns -
-        any of their managers can act on it."""
+        any of their managers can act on it.
+
+        A change whose time has already come (see _change_start) can no longer be communicated, so
+        it is never offered, and one the families were told about that has already come is settled:
+        correcting it would reach them too late (issue #599)."""
         blocks_by_group = self._get_group_day_blocks(day, groups)
         notices = self.env['ems.notice'].sudo().search([
             ('absence_date', '=', day), ('absence_group_id', 'in', groups.ids)], order='id')
         weekday = str(day.weekday())
+        now_hour = self._board_day_hour(day)
         breaks_by_level = {}
         states = {}
         for group in groups:
             blocks = blocks_by_group[group.id]
+
+            def is_past(change, blocks=blocks):
+                return now_hour is not None and self._change_start(change, blocks) <= now_hour
+
             level = group.level_id.id
             if level not in breaks_by_level:
                 breaks_by_level[level] = sorted(self._get_guard_duty_board_break_periods(
@@ -446,16 +475,17 @@ class EmsCourseGuardDutyBoard(models.Model):
                     lambda notice, side=side: self._notice_side(notice, side))
                 communicated = self._notice_change(
                     side_notices.filtered(lambda notice: notice.state in COMMUNICATED_NOTICE_STATES)[-1:])
-                options = allowed[side]
+                options = [option for option in allowed[side] if not is_past(option)]
                 expected = options[-1] if options else None
                 if not communicated:
                     status = 'proposal' if options else None
-                elif any(self._same_change(communicated, option) for option in options):
+                elif is_past(communicated) or any(self._same_change(communicated, option) for option in options):
                     status, options = 'communicated', []
                 else:
                     normal = (('normal_break', *BoardBreakSide.period(side)) if BoardBreakSide.is_break(side)
                               else (NORMAL_CHANGE[side], 0.0))
-                    status, options = 'rectification', options + [normal]
+                    options = options + [normal] if not is_past(normal) else options
+                    status = 'rectification' if options else None
                 target = options[-2] if status == 'rectification' and len(options) > 1 else (options[-1] if options else None)
                 draft = side_notices.filtered(
                     lambda notice, options=options: notice.state == 'draft' and any(self._same_change(

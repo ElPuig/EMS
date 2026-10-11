@@ -125,6 +125,8 @@ Esas líneas muestran una etiqueta discontinua como **Puede entrar a las 10:00**
 
 El selector de cada propuesta te permite comunicar a las familias menos de lo que permiten las ausencias: con dos clases sin docente, puedes elegir **Entra a las 09:00** en lugar de **Entra a las 10:00**. Entonces solo se tacha la primera clase; la segunda sigue necesitando un docente de guardia, que envías como siempre. Elegir el cambio más corto es decisión tuya: nada te pedirá que lo rectifiques.
 
+El mismo día, el cuadrante solo propone cambios que aún no han llegado: a partir de las 09:00 ya no ofrece **Entra a las 09:00** (las familias se enterarían demasiado tarde), y una propuesta o una rectificación cuya hora ya ha pasado desaparece. Si hace rato que tienes el cuadrante abierto, recárgalo para ver las propuestas actuales.
+
 **Proponer comunicado** abre un comunicado en borrador dirigido al alumnado y las familias de ese grupo, con un texto propuesto que puedes cambiar. Envíalo desde ese formulario como cualquier otro comunicado (los grupos de un comunicado de cambio de horario no se pueden cambiar). Si lo dejas en borrador, la próxima vez el botón dice **Abrir borrador**.
 
 ![Borrador de comunicado propuesto por el cuadrante, con el cambio de horario y el texto propuesto](../../assets/teachers/guard-duty-05-comunicat.png)

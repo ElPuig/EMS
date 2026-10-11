@@ -250,14 +250,24 @@ class EmsCourseGuardDutyBoard(models.Model):
         chain of command (their Seminar Chief or Department Chief, then up through the Head of
         Studies to the Director), never every holder of those roles centre-wide, and never the
         absent teacher themselves. Same chain 'tutor_scope_user_ids' already resolves for
-        tutor-scoped rights, minus the employee's own user. The administrator always can."""
+        tutor-scoped rights, minus the employee's own user. Or the Chiefs of the department the
+        employee teaches in, and the manager of the area it hangs from: the management team
+        (e.g. the Secretary) reports to the Director, out of their department's chain (issue
+        #604, the criterion of rule_absence_pending_hierarchy, issue #569). The administrator
+        always can."""
         user = self.env.user
         if self.env.su or user.has_group('base.group_system') or user.has_group('ems.group_academic_admin'):
             # The administrator sits above the whole hierarchy, Direction included, although they
             # are not a teacher and so appear nowhere in it.
             return True
         employee = employee.sudo()
-        return self.env.user in employee.tutor_scope_user_ids - employee.user_id
+        if user == employee.user_id:
+            return False
+        if user in employee.tutor_scope_user_ids:
+            return True
+        chiefs = user.sudo().employee_ids
+        departments = chiefs.headed_department_ids | chiefs.seminar_department_ids
+        return bool(departments) and employee.department_id in departments.search([('id', 'child_of', departments.ids)])
 
     def _check_absence_manager(self, employee):
         if not self._is_absence_manager(employee):

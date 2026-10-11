@@ -35,6 +35,12 @@ class EmsBase(models.AbstractModel):
     def get_user_is_head_of_studies(self):
         return self.env.user.has_group('ems.group_head_of_studies')
 
+    # The current user signs changes to a closed academic history (ems.student.year_record): grade
+    # reviews (issue #493) and records from another centre (issue #585).
+    def get_user_can_edit_history(self):
+        return self.get_user_is_secretary() or self.get_user_is_admin() \
+            or self.get_user_is_head_of_studies()
+
     # The current user works with every student (secretary's office, academic administration,
     # Head of Studies/Deputy/Director); anyone else who reaches students - a tutor - only with the
     # ones of the groups they tutor. Called unbound (base.EmsBase.get_user_sees_every_student(self))

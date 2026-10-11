@@ -9,10 +9,12 @@ docs/assets/secretary/ by hand. Run it with:
     sudo -u odoo bash -c "odoo -d ems -u ems --test-enable \
         --test-tags='*/ems:TestDocsScreenshotsAcademicHistory' --stop-after-init -c /etc/odoo/odoo.conf"
 """
-from odoo.tests.common import HttpCase, tagged
+import base64
 
-from .common import DocsScreenshotMixin, create_level_study_group, \
-    create_role_employee, create_role_user, next_student_id
+from odoo.tests.common import Form, HttpCase, tagged
+
+from .common import DocsScreenshotMixin, build_academic_record_pdf, create_level_study, \
+    create_level_study_group, create_role_employee, create_role_user, next_student_id
 
 
 @tagged('-standard', 'ems_screenshots', 'post_install', '-at_install')
@@ -91,4 +93,99 @@ class TestDocsScreenshotsAcademicHistory(DocsScreenshotMixin, HttpCase):
             # No padding: the dialog's own edges are the crop, or the shot bleeds a sliver of
             # the page behind it in through the backdrop.
             padding=0,
+        )
+
+
+@tagged('-standard', 'ems_screenshots', 'post_install', '-at_install')
+class TestDocsScreenshotsPreviousRecord(DocsScreenshotMixin, HttpCase):
+    """The "Add a previous record" wizard (issue #585): the review grid read from an Esfera
+    academic record PDF, and the record it creates. The certificate is an invented one - a real
+    one carries a real student's name, document number and signatures."""
+    allow_end_on_form = True
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.secretary = create_role_user(cls, 'secretary', 'doc_shot_previous_secretary',
+                                         lang='ca_ES', name='Secretaria',
+                                         email='secretaria.anterior@example.com')
+        create_role_employee(cls, cls.secretary, employee_type='asp', name='0000 Secretaria')
+        Course = cls.env['ems.course']
+        cls.course = Course.search([('start', '=', 2024)], limit=1) \
+            or Course.create({'start': 2024, 'end': 2025})
+        # The record is a course already over: the current course must come after it.
+        if (cls.env.company.current_course_id.start or 0) <= 2024:
+            cls.env.company.current_course_id = Course.search([('start', '=', 2025)], limit=1) \
+                or Course.create({'start': 2025, 'end': 2026})
+        # The study's code ends with the certificate's token ("CFPM DOCP" -> CFGM_DOCP).
+        cls.level, cls.study = create_level_study(
+            cls, 'DOCP', level={'name': 'Cicles Formatius (Grau Mitjà)'},
+            study={'code': 'CFGM_DOCP', 'acronym': 'SMX', 'date': '2024-01-01',
+                   'name': 'Sistemes microinformàtics i xarxes'})
+        cls._module('D0156', 'MP 0156', 'Anglès professional', 100.0,
+                    [('RA1', 'Comprèn informació oral', 40.0),
+                     ('RA2', 'Comprèn textos escrits', 30.0),
+                     ('RA3', 'Redacta textos senzills', 30.0)])
+        cls._module('D0221', 'MP 0221', "Muntatge i manteniment d'equips", 90.0,
+                    [('RA1', 'Selecciona els components', 50.0),
+                     ('RA2', 'Acobla un equip', 50.0)])
+        cls.env['ems.subject'].create({
+            'code': 'OPTDOCP', 'acronym': 'MP OPT', 'name': 'Pensament computacional',
+            'internal_hours': 99, 'study_ids': [(4, cls.study.id)]})
+        cls.student = cls.env['res.partner'].create({
+            'name': 'Pau Ferrer Roig', 'contact_type': 'student',
+            'student_id': next_student_id()})
+        pdf = build_academic_record_pdf(cls.student.student_id, 'DOCP', [(
+            '08999999', "Institut de l'Exemple", '2024/2025', [
+                ('D0156_DOCP', 'Anglès professional', 'MP', '8', 66),
+                ('D0156_DOCP_01RA', 'Comprensió oral', 'RA', 'Assolit-8'),
+                ('D0156_DOCP_02RA', 'Comprensió escrita', 'RA', 'Assolit-6'),
+                ('D0156_DOCP_03RA', 'Redacció', 'RA', 'Assolit-7'),
+                ('D0221_DOCP', "Muntatge i manteniment d'equips", 'MP', 'Pendent de qualificar', 231),
+                ('D0221_DOCP_01EM', "Estada a l'empresa", 'EM', 'Pendent'),
+                ('D0221_DOCP_01RA', 'Components', 'RA', 'Assolit-6'),
+                ('D0221_DOCP_02RA', 'Acoblament', 'RA', 'Assolit-5'),
+                ('M_OP_01', 'Introducció a la programació', 'MP_', '8', 66),
+                ('M_OP_02', 'Programació de videojocs', 'MP_', '6', 33),
+            ])], student_name='Ferrer Roig , Pau')
+        cls.certificate = pdf
+        attachment = cls.env['ir.attachment'].create({
+            'name': 'expedient.pdf', 'datas': base64.b64encode(pdf), 'public': True,
+            'mimetype': 'application/pdf'})
+        cls.env['ir.model.data'].create({
+            'module': 'ems', 'name': 'doc_shot_previous_record_certificate',
+            'model': 'ir.attachment', 'res_id': attachment.id})
+
+    @classmethod
+    def _module(cls, code, acronym, name, internal_weight, outcomes):
+        subject = cls.env['ems.subject'].create({
+            'code': code, 'acronym': acronym, 'name': name, 'study_ids': [(4, cls.study.id)]})
+        records = cls.env['ems.outcome'].create([{
+            'code': f'{code}_0{index}RA', 'acronym': acronym_ra, 'name': outcome_name,
+            'subject_id': subject.id,
+        } for index, (acronym_ra, outcome_name, _weight) in enumerate(outcomes, start=1)])
+        cls.env['ems.planning'].create({
+            'study_id': cls.study.id, 'subject_id': subject.id, 'course_id': cls.course.id,
+            'internal_ponderation': internal_weight, 'external_ponderation': 100.0 - internal_weight,
+            'planning_outcome_ids': [(0, 0, {'outcome_id': outcome.id, 'ponderation': weight})
+                                     for outcome, (_acronym, _name, weight) in zip(records, outcomes)],
+        })
+
+    def test_capture_previous_record_screenshots(self):
+        self._capture(
+            f'/odoo/action-ems.action_student_kanban/{self.student.id}', '.modal-content',
+            'academic-history-previous-record-review.png',
+            login='doc_shot_previous_secretary', tour='ems_doc_shot_previous_record', padding=0,
+        )
+        # The record the review grid creates, as the secretariat would.
+        form = Form(self.env['ems.external_record_wizard'].with_user(self.secretary)
+                    .with_context(default_student_id=self.student.id),
+                    view='ems.view_external_record_wizard_form')
+        form.certificate_file = base64.b64encode(self.certificate)
+        form.save().action_create()
+        record = self.student.year_record_ids
+        self._capture(
+            f'/odoo/action-ems.action_year_record_list/{record.id}', '.o_form_sheet',
+            'academic-history-previous-record.png', login='doc_shot_previous_secretary',
+            wait_for=".o_form_sheet div[name='subject_record_ids'] .o_data_row",
         )

@@ -69,14 +69,17 @@ moment loses data: it only decides when the tutor reads it and how complete the 
 How the due moment (`hr.employee._ems_attendance_report_eta(issue_date)`) is worked out, all in
 the company's timezone:
 
-- **End-of-day moments** (`teacher_end`, `students_end`): that moment on the issues' day; if it
-  has already passed (a roll-call taken late, or for a past day), now.
+- **End-of-day moments** (`teacher_end`, `students_end`): that moment on the issues' day.
 - **Next moments** (`teacher_start`, `fixed_time`): the first one strictly after now, looking up
   to 14 days ahead.
 - **Fallback** when the moment can't be found (no working day that day, tutor on long leave,
   students without class): the end of the centre's day (default schedule framework), and as a
   last resort the company setting `attendance_issue_tutor_default`.
-- The moment is never earlier than now.
+- **Always after now.** When the issues' day moment has already passed (a roll-call taken after
+  the tutor's day ended, or for a past day), the issue waits for the tutor's **next** moment,
+  exactly as a next moment is looked for. It is never due now: a roll-call saves each student's
+  status in its own request, so a job due now was sent before the next click could join it, and
+  every click became its own email (issue #588: 40-70 emails for one tutor in an afternoon).
 
 ```mermaid
 flowchart TD

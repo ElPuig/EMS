@@ -229,8 +229,18 @@
                             class="oe_highlight"
                             invisible="ems_status != 'pending_validation' or not is_absence_head"/>
                     <button string="Documentation insufficient" name="action_ems_document_insufficient" type="object"
-                            invisible="not ((ems_status == 'pending_validation' and is_absence_head) or (ems_status == 'pending_direction' and is_absence_direction))"
-                            confirm="The request goes back to the employee, who is asked to attach a valid supporting document. Continue?"/>
+                            invisible="not ((ems_status == 'pending_validation' and is_absence_head) or (ems_status == 'pending_direction' and is_absence_direction))"/>
+                </xpath>
+
+                <!-- Why the Head or Direction sent the supporting document back, for the
+                     employee to read while they look for a valid one
+                     (hr.leave._ems_return_document). -->
+                <xpath expr="//header" position="after">
+                    <div class="alert alert-warning mb-0" role="alert"
+                         invisible="ems_status != 'pending_document' or not ems_document_return_reason">
+                        <strong>The supporting document was not sufficient:</strong>
+                        <field name="ems_document_return_reason" class="d-block"/>
+                    </div>
                 </xpath>
 
                 <!-- Direction's own approval, the last step, once the Head has validated the
@@ -369,8 +379,7 @@
                             invisible="ems_status != 'pending_direction'"/>
                     <button title="Documentation insufficient" name="action_ems_document_insufficient" type="object"
                             icon="fa-file-o" groups="ems.group_director"
-                            invisible="ems_status != 'pending_direction'"
-                            confirm="The request goes back to the employee, who is asked to attach a valid supporting document. Continue?"/>
+                            invisible="ems_status != 'pending_direction'"/>
                     <button title="Direction: pending" name="action_ems_direction_reset" type="object"
                             icon="fa-undo" groups="ems.group_director"
                             invisible="state in ('refuse', 'cancel') or ems_direction_state == 'not_done'"/>

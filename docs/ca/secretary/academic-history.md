@@ -15,7 +15,8 @@ Aquesta guia explica l'**històric acadèmic**: un resum permanent per curs de c
 3. [Consultar l'històric](#consultar-lhistòric)
 4. [Ajustar el resultat acadèmic](#ajustar-el-resultat-acadèmic)
 5. [Aplicar una revisió de qualificacions](#aplicar-una-revisió-de-qualificacions)
-6. [Finals pendents de l'estada](#finals-pendents-de-lestada)
+6. [Afegir un expedient anterior](#afegir-un-expedient-anterior)
+7. [Finals pendents de l'estada](#finals-pendents-de-lestada)
 
 ---
 
@@ -36,6 +37,7 @@ L'estat d'un mòdul depèn **només dels RA**: un alumne amb tots els RA aprovat
 - **En una baixa:** l'[assistent de baixa](graduation-withdrawal.md) congela l'històric de l'alumne/a **en aquell moment**, abans de desvincular-lo del seu grup. Qui deixa el centre a mig curs conserva el registre de tot el que va fer fins aquell dia (mòduls, notes, assistència), amb el resultat **Baixa**. Un cop congelat l'històric, la baixa **treu l'alumne/a de tot allò operatiu**: les seves inscripcions a mòduls, les línies de notes de les sessions vives, les línies i plantilles d'assistència, i el delegat del grup si ho era. A partir d'aquell moment ja no surt al grup, ni a la matriu d'avaluació, ni a les sessions d'assistència, ni a la qualificació de l'estada — només al seu històric acadèmic.
 - **En la transició de curs:** l'assistent de transició (executat per l'administrador al final del curs) genera els registres de tot l'alumnat actiu abans de netejar les dades operatives.
 - **En completar una convalidació:** si el curs de la convalidació encara no té registre, se n'obre un marcat com a **Curs actual**, amb només les assignatures convalidades (nota, marca **CV** i número de registre CONV). Així el professorat veu la nota des del primer dia. En tancar el curs (transició, baixa o graduació) el registre es completa amb la resta d'assignatures i el resultat, i perd la marca. Sobre un registre del curs actual no es pot aplicar una revisió de qualificacions: les notes del curs en marxa es corregeixen a les sessions d'avaluació.
+- **Des d'un certificat acadèmic:** un curs d'abans d'EMS, d'aquest centre o d'un altre, s'afegeix a mà, vegeu [Afegir un expedient anterior](#afegir-un-expedient-anterior).
 
 Tornar a executar la generació mai no duplica un registre: el que ja existeix s'actualitza.
 
@@ -77,6 +79,41 @@ La nota final es recalcula automàticament a partir d'aquest valor forçat (igua
 El mòdul conserva la data, l'autor/a i el text de l'última revisió que s'hi ha aplicat, i el filtre **Corregit per una revisió de qualificacions** de la llista de l'històric mostra els registres que en tenen alguna. El detall de cada canvi queda registrat al registre de l'alumne/a.
 
 ![Assistent de revisió de qualificacions, amb la graella de resultats d'aprenentatge i el resultat que en surt](../../assets/secretary/academic-history-grade-review.png)
+
+## Afegir un expedient anterior
+
+Quan un alumne/a té cursos fets abans que l'històric es portés a EMS, sigui en un altre centre (p. ex. ve a fer segon després d'haver fet primer en un altre institut) o en aquest mateix (un antic alumne/a d'abans d'EMS), aquests cursos s'afegeixen a l'històric a partir del certificat acadèmic. Ho poden fer secretaria, administració, cap d'estudis i direcció, de moment només en estudis de FP.
+
+Obriu la fitxa de l'alumne/a i, al desplegable **Accions**, feu clic a **Afegeix un expedient anterior**.
+
+### Amb l'expedient acadèmic d'Esfera (PDF)
+
+1. A **Certificat acadèmic**, pugeu el PDF de l'expedient acadèmic d'Esfera.
+2. S'omplen sols el centre de procedència, el seu codi, l'estudi i una graella amb tots els mòduls, resultats d'aprenentatge (RA) i estades del certificat. Els cursos que l'alumne/a ja té a l'històric no s'hi inclouen; si el certificat té cursos de més d'un centre, cada curs conserva el seu.
+3. Reviseu la graella:
+   - **Qualificació del certificat** és el que diu el PDF; **Nota** i **Qualificat** és el que es desarà. Corregiu-les si cal. Un RA *No assolit* o *Pendent* queda sense nota, i el mòdul, no superat.
+   - Les línies amb **Avís** necessiten atenció: un curs que no existeix a EMS no s'importa (l'administració acadèmica l'ha de crear abans); un mòdul que no és de l'estudi no s'importa; si n'hi ha un d'equivalent, trieu-lo a **Mòdul** i marqueu **Importa**.
+   - Les optatives pròpies de l'altre centre no s'importen com a tals. Si n'hi ha d'aprovades i les seves hores sumen almenys les de l'optativa del centre, apareix una línia **Optativa reconeguda** que l'aprova amb la mitjana de les seves notes ponderada per hores; si no hi arriben, la línia queda amb avís i no s'importa. L'optativa reconeguda queda a l'històric amb la marca **Reconegut** i sense resultats d'aprenentatge.
+   - Quan la nota del mòdul del certificat no coincideix amb la que donen els RA amb les ponderacions del centre, s'aplica la del certificat, sempre que totes dues coincideixin en superat o no superat.
+4. Comproveu que **Alumne del certificat** és l'alumne/a: si l'identificador no coincideix amb el seu IDALU, l'expedient no es crea.
+5. Feu clic a **Crea l'expedient**. Es creen el registre i tots els mòduls marcats alhora, amb el PDF adjunt.
+
+![Assistent d'expedient anterior amb la graella de revisió llegida del PDF: mòduls, resultats d'aprenentatge, estada pendent i optativa reconeguda](../../assets/secretary/academic-history-previous-record-review.png)
+
+### Amb qualsevol altre certificat
+
+1. Ompliu **Curs** (només s'ofereixen cursos anteriors a l'actual que l'alumne/a encara no té a l'històric), **Estudi**, **Centre de procedència** i, si el teniu, el **Codi del centre de procedència**. Podeu adjuntar el certificat a **Certificat acadèmic**.
+2. Feu clic a **Crea i afegeix els mòduls**. S'obre la **Revisió de qualificacions** per afegir el primer mòdul.
+3. Trieu el mòdul i poseu la nota de cada RA tal com consta al certificat. Si la **Nota del centre (calculada)** no coincideix amb la del certificat, escriviu la del certificat a **Nota del centre (aplicada)** (vegeu [Forçar la nota del centre manualment](#forçar-la-nota-del-centre-manualment)).
+4. Feu clic a **Aplica i afegeix un altre mòdul** per passar al mòdul següent, amb la mateixa resolució i data. Al darrer mòdul, feu clic a **Aplica la revisió**.
+
+### Després
+
+Si el certificat encara no té la nota de l'estada (EM) d'un mòdul, el mòdul queda superat amb la **nota final pendent** i el tutor/a del grup actual de l'alumne/a la qualifica des de la pantalla d'estada.
+
+![Expedient anterior creat a l'històric, amb la cinta Expedient anterior, el centre de procedència, el certificat i els mòduls](../../assets/secretary/academic-history-previous-record.png)
+
+El registre es mostra amb la cinta **Expedient anterior**, el centre de procedència i el certificat. El filtre **Expedients anteriors** de la llista de l'històric els mostra tots. Per corregir-lo més endavant, feu servir la revisió de qualificacions com en qualsevol altre registre.
 
 ## Finals pendents de l'estada
 

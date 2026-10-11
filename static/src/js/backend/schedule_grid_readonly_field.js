@@ -3,6 +3,7 @@
 import { Component, useState, onWillStart } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { standardFieldProps } from "@web/views/fields/standard_field_props";
+import { CopyClipboardURLField } from "@web/views/fields/copy_clipboard/copy_clipboard_field";
 import { useService } from "@web/core/utils/hooks";
 import { PX_PER_HOUR, WEEKDAYS, MIN_ENTRY_HEIGHT, dayLabels, computeBounds, formatHour, formatHourMinutes, buildColorMap, layoutOverlappingBlocks } from "./schedule_grid_geometry";
 
@@ -43,6 +44,7 @@ const PDF_ACTION_BY_MODEL = {
 export class ReadonlyScheduleGridField extends Component {
     static template = "ems.ReadonlyScheduleGridField";
     static props = { ...standardFieldProps };
+    static components = { CopyClipboardURLField };
 
     setup() {
         this.actionService = useService("action");
@@ -64,6 +66,16 @@ export class ReadonlyScheduleGridField extends Component {
     // own read-only tab never defines this field at all).
     get canEditSchedule() {
         return !!this.props.record.data.can_edit_schedule;
+    }
+
+    // Issue #574 - the group's public, no-login schedule link (issue #453), shown between the
+    // toolbar and the grid. Same pattern as 'canEditSchedule': only 'ems.group' defines the field,
+    // so it is absent (falsy) on every other model reusing this widget. An archived group's link
+    // isn't offered. The copy button uses navigator.clipboard, which browsers only expose over
+    // HTTPS or localhost: over plain http it silently does nothing.
+    get publicScheduleUrl() {
+        const data = this.props.record.data;
+        return data.active !== false && data.public_schedule_url;
     }
 
     get entries() {

@@ -30,15 +30,15 @@ registry.category("web_tour.tours").add("ems_group_public_schedule", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='public_schedule_url']:contains('/ems/schedule/tour-public-schedule-tgpt.pdf')",
-            content: "The public schedule link is shown",
+            trigger: ".o_form_view .o_schedule_grid_toolbar + .o_schedule_grid_public_url:contains('/ems/schedule/tour-public-schedule-tgpt.pdf') + .o_schedule_grid_grid",
+            content: "The public schedule link is shown on the Schedule tab, between its buttons and the grid",
         },
         {
-            trigger: ".o_form_view div[name='public_schedule_url'] a.o_form_uri[target='_blank'][href$='/ems/schedule/tour-public-schedule-tgpt.pdf']",
+            trigger: ".o_form_view .o_schedule_grid_public_url a.o_form_uri[target='_blank'][href$='/ems/schedule/tour-public-schedule-tgpt.pdf']",
             content: "The link opens the PDF in a new tab",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='public_schedule_url'] .o_clipboard_button",
+            trigger: ".o_form_view .o_schedule_grid_public_url .o_clipboard_button",
             content: "It can be copied",
         },
     ],

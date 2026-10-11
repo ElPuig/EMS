@@ -56,6 +56,10 @@ class ResPartnerGoogleWorkspace(models.Model):
         compute_sudo=True, store=False,
         help="Whether the user looking at this student may create their Google account: the "
              "secretary, plus everyone who may reset the password.")
+    google_ws_creation_pending = fields.Boolean(
+        string="Google account being created", compute='_compute_google_ws_creation_pending',
+        help="True while the account-creation job waits in the queue or runs: the "
+             "\"Create Google account\" button stays hidden meanwhile.")
     can_download_google_credentials = fields.Boolean(
         string="Can download the Google credentials",
         compute='_compute_can_download_google_credentials', store=False,
@@ -74,6 +78,12 @@ class ResPartnerGoogleWorkspace(models.Model):
                 partner.google_ws_state = 'suspended'
             else:
                 partner.google_ws_state = 'active'
+
+    def _compute_google_ws_creation_pending(self):
+        gw = self._gw()
+        for partner in self:
+            partner.google_ws_creation_pending = bool(partner.id) and gw._gw_creation_job_running(
+                partner._gw_create_job_key())
 
     # NOTE (issue #490, #513): drives the "Reset Google password" and "Create Google account"
     # buttons' own invisible, since a teacher reads every student (rule_contact_teacher) and the
@@ -214,10 +224,21 @@ class ResPartnerGoogleWorkspace(models.Model):
             return
         for partner in self:
             if partner._gw_ready():
-                partner.with_delay(
-                    identity_key='gw_create_account_%s' % partner.id,
-                    description="Create Google Workspace account: %s" % partner.name,
-                )._gw_create_account()
+                partner._gw_enqueue_create()
+
+    def _gw_create_job_key(self):
+        """identity_key of the account-creation job, shared by every path that queues it."""
+        self.ensure_one()
+        return 'gw_create_account_%s' % self.id
+
+    def _gw_enqueue_create(self):
+        """Queue the account creation. The automatic path and the header button both go
+        through it, so the same job is never queued twice for one student (#582)."""
+        self.ensure_one()
+        self.with_delay(
+            identity_key=self._gw_create_job_key(),
+            description="Create Google Workspace account: %s" % self.name,
+        )._gw_create_account()
 
     def _gw_enqueue_relocate(self):
         """Enqueue an OU relocation for students that already have an account, used
@@ -356,19 +377,26 @@ class ResPartnerGoogleWorkspace(models.Model):
             ).action_reactivate_google_account()
 
     # ------------------------------------------------------------------
-    # Main action (queue_job target / manual button)
+    # Main action (manual button) and the creation itself (queue_job target)
     # ------------------------------------------------------------------
     def action_create_google_account(self):
         """"Create Google account" header button: the secretary, academic admin, TAC and - since
         issue #513 - the student's own tutor scope (the same rule as the password reset). The
         button's invisible only hides it, so the same check is repeated here. The automatic paths
         call _gw_create_account() directly: their queue jobs run as whoever triggered them, portal
-        families included."""
+        families included.
+
+        A student ready for it gets the same queued job as the automatic creation instead of a
+        direct call: both used to run side by side and create two accounts (#582). Anything else
+        (missing data, an existing address) keeps the direct call, which explains itself."""
         self.ensure_one()
         if not self.can_create_google_account:
             raise AccessError(_(
                 "Only the secretary's office, administrators, the TAC team and the student's own "
                 "tutor can create a Google account."))
+        if self.env.company.google_ws_enabled and self._gw_ready():
+            self._gw_enqueue_create()
+            return self._gw()._gw_creation_queued_notification()
         self._gw_create_account()
 
     def _gw_create_account(self):
@@ -384,6 +412,7 @@ class ResPartnerGoogleWorkspace(models.Model):
             return
         if self.contact_type != 'student':
             return
+        self._gw()._gw_lock_for_creation(self)
         if self.student_email:
             return
 
@@ -493,22 +522,7 @@ class ResPartnerGoogleWorkspace(models.Model):
             raise UserError(_("The Google Workspace integration is not enabled."))
 
         email = self.student_email
-        password = self._gw()._gw_random_password()
-        if company.google_ws_dry_run:
-            _logger.info("[GW dry-run] reset password of %s", email)
-        else:
-            service = self._gw()._gw_get_service()
-            try:
-                service.users().patch(
-                    userKey=email,
-                    body={'password': password, 'changePasswordAtNextLogin': True},
-                ).execute()
-            except HttpError as e:
-                _logger.exception("Could not reset the Google password of %s", self.name)
-                raise UserError(_(
-                    "Google refused to reset the password of %(email)s. Check that the service "
-                    "account's admin role has the \"Reset password\" privilege. Error: %(err)s") % {
-                        'email': email, 'err': str(e)[:200]}) from e
+        password = self._gw()._gw_reset_password(email)
 
         # The previous PDFs hold a password that no longer works.
         self.env['ems.student.document'].sudo().search([

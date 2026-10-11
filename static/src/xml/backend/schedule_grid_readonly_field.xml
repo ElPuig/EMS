@@ -21,6 +21,14 @@
                 </t>
             </div>
 
+            <div t-if="!editing.value and publicScheduleUrl" class="o_schedule_grid_public_url d-flex align-items-center gap-2 mb-2">
+                <span class="fw-bold text-nowrap" t-esc="props.record.fields.public_schedule_url.string"/>
+                <!-- o_field_CopyClipboardURL + o_readonly_modifier: the boxed link + always-visible copy button
+                     Odoo gives this widget on a readonly form field. -->
+                <div class="flex-grow-1 o_field_widget o_field_CopyClipboardURL o_readonly_modifier">
+                    <CopyClipboardURLField record="props.record" name="'public_schedule_url'" readonly="true"/>
+                </div>
+            </div>
             <div t-if="!editing.value" class="o_schedule_grid_grid">
                 <div class="o_schedule_grid_header"/>
                 <t t-foreach="days" t-as="day" t-key="day.index">

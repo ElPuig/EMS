@@ -2,7 +2,6 @@
 
 from odoo import api, fields, models
 
-from .convalidation import CONVALIDATED_GRADE
 
 # The year record is a frozen COPY of the grades subsystem output — never recalculated
 # here. The single source of truth for grade computation is ems.grade_subject_line /
@@ -69,6 +68,16 @@ class EmsStudentYearRecord(models.Model):
                                     help="The course is still running: the record only holds the subjects "
                                          "convalidated so far, and gets the rest, and its result, when the "
                                          "course is closed.")
+    # A course the student took at another centre, typed in from that centre's academic
+    # certificate (issue #585) instead of generated from this centre's grade sessions. It has no
+    # group, tutor or attendance of ours, and the generator never rewrites it.
+    is_external = fields.Boolean(string="Previous record", default=False, readonly=True, index=True,
+                                 help="Typed in from an academic certificate (another centre's, or this "
+                                      "centre's from before EMS) instead of generated from the grade sessions.")
+    origin_centre_name = fields.Char(string="Origin centre", readonly=True)
+    origin_centre_code = fields.Char(string="Origin centre code", readonly=True)
+    certificate_file = fields.Binary(string="Academic certificate", attachment=True)
+    certificate_filename = fields.Char(string="Certificate file name")
     subject_record_ids = fields.One2many(string="Subjects",
                                          comodel_name='ems.student.year_record.subject',
                                          inverse_name='record_id')
@@ -148,7 +157,9 @@ class EmsStudentYearRecord(models.Model):
         # regenerates on every exit, and the manual tells the operator to register the
         # leavers AFTER applying the transition.
         existing = self.search([('student_id', '=', student.id), ('course_id', '=', course.id)])
-        if existing and not group:
+        # A course taken at another centre (issue #585) is not this centre's to regenerate:
+        # nothing here holds its grades but the record itself.
+        if existing and (existing.is_external or not group):
             return existing
         attendance_rate, subject_rates = self._attendance_rates(student)
         subject_vals = self._subject_vals(student, subject_rates)
@@ -226,6 +237,44 @@ class EmsStudentYearRecord(models.Model):
             'shift': group.shift,
             'is_provisional': True,
         })
+
+    def _ems_reopen_after_undone_withdrawal(self):
+        """Undo the freeze a withdrawal applied to the running course (issue #592).
+
+        The course is running again, so its record goes back to what it was before: a
+        provisional one holding only the subjects convalidated during it, or nothing at all.
+        The grades it froze cannot become grade lines again (the withdrawal deleted those), so
+        they are returned as text, one item per graded subject, for the caller to leave in the
+        student's chatter."""
+        frozen_grades = []
+        for record in self:
+            convalidated = record.subject_record_ids.filtered('is_convalidated')
+            for subject_record in record.subject_record_ids - convalidated:
+                outcomes = subject_record.outcome_record_ids.filtered('final_is_scored')
+                if not (subject_record.has_final or subject_record.internal_grade
+                        or subject_record.external_is_scored or outcomes):
+                    continue
+                grade = subject_record.final_grade if subject_record.has_final \
+                    else subject_record.internal_grade
+                item = f"{subject_record.subject_name}: {grade}"
+                if outcomes:
+                    item += " (" + ", ".join(
+                        f"{outcome.outcome_name}: {outcome.final_score}" for outcome in outcomes) + ")"
+                frozen_grades.append(item)
+            if convalidated:
+                (record.subject_record_ids - convalidated).unlink()
+                record.write({
+                    'is_provisional': True,
+                    'exit_type': False,
+                    'exit_date': False,
+                    'academic_result': False,
+                    'title_obtained': False,
+                    'attendance_rate': 0.0,
+                    'attendance_issue_count': 0,
+                })
+            else:
+                record.unlink()
+        return frozen_grades
 
     @api.model
     def _convalidated_subject_vals(self, student, course, study, taken_subject_ids):
@@ -369,6 +418,20 @@ class EmsStudentYearRecord(models.Model):
         return 'full' if all(subject_record.state == 'passed'
                              for subject_record in self.subject_record_ids) else 'partial'
 
+    def action_grade_review_add(self, resolution=None, review_date=None):
+        """The grade review wizard, set to add a module to this record: how a record from another
+        centre gets its modules (issue #585), one after another."""
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_grade_review_wizard')
+        context = {'dialog_size': 'extra-large', 'default_record_id': self.id,
+                   'default_operation': 'add'}
+        if resolution:
+            context['default_resolution'] = resolution
+        if review_date:
+            context['default_review_date'] = review_date
+        action['context'] = context
+        return action
+
 
 class EmsStudentYearRecordSubject(models.Model):
     _name = 'ems.student.year_record.subject'
@@ -414,13 +477,19 @@ class EmsStudentYearRecordSubject(models.Model):
     # once the year is already frozen (see _ems_set_convalidated).
     is_convalidated = fields.Boolean(string="Convalidated", default=False)
     convalidation_grade = fields.Integer(string="Convalidation grade", default=0,
-                                         help="Grade the convalidation was resolved with. Only meaningful "
-                                              "while 'Convalidated' is set.")
+                                         help="Grade the convalidation was resolved with, 0 when it has none. "
+                                              "Only meaningful while 'Convalidated' is set.")
     # Frozen as text, like the rest of the history (subject_name, tutor_name...): the record must
     # read the same for everyone, and most of its readers (teachers) cannot open a request.
     convalidation_number = fields.Char(string="Convalidation file", readonly=True,
                                        help="Registration number of the convalidation request the subject "
                                             "was passed through, e.g. CONV-2026-27-0001.")
+    # An optional module of this centre passed through the optional modules of a previous
+    # record's certificate (issue #585): their hours cover this one's, and its grade is their
+    # hours-weighted average. Like a convalidated subject, it has no learning outcomes of its own.
+    is_recognized = fields.Boolean(string="Recognised", default=False, readonly=True,
+                                   help="Optional module passed through the optional modules of the "
+                                        "academic certificate of a previous record.")
     # Trace of the last grade review applied to this subject (issue #493). A grade review is a
     # formal, signed resolution taken once the academic file is already closed, so the
     # record keeps who applied it, when and what it resolved; the detail of every change
@@ -459,16 +528,16 @@ class EmsStudentYearRecordSubject(models.Model):
             'internal_weight': planning.internal_ponderation if planning else 100.0,
             'external_weight': planning.external_ponderation if planning else 0.0,
             'is_convalidated': True,
-            'convalidation_grade': line.grade,
+            'convalidation_grade': line._ems_resolved_grade(),
             'convalidation_number': line.convalidation_id.name or False,
             'state': 'passed',
-            'final_grade': line.grade,
+            'final_grade': line._ems_resolved_grade(),
             'has_final': True,
         }
 
-    def _ems_set_convalidated(self, convalidated, grade=CONVALIDATED_GRADE, convalidation=None):
+    def _ems_set_convalidated(self, convalidated, grade=0, convalidation=None):
         """Apply a convalidation completed after this subject was frozen. Granting it passes the
-        subject with the grade the resolution carries; revoking it rebuilds state and final from
+        subject with the grade the resolution carries (0 without a grade); revoking it rebuilds state and final from
         what the record itself holds (its RAs, internal and external grades), exactly as the
         generator and apply_external_grade() derive them."""
         for subject_record in self:
@@ -512,7 +581,10 @@ class EmsStudentYearRecordSubject(models.Model):
         A convalidated subject is left alone (issue #276): its grade comes from a convalidation
         resolution, not from the RAs of a course the student never took here, so recomputing it
         would silently wipe the resolution."""
-        for subject_record in self.filtered(lambda record: not record.is_convalidated):
+        # A recognised optional module (issue #585) has no outcomes either: its grade comes from
+        # the certificate's optional modules.
+        for subject_record in self.filtered(lambda record: not record.is_convalidated
+                                            and not record.is_recognized):
             outcomes = subject_record.outcome_record_ids
             subject_record.write(self._values_from_outcomes(
                 [(outcome.final_score, outcome.weight)
@@ -545,6 +617,22 @@ class EmsStudentYearRecordSubject(models.Model):
             'final_grade': final_grade,
             'has_final': has_final,
         }
+
+    def _force_internal_grade(self, grade):
+        """Overwrite the internal grade with a value typed by hand instead of the one the outcomes
+        yield (issue #503: to match the grade Esfera or a certificate records), completing the
+        final grade with the weights frozen in the record. The state is never touched: the caller
+        guarantees the forced value is on the same side of 5 as the outcomes."""
+        for subject_record in self:
+            final_grade, has_final = self.env['ems.grade_subject_line']._final_from_parts(
+                grade, True, subject_record.external_grade, subject_record.external_is_scored,
+                subject_record.internal_weight, subject_record.external_weight)
+            subject_record.write({
+                'internal_grade': grade,
+                'is_overridden': True,
+                'final_grade': final_grade,
+                'has_final': has_final,
+            })
 
     def apply_external_grade(self, score):
         """Write the work placement (EM) grade on an archived subject (called by the EM

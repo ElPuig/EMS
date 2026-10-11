@@ -431,7 +431,10 @@ export class GradeTutorMatrix extends Component {
     finalScore(row) {
         if (row.model.is_convalidated) {
             // The convalidation's own grade, marked as such: it is a resolution, not an evaluation.
-            return `${this.formatScore(row.model.final_score)} ${_t("CV")}`;
+            // Convalidated without a grade, it is the mark alone.
+            return row.model.final_score
+                ? `${this.formatScore(row.model.final_score)} ${_t("CV")}`
+                : _t("CV");
         }
         return row.model.has_final ? this.formatScore(row.model.final_score) + this.provisionalMark(row) : "";
     }
@@ -439,7 +442,8 @@ export class GradeTutorMatrix extends Component {
     finalCellClass(row) {
         let cls = "o_grade_matrix_final";
         if (row.model.has_final) {
-            cls += row.model.final_score >= 5 ? " o_grade_cell_pass" : " o_grade_cell_fail";
+            const passed = row.model.is_convalidated || row.model.final_score >= 5;
+            cls += passed ? " o_grade_cell_pass" : " o_grade_cell_fail";
         }
         if (this.isProvisional(row)) {
             cls += " o_grade_matrix_provisional";

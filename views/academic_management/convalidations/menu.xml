@@ -9,5 +9,12 @@
                   action="action_convalidation"
                   groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"
                   sequence="15"/>
+
+        <!-- Section of Academic management > Configuration grouping the convalidation catalogs. -->
+        <menuitem id="menu_ems_configuration_convalidations"
+                  name="Convalidations"
+                  parent="menu_ems_configuration"
+                  groups="ems.group_academic_admin"
+                  sequence="50"/>
     </data>
 </odoo>

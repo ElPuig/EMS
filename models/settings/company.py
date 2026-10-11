@@ -27,6 +27,9 @@ class ems_company(models.Model):
     #       Also, string and help values are only defined within the settings form. 
     attendance_issue_status_delay = fields.Integer(default=15)
     attendance_issue_tutor_default = fields.Float(default=21.0)
+    # Off: only a tutor's justification (ems.attendance_justification) marks a line as justified,
+    # the roll-call can't (issue #587). Read through ems.attendance_status.roll_call_selectable.
+    attendance_manual_justified = fields.Boolean(default=False)
     strike_escalation_threshold = fields.Integer(default=3)
     # Minutes; 0 disables the possible-duplicate warning (ems.strike.get_duplicate_warning).
     strike_duplicate_window = fields.Integer(default=1)

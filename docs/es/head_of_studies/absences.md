@@ -51,7 +51,7 @@ Ahí tienes las solicitudes de tu área, y se abre con **Esperándome**: las que
 1. **Recibida: pendiente de documentación** (icono de bandeja en el listado, o el botón de arriba del formulario). Das por recibida la solicitud sin haber visto todavía el justificante. Pasa a **En espera de documentación** y se pide el justificante a la persona. Si ya lo había adjuntado con la solicitud, pasa directamente a **Pendiente de validación**.
 2. Cuando la persona adjunta el justificante, la solicitud vuelve sola a ti como **Pendiente de validación**. Ábrela, revisa el justificante y usa **Validar documentación** (también un icono de validación en el listado). Entonces pasa a Dirección.
 
-Si el justificante no es válido, **Documentación insuficiente** devuelve la solicitud a la persona (En espera de documentación) con un mensaje que pide uno válido.
+Si el justificante no es válido, **Documentación insuficiente** te pide el motivo (obligatorio) y devuelve la solicitud a la persona (En espera de documentación) con un mensaje que lo incluye. La persona también lo ve arriba de la solicitud hasta que adjunta un justificante nuevo. Si el nuevo tampoco es válido, el diálogo se abre con el motivo anterior para que puedas modificarlo; cuando validas un justificante, el motivo se borra.
 
 Para `Salud` y `ATRI` hay un solo paso: **Validar** (el pulgar en el listado), que la envía directamente a Dirección.
 
@@ -96,7 +96,7 @@ Revísalas desde el listado con los iconos junto a **Estado Dirección**, o abre
 | Icono | Botón | Resultado |
 |---|---|---|
 | Casilla marcada | **Dirección: hecho** | Aprobado |
-| Hoja | **Documentación insuficiente** | Vuelve a la persona, En espera de documentación. Pide confirmación antes |
+| Hoja | **Documentación insuficiente** | Vuelve a la persona, En espera de documentación. Antes pide el motivo, que la persona recibe |
 | Flecha atrás | **Dirección: pendiente** | Deshace un *Hecho* |
 | Cruz | **Rechazar** | Rechazado. Rechaza toda la solicitud, pide confirmación antes y es definitivo |
 
@@ -145,7 +145,7 @@ Para cambiar el periodo, quita el filtro **Curso actual** y elige el que necesit
 Cuando ya sabes que un docente faltará pero todavía no ha solicitado la ausencia (ha llamado esta mañana, o se ha acordado en una reunión), regístrala aquí para que las guardias se puedan planificar enseguida.
 
 1. Haz clic en **Nuevo**.
-2. Elige el **Profesor**. Solo aparecen los docentes de tu área: la Jefatura de Estudios o la Jefatura de Estudios Adjunta ve a sus docentes, y Dirección los ve a todos.
+2. Elige el **Profesor**. Solo aparecen los docentes de tu área: la Jefatura de Estudios o la Jefatura de Estudios Adjunta ve a sus docentes, y Dirección los ve a todos. Los miembros del equipo directivo (como el Secretario) cuentan como docentes del área a la que pertenece su departamento: el Secretario, que da clase en un departamento de FP, aparece a la Jefatura de Estudios o Jefatura de Estudios Adjunta responsable de FP.
 3. Indica **De** y **A**, con fecha y hora. Por defecto, hoy de 08:00 a 15:00. Una ausencia puede abarcar varios días.
 4. Si quieres, añade **Notas** para ti. El docente nunca ve esta entrada.
 5. Guarda.
@@ -157,3 +157,7 @@ Cuando el docente solicita la ausencia, la ausencia prevista se vincula a ella a
 ![Lista de ausencias previstas, una todavía prevista y otra ya solicitada por el docente](../../assets/head_of_studies/hos-expected-absences-list.png)
 
 Si finalmente el docente no falta, borra la entrada.
+
+### Organizar la cobertura
+
+Una vez una ausencia aparece en el horario de guardias, prevista o solicitada, organízala desde la **Tabla de ausencias** del horario: envía un docente de guardia a cada clase, propón un comunicado a las familias cuando el alumnado puede entrar más tarde o salir antes, y corrige lo que una ausencia que ha cambiado después ha dejado sin sentido. Lo que organices para una ausencia prevista se mantiene cuando el docente la solicita. Ver [Organizar una ausencia](../teachers/guard-duty-schedule.md#organizar-una-ausencia).

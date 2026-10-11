@@ -9,6 +9,7 @@ from dateutil.relativedelta import relativedelta
 
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
+from odoo.tools import SQL
 
 _logger = logging.getLogger(__name__)
 
@@ -106,6 +107,50 @@ class GoogleWorkspaceMixin(models.AbstractModel):
         return fields.Date.context_today(self) + relativedelta(days=days)
 
     @api.model
+    def _gw_creation_job_running(self, identity_key):
+        """True while the account-creation job with this key waits in the queue or runs.
+
+        queue_job's identity_key only deduplicates jobs that are still waiting, not one
+        already started, so the "Create Google account" button reads this to stay hidden
+        until the job is over (issue #582).
+        """
+        return bool(self.env['queue.job'].sudo().search_count([
+            ('identity_key', '=', identity_key),
+            ('state', 'in', ('wait_dependencies', 'pending', 'enqueued', 'started')),
+        ], limit=1))
+
+    @api.model
+    def _gw_creation_queued_notification(self):
+        """What the "Create Google account" button answers once the creation is queued."""
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'type': 'info',
+                'message': _("The Google account is being created. The result will appear "
+                             "in the record's history in a few moments."),
+                'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'},
+            },
+        }
+
+    @api.model
+    def _gw_lock_for_creation(self, record):
+        """Lock `record`'s row before any Google call that creates its account (issue #582).
+
+        Two creations for the same person (the header button and the automatic job) used
+        to run side by side: both saw no corporate email, the loser got a 409 from Google,
+        created the next candidate address and then rolled back on the database, leaving
+        an orphan account in Google. With the row locked first, the second one fails here,
+        before touching Google, with an error queue_job and Odoo's HTTP layer both retry,
+        and the retry finds the address the first one saved. NOWAIT so a retry never sits
+        blocked; under REPEATABLE READ a row changed since the snapshot also fails here.
+        """
+        self.env.cr.execute(SQL(
+            "SELECT 1 FROM %s WHERE id = %s FOR UPDATE NOWAIT",
+            SQL.identifier(record._table), record.id))
+        record.invalidate_recordset()
+
+    @api.model
     def _gw_send_lifecycle_warning(self, record, template_xmlid, recipients,
                                    extra_context=None):
         """Warn `record`'s known addresses that its Google account is about to change.
@@ -126,6 +171,30 @@ class GoogleWorkspaceMixin(models.AbstractModel):
             gw_recipients=','.join(addresses), **(extra_context or {}),
         ).send_mail(record.id, force_send=True)
         return True
+
+    @api.model
+    def _gw_reset_password(self, email):
+        """Give the Google account `email` a new random password, to be changed at next login,
+        and return it. Shared by students (#478) and staff (#595). A refusal from Google is
+        raised as a UserError before the caller delivers anything, so the previous credentials
+        stay in place."""
+        password = self._gw_random_password()
+        if self.env.company.google_ws_dry_run:
+            _logger.info("[GW dry-run] reset password of %s", email)
+            return password
+        service = self._gw_get_service()
+        try:
+            service.users().patch(
+                userKey=email,
+                body={'password': password, 'changePasswordAtNextLogin': True},
+            ).execute()
+        except HttpError as e:
+            _logger.exception("Could not reset the Google password of %s", email)
+            raise UserError(_(
+                "Google refused to reset the password of %(email)s. Check that the service "
+                "account's admin role has the \"Reset password\" privilege. Error: %(err)s") % {
+                    'email': email, 'err': str(e)[:200]}) from e
+        return password
 
     @api.model
     def _gw_sync_account_name(self, record, email, given, family):

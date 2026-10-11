@@ -6,8 +6,8 @@
 
 A Group is the class a student belongs to. There are two kinds:
 
-- **Main**: the group a student is actually enrolled in — has a tutor, a delegate, and a single level/study/course/acronym (e.g. `DAM1A`).
-- **Reinforcement**: shows up in the teaching schedule like any other group, but has no tutor or delegate, and can mix students from different main groups and studies (e.g. a shared English reinforcement class).
+- **Main**: the group a student is actually enrolled in — has a tutor, a delegate and a sub-delegate, and a single level/study/course/acronym (e.g. `DAM1A`).
+- **Reinforcement**: shows up in the teaching schedule like any other group, but has no tutor, delegate or sub-delegate, and can mix students from different main groups and studies (e.g. a shared English reinforcement class).
 
 For the group's weekly timetable (aggregated from teachers' own schedules) and its PDF export, see [A Group's Weekly Schedule](group-schedule.md) — this page covers creating and managing the group itself.
 
@@ -31,10 +31,11 @@ Navigate to: **Educational Community → Groups**
    - **Acronym** *(required)*: e.g. `A`. The group's name is built automatically from Study + Course + Acronym (e.g. `DAM1A`) — you don't type it directly.
    - **Tutor**: the teacher responsible for this group. Assigning it here automatically grants that teacher the Tutor role.
    - **Delegate**: a student representative (only selectable once the group has students).
+   - **Sub-delegate**: the student who stands in for the delegate. Chosen from the same students, and it can't be the delegate.
    - **Shift**, **Reference classroom**, **External ID** (Esfera/SAGA code) as needed.
 4. Click **Save**.
 
-![A main group's form: level, study, course, acronym, tutor and delegate, with its students](../../assets/admin/admin-groups-form.png)
+![A main group's form: level, study, course, acronym, tutor, delegate and sub-delegate, with its students](../../assets/admin/admin-groups-form.png)
 
 Students aren't added from here — see the **Students** tab to review who's assigned, but a student's own record (or the enrolment flow) is what actually assigns them to a group.
 
@@ -45,7 +46,7 @@ Students aren't added from here — see the **Students** tab to review who's ass
 ## Create a Reinforcement Group
 
 1. Click **New**.
-2. Switch **Group Type** to **Reinforcement**. Level, Study, Tutor and Delegate disappear — they don't apply.
+2. Switch **Group Type** to **Reinforcement**. Level, Study, Tutor, Delegate and Sub-delegate disappear — they don't apply.
 3. Fill in a **Name** directly (e.g. `REF-MATHS`).
 4. Click **Save**.
 5. Add students the same way as for any other group: from the student's own form (or the enrolment flow), enrol them in a subject with this reinforcement group set as the **Group** — they can come from any main group/study. They then show up in this group's own **Enrolled** tab.
@@ -56,7 +57,7 @@ Students aren't added from here — see the **Students** tab to review who's ass
 
 You can switch an existing group between Main and Reinforcement, but:
 - Switching **Main → Reinforcement** is blocked if the group still has students enrolled as their main group — reassign them to another group first.
-- Switching **Main → Reinforcement** clears the fields that no longer apply (level/study/course/acronym/tutor/delegate).
+- Switching **Main → Reinforcement** clears the fields that no longer apply (level/study/course/acronym/tutor/delegate/sub-delegate).
 
 ---
 

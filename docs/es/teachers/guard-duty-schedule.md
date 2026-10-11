@@ -6,7 +6,7 @@
 
 Consulta dónde está cada docente, y quién está de guardia, en cada franja horaria de la semana — no solo tu propio horario.
 
-**Rol necesario:** Docente (solo lectura; los horarios los configura un Jefe de departamento o superior desde el horario semanal propio del docente correspondiente)
+**Rol necesario:** Docente (solo lectura; los horarios los configura un Jefe de departamento o superior desde el horario semanal propio del docente correspondiente). Organizar una ausencia desde la Tabla de ausencias corresponde al Jefe de departamento o de seminario del docente ausente y a quienes están por encima (ver [Organizar una ausencia](#organizar-una-ausencia)).
 
 ---
 
@@ -30,10 +30,10 @@ La mañana y la tarde son turnos distintos — usa el desplegable para cambiar e
 
 ## Las dos vistas
 
-Los dos botones de la derecha de la barra de herramientas cambian entre las dos maneras de leer el mismo día y turno:
+Los dos botones de la derecha de la barra de herramientas cambian entre las dos maneras de leer el mismo día y turno. El horario se abre en la **Tabla de ausencias**:
 
-- **Horario de guardias** — el horario, con todo el que falta marcado encima.
 - **Tabla de ausencias** — una fila por franja horaria: quién falta y qué hay que cubrir, frente a quién está de guardia para cubrirlo.
+- **Horario de guardias** — el horario, con todo el que falta marcado encima.
 
 ---
 
@@ -69,7 +69,9 @@ Cada fila es una franja horaria del turno que tienes en pantalla:
 
 Una franja donde no falta nadie tiene la columna de ausencias vacía.
 
-En una clase con codocencia (dos docentes en la misma aula) en la que solo falta uno, su línea aparece **tachada**: sigue ahí para que sepas quién falta, pero no hace falta guardia porque el otro docente se hace cargo de la clase. Si pasas el ratón por encima, te lo indica. Si faltan los dos, o cada docente tiene medio grupo en un aula distinta, la línea no aparece tachada y sí hay que cubrir la clase.
+En una clase con codocencia (dos docentes en la misma aula) en la que solo falta uno, su línea aparece **tachada**: sigue ahí para que sepas quién falta, pero no hace falta guardia porque el otro docente se hace cargo de la clase. Pasa el ratón por encima de la línea o haz clic en ella para ver el motivo; el icono **ⓘ** de su izquierda indica que hay una explicación.
+
+Toda línea tachada tiene ese icono, sea cual sea el motivo: otro docente está en la clase, ya se ha enviado un docente de guardia (su nombre aparece al lado), o se ha comunicado a las familias que el alumnado no tiene que venir a esa clase (ver [Organizar una ausencia](#organizar-una-ausencia)). Si faltan los dos, o cada docente tiene medio grupo en un aula distinta, la línea no aparece tachada y sí hay que cubrir la clase.
 
 ![Tabla de ausencias de la misma franja horaria: el docente ausente y qué hay que cubrir, frente a quién está de guardia](../../assets/teachers/guard-duty-02-absencies.png)
 
@@ -89,6 +91,64 @@ Una ausencia que Jefatura de Estudios ya conoce pero que el docente todavía no 
 Un docente de guardia que falta queda marcado en la columna de guardia y no genera ninguna línea en la columna de ausencias: no tiene ninguna clase propia que nadie deba cubrir.
 
 Aquí solo se muestra que la persona falta. El tipo de ausencia, el motivo y el justificante, no.
+
+---
+
+## Organizar una ausencia
+
+Quién puede hacerlo: el **Jefe de seminario** o el **Jefe de departamento** del docente ausente, y quienes están por encima en la jerarquía (JE o JEA, y Dirección), además del administrador. El resto de docentes ven el resultado pero no pueden cambiarlo, y el docente ausente no puede organizar su propia ausencia. Da igual si la ausencia la ha solicitado el docente o la ha introducido Jefatura de estudios como ausencia prevista: las dos se gestionan igual. Cuando más adelante el docente solicita una ausencia que estaba prevista, lo que ya se había organizado se mantiene tal cual, y solo los días u horas de más de la solicitud aparecen como líneas nuevas por decidir.
+
+Todo se hace desde la **Tabla de ausencias**, y nada ocurre solo: cada paso espera a que pulses su botón. Un día que ya ha pasado no se puede cambiar.
+
+![Tabla de ausencias como Jefe de departamento: una propuesta de entrada tarde y dos clases cubiertas por dos docentes de guardia, cada uno con su color](../../assets/teachers/guard-duty-03-organitzar.png)
+
+### Enviar un docente de guardia a una clase
+
+1. Haz clic en la línea de la clase que hay que cubrir (las líneas que puedes organizar muestran el cursor de mano).
+2. Elige el **Docente de guardia**. Solo se ofrecen los docentes de guardia en esa franja, salvo los de guardia de WC y los que también están ausentes.
+3. Opcionalmente, escribe un **mensaje**: qué tiene que trabajar el alumnado, dónde están los materiales...
+4. Haz clic en **Asignar y avisar**.
+
+![Enviar un docente de guardia a una clase: los docentes de guardia y un mensaje para ellos](../../assets/teachers/guard-duty-04-enviar-guardia.png)
+
+El docente de guardia recibe un mensaje de Odoo (en su bandeja de entrada o por correo, según su preferencia de notificaciones) con la fecha, la hora, el grupo, la asignatura, el aula, el docente ausente y tu mensaje.
+
+Entonces la clase queda tachada, aparece el nombre del docente de guardia, y la línea y la casilla del docente en la columna Guardia comparten el mismo color. Cuando varios docentes de guardia cubren clases en la misma franja, cada uno tiene su color, de modo que se ve de un vistazo quién cubre qué. Un docente de guardia puede cubrir más de una clase: todas toman su color.
+
+Para cambiar el docente de guardia, haz clic en la línea y después en **Cambiar o quitar el docente de guardia** (solo lo ve quien organiza la ausencia), y elige otro: al anterior se le comunica que ya no hace falta. Para enviar un mensaje nuevo al mismo docente, vuelve a elegirlo y haz clic en **Asignar y avisar**. **Quitar la asignación** saca al docente de la clase y le avisa.
+
+### Entrada tarde, salida anticipada o sin clases
+
+Cuando las clases sin docente son las primeras del día del grupo (una, dos o más seguidas), el alumnado podría entrar más tarde; cuando son las últimas, podría salir antes; cuando todas las clases del día quedan sin docente, el grupo podría no tener clases. Una clase donde hay alguien con el alumnado (otro docente que no está ausente, la otra mitad de un grupo desdoblado, una optativa o un docente de guardia ya enviado) corta la secuencia.
+
+Esas líneas muestran una etiqueta discontinua como **Puede entrar a las 10:00**, y el recuadro **Propuestas de entrada, salida y patio**, encima de la tabla (solo lo ve quien puede organizar la ausencia), ofrece el cambio de ese grupo. Enviar el comunicado tacha esas clases de la tabla, para que ningún docente de guardia tenga que cubrirlas.
+
+El selector de cada propuesta te permite comunicar a las familias menos de lo que permiten las ausencias: con dos clases sin docente, puedes elegir **Entra a las 09:00** en lugar de **Entra a las 10:00**. Entonces solo se tacha la primera clase; la segunda sigue necesitando un docente de guardia, que envías como siempre. Elegir el cambio más corto es decisión tuya: nada te pedirá que lo rectifiques.
+
+**Proponer comunicado** abre un comunicado en borrador dirigido al alumnado y las familias de ese grupo, con un texto propuesto que puedes cambiar. Envíalo desde ese formulario como cualquier otro comunicado (los grupos de un comunicado de cambio de horario no se pueden cambiar). Si lo dejas en borrador, la próxima vez el botón dice **Abrir borrador**.
+
+![Borrador de comunicado propuesto por el cuadrante, con el cambio de horario y el texto propuesto](../../assets/teachers/guard-duty-05-comunicat.png)
+
+Una vez enviado (o programado) el comunicado, esas líneas quedan tachadas con una etiqueta como **Entra a las 10:00**: no hace falta enviar a nadie.
+
+### Alargar el patio
+
+Cuando las clases sin docente están justo antes y/o justo después de un patio del nivel del grupo, y más allá hay clase, el alumnado podría alargar el patio. Por ejemplo, con el patio de 18:00 a 18:20 y la clase de las 17:00 vacía, el patio podría empezar a las 17:00; con la de las 18:20 vacía, podría acabar a las 19:20. El selector ofrece todas las combinaciones (antes, después o ambas, hora a hora), y el comunicado dice *"…el grup X allargarà el pati de 17:00 a 19:20 el dia …"*. Enviarlo tacha esas clases, como cualquier otro cambio.
+
+Nunca se confunde con entrar o salir: si las clases vacías llegan al inicio del día, es una entrada tarde (por ejemplo, entrar después del patio, a las 18:20); si llegan al final, una salida anticipada (por ejemplo, irse a casa a la hora del patio, a las 18:00).
+
+### Cuando la ausencia cambia después
+
+Si una ausencia se rechaza, se anula o se acorta, o resulta que otro docente sí está, lo que se había organizado puede dejar de hacer falta. Nada se deshace automáticamente: los recuadros de encima de la tabla te lo indican, y tú decides.
+
+- **Un docente de guardia que ya no hace falta** (recuadro **Guardias que ya no hacen falta**): haz clic en **Liberar la guardia**. Se le comunica que ya no hace falta que cubra la clase.
+- **Un comunicado que ya no coincide** (se comunicó más de lo que ahora permiten las ausencias): un comunicado ya enviado no se puede deshacer, así que el recuadro de propuestas ofrece **Proponer rectificación**, un nuevo comunicado en borrador para el mismo grupo con la situación corregida (otra hora, o volver al horario habitual).
+
+---
+
+## Volver a donde estabas
+
+La dirección del horario conserva la semana, el día, el turno, la vista y los niveles que estás mirando. Si vuelves desde un comunicado (con las migas de pan o con el botón atrás del navegador) o recargas la página, vuelves al mismo sitio, y puedes copiar la dirección para enviar a un compañero directamente ahí. Si lo abres desde el menú, siempre empieza en el día y el turno de hoy.
 
 ---
 

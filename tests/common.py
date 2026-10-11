@@ -104,6 +104,51 @@ def next_student_id():
     return f"TEST{next(_test_student_id_sequence):06d}"
 
 
+def build_academic_record_pdf(student_identifier, study_token, courses, student_name='Inventat , Alumne'):
+    """An invented Esfera academic record ("Expedient acadèmic") PDF, laid out in columns like the
+    real one so pdftotext reads it the same way (issue #585). Never use a real certificate in a
+    test: it carries a real student's name, document number and signatures.
+
+    courses: list of (centre_code, centre_name, 'YYYY/YYYY', rows), each row a tuple
+    (code, name, type, qualification[, hours]) - type 'MP', 'RA', 'EM' or 'MP_' (an optional
+    module of the issuing centre)."""
+    from reportlab.pdfgen import canvas
+
+    lines = [
+        f"Expedient acadèmic{' ' * 40}CFPM    {study_token}",
+        "Dades de l'alumne/a",
+        f"{'Cognoms i nom':<36}{'Identificador de l' + chr(39) + 'alumne/a':<32}Tipus i número de document",
+        f"{student_name:<36}{student_identifier:<32}X0000000X",
+    ]
+    for centre_code, centre_name, course, rows in courses:
+        lines += [
+            "Centre que avalua",
+            f"{'Codi':<30}Nom",
+            f"{centre_code:<30}{centre_name}",
+            f"{'Curs acadèmic':<30}{'Nivell':<33}Ensenyament",
+            f"{course:<30}{'1':<33}Estudi Inventat",
+            "Resultats de l'avaluació",
+            " Nivell   Codi                   Nom                             Tipus  Qualificació",
+        ]
+        for code, name, kind, qualification, *hours in rows:
+            indent = '   ' if kind in ('RA', 'EM') else ''
+            wrapped = qualification == 'Pendent de qualificar'
+            shown = 'Pendent de' if wrapped else qualification
+            hours_column = f"{hours[0]:>8}" if hours else ''
+            lines.append(f"   1      {indent}{code:<{23 - len(indent)}}{name:<32}{kind:<7}{shown:<14}1{hours_column}")
+            if wrapped:
+                lines.append(f"{'':<72}qualificar")
+        lines += ["Observacions", "Accedeix al curs següent"]
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer)
+    pdf.setFont('Courier', 7)
+    top = 800
+    for index, line in enumerate(lines):
+        pdf.drawString(20, top - 10 * index, line)
+    pdf.save()
+    return buffer.getvalue()
+
+
 def create_level_study(cls, prefix, **overrides):
     """Creates a level+study pair with `prefix`-derived unique codes.
     overrides: optional 'level'/'study' sub-dicts to override any field."""
@@ -140,6 +185,86 @@ def mock_outgoing_email(cls):
     mock = patcher.start()
     cls.addClassCleanup(patcher.stop)
     return mock
+
+
+class _ShiftedClockMeta(type):
+    """Stands in for datetime.datetime/date inside odoo.fields (see shift_ems_clock): every
+    attribute, call and isinstance() check goes to the real class, except the overridden now()/
+    today(), so every value created is still a real datetime/date."""
+
+    def __getattr__(cls, name):
+        return getattr(cls._real, name)
+
+    def __call__(cls, *args, **kwargs):
+        return cls._real(*args, **kwargs)
+
+    def __instancecheck__(cls, instance):
+        return isinstance(instance, cls._real)
+
+    def __subclasscheck__(cls, subclass):
+        return issubclass(subclass, cls._real)
+
+
+def shift_ems_clock(case, hour=10.0):
+    """Move the clock to `hour` (company time) of the company's day, so a fixture built around the
+    time of day (a slot that must be the current one, a weekday) holds whenever the suite runs,
+    late at night or past local midnight included. The clock keeps running from there, so the
+    browser's (which goes on from what the server told it) and the server's stay together. Returns
+    the shifted "now", an aware datetime in the company's timezone: take the fixtures' date and
+    weekday from it, never from date.today() (UTC in Odoo).
+
+    The shift goes forward to the next `hour` (today's or tomorrow's), never back: what only the
+    real clock dates (PostgreSQL's create_date, cr.now()) then always reads as already past,
+    never as a future the code would refuse.
+
+    Covers every clock EMS reads: ems.datetime_utils' local now and its server epoch (the web
+    client's serverNow() is derived from it, see server_clock.js), and odoo.fields' now/today,
+    defaults declared as default=fields.Datetime.now included. Pass the class from setUpClass
+    (restored at the end of the class) or the test itself (restored after it)."""
+    import datetime as real
+    from odoo import api
+    from odoo.addons.ems.models.shared.datetime_utils import EmsDatetimeUtils
+
+    utils = case.env['ems.datetime_utils']
+    tz = utils.current_tz()
+    real_now = real.datetime.now(tz)
+    target = utils.time_float_to_local_datetime(real_now.date(), hour)
+    if target < real_now:
+        target = utils.time_float_to_local_datetime(real_now.date() + real.timedelta(days=1), hour)
+    delta = target - real_now
+
+    def now(tz=None):
+        return real.datetime.now(tz) + delta
+
+    def utc_naive_now():
+        return now(real.timezone.utc).replace(tzinfo=None)
+
+    shifted_datetime = _ShiftedClockMeta('datetime', (), {
+        '_real': real.datetime, 'now': staticmethod(lambda tz=None: utc_naive_now() if tz is None else now(tz))})
+    shifted_date = _ShiftedClockMeta('date', (), {
+        '_real': real.date, 'today': staticmethod(lambda: utc_naive_now().date())})
+    patchers = [
+        patch.object(EmsDatetimeUtils, 'get_local_datetime', lambda self: now(self.current_tz())),
+        patch.object(EmsDatetimeUtils, 'get_server_epoch_ms',
+                     api.model(lambda self: int(now(real.timezone.utc).timestamp() * 1000))),
+        patch('odoo.fields.datetime', shifted_datetime),
+        patch('odoo.fields.date', shifted_date),
+    ]
+    add_cleanup = case.addClassCleanup if isinstance(case, type) else case.addCleanup
+    for patcher in patchers:
+        patcher.start()
+        add_cleanup(patcher.stop)
+    return target
+
+
+def cancel_google_account_creation(record):
+    """Cancel the automatic Google account creation queued when `record` (an employee or a
+    student) was seeded with every field it needs. A queued or running creation hides the
+    "Create Google account" button (#582), and the job never runs during a test anyway, so a
+    test that needs the button offered calls this first. No-op when the integration is off."""
+    record.env['queue.job'].sudo().search([
+        ('identity_key', '=', record._gw_create_job_key()),
+    ]).button_cancelled()
 
 
 def force_user_language_to_english(test, user):

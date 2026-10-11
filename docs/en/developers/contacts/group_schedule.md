@@ -291,7 +291,7 @@ flowchart LR
 | Field | Type | Notes |
 |-------|------|-------|
 | `public_schedule_slug` | Char, computed from `name`, stored, indexed | `ir.http._slugify(name)` (`GA2Matí` → `ga2mati`, `Reforç Programació` → `reforc-programacio`). Readable by design (developer choice): it changes if the group is renamed. |
-| `public_schedule_url` | Char, computed, not stored | `web.base.url` + `/ems/schedule/<slug>.pdf`, shown on the group form with `widget="CopyClipboardURL"`: a link opening the PDF in a new tab plus Odoo's copy button. The copy button uses `navigator.clipboard`, which browsers only expose over HTTPS or `localhost` - over plain `http://` (e.g. a dev box) it silently does nothing (Odoo's `CopyButton` only logs a console warning). |
+| `public_schedule_url` | Char, computed, not stored | `web.base.url` + `/ems/schedule/<slug>.pdf`, shown on the group form's Schedule tab, between the toolbar and the grid, by `ReadonlyScheduleGridField` itself (which renders Odoo's `CopyClipboardURLField` when the record has the field and is active): a link opening the PDF in a new tab plus Odoo's copy button. The copy button uses `navigator.clipboard`, which browsers only expose over HTTPS or `localhost` - over plain `http://` (e.g. a dev box) it silently does nothing (Odoo's `CopyButton` only logs a console warning). |
 | `public_schedule_pdf` | Binary, `attachment=True`, readonly | The last rendered PDF. |
 | `public_schedule_dirty` | Boolean, default `True` | "Needs re-rendering". Default `True` means a brand-new group, or every existing group right after the upgrade that adds the column, gets its first PDF on the next cron run - no migration or `post_init_hook` needed. |
 

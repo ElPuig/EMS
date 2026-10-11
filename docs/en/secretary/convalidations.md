@@ -34,7 +34,7 @@ To see a student's requests, open their record and click the **Convalidations** 
 1. Open the request.
 2. Click the file name in the **Resolution** field to open the PDF in a new tab, and check on the **Subjects** tab which modules are convalidated and with which grade.
 3. Register the resolution in Esfera.
-4. Click **Registered in Esfera** and confirm.
+4. In **Actions**, choose **Registered in Esfera** and confirm.
 
 ![Request pending the secretariat](../../assets/secretary/convalidations-secretary.png)
 
@@ -53,7 +53,7 @@ When you register it:
 ## Registering a request received on paper
 
 1. Click **New**.
-2. Choose the **Student**, **Study**, **Course** and **Grounds**, and write the applicant's comments if there are any.
+2. Choose the **Student**, **Study**, **Course** and **Grounds** (for prior studies, also **Studies passed**: at this centre or elsewhere), and write the applicant's comments if there are any. Unlike on the portal, a request registered here can be saved without supporting documents, to ask for them afterwards.
 3. On the **Subjects** tab, add one line for each module requested.
 4. On the **Supporting documents** tab, upload the documents.
 5. Click **Save**.

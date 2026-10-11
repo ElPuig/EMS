@@ -11,6 +11,7 @@
                       decoration-success="state == 'completed'">
                     <field name="name"/>
                     <field name="student_id"/>
+                    <field name="student_idalu" optional="hide"/>
                     <field name="study_id"/>
                     <field name="course_id" optional="show"/>
                     <field name="submission_date"/>
@@ -21,7 +22,7 @@
                     <field name="resolution_date" optional="hide"/>
                     <field name="state" widget="badge"
                            decoration-info="state in ('pending', 'ministry')"
-                           decoration-warning="state in ('direction', 'in_progress')"
+                           decoration-warning="state in ('documentation', 'direction', 'in_progress')"
                            decoration-success="state == 'completed'"
                            decoration-danger="state == 'rejected'"/>
                 </list>
@@ -34,47 +35,50 @@
             <field name="arch" type="xml">
                 <form string="Convalidation">
                     <header>
-                        <button name="action_grant_pending" type="object" string="Convalidate pending subjects"
-                                invisible="state not in ('pending', 'ministry') or pending_count == 0"
-                                groups="ems.group_head_of_studies,ems.group_academic_admin"/>
-                        <button name="action_propose" type="object" string="Send proposal to the Director"
-                                class="btn-primary"
-                                invisible="state != 'pending'"
-                                groups="ems.group_head_of_studies,ems.group_academic_admin"
-                                help="The centre resolves it: the Director turns this proposal into the official resolution."/>
-                        <button name="action_send_to_ministry" type="object" string="In process at the Ministry"
-                                invisible="state != 'pending'"
-                                groups="ems.group_head_of_studies,ems.group_academic_admin"
-                                confirm="Mark it once the request has been filed with the Ministry. The student will no longer be able to cancel it. Continue?"
-                                help="The Ministry resolves it: the request waits here for its answer."/>
-                        <button name="action_ministry_resolved" type="object" string="Ministry resolution received"
-                                class="btn-primary"
-                                invisible="state != 'ministry'"
-                                groups="ems.group_head_of_studies,ems.group_academic_admin"
-                                help="Record the Ministry's outcome for every subject: the request goes straight to the secretariat."/>
-                        <button name="action_resolve" type="object" string="Resolve"
-                                class="btn-primary"
-                                invisible="state != 'direction'"
-                                groups="ems.group_director,ems.group_academic_admin"
-                                confirm="The official resolution will be issued as proposed and sent to the secretariat. Continue?"
-                                help="Issue the official resolution (PDF) and send it to the secretariat."/>
-                        <button name="action_return" type="object" string="Return to the Head of Studies"
-                                invisible="state != 'direction'"
-                                groups="ems.group_director,ems.group_academic_admin"/>
-                        <button name="action_complete" type="object" string="Registered in Esfera"
-                                class="btn-primary"
-                                invisible="state != 'in_progress'"
-                                groups="ems.group_secretary,ems.group_academic_admin"
-                                confirm="The resolution will be sent to the student and the grades published. Continue?"
-                                help="Confirm the resolution is registered in the student's record: the request closes and the student is notified."/>
-                        <button name="action_request_info" type="object" string="Request information"
-                                invisible="state not in ('pending', 'ministry')"
-                                groups="ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin"/>
-                        <button name="action_cancel" type="object" string="Cancel request"
-                                invisible="state != 'pending'"
-                                confirm="The request will be cancelled. Continue?"/>
-                        <button name="action_reopen" type="object" string="Reopen"
-                                invisible="state != 'cancelled'"/>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_propose" type="object" string="Send proposal to the Director"
+                                    class="btn-primary"
+                                    invisible="state != 'pending'"
+                                    groups="ems.group_head_of_studies,ems.group_academic_admin"
+                                    help="The centre resolves it: the Director turns this proposal into the official resolution."/>
+                            <button name="action_send_to_ministry" type="object" string="In process at the Ministry"
+                                    invisible="state != 'pending'"
+                                    groups="ems.group_head_of_studies,ems.group_academic_admin"
+                                    confirm="Mark it once the request has been filed with the Ministry. The student will no longer be able to cancel it. Continue?"
+                                    help="The Ministry resolves it: the request waits here for its answer."/>
+                            <button name="action_ministry_resolved" type="object" string="Ministry resolution received"
+                                    class="btn-primary"
+                                    invisible="state != 'ministry'"
+                                    groups="ems.group_head_of_studies,ems.group_academic_admin"
+                                    help="Record the Ministry's outcome for every subject: the request goes straight to the secretariat."/>
+                            <button name="action_resolve" type="object" string="Resolve"
+                                    class="btn-primary"
+                                    invisible="state != 'direction'"
+                                    groups="ems.group_director,ems.group_academic_admin"
+                                    confirm="The official resolution will be issued as proposed and sent to the secretariat. Continue?"
+                                    help="Issue the official resolution (PDF) and send it to the secretariat."/>
+                            <button name="action_return" type="object" string="Return to the Head of Studies"
+                                    invisible="state != 'direction'"
+                                    groups="ems.group_director,ems.group_academic_admin"/>
+                            <button name="action_complete" type="object" string="Registered in Esfera"
+                                    class="btn-primary"
+                                    invisible="state != 'in_progress'"
+                                    groups="ems.group_secretary,ems.group_academic_admin"
+                                    confirm="The resolution will be sent to the student and the grades published. Continue?"
+                                    help="Confirm the resolution is registered in the student's record: the request closes and the student is notified."/>
+                            <button name="action_request_info" type="object" string="Request information"
+                                    invisible="state not in ('pending', 'documentation', 'ministry')"
+                                    groups="ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin"/>
+                            <button name="action_documentation_received" type="object" string="Documentation received"
+                                    invisible="state != 'documentation'"
+                                    groups="ems.group_head_of_studies,ems.group_academic_admin"
+                                    help="The documentation arrived some other way (on paper, by email): the request goes back under review."/>
+                            <button name="action_cancel" type="object" string="Cancel request"
+                                    invisible="state != 'pending' and (state != 'documentation' or resolved_by_ministry)"
+                                    confirm="The request will be cancelled. Continue?"/>
+                            <button name="action_reopen" type="object" string="Reopen"
+                                    invisible="state != 'cancelled'"/>
+                        </div>
                         <field name="state" widget="statusbar" statusbar_visible="pending,direction,in_progress,completed"/>
                     </header>
                     <sheet>
@@ -98,10 +102,13 @@
                                 <field name="study_id" options="{'no_create': True}" readonly="id"/>
                                 <field name="course_id" options="{'no_create': True}" readonly="id"/>
                                 <field name="basis" readonly="id"/>
+                                <field name="prior_studies_origin" invisible="basis != 'prior_studies'" readonly="id"/>
                             </group>
                             <group>
                                 <field name="submission_date"/>
                                 <field name="requester_id" readonly="1" invisible="not requester_id"/>
+                                <!-- Issue #576: one click to copy it into Esfera. -->
+                                <field name="student_idalu" widget="CopyClipboardChar" class="o_ems_copy_compact" invisible="not student_idalu"/>
                                 <field name="ministry_date" invisible="not resolved_by_ministry"/>
                                 <field name="validation_date" invisible="not validation_date"/>
                                 <field name="validated_by_id" invisible="not validated_by_id"/>
@@ -128,44 +135,53 @@
                                         <field name="subject_id"
                                                domain="[('id', 'in', parent.allowed_subject_ids)]"
                                                options="{'no_create': True}"
-                                               readonly="state != 'pending' or request_state not in ('pending', 'ministry')"/>
+                                               readonly="state != 'pending' or request_state not in ('pending', 'documentation', 'ministry')"/>
                                         <field name="state" widget="badge" readonly="1"
                                                decoration-success="state == 'granted'"
                                                decoration-danger="state == 'rejected'"/>
                                         <field name="grade"
+                                               invisible="state != 'granted' or without_grade"
+                                               readonly="request_state not in ('pending', 'documentation', 'ministry')"/>
+                                        <field name="without_grade" optional="show"
                                                invisible="state != 'granted'"
-                                               readonly="request_state not in ('pending', 'ministry')"/>
-                                        <field name="rejection_reason"
+                                               readonly="request_state not in ('pending', 'documentation', 'ministry')"/>
+                                        <field name="rejection_reason_id"
                                                invisible="state != 'rejected'"
-                                               readonly="request_state not in ('pending', 'ministry')"/>
+                                               options="{'no_create': True, 'no_open': True}"
+                                               readonly="request_state not in ('pending', 'documentation', 'ministry')"/>
+                                        <field name="rejection_reason" optional="show"
+                                               invisible="state != 'rejected'"
+                                               readonly="request_state not in ('pending', 'documentation', 'ministry')"/>
                                         <field name="resolution_notes" optional="hide"
-                                               readonly="request_state not in ('pending', 'ministry')"/>
-                                        <button name="action_grant" type="object" title="Convalidate"
+                                               readonly="request_state not in ('pending', 'documentation', 'ministry')"/>
+                                        <button name="action_open_grant" type="object" title="Convalidate"
                                                 icon="fa-check" class="text-success"
-                                                invisible="state == 'granted' or request_state not in ('pending', 'ministry')"
+                                                invisible="state == 'granted' or request_state not in ('pending', 'documentation', 'ministry')"
                                                 groups="ems.group_head_of_studies,ems.group_academic_admin"/>
-                                        <button name="action_reject" type="object" title="Reject"
+                                        <button name="action_open_reject" type="object" title="Reject"
                                                 icon="fa-times" class="text-danger"
-                                                invisible="state == 'rejected' or request_state not in ('pending', 'ministry')"
+                                                invisible="state == 'rejected' or request_state not in ('pending', 'documentation', 'ministry')"
                                                 groups="ems.group_head_of_studies,ems.group_academic_admin"/>
                                         <button name="action_reset" type="object" title="Back to pending"
                                                 icon="fa-undo"
-                                                invisible="state == 'pending' or request_state not in ('pending', 'ministry')"
+                                                invisible="state == 'pending' or request_state not in ('pending', 'documentation', 'ministry')"
                                                 groups="ems.group_head_of_studies,ems.group_academic_admin"/>
                                     </list>
                                 </field>
-                                <div class="text-muted mt-2" invisible="state not in ('pending', 'ministry')">
-                                    <i class="fa fa-info-circle me-1"/>The grade defaults to 5, which the resolution
-                                    shows as "Convalidated". Write the one the previous studies hold when it is known.
+                                <div class="text-muted mt-2" invisible="state not in ('pending', 'documentation', 'ministry')">
+                                    <i class="fa fa-info-circle me-1"/>Convalidating a subject asks for its grade: 5 by
+                                    default, or the one the previous studies hold, or none at all ("Convalidated", which
+                                    does not count towards the average). It can still be changed here afterwards.
                                     Every refused subject needs its reason, which the resolution states.
                                 </div>
                             </page>
                             <page name="documents" string="Supporting documents">
                                 <field name="attachment_ids" widget="many2many_binary"/>
                             </page>
-                            <page name="info_request" string="Documentation requested" invisible="not info_request">
+                            <page name="info_request" string="Documentation requested" invisible="not info_request_date">
                                 <group>
                                     <field name="info_request_date"/>
+                                    <field name="info_request_reason_id" invisible="not info_request_reason_id"/>
                                 </group>
                                 <field name="info_request"/>
                             </page>
@@ -190,11 +206,13 @@
             <field name="arch" type="xml">
                 <search string="Convalidations">
                     <field name="name"/>
-                    <field name="student_id"/>
+                    <field name="student_id"
+                           filter_domain="['|', ('student_id', 'ilike', self), ('student_idalu', 'ilike', self)]"/>
                     <field name="study_id"/>
                     <field name="course_id"/>
                     <field name="line_ids" string="Subject" filter_domain="[('line_ids.subject_id', 'ilike', self)]"/>
                     <filter name="to_resolve" string="Pending the Head of Studies" domain="[('state', '=', 'pending')]"/>
+                    <filter name="documentation" string="Pending documentation" domain="[('state', '=', 'documentation')]"/>
                     <filter name="ministry" string="In process at the Ministry" domain="[('state', '=', 'ministry')]"/>
                     <filter name="pending_direction" string="Pending the Director" domain="[('state', '=', 'direction')]"/>
                     <filter name="pending_secretariat" string="Pending the secretariat"
@@ -220,13 +238,57 @@
                     <group>
                         <field name="student_id" readonly="1"/>
                     </group>
+                    <group>
+                        <field name="reason_id" options="{'no_create': True, 'no_open': True}"/>
+                    </group>
                     <field name="message" placeholder="Documents or clarifications the applicant must provide..."/>
                     <div class="text-muted">
                         <i class="fa fa-info-circle me-1"/>The applicant receives it by email and can answer,
-                        attaching the documents, from the portal. The request itself stays where it is.
+                        attaching the documents, from the portal. The request waits as Pending documentation
+                        until they answer.
                     </div>
                     <footer>
                         <button name="action_send" type="object" string="Send" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_convalidation_grant_wizard_form" model="ir.ui.view">
+            <field name="name">ems.convalidation.grant_wizard.form</field>
+            <field name="model">ems.convalidation.grant_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Convalidate">
+                    <field name="line_id" invisible="1"/>
+                    <group>
+                        <field name="mode"/>
+                        <field name="grade" invisible="mode != 'grade'" required="mode == 'grade'"/>
+                    </group>
+                    <div class="text-muted" invisible="mode != 'without_grade'">
+                        <i class="fa fa-info-circle me-1"/>Without a grade, the resolution and the student's grades
+                        show the subject as "Convalidated" (CV), and it does not count towards the average.
+                    </div>
+                    <footer>
+                        <button name="action_grant" type="object" string="Convalidate" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_convalidation_reject_wizard_form" model="ir.ui.view">
+            <field name="name">ems.convalidation.reject_wizard.form</field>
+            <field name="model">ems.convalidation.reject_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Reject">
+                    <field name="line_id" invisible="1"/>
+                    <group>
+                        <field name="reason_id" options="{'no_create': True, 'no_open': True}"/>
+                    </group>
+                    <field name="details" placeholder="Anything to add to the reason, stated with it on the resolution..."/>
+                    <footer>
+                        <button name="action_reject" type="object" string="Reject" class="btn-primary"/>
                         <button string="Cancel" class="btn-secondary" special="cancel"/>
                     </footer>
                 </form>

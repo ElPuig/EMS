@@ -697,6 +697,16 @@ class EmsAttendanceSessionLine(models.Model):
         # (pending notification cancelled, already-sent one rectified), restoring it like the reverse.
         return bool(self.active and self.status_id.notifiable)
 
+    @api.constrains("status_id")
+    def _check_manual_justified(self):
+        # A justified line always comes with its justification (or prevision), which
+        # perform_justification() links in the same write; without one, the status was picked by
+        # hand, which the company may not allow (issue #587). Lines from before keep their status.
+        for line in self:
+            if (not line.status_id.roll_call_selectable
+                    and not (line.attendance_justification_id or line.attendance_prevision_id)):
+                raise ValidationError(_("Only the student's tutor can justify an absence, by registering a justification."))
+
     def _justification_vals(self):
         """This line's own vals, shaped for ems.attendance_justification.perform_justification() -
         includes 'id' so a subsequent write() targets this exact record."""

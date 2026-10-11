@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study, force_user_language_to_english, mock_outgoing_email, next_student_id
+from .common import create_level_study, force_user_language_to_english, shift_ems_clock, mock_outgoing_email, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -11,6 +11,7 @@ class TestAttendanceIssueTour(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.today = shift_ems_clock(cls).date()
         # Marking a session line as missed triggers _update_notification(), which calls
         # send_notification() -> send_mail(force_send=True) - mocked per CLAUDE.md.
         mock_outgoing_email(cls)
@@ -18,7 +19,7 @@ class TestAttendanceIssueTour(HttpCase):
         cls.level, cls.study = create_level_study(
             cls, 'TAIT',
             level={'name': 'Test Level (Attendance Issue Tour)'},
-            study={'name': 'Test Study (Attendance Issue Tour)', 'date': date.today()},
+            study={'name': 'Test Study (Attendance Issue Tour)', 'date': cls.today},
         )
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TAIT001', 'acronym': 'TAIT', 'name': 'Test Subject (Attendance Issue Tour)',
@@ -49,14 +50,14 @@ class TestAttendanceIssueTour(HttpCase):
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
         })
         cls.schedule = cls.env['ems.attendance_schedule'].create({
-            'attendance_template_id': cls.template.id, 'weekday': str(date.today().weekday()),
+            'attendance_template_id': cls.template.id, 'weekday': str(cls.today.weekday()),
             'start_time': 8.0, 'end_time': 9.0, 'space_id': cls.space.id,
             'student_ids': [(6, 0, [cls.student.id])],
         })
         # NOTE: not named cls.session - HttpCase.authenticate() uses self.session internally
         # (a Werkzeug session object), and a same-named fixture attribute shadows it.
         cls.attendance_session = cls.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': cls.schedule.id, 'date': date.today(),
+            'attendance_schedule_id': cls.schedule.id, 'date': cls.today,
             'mode': 'scheduled', 'session_teacher_id': cls.teacher.id,
         })
         line = cls.attendance_session.attendance_session_line_ids.filtered(lambda l: l.student_id == cls.student)

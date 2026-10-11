@@ -15,7 +15,7 @@ Gestiona l'horari setmanal de cada docent des de la seva pròpia fitxa d'empleat
 - **Marc horari**: una plantilla setmanal reutilitzable (franges, patis, reunions de coordinació) per a un nivell d'estudis — per exemple, un marc per a l'ESO, un altre per a BTX, un altre compartit pels cicles formatius. Els marcs mai porten assignatures reals assignades.
 - **Horari d'un docent**: el seu propi calendari personal, creat a partir d'un marc i després emplenat amb les seves assignatures/grups reals. Mai el comparteix amb un altre docent.
 - **Marc horari predeterminat**: el marc que s'utilitza automàticament per començar l'horari de qualsevol docent nou.
-- **Grup de reforç**: un grup d'alumnes que barreja estudiants de diferents grups habituals (i fins i tot de diferents estudis) per a una classe de reforç concreta — no té ni tutor ni delegat, però apareix a l'horari d'un docent com qualsevol altre grup. Vegeu "Grups de reforç" més avall.
+- **Grup de reforç**: un grup d'alumnes que barreja estudiants de diferents grups habituals (i fins i tot de diferents estudis) per a una classe de reforç concreta — no té ni tutor, ni delegat, ni sotsdelegat, però apareix a l'horari d'un docent com qualsevol altre grup. Vegeu "Grups de reforç" més avall.
 
 ---
 
@@ -220,21 +220,24 @@ Si algun dels docents trobats en els fitxers ja té un horari, s'actualitza en f
 
 De vegades arriben horaris nous abans que tots els llocs estiguin coberts — la teva eina de planificació anomena aquestes files amb un codi provisional (`X1`, `X2`...) en lloc del correu real d'un docent. Importar un fitxer així ja no falla en aquestes files:
 
-> Aquest mateix mecanisme de pendent d'identificació també cobreix un correu real que no coincideix amb cap docent existent — marca **Nou** per aquesta fila a la pantalla de **Resoldre professors** en lloc de triar-ne un (vegeu el pas 5 de "Importar horaris de treball des d'un fitxer" més amunt). L'única diferència respecte a un codi provisional és que es conserva el correu del fitxer, precarregat com a **Correu de treball** editable (**Assignar correu corporatiu manualment** marcat), en lloc de deixar-lo perquè un futur "Genera compte de Google" l'assigni automàticament.
+> Aquest mateix mecanisme de pendent d'identificació també cobreix un correu real que no coincideix amb cap docent existent — marca **Nou** per aquesta fila a la pantalla de **Resoldre professors** en lloc de triar-ne un (vegeu el pas 5 de "Importar horaris de treball des d'un fitxer" més amunt). L'única diferència respecte a un codi provisional és que es conserva el correu del fitxer, precarregat com a **Correu de treball** editable (**Assignar correu corporatiu manualment** marcat), en lloc de generar-lo automàticament quan s'identifiqui el docent.
 
 1. Adjunta el fitxer i fes clic a través de l'assistent com de costum (vegeu "Importar horaris de treball des d'un fitxer" més amunt) — un codi provisional no es tracta com un problema en cap pas.
-2. Fes clic a **Importa** al pas final. Es crea un nou registre d'empleat per a cada codi encara no identificat, ja anomenat p. ex. "Professor pendent (X1)", amb **el seu horari, assignatures i llistes d'assistència ja configurats** exactament com si fos un docent conegut.
+2. Fes clic a **Importa** al pas final. Es crea un nou registre d'empleat per a cada codi encara no identificat, amb el codi com a nom (p. ex. "X1"), amb **el seu horari, assignatures i llistes d'assistència ja configurats** exactament com si fos un docent conegut.
 3. Aquests registres mostren una etiqueta **"Pendent d'identificar"** a la llista/kanban de docents i una cinta al seu propi formulari, perquè siguin fàcils de trobar (fes servir el filtre/agrupació **Pendent d'identificar** a la llista de docents) i fàcils de distingir d'un docent real ja identificat.
+
+Aquests registres són places pendents d'identificar, les mateixes que el cap d'estudis també pot crear a mà des de la fitxa de professorat (vegeu [Crear i editar professorat](../head_of_studies/staff-management.md)): mentre continuen pendents no tenen compte de Google ni usuari d'EMS.
 
 Quan es cobreix el lloc:
 
 1. Obre la fitxa de l'empleat pendent.
-2. Substitueix el **Nom** provisional pel nom real del docent, i omple el seu **Correu personal**.
-3. Fes clic a **Generar compte Google**, exactament igual que per a qualsevol docent nou.
+2. A **Tipus d'alta**, marca **Docent nominal**.
+3. Substitueix el **Nom** provisional pel nom real del docent, i omple el seu **Correu personal**.
+4. Fes clic a **Desa**.
 
-Aquest únic clic crea el compte Google Workspace/l'accés a EMS del docent **i** confirma la seva identitat — l'etiqueta "Pendent d'identificar" desapareix, i no cal refer res de l'horari, les assignatures o les llistes d'assistència ja importats.
+En pocs moments es creen automàticament el compte Google Workspace i l'accés a EMS del docent, l'etiqueta "Pendent d'identificar" desapareix, i no cal refer res de l'horari, les assignatures o les llistes d'assistència ja importats.
 
-Si aquest docent pendent no arribarà mai a tenir un compte de Google Workspace/EMS creat des d'aquest registre (per exemple, ja té un compte en un altre registre no fusionat, o el lloc resulta que no en necessita cap), obre la seva fitxa i tria **Marcar com a identificat** al menú **Accions** de la capçalera. Un cop confirmat, treu l'etiqueta "Pendent d'identificar" tot sol, sense crear cap compte — utilitza'l només com a alternativa manual per als casos que **Generar compte Google** no cobreix.
+Si la persona ja té un compte corporatiu (per exemple, en un altre registre no fusionat), marca **Docent nominal**, activa **Assignar correu corporatiu manualment** i escriu aquesta adreça: no es crea cap compte nou, i **Crear usuari EMS** al menú **Accions** li vincula l'accés a EMS.
 
 Reimportar un fitxer actualitzat per a un lloc encara no cobert (el mateix codi provisional) actualitza l'horari d'aquest mateix docent pendent en el mateix registre, igual que reimportar el fitxer d'un docent ja identificat — mai crea un segon registre duplicat per al mateix codi.
 
@@ -258,7 +261,7 @@ Fes servir això per reiniciar un docent amb un marc diferent (p. ex. ara impart
 Un grup de reforç és un **grup** d'alumnes (el mateix registre de "Grups" que un grup habitual) utilitzat per a una classe de reforç/suport que barreja alumnes de diferents grups habituals, i fins i tot de diferents estudis — p. ex. un petit grup de reforç de matemàtiques amb alumnes de tres grups de primer curs diferents.
 
 1. Vés a **Configuració → Alumnat → Grups** i crea'n un de nou.
-2. Estableix el seu **Tipus de grup** com a **Reforç**. Això amaga els camps Nivell/Estudi/Curs/Acrònim/Tutor/Delegat (un grup de reforç no en té cap) i et permet escriure directament el **Nom** del grup — fes que coincideixi exactament amb el que exporta el teu planificador extern per a aquest grup, ja que l'importador d'horaris el localitza per nom exacte.
+2. Estableix el seu **Tipus de grup** com a **Reforç**. Això amaga els camps Nivell/Estudi/Curs/Acrònim/Tutor/Delegat/Sotsdelegat (un grup de reforç no en té cap) i et permet escriure directament el **Nom** del grup — fes que coincideixi exactament amb el que exporta el teu planificador extern per a aquest grup, ja que l'importador d'horaris el localitza per nom exacte.
 3. Estableix la seva **Aula**, igual que qualsevol altre grup — encara és necessària perquè l'horari s'importi correctament.
 4. A la pestanya **Alumnes**, afegeix els alumnes que assisteixen a aquesta classe de reforç, independentment del grup habitual o l'estudi al qual pertanyin. Això **no** canvia el grup principal de cap alumne.
 5. Desa.

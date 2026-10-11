@@ -10,7 +10,7 @@ It exists because neither native option covers the three needs at once:
 | Loose header buttons | Yes | Yes | No |
 | **Actions dropdown** | Yes | Yes | Yes |
 
-Used on the contact form (`views/community/contact/form.xml`) and the employee form (`views/community/employee/form.xml`); nothing in it is specific to either model.
+Used on the contact form (`views/community/contact/form.xml`), the employee form (`views/community/employee/form.xml`) and the convalidation request form (`views/academic_management/convalidations/views.xml`); nothing in it is specific to any model.
 
 ## Usage
 

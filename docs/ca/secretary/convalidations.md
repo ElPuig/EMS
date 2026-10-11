@@ -34,7 +34,7 @@ Per veure les sol·licituds d'un alumne, obre la seva fitxa i fes clic al botó 
 1. Obre la sol·licitud.
 2. Fes clic al nom del fitxer del camp **Resolució** per obrir el PDF en una pestanya nova, i comprova a la pestanya **Assignatures** quins mòduls estan convalidats i amb quina nota.
 3. Registra la resolució a l'Esfera.
-4. Fes clic a **Registrada a Esfera** i confirma.
+4. A **Accions**, tria **Registrada a Esfera** i confirma.
 
 ![Sol·licitud pendent de secretaria](../../assets/secretary/convalidations-secretary.png)
 
@@ -53,7 +53,7 @@ En registrar-la:
 ## Registrar una sol·licitud rebuda en paper
 
 1. Fes clic a **Nou**.
-2. Tria l'**Estudiant**, l'**Estudi**, el **Curs** i el **Motiu**, i escriu-hi les observacions del sol·licitant si n'hi ha.
+2. Tria l'**Estudiant**, l'**Estudi**, el **Curs** i el **Motiu** (per a estudis previs, també **Estudis superats**: en aquest centre o en un altre), i escriu-hi les observacions del sol·licitant si n'hi ha. A diferència del portal, una sol·licitud registrada aquí es pot desar sense documentació justificativa, per demanar-la després.
 3. A la pestanya **Assignatures**, afegeix una línia per cada mòdul sol·licitat.
 4. A la pestanya **Documentació justificativa**, puja els documents.
 5. Fes clic a **Desa**.

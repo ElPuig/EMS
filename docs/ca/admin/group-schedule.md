@@ -87,10 +87,10 @@ Cada grup actiu té un enllaç públic al PDF del seu horari, que qualsevol pers
 iniciar sessió a EMS — per exemple, per enllaçar l'horari de cada grup des del web del centre.
 
 1. Obre **Grups → [un grup]**.
-2. Al camp **Enllaç públic de l'horari** (p. ex. `.../ems/schedule/eso1a.pdf`), fes clic a
+2. A la pestanya **Horari**, sota el botó **PDF**, al camp **Enllaç públic de l'horari** (p. ex. `.../ems/schedule/eso1a.pdf`), fes clic a
    l'enllaç per obrir el PDF en una pestanya nova, o fes clic al botó de la dreta per copiar-lo.
 
-![Enllaç públic de l'horari a la fitxa del grup](../../assets/admin/group-schedule-public-link.png)
+![Enllaç públic de l'horari a la pestanya Horari del grup](../../assets/admin/group-schedule-public-link.png)
 
 El PDF de l'enllaç s'actualitza automàticament uns segons després de qualsevol canvi en l'horari
 del grup, de manera que no cal substituir mai l'enllaç. L'enllaç es construeix a partir del nom

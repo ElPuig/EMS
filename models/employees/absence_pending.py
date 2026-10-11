@@ -29,7 +29,7 @@ class EmsAbsencePending(models.Model):
     employee_id = fields.Many2one(
         string="Teacher", comodel_name="hr.employee", required=True, tracking=True,
         domain=lambda self: self._domain_employee_id(),
-        help="Only the teachers below you in the hierarchy.")
+        help="Only the teachers below you in the hierarchy or teaching in your area.")
     date_from = fields.Datetime(
         string="From", required=True, tracking=True,
         default=lambda self: self._default_local_hour(DEFAULT_HOUR_FROM))
@@ -48,12 +48,15 @@ class EmsAbsencePending(models.Model):
 
     def _domain_employee_id(self):
         """The same reach as the record rules: every teacher for a technical administrator
-        (rule_absence_pending_system), otherwise the user's own branch of the hierarchy
-        (rule_absence_pending_hierarchy)."""
+        (rule_absence_pending_system), otherwise the user's own branch of the hierarchy or the
+        teachers of the departments under the areas they manage (rule_absence_pending_hierarchy,
+        issue #569)."""
         domain = [('employee_type', '=', 'teacher')]
         if self.env.user.has_group('base.group_system'):
             return domain
-        return domain + [('id', 'child_of', self.env.user.employee_ids.ids)]
+        employees = self.env.user.employee_ids
+        return domain + ['|', ('id', 'child_of', employees.ids),
+                         ('department_id', 'child_of', employees.headed_department_ids.ids)]
 
     def _default_local_hour(self, hour):
         return self.datetime_to_odoo(self.time_float_to_utc_datetime(self.get_local_today(), hour))

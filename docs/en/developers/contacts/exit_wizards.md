@@ -96,6 +96,34 @@ Both wizards return a `display_notification` client action (matching the pattern
 
 ---
 
+## Undoing a withdrawal registered by mistake — `res.partner.action_undo_withdrawal()`
+
+A withdrawal is immediate and destructive (see above), so a student withdrawn by mistake (e.g. confused with a sibling of almost the same name) cannot be brought back by just unarchiving the contact: that only reactivates the record, while `contact_type` stays `withdrawal` and the student has no group, no subject enrollments and appears in no roll-call. `action_undo_withdrawal()` (form "Actions" dropdown → **Undo withdrawal**) puts them back as they were before the withdrawal, from their confirmed enrollment of the current course.
+
+```mermaid
+flowchart TD
+    A["action_undo_withdrawal()"] --> B{"can register exits?\n(secretary / Head of Studies /\nacademic admin)"}
+    B -- no --> X["UserError"]
+    B -- yes --> C{"_ems_withdrawal_undo_order():\nexit_type='withdrawal' of the current course\nand a confirmed enrollment (state='sale')\nof the current course with a group?"}
+    C -- no --> X
+    C -- yes --> D["year record of that course:\nconvalidated subjects -> back to provisional,\nonly them kept; otherwise deleted.\nFrozen grades copied to a chatter note"]
+    D --> E["_ems_convert_to_student()\n— active, contact_type='student',\nexit metadata cleared\n(Google: scheduled suspension cancelled)"]
+    E --> F["order._ems_apply_destination_placement()\n— group/study/level + subject enrollments\n(attendance rosters, open grade sessions)"]
+    F --> G["_ems_grant_student_portal()\n— same recipients as a new enrollment:\nstudent + family while a minor"]
+    G --> H["chatter note: withdrawal of <date> undone"]
+```
+
+- **Withdrawals only.** An expulsion (`exit_type='expulsion'`) is never a mix-up and is not offered. A graduated student withdrawn afterwards is `contact_type='alumni'` with `exit_type='withdrawal'`, so the check is on `exit_type`, and both `withdrawal` and `alumni` contact types qualify.
+- **Current course only.** A withdrawal of an earlier course is not a mistake to undo but a new enrollment, which follows the normal enrollment flow. The year record of an earlier course is history and is never touched.
+- **A confirmed enrollment is required.** It is what says which group and subjects the student was in: the withdrawal only cancels draft/sent orders, so a confirmed one survives it. Placement goes through the very same `_ems_apply_destination_placement()` the enrollment confirmation uses (idempotent, skips convalidated subjects), so the subject enrollments come back with every sync hook they already trigger (attendance schedule rosters, open grade session lines).
+- **The year record.** The withdrawal froze the course in `ems.student.year_record` (result `withdrawn`). Undoing it removes that frozen state, since the course is running again: subjects convalidated during the course (issue #276) keep the record open as a provisional one, holding only them, exactly as `_ems_provisional_record()` creates it; with none, the record is deleted. Grades frozen in it (the live grade lines were deleted by the withdrawal and cannot be rebuilt) are written to a chatter note, subject by subject, so the teachers can enter them again.
+- **Portal.** Same recipients as granting access to a newly enrolled student, `_ems_portal_access_recipients()`: the student and their family while a minor, the student alone once an adult. Reuses `ems.portal.access.wizard._apply_one()` with sudo, like `_ems_revoke_student_portal()`; failures are reported in the result notification, not raised.
+- **Google Workspace** needs nothing of its own: reactivating the contact (`active=True` in `_ems_convert_to_student()`) already cancels a scheduled suspension or reactivates a suspended account (`res.partner.write()`).
+- **Not recovered:** the attendance lines deleted by the withdrawal, the roll-calls taken while the student was out, and the draft/sent orders the withdrawal cancelled.
+- **Visibility:** `can_undo_withdrawal` (non-stored, `@api.depends_context('uid')`) drives the button's `invisible=`; the method re-checks both the role and the conditions server-side.
+
+---
+
 ## Access Control
 
 Graduation wizard (`ems.model_ems_graduation_wizard(.line)`): granted to `ems.group_academic_admin`/`ems.group_secretary`/`ems.group_tutor` in `ir.model.access.csv`, and its own `_user_can_manage` narrows the tutor grant to the tutor scope of each student. Withdrawal wizard (`ems.model_ems_withdrawal_wizard(.line)`): granted to `ems.group_academic_admin`/`ems.group_secretary`/`ems.group_head_of_studies` (Head of Studies, Deputy Head of Studies and Director all hold that one group), and `_can_register_exits()` checks the same three groups on opening and on applying, so a tutor gets a legible error rather than an access error. The tutor enrollment list's **Withdrawal** button carries the same `groups`, and a teacher gets no Archive entry on a student (see [contact.md](contact.md#student-form-actions-actions-dropdown-cog-menu-or-smart-button)). Same "ACL is the ceiling, code/rule narrows further" pattern documented in [`enrollment.md`](enrollment.md#access-control).

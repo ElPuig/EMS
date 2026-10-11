@@ -16,8 +16,12 @@ All the actions are in the **Actions** menu in the header of the student's form 
 
 ## Creating the account
 
-1. Check that the form has the first name, last names, IDALU and personal email. The personal email can't be the student's corporate address (EMS won't accept an address of the centre's own domain there).
-2. Click **Create Google account**.
+The account is created automatically, in a few moments, when the student's form is saved with the first name, last names, IDALU and personal email filled in. The personal email can't be the student's corporate address (EMS won't accept an address of the centre's own domain there).
+
+If a student has no account yet:
+
+1. Complete the missing data and save the form. The account is created the same way.
+2. If it still isn't created, click **Create Google account**. This entry doesn't show while the account is being created.
 
 The account is created in the organizational unit for minors or adults, depending on the student's age. A **Google Workspace credentials** PDF appears in the **Documentation** section of the **Secretary** tab, and if the student has a personal email, they also receive the credentials by email.
 

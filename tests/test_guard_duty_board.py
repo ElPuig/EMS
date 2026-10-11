@@ -5,8 +5,9 @@ from odoo.tests.common import TransactionCase
 
 from .common import create_level_study, create_level_study_group, mock_outgoing_email
 
-
-class TestGuardDutyBoard(TransactionCase):
+class GuardDutyBoardCase(TransactionCase):
+    """Fixtures and helpers shared by the guard duty board's own tests and the absence
+    management ones built on top of it (tests/test_absence_coverage.py)."""
 
     @classmethod
     def setUpClass(cls):
@@ -105,6 +106,78 @@ class TestGuardDutyBoard(TransactionCase):
         })
         teacher.resource_calendar_id = calendar
         return calendar
+
+    def _monday(self):
+        """A Monday inside the current course's window, matching the '0' weekday these fixtures
+        use. Inside the window because the absence form's own health-allowance computation
+        filters on it (see hr.leave._compute_ems_health_allowance)."""
+        window = self.env.company.current_course_id.date_range()
+        day = window[0] + timedelta(days=30)
+        while day.weekday() != 0:
+            day += timedelta(days=1)
+        return day
+
+    def _absence(self, employee, day, hour_from=None, hour_to=None, approve=True):
+        vals = {
+            'employee_id': employee.id,
+            'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+            'request_date_from': day,
+            'request_date_to': day,
+            # What the "Send request" button does - a request that was never sent cannot be
+            # saved at all (see hr.leave._check_ems_submitted).
+            'ems_submitted': True,
+            'ems_responsible_declaration': True,
+        }
+        if hour_from is None:
+            # 'leave_type_justified' does not seed 'Whole day?' on its own (its
+            # ems_full_day_default is False), and a request that is neither a whole day nor a
+            # span of hours is worth zero - which hr_holidays itself refuses to approve.
+            vals['ems_full_day'] = True
+        else:
+            vals.update({'ems_full_day': False,
+                         'request_hour_from': hour_from, 'request_hour_to': hour_to})
+        leave = self.env['hr.leave'].create(vals)
+        if approve:
+            leave.action_approve()
+        return leave
+
+    def _teaching_line(self, day, hour_from=9, hour_to=10):
+        """The board row for one period of `day`'s weekday, morning shift."""
+        data = self.course.get_guard_duty_board_lines(str(day.weekday()), 'morning', day=day)
+        label = '%02d:00-%02d:00' % (hour_from, hour_to)
+        return next(line for line in data['lines'] if line['time_label'] == label)
+
+    def _schedule_class(self, teacher, group, name, periods=((9, 10),), dayofweek='0'):
+        """One calendar for `teacher` holding exactly `periods` as lessons of `group`.
+
+        Every period in one call: apply_schedule_changes() replaces the calendar's whole Mon-Fri
+        week each time it runs (it is fed the schedule grid's full buffer, see its own
+        docstring), so calling it twice would leave only the second period behind.
+        """
+        calendar = self._new_calendar(teacher, name)
+        calendar.apply_schedule_changes([{
+            'dayofweek': dayofweek, 'hour_from': hour_from, 'hour_to': hour_to,
+            'day_period': 'morning', 'subject_id': self.subject.id,
+            'group_ids': [group.id], 'name': f'{group.acronym}: TGDB',
+        } for hour_from, hour_to in periods])
+        return calendar
+
+    def _co_teach(self, room_b=None):
+        """teacher_a and teacher_b both teach group_a on Monday 9-10, each on their own calendar,
+        teacher_b in `room_b` when given (a group split across two rooms) or the group's own."""
+        self._schedule_class(self.teacher_a, self.group_a, 'Test Calendar A (Co-teaching)')
+        calendar_b = self._new_calendar(self.teacher_b, 'Test Calendar B (Co-teaching)')
+        vals = {'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+                'subject_id': self.subject.id, 'group_ids': [self.group_a.id], 'name': 'TGDBA: TGDB'}
+        if room_b:
+            vals['space_id'] = room_b.id
+        calendar_b.apply_schedule_changes([vals])
+
+    def _absence_row(self, line, teacher):
+        return next(row for row in line['absences'] if row['teacher'] == teacher)
+
+
+class TestGuardDutyBoard(GuardDutyBoardCase):
 
     def test_is_guard_seeded_on_guard_non_teaching_type(self):
         self.assertTrue(self.non_teaching_guard.is_guard)
@@ -257,7 +330,7 @@ class TestGuardDutyBoard(TransactionCase):
         self.assertIn(self.teacher_guard.display_name,
                       [guard['name'] for guard in matching_line['guards']])
         cell = next(cell for cell in matching_line['cells'] if cell['group_id'] == self.group_a.id)
-        self.assertEqual(cell['teachers'], [{'name': self.teacher_a.display_name, 'absence': False, 'is_wc': False}])
+        self.assertEqual(cell['teachers'], [{'id': self.teacher_a.id, 'name': self.teacher_a.display_name, 'absence': False, 'is_wc': False}])
         self.assertEqual(cell['subject'], self.subject.acronym)
 
     def test_get_current_course_data(self):
@@ -747,61 +820,6 @@ class TestGuardDutyBoard(TransactionCase):
     # 'get_guard_duty_board_lines' a concrete Monday for the two to meet - see the 'day'
     # argument's own docstring in models/attendance/guard_duty_board.py.
 
-    def _monday(self):
-        """A Monday inside the current course's window, matching the '0' weekday these fixtures
-        use. Inside the window because the absence form's own health-allowance computation
-        filters on it (see hr.leave._compute_ems_health_allowance)."""
-        window = self.env.company.current_course_id.date_range()
-        day = window[0] + timedelta(days=30)
-        while day.weekday() != 0:
-            day += timedelta(days=1)
-        return day
-
-    def _absence(self, employee, day, hour_from=None, hour_to=None, approve=True):
-        vals = {
-            'employee_id': employee.id,
-            'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
-            'request_date_from': day,
-            'request_date_to': day,
-            # What the "Send request" button does - a request that was never sent cannot be
-            # saved at all (see hr.leave._check_ems_submitted).
-            'ems_submitted': True,
-            'ems_responsible_declaration': True,
-        }
-        if hour_from is None:
-            # 'leave_type_justified' does not seed 'Whole day?' on its own (its
-            # ems_full_day_default is False), and a request that is neither a whole day nor a
-            # span of hours is worth zero - which hr_holidays itself refuses to approve.
-            vals['ems_full_day'] = True
-        else:
-            vals.update({'ems_full_day': False,
-                         'request_hour_from': hour_from, 'request_hour_to': hour_to})
-        leave = self.env['hr.leave'].create(vals)
-        if approve:
-            leave.action_approve()
-        return leave
-
-    def _teaching_line(self, day, hour_from=9, hour_to=10):
-        """The board row for one period of `day`'s weekday, morning shift."""
-        data = self.course.get_guard_duty_board_lines(str(day.weekday()), 'morning', day=day)
-        label = '%02d:00-%02d:00' % (hour_from, hour_to)
-        return next(line for line in data['lines'] if line['time_label'] == label)
-
-    def _schedule_class(self, teacher, group, name, periods=((9, 10),), dayofweek='0'):
-        """One calendar for `teacher` holding exactly `periods` as lessons of `group`.
-
-        Every period in one call: apply_schedule_changes() replaces the calendar's whole Mon-Fri
-        week each time it runs (it is fed the schedule grid's full buffer, see its own
-        docstring), so calling it twice would leave only the second period behind.
-        """
-        calendar = self._new_calendar(teacher, name)
-        calendar.apply_schedule_changes([{
-            'dayofweek': dayofweek, 'hour_from': hour_from, 'hour_to': hour_to,
-            'day_period': 'morning', 'subject_id': self.subject.id,
-            'group_ids': [group.id], 'name': f'{group.acronym}: TGDB',
-        } for hour_from, hour_to in periods])
-        return calendar
-
     def test_without_a_date_no_absence_is_resolved_at_all(self):
         """The PDF still calls this with no date (see reports/attendance/report_guard_duty_board.xml),
         and a weekday on its own can never say who is absent - the board has to keep working,
@@ -895,20 +913,6 @@ class TestGuardDutyBoard(TransactionCase):
         self.assertEqual(row['group'], self.group_a)
         self.assertEqual(row['subject'], self.subject)
         self.assertEqual(row['room'], self.space)
-
-    def _co_teach(self, room_b=None):
-        """teacher_a and teacher_b both teach group_a on Monday 9-10, each on their own calendar,
-        teacher_b in `room_b` when given (a group split across two rooms) or the group's own."""
-        self._schedule_class(self.teacher_a, self.group_a, 'Test Calendar A (Co-teaching)')
-        calendar_b = self._new_calendar(self.teacher_b, 'Test Calendar B (Co-teaching)')
-        vals = {'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
-                'subject_id': self.subject.id, 'group_ids': [self.group_a.id], 'name': 'TGDBA: TGDB'}
-        if room_b:
-            vals['space_id'] = room_b.id
-        calendar_b.apply_schedule_changes([vals])
-
-    def _absence_row(self, line, teacher):
-        return next(row for row in line['absences'] if row['teacher'] == teacher)
 
     def test_a_co_taught_class_with_one_teacher_in_is_covered(self):
         """Still listed, so everyone knows who is away, but marked as needing no guard."""

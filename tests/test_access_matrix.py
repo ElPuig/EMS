@@ -11,8 +11,13 @@ from .common import create_role_user
 # each model's own test file. Replaces the per-model test_<role>_can/cannot_<op> methods that
 # used to repeat this check file by file (issue #567).
 ACCESS_MATRIX = {
+    # Every write goes through the guard duty board's own methods, which check the hierarchy and
+    # write with sudo() (see models/attendance/absence_coverage.py).
+    'ems.absence_cover': {'teacher': 'r', 'department_chief': 'r', 'head_of_studies': 'r'},
     'ems.attendance_status': {'teacher': 'r'},
     'ems.content': {'teacher': 'r', 'secretary': 'r'},
+    'ems.convalidation.info_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'r', 'academic_admin': 'rwcu'},
+    'ems.convalidation.rejection_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'r', 'academic_admin': 'rwcu'},
     'ems.course': {'teacher': 'r', 'secretary': 'r'},
     'ems.criteria': {'teacher': 'r', 'secretary': 'r'},
     'ems.group': {'teacher': 'r', 'secretary': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu'},

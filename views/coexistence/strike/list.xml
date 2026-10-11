@@ -14,7 +14,10 @@
                     </header>
                     <field name="date"/>
                     <field name="student_id"/>
+                    <field name="group_id"/>
                     <field name="teacher_id"/>
+                    <field name="subject_id" optional="show"/>
+                    <field name="space_id" optional="show"/>
                     <field name="reason_id"/>
                     <field name="notes"/>
                 </list>

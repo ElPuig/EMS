@@ -123,7 +123,7 @@ class TestConvalidation(TransactionCase):
         lines.write({'rejection_reason': reason})
         lines.action_reject()
 
-    def _proposed(self, subjects=None, grade=None, **kwargs):
+    def _proposed(self, subjects=None, grade=None, without_grade=False, **kwargs):
         """A request whose subjects are all granted by the Head of Studies and proposed to the
         Director."""
         request = self._request(subjects, **kwargs)
@@ -131,6 +131,8 @@ class TestConvalidation(TransactionCase):
         lines.action_grant()
         if grade is not None:
             lines.write({'grade': grade})
+        if without_grade:
+            lines.write({'without_grade': True})
         request.with_user(self.head_of_studies).action_propose()
         return request
 
@@ -323,6 +325,12 @@ class TestConvalidation(TransactionCase):
             request.action_cancel()
         self.env['ems.convalidation.info_wizard'].with_user(self.head_of_studies).create({
             'convalidation_id': request.id, 'message': "Send the Ministry's form"}).action_send()
+        # Waiting for it, still cancellable by nobody; once it arrives it is back with the Ministry.
+        self.assertEqual(request.state, 'documentation')
+        with self.assertRaises(UserError):
+            request.action_cancel()
+        request.with_user(self.head_of_studies).action_documentation_received()
+        self.assertEqual(request.state, 'ministry')
         self._line(request).with_user(self.head_of_studies).write({'state': 'granted', 'grade': 8})
         request.with_user(self.head_of_studies).write({
             'ministry_resolution': base64.b64encode(b'%PDF-1.4 ministry'),
@@ -356,8 +364,8 @@ class TestConvalidation(TransactionCase):
 
     # --- the resolution document ---------------------------------------------
 
-    def _resolution_html(self, request):
-        return self.env['ir.actions.report'].with_context(lang=request._ems_resolution_lang())._render_qweb_html(
+    def _resolution_html(self, request, lang=None):
+        return self.env['ir.actions.report'].with_context(lang=lang or request._ems_resolution_lang())._render_qweb_html(
             'ems.action_report_convalidation_resolution', request.ids)[0].decode()
 
     def test_resolution_shows_each_subject_and_its_outcome(self):
@@ -371,12 +379,18 @@ class TestConvalidation(TransactionCase):
         self.assertIn("Different competences", html)
         self.assertIn("1085/2020", html)
 
-    def test_default_grade_reads_convalidated(self):
+    def test_only_a_subject_without_grade_reads_convalidated(self):
+        """Issue #580: "Convalidated" is the subject convalidated without a grade, not a 5."""
         request = self._request(self.subject | self.other_subject)
         self._line(request).with_user(self.head_of_studies).action_grant()
-        self._line(request, self.other_subject).with_user(self.head_of_studies).write({'state': 'granted', 'grade': 8})
-        self.assertTrue(self._line(request)._ems_is_default_grade())
-        self.assertFalse(self._line(request, self.other_subject)._ems_is_default_grade())
+        self._line(request, self.other_subject).with_user(self.head_of_studies).write(
+            {'state': 'granted', 'without_grade': True})
+        cells = [cell.strip() for cell in self._resolution_html(request, 'en_US').split('<td>')[1:]]
+        self.assertTrue(any(cell.startswith('Convalidated') for cell in cells))
+        self.assertTrue(any(cell.startswith('5') for cell in cells))
+        self._line(request, self.other_subject).with_user(self.head_of_studies).write({'without_grade': False})
+        cells = [cell.strip() for cell in self._resolution_html(request, 'en_US').split('<td>')[1:]]
+        self.assertFalse(any(cell.startswith('Convalidated') for cell in cells))
 
     def test_legal_grounds_and_appeal_are_configurable(self):
         request = self._request(basis='certificate')
@@ -501,6 +515,91 @@ class TestConvalidation(TransactionCase):
         with self.assertRaises(UserError):
             self._line(request).with_user(self.secretary).write({'grade': 9})
 
+    # --- convalidating asks for the grade (issue #580) ------------------------
+
+    def _grant_dialog(self, line, **vals):
+        action = line.with_user(self.head_of_studies).action_open_grant()
+        return self.env[action['res_model']].with_user(self.head_of_studies).with_context(
+            action['context']).create(vals)
+
+    def test_convalidating_asks_for_the_grade_five_by_default(self):
+        line = self._line(self._request())
+        wizard = self._grant_dialog(line)
+        self.assertEqual(wizard.grade, 5)
+        self.assertEqual(wizard.mode, 'grade')
+        wizard.action_grant()
+        self.assertEqual(line.state, 'granted')
+        self.assertEqual(line.grade, 5)
+        self.assertFalse(line.without_grade)
+
+    def test_convalidating_with_the_previous_studies_grade(self):
+        line = self._line(self._request())
+        self._grant_dialog(line, grade=8).action_grant()
+        self.assertEqual((line.state, line.grade), ('granted', 8))
+
+    def test_convalidating_without_a_grade(self):
+        line = self._line(self._request())
+        self._grant_dialog(line, mode='without_grade').action_grant()
+        self.assertEqual(line.state, 'granted')
+        self.assertTrue(line.without_grade)
+
+    def test_the_dialog_refuses_a_failing_grade(self):
+        line = self._line(self._request())
+        with self.assertRaises(ValidationError):
+            self._grant_dialog(line, grade=4).action_grant()
+
+    def test_the_dialog_starts_from_the_line_grade(self):
+        """A subject sent back to pending keeps what it was graded with."""
+        line = self._line(self._request())
+        self._grant_dialog(line, mode='without_grade').action_grant()
+        line.with_user(self.head_of_studies).action_reset()
+        self.assertEqual(self._grant_dialog(line).mode, 'without_grade')
+
+    def test_secretary_cannot_open_the_dialog(self):
+        with self.assertRaises(UserError):
+            self._line(self._request()).with_user(self.secretary).action_open_grant()
+
+    # --- refusing asks for the reason (issue #580) ----------------------------
+
+    def _reject_dialog(self, line, **vals):
+        action = line.with_user(self.head_of_studies).action_open_reject()
+        return self.env[action['res_model']].with_user(self.head_of_studies).with_context(
+            action['context']).create(vals)
+
+    def test_refusing_preselects_the_most_usual_reason(self):
+        line = self._line(self._request())
+        wizard = self._reject_dialog(line)
+        self.assertEqual(wizard.reason_id, self.env.ref('ems.convalidation_rejection_reason_contents'))
+        wizard.action_reject()
+        self.assertEqual(line.state, 'rejected')
+        self.assertEqual(line.rejection_reason_id, wizard.reason_id)
+        self.assertFalse(line.rejection_reason)
+
+    def test_the_reason_alone_explains_a_refusal(self):
+        request = self._request()
+        self._reject_dialog(self._line(request)).action_reject()
+        request.with_user(self.head_of_studies).action_propose()
+        self.assertEqual(request.state, 'direction')
+
+    def test_the_resolution_states_the_reason_and_its_details(self):
+        request = self._request()
+        reason = self.env['ems.convalidation.rejection_reason'].create({'name': 'Test refusal reason'})
+        self._reject_dialog(self._line(request), reason_id=reason.id, details="Only 40 hours.").action_reject()
+        self.assertEqual(self._line(request)._ems_rejection_text(), "Test refusal reason. Only 40 hours.")
+        self.assertIn("Test refusal reason. Only 40 hours.", self._resolution_html(request, 'en_US'))
+
+    def test_the_reject_dialog_starts_from_the_line(self):
+        line = self._line(self._request())
+        reason = self.env.ref('ems.convalidation_rejection_reason_hours')
+        self._reject_dialog(line, reason_id=reason.id, details="Fewer hours").action_reject()
+        line.with_user(self.head_of_studies).action_reset()
+        wizard = self._reject_dialog(line)
+        self.assertEqual((wizard.reason_id, wizard.details), (reason, "Fewer hours"))
+
+    def test_secretary_cannot_open_the_reject_dialog(self):
+        with self.assertRaises(UserError):
+            self._line(self._request()).with_user(self.secretary).action_open_reject()
+
     def test_grade_must_be_a_passing_one(self):
         request = self._request()
         line = self._line(request).with_user(self.head_of_studies)
@@ -620,15 +719,20 @@ class TestConvalidation(TransactionCase):
 
     # --- asking the student for more documentation ---------------------------
 
+    def _ask_for_documentation(self, request, message=None, reason=None):
+        vals = {'convalidation_id': request.id, 'message': message}
+        if reason:
+            vals['reason_id'] = reason.id
+        self.env['ems.convalidation.info_wizard'].with_user(self.head_of_studies).create(vals).action_send()
+
     def test_head_of_studies_asks_for_documentation(self):
         request = self._request()
-        wizard = self.env['ems.convalidation.info_wizard'].with_user(self.head_of_studies).create({
-            'convalidation_id': request.id,
-            'message': "Please attach the academic certificate of your previous studies.",
-        })
-        wizard.action_send()
-        self.assertEqual(request.state, 'pending')
+        self._ask_for_documentation(request, "Please attach the academic certificate of your previous studies.")
+        # The request now waits for the applicant (issue #577).
+        self.assertEqual(request.state, 'documentation')
         # Kept on the request, for the portal to show it next to the answer form.
+        self.assertEqual(request.info_request_reason_id,
+                         self.env.ref('ems.convalidation_info_reason_previous_centre'))
         self.assertEqual(request.info_request, "Please attach the academic certificate of your previous studies.")
         self.assertTrue(request.info_request_date)
         mails = self.env['mail.mail'].sudo().search([
@@ -637,6 +741,65 @@ class TestConvalidation(TransactionCase):
         self.assertEqual(mails.email_to, self.student.email)
         self.assertTrue(request.message_ids.filtered(
             lambda message: 'academic certificate' in (message.body or '')))
+
+    def test_the_most_usual_reason_is_preselected(self):
+        """Like the strike reasons: the first by its own order, the missing official grade certificate of the
+        previous centre - almost always the reason."""
+        reason = self.env.ref('ems.convalidation_info_reason_previous_centre')
+        wizard = self.env['ems.convalidation.info_wizard'].with_user(self.head_of_studies).create({
+            'convalidation_id': self._request().id})
+        self.assertEqual(wizard.reason_id, reason)
+        reason.sequence = 100
+        wizard = self.env['ems.convalidation.info_wizard'].with_user(self.head_of_studies).create({
+            'convalidation_id': self._request(self.other_subject).id})
+        self.assertNotEqual(wizard.reason_id, reason)
+
+    def test_the_reason_alone_is_enough_and_travels_in_the_email(self):
+        request = self._request()
+        reason = self.env.ref('ems.convalidation_info_reason_syllabus')
+        self._ask_for_documentation(request, reason=reason)
+        self.assertEqual(request.info_request_reason_id, reason)
+        self.assertFalse(request.info_request)
+        mail = self.env['mail.mail'].sudo().search([
+            ('model', '=', 'ems.convalidation'), ('res_id', '=', request.id)])
+        reason_text = reason.with_context(lang=self.student.lang or 'en_US').name
+        self.assertIn(reason_text, mail.body_html)
+
+    def test_the_answer_puts_the_request_back_under_review(self):
+        hold_position(self.env, 'ems.role_dhos', self.head_of_studies)
+        request = self._request()
+        self._ask_for_documentation(request, "Attach the certificate")
+        # Nothing for the Head of Studies to do while the applicant has it.
+        self.assertFalse(self._tasks(request, 'ems.mail_activity_convalidation_review'))
+        request._ems_portal_add_documents(self.env['ir.attachment'], "Here it is")
+        self.assertEqual(request.state, 'pending')
+        self.assertEqual(self._tasks(request, 'ems.mail_activity_convalidation_review').user_id,
+                         self.head_of_studies)
+
+    def test_documentation_received_by_other_means(self):
+        request = self._request()
+        self._ask_for_documentation(request, "Attach the certificate")
+        with self.assertRaises(UserError):
+            request.with_user(self.secretary).action_documentation_received()
+        request.with_user(self.head_of_studies).action_documentation_received()
+        self.assertEqual(request.state, 'pending')
+        with self.assertRaises(UserError):
+            request.with_user(self.head_of_studies).action_documentation_received()
+
+    def test_subjects_can_be_decided_but_not_proposed_while_waiting(self):
+        request = self._request()
+        self._ask_for_documentation(request, "Attach the certificate")
+        self._line(request).with_user(self.head_of_studies).action_grant()
+        with self.assertRaises(UserError):
+            request.with_user(self.head_of_studies).action_propose()
+        with self.assertRaises(UserError):
+            request.with_user(self.head_of_studies).action_send_to_ministry()
+
+    def test_the_applicant_can_cancel_while_waiting(self):
+        request = self._request()
+        self._ask_for_documentation(request, "Attach the certificate")
+        request.action_cancel()
+        self.assertEqual(request.state, 'cancelled')
 
     def test_information_cannot_be_asked_for_once_completed(self):
         request = self._completed()
@@ -720,6 +883,19 @@ class TestConvalidation(TransactionCase):
         self._completed()
         self.assertEqual(grade_line.final_score, 5)
 
+    def test_without_grade_reaches_the_grades_as_a_plain_cv(self):
+        """Issue #580: passed and complete, with no grade to count towards the average."""
+        grade_line = self._enroll_and_grade(state='final')
+        self._completed(without_grade=True)
+        self.assertTrue(grade_line.is_convalidated)
+        self.assertTrue(grade_line.has_final)
+        self.assertEqual(grade_line.convalidation_grade, 0)
+        self.assertEqual(grade_line.final_score, 0)
+        subject_record = self._history().subject_record_ids
+        self.assertTrue(subject_record.is_convalidated)
+        self.assertEqual(subject_record.state, 'passed')
+        self.assertEqual((subject_record.convalidation_grade, subject_record.final_grade), (0, 0))
+
     # --- the student stops taking the subject --------------------------------
 
     def test_completion_withdraws_the_student_from_the_subject(self):
@@ -776,6 +952,7 @@ class TestConvalidation(TransactionCase):
         self.assertEqual(notices.user_id, self.teacher | tutor)
         self.assertIn(request.name, notices[0].note)
         self.assertIn(self.subject.display_name, notices[0].summary)
+        self.assertIn("with a 8", notices[0].note)
         # The notice is their to-do, not a subscription to the student's messages.
         self.student.invalidate_recordset(['message_follower_ids', 'message_partner_ids'])
         self.assertFalse((self.teacher | tutor).partner_id & self.student.message_partner_ids)
@@ -956,6 +1133,15 @@ class TestConvalidation(TransactionCase):
         self.assertFalse(subject_record.is_convalidated)
         self.assertEqual(subject_record.state, 'failed')
         self.assertFalse(subject_record.has_final)
+
+    def test_frozen_year_record_follows_a_late_resolution_without_grade(self):
+        self._enroll_and_grade()
+        record = self.env['ems.student.year_record'].generate_for_students(self.student, self.course)
+        subject_record = record.subject_record_ids.filtered(lambda line: line.subject_id == self.subject)
+        self._completed(without_grade=True)
+        self.assertTrue(subject_record.is_convalidated)
+        self.assertEqual(subject_record.state, 'passed')
+        self.assertEqual((subject_record.convalidation_grade, subject_record.final_grade), (0, 0))
 
     def test_grade_review_leaves_a_convalidated_subject_alone(self):
         """Issue #493's grade review recomputes an archived subject from its own RAs; a

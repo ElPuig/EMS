@@ -39,6 +39,10 @@ Una revisió de qualificacions corregeix l'històric acadèmic d'un curs ja tanc
 
 Obriu el registre de l'alumne/a d'aquell curs i feu clic a **Revisió de qualificacions**. Teniu el pas a pas complet al [manual de secretaria](../secretary/academic-history.md#aplicar-una-revisió-de-qualificacions) — la pantalla i les regles són les mateixes per als dos rols.
 
+## Afegir un expedient anterior
+
+Un curs d'abans d'EMS, fet en un altre centre o en aquest, s'afegeix a l'històric des de la fitxa de l'alumne/a, al desplegable **Accions → Afegeix un expedient anterior**, a partir de l'expedient acadèmic d'Esfera (PDF) o, amb qualsevol altre certificat, mòdul a mòdul. Teniu el pas a pas complet al [manual de secretaria](../secretary/academic-history.md#afegir-un-expedient-anterior). Aquests registres porten la cinta **Expedient anterior** i el filtre **Expedients anteriors** els separa a les consultes.
+
 ---
 
 [← Torna a l'índex principal](index.md)

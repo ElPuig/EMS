@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 
 from odoo.tests import tagged, HttpCase
 
-from .common import force_user_language_to_english, mock_outgoing_email
+from .common import cancel_google_account_creation, force_user_language_to_english, mock_outgoing_email
 
 
 @tagged('post_install', '-at_install')
@@ -32,13 +32,16 @@ class TestEmployeeGoogleWorkspaceTour(HttpCase):
 
     def test_employee_google_workspace_state_tour(self):
         force_user_language_to_english(self, self.env.ref('base.user_admin'))
+        # Identifying the vacancy below queues its account only with the integration on: this
+        # box's database has it, a clean install (CI) doesn't. Dry-run, like every GW test.
+        self.env.company.write({'google_ws_enabled': True, 'google_ws_dry_run': True})
         # google_ws_state (models/employees/google_workspace_integration.py) drives
         # which header button(s) show — a TransactionCase can assert the compute is
         # right, but only a real browser render catches an OWL/view-arch mistake in
         # the invisible expressions (e.g. two buttons showing at once, the original bug).
         # To watch this tour in a real browser during development:
         #   self.start_tour("/odoo", "ems_employee_google_workspace_state", login="admin", watch=True)
-        self._seed_teacher('GW Tour None')
+        cancel_google_account_creation(self._seed_teacher('GW Tour None'))
         self._seed_teacher('GW Tour Pending', work_email='gw.tour.pending@elpuig.xeill.net')
         active = self._seed_teacher('GW Tour Active', work_email='gw.tour.active@elpuig.xeill.net')
         relink = self._seed_teacher('GW Tour Relink', work_email='gw.tour.relink@elpuig.xeill.net')
@@ -51,7 +54,7 @@ class TestEmployeeGoogleWorkspaceTour(HttpCase):
             'GW Tour Scheduled', work_email='gw.tour.scheduled@elpuig.xeill.net')
         scheduled.write({'active': False})
         scheduled.google_ws_deactivation_date = date.today() + relativedelta(days=30)
-        self.env['hr.employee'].create({
+        vacancy = self.env['hr.employee'].create({
             'name': '0000 GW Tour Pending Identification',
             'employee_type': 'teacher',
             'schedule_import_code': 'X_TOUR',
@@ -76,3 +79,8 @@ class TestEmployeeGoogleWorkspaceTour(HttpCase):
             self.start_tour("/odoo", "ems_employee_google_workspace_state", login="admin")
 
         self.assertEqual(relink.user_id.oauth_uid, '103000000000000000021')
+        # Switching the vacancy to a named teacher with a personal email identified it and
+        # queued its account (#584).
+        self.assertFalse(vacancy.schedule_import_code)
+        self.assertEqual(vacancy.private_email, 'gw.tour.identified@example.com')
+        self.assertTrue(vacancy.google_ws_creation_pending)

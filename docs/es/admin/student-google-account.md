@@ -16,8 +16,12 @@ Todas las acciones están en el menú **Acciones** de la cabecera de la ficha de
 
 ## Crear la cuenta
 
-1. Comprueba que la ficha tiene el nombre, los apellidos, el IDALU y el correo personal. El correo personal no puede ser la dirección corporativa del alumno (EMS no acepta ahí ninguna dirección del dominio del centro).
-2. Pulsa **Crear cuenta de Google**.
+La cuenta se crea automáticamente, en unos momentos, al guardar la ficha del alumno con el nombre, los apellidos, el IDALU y el correo personal. El correo personal no puede ser la dirección corporativa del alumno (EMS no acepta ahí ninguna dirección del dominio del centro).
+
+Si un alumno aún no tiene cuenta:
+
+1. Completa los datos que faltan y guarda la ficha. La cuenta se crea de la misma manera.
+2. Si aun así no se crea, pulsa **Crear cuenta de Google**. Esta opción no aparece mientras la cuenta se está creando.
 
 La cuenta se crea en la unidad organizativa de menores o de mayores de edad, según la edad del alumno. En la sección **Documentación** de la pestaña **Secretaría** aparece el PDF de **Credenciales de Google Workspace**, y si el alumno tiene correo personal, también las recibe por correo.
 

@@ -7,6 +7,7 @@ import { useSetupAction } from "@web/search/action_hook";
 import { _t } from "@web/core/l10n/translation";
 import { dayLabels } from "./schedule_grid_geometry";
 import { serverNow, syncServerClock } from "./server_clock";
+import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { GuardCoverDialog } from "./guard_cover_dialog";
 
 // The reason a struck-out line needs no guard, opened by clicking its info icon - the same text
@@ -375,7 +376,7 @@ export class GuardDutyBoard extends Component {
         const classes = {
             o_guard_board_absence_covered: absence.covered,
             o_guard_board_absence_struck: !absence.covered && Boolean(absence.cover || absence.authorized),
-            o_guard_board_absence_manageable: this.isAssignable(absence),
+            o_guard_board_absence_manageable: this.isAssignable(absence) || absence.can_self_assign || absence.can_self_release,
         };
         if (absence.cover) {
             classes[`o_guard_board_cover_${absence.cover.color}`] = true;
@@ -386,7 +387,13 @@ export class GuardDutyBoard extends Component {
     // The line's tooltip: why it is struck out (the same as its info icon), or, on a line still
     // to be covered, how to send a guard to it.
     absenceRowTooltip(absence) {
-        return this.struckReason(absence) || (this.isAssignable(absence) ? _t("Click to send a guard teacher to this class") : false);
+        if (this.struckReason(absence)) {
+            return this.struckReason(absence);
+        }
+        if (this.isAssignable(absence)) {
+            return _t("Click to send a guard teacher to this class");
+        }
+        return absence.can_self_assign ? _t("Click to cover this class yourself") : false;
     }
 
     // Why a line is struck out, for everyone (not only whoever can organise the absence): shown by
@@ -409,13 +416,20 @@ export class GuardDutyBoard extends Component {
     onAbsenceClick(ev, line, absence) {
         const reason = this.struckReason(absence);
         if (!reason) {
-            this.openCoverDialog(line, absence);
+            if (this.isAssignable(absence)) {
+                this.openCoverDialog(line, absence);
+            } else if (absence.can_self_assign) {
+                this.confirmSelfAssign(line, absence);
+            }
             return;
         }
         const props = { reason };
         if (absence.cover && this.isAssignable(absence)) {
             props.actionLabel = _t("Change or remove the guard");
             props.onAction = () => this.openCoverDialog(line, absence);
+        } else if (absence.can_self_release) {
+            props.actionLabel = _t("Stop covering this class");
+            props.onAction = () => this.confirmSelfRelease(absence);
         }
         const icon = ev.currentTarget.querySelector(".o_guard_board_absence_info") || ev.currentTarget;
         this.popover.add(icon, GuardBoardReasonPopover, props);
@@ -480,6 +494,38 @@ export class GuardDutyBoard extends Component {
                 await this.orm.call("ems.absence_cover", "board_release", [absence.cover.id]);
                 await this.loadBoard();
             },
+        });
+    }
+
+    // Issue #601: a teacher on guard duty takes a class nobody covers yet, or leaves one they
+    // took themselves. Nobody is notified - the board itself shows it to whoever organises it.
+    confirmSelfAssign(line, absence) {
+        this.dialog.add(ConfirmationDialog, {
+            title: _t("Cover this class"),
+            body: _t("You will cover %(group)s (%(time)s) instead of %(teacher)s.", {
+                group: absence.group, time: line.time_label, teacher: absence.teacher,
+            }),
+            confirmLabel: _t("Cover it"),
+            confirm: async () => {
+                await this.orm.call("ems.absence_cover", "board_self_assign", [
+                    this.activeDate, line.hour_from, line.hour_to, absence.teacher_id, absence.group_id,
+                ]);
+                await this.loadBoard();
+            },
+            cancel: () => {},
+        });
+    }
+
+    confirmSelfRelease(absence) {
+        this.dialog.add(ConfirmationDialog, {
+            title: _t("Stop covering this class"),
+            body: _t("%(group)s will be left without a guard teacher again.", { group: absence.group }),
+            confirmLabel: _t("Stop covering"),
+            confirm: async () => {
+                await this.orm.call("ems.absence_cover", "board_self_release", [absence.cover.id]);
+                await this.loadBoard();
+            },
+            cancel: () => {},
         });
     }
 

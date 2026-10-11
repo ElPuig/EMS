@@ -6,7 +6,7 @@
 
 Consulta on és cada docent, i qui està de guàrdia, a cada franja horària de la setmana — no només el teu propi horari.
 
-**Rol necessari:** Docent (només lectura; els horaris els configura un Cap de departament o superior des de l'horari setmanal propi del docent corresponent). Organitzar una absència des de la Taula d'absències correspon al Cap de departament o de seminari del docent absent i als qui són per sobre seu (consulta [Organitzar una absència](#organitzar-una-absencia)).
+**Rol necessari:** Docent (només lectura; els horaris els configura un Cap de departament o superior des de l'horari setmanal propi del docent corresponent). Organitzar una absència des de la Taula d'absències correspon al Cap de departament o de seminari del docent absent i als qui són per sobre seu (consulta [Organitzar una absència](#organitzar-una-absencia)); un docent de guàrdia també pot agafar-se ell mateix una classe sense docent (consulta [Cobrir tu mateix una classe](#cobrir-tu-mateix-una-classe)).
 
 ---
 
@@ -93,6 +93,19 @@ Una absència que Prefectura d'Estudis ja coneix però que el docent encara no h
 Un docent de guàrdia que falta queda marcat a la columna de guàrdia i no genera cap línia a la columna d'absències: no té cap classe pròpia que ningú hagi de cobrir.
 
 Aquí només es mostra que la persona falta. El tipus d'absència, el motiu i el justificant, no.
+
+---
+
+## Cobrir tu mateix una classe
+
+Si estàs de guàrdia en una franja, no cal que esperis que algú t'hi enviï: pots agafar tu mateix una classe que encara és sense docent.
+
+1. A la **Taula d'absències**, fes clic a la línia de la classe (les línies que pots agafar mostren una mà en passar-hi per sobre i l'indicació **Fes clic per cobrir tu aquesta classe**).
+2. Fes clic a **Cobrir-la** per confirmar-ho.
+
+La classe queda ratllada amb el teu nom al costat, igual que quan t'hi envien. Ningú no rep cap missatge: el mateix quadrant mostra qui cobreix què. Només es pot agafar una classe que encara no té cap docent de guàrdia, i només en una franja en què estàs de guàrdia (no en una guàrdia de WC, ni mentre tu mateix estàs absent).
+
+Si canvies d'idea, torna a fer clic a la línia i després a **Deixa de cobrir aquesta classe**: la classe torna a quedar sense guàrdia. Només ho pots fer amb una classe que t'has agafat tu; si algú t'hi ha enviat, demana-li que ho canviï. Qui organitza l'absència sempre pot canviar o treure un docent de guàrdia que s'hagi agafat una classe pel seu compte.
 
 ---
 

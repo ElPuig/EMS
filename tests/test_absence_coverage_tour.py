@@ -2,7 +2,9 @@ from datetime import date, timedelta
 
 from odoo.tests import HttpCase, tagged
 
-from .common import create_head_of_studies_branch, create_level_study, mock_outgoing_email
+from .common import (
+    create_head_of_studies_branch, create_level_study, create_role_employee, create_role_user, mock_outgoing_email,
+)
 
 
 @tagged('post_install', '-at_install')
@@ -28,7 +30,9 @@ class TestAbsenceCoverageTour(HttpCase):
             'dayofweek': '0', 'hour_from': hour_from, 'hour_to': hour_to, 'day_period': 'morning', **vals,
         } for hour_from, hour_to in periods])
 
-    def test_absence_coverage_tour(self):
+    def _board_fixture(self, guard=None):
+        """Next Monday: 'Tour Absent Teacher' teaches TABTG 8-11 and is away 8-10, while `guard`
+        (a plain employee unless given) is on guard duty 8-11. Returns (teacher, guard, group)."""
         if not self.env.company.current_course_id:
             self.env.company.current_course_id = self.env['ems.course'].create({'start': 1997, 'end': 1998})
         level, study = create_level_study(self, 'TABT', level={'name': 'Tour Absence Coverage Level'}, study={
@@ -42,7 +46,7 @@ class TestAbsenceCoverageTour(HttpCase):
             'course': 1, 'acronym': 'TABTG', 'level_id': level.id, 'study_id': study.id, 'shift': 'morning',
         })
         teacher = self.env['hr.employee'].create({'name': 'Tour Absent Teacher', 'employee_type': 'teacher'})
-        guard = self.env['hr.employee'].create({'name': 'Tour Cover Guard', 'employee_type': 'teacher'})
+        guard = guard or self.env['hr.employee'].create({'name': 'Tour Cover Guard', 'employee_type': 'teacher'})
         create_head_of_studies_branch(self, 'TABT', teacher)
         # The chief heads the teacher's real department, as in production: it is what lets them
         # write to the groups that department teaches.
@@ -68,6 +72,10 @@ class TestAbsenceCoverageTour(HttpCase):
             'ems_full_day': False, 'request_hour_from': 8, 'request_hour_to': 10,
             'ems_submitted': True, 'ems_responsible_declaration': True,
         }).action_approve()
+        return teacher, guard, group
+
+    def test_absence_coverage_tour(self):
+        teacher, guard, group = self._board_fixture()
 
         self.start_tour("/odoo", "ems_absence_coverage", login=self.department_chief.login)
 
@@ -77,3 +85,14 @@ class TestAbsenceCoverageTour(HttpCase):
         self.assertEqual(cover.message, 'Exercises on page 12')
         notice = self.env['ems.notice'].search([('absence_group_id', '=', group.id)])
         self.assertEqual((notice.absence_change_type, notice.absence_change_hour, notice.state), ('late_entry', 9.0, 'draft'))
+
+    def test_guard_self_assignment_tour(self):
+        """Issue #601, as the guard on duty - a plain teacher, who manages nobody's absences."""
+        user = create_role_user(self, 'teacher', 'test_tour_self_guard', name='Tour Self Guard')
+        teacher, guard, _group = self._board_fixture(create_role_employee(self, user, name='Tour Self Guard'))
+
+        self.start_tour("/odoo", "ems_guard_self_assignment", login=user.login)
+
+        covers = self.env['ems.absence_cover'].search([('absent_employee_id', '=', teacher.id)], order='hour_from')
+        self.assertEqual([(cover.hour_from, cover.state) for cover in covers], [(8, 'released'), (9, 'assigned')])
+        self.assertEqual(covers.guard_employee_id, guard)

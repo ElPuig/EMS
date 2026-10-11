@@ -1,0 +1,7 @@
+# What's new:
+
+## Guard teachers can take a class themselves (guard duty board):
+- A teacher on guard duty in a time block can now take a class still left without a teacher straight from the board's Absences table (click the line, confirm with "Cover it"), without waiting for the absent teacher's Department/Seminar Chief or above to send them. New `ems.absence_cover.board_self_assign()`, re-checking on the server the same conditions as `board_assign()` (day not over, class still needs a guard, the user's employee is a guard candidate: on duty, not a WC guard, not away); shared checks extracted into `_check_board_assignable()`/`_board_current_covers()`/`_board_create_cover()`.
+- Only a class with no guard yet can be taken: changing someone else's assignment stays with the planner (developer's decision, 2026-10-08). Nobody is notified, the board itself shows who covers what (developer's decision).
+- The guard can leave a class they took themselves ("Stop covering this class", `board_self_release()`), never one a planner sent them to (developer's decision); new non-stored `is_self_assigned` (assigned_by_id is the guard's own user). The planner can still change or release a self-assigned guard as usual.
+- The board payload gets `can_self_assign`/`can_self_release` per absence row; a manager who is also on guard keeps the regular assignment dialog. Backend tests in TestAbsenceCoverage, new tour `ems_guard_self_assignment` logged in as a plain teacher on guard; ca/es translations; teacher manual (3 languages) and developer doc updated.

@@ -3,7 +3,7 @@
 from markupsafe import Markup
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools import format_date, plaintext2html
 
 from ..shared.schedule_report_mixin import HOUR_EPSILON
@@ -79,6 +79,13 @@ class EmsAbsenceCover(models.Model):
         required=True,
     )
     assigned_by_id = fields.Many2one(string="Assigned by", comodel_name='res.users', default=lambda self: self.env.user)
+    is_self_assigned = fields.Boolean(string="Self-assigned", compute='_compute_is_self_assigned')
+
+    @api.depends('assigned_by_id', 'guard_employee_id.user_id')
+    def _compute_is_self_assigned(self):
+        """Whether the guard took the class themselves (issue #601) rather than being sent to it."""
+        for cover in self:
+            cover.is_self_assigned = bool(cover.assigned_by_id) and cover.assigned_by_id == cover.guard_employee_id.user_id
 
     @api.constrains('date', 'hour_from', 'hour_to', 'absent_employee_id', 'group_id', 'state')
     def _check_one_guard_per_class(self):
@@ -133,6 +140,41 @@ class EmsAbsenceCover(models.Model):
             body += plaintext2html(message)
         cover.sudo().message_notify(partner_ids=partner.ids, subject=subject, body=body)
 
+    def _board_records(self, absent_employee_id, group_id, guard_employee_id):
+        absent = self.env['hr.employee'].browse(absent_employee_id).exists()
+        group = self.env['ems.group'].browse(group_id).exists()
+        guard = self.env['hr.employee'].browse(guard_employee_id).exists()
+        if not (absent and group and guard):
+            raise UserError(_("The class or the guard teacher no longer exists."))
+        return absent, group, guard
+
+    def _check_board_assignable(self, day, hour_from, hour_to, absent, group, guard):
+        """The block of `group`'s day `guard` may be sent to: the day is not over, the class still
+        needs a guard and `guard` is on guard duty then. Raises otherwise."""
+        course = self.env['ems.course']
+        course._check_board_day_not_past(day)
+        block = course._get_needed_absence_block(day, group, absent, hour_from, hour_to)
+        if not block:
+            raise UserError(_("This class no longer needs covering: the absence or the class has changed. Reload the board."))
+        if guard not in course._get_guard_candidates(day, hour_from, hour_to):
+            raise UserError(_("%s is not on guard duty in this period.", guard.name))
+        return block
+
+    def _board_current_covers(self, day, hour_from, hour_to, absent, group):
+        return self.sudo().search([
+            ('state', '=', 'assigned'), ('date', '=', day),
+            ('absent_employee_id', '=', absent.id), ('group_id', '=', group.id),
+        ]).filtered(lambda cover: overlaps(cover.hour_from, cover.hour_to, hour_from, hour_to))
+
+    def _board_create_cover(self, day, hour_from, hour_to, absent, group, guard, block, message=False):
+        first = block['entries'].filtered(lambda attendance: attendance.employee_id == absent)[:1]
+        return self.sudo().create({
+            'date': day, 'hour_from': hour_from, 'hour_to': hour_to,
+            'absent_employee_id': absent.id, 'group_id': group.id,
+            'subject_id': first.subject_id.id, 'space_id': first.space_id.id,
+            'guard_employee_id': guard.id, 'message': message, 'assigned_by_id': self.env.uid,
+        })
+
     # Board actions. Called from the guard duty board's absences table
     # (static/src/js/backend/guard_duty_board.js); every one re-checks on the server that the
     # current user may manage the absent teacher's cover, whatever the screen showed.
@@ -144,25 +186,12 @@ class EmsAbsenceCover(models.Model):
         releases (and tells) the previous one; assigning the same one again re-sends the message,
         which is how a planner adds or corrects the instructions."""
         day = fields.Date.to_date(day)
-        course = self.env['ems.course']
-        absent = self.env['hr.employee'].browse(absent_employee_id).exists()
-        group = self.env['ems.group'].browse(group_id).exists()
-        guard = self.env['hr.employee'].browse(guard_employee_id).exists()
-        if not (absent and group and guard):
-            raise UserError(_("The class or the guard teacher no longer exists."))
-        course._check_absence_manager(absent)
-        course._check_board_day_not_past(day)
-        block = course._get_needed_absence_block(day, group, absent, hour_from, hour_to)
-        if not block:
-            raise UserError(_("This class no longer needs covering: the absence or the class has changed. Reload the board."))
-        if guard not in course._get_guard_candidates(day, hour_from, hour_to):
-            raise UserError(_("%s is not on guard duty in this period.", guard.name))
+        absent, group, guard = self._board_records(absent_employee_id, group_id, guard_employee_id)
+        self.env['ems.course']._check_absence_manager(absent)
+        block = self._check_board_assignable(day, hour_from, hour_to, absent, group, guard)
 
         covers = self.sudo()
-        current = covers.search([
-            ('state', '=', 'assigned'), ('date', '=', day),
-            ('absent_employee_id', '=', absent.id), ('group_id', '=', group.id),
-        ]).filtered(lambda cover: overlaps(cover.hour_from, cover.hour_to, hour_from, hour_to))
+        current = self._board_current_covers(day, hour_from, hour_to, absent, group)
         if current and current[:1].guard_employee_id != guard:
             current.write({'state': 'released'})
             for cover in current:
@@ -172,13 +201,7 @@ class EmsAbsenceCover(models.Model):
             cover = current[:1]
             cover.write({'message': message, 'assigned_by_id': self.env.uid})
         else:
-            first = block['entries'].filtered(lambda attendance: attendance.employee_id == absent)[:1]
-            cover = covers.create({
-                'date': day, 'hour_from': hour_from, 'hour_to': hour_to,
-                'absent_employee_id': absent.id, 'group_id': group.id,
-                'subject_id': first.subject_id.id, 'space_id': first.space_id.id,
-                'guard_employee_id': guard.id, 'message': message, 'assigned_by_id': self.env.uid,
-            })
+            cover = self._board_create_cover(day, hour_from, hour_to, absent, group, guard, block, message)
         cover._notify_guard(guard, released=False, message=message)
         return cover.id
 
@@ -192,4 +215,36 @@ class EmsAbsenceCover(models.Model):
         self.env['ems.course']._check_absence_manager(cover.absent_employee_id)
         cover.write({'state': 'released'})
         cover._notify_guard(cover.guard_employee_id, released=True, message=message)
+        return True
+
+    # Self-assignment (issue #601): a teacher on guard duty takes a class still left without
+    # anybody on their own, without waiting for its planner. Nobody is told - the board already
+    # shows it - and only a class with no guard yet can be taken; changing someone else's
+    # assignment stays with the absent teacher's chain of command.
+
+    @api.model
+    def board_self_assign(self, day, hour_from, hour_to, absent_employee_id, group_id):
+        """The current user, on guard duty in the period, covers `absent_employee_id`'s class of
+        `group_id` themselves."""
+        day = fields.Date.to_date(day)
+        guard = self.env.user.employee_id
+        if not guard:
+            raise UserError(_("Only a teacher on guard duty can cover a class."))
+        absent, group, guard = self._board_records(absent_employee_id, group_id, guard.id)
+        block = self._check_board_assignable(day, hour_from, hour_to, absent, group, guard)
+        if self._board_current_covers(day, hour_from, hour_to, absent, group):
+            raise UserError(_("This class already has a guard teacher assigned. Reload the board."))
+        return self._board_create_cover(day, hour_from, hour_to, absent, group, guard, block).id
+
+    @api.model
+    def board_self_release(self, cover_id):
+        """The current user stops covering a class they took themselves. One their planner sent
+        them to can only be released by the planner."""
+        cover = self.sudo().browse(cover_id).exists()
+        if not cover or cover.state != 'assigned':
+            raise UserError(_("This assignment no longer exists. Reload the board."))
+        if not cover.is_self_assigned or cover.assigned_by_id != self.env.user:
+            raise AccessError(_("Only the guard teacher who took this class themselves can leave it."))
+        self.env['ems.course']._check_board_day_not_past(cover.date)
+        cover.write({'state': 'released'})
         return True

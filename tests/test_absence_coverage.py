@@ -89,6 +89,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
     def test_the_department_chief_sends_a_guard_who_is_notified(self):
         self._morning()
         self._absence(self.teacher_a, self.day)
+        self.department_chief.email = 'chief.tabc@example.com'
 
         cover = self.Cover.browse(self._assign())
 
@@ -99,6 +100,8 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual(len(messages), 1)
         self.assertIn('Exercises on page 12', messages.body)
         self.assertIn(self.group_a.name, messages.subject)
+        # Answering the notice reaches whoever sent the guard, not the EMS mailbox (issue #607).
+        self.assertIn('chief.tabc@example.com', messages.reply_to)
 
     def test_the_row_shows_its_guard_in_the_guard_colour(self):
         self._morning()

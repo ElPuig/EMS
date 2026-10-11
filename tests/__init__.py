@@ -247,3 +247,4 @@ from . import test_i18n_coverage
 from . import test_dev_mail_guard
 from . import test_employee_presence_tour
 from . import test_student_chatter_replies
+from . import test_mail_reply_to

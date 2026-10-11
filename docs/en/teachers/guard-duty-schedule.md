@@ -140,7 +140,7 @@ Everything is done from the **Absences table**, and nothing happens on its own: 
 
 ![Sending a guard teacher to a class: the guards on duty and a message for them](../../assets/teachers/guard-duty-04-enviar-guardia.png)
 
-The guard teacher receives an Odoo message (in their inbox, or by email, depending on their own notification preference) with the date, time, group, subject, classroom, the absent teacher and your message.
+The guard teacher receives an Odoo message (in their inbox, or by email, depending on their own notification preference) with the date, time, group, subject, classroom, the absent teacher and your message. If they reply to that email, the answer reaches you.
 
 The class is then struck through, the guard's name appears next to it, and the line and the guard's box in the Guard duty column share the same colour. When several guards cover classes in the same time block, each guard has their own colour, so you can see at a glance who is covering what. A guard can cover more than one class: all of them take that guard's colour.
 

@@ -113,12 +113,12 @@ Who can do this: the absent teacher's **Seminar Chief** or **Department Chief**,
 
 Everything is done from the **Absences table**, and nothing happens on its own: each step waits for you to press its button. A day that is already over can no longer be changed.
 
-![Absences table as a Department Chief: a late entry proposal, and two classes covered by two guards, each in its own colour](../../assets/teachers/guard-duty-03-organitzar.png)
+![Absences table as a Department Chief: a late entry proposal, the possible arrangements, and two classes covered by two guards, each in its own colour](../../assets/teachers/guard-duty-03-organitzar.png)
 
 ### Sending a guard to a class
 
 1. Click the line of the class to cover (lines you can organise show a hand pointer).
-2. Choose the **Guard teacher**. Only the teachers on guard duty in that time block are offered, except those on a WC guard and those who are away themselves.
+2. If the dialog offers possible arrangements (see [Rearranging the lessons instead of sending a guard](#rearranging-the-lessons-instead-of-sending-a-guard)), choose **Send a guard teacher**. Then choose the **Guard teacher**. Only the teachers on guard duty in that time block are offered, except those on a WC guard and those who are away themselves.
 3. Optionally, write a **message**: what the students have to work on, where the materials are...
 4. Click **Assign and notify**.
 
@@ -129,6 +129,34 @@ The guard teacher receives an Odoo message (in their inbox, or by email, dependi
 The class is then struck through, the guard's name appears next to it, and the line and the guard's box in the Guard duty column share the same colour. When several guards cover classes in the same time block, each guard has their own colour, so you can see at a glance who is covering what. A guard can cover more than one class: all of them take that guard's colour.
 
 To change the guard, click the line and then **Change or remove the guard** (only shown to whoever organises the absence), and choose another one: the previous guard is told they are no longer needed. To write a new message to the same guard, choose them again and click **Assign and notify**. **Remove assignment** takes the guard off the class and tells them so.
+
+### Rearranging the lessons instead of sending a guard
+
+Often no guard is needed, because the group's own teachers can rearrange their lessons that day. The board works this out for every class still left without anybody and proposes it in the **Possible arrangements** box, above the table (only visible to whoever can organise the absence); those lines also show a tag such as **2 possible arrangements**.
+
+![Possible arrangements box: a swap and two moved lessons, each with its Apply button and, in orange, the entry and exit times it changes](../../assets/teachers/guard-duty-06-reorganitzacions.png)
+
+Two kinds are proposed, always between teachers of the same group and within the same day:
+
+- **Swap**: another teacher of the group, who is free at that time, teaches then, and the absent teacher teaches that teacher's lesson with the group later on (or earlier). The students lose no lesson, and the families do not need to be told.
+- **Moved lesson**: another teacher of the group brings to that time their lesson from the start or the end of the group's day (or next to a break). The group then comes in later, leaves earlier or has a longer break, so the families must be told.
+
+They are listed so that the students lose as few lessons as possible: those that lose none come first. A lesson shared with another group is never proposed, since it would change that other group's day too.
+
+**Nobody's working day gets longer.** An arrangement is only proposed if no teacher involved ends up with a longer day (counted from their first period to their last, lessons, guard duties and any other duty alike): whoever would come in earlier must leave earlier, and whoever would leave later must come in later. When it changes somebody's entry or exit time, an orange line under the proposal says exactly whose and how (*"… comes in at 08:00 instead of 10:00"*), so those are easy to tell apart from the ones that change nobody's hours.
+
+To apply one, click **Apply** on its line, or click the class and choose it in the dialog, where the possible arrangements come first, above sending a guard:
+
+![Dialog of a class: the possible arrangements, with the notice and the entry and exit changes each one implies, above sending a guard and the arrangement described by hand](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)
+
+- A **swap** takes effect at once: the class is struck through, with the teacher who is with the group, and both teachers receive an Odoo message with the change (and their new entry or exit time, if it changes).
+- A **moved lesson** opens the draft notice for the families straight away. **It only counts once that notice is sent**: until then the class is not struck out and the proposals box shows it as waiting for its notice (**Open draft**). The teachers are told when the notice is sent. If you delete the draft, the arrangement is discarded.
+
+Once an arrangement is in effect, the **Guard duty schedule** shows who really teaches each lesson involved, and a teacher who was on guard duty at a time they now teach is struck out of the **Guard duty** column there: they cannot be sent to cover anything else then, and nobody can take that class on their own.
+
+**Other arrangement (described by hand)**, the last option of the dialog, is for whatever the board cannot work out, so that it is on record: two groups joined for the same subject, a teacher of another group... Describe it and, if a teacher is involved, choose them (they receive a message). No guard is then needed for that class.
+
+To change your mind, click the line and then **Change or remove the arrangement**: **Remove arrangement** takes it back (the teachers are told), and choosing a guard or another arrangement replaces it.
 
 ### Late entry, early leave or no classes
 
@@ -155,6 +183,7 @@ This is never confused with coming in or leaving: if the empty lessons reach the
 If an absence is refused, cancelled or shortened, or a co-teacher turns out to be in, what was organised may no longer be needed. Nothing is undone automatically: the boxes above the table tell you, and you decide.
 
 - **A guard who is no longer needed** (box **Guards no longer needed**): click **Release guard**. They are told they no longer need to cover the class.
+- **An arrangement that no longer applies** (same box): the class no longer needs covering, or one of the teachers it relies on is now away at that time. Click **Remove arrangement**; the teachers are told.
 - **A notice that no longer matches** (more was told than the absences now allow): a notice already sent cannot be taken back, so the proposals box offers **Propose correction**, a new draft notice for the same group with the corrected situation (a different time, or back to the usual timetable).
 
 ---

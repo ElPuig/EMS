@@ -21761,3 +21761,9 @@ msgstr "%(teacher)s entra a las %(new)s en lugar de a las %(old)s."
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "%(teacher)s leaves at %(new)s instead of %(old)s."
 msgstr "%(teacher)s sale a las %(new)s en lugar de a las %(old)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Google Workspace: the IDALU could not be saved on the account %s because it no longer exists or is outside the managed organizational units."
+msgstr "Google Workspace: no se ha podido guardar el IDALU en la cuenta %s porque ya no existe o está fuera de las unidades organizativas gestionadas."

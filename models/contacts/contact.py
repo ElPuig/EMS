@@ -1091,6 +1091,10 @@ class ResPartner(models.Model):
         if {'name', 'firstname', 'lastname'} & set(values):
             self._gw_enqueue_rename()
 
+        # Google Workspace: the IDALU is the account's Employee ID (#609).
+        if 'student_id' in values:
+            self._gw_enqueue_sync_idalu()
+
         # Google Workspace: archive -> schedule the suspension after a grace period
         # (issue #388); coming back -> call it off, or reactivate if the cron got there
         # first and the account is already suspended.

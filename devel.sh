@@ -100,6 +100,14 @@ echo ">> Forcing the Google Workspace integration into dry-run mode:"
 sudo -u odoo bash -c "psql -d ems -c \"UPDATE res_company SET google_ws_dry_run = TRUE;\""
 echo "<< Google Workspace in dry-run mode."
 
+echo ">> Switching off the incoming mail servers:"
+# A database restored from production carries production's incoming mail server (the mailbox the
+# families' answers arrive at, issue #586). An email is only fetched once: reading that mailbox
+# here would take those answers away from production. EMS refuses to fetch on a development
+# machine anyway (models/settings/mail_guard.py); this keeps the Settings screen honest about it.
+sudo -u odoo bash -c "psql -d ems -c \"UPDATE fetchmail_server SET active = FALSE, state = 'draft';\""
+echo "<< Incoming mail servers switched off."
+
 echo ">> Declaring this environment as 'dev' (see CLAUDE.md's 'Development vs. production environment declaration'):"
 sudo -u odoo bash -c "psql -d ems -c \"INSERT INTO ir_config_parameter (key, value) VALUES ('ems.environment_type', 'dev') ON CONFLICT (key) DO UPDATE SET value = 'dev';\""
 echo "<< Declared."

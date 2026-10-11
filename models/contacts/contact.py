@@ -952,7 +952,11 @@ class ResPartner(models.Model):
                 self._ems_raise_student_id_required(name or _("This contact"))
             self._ems_check_student_id_available(entry.get('student_id'))
 
-        contact = super(ResPartner, self).create(values)
+        # Nobody follows a contact for having created it (issue #586): whoever registers students
+        # and families would get an email for every message a teacher later exchanges with them
+        # on the contact's chatter. Writing a message there is what makes someone a follower.
+        # with_env(): the flag must not outlive the creation, or it would also stop that.
+        contact = super(ResPartner, self.with_context(mail_create_nosubscribe=True)).create(values).with_env(self.env)
         contact._sync_category()
         for record, notes in zip(contact, private_notes):
             if notes:
@@ -1301,6 +1305,20 @@ class ResPartner(models.Model):
             for field in ('delegate_id', 'subdelegate_id'):
                 if group[field] == partner:
                     group.sudo()[field] = False
+
+    @api.model
+    def _ems_unfollow_administrator(self):
+        """Takes the administrator account off the followers of every contact (issue #586): it
+        followed the ones it had created, back when creating a contact made you follow it, so
+        each message written on a student's or a family's chatter was also emailed to the EMS
+        mailbox. Returns how many contacts it followed."""
+        followers = self.env['mail.followers'].sudo().search([
+            ('res_model', '=', 'res.partner'),
+            ('partner_id', '=', self.env.ref('base.user_admin').partner_id.id),
+        ])
+        count = len(followers)
+        followers.unlink()
+        return count
 
     def _sync_category(self):
         # The "student" category doubles as the shared student-lifecycle marker: the

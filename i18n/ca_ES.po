@@ -21766,3 +21766,9 @@ msgstr "%(teacher)s surt a les %(new)s en lloc de les %(old)s."
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0
 msgid "Google Workspace: the IDALU could not be saved on the account %s because it no longer exists or is outside the managed organizational units."
 msgstr "Google Workspace: no s'ha pogut desar l'IDALU al compte %s perquè ja no existeix o és fora de les unitats organitzatives gestionades."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__is_pending_for_me
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+msgid "Pending for me"
+msgstr "Pendents de mi"

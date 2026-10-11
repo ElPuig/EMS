@@ -24,6 +24,13 @@ FILED_FIELDS = {'student_id', 'course_id', 'study_id', 'basis', 'prior_studies_o
 # be asked for (and send) more documentation: before the resolution exists.
 REVIEW_STATES = ('pending', 'documentation', 'ministry')
 
+# Whose turn each state is (issue #610): what each role finds when opening the list. 'ministry' is
+# the Head of Studies' too (they record the Ministry's answer); 'documentation' is nobody's - the
+# request waits for the applicant - and the closed states need no one.
+HEAD_OF_STUDIES_STATES = ('pending', 'ministry')
+DIRECTOR_STATES = ('direction',)
+SECRETARY_STATES = ('in_progress',)
+
 
 class EmsConvalidation(models.Model):
     _name = 'ems.convalidation'
@@ -91,6 +98,8 @@ class EmsConvalidation(models.Model):
                                           help="The request was filed with the Ministry, whose resolution "
                                                "goes straight to the secretariat, without the Director.")
     ministry_date = fields.Date(string="Filed with the Ministry on", readonly=True, copy=False)
+    is_pending_for_me = fields.Boolean(string="Pending for me", compute='_compute_is_pending_for_me',
+                                       search='_search_is_pending_for_me')
     ministry_resolution = fields.Binary(string="Ministry resolution", attachment=True, copy=False,
                                         help="The Ministry's own resolution (PDF), when it has arrived.")
     ministry_resolution_filename = fields.Char(string="Ministry resolution file name", copy=False)
@@ -146,6 +155,19 @@ class EmsConvalidation(models.Model):
     def _compute_allowed_subject_ids(self):
         for convalidation in self:
             convalidation.allowed_subject_ids = convalidation.study_id._ems_convalidable_subjects()
+
+    @api.depends('state')
+    @api.depends_context('uid')
+    def _compute_is_pending_for_me(self):
+        states = self._ems_states_pending_for_user()
+        for convalidation in self:
+            convalidation.is_pending_for_me = convalidation.state in states
+
+    def _search_is_pending_for_me(self, operator, value):
+        if operator not in ('=', '!=') or not isinstance(value, bool):
+            raise NotImplementedError(f"Unsupported search on is_pending_for_me: {operator} {value!r}")
+        states = list(self._ems_states_pending_for_user())
+        return [('state', 'in' if (operator == '=') == value else 'not in', states)]
 
     @api.depends('line_ids.state')
     def _compute_line_counts(self):
@@ -280,6 +302,26 @@ class EmsConvalidation(models.Model):
         """The secretariat registers the resolution in Esfera and closes the request."""
         return self.env.su or self.env.user.has_group('ems.group_secretary') \
             or self.env.user.has_group('ems.group_academic_admin')
+
+    def _ems_states_pending_for_user(self):
+        """The states in which a request waits for the current user (issue #610), which is what
+        the list opens on: the Head of Studies' review and the Ministry's answer they record, the
+        Director's resolution, the secretariat's registration. The Director implies the Head of
+        Studies' group but only gets their own step - the review is the (Deputy) Head of Studies'
+        work. The administrator, who can do every step, gets them all, and so does anybody who
+        reads the list without owning a step."""
+        user = self.env.user
+        everything = HEAD_OF_STUDIES_STATES + DIRECTOR_STATES + SECRETARY_STATES
+        if self.env.su or user.has_group('ems.group_academic_admin'):
+            return everything
+        states = ()
+        if user.has_group('ems.group_director'):
+            states += DIRECTOR_STATES
+        elif user.has_group('ems.group_head_of_studies'):
+            states += HEAD_OF_STUDIES_STATES
+        if user.has_group('ems.group_secretary'):
+            states += SECRETARY_STATES
+        return states or everything
 
     def _ems_check_head_of_studies(self):
         if not self._ems_is_head_of_studies():

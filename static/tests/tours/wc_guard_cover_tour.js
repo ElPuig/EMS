@@ -38,7 +38,9 @@ registry.category("web_tour.tours").add("ems_wc_guard_cover", {
         {
             trigger: ".o_guard_cover_guard_select",
             content: "Only the regular guard on duty is offered",
-            run: "selectByLabel Tour Cover Guard (0 covered this course)",
+            // By name only, as ems_absence_coverage does: the label's own parentheses confuse the
+            // selector when another guard of the day has the same count.
+            run: "selectByLabel Tour Cover Guard",
         },
         {
             trigger: ".o_guard_cover_assign:enabled",

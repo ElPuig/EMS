@@ -31,12 +31,15 @@ class TestEmployeeAttendanceAccess(TransactionCase):
         for user in (cls.teacher_user | cls.outsider_user | cls.director_user | cls.admin_user | cls.head_of_studies
                      | cls.other_head_of_studies | cls.department_chief | cls.other_department_chief):
             user.email = f'{user.login}@example.com'
-        now = datetime.now().replace(microsecond=0)
+        # Yesterday morning (07:00-10:00 UTC), never relative to the time the suite runs at: the
+        # correction requests below ask for a 14:00 check-out, which must come after the check-in.
+        check_in = datetime.now().replace(hour=7, minute=0, second=0, microsecond=0) - timedelta(days=1)
+        check_out = check_in + timedelta(hours=3)
         Attendance = cls.env['hr.attendance']
         cls.attendance = Attendance.create({
-            'employee_id': cls.teacher.id, 'check_in': now - timedelta(hours=3), 'check_out': now - timedelta(hours=1)})
+            'employee_id': cls.teacher.id, 'check_in': check_in, 'check_out': check_out})
         cls.outsider_attendance = Attendance.create({
-            'employee_id': cls.outsider.id, 'check_in': now - timedelta(hours=3), 'check_out': now - timedelta(hours=1)})
+            'employee_id': cls.outsider.id, 'check_in': check_in, 'check_out': check_out})
         cls.env.company.ems_hos_all_attendances = False
 
     def _visible(self, user):

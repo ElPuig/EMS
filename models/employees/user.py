@@ -3,7 +3,7 @@
 import logging
 import traceback
 
-from odoo import _, fields, models, SUPERUSER_ID
+from odoo import _, api, fields, models, SUPERUSER_ID
 from odoo.exceptions import UserError
 from .employee import _UNSET, write_photo
 
@@ -222,3 +222,22 @@ class ems_users(models.Model):
             if to_revoke:
                 user.sudo().with_context(**{EMS_SYNC_CONTEXT_KEY: True}).write(
                     {'groups_id': [(3, g.id) for g in to_revoke]})
+
+    @api.model
+    def _ems_revoke_stale_attendance_admin(self):
+        """Takes hr_attendance's Administrator group away from the users who only held it because
+        the Head of Studies' group used to imply it (issue #543) and returns their logins. Odoo
+        never revokes an implied group from a user when the implication itself is dropped, so
+        without this every Head of Studies in an existing database would keep seeing everybody's
+        attendance. Whoever still holds a group that implies it (the Director, the administrator)
+        keeps it, and so does a user it was granted to by hand without being a Head of Studies:
+        nothing says that one came from the implication. Idempotent."""
+        manager = self.env.ref('hr_attendance.group_hr_attendance_manager').with_context(active_test=False)
+        head_of_studies = self.env.ref('ems.group_head_of_studies').with_context(active_test=False)
+        implying = self.env['res.groups'].with_context(active_test=False).search([]).filtered(
+            lambda group: group != manager and manager in group.trans_implied_ids)
+        protected = self.env.ref('base.user_root') | self.env.ref('base.user_admin')
+        stale = (manager.users & head_of_studies.users) - implying.users - protected
+        if stale:
+            manager.sudo().write({'users': [(3, user.id) for user in stale]})
+        return stale.mapped('login')

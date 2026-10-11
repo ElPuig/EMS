@@ -1388,6 +1388,7 @@ msgstr "Acció Necessària"
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__active
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_reason__active
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_rejection_reason__active
+#: model:ir.model.fields,field_description:ems.field_hr_attendance__active
 msgid "Active"
 msgstr "Actiu"
 
@@ -1796,6 +1797,7 @@ msgstr "Aprovat"
 #: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_reason_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_rejection_reason_form
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
 msgid "Archived"
 msgstr "Arxivat"
 
@@ -2980,6 +2982,7 @@ msgstr "Dades descarregades"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__date model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__date
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
 msgid "Date"
 msgstr "Data"
 
@@ -3444,6 +3447,7 @@ msgstr "Emergència"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__employee_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__employee_id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__employee_id
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
 msgid "Employee"
 msgstr "Empleat"
 
@@ -9475,12 +9479,6 @@ msgstr "No s'ha trobat cap Cap d'Estudis a la cadena de comandament de %(employe
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_correction.py:0
-msgid "Only the resolved approver or an Academic Administrator can decide on this request."
-msgstr "Només l'aprovador resolt o un Administrador acadèmic pot decidir sobre aquesta sol·licitud."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_correction.py:0
 msgid "You must request a correction for the check-in and/or the check-out time."
 msgstr "Cal sol·licitar una correcció per a l'hora d'entrada i/o de sortida."
 
@@ -13947,17 +13945,6 @@ msgstr "Drets d'accés de l'equip TAC: pot crear i editar professorat."
 #: model:res.groups,comment:ems.group_tac_admin
 msgid "Access rights for the TAC coordinator. Currently identical to Manager."
 msgstr "Drets d'accés de la coordinació TAC. Actualment idèntics als de Gestor/a."
-
-#. module: ems
-#: model:res.groups,comment:ems.group_head_of_studies
-msgid ""
-"Access rights for Head of Studies / Deputy Head of Studies. Grants full "
-"read/write access to all employees' attendance records, and the right to "
-"create and edit teachers."
-msgstr ""
-"Drets d'accés de la prefectura d'estudis i la prefectura d'estudis adjunta. "
-"Concedeix accés complet de lectura i escriptura als registres d'assistència "
-"de tot el personal, i el dret a crear i editar professorat."
 
 #. module: ems
 #. odoo-python
@@ -21283,3 +21270,35 @@ msgstr "Visualització d'icones de recursos humans"
 #: model:ir.model.fields,field_description:ems.field_hr_employee_public__show_hr_icon_display
 msgid "Show Hr Icon Display"
 msgstr "Mostra la icona de recursos humans"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Only a Head of Studies of the employee's own branch or an Academic Administrator can decide on this request."
+msgstr "Només un Cap d'estudis de la branca de l'empleat o un Administrador acadèmic pot decidir sobre aquesta sol·licitud."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_hos_all_attendances
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_hos_all_attendances
+msgid "Heads of Studies see everybody's attendance"
+msgstr "Els caps d'estudis veuen els fitxatges de tothom"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
+msgid "Heads of Studies see everybody's attendance (EMS)"
+msgstr "Els caps d'estudis veuen els fitxatges de tothom (EMS)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
+msgid "Off: a Head or Deputy Head of Studies only sees the attendance of the employees of their own branch (their chain of command and the area they manage). On: they can also consult everybody's, to know at any time who is in the centre. Either way, they only correct the attendance of their own branch and decide its correction requests."
+msgstr "Desactivat: un Cap d'estudis o Cap d'estudis adjunt només veu els fitxatges dels empleats de la seva branca (la seva cadena jeràrquica i l'àrea que gestiona). Activat: també pot consultar els de tothom, per saber en tot moment qui és al centre. En tots dos casos, només corregeix els fitxatges de la seva branca i en decideix les sol·licituds de correcció."
+
+#. module: ems
+#: model:res.groups,comment:ems.group_head_of_studies
+msgid "Access rights for Head of Studies / Deputy Head of Studies. Grants read/write access to the attendance records of the employees in their own branch of the hierarchy or area, the right to create and edit teachers, and full read/write access to every student's data centre-wide."
+msgstr "Drets d'accés de Cap d'estudis i Cap d'estudis adjunt. Concedeix accés de lectura i escriptura als fitxatges dels empleats de la seva branca de la jerarquia o àrea, el dret a crear i editar professorat, i accés complet de lectura i escriptura a les dades de tot l'alumnat del centre."
+
+#. module: ems
+#: model:res.groups,comment:ems.group_director
+msgid "Access rights for the Director: those of the Head of Studies, plus every employee's attendance records centre-wide."
+msgstr "Drets d'accés de Direcció: els de Cap d'estudis, més els fitxatges de tots els empleats del centre."

@@ -1017,6 +1017,10 @@ Called from `_apply_cleanup()` **last**, after `students._ems_clear_operational_
         if self._pending_studies():
             return False
         self.env.company.current_course_id = self.target_course_id
+        # The staff's own attendance of the courses left behind (issue #543): archived, so the
+        # lists and reports are about the course that starts. Only on the flip - while some study
+        # is still pending, the outgoing course is still the centre's current one.
+        self.env['hr.attendance']._ems_archive_before_course(self.target_course_id)
         # 'is_enrollment_default' is deliberately left alone (D16): enrollments keep
         # being processed in September for the course that has just started, and the
         # flag is what every "which course do new enrollments belong to" lookup reads.

@@ -73,6 +73,8 @@ from . import test_attendance_justification_tour
 from . import test_employee_role_group_sync
 from . import test_employee_photo_visibility
 from . import test_attendance_correction
+from . import test_employee_attendance_access
+from . import test_employee_attendance_list_tour
 from . import test_attendance_correction_tour
 from . import test_attendance_reports
 from . import test_attendance_reports_tour

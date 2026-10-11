@@ -155,11 +155,19 @@
              student's own personal-data block. Mirrors group_secretary, which already implies it. -->
         <record model="res.groups" id="group_head_of_studies">
             <field name="name">Head of Studies</field>
-            <field name="comment">Access rights for Head of Studies / Deputy Head of Studies. Grants full read/write access to all employees' attendance records, the right to create and edit teachers, and full read/write access to every student's data centre-wide.</field>
+            <field name="comment">Access rights for Head of Studies / Deputy Head of Studies. Grants read/write access to the attendance records of the employees in their own branch of the hierarchy or area, the right to create and edit teachers, and full read/write access to every student's data centre-wide.</field>
             <field name="category_id" ref="ems.category_roles"/>
+            <!-- Issue #543: hr_attendance's Officer, no longer its Administrator. The Administrator
+                 group's own native rule opens every employee's attendance centre-wide, which no
+                 rule can narrow back (group rules add up); as an Officer, a Head of Studies gets
+                 the employees whose attendance they approve (the native officer rule: the area
+                 they manage) plus their own chain of command (security/rules/attendance.xml).
+                 (3, ...) and not just a missing (4, ...): an implication already stored in the
+                 database survives its line being deleted from this file. -->
             <field name="implied_ids" eval="[
                 (4, ref('ems.group_department_chief')),
-                (4, ref('hr_attendance.group_hr_attendance_manager')),
+                (3, ref('hr_attendance.group_hr_attendance_manager')),
+                (4, ref('hr_attendance.group_hr_attendance_officer')),
                 (4, ref('hr_holidays.group_hr_holidays_user')),
                 (4, ref('hr.group_hr_user')),
                 (4, ref('ems.group_student_data_reader')),
@@ -167,13 +175,17 @@
             ]"/>
         </record>
 
-        <!-- Same privileges as Head of Studies for now; kept as its own group so it can be
-             differentiated later without another migration. -->
+        <!-- Head of Studies plus every employee's attendance centre-wide (issue #543): the
+             Director is above every branch, so they keep hr_attendance's Administrator group,
+             which the Head of Studies no longer has. -->
         <record model="res.groups" id="group_director">
             <field name="name">Director</field>
-            <field name="comment">Access rights for the Director. Currently identical to Head of Studies.</field>
+            <field name="comment">Access rights for the Director: those of the Head of Studies, plus every employee's attendance records centre-wide.</field>
             <field name="category_id" ref="ems.category_roles"/>
-            <field name="implied_ids" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+            <field name="implied_ids" eval="[
+                (4, ref('ems.group_head_of_studies')),
+                (4, ref('hr_attendance.group_hr_attendance_manager')),
+            ]"/>
         </record>
 
         <!-- TODO: this group has not been yet setup in ir.modal.access.  -->

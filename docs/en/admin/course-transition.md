@@ -86,7 +86,7 @@ What happens, in order:
 3. The attendance templates of the outgoing year are archived, along with the affected teachers' own calendar blocks. Once a teacher's calendar has no teaching left for a course that is ending (a leftover fixed commitment like a guard duty does not count), it rolls over automatically to a fresh calendar for the next course — nothing to set up by hand, and their previous calendar is kept, archived, not deleted.
 4. The **operational records are deleted**: subject enrollments, grades, attendance and evaluation sessions. Those of the outgoing groups go too, even for a student already moved into their new group by an earlier run. This is the irreversible part — the academic history, saved in step 1, is what replaces them.
 5. Students are placed in their **destination group** and enrolled in its subjects.
-6. The studies are marked as transitioned and, if none is left pending, **the current course switches**.
+6. The studies are marked as transitioned and, if none is left pending, **the current course switches**. At that moment the staff's own check-ins and check-outs from before the new course are **archived**, so the attendance lists and reports are about the course that starts.
 7. The enrollments **of the outgoing course** are closed: the confirmed ones are locked (they are a legal record and are never cancelled), the ones that never got confirmed are cancelled. Those of the incoming course are left alone.
 
 ---
@@ -100,6 +100,8 @@ Three loose ends to deal with in the following days:
 - **Students with no destination.** Review the list and register the withdrawal of the ones who really left. One at a time from the student form, or **several at once**: select them in the *Group enrollment proposal* list and click **Withdrawal**. Only academic administration and the secretariat see that button, since registering an exit cancels enrollments and revokes the portal. The ones who enroll late need nothing: when their enrollment is confirmed, they are placed in their group automatically.
 - **Students enrolled without a group** turning up later (an enrollment confirmed in September with no group, say): just **fill the destination group in on the enrollment**. That alone places them, subjects included.
 - **Unconfirmed enrollments for the incoming course.** They are neither cancelled nor touched. Whoever confirms in September is placed in their group on their own, with nothing for you to re-run — **as long as the enrollment has a destination group**. With no group, confirming places nobody.
+
+**Browsing the staff's check-ins of a past course afterwards**: they are archived too, not deleted — in **Employee Attendances → Attendance → Overview**, open the search bar's **Filters** menu and tick **Archived**.
 
 **Browsing a past course's attendance templates or teacher calendars afterwards**: they are archived, not deleted, so nothing is lost — open **Configuration → Teachers → Templates** (or **Working schedules**), open the search bar's **Filters** menu and tick **Archived** to see them again. On **Working schedules**, you can also group the list by **Course** to see every teacher's calendar side by side across the years.
 

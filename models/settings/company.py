@@ -58,6 +58,10 @@ class ems_company(models.Model):
     )
     auto_checkout_time = fields.Float(default=1.0)
     auto_checkout_retry_until = fields.Float(default=6.0)
+    # Issue #543: off, a Head of Studies only sees the attendance of their own branch. Some
+    # centres need them all to know at any time who is in: on, they read everybody's (they still
+    # only correct their own branch's). Drives a record rule - see _sync_hos_all_attendances_rule.
+    ems_hos_all_attendances = fields.Boolean(string="Heads of Studies see everybody's attendance", default=False)
 
     limesurvey_api = fields.Char()
     limesurvey_usr = fields.Char()    
@@ -218,9 +222,21 @@ class ems_company(models.Model):
         companies._sync_enrollment_course_flag()
         return companies
 
+    def _sync_hos_all_attendances_rule(self):
+        """Switches the record rule that lets the Heads of Studies read every employee's
+        attendance on or off, as 'ems_hos_all_attendances' says. A rule cannot read a setting,
+        and it is global (there is one centre): on as soon as any company asks for it."""
+        rule = self.env.ref('ems.rule_hr_attendance_hos_read_all', raise_if_not_found=False)
+        if rule:
+            wanted = bool(self.sudo().search_count([('ems_hos_all_attendances', '=', True)]))
+            if rule.sudo().active != wanted:
+                rule.sudo().active = wanted
+
     def write(self, vals):
         old_directors = {company: company.director_id for company in self}
         res = super().write(vals)
+        if 'ems_hos_all_attendances' in vals:
+            self._sync_hos_all_attendances_rule()
         if 'current_course_id' in vals:
             self._sync_current_course_flag()
             # Issue #453 - the current course is printed in every group's public schedule PDF title.

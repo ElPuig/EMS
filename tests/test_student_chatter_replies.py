@@ -27,7 +27,9 @@ class TestStudentChatterReplies(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        mock_outgoing_email(cls)
+        # As the real transport does, hand back the email's own Message-Id: Odoo stores what
+        # send_email() returns as the message's id, which is what an answer refers to.
+        mock_outgoing_email(cls).side_effect = lambda message, *args, **kwargs: message['Message-Id']
         cls.secretary = create_role_user(cls, 'secretary', 'test_secretary_tscr', email='secretary.tscr@example.com')
         cls.teacher = create_role_user(cls, 'teacher', 'test_teacher_tscr', name='TSCR Teacher',
                                        email='teacher.tscr@example.com')
@@ -35,6 +37,9 @@ class TestStudentChatterReplies(TransactionCase):
             'name': 'TSCR Family', 'contact_type': 'family', 'email': 'family.tscr@example.com'})
         cls.contact = cls.env['res.partner'].create({'name': 'TSCR Contact', 'contact_type': 'family'})
         cls.admin_partner = cls.env.ref('base.user_admin').partner_id
+        # Answers need an address of their own: Odoo discards as a bounce whatever arrives at
+        # the bounce address, so a catchall equal to it (both 'ems') files no answer at all.
+        cls.env.company.alias_domain_id.write({'bounce_alias': 'bounce.tscr', 'catchall_alias': 'answers.tscr'})
 
     def test_creating_a_contact_does_not_make_you_follow_it(self):
         contact = self.env['res.partner'].with_user(self.secretary).create({
@@ -44,8 +49,10 @@ class TestStudentChatterReplies(TransactionCase):
         self.assertNotIn('mail_create_nosubscribe', contact.env.context)
 
     def test_writing_on_a_contact_makes_you_follow_it(self):
-        self.contact.with_user(self.teacher).sudo().message_post(body='TSCR', partner_ids=self.family.ids)
+        self.contact.with_user(self.teacher).sudo().message_post(
+            body='TSCR', partner_ids=self.family.ids, message_type='comment', subtype_xmlid='mail.mt_comment')
 
+        self.contact.invalidate_recordset(['message_partner_ids'])
         self.assertIn(self.teacher.partner_id, self.contact.message_partner_ids)
 
     def test_the_administrator_stops_following_contacts(self):

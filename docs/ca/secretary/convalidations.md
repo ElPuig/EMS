@@ -23,7 +23,7 @@ Cada sol·licitud resolta apareix a la safata d'activitats (🕒) de tot el pers
 
 ## Accés
 
-Navega a: **Gestió acadèmica → Convalidacions** i aplica el filtre **Pendent de secretaria**. També pots cercar una sol·licitud pel seu **número de registre** (per exemple CONV-2026-27-0001).
+Navega a: **Gestió acadèmica → Convalidacions**. La llista s'obre amb el filtre **Pendents de mi** activat, que per a secretaria mostra les sol·licituds en estat **Pendent de secretaria**; treu-lo per veure totes les sol·licituds. També pots cercar una sol·licitud pel seu **número de registre** (per exemple CONV-2026-27-0001).
 
 Per veure les sol·licituds d'un alumne, obre la seva fitxa i fes clic al botó **Convalidacions**.
 

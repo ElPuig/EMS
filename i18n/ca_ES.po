@@ -21283,3 +21283,9 @@ msgstr "Visualització d'icones de recursos humans"
 #: model:ir.model.fields,field_description:ems.field_hr_employee_public__show_hr_icon_display
 msgid "Show Hr Icon Display"
 msgstr "Mostra la icona de recursos humans"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__is_pending_for_me
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+msgid "Pending for me"
+msgstr "Pendents de mi"

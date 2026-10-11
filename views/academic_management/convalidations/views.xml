@@ -211,6 +211,10 @@
                     <field name="study_id"/>
                     <field name="course_id"/>
                     <field name="line_ids" string="Subject" filter_domain="[('line_ids.subject_id', 'ilike', self)]"/>
+                    <!-- Issue #610: what waits for whoever is looking, by their role (see
+                         ems.convalidation._ems_states_pending_for_user). On by default. -->
+                    <filter name="pending_for_me" string="Pending for me" domain="[('is_pending_for_me', '=', True)]"/>
+                    <separator/>
                     <filter name="to_resolve" string="Pending the Head of Studies" domain="[('state', '=', 'pending')]"/>
                     <filter name="documentation" string="Pending documentation" domain="[('state', '=', 'documentation')]"/>
                     <filter name="ministry" string="In process at the Ministry" domain="[('state', '=', 'ministry')]"/>
@@ -318,7 +322,7 @@
             <field name="res_model">ems.convalidation</field>
             <field name="view_mode">list,form</field>
             <field name="search_view_id" ref="view_convalidation_search"/>
-            <field name="context">{'search_default_to_resolve': 1, 'search_default_ministry': 1, 'search_default_pending_direction': 1, 'search_default_pending_secretariat': 1}</field>
+            <field name="context">{'search_default_pending_for_me': 1}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">No convalidation requests</p>
                 <p>Students and families request convalidations from the portal. The secretariat can also register a request received on paper.</p>

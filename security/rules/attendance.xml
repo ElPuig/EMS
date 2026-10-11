@@ -240,13 +240,29 @@
     </record>
 
     <record id="rule_attendance_correction_hos" model="ir.rule">
-        <!-- NOTE: group_head_of_studies is global (not scoped per branch), so any
-             Head/Deputy Head of Studies can decide on any pending request, and - same
-             reasoning - create a correction request on behalf of any employee (issue #480),
-             not only their own. -->
-        <field name="name">Attendance correction: Head of Studies (all data)</field>
+        <!-- Issue #543: a Head/Deputy Head of Studies sees, decides on and files (on the
+             employee's behalf, issue #480) the requests of their own branch only, through
+             either of the two ways somebody is theirs: the chain of command (tutor_scope_user_ids:
+             everybody below them, and everybody for the Director) or the area they manage
+             (attendance_manager_id). The id keeps its name; it used to be centre-wide. -->
+        <field name="name">Attendance correction: Head of Studies (own branch)</field>
         <field name="model_id" ref="ems.model_ems_attendance_correction"/>
         <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">['|', ('employee_id.tutor_scope_user_ids', 'in', user.id), ('employee_id.attendance_manager_id', '=', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_attendance_correction_director" model="ir.rule">
+        <!-- The Director is above every branch (issue #543): every request, like every
+             attendance (their group implies hr_attendance's Administrator one). By the group, not
+             only for whoever res.company.director_id names, which tutor_scope_user_ids already
+             covers: a deputy holding the group acts for the whole centre too. -->
+        <field name="name">Attendance correction: Director (all data)</field>
+        <field name="model_id" ref="ems.model_ems_attendance_correction"/>
+        <field name="groups" eval="[(4, ref('ems.group_director'))]"/>
         <field name="domain_force">[]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
@@ -264,6 +280,56 @@
         <field name="perm_create" eval="True"/>
         <field name="perm_unlink" eval="False"/>
     </record>
+
+    <!-- hr.attendance (issue #543). On top of hr_attendance's own rules: an employee reads their
+         own, an Officer manages those of the employees whose attendance they approve
+         (attendance_manager_id, the manager of their area) and the Administrator group - the
+         Director and the administrator here - everybody's. -->
+    <record id="rule_hr_attendance_department_chief" model="ir.rule">
+        <!-- A Department or Seminar Chief reads the attendance of everybody below them in the
+             chain of command (tutor_scope_user_ids), never the whole centre's. Read-only: they
+             have no write access to the model at all. -->
+        <field name="name">Employee attendance: chain of command (read)</field>
+        <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        <field name="groups" eval="[(4, ref('ems.group_department_chief'))]"/>
+        <field name="domain_force">[('employee_id.tutor_scope_user_ids', 'in', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_hr_attendance_hos" model="ir.rule">
+        <!-- A Head/Deputy Head of Studies also corrects it, for that same branch. The area they
+             manage comes from hr_attendance's own officer rule. -->
+        <field name="name">Employee attendance: Head of Studies (own branch)</field>
+        <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[('employee_id.tutor_scope_user_ids', 'in', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <data noupdate="1">
+        <!-- Switched on and off by the "Heads of Studies see everybody's attendance" setting
+             (res.company.ems_hos_all_attendances, which owns this record's 'active'): a centre
+             whose Heads of Studies must know at any time who is in and who is not lets them READ
+             every employee's attendance; correcting it stays within their branch. noupdate, so an
+             upgrade never resets what the setting chose. -->
+        <record id="rule_hr_attendance_hos_read_all" model="ir.rule">
+            <field name="name">Employee attendance: Head of Studies (read everybody's, optional)</field>
+            <field name="model_id" ref="hr_attendance.model_hr_attendance"/>
+            <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="active" eval="False"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+    </data>
 
     <!-- ems.attendance_issue -->
     <record id="rule_attendance_issue_tutor_admin" model="ir.rule">

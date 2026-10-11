@@ -237,24 +237,40 @@ class ems_attendance_correction(models.Model):
         return self.datetime_to_odoo(self.time_float_to_utc_datetime(local_date, time_float))
 
     def _find_approver(self):
+        """Who the request is routed to (the task): the nearest Head of Studies above the
+        employee in the chain of command; failing that, whoever manages their area's attendance;
+        failing that, the administrators. Others may decide on it too - see _check_is_approver."""
         self.ensure_one()
         approver_employee = self.employee_id.find_head_of_studies()
         if approver_employee:
             return approver_employee.user_id
+        area_manager = self.employee_id.sudo().attendance_manager_id
+        if area_manager:
+            return area_manager
         return self.env["res.users"].sudo().search([("groups_id", "=", self.env.ref("ems.group_academic_admin").id)])
 
     def _check_is_approver(self):
+        """Whether the current user may decide on this request (issue #543): a Head or Deputy
+        Head of Studies of the employee's own branch - above them in the chain of command
+        (the Director is above everybody), or the manager of their area's attendance -, never
+        every holder of the role centre-wide. A Head of Studies still decides on their own
+        request, as before: nobody below the Director is above them. The administrator always
+        can: they sit above the whole hierarchy although they appear nowhere in it."""
         self.ensure_one()
-        if self.env.user.has_group("ems.group_academic_admin"):
+        user = self.env.user
+        if user.has_group("ems.group_academic_admin") or user.has_group("ems.group_director"):
             return True
-        return self.env.user in self._find_approver()
+        employee = self.employee_id.sudo()
+        if not user.has_group("ems.group_head_of_studies"):
+            return False
+        return user in employee.tutor_scope_user_ids or employee.attendance_manager_id == user
 
     def _check_approver(self):
         # NOTE: no longer restricted to state == 'pending' — the approver can revise their own
         # earlier decision (e.g. clicked the wrong button) at any time.
         self.ensure_one()
         if not self._check_is_approver():
-            raise UserError(_("Only the resolved approver or an Academic Administrator can decide on this request."))
+            raise UserError(_("Only a Head of Studies of the employee's own branch or an Academic Administrator can decide on this request."))
 
     def _close(self, state):
         self.ensure_one()

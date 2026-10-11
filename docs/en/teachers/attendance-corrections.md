@@ -13,13 +13,17 @@ Every check-in and check-out you make is recorded automatically. This page expla
 ## Reviewing Your Attendance
 
 1. Navigate to **Employee Attendances → Attendance → Overview**.
-2. The list shows all your check-in/check-out records, most recent first.
+2. The list shows your check-in/check-out records of the current course, most recent first, as a plain list: every record is one click away.
 
    ![List of your own attendance records](../../assets/teachers/assistencia-01-llistat.png)
 
 3. Click any record to see its details: check-in time, check-out time, and how the time was recorded (kiosk, manual, etc.).
 
-> You only ever see your own records here — this is private to you and to the Head of Studies / Deputy Head of Studies / Director / Administrator, who can see everyone's.
+> You only ever see your own records here. Besides you, they can be seen by those above you in the hierarchy — your Department or Seminar Chief (read-only) and your Head of Studies or Deputy —, by the Director and by the Administrator. A centre can also let every Head of Studies consult everybody's records.
+
+**Past courses.** When the centre moves on to a new course, the records of the previous one are archived: they are not deleted, but they no longer show in the list. To see them, open the search bar's **Filters** menu and tick **Archived**.
+
+**If you are a Department or Seminar Chief**, the same list also shows the records of the people of your department (everybody below you in the hierarchy), for consultation only: you cannot change them. Since it covers several people, your list opens grouped by month and by employee; unfold a group to see its records.
 
 ---
 

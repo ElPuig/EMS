@@ -1388,6 +1388,7 @@ msgstr "Acción Necesária"
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__active
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_reason__active
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_rejection_reason__active
+#: model:ir.model.fields,field_description:ems.field_hr_attendance__active
 msgid "Active"
 msgstr "Activo"
 
@@ -1796,6 +1797,7 @@ msgstr "Aprobado"
 #: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_reason_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_rejection_reason_form
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
 msgid "Archived"
 msgstr "Archivado"
 
@@ -2980,6 +2982,7 @@ msgstr "Datos descargados"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__date model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__date
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
 msgid "Date"
 msgstr "Fecha"
 
@@ -3444,6 +3447,7 @@ msgstr "Emergencia"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__employee_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__employee_id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__employee_id
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
 msgid "Employee"
 msgstr "Empleado"
 
@@ -9475,12 +9479,6 @@ msgstr "No se ha encontrado ninguna Jefatura de Estudios en la cadena de mando d
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_correction.py:0
-msgid "Only the resolved approver or an Academic Administrator can decide on this request."
-msgstr "Solo el aprobador resuelto o un Administrador académico puede decidir sobre esta solicitud."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_correction.py:0
 msgid "You must request a correction for the check-in and/or the check-out time."
 msgstr "Debe solicitarse una corrección para la hora de entrada y/o de salida."
 
@@ -13947,17 +13945,6 @@ msgstr "Derechos de acceso del equipo TAC: puede crear y editar profesorado."
 #: model:res.groups,comment:ems.group_tac_admin
 msgid "Access rights for the TAC coordinator. Currently identical to Manager."
 msgstr "Derechos de acceso de la coordinación TAC. Actualmente idénticos a los de Gestor/a."
-
-#. module: ems
-#: model:res.groups,comment:ems.group_head_of_studies
-msgid ""
-"Access rights for Head of Studies / Deputy Head of Studies. Grants full "
-"read/write access to all employees' attendance records, and the right to "
-"create and edit teachers."
-msgstr ""
-"Derechos de acceso de la jefatura de estudios y la jefatura de estudios "
-"adjunta. Concede acceso completo de lectura y escritura a los registros de "
-"asistencia de todo el personal, y el derecho a crear y editar profesorado."
 
 #. module: ems
 #. odoo-python
@@ -21284,3 +21271,35 @@ msgstr "Visualización del icono RR. HH."
 #: model:ir.model.fields,field_description:ems.field_hr_employee_public__show_hr_icon_display
 msgid "Show Hr Icon Display"
 msgstr "Mostrar icono de RR. HH."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Only a Head of Studies of the employee's own branch or an Academic Administrator can decide on this request."
+msgstr "Solo un Jefe de estudios de la rama del empleado o un Administrador académico puede decidir sobre esta solicitud."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_hos_all_attendances
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_hos_all_attendances
+msgid "Heads of Studies see everybody's attendance"
+msgstr "Los jefes de estudios ven los fichajes de todos"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
+msgid "Heads of Studies see everybody's attendance (EMS)"
+msgstr "Los jefes de estudios ven los fichajes de todos (EMS)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
+msgid "Off: a Head or Deputy Head of Studies only sees the attendance of the employees of their own branch (their chain of command and the area they manage). On: they can also consult everybody's, to know at any time who is in the centre. Either way, they only correct the attendance of their own branch and decide its correction requests."
+msgstr "Desactivado: un Jefe de estudios o Jefe de estudios adjunto solo ve los fichajes de los empleados de su rama (su cadena jerárquica y el área que gestiona). Activado: también puede consultar los de todos, para saber en todo momento quién está en el centro. En ambos casos, solo corrige los fichajes de su rama y decide sus solicitudes de corrección."
+
+#. module: ems
+#: model:res.groups,comment:ems.group_head_of_studies
+msgid "Access rights for Head of Studies / Deputy Head of Studies. Grants read/write access to the attendance records of the employees in their own branch of the hierarchy or area, the right to create and edit teachers, and full read/write access to every student's data centre-wide."
+msgstr "Derechos de acceso de Jefe de estudios y Jefe de estudios adjunto. Concede acceso de lectura y escritura a los fichajes de los empleados de su rama de la jerarquía o área, el derecho a crear y editar profesorado, y acceso completo de lectura y escritura a los datos de todo el alumnado del centro."
+
+#. module: ems
+#: model:res.groups,comment:ems.group_director
+msgid "Access rights for the Director: those of the Head of Studies, plus every employee's attendance records centre-wide."
+msgstr "Derechos de acceso de Dirección: los de Jefe de estudios, más los fichajes de todos los empleados del centro."

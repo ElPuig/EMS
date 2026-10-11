@@ -439,9 +439,9 @@
         'data/cat/attachments/btx/modality/plastic arts/ir.attachment.csv',
         'data/cat/attachments/btx/modality/sciences and technology/ir.attachment.csv',
         
-        'data/cat/ems.subject.csv',
         'data/cat/ems.level.csv',
         'data/cat/ems.study.csv',
+        'data/cat/ems.subject.csv',
         'data/cat/ems.content.csv',
         'data/cat/ems.outcome.csv',    
         'data/cat/ems.role.csv',
@@ -454,11 +454,8 @@
         
         # Custom data entries (adapt it to your needs, for example, ESO subjects can differ between centers)        
         'data/custom/eso/ems.subject.csv',
-        'data/custom/eso/ems.study.csv',
         'data/custom/btx/ems.subject.csv',
-        'data/custom/btx/ems.study.csv',
         'data/custom/ccff/ems.subject.csv',
-        'data/custom/ccff/ems.study.csv',
         'data/custom/ccff/ems.outcome.csv',
         'data/custom/ccff/ems_enrollment_template_opt.xml',
         'data/custom/ccff/ems.planning-smx.csv',

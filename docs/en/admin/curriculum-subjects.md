@@ -71,6 +71,8 @@ Content items live in the **Content** tab, separate from Learning Outcome, and c
 
 > Saving automatically creates a billing product behind the scenes so the subject can be included in enrolments. You don't need to create or manage this product manually — it stays in sync whenever you rename the subject or change its code.
 
+> **Subjects and updates.** The subjects of the official curriculum come with the application, and each update restores their data and the studies they belong to. The centre's own subjects (for example its optatives) are created and edited here: updates never modify them, nor the studies you assign them to.
+
 ---
 
 ## Edit a Subject

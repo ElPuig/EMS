@@ -47,13 +47,10 @@ class EmsSubject(models.Model):
         subject's own form or the study's own 'Subjects' tab, which write the same many2many
         relation from its other side - re-validates it too.
 
-        A data file's subject_ids can only be populated from 'ems.study.csv', a separate file
-        loaded AFTER 'ems.subject.csv' - so a brand-new subject's own create() always fires this
-        constraint first, with no study yet (same transient-state problem as
-        'ems.planning.check_ponderation', which this mirrors) - 'install_mode=True' is the
-        context Odoo's own data-file loader always applies (odoo/models.py::_load_records), so
-        this only skips the check while more files may still be loading, never for a real UI
-        edit."""
+        Skipped while data files load ('install_mode=True', the context Odoo's own data-file
+        loader always applies, odoo/models.py::_load_records): 'ems.subject.csv' sets each
+        subject's 'study_ids' itself, but two subjects sharing a code may sit in different files,
+        so the check would see a transient state. Never skipped for a real UI edit."""
         if self.env.context.get("install_mode"):
             return
         for subject in self:

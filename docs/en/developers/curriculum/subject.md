@@ -92,11 +92,16 @@ direction (confirmed empirically 2026-09-06). `ems.study` therefore declares its
 subjects rather than duplicating the logic.
 
 **Skipped entirely during data-file loading** (`self.env.context.get("install_mode")`, the same
-pattern already used by `ems.planning.check_ponderation`): a data-file-created subject's
-`study_ids` can only be populated by `ems.study.csv`, a separate file loaded *after*
-`ems.subject.csv` — so a brand-new subject's own `create()` always fires this constraint first,
-with no study yet. Skipping it under `install_mode` avoids a false positive on every clean
-install/upgrade; it never skips a real interactive edit through the UI.
+pattern already used by `ems.planning.check_ponderation`): each `ems.subject.csv` row sets its
+own `study_ids`, but two subjects sharing a code can sit in different files, so the check would
+see a transient state while they load. It never skips a real interactive edit through the UI.
+
+**Where the study link comes from in the data files:** the `study_ids:id` column of
+`data/cat/ems.subject.csv` (official subjects, re-applied on every upgrade) and of
+`data/custom/{eso,btx,ccff}/ems.subject.csv` (the centre's own, set once when the subject is
+created and never touched again). No study file lists subjects, so a subject the centre creates
+or links from the app keeps its studies across upgrades - see
+[`data_loading.md`](../shared/data_loading.md).
 
 ### The `product.product` Sync (`create()` / `write()`)
 

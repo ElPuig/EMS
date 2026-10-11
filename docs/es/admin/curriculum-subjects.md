@@ -71,6 +71,8 @@ Los contenidos viven en la pestaña **Contenido**, separada de Resultado de apre
 
 > Al guardar se crea automáticamente un producto de facturación en segundo plano para que la asignatura pueda incluirse en matrículas. No necesitas crear ni gestionar este producto manualmente — se mantiene sincronizado cada vez que renombras la asignatura o cambias su código.
 
+> **Asignaturas y actualizaciones.** Las asignaturas del currículo oficial vienen con la aplicación, y cada actualización restablece sus datos y los estudios a los que pertenecen. Las asignaturas propias del centro (por ejemplo, las optativas) se crean y se editan aquí: las actualizaciones no las modifican, ni tampoco los estudios a los que las asignes.
+
 ---
 
 ## Editar una asignatura

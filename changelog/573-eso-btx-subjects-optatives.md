@@ -10,6 +10,14 @@
 
 - Each subject line of the academic history (`ems.student.year_record.subject`) stores, as text, the name of the group it was graded in (`group_name`, from the last round's grade session). For a generic ESO optative subject it is the only record of which optative the student took. Shown in the record's Subjects tab and in the subject line form.
 
+# Changes
+
+## The centre's own data is no longer overwritten by updates:
+
+- Everything loaded from `data/custom/` (subjects, groups, classrooms, plannings, departments, bell schedule...) is now created once and never updated again by an upgrade: the centre maintains it from the application. Until now only groups, classrooms and plannings were protected, and an edit to anything else (a subject's name or hours, for instance) was reverted by the next upgrade. The official catalog in `data/cat/` is still re-applied on every upgrade. To correct an existing `data/custom/` record from now on: the application or a migration, not its CSV row.
+- A subject created from the application and assigned to a study keeps that study across upgrades. The subject-study link is now declared on each subject (`study_ids` in the subject CSVs) instead of on the study, whose list was replaced whole on every upgrade; `data/custom/{eso,btx,ccff}/ems.study.csv` are gone. Official subjects get their studies restored by the catalog on every upgrade.
+- Migration: existing `data/custom/` records are frozen before the data reloads, and the four corrected ESO subject names (see Fixes) are applied by the migration, since their CSV no longer updates them.
+
 # Fixes
 
 ## ESO subject names off by one course:

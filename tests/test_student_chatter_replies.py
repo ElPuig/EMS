@@ -3,7 +3,7 @@ from unittest.mock import patch
 from odoo.tests.common import TransactionCase, tagged
 from odoo.tools import config
 
-from .common import create_role_user, mock_outgoing_email
+from .common import create_role_user, ensure_catchall_address, mock_outgoing_email
 
 REPLY = """From: {sender}
 To: {to}
@@ -95,8 +95,7 @@ class TestStudentChatterReplies(TransactionCase):
         self.assertNotIn(self.admin_partner, self.contact.message_partner_ids)
 
     def test_an_emailed_answer_is_filed_on_the_chatter_and_reaches_whoever_wrote(self):
-        catchall = self.env.company.catchall_email
-        self.assertTrue(catchall, "The test database has no catchall address for answers to arrive at.")
+        catchall = ensure_catchall_address(self)
         sent = self.contact.with_user(self.teacher).sudo().message_post(
             body='TSCR', subject='TSCR', partner_ids=self.family.ids,
             message_type='comment', subtype_xmlid='mail.mt_comment')

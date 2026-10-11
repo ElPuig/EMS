@@ -224,6 +224,36 @@ class ems_users(models.Model):
                     {'groups_id': [(3, g.id) for g in to_revoke]})
 
     @api.model
+    def _ems_revoke_unearned_attendance_groups(self):
+        """Takes hr_attendance's Administrator and Officer groups away from every user no group
+        of theirs implies them for, and returns their logins. Installing hr_attendance grants its
+        Administrator group to 'base.default_user', the template every new user is copied from
+        (same as hr and hr_holidays do with theirs, see _ems_sync_time_off_groups), so on a fresh
+        installation every account would be born seeing and editing everybody's attendance,
+        whatever its role (issue #543). Archived users included: the template is one. An Officer
+        named as somebody's attendance approver keeps the group, as hr_attendance itself grants it
+        for that.
+
+        For a fresh installation only (post_init_hook), where nobody was granted anything by hand
+        yet. An existing one goes through _ems_revoke_stale_attendance_admin instead, which
+        leaves a hand-made grant alone. Idempotent."""
+        protected = self.env.ref('base.user_root') | self.env.ref('base.user_admin')
+        approvers = self.env['hr.employee'].sudo().with_context(active_test=False).search(
+            [('attendance_manager_id', '!=', False)]).attendance_manager_id
+        all_groups = self.env['res.groups'].with_context(active_test=False).search([])
+        revoked = self.env['res.users']
+        # Widest first: whoever keeps the Administrator group is then entitled to the Officer one.
+        for xmlid, entitled in (('hr_attendance.group_hr_attendance_manager', protected),
+                                ('hr_attendance.group_hr_attendance_officer', protected | approvers)):
+            group = self.env.ref(xmlid).with_context(active_test=False)
+            implying = all_groups.filtered(lambda candidate: candidate != group and group in candidate.trans_implied_ids)
+            unearned = group.users - implying.users - entitled
+            if unearned:
+                group.sudo().write({'users': [(3, user.id) for user in unearned]})
+                revoked |= unearned
+        return revoked.mapped('login')
+
+    @api.model
     def _ems_revoke_stale_attendance_admin(self):
         """Takes hr_attendance's Administrator group away from the users who only held it because
         the Head of Studies' group used to imply it (issue #543) and returns their logins. Odoo

@@ -187,3 +187,22 @@ class TestEmployeeAttendanceAccess(TransactionCase):
         self.assertNotIn(manager, self.head_of_studies.groups_id)
         self.assertIn(manager, self.director_user.groups_id, "the Director's group implies it")
         self.assertIn(manager, self.outsider_user.groups_id, "granted by hand, not a Head of Studies: kept")
+
+    def test_a_fresh_installation_leaves_nobody_an_unearned_attendance_administrator(self):
+        """hr_attendance grants its Administrator group to 'base.default_user', the (archived)
+        template every new user is copied from: on a fresh installation every account would be
+        born seeing everybody's attendance."""
+        manager = self.env.ref('hr_attendance.group_hr_attendance_manager')
+        officer = self.env.ref('hr_attendance.group_hr_attendance_officer')
+        template = self.env.ref('base.default_user')
+        (template | self.teacher_user).sudo().write({'groups_id': [(4, manager.id)]})
+
+        self.env['res.users']._ems_revoke_unearned_attendance_groups()
+
+        for user in (template.sudo(), self.teacher_user):
+            self.assertFalse(user.groups_id & (manager | officer), user.login)
+        self.assertFalse(self.env['res.users']._default_groups() & (manager | officer),
+                         'so a brand-new user is no attendance administrator either')
+        self.assertIn(manager, self.director_user.groups_id, 'the Director keeps the whole centre')
+        self.assertIn(officer, self.head_of_studies.groups_id, 'a Head of Studies keeps their branch')
+        self.assertIn(manager, self.env.ref('base.user_admin').groups_id)

@@ -734,3 +734,13 @@ class DocsScreenshotMixin:
         finally:
             browser.stop()
             self._wait_remaining_requests()
+
+
+def ensure_catchall_address(case):
+    """The company's catchall address, giving it a fictitious alias domain first when the
+    database has none (a fresh one, as in CI): the fallback reply address of every email, and
+    where an emailed answer arrives. Returns the address."""
+    company = case.env.company
+    if not company.catchall_email:
+        company.alias_domain_id = case.env['mail.alias.domain'].create({'name': 'tests-ems.example.com'})
+    return company.catchall_email
